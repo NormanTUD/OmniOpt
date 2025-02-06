@@ -5473,7 +5473,7 @@ def get_generation_strategy() -> Any:
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
-        finish_previous_jobs(["finishing previous jobs"])
+        finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
             return True
@@ -5737,7 +5737,7 @@ def run_search(_progress_bar: Any) -> bool:
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 
-        finish_previous_jobs(["finishing previous jobs"])
+        finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
         if is_slurm_job() and not args.force_local_execution: # pragma: no cover
             _sleep(1)

@@ -6050,7 +6050,7 @@ def write_args_overview_table() -> None:
 
     table_str = capture.get()
 
-    with open(f"{get_current_run_folder()}/state_files/args_overview.txt", mode="w", encoding="utf-8") as text_file:
+    with open(f"{get_current_run_folder()}/args_overview.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
 @beartype

@@ -5602,7 +5602,6 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
     if args.continue_previous_job:
         second_step_steps = _max_eval
 
-    print(f"_random_steps: {_random_steps}, second_step_steps: {second_step_steps}")
     return _random_steps, second_step_steps
 
 @beartype

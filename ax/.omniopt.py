@@ -6043,8 +6043,6 @@ def write_args_overview_table() -> None:
     for key, value in vars(args).items():
         table.add_row(key, str(value), str(type(value)))
 
-    console.print(table)
-
     table_str = ""
 
     with console.capture() as capture:

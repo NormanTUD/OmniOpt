@@ -228,7 +228,7 @@
 			<tr>
 				<td><samp>--max_nr_of_zero_results (INT)</samp></td>
 				<td>Max. nr of successive zero results by ax_client.get_next_trials() before the search space is seen as exhausted.</td>
-				<td><samp>20</samp></td>
+				<td><samp>50</samp></td>
 			</tr>
 			<tr>
 				<td><samp>--abbreviate_job_names</samp></td>

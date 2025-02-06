@@ -5560,7 +5560,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
 
     already_done_random_steps = get_random_steps_from_prev_job()
 
-    _random_steps = args.num_random_steps - already_done_random_steps
+    _random_steps = _random_steps - already_done_random_steps
 
     if _random_steps > _max_eval:
         print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")

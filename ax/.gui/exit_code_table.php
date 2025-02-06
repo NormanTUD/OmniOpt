@@ -43,6 +43,7 @@
 			105 => "Continued job error: previous job has missing state files",
 			130 => "Interrupt-Signal detected",
 			133 => "Error loading --config_toml, --config_json or --config_yaml",
+			137 => "OOM-Killer on Slurm-Systems",
 			138 => "USR-Signal detected",
 			142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why",
 			146 => "CONT-Signal detected",

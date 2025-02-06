@@ -5387,13 +5387,7 @@ def create_systematic_step(model: Any) -> Any:
         max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    ), {
-        "model": model,
-        "num_trials_": -1,
-        "max_parallelism": _get_max_parallelism(),
-        "model_gen_kwargs": {'enforce_num_arms': False},
-        "should_deduplicate": args.should_deduplicate
-    }
+    )
 
 @beartype
 def create_random_generation_step() -> Any:
@@ -5407,15 +5401,7 @@ def create_random_generation_step() -> Any:
         model_kwargs={"seed": args.seed},
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    ), {
-        "model": Models.SOBOL,
-        "num_trials": max(num_parallel_jobs, random_steps),
-        "min_trials_observed": min(max_eval, random_steps),
-        "max_parallelism":_get_max_parallelism(),
-        "model_kwargs": {"seed": args.seed},
-        "model_gen_kwargs": {'enforce_num_arms': False},
-        "should_deduplicate": args.should_deduplicate
-    }
+    )
 
 @beartype
 def select_model(model_arg: Any) -> Any:
@@ -5441,7 +5427,6 @@ def get_generation_strategy() -> Any:
 
     # Initialize steps for the generation strategy
     steps: list = []
-    step_data: list = []
 
     # Get the number of imported jobs and update max evaluations
     num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5456,20 +5441,18 @@ def get_generation_strategy() -> Any:
 
     # Add a random generation step if conditions are met
     if random_steps >= 1 and num_imported_jobs < random_steps:
-        this_step, this_step_data = create_random_generation_step()
+        this_step = create_random_generation_step()
         steps.append(this_step)
-        step_data.append(this_step_data)
 
     # Choose a model for the non-random step
     chosen_non_random_model = select_model(args.model)
 
     # Append the Bayesian optimization step
-    sys_step, sys_step_data = create_systematic_step(chosen_non_random_model)
+    sys_step = create_systematic_step(chosen_non_random_model)
     steps.append(sys_step)
-    step_data.append(sys_step_data)
 
     # Create and return the GenerationStrategy
-    return GenerationStrategy(steps=steps), step_data
+    return GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6051,7 +6034,29 @@ def available_cpus():
     print_green(f"You have {cpu_count} CPUs available for the main process.")
 
 @beartype
-def show_experiment_overview_table(gs_data: Any) -> None:
+def write_args_overview_table() -> None:
+    table = Table(title="Arguments Overview:")
+    table.add_column("Key", justify="left", style="bold")
+    table.add_column("Value", justify="left", style="dim")
+    table.add_column("Type", justify="left", style="dim")
+
+    for key, value in vars(args).items():
+        table.add_row(key, str(value), str(type(value)))
+
+    console.print(table)
+
+    table_str = ""
+
+    with console.capture() as capture:
+        console.print(table)
+
+    table_str = capture.get()
+
+    with open(f"{get_current_run_folder()}/state_files/args_overview.txt", mode="w", encoding="utf-8") as text_file:
+        text_file.write(table_str)
+
+@beartype
+def show_experiment_overview_table() -> None:
     table = Table(title="Experiment Overview:", show_header=True)
 
     #random_step = gs_data[0]
@@ -6141,7 +6146,7 @@ def main() -> None:
     add_exclude_to_defective_nodes()
     handle_random_steps()
 
-    gs, gs_data = get_generation_strategy()
+    gs = get_generation_strategy()
     initialize_ax_client(gs)
 
     minimize_or_maximize: bool = not args.maximize
@@ -6175,7 +6180,9 @@ def main() -> None:
     load_existing_job_data_into_ax_client()
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
-    show_experiment_overview_table(gs_data)
+    write_args_overview_table()
+
+    show_experiment_overview_table()
 
     save_global_vars()
     write_process_info()

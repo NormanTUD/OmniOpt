@@ -81,7 +81,8 @@
 		"pareto_front_data.json",
 		"everything_but_singleruns.zip",
 		"everything_but_singleruns_zip",
-		"everything.zip"
+		"everything.zip",
+		"args_overview.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {

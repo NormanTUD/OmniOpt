@@ -66,6 +66,7 @@
 			"worker_usage.csv" => "Number of workers",
 			"result_names.txt" => "Result-Names",
 			"loaded_modules.json" => "A file containing all modules loaded that have versioning data",
+			"args_overview.txt" => "A file containing a table that gives an overview of all args",
 		);
 
 		if (isset($names[$replaced_file])) {

@@ -6090,6 +6090,9 @@ def show_experiment_overview_table() -> None:
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
     #table.add_row("Max. parallelism", str(args.max_parallelism))
 
+    table.add_row("Main process memory (GB)", str(args.main_process_gb))
+    table.add_row("Worker memory (GB)", str(args.mem_gb))
+
     if NR_INSERTED_JOBS:
         table.add_row("Nr. imported jobs", str(NR_INSERTED_JOBS))
 

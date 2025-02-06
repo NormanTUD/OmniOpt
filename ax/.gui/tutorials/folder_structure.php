@@ -163,6 +163,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>ui_url.txt</i>: Contains the URL that this run was started by</li>
 	<li><i>pareto_front_data.json</i>: Data about the pareto-front (exists only for multi-objective-optimizations)</li>
 	<li><i>follow</i>: Exists if the job was started with --follow. Only used for continued jobs.</li>
+	<li><i>generation_strategy.txt</i>: Infos about the generation strategy used internally.</li>
 	<li><i>main_process_gb</i>: Saves the amount of memory in the main process (if applicable). Only used for continued jobs.</li>
 	<li><i>original_ax_client_before_loading_tmp_one.json</i>: Required to re-load generation strategy in continued jobs</li>
 	<li><i>loaded_modules.json</i>: A list of all loaded modules with module information where available</li>

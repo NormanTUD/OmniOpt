@@ -6021,6 +6021,16 @@ def show_pareto_frontier_data() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
+def available_cpus():
+    cpu_count = os.cpu_count()
+
+    try:
+        cpu_count = len(os.sched_getaffinity(0))  # Nur unter Linux verfügbar
+    except AttributeError:
+        pass
+
+    print_yellow(f"You have {cpu_count} CPUs available for the main process.")
+
 @beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
@@ -6096,6 +6106,7 @@ def main() -> None:
     ])
 
     set_orchestrator()
+    available_cpus()
     print_generation_strategy()
 
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"

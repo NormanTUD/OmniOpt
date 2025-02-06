@@ -4994,7 +4994,7 @@ def save_state_files() -> None:
 
     if args.main_process_gb:
         with open(f"{state_files_folder}/main_process_gb", mode="w", encoding="utf-8") as myfile:
-            original_print("True", file=myfile)
+            original_print(str(args.main_process_gb), file=myfile)
 
 @beartype
 def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:

@@ -146,6 +146,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
 	<li><i>gpus</i>: The number of GPUs this run has allocated per worker</li>
 	<li><i>joined_run_program</i>: The program string including parameters</li>
+	<li><i>get_next_nr_steps_tables.txt</i>: A debug table for get_next_nr_steps (only on SLURM-systems)</li>
 	<li><i>max_eval</i>: The max evals of this run</li>
 	<li><i>mem_gb </i>: The amount of Memory allocated per worker (in GB)</li>
 	<li><i>minimize </i>: If it exists, it means, the job was about to minimize</li>

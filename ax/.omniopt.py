@@ -5364,6 +5364,13 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
         min_of_all_options
     )
 
+    set_requested_to_zero_because_already_enough_jobs = False
+
+    if count_done_jobs() >= max_eval_plus_inserted:
+        requested = 0
+
+        set_requested_to_zero_because_already_enough_jobs = True
+
     table = Table(title="Debugging get_next_nr_steps")
     table.add_column("Variable", justify="right")
     table.add_column("Wert", justify="left")
@@ -5377,6 +5384,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
     table.add_row("max_eval_plus_nr_inserted_jobs_minus_submitted_jobs", str(max_eval_plus_nr_inserted_jobs_minus_submitted_jobs))
     table.add_row("max_eval_plus_nr_inserted_jobs_minus_done_jobs", str(max_eval_plus_nr_inserted_jobs_minus_done_jobs))
     table.add_row("min_of_all_options", str(min_of_all_options))
+    table.add_row("set_requested_to_zero_because_already_enough_jobs", str(set_requested_to_zero_because_already_enough_jobs))
     table.add_row("requested", str(requested))
 
     with console.capture() as capture:

@@ -145,7 +145,7 @@ def handle_output(fig: plt.Figure) -> None:
 @beartype
 def main() -> None:
     _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
-    df: pd.DataFrame = load_from_csv(_job_infos_csv)
+    df: pd.DataFrame | None = load_from_csv(_job_infos_csv)
 
     if df is not None:
         validate_dataframe(df)

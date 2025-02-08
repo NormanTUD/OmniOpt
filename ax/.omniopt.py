@@ -2603,7 +2603,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @beartype
-def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> tuple[str | None, str | None]:
+def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> tuple[str | np.ndarray | None, str | np.ndarray | None | int | float]:
     best_line: Optional[str] = None
     best_result: Optional[str] = None
 
@@ -2632,7 +2632,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     return best_line, best_result
 
 @wrapper_print_debug
-def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict:
+def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict | None:
     results: dict = {
         res_name: None,
         "parameters": {}

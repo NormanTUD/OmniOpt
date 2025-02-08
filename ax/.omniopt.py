@@ -5345,7 +5345,45 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 
     simulated_nr_inserted_jobs = get_nr_of_imported_jobs()
 
-    requested = max(1, min(_num_parallel_jobs - len(global_vars["jobs"]), _max_eval + simulated_nr_inserted_jobs - submitted_jobs(), max_eval + simulated_nr_inserted_jobs - count_done_jobs()))
+    max_eval_plus_inserted = _max_eval + simulated_nr_inserted_jobs
+
+    num_parallel_jobs_minus_existing_jobs = _num_parallel_jobs - len(global_vars["jobs"])
+
+    max_eval_plus_nr_inserted_jobs_minus_submitted_jobs = max_eval_plus_inserted - submitted_jobs()
+
+    max_eval_plus_nr_inserted_jobs_minus_done_jobs = max_eval_plus_inserted - count_done_jobs()
+
+    min_of_all_options = min(
+        num_parallel_jobs_minus_existing_jobs,
+        max_eval_plus_nr_inserted_jobs_minus_submitted_jobs,
+        max_eval_plus_nr_inserted_jobs_minus_done_jobs
+    )
+
+
+    requested = max(
+        1,
+        min_of_all_options
+    )
+
+    table = Table(title="Debugging get_next_nr_steps")
+    table.add_column("Variable", justify="right")
+    table.add_column("Wert", justify="left")
+
+    table.add_row("simulated_nr_inserted_jobs", str(simulated_nr_inserted_jobs))
+    table.add_row("max_eval_plus_inserted", str(max_eval_plus_inserted))
+    table.add_row("num_parallel_jobs_minus_existing_jobs", str(num_parallel_jobs_minus_existing_jobs))
+    table.add_row("max_eval_plus_nr_inserted_jobs_minus_submitted_jobs", str(max_eval_plus_nr_inserted_jobs_minus_submitted_jobs))
+    table.add_row("max_eval_plus_nr_inserted_jobs_minus_done_jobs", str(max_eval_plus_nr_inserted_jobs_minus_done_jobs))
+    table.add_row("min_of_all_options", str(min_of_all_options))
+    table.add_row("requested", str(requested))
+
+    with console.capture() as capture:
+        console.print(table)
+
+    table_str = capture.get()
+
+    with open(f"{get_current_run_folder()}/get_next_nr_steps_tables.txt", mode="a", encoding="utf-8") as text_file:
+        text_file.write(table_str)
 
     return requested
 

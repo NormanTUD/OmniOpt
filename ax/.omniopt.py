@@ -5369,6 +5369,8 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
     table.add_column("Variable", justify="right")
     table.add_column("Wert", justify="left")
 
+    table.add_row("max_eval", str(max_eval))
+    table.add_row("_max_eval", str(_max_eval))
     table.add_row("simulated_nr_inserted_jobs", str(simulated_nr_inserted_jobs))
     table.add_row("max_eval_plus_inserted", str(max_eval_plus_inserted))
     table.add_row("num_parallel_jobs_minus_existing_jobs", str(num_parallel_jobs_minus_existing_jobs))

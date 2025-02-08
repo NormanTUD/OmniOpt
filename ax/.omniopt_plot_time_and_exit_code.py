@@ -93,8 +93,11 @@ def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 @beartype
 def format_timestamp(value: object) -> str:
-    return datetime.utcfromtimestamp(int(float(value))).strftime('%Y-%m-%d %H:%M:%S') \
-        if helpers.looks_like_number(value) else str(value)
+    if helpers.looks_like_number(str(value)):
+        int_val = int(str(value))
+        return datetime.utcfromtimestamp(int_val).strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        return str(value)
 
 @beartype
 def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:

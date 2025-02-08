@@ -3953,7 +3953,7 @@ def clean_completed_jobs() -> None:
 @beartype
 def value_to_true_or_false(value: str) -> Union[str, bool]:
     if isinstance(value, str) and value.lower() in ["true", "false"]:
-        value = value.lower() == "true"
+        return value.lower() == "true"
 
     return value
 

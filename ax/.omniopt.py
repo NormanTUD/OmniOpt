@@ -5376,14 +5376,31 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
     table.add_column("Wert", justify="left")
 
     table.add_row("max_eval", str(max_eval))
-    table.add_row("_max_eval", str(_max_eval))
+    if max_eval != _max_eval:
+        table.add_row("_max_eval", str(_max_eval))
+
+    table.add_row("", "")
+
     table.add_row("submitted_jobs()", str(submitted_jobs()))
+    table.add_row("count_done_jobs()", str(count_done_jobs()))
+
+    table.add_row("", "")
+
     table.add_row("simulated_nr_inserted_jobs", str(simulated_nr_inserted_jobs))
     table.add_row("max_eval_plus_inserted", str(max_eval_plus_inserted))
+
+    table.add_row("", "")
+
     table.add_row("num_parallel_jobs_minus_existing_jobs", str(num_parallel_jobs_minus_existing_jobs))
     table.add_row("max_eval_plus_nr_inserted_jobs_minus_submitted_jobs", str(max_eval_plus_nr_inserted_jobs_minus_submitted_jobs))
     table.add_row("max_eval_plus_nr_inserted_jobs_minus_done_jobs", str(max_eval_plus_nr_inserted_jobs_minus_done_jobs))
+
+    table.add_row("", "")
+
     table.add_row("min_of_all_options", str(min_of_all_options))
+
+    table.add_row("", "")
+
     table.add_row("set_requested_to_zero_because_already_enough_jobs", str(set_requested_to_zero_because_already_enough_jobs))
     table.add_row("requested", str(requested))
 

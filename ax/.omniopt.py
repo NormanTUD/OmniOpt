@@ -5366,7 +5366,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 
     set_requested_to_zero_because_already_enough_jobs = False
 
-    if count_done_jobs() >= max_eval_plus_inserted:
+    if count_done_jobs() >= max_eval_plus_inserted or submitted_jobs() >= max_eval_plus_inserted:
         requested = 0
 
         set_requested_to_zero_because_already_enough_jobs = True

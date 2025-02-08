@@ -54,7 +54,7 @@ def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int
     return num_rows, num_cols
 
 @beartype
-def check_rows_cols_or_die(num_rows, num_cols):
+def check_rows_cols_or_die(num_rows: int, num_cols: int) -> None:
     if num_rows == 0 or num_cols == 0:
         if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
             print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")

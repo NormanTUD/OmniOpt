@@ -588,7 +588,7 @@ def contains_strings(series: Any) -> bool:
 
 
 def file_exists(csv_file_path: Optional[str]) -> bool:
-    return bool(csv_file_path) and os.path.exists(csv_file_path)
+    return bool(csv_file_path) and isinstance(csv_file_path, str) and os.path.exists(csv_file_path)
 
 def load_csv(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path, index_col=0)
@@ -641,6 +641,9 @@ def get_data(
     drop_columns_with_strings: Union[str, bool] = False
 ) -> Optional[pd.DataFrame]:
     res_col_name = "result"
+
+    if not isinstance(csv_file_path, str):
+        return None
 
     if not file_exists(csv_file_path):
         return None

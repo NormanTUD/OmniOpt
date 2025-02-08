@@ -5359,7 +5359,6 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
         max_eval_plus_nr_inserted_jobs_minus_done_jobs
     )
 
-
     requested = max(
         1,
         min_of_all_options

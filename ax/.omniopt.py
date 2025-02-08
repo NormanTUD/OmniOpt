@@ -2603,7 +2603,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @beartype
-def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[np.ndarray, float]:
+def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> tuple[str | None, str | None]:
     best_line: Optional[str] = None
     best_result: Optional[str] = None
 

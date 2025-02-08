@@ -5001,7 +5001,7 @@ def save_state_files() -> None:
             original_print(str(args.main_process_gb), file=myfile)
 
 @beartype
-def submit_job(parameters: dict) -> Union[None, Job[dict[Any, Any]]]:
+def submit_job(parameters: dict) -> None | Job[dict[Any, Any] | int | float | None]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)

@@ -2368,7 +2368,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
     return result
 
 @beartype
-def evaluate(parameters: dict) -> Optional[Union[dict, int, float]]:
+def evaluate(parameters: dict) -> int | float | dict[str, float | None] | list[float] | None:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()
@@ -5002,7 +5002,7 @@ def save_state_files() -> None:
             original_print(str(args.main_process_gb), file=myfile)
 
 @beartype
-def submit_job(parameters: dict) -> None | Job[dict[Any, Any] | int | float | None]:
+def submit_job(parameters: dict) -> Job[int | float | dict[str, float | None] | list[float] | None] | None:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)

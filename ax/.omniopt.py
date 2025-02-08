@@ -6104,7 +6104,7 @@ def show_pareto_frontier_data() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
-def available_cpus():
+def available_cpus() -> None:
     cpu_count = os.cpu_count()
 
     try:

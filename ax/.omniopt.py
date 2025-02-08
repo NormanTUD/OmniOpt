@@ -2406,7 +2406,8 @@ def evaluate(parameters: dict) -> int | float | dict[str, float | None] | list[f
             if isinstance(result, (list)) and len(result) == 1:
                 return {"result": float(result[0])}
             if isinstance(result, (list)): # pragma: no cover
-                return {"result": [float(r) for r in result]}
+                return {"result": cast(float | None, [float(r) for r in result])}
+
         else: # pragma: no cover
             return result
 

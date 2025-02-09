@@ -2675,7 +2675,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
     return results
 
 @beartype
-def get_best_params(res_name: str = "result") -> dict:
+def get_best_params(res_name: str = "result") -> Optional[dict]:
     csv_file_path: str = save_pd_csv()
 
     return get_best_params_from_csv(csv_file_path, args.maximize, res_name)
@@ -3783,7 +3783,7 @@ def get_current_model() -> str:
 def get_best_params_str(res_name: str = "result") -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params(res_name)
-        if best_params and res_name in best_params:
+        if best_params and best_params is not None and res_name in best_params:
             best_result = best_params[res_name]
             if isinstance(best_result, (int, float)) or helpers.looks_like_float(best_result):
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))

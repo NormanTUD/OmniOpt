@@ -1494,7 +1494,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
     return ret_val, found_in_file
 
 @beartype
-def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Union[float, int]) -> Union[Tuple[float | int, bool], Any]:
+def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int]) -> Union[Tuple[float | int, bool], Any]:
     ret_val = _default
 
     found_in_file = False
@@ -1590,7 +1590,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
     }
 
 @beartype
-def get_bounds_from_previous_data(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[float | int, float | int]:
+def get_bounds_from_previous_data(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[float | int, float | int]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
@@ -1629,7 +1629,7 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
     return skip, value_type, log_scale
 
 @beartype
-def parse_range_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_range_param(params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -2948,12 +2948,13 @@ def create_result_table(res_name: str, best_params: dict[str, Any], total_str: s
     return table
 
 @beartype
-def add_table_row(table: Table, best_params: dict[str, Any], best_result: Any) -> None:
-    row = [
-        str(helpers.to_int_when_possible(best_params["parameters"][key]))
-        for key in best_params["parameters"].keys()
-    ][3:] + [str(helpers.to_int_when_possible(best_result))]
-    table.add_row(*row)
+def add_table_row(table: Table, best_params: Optional[dict[str, Any]], best_result: Any) -> None:
+    if best_params is not None:
+        row = [
+            str(helpers.to_int_when_possible(best_params["parameters"][key]))
+            for key in best_params["parameters"].keys()
+        ][3:] + [str(helpers.to_int_when_possible(best_result))]
+        table.add_row(*row)
 
 @beartype
 def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> None:

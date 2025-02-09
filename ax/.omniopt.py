@@ -1475,7 +1475,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_min_col:
                 found_in_file = True
 
-            if found_in_file and isinstance(_default, (int, float)) and _default > _old_min_col: # pragma: no cover
+            if found_in_file and isinstance(_old_min_col, (int, float)) and isinstance(_default, (int, float)) and _default > _old_min_col: # pragma: no cover
                 ret_val = _old_min_col
             else:
                 ret_val = _default
@@ -1484,7 +1484,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_max_col:
                 found_in_file = True
 
-            if found_in_file and isinstance(_default, (int, float)) and _default < _old_max_col: # pragma: no cover
+            if found_in_file and isinstance(_old_max_col, (int, float)) and isinstance(_default, (int, float)) and _default < _old_max_col: # pragma: no cover
                 ret_val = _old_max_col
             else:
                 ret_val = _default

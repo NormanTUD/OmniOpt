@@ -2368,7 +2368,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
     return result
 
 @beartype
-def evaluate(parameters: dict) -> int | float | dict[str, float | None] | list[float] | None:
+def evaluate(parameters: dict) -> int | float | dict[str, int | float | None] | list[float] | None:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()

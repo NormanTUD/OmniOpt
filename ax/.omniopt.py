@@ -4689,15 +4689,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 mark_trial_as_failed(_trial)
                 orchestrate_job(job, trial_index)
             failed_jobs(1)
-
-        stdout_path = str(job.paths.stdout.resolve())
-        stderr_path = str(job.paths.stderr.resolve())
-
-        if os.path.exists(stdout_path):
-            print_outfile_analyzed(stdout_path)
-
-        if os.path.exists(stderr_path):
-            print_outfile_analyzed(stderr_path)
     else: # pragma: no cover
         print_red("ax_client could not be found or used")
         my_exit(9)

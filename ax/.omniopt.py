@@ -3716,7 +3716,7 @@ def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) 
         print_red("Experiment parameters could not be determined for display")
         return
 
-    if "_type" in experiment_parameters:
+    if isinstance(experiment_parameters, dict) and "_type" in experiment_parameters:
         experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
 
     rows = parse_single_experiment_parameter_table(experiment_parameters)

@@ -2940,7 +2940,7 @@ def write_to_file(file_path: str, content: str) -> None:
         text_file.write(content)
 
 @beartype
-def create_result_table(res_name: str, best_params: dict[str, Any], total_str: str, failed_error_str: str) -> Table:
+def create_result_table(res_name: str, best_params: Optional[dict[str, Any]], total_str: str, failed_error_str: str) -> Table:
     table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):")
 
     for key in list(best_params["parameters"].keys())[3:]:

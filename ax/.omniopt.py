@@ -4030,7 +4030,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 @beartype
 def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
-    if resname in tmp_old_res:
+    if isinstance(tmp_old_res, pd.DataFrame) and resname in tmp_old_res:
         tmp_old_res = tmp_old_res[resname]
         tmp_old_res_list = list(set(list(tmp_old_res)))
 

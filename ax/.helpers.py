@@ -445,7 +445,7 @@ def _is_equal(name: str, _input: Any, output: Any) -> bool:
         print_color("red", f"Failed test (7): {name}")
         return True
 
-    print_color("green", f"Test OK: {name}")
+    #print_color("green", f"Test OK: {name}")
     return False
 
 def is_equal(n: str, o: Any, i: Any) -> bool:
@@ -477,7 +477,7 @@ def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
         print_color("red", f"Failed test (3): {name}")
         return True
 
-    print_color("green", f"Test OK: {name}") # pragma: no cover
+    #print_color("green", f"Test OK: {name}") # pragma: no cover
     return False
 
 def is_not_equal(n: str, i: Any, o: Any) -> bool:

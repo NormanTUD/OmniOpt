@@ -2695,7 +2695,7 @@ def get_best_params(res_name: str = "result") -> dict:
 @beartype
 def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED"]:
-        print_red(f"_type is not in Sobol or COMPLETED, but is {_type}")
+        print_red(f"_type is not in Sobol or COMPLETED, but is '{_type}'")
         return 0
 
     count = 0

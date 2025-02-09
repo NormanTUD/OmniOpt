@@ -21,7 +21,6 @@ function _mkdir {
 	}
 }
 
-# Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 		--help)
@@ -54,60 +53,25 @@ function apt_get_update () {
 	fi
 }
 
-# Check if Docker is installed
-if ! command -v docker &>/dev/null; then
-	curl -fsSL "https://get.docker.com" | bash
+install_if_missing() {
+    if ! command -v "$1" &>/dev/null; then
+        [[ "$2" == "docker" ]] && curl -fsSL "https://get.docker.com" | bash || sudo apt-get install -y "$1" || {
+            echo "Failed to install $1"
+            exit $3
+        }
+    fi
+}
 
-	exit_code=$?
+install_if_missing docker docker 2
+install_if_missing docker-compose "" 2
+install_if_missing wget "" 2
+install_if_missing git "" 2
+install_if_missing docker "" 2
 
-	if [[ $exit_code -ne 0 ]]; then
-		echo "Failed to install docker"
-		exit 2
-	fi
+if ! groups | grep -q '\bdocker\b'; then
+	install_if_missing sudo "" 2
 fi
-
-if ! command -v docker-compose &>/dev/null; then
-	apt_get_update
-
-	sudo apt-get install -y docker-compose|| {
-		echo "sudo apt install -y docker-compose failed"
-		exit 3
-	}
-fi
-
-if ! command -v wget &>/dev/null; then
-	apt_get_update
-
-	sudo apt-get install -y wget || {
-		echo "sudo apt install -y wget failed"
-		exit 3
-	}
-fi
-
-if [[ -n $DISPLAY ]]; then
-	if ! command -v xhost &>/dev/null; then
-		apt_get_update
-		sudo apt-get install -y xhost || {
-			echo "sudo apt install -y xhost failed"
-			exit 4
-		}
-	fi
-fi
-
-
-if ! command -v git &>/dev/null; then
-	apt_get_update
-
-	sudo apt-get install -y git || {
-		echo "sudo apt install -y git failed"
-		exit 6
-	}
-fi
-
-if ! command -v docker &>/dev/null; then
-	echo "docker not found. Cannot continue."
-	exit 5
-fi
+[[ -n $DISPLAY ]] && install_if_missing xhost "" 2
 
 echo "=== Current git hash before auto-pulling ==="
 git rev-parse HEAD
@@ -121,17 +85,19 @@ _mkdir logs
 git rev-parse HEAD > git_hash
 
 if groups | grep -q '\bdocker\b'; then
-	DOCKER_CMD="docker-compose"
+	DOCKER_COMPOSE_CMD="docker-compose"
+	DOCKER_CMD="docker"
 else
-	DOCKER_CMD="sudo docker-compose"
+	DOCKER_COMPOSE_CMD="sudo docker-compose"
+	DOCKER_CMD="sudo docker"
 fi
 
-$DOCKER_CMD build --build-arg GetMyUsername=$(whoami) || {
+$DOCKER_COMPOSE_CMD build --build-arg GetMyUsername=$(whoami) || {
 	echo "Failed composing container"
 	exit 1
 }
 
-$DOCKER_CMD up -d || {
+$DOCKER_COMPOSE_CMD up -d || {
 	echo "Failed to build container"
 	exit 1
 }
@@ -147,7 +113,7 @@ _mkdir $HOME/.config/matplotlib_docker_omniopt
 case "$ORIGINAL_ARGS" in
 	./omniopt*|omniopt*|./.tests/*|.tests/*)
 		if [[ -z $DISPLAY ]]; then
-			docker run \
+			$DOCKER_CMD run \
 				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
@@ -156,7 +122,7 @@ case "$ORIGINAL_ARGS" in
 				-t --rm \
 				ax_omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
 		else
-			docker run \
+			$DOCKER_CMD run \
 				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
 				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
 				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \

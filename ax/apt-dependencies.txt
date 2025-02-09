@@ -11,3 +11,4 @@ bc
 2to3
 zip
 unzip
+sudo

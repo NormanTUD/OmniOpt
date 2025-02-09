@@ -642,22 +642,6 @@ if args.continue_previous_job is not None:
     arg_result_names = found_result_names # pragma: no cover
     arg_result_min_or_max = found_result_min_max # pragma: no cover
 
-@beartype
-def wrapper_print_debug(func: Any) -> Any:
-    def wrapper(*__args: Any, **kwargs: Any) -> Any:
-        start_time = time.time()
-        result = func(*__args, **kwargs)
-        end_time = time.time()
-
-        runtime = end_time - start_time
-        runtime_human_readable = f"{runtime:.4f} seconds"
-
-        if runtime > 1:
-            print_debug(f"@wrapper_print_debug: {func.__name__}(), runtime: {runtime_human_readable}")
-
-        return result
-    return wrapper
-
 disable_logs = None
 
 try:
@@ -736,7 +720,7 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
 
     return 0 # pragma: no cover
 
-@wrapper_print_debug
+@beartype
 def run_live_share_command() -> Tuple[str, str]:
     if get_current_run_folder():
         try:
@@ -764,7 +748,7 @@ def run_live_share_command() -> Tuple[str, str]:
 
     return "", "" # pragma: no cover
 
-@wrapper_print_debug
+@beartype
 def live_share() -> bool:
     global SHOWN_LIVE_SHARE_COUNTER
 
@@ -783,7 +767,7 @@ def live_share() -> bool:
 
     return True
 
-@wrapper_print_debug
+@beartype
 def save_pd_csv() -> str:
     #print_debug("save_pd_csv()")
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
@@ -977,7 +961,7 @@ def write_worker_usage() -> None:
         if is_slurm_job(): # pragma: no cover
             print_debug("WORKER_PERCENTAGE_USAGE seems to be empty. Not writing worker_usage.csv")
 
-@wrapper_print_debug
+@beartype
 def log_system_usage() -> None:
     if not get_current_run_folder(): # pragma: no cover
         return
@@ -1037,7 +1021,7 @@ def log_nr_of_workers() -> None:
 
     return None # pragma: no cover
 
-@wrapper_print_debug
+@beartype
 def log_what_needs_to_be_logged() -> None:
     if "write_worker_usage" in globals():
         try:
@@ -1338,14 +1322,14 @@ if not args.tests:
 
     load_max_eval_or_exit(args)
 
-@wrapper_print_debug
+@beartype
 def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg: str = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
-@wrapper_print_debug
+@beartype
 def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str}: {msg}"
@@ -1474,15 +1458,15 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
 
     return None
 
-@wrapper_print_debug
+@beartype
 def get_max_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
     return get_min_or_max_column_value(pd_csv, column, _default, "max")
 
-@wrapper_print_debug
+@beartype
 def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
-@wrapper_print_debug
+@beartype
 def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[int, bool], Tuple[float, bool]]:
     found_in_file = False
     if os.path.exists(pd_csv):
@@ -1735,7 +1719,7 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 
     return j, params, search_space_reduction_warning
 
-@wrapper_print_debug
+@beartype
 def parse_experiment_parameters() -> list:
     global global_vars
 
@@ -2198,7 +2182,8 @@ def calculate_signed_geometric_distance(_args: Union[dict, list[float]]) -> floa
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
-def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: float = 2) -> float:
+@beartype
+def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: Union[int, float] = 2) -> float:
     if p <= 0:
         raise ValueError("p must be greater than 0.")
 
@@ -2206,6 +2191,7 @@ def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: floa
     minkowski_sum: float = sum(abs(a) ** p for a in _args) ** (1 / p)
     return sign * minkowski_sum
 
+@beartype
 def calculate_signed_weighted_euclidean_distance(_args: Union[dict, list[float]], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
@@ -2516,7 +2502,7 @@ def disable_logging() -> None:
 
     print_debug(f"warnings.showwarning set to {warnings.showwarning}")
 
-@wrapper_print_debug
+@beartype
 def display_failed_jobs_table() -> None:
     failed_jobs_file = f"{get_current_run_folder()}/failed_logs"
     header_file = os.path.join(failed_jobs_file, "headers.csv")
@@ -2566,7 +2552,7 @@ def display_failed_jobs_table() -> None:
     except Exception as e: # pragma: no cover
         print_red(f"Error: {str(e)}")
 
-@wrapper_print_debug
+@beartype
 def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None: # pragma: no cover
     if not helpers.looks_like_int(_width):
         print_red(f"Error: {_width} does not look like an int")
@@ -2592,7 +2578,7 @@ def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None: # 
     else:
         print_debug(f"{tmp_file} not found, error: {str(error)}")
 
-@wrapper_print_debug
+@beartype
 def replace_string_with_params(input_string: str, params: list) -> str:
     try:
         assert isinstance(input_string, str), "Input string must be a string"
@@ -2639,7 +2625,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
 
     return best_line, best_result
 
-@wrapper_print_debug
+@beartype
 def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict | None:
     results: dict = {
         res_name: None,
@@ -2811,11 +2797,11 @@ def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
 
     return plot_types
 
-@wrapper_print_debug
+@beartype
 def get_x_y_combinations() -> list:
     return list(combinations(global_vars["parameter_names"], 2))
 
-@wrapper_print_debug
+@beartype
 def get_plot_filename(plot: dict, _tmp: str) -> str:
     j = 0
     _fn = plot.get("filename", plot["type"])
@@ -2827,7 +2813,7 @@ def get_plot_filename(plot: dict, _tmp: str) -> str:
 
     return tmp_file
 
-@wrapper_print_debug
+@beartype
 def build_command(plot_type: str, plot: dict, _force: bool) -> str:
     maindir = os.path.dirname(os.path.realpath(__file__))
     base_command = "bash omniopt_plot" if _force else f"bash {maindir}/omniopt_plot"
@@ -2838,7 +2824,7 @@ def build_command(plot_type: str, plot: dict, _force: bool) -> str:
 
     return command
 
-@wrapper_print_debug
+@beartype
 def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
@@ -2938,6 +2924,7 @@ def plot_sixel_imgs(csv_file_path: str) -> None:
         for command in commands:
             plot_command(*command)
 
+@beartype
 def get_crf() -> str:
     crf = get_current_run_folder()
     if crf in ["", None]:
@@ -3027,7 +3014,7 @@ def print_best_result() -> int:
 
     return _print_best_result(csv_file_path, args.maximize, True)
 
-@wrapper_print_debug
+@beartype
 def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
 
@@ -3166,7 +3153,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
     except Exception as e: # pragma: no cover
         save_checkpoint(trial_nr + 1, e)
 
-@wrapper_print_debug
+@beartype
 def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
 
@@ -3183,7 +3170,7 @@ def get_tmp_file_from_json(experiment_args: dict) -> str:
 
     return f"/{_tmp_dir}/{k}"
 
-@wrapper_print_debug
+@beartype
 def compare_parameters(old_param_json: str, new_param_json: str) -> str:
     try:
         old_param = json.loads(old_param_json)
@@ -3287,7 +3274,7 @@ def die_with_47_if_file_doesnt_exists(_file: str) -> None:
         print_red(f"Cannot find {_file}")
         my_exit(47)
 
-@wrapper_print_debug
+@beartype
 def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
@@ -3340,7 +3327,7 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
 
     return return_totally, comparer_found, parsed, parsed_order
 
-@wrapper_print_debug
+@beartype
 def check_equation(variables: list, equation: str) -> Union[str, bool]:
     print_debug(f"check_equation({variables}, {equation})")
 
@@ -3492,7 +3479,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
 
     return experiment_parameters
 
-@wrapper_print_debug
+@beartype
 def get_experiment_parameters(_params: list) -> Any:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
@@ -3607,8 +3594,8 @@ def get_type_short(typename: str) -> str:
 
     return typename
 
-@wrapper_print_debug
-def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list:
+@beartype
+def parse_single_experiment_parameter_table(experiment_parameters: list[dict]) -> list:
     rows: list = []
 
     for param in experiment_parameters:
@@ -3660,7 +3647,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: dict) -> list
 
     return rows
 
-@wrapper_print_debug
+@beartype
 def print_parameter_constraints_table(experiment_args: dict) -> None:
     if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
         constraints = experiment_args["parameter_constraints"]
@@ -3681,7 +3668,7 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
         with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
-@wrapper_print_debug
+@beartype
 def print_result_names_overview_table() -> None:
     if len(arg_result_names) != 1:
         if len(arg_result_names) != len(arg_result_min_or_max): # pragma: no cover
@@ -3706,7 +3693,7 @@ def print_result_names_overview_table() -> None:
         with open(f"{get_current_run_folder()}/result_names_overview.txt", mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
 
-@wrapper_print_debug
+@beartype
 def write_min_max_file() -> None:
     min_or_max = "minimize"
 
@@ -3716,8 +3703,8 @@ def write_min_max_file() -> None:
     with open(f"{get_current_run_folder()}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
-@wrapper_print_debug
-def print_experiment_parameters_table(experiment_parameters: dict) -> None:
+@beartype
+def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:
     if not experiment_parameters: # pragma: no cover
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
@@ -3762,15 +3749,15 @@ def print_experiment_parameters_table(experiment_parameters: dict) -> None:
     with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
-@wrapper_print_debug
-def print_overview_tables(experiment_parameters: dict, experiment_args: dict) -> None:
+@beartype
+def print_overview_tables(experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
     print_experiment_parameters_table(experiment_parameters)
 
     print_parameter_constraints_table(experiment_args)
 
     print_result_names_overview_table()
 
-@wrapper_print_debug
+@beartype
 def update_progress_bar(_progress_bar: Any, nr: int) -> None:
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
@@ -3850,7 +3837,7 @@ def get_workers_string() -> str:
 
     return string
 
-@wrapper_print_debug
+@beartype
 def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
@@ -3884,7 +3871,7 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
 
     return in_brackets
 
-@wrapper_print_debug
+@beartype
 def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     global global_vars
     global random_steps
@@ -3938,7 +3925,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
     return desc
 
-@wrapper_print_debug
+@beartype
 def progressbar_description(new_msgs: list[str] = []) -> None:
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
@@ -3946,7 +3933,7 @@ def progressbar_description(new_msgs: list[str] = []) -> None:
         progress_bar.set_description(desc)
         progress_bar.refresh()
 
-@wrapper_print_debug
+@beartype
 def clean_completed_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]: # pragma: no cover
         _state = state_from_job(job)
@@ -4031,7 +4018,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
-@wrapper_print_debug
+@beartype
 def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
     if resname in tmp_old_res:
@@ -4055,7 +4042,7 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
 
     return None # pragma: no cover
 
-@wrapper_print_debug
+@beartype
 def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
     _counter: int = 0
 
@@ -4100,7 +4087,7 @@ def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
 
     return _counter
 
-@wrapper_print_debug
+@beartype
 def get_nr_of_imported_jobs() -> int:
     nr_jobs: int = 0
 
@@ -4109,7 +4096,7 @@ def get_nr_of_imported_jobs() -> int:
 
     return nr_jobs
 
-@wrapper_print_debug
+@beartype
 def load_existing_job_data_into_ax_client() -> None:
     global NR_INSERTED_JOBS
 
@@ -4129,7 +4116,7 @@ def load_existing_job_data_into_ax_client() -> None:
         nr_of_imported_jobs = get_nr_of_imported_jobs()
         NR_INSERTED_JOBS += nr_of_imported_jobs
 
-@wrapper_print_debug
+@beartype
 def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:
     if not _error_message:
         return None
@@ -4163,7 +4150,7 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
 
-@wrapper_print_debug
+@beartype
 def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]: # pragma: no cover
     try:
         if not data_list:
@@ -4208,7 +4195,6 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
 
     return ""
 
-@wrapper_print_debug
 @beartype
 def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None: # pragma: no cover
     done_converting = False
@@ -4241,7 +4227,6 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
                 print_yellow(f"converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
-@wrapper_print_debug
 @beartype
 def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     global already_inserted_param_hashes
@@ -4340,7 +4325,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
 
     display_table() # pragma: no cover
 
-@wrapper_print_debug
+@beartype
 def get_first_line_of_file(file_paths: list[str]) -> str:
     first_line: str = ""
     if len(file_paths): # pragma: no cover
@@ -5569,12 +5554,13 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
 
     return False
 
-
+@beartype
 def handle_optimization_completion(optimization_complete: bool) -> bool:
     if optimization_complete:
         return True
     return False
 
+@beartype
 def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> list:
     results = []
     i = 1
@@ -6118,6 +6104,7 @@ def show_pareto_frontier_data() -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
+@beartype
 def available_cpus() -> None:
     cpu_count = os.cpu_count()
 
@@ -6440,14 +6427,14 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
 
         return 1
 
-@wrapper_print_debug
+@beartype
 def get_files_in_dir(mypath: str) -> list:
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [mypath + "/" + s for s in onlyfiles]
 
-@wrapper_print_debug
+@beartype
 def test_find_paths(program_code: str) -> int:
     print_debug(f"test_find_paths({program_code})")
     nr_errors: int = 0

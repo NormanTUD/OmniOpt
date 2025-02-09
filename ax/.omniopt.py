@@ -3978,7 +3978,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
     """
 
     if not os.path.exists(file_path):
-        print_red(f"{file_path} for getting old CSV results cannot be found")
+        print_red(f"'{file_path}' for getting old CSV results cannot be found")
         return None
 
     try:

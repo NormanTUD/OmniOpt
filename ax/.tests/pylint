@@ -88,14 +88,18 @@ if [ "$#" -gt 0 ]; then
 	done
 else
 	# No parameters passed, process all Python files (as in original script)
-	for i in .*.py .*/*.py; do
-		yellow_text "pylint $i"
-		pylint $i || {
-			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
-			red_text "$ERRSTR\n"
-			errors+=("$ERRSTR")
-		}
-	done
+	if command -v pylint 2>/dev/null >/dev/null; then
+		for i in .*.py .*/*.py; do
+			yellow_text "pylint $i"
+			pylint $i || {
+				ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
+				red_text "$ERRSTR\n"
+				errors+=("$ERRSTR")
+			}
+		done
+	else
+		red_text "pylint not found"
+	fi
 fi
 
 if [ -n "$TEMP_BACKUP_FILE" ]; then

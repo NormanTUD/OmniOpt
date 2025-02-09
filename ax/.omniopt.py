@@ -1475,7 +1475,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_min_col:
                 found_in_file = True
 
-            if found_in_file and _default > _old_min_col: # pragma: no cover
+            if found_in_file and isinstance(_default, (int, float)) and _default > _old_min_col: # pragma: no cover
                 ret_val = _old_min_col
             else:
                 ret_val = _default
@@ -1484,7 +1484,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_max_col:
                 found_in_file = True
 
-            if found_in_file and _default < _old_max_col: # pragma: no cover
+            if found_in_file and isinstance(_default, (int, float)) and _default < _old_max_col: # pragma: no cover
                 ret_val = _old_max_col
             else:
                 ret_val = _default
@@ -4196,7 +4196,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @beartype
-def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, float]) -> None: # pragma: no cover
+def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, str, float]) -> None: # pragma: no cover
     done_converting = False
 
     if ax_client is None or not ax_client:

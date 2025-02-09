@@ -12,7 +12,6 @@
 		];
 
 		if (($handle = fopen($filePath, "r")) !== false) {
-			$header = fgetcsv($handle, 0, ",", "\"", "\\");
 			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
 				if (count($data) < 3) continue; // Sicherstellen, dass es genug Spalten gibt
 

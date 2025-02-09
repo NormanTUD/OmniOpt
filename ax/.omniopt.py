@@ -149,6 +149,7 @@ SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
+error_8_saved: list[str] = []
 
 @beartype
 def get_current_run_folder() -> str:
@@ -5267,6 +5268,9 @@ def get_parallelism_schedule_description() -> str:
 @disable_logs
 def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
+
+    global error_8_saved
+
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
 
@@ -5281,7 +5285,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any],
                 print_red("ax_client was not defined")
                 my_exit(9)
         except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
-            print_red("\n⚠Error 8: " + str(e))
+            if str(e) not in error_8_saved:
+                print_red("\n⚠Error 8: " + str(e))
+
+                error_8_saved.append(str(e))
 
         return trials_dict, False
     except np.linalg.LinAlgError as e: # pragma: no cover

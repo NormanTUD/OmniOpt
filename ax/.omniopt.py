@@ -3598,7 +3598,7 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @beartype
-def parse_single_experiment_parameter_table(experiment_parameters: list[dict]) -> list:
+def parse_single_experiment_parameter_table(experiment_parameters: Union[list, dict]) -> list:
     rows: list = []
 
     for param in experiment_parameters:

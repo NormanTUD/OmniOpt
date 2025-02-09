@@ -4838,7 +4838,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
     return False
 
 @beartype
-def orchestrator_start_trial(params_from_out_file: str, trial_index: int) -> None: # pragma: no cover
+def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None: # pragma: no cover
     global global_vars
 
     if executor and ax_client:

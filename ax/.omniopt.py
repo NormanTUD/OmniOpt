@@ -6586,7 +6586,8 @@ Exit-Code: 159
     nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
 
     nr_errors += is_equal('print_image_to_cli("", "")', print_image_to_cli("", 1200), False)
-    nr_errors += is_equal('print_image_to_cli(".tools/slimer.png", 200)', print_image_to_cli(".tools/slimer.png", 200), True)
+    if supports_sixel():
+        nr_errors += is_equal('print_image_to_cli(".tools/slimer.png", 200)', print_image_to_cli(".tools/slimer.png", 200), True)
 
     _check_for_basic_string_errors_example_str: str = """
     Exec format error

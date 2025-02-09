@@ -1506,7 +1506,7 @@ def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int]
 
         ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, _column, _default)
 
-    if ret_val:
+    if isinstance(ret_val, (int, float)):
         return round(ret_val, args.decimalrounding), found_in_file
 
     return ret_val, False

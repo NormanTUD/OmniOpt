@@ -4613,7 +4613,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
         print_red(out_files_string)
 
 @beartype
-def get_parameters_from_outfile(stdout_path: str) -> Union[None, str]:
+def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
             for line in file:

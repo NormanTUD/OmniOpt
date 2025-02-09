@@ -6355,7 +6355,7 @@ def handle_random_steps() -> None:
         random_steps = args.num_random_steps
 
 @beartype
-def initialize_ax_client(gs: Any) -> None:
+def initialize_ax_client(gs: GenerationStrategy) -> None:
     global ax_client
     ax_client = AxClient(
         verbose_logging=args.verbose,

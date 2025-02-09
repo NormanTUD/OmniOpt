@@ -6393,7 +6393,7 @@ def run_search_with_progress_bar(disable_tqdm: bool) -> None:
 
 @beartype
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
-    print_yellow(f"Test suite: {_program_name}")
+    #print_yellow(f"Test suite: {_program_name}")
 
     nr_errors: int = 0
 

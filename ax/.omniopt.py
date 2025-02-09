@@ -303,7 +303,7 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     path = f"{continue_path}/result_min_max.txt"
 
     if not os.path.exists(path):
-        print_yellow(f"File {path} not found, will use {_default_min_max}")
+        print_yellow(f"File '{path}' not found, will use {_default_min_max}")
         return _default_min_max
 
     with open(path, encoding="utf-8", mode='r') as file:

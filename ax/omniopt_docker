@@ -120,28 +120,21 @@ _mkdir logs
 
 git rev-parse HEAD > git_hash
 
-if groups | grep docker 2>/dev/null >/dev/null; then
-	docker-compose build --build-arg GetMyUsername=$(whoami) || {
-		echo "Failed composing container"
-		exit 1
-	}
-
-	docker-compose up -d || {
-		echo "Failed to build container"
-		exit 1
-	}
+if groups | grep -q '\bdocker\b'; then
+	DOCKER_CMD="docker-compose"
 else
-	echo "Your user is not in the group docker. Thus, docker-compose builds need sudo. Enter your password, please."
-	sudo docker-compose build --build-arg GetMyUsername=$(whoami) || {
-		echo "Failed composing container"
-		exit 1
-	}
-
-	sudo docker-compose up -d || {
-		echo "Failed to build container"
-		exit 1
-	}
+	DOCKER_CMD="sudo docker-compose"
 fi
+
+$DOCKER_CMD build --build-arg GetMyUsername=$(whoami) || {
+	echo "Failed composing container"
+	exit 1
+}
+
+$DOCKER_CMD up -d || {
+	echo "Failed to build container"
+	exit 1
+}
 
 rm git_hash
 

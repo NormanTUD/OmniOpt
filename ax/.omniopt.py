@@ -1067,7 +1067,7 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
     if not supports_sixel():
         print("Cannot print sixel in this environment.")
-        return
+        return False
 
     try:
         image = Image.open(image_path)

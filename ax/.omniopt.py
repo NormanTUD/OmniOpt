@@ -294,7 +294,7 @@ def print_green(text: str) -> None:
 
 @beartype
 def print_yellow(text: str) -> None:
-    helpers.print_color("yellow", f"⚠ {text}")
+    helpers.print_color("yellow", f"{text}")
 
     print_debug(text)
 
@@ -1528,7 +1528,7 @@ def get_bound_if_prev_data(_type: str, _column: Union[list, str], _default: Unio
 @beartype
 def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
     if lower_bound > upper_bound:
-        print_yellow(f"⚠ Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
+        print_yellow(f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
 
     return lower_bound, upper_bound
@@ -1537,11 +1537,11 @@ def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[
 def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[int | float, int | float]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
-            print_yellow(f"⚠ {value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+            print_yellow(f"{value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
             lower_bound = math.floor(lower_bound)
 
         if not helpers.looks_like_int(upper_bound):
-            print_yellow(f"⚠ {value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+            print_yellow(f"{value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
             upper_bound = math.ceil(upper_bound)
 
     return lower_bound, upper_bound
@@ -1551,13 +1551,13 @@ def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
     except Exception: # pragma: no cover
-        print_red(f"\n⚠ {this_args[j + 2]} is not a number")
+        print_red(f"\n{this_args[j + 2]} is not a number")
         my_exit(181)
 
     try:
         upper_bound = float(this_args[j + 3])
     except Exception:
-        print_red(f"\n⚠ {this_args[j + 3]} is not a number")
+        print_red(f"\n{this_args[j + 3]} is not a number")
         my_exit(181)
 
     return lower_bound, upper_bound
@@ -1618,11 +1618,11 @@ def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound:
 
     if args.continue_previous_job:
         if old_lower_bound != lower_bound: # pragma: no cover
-            print_yellow(f"⚠ previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
+            print_yellow(f"previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
             search_space_reduction_warning = True
 
         if old_upper_bound != upper_bound: # pragma: no cover
-            print_yellow(f"⚠ previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
+            print_yellow(f"previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
             search_space_reduction_warning = True
 
     return search_space_reduction_warning
@@ -4235,10 +4235,10 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
             parsed_error = parse_parameter_type_error(e)
 
             if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                print_yellow(f"converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                 old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
             elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                print_yellow(f"⚠ converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
+                print_yellow(f"converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
                 old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
 
 @wrapper_print_debug

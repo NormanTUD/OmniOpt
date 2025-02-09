@@ -1505,7 +1505,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             else:
                 ret_val = _default
     else: # pragma: no cover
-        print_red(f"{pd_csv} was not found")
+        print_red(f"'{pd_csv}' was not found")
 
     return ret_val, found_in_file
 
@@ -4643,7 +4643,7 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
                     return hostname
         return None # pragma: no cover
     except FileNotFoundError:
-        original_print(f"The file {stdout_path} was not found.")
+        original_print(f"The file '{stdout_path}' was not found.")
         return None
     except Exception as e: # pragma: no cover
         print(f"There was an error: {e}")

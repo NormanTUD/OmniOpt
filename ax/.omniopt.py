@@ -519,7 +519,7 @@ class ConfigLoader:
         return converted_config
 
     @beartype
-    def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> Any:
+    def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> argparse.Namespace:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
 
@@ -533,7 +533,7 @@ class ConfigLoader:
         return cli_args
 
     @beartype
-    def parse_arguments(self: Any) -> Any:
+    def parse_arguments(self: Any) -> argparse.Namespace:
         # First, parse the CLI arguments to check if config files are provided
         _args = self.parser.parse_args()
 
@@ -3483,7 +3483,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
     return experiment_parameters
 
 @beartype
-def get_experiment_parameters(_params: list) -> Any:
+def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dict]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
@@ -3707,6 +3707,25 @@ def write_min_max_file() -> None:
         print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
 @beartype
+def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
+    table = Table(header_style="bold", title="Experiment parameters:")
+    for column in filtered_columns:
+        table.add_column(column)
+
+    for row in filtered_data:
+        table.add_row(*[str(cell) if cell is not None else "" for cell in row], style="bright_green")
+
+    console.print(table)
+
+    with console.capture() as capture:
+        console.print(table)
+
+    table_str = capture.get()
+
+    with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
+        text_file.write(table_str)
+
+@beartype
 def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:
     if not experiment_parameters: # pragma: no cover
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
@@ -3735,22 +3754,7 @@ def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) 
     filtered_columns = [columns[i] for i in non_empty_columns]
     filtered_data = [[row[i] for i in non_empty_columns] for row in data]
 
-    table = Table(header_style="bold", title="Experiment parameters:")
-    for column in filtered_columns:
-        table.add_column(column)
-
-    for row in filtered_data:
-        table.add_row(*[str(cell) if cell is not None else "" for cell in row], style="bright_green")
-
-    console.print(table)
-
-    with console.capture() as capture:
-        console.print(table)
-
-    table_str = capture.get()
-
-    with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
-        text_file.write(table_str)
+    print_experiment_param_table_to_file(filtered_columns, filtered_data)
 
 @beartype
 def print_overview_tables(experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
@@ -3956,7 +3960,7 @@ def value_to_true_or_false(value: str) -> Union[str, bool]:
     return value
 
 @beartype
-def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Any:
+def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Optional[Union[pd.DataFrame, str]]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
@@ -4020,6 +4024,8 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
     except Exception as e: # pragma: no cover
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
+
+    return None
 
 @beartype
 def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
@@ -5450,7 +5456,7 @@ def _get_max_parallelism() -> int: # pragma: no cover
     return ret
 
 @beartype
-def create_systematic_step(model: Any) -> Any:
+def create_systematic_step(model: Any) -> Tuple[GenerationStep, dict]:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
@@ -5467,7 +5473,7 @@ def create_systematic_step(model: Any) -> Any:
     }
 
 @beartype
-def create_random_generation_step() -> Any:
+def create_random_generation_step() -> Tuple[GenerationStep, dict]:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -5488,7 +5494,7 @@ def create_random_generation_step() -> Any:
     }
 
 @beartype
-def select_model(model_arg: Any) -> Any:
+def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
     chosen_model = Models.BOTORCH_MODULAR
@@ -5506,7 +5512,7 @@ def select_model(model_arg: Any) -> Any:
     return chosen_model
 
 @beartype
-def get_generation_strategy() -> Any:
+def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     global random_steps
 
     # Initialize steps for the generation strategy

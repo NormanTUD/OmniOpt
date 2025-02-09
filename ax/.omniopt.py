@@ -1063,6 +1063,11 @@ def get_line_info() -> Tuple[str, str, int, str, str]:
 @beartype
 def print_image_to_cli(image_path: str, width: int) -> bool:
     print("")
+
+    if not supports_sixel():
+        print("Cannot print sixel in this environment.")
+        return
+
     try:
         image = Image.open(image_path)
         original_width, original_height = image.size

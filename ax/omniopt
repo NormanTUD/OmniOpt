@@ -1051,7 +1051,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
-			red_text "Parameter --mem_gb is missing or empty";
+			red_text "Parameter --mem_gb is missing or empty" >&2
 			myexit 104
 		fi
 	fi
@@ -1061,7 +1061,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
-			red_text "Parameter --time is missing or empty";
+			red_text "Parameter --time is missing or empty" >&2
 			myexit 104
 		fi
 	fi
@@ -1071,7 +1071,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then
-			red_text "Parameter --experiment_name is missing or empty"
+			red_text "Parameter --experiment_name is missing or empty" >&2
 			myexit 104
 		fi
 	fi

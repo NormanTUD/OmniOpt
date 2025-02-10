@@ -6137,15 +6137,17 @@ def show_pareto_frontier_data() -> None:
 def available_hardware(gpu_string: str, gpu_color: str) -> None:
     cpu_count = os.cpu_count()
 
+    gs_string = get_generation_strategy_string()
+
     try:
         cpu_count = len(os.sched_getaffinity(0))  # Nur unter Linux verfügbar
     except AttributeError:
         pass
 
     if gpu_string:
-        console.print(f"[green]You have {cpu_count} CPUs available for the main process.[/green] [{gpu_color}]{gpu_string}[/{gpu_color}]")
+        console.print(f"[green]You have {cpu_count} CPUs available for the main process.[/green] [{gpu_color}]{gpu_string}[/{gpu_color}] [green]{gs_string}[/green]")
     else:
-        print_green(f"You have {cpu_count} CPUs available for the main process.")
+        print_green(f"You have {cpu_count} CPUs available for the main process. {gs_string}")
 
 @beartype
 def write_args_overview_table() -> None:
@@ -6285,7 +6287,8 @@ def main() -> None:
 
     set_orchestrator()
     available_hardware(gpu_string, gpu_color)
-    print_generation_strategy()
+
+    original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
@@ -6301,7 +6304,6 @@ def main() -> None:
         sys.exit(244)
 
     load_existing_job_data_into_ax_client()
-    original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
     write_args_overview_table()
 
@@ -6386,10 +6388,13 @@ def initialize_ax_client(gs: GenerationStrategy) -> None:
     ax_client = cast(AxClient, ax_client)
 
 @beartype
-def print_generation_strategy() -> None:
+def get_generation_strategy_string() -> str:
     gs_hr = human_readable_generation_strategy()
+
     if gs_hr:
-        print(f"Generation strategy: {gs_hr}")
+        return f"Generation strategy: {gs_hr}"
+
+    return ""
 
 @beartype
 def save_experiment_parameters(filepath: str, experiment_parameters: Union[list, dict]) -> None:

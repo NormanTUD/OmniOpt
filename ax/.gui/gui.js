@@ -1,3 +1,5 @@
+var invalid_names = ["generation_node"];
+
 var initialized = false;
 var shown_operation_insecure_without_server = false;
 
@@ -743,6 +745,7 @@ function update_command() {
 			base_url = base_url.replace(/^file:\//, "/");
 			base_url = base_url.replace(/^\/\//, "/");
 		}
+
 		base_url = base_url.replace(/\/index.php/, "");
 		base_url = base_url.replace(/\/gui.php/, "");
 

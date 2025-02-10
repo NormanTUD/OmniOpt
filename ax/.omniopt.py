@@ -3794,7 +3794,7 @@ def get_best_params_str(res_name: str = "result") -> str:
                 best_result_int_if_possible = helpers.to_int_when_possible(float(best_result))
 
                 if str(best_result) != NO_RESULT and best_result is not None:
-                    return f"best {res_name}: {best_result_int_if_possible}"
+                    return f"{res_name}: {best_result_int_if_possible}"
     return ""
 
 @beartype
@@ -3896,10 +3896,15 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
     in_brackets.append(f"{current_model}")
 
+    best_params_res = []
+
     for res_name in arg_result_names:
         best_params_str: str = get_best_params_str(res_name)
         if best_params_str:
-            in_brackets.append(best_params_str)
+            best_params_res.append(best_params_str)
+
+    if len(best_params_res):
+        in_brackets.append("best " + ", ".join(best_params_res))
 
     in_brackets = get_slurm_in_brackets(in_brackets)
 

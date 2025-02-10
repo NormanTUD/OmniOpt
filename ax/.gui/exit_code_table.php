@@ -59,7 +59,8 @@
 			233 => "No random steps set",
 			242 => "Error at fetching new trials",
 			243 => "Job was not found in squeue anymore, it may got cancelled before it ran",
-			244 => "get_executor() failed. See logs for more details."
+			244 => "get_executor() failed. See logs for more details.",
+			255 => "sbatch error"
 		];
 
 		if (isset($_GET["exit_code"])) {

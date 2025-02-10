@@ -6392,7 +6392,7 @@ def get_generation_strategy_string() -> str:
     gs_hr = human_readable_generation_strategy()
 
     if gs_hr:
-        return f"Generation strategy: {gs_hr}"
+        return f"Generation strategy: {gs_hr}."
 
     return ""
 

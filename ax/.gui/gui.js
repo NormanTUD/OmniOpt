@@ -1,7 +1,7 @@
 var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"];
 
 function get_invalid_names () {
-	var gin = invalid_names;
+	var gin = JSON.parse(JSON.stringify(invalid_names));
 
 	let _element = document.getElementById("result_names");
 
@@ -609,7 +609,7 @@ function update_command() {
 		} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
 			warn_msg.push("Name contains invalid characters. Must be all-letters.");
 		} else if(is_invalid_parameter_name(parameterName)) {
-			warn_msg.push("Name is or contains a reserved keyword.");
+			warn_msg.push(`Name is or contains a reserved keyword, cannot be any of those: <tt>${invalid_names.join(', ')}</tt>, or any of the names specified in the results-names.`);
 		} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
 			if (option === "range") {
 				var $this = $(this);

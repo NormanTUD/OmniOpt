@@ -29,12 +29,17 @@ models=($(cat .omniopt.py | grep "^SUPPORTED_MODELS" | sed -e 's#.*=\s##' -e 's#
 total_models=${#models[@]}
 current_model=0
 
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
+fi
+
 for model in "${models[@]}"; do
 	((current_model++))
 	echo "===== $model ===== (Job $current_model of $total_models)";
 	if [[ $failed -eq 0 ]]; then
 		if [[ "$model" != "FACTORIAL" ]]; then
-			./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name "__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_2__model__$model" --mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 --num_parallel_jobs 20 --gpus 0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0y --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --result_names RESULT1=min RESULT2=min --model=$model
+			./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name "__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_2__model__$model" --mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 --num_parallel_jobs 20 --gpus $NUM_GPUS --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0y --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --hide_ascii_plots --result_names RESULT1=min RESULT2=min --model=$model
 			exit_code=$?
 
 			if [[ $exit_code -ne 0 ]]; then

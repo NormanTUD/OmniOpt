@@ -47,13 +47,17 @@ source .shellscript_functions
 
 errors=()
 
-for i in $(ls .*.py | grep -v ".helpers.py"); do
-	bandit -lll -q -s B602 $i || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'bandit -lll -q -s B602 $i' to see details."
-		red_text "$ERRSTR"
-		errors+=("$ERRSTR")
-	}
-done
+if command -v bandit 2>/dev/null >/dev/null; then
+	for i in $(ls .*.py | grep -v ".helpers.py"); do
+		bandit -lll -q -s B602 $i || {
+			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'bandit -lll -q -s B602 $i' to see details."
+			red_text "$ERRSTR"
+			errors+=("$ERRSTR")
+		}
+	done
+else
+	red_text "bandit not found"
+fi
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

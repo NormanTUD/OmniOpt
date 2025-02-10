@@ -5812,7 +5812,10 @@ def run_search(_progress_bar: Any) -> bool:
 
             nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
 
-            progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
+            if nr_of_items > 0:
+                progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
+            else:
+                print_debug(f"got {nr_of_items}, requested {next_nr_steps}")
 
         _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
 

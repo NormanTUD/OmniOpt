@@ -2665,7 +2665,8 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
             "signal",
             "exit_code",
             "run_time",
-            "program_string"
+            "program_string",
+            "generation_node"
         ]:
             if col == res_name:
                 results[res_name] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]

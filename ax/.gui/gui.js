@@ -1,4 +1,22 @@
-var invalid_names = ["generation_node"];
+var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"];
+
+function get_invalid_names () {
+	var gin = invalid_names;
+
+	let _element = document.getElementById("result_names");
+
+	if (_element) {
+		let content = $(_element).val().trim();
+		let parts = content.split(/\s+/);
+		let new_gin = parts.map(item => item.includes('=') ? item.split('=')[0] : item);
+
+		for (var i = 0; i < new_gin.length; i++) {
+			gin.push(new_gin[i]);
+		}
+	}
+
+	return gin;
+}
 
 var initialized = false;
 var shown_operation_insecure_without_server = false;
@@ -512,6 +530,13 @@ function is_invalid_parameter_name(name) {
 	if(name.startsWith("OO_Info_")) {
 		return true;
 	}
+
+	var gin = get_invalid_names();
+
+	if (gin.includes(name)) {
+		return true;
+	}
+
 	return false;
 }
 
@@ -581,6 +606,10 @@ function update_command() {
 			warn_msg.push(err_msg);
 
 			$($(".parameterRow")[i]).css("background-color", "#e57373");
+		} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
+			warn_msg.push("Name contains invalid characters. Must be all-letters.");
+		} else if(is_invalid_parameter_name(parameterName)) {
+			warn_msg.push("Name is or contains a reserved keyword.");
 		} else if(parameterName.match(/^[a-zA-Z_]+$/)) {
 			if (option === "range") {
 				var $this = $(this);
@@ -678,10 +707,6 @@ function update_command() {
 					warn_msg.push("No parameter name");
 				}
 			}
-		} else if(parameterName && !parameterName.match(/^[a-zA-Z_]+$/)) {
-			warn_msg.push("Name contains invalid characters. Must be all-letters.");
-		} else if(is_invalid_parameter_name(parameterName)) {
-			warn_msg.push("Name is or contains a reserved keyword.");
 		} else {
 			warn_msg.push("<i>Name</i> is missing.");
 		}

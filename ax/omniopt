@@ -1047,7 +1047,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 	set +e
 
 	if [[ -z "$mem_gb" ]]; then
-		mem_gb=$(get_config_from_config_file "mem_gb" 1)
+		mem_gb=$(get_config_from_config_file "mem_gb" 0)
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
@@ -1057,7 +1057,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 	fi
 
 	if [[ -z "$time" ]]; then
-		time=$(get_config_from_config_file "time" 1)
+		time=$(get_config_from_config_file "time" 0)
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
@@ -1067,7 +1067,7 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 	fi
 
 	if [[ -z $experiment_name ]]; then
-		experiment_name=$(get_config_from_config_file "experiment_name" 1)
+		experiment_name=$(get_config_from_config_file "experiment_name" 0)
 		retcode=$?
 
 		if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then

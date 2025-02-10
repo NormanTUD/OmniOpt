@@ -1048,8 +1048,9 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 
 	if [[ -z "$mem_gb" ]]; then
 		mem_gb=$(get_config_from_config_file "mem_gb" 1)
+		retcode=$?
 
-		if [[ -z "$mem_gb" ]]; then
+		if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
 			red_text "Parameter --mem_gb is missing or empty";
 			myexit 104
 		fi
@@ -1057,8 +1058,9 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 
 	if [[ -z "$time" ]]; then
 		time=$(get_config_from_config_file "time" 1)
+		retcode=$?
 
-		if [[ -z "$time" ]]; then
+		if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
 			red_text "Parameter --time is missing or empty";
 			myexit 104
 		fi
@@ -1066,8 +1068,9 @@ if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[
 
 	if [[ -z $experiment_name ]]; then
 		experiment_name=$(get_config_from_config_file "experiment_name" 1)
+		retcode=$?
 
-		if [[ -z $experiment_name ]]; then
+		if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then
 			red_text "Parameter --experiment_name is missing or empty"
 			myexit 104
 		fi
@@ -1081,21 +1084,24 @@ set +e
 
 if [[ -z $reservation ]]; then
 	_reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
-	if [[ -n $_reservation ]]; then
+	retcode=$?
+	if [[ $retcode -ne 0 ]] && [[ -n $_reservation ]]; then
 		reservation=$_reservation
 	fi
 fi
 
 if [[ -z $account ]]; then
 	_account=$(get_config_from_config_file "account" 0 2>/dev/null)
-	if [[ -n $_account ]]; then
+	retcode=$?
+	if [[ $retcode -ne 0 ]] && [[ -n $_account ]]; then
 		account=$_account
 	fi
 fi
 
 if [[ -z $follow ]]; then
 	_follow=$(get_config_from_config_file "follow" 0 2>/dev/null)
-	if [[ -n $_follow ]]; then
+	retcode=$?
+	if [[ $retcode -ne 0 ]] && [[ -n $_follow ]]; then
 		follow=$_follow
 	fi
 
@@ -1112,7 +1118,8 @@ fi
 
 if [[ -z $force_local_execution ]]; then
 	_force_local_execution=$(get_config_from_config_file "force_local_execution" 0 2>/dev/null)
-	if [[ -n $_force_local_execution ]]; then
+	retcode=$?
+	if [[ $retcode -ne 0 ]] && [[ -n $_force_local_execution ]]; then
 		force_local_execution=$_force_local_execution
 	fi
 
@@ -1129,7 +1136,11 @@ fi
 
 if [[ -z $gpus ]]; then
 	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
+		_gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
+		retcode=$?
+		if [[ $retcode -eq 0 ]]; then
+			gpus=$_gpus
+		fi
 	fi
 fi
 
@@ -1369,15 +1380,15 @@ else
 	sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
 
 	if [[ $gpus -ne 0 ]]; then
-	    sbatch_command+=" --gres=gpu:$gpus"
+		sbatch_command+=" --gres=gpu:$gpus"
 	fi
 
 	if [[ -n $account ]]; then
-	    sbatch_command+=" --account=$account"
+		sbatch_command+=" --account=$account"
 	fi
 
 	if [[ -n $reservation ]]; then
-	    sbatch_command+=" --reservation=$reservation"
+		sbatch_command+=" --reservation=$reservation"
 	fi
 
 	sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"

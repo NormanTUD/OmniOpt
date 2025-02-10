@@ -3254,7 +3254,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
         else:
             if torch.cuda.device_count() >= 1: # pragma: no cover
                 torch_device = torch.cuda.current_device()
-                print_yellow(f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                print_green(f"Using CUDA device {torch.cuda.get_device_name(0)}")
             else: # pragma: no cover
                 print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
     except ModuleNotFoundError: # pragma: no cover
@@ -5513,7 +5513,7 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
             print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
         if model_arg.lower() != "factorial" and args.gridsearch:
-            print_red("Gridsearch only really works when you chose the FACTORIAL model.")
+            print_yellow("Gridsearch only really works when you chose the FACTORIAL model.")
 
     return chosen_model
 

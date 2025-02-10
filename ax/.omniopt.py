@@ -3244,19 +3244,24 @@ def get_ax_param_representation(data: dict) -> dict:
     return {} # pragma: no cover
 
 @beartype
-def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> dict:
+def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> Tuple[dict, str, str]:
+    gpu_string = ""
+    gpu_color = "green"
     torch_device = None
     try:
         cuda_is_available = torch.cuda.is_available()
 
         if not cuda_is_available or cuda_is_available == 0:
-            print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
+            gpu_string = "No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU."
+            gpu_color = "yellow"
         else:
             if torch.cuda.device_count() >= 1: # pragma: no cover
                 torch_device = torch.cuda.current_device()
-                print_green(f"Using CUDA device {torch.cuda.get_device_name(0)}")
+                gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}"
+                gpu_color = "green"
             else: # pragma: no cover
-                print_yellow("No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.")
+                gpu_string = "No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU."
+                gpu_color = "yellow"
     except ModuleNotFoundError: # pragma: no cover
         print_red("Cannot load torch and thus, cannot use gpus")
 
@@ -3268,9 +3273,9 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> d
             my_exit(90)
 
     if experiment_args:
-        return experiment_args
+        return experiment_args, gpu_string, gpu_color
 
-    return {}
+    return {}, gpu_string, gpu_color
 
 @beartype
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
@@ -3484,10 +3489,13 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
     return experiment_parameters
 
 @beartype
-def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dict]:
+def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dict, str, str]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
+
+    gpu_string = ""
+    gpu_color = "green"
 
     experiment_args = None
 
@@ -3502,7 +3510,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dic
 
         experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
 
-        experiment_args = set_torch_device_to_experiment_args(experiment_args)
+        experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
 
         copy_state_files_from_previous_job(continue_previous_job)
 
@@ -3563,7 +3571,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dic
         if seed:
             experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
 
-        experiment_args = set_torch_device_to_experiment_args(experiment_args)
+        experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
 
         experiment_args = set_parameter_constraints(experiment_constraints, experiment_args, experiment_parameters)
 
@@ -3586,7 +3594,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dic
             print_red(f"An error occured while creating the experiment (3): {error}")
             die_something_went_wrong_with_parameters()
 
-    return ax_client, experiment_parameters, experiment_args
+    return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color
 
 @beartype
 def get_type_short(typename: str) -> str:
@@ -6126,7 +6134,7 @@ def show_pareto_frontier_data() -> None:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
 @beartype
-def available_cpus() -> None:
+def available_hardware(gpu_string: str, gpu_color: str) -> None:
     cpu_count = os.cpu_count()
 
     try:
@@ -6134,7 +6142,10 @@ def available_cpus() -> None:
     except AttributeError:
         pass
 
-    print_green(f"You have {cpu_count} CPUs available for the main process.")
+    if gpu_string:
+        console.print(f"[green]You have {cpu_count} CPUs available for the main process.[/green] [{gpu_color}]{gpu_string}[/{gpu_color}]")
+    else:
+        print_green(f"You have {cpu_count} CPUs available for the main process.")
 
 @beartype
 def write_args_overview_table() -> None:
@@ -6262,7 +6273,7 @@ def main() -> None:
     initialize_ax_client(gs)
 
     minimize_or_maximize: bool = not args.maximize
-    ax_client, experiment_parameters, experiment_args = get_experiment_parameters([
+    ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
         args.experiment_constraints,
@@ -6273,7 +6284,7 @@ def main() -> None:
     ])
 
     set_orchestrator()
-    available_cpus()
+    available_hardware(gpu_string, gpu_color)
     print_generation_strategy()
 
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"

@@ -6134,7 +6134,7 @@ def show_pareto_frontier_data() -> None:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
 @beartype
-def available_hardware(gpu_string: str, gpu_color: str) -> None:
+def show_available_hardware(gpu_string: str, gpu_color: str) -> None:
     cpu_count = os.cpu_count()
 
     gs_string = get_generation_strategy_string()
@@ -6287,7 +6287,7 @@ def main() -> None:
 
     set_orchestrator()
 
-    available_hardware(gpu_string, gpu_color)
+    show_available_hardware(gpu_string, gpu_color)
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 

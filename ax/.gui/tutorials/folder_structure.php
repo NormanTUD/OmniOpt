@@ -144,6 +144,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>experiment_name</i>: The name of this experiment</li>
 	<li><i>failed_jobs</i>: The number of failed jobs</li>
 	<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
+	<li><i>experiment_overview.txt</i>: A table showing different parameters relating to the current experiment</li>
 	<li><i>gpus</i>: The number of GPUs this run has allocated per worker</li>
 	<li><i>joined_run_program</i>: The program string including parameters</li>
 	<li><i>get_next_nr_steps_tables.txt</i>: A debug table for get_next_nr_steps (only on SLURM-systems)</li>

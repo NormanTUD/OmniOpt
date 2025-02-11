@@ -6170,7 +6170,7 @@ def write_args_overview_table() -> None:
 
 @beartype
 def show_experiment_overview_table() -> None:
-    table = Table(title="Experiment Overview:", show_header=True)
+    table = Table(title="Experiment overview:", show_header=True)
 
     #random_step = gs_data[0]
     #systematic_step = gs_data[1]
@@ -6204,7 +6204,13 @@ def show_experiment_overview_table() -> None:
     if args.seed is not None:
         table.add_row("Seed", str(args.seed))
 
-    console.print(table)
+    with console.capture() as capture:
+        console.print(table)
+
+    table_str = capture.get()
+
+    with open(f"{get_current_run_folder()}/experiment_overview.txt", mode="w", encoding="utf-8") as text_file:
+        text_file.write(table_str)
 
 @beartype
 def main() -> None:

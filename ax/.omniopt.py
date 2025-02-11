@@ -6140,7 +6140,7 @@ def available_hardware(gpu_string: str, gpu_color: str) -> None:
     gs_string = get_generation_strategy_string()
 
     try:
-        cpu_count = len(os.sched_getaffinity(0))  # Nur unter Linux verfügbar
+        cpu_count = len(os.sched_getaffinity(0))
     except AttributeError:
         pass
 

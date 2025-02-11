@@ -1496,7 +1496,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
     return ret_val, found_in_file
 
 @beartype
-def get_bound_if_prev_data(_type: str, _column: str, _default: Union[float, int]) -> Union[Tuple[float | int, bool], Any]:
+def get_bound_if_prev_data(_type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[float | int, bool], Any]:
     ret_val = _default
 
     found_in_file = False

@@ -5712,14 +5712,6 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
     return _random_steps, second_step_steps
 
 @beartype
-def set_global_executor() -> None:
-    try:
-        _set_global_executor()
-    except ModuleNotFoundError as e: # pragma: no cover
-        print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
-        sys.exit(244)
-
-@beartype
 def _set_global_executor() -> None:
     global executor
 
@@ -5771,6 +5763,14 @@ def _set_global_executor() -> None:
     else: # pragma: no cover
         print_red("executor could not be found")
         my_exit(9)
+
+@beartype
+def set_global_executor() -> None:
+    try:
+        _set_global_executor()
+    except ModuleNotFoundError as e: # pragma: no cover
+        print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
+        sys.exit(244)
 
 @beartype
 def execute_nvidia_smi() -> None: # pragma: no cover
@@ -6236,6 +6236,18 @@ def show_experiment_overview_table() -> None:
         text_file.write(table_str)
 
 @beartype
+def write_files_and_show_overviews() -> None:
+    write_min_max_file()
+    set_global_executor()
+    load_existing_job_data_into_ax_client()
+    write_args_overview_table()
+    show_experiment_overview_table()
+    save_global_vars()
+    write_process_info()
+    start_live_share_background_job()
+    write_continue_run_uuid_to_file()
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
@@ -6323,28 +6335,11 @@ def main() -> None:
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
 
-    write_min_max_file()
-
     print_overview_tables(experiment_parameters, experiment_args)
 
-    set_global_executor()
-
-    load_existing_job_data_into_ax_client()
-
-    write_args_overview_table()
-
-    show_experiment_overview_table()
-
-    save_global_vars()
-    write_process_info()
-
-    start_live_share_background_job()
-
-    write_continue_run_uuid_to_file()
+    write_files_and_show_overviews()
 
     run_search_with_progress_bar()
-
-    wait_for_jobs_to_complete(0)
 
     if len(arg_result_names) > 1:
         show_pareto_frontier_data()
@@ -6440,6 +6435,8 @@ def run_search_with_progress_bar() -> None:
         run_search(progress_bar)
 
         wait_for_jobs_to_complete(num_parallel_jobs)
+
+    wait_for_jobs_to_complete(0)
 
 @beartype
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:

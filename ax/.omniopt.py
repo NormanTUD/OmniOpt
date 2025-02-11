@@ -6897,7 +6897,8 @@ def main_outside() -> None:
                 _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
                 if _get_perc < 100:
-                    print_red(f"\nIt seems like the search space was exhausted. "
+                    print_red(
+                        f"\nIt seems like the search space was exhausted. "
                         f"You were able to get {_get_perc}% of the jobs you requested "
                         f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, "
                         f"requested: {max_eval}) after main ran"

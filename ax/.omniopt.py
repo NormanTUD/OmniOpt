@@ -5713,6 +5713,14 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
 
 @beartype
 def set_global_executor() -> None:
+    try:
+        _set_global_executor()
+    except ModuleNotFoundError as e: # pragma: no cover
+        print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
+        sys.exit(244)
+
+@beartype
+def _set_global_executor() -> None:
     global executor
 
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
@@ -6319,11 +6327,7 @@ def main() -> None:
 
     print_overview_tables(experiment_parameters, experiment_args)
 
-    try:
-        set_global_executor()
-    except ModuleNotFoundError as e: # pragma: no cover
-        print_red(f"set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
-        sys.exit(244)
+    set_global_executor()
 
     load_existing_job_data_into_ax_client()
 

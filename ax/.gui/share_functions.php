@@ -67,6 +67,7 @@
 			"result_names.txt" => "Result-Names",
 			"loaded_modules.json" => "A file containing all modules loaded that have versioning data",
 			"args_overview.txt" => "A file containing a table that gives an overview of all args",
+			"experiment_overview.txt" => "A table showing different parameters relating to the current experiment"
 		);
 
 		if (isset($names[$replaced_file])) {

@@ -6323,9 +6323,7 @@ def main() -> None:
 
     write_continue_run_uuid_to_file()
 
-    disable_tqdm = args.disable_tqdm or ci_env
-
-    run_search_with_progress_bar(disable_tqdm)
+    run_search_with_progress_bar()
 
     wait_for_jobs_to_complete(0)
 
@@ -6409,7 +6407,9 @@ def save_experiment_parameters(filepath: str, experiment_parameters: Union[list,
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
 @beartype
-def run_search_with_progress_bar(disable_tqdm: bool) -> None:
+def run_search_with_progress_bar() -> None:
+    disable_tqdm = args.disable_tqdm or ci_env
+
     with tqdm(total=max_eval, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
         global progress_bar

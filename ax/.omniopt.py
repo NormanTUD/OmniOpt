@@ -4061,20 +4061,22 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
         tmp_old_res = tmp_old_res[resname]
         tmp_old_res_list = list(set(list(tmp_old_res)))
 
+        old_result_simple: Union[float, None, int] = None
+
         if len(tmp_old_res_list) == 1:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
 
             old_res: str = str(tmp_old_res_list[0])
 
-            if helpers.looks_like_float(old_res):
-                old_result_simple = float(old_res)
-            elif helpers.looks_like_int(old_res):
+            if helpers.looks_like_int(old_res):
                 old_result_simple = int(old_res)
+            elif helpers.looks_like_float(old_res):
+                old_result_simple = float(old_res)
             else:
-                old_result_simple = old_res
+                print_debug(f"old_res is not a string that looks like an int or a float, but it looks like this: {old_res}. Will return None.")
+                #old_result_simple = old_res
         else: # pragma: no cover
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-            old_result_simple = None
 
         return old_result_simple
 

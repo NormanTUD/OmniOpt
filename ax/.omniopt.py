@@ -2941,14 +2941,26 @@ def write_to_file(file_path: str, content: str) -> None:
         text_file.write(content)
 
 @beartype
-def create_result_table(res_name: str, best_params: Optional[dict[str, Any]], total_str: str, failed_error_str: str) -> Table:
-    table = Table(show_header=True, header_style="bold", title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):")
+def create_result_table(res_name: str, best_params: Optional[dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
+    table = Table(
+        show_header=True,
+        header_style="bold",
+        title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):"
+    )
 
-    for key in list(best_params["parameters"].keys())[3:]:
-        table.add_column(key)
+    if best_params and "parameters" in best_params:
+        best_params_keys = best_params["parameters"].keys()
 
-    table.add_column(res_name)
-    return table
+        _param_keys: list = list(best_params_keys)
+
+        for key in _param_keys[3:]:
+            table.add_column(key)
+
+        table.add_column(res_name)
+
+        return table
+
+    return None
 
 @beartype
 def add_table_row(table: Table, best_params: Optional[dict[str, Any]], best_result: Any) -> None:
@@ -2982,13 +2994,14 @@ def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print
     failed_error_str = f", failed: {failed_jobs()}" if print_to_file and failed_jobs() >= 1 else ""
 
     table = create_result_table(res_name, best_params, total_str, failed_error_str)
-    add_table_row(table, best_params, best_result)
+    if table is not None:
+        add_table_row(table, best_params, best_result)
 
-    if len(arg_result_names) == 1:
-        console.print(table)
+        if len(arg_result_names) == 1:
+            console.print(table)
 
-    print_and_write_table(table, print_to_file, f"{get_crf()}/best_result.txt")
-    plot_sixel_imgs(csv_file_path)
+        print_and_write_table(table, print_to_file, f"{get_crf()}/best_result.txt")
+        plot_sixel_imgs(csv_file_path)
 
     return 0
 

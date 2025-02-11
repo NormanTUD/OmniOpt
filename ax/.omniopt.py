@@ -6286,6 +6286,7 @@ def main() -> None:
     ])
 
     set_orchestrator()
+
     available_hardware(gpu_string, gpu_color)
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")

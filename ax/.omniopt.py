@@ -4057,11 +4057,11 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 @beartype
 def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
+    old_result_simple: Union[float, None, int] = None
+
     if isinstance(tmp_old_res, pd.DataFrame) and resname in tmp_old_res:
         tmp_old_res = tmp_old_res[resname]
         tmp_old_res_list = list(set(list(tmp_old_res)))
-
-        old_result_simple: Union[float, None, int] = None
 
         if len(tmp_old_res_list) == 1:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
@@ -4078,9 +4078,7 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
         else: # pragma: no cover
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
 
-        return old_result_simple
-
-    return None # pragma: no cover
+    return old_result_simple
 
 @beartype
 def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:

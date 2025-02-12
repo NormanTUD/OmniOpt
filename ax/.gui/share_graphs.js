@@ -1018,14 +1018,13 @@ async function load_pareto_graph () {
 				if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
 					extractMetrics(obj[key], newPrefix);
 				} else {
-					if (newPrefix != "param_dicts") {
+					if (!newPrefix.includes("param_dicts") && !newPrefix.includes(" -> sems -> ") && !newPrefix.includes("absolute_metrics")) {
 						allMetrics.add(newPrefix);
 					}
 				}
 			}
 		}
 
-		// Alle Metriken aus der verschachtelten Struktur extrahieren
 		for (let cat of categories) {
 			extractMetrics(parsedData[cat]);
 		}
@@ -1074,8 +1073,8 @@ async function load_pareto_graph () {
 					div.style.marginBottom = "20px";
 					graphContainer.appendChild(div);
 
-					let cleanXMetric = xMetric.replace(/ -> /g, " ");
-					let cleanYMetric = yMetric.replace(/ -> /g, " ");
+					let cleanXMetric = xMetric.replace(/.* -> /g, "");
+					let cleanYMetric = yMetric.replace(/.* -> /g, "");
 
 					let layout = {
 						title: `${cleanXMetric} vs ${cleanYMetric}`,

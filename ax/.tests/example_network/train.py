@@ -132,13 +132,13 @@ try:
 
     loss_obj = history.history["loss"]
     last_loss = loss_obj[len(loss_obj) - 1]
-    print(f"RESULT: {'{:f}'.format(last_loss)}")
-
-    total_params = model.count_params()
-    print(f"TOTAL_PARAMS: {total_params}")
+    print(f"LOSS: {'{:f}'.format(last_loss)}")
 
     val_accuracy = history.history["val_accuracy"][-1]
     print(f"VAL_ACCURACY: {val_accuracy:.4f}")
+
+    val_loss = history.history["val_loss"][-1]
+    print(f"VAL_LOSS: {val_loss:.4f}")
 except (KeyboardInterrupt) as e:
     pass
 

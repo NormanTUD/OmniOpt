@@ -1,5 +1,13 @@
 #!/bin/bash
 
+export PYENV_ROOT="$HOME/.pyenv"
+if [[ -d $PYENV_ROOT ]]; then
+	[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+	eval "$(pyenv init - bash)"
+
+	pyenv local 3.10.0
+fi
+
 export install_tests=1
 
 GREEN='\033[0;32m'

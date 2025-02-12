@@ -1047,7 +1047,7 @@ async function load_pareto_graph () {
 		}
 
 		let graphContainer = document.getElementById("pareto_front_graphs_container");
-		graphContainer.innerHTML = ""; // Vorherige Plots entfernen
+		graphContainer.innerHTML = "";
 
 		for (let i = 0; i < allMetrics.length; i++) {
 			for (let j = i + 1; j < allMetrics.length; j++) {
@@ -1063,7 +1063,6 @@ async function load_pareto_graph () {
 					extractValues(metricData, yMetric, yValues);
 				}
 
-				// Entferne undefinierte Werte und überprüfe, ob genug Daten vorhanden sind
 				xValues = xValues.filter(v => v !== undefined && v !== null);
 				yValues = yValues.filter(v => v !== undefined && v !== null);
 

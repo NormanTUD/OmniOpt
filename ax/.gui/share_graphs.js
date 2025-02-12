@@ -1102,6 +1102,17 @@ async function load_pareto_graph () {
 				}
 			}
 		}
+
+		var pareto_data = await fetchJsonFromUrlFilenameOnly("pareto_front_table.txt");
+
+		if(!Object.keys(data).includes("raw")) {
+			//warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
+			return;
+		}
+
+		if (Object.keys(pareto_data).includes("raw") && pareto_data.raw != "null" && pareto_data.raw !== null) {
+			$("#pareto_front_graphs_container").append(`<pre>${removeAnsiCodes(pareto_data.raw)}</pre>`);
+		}
 	}
 }
 
@@ -1110,21 +1121,6 @@ async function load_best_result () {
 	var data = await fetchJsonFromUrlFilenameOnly("best_result.txt");
 	if(!data) {
 		return;
-	}
-
-	var pareto_data = await fetchJsonFromUrlFilenameOnly("pareto_front_table.txt");
-
-	if(!Object.keys(data).includes("raw")) {
-		//warn(`load_best_result: Could not plot seemingly empty data: no raw found`);
-		return;
-	}
-
-	if (data.raw != "null" && data.raw !== null) {
-		$(".best_result_txt").html(`<pre>${removeAnsiCodes(data.raw)}</pre>`);
-	}
-
-	if (Object.keys(pareto_data).includes("raw") && pareto_data.raw != "null" && pareto_data.raw !== null) {
-		$(".best_result_txt").append(`<pre>${removeAnsiCodes(pareto_data.raw)}</pre>`);
 	}
 }
 

@@ -6074,6 +6074,8 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     _ax.set_ylabel(y_metric)
     _ax.set_title('Pareto-Frontier')
 
+    _ax.ticklabel_format(style='plain', axis='both', useOffset=False)
+
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
         plt.savefig(tmp_file.name, dpi=300)
 

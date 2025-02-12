@@ -1049,6 +1049,8 @@ async function load_pareto_graph () {
 		let graphContainer = document.getElementById("pareto_front_graphs_container");
 		graphContainer.innerHTML = "";
 
+		var already_plotted = [];
+
 		for (let i = 0; i < allMetrics.length; i++) {
 			for (let j = i + 1; j < allMetrics.length; j++) {
 				let xMetric = allMetrics[i];
@@ -1066,14 +1068,18 @@ async function load_pareto_graph () {
 				xValues = xValues.filter(v => v !== undefined && v !== null);
 				yValues = yValues.filter(v => v !== undefined && v !== null);
 
-				if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length) {
+				let cleanXMetric = xMetric.replace(/.* -> /g, "");
+				let cleanYMetric = yMetric.replace(/.* -> /g, "");
+
+				let plot_key = `${cleanXMetric}-${cleanYMetric}`
+
+				if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length && !already_plotted.includes(plot_key)) {
 					let div = document.createElement("div");
 					div.id = `pareto_front_graph_${i}_${j}`;
 					div.style.marginBottom = "20px";
 					graphContainer.appendChild(div);
 
-					let cleanXMetric = xMetric.replace(/.* -> /g, "");
-					let cleanYMetric = yMetric.replace(/.* -> /g, "");
+
 
 					let layout = {
 						title: `${cleanXMetric} vs ${cleanYMetric}`,
@@ -1091,6 +1097,8 @@ async function load_pareto_graph () {
 					};
 
 					Plotly.newPlot(div.id, [trace], layout);
+
+					already_plotted.push(plot_key);
 				}
 			}
 		}

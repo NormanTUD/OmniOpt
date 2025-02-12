@@ -995,6 +995,110 @@ async function load_job_infos () {
 	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
+async function load_pareto_graph () {                                                                                                                                                                                                  
+	showSpinnerOverlay("Loading pareto graph (if available)");                                                                                                                                                                     
+
+	var data = await fetchJsonFromUrlFilenameOnly("pareto_front_data.json");                                                                                                                                                       
+
+	if (!Object.keys(data).includes("raw")) {                                                                                                                                                                                       
+		return;                                                                                                                                                                                                                
+	}                                                                                                                                                                                                                               
+
+	if (data.raw != "null" && data.raw !== null) {                                                                                                                                                                                 
+		add_tab("pareto_front_graphs", "Pareto-Front", "<div id='pareto_front_graphs_container'></div>");                                                                                                                             
+
+		let parsedData = JSON.parse(data.raw);
+		let categories = Object.keys(parsedData);
+		let allMetrics = new Set();
+
+		function extractMetrics(obj, prefix = "") {
+			let keys = Object.keys(obj);
+			for (let key of keys) {
+				let newPrefix = prefix ? `${prefix} -> ${key}` : key;
+				if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+					extractMetrics(obj[key], newPrefix);
+				} else {
+					if (newPrefix != "param_dicts") {
+						allMetrics.add(newPrefix);
+					}
+				}
+			}
+		}
+
+		// Alle Metriken aus der verschachtelten Struktur extrahieren
+		for (let cat of categories) {
+			extractMetrics(parsedData[cat]);
+		}
+
+		allMetrics = Array.from(allMetrics);
+
+		function extractValues(obj, metricPath, values) {
+			let parts = metricPath.split(" -> ");
+			let data = obj;
+			for (let part of parts) {
+				if (data && typeof data === "object") {
+					data = data[part];
+				} else {
+					return;
+				}
+			}
+			if (Array.isArray(data)) {
+				values.push(...data);
+			}
+		}
+
+		let graphContainer = document.getElementById("pareto_front_graphs_container");
+		graphContainer.innerHTML = ""; // Vorherige Plots entfernen
+
+		for (let i = 0; i < allMetrics.length; i++) {
+			for (let j = i + 1; j < allMetrics.length; j++) {
+				let xMetric = allMetrics[i];
+				let yMetric = allMetrics[j];
+
+				let xValues = [];
+				let yValues = [];
+
+				for (let cat of categories) {
+					let metricData = parsedData[cat];
+					extractValues(metricData, xMetric, xValues);
+					extractValues(metricData, yMetric, yValues);
+				}
+
+				// Entferne undefinierte Werte und überprüfe, ob genug Daten vorhanden sind
+				xValues = xValues.filter(v => v !== undefined && v !== null);
+				yValues = yValues.filter(v => v !== undefined && v !== null);
+
+				if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length) {
+					let div = document.createElement("div");
+					div.id = `pareto_front_graph_${i}_${j}`;
+					div.style.marginBottom = "20px";
+					graphContainer.appendChild(div);
+
+					let cleanXMetric = xMetric.replace(/ -> /g, " ");
+					let cleanYMetric = yMetric.replace(/ -> /g, " ");
+
+					let layout = {
+						title: `${cleanXMetric} vs ${cleanYMetric}`,
+						xaxis: { title: cleanXMetric },
+						yaxis: { title: cleanYMetric },
+						hovermode: "closest"
+					};
+
+					let trace = {
+						x: xValues,
+						y: yValues,
+						mode: "markers",
+						type: "scatter",
+						name: `${cleanXMetric} vs ${cleanYMetric}`
+					};
+
+					Plotly.newPlot(div.id, [trace], layout);
+				}
+			}
+		}
+	}
+}
+
 async function load_best_result () {
 	showSpinnerOverlay("Loading best results...");
 	var data = await fetchJsonFromUrlFilenameOnly("best_result.txt");
@@ -1350,6 +1454,7 @@ async function load_all_data() {
 
 		promises.push(load_overview_data());
 		promises.push(load_evaluation_errors_and_oo_errors());
+		promises.push(load_pareto_graph());
 		promises.push(load_best_result());
 		promises.push(load_job_infos());
 		promises.push(load_next_trials());

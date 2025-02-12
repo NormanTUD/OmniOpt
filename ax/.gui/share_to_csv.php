@@ -14,7 +14,7 @@
 				die("$name must consist of numbers, letters or underscore!");
 			}
 		} else if ($name == "filename") {
-			if(!preg_match("/^[a-zA-Z_0-9]+(?:\.(?:txt|csv|log|out))?$/", $val)) {
+			if(!preg_match("/^[a-zA-Z_0-9]+(?:\.(?:txt|json|csv|log|out))?$/", $val)) {
 				print json_encode(
 					array(
 						"raw" => null,

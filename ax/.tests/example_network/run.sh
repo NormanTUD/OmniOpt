@@ -51,22 +51,22 @@ function calltracer () {
 trap 'calltracer' ERR
 
 function help () {
-        echo "Possible options:"
-        echo "  --train                                            Start training"
-        echo "  --predict                                          Start predicting"
-        echo "  --learning_rate=FLOAT                              The learning rate"
-        echo "  --epochs=INT                                       The number of epochs"
+	echo "Possible options:"
+	echo "  --train                                            Start training"
+	echo "  --predict                                          Start predicting"
+	echo "  --learning_rate=FLOAT                              The learning rate"
+	echo "  --epochs=INT                                       The number of epochs"
 	echo "  --validation_split=FLOAT                           The validation split (between 0 and 1)"
-        echo "  --width=INT                                        Image width"
-        echo "  --height=INT                                       Image height"
-        echo "  --data=DIRNAME                                     Data dir"
+	echo "  --width=INT                                        Image width"
+	echo "  --height=INT                                       Image height"
+	echo "  --data=DIRNAME                                     Data dir"
 	echo "  --conv                                             Number of convolution layers"
 	echo "  --conv_filters                                     Number of convolution filters"
 	echo "  --dense                                            Number of dense layers"
 	echo "  --dense_units                                      Number of dense neurons"
-        echo "  --help                                             This help"
-        echo "  --debug                                            Enables debug mode"
-        exit $1
+	echo "  --help                                             This help"
+	echo "  --debug                                            Enables debug mode"
+	exit $1
 }
 
 train=1

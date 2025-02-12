@@ -6050,7 +6050,7 @@ def supports_sixel() -> bool:
     return False # pragma: no cover
 
 @beartype
-def plot_pareto_frontier_sixel(data: Any) -> None:
+def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     if not supports_sixel(): # pragma: no cover
         console.print("[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot.[/]")
         return
@@ -6061,8 +6061,8 @@ def plot_pareto_frontier_sixel(data: Any) -> None:
     means = data.means
     absolute_metrics = data.absolute_metrics
 
-    x_metric = absolute_metrics[0]
-    y_metric = absolute_metrics[1]
+    x_metric = absolute_metrics[i]
+    y_metric = absolute_metrics[j]
 
     x_values = means[x_metric]
     y_values = means[y_metric]
@@ -6117,7 +6117,7 @@ def show_pareto_frontier_data() -> None:
                 num_points=count_done_jobs()
             )
 
-            plot_pareto_frontier_sixel(calculated_frontier)
+            plot_pareto_frontier_sixel(calculated_frontier, i, j)
 
             if metric_i.name not in pareto_front_data:
                 pareto_front_data[metric_i.name] = {}

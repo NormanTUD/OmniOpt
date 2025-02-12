@@ -3099,6 +3099,11 @@ def abandon_all_jobs() -> None: # pragma: no cover
 def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global global_vars, END_PROGRAM_RAN
 
+    if len(arg_result_names) > 1:
+        show_pareto_frontier_data()
+    else:
+        print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
+
     if os.getpid() != main_pid: # pragma: no cover
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
@@ -6342,11 +6347,6 @@ def main() -> None:
     write_files_and_show_overviews()
 
     run_search_with_progress_bar()
-
-    if len(arg_result_names) > 1:
-        show_pareto_frontier_data()
-    else:
-        print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
     live_share()
 

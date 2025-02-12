@@ -689,8 +689,8 @@ function update_command() {
 					warn_msg.push("<i>Value</i> is missing.");
 				} else if(!fixedValue.match(/./)) {
 					warn_msg.push("<i>Value</i> is missing.");
-				} else if(!fixedValue.match(/^[a-zA-Z0-9,_]+$/)) {
-					warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_]/.");
+				} else if(!fixedValue.match(/^[a-zA-Z0-9\.,_]+$/)) {
+					warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_\.]/.");
 
 				}
 			}

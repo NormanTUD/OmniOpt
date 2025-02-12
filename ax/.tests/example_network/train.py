@@ -11,6 +11,7 @@ try:
     import tensorflow as tf
     import uuid
     import argparse
+    import psutil
 
     model = tf.keras.Sequential()
 
@@ -134,3 +135,6 @@ try:
     print(f"RESULT: {'{:f}'.format(last_loss)}")
 except (KeyboardInterrupt) as e:
     pass
+
+ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
+print(f"RAM_USAGE: {ram_usage:.2f}") # in MB

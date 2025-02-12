@@ -21,7 +21,7 @@ try:
     parser.add_argument('--learning_rate', type=float, help='Learning rate as a floating point number', default=0.001)
     parser.add_argument('--epochs', type=int, help='Number of epochs as an integer', default=10)
     parser.add_argument('--validation_split', type=float, help='Validation split as a floating point number', default=0.2)
-    parser.add_argument('--data', type=str, help='Data dir', default='data')
+    parser.add_argument('--data', type=str, help='Data dir', default='data_full')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)
     parser.add_argument('--conv', type=int, help='Number of conv layers', default=2)

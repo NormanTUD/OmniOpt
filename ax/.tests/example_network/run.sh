@@ -109,3 +109,5 @@ elif [[ "$predict" == 1 ]]; then
 else
         red_text "Neither predict nor train was set."
 fi
+
+echo "RUNTIME: $SECONDS"

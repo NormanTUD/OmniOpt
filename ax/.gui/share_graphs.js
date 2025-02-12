@@ -53,7 +53,7 @@ function every_array_element_is_a_number (arr) {
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -364,7 +364,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 				return [(value - minResult) / (maxResult - minResult), color_curried(value)];
 			});
 
-			var trace2d = { 
+			var trace2d = {
 				x: xValues,
 				y: yValues,
 				mode: "markers",
@@ -374,7 +374,7 @@ function scatter(_paramKeys, _results_csv_json, minResult, maxResult, resultValu
 					size: 15,
 					sizemode: "diameter",
 					sizeref: 1
-				},      
+				},
 				text: hoverText,
 				hoverinfo: "text"
 			};
@@ -600,7 +600,7 @@ async function load_out_files () {
 	if(!data) {
 		return;
 	}
-	
+
 	if(!Object.keys(data).includes("data")) {
 		warn("load_out_files: Could not plot seemingly empty data: no data found");
 		return;
@@ -995,17 +995,17 @@ async function load_job_infos () {
 	$("#job_infos_csv").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
-async function load_pareto_graph () {                                                                                                                                                                                                  
-	showSpinnerOverlay("Loading pareto graph (if available)");                                                                                                                                                                     
+async function load_pareto_graph () {
+	showSpinnerOverlay("Loading pareto graph (if available)");
 
-	var data = await fetchJsonFromUrlFilenameOnly("pareto_front_data.json");                                                                                                                                                       
+	var data = await fetchJsonFromUrlFilenameOnly("pareto_front_data.json");
 
-	if (!Object.keys(data).includes("raw")) {                                                                                                                                                                                       
-		return;                                                                                                                                                                                                                
-	}                                                                                                                                                                                                                               
+	if (!Object.keys(data).includes("raw")) {
+		return;
+	}
 
-	if (data.raw != "null" && data.raw !== null) {                                                                                                                                                                                 
-		add_tab("pareto_front_graphs", "Pareto-Front", "<div id='pareto_front_graphs_container'></div>");                                                                                                                             
+	if (data.raw != "null" && data.raw !== null) {
+		add_tab("pareto_front_graphs", "Pareto-Front", "<div id='pareto_front_graphs_container'><div>");
 
 		let parsedData = JSON.parse(data.raw);
 		let categories = Object.keys(parsedData);

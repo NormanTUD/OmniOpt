@@ -3265,7 +3265,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
         cuda_is_available = torch.cuda.is_available()
 
         if not cuda_is_available or cuda_is_available == 0:
-            gpu_string = "No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU."
+            gpu_string = "No CUDA devices found."
             gpu_color = "yellow"
         else:
             if torch.cuda.device_count() >= 1: # pragma: no cover
@@ -3273,7 +3273,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
                 gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}"
                 gpu_color = "green"
             else: # pragma: no cover
-                gpu_string = "No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU."
+                gpu_string = "No CUDA devices found."
                 gpu_color = "yellow"
     except ModuleNotFoundError: # pragma: no cover
         print_red("Cannot load torch and thus, cannot use gpus")

@@ -6089,8 +6089,8 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
 
 @beartype
 def show_pareto_frontier_data() -> None:
-    if len(arg_result_names) == 1: # pragma: no cover
-        print_debug(f"{len(arg_result_names)} is 1")
+    if len(arg_result_names) <= 1: # pragma: no cover
+        print_debug(f"--result_names (has {len(arg_result_names)} entries) must be at least 2.")
         return
 
     if ax_client is None: # pragma: no cover
@@ -6105,8 +6105,8 @@ def show_pareto_frontier_data() -> None:
 
     for i, j in combinations(range(len(objectives)), 2):
         try:
-            metric_j = objectives[j].metric
             metric_i = objectives[i].metric
+            metric_j = objectives[j].metric
 
             calculated_frontier = compute_posterior_pareto_frontier(
                 experiment=ax_client.experiment,

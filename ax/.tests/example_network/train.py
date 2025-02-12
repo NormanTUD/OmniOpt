@@ -136,6 +136,9 @@ try:
 
     total_params = model.count_params()
     print(f"TOTAL_PARAMS: {total_params}")
+
+    val_accuracy = history.history["val_accuracy"][-1]
+    print(f"VAL_ACCURACY: {val_accuracy:.4f}")
 except (KeyboardInterrupt) as e:
     pass
 

@@ -21,10 +21,13 @@ COPY slurm.conf /etc/slurm/slurm.conf
 RUN chown slurm:slurm /etc/slurm/slurm.conf
 
 # MySQL initialisieren
-RUN mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld
+RUN mkdir -p /var/run/mysqld
+RUN chown -R mysql:mysql /var/run/mysqld
+RUN chmod -R 777 /var/run/mysqld
 
 # Start-Skript für den Container
 COPY internal_start.sh /internal_start.sh
+RUN chown -R mysql:mysql /var/lib/mysql
 RUN chmod +x /internal_start.sh
 
 # Standardbefehl

@@ -5,7 +5,7 @@ docker exec slurm-frontend bash /oo_dir/omniopt \
 	--send_anonymized_usage_stats \
 	--partition alpha \
 	--experiment_name __main__tests__BOTORCH_MODULAR___nogridsearch \
-	--mem_gb=4 \
+	--mem_gb=1 \
 	--time 60 \
 	--worker_timeout=5 \
 	--max_eval 2 \

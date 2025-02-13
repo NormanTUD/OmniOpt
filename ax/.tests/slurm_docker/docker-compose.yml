@@ -9,6 +9,7 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin
+                - ../../:/oo_dir
         ports:
                 - 8888:8888
   slurmmaster:

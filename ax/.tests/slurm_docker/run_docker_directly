@@ -1,27 +1,28 @@
 #!/bin/bash
 
-docker exec slurm-frontend sbatch \
-	--mem=1GB \
-	--job-name __main__tests__BOTORCH_MODULAR___nogridsearch \
-	--time=00:10:00 \
-	/oo_dir/omniopt \
-	--live_share \
-	--send_anonymized_usage_stats \
-	--partition alpha \
-	--experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch \
-	--mem_gb=1 \
-	--time=60 \
-	--worker_timeout=5 \
-	--max_eval 2 \
-	--num_parallel_jobs 1 \
-	--gpus=0 \
-	--run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x \
-	--parameter int_param range -100 10 int \
-	--parameter float_param range -100 10 float \
-	--parameter choice_param choice 1,2,4,8,16,hallo \
-	--parameter int_param_two range -100 10 int \
-	--follow \
-	--num_random_steps 1 \
-	--model BOTORCH_MODULAR \
-	--auto_exclude_defective_hosts \
-	--hide_ascii_plots
+docker exec slurm-frontend \
+	sbatch \
+		--mem=1GB \
+		--job-name __main__tests__BOTORCH_MODULAR___nogridsearch \
+		--time=00:10:00 \
+		/oo_dir/omniopt \
+		--live_share \
+		--send_anonymized_usage_stats \
+		--partition alpha \
+		--experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch \
+		--mem_gb=1 \
+		--time=60 \
+		--worker_timeout=5 \
+		--max_eval 2 \
+		--num_parallel_jobs 1 \
+		--gpus=0 \
+		--run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x \
+		--parameter int_param range -100 10 int \
+		--parameter float_param range -100 10 float \
+		--parameter choice_param choice 1,2,4,8,16,hallo \
+		--parameter int_param_two range -100 10 int \
+		--follow \
+		--num_random_steps 1 \
+		--model BOTORCH_MODULAR \
+		--auto_exclude_defective_hosts \
+		--hide_ascii_plots

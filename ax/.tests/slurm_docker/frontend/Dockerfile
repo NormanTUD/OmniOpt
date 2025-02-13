@@ -50,26 +50,7 @@ COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/
 COPY docker-entrypoint.sh /etc/slurm/
 
-RUN chown munge:munge etc/munge/munge.key \
- && chown slurm:slurm /etc/slurm \
- && chown slurm:slurm /etc/slurm/*.conf \
- && chmod 600 /etc/munge/munge.key \
- && chmod 775 /etc/slurm \
- && chmod 775 /etc/slurm/*.conf
-
-COPY ssh /home/admin/.ssh
-
-RUN chown -R admin:admin /home/admin/.ssh \
- && chmod -R 700 /home/admin/.ssh
-
-WORKDIR /home/admin
-
-EXPOSE 22 8888
-
-ENV USER admin
-ENV SHELL bash
-
-RUN apt-get install -y vim bash git
+RUN apt-get install -y vim bash git zip
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
     echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
@@ -103,10 +84,27 @@ RUN apt-get install -y bc
 RUN apt-get install -y uuid-runtime
 RUN apt-get install -y python3.10-venv
 
+RUN chown munge:munge etc/munge/munge.key \
+ && chown slurm:slurm /etc/slurm \
+ && chown slurm:slurm /etc/slurm/*.conf \
+ && chmod 600 /etc/munge/munge.key \
+ && chmod 775 /etc/slurm \
+ && chmod 775 /etc/slurm/*.conf
+
+COPY ssh /home/admin/.ssh
+
+RUN chown -R admin:admin /home/admin/.ssh \
+ && chmod -R 700 /home/admin/.ssh
+
+WORKDIR /home/admin
+
+EXPOSE 22 8888
+
+ENV USER admin
+ENV SHELL bash
+
 #RUN mkdir -p /oo/
 #RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
 #RUN bash /oo/ax/.shellscript_functions
-
-RUN apt-get install -y zip
 
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

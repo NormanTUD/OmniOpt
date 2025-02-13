@@ -31,51 +31,53 @@ fi
 
 ERRORS=()
 
-php_no_regex=$(php search.php)
-expected_no_regex="{\"error\":\"No 'regex' parameter given for search\"}"
+if command -v php 2>/dev/null >/dev/null; then
+	php_no_regex=$(php search.php)
+	expected_no_regex="{\"error\":\"No 'regex' parameter given for search\"}"
 
-if [[ "$php_no_regex" == $expected_no_regex ]]; then
-	green_text "php .gui/search.php without regex succeeded"
-else
-	error_msg="php .gui/search failed. Got: $php_no_regex, expected: $expected_no_regex"
-	red_text "$error_msg"
-	ERRORS+=("$error_msg")
-fi
+	if [[ "$php_no_regex" == $expected_no_regex ]]; then
+		green_text "php .gui/search.php without regex succeeded"
+	else
+		error_msg="php .gui/search failed. Got: $php_no_regex, expected: $expected_no_regex"
+		red_text "$error_msg"
+		ERRORS+=("$error_msg")
+	fi
 
-export regex="IWILLNEVERFINDANYTHINGHOPEFULLY"
-php_no_result=$(php search.php)
-unset regex
-expected_no_result="[]"
+	export regex="IWILLNEVERFINDANYTHINGHOPEFULLY"
+	php_no_result=$(php search.php)
+	unset regex
+	expected_no_result="[]"
 
-if [[ "$php_no_result" == $expected_no_result ]]; then
-	green_text "php .gui/search.php without result succeeded"
-else
-	error_msg="php .gui/search failed. Got: $php_no_result, expected: $expected_no_result"
-	red_text "$error_msg"
-	ERRORS+=("$error_msg")
-fi
+	if [[ "$php_no_result" == $expected_no_result ]]; then
+		green_text "php .gui/search.php without result succeeded"
+	else
+		error_msg="php .gui/search failed. Got: $php_no_result, expected: $expected_no_result"
+		red_text "$error_msg"
+		ERRORS+=("$error_msg")
+	fi
 
-export regex="a"
-php_result=$(php search.php | jq 2>/dev/null >/dev/null)
-exit_code=$?
-unset regex
+	export regex="a"
+	php_result=$(php search.php | jq 2>/dev/null >/dev/null)
+	exit_code=$?
+	unset regex
 
-if [[ $exit_code -eq 0 ]]; then
-	green_text "php .gui/search.php simple regex succeeded"
-else
-	error_msg="php .gui/search failed. Got: $php_result, expected: $expected_no_result"
-	red_text "$error_msg"
-	ERRORS+=("$error_msg")
-fi
+	if [[ $exit_code -eq 0 ]]; then
+		green_text "php .gui/search.php simple regex succeeded"
+	else
+		error_msg="php .gui/search failed. Got: $php_result, expected: $expected_no_result"
+		red_text "$error_msg"
+		ERRORS+=("$error_msg")
+	fi
 
-if [ ${#ERRORS[@]} -eq 0 ]; then
-	green_text "No errors"
-else
-	red_text "=> ERRORS => ERRORS => ERRORS =>"
-	for i in "${ERRORS[@]}"; do
-		red_text "$i"
-		echo ""
-	done
+	if [ ${#ERRORS[@]} -eq 0 ]; then
+		green_text "No errors"
+	else
+		red_text "=> ERRORS => ERRORS => ERRORS =>"
+		for i in "${ERRORS[@]}"; do
+			red_text "$i"
+			echo ""
+		done
+	fi
 fi
 
 exit ${#ERRORS[@]}

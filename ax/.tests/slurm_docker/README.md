@@ -49,3 +49,11 @@ To run a Slurm job:
 ```
 docker exec slurm-frontend srun hostname
 ```
+
+## OmniOpt use case:
+
+Build with `bash docker`. Then:
+
+```
+docker exec slurm-frontend bash /oo_dir/.tests/main --max_eval=2 --num_random_steps=1
+```

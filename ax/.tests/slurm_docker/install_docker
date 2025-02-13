@@ -4,6 +4,10 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 cd $SCRIPT_DIR
 
+for i in frontend master node; do
+	cp slurm.conf $i/
+done
+
 docker-compose build slurmmaster
 docker-compose build slurmfrontend
 docker-compose build slurmnode1
@@ -11,3 +15,7 @@ docker-compose build slurmnode2
 docker-compose build slurmnode3
 
 docker-compose -f docker-compose.yml up -d
+
+for i in frontend master node; do
+	rm $i/slurm.conf
+done

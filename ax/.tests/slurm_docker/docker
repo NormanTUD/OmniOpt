@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker build -t slurm-mysql . && docker run --rm -it --privileged -v mysql_data:/var/lib/mysql slurm-mysql

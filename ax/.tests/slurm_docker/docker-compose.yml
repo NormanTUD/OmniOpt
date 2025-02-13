@@ -23,6 +23,7 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
         environment:
                 - SLURM_CPUS_ON_NODE=8
         ports:
@@ -40,6 +41,7 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
         environment:
                 - SLURM_NODENAME=slurmnode1
                 - SLURM_CPUS_ON_NODE=8
@@ -56,6 +58,7 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
         environment:
                 - SLURM_NODENAME=slurmnode2
                 - SLURM_CPUS_ON_NODE=8
@@ -72,6 +75,7 @@ services:
         user: admin
         volumes:
                 - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
         environment:
                 - SLURM_NODENAME=slurmnode3
                 - SLURM_CPUS_ON_NODE=8

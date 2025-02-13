@@ -1546,6 +1546,7 @@ else
 			fi
 		fi
 	else
+		sbatch_command=$(echo "$sbatch_command" | sed -e 's#^\s*##' -e 's#\s*$##')
 		red_text "Failed to start sbatch job ($sbatch_command). Exit-Code: $exit_code\n"
 
 		myexit $exit_code

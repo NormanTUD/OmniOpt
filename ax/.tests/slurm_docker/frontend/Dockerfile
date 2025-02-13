@@ -107,4 +107,6 @@ RUN mkdir -p /oo/
 RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
 RUN bash /oo/ax/.shellscript_functions
 
+RUN apt-get install -y zip
+
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

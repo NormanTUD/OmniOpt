@@ -50,7 +50,7 @@ COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/
 COPY docker-entrypoint.sh /etc/slurm/
 
-RUN apt-get install -y vim bash git zip
+RUN apt-get install -y vim bash git
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
     echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
@@ -69,8 +69,8 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe m
 
 RUN apt-get update -y
 
+RUN apt-get install -y zip
 RUN apt-get install -y 2to3
-
 RUN apt-get install -y curl
 RUN apt-get install -y xterm
 RUN apt-get install -y whiptail

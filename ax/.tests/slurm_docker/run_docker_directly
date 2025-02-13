@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bash install_docker
+
 docker exec slurm-frontend \
 	sbatch \
 		--mem=1GB \

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bash install_docker
+
 docker exec slurm-frontend bash /oo_dir/omniopt \
 	--live_share \
 	--send_anonymized_usage_stats \

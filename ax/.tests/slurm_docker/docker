@@ -1,9 +1,11 @@
 #!/bin/bash
+set -e
 
-SCRIPT_DIR=$(dirname $(realpath "$0"))
+if ! command -v docker-compose &> /dev/null; then
+    echo "docker-compose not found."
+    exit 1
+fi
 
-mkdir -p $SCRIPT_DIR/mysql_data
+docker-compose build
 
-docker volume create mysql_data
-
-docker build -t slurm-mysql . && docker run --rm -it --privileged -v $SCRIPT_DIR/mysql_data:/var/lib/mysql --user mysql slurm-mysql
+docker-compose up -d

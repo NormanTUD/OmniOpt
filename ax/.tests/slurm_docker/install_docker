@@ -10,9 +10,9 @@ done
 
 docker-compose build slurmmaster
 docker-compose build slurmfrontend
-docker-compose build slurmnode1
-docker-compose build slurmnode2
-docker-compose build slurmnode3
+for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9]:" | sed -e 's#^\s*##' -e 's#:\s*##'); do
+	docker-compose build $nodename
+done
 
 docker-compose -f docker-compose.yml up -d
 

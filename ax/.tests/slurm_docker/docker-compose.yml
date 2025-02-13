@@ -49,7 +49,7 @@ services:
         build:
           context: ./node
           dockerfile: Dockerfile
-        container_name: slurm-node1
+        container_name: slurm-node2
         shm_size: '4g'
         hostname: slurmnode2
         user: admin

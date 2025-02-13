@@ -1,1 +1,4 @@
 ax
+frontend/slurm.conf
+master/slurm.conf
+node/slurm.conf

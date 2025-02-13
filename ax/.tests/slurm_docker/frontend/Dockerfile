@@ -80,10 +80,6 @@ RUN apt-get install -y uuid-runtime
 RUN apt-get install -y python3.10-venv
 RUN apt-get install -y zsh
 
-RUN git clone https://github.com/NormanTUD/My-ZSH-Config.git
-RUN cp My-Zsh-Config/zshrc ~/.zshrc
-RUN cp My-vim-Config/vimrc ~/.vimrc
-
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/

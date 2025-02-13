@@ -4,6 +4,6 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 cd $SCRIPT_DIR
 
-docker-compose build slurmfrontend
+#docker-compose build slurmfrontend
 
 docker-compose -f docker-compose.yml up -d

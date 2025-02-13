@@ -7,6 +7,7 @@ docker exec slurm-frontend \
 		--mem=1GB \
 		--job-name __main__tests__BOTORCH_MODULAR___nogridsearch \
 		--time=00:10:00 \
+		--cpus-per-task 1 \
 		/oo_dir/omniopt \
 		--live_share \
 		--send_anonymized_usage_stats \

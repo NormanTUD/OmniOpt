@@ -3,7 +3,6 @@ services:
         build:
           context: ./frontend
           dockerfile: Dockerfile
-        image: ghcr.io/noaa-gsl/dockerslurmcluster/slurm-frontend:latest
         container_name: slurm-frontend
         shm_size: '4g'
         hostname: slurmfrontend

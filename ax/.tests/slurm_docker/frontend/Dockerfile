@@ -69,8 +69,38 @@ EXPOSE 22 8888
 ENV USER admin
 ENV SHELL bash
 
-RUN apt-get install -y vim zsh bash git
-RUN apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc
+RUN apt-get install -y vim bash git
+
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list
+
+RUN apt-get update -y
+
+RUN apt-get install -y 2to3
+
+RUN apt-get install -y curl
+RUN apt-get install -y xterm
+RUN apt-get install -y whiptail
+RUN apt-get install -y python3-dev
+RUN apt-get install -y php-cli 
+RUN apt-get install -y unzip
+RUN apt-get install -y python3-lib2to3 
+RUN apt-get install -y python3-toolz 
+RUN apt-get install -y php-mbstring
+RUN apt-get install -y bc
+
 RUN mkdir -p /oo/
 RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
 

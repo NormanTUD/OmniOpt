@@ -2,7 +2,6 @@
 
 docker exec slurm-frontend sbatch \
 	--mem=1GB \
-	-N 1 \
 	--job-name __main__tests__BOTORCH_MODULAR___nogridsearch \
 	--time=00:10:00 \
 	/oo_dir/omniopt \

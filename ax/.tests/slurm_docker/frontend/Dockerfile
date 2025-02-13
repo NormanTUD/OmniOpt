@@ -103,9 +103,11 @@ RUN apt-get install -y bc
 RUN apt-get install -y uuid-runtime
 RUN apt-get install -y python3.10-venv
 
-RUN mkdir -p /oo/
-RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
+COPY ax /oo/
 
-RUN bash /oo/ax/.shellscript_functions
+
+#RUN mkdir -p /oo/
+#RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
+#RUN bash /oo/ax/.shellscript_functions
 
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

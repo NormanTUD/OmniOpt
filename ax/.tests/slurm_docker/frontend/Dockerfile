@@ -45,11 +45,6 @@ RUN mkdir /var/run/sshd \
  && chmod -x /etc/update-motd.d/* \
  && rm -f /etc/legal
 
-COPY munge.key /etc/munge/
-COPY slurm.conf /etc/slurm/
-COPY cgroup.conf /etc/slurm/
-COPY docker-entrypoint.sh /etc/slurm/
-
 RUN apt-get install -y vim bash git
 
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
@@ -83,6 +78,11 @@ RUN apt-get install -y php-mbstring
 RUN apt-get install -y bc
 RUN apt-get install -y uuid-runtime
 RUN apt-get install -y python3.10-venv
+
+COPY munge.key /etc/munge/
+COPY slurm.conf /etc/slurm/
+COPY cgroup.conf /etc/slurm/
+COPY docker-entrypoint.sh /etc/slurm/
 
 RUN chown munge:munge etc/munge/munge.key \
  && chown slurm:slurm /etc/slurm \

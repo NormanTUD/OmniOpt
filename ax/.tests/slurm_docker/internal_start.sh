@@ -14,7 +14,6 @@ service munge start
 echo "Starting MariaDB in debug mode..."
 mysqld --user=mysql --skip-grant-tables --log-error-verbosity=3 --debug
 
-
 echo "Starting Slurm..."
 service slurmd start
 service slurmctld start

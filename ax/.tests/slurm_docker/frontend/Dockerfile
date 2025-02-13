@@ -100,6 +100,7 @@ RUN apt-get install -y python3-lib2to3
 RUN apt-get install -y python3-toolz 
 RUN apt-get install -y php-mbstring
 RUN apt-get install -y bc
+RUN apt-get install -y uuid-runtime
 
 RUN mkdir -p /oo/
 RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/

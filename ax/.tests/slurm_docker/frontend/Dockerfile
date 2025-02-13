@@ -69,4 +69,9 @@ EXPOSE 22 8888
 ENV USER admin
 ENV SHELL bash
 
+RUN apt-get install -y vim zsh bash git
+RUN apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc
+RUN mkdir -p /oo/
+RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
+
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

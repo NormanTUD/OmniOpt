@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 if [ ! -f /etc/slurm/slurm.conf ]; then
     echo "ERROR: slurm.conf not found in /etc/slurm!"

@@ -4,4 +4,6 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 mkdir -p $SCRIPT_DIR/mysql_data
 
+docker volume create mysql_data
+
 docker build -t slurm-mysql . && docker run --rm -it --privileged -v $SCRIPT_DIR/mysql_data:/var/lib/mysql --user mysql slurm-mysql

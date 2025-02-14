@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Default Werte
 mem_gb=1
 time=60
 worker_timeout=5
@@ -9,7 +8,6 @@ num_parallel_jobs=1
 num_random_steps=1
 install_slurm=false
 
-# Funktion zur Anzeige der Hilfe
 usage() {
 	echo "Usage: $0 [OPTIONS]"
 	echo ""
@@ -20,13 +18,12 @@ usage() {
 	echo "  --max_eval=MAX_EVAL         Maximum number of evaluations (default: 2)"
 	echo "  --num_parallel_jobs=NUM     Number of parallel jobs (default: 1)"
 	echo "  --num_random_steps=NUM      Number of random steps (default: 1)"
-	echo "  --install_slurm             Install Slurm in Docker (default: false)"
+	echo "  --install_slurm             Install SLURM in Docker (default: false)"
 	echo "  --stop                      Stop the Docker container"
 	echo "  --help                      Show this help message"
 	exit 1
 }
 
-# CLI-Parameter parsen
 for arg in "$@"; do
 	case $arg in
 		--mem_gb=*)
@@ -88,7 +85,6 @@ for arg in "$@"; do
 	esac
 done
 
-# Installiere Slurm im Docker-Container, falls gewünscht
 if $install_slurm; then
 	bash install_slurm_in_docker
 fi
@@ -96,7 +92,6 @@ fi
 docker-compose -f docker-compose.yml up -d --remove-orphans
 
 
-# Führe den Docker-Befehl aus
 docker exec slurm-frontend bash /oo_dir/omniopt \
         --live_share \
         --send_anonymized_usage_stats \

@@ -1175,7 +1175,7 @@ function get_parameter_names(only_these_types = []) {
 function isValidEquationString(input) {
 	const parameter_names = get_parameter_names(["range"]);
 
-	return test_if_equation_is_valid(input, parameter_names);
+	return input.split(";").map(part => test_if_equation_is_valid(part, parameter_names)).join("");
 }
 
 function isAnyLogScaleSet() {
@@ -1342,6 +1342,7 @@ function test_if_equation_is_valid(str, names) {
 
 	function errorsToHtml(_errors) {
 		if (_errors.length) {
+			_errors.unshift(`<b>Equation: ${str}</b>`)
 			return "<ul>" + _errors.map(error => `<li>${error}</li>`).join('') + "</ul>";
 		}
 

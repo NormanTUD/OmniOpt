@@ -128,7 +128,6 @@ RUN chmod +x /bin/sacct
 RUN echo 'for i in $(squeue --me | grep -v JOBID | sed -e "s#^\s*##" -e "s#\s.*##"); do scancel $i; done' >> /bin/scancel_all
 RUN chmod +x /bin/scancel_all
 
-
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/

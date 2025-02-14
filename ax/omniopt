@@ -448,6 +448,7 @@ function calltracer {
 }
 
 already_sent_signal=
+kill_python_if_started_already_shown=0
 
 kill_python_if_started () {
 	REASON="$1"
@@ -467,7 +468,10 @@ kill_python_if_started () {
 		fi
 	fi
 
-	echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
+	if [[ $kill_python_if_started_already_shown -eq 0 ]]; then
+		echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
+		kill_python_if_started_already_shown=1
+	fi
 
 	_tput bel
 }

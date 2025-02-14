@@ -1171,7 +1171,7 @@ function isValidEquationString(input) {
 	let errors = [];
 
 	function tokenize(expression) {
-		const regex = /-?\d*\.?\d+\*[a-zA-Z_]+|[+\-]|\d+\.?\d*|<=|>=|;/g;
+		const regex = /-?\d*\.?\d+\*[a-zA-Z_]+|[+\-]|\d+\.?\d*(?=\s*[+\-<=;]|$)|<=|>=|;|\*/g;
 		return expression.match(regex) || [];
 	}
 

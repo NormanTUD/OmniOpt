@@ -18,16 +18,6 @@ jobs:
       contents: write
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          $HOME/.cache/pip
-          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -65,16 +55,6 @@ jobs:
         os: [ubuntu-24.04] #, ubuntu-22.04, ubuntu-20.04] #, macos-14]
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          $HOME/.cache/pip
-          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -123,16 +103,6 @@ jobs:
         os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          $HOME/.cache/pip
-          $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/
-        key: ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('ax/requirements.txt') }}
-
     - name: Checkout code
       uses: actions/checkout@v4
 

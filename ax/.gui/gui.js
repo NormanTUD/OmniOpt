@@ -1284,7 +1284,7 @@ function test_if_equation_is_valid(str, names) {
 	var isValid = true;
 
 	if (!str.includes(">=") && !str.includes("<=")) {
-		errors.push("Missing '>=' or '<=' operator");
+		errors.push("Missing '>=' or '<=' operator. The equation should include a comparison operator.");
 		isValid = false;
 	}
 
@@ -1292,7 +1292,7 @@ function test_if_equation_is_valid(str, names) {
 
 	var left_side = splitted[0].replace(/\s+/g, "");
 	if(!left_side) {
-		errors.push("Left side is empty or contains only whitespace");
+		errors.push("Left side is empty or contains only whitespace. Please provide an expression on the left side.");
 		isValid = false;
 	}
 
@@ -1300,7 +1300,7 @@ function test_if_equation_is_valid(str, names) {
 		var right_side = splitted[1].trim();
 
 		if (!/^[+-]?\d+(\.\d+)?$/.test(right_side)) {
-			errors.push("The right side does not look like a constant");
+			errors.push("The right side does not look like a constant. The right side should be a valid number.");
 			isValid = false;
 		}
 
@@ -1319,27 +1319,28 @@ function test_if_equation_is_valid(str, names) {
 		var regex = new RegExp(fullPattern);
 
 		if (!regex.test(left_side)) {
-			errors.push("Left side does not match expected pattern");
+			errors.push(`Left side does not match expected pattern. Invalid term or parameter format detected in '${left_side}'`);
 			isValid = false;
 		}
 
-
-
+		// Check for multiple operators in a row
 		var multipleOperatorsRegex = new RegExp("[*+-][*+-]");
 		if(multipleOperatorsRegex.test(left_side)) {
-			errors.push("The left side contains 2 multiple operators directly in a row");
+			errors.push("The left side contains multiple operators directly in a row. Ensure that operators are used correctly.");
 			isValid = false;
 		}
 
+		// Number followed by variable without an operator
 		var number_followed_by_varname = new RegExp(`${nr_re}(${namePattern})`);
 		if(number_followed_by_varname.test(left_side)) {
-			errors.push("A number is followed directly by a variable name");
+			errors.push("A number is followed directly by a variable name without an operator. Example: '3x' is not valid, use '3*x' instead.");
 			isValid = false;
 		}
 
+		// Left side starting with an operator
 		var starts_with_operator = new RegExp(`^[*+]`);
 		if(starts_with_operator.test(left_side)) {
-			errors.push("Left side starts with an operator");
+			errors.push("Left side starts with an operator. The equation cannot start with an operator.");
 			isValid = false;
 		}
 	}

@@ -61,5 +61,21 @@ services:
                 - SLURM_CPUS_ON_NODE=1
         links:
                 - slurmmaster
+  slurmnode2:
+        build:
+          context: ./node
+          dockerfile: Dockerfile
+        container_name: slurm-node3
+        shm_size: '4g'
+        hostname: slurmnode3
+        user: admin
+        volumes:
+                - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
+        environment:
+                - SLURM_NODENAME=slurmnode2
+                - SLURM_CPUS_ON_NODE=1
+        links:
+                - slurmmaster
 volumes:
         shared-vol:

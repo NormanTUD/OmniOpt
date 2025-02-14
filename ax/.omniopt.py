@@ -5259,10 +5259,10 @@ def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, Non
 
     if SYSTEM_HAS_SBATCH and not force_local_execution: # pragma: no cover
         if last_time:
-            return f"{base_msg}(last/avg {last_time:.2f}s/{avg_time:.2f}s)"
+            return f"{base_msg}"
         return base_msg
 
-    return f"{base_msg}(no sbatch)" + (f", last/avg {last_time:.2f}s/{avg_time:.2f}s" if last_time else "")
+    return f"{base_msg}(no sbatch)"
 
 @beartype
 def get_parallelism_schedule_description() -> str:

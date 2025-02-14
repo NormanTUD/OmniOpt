@@ -964,10 +964,6 @@ function create_table_row (table, tbody, item) {
 
 		$(input).addClass("invert_in_dark_mode");
 
-		if (item.type === "checkbox") {
-			input.prop("checked", item.value);
-		}
-
 		input.on({
 			change: update_command,
 			keyup: update_command,

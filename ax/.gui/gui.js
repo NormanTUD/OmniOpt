@@ -1223,10 +1223,11 @@ function isValidEquationString(input) {
 			}
 
 			if (!hasComparison) {
-				if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(token)) {
+				if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(token) || /^\d+$/.test(token)) {
 					terms.push(token);
-				} else if (token === "+" || token === "-") {
-					if (i >= tokens.length || !/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i])) {
+				} else if (["+", "-", "*"].includes(token)) {
+					if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i]) || /^\d+$/.test(token) || (/^\d+$/.test(tokens[i]) && /^[a-zA-Z_]+$/.test(tokens[i+1]))) {
+					//if (i >= tokens.length || !/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i])) {
 						errors.push(`Error in equation ${equationIndex}: Invalid term after "${token}".`);
 					} else {
 						terms.push(token + " " + tokens[i++]);

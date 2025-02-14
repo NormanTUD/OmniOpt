@@ -7,6 +7,8 @@ import math
 import time
 import random
 
+
+shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
 
@@ -721,6 +723,8 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
 
 @beartype
 def run_live_share_command() -> Tuple[str, str]:
+    global shown_run_live_share_command
+
     if get_current_run_folder():
         try:
             # Environment variable USER
@@ -730,7 +734,9 @@ def run_live_share_command() -> Tuple[str, str]:
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
-            print_debug(f"run_live_share_command: {_command}")
+            if not shown_run_live_share_command:
+                print_debug(f"run_live_share_command: {_command}")
+                shown_run_live_share_command = True
 
             result = subprocess.run(_command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
@@ -2345,8 +2351,6 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
     write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
 
     original_print(f"EXIT_CODE: {exit_code}")
-
-    print_debug(f"EVALUATE-FUNCTION: type: {type(result)}, content: {result}")
 
 @beartype
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[str, Optional[float]], list[float]]]]:
@@ -4740,7 +4744,8 @@ def finish_previous_jobs(new_msgs: list[str]) -> None:
 
     this_jobs_finished = 0
 
-    print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
+    if len(global_vars["jobs"]) > 0:
+        print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
 
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed

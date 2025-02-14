@@ -91,7 +91,6 @@ fi
 
 docker-compose -f docker-compose.yml up -d --remove-orphans
 
-
 docker exec slurm-frontend bash /oo_dir/omniopt \
         --live_share \
         --send_anonymized_usage_stats \

@@ -5333,18 +5333,15 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
     if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
         return {}, True
 
-    # Message handling
     message = _get_trials_message(
         nr_of_jobs_to_get,
         args.force_local_execution
     )
     progressbar_description([message])
 
-    # Fetching the next trials
     try:
         trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
 
-        # Log and update timing
         cf = currentframe()
         if cf:
             _frame_info = getframeinfo(cf)

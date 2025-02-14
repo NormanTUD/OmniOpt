@@ -96,7 +96,6 @@ docker exec slurm-frontend bash /oo_dir/omniopt \
         --run_program ZWNobyAiUkVTVUxUOiAlKGludF9wYXJhbSklKGludF9wYXJhbV90d28pJShmbG9hdF9wYXJhbSki \
         --parameter int_param range -100 10 int \
         --parameter float_param range -100 10 float \
-        --parameter choice_param choice 1,2,4,8,16,hallo \
         --parameter int_param_two range -100 10 int \
         --follow \
 	--num_random_steps "$num_random_steps" \

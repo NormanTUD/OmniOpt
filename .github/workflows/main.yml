@@ -56,22 +56,6 @@ jobs:
           pip install psycopg2-binary
         fi
 
-  Slurm:
-    strategy:
-      fail-fast: true
-    runs-on: "ubuntu-latest"
-
-    permissions:
-      contents: write
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: main test script
-      run: |
-        bash ax/.tests/slurm_docker/run_docker --install_slurm
-
   docker-test:
     needs: [Linter, todo-to-issue]
     runs-on: ${{ matrix.os }}

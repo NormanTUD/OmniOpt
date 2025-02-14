@@ -32,6 +32,7 @@ ALIIIIVE
 allAnimations
 allitems
 allowAny
+allowedVar
 alphaConstraint
 alphaDropout
 AlphaDropout
@@ -739,6 +740,7 @@ fromPixels
 fromSortable
 frontChars
 fs
+fullPattern
 fullStr
 fullybayesian
 FULLYBAYESIAN
@@ -1006,6 +1008,7 @@ isSpacelike
 ista
 isTablet
 isTextarea
+isValid
 isVisible
 itemHeight
 itemWithLeastDistance
@@ -1315,6 +1318,7 @@ multibound
 multiline
 multipe
 multipledispatch
+multipleOperatorsRegex
 multiplicator
 munder
 MUNDER
@@ -1329,6 +1333,7 @@ mysqli
 MyType
 nameEQ
 NameError
+namePattern
 nancyj
 NativeMML
 nav
@@ -1415,6 +1420,7 @@ numberArray
 numberFormat
 numberOfMonths
 numberOfParams
+numberPattern
 numberType
 numbervariable
 numBytes
@@ -2136,6 +2142,7 @@ tensorflow
 tensorflowjs
 tensorList
 termcolor
+termPattern
 TestRunTime
 texShape
 textarea

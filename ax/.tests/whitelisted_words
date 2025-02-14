@@ -190,6 +190,7 @@ blurEvent
 bmp
 bool
 boolean
+boolValue
 borderBottomColor
 borderBottomStyle
 borderBottomWidth
@@ -1988,6 +1989,7 @@ slideUp
 slurm
 SLURM
 slurmbased
+slurmfrontend
 slurmid
 SlurmJob
 slurmjobid
@@ -2412,4 +2414,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-slurmfrontend

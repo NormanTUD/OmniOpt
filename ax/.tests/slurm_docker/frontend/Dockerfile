@@ -80,6 +80,10 @@ RUN apt-get install -y uuid-runtime
 RUN apt-get install -y python3.10-venv
 RUN apt-get install -y zsh
 
+RUN echo "#!/bin/bash" >> /bin/sq
+RUN echo "squeue" >> /bin/sq
+RUN chmod +x /bin/sq
+
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/

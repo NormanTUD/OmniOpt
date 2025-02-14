@@ -65,6 +65,10 @@ RUN apt-get update -y
 
 RUN apt-get install -y curl uuid-runtime xterm whiptail
 
+RUN echo "#!/bin/bash" >> /bin/sq
+RUN echo "squeue" >> /bin/sq
+RUN chmod +x /bin/sq
+
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/

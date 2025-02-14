@@ -142,7 +142,6 @@ WORKER_PERCENTAGE_USAGE: list = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
 ax_client = None
-TIME_NEXT_TRIALS_TOOK: list[float] = []
 CURRENT_RUN_FOLDER: str = ""
 RESULT_CSV_FILE: str = ""
 SHOWN_END_TABLE: bool = False
@@ -5235,15 +5234,6 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
     return _ret
 
 @beartype
-def _get_last_and_avg_times() -> Union[Tuple[None, None], Tuple[float, float]]:
-    """Returns the last and average times from TIME_NEXT_TRIALS_TOOK, or None if empty."""
-    if len(TIME_NEXT_TRIALS_TOOK) == 0:
-        return None, None
-    last_time = TIME_NEXT_TRIALS_TOOK[-1]
-    avg_time = sum(TIME_NEXT_TRIALS_TOOK) / len(TIME_NEXT_TRIALS_TOOK)
-    return last_time, avg_time
-
-@beartype
 def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
@@ -5253,13 +5243,11 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
     )
 
 @beartype
-def _get_trials_message(nr_of_jobs_to_get: int, last_time: Union[float, int, None], avg_time: Union[int, float, None], force_local_execution: bool) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, force_local_execution: bool) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get} trials "
 
     if SYSTEM_HAS_SBATCH and not force_local_execution: # pragma: no cover
-        if last_time:
-            return f"{base_msg}"
         return base_msg
 
     return f"{base_msg}(no sbatch)"
@@ -5345,25 +5333,18 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
     if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
         return {}, True
 
-    last_ax_client_time, ax_client_time_avg = _get_last_and_avg_times()
-
     # Message handling
     message = _get_trials_message(
         nr_of_jobs_to_get,
-        last_ax_client_time,
-        ax_client_time_avg,
         args.force_local_execution
     )
     progressbar_description([message])
 
     # Fetching the next trials
-    start_time: float = time.time()
     try:
         trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
-        end_time: float = time.time()
 
         # Log and update timing
-        TIME_NEXT_TRIALS_TOOK.append(end_time - start_time)
         cf = currentframe()
         if cf:
             _frame_info = getframeinfo(cf)

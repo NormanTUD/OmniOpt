@@ -61,7 +61,7 @@ services:
                 - SLURM_CPUS_ON_NODE=1
         links:
                 - slurmmaster
-  slurmnode2:
+  slurmnode3:
         build:
           context: ./node
           dockerfile: Dockerfile
@@ -73,7 +73,7 @@ services:
                 - shared-vol:/home/admin:nocopy
                 - ../../:/oo_dir
         environment:
-                - SLURM_NODENAME=slurmnode2
+                - SLURM_NODENAME=slurmnode3
                 - SLURM_CPUS_ON_NODE=1
         links:
                 - slurmmaster

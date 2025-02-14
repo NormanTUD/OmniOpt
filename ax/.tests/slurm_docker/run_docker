@@ -123,11 +123,13 @@ if $install_slurm; then
 		fi
 	fi
 
-	docker-compose build slurmmaster
-	docker-compose build slurmfrontend
+	docker-compose build slurmmaster &
+	docker-compose build slurmfrontend &
 	for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9]:" | sed -e 's#^\s*##' -e 's#:\s*##'); do
-		docker-compose build $nodename
+		docker-compose build $nodename &
 	done
+
+	wait
 
 	docker-compose -f docker-compose.yml up -d --remove-orphans
 

@@ -7,6 +7,7 @@ worker_timeout=5
 max_eval=2
 num_parallel_jobs=1
 num_random_steps=1
+install_slurm=false
 
 # Funktion zur Anzeige der Hilfe
 usage() {
@@ -19,6 +20,8 @@ usage() {
     echo "  --max_eval=MAX_EVAL         Maximum number of evaluations (default: 2)"
     echo "  --num_parallel_jobs=NUM     Number of parallel jobs (default: 1)"
     echo "  --num_random_steps=NUM      Number of random steps (default: 1)"
+    echo "  --install_slurm             Install Slurm in Docker (default: false)"
+    echo "  --stop                      Stop the Docker container"
     echo "  --help                      Show this help message"
     exit 1
 }
@@ -68,6 +71,13 @@ for arg in "$@"; do
                 exit 1
             fi
             ;;
+        --install_slurm)
+            install_slurm=true
+            ;;
+        --stop)
+            docker-compose -f docker-compose.yml stop
+            exit 0
+            ;;
         --help)
             usage
             ;;
@@ -78,8 +88,10 @@ for arg in "$@"; do
     esac
 done
 
-# Installiere Slurm im Docker-Container
-bash install_slurm_in_docker
+# Installiere Slurm im Docker-Container, falls gewünscht
+if $install_slurm; then
+    bash install_slurm_in_docker
+fi
 
 # Führe den Docker-Befehl aus
 docker exec slurm-frontend bash /oo_dir/omniopt \
@@ -98,7 +110,7 @@ docker exec slurm-frontend bash /oo_dir/omniopt \
         --parameter float_param range -100 10 float \
         --parameter int_param_two range -100 10 int \
         --follow \
-	--num_random_steps "$num_random_steps" \
+        --num_random_steps "$num_random_steps" \
         --model BOTORCH_MODULAR \
         --auto_exclude_defective_hosts \
         --hide_ascii_plots

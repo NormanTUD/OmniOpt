@@ -5866,10 +5866,11 @@ def run_search(_progress_bar: Any) -> bool:
             _sleep(1)
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
-            _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
             NR_OF_0_RESULTS += 1
-            progressbar_description([_wrn])
-            print_debug(_wrn)
+            if NR_OF_0_RESULTS > 0:
+                _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
+                progressbar_description([_wrn])
+                print_debug(_wrn)
         else:
             NR_OF_0_RESULTS = 0
 

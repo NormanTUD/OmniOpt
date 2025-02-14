@@ -5838,10 +5838,7 @@ def run_search(_progress_bar: Any) -> bool:
 
         finish_previous_jobs([])
 
-        if break_run_search("run_search", max_eval, _progress_bar):
-            break
-
-        if (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval:
+        if break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval:
             break
 
         next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)
@@ -5867,10 +5864,9 @@ def run_search(_progress_bar: Any) -> bool:
 
         if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
             NR_OF_0_RESULTS += 1
-            if NR_OF_0_RESULTS > 0:
-                _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
-                progressbar_description([_wrn])
-                print_debug(_wrn)
+            _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
+            progressbar_description([_wrn])
+            print_debug(_wrn)
         else:
             NR_OF_0_RESULTS = 0
 

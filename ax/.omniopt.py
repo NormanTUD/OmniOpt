@@ -895,7 +895,22 @@ def print_logo() -> None:
             "Hyperparameter tuning: the art of making educated guesses look scientific!",
             "Cranking the dials like a mad scientist - IT’S ALIIIIVE!",
             "Tuning like a pirate - arr, where be the optimal values?",
-            "Hyperparameter tuning: the extreme sport of machine learning!"
+            "Hyperparameter tuning: the extreme sport of machine learning!",
+            "Fine-tuning on a quantum level – Schrödinger’s hyperparameter.",
+            "Like an alchemist searching for the Philosopher’s Stone.",
+            "The fractal of hyperparameters: The deeper you go, the more you see.",
+            "Adjusting parameters as if it were a sacred ritual.",
+            "Machine, data, parameters – the holy trinity of truth.",
+            "A trip through the hyperspace of the parameter landscape.",
+            "A small tweak, a big effect – the butterfly principle of tuning.",
+            "Like a neural synapse becoming self-aware.",
+            "The Montana Sacra of optimization – only the enlightened reach the peak.",
+            "Fine-tuning on the frequency of reality.",
+            "Hyperparameters: Where science and magic shake hands.",
+            "Open the third eye of optimization – the truth is in the numbers.",
+            "Hyperparameter tuning: The philosopher’s stone of deep learning.",
+            "Dancing on the edge of chaos – welcome to the tuning dimension.",
+            "Like Borges’ infinite library, but every book is a different model configuration."
         ]
 
         spruch = random.choice(sprueche)

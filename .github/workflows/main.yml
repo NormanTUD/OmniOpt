@@ -71,7 +71,7 @@ jobs:
 
     - name: main test script
       run: |
-        bash .tests/slurm_docker/run_docker --install_slurm
+        bash ax/.tests/slurm_docker/run_docker --install_slurm
 
   docker-test:
     needs: [Linter, todo-to-issue]

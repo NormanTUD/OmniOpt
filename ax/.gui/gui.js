@@ -1152,7 +1152,7 @@ function run_when_document_ready () {
 		if (paramValue !== null) {
 			var $element = $("#" + item.id);
 			if ($element.is(":checkbox")) {
-				var boolValue = /^(1|true)$/i.test(paramValue); // Prüft auf 1 oder "true" (case-insensitive)
+				var boolValue = /^(1|true)$/i.test(paramValue);
 				$element.prop("checked", boolValue).trigger("change");
 			} else {
 				$element.val(paramValue).trigger("change");
@@ -1165,7 +1165,7 @@ function run_when_document_ready () {
 		if (paramValue !== null) {
 			var $element = $("#" + item.id);
 			if ($element.is(":checkbox")) {
-				var boolValue = /^(1|true)$/i.test(paramValue); // Prüft auf 1 oder "true" (case-insensitive)
+				var boolValue = /^(1|true)$/i.test(paramValue);
 				$element.prop("checked", boolValue).trigger("change");
 			} else {
 				$element.val(paramValue).trigger("change");

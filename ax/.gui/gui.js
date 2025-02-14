@@ -1178,83 +1178,9 @@ function get_parameter_names(only_these_types = []) {
 }
 
 function isValidEquationString(input) {
-	const parameter_names = new Set(get_parameter_names(["range"]));
-	let errors = [];
+	const parameter_names = get_parameter_names(["range"]);
 
-	function tokenize(expression) {
-		const regex = /-?\d*\.?\d+(?=\*[a-zA-Z_]+)|\*|[+\-]|\d+\.?\d*(?=\s*[+\-<=;]|$)|<=|>=|;|\*[a-zA-Z_]+|[a-zA-Z_]+/g;
-		return expression.match(regex) || [];
-	}
-
-	function parseEquation(tokens, equationIndex) {
-		let i = 0;
-		let terms = [];
-		let hasComparison = false;
-		let rightSide = null;
-
-		while (i < tokens.length) {
-			let token = tokens[i++];
-
-			// Check if the token is a variable and if it's valid
-			if (/^[a-zA-Z_]+$/.test(token)) {
-				if (!parameter_names.has(token)) {
-					var all_param_names = get_parameter_names();
-					if (all_param_names.includes(token)) {
-						errors.push(`Error in equation ${equationIndex}: Variable "${token}" is not of a range-type. Constraints only make sense with range types.`);
-					} else {
-						errors.push(`Error in equation ${equationIndex}: Invalid parameter name "${token}".`);
-					}
-				}
-				continue;
-			}
-
-			if (token === "<=" || token === ">=") {
-				if (hasComparison) {
-					errors.push(`Error in equation ${equationIndex}: Multiple comparison operators.`);
-					return;
-				}
-				hasComparison = true;
-				rightSide = tokens[i++] || null;
-				if (!/^-?\d+(\.\d+)?$/.test(rightSide)) {
-					errors.push(`Error in equation ${equationIndex}: Right-hand side must be a numeric constant.`);
-				}
-				continue;
-			}
-
-			if (!hasComparison) {
-				if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(token) || /^\d+$/.test(token)) {
-					terms.push(token);
-				} else if (["+", "-", "*"].includes(token)) {
-					if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i]) || /^\d+$/.test(token) || (/^\d+$/.test(tokens[i]) && /^[a-zA-Z_]+$/.test(tokens[i+1]))) {
-						errors.push(`Error in equation ${equationIndex}: Invalid term after "${token}".`);
-					} else {
-						terms.push(token + " " + tokens[i++]);
-					}
-				} else {
-					errors.push(`Error in equation ${equationIndex}: Invalid token "${token}".`);
-				}
-			} else {
-				errors.push(`Error in equation ${equationIndex}: Unexpected token "${token}" after comparison operator.`);
-			}
-		}
-
-		if (!hasComparison) {
-			errors.push(`Error in equation ${equationIndex}: Missing comparison operator ("<=" or ">=").`);
-		}
-	}
-
-	input.split(";").forEach((eq, index) => {
-		eq = eq.trim();
-		if (!eq) {
-			errors.push(`Error in equation ${index + 1}: Empty equation.`);
-			return;
-		}
-		const tokens = tokenize(eq);
-		parseEquation(tokens, index + 1);
-	});
-
-	if (errors.length === 0) return "";
-	return `<ul>${errors.map(err => `<li>${err}</li>`).join("")}</ul>`;
+	return test_if_equation_is_valid(input, parameter_names);
 }
 
 function isAnyLogScaleSet() {
@@ -1351,4 +1277,219 @@ function run_when_document_ready () {
 	apply_theme_based_on_system_preferences();
 
 	initialized = true;
+}
+
+function test_if_equation_is_valid(str, names) {
+	var errors = [];
+	var isValid = true;
+
+	if (!str.includes(">=") && !str.includes("<=")) {
+		errors.push("Missing '>=' or '<=' operator");
+		isValid = false;
+	}
+
+	var splitted = str.includes(">=") ? str.split(">=") : str.split("<=");
+
+	var left_side = splitted[0].replace(/\s+/g, "");
+	if(!left_side) {
+		errors.push("Left side is empty or contains only whitespace");
+		isValid = false;
+	}
+
+	if (isValid) {
+		var right_side = splitted[1].trim();
+
+		if (!/^[+-]?\d+(\.\d+)?$/.test(right_side)) {
+			errors.push("The right side does not look like a constant");
+			isValid = false;
+		}
+
+		var nr_re = "([+-]?\\d+(\.\d+)?)";
+
+		var namePattern = names.join("|");
+
+		var numberPattern = "\\d+(?:\\.\\d+)?";
+
+		var allowedVar = `(?:${namePattern})`;
+
+		var termPattern = `[+-]?(?:(?:${numberPattern})(?:\\*${allowedVar})*|${allowedVar}(?:\\*${allowedVar})*)`;
+
+		var fullPattern = `^(?:${termPattern})(?:[+-](?:${termPattern}))*$`;
+
+		var regex = new RegExp(fullPattern);
+
+		if (!regex.test(left_side)) {
+			errors.push("Left side does not match expected pattern");
+			isValid = false;
+		}
+
+
+
+		var multipleOperatorsRegex = new RegExp("[*+-][*+-]");
+		if(multipleOperatorsRegex.test(left_side)) {
+			errors.push("The left side contains 2 multiple operators directly in a row");
+			isValid = false;
+		}
+
+		var number_followed_by_varname = new RegExp(`${nr_re}(${namePattern})`);
+		if(number_followed_by_varname.test(left_side)) {
+			errors.push("A number is followed directly by a variable name");
+			isValid = false;
+		}
+
+		var starts_with_operator = new RegExp(`^[*+]`);
+		if(starts_with_operator.test(left_side)) {
+			errors.push("Left side starts with an operator");
+			isValid = false;
+		}
+	}
+
+	function errorsToHtml(_errors) {
+		if (_errors.length) {
+			return "<ul>" + _errors.map(error => `<li>${error}</li>`).join('') + "</ul>";
+		}
+
+		return "";
+	}
+
+	var ret_str = errorsToHtml(errors);
+
+	return ret_str;
+}
+
+function equation_validation_test () {
+	var param_names = ["hallo", "welt", "x", "y"];
+
+	var failed = 0;
+	var test_counter = 0;
+
+	function internal_equation_checker(code, should_be) {
+		var ret_str = test_if_equation_is_valid(code, param_names);
+
+		if (should_be === true) {
+			// sollte ok sein, dann ist der string leer
+			if (ret_str !== "") {
+				console.error(`Error: ${code} failed. Should be: ${should_be}, is: ${ret_str}`);
+				failed = failed + 1;
+			}
+		} else {
+			// sollte ok sein, dann ist der string NICHT leer
+			if (ret_str === "") {
+				console.error(`Error: ${code} failed. Should be: ${should_be}, is: ${ret_str}`);
+				failed = failed + 1;
+			}
+		}
+
+		test_counter++;
+	}
+
+	internal_equation_checker("x + y >= 5", true);
+	internal_equation_checker("x + y <= 5", true);
+	internal_equation_checker("2*x + 231*y <= 5", true);
+	internal_equation_checker("x + 231*y <= 5", true);
+	internal_equation_checker("2*x + y <= 5", true);
+	internal_equation_checker("2*x+y<=5", true);
+	internal_equation_checker("2*x+y>=5", true);
+	internal_equation_checker("2+y >= 10", true);
+	internal_equation_checker("3*x + 5*y >= 10", true);
+	internal_equation_checker("10*hallo + 2*welt <= 100", true);
+	internal_equation_checker("x - y >= 0", true);
+	internal_equation_checker("5*x + 7*y + 9*hallo - 3*welt <= 50", true);
+	internal_equation_checker("y + 10 >= 20", true);
+	internal_equation_checker("x - 10 <= 5", true);
+	internal_equation_checker("100*x + 50*y >= 1000", true);
+	internal_equation_checker("2*x - 3*y + 4*hallo + 5*welt <= 42", true);
+	internal_equation_checker("welt + 2*x + 3*y >= 0", true);
+	internal_equation_checker("x + y + hallo + welt <= 99", true);
+	internal_equation_checker("x + 2*y - 3*hallo + 4*welt >= -50", true);
+	internal_equation_checker("x + 2*y + 3*hallo + 4*welt <= 1000000", true);
+	internal_equation_checker("2*hallo - 3*welt + 4*x - 5*y >= -100", true);
+	internal_equation_checker("100000*x + 200000*y <= 500000", true);
+	internal_equation_checker("x - y + hallo - welt >= 1", true);
+	internal_equation_checker("3*x - 5*y + 7*hallo - 9*welt <= 0", true);
+	internal_equation_checker("hallo + welt + x + y >= 12345", true);
+	internal_equation_checker("2*x - 2*y + 2*hallo - 2*welt >= -2", true);
+	internal_equation_checker("x + y + hallo + welt <= -10", true);
+	internal_equation_checker("3*x - 4*y + 5*hallo <= 30", true);
+	internal_equation_checker("10*x + 2*y - 3*hallo + 4*welt >= -15", true);
+	internal_equation_checker("x + y + 3*hallo - 2*welt <= 200", true);
+	internal_equation_checker("2*x + 3*y - 4*hallo + 5*welt >= 10", true);
+	internal_equation_checker("100*x + 50*y + 20*hallo - 30*welt <= 5000", true);
+	internal_equation_checker("x - 2*y + 3*hallo - 4*welt >= -25", true);
+	internal_equation_checker("4*x + 5*y + 6*hallo + 7*welt <= 1000", true);
+	internal_equation_checker("2*hallo + 3*welt + 4*x + 5*y >= -500", true);
+	internal_equation_checker("1*x + 2*y + 3*hallo + 4*welt <= 99999", true);
+	internal_equation_checker("50*x - 25*y + 75*hallo - 125*welt >= 250", true);
+	internal_equation_checker("3 * x + y >= 10", true);
+	internal_equation_checker("999999*x + 888888*y - 777777*hallo + 666666*welt <= 555555", true); // Extrem große Zahlen
+	internal_equation_checker("0*x + 0*y + 0*hallo + 0*welt >= 0", true); // Alles Null
+	internal_equation_checker("-3*x - 4*y + 5*hallo - 6*welt <= -100", true); // Negative Koeffizienten
+	internal_equation_checker("0002*x + 0003*y + 0004*hallo - 0005*welt >= 0006", true); // Führende Nullen
+	internal_equation_checker("1*x + 2*y + 3*hallo + 4*welt <= 0", true); // Ergebnis kann 0 sein
+	internal_equation_checker("1*x - 1*y + 1*hallo - 1*welt <= -1", true); // Koeffizienten von 1 und -1
+	internal_equation_checker("x + 2*y - 3*hallo + 4*welt >= -999999", true); // Sehr kleine negative Grenze
+	internal_equation_checker("500000*x - 250000*y + 125000*hallo - 62500*welt <= 10", true); // Große Zahlen, aber kleine Grenze
+	internal_equation_checker("123456789*x + 987654321*y >= 111111111", true); // Zahlen mit vielen Stellen
+	internal_equation_checker("x * y >= 10", true); // Stern ohne Wert davor
+	internal_equation_checker("1000000*x + 1000000*y + 1000000*hallo + 1000000*welt >= 1000000", true); // Riesen Zahlen
+	internal_equation_checker("-1*x + 2*y - 3*hallo + 4*welt >= -5", true); // Mix aus negativen und positiven Werten
+	internal_equation_checker("x + y - 2*hallo + 3*welt <= 50", true); // Kein explizites `*` in den Variablen
+	internal_equation_checker("1000*x + 999*y - 1234*hallo + 5555*welt >= 99999", true); // Sehr große Zahlen mit verschiedenen Variablen
+	internal_equation_checker("x + 1*y + hallo - 5*welt <= 20", true); // Tests mit kleinen und positiven Zahlen
+	internal_equation_checker("999999*x + 123456*y + 789101*hallo - 654321*welt <= 1000000000", true); // Sehr große Zahlen, komplexe Ausdrücke
+	internal_equation_checker("x*y + hallo - welt >= 100", true); // Multiplikation zwischen Variablen
+	internal_equation_checker("x + 2*welt - 3*hallo + 4*y >= -50", true); // Mehrere verschiedene Variablen, auch mit `world`
+	internal_equation_checker("0.0001*x + 0.0002*y >= 0.0003", true); // Kleine Dezimalzahlen
+
+	internal_equation_checker("2*x+y>=5*4", false);
+	internal_equation_checker("2*x+y", false);
+	internal_equation_checker("2*x+y > 10", false);
+	internal_equation_checker("2*x+y >= abc", false);
+	internal_equation_checker("2*x+y >= welt", false);
+	internal_equation_checker("2/x+y >= 10", false);
+	internal_equation_checker("2+ASD >= 10", false);
+	internal_equation_checker("x + y + 5*hallo - 2* >= 10", false); // Ungültige Multiplikation am Ende
+	internal_equation_checker("3*x + y <= 10 + 5", false); // Addition im rechten Teil nicht erlaubt
+	internal_equation_checker("2*x ++ y >= 10", false); // Doppelte Plus-Zeichen nicht erlaubt
+	internal_equation_checker("x + y >= ", false); // Fehlender Wert auf der rechten Seite
+	internal_equation_checker("10*x + y >= abc", false); // Ungültige Variable auf der rechten Seite
+	internal_equation_checker("x + y ==> 10", false); // Falsche Operatoren
+	internal_equation_checker("x * 2 >= 10", false); // Umgedrehte Multiplikationsreihenfolge nicht erlaubt
+	internal_equation_checker("3*x + y => 10", false); // Falscher Operator `=>`
+	internal_equation_checker("2*x + y >= ", false); // Ungültige Bedingung (fehlender Wert rechts)
+	internal_equation_checker("x+y > 10", false); // Falscher Operator (">" anstatt ">=")
+	internal_equation_checker("x+abc >= 10", false); // Ungültige Variable
+	internal_equation_checker("x / 2 >= 5", false); // Ungültiger Operator ("/" nicht erlaubt)
+	internal_equation_checker("2*x+y>=5*4", false); // Multiplikation im rechten Teil nicht erlaubt
+	internal_equation_checker("2**x + y >= 10", false); // Doppelte Sterne "**" nicht erlaubt
+	internal_equation_checker(">= 10", false); // Kein linker Ausdruck
+	internal_equation_checker("x + y = 10", false); // "=" ist nicht erlaubt
+	internal_equation_checker("x + y >== 10", false); // Falsche Operatoren
+	internal_equation_checker("3x + y >= 10", false); // Fehlendes `*` zwischen Zahl und Variable
+	internal_equation_checker("2* + y >= 10", false); // Ungültige Multiplikation
+	internal_equation_checker("*x + y >= 10", false); // Stern am Anfang ohne Zahl
+	internal_equation_checker("2**x + y >= 10", false); // Doppel-Stern nicht erlaubt
+	internal_equation_checker("2*x+y=10", false); // Gleichheitszeichen `=` anstatt `>=`
+	internal_equation_checker("2*x+y >= ", false); // Fehlende rechte Seite
+	internal_equation_checker(">= 10", false); // Fehlende linke Seite
+	internal_equation_checker("x + y >== 10", false); // Falscher Operator
+	internal_equation_checker("3*x + + 5*y >= 10", false); // Doppelte Operatoren `+ +`
+	internal_equation_checker("2*x / 3*y >= 10", false); // Division `/` nicht erlaubt
+	internal_equation_checker("2*x + 5..y >= 10", false); // Doppelte Punkte nicht erlaubt
+	internal_equation_checker("x + y + hallo*4 >= 20", false); // Nummern in Variablen (hallo*4)
+	internal_equation_checker("x + = y >= 5", false); // Falscher Operator (`=`)
+	internal_equation_checker("x + 2* + y >= 10", false); // Leerzeichen vor der Zahl bei Multiplikation
+	internal_equation_checker("x + 2*5*y >= ", false); // Fehlender Wert auf der rechten Seite
+	internal_equation_checker("x + y +- 10 >= 10", false); // Falsche Syntax bei `+-`
+	internal_equation_checker("2*x / y + 5 >= 10", false); // Division nicht erlaubt
+	internal_equation_checker("2*x + y ** 3 >= 10", false); // Doppelte Stern-Operatoren `**`
+	internal_equation_checker("x + + 2*y >= 5", false); // Doppelte Plus-Operatoren `+ +`
+	internal_equation_checker("x + + 2 >= 5", false);
+	internal_equation_checker("2*x+y >= 5 4", false); // Mehrere Zahlen ohne Operator
+	internal_equation_checker("x + 2*world - 3*hallo + 4*y >= -50", false); // Mehrere verschiedene Variablen, auch mit `world`
+	internal_equation_checker("x + y + 5*hallo - 6*welt >= 100", true); // Mehr als nur x und y
+
+	internal_equation_checker("x + y + z + 5*hallo - 6*welt >= 100", false); // Mehr als nur x und y
+
+	console.log(`Ran ${test_counter} tests (${failed} failed)`);
 }

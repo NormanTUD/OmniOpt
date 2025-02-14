@@ -746,6 +746,8 @@ function update_command() {
 		} else {
 			$("#constraints_error").html("");
 		}
+	} else {
+		$("#constraints_error").html("");
 	}
 
 	var errors_visible = false;

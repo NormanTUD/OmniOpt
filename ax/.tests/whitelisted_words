@@ -434,6 +434,7 @@ cyanOCR
 cyanPerson
 cyanSearching
 cyanYOLO
+cz
 da
 darkgreen
 darkmode
@@ -851,6 +852,7 @@ handdrawn
 Handdrawn
 hardRefresh
 hardSigmoid
+hasComparison
 hasDatepicker
 hasher
 hasNewline
@@ -1781,6 +1783,7 @@ rgba
 rhash
 richpretty
 richtable
+rightSide
 rm
 rmse
 rmsprop

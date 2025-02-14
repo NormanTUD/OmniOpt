@@ -1502,6 +1502,30 @@ function equation_validation_test () {
 	internal_equation_checker("10*x + abc >= 50", false);
 	internal_equation_checker("3*x + y 10", false);
 	internal_equation_checker("x + y >> 10", false);
+	internal_equation_checker("2*x + 3*y - 4*hallo + 5*welt <= 100", true);
+	internal_equation_checker("1.5*hallo + 2.5*welt >= -3.14", true);
+	internal_equation_checker("hallo + welt <= 10", true);
+	internal_equation_checker("hallo - welt >= -5", true);
+	internal_equation_checker("hallo + welt <= 𝟜𝟚", false);
+	internal_equation_checker("𝟏𝟎*hallo + 𝟐𝟎*welt - 𝟑𝟎*x + 𝟒𝟎*y <= 𝟓𝟎", false);
+	internal_equation_checker("hallo\t+\twelt \t<= 42", true);
+	internal_equation_checker("1.2*x + 2.3*y - 3.4*hallo + 4.5*welt >= 6.7", true);
+	internal_equation_checker("0*x + 0*y + 0*hallo + 0*welt <= 0", true);
+	internal_equation_checker("1000000*x - 999999*y + 888888*hallo - 777777*welt >= 666666", true);
+	internal_equation_checker("hallo + 0.0*welt - 0.0*x + 0.0*y <= 7", true);
+	internal_equation_checker("hallo - welt - x - y >= -hallo", false);
+	internal_equation_checker("𝒙 + 𝒚 - 𝒉𝒂𝒍𝒍𝒐 + 𝒘𝒆𝒍𝒕 <= 𝟏𝟎", false);
+	internal_equation_checker("10**hallo + 20**welt - 30**x + 40**y <= 50", false);
+	internal_equation_checker("hallo+welt <=+10", true);
+	internal_equation_checker("  x  +   y  <=  15  ", true);
+	internal_equation_checker("5 * hallo + 6 * welt - 7 * x + 8 * y >= 9", true);
+	internal_equation_checker("hallo + 0.0000001*welt <= 42", true);
+	internal_equation_checker("0.00000000000000001*x + 0.00000000000000002*y - 0.00000000000000003*hallo <= 0", true);
+	internal_equation_checker("1000000000000000000000*hallo + 2000000000000000000000*welt >= 3000000000000000000000", true);
+	internal_equation_checker("hallo - (welt) + x - (y) <= 10", false);
+	internal_equation_checker("x/2 + y/3 - hallo/4 + welt/5 <= 1", false);
+	internal_equation_checker("𝕙𝕒𝕝𝕝𝕠 + 𝕨𝕖𝕝𝕥 - 𝕩 + 𝕪 <= 𝟙𝟘", false);
+	internal_equation_checker("hallo + welt + x + y <= 1_000_000", false);
 
 	console.log(`Ran ${test_counter} tests (${failed} failed)`);
 }

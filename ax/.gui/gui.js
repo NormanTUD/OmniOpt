@@ -118,8 +118,6 @@ var hiddenTableData = [
 	{ label: "Decimal places", id: "decimalrounding", type: "number", value: 4, placeholder: "Number of decimal places to be rounded to", min: 0, max: 32 },
 ];
 
-
-
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent();
@@ -1048,12 +1046,26 @@ function update_url() {
 	}
 
 	var params = [];
+
+	function push_value(item) {
+		var element = $("#" + item.id);
+		var value;
+
+		if (element.is(":checkbox")) {
+			value = element.is(":checked") ? 1 : 0;
+		} else {
+			value = encodeURIComponent(element.val());
+		}
+
+		params.push(item.id + "=" + value);
+	}
+
 	tableData.forEach(function(item) {
-		params.push(item.id + "=" + encodeURIComponent($("#" + item.id).val()));
+		push_value(item);
 	});
 
 	hiddenTableData.forEach(function(item) {
-		params.push(item.id + "=" + encodeURIComponent($("#" + item.id).val()));
+		push_value(item);
 	});
 
 	var parameterIndex = 0;

@@ -3,7 +3,7 @@
 bash install_docker
 
 docker exec slurm-frontend \
-	sbatch \
+	srun \
 		--mem=1GB \
 		--job-name __main__tests__BOTORCH_MODULAR___nogridsearch \
 		--time=00:10:00 \

@@ -621,21 +621,22 @@ function run_when_document_ready () {
 
 	var parameterIndex = 0;
 	$(".parameterRow").each(function(index) {
-		var parameterName = urlParams.get("parameter_" + parameterIndex + "_name");
-		var option = urlParams.get("parameter_" + parameterIndex + "_type");
+		var param_base = "parameter_" + parameterIndex
+		var parameterName = urlParams.get(param_base + "_name");
+		var option = urlParams.get(param_base + "_type");
 
 		if (parameterName && option) {
 			$(this).find(".parameterName").val(parameterName);
 			$(this).find(".optionSelect").val(option).trigger('change');
 			if (option === 'range') {
-				$(this).find(".minValue").val(urlParams.get("parameter_" + parameterIndex + "_min"));
-				$(this).find(".maxValue").val(urlParams.get("parameter_" + parameterIndex + "_max"));
-				$(this).find(".numberTypeSelect").val(urlParams.get("parameter_" + parameterIndex + "_number_type"));
-				$(this).find(".log_scale").prop(urlParams.get("parameter_" + parameterIndex + "_log_scale") == "true" ? true : false);
+				$(this).find(".minValue").val(urlParams.get(param_base + "_min"));
+				$(this).find(".maxValue").val(urlParams.get(param_base + "_max"));
+				$(this).find(".numberTypeSelect").val(urlParams.get(param_base + "_number_type"));
+				$(this).find(".log_scale").prop(urlParams.get(param_base + "_log_scale") == "true" ? true : false);
 			} else if (option === 'choice') {
-				$(this).find(".choiceValues").val(urlParams.get("parameter_" + parameterIndex + "_values"));
+				$(this).find(".choiceValues").val(urlParams.get(param_base + "_values"));
 			} else if (option === 'fixed') {
-				$(this).find(".fixedValue").val(urlParams.get("parameter_" + parameterIndex + "_value"));
+				$(this).find(".fixedValue").val(urlParams.get(param_base + "_value"));
 			}
 		}
 		parameterIndex++;

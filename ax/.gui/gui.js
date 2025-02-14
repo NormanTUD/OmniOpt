@@ -1142,6 +1142,14 @@ function copy_bashcommand_to_clipboard_curl () {
 	}, 5000);
 }
 
+function get_parameter_names () {
+	var values = $(".parameterName").map(function() {
+		return $(this).val();
+	}).get().filter(Boolean);
+
+	return values;
+}
+
 function run_when_document_ready () {
 	create_tables();
 	update_partition_options();

@@ -13,3 +13,9 @@ zip
 unzip
 sudo
 zip
+tail
+ls
+grep
+sed
+cat
+tail

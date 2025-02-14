@@ -1527,5 +1527,32 @@ function equation_validation_test () {
 	internal_equation_checker("𝕙𝕒𝕝𝕝𝕠 + 𝕨𝕖𝕝𝕥 - 𝕩 + 𝕪 <= 𝟙𝟘", false);
 	internal_equation_checker("hallo + welt + x + y <= 1_000_000", false);
 
+
+	internal_equation_checker("hällo + welt <= 10", false);
+	internal_equation_checker("hallo + welt <= ", false);
+	internal_equation_checker("x + y = 10", false);
+	internal_equation_checker("x + y << 10", false);
+	internal_equation_checker("hallo + welt => 20", false);
+	internal_equation_checker("𝑥 + 𝑦 ≤ 10", false);
+	internal_equation_checker("x++y <= 10", false);
+	internal_equation_checker("hallo / 0 <= 10", false);
+	internal_equation_checker("x + y <= '10'", false);
+	internal_equation_checker("hallo + welt + <= 10", false);
+	internal_equation_checker("2hallo + 3welt <= 10", false);
+	internal_equation_checker("hallo + welt <== 10", false);
+	internal_equation_checker("x + y <= (10", false);
+	internal_equation_checker("hallo ** welt <= 10", false);
+	internal_equation_checker("hallo + €welt <= 10", false);
+	internal_equation_checker("hallo, welt <= 10", false);
+	internal_equation_checker("hallo + 1.2.3 <= 10", false);
+	internal_equation_checker("hallo + 'welt' <= 10", false);
+	internal_equation_checker("hallo + !welt <= 10", false);
+	internal_equation_checker("hallo + x +- y <= 10", false);
+	internal_equation_checker("hallo + --welt <= 10", false);
+	internal_equation_checker("hallo x + welt y <= 10", false);
+	internal_equation_checker("hallo+welt=<10", false);
+	internal_equation_checker("hallo + {welt} <= 10", false);
+	internal_equation_checker("hallo 𝙥𝙡𝙪𝙨 welt <= 10", false);
+
 	console.log(`Ran ${test_counter} tests (${failed} failed)`);
 }

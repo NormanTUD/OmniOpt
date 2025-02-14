@@ -730,6 +730,16 @@ function update_command() {
 		for (var r = 0; r < _constraints.length; r++) {
 			command += " --experiment_constraints '" + _constraints[r] + "'";
 		}
+
+		var constraints_string = $("#constraints").val();
+		var errors_string = isValidEquationString(constraints_string);
+
+		if (errors_string != "") {
+			errors.push("Something was wrong in the constraints parameter");
+			$("#constraints_error").html(errors_string);
+		} else {
+			$("#constraints_error").html("");
+		}
 	}
 
 	var errors_visible = false;
@@ -1148,6 +1158,83 @@ function get_parameter_names () {
 	}).get().filter(Boolean);
 
 	return values;
+}
+
+function isValidEquationString(input) {
+	const parameters = new Set(get_parameter_names());
+	let errors = [];
+
+	function tokenize(expression) {
+		const regex = /\d+|[a-zA-Z_]+|[+\-*/()<>]=?|;/g;
+		return expression.match(regex) || [];
+	}
+
+	function parseEquation(tokens, equationIndex) {
+		let i = 0;
+
+		function parseExpression() {
+			let node = parseTerm();
+			while (i < tokens.length && (tokens[i] === "+" || tokens[i] === "-")) {
+				const operator = tokens[i++];
+				node = { type: "binary", operator, left: node, right: parseTerm() };
+			}
+			return node;
+		}
+
+		function parseTerm() {
+			let node = parseFactor();
+			while (i < tokens.length && (tokens[i] === "*" || tokens[i] === "/")) {
+				const operator = tokens[i++];
+				node = { type: "binary", operator, left: node, right: parseFactor() };
+			}
+			return node;
+		}
+
+		function parseFactor() {
+			const token = tokens[i++];
+			if (!token) {
+				errors.push(`Error in equation ${equationIndex}: Unexpected end of expression.`);
+				return null;
+			}
+
+			if (/\d+/.test(token)) return { type: "number", value: Number(token) };
+			if (parameters.has(token)) return { type: "variable", name: token };
+			if (token === "(") {
+				const node = parseExpression();
+				if (tokens[i++] !== ")") {
+					errors.push(`Error in equation ${equationIndex}: Missing closing parenthesis.`);
+				}
+				return node;
+			}
+
+			errors.push(`Error in equation ${equationIndex}: Invalid token "${token}".`);
+			return null;
+		}
+
+		const left = parseExpression();
+		if (i >= tokens.length || !["<=", ">="].includes(tokens[i])) {
+			errors.push(`Error in equation ${equationIndex}: Missing valid comparison operator ("<=" or ">=").`);
+			return null;
+		}
+		const operator = tokens[i++];
+		const right = parseExpression();
+		if (i < tokens.length) {
+			errors.push(`Error in equation ${equationIndex}: Unexpected tokens after equation.`);
+		}
+		return { type: "comparison", operator, left, right };
+	}
+
+	input.split(";").forEach((eq, index) => {
+		if (!eq.trim()) {
+			errors.push(`Error in equation ${index + 1}: Empty equation.`);
+			return;
+		}
+		const tokens = tokenize(eq);
+		parseEquation(tokens, index + 1);
+	});
+
+	if (errors.length === 0) return "";
+	return `<ul>${errors.map(err => `<li>${err}</li>`).join("")}</ul>`;
 }
 
 function run_when_document_ready () {

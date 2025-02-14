@@ -203,7 +203,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   covering-uploader:
-    needs: [main-test, Linter, todo-to-issue, slurm]
+    needs: [main-test, Linter, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:

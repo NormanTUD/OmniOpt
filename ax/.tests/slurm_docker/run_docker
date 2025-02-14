@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bash install_docker
+bash install_slurm_in_docker
 
 docker exec slurm-frontend bash /oo_dir/omniopt \
 	--live_share \

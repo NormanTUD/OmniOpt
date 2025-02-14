@@ -152,8 +152,4 @@ EXPOSE 22 8888
 ENV USER admin
 ENV SHELL bash
 
-#RUN mkdir -p /oo/
-#RUN git clone https://github.com/NormanTUD/OmniOpt.git /oo/
-#RUN bash /oo/ax/.shellscript_functions
-
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

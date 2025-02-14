@@ -102,7 +102,7 @@ docker exec slurm-frontend bash /oo_dir/omniopt \
         --max_eval="$max_eval" \
         --num_parallel_jobs="$num_parallel_jobs" \
         --gpus 0 \
-        --run_program ZWNobyAiUkVTVUxUOiAlKGludF9wYXJhbSklKGludF9wYXJhbV90d28pJShmbG9hdF9wYXJhbSki \
+        --run_program $(echo -n "echo \"RESULT: %(int_param)%(int_param_two)%(float_param)\"" | base64 -w 0) \
         --parameter int_param range -100 10 int \
         --parameter float_param range -100 10 float \
         --parameter int_param_two range -100 10 int \

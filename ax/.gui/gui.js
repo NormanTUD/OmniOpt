@@ -1105,6 +1105,7 @@ function update_url() {
 
 	if (initialized) {
 		var url = window.location.origin + window.location.pathname + "?" + params.join("&") + "&num_parameters=" + $(".parameterRow").length;
+
 		try {
 			window.history.replaceState(null, null, url);
 		} catch (err) {

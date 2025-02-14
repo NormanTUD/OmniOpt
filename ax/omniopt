@@ -1399,9 +1399,6 @@ else
 
 	sbatch_result=""
 	exit_code=""
-	sbatch_command=""
-
-	set +e
 
 	sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
 
@@ -1422,6 +1419,8 @@ else
 	if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
 		yellow_text "$sbatch_command"
 	fi
+
+	set +e
 
 	sbatch_result=$($sbatch_command)
 	exit_code=$?

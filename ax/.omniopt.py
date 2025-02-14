@@ -935,7 +935,22 @@ def print_logo() -> None:
 
         cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
     else:
-        fonts = ["slant", "big", "doom", "larry3d", "starwars", "colossal", "avatar", "pebbles", "script", "stop", "banner3", "nancyj", "poison"]
+        fonts = [
+            "slant",
+            "big",
+            "doom",
+            "larry3d",
+            "starwars",
+            "colossal",
+            "avatar",
+            "pebbles",
+            "script",
+            "stop",
+            "banner3",
+            "nancyj",
+            "poison"
+        ]
+
         f = Figlet(font=random.choice(fonts))
         original_print(f.renderText('OmniOpt2'))
 

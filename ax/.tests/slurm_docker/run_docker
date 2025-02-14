@@ -108,9 +108,9 @@ if $install_slurm; then
 	for i in frontend master node; do
 		rm $i/slurm.conf
 	done
+else
+	docker-compose -f docker-compose.yml up -d --remove-orphans
 fi
-
-docker-compose -f docker-compose.yml up -d --remove-orphans
 
 docker exec slurm-frontend bash /oo_dir/omniopt \
         --live_share \

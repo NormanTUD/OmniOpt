@@ -114,6 +114,10 @@ if $install_slurm; then
 		cp slurm.conf $i/
 	done
 
+	if ! command -v docker-compose; then
+		sudo apt install docker-compose
+	fi
+
 	docker-compose build slurmmaster
 	docker-compose build slurmfrontend
 	for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9]:" | sed -e 's#^\s*##' -e 's#:\s*##'); do

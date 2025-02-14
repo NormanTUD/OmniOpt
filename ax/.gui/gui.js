@@ -1250,7 +1250,6 @@ function isValidEquationString(input) {
 			return;
 		}
 		const tokens = tokenize(eq);
-		console.log(tokens);  // Log the tokens to check what's being extracted
 		parseEquation(tokens, index + 1);
 	});
 

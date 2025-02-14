@@ -114,8 +114,13 @@ if $install_slurm; then
 		cp slurm.conf $i/
 	done
 
-	if ! command -v docker-compose; then
-		sudo apt install docker-compose
+	if ! command -v docker-compose 2>/dev/null >/dev/null; then
+		if command -v apt 2>/dev/null >/dev/null; then
+			sudo apt install docker-compose
+		else
+			echo "Cannot install docker-compose. Apt needed, but not found."
+			exit 1
+		fi
 	fi
 
 	docker-compose build slurmmaster

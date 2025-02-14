@@ -297,8 +297,8 @@ function send_status_report {
 		if [[ "$debug" -eq "1" ]]; then
 			yellow_text "Curling $url"
 		fi
-	else
-		echo "Not sending anonymized user statistics"
+	#else
+	#	echo "Not sending anonymized user statistics"
 	fi
 }
 
@@ -915,7 +915,9 @@ if [[ -z "$SLURM_JOB_ID" ]]; then
 			echo "Current git-hash: $git_hash (version: $current_tag)"
 		fi
 	else
-		echo "Current git-hash: $git_hash"
+		if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
+			echo "Current git-hash: $git_hash"
+		fi
 	fi
 fi
 

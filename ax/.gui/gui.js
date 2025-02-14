@@ -1191,11 +1191,14 @@ function run_when_document_ready () {
 		if (parameterName && option) {
 			$(this).find(".parameterName").val(parameterName);
 			$(this).find(".optionSelect").val(option).trigger('change');
+
 			if (option === 'range') {
 				$(this).find(".minValue").val(urlParams.get(param_base + "_min"));
 				$(this).find(".maxValue").val(urlParams.get(param_base + "_max"));
 				$(this).find(".numberTypeSelect").val(urlParams.get(param_base + "_number_type"));
-				$(this).find(".log_scale").prop(urlParams.get(param_base + "_log_scale") == "true" ? true : false);
+
+				var log_scale_value = urlParams.get(param_base + "_log_scale") == "true" ? true : false;
+				$(this).find(".log_scale").prop("checked", log_scale_value);
 			} else if (option === 'choice') {
 				$(this).find(".choiceValues").val(urlParams.get(param_base + "_values"));
 			} else if (option === 'fixed') {

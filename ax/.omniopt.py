@@ -3452,7 +3452,7 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
     if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
         for _l in range(0, len(experiment_constraints)):
-            constraints_string = " ".join(experiment_constraints[_l])
+            constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
 
             variables = [item['name'] for item in experiment_parameters]
 

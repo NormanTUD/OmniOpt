@@ -728,7 +728,7 @@ function update_command() {
 			return el.trim();
 		});
 		for (var r = 0; r < _constraints.length; r++) {
-			command += " --experiment_constraints '" + _constraints[r] + "'";
+			command += " --experiment_constraints '" + btoa(_constraints[r]) + "'";
 		}
 
 		var constraints_string = $("#constraints").val();

@@ -720,7 +720,13 @@ function update_command() {
 	}
 
 	if ($("#constraints").val()) {
-		var _constraints = $("#constraints").val().split(";");
+		var constraints_string = $("#constraints").val();
+
+		constraints_string = constraints_string.replaceAll(/;;*/g, ";");
+		constraints_string = constraints_string.replace(/;;*$/, "");
+		constraints_string = constraints_string.replace(/^;;*/, "");
+
+		var _constraints = constraints_string.split(";");
 		_constraints = _constraints.filter(function(entry) { return entry.trim() != ""; }).map(function (el) {
 			return el.trim();
 		});
@@ -1174,6 +1180,10 @@ function get_parameter_names(only_these_types = []) {
 
 function isValidEquationString(input) {
 	const parameter_names = get_parameter_names(["range"]);
+
+	input = input.replaceAll(/;;*/g, ";");
+	input = input.replace(/;;*\s*$/, "");
+	input = input.replace(/^\s*;;*/, "");
 
 	return input.split(";").map(part => test_if_equation_is_valid(part, parameter_names)).join("");
 }

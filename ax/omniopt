@@ -1367,6 +1367,9 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 		echo "args-string: $args_string"
 	fi
 
+	set +e
+	trap - ERR
+
 	if [[ -z $RUN_WITH_COVERAGE ]]; then
 		if [[ -n $bash_logname ]]; then
 			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
@@ -1380,6 +1383,9 @@ if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_loc
 		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
 		EXIT_CODE=$?
 	fi
+
+	set -e
+	trap 'calltracer' ERR
 
 	set -e
 

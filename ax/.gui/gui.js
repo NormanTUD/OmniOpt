@@ -1178,11 +1178,10 @@ function get_parameter_names(only_these_types = []) {
 }
 
 function isValidEquationString(input) {
-	const parameter_names = new Set(get_parameter_names(["range"]));  // Beispiel: ["lr", "epochs"]
+	const parameter_names = new Set(get_parameter_names(["range"]));
 	let errors = [];
 
 	function tokenize(expression) {
-		// RegExp wurde angepasst, um auch Variablen (die nur aus [a-zA-Z_]+ bestehen) zu extrahieren
 		const regex = /-?\d*\.?\d+(?=\*[a-zA-Z_]+)|\*|[+\-]|\d+\.?\d*(?=\s*[+\-<=;]|$)|<=|>=|;|\*[a-zA-Z_]+|[a-zA-Z_]+/g;
 		return expression.match(regex) || [];
 	}
@@ -1227,7 +1226,6 @@ function isValidEquationString(input) {
 					terms.push(token);
 				} else if (["+", "-", "*"].includes(token)) {
 					if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i]) || /^\d+$/.test(token) || (/^\d+$/.test(tokens[i]) && /^[a-zA-Z_]+$/.test(tokens[i+1]))) {
-					//if (i >= tokens.length || !/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i])) {
 						errors.push(`Error in equation ${equationIndex}: Invalid term after "${token}".`);
 					} else {
 						terms.push(token + " " + tokens[i++]);

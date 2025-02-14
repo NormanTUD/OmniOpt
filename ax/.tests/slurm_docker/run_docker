@@ -11,86 +11,86 @@ install_slurm=false
 
 # Funktion zur Anzeige der Hilfe
 usage() {
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Options:"
-    echo "  --mem_gb=MEM_GB             Memory in GB (default: 1)"
-    echo "  --time=TIME                 Time in minutes (default: 60)"
-    echo "  --worker_timeout=TIME       Timeout for workers (default: 5)"
-    echo "  --max_eval=MAX_EVAL         Maximum number of evaluations (default: 2)"
-    echo "  --num_parallel_jobs=NUM     Number of parallel jobs (default: 1)"
-    echo "  --num_random_steps=NUM      Number of random steps (default: 1)"
-    echo "  --install_slurm             Install Slurm in Docker (default: false)"
-    echo "  --stop                      Stop the Docker container"
-    echo "  --help                      Show this help message"
-    exit 1
+	echo "Usage: $0 [OPTIONS]"
+	echo ""
+	echo "Options:"
+	echo "  --mem_gb=MEM_GB             Memory in GB (default: 1)"
+	echo "  --time=TIME                 Time in minutes (default: 60)"
+	echo "  --worker_timeout=TIME       Timeout for workers (default: 5)"
+	echo "  --max_eval=MAX_EVAL         Maximum number of evaluations (default: 2)"
+	echo "  --num_parallel_jobs=NUM     Number of parallel jobs (default: 1)"
+	echo "  --num_random_steps=NUM      Number of random steps (default: 1)"
+	echo "  --install_slurm             Install Slurm in Docker (default: false)"
+	echo "  --stop                      Stop the Docker container"
+	echo "  --help                      Show this help message"
+	exit 1
 }
 
 # CLI-Parameter parsen
 for arg in "$@"; do
-    case $arg in
-        --mem_gb=*)
-            mem_gb="${arg#*=}"
-            if ! [[ "$mem_gb" =~ ^[0-9]+$ ]]; then
-                echo "Error: --mem_gb must be an integer."
-                exit 1
-            fi
-            ;;
-        --time=*)
-            time="${arg#*=}"
-            if ! [[ "$time" =~ ^[0-9]+$ ]]; then
-                echo "Error: --time must be an integer."
-                exit 1
-            fi
-            ;;
-        --worker_timeout=*)
-            worker_timeout="${arg#*=}"
-            if ! [[ "$worker_timeout" =~ ^[0-9]+$ ]]; then
-                echo "Error: --worker_timeout must be an integer."
-                exit 1
-            fi
-            ;;
-        --max_eval=*)
-            max_eval="${arg#*=}"
-            if ! [[ "$max_eval" =~ ^[0-9]+$ ]]; then
-                echo "Error: --max_eval must be an integer."
-                exit 1
-            fi
-            ;;
-        --num_random_steps=*)
-            num_random_steps="${arg#*=}"
-            if ! [[ "$num_random_steps" =~ ^[0-9]+$ ]]; then
-                echo "Error: --num_random_steps must be an integer."
-                exit 1
-            fi
-            ;;
-        --num_parallel_jobs=*)
-            num_parallel_jobs="${arg#*=}"
-            if ! [[ "$num_parallel_jobs" =~ ^[0-9]+$ ]]; then
-                echo "Error: --num_parallel_jobs must be an integer."
-                exit 1
-            fi
-            ;;
-        --install_slurm)
-            install_slurm=true
-            ;;
-        --stop)
-            docker-compose -f docker-compose.yml stop
-            exit 0
-            ;;
-        --help)
-            usage
-            ;;
-        *)
-            echo "Error: Invalid argument '$arg'. Use --help for usage instructions."
-            exit 1
-            ;;
-    esac
+	case $arg in
+		--mem_gb=*)
+			mem_gb="${arg#*=}"
+			if ! [[ "$mem_gb" =~ ^[0-9]+$ ]]; then
+				echo "Error: --mem_gb must be an integer."
+				exit 1
+			fi
+			;;
+		--time=*)
+			time="${arg#*=}"
+			if ! [[ "$time" =~ ^[0-9]+$ ]]; then
+				echo "Error: --time must be an integer."
+				exit 1
+			fi
+			;;
+		--worker_timeout=*)
+			worker_timeout="${arg#*=}"
+			if ! [[ "$worker_timeout" =~ ^[0-9]+$ ]]; then
+				echo "Error: --worker_timeout must be an integer."
+				exit 1
+			fi
+			;;
+		--max_eval=*)
+			max_eval="${arg#*=}"
+			if ! [[ "$max_eval" =~ ^[0-9]+$ ]]; then
+				echo "Error: --max_eval must be an integer."
+				exit 1
+			fi
+			;;
+		--num_random_steps=*)
+			num_random_steps="${arg#*=}"
+			if ! [[ "$num_random_steps" =~ ^[0-9]+$ ]]; then
+				echo "Error: --num_random_steps must be an integer."
+				exit 1
+			fi
+			;;
+		--num_parallel_jobs=*)
+			num_parallel_jobs="${arg#*=}"
+			if ! [[ "$num_parallel_jobs" =~ ^[0-9]+$ ]]; then
+				echo "Error: --num_parallel_jobs must be an integer."
+				exit 1
+			fi
+			;;
+		--install_slurm)
+			install_slurm=true
+			;;
+		--stop)
+			docker-compose -f docker-compose.yml stop
+			exit 0
+			;;
+		--help)
+			usage
+			;;
+		*)
+			echo "Error: Invalid argument '$arg'. Use --help for usage instructions."
+			exit 1
+			;;
+	esac
 done
 
 # Installiere Slurm im Docker-Container, falls gewünscht
 if $install_slurm; then
-    bash install_slurm_in_docker
+	bash install_slurm_in_docker
 fi
 
 docker-compose -f docker-compose.yml up -d --remove-orphans

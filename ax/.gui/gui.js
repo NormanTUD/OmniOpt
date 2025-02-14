@@ -1160,20 +1160,30 @@ function copy_bashcommand_to_clipboard_curl () {
 	}, 5000);
 }
 
-function get_parameter_names () {
+function get_parameter_names(only_these_types = []) {
 	var values = $(".parameterName").map(function() {
-		return $(this).val();
+		var parameterValue = $(this).val();
+		var parameterType = $(this).closest('.parameterRow')
+			.find(".optionSelect")
+			.val();
+
+		if (only_these_types.length > 0 && only_these_types.includes(parameterType)) {
+			return parameterValue;
+		} else if (only_these_types.length === 0) {
+			return parameterValue;
+		}
 	}).get().filter(Boolean);
 
 	return values;
 }
 
 function isValidEquationString(input) {
-	const parameters = new Set(get_parameter_names());
+	const parameter_names = new Set(get_parameter_names(["range"]));  // Beispiel: ["lr", "epochs"]
 	let errors = [];
 
 	function tokenize(expression) {
-		const regex = /-?\d*\.?\d+\*[a-zA-Z_]+|[+\-]|\d+\.?\d*(?=\s*[+\-<=;]|$)|<=|>=|;|\*/g;
+		// RegExp wurde angepasst, um auch Variablen (die nur aus [a-zA-Z_]+ bestehen) zu extrahieren
+		const regex = /-?\d*\.?\d+(?=\*[a-zA-Z_]+)|\*|[+\-]|\d+\.?\d*(?=\s*[+\-<=;]|$)|<=|>=|;|\*[a-zA-Z_]+|[a-zA-Z_]+/g;
 		return expression.match(regex) || [];
 	}
 
@@ -1185,6 +1195,19 @@ function isValidEquationString(input) {
 
 		while (i < tokens.length) {
 			let token = tokens[i++];
+
+			// Check if the token is a variable and if it's valid
+			if (/^[a-zA-Z_]+$/.test(token)) {
+				if (!parameter_names.has(token)) {
+					var all_param_names = get_parameter_names();
+					if (all_param_names.includes(token)) {
+						errors.push(`Error in equation ${equationIndex}: Variable "${token}" is not of a range-type. Constraints only make sense with range types.`);
+					} else {
+						errors.push(`Error in equation ${equationIndex}: Invalid parameter name "${token}".`);
+					}
+				}
+				continue;
+			}
 
 			if (token === "<=" || token === ">=") {
 				if (hasComparison) {
@@ -1228,6 +1251,7 @@ function isValidEquationString(input) {
 			return;
 		}
 		const tokens = tokenize(eq);
+		console.log(tokens);  // Log the tokens to check what's being extracted
 		parseEquation(tokens, index + 1);
 	});
 

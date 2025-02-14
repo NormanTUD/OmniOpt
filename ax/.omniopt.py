@@ -3979,10 +3979,10 @@ def clean_completed_jobs() -> None:
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
             global_vars["jobs"].remove((job, trial_index))
-        elif _state in ["unknown", "pending", "running"]:
+        elif _state in ["unknown", "pending", "running", "completing"]:
             pass
         else:
-            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending or running: {_state}")
+            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending, completing or running: {_state}")
 
 @beartype
 def value_to_true_or_false(value: str) -> Union[str, bool]:

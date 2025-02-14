@@ -1,6 +1,12 @@
 #!/bin/bash
 
 {
+set -e
+
+SCRIPT_DIR=$(dirname $(realpath "$0"))
+
+cd $SCRIPT_DIR
+
 mem_gb=1
 time=60
 worker_timeout=5
@@ -87,7 +93,21 @@ for arg in "$@"; do
 done
 
 if $install_slurm; then
-	bash install_slurm_in_docker
+	for i in frontend master node; do
+		cp slurm.conf $i/
+	done
+
+	docker-compose build slurmmaster
+	docker-compose build slurmfrontend
+	for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9]:" | sed -e 's#^\s*##' -e 's#:\s*##'); do
+		docker-compose build $nodename
+	done
+
+	docker-compose -f docker-compose.yml up -d --remove-orphans
+
+	for i in frontend master node; do
+		rm $i/slurm.conf
+	done
 fi
 
 docker-compose -f docker-compose.yml up -d --remove-orphans

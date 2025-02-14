@@ -93,6 +93,9 @@ if $install_slurm; then
     bash install_slurm_in_docker
 fi
 
+docker-compose -f docker-compose.yml up -d --remove-orphans
+
+
 # Führe den Docker-Befehl aus
 docker exec slurm-frontend bash /oo_dir/omniopt \
         --live_share \

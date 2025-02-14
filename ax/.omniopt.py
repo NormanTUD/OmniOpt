@@ -2492,7 +2492,7 @@ def disable_logging() -> None:
     for module in modules:
         logging.getLogger(module).setLevel(logging.CRITICAL)
         logging.getLogger(module).disabled = True
-        print_debug(f"logging.getLogger({module}.disabled set to {logging.getLogger(module).disabled}")
+        print_debug(f"logging.getLogger({module}.disabled) set to {logging.getLogger(module).disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)

@@ -1150,14 +1150,26 @@ function run_when_document_ready () {
 	tableData.forEach(function(item) {
 		var paramValue = urlParams.get(item.id);
 		if (paramValue !== null) {
-			$("#" + item.id).val(paramValue).trigger('change');
+			var $element = $("#" + item.id);
+			if ($element.is(":checkbox")) {
+				var boolValue = /^(1|true)$/i.test(paramValue); // Prüft auf 1 oder "true" (case-insensitive)
+				$element.prop("checked", boolValue).trigger("change");
+			} else {
+				$element.val(paramValue).trigger("change");
+			}
 		}
 	});
 
 	hiddenTableData.forEach(function(item) {
 		var paramValue = urlParams.get(item.id);
 		if (paramValue !== null) {
-			$("#" + item.id).val(paramValue).trigger('change');
+			var $element = $("#" + item.id);
+			if ($element.is(":checkbox")) {
+				var boolValue = /^(1|true)$/i.test(paramValue); // Prüft auf 1 oder "true" (case-insensitive)
+				$element.prop("checked", boolValue).trigger("change");
+			} else {
+				$element.val(paramValue).trigger("change");
+			}
 		}
 	});
 

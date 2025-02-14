@@ -1072,30 +1072,31 @@ function update_url() {
 		if(parameterName && !parameterName.match(/^\w+$/)) {
 			//error(`Parameter name "${parameterName}" does have invalid characters. Must be all letters.`)
 		} else if (parameterName) {
+			var param_base = "parameter_" + parameterIndex;
 			if (option === "range") {
 				var minValue = $(this).find(".minValue").val();
 				var maxValue = $(this).find(".maxValue").val();
 				var numberType = $(this).find(".numberTypeSelect").val();
 				var log_scale = $(this).find(".log_scale").is(":checked") ? "true" : "false";
 
-				params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
-				params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
-				params.push("parameter_" + parameterIndex + "_min=" + encodeURIComponent(minValue));
-				params.push("parameter_" + parameterIndex + "_max=" + encodeURIComponent(maxValue));
-				params.push("parameter_" + parameterIndex + "_number_type=" + encodeURIComponent(numberType));
-				params.push("parameter_" + parameterIndex + "_log_scale=" + encodeURIComponent(log_scale));
+				params.push(param_base + "_name=" + encodeURIComponent(parameterName));
+				params.push(param_base + "_type=" + encodeURIComponent(option));
+				params.push(param_base + "_min=" + encodeURIComponent(minValue));
+				params.push(param_base + "_max=" + encodeURIComponent(maxValue));
+				params.push(param_base + "_number_type=" + encodeURIComponent(numberType));
+				params.push(param_base + "_log_scale=" + encodeURIComponent(log_scale));
 			} else if (option === "choice") {
 				var choiceValues = $(this).find(".choiceValues").val();
 
-				params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
-				params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
-				params.push("parameter_" + parameterIndex + "_values=" + encodeURIComponent(choiceValues));
+				params.push(param_base + "_name=" + encodeURIComponent(parameterName));
+				params.push(param_base + "_type=" + encodeURIComponent(option));
+				params.push(param_base + "_values=" + encodeURIComponent(choiceValues));
 			} else if (option === "fixed") {
 				var fixedValue = $(this).find(".fixedValue").val();
 
-				params.push("parameter_" + parameterIndex + "_name=" + encodeURIComponent(parameterName));
-				params.push("parameter_" + parameterIndex + "_type=" + encodeURIComponent(option));
-				params.push("parameter_" + parameterIndex + "_value=" + encodeURIComponent(fixedValue));
+				params.push(param_base + "_name=" + encodeURIComponent(parameterName));
+				params.push(param_base + "_type=" + encodeURIComponent(option));
+				params.push(param_base + "_value=" + encodeURIComponent(fixedValue));
 			}
 		}
 		parameterIndex++;

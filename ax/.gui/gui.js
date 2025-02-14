@@ -40,8 +40,15 @@ var tableData = [
 	{ label: "Send anonymized usage statistics?", id: "send_anonymized_usage_stats", type: "checkbox", value: 1, "help": "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of the aes256 encrypted username/groups combination and some other values, but cannot be traced back to any specific user." },
 	{ label: "Automatically checkout to latest checked version", id: "checkout_to_latest_tested_version", type: "checkbox", value: 1, "help": "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs." },
 	//{ label: "Show graphics at end?", id: "show_sixel_graphics", type: "checkbox", value: 0, "info": "May not be supported on all terminals.", "help": "This will use the module sixel to try to print your the results to the command line. If this doesn't work for you, please disable it. It has no effect on the results of OmniOpt2." },
-	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, "info": "Use Variable names like this: <br><code class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file", "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." },
-	{ label: "Result-Names", id: "result_names", type: "text", value: "result=min", placeholder: "Name of the value that should be searched for, like 'result'", "required": true, "regex": /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max)(\s\s*|$))?)(\s|$)?)+)$/, "help": "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is result=min.", "info": "This is used for the regex to search through the STDOUT of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. This is also where you can defined Multi-Objective-Optimization goals." }
+	{
+		label: "Constraints",
+		id: "constraints",
+		type: "text",
+		value: "",
+		placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisons: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
+	},
+	{ label: "Result-Names", id: "result_names", type: "text", value: "result=min", placeholder: "Name of the value that should be searched for, like 'result'", "required": true, "regex": /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max)(\s\s*|$))?)(\s|$)?)+)$/, "help": "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is result=min.", "info": "This is used for the regex to search through the STDOUT of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. This is also where you can defined Multi-Objective-Optimization goals." },
+	{ label: "Run program", id: "run_program", type: "textarea", value: "", placeholder: "Your program with parameters", "required": true, "info": "Use Variable names like this: <br><code class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file", "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled." }
 ];
 
 var hiddenTableData = [
@@ -107,14 +114,6 @@ var hiddenTableData = [
 		], "required": true,
 		"info": "Changes the curl-command and how omniopt is installed and executed.",
 		"help": "If set to docker, it will run in a local docker container."
-	},
-
-	{
-		label: "Constraints",
-		id: "constraints",
-		type: "text",
-		value: "",
-		placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)", info: "Use simple constraints in the form of <code>a + b >= 10</code>, where <code>a</code> and <code>b</code> are parameter names. Possible comparisons: <code>>=</code>, <code><=</code>", "help": "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
 	},
 	{ label: "Decimal places", id: "decimalrounding", type: "number", value: 4, placeholder: "Number of decimal places to be rounded to", min: 0, max: 32 },
 ];

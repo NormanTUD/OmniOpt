@@ -734,6 +734,10 @@ function update_command() {
 		var constraints_string = $("#constraints").val();
 		var errors_string = isValidEquationString(constraints_string);
 
+		if(isAnyLogScaleSet()) {
+			errors_string += "Cannot set constraints if one or more log-scale parameters are there."
+		}
+
 		if (errors_string != "") {
 			errors.push("Something was wrong in the constraints parameter");
 			$("#constraints_error").html(errors_string);
@@ -1165,67 +1169,57 @@ function isValidEquationString(input) {
 	let errors = [];
 
 	function tokenize(expression) {
-		const regex = /\d+|[a-zA-Z_]+|[+\-*/()<>]=?|;/g;
+		const regex = /-?\d*\.?\d+\*[a-zA-Z_]+|[+\-]|\d+\.?\d*|<=|>=|;/g;
 		return expression.match(regex) || [];
 	}
 
 	function parseEquation(tokens, equationIndex) {
 		let i = 0;
+		let terms = [];
+		let hasComparison = false;
+		let rightSide = null;
 
-		function parseExpression() {
-			let node = parseTerm();
-			while (i < tokens.length && (tokens[i] === "+" || tokens[i] === "-")) {
-				const operator = tokens[i++];
-				node = { type: "binary", operator, left: node, right: parseTerm() };
-			}
-			return node;
-		}
+		while (i < tokens.length) {
+			let token = tokens[i++];
 
-		function parseTerm() {
-			let node = parseFactor();
-			while (i < tokens.length && (tokens[i] === "*" || tokens[i] === "/")) {
-				const operator = tokens[i++];
-				node = { type: "binary", operator, left: node, right: parseFactor() };
-			}
-			return node;
-		}
-
-		function parseFactor() {
-			const token = tokens[i++];
-			if (!token) {
-				errors.push(`Error in equation ${equationIndex}: Unexpected end of expression.`);
-				return null;
-			}
-
-			if (/\d+/.test(token)) return { type: "number", value: Number(token) };
-			if (parameters.has(token)) return { type: "variable", name: token };
-			if (token === "(") {
-				const node = parseExpression();
-				if (tokens[i++] !== ")") {
-					errors.push(`Error in equation ${equationIndex}: Missing closing parenthesis.`);
+			if (token === "<=" || token === ">=") {
+				if (hasComparison) {
+					errors.push(`Error in equation ${equationIndex}: Multiple comparison operators.`);
+					return;
 				}
-				return node;
+				hasComparison = true;
+				rightSide = tokens[i++] || null;
+				if (!/^-?\d+(\.\d+)?$/.test(rightSide)) {
+					errors.push(`Error in equation ${equationIndex}: Right-hand side must be a numeric constant.`);
+				}
+				continue;
 			}
 
-			errors.push(`Error in equation ${equationIndex}: Invalid token "${token}".`);
-			return null;
+			if (!hasComparison) {
+				if (/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(token)) {
+					terms.push(token);
+				} else if (token === "+" || token === "-") {
+					if (i >= tokens.length || !/^-?\d*\.?\d+\*[a-zA-Z_]+$/.test(tokens[i])) {
+						errors.push(`Error in equation ${equationIndex}: Invalid term after "${token}".`);
+					} else {
+						terms.push(token + " " + tokens[i++]);
+					}
+				} else {
+					errors.push(`Error in equation ${equationIndex}: Invalid token "${token}".`);
+				}
+			} else {
+				errors.push(`Error in equation ${equationIndex}: Unexpected token "${token}" after comparison operator.`);
+			}
 		}
 
-		const left = parseExpression();
-		if (i >= tokens.length || !["<=", ">="].includes(tokens[i])) {
-			errors.push(`Error in equation ${equationIndex}: Missing valid comparison operator ("<=" or ">=").`);
-			return null;
+		if (!hasComparison) {
+			errors.push(`Error in equation ${equationIndex}: Missing comparison operator ("<=" or ">=").`);
 		}
-		const operator = tokens[i++];
-		const right = parseExpression();
-		if (i < tokens.length) {
-			errors.push(`Error in equation ${equationIndex}: Unexpected tokens after equation.`);
-		}
-		return { type: "comparison", operator, left, right };
 	}
 
 	input.split(";").forEach((eq, index) => {
-		if (!eq.trim()) {
+		eq = eq.trim();
+		if (!eq) {
 			errors.push(`Error in equation ${index + 1}: Empty equation.`);
 			return;
 		}
@@ -1235,6 +1229,10 @@ function isValidEquationString(input) {
 
 	if (errors.length === 0) return "";
 	return `<ul>${errors.map(err => `<li>${err}</li>`).join("")}</ul>`;
+}
+
+function isAnyLogScaleSet() {
+    return $(".log_scale:checked").length > 0;
 }
 
 function run_when_document_ready () {

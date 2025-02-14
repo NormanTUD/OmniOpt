@@ -57,7 +57,6 @@ jobs:
         fi
 
   Slurm:
-    needs: [Linter, todo-to-issue]
     strategy:
       fail-fast: true
     runs-on: "ubuntu-latest"

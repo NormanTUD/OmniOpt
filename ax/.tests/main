@@ -787,7 +787,7 @@ if [[ $superquick -eq 0 ]]; then
 
 			_test "Testing multiple results with different models" "bash .tests/multi_results_different_models" 0
 
-			_test "Running it inside of docker-slurm" "bash .tests/slurm_docker/run_docker" 0
+			_test "Running it inside of docker-slurm" "bash .tests/slurm_docker/run_docker --install_slurm" 0
 		fi
 
 		#_test "Test OO outside of bash" "$PYTHON_OR_COVERAGE .omniopt.py" 2 16

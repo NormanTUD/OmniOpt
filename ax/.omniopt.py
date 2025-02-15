@@ -1866,10 +1866,64 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         print_red(f"\n⚠ Error: {e}")
         return ""
 
+class MonitorProcess:
+    def __init__(self, pid: int, interval: float = 1.0):
+        self.pid = pid
+        self.interval = interval
+        self.running = True
+        self.thread = threading.Thread(target=self._monitor)
+        self.thread.daemon = True
+
+    def _monitor(self):
+        try:
+            process = psutil.Process(self.pid)
+            while self.running and process.is_running():
+                crf = get_current_run_folder()
+
+                if crf and crf != "":
+                    log_file_path = os.path.join(crf, "eval_nodes_cpu_ram_logs.txt")
+
+                    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+                    with open(log_file_path, "a") as log_file:
+                        memory_usage = psutil.virtual_memory().used / (1024 * 1024 * 1024)
+                        cpu_usage = psutil.cpu_percent(interval=0.1)
+                        hostname = socket.gethostname()
+
+                        log_file.write(f"Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB\n")
+                time.sleep(self.interval)
+        except psutil.NoSuchProcess:
+            pass
+
+    def __enter__(self):
+        self.thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.running = False
+        self.thread.join()
+
 @beartype
 def execute_bash_code_log_time(code: str) -> list:
-    res = execute_bash_code(code)
-    return res
+    process = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Monitor-Prozess starten
+    with MonitorProcess(process.pid):  # Startet den Monitor im 'with'-Kontext
+        try:
+            stdout, stderr = process.communicate()  # Warten auf Beendigung des Prozesses
+            result = subprocess.CompletedProcess(
+                args=code, returncode=process.returncode, stdout=stdout, stderr=stderr
+            )
+            # Erfolgreiche Rückgabe der Ausgabe
+            return [result.stdout, result.stderr, result.returncode, None]
+        except subprocess.CalledProcessError as e:
+            real_exit_code = e.returncode
+            signal_code = None
+            if real_exit_code < 0:  # falls Signalcode vorhanden ist
+                signal_code = abs(e.returncode)
+                real_exit_code = 1
+            # Rückgabe im Fehlerfall
+            return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @beartype
 def execute_bash_code(code: str) -> list:

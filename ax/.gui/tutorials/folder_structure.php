@@ -178,6 +178,10 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>uuid_of_continued_run</i>: A file containing a <a href='https://de.wikipedia.org/wiki/Universally_Unique_Identifier'>UUID</a> from the job it has been continued from</li>
 </ul>
 
+<h3 id="eval_nodes_cpu_ram_logs_txt"><samp>eval_nodes_cpu_ram_logs.txt</samp></h3>
+
+Run once a second on every host that runs the evaluate function to log CPU and memory usage.
+
 <h3 id="single_runs"><samp>single_runs</samp></h3>
 
 <p>This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.</p>

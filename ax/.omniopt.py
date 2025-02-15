@@ -1890,7 +1890,7 @@ class MonitorProcess:
 
                         memory_usage = psutil.virtual_memory().used / (1024 * 1024)
                         total_memory = psutil.virtual_memory().total / (1024 * 1024)
-                        cpu_usage = psutil.cpu_percent(interval=0.1)
+                        cpu_usage = psutil.cpu_percent(interval=5)
 
                         unix_timestamp = int(time.time())
 

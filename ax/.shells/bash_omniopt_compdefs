@@ -1,0 +1,345 @@
+# Completion für omniopt
+_omniopt() {
+  local cur prev opts
+  _get_comp_words_by_ref -n : cur prev
+  opts=(
+    "--help"
+    "--config_yaml"
+    "--config_toml"
+    "--config_json"
+    "--num_random_steps"
+    "--max_eval"
+    "--run_program"
+    "--experiment_name"
+    "--mem_gb"
+    "--parameter"
+    "--continue_previous_job"
+    "--maximize"
+    "--experiment_constraints"
+    "--stderr_to_stdout"
+    "--run_dir"
+    "--seed"
+    "--decimalrounding"
+    "--enforce_sequential_optimization"
+    "--verbose_tqdm"
+    "--hide_ascii_plots"
+    "--model"
+    "--gridsearch"
+    "--occ"
+    "--show_sixel_scatter"
+    "--show_sixel_general"
+    "--show_sixel_trial_index_result"
+    "--follow"
+    "--send_anonymized_usage_stats"
+    "--ui_url"
+    "--root_venv_dir"
+    "--exclude"
+    "--main_process_gb"
+    "--pareto_front_confidence"
+    "--max_nr_of_zero_results"
+    "--disable_search_space_exhaustion_detection"
+    "--abbreviate_job_names"
+    "--orchestrator_file"
+    "--checkout_to_latest_tested_version"
+    "--live_share"
+    "--disable_tqdm"
+    "--workdir"
+    "--should_deduplicate"
+    "--max_parallelism"
+    "--occ_type"
+    "--result_names"
+    "--minkowski_p"
+    "--signed_weighted_euclidean_weights"
+    "--num_parallel_jobs"
+    "--worker_timeout"
+    "--slurm_use_srun"
+    "--time"
+    "--partition"
+    "--reservation"
+    "--force_local_execution"
+    "--slurm_signal_delay_s"
+    "--nodes_per_job"
+    "--cpus_per_task"
+    "--account"
+    "--gpus"
+    "--run_mode"
+    "--verbose"
+    "--debug"
+    "--no_sleep"
+    "--tests"
+    "--show_worker_percentage_table_at_end"
+    "--auto_exclude_defective_hosts"
+    "--run_tests_that_fail_on_taurus"
+    "--raise_in_eval"
+  )
+
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+  fi
+}
+
+# Completion für omniopt_plot
+_omniopt_plot() {
+  local cur prev opts
+  _get_comp_words_by_ref -n : cur prev
+  opts=("cpu_ram_usage" "general" "get_next_trials" "gpu_usage" "kde" "scatter_generation_method" "scatter_hex" "scatter" "time_and_exit_code" "trial_index_result" "worker")
+
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+  fi
+}
+
+# Completion für omniopt_share
+_omniopt_share() {
+  local cur prev opts
+  _get_comp_words_by_ref -n : cur prev
+  opts=(
+    "--help"
+    "--update"
+    "--debug"
+    "--no_color"
+    "--username"
+    "--keep_tmp_dir"
+    "--outfile"
+  )
+
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+  fi
+}
+
+# Funktion für die Completion der Haupttests
+_tests_main_completion() {
+    local cur opts
+    opts=(
+        "--max_eval="
+        "--num_random_steps="
+        "--num_parallel_jobs="
+        "--gpus="
+        "--exit_on_first_error"
+        "--help"
+        "--run_with_coverage"
+        "--quick"
+        "--reallyquick"
+        "--superquick"
+        "--debug"
+        "--no_plots"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion der Linter
+_tests_linter_completion() {
+    local cur linters
+    linters=("pylint" "bandit" "deadcode" "pyflakes" "flake8" "shellcheck" "mypy")
+
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "--quick --help --dont_fail_on_error" -- ${cur}) )
+    elif [[ ${cur} == * ]]; then
+        COMPREPLY=( $(compgen -W "${linters[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion von OmniOpt Evaluate
+_omniopt_evaluate_completion() {
+    local cur opts
+    opts=(
+        "--projectdir="
+        "--nogauge"
+        "--help"
+        "--dont_load_modules"
+        "--no_upgrade"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion von "Wronggoing Stuff" Tests
+_tests_wronggoing_stuff_completion() {
+    local cur opts
+    opts=(
+        "--num_random_steps="
+        "--nosuccess"
+        "--gpus="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion von Optimierungsbeispielen
+_tests_optimization_example_completion() {
+    local cur opts
+    opts=(
+        "--int_param="
+        "--int_param_two="
+        "--float_param="
+        "--choice_param="
+        "--fixed_param"
+        "--fail_or_not="
+        "--nr_results="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+
+# Funktion für die Completion der vollständigen Optimierungssuche
+_tests_optimization_example_full_search_completion() {
+    local cur opts
+    opts=(
+        "--param="
+        "--param_two="
+        "--param_three="
+        "--param_four="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion des Orchestrators
+_tests_orchestrator_completion() {
+    local cur opts
+    opts=(
+        "--num_random_steps="
+        "--nosuccess"
+        "--gpus="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion des Netzwerktests
+_tests_train_example_network_completion() {
+    local cur opts
+    opts=(
+        "--help"
+        "--debug"
+        "--num_parallel_jobs="
+        "--worker_timeout="
+        "--mem_gb="
+        "--time="
+        "--num_random_steps="
+        "--max_eval="
+        "--max_epochs="
+        "--follow"
+        "--gridsearch"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion des einfachen Optimierungsdurchlaufs
+_tests_start_simple_optimization_run_completion() {
+    local cur opts
+    opts=(
+        "--max_eval="
+        "--mem_gb="
+        "--num_parallel_jobs="
+        "--num_random_steps="
+        "--model="
+        "--gridsearch"
+        "--gpus="
+        "--time="
+        "--allow_failure"
+        "--force_local_execution"
+        "--all_float"
+        "--one_param"
+        "--two_params"
+        "--nr_results="
+        "--alternate_min_max"
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion der Beispielnetzwerkausführung
+_tests_example_network_run_completion() {
+    local cur opts
+    opts=(
+        "--train"
+        "--predict"
+        "--learning_rate="
+        "--epochs="
+        "--validation_split="
+        "--width="
+        "--height="
+        "--data="
+        "--conv="
+        "--conv_filters="
+        "--dense="
+        "--dense_units="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion der OmniAx-Installation
+_gui_install_omniax_completion() {
+    local cur opts
+    opts=(
+        "--depth="
+        "--reservation="
+        "--installation_method="
+        "--omniopt_venv="
+        "--debug"
+        "--help"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+# Funktion für die Completion der "All Float" Optimierung
+_tests_optimization_example_all_float_completion() {
+    local cur opts
+    opts=(
+        "--x="
+        "--y="
+        "--z="
+        "--a="
+        "--help"
+        "--debug"
+    )
+    if [[ ${cur} == -* ]]; then
+        COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+    fi
+}
+
+complete -F _tests_optimization_example_all_float_completion tests/optimization_example_all_float
+complete -F _tests_start_simple_optimization_run_completion tests/start_simple_optimization_run
+complete -F _omniopt omniopt
+complete -F _gui_install_omniax_completion gui/install_omniax.sh
+complete -F _tests_example_network_run_completion tests/example_network/run.sh
+complete -F _tests_train_example_network_completion tests/train_example_network
+complete -F _tests_orchestrator_completion tests/orchestrator
+complete -F _omniopt_plot omniopt_plot
+complete -F _omniopt_share omniopt_share
+complete -F _tests_main_completion tests/main
+complete -F _tests_linter_completion tests/linter
+complete -F _omniopt_evaluate_completion omniopt_evaluate
+complete -F _tests_wronggoing_stuff_completion tests/wronggoing_stuff
+complete -F _tests_optimization_example_completion tests/optimization_example
+complete -F _tests_optimization_example_full_search_completion tests/optimization_example_full_search

@@ -158,6 +158,100 @@ _tests_linter_completion() {
         '*::files:_files'
 }
 
+_omniopt_evaluate_completion() {
+    _arguments \
+        '--projectdir=[Path to available projects]:directory:_files -/' \
+        '--nogauge[Disables the gauges]' \
+        '--help[Show help message]' \
+        '--dont_load_modules[Do not load modules]' \
+        '--no_upgrade[Disables upgrades]' \
+        '--debug[Enables debugging]'
+}
+
+_tests_wronggoing_stuff_completion() {
+    _arguments \
+        '--num_random_steps=[Number of random steps]::(INT)' \
+        '--nosuccess[Do not run successful tests]' \
+        '--gpus=[Number of GPUs per worker]::(INT)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+_tests_optimization_example_completion() {
+    _arguments \
+        '--int_param=[Integer parameter]::(INT)' \
+        '--int_param_two=[Second integer parameter]::(INT)' \
+        '--float_param=[Floating point parameter]::(FLOAT)' \
+        '--choice_param=[Choice parameter]:(1 2 4 8 16 hallo)' \
+        '--fixed_param[Will be ignored]' \
+        '--fail_or_not=[Whether to fail or not]:(0 1)' \
+        '--nr_results=[Number of results]::(1)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+_tests_optimization_example_full_search_completion() {
+    _arguments \
+        '--param=[Any float]::(FLOAT)' \
+        '--param_two=[Any float]::(FLOAT)' \
+        '--param_three=[Any float]::(FLOAT)' \
+        '--param_four=[Must be 1, 2, 4, 8, 16, or hallo]:(1 2 4 8 16 hallo)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+_tests_orchestrator_completion() {
+    _arguments \
+        '--num_random_steps=[Number of random steps]:(INT)' \
+        '--nosuccess[Don’t run successful tests]' \
+        '--gpus=[Number of GPUs per worker]:(INT)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+_tests_train_example_network_completion() {
+    _arguments \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]' \
+        '--num_parallel_jobs=[Number of parallel jobs]:(n)' \
+        '--worker_timeout=[Number of minutes for a single-worker timeout]:(n)' \
+        '--mem_gb=[Memory in GB]:(n)' \
+        '--time=[Max runtime in minutes]:(n)' \
+        '--num_random_steps=[Number of random steps]:(INT)' \
+        '--max_eval=[Max number of evaluations]:(n)' \
+        '--max_epochs=[Number of max epochs]:(n)' \
+        '--follow[Follow the output]' \
+        '--gridsearch[Do grid search]'
+}
+
+_tests_start_simple_optimization_run_completion() {
+    _arguments \
+        '--max_eval=[Maximum number of evaluations]:(INT)' \
+        '--mem_gb=[Memory in GB]:(INT)' \
+        '--num_parallel_jobs=[Maximum number of parallel workers]:(INT)' \
+        '--num_random_steps=[Number of random steps]:(INT)' \
+        '--model=[Model name]:(STR)' \
+        '--gridsearch[Perform grid search]' \
+        '--gpus=[Number of GPUs per worker]:(INT)' \
+        '--time=[Time each subjob should run]:(INT)' \
+        '--allow_failure[Allow failure]' \
+        '--force_local_execution[Run locally even if SLURM is installed]' \
+        '--all_float[Use all_float logic]' \
+        '--one_param[One parameter]' \
+        '--two_params[Two parameters]' \
+        '--nr_results=[Number of results]:(1)' \
+        '--alternate_min_max[Alternate min/max when nr_results > 1]' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+compdef _tests_start_simple_optimization_run_completion .tests/start_simple_optimization_run
+compdef _tests_train_example_network_completion .tests/train_example_network
+compdef _tests_orchestrator_completion .tests/orchestrator
+compdef _tests_optimization_example_full_search_completion .tests/optimization_example_full_search
+compdef _tests_optimization_example_completion .tests/optimization_example
+compdef _tests_wronggoing_stuff_completion .tests/wronggoing_stuff
+compdef _omniopt_evaluate_completion omniopt_evaluate
 compdef _tests_linter_completion .tests/linter
 compdef _tests_main_completion .tests/main
 compdef _omniopt_plot omniopt_plot

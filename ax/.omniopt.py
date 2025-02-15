@@ -2363,6 +2363,10 @@ def print_evaluate_times() -> None:
     with open(file_path, mode='r', newline='', encoding='utf-8') as file:
         csv_reader = csv.DictReader(file)
 
+        if csv_reader.fieldnames is None:
+            print_debug("CSV-field-names are empty")
+            return
+
         if 'run_time' not in csv_reader.fieldnames:
             print_debug("The 'run_time' column does not exist.")
             return

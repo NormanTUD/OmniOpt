@@ -1892,7 +1892,9 @@ class MonitorProcess:
                         total_memory = psutil.virtual_memory().total / (1024 * 1024)
                         cpu_usage = psutil.cpu_percent(interval=0.1)
 
-                        log_file.write(f"Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB / {total_memory:.2f} MB\n")
+                        unix_timestamp = int(time.time())
+
+                        log_file.write(f"Unix-Timestamp: {unix_timestamp}, Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB / {total_memory:.2f} MB\n")
                 time.sleep(self.interval)
         except psutil.NoSuchProcess:
             pass

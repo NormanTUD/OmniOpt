@@ -4814,11 +4814,11 @@ def merge_error_strings(input_list: list) -> list:
             if current is not None and current[0] == prefix and current[2] == suffix:
                 current[1] += '/' + inside_quotes
             else:
-                if current:
+                if current is not None and len(current) >= 3:
                     merged.append(f"{current[0]}{current[1]}'{current[2]}")
                 current = [prefix, inside_quotes, suffix]
         else:
-            if current:
+            if current is not None:
                 merged.append(f"{current[0]}{current[1]}'{current[2]}")
                 current = None
             merged.append(s)

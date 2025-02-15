@@ -1933,7 +1933,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
                 results[column_name] = [float(match) for match in matches][0]
             else:
                 results[column_name] = None
-                add_to_global_error_list(f"Result '{column_name}' not found")
+                add_to_global_error_list(f"result '{column_name}' not found")
 
         if len(results):
             return results

@@ -4811,7 +4811,7 @@ def merge_error_strings(input_list: list) -> list:
     current = None
 
     for s in input_list:
-        match = re.match(r"(.*? ')(.*?)'(.*)", s)
+        match = re.match(r"(.*? ')(.*?)('.*)", s)
         if match:
             prefix, inside_quotes, suffix = match.groups()
 
@@ -4823,7 +4823,7 @@ def merge_error_strings(input_list: list) -> list:
                 current = [prefix, inside_quotes, suffix]
         else:
             if current is not None:
-                merged.append(f"{current[0]}{current[1]}'{current[2]}")
+                merged.append(f"{current[0]}{current[1]}{current[2]}")
                 current = None
             merged.append(s)
 

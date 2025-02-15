@@ -273,6 +273,17 @@ _gui_install_omniax_completion() {
         '--help[Show help message]'
 }
 
+_tests_optimization_example_all_float_completion() {
+    _arguments \
+        '--x=[Any float]:(FLOAT)' \
+        '--y=[Any float]:(FLOAT)' \
+        '--z=[Any float]:(FLOAT)' \
+        '--a=[Any float]:(FLOAT)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+compdef _tests_optimization_example_all_float_completion .tests/optimization_example_all_float
 compdef _gui_install_omniax_completion .gui/install_omniax.sh
 compdef _tests_example_network_run_completion .tests/example_network/run.sh
 compdef _tests_start_simple_optimization_run_completion .tests/start_simple_optimization_run

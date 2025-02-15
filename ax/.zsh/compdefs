@@ -1,0 +1,93 @@
+#compdef omniopt
+
+_omniopt() {
+  local state
+
+  _arguments \
+    {-h,--help}'[Show help message and exit]' \
+    '--config_yaml=[YAML configuration file]:config_yaml:_files' \
+    '--config_toml=[TOML configuration file]:config_toml:_files' \
+    '--config_json=[JSON configuration file]:config_json:_files' \
+    '--num_random_steps=[Number of random steps to start with]:NUM_RANDOM_STEPS:' \
+    '--max_eval=[Maximum number of evaluations]:MAX_EVAL:' \
+    '--run_program=[A program that should be run]:RUN_PROGRAM:_files' \
+    '--experiment_name=[Name of the experiment]:EXPERIMENT_NAME:' \
+    '--mem_gb=[Amount of RAM for each worker in GB]:MEM_GB:' \
+    '--parameter=[Experiment parameters]:PARAMETER:' \
+    '--continue_previous_job=[Continue from a previous checkpoint]:CONTINUE_PREVIOUS_JOB:_files' \
+    '--maximize[Maximize instead of minimize]' \
+    '--experiment_constraints=[Constraints for parameters]:EXPERIMENT_CONSTRAINTS:' \
+    '--stderr_to_stdout[Redirect stderr to stdout for subjobs]' \
+    '--run_dir=[Directory for runs]:RUN_DIR:_files' \
+    '--seed=[Seed for random number generator]:SEED:' \
+    '--decimalrounding=[Decimal places for rounding]:DECIMALROUNDING:' \
+    '--enforce_sequential_optimization[Enforce sequential optimization]' \
+    '--verbose_tqdm[Show verbose tqdm messages]' \
+    '--hide_ascii_plots[Hide ASCII-plots]' \
+    '--model=[Use special models]:MODEL:(SOBOL GPEI FACTORIAL SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED)' \
+    '--gridsearch[Enable gridsearch]' \
+    '--occ[Use optimization with combined criteria (OCC)]' \
+    '--show_sixel_scatter[Show sixel scatter plots at the end]' \
+    '--show_sixel_general[Show sixel general plots at the end]' \
+    '--show_sixel_trial_index_result[Show sixel trial index result plots]' \
+    '--follow[Automatically follow log file of sbatch]' \
+    '--send_anonymized_usage_stats[Send anonymized usage stats]' \
+    '--ui_url=[Site from which the OO-run was called]:UI_URL:_urls' \
+    '--root_venv_dir=[Where to install modules]:ROOT_VENV_DIR:_files' \
+    '--exclude=[Excluded nodes]:EXCLUDE:' \
+    '--main_process_gb=[RAM for main process in GB]:MAIN_PROCESS_GB:' \
+    '--pareto_front_confidence=[Confidence for pareto-front plotting]:PARETO_FRONT_CONFIDENCE:' \
+    '--max_nr_of_zero_results=[Max successive zero results]:MAX_NR_OF_ZERO_RESULTS:' \
+    '--disable_search_space_exhaustion_detection[Disable search space exhaustion detection]' \
+    '--abbreviate_job_names[Abbreviate pending job names]' \
+    '--orchestrator_file=[Orchestrator file]:ORCHESTRATOR_FILE:_files' \
+    '--checkout_to_latest_tested_version[Checkout latest tested version]' \
+    '--live_share[Live-share the current optimization run]' \
+    '--disable_tqdm[Disable the TQDM progress bar]' \
+    '--workdir=[Work directory]:WORKDIR:_files' \
+    '--should_deduplicate[Try to de-duplicate ARMs]' \
+    '--max_parallelism=[Set ax max parallelism]:MAX_PARALLELISM:(None max_eval num_parallel_jobs twice_max_eval max_eval_times_thousand_plus_thousand twice_num_parallel_jobs)' \
+    '--occ_type=[OCC type]:OCC_TYPE:(geometric euclid signed_harmonic signed_minkowski weighted_euclid composite)' \
+    '--result_names=[Name of hyperparameters]:RESULT_NAMES:' \
+    '--minkowski_p=[Minkowski order]:MINKOWSKI_P:' \
+    '--signed_weighted_euclidean_weights=[Weighted Euclidean weights]:SIGNED_WEIGHTED_EUCLIDEAN_WEIGHTS:' \
+    '--num_parallel_jobs=[Parallel SLURM jobs]:NUM_PARALLEL_JOBS:' \
+    '--worker_timeout=[SLURM job timeout]:WORKER_TIMEOUT:' \
+    '--slurm_use_srun[Use srun instead of sbatch]' \
+    '--time=[Time for the main job]:TIME:' \
+    '--partition=[Partition to be run on]:PARTITION:' \
+    '--reservation=[Reservation]:RESERVATION:' \
+    '--force_local_execution[Force local execution]' \
+    '--slurm_signal_delay_s=[SLURM signal delay]:SLURM_SIGNAL_DELAY_S:' \
+    '--nodes_per_job=[Nodes per job]:NODES_PER_JOB:' \
+    '--cpus_per_task=[CPUs per task]:CPUS_PER_TASK:' \
+    '--account=[Account]:ACCOUNT:' \
+    '--gpus=[Number of GPUs]:GPUS:' \
+    '--run_mode=[Run mode]:RUN_MODE:(local docker)' \
+    '--verbose[Enable verbose logging]' \
+    '--debug[Enable debugging]' \
+    '--no_sleep[Disable sleeping for fast job generation]' \
+    '--tests[Run internal tests]' \
+    '--show_worker_percentage_table_at_end[Show worker percentage table]' \
+    '--auto_exclude_defective_hosts[Auto-exclude defective hosts]' \
+    '--run_tests_that_fail_on_taurus[Run Taurus tests]' \
+    '--raise_in_eval[Raise signal in eval]'
+}
+
+#_omniopt "$@"
+
+#compdef omniopt_plot
+
+_omniopt_plot() {
+  local state
+
+  _arguments \
+    '1:Directory:_files -/' \
+    '2:Scatter Type:(cpu_ram_usage general get_next_trials gpu_usage kde scatter_generation_method scatter_hex scatter time_and_exit_code trial_index_result worker)'
+}
+
+#_omniopt_plot "$@"
+
+
+compdef _omniopt_plot omniopt_plot
+compdef _omniopt omniopt

@@ -142,6 +142,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>checkpoint.json.parameters.json</i>: A list of parameters for this run</li>
 	<li><i>env</i>: A dump of the environment, OmniOpt2 works in (useful for debugging)</li>
 	<li><i>experiment_name</i>: The name of this experiment</li>
+	<li><i>time_overview.txt</i>: A table of the runtimes (min, max, avg, median)</li>
 	<li><i>failed_jobs</i>: The number of failed jobs</li>
 	<li><i>global_vars.json</i>: A variable that contains several global states that continued runs need to continue</li>
 	<li><i>experiment_overview.txt</i>: A table showing different parameters relating to the current experiment</li>

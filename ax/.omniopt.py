@@ -6,7 +6,7 @@ import re
 import math
 import time
 import random
-
+import statistics
 
 shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
@@ -2349,6 +2349,55 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
 @beartype
+def print_evaluate_times() -> None:
+    file_path = f"{get_current_run_folder()}/job_infos.csv"
+
+    if not Path(file_path).exists():
+        print_debug(f"The file '{file_path}' was not found.")
+        return
+
+    with open(file_path, mode='r', newline='', encoding='utf-8') as file:
+        csv_reader = csv.DictReader(file)
+
+        if 'run_time' not in csv_reader.fieldnames:
+            print_debug("The 'run_time' column does not exist.")
+            return
+
+        time_values = []
+        for row in csv_reader:
+            try:
+                time_values.append(float(row['run_time']))
+            except ValueError:
+                continue
+
+        if not time_values:
+            print_debug("No valid run times found.")
+            return
+
+        min_time = min(time_values)
+        max_time = max(time_values)
+        avg_time = statistics.mean(time_values)
+        median_time = statistics.median(time_values)
+
+        headers = ["Min time", "Max time", "Average time", "Median time"]
+        cols = [f"{min_time:.2f} sec", f"{max_time:.2f} sec", f"{avg_time:.2f} sec", f"{median_time:.2f} sec"]
+
+        table = Table(title="Runtimes of single evaluation")
+        for h in headers:
+            table.add_column(h, justify="center")
+
+        table.add_row(*cols)
+
+        console.print(table)
+
+        overview_file = f"{get_current_run_folder()}/time_overview.txt"
+        with open(overview_file, mode='w', encoding='utf-8') as overview:
+            overview.write(f"Min Time: {min_time:.2f} sec\n")
+            overview.write(f"Max Time: {max_time:.2f} sec\n")
+            overview.write(f"Average Time: {avg_time:.2f} sec\n")
+            overview.write(f"Median Time: {median_time:.2f} sec\n")
+
+@beartype
 def print_debug_infos(program_string_with_params: str) -> None:
     string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
@@ -3082,6 +3131,8 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     display_failed_jobs_table()
 
     best_result_exit: int = print_best_result()
+
+    print_evaluate_times()
 
     if best_result_exit > 0:
         _exit = best_result_exit

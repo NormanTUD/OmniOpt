@@ -2379,23 +2379,24 @@ def print_evaluate_times() -> None:
         avg_time = statistics.mean(time_values)
         median_time = statistics.median(time_values)
 
-        headers = ["Min time", "Max time", "Average time", "Median time"]
-        cols = [f"{min_time:.2f} sec", f"{max_time:.2f} sec", f"{avg_time:.2f} sec", f"{median_time:.2f} sec"]
+        if min_time != max_time or max_time != 0:
+            headers = ["Min time", "Max time", "Average time", "Median time"]
+            cols = [f"{min_time:.2f} sec", f"{max_time:.2f} sec", f"{avg_time:.2f} sec", f"{median_time:.2f} sec"]
 
-        table = Table(title="Runtimes of single evaluation")
-        for h in headers:
-            table.add_column(h, justify="center")
+            table = Table(title="Runtimes of single evaluation")
+            for h in headers:
+                table.add_column(h, justify="center")
 
-        table.add_row(*cols)
+            table.add_row(*cols)
 
-        console.print(table)
+            console.print(table)
 
-        overview_file = f"{get_current_run_folder()}/time_overview.txt"
-        with open(overview_file, mode='w', encoding='utf-8') as overview:
-            overview.write(f"Min Time: {min_time:.2f} sec\n")
-            overview.write(f"Max Time: {max_time:.2f} sec\n")
-            overview.write(f"Average Time: {avg_time:.2f} sec\n")
-            overview.write(f"Median Time: {median_time:.2f} sec\n")
+            overview_file = f"{get_current_run_folder()}/time_overview.txt"
+            with open(overview_file, mode='w', encoding='utf-8') as overview:
+                overview.write(f"Min Time: {min_time:.2f} sec\n")
+                overview.write(f"Max Time: {max_time:.2f} sec\n")
+                overview.write(f"Average Time: {avg_time:.2f} sec\n")
+                overview.write(f"Median Time: {median_time:.2f} sec\n")
 
 @beartype
 def print_debug_infos(program_string_with_params: str) -> None:

@@ -4828,7 +4828,7 @@ def merge_error_strings(input_list: list) -> list:
             merged.append(s)
 
     if current:
-        merged.append(f"{current[0]}{current[1]}'{current[2]}")
+        merged.append(f"{current[0]}{current[1]}{current[2]}")
 
     return merged
 

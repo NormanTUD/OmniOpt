@@ -1933,6 +1933,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
                 results[column_name] = [float(match) for match in matches][0]
             else:
                 results[column_name] = None
+                add_to_global_error_list(f"Result '{column_name}' not found")
 
         if len(results):
             return results
@@ -1960,6 +1961,7 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
 
     if not isinstance(input_string, str):
         print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
+        add_to_global_error_list(f"Output was empty")
         return None
 
     try:
@@ -1972,6 +1974,8 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
             # Convert matches to floats
             result_numbers = [float(match) for match in matches]
             return result_numbers  # Return list if multiple results are found
+
+        add_to_global_error_list(f"'RESULT' not found")
         return None
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
@@ -4002,7 +4006,15 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     in_brackets: list[str] = []
 
     if failed_jobs():
-        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{helpers.bcolors.endc}")
+
+        types_of_errors_str = ""
+
+        _types_of_errors: list = read_errors_from_file()
+
+        if len(_types_of_errors) > 0:
+            types_of_errors_str = f" ({', '.join(_types_of_errors)})"
+
+        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{types_of_errors_str}{helpers.bcolors.endc}")
 
     current_model = get_current_model()
 
@@ -4765,6 +4777,34 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
     except Exception as e: # pragma: no cover
         print(f"There was an error: {e}")
         return None
+
+@beartype
+def add_to_global_error_list(msg: str) -> None:
+    error_file_path = f'{get_current_run_folder()}/result_errors.log'
+
+    # Überprüfen, ob die Datei existiert und die Nachricht bereits enthalten ist
+    if os.path.exists(error_file_path):
+        with open(error_file_path, 'r') as file:
+            errors = file.readlines()
+        # Entfernen des Zeilenumbruchs am Ende jeder Zeile
+        errors = [error.strip() for error in errors]
+        if msg not in errors:
+            with open(error_file_path, 'a') as file:
+                file.write(f"{msg}\n")
+    else:
+        # Wenn die Datei nicht existiert, dann einfach die Nachricht hineinschreiben
+        with open(error_file_path, 'w') as file:
+            file.write(f"{msg}\n")
+
+@beartype
+def read_errors_from_file() -> list:
+    error_file_path = f'{get_current_run_folder()}/result_errors.log'
+    if os.path.exists(error_file_path):
+        with open(error_file_path, 'r') as file:
+            errors = file.readlines()
+        # Entfernen des Zeilenumbruchs am Ende jeder Zeile
+        return [error.strip() for error in errors]
+    return []
 
 @beartype
 def mark_trial_as_failed(_trial: Any) -> None:

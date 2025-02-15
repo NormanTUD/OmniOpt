@@ -140,6 +140,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 	<li><i>ax_client.experiment.json</i>: A JSON file containing all data needed to restore the experiment</li>
 	<li><i>checkpoint.json</i>: A JSON file containing all data needed to restore the experiment</li>
 	<li><i>checkpoint.json.parameters.json</i>: A list of parameters for this run</li>
+	<li><i>result_errors.log</i>: A list of errors for the run regarding the results</li>
 	<li><i>env</i>: A dump of the environment, OmniOpt2 works in (useful for debugging)</li>
 	<li><i>experiment_name</i>: The name of this experiment</li>
 	<li><i>time_overview.txt</i>: A table of the runtimes (min, max, avg, median)</li>

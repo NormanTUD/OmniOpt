@@ -88,6 +88,23 @@ _omniopt_plot() {
 
 #_omniopt_plot "$@"
 
+#compdef omniopt_share
+
+_omniopt_share() {
+  _arguments \
+    '1:Run Directory:_files -/' \
+    '--help[Show help message]' \
+    '--update[Update a job that had this run-UUID previously]' \
+    '--debug[Enable debug options]' \
+    '--no_color[Disables color output]' \
+    '--username=[Specify username]:username:_users' \
+    '--keep_tmp_dir[Keeps the tmp dir, prints it as well]' \
+    '--outfile=[Path to the outfile]:file:_files'
+}
+
+#_omniopt_share "$@"
+
 
 compdef _omniopt_plot omniopt_plot
 compdef _omniopt omniopt
+compdef _omniopt_share omniopt_share

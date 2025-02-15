@@ -4792,16 +4792,16 @@ def add_to_global_error_list(msg: str) -> None:
 
     # Überprüfen, ob die Datei existiert und die Nachricht bereits enthalten ist
     if os.path.exists(error_file_path):
-        with open(error_file_path, 'r') as file:
+        with open(error_file_path, mode='r', encoding="utf-8") as file:
             errors = file.readlines()
         # Entfernen des Zeilenumbruchs am Ende jeder Zeile
         errors = [error.strip() for error in errors]
         if msg not in errors:
-            with open(error_file_path, 'a') as file:
+            with open(error_file_path, mode='a', encoding="utf-8") as file:
                 file.write(f"{msg}\n")
     else:
         # Wenn die Datei nicht existiert, dann einfach die Nachricht hineinschreiben
-        with open(error_file_path, 'w') as file:
+        with open(error_file_path, mode='w', encoding="utf-8") as file:
             file.write(f"{msg}\n")
 
 @beartype
@@ -4814,7 +4814,7 @@ def merge_error_strings(input_list: list) -> list:
         if match:
             prefix, inside_quotes, suffix = match.groups()
 
-            if current and current[0] == prefix and current[2] == suffix:
+            if current is not None and current[0] == prefix and current[2] == suffix:
                 # Wenn der vorherige String dasselbe Prefix und Suffix hatte, zusammenführen
                 current[1] += '/' + inside_quotes
             else:
@@ -4839,7 +4839,7 @@ def merge_error_strings(input_list: list) -> list:
 def read_errors_from_file() -> list:
     error_file_path = f'{get_current_run_folder()}/result_errors.log'
     if os.path.exists(error_file_path):
-        with open(error_file_path, 'r') as file:
+        with open(error_file_path, mode='r', encoding="utf-8") as file:
             errors = file.readlines()
         # Entfernen des Zeilenumbruchs am Ende jeder Zeile
         return [error.strip() for error in errors]

@@ -4790,18 +4790,21 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
 
 @beartype
 def add_to_global_error_list(msg: str) -> None:
-    error_file_path = f'{get_current_run_folder()}/result_errors.log'
+    crf = get_current_run_folder()
 
-    if os.path.exists(error_file_path):
-        with open(error_file_path, mode='r', encoding="utf-8") as file:
-            errors = file.readlines()
-        errors = [error.strip() for error in errors]
-        if msg not in errors:
-            with open(error_file_path, mode='a', encoding="utf-8") as file:
+    if crf is not None and crf != "":
+        error_file_path = f'{crf}/result_errors.log'
+
+        if os.path.exists(error_file_path):
+            with open(error_file_path, mode='r', encoding="utf-8") as file:
+                errors = file.readlines()
+            errors = [error.strip() for error in errors]
+            if msg not in errors:
+                with open(error_file_path, mode='a', encoding="utf-8") as file:
+                    file.write(f"{msg}\n")
+        else:
+            with open(error_file_path, mode='w', encoding="utf-8") as file:
                 file.write(f"{msg}\n")
-    else:
-        with open(error_file_path, mode='w', encoding="utf-8") as file:
-            file.write(f"{msg}\n")
 
 @beartype
 def read_errors_from_file() -> list:

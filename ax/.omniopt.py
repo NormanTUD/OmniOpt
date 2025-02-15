@@ -1961,7 +1961,7 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
 
     if not isinstance(input_string, str):
         print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
-        add_to_global_error_list(f"Output was empty")
+        add_to_global_error_list("Output was empty")
         return None
 
     try:
@@ -1975,7 +1975,7 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
             result_numbers = [float(match) for match in matches]
             return result_numbers  # Return list if multiple results are found
 
-        add_to_global_error_list(f"result 'RESULT' not found in output")
+        add_to_global_error_list("result 'RESULT' not found in output")
         return None
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")

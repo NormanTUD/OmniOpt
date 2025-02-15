@@ -1886,11 +1886,13 @@ class MonitorProcess:
                     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
                     with open(log_file_path, "a") as log_file:
-                        memory_usage = psutil.virtual_memory().used / (1024 * 1024 * 1024)
-                        cpu_usage = psutil.cpu_percent(interval=0.1)
                         hostname = socket.gethostname()
 
-                        log_file.write(f"Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB\n")
+                        memory_usage = psutil.virtual_memory().used / (1024 * 1024)
+                        total_memory = psutil.virtual_memory().total / (1024 * 1024)
+                        cpu_usage = psutil.cpu_percent(interval=0.1)
+
+                        log_file.write(f"Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB / {total_memory:.2f} MB\n")
                 time.sleep(self.interval)
         except psutil.NoSuchProcess:
             pass

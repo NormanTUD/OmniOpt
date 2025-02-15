@@ -83,7 +83,8 @@
 		"everything_but_singleruns_zip",
 		"everything.zip",
 		"args_overview.txt",
-		"experiment_overview.txt"
+		"experiment_overview.txt",
+		"eval_nodes_cpu_ram_logs.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {

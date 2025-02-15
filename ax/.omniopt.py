@@ -3999,6 +3999,19 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
     return in_brackets
 
 @beartype
+def get_types_of_errors_string() -> str:
+    types_of_errors_str = ""
+
+    _types_of_errors: list = read_errors_from_file()
+
+    _types_of_errors = merge_error_strings(_types_of_errors)
+
+    if len(_types_of_errors) > 0:
+        types_of_errors_str = f" ({', '.join(_types_of_errors)})"
+
+    return types_of_errors_str
+
+@beartype
 def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     global global_vars
     global random_steps
@@ -4009,17 +4022,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     in_brackets: list[str] = []
 
     if failed_jobs():
-
-        types_of_errors_str = ""
-
-        _types_of_errors: list = read_errors_from_file()
-
-        _types_of_errors = merge_error_strings(_types_of_errors)
-
-        if len(_types_of_errors) > 0:
-            types_of_errors_str = f" ({', '.join(_types_of_errors)})"
-
-        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{types_of_errors_str}{helpers.bcolors.endc}")
+        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}")
 
     current_model = get_current_model()
 

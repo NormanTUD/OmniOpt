@@ -6176,8 +6176,6 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     import matplotlib.pyplot as plt
     import tempfile
 
-    from matplotlib.ticker import FuncFormatter
-
     means = data.means
     absolute_metrics = data.absolute_metrics
 

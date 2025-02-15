@@ -154,8 +154,8 @@ _tests_linter_completion() {
         '--quick[Disable slow tests]' \
         '--help[Show help message]' \
         '--dont_fail_on_error[Do not fail on error]' \
-        '*:files:_files' \
-        '1:linter:(${linters})'
+        '::linter:(${linters})' \
+        '*::files:_files'
 }
 
 compdef _tests_linter_completion .tests/linter

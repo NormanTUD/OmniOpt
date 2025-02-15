@@ -4008,8 +4008,6 @@ def get_types_of_errors_string() -> str:
 
     _types_of_errors: list = read_errors_from_file()
 
-    _types_of_errors = merge_error_strings(_types_of_errors)
-
     if len(_types_of_errors) > 0:
         types_of_errors_str = f" ({', '.join(_types_of_errors)})"
 
@@ -4804,35 +4802,6 @@ def add_to_global_error_list(msg: str) -> None:
     else:
         with open(error_file_path, mode='w', encoding="utf-8") as file:
             file.write(f"{msg}\n")
-
-@beartype
-def merge_error_strings(input_list: list) -> list:
-    merged = []
-    current = None
-
-    for __str in input_list:
-        match = re.match(r"(.*? ')(.*?)('.*)", __str)
-
-        if match:
-            prefix, inside_quotes, suffix = match.groups()
-
-            if current is not None and isinstance(current, (list, tuple)) and len(current) > 2 and current[0] == prefix and current[2] == suffix:
-                current[1] += '/' + inside_quotes
-            else:
-                if current is not None and len(current) >= 3:
-                    merged.append(f"{current[0]}{current[1]}'{current[2]}")
-                current = [prefix, inside_quotes, suffix]
-        else:
-            if current is not None:
-                merged.append(f"{current[0]}{current[1]}{current[2]}")
-                current = None
-
-            merged.append(__str)
-
-    if current:
-        merged.append(f"{current[0]}{current[1]}{current[2]}")
-
-    return merged
 
 @beartype
 def read_errors_from_file() -> list:

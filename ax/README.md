@@ -84,6 +84,10 @@ dependencies automatically if required.
 For common issues and exit codes, see the
 [exit codes tutorial-page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).
 
+## Autocompletions
+
+Autocomplete files for zsh and bash are in `.shells`. Check that folder's `README.md` on how to install them.
+
 ## Contributions
 
 I'd be glad to see your contributions!

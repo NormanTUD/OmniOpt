@@ -1933,7 +1933,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
                 results[column_name] = [float(match) for match in matches][0]
             else:
                 results[column_name] = None
-                add_to_global_error_list(f"result '{column_name}' not found")
+                add_to_global_error_list(f"result '{column_name}' not found in output")
 
         if len(results):
             return results
@@ -1975,7 +1975,7 @@ def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[fl
             result_numbers = [float(match) for match in matches]
             return result_numbers  # Return list if multiple results are found
 
-        add_to_global_error_list(f"'RESULT' not found")
+        add_to_global_error_list(f"result 'RESULT' not found in output")
         return None
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
@@ -4011,6 +4011,8 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
 
         _types_of_errors: list = read_errors_from_file()
 
+        _types_of_errors = merge_error_strings(_types_of_errors)
+
         if len(_types_of_errors) > 0:
             types_of_errors_str = f" ({', '.join(_types_of_errors)})"
 
@@ -4795,6 +4797,37 @@ def add_to_global_error_list(msg: str) -> None:
         # Wenn die Datei nicht existiert, dann einfach die Nachricht hineinschreiben
         with open(error_file_path, 'w') as file:
             file.write(f"{msg}\n")
+
+@beartype
+def merge_error_strings(input_list: list) -> list:
+    merged = []
+    current = None
+
+    for s in input_list:
+        match = re.match(r"(.*? ')(.*?)'(.*)", s)  # Extrahiere Text vor und nach den Anführungszeichen
+        if match:
+            prefix, inside_quotes, suffix = match.groups()
+
+            if current and current[0] == prefix and current[2] == suffix:
+                # Wenn der vorherige String dasselbe Prefix und Suffix hatte, zusammenführen
+                current[1] += '/' + inside_quotes
+            else:
+                # Andernfalls aktuellen String beibehalten
+                if current:
+                    merged.append(f"{current[0]}{current[1]}'{current[2]}")
+                current = [prefix, inside_quotes, suffix]
+        else:
+            # Falls der String nicht im passenden Format ist, direkt anhängen
+            if current:
+                merged.append(f"{current[0]}{current[1]}'{current[2]}")
+                current = None
+            merged.append(s)
+
+    # Letzten String anfügen, falls vorhanden
+    if current:
+        merged.append(f"{current[0]}{current[1]}'{current[2]}")
+
+    return merged
 
 @beartype
 def read_errors_from_file() -> list:

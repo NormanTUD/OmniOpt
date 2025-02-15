@@ -4790,17 +4790,14 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
 def add_to_global_error_list(msg: str) -> None:
     error_file_path = f'{get_current_run_folder()}/result_errors.log'
 
-    # Überprüfen, ob die Datei existiert und die Nachricht bereits enthalten ist
     if os.path.exists(error_file_path):
         with open(error_file_path, mode='r', encoding="utf-8") as file:
             errors = file.readlines()
-        # Entfernen des Zeilenumbruchs am Ende jeder Zeile
         errors = [error.strip() for error in errors]
         if msg not in errors:
             with open(error_file_path, mode='a', encoding="utf-8") as file:
                 file.write(f"{msg}\n")
     else:
-        # Wenn die Datei nicht existiert, dann einfach die Nachricht hineinschreiben
         with open(error_file_path, mode='w', encoding="utf-8") as file:
             file.write(f"{msg}\n")
 
@@ -4810,26 +4807,22 @@ def merge_error_strings(input_list: list) -> list:
     current = None
 
     for s in input_list:
-        match = re.match(r"(.*? ')(.*?)'(.*)", s)  # Extrahiere Text vor und nach den Anführungszeichen
+        match = re.match(r"(.*? ')(.*?)'(.*)", s)
         if match:
             prefix, inside_quotes, suffix = match.groups()
 
             if current is not None and current[0] == prefix and current[2] == suffix:
-                # Wenn der vorherige String dasselbe Prefix und Suffix hatte, zusammenführen
                 current[1] += '/' + inside_quotes
             else:
-                # Andernfalls aktuellen String beibehalten
                 if current:
                     merged.append(f"{current[0]}{current[1]}'{current[2]}")
                 current = [prefix, inside_quotes, suffix]
         else:
-            # Falls der String nicht im passenden Format ist, direkt anhängen
             if current:
                 merged.append(f"{current[0]}{current[1]}'{current[2]}")
                 current = None
             merged.append(s)
 
-    # Letzten String anfügen, falls vorhanden
     if current:
         merged.append(f"{current[0]}{current[1]}'{current[2]}")
 

@@ -104,7 +104,41 @@ _omniopt_share() {
 
 #_omniopt_share "$@"
 
+# Funktion für die Completion
+_tests_main_completion() {
+    local -a opts
+    opts=(
+        "--max_eval="
+        "--num_random_steps="
+        "--num_parallel_jobs="
+        "--gpus="
+        "--exit_on_first_error"
+        "--help"
+        "--run_with_coverage"
+        "--quick"
+        "--reallyquick"
+        "--superquick"
+        "--debug"
+        "--no_plots"
+    )
 
+    _arguments \
+        '1:filename:_files' \
+        '--max_eval=[Number of max evals]:int:' \
+        '--num_random_steps=[Number of random steps]:int:' \
+        '--num_parallel_jobs=[Number of max parallel workers]:int:' \
+        '--gpus=[Nr of GPUs per worker]:int:' \
+        '--exit_on_first_error[Exit on first error]' \
+        '--help[Show help message]' \
+        '--run_with_coverage[Use coverage instead of python3]' \
+        '--quick[Only run quick tests]' \
+        '--reallyquick[Only run really quick tests]' \
+        '--superquick[Only run super quick tests]' \
+        '--debug[Enable debug mode]' \
+        '--no_plots[Disable plot tests]'
+}
+
+compdef _tests_main_completion .tests/main
 compdef _omniopt_plot omniopt_plot
 compdef _omniopt omniopt
 compdef _omniopt_share omniopt_share

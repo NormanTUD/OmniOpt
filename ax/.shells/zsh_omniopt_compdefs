@@ -138,6 +138,27 @@ _tests_main_completion() {
         '--no_plots[Disable plot tests]'
 }
 
+_tests_linter_completion() {
+    local -a linters
+    linters=(
+        "pylint"
+        "bandit"
+        "deadcode"
+        "pyflakes"
+        "flake8"
+        "shellcheck"
+        "mypy"
+    )
+
+    _arguments \
+        '--quick[Disable slow tests]' \
+        '--help[Show help message]' \
+        '--dont_fail_on_error[Do not fail on error]' \
+        '*:files:_files' \
+        '1:linter:(${linters})'
+}
+
+compdef _tests_linter_completion .tests/linter
 compdef _tests_main_completion .tests/main
 compdef _omniopt_plot omniopt_plot
 compdef _omniopt omniopt

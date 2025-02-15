@@ -21,7 +21,7 @@ function green_text {
 function _help {
 	exit_code=$?
 
-	echo ".tests/linters"
+	echo ".tests/linter"
 	echo "--quick                                              Disable slow tests"
 	echo "--help                                               This help"
 	echo "--dont_fail_on_error                                 Don't fail on error"

@@ -6176,6 +6176,8 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     import matplotlib.pyplot as plt
     import tempfile
 
+    from matplotlib.ticker import FuncFormatter
+
     means = data.means
     absolute_metrics = data.absolute_metrics
 
@@ -6188,8 +6190,10 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     fig, _ax = plt.subplots()
 
     _ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
+
     _ax.set_xlabel(x_metric)
     _ax.set_ylabel(y_metric)
+
     _ax.set_title('Pareto-Frontier')
 
     _ax.ticklabel_format(style='plain', axis='both', useOffset=False)

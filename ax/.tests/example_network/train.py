@@ -132,6 +132,8 @@ try:
 
     loss_obj = history.history["loss"]
     last_loss = loss_obj[len(loss_obj) - 1]
+    print(f"RESULT: {'{:f}'.format(last_loss)}")
+
     print(f"LOSS: {'{:f}'.format(last_loss)}")
 
     val_accuracy = history.history["val_accuracy"][-1]

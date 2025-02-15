@@ -4810,12 +4810,13 @@ def merge_error_strings(input_list: list) -> list:
     merged = []
     current = None
 
-    for s in input_list:
-        match = re.match(r"(.*? ')(.*?)('.*)", s)
+    for __str in input_list:
+        match = re.match(r"(.*? ')(.*?)('.*)", __str)
+
         if match:
             prefix, inside_quotes, suffix = match.groups()
 
-            if current is not None and current[0] == prefix and current[2] == suffix:
+            if current is not None and isinstance(current, (list, tuple)) and len(current) > 2 and current[0] == prefix and current[2] == suffix:
                 current[1] += '/' + inside_quotes
             else:
                 if current is not None and len(current) >= 3:
@@ -4825,7 +4826,8 @@ def merge_error_strings(input_list: list) -> list:
             if current is not None:
                 merged.append(f"{current[0]}{current[1]}{current[2]}")
                 current = None
-            merged.append(s)
+
+            merged.append(__str)
 
     if current:
         merged.append(f"{current[0]}{current[1]}{current[2]}")

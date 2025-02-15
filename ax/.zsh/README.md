@@ -6,5 +6,6 @@ This allows you to do easy autocompletion for lots of the OmniOpt2 programs in Z
 
 ```
 cp omniopt_compdefs $HOME/.omniopt_compdefs
-grep -qxF "source .omniopt_compdefs" "$HOME/.zshrc" || echo "source .omniopt_compdefs" >> "$HOME/.zshrc"
+grep -qxF "source $HOME/.omniopt_compdefs" "$HOME/.zshrc" || echo "source $HOME/.omniopt_compdefs" >> "$HOME/.zshrc"
+source ~/.zshrc
 ```

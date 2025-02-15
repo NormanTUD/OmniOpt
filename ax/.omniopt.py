@@ -1867,6 +1867,11 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         return ""
 
 @beartype
+def execute_bash_code_log_time(code: str) -> list:
+    res = execute_bash_code(code)
+    return res
+
+@beartype
 def execute_bash_code(code: str) -> list:
     try:
         result = subprocess.run(
@@ -2476,7 +2481,7 @@ def evaluate(parameters: dict) -> int | float | dict[str, int | float | None] | 
 
         start_time: int = int(time.time())
 
-        stdout, stderr, exit_code, _signal = execute_bash_code(program_string_with_params)
+        stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string_with_params)
 
         original_print(stderr)
 

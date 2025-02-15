@@ -3240,6 +3240,9 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 
     live_share()
 
+    if succeeded_jobs() == 0 and failed_jobs() > 0:
+        _exit = 89
+
     my_exit(_exit)
 
 @beartype

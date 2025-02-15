@@ -263,6 +263,17 @@ _tests_example_network_run_completion() {
         '--debug[Enable debug mode]'
 }
 
+_gui_install_omniax_completion() {
+    _arguments \
+        '--depth=[Depth of git clone]:(N)' \
+        '--reservation=[Name of your reservation]:(str)' \
+        '--installation_method=[How to install OmniOpt2]:(clone pip)' \
+        '--omniopt_venv=[Path to virtual env dir]:(str)' \
+        '--debug[Enable debug mode]' \
+        '--help[Show help message]'
+}
+
+compdef _gui_install_omniax_completion .gui/install_omniax.sh
 compdef _tests_example_network_run_completion .tests/example_network/run.sh
 compdef _tests_start_simple_optimization_run_completion .tests/start_simple_optimization_run
 compdef _tests_train_example_network_completion .tests/train_example_network

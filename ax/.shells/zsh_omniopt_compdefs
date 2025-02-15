@@ -245,6 +245,25 @@ _tests_start_simple_optimization_run_completion() {
         '--debug[Enable debug mode]'
 }
 
+_tests_example_network_run_completion() {
+    _arguments \
+        '--train[Start training]' \
+        '--predict[Start predicting]' \
+        '--learning_rate=[The learning rate]:(FLOAT)' \
+        '--epochs=[The number of epochs]:(INT)' \
+        '--validation_split=[The validation split (between 0 and 1)]:(FLOAT)' \
+        '--width=[Image width]:(INT)' \
+        '--height=[Image height]:(INT)' \
+        '--data=[Data directory]:(DIRNAME)' \
+        '--conv=[Number of convolution layers]:(INT)' \
+        '--conv_filters=[Number of convolution filters]:(INT)' \
+        '--dense=[Number of dense layers]:(INT)' \
+        '--dense_units=[Number of dense neurons]:(INT)' \
+        '--help[Show help message]' \
+        '--debug[Enable debug mode]'
+}
+
+compdef _tests_example_network_run_completion .tests/example_network/run.sh
 compdef _tests_start_simple_optimization_run_completion .tests/start_simple_optimization_run
 compdef _tests_train_example_network_completion .tests/train_example_network
 compdef _tests_orchestrator_completion .tests/orchestrator

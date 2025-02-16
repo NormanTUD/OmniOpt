@@ -267,6 +267,10 @@ while [ $k -lt ${#args[@]} ]; do
 			help 0
 			;;
 
+		--skip_test_job_nr)
+			skip_test_job_nr=1
+			;;
+
 		--no_plots)
 			no_plots=1
 			;;

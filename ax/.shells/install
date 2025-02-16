@@ -1,17 +1,85 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(dirname $(realpath "$0"))
+set -e
 
-cd $SCRIPT_DIR
+DEBUG=false
+LOCKFILE="/tmp/omniopt_compdefs.lock"
 
-THIS_SHELL=$(echo $SHELL | sed -e 's#.*/##')
+function log_error {
+	echo "ERROR: $1" >&2
+}
 
-echo "Detected Shell: $THIS_SHELL"
+function debug_log {
+	$DEBUG && echo "DEBUG: $1"
+}
 
-if [[ -e  "${THIS_SHELL}_omniopt_compdefs" ]]; then
-	cp "${THIS_SHELL}_omniopt_compdefs" "$HOME/.${THIS_SHELL}_omniopt_compdefs"
-	grep -qxF "source $HOME/.${THIS_SHELL}_omniopt_compdefs" "$HOME/.${THIS_SHELL}rc" || echo "source $HOME/.${THIS_SHELL}_omniopt_compdefs" >> "$HOME/.${THIS_SHELL}rc"
-	source ~/.${THIS_SHELL}rc
+if [ -e "$LOCKFILE" ]; then
+	log_error "Another instance of the script is already running. Exiting..."
+	exit 1
+fi
+
+trap 'rm -f "$LOCKFILE"' EXIT
+touch "$LOCKFILE"
+
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
+cd "$SCRIPT_DIR"
+
+THIS_SHELL=$(basename "$SHELL")
+
+echo "Detected shell: $THIS_SHELL"
+
+COMPDEFS_FILE="${THIS_SHELL}_omniopt_compdefs"
+TARGET_FILE="$HOME/.${THIS_SHELL}_omniopt_compdefs"
+SHELL_RC="$HOME/.${THIS_SHELL}rc"
+
+function create_backup {
+	local file="$1"
+	if [ -e "$file" ]; then
+		local backup="$file.bak"
+		local count=1
+		while [ -e "$backup" ]; do
+			backup="$file.bak.$count"
+			((count++))
+		done
+		cp "$file" "$backup"
+		debug_log "Backup created: $backup"
+	fi
+}
+
+if command -v diff &>/dev/null; then
+	COMPARE_CMD="diff -q"
+elif command -v cmp &>/dev/null; then
+	COMPARE_CMD="cmp -s"
 else
-	echo "${THIS_SHELL}_omniopt_compdefs not found for shell $THIS_SHELL"
+	log_error "Neither diff nor cmp found. Cannot check for file changes."
+	exit 1
+fi
+
+if [[ -e "$COMPDEFS_FILE" ]]; then
+	if [[ -e "$TARGET_FILE" ]] && $COMPARE_CMD "$COMPDEFS_FILE" "$TARGET_FILE"; then
+		debug_log "File is already up to date. No need to copy."
+	else
+		create_backup "$TARGET_FILE"
+		cp "$COMPDEFS_FILE" "$TARGET_FILE"
+		debug_log "File copied: $COMPDEFS_FILE → $TARGET_FILE"
+	fi
+
+	create_backup "$SHELL_RC"
+
+	if [[ -L "$SHELL_RC" ]]; then
+		REAL_RC=$(realpath "$SHELL_RC")
+		create_backup "$REAL_RC"
+		debug_log "Symlink detected, real target: $REAL_RC"
+	fi
+
+	if ! grep -qxF "source $TARGET_FILE" "$SHELL_RC"; then
+		echo "source $TARGET_FILE" >> "$SHELL_RC"
+		debug_log "Added line to $SHELL_RC: source $TARGET_FILE"
+	fi
+
+	source "$SHELL_RC"
+else
+	log_error "$COMPDEFS_FILE not found for shell $THIS_SHELL"
+	exit 1
 fi

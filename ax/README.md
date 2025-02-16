@@ -86,7 +86,13 @@ For common issues and exit codes, see the
 
 ## Autocompletions
 
-Autocomplete files for zsh and bash are in `.shells`. Check that folder's `README.md` on how to install them.
+Autocomplete files for zsh and bash are in `.shells`. Run
+
+```bash
+bash .shells/install
+```
+
+to install them.
 
 ## Contributions
 

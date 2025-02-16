@@ -1885,6 +1885,8 @@ class MonitorProcess:
         self.thread = threading.Thread(target=self._monitor)
         self.thread.daemon = True
 
+        print_debug(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
+
     def _monitor(self):
         try:
             _internal_process = psutil.Process(self.pid)

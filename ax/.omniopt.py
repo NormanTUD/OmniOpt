@@ -1901,6 +1901,11 @@ class MonitorProcess:
                     with open(log_file_path, mode="a", encoding="utf-8") as log_file:
                         hostname = socket.gethostname()
 
+                        slurm_job_id = os.getenv("SLURM_JOB_ID")
+
+                        if slurm_job_id:
+                            hostname += f"-SLURM-ID-{slurm_job_id}"
+
                         total_memory = psutil.virtual_memory().total / (1024 * 1024)
                         cpu_usage = psutil.cpu_percent(interval=5)
 

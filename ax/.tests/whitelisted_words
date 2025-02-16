@@ -1902,6 +1902,7 @@ selectstart
 selectYear
 selectYearLabel
 selfinstalling
+selfthreaddaemon
 selu
 sems
 Sep
@@ -2244,6 +2245,7 @@ UI
 UID
 uiDialog
 uiDialogTitle
+uids
 uiSortable
 ul
 UL
@@ -2427,4 +2429,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-uids

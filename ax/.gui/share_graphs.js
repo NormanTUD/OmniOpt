@@ -1283,12 +1283,12 @@ async function plot_cpu_ram_graph() {
 	};
 
 	add_tab("cpu_ram_usage", "CPU/RAM Usage", `
-	<div id='cpuRamChartContainer'>
-	    <div id='ramChart'></div>
-	    <div id='cpuChart'></div>
-	    <div id='cpuRamChartRawData'></div>
-	</div>
-    `);
+		<div id='cpuRamChartContainer'>
+		    <div id='ramChart'></div>
+		    <div id='cpuChart'></div>
+		    <div id='cpuRamChartRawData'></div>
+		</div>
+	`);
 
 	if ($("#ramChart").length) {
 		Plotly.newPlot("ramChart", [ramTrace], ramLayout);
@@ -1299,6 +1299,101 @@ async function plot_cpu_ram_graph() {
 	}
 
 	$("#cpuRamChartRawData").html(`<pre class="stdout_file invert_in_dark_mode autotable">${cpu_ram_usage_json.raw}</pre>${copy_button("stdout_file")}`);
+}
+
+async function plot_worker_cpu_ram() {
+	showSpinnerOverlay("Loading worker CPU/RAM plot");
+	var data = await fetchJsonFromUrlFilenameOnly("eval_nodes_cpu_ram_logs.txt");
+
+	if (!data || !Object.keys(data).includes("raw")) {
+		removeSpinnerOverlay();
+		console.log("No data or data.raw");
+		return;
+	}
+
+	const logData = data.raw;
+	const regex = /^Unix-Timestamp: (\d+), Hostname: ([\w-]+), CPU: ([\d.]+)%, RAM: ([\d.]+) MB \/ ([\d.]+) MB$/;
+
+	const hostData = {};
+
+	logData.split("\n").forEach(line => {
+		line = line.trim();
+		const match = line.match(regex);
+		if (match) {
+			const timestamp = new Date(parseInt(match[1]) * 1000);
+			const hostname = match[2];
+			const cpu = parseFloat(match[3]);
+			const ram = parseFloat(match[4]);
+
+			if (!hostData[hostname]) {
+				hostData[hostname] = { timestamps: [], cpuUsage: [], ramUsage: [] };
+			}
+
+			hostData[hostname].timestamps.push(timestamp);
+			hostData[hostname].cpuUsage.push(cpu);
+			hostData[hostname].ramUsage.push(ram);
+		}
+	});
+
+	if (!Object.keys(hostData).length) {
+		removeSpinnerOverlay();
+		console.log("No valid data found");
+		return;
+	}
+
+	add_tab("worker_cpu_ram_usage", "Worker CPU/RAM Usage", `
+		<div id='cpuRamWorkerChartContainer'></div>
+	`);
+
+	const container = document.getElementById("cpuRamWorkerChartContainer");
+	container.innerHTML = ""; // Vorherige Graphen entfernen
+
+	Object.entries(hostData).forEach(([hostname, { timestamps, cpuUsage, ramUsage }], index) => {
+		const chartId = `workerChart_${index}`;
+		const chartDiv = document.createElement("div");
+		chartDiv.id = chartId;
+		chartDiv.style.marginBottom = "40px"; // Abstand zwischen den Diagrammen
+		container.appendChild(chartDiv);
+
+		const cpuTrace = {
+			x: timestamps,
+			y: cpuUsage,
+			mode: "lines+markers",
+			name: "CPU Usage (%)",
+			yaxis: "y1",
+			line: { color: "red" }
+		};
+
+		const ramTrace = {
+			x: timestamps,
+			y: ramUsage,
+			mode: "lines+markers",
+			name: "RAM Usage (MB)",
+			yaxis: "y2",
+			line: { color: "blue" }
+		};
+
+		const layout = {
+			title: `Worker CPU and RAM Usage - ${hostname}`,
+			xaxis: { title: "Timestamp" },
+			yaxis: {
+				title: "CPU Usage (%)",
+				side: "left",
+				color: "red"
+			},
+			yaxis2: {
+				title: "RAM Usage (MB)",
+				side: "right",
+				overlaying: "y",
+				color: "blue"
+			},
+			showlegend: true
+		};
+
+		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
+	});
+
+	removeSpinnerOverlay();
 }
 
 function replaceZeroWithNull(arr) {
@@ -1472,6 +1567,7 @@ async function load_all_data() {
 		promises.push(plot_all_possible());
 		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
+		promises.push(plot_worker_cpu_ram());
 		promises.push(plot_planned_vs_real_worker_over_time());
 
 		for (var i = 0; i < promises.length; i++) {

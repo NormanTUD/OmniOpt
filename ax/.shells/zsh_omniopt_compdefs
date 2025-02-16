@@ -119,6 +119,7 @@ _tests_main_completion() {
         "--reallyquick"
         "--superquick"
         "--debug"
+	"skip_test_job_nr"
         "--no_plots"
     )
 
@@ -135,6 +136,7 @@ _tests_main_completion() {
         '--reallyquick[Only run really quick tests]' \
         '--superquick[Only run super quick tests]' \
         '--debug[Enable debug mode]' \
+        '--skip_test_job_nr[Skip testing for proper job nrs]' \
         '--no_plots[Disable plot tests]'
 }
 

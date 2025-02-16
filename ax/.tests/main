@@ -127,6 +127,7 @@ function help () {
         echo "  --reallyquick                                      Only run really quick tests"
 	echo "  --superquick                                       Only run super quick tests"
         echo "  --debug                                            Enables debug mode"
+        echo "  --skip_test_job_nr                                 Skip testing for proper job nrs"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
 }
@@ -530,7 +531,9 @@ function _test_nr_jobs {
 	NRNONRAND=$4
 	NRMANUAL=$5
 
-	_test "Testing if there are the right number of jobs in runs/$_testname/$JOBNR/results.csv" "./.tools/phases_overview runs/$_testname/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
+	if [[ $skip_test_job_nr -eq 0 ]]; then
+		_test "Testing if there are the right number of jobs in runs/$_testname/$JOBNR/results.csv" "./.tools/phases_overview runs/$_testname/$JOBNR/ $NRRAND $NRNONRAND $NRMANUAL" 0
+	fi
 }
 
 PYTHON_OR_COVERAGE=python3

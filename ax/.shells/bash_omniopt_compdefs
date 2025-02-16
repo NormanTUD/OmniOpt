@@ -123,6 +123,7 @@ _tests_main_completion() {
         "--reallyquick"
         "--superquick"
         "--debug"
+	"--skip_test_job_nr"
         "--no_plots"
     )
     if [[ ${cur} == -* ]]; then

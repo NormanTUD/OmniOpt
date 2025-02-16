@@ -1866,6 +1866,17 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         print_red(f"\n⚠ Error: {e}")
         return ""
 
+@beartype
+def get_memory_usage() -> None:
+    user_uid = os.getuid()
+
+    memory_usage = sum(
+        p.memory_info().rss for p in psutil.process_iter(attrs=['memory_info', 'uids'])
+        if p.info['uids'].real == user_uid
+    ) / (1024 * 1024)
+
+    return memory_usage
+
 class MonitorProcess:
     def __init__(self, pid: int, interval: float = 1.0):
         self.pid = pid
@@ -1888,9 +1899,10 @@ class MonitorProcess:
                     with open(log_file_path, mode="a", encoding="utf-8") as log_file:
                         hostname = socket.gethostname()
 
-                        memory_usage = psutil.virtual_memory().used / (1024 * 1024)
                         total_memory = psutil.virtual_memory().total / (1024 * 1024)
                         cpu_usage = psutil.cpu_percent(interval=5)
+
+                        memory_usage = get_memory_usage()
 
                         unix_timestamp = int(time.time())
 

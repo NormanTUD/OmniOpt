@@ -328,6 +328,23 @@ _tests_optimization_example_all_float_completion() {
     fi
 }
 
+_tests_slurm_docker_run_docker_completion() {
+    local cur opts
+    opts=(
+        "--mem_gb="
+        "--time="
+        "--worker_timeout="
+        "--max_eval="
+        "--num_parallel_jobs="
+        "--num_random_steps="
+        "--install_slurm"
+        "--stop"
+        "--help"
+    )
+    COMPREPLY=( $(compgen -W "${opts[*]}" -- "${COMP_WORDS[COMP_CWORD]}") )
+}
+
+complete -F _tests_slurm_docker_run_docker_completion .tests/slurm_docker/run_docker
 complete -F _tests_optimization_example_all_float_completion tests/optimization_example_all_float
 complete -F _tests_start_simple_optimization_run_completion tests/start_simple_optimization_run
 complete -F _omniopt omniopt

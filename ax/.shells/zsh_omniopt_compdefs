@@ -283,6 +283,20 @@ _tests_optimization_example_all_float_completion() {
         '--debug[Enable debug mode]'
 }
 
+_tests_slurm_docker_run_docker_completion() {
+    _arguments \
+        '--mem_gb=[Memory in GB]:(MEM_GB)' \
+        '--time=[Time in minutes]:(TIME)' \
+        '--worker_timeout=[Timeout for workers]:(TIME)' \
+        '--max_eval=[Maximum number of evaluations]:(MAX_EVAL)' \
+        '--num_parallel_jobs=[Number of parallel jobs]:(NUM)' \
+        '--num_random_steps=[Number of random steps]:(NUM)' \
+        '--install_slurm[Install SLURM in Docker]' \
+        '--stop[Stop the Docker container]' \
+        '--help[Show this help message]'
+}
+
+compdef _tests_slurm_docker_run_docker_completion .tests/slurm_docker/run_docker
 compdef _tests_optimization_example_all_float_completion .tests/optimization_example_all_float
 compdef _gui_install_omniax_completion .gui/install_omniax.sh
 compdef _tests_example_network_run_completion .tests/example_network/run.sh

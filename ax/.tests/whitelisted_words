@@ -381,6 +381,7 @@ cpuChart
 cpuRamChart
 cpuRamChartContainer
 cpuRamChartRawData
+cpuRamWorkerChartContainer
 cpus
 CQF
 createBreadcrumb

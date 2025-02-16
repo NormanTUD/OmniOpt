@@ -1346,13 +1346,13 @@ async function plot_worker_cpu_ram() {
 	`);
 
 	const container = document.getElementById("cpuRamWorkerChartContainer");
-	container.innerHTML = ""; // Vorherige Graphen entfernen
+	container.innerHTML = "";
 
 	Object.entries(hostData).forEach(([hostname, { timestamps, cpuUsage, ramUsage }], index) => {
 		const chartId = `workerChart_${index}`;
 		const chartDiv = document.createElement("div");
 		chartDiv.id = chartId;
-		chartDiv.style.marginBottom = "40px"; // Abstand zwischen den Diagrammen
+		chartDiv.style.marginBottom = "40px";
 		container.appendChild(chartDiv);
 
 		const cpuTrace = {

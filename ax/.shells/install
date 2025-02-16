@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname $(realpath "$0"))
+
+cd $SCRIPT_DIR
+
+THIS_SHELL=$(echo $SHELL | sed -e 's#.*/##')
+
+echo "Detected Shell: $THIS_SHELL"
+
+if [[ -e  "${THIS_SHELL}_omniopt_compdefs" ]]; then
+	cp "${THIS_SHELL}_omniopt_compdefs" "$HOME/.${THIS_SHELL}_omniopt_compdefs"
+	grep -qxF "source $HOME/.${THIS_SHELL}_omniopt_compdefs" "$HOME/.${THIS_SHELL}rc" || echo "source $HOME/.${THIS_SHELL}_omniopt_compdefs" >> "$HOME/.${THIS_SHELL}rc"
+	source ~/.${THIS_SHELL}rc
+else
+	echo "${THIS_SHELL}_omniopt_compdefs not found for shell $THIS_SHELL"
+fi

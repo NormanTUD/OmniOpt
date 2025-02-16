@@ -1867,13 +1867,13 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         return ""
 
 @beartype
-def get_memory_usage() -> None:
+def get_memory_usage() -> float:
     user_uid = os.getuid()
 
-    memory_usage = sum(
+    memory_usage = float(sum(
         p.memory_info().rss for p in psutil.process_iter(attrs=['memory_info', 'uids'])
         if p.info['uids'].real == user_uid
-    ) / (1024 * 1024)
+    ) / (1024 * 1024))
 
     return memory_usage
 

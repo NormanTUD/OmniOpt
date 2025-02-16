@@ -312,6 +312,7 @@ closeText
 cloudpickle
 clusterhost
 CLUSTERHOST
+cmp
 co
 col
 collapseAll
@@ -525,6 +526,7 @@ didn
 Didn
 didnt
 dier
+diff
 Diff
 DifferentSeries
 difflib
@@ -2108,6 +2110,7 @@ Swal
 Swalfire
 sweetAlert
 SweetAlert
+Symlink
 sympy
 synchronise
 Synchronise

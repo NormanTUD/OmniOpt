@@ -1876,8 +1876,8 @@ class MonitorProcess:
 
     def _monitor(self):
         try:
-            process = psutil.Process(self.pid)
-            while self.running and process.is_running():
+            _internal_process = psutil.Process(self.pid)
+            while self.running and _internal_process.is_running():
                 crf = get_current_run_folder()
 
                 if crf and crf != "":
@@ -1885,7 +1885,7 @@ class MonitorProcess:
 
                     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
-                    with open(log_file_path, "a") as log_file:
+                    with open(log_file_path, mode="a", encoding="utf-8") as log_file:
                         hostname = socket.gethostname()
 
                         memory_usage = psutil.virtual_memory().used / (1024 * 1024)
@@ -1903,20 +1903,20 @@ class MonitorProcess:
         self.thread.start()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, _traceback):
         self.running = False
         self.thread.join()
 
 @beartype
 def execute_bash_code_log_time(code: str) -> list:
-    process = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process_item = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     # Monitor-Prozess starten
-    with MonitorProcess(process.pid):  # Startet den Monitor im 'with'-Kontext
+    with MonitorProcess(process_item.pid):  # Startet den Monitor im 'with'-Kontext
         try:
-            stdout, stderr = process.communicate()  # Warten auf Beendigung des Prozesses
+            stdout, stderr = process_item.communicate()  # Warten auf Beendigung des Prozesses
             result = subprocess.CompletedProcess(
-                args=code, returncode=process.returncode, stdout=stdout, stderr=stderr
+                args=code, returncode=process_item.returncode, stdout=stdout, stderr=stderr
             )
             # Erfolgreiche Rückgabe der Ausgabe
             return [result.stdout, result.stderr, result.returncode, None]

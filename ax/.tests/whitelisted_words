@@ -1398,7 +1398,9 @@ nonNeg
 nonsbatchsystems
 NONZERODIGITS
 noop
+noopener
 noPropagation
+noreferrer
 normalizedMode
 normalizedValue
 normalizedValues
@@ -2432,5 +2434,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-noopener
-noreferrer

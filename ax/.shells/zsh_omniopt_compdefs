@@ -213,33 +213,33 @@ _tests_orchestrator_completion() {
 
 _tests_train_example_network_completion() {
     _arguments \
-	'--help:Show help' \
-	'--debug:Enable debug mode' \
-	'--num_parallel_jobs=[n]:Number of parallel jobs (default: 20)' \
-	'--worker_timeout=[n]:Worker timeout in minutes (default: 30)' \
-	'--mem_gb=[n]:Memory in GB (default: 5)' \
-	'--time=[n]:Max runtime in minutes (default: 300)' \
-	'--num_random_steps=[n]:Number of random steps' \
-	'--max_eval=[n]:Max number of evaluations (default: 200)' \
-	'--min_dense=[n]:Min number of dense layers (default: 1)' \
-	'--max_dense=[n]:Max number of dense layers (default: 10)' \
-	'--min_dense_units=[n]:Min dense units (default: 1)' \
-	'--max_dense_units=[n]:Max dense units (default: 10)' \
-	'--min_conv_filters=[n]:Min convolution filters (default: 1)' \
-	'--max_conv_filters=[n]:Max convolution filters (default: 10)' \
-	'--min_conv=[n]:Min convolution layers (default: 1)' \
-	'--max_conv=[n]:Max convolution layers (default: 10)' \
-	'--min_epochs=[n]:Min epochs (default: 10)' \
-	'--max_epochs=[n]:Max epochs (default: 40)' \
-	'--min_height=[n]:Min height (default: 40)' \ 
-	'--max_height=[n]:Max height (default: 80)' \ 
-	'--min_width=[n]:Min width (default: 40)' \
-	'--max_width=[n]:Max width (default: 80)' \
-	'--min_learning_rate=[f]:Min learning rate (default: 0.001)' \
-	'--max_learning_rate=[f]:Max learning rate (default: 0.4)' \ 
-	'--validation_split=[f]:Validation split (default: 0.2)' \
-	'--follow:Follow output (default: 0)' \
-	'--gridsearch:Enable grid search'
+        '--help[Show help]' \
+        '--debug[Enable debug mode]' \
+        '--num_parallel_jobs=[n]:Number of parallel jobs (default: 20)' \
+        '--worker_timeout=[n]:Worker timeout in minutes (default: 30)' \
+        '--mem_gb=[n]:Memory in GB (default: 5)' \
+        '--time=[n]:Max runtime in minutes (default: 300)' \
+        '--num_random_steps=[n]:Number of random steps' \
+        '--max_eval=[n]:Max number of evaluations (default: 200)' \
+        '--min_dense=[n]:Min number of dense layers (default: 1)' \
+        '--max_dense=[n]:Max number of dense layers (default: 10)' \
+        '--min_dense_units=[n]:Min dense units (default: 1)' \
+        '--max_dense_units=[n]:Max dense units (default: 10)' \
+        '--min_conv_filters=[n]:Min convolution filters (default: 1)' \
+        '--max_conv_filters=[n]:Max convolution filters (default: 10)' \
+        '--min_conv=[n]:Min convolution layers (default: 1)' \
+        '--max_conv=[n]:Max convolution layers (default: 10)' \
+        '--min_epochs=[n]:Min epochs (default: 10)' \
+        '--max_epochs=[n]:Max epochs (default: 40)' \
+        '--min_height=[n]:Min height (default: 40)' \
+        '--max_height=[n]:Max height (default: 80)' \
+        '--min_width=[n]:Min width (default: 40)' \
+        '--max_width=[n]:Max width (default: 80)' \
+        '--min_learning_rate=[f]:Min learning rate (default: 0.001)' \
+        '--max_learning_rate=[f]:Max learning rate (default: 0.4)' \
+        '--validation_split=[f]:Validation split (default: 0.2)' \
+        '--follow[Follow output (default: 0)]' \
+        '--gridsearch[Enable grid search]'
 }
 
 _tests_start_simple_optimization_run_completion() {

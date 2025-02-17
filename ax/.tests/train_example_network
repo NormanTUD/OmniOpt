@@ -18,19 +18,19 @@ function unset_debug {
 export OO_MAIN_TESTS=1
 
 function echoerr() {
-        echo "$@" 1>&2
+	echo "$@" 1>&2
 }
 
 function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
+	echoerr -e "\e\033[0;33m$1\e[0m"
 }
 
 function red_text {
-        echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 function green_text {
-        echoerr -e "\e\033[0;32m$1\e[0m"
+	echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -38,11 +38,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
 function echoerr() {
-        echo "$@" 1>&2
+	echo "$@" 1>&2
 }
 
 function red_text {
-        echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\e[31m$1\e[0m"
 }
 
 set -e
@@ -51,8 +51,8 @@ set -o pipefail
 function calltracer () {
 	yellow_text "Git status hash:"
 	git rev-parse HEAD
-        red_text 'Error occurred in file/line:'
-        caller
+	red_text 'Error occurred in file/line:'
+	caller
 }
 
 trap 'calltracer' ERR
@@ -96,7 +96,7 @@ int_re='^[+-]?[0-9]+$'
 args=("$@")
 
 for i in "$@"; do
-        case $i in
+	case $i in
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
 			if ! [[ $num_random_steps =~ $int_re ]] ; then
@@ -158,7 +158,7 @@ for i in "$@"; do
 			red_text "Unknown parameter $i" >&2
 			help 1
 			;;
-        esac
+	esac
 done
 
 PARTITION="alpha"
@@ -187,16 +187,16 @@ yellow_text "Done installing modules"
 exit_code=0
 
 function generate_parameter {
-    local name="$1"
-    local min_value="$2"
-    local max_value="$3"
-    local type="$4"
+	local name="$1"
+	local min_value="$2"
+	local max_value="$3"
+	local type="$4"
 
-    if [[ "$min_value" == "$max_value" ]]; then
-        echo "--parameter $name fixed $min_value"
-    else
-        echo "--parameter $name range $min_value $max_value $type"
-    fi
+	if [[ "$min_value" == "$max_value" ]]; then
+		echo "--parameter $name fixed $min_value"
+	else
+		echo "--parameter $name range $min_value $max_value $type"
+	fi
 }
 
 

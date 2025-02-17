@@ -1581,6 +1581,8 @@ async function load_all_data() {
 		removeSpinnerOverlay();
 
 		//log("Loaded page");
+
+		link_share_main();
 	}
 }
 
@@ -1597,4 +1599,21 @@ function copy_button (name_to_search_for) {
 	}
 
 	return `<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, "${name_to_search_for}")'>📋 Copy raw data to clipboard</button>`;
+}
+
+function link_share_main () {
+	document.querySelectorAll('.main_outfile span').forEach(span => {
+		const urlPattern = /(https?:\/\/[^\s]+)/g;
+		const text = span.textContent;
+
+		if (urlPattern.test(text)) {
+			const newContent = text.replace(urlPattern, match => 
+				`<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
+			);
+			const newSpan = document.createElement('span');
+			newSpan.innerHTML = newContent;
+			span.replaceWith(newSpan);
+		}
+	});
+
 }

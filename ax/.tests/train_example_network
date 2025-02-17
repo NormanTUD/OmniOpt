@@ -333,6 +333,7 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	$(generate_parameter conv_filters $min_conv_filters $max_conv_filters int) \
 	$(generate_parameter learning_rate $min_learning_rate $max_learning_rate float) \
 	--hide_ascii_plots \
+	--result_names VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min \
 	--num_random_steps=$num_random_steps"
 
 if [[ "$gridsearch" -eq "1" ]]; then

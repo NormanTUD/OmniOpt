@@ -68,10 +68,10 @@ export gridsearch=0
 export num_random_steps=$num_parallel_jobs
 
 function help () {
-        echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
-        echo "Possible options:"
-        echo "  --help                                             This help"
-        echo "  --debug                                            Enables debug mode"
+	echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
+	echo "Possible options:"
+	echo "  --help                                             This help"
+	echo "  --debug                                            Enables debug mode"
 	echo "  --num_parallel_jobs=n                              Number of parallel jobs (default: $num_parallel_jobs)"
 	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"
 	echo "  --mem_gb=n                                         Memory in GB (default $mem_gb)"
@@ -81,7 +81,7 @@ function help () {
 	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
-        exit $1
+	exit $1
 }
 
 function join_by {
@@ -140,24 +140,24 @@ for i in "$@"; do
 			max_eval="${i#*=}"
 			shift
 			;;
-                --gridsearch)
-                        gridsearch=1
-                        shift
-                        ;;
-                --follow)
-                        follow=1
-                        shift
-                        ;;
-                -h|--help)
-                        help 0
-                        ;;
-                --debug)
+		--gridsearch)
+			gridsearch=1
+			shift
+			;;
+		--follow)
+			follow=1
+			shift
+			;;
+		-h|--help)
+			help 0
+			;;
+		--debug)
 			set_debug
-                        ;;
-                *)
-                        red_text "Unknown parameter $i" >&2
-                        help 1
-                        ;;
+			;;
+		*)
+			red_text "Unknown parameter $i" >&2
+			help 1
+			;;
         esac
 done
 

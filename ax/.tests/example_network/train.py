@@ -141,8 +141,8 @@ try:
 
     val_loss = history.history["val_loss"][-1]
     print(f"VAL_LOSS: {val_loss:.4f}")
+
+    ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
+    print(f"RAM_USAGE: {ram_usage:.2f}") # in MB
 except (KeyboardInterrupt) as e:
     pass
-
-ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
-print(f"RAM_USAGE: {ram_usage:.2f}") # in MB

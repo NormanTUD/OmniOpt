@@ -4122,6 +4122,8 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     if len(best_params_res):
         if len(arg_result_names) == 1:
             in_brackets.append("best " + ", ".join(best_params_res))
+        else:
+            in_brackets.append(f"{count_done_jobs()} jobs done")
 
     in_brackets = get_slurm_in_brackets(in_brackets)
 

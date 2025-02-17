@@ -11,20 +11,27 @@
 			"total" => 0
 		];
 
+		$k = 0;
+
 		if (($handle = fopen($filePath, "r")) !== false) {
 			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
 				if (count($data) < 3) continue; // Sicherstellen, dass es genug Spalten gibt
 
-				$statuses["total"]++;
 				$status = strtolower(trim($data[2]));
 
-				if ($status === "completed") {
-					$statuses["succeeded"]++;
-				} elseif ($status === "failed") {
-					$statuses["failed"]++;
-				} elseif ($status === "running") {
-					$statuses["running"]++;
+				if($k > 0) {
+					$statuses["total"]++;
+
+					if ($status === "completed") {
+						$statuses["succeeded"]++;
+					} elseif ($status === "failed") {
+						$statuses["failed"]++;
+					} elseif ($status === "running") {
+						$statuses["running"]++;
+					}
 				}
+
+				$k++;
 			}
 			fclose($handle);
 		}

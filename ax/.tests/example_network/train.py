@@ -11,7 +11,8 @@ try:
     import tensorflow as tf
     import uuid
     import argparse
-    import psutil
+    #import psutil
+    import resource
 
     model = tf.keras.Sequential()
 
@@ -142,7 +143,13 @@ try:
     val_loss = history.history["val_loss"][-1]
     print(f"VAL_LOSS: {val_loss:.4f}")
 
-    ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
-    print(f"RAM_USAGE: {ram_usage:.2f}") # in MB
+    #ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
+    #print(f"RAM_USAGE: {ram_usage:.2f}") # in MB
+
+    max_ram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    max_ram_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    max_ram_mb = max_ram_kb / 1024  # Umrechnung in MB
+
+    print(f"RAM_USAGE: {max_ram_mb:.2f}")
 except (KeyboardInterrupt) as e:
     pass

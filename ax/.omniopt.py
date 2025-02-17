@@ -768,6 +768,8 @@ def live_share() -> bool:
     if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
         print_green(stderr)
 
+        time.sleep(1)
+
     SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
 
     return True

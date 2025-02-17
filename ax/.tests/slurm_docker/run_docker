@@ -137,7 +137,15 @@ if $install_slurm; then
 		rm $i/slurm.conf
 	done
 else
+	for i in frontend master node; do
+		cp slurm.conf $i/
+	done
+
 	docker-compose -f docker-compose.yml up -d --remove-orphans
+
+	for i in frontend master node; do
+		rm $i/slurm.conf
+	done
 fi
 
 docker exec slurm-frontend bash /oo_dir/omniopt \

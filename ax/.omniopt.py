@@ -5430,17 +5430,18 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
+    _submitted_jobs = submitted_jobs()
 
     conditions = [
         (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
-        (lambda: submitted_jobs() >= _progress_bar.total + 1, f"2. submitted_jobs() {submitted_jobs()} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: submitted_jobs() >= max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > max_eval {max_eval} + 1"),
+        (lambda: _submitted_jobs >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
+        (lambda: _submitted_jobs >= max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} > max_eval {max_eval} + 1"),
     ]
 
     if _max_eval:
         conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
         conditions.append((lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
-        conditions.append((lambda: submitted_jobs() >= _max_eval + 1, f"4. submitted_jobs() {submitted_jobs()} > _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: _submitted_jobs >= _max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} > _max_eval {_max_eval} + 1"),)
         conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
 
     for condition_func, debug_msg in conditions:

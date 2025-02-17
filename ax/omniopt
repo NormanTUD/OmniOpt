@@ -694,7 +694,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "

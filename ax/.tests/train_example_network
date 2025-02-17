@@ -174,13 +174,31 @@ fi
 
 cd ..
 
+yellow_text "Installing modules..."
+
 bash .tests/example_network/install.sh
+
+yellow_text "Done installing modules"
 
 #if [[ -d runs/example_network/ ]]; then
 #	rm -rf runs/example_network/
 #fi
 
 exit_code=0
+
+function generate_parameter {
+    local name="$1"
+    local min_value="$2"
+    local max_value="$3"
+    local type="$4"
+
+    if [[ "$min_value" == "$max_value" ]]; then
+        echo "--parameter $name fixed $min_value"
+    else
+        echo "--parameter $name range $min_value $max_value $type"
+    fi
+}
+
 
 cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--partition=$PARTITION \
@@ -191,24 +209,15 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--max_eval=$max_eval \
 	--num_parallel_jobs=$num_parallel_jobs \
 	--gpus=$NUM_GPUS \
-	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh \
-	--learning_rate=%(learning_rate) \
-	--epochs=%(epochs) \
-	--validation_split=%(validation_split) \
-	--width=%(width) \
-	--height=%(height) \
-	--dense=%(dense) \
-	--dense_units=%(dense_units) \
-	--conv=%(conv) \
-	--conv_filters=%(conv_filters)" | base64 -w 0) \
-	--parameter width range 60 100 int \
-	--parameter height range 60 100 int \
-	--parameter validation_split range 0 0.4 float \
-	--parameter learning_rate range 0.001 0.4 float \
-	--parameter dense range 10 20 int \
-	--parameter dense_units range 10 20 int \
-	--parameter conv range 10 20 int \
-	--parameter conv_filters range 10 20 int \
+	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0) \
+	$(generate_parameter width 60 100 int) \
+	$(generate_parameter height 60 100 int) \
+	$(generate_parameter validation_split 0 0.4 float) \
+	$(generate_parameter learning_rate 0.001 0.4 float) \
+	$(generate_parameter dense 10 20 int) \
+	$(generate_parameter dense_units 10 20 int) \
+	$(generate_parameter conv 10 20 int) \
+	$(generate_parameter conv_filters 10 20 int) \
 	--hide_ascii_plots \
 	--num_random_steps=$num_random_steps"
 

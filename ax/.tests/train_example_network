@@ -62,7 +62,10 @@ export num_parallel_jobs=20
 export worker_timeout=30
 export mem_gb=5
 export runtime=300
-export max_epochs=10
+export min_epochs=10
+export max_epochs=40
+export min_dense=1
+export max_dense=10
 export follow=0
 export gridsearch=0
 export num_random_steps=$num_parallel_jobs
@@ -78,6 +81,9 @@ function help () {
 	echo "  --time=n                                           Max runtime in minutes (default: $runtime)"
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
+	echo "  --min_dense=n                                      Number of min dense layers (default: $min_dense)"
+	echo "  --max_dense=n                                     Number of max dense (default: $max_dense)"
+	echo "  --min_epochs=n                                     Number of min epochs (default: $min_epochs)"
 	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
@@ -130,6 +136,18 @@ for i in "$@"; do
 			;;
 		--time=*)
 			runtime="${i#*=}"
+			shift
+			;;
+		--min_dense=*)
+			min_dense="${i#*=}"
+			shift
+			;;
+		--max_dense=*)
+			max_dense="${i#*=}"
+			shift
+			;;
+		--min_epochs=*)
+			min_epochs="${i#*=}"
 			shift
 			;;
 		--max_epochs=*)
@@ -214,15 +232,16 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	$(generate_parameter height 60 100 int) \
 	$(generate_parameter validation_split 0 0.4 float) \
 	$(generate_parameter learning_rate 0.001 0.4 float) \
-	$(generate_parameter dense 10 20 int) \
+	$(generate_parameter dense $min_dense $max_dense int) \
 	$(generate_parameter dense_units 10 20 int) \
 	$(generate_parameter conv 10 20 int) \
 	$(generate_parameter conv_filters 10 20 int) \
+	$(generate_parameter epochs $min_epochs $max_epochs int) \
 	--hide_ascii_plots \
 	--num_random_steps=$num_random_steps"
 
 if [[ "$gridsearch" -eq "1" ]]; then
-	cmd+=" --gridsearch"
+	cmd+=(" --gridsearch")
 	experiment_name="example_network_gridsearch"
 else
 	experiment_name="example_network"
@@ -232,10 +251,6 @@ cmd=$(echo "$cmd" | sed "s/--experiment_name=example_network/--experiment_name=$
 
 if [[ "$follow" -eq "1" ]]; then
 	cmd+=" --follow"
-fi
-
-if [[ "$gridsearch" -ne "1" || "$follow" -ne "1" ]]; then
-	cmd+=" --parameter epochs range 1 $max_epochs int"
 fi
 
 eval "$cmd"

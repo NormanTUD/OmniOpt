@@ -5475,9 +5475,9 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
     )
 
 @beartype
-def _get_trials_message(nr_of_jobs_to_get: int, force_local_execution: bool) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, force_local_execution: bool, full_nr_of_jobs_to_get: int) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
-    base_msg = f"getting {nr_of_jobs_to_get} trials "
+    base_msg = f"getting {nr_of_jobs_to_get}/{full_nr_of_jobs_to_get} trials "
 
     if SYSTEM_HAS_SBATCH and not force_local_execution: # pragma: no cover
         return base_msg
@@ -5557,7 +5557,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
         print_red(f"Error: {error}")
 
 @beartype
-def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
+def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -5567,7 +5567,8 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
 
     message = _get_trials_message(
         nr_of_jobs_to_get,
-        args.force_local_execution
+        args.force_local_execution,
+        full_nr_of_jobs_to_get
     )
 
     progressbar_description([message])
@@ -5876,7 +5877,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         results = []
 
         for _ in range(nr_of_jobs_to_get):
-            trial_index_to_param, optimization_complete = _get_next_trials(1)
+            trial_index_to_param, optimization_complete = _get_next_trials(1, nr_of_jobs_to_get)
             done_optimizing = handle_optimization_completion(optimization_complete)
             if done_optimizing:
                 continue

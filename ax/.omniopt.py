@@ -4096,6 +4096,16 @@ def get_types_of_errors_string() -> str:
     return types_of_errors_str
 
 @beartype
+def get_in_brackets_clean(in_brackets: list[str]) -> list[str]:
+    in_brackets_clean = []
+
+    for item in in_brackets:
+        if item:
+            in_brackets_clean.append(item)
+
+    return in_brackets_clean
+
+@beartype
 def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     global global_vars
     global random_steps
@@ -4140,11 +4150,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
                 in_brackets.append(new_msg)
 
     if len(in_brackets):
-        in_brackets_clean = []
-
-        for item in in_brackets:
-            if item:
-                in_brackets_clean.append(item)
+        in_brackets_clean = get_in_brackets_clean(in_brackets)
 
         if in_brackets_clean:
             desc += f"{', '.join(in_brackets_clean)}"

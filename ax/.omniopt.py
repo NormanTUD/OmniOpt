@@ -5557,6 +5557,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
         nr_of_jobs_to_get,
         args.force_local_execution
     )
+
     progressbar_description([message])
 
     try:
@@ -5577,7 +5578,10 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
 
         return trial_index_to_param, optimization_complete
     except OverflowError as e: # pragma: no cover
-        print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_names)} parameters. Error: {e}")
+        if len(arg_result_names) > 1:
+            print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_names)} parameters. Error: {e}")
+        else:
+            print_red(f"Error while trying to create next trials. Error: {e}")
 
         return None, True
 

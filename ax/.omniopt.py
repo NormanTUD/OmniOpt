@@ -5908,7 +5908,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
     if second_step_steps != original_second_steps: # pragma: no cover
         original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
     if second_step_steps == 0:
-        print_red("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
     second_step_steps = second_step_steps - already_done_random_steps
 

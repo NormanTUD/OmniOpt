@@ -182,114 +182,53 @@ bash .tests/example_network/install.sh
 
 exit_code=0
 
+cmd="./omniopt --live_share --send_anonymized_usage_stats \
+	--partition=$PARTITION \
+	--experiment_name=example_network \
+	--mem_gb=$mem_gb \
+	--time=$runtime \
+	--worker_timeout=$worker_timeout \
+	--max_eval=$max_eval \
+	--num_parallel_jobs=$num_parallel_jobs \
+	--gpus=$NUM_GPUS \
+	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh \
+	--learning_rate=%(learning_rate) \
+	--epochs=%(epochs) \
+	--validation_split=%(validation_split) \
+	--width=%(width) \
+	--height=%(height) \
+	--dense=%(dense) \
+	--dense_units=%(dense_units) \
+	--conv=%(conv) \
+	--conv_filters=%(conv_filters)" | base64 -w 0) \
+	--parameter width range 60 100 int \
+	--parameter height range 60 100 int \
+	--parameter validation_split range 0 0.4 float \
+	--parameter learning_rate range 0.001 0.4 float \
+	--parameter dense range 10 20 int \
+	--parameter dense_units range 10 20 int \
+	--parameter conv range 10 20 int \
+	--parameter conv_filters range 10 20 int \
+	--hide_ascii_plots \
+	--num_random_steps=$num_random_steps"
+
 if [[ "$gridsearch" -eq "1" ]]; then
-	if [[ "$follow" -eq "1" ]]; then
-		./omniopt \
-			--live_share --send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=example_network_gridsearch \
-			--mem_gb=$mem_gb \
-			--time=$runtime \
-			--worker_timeout=$worker_timeout \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-			--parameter width range 60 100 int \
-			--parameter height range 60 100 int \
-			--parameter validation_split range 0 0.4 float \
-			--parameter learning_rate range 0.001 0.4 float \
-			--parameter epochs range 1 $max_epochs int \
-			--parameter dense range 10 20 int \
-			--parameter dense_units range 10 20 int \
-			--parameter conv range 10 20 int \
-			--parameter conv_filters range 10 20 int \
-			--hide_ascii_plots \
-			--num_random_steps=$num_random_steps \
-			--gridsearch \
-			--follow
-		exit_code=$?
-	else
-
-		./omniopt \
-			--live_share --send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=example_network_gridsearch \
-			--mem_gb=$mem_gb \
-			--time=$runtime \
-			--worker_timeout=$worker_timeout \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-			--parameter width range 60 100 int \
-			--parameter height range 60 100 int \
-			--parameter validation_split range 0 0.4 float \
-			--parameter learning_rate range 0.001 0.4 float \
-			--parameter dense range 10 20 int \
-			--parameter dense_units range 10 20 int \
-			--parameter conv range 10 20 int \
-			--parameter conv_filters range 10 20 int \
-			--hide_ascii_plots \
-			--num_random_steps=$num_random_steps \
-			--gridsearch \
-			--parameter epochs range 1 $max_epochs int
-		exit_code=$?
-	fi
-
+	cmd+=" --gridsearch"
+	experiment_name="example_network_gridsearch"
 else
-
-	if [[ "$follow" -eq "1" ]]; then
-		./omniopt \
-			--live_share --send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=example_network \
-			--mem_gb=$mem_gb \
-			--time=$runtime \
-			--worker_timeout=$worker_timeout \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-			--parameter width range 60 100 int \
-			--parameter height range 60 100 int \
-			--parameter validation_split range 0 0.4 float \
-			--parameter learning_rate range 0.001 0.4 float \
-			--parameter epochs range 1 $max_epochs int \
-			--parameter dense range 10 20 int \
-			--parameter dense_units range 10 20 int \
-			--parameter conv range 10 20 int \
-			--parameter conv_filters range 10 20 int \
-			--hide_ascii_plots \
-			--num_random_steps=$num_random_steps \
-			--follow
-		exit_code=$?
-	else
-
-		./omniopt \
-			--live_share --send_anonymized_usage_stats \
-			--partition=$PARTITION \
-			--experiment_name=example_network \
-			--mem_gb=$mem_gb \
-			--time=$runtime \
-			--worker_timeout=$worker_timeout \
-			--max_eval=$max_eval \
-			--num_parallel_jobs=$num_parallel_jobs \
-			--gpus=$NUM_GPUS \
-			--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0)\
-			--parameter width range 60 100 int \
-			--parameter height range 60 100 int \
-			--parameter validation_split range 0 0.4 float \
-			--parameter learning_rate range 0.001 0.4 float \
-			--parameter dense range 10 20 int \
-			--parameter dense_units range 10 20 int \
-			--parameter conv range 10 20 int \
-			--parameter conv_filters range 10 20 int \
-			--hide_ascii_plots \
-			--num_random_steps=$num_random_steps \
-			--parameter epochs range 1 $max_epochs int
-		exit_code=$?
-	fi
+	experiment_name="example_network"
 fi
+
+cmd=$(echo "$cmd" | sed "s/--experiment_name=example_network/--experiment_name=$experiment_name/")
+
+if [[ "$follow" -eq "1" ]]; then
+	cmd+=" --follow"
+fi
+
+if [[ "$gridsearch" -ne "1" || "$follow" -ne "1" ]]; then
+	cmd+=" --parameter epochs range 1 $max_epochs int"
+fi
+
+eval "$cmd"
 
 exit $exit_code

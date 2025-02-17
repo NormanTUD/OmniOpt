@@ -436,17 +436,41 @@
 
 	if [[ -z $DONT_INSTALL_MODULES ]]; then
 		if [[ -z $SLURM_JOB_ID ]]; then
-			set +e
-			FROZEN=$(pip --disable-pip-version-check list --format=freeze)
-			exit_code_pip=$?
-			set -e
+			REQUIREMENTS_HASH_MAIN=$(md5sum requirements.txt | awk '{print $1}')
 
-			if [[ "$exit_code_pip" -ne "0" ]]; then
-				printf "pip list --format=freeze exited with exit code %s\n" $exit_code_pip
-				exit 12
+			hash_is_different() {
+				hash_file=$1
+				required_hash=$2
+
+				if [[ -f "$hash_file" ]]; then
+					stored_hash=$(cat "$hash_file")
+					if [[ "$stored_hash" == "$required_hash" ]]; then
+						return 0
+					else
+						return 1
+					fi
+				else
+					return 2
+				fi
+			}
+
+
+			if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN"; then
+				set +e
+				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
+				exit_code_pip=$?
+				set -e
+
+				if [[ "$exit_code_pip" -ne "0" ]]; then
+					printf "pip list --format=freeze exited with exit code %s\n" $exit_code_pip
+					exit 12
+				fi
+
+				install_required_modules
+
+				echo "$REQUIREMENTS_HASH_MAIN" > "$VENV_DIR/hash"
 			fi
 
-			install_required_modules
 		fi
 	else
 		if [[ -z $DONT_SHOW_DONT_INSTALL_MESSAGE ]]; then

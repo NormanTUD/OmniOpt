@@ -66,9 +66,28 @@ export min_epochs=10
 export max_epochs=40
 export min_dense=1
 export max_dense=10
+
+export min_conv=1
+export max_conv=10
+
+export min_conv_filters=1
+export max_conv_filters=10
+
+export min_dense_units=1
+export max_dense_units=10
+
+export min_height=40
+export max_height=80
+export min_width=40
+export max_width=80
+
 export follow=0
 export gridsearch=0
 export num_random_steps=$num_parallel_jobs
+export validation_split=0.2
+
+export min_learning_rate=0.001
+export max_learning_rate=0.4
 
 function help () {
 	echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
@@ -82,9 +101,22 @@ function help () {
 	echo "  --num_random_steps=(INT)                           Number of random steps"
 	echo "  --max_eval=n                                       Max number of evals (default: $max_eval)"
 	echo "  --min_dense=n                                      Number of min dense layers (default: $min_dense)"
-	echo "  --max_dense=n                                     Number of max dense (default: $max_dense)"
+	echo "  --max_dense=n                                      Number of max dense (default: $max_dense)"
+	echo "  --min_dense_units=n				   Number of min dense_units layers (default: $min_dense_units)"
+	echo "  --max_dense_units=n                                Number of max dense_units (default: $max_dense_units)"
+	echo "  --min_conv_filters=n				   Number of min conv_filters layers (default: $min_conv_filters)"
+	echo "  --max_conv_filters=n                               Number of max conv_filters (default: $max_conv_filters)"
+	echo "  --min_conv=n				           Number of min conv layers (default: $min_conv)"
+	echo "  --max_conv=n                                       Number of max conv (default: $max_conv)"
 	echo "  --min_epochs=n                                     Number of min epochs (default: $min_epochs)"
 	echo "  --max_epochs=n                                     Number of max epochs (default: $max_epochs)"
+	echo "  --min_height=n                                     Min height (default: $min_height)"
+	echo "  --max_height=n                                     max height (default: $max_height)"
+	echo "  --min_width=n                                      Min width (default: $min_width)"
+	echo "  --max_width=n                                      max width (default: $max_width)"
+	echo "  --min_learning_rate=FLOAT                          Min learning_rate (default: $min_learning_rate)"
+	echo "  --max_learning_rate=FLOAT                          Max learning_rate (default: $max_learning_rate)"
+	echo "  --validation_split=FLOAT                           Validation split (default: $validation_split)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
 	exit $1
@@ -138,6 +170,54 @@ for i in "$@"; do
 			runtime="${i#*=}"
 			shift
 			;;
+
+
+		--min_conv=*)
+			min_conv="${i#*=}"
+			shift
+			;;
+		--max_conv=*)
+			max_conv="${i#*=}"
+			shift
+			;;
+
+		--min_conv_filters=*)
+			min_conv_filters="${i#*=}"
+			shift
+			;;
+		--max_conv_filters=*)
+			max_conv_filters="${i#*=}"
+			shift
+			;;
+
+		--min_dense_units=*)
+			min_dense_units="${i#*=}"
+			shift
+			;;
+		--max_dense_units=*)
+			max_dense_units="${i#*=}"
+			shift
+			;;
+
+		--min_height=*)
+			min_height="${i#*=}"
+			shift
+			;;
+		--max_height=*)
+			max_height="${i#*=}"
+			shift
+			;;
+
+
+		--min_width=*)
+			min_width="${i#*=}"
+			shift
+			;;
+		--max_width=*)
+			max_width="${i#*=}"
+			shift
+			;;
+
 		--min_dense=*)
 			min_dense="${i#*=}"
 			shift
@@ -146,12 +226,27 @@ for i in "$@"; do
 			max_dense="${i#*=}"
 			shift
 			;;
+
 		--min_epochs=*)
 			min_epochs="${i#*=}"
 			shift
 			;;
 		--max_epochs=*)
 			max_epochs="${i#*=}"
+			shift
+			;;
+
+		--min_learning_rate=*)
+			min_learning_rate="${i#*=}"
+			shift
+			;;
+		--max_learning_rate=*)
+			max_learning_rate="${i#*=}"
+			shift
+			;;
+
+		--validation_split=*)
+			validation_split="${i#*=}"
 			shift
 			;;
 		--max_eval=*)
@@ -228,15 +323,15 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--num_parallel_jobs=$num_parallel_jobs \
 	--gpus=$NUM_GPUS \
 	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0) \
-	$(generate_parameter width 60 100 int) \
-	$(generate_parameter height 60 100 int) \
-	$(generate_parameter validation_split 0 0.4 float) \
-	$(generate_parameter learning_rate 0.001 0.4 float) \
+	$(generate_parameter validation_split $validation_split $validation_split float) \
+	$(generate_parameter width $min_width $max_width int) \
+	$(generate_parameter height $min_height $max_height int) \
 	$(generate_parameter dense $min_dense $max_dense int) \
-	$(generate_parameter dense_units 10 20 int) \
-	$(generate_parameter conv 10 20 int) \
-	$(generate_parameter conv_filters 10 20 int) \
+	$(generate_parameter dense_units $min_dense_units $max_dense_units int) \
 	$(generate_parameter epochs $min_epochs $max_epochs int) \
+	$(generate_parameter conv $min_conv $max_conv int) \
+	$(generate_parameter conv_filters $min_conv_filters $max_conv_filters int) \
+	$(generate_parameter learning_rate $min_learning_rate $max_learning_rate float) \
 	--hide_ascii_plots \
 	--num_random_steps=$num_random_steps"
 

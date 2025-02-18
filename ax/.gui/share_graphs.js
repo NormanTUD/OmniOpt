@@ -1441,6 +1441,19 @@ async function _get_overview_data () {
 	return _res;
 }
 
+async function load_experiment_overview () {
+	showSpinnerOverlay("Loading experiment-overview data...");
+
+	var res = await fetchJsonFromUrlFilenameOnly("experiment_overview.txt", true);
+
+	if(!Object.keys(res).includes("error")) {
+		add_tab("experiment_overview_data", "Experiment-Overview", "<div class='experiment_overview'></div>");
+		$(".experiment_overview").html(`<pre>${res.raw}</pre>`);
+	} else {
+		$(".experiment_overview").html(`Error: <span class="error_line invert_in_dark_mode">${res.error}</span>`);
+	}
+}
+
 async function load_arg_overview () {
 	showSpinnerOverlay("Loading arg-overview data...");
 
@@ -1563,6 +1576,7 @@ async function load_all_data() {
 		promises.push(load_progressbar_log());
 		promises.push(load_parameter());
 		promises.push(load_arg_overview());
+		promises.push(load_experiment_overview());
 
 		promises.push(plot_all_possible());
 		promises.push(plot_cpu_ram_graph());

@@ -5793,13 +5793,13 @@ def parse_generation_strategy_string(gen_strat_str: str) -> list:
                     gen_strat_list.append({matching_model: nr})
                 else:
                     print(f"'{model_name}' not found in SUPPORTED_MODELS")
-                    sys.exit(123)
+                    my_exit(123)
             else:
                 print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
-                sys.exit(123)
+                my_exit(123)
         else:
             print(f"'{s}' does not contain '='")
-            sys.exit(123)
+            my_exit(123)
 
     return gen_strat_list
 

@@ -43,6 +43,7 @@
 			104 => "One of the parameters --mem_gb, --time, --run_program or --experiment_name is missing",
 			105 => "Continued job error: previous job has missing state files",
 			106 => "--num_parallel_jobs must be equal to or larger than 1",
+			123 => "Something is wrong the the --generation_strategy",
 			130 => "Interrupt-Signal detected",
 			133 => "Error loading --config_toml, --config_json or --config_yaml",
 			137 => "OOM-Killer on Slurm-Systems",

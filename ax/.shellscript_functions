@@ -432,14 +432,14 @@
 		"cat:coreutils"
 		"ls:coreutils"
 		"wget:wget"
-		"whiptail:whiptail"
 		"grep:grep"
 		"tput:ncurses-bin"
 		"sed:sed"
 	)
 
 	if command -v apt 2>/dev/null >/dev/null; then
-		required_programs=+"findmnt:util-linux"
+		required_programs+="findmnt:util-linux"
+		required_programs+="whiptail:whiptail"
 	fi
 
 	not_found_programs=0

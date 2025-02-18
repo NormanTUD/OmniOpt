@@ -5844,6 +5844,9 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
         # generate and add steps according to the generation_strategy_array
 
+        print(f"Parsed generation strategy string: {args.generation_strategy}")
+        print(f"Parsed generation strategy: {generation_strategy_array}")
+
         return None
 
 @beartype

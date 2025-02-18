@@ -60,14 +60,14 @@ done
 
 # Falls shuffle aktiviert ist, mische die Befehle
 if [[ "$shuffle" == true ]]; then
-	commands=( $(shuf -e "${commands[@]}") )
+	mapfile -t commands < <(printf "%s\n" "${commands[@]}" | shuf)
 fi
 
 # Befehle ausführen
 for cmd in "${commands[@]}"; do
 	echo "Running: $cmd"
 	eval "$cmd" || {
-		echo ">>> Command failed: $cmd <<<"
-			exit 1
-		}
-	done
+	echo ">>> Command failed: $cmd <<<"
+		exit 1
+	}
+done

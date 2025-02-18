@@ -439,9 +439,7 @@
 	)
 
 	if command -v apt 2>/dev/null >/dev/null; then
-		required_programs=+(
-			"findmnt:util-linux"
-		)
+		required_programs=+"findmnt:util-linux"
 	fi
 
 	not_found_programs=0

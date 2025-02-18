@@ -419,7 +419,31 @@
 		_tput el
 	}
 
-	required_programs=("stdbuf:coreutils" "findmnt:util-linux" "base64:base64" "curl:curl" "wget:wget" "uuidgen:uuid-runtime" "git:git" "python3:python3" "gcc:gcc" "resize:xterm" "cat:coreutils" "ls:coreutils" "wget:wget" "whiptail:whiptail" "grep:grep" "tput:ncurses-bin" "sed:sed")
+	required_programs=(
+		"stdbuf:coreutils"
+		"base64:base64"
+		"curl:curl"
+		"wget:wget"
+		"uuidgen:uuid-runtime"
+		"git:git"
+		"python3:python3"
+		"gcc:gcc"
+		"resize:xterm"
+		"cat:coreutils"
+		"ls:coreutils"
+		"wget:wget"
+		"whiptail:whiptail"
+		"grep:grep"
+		"tput:ncurses-bin"
+		"sed:sed"
+	)
+
+	if command -v apt 2>/dev/null >/dev/null; then
+		required_programs=+(
+			"findmnt:util-linux"
+		)
+	fi
+
 	not_found_programs=0
 
 	for cmd_pkg in "${required_programs[@]}"; do

@@ -1,20 +1,14 @@
 #!/usr/bin/env python3
-# This generated code is licensed under WTFPL. You can do whatever you want with it, without any restrictions.
-# python3 -m venv asanaienv
-# source asanaienv/bin/activate
-# pip3 install tensorflow tensorflowjs protobuf  scikit-image opencv-python 
+
 try:
     import sys
     import os
-    # python3 nn.py file_1.jpg file_2.jpg file_3.jpg
-    import keras
-    import tensorflow as tf
-    import uuid
     import argparse
-    #import psutil
-    import resource
+    from pprint import pprint
 
-    model = tf.keras.Sequential()
+    def dier (msg):
+        pprint(msg)
+        sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Simple neural network')
     parser.add_argument('--train', action='store_true', help='Train the model')
@@ -33,16 +27,19 @@ try:
 
     args = parser.parse_args()
 
+    import keras
+    import tensorflow as tf
+    import uuid
+    import resource
+
     if not os.path.exists(args.data):
         print(f"--data {args.data}: cannot be found")
         sys.exit(95)
 
-    from pprint import pprint
-    def dier (msg):
-        pprint(msg)
-        sys.exit(1)
-
     from keras import layers
+
+    model = tf.keras.Sequential()
+
     for i in range(0, args.conv):
         model.add(layers.Conv2D(
             args.conv_filters,
@@ -142,9 +139,6 @@ try:
 
     val_loss = history.history["val_loss"][-1]
     print(f"VAL_LOSS: {val_loss:.4f}")
-
-    #ram_usage = psutil.Process().memory_info().rss / (1024 * 1024)  # in MB
-    #print(f"RAM_USAGE: {ram_usage:.2f}") # in MB
 
     max_ram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     max_ram_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

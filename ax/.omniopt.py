@@ -443,7 +443,7 @@ class ConfigLoader:
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
-        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
+        optional.add_argument('--generation_strategy', help=f'A string containing the generation_strategy', type=str, default=None)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -5710,17 +5710,17 @@ def _get_max_parallelism() -> int: # pragma: no cover
     return ret
 
 @beartype
-def create_systematic_step(model: Any) -> Tuple[GenerationStep, dict]:
+def create_systematic_step(model: Any, _num_trials: int = -1) -> Tuple[GenerationStep, dict]:
     """Creates a generation step for Bayesian optimization."""
     return GenerationStep(
         model=model,
-        num_trials=-1,
+        num_trials=_num_trials,
         max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     ), {
         "model": model,
-        "num_trials": -1,
+        "num_trials": _num_trials,
         "max_parallelism": _get_max_parallelism(),
         "model_gen_kwargs": {'enforce_num_arms': False},
         "should_deduplicate": args.should_deduplicate
@@ -5842,12 +5842,17 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     else:
         generation_strategy_array = parse_generation_strategy_string(args.generation_strategy)
 
-        # generate and add steps according to the generation_strategy_array
+        steps = []
+        gs_readable = []
 
-        print(f"Parsed generation strategy string: {args.generation_strategy}")
-        print(f"Parsed generation strategy: {generation_strategy_array}")
+        for gs_element in generation_strategy_array:
+            model_name = list(gs_element.keys())[0]
 
-        return None
+            gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]))
+            steps.append(gs_elem)
+            gs_readable.append(gs_readable_dict)
+
+        return GenerationStrategy(steps=steps), gs_readable
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

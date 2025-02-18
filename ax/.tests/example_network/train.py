@@ -4,11 +4,6 @@ try:
     import sys
     import os
     import argparse
-    from pprint import pprint
-
-    def dier (msg):
-        pprint(msg)
-        sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Simple neural network')
     parser.add_argument('--train', action='store_true', help='Train the model')
@@ -29,6 +24,12 @@ try:
     parser.add_argument('--debug', action='store_true', help='Enables debug mode')
 
     args = parser.parse_args()
+
+    from pprint import pprint
+
+    def dier (msg):
+        pprint(msg)
+        sys.exit(1)
 
     if not os.path.exists(args.data):
         print(f"--data {args.data}: cannot be found")

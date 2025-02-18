@@ -104,14 +104,16 @@ try:
         target_size=target_size,
         batch_size=10,
         class_mode='categorical',
-        subset='training')
+        subset='training'
+    )
 
     validation_generator = datagen.flow_from_directory(
         args.data,
         target_size=target_size,
         batch_size=32,
         class_mode='categorical',
-        subset='validation')
+        subset='validation'
+    )
 
     labels = (train_generator.class_indices)
     labels = dict((v,k) for k,v in labels.items())

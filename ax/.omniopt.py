@@ -820,8 +820,12 @@ if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
     print(f"Unsupported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
     my_exit(203)
 
-if args.num_parallel_jobs:
-    num_parallel_jobs = args.num_parallel_jobs
+if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_parallel_jobs):
+    num_parallel_jobs = int(args.num_parallel_jobs)
+
+if num_parallel_jobs <= 0:
+    print_red(f"--num_parallel_jobs must be 1 or larger")
+    my_exit(106)
 
 class SearchSpaceExhausted (Exception):
     pass

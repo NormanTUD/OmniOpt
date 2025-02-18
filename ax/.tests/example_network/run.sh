@@ -53,7 +53,7 @@ trap 'calltracer' ERR
 source $SCRIPT_DIR/.shellscript_functions
 
 function help () {
-	python3 train.py
+	python3 train.py --help
 	exit $?
 }
 

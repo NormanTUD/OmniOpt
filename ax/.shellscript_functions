@@ -168,6 +168,7 @@
 
 	if ! command -v python3 2>/dev/null >/dev/null; then
 		red_text "python3 not installed. Cannot continue."
+		exit 245
 	fi
 
 	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"

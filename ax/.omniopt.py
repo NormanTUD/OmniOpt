@@ -5854,6 +5854,11 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
             steps.append(gs_elem)
             gs_readable.append(gs_readable_dict)
 
+        generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
+
+        with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
+            f.write(args.generation_strategy)
+
         return GenerationStrategy(steps=steps), gs_readable
 
 @beartype
@@ -6601,9 +6606,6 @@ def main() -> None:
     handle_random_steps()
 
     gs, gs_array = get_generation_strategy()
-
-    with open(f"{get_current_run_folder()}/generation_strategy.txt", mode="w", encoding="utf-8") as text_file:
-        original_print(gs_array, file=text_file)
 
     initialize_ax_client(gs)
 

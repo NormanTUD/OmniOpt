@@ -64,6 +64,7 @@
 			242 => "Error at fetching new trials",
 			243 => "Job was not found in squeue anymore, it may got cancelled before it ran",
 			244 => "get_executor() failed. See logs for more details.",
+			245 => "python3 is not installed",
 			255 => "sbatch error"
 		];
 

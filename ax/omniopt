@@ -481,7 +481,7 @@ trap 'kill_python_if_started CONT' CONT
 trap 'kill_python_if_started TERM' TERM
 
 if command -v kill 2>/dev/null >/dev/null; then
-	for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
+	for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*[[:space:]]*)##g'); do
 		if
 			[[ "$i" != "ERR" ]] &&
 			[[ "$i" != "CONT" ]] &&

@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# Standardwerte
 min=1
 max=10
 stepsize=2
 shuffle=false
 
-# Hilfefunktion
 display_help() {
 	echo "Usage: $0 [options]"
 	echo ""
@@ -19,7 +17,6 @@ display_help() {
 	exit 0
 }
 
-# Argumente parsen
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--min)
@@ -48,7 +45,6 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-# Befehle sammeln
 commands=()
 for max_eval in $(seq "$min" "$stepsize" "$max"); do
 	for num_parallel_jobs in $(seq "$min" "$stepsize" "$max"); do
@@ -58,12 +54,10 @@ for max_eval in $(seq "$min" "$stepsize" "$max"); do
 	done
 done
 
-# Falls shuffle aktiviert ist, mische die Befehle
 if [[ "$shuffle" == true ]]; then
 	mapfile -t commands < <(printf "%s\n" "${commands[@]}" | shuf)
 fi
 
-# Befehle ausführen
 for cmd in "${commands[@]}"; do
 	echo "Running: $cmd"
 	eval "$cmd" || {

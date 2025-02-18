@@ -824,7 +824,7 @@ if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_pa
     num_parallel_jobs = int(args.num_parallel_jobs)
 
 if num_parallel_jobs <= 0:
-    print_red(f"--num_parallel_jobs must be 1 or larger")
+    print_red(f"--num_parallel_jobs must be 1 or larger, is {num_parallel_jobs}")
     my_exit(106)
 
 class SearchSpaceExhausted (Exception):

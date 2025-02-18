@@ -29,7 +29,6 @@ try:
 
     import keras
     import tensorflow as tf
-    import uuid
     import resource
 
     if not os.path.exists(args.data):

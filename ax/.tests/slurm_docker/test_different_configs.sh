@@ -55,7 +55,15 @@ for max_eval in $(seq "$min" "$stepsize" "$max"); do
 done
 
 if [[ "$shuffle" == true ]]; then
-	mapfile -t commands < <(printf "%s\n" "${commands[@]}" | shuf)
+	if command -v mapfile >/dev/null 2>/dev/null; then
+		if command -v shuf >/dev/null 2>/dev/null; then
+			mapfile -t commands < <(printf "%s\n" "${commands[@]}" | shuf)
+		else
+			echo "shuf not found"
+		fi
+	else
+		echo "mapfile not found"
+	fi
 fi
 
 for cmd in "${commands[@]}"; do

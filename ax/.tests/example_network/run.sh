@@ -50,23 +50,11 @@ function calltracer () {
 }
 trap 'calltracer' ERR
 
+source $SCRIPT_DIR/.shellscript_functions
+
 function help () {
-	echo "Possible options:"
-	echo "  --train                                            Start training"
-	echo "  --predict                                          Start predicting"
-	echo "  --learning_rate=FLOAT                              The learning rate"
-	echo "  --epochs=INT                                       The number of epochs"
-	echo "  --validation_split=FLOAT                           The validation split (between 0 and 1)"
-	echo "  --width=INT                                        Image width"
-	echo "  --height=INT                                       Image height"
-	echo "  --data=DIRNAME                                     Data dir"
-	echo "  --conv                                             Number of convolution layers"
-	echo "  --conv_filters                                     Number of convolution filters"
-	echo "  --dense                                            Number of dense layers"
-	echo "  --dense_units                                      Number of dense neurons"
-	echo "  --help                                             This help"
-	echo "  --debug                                            Enables debug mode"
-	exit $1
+	python3 train.py
+	exit $?
 }
 
 train=1
@@ -79,28 +67,19 @@ for i in "$@"; do
                         predict=0
                         shift
                         ;;
-                --data=*)
-                        shift
-			;;
-                --data)
-                        shift
-                        shift
-                        ;;
                 --predict)
                         train=0
                         predict=1
                         shift
                         ;;
                 -h|--help)
-                        help 0
+                        help
                         ;;
                 --debug)
 			set_debug
                         ;;
         esac
 done
-
-source $SCRIPT_DIR/.shellscript_functions
 
 if [[ "$train" == 1 ]]; then
         python3 train.py $*

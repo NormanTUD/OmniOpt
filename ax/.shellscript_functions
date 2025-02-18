@@ -234,9 +234,15 @@
 		local empty_length=$((bar_length - filled_length))
 		local percentage=$((current * 100 / max))
 
+		bar_char="#"
+
+		if [[ "$os_name" == "Linux" ]]; then
+			bar_char="━"
+		fi
+
 		local bar=""
 		for ((i = 0; i < filled_length; i++)); do
-			bar="${bar}━"
+			bar="${bar}$bar_char"
 		done
 		for ((i = 0; i < empty_length; i++)); do
 			bar="${bar} "

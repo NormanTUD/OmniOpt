@@ -698,7 +698,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -717,7 +717,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -732,7 +732,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -751,7 +751,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one."
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue.*\s\s*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -1038,7 +1038,7 @@ if [[ -d ".git" ]]; then
 	fi
 fi
 
-args_string=$(echo "$args_string" | sed -e 's#\s\s*# #g')
+args_string=$(echo "$args_string" | sed -e 's#[[:space:]][[:space:]]*# #g')
 
 if [ -n "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
 	true

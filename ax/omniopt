@@ -1502,6 +1502,7 @@ else
 									if [[ "$SCONTROL_STATUS" == *"RaisedSignal:53"* ]]; then
 										red_text "This may indicate a file system error"
 									fi
+
 									if command -v findmnt 2>/dev/null >/dev/null; then
 										red_text "Mount-Info:"
 										findmnt -T "$SCRIPT_DIR"

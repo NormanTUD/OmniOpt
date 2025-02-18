@@ -302,7 +302,7 @@
 				pip3 --disable-pip-version-check install -q $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
 					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 
-					if [[ -n $CI ]] || { [[ -d /proc/self/ ]] && grep -qE '/docker|/lxc' /proc/self/cgroup; then
+					if [[ -n $CI ]] || grep -qE '/docker|/lxc' /proc/self/cgroup; then
 						cat "$INSTALL_ERRORS_FILE" 
 					fi
 
@@ -312,7 +312,7 @@
 				pip3 --disable-pip-version-check install $MODULE >&2 2>> $INSTALL_ERRORS_FILE || {
 					red_reset_line "❌Failed to install $MODULE. Check $INSTALL_ERRORS_FILE"
 
-					if [[ -n $CI ]] || { [[ -d /proc/self/ ]] && grep -qE '/docker|/lxc' /proc/self/cgroup; then
+					if [[ -n $CI ]] || grep -qE '/docker|/lxc' /proc/self/cgroup; then
 						cat "$INSTALL_ERRORS_FILE" 
 					fi
 

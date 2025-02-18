@@ -16,6 +16,9 @@ try:
     parser.add_argument('--learning_rate', type=float, help='Learning rate as a floating point number', default=0.001)
     parser.add_argument('--epochs', type=int, help='Number of epochs as an integer', default=10)
     parser.add_argument('--validation_split', type=float, help='Validation split as a floating point number', default=0.2)
+    parser.add_argument("--beta1", type=float, help="beta1", default=0.9)
+    parser.add_argument("--beta2", type=float, help="beta2", default=0.999)
+    parser.add_argument("--epsilon", type=float, help="epsilon", default=0.0001)
     parser.add_argument('--data', type=str, help='Data dir', default='data_full')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)
@@ -27,15 +30,20 @@ try:
 
     args = parser.parse_args()
 
-    import keras
-    import tensorflow as tf
-    import resource
-
     if not os.path.exists(args.data):
         print(f"--data {args.data}: cannot be found")
         sys.exit(95)
 
+    import keras
+    import resource
+    import json
+
+    import tensorflow as tf
     from keras import layers
+
+    from termcolor import colored
+    from tensorflow.keras.preprocessing.image import ImageDataGenerator
+    from tensorflow.keras.optimizers import Adam
 
     model = tf.keras.Sequential()
 
@@ -80,11 +88,7 @@ try:
 
     model.summary()
 
-    from termcolor import colored
-
     divide_by = 255
-
-    from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
     # Define size of images
     target_size = (args.height, args.width)
@@ -109,8 +113,6 @@ try:
         class_mode='categorical',
         subset='validation')
 
-    import json
-
     labels = (train_generator.class_indices)
     labels = dict((v,k) for k,v in labels.items())
     labels_array = [labels[value] for value in labels]
@@ -121,28 +123,31 @@ try:
     except Exception as e:
         print("Error writing the JSON file:", e)
 
-    from tensorflow.keras.optimizers import Adam
-    optimizer = Adam(beta_1=0.9, beta_2=0.999, epsilon=0.0001, learning_rate=args.learning_rate)
+    optimizer = Adam(
+        beta_1=args.beta1,
+        beta_2=args.beta2,
+        epsilon=args.epsilon,
+        learning_rate=args.learning_rate
+    )
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
     history = model.fit(train_generator, validation_data=validation_generator, epochs=args.epochs)
 
     loss_obj = history.history["loss"]
     last_loss = loss_obj[len(loss_obj) - 1]
-    print(f"RESULT: {'{:f}'.format(last_loss)}")
-
-    print(f"LOSS: {'{:f}'.format(last_loss)}")
 
     val_accuracy = history.history["val_accuracy"][-1]
-    print(f"VAL_ACCURACY: {val_accuracy:.4f}")
 
     val_loss = history.history["val_loss"][-1]
-    print(f"VAL_LOSS: {val_loss:.4f}")
 
     max_ram = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     max_ram_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     max_ram_mb = max_ram_kb / 1024  # Umrechnung in MB
 
+    print(f"RESULT: {'{:f}'.format(last_loss)}")
+    print(f"LOSS: {'{:f}'.format(last_loss)}")
+    print(f"VAL_ACCURACY: {val_accuracy:.4f}")
+    print(f"VAL_LOSS: {val_loss:.4f}")
     print(f"RAM_USAGE: {max_ram_mb:.2f}")
 except (KeyboardInterrupt) as e:
     pass

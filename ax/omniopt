@@ -480,21 +480,25 @@ trap 'calltracer' ERR
 trap 'kill_python_if_started CONT' CONT
 trap 'kill_python_if_started TERM' TERM
 
-for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
-	if
-		[[ "$i" != "ERR" ]] &&
-		[[ "$i" != "CONT" ]] &&
-		[[ "$i" != "TERM" ]] &&
-		[[ "$i" != "CHLD" ]] &&
-		[[ "$i" != "SIGCHLD" ]] &&
-		[[ "$i" != "SIGWINCH" ]] &&
-		[[ "$i" != "WINCH" ]] &&
-		[[ "$i" != "INT" ]] &&
-		[[ "$i" != "SIGINT" ]];
-	then
-		trap 'kill_python_if_started $i' "$i"
-	fi
-done
+if command -v kill 2>/dev/null >/dev/null; then
+	for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*\s*)##g'); do
+		if
+			[[ "$i" != "ERR" ]] &&
+			[[ "$i" != "CONT" ]] &&
+			[[ "$i" != "TERM" ]] &&
+			[[ "$i" != "CHLD" ]] &&
+			[[ "$i" != "SIGCHLD" ]] &&
+			[[ "$i" != "SIGWINCH" ]] &&
+			[[ "$i" != "WINCH" ]] &&
+			[[ "$i" != "INT" ]] &&
+			[[ "$i" != "SIGINT" ]];
+		then
+			trap 'kill_python_if_started $i' "$i"
+		fi
+	done
+else
+	red_text "kill cannot be found. Cannot register traps for existing signals."
+fi
 
 minutes_to_hh_mm_ss() {
 	var=$1

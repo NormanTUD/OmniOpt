@@ -64,6 +64,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--generation_strategy</samp></td>
+				<td>A string containing the generation_strategy</td>
+				<td><samp>None</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--minkowski_p</samp></td>
 				<td>Minkowski order of distance (default: 2), needs to be larger than 0</td>
 				<td><samp>2</samp></td>

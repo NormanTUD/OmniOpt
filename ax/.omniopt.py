@@ -443,6 +443,7 @@ class ConfigLoader:
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
+        optional.add_argument('--generation_strategy', help=f'A string containing the generation_strategy', type=str, default=None)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -5765,40 +5766,85 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
     return chosen_model
 
 @beartype
+def get_matching_model_name(model_name: str) -> Optional[str]:
+    if not isinstance(model_name, str):
+        return None
+    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
+        return None
+
+    model_name_lower = model_name.lower()
+    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
+
+    return model_map.get(model_name_lower, None)
+
+@beartype
+def parse_generation_strategy_string(gen_strat_str: str) -> list:
+    gen_strat_list = []
+
+    cleaned_string = re.sub(r"\s+", "", gen_strat_str)
+    splitted_by_comma = cleaned_string.split(",")
+
+    for s in splitted_by_comma:
+        if "=" in s:
+            if s.count("=") == 1:
+                model_name, nr = s.split("=")
+                matching_model = get_matching_model_name(model_name)
+                if matching_model:
+                    gen_strat_list.append({matching_model: nr})
+                else:
+                    print(f"'{model_name}' not found in SUPPORTED_MODELS")
+                    sys.exit(123)
+            else:
+                print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
+                sys.exit(123)
+        else:
+            print(f"'{s}' does not contain '='")
+            sys.exit(123)
+
+    return gen_strat_list
+
+@beartype
 def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
-    global random_steps
+    if args.generation_strategy is None:
+        global random_steps
 
-    # Initialize steps for the generation strategy
-    steps: list = []
-    gs_readable: list = []
+        # Initialize steps for the generation strategy
+        steps: list = []
+        gs_readable: list = []
 
-    # Get the number of imported jobs and update max evaluations
-    num_imported_jobs: int = get_nr_of_imported_jobs()
-    set_max_eval(max_eval + num_imported_jobs)
+        # Get the number of imported jobs and update max evaluations
+        num_imported_jobs: int = get_nr_of_imported_jobs()
+        set_max_eval(max_eval + num_imported_jobs)
 
-    # Initialize random_steps if None
-    random_steps = random_steps or 0
+        # Initialize random_steps if None
+        random_steps = random_steps or 0
 
-    # Set max_eval if it's None
-    if max_eval is None: # pragma: no cover
-        set_max_eval(max(1, random_steps))
+        # Set max_eval if it's None
+        if max_eval is None: # pragma: no cover
+            set_max_eval(max(1, random_steps))
 
-    # Add a random generation step if conditions are met
-    if random_steps >= 1 and num_imported_jobs < random_steps:
-        this_step, readable_random_step = create_random_generation_step()
-        steps.append(this_step)
-        gs_readable.append(readable_random_step)
+        # Add a random generation step if conditions are met
+        if random_steps >= 1 and num_imported_jobs < random_steps:
+            this_step, readable_random_step = create_random_generation_step()
+            steps.append(this_step)
+            gs_readable.append(readable_random_step)
 
-    # Choose a model for the non-random step
-    chosen_non_random_model = select_model(args.model)
+        # Choose a model for the non-random step
+        chosen_non_random_model = select_model(args.model)
 
-    # Append the Bayesian optimization step
-    sys_step, readable_systematic_step = create_systematic_step(chosen_non_random_model)
-    steps.append(sys_step)
-    gs_readable.append(readable_systematic_step)
+        # Append the Bayesian optimization step
+        sys_step, readable_systematic_step = create_systematic_step(chosen_non_random_model)
+        steps.append(sys_step)
+        gs_readable.append(readable_systematic_step)
 
-    # Create and return the GenerationStrategy
-    return GenerationStrategy(steps=steps), gs_readable
+        # Create and return the GenerationStrategy
+        return GenerationStrategy(steps=steps), gs_readable
+    else:
+        generation_strategy_array = parse_generation_strategy_string(args.generation_strategy)
+
+        # generate and add steps according to the generation_strategy_array
+
+        return None
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

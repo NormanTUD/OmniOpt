@@ -5842,6 +5842,8 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     else:
         generation_strategy_array = parse_generation_strategy_string(args.generation_strategy)
 
+        print_GenerationStrategy(generation_strategy_array)
+
         steps = []
         gs_readable = []
 
@@ -5853,6 +5855,19 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
             gs_readable.append(gs_readable_dict)
 
         return GenerationStrategy(steps=steps), gs_readable
+
+@beartype
+def print_GenerationStrategy(generation_strategy_array: list) -> None:
+    table = Table(header_style="bold", title="Generation Strategy:")
+
+    table.add_column("Generation Strategy")
+    table.add_column("Number of Generations")
+
+    for gs_element in generation_strategy_array:
+        model_name, num_generations = next(iter(gs_element.items()))
+        table.add_row(model_name, str(num_generations))
+
+    console.print(table)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

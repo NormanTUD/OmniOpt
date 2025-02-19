@@ -5858,9 +5858,11 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(args.generation_strategy)
 
-        if max_eval != new_max_eval:
-            print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval}.")
-            set_max_eval(new_max_eval)
+        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+
+        if max_eval <= new_max_eval_plus_inserted_jobs:
+            print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+            set_max_eval(new_max_eval_plus_inserted_jobs)
 
         print_Generation_strategy(generation_strategy_array)
 

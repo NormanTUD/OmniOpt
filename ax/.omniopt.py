@@ -5807,7 +5807,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list, int]:
     return gen_strat_list, sum_nr
 
 @beartype
-def print_Generation_strategy(generation_strategy_array: list) -> None:
+def print_generation_strategy(generation_strategy_array: list) -> None:
     table = Table(header_style="bold", title="Generation Strategy:")
 
     table.add_column("Generation Strategy")
@@ -5864,7 +5864,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
             print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
             set_max_eval(new_max_eval_plus_inserted_jobs)
 
-        print_Generation_strategy(generation_strategy_array)
+        print_generation_strategy(generation_strategy_array)
 
         steps = []
         gs_readable = []

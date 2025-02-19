@@ -5821,7 +5821,19 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
 
 @beartype
 def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
-    if args.generation_strategy is None:
+    generation_strategy = args.generation_strategy
+
+    if args.continue_previous_job and args.generation_strategy is None:
+        generation_strategy_file = f"{args.continue_previous_job}/state_files/generation_strategy"
+
+        if os.path.exists(generation_strategy_file):
+            with open(generation_strategy_file, mode="r", encoding="utf-8") as f:
+                generation_strategy = f.read()
+
+                if generation_strategy == "":
+                    generation_strategy = None
+
+    if generation_strategy is None:
         global random_steps
 
         # Initialize steps for the generation strategy
@@ -5856,12 +5868,12 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         # Create and return the GenerationStrategy
         return GenerationStrategy(steps=steps), gs_readable
     else:
-        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args.generation_strategy)
+        generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
 
         new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
         if max_eval <= new_max_eval_plus_inserted_jobs:
-            print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+            print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
             set_max_eval(new_max_eval_plus_inserted_jobs)
 
         print_generation_strategy(generation_strategy_array)
@@ -5879,7 +5891,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
 
         with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
-            f.write(args.generation_strategy)
+            f.write(generation_strategy)
 
         return GenerationStrategy(steps=steps), gs_readable
 

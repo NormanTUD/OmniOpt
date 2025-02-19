@@ -695,6 +695,10 @@ disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRIT
 
 NVIDIA_SMI_LOGS_BASE = None
 
+#from chaosape import ChaosApe
+#chaosape = ChaosApe()
+#chaosape.set_function_error_rate("open", 0.1)
+
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     try:
@@ -961,7 +965,11 @@ def print_logo() -> None:
         f = Figlet(font=random.choice(fonts))
         original_print(f.renderText('OmniOpt2'))
 
-process = psutil.Process(os.getpid())
+process = None
+try:
+    process = psutil.Process(os.getpid())
+except Exception as e:
+    print(f"Error trying to get process: {e}")
 
 global_vars: dict = {}
 
@@ -3926,8 +3934,11 @@ def write_min_max_file() -> None:
         print_red(f"{open_this} is a dir. Must be a file.")
         my_exit(246)
     else:
-        with open(open_this, mode='w', encoding="utf-8") as f:
-            print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
+        try:
+            with open(open_this, mode='w', encoding="utf-8") as f:
+                print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
+        except Exception as e:
+            print_red(f"Error trying to write {open_this}: {e}")
 
 @beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
@@ -3945,8 +3956,13 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
 
     table_str = capture.get()
 
-    with open(f"{get_current_run_folder()}/parameters.txt", mode="w", encoding="utf-8") as text_file:
-        text_file.write(table_str)
+    fn = f"{get_current_run_folder()}/parameters.txt"
+
+    try:
+        with open(fn, mode="w", encoding="utf-8") as text_file:
+            text_file.write(table_str)
+    except FileNotFoundError as e:
+        print_red("Error trying to write file {fn}: {e}")
 
 @beartype
 def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:
@@ -6154,6 +6170,8 @@ def set_global_executor() -> None:
     except ModuleNotFoundError as e: # pragma: no cover
         print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
         sys.exit(244)
+    except (IsADirectoryError, FileNotFoundError) as e:
+        print_red(f"Error trying to set_global_executor: {e}")
 
 @beartype
 def execute_nvidia_smi() -> None: # pragma: no cover
@@ -7298,8 +7316,4 @@ def main_outside() -> None:
                     end_program(RESULT_CSV_FILE, True)
 
 if __name__ == "__main__":
-    #from chaosape import ChaosApe
-    #chaosape = ChaosApe()
-    #chaosape.set_function_error_rate("open", 0.1)
-
     main_outside()

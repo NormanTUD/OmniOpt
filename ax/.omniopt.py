@@ -5710,15 +5710,20 @@ def _get_max_parallelism() -> int: # pragma: no cover
     return ret
 
 @beartype
-def create_systematic_step(model: Any, _num_trials: int = -1) -> Tuple[GenerationStep, dict]:
+def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> Tuple[GenerationStep, dict]:
     """Creates a generation step for Bayesian optimization."""
-    return GenerationStep(
+    gs = GenerationStep(
         model=model,
         num_trials=_num_trials,
         max_parallelism=_get_max_parallelism(),
         model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=args.should_deduplicate
-    ), {
+        should_deduplicate=args.should_deduplicate,
+        index=index
+    )
+
+    #print(gs)
+
+    return gs, {
         "model": model,
         "num_trials": _num_trials,
         "max_parallelism": _get_max_parallelism(),
@@ -5892,12 +5897,16 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         steps = []
         gs_readable = []
 
+        start_index = int(len(generation_strategy_array) / 2)
+
         for gs_element in generation_strategy_array:
             model_name = list(gs_element.keys())[0]
 
-            gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]))
+            gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
             steps.append(gs_elem)
             gs_readable.append(gs_readable_dict)
+
+            start_index = start_index + 1
 
         generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
 

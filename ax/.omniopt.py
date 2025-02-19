@@ -5833,7 +5833,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
                 if generation_strategy == "":
                     generation_strategy = None
                 else:
-                    print_yellow("Warning: --generation_strategy is not yet fully supported on continued runs")
+                    print_yellow("Warning: --generation_strategy is not yet supported on continued runs")
 
     if generation_strategy is None:
         global random_steps

@@ -4938,7 +4938,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if ax_client:
         _trial = ax_client.get_trial(trial_index)
 
-        if result != VAL_IF_NOTHING_FOUND:
+        if result not in [VAL_IF_NOTHING_FOUND, -VAL_IF_NOTHING_FOUND, -99999999999999997168788049560464200849936328366177157906432, 99999999999999997168788049560464200849936328366177157906432]:
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
             #count_done_jobs(1)

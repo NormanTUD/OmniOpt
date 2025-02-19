@@ -4938,7 +4938,9 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if ax_client:
         _trial = ax_client.get_trial(trial_index)
 
-        if result not in [VAL_IF_NOTHING_FOUND, -VAL_IF_NOTHING_FOUND, -99999999999999997168788049560464200849936328366177157906432, 99999999999999997168788049560464200849936328366177157906432]:
+        possible_val_not_found_values = [VAL_IF_NOTHING_FOUND, -VAL_IF_NOTHING_FOUND, -99999999999999997168788049560464200849936328366177157906432, 99999999999999997168788049560464200849936328366177157906432]
+
+        if result not in possible_val_not_found_values:
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
 
             #count_done_jobs(1)
@@ -4950,6 +4952,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             except Exception as e: # pragma: no cover
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
+            print_debug(f"Counting job {job} as failed, because the result is in [{', '.join(possible_val_not_found_values)}], to be exact, it is {result}")
             if job:
                 try:
                     progressbar_description(["job_failed"])

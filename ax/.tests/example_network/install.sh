@@ -55,7 +55,7 @@ if [[ -d $LMOD_DIR ]]; then
 		eval "$($LMOD_DIR/ml_cmd "$@")"
 	}
 
-	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1
+	ml release/24.04 GCC/11.3.0 OpenMPI/4.1.4 TensorFlow/2.9.1 SciPy-bundle/2022.05
 fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

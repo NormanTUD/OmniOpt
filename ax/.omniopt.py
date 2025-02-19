@@ -5822,8 +5822,9 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
 @beartype
 def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     generation_strategy = args.generation_strategy
+    doubled_number_of_jobs = False
 
-    if args.continue_previous_job and args.generation_strategy is None:
+    if args.continue_previous_job:
         generation_strategy_file = f"{args.continue_previous_job}/state_files/generation_strategy"
 
         if os.path.exists(generation_strategy_file):
@@ -5834,6 +5835,10 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
                     generation_strategy = None
                 else:
                     print_yellow("Warning: --generation_strategy is not yet supported on continued runs")
+
+                    generation_strategy = f"{generation_strategy},{generation_strategy}"
+
+                    doubled_number_of_jobs = True
 
     if generation_strategy is None:
         global random_steps
@@ -5872,10 +5877,14 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
 
-        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+        if doubled_number_of_jobs:
+            new_max_eval_plus_inserted_jobs = int(new_max_eval / 2) + get_nr_of_imported_jobs()
+        else:
+            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
         if max_eval <= new_max_eval_plus_inserted_jobs:
             print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+
             set_max_eval(new_max_eval_plus_inserted_jobs)
 
         print_generation_strategy(generation_strategy_array)

@@ -14,6 +14,8 @@ original_print = print
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
+SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
+
 try:
     from rich.console import Console
 
@@ -171,8 +173,6 @@ else: # pragma: no cover
 dier: FunctionType = helpers.dier
 is_equal: FunctionType = helpers.is_equal
 is_not_equal: FunctionType = helpers.is_not_equal
-
-SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
 ORCHESTRATE_TODO: dict = {}
 
@@ -5778,11 +5778,13 @@ def get_matching_model_name(model_name: str) -> Optional[str]:
     return model_map.get(model_name_lower, None)
 
 @beartype
-def parse_generation_strategy_string(gen_strat_str: str) -> list:
+def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list, int]:
     gen_strat_list = []
 
     cleaned_string = re.sub(r"\s+", "", gen_strat_str)
     splitted_by_comma = cleaned_string.split(",")
+
+    sum_nr = 0
 
     for s in splitted_by_comma:
         if "=" in s:
@@ -5791,6 +5793,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> list:
                 matching_model = get_matching_model_name(model_name)
                 if matching_model:
                     gen_strat_list.append({matching_model: nr})
+                    sum_nr += int(nr)
                 else:
                     print(f"'{model_name}' not found in SUPPORTED_MODELS")
                     my_exit(123)
@@ -5801,7 +5804,20 @@ def parse_generation_strategy_string(gen_strat_str: str) -> list:
             print(f"'{s}' does not contain '='")
             my_exit(123)
 
-    return gen_strat_list
+    return gen_strat_list, sum_nr
+
+@beartype
+def print_Generation_strategy(generation_strategy_array: list) -> None:
+    table = Table(header_style="bold", title="Generation Strategy:")
+
+    table.add_column("Generation Strategy")
+    table.add_column("Number of Generations")
+
+    for gs_element in generation_strategy_array:
+        model_name, num_generations = next(iter(gs_element.items()))
+        table.add_row(model_name, str(num_generations))
+
+    console.print(table)
 
 @beartype
 def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
@@ -5840,9 +5856,13 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         # Create and return the GenerationStrategy
         return GenerationStrategy(steps=steps), gs_readable
     else:
-        generation_strategy_array = parse_generation_strategy_string(args.generation_strategy)
+        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args.generation_strategy)
 
-        print_GenerationStrategy(generation_strategy_array)
+        if max_eval != new_max_eval:
+            print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval}.")
+            set_max_eval(new_max_eval)
+
+        print_Generation_strategy(generation_strategy_array)
 
         steps = []
         gs_readable = []
@@ -5860,19 +5880,6 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
             f.write(args.generation_strategy)
 
         return GenerationStrategy(steps=steps), gs_readable
-
-@beartype
-def print_GenerationStrategy(generation_strategy_array: list) -> None:
-    table = Table(header_style="bold", title="Generation Strategy:")
-
-    table.add_column("Generation Strategy")
-    table.add_column("Number of Generations")
-
-    for gs_element in generation_strategy_array:
-        model_name, num_generations = next(iter(gs_element.items()))
-        table.add_row(model_name, str(num_generations))
-
-    console.print(table)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

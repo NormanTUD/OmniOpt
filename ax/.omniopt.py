@@ -3962,7 +3962,7 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
         with open(fn, mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
     except FileNotFoundError as e:
-        print_red("Error trying to write file {fn}: {e}")
+        print_red(f"Error trying to write file {fn}: {e}")
 
 @beartype
 def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:

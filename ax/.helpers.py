@@ -49,8 +49,11 @@ def write_loaded_modules_versions_to_json(output_file: str) -> None:
         except PackageNotFoundError:
             continue
 
-    with open(output_file, mode="w", encoding="utf-8") as f:
-        json.dump(modules_versions, f, indent=4)
+    try:
+        with open(output_file, mode="w", encoding="utf-8") as f:
+            json.dump(modules_versions, f, indent=4)
+    except (FileNotFoundError, PermissionError) as e:
+        print_color("red", f"Error while trying to write file '{output_file}': {e}")
 
 def warn_versions() -> None:
     wrns = []

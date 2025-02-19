@@ -65,6 +65,7 @@
 			243 => "Job was not found in squeue anymore, it may got cancelled before it ran",
 			244 => "get_executor() failed. See logs for more details.",
 			245 => "python3 is not installed",
+			246 => "A path that should have been a file is actually a folder. Check output for more details.",
 			255 => "sbatch error"
 		];
 

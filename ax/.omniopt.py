@@ -219,7 +219,7 @@ def print_red(text: str) -> None:
         try:
             with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text + "\n\n")
-        except FileNotFoundError as e: # pragma: no cover
+        except (OSError, FileNotFoundError) as e: # pragma: no cover
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
@@ -3881,8 +3881,12 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
 
         console.print(table)
 
-        with open(f"{get_current_run_folder()}/constraints.txt", mode="w", encoding="utf-8") as text_file:
-            text_file.write(table_str)
+        fn = f"{get_current_run_folder()}/constraints.txt"
+        try:
+            with open(fn, mode="w", encoding="utf-8") as text_file:
+                text_file.write(table_str)
+        except Exception as e:
+            print_red(f"Error writing {fn}: {e}")
 
 @beartype
 def print_result_names_overview_table() -> None:
@@ -3916,8 +3920,14 @@ def write_min_max_file() -> None:
     if args.maximize:
         min_or_max = "maximize"
 
-    with open(f"{get_current_run_folder()}/state_files/{min_or_max}", mode='w', encoding="utf-8") as f:
-        print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
+    open_this: str = f"{get_current_run_folder()}/state_files/{min_or_max}"
+
+    if os.path.isdir(open_this):
+        print_red(f"{open_this} is a dir. Must be a file.")
+        my_exit(246)
+    else:
+        with open(open_this, mode='w', encoding="utf-8") as f:
+            print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
 
 @beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
@@ -5243,39 +5253,69 @@ def save_state_files() -> None:
 
     makedirs(state_files_folder)
 
-    with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
-        original_print(global_vars["joined_run_program"], file=f)
+    try:
+        with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
+            original_print(global_vars["joined_run_program"], file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
-        original_print(global_vars["experiment_name"], file=f)
+    try:
+        with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
+            original_print(global_vars["experiment_name"], file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
-        original_print(global_vars["mem_gb"], file=f)
+    try:
+        with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
+            original_print(global_vars["mem_gb"], file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
-        original_print(max_eval, file=f)
+    try:
+        with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
+            original_print(max_eval, file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
-        original_print(args.gpus, file=f)
+    try:
+        with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
+            original_print(args.gpus, file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
-        original_print(global_vars["_time"], file=f)
+    try:
+        with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
+            original_print(global_vars["_time"], file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
-        env: dict = dict(os.environ)
-        for key in env:
-            original_print(str(key) + " = " + str(env[key]), file=f)
+    try:
+        with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
+            env: dict = dict(os.environ)
+            for key in env:
+                original_print(str(key) + " = " + str(env[key]), file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
-        original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
+    try:
+        with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
+            original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    if args.follow:
-        with open(f"{state_files_folder}/follow", mode="w", encoding="utf-8") as myfile:
-            original_print("True", file=myfile)
+    try:
+        if args.follow:
+            with open(f"{state_files_folder}/follow", mode="w", encoding="utf-8") as myfile:
+                original_print("True", file=myfile)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
-    if args.main_process_gb:
-        with open(f"{state_files_folder}/main_process_gb", mode="w", encoding="utf-8") as myfile:
-            original_print(str(args.main_process_gb), file=myfile)
+    try:
+        if args.main_process_gb:
+            with open(f"{state_files_folder}/main_process_gb", mode="w", encoding="utf-8") as myfile:
+                original_print(str(args.main_process_gb), file=myfile)
+    except Exception as e:
+        print_red(f"Error trying to write file: {e}")
 
 @beartype
 def submit_job(parameters: dict) -> Job[int | float | dict[str, float | None] | list[float] | None] | None:
@@ -5913,8 +5953,11 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
         generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
 
-        with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
-            f.write(generation_strategy)
+        try:
+            with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
+                f.write(generation_strategy)
+        except Exception as e:
+            print_red(f"Failed writing '{generation_strategy_file}': {e}")
 
         return GenerationStrategy(steps=steps), gs_readable
 
@@ -6604,13 +6647,21 @@ def main() -> None:
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
-    with open(f"{get_current_run_folder()}/result_names.txt", mode="a", encoding="utf-8") as myfile:
-        for rarg in arg_result_names:
-            original_print(rarg, file=myfile)
+    try:
+        fn = f"{get_current_run_folder()}/result_names.txt"
+        with open(fn, mode="a", encoding="utf-8") as myfile:
+            for rarg in arg_result_names:
+                original_print(rarg, file=myfile)
+    except Exception as e:
+        print_red(f"Error trying to open file '{fn}': {e}")
 
-    with open(f"{get_current_run_folder()}/result_min_max.txt", mode="a", encoding="utf-8") as myfile:
-        for rarg in arg_result_min_or_max:
-            original_print(rarg, file=myfile)
+    try:
+        fn = f"{get_current_run_folder()}/result_min_max.txt"
+        with open(fn, mode="a", encoding="utf-8") as myfile:
+            for rarg in arg_result_min_or_max:
+                original_print(rarg, file=myfile)
+    except Exception as e:
+        print_red(f"Error trying to open file '{fn}': {e}")
 
     if os.getenv("CI"): # pragma: no cover
         data_dict: dict = {
@@ -6639,8 +6690,12 @@ def main() -> None:
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
     experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
-    with open(f'{get_current_run_folder()}/job_start_time.txt', mode='w', encoding="utf-8") as f:
-        f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    fn = f'{get_current_run_folder()}/job_start_time.txt'
+    try:
+        with open(fn, mode='w', encoding="utf-8") as f:
+            f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    except Exception as e:
+        print_red(f"Error trying to write {fn}: {e}")
 
     disable_logging()
     check_max_eval(max_eval)
@@ -7243,4 +7298,8 @@ def main_outside() -> None:
                     end_program(RESULT_CSV_FILE, True)
 
 if __name__ == "__main__":
+    #from chaosape import ChaosApe
+    #chaosape = ChaosApe()
+    #chaosape.set_function_error_rate("open", 0.1)
+
     main_outside()

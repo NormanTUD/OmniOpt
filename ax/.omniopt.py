@@ -5938,44 +5938,44 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
         # Create and return the GenerationStrategy
         return GenerationStrategy(steps=steps), gs_readable
+
+    generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
+
+    if doubled_number_of_jobs:
+        new_max_eval_plus_inserted_jobs = int(new_max_eval / 2) + get_nr_of_imported_jobs()
     else:
-        generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
+        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
-        if doubled_number_of_jobs:
-            new_max_eval_plus_inserted_jobs = int(new_max_eval / 2) + get_nr_of_imported_jobs()
-        else:
-            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+    if max_eval <= new_max_eval_plus_inserted_jobs:
+        print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
 
-        if max_eval <= new_max_eval_plus_inserted_jobs:
-            print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+        set_max_eval(new_max_eval_plus_inserted_jobs)
 
-            set_max_eval(new_max_eval_plus_inserted_jobs)
+    print_generation_strategy(generation_strategy_array)
 
-        print_generation_strategy(generation_strategy_array)
+    steps = []
+    gs_readable = []
 
-        steps = []
-        gs_readable = []
+    start_index = int(len(generation_strategy_array) / 2)
 
-        start_index = int(len(generation_strategy_array) / 2)
+    for gs_element in generation_strategy_array:
+        model_name = list(gs_element.keys())[0]
 
-        for gs_element in generation_strategy_array:
-            model_name = list(gs_element.keys())[0]
+        gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+        steps.append(gs_elem)
+        gs_readable.append(gs_readable_dict)
 
-            gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
-            steps.append(gs_elem)
-            gs_readable.append(gs_readable_dict)
+        start_index = start_index + 1
 
-            start_index = start_index + 1
+    generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
 
-        generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
+    try:
+        with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
+            f.write(generation_strategy)
+    except Exception as e:
+        print_red(f"Failed writing '{generation_strategy_file}': {e}")
 
-        try:
-            with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
-                f.write(generation_strategy)
-        except Exception as e:
-            print_red(f"Failed writing '{generation_strategy_file}': {e}")
-
-        return GenerationStrategy(steps=steps), gs_readable
+    return GenerationStrategy(steps=steps), gs_readable
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

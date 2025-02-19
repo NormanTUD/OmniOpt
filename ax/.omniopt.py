@@ -4952,7 +4952,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             except Exception as e: # pragma: no cover
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
-            print_debug(f"Counting job {job} as failed, because the result is in to be exact, it is {result}")
+            print_debug(f"Counting job {job} as failed, because the result is {result}")
             if job:
                 try:
                     progressbar_description(["job_failed"])

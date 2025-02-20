@@ -1,572 +1,572 @@
 #!/bin/bash
 
 {
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m'
-
-function set_debug {
-	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
-}
-
-function unset_debug {
-	trap - DEBUG
-}
-
-function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
-}
-
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
-
-RUN_VIA_RUNSH=1
-export RUN_VIA_RUNSH
-
-ORIGINAL_WHIPTAIL=$WHIPTAIL
-
-ORIGINAL_PWD="$(pwd)"
-export ORIGINAL_PWD
-export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
-export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
-
-levenshtein() {
-	local str1="$1"
-	local str2="$2"
-	local len1=${#str1}
-	local len2=${#str2}
-	local i j cost
-
-	declare -A matrix
-	for ((i=0; i<=len1; i++)); do
-		matrix[$i,0]=$i
-	done
-	for ((j=0; j<=len2; j++)); do
-		matrix[0,$j]=$j
-	done
-
-	for ((i=1; i<=len1; i++)); do
-		for ((j=1; j<=len2; j++)); do
-			if [[ "${str1:i-1:1}" == "${str2:j-1:1}" ]]; then
-				cost=0
-			else
-				cost=1
-			fi
-			matrix[$i,$j]=$((
-			$(min $((matrix[$((i-1)),$j]+1)) $((matrix[$i,$((j-1))]+1)) $((matrix[$((i-1)),$((j-1))]+cost)))
-			))
-		done
-	done
-
-	echo "${matrix[$len1,$len2]}"
-}
-
-min() {
-	local min=$1
-	for n in "$@"; do
-		((n < min)) && min=$n
-	done
-	echo "$min"
-}
-
-find_closest_match() {
-	local input="$1"
-	local exact_matches=()
-	local closest=""
-	local closest_dist=-1
-	local dist
-
-	for expected in "${expected_plot_types[@]}"; do
-		if [[ "$expected" == *"$input"* ]]; then
-			exact_matches+=("$expected")
-		fi
-	done
-
-	if [[ ${#exact_matches[@]} -eq 1 ]]; then
-		echo "Found exact substring match: ${exact_matches[0]}" >&2
-		echo "${exact_matches[0]}"
-		return
-	fi
-
-	if [[ ${#exact_matches[@]} -gt 1 ]]; then
-		echo "Multiple exact substring matches found: ${exact_matches[*]}" >&2
-	else
-		# No exact substring match found, proceed with Levenshtein
-		echo "No exact substring match found for >$input<, proceeding with Levenshtein distance..." >&2
-	fi
-
-	for expected in "${expected_plot_types[@]}"; do
-		dist=$(levenshtein "$input" "$expected")
-		if [[ $closest_dist -eq -1 || $dist -lt $closest_dist ]]; then
-			closest_dist=$dist
-			closest="$expected"
-		fi
-	done
-
-	echo "Closest match using Levenshtein: $closest (Distance: $closest_dist)" >&2
-
-	echo "$closest"
-}
-
-if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
-	echo ""
-	echo "========================================================================"
-	echo ""
-fi
-
-_save_to_file=0
-
-function inputbox {
-	TITLE=$1
-	MSG=$2
-	DEFAULT=$3
-
-	eval "$(resize)"
-	RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
-	exitstatus=$?
-	if [[ $exitstatus == 0 ]]; then
-		echo "$RESULT"
-	else
-		yellow_text "You chose to cancel (1)"
-		exit 1
-	fi
-}
-
-function ask_min_max {
-	min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "")
-	max=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "")
-
-	if [ -n "$min" ]; then
-		# Check if $min is a number (integer or float, positive or negative)
-		if [[ ! "$min" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-			echo "\$min is not a valid number. Setting it to empty."
-			min=""
-		fi
-	fi
-
-	if [ -n "$max" ]; then
-		# Check if $max is a number (integer or float, positive or negative)
-		if [[ ! "$max" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-			echo "\$max is not a valid number. Setting it to empty."
-			max=""
-		fi
-	fi
-
-	if [ -n "$min" ] && [ -n "$max" ]; then
-		# Check if min is greater than max
-		if (( $(echo "$max < $min" |bc -l) )); then
-			# Swap values
-			temp="$min"
-			min="$max"
-			max="$temp"
-		else
-			echo "min is less than or equal to max. No need to swap."
-			true
-		fi
-	fi
-}
-
-function displaytime {
-	local T=$1
-	local D=$((T/60/60/24))
-	local H=$((T/60/60%24))
-	local M=$((T/60%60))
-	local S=$((T%60))
-	(( $D > 0 )) && printf '%d days ' $D
-	(( $H > 0 )) && printf '%d hours ' $H
-	(( $M > 0 )) && printf '%d minutes ' $M
-	(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-	printf '%d seconds\n' $S
-}
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-expected_plot_types=("menu")
-whiptail_args=()
-
-for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tac); do
-	expected_plot_types+=("$possible_plot_type")
-done
-
-set -e
-set -o pipefail
-
-function calltracer () {
-	if [[ -z $NO_RUNTIME ]]; then
-		echo 'Last file/last line:'
-		caller
-
-		echo "Runtime: $(displaytime $SECONDS)"
-	fi
-}
-
-trap 'calltracer' ERR
-
-plot_type="menu"
-min=
-max=
-run_dir=""
-help=0
-
-args_string=""
-
-args=("$@")
-k=0
-
-while [ $k -lt ${#args[@]} ]; do
-	arg="${args[k]}"
-
-	case $arg in
-		--run_dir=*)
-			run_dir="${arg#*=}"
-			args_string+=" --run_dir=$run_dir"
-			shift
-			;;
-
-		--run_dir)
-			k=$((k+1))
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				red_text "Error: --run_dir requires a value"
-				exit 1
-			fi
-			run_dir="${args[k]}"
-			args_string+=" --run_dir=$run_dir"
-			shift
-			shift
-			;;
-
-		--save_to_file=*)
-			_save_to_file="${arg#*=}"
-			args_string+=" --save_to_file=$_save_to_file"
-			shift
-			;;
-
-		--save_to_file)
-			k=$((k+1))
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				red_text "Error: --save_to_file requires a value"
-				exit 1
-			fi
-			_save_to_file="${args[k]}"
-			args_string+=" --save_to_file=$_save_to_file"
-			shift
-			shift
-			;;
-
-		--min=*)
-			min="${arg#*=}"
-			args_string+=" --min=$min"
-			shift
-			;;
-
-		--min)
-			k=$((k+1))
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				red_text "Error: --min requires a value"
-				exit 1
-			fi
-			min="${args[k]}"
-			args_string+=" --min=$min"
-			shift
-			shift
-			;;
-
-		--max=*)
-			max="${arg#*=}"
-			args_string+=" --max=$max"
-			shift
-			;;
-
-		--max)
-			k=$((k+1))
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				red_text "Error: --max requires a value"
-				exit 1
-			fi
-			max="${args[k]}"
-			args_string+=" --max=$max"
-			shift
-			shift
-			;;
-
-		--plot_type=*)
-			plot_type="${arg#*=}"
-			shift
-			;;
-
-		--plot_type)
-			k=$((k+1))
-			if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
-				red_text "Error: --plot_type requires a value"
-				exit 1
-			fi
-			plot_type="${args[k]}"
-			shift
-			shift
-			;;
-
-		--help|-h)
-			help=1
-			shift
-			;;
-
-		--debug)
-			set_debug
-			shift
-			;;
-		*)
-			tmp_run_dir_or_plot_type="${args[k]}"
-
-			if [[ -d $tmp_run_dir_or_plot_type ]]; then
-				run_dir=$tmp_run_dir_or_plot_type
-				args_string+=" --run_dir=$run_dir"
-			else
-				if [[ "$tmp_run_dir_or_plot_type" != --* ]]; then
-					plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
-				fi
-			fi
-
-			;;
-	esac
-	k=$((k+1))
-done
-
-source "$SCRIPT_DIR/.shellscript_functions"
-source "$SCRIPT_DIR/.general.sh"
-
-if [[ "$help" -eq 1 ]]; then
-	if [[ $plot_type != "menu" ]] && [[ -n $plot_type ]]; then
-		python3 .omniopt_plot_$plot_type.py --help
-	else
-		echo "omniopt_plot: Plot omniopt runs"
-		echo "Basic usage: bash omniopt_plot --run_dir=runs/testrun/0 --plot_type=scatter"
-		echo "Possible options for plot_type:"
-		echo "  - $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n  - #g')"
-		echo "For specific options, use bash omniopt_plot --plot_type=scatter --help"
-	fi
-
-	exit 0
-fi
-
-if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
-	joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
-
-	joined_plot_types=${joined_plot_types%, }
-
-	red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
-	exit 99
-fi
-
-if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null && [[ -n $run_dir ]]; then
-	if [[ -d docker_user_dir ]]; then
-		run_dir="$ORIGINAL_PWD/docker_user_dir/$run_dir"
-	else
-		run_dir="$ORIGINAL_PWD/$run_dir"
-	fi
-fi
-
-function menu {
-	whiptail_args=()
-	for possible_plot_type in "${expected_plot_types[@]}"; do
-		if [[ "$possible_plot_type" == "menu" ]]; then
-			continue
-		fi
-
-		expected_files=()
-		for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
-			expected_files+=("$expected_file")
-		done
-
-		ALL_FILES_THERE=1
-
-		for expected_file in "${expected_files[@]}"; do
-			if [[ $(ls $run_dir | grep "$expected_file" | wc -l 2>/dev/null) -lt 1 ]]; then
-				ALL_FILES_THERE=0
-			fi
-		done
-
-		if [[ $ALL_FILES_THERE -eq 1 ]]; then
-			trap '' ERR
-			set +e
-			num_not_disabled_min_param=$(grep args.min $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | wc -l)
-			set -e
-			trap 'calltracer' ERR
-
-			accepts_min_max_string=""
-
-			if [[ "$num_not_disabled_min_param" -ne "0" ]]; then
-				accepts_min_max_string=", honors min/max"
-			fi
-
-			whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
-
-			if grep add_argument $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
-				whiptail_args+=("$possible_plot_type --save_to_file" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
-			fi
-		fi
-	done
-
-	if [ ${#whiptail_args[@]} -eq 0 ]; then
-		red_text "It seems like the run folder $run_dir does not have any plotable data."
-		exit 3
-	fi
-
-	minmaxstring=""
-	if [[ -z $min ]] && [[ -z $max ]]; then
-		#minmaxstring="Neither min nor max were set"
-		true
-	elif [[ -z $min ]] && [[ -n $max ]]; then 
-		minmaxstring=" (max: $max)"
-	elif [[ -n $min ]] && [[ -z $max ]]; then 
-		minmaxstring=" (min: $min)"
-	else
-		minmaxstring=" (min: $min, max: $max)"
-	fi
-
-	if [[ -z $min ]] && [[ -z $max ]]; then
-		#minmaxstring="Neither min nor max were set"
-		true
-	elif [[ -z $min ]] && [[ -n $max ]]; then 
-		minmaxstring="(max: $max)"
-	elif [[ -n $min ]] && [[ -z $max ]]; then 
-		minmaxstring=" (min: $min)"
-	else
-		minmaxstring=" (min: $min, max: $max)"
-	fi
-
-	eval "$(resize)"
-	WHATTODO=$(whiptail \
-		--title "Available options for $run_dir" \
-		--menu \
-		"Chose what plot to open:" \
-		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"${whiptail_args[@]}" \
-		"minmax)" "set min/max values$minmaxstring" \
-		"q)" "quit" 3>&1 1>&2 2>&3
-	)
-
-	if [[ "$WHATTODO" == "q)" ]]; then
-		exit 0
-	fi
-
-	if [[ "$WHATTODO" == "minmax)" ]]; then
-		ask_min_max
-
-		if [[ -z $min ]] && [[ -z $max ]]; then
-			#echo "Neither min nor max were set"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string
-		elif [[ -z $min ]] && [[ -n $max ]]; then 
-			echo "min was not set but max ($max)"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$max "
-			exit $?
-		elif [[ -n $min ]] && [[ -z $max ]]; then 
-			echo "min ($min) was set but max was not"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --min="$min"
-			exit $?
-		else
-			echo "min ($min) and max ($max) were set"
-			bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$min" -max="$max"
-			exit $?
-		fi
-
-		red_text "This exit should never be reached"
-		exit
-	fi
-
-	plot_type=$WHATTODO
-	if [[ "$plot_type" == *"save_to_file"* ]]; then
-		plot_type=$(echo "$plot_type" | sed -e 's# .*##')
-		if [[ "$_save_to_file" -eq "0" ]]; then
-			_save_to_file=1
-		fi
-	fi
-
-	if [[ "$_save_to_file" != "0" ]]; then
-		_path=$(whiptail --inputbox "Path of the plot?" 8 39 "$run_dir/$plot_type.svg" --title "Choose path" 3>&1 1>&2 2>&3)
-
-		exitstatus=$?
-		if [ $exitstatus = 0 ]; then
-			_save_to_file="$_path"
-		else
-			exit 0
-		fi
-	fi
-}
-
-if [[ "$plot_type" == "menu" ]]; then
-	if [[ "$run_dir" == "" ]]; then
-		red_text "--run_dir is missing"
-		exit 1
-	fi
-
-	if [[ -f "$run_dir" ]]; then
-		red_text "--run_dir is a file"
-		exit 1
-	fi
-
-	if [[ ! -d "$run_dir" ]]; then
-		red_text "--run_dir is not a directory"
-		exit 1
-	fi
-
-	menu
-fi
-
-cd "$ORIGINAL_PWD"
-
-if [[ "$plot_type" != "menu" ]]; then
-	if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
-		joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
-
-		joined_plot_types=${joined_plot_types%, }
-
-		red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
-		exit 5
-	fi
-fi
-
-set +e
-export WHIPTAIL=1
-
-if [[ -z $RUN_WITH_COVERAGE ]]; then
-	OUTPUT=$(eval "python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
-	exit_code=$?
-else
-	OUTPUT=$(eval "coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
-	exit_code=$?
-fi
-
-set -e
-
-if [[ "$exit_code" -ne "0" ]]; then
-	if command -v whiptail 2>/dev/null >/dev/null; then
-		if [[ $ORIGINAL_WHIPTAIL -eq 1 ]]; then
-			error_message "$OUTPUT"
-		else
-			if [[ -n "$OUTPUT" ]]; then
-				echo_red "$OUTPUT"
-			fi
-		fi
-	else
-		echo_red "$OUTPUT"
-	fi
-else
-	if [[ -n "$OUTPUT" ]]; then
-		echo "$OUTPUT"
-	fi
-fi
-
-if [[ -z $NO_RUNTIME ]]; then
-	echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
-fi
-
-exit $exit_code
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    MAGENTA='\033[0;35m'
+    NC='\033[0m'
+
+    function set_debug {
+        trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+    }
+
+    function unset_debug {
+        trap - DEBUG
+    }
+
+    function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+    }
+
+    function green_text {
+        echoerr -e "\033[0;32m$1\e[0m"
+    }
+
+    function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+    }
+
+    RUN_VIA_RUNSH=1
+    export RUN_VIA_RUNSH
+
+    ORIGINAL_WHIPTAIL=$WHIPTAIL
+
+    ORIGINAL_PWD="$(pwd)"
+    export ORIGINAL_PWD
+    export MPLCONFIGDIR="/tmp/oo_matplotlib_cache_$USER"
+    export XDG_CACHE_HOME="/tmp/XDG_CACHE_HOME_$USER"
+
+    levenshtein() {
+        local str1="$1"
+        local str2="$2"
+        local len1=${#str1}
+        local len2=${#str2}
+        local i j cost
+
+        declare -A matrix
+        for ((i=0; i<=len1; i++)); do
+            matrix[$i,0]=$i
+        done
+        for ((j=0; j<=len2; j++)); do
+            matrix[0,$j]=$j
+        done
+
+        for ((i=1; i<=len1; i++)); do
+            for ((j=1; j<=len2; j++)); do
+                if [[ "${str1:i-1:1}" == "${str2:j-1:1}" ]]; then
+                    cost=0
+                else
+                    cost=1
+                fi
+                matrix[$i,$j]=$((
+                        $(min $((matrix[$((i-1)),$j]+1)) $((matrix[$i,$((j-1))]+1)) $((matrix[$((i-1)),$((j-1))]+cost)))
+                ))
+            done
+        done
+
+        echo "${matrix[$len1,$len2]}"
+    }
+
+    min() {
+        local min=$1
+        for n in "$@"; do
+            ((n < min)) && min=$n
+        done
+        echo "$min"
+    }
+
+    find_closest_match() {
+        local input="$1"
+        local exact_matches=()
+        local closest=""
+        local closest_dist=-1
+        local dist
+
+        for expected in "${expected_plot_types[@]}"; do
+            if [[ "$expected" == *"$input"* ]]; then
+                exact_matches+=("$expected")
+            fi
+        done
+
+        if [[ ${#exact_matches[@]} -eq 1 ]]; then
+            echo "Found exact substring match: ${exact_matches[0]}" >&2
+            echo "${exact_matches[0]}"
+            return
+        fi
+
+        if [[ ${#exact_matches[@]} -gt 1 ]]; then
+            echo "Multiple exact substring matches found: ${exact_matches[*]}" >&2
+        else
+            # No exact substring match found, proceed with Levenshtein
+            echo "No exact substring match found for >$input<, proceeding with Levenshtein distance..." >&2
+        fi
+
+        for expected in "${expected_plot_types[@]}"; do
+            dist=$(levenshtein "$input" "$expected")
+            if [[ $closest_dist -eq -1 || $dist -lt $closest_dist ]]; then
+                closest_dist=$dist
+                closest="$expected"
+            fi
+        done
+
+        echo "Closest match using Levenshtein: $closest (Distance: $closest_dist)" >&2
+
+        echo "$closest"
+    }
+
+    if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
+        echo ""
+        echo "========================================================================"
+        echo ""
+    fi
+
+    _save_to_file=0
+
+    function inputbox {
+        TITLE=$1
+        MSG=$2
+        DEFAULT=$3
+
+        eval "$(resize)"
+        RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
+        exitstatus=$?
+        if [[ $exitstatus == 0 ]]; then
+            echo "$RESULT"
+        else
+            yellow_text "You chose to cancel (1)"
+            exit 1
+        fi
+    }
+
+    function ask_min_max {
+        min=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $run_dir (float), leave empty for no Minimum value" "")
+        max=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $run_dir (float), leave empty for no Maximum value" "")
+
+        if [ -n "$min" ]; then
+            # Check if $min is a number (integer or float, positive or negative)
+            if [[ ! "$min" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                echo "\$min is not a valid number. Setting it to empty."
+                min=""
+            fi
+        fi
+
+        if [ -n "$max" ]; then
+            # Check if $max is a number (integer or float, positive or negative)
+            if [[ ! "$max" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                echo "\$max is not a valid number. Setting it to empty."
+                max=""
+            fi
+        fi
+
+        if [ -n "$min" ] && [ -n "$max" ]; then
+            # Check if min is greater than max
+            if (( $(echo "$max < $min" |bc -l) )); then
+                # Swap values
+                temp="$min"
+                min="$max"
+                max="$temp"
+            else
+                echo "min is less than or equal to max. No need to swap."
+                true
+            fi
+        fi
+    }
+
+    function displaytime {
+        local T=$1
+        local D=$((T/60/60/24))
+        local H=$((T/60/60%24))
+        local M=$((T/60%60))
+        local S=$((T%60))
+        (( $D > 0 )) && printf '%d days ' $D
+        (( $H > 0 )) && printf '%d hours ' $H
+        (( $M > 0 )) && printf '%d minutes ' $M
+        (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+        printf '%d seconds\n' $S
+    }
+
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+    expected_plot_types=("menu")
+    whiptail_args=()
+
+    for possible_plot_type in $(ls $SCRIPT_DIR/.omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tac); do
+        expected_plot_types+=("$possible_plot_type")
+    done
+
+    set -e
+    set -o pipefail
+
+    function calltracer () {
+        if [[ -z $NO_RUNTIME ]]; then
+            echo 'Last file/last line:'
+            caller
+
+            echo "Runtime: $(displaytime $SECONDS)"
+        fi
+    }
+
+    trap 'calltracer' ERR
+
+    plot_type="menu"
+    min=
+    max=
+    run_dir=""
+    help=0
+
+    args_string=""
+
+    args=("$@")
+    k=0
+
+    while [ $k -lt ${#args[@]} ]; do
+        arg="${args[k]}"
+
+        case $arg in
+            --run_dir=*)
+                run_dir="${arg#*=}"
+                args_string+=" --run_dir=$run_dir"
+                shift
+                ;;
+
+            --run_dir)
+                k=$((k+1))
+                if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                    red_text "Error: --run_dir requires a value"
+                    exit 1
+                fi
+                run_dir="${args[k]}"
+                args_string+=" --run_dir=$run_dir"
+                shift
+                shift
+                ;;
+
+            --save_to_file=*)
+                _save_to_file="${arg#*=}"
+                args_string+=" --save_to_file=$_save_to_file"
+                shift
+                ;;
+
+            --save_to_file)
+                k=$((k+1))
+                if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                    red_text "Error: --save_to_file requires a value"
+                    exit 1
+                fi
+                _save_to_file="${args[k]}"
+                args_string+=" --save_to_file=$_save_to_file"
+                shift
+                shift
+                ;;
+
+            --min=*)
+                min="${arg#*=}"
+                args_string+=" --min=$min"
+                shift
+                ;;
+
+            --min)
+                k=$((k+1))
+                if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                    red_text "Error: --min requires a value"
+                    exit 1
+                fi
+                min="${args[k]}"
+                args_string+=" --min=$min"
+                shift
+                shift
+                ;;
+
+            --max=*)
+                max="${arg#*=}"
+                args_string+=" --max=$max"
+                shift
+                ;;
+
+            --max)
+                k=$((k+1))
+                if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                    red_text "Error: --max requires a value"
+                    exit 1
+                fi
+                max="${args[k]}"
+                args_string+=" --max=$max"
+                shift
+                shift
+                ;;
+
+            --plot_type=*)
+                plot_type="${arg#*=}"
+                shift
+                ;;
+
+            --plot_type)
+                k=$((k+1))
+                if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+                    red_text "Error: --plot_type requires a value"
+                    exit 1
+                fi
+                plot_type="${args[k]}"
+                shift
+                shift
+                ;;
+
+            --help|-h)
+                help=1
+                shift
+                ;;
+
+            --debug)
+                set_debug
+                shift
+                ;;
+            *)
+                tmp_run_dir_or_plot_type="${args[k]}"
+
+                if [[ -d $tmp_run_dir_or_plot_type ]]; then
+                    run_dir=$tmp_run_dir_or_plot_type
+                    args_string+=" --run_dir=$run_dir"
+                else
+                    if [[ "$tmp_run_dir_or_plot_type" != --* ]]; then
+                        plot_type=$(find_closest_match "$tmp_run_dir_or_plot_type")
+                    fi
+                fi
+
+                ;;
+        esac
+        k=$((k+1))
+    done
+
+    source "$SCRIPT_DIR/.shellscript_functions"
+    source "$SCRIPT_DIR/.general.sh"
+
+    if [[ "$help" -eq 1 ]]; then
+        if [[ $plot_type != "menu" ]] && [[ -n $plot_type ]]; then
+            python3 .omniopt_plot_$plot_type.py --help
+        else
+            echo "omniopt_plot: Plot omniopt runs"
+            echo "Basic usage: bash omniopt_plot --run_dir=runs/testrun/0 --plot_type=scatter"
+            echo "Possible options for plot_type:"
+            echo "  - $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | tr '\n' ',' | sed -e 's#,$##' -e 's#,#\n  - #g')"
+            echo "For specific options, use bash omniopt_plot --plot_type=scatter --help"
+        fi
+
+        exit 0
+    fi
+
+    if [[ ! " ${expected_plot_types[@]} " =~ " $plot_type " ]]; then
+        joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
+
+        joined_plot_types=${joined_plot_types%, }
+
+        red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+        exit 99
+    fi
+
+    if ! echo "$run_dir" | grep "^/" 2>/dev/null >/dev/null && [[ -n $run_dir ]]; then
+        if [[ -d docker_user_dir ]]; then
+            run_dir="$ORIGINAL_PWD/docker_user_dir/$run_dir"
+        else
+            run_dir="$ORIGINAL_PWD/$run_dir"
+        fi
+    fi
+
+    function menu {
+        whiptail_args=()
+        for possible_plot_type in "${expected_plot_types[@]}"; do
+            if [[ "$possible_plot_type" == "menu" ]]; then
+                continue
+            fi
+
+            expected_files=()
+            for expected_file in $(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
+                expected_files+=("$expected_file")
+            done
+
+            ALL_FILES_THERE=1
+
+            for expected_file in "${expected_files[@]}"; do
+                if [[ $(ls $run_dir | grep "$expected_file" | wc -l 2>/dev/null) -lt 1 ]]; then
+                    ALL_FILES_THERE=0
+                fi
+            done
+
+            if [[ $ALL_FILES_THERE -eq 1 ]]; then
+                trap '' ERR
+                set +e
+                num_not_disabled_min_param=$(grep args.min $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | wc -l)
+                set -e
+                trap 'calltracer' ERR
+
+                accepts_min_max_string=""
+
+                if [[ "$num_not_disabled_min_param" -ne "0" ]]; then
+                    accepts_min_max_string=", honors min/max"
+                fi
+
+                whiptail_args+=("$possible_plot_type" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
+
+                if grep add_argument $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
+                    whiptail_args+=("$possible_plot_type --save_to_file" "$(cat $SCRIPT_DIR/.omniopt_plot_${possible_plot_type}.py | grep '# DESCRIPTION' | sed -e 's/#\s*DESCRIPTION: //')$accepts_min_max_string")
+                fi
+            fi
+        done
+
+        if [ ${#whiptail_args[@]} -eq 0 ]; then
+            red_text "It seems like the run folder $run_dir does not have any plotable data."
+            exit 3
+        fi
+
+        minmaxstring=""
+        if [[ -z $min ]] && [[ -z $max ]]; then
+            #minmaxstring="Neither min nor max were set"
+            true
+        elif [[ -z $min ]] && [[ -n $max ]]; then
+            minmaxstring=" (max: $max)"
+        elif [[ -n $min ]] && [[ -z $max ]]; then
+            minmaxstring=" (min: $min)"
+        else
+            minmaxstring=" (min: $min, max: $max)"
+        fi
+
+        if [[ -z $min ]] && [[ -z $max ]]; then
+            #minmaxstring="Neither min nor max were set"
+            true
+        elif [[ -z $min ]] && [[ -n $max ]]; then
+            minmaxstring="(max: $max)"
+        elif [[ -n $min ]] && [[ -z $max ]]; then
+            minmaxstring=" (min: $min)"
+        else
+            minmaxstring=" (min: $min, max: $max)"
+        fi
+
+        eval "$(resize)"
+        WHATTODO=$(whiptail \
+                --title "Available options for $run_dir" \
+                --menu \
+                "Chose what plot to open:" \
+                $LINES $COLUMNS $(( $LINES - 8 )) \
+                "${whiptail_args[@]}" \
+                "minmax)" "set min/max values$minmaxstring" \
+                "q)" "quit" 3>&1 1>&2 2>&3
+        )
+
+        if [[ "$WHATTODO" == "q)" ]]; then
+            exit 0
+        fi
+
+        if [[ "$WHATTODO" == "minmax)" ]]; then
+            ask_min_max
+
+            if [[ -z $min ]] && [[ -z $max ]]; then
+                #echo "Neither min nor max were set"
+                bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string
+            elif [[ -z $min ]] && [[ -n $max ]]; then
+                echo "min was not set but max ($max)"
+                bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$max "
+                exit $?
+            elif [[ -n $min ]] && [[ -z $max ]]; then
+                echo "min ($min) was set but max was not"
+                bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --min="$min"
+                exit $?
+            else
+                echo "min ($min) and max ($max) were set"
+                bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$run_dir" $args_string --max="$min" -max="$max"
+                exit $?
+            fi
+
+            red_text "This exit should never be reached"
+            exit
+        fi
+
+        plot_type=$WHATTODO
+        if [[ "$plot_type" == *"save_to_file"* ]]; then
+            plot_type=$(echo "$plot_type" | sed -e 's# .*##')
+            if [[ "$_save_to_file" -eq "0" ]]; then
+                _save_to_file=1
+            fi
+        fi
+
+        if [[ "$_save_to_file" != "0" ]]; then
+            _path=$(whiptail --inputbox "Path of the plot?" 8 39 "$run_dir/$plot_type.svg" --title "Choose path" 3>&1 1>&2 2>&3)
+
+            exitstatus=$?
+            if [ $exitstatus = 0 ]; then
+                _save_to_file="$_path"
+            else
+                exit 0
+            fi
+        fi
+    }
+
+    if [[ "$plot_type" == "menu" ]]; then
+        if [[ "$run_dir" == "" ]]; then
+            red_text "--run_dir is missing"
+            exit 1
+        fi
+
+        if [[ -f "$run_dir" ]]; then
+            red_text "--run_dir is a file"
+            exit 1
+        fi
+
+        if [[ ! -d "$run_dir" ]]; then
+            red_text "--run_dir is not a directory"
+            exit 1
+        fi
+
+        menu
+    fi
+
+    cd "$ORIGINAL_PWD"
+
+    if [[ "$plot_type" != "menu" ]]; then
+        if ! [[ -e "$SCRIPT_DIR/.omniopt_plot_$plot_type.py" ]]; then
+            joined_plot_types=$(printf "%s, " "${expected_plot_types[@]}")
+
+            joined_plot_types=${joined_plot_types%, }
+
+            red_text "Invalid plot type $plot_type, valid plot types: $joined_plot_types"
+            exit 5
+        fi
+    fi
+
+    set +e
+    export WHIPTAIL=1
+
+    if [[ -z $RUN_WITH_COVERAGE ]]; then
+        OUTPUT=$(eval "python3 $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
+        exit_code=$?
+    else
+        OUTPUT=$(eval "coverage run -p $SCRIPT_DIR/.omniopt_plot_$plot_type.py $args_string" 2>&1)
+        exit_code=$?
+    fi
+
+    set -e
+
+    if [[ "$exit_code" -ne "0" ]]; then
+        if command -v whiptail 2>/dev/null >/dev/null; then
+            if [[ $ORIGINAL_WHIPTAIL -eq 1 ]]; then
+                error_message "$OUTPUT"
+            else
+                if [[ -n "$OUTPUT" ]]; then
+                    echo_red "$OUTPUT"
+                fi
+            fi
+        else
+            echo_red "$OUTPUT"
+        fi
+    else
+        if [[ -n "$OUTPUT" ]]; then
+            echo "$OUTPUT"
+        fi
+    fi
+
+    if [[ -z $NO_RUNTIME ]]; then
+        echo "Runtime: $(displaytime $SECONDS), plot_type: $plot_type, exit-code: $exit_code"
+    fi
+
+    exit $exit_code
 }

@@ -139,6 +139,6 @@ case "$ORIGINAL_ARGS" in
         ;;
     *)
         echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*', '.tests/' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
-	exit 1
+        exit 1
         ;;
 esac

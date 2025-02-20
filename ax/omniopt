@@ -5,14 +5,14 @@
 # Step 1:
 # It checks whether the environment already exists, and
 # if so, loads it.
-# If it doesn't exist. it creates it in 
+# If it doesn't exist. it creates it in
 # ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 # i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ . This is done so that there
-# is no need for multiple installations, so that, once installed, it doesn't 
+# is no need for multiple installations, so that, once installed, it doesn't
 # need to be installed again.
 # Then it installs all modules. Then it loads the environment and the job
 # continues. It also does pip freeze to check if new modules need to be
-# installed and if the environment already exists, but the new modules are 
+# installed and if the environment already exists, but the new modules are
 # missing, they will be installed automatically.
 # These steps are skipped, when you installed it as a module. Then,
 # the module environment is the used environment.
@@ -31,582 +31,582 @@
 #SBATCH --signal=B:USR1@200
 
 {
-SCRIPT_DIR=$(dirname $(realpath "$0"))
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m'
-
-function set_debug {
-	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
-}
-
-function unset_debug {
-	trap - DEBUG
-}
-
-bash_logname=
-if command -v uuidgen 2>/dev/null >/dev/null; then
-	if [[ -z $RUN_UUID ]]; then
-		RUN_UUID=$(uuidgen)
-		export RUN_UUID
-	fi
-
-	mkdir -p logs
-
-	bash_logname="logs/$RUN_UUID"
-
-	export bash_logname
-else
-	echo "uuidgen is not installed. It's recommended you install it." >&2
-fi
-
-checkout_to_latest_tested_version=0
-debug=0
-main_process_gb=
-run_tests_that_fail_on_taurus=0
-force_local_execution=0
-has_sbatch=0
-
-function parse_toml {
-	file="$1"
-	key="$2"
-
-	if ! command -v cat 2>/dev/null >/dev/null; then
-		echo "cat not found. Cannot parse toml." >&2
-		return 1
-	fi
-
-	if ! command -v sed 2>/dev/null >/dev/null; then
-		echo "sed not found. Cannot parse toml." >&2
-		return 1
-	fi
-
-	if ! command -v grep 2>/dev/null >/dev/null; then
-		echo "grep not found. Cannot parse toml." >&2
-		return 1
-	fi
-
-	if [[ ! -e $file ]]; then
-		echo "Cannot parse non-existant toml." >&2
-		return 1
-	fi
-
-	cat "$file" | grep -e "^$key = " | sed -e "s#^\s*$key\s*=\s*##"
-}
-
-function parse_yaml {
-	file="$1"
-	key="$2"
-
-	if ! command -v cat 2>/dev/null >/dev/null; then
-		echo "cat not found. Cannot parse yaml." >&2
-		return 1
-	fi
-
-	if ! command -v sed 2>/dev/null >/dev/null; then
-		echo "sed not found. Cannot parse yaml." >&2
-		return 1
-	fi
-
-	if ! command -v grep 2>/dev/null >/dev/null; then
-		echo "grep not found. Cannot parse yaml." >&2
-		return 1
-	fi
-
-	if [[ ! -e "$file" ]]; then
-		echo "Cannot parse non-existant yaml." >&2
-		return 1
-	fi
-
-	cat "$file" | grep -e "^$key: " | sed -e "s#^\s*$key\s*:\s*##"
-}
-
-function parse_json {
-	file="$1"
-	key="$2"
-
-	if ! command -v cat 2>/dev/null >/dev/null; then
-		echo "cat not found. Cannot parse json." >&2
-		return 1
-	fi
-
-	if ! command -v sed 2>/dev/null >/dev/null; then
-		echo "sed not found. Cannot parse json." >&2
-		return 1
-	fi
-
-	if [[ ! -e ".tools/jq_$(uname -m)" ]] 2>/dev/null >/dev/null; then
-		echo ".tools/jq_$(uname -m) not found. Cannot parse json." >&2
-		return 1
-	fi
-
-	if ! command -v grep 2>/dev/null >/dev/null; then
-		echo "grep not found. Cannot parse json." >&2
-		return 1
-	fi
-
-	if [[ ! -e "$file" ]]; then
-		echo "Cannot parse non-existant json." >&2
-		return 1
-	fi
-
-	cat "$file" | .tools/jq_$(uname -m) -r ".$key" | sed -e 's#^null$##i'
-}
-
-function echoerr {
-	echo "$@" 1>&2
-}
-
-function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
-}
-
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
-
-function underline_red_text {
-	echoerr -e "\e[4;31m$1\e[0m"
-}
-
-if [[ $SCRIPT_DIR =~ /ax/?$ ]]; then
-	underline_red_text "Future Warning: Your script lies in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder."
-fi
-
-function _tput {
-	set +e
-	CHAR=$1
-
-	if ! command -v tput 2>/dev/null >/dev/null; then
-		red_text "tput not installed" >&2
-		set +e
-		return 0
-	fi
-
-	if [[ -z $CHAR ]]; then
-		red_text "No character given" >&2
-		set +e
-		return 0
-	fi
-
-	if ! tty 2>/dev/null >/dev/null; then
-		echo ""
-		set +e
-		return 0
-	fi
-
-	if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
-		echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
-	else
-		tput "$CHAR"
-	fi
-
-	set +e
-}
-
-int_re='^[+-]?[0-9]+$'
-
-if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
-	echo ""
-	echo "========================================================================"
-	echo ""
-fi
-
-send_anonymized_usage_stats=0
-already_shown_oo_base_url_msg=0
-
-function myexit {
-	CODE=$1
-
-	if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
-		send_status_report -1
-	else
-		send_status_report "$CODE"
-	fi
-
-	if [[ $CODE != 0 ]]; then
-		BASEURL="https://imageseg.scads.de/omniax"
-
-		if [[ -e "$HOME/.oo_base_url" ]]; then
-			BASEURL=$(cat "$HOME/.oo_base_url")
-			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
-				if [[ -z $OO_MAIN_TESTS ]]; then
-					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
-					already_shown_oo_base_url_msg=1
-				fi
-			fi
-		fi
-
-		set +e
-		curl -s "$BASEURL/exit_code_table.php?exit_code=$CODE" 
-
-		echo ""
-		set -e
-	fi
-
-	exit $CODE
-}
-
-function get_anon_user_id {
-	user_groups=$(echo "$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)")
-	fixed_iv=$(echo -n "$user_groups" | sha512sum | cut -c1-32)
-	encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$(groups | tr ' ' '\n' | sort | sha512sum)-$USER" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
-	echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
-}
-
-if command -v sbatch 2>/dev/null >/dev/null; then
-	has_sbatch=1
-fi
-
-function send_status_report {
-	exit_code=$1
-
-	if [[ $send_anonymized_usage_stats -eq "1" ]]; then
-		BASEURL="https://imageseg.scads.de/omniax"
-
-		if [[ -e "$HOME/.oo_base_url" ]]; then
-			BASEURL=$(cat "$HOME/.oo_base_url")
-			if [[ $already_shown_oo_base_url_msg == 0 ]]; then
-				if [[ -z $OO_MAIN_TESTS ]]; then
-					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
-					already_shown_oo_base_url_msg=1
-				fi
-			fi
-		fi
-
-		if [[ -n $ITWORKSONMYMACHINE ]]; then
-			anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
-		elif [[ -n $OO_MAIN_TESTS ]]; then
-			anon_user="affed00faffed00faffed00faffed00f"
-		else
-			anon_user=$(get_anon_user_id)
-		fi
-
-		if [[ -z $git_hash ]]; then
-			git_hash=$(git rev-parse HEAD)
-		fi
-
-		if [[ -z $exit_code ]]; then
-			exit_code="-1"
-		fi
-
-		stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$RUN_UUID&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
-		url="$BASEURL/usage_stats.php?$stats_params"
-
-		curl -s "$url" 2>/dev/null >/dev/null
-
-		if [[ "$debug" -eq "1" ]]; then
-			yellow_text "Curling $url"
-		fi
-	#else
-	#	echo "Not sending anonymized user statistics"
-	fi
-}
-
-export NO_WHIPTAIL=1
-
-function displaytime {
-	local T=$1
-	local D=$((T/60/60/24))
-	local H=$((T/60/60%24))
-	local M=$((T/60%60))
-	local S=$((T%60))
-	(( $D > 0 )) && printf '%d days ' $D
-	(( $H > 0 )) && printf '%d hours ' $H
-	(( $M > 0 )) && printf '%d minutes ' $M
-	(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-	printf '%d seconds\n' $S
-}
-
-function remaining_time {
-	target_date="$1"
-	target_date=$(echo "$target_date" | sed -E 's/\x1b\[[0-9;]*m//g')
-
-	target_epoch=$(date -d "$target_date" +%s)
-
-	current_epoch=$(date +%s)
-
-	difference=$(( target_epoch - current_epoch ))
-
-	if [ $difference -lt 0 ]; then
-		return
-	fi
-
-	difference_minutes=$(( difference / 60 ))
-
-	if [ $difference_minutes -lt 30 ]; then
-		minutes=$difference_minutes
-		if [ $minutes -eq 1 ]; then
-			result="in about $minutes minute"
-		else
-			result="in about $minutes minutes"
-		fi
-		echo "$result"
-		return
-	fi
-
-	difference_rounded=$(( (difference * 5 + 299) / 300 ))
-
-	minutes=$(( difference_rounded % 60 ))
-	hours=$(( (difference_rounded / 60) % 24 ))
-	days=$(( (difference_rounded / 1440) % 365 ))
-	years=$(( difference_rounded / 525600 ))
-
-	result=""
-	if [ $years -gt 0 ]; then
-		year_str="year"
-		if [ $years -gt 1 ]; then
-			year_str="years"
-		fi
-		result="$result $years $year_str"
-	fi
-
-	if [ $days -gt 0 ]; then
-		day_str="day"
-		if [ $days -gt 1 ]; then
-			day_str="days"
-		fi
-		if [ -n "$result" ]; then
-			result="$result and"
-		fi
-		result="$result $days $day_str"
-	fi
-
-	if [ $hours -gt 0 ]; then
-		hour_str="hour"
-		if [ $hours -gt 1 ]; then
-			hour_str="hours"
-		fi
-		if [ -n "$result" ]; then
-			result="$result and"
-		fi
-		result="$result $hours $hour_str"
-	fi
-
-	if [ $minutes -gt 0 ]; then
-		minute_str="minute"
-		if [ $minutes -gt 1 ]; then
-			minute_str="minutes"
-		fi
-		if [ -n "$result" ]; then
-			result="$result and"
-		fi
-		result="$result $minutes $minute_str"
-	fi
-
-	if [ -n "$result" ]; then
-		result="in about $result"
-		echo "$result"
-	fi
-}
-
-export CUDA_DEVICE_ORDER=PCI_BUS_ID
-ORIGINAL_PWD="$(pwd)"
-export ORIGINAL_PWD
-
-mkdir -p "$ORIGINAL_PWD/logs" || {
-	red_text "Failed: mkdir -p $ORIGINAL_PWD/logs"
-	myexit 45
-}
-
-set -e
-set -o pipefail
-
-function mycd {
-	#echo "cd $1"
-	cd "$1"
-}
-
-slurmlogpath () {
-	if command -v scontrol 2>/dev/null >/dev/null; then
-		scontrol show job "$1" | grep StdOut | sed -e 's/^\s*StdOut=//'
-	fi
-}
-
-function calltracer {
-	exit_code=$?
-
-	values=(
-		"130"
-		"138"
-		"146"
-	)
-
-	if ! [[ " ${values[@]} " =~ " $exit_code" ]]; then
-		LINE_AND_FUNCTION="$(caller)"
-		if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-			red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
-		fi
-
-		echo ""
-		caller
-		echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
-	else
-		echo ""
-	fi
-
-	_tput bel
-}
-
-already_sent_signal=
-kill_python_if_started_already_shown=0
-
-kill_python_if_started () {
-	REASON="$1"
-	echo "kill_python_if_started $REASON"
-	re='^[0-9]+$'
-	if [[ -n "$SLURM_JOB_ID" ]]; then
-		if [[ $python_pid =~ $re ]] ; then
-			if [[ -z "$already_sent_signal" ]]; then
-				if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
-					already_sent_signal=1
-					echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
-					kill -USR1 "$python_pid"
-				else
-					echo "Could not find $python_pid process" >&2
-				fi
-			fi
-		fi
-	fi
-
-	if [[ $kill_python_if_started_already_shown -eq 0 ]]; then
-		echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
-		kill_python_if_started_already_shown=1
-	fi
-
-	_tput bel
-}
-
-trap 'calltracer' ERR
-trap 'kill_python_if_started CONT' CONT
-trap 'kill_python_if_started TERM' TERM
-
-if command -v kill 2>/dev/null >/dev/null; then
-	for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*[[:space:]]*)##g'); do
-		if
-			[[ "$i" != "ERR" ]] &&
-			[[ "$i" != "CONT" ]] &&
-			[[ "$i" != "TERM" ]] &&
-			[[ "$i" != "CHLD" ]] &&
-			[[ "$i" != "SIGCHLD" ]] &&
-			[[ "$i" != "SIGWINCH" ]] &&
-			[[ "$i" != "WINCH" ]] &&
-			[[ "$i" != "INT" ]] &&
-			[[ "$i" != "SIGINT" ]];
-		then
-			trap 'kill_python_if_started $i' "$i"
-		fi
-	done
-else
-	red_text "kill cannot be found. Cannot register traps for existing signals."
-fi
-
-minutes_to_hh_mm_ss() {
-	var=$1
-
-	number_re='^[0-9]+$'
-	time_re='^[0-9]+:[0-9]+:[0-9]+$'
-
-	if [[ $var =~ $number_re ]] ; then
-		local total_minutes="$var"
-		local hours=$(( total_minutes / 60 ))
-		local minutes=$(( total_minutes % 60 ))
-		local seconds=00
-
-		printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
-	elif [[ $var =~ $time_re ]]; then
-		echo $var
-	else
-		red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
-
-		myexit 103
-	fi
-}
-
-continue_previous_job=""
-mem_gb=
-gpus=
-time=
-if [[ -z $root_venv_dir ]]; then
-	root_venv_dir=$HOME
-fi
-experiment_name=
-help=0
-follow=0
-wait_until_ended=0
-tests=0
-workdir=""
-
-continue_was_set=0
-
-args_string=""
-
-args=("$@")
-k=0
-
-export args
-export k
-
-config_toml=""
-config_yaml=""
-config_json=""
-
-generate_simple_config_handling_code () {
-	local option_name="$1"
-
-	local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
-	local current_var=${option_name//--/}
-
-	cat <<EOF
+    SCRIPT_DIR=$(dirname $(realpath "$0"))
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    MAGENTA='\033[0;35m'
+    NC='\033[0m'
+
+    function set_debug {
+        trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+    }
+
+    function unset_debug {
+        trap - DEBUG
+    }
+
+    bash_logname=
+    if command -v uuidgen 2>/dev/null >/dev/null; then
+        if [[ -z $RUN_UUID ]]; then
+            RUN_UUID=$(uuidgen)
+            export RUN_UUID
+        fi
+
+        mkdir -p logs
+
+        bash_logname="logs/$RUN_UUID"
+
+        export bash_logname
+    else
+        echo "uuidgen is not installed. It's recommended you install it." >&2
+    fi
+
+    checkout_to_latest_tested_version=0
+    debug=0
+    main_process_gb=
+    run_tests_that_fail_on_taurus=0
+    force_local_execution=0
+    has_sbatch=0
+
+    function parse_toml {
+        file="$1"
+        key="$2"
+
+        if ! command -v cat 2>/dev/null >/dev/null; then
+            echo "cat not found. Cannot parse toml." >&2
+            return 1
+        fi
+
+        if ! command -v sed 2>/dev/null >/dev/null; then
+            echo "sed not found. Cannot parse toml." >&2
+            return 1
+        fi
+
+        if ! command -v grep 2>/dev/null >/dev/null; then
+            echo "grep not found. Cannot parse toml." >&2
+            return 1
+        fi
+
+        if [[ ! -e $file ]]; then
+            echo "Cannot parse non-existant toml." >&2
+            return 1
+        fi
+
+        cat "$file" | grep -e "^$key = " | sed -e "s#^\s*$key\s*=\s*##"
+    }
+
+    function parse_yaml {
+        file="$1"
+        key="$2"
+
+        if ! command -v cat 2>/dev/null >/dev/null; then
+            echo "cat not found. Cannot parse yaml." >&2
+            return 1
+        fi
+
+        if ! command -v sed 2>/dev/null >/dev/null; then
+            echo "sed not found. Cannot parse yaml." >&2
+            return 1
+        fi
+
+        if ! command -v grep 2>/dev/null >/dev/null; then
+            echo "grep not found. Cannot parse yaml." >&2
+            return 1
+        fi
+
+        if [[ ! -e "$file" ]]; then
+            echo "Cannot parse non-existant yaml." >&2
+            return 1
+        fi
+
+        cat "$file" | grep -e "^$key: " | sed -e "s#^\s*$key\s*:\s*##"
+    }
+
+    function parse_json {
+        file="$1"
+        key="$2"
+
+        if ! command -v cat 2>/dev/null >/dev/null; then
+            echo "cat not found. Cannot parse json." >&2
+            return 1
+        fi
+
+        if ! command -v sed 2>/dev/null >/dev/null; then
+            echo "sed not found. Cannot parse json." >&2
+            return 1
+        fi
+
+        if [[ ! -e ".tools/jq_$(uname -m)" ]] 2>/dev/null >/dev/null; then
+            echo ".tools/jq_$(uname -m) not found. Cannot parse json." >&2
+            return 1
+        fi
+
+        if ! command -v grep 2>/dev/null >/dev/null; then
+            echo "grep not found. Cannot parse json." >&2
+            return 1
+        fi
+
+        if [[ ! -e "$file" ]]; then
+            echo "Cannot parse non-existant json." >&2
+            return 1
+        fi
+
+        cat "$file" | .tools/jq_$(uname -m) -r ".$key" | sed -e 's#^null$##i'
+    }
+
+    function echoerr {
+        echo "$@" 1>&2
+    }
+
+    function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+    }
+
+    function green_text {
+        echoerr -e "\033[0;32m$1\e[0m"
+    }
+
+    function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+    }
+
+    function underline_red_text {
+        echoerr -e "\e[4;31m$1\e[0m"
+    }
+
+    if [[ $SCRIPT_DIR =~ /ax/?$ ]]; then
+        underline_red_text "Future Warning: Your script lies in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder."
+    fi
+
+    function _tput {
+        set +e
+        CHAR=$1
+
+        if ! command -v tput 2>/dev/null >/dev/null; then
+            red_text "tput not installed" >&2
+            set +e
+            return 0
+        fi
+
+        if [[ -z $CHAR ]]; then
+            red_text "No character given" >&2
+            set +e
+            return 0
+        fi
+
+        if ! tty 2>/dev/null >/dev/null; then
+            echo ""
+            set +e
+            return 0
+        fi
+
+        if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
+            echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
+        else
+            tput "$CHAR"
+        fi
+
+        set +e
+    }
+
+    int_re='^[+-]?[0-9]+$'
+
+    if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated
+        echo ""
+        echo "========================================================================"
+        echo ""
+    fi
+
+    send_anonymized_usage_stats=0
+    already_shown_oo_base_url_msg=0
+
+    function myexit {
+        CODE=$1
+
+        if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
+            send_status_report -1
+        else
+            send_status_report "$CODE"
+        fi
+
+        if [[ $CODE != 0 ]]; then
+            BASEURL="https://imageseg.scads.de/omniax"
+
+            if [[ -e "$HOME/.oo_base_url" ]]; then
+                BASEURL=$(cat "$HOME/.oo_base_url")
+                if [[ $already_shown_oo_base_url_msg == 0 ]]; then
+                    if [[ -z $OO_MAIN_TESTS ]]; then
+                        yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for receiving info on exit-code meaning."
+                        already_shown_oo_base_url_msg=1
+                    fi
+                fi
+            fi
+
+            set +e
+            curl -s "$BASEURL/exit_code_table.php?exit_code=$CODE"
+
+            echo ""
+            set -e
+        fi
+
+        exit $CODE
+    }
+
+    function get_anon_user_id {
+        user_groups=$(echo "$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)")
+        fixed_iv=$(echo -n "$user_groups" | sha512sum | cut -c1-32)
+        encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$(groups | tr ' ' '\n' | sort | sha512sum)-$USER" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
+        echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
+    }
+
+    if command -v sbatch 2>/dev/null >/dev/null; then
+        has_sbatch=1
+    fi
+
+    function send_status_report {
+        exit_code=$1
+
+        if [[ $send_anonymized_usage_stats -eq "1" ]]; then
+            BASEURL="https://imageseg.scads.de/omniax"
+
+            if [[ -e "$HOME/.oo_base_url" ]]; then
+                BASEURL=$(cat "$HOME/.oo_base_url")
+                if [[ $already_shown_oo_base_url_msg == 0 ]]; then
+                    if [[ -z $OO_MAIN_TESTS ]]; then
+                        yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL as base url for sending anonymized user statistics."
+                        already_shown_oo_base_url_msg=1
+                    fi
+                fi
+            fi
+
+            if [[ -n $ITWORKSONMYMACHINE ]]; then
+                anon_user="affeaffeaffeaffeaffeaffeaffeaffe"
+            elif [[ -n $OO_MAIN_TESTS ]]; then
+                anon_user="affed00faffed00faffed00faffed00f"
+            else
+                anon_user=$(get_anon_user_id)
+            fi
+
+            if [[ -z $git_hash ]]; then
+                git_hash=$(git rev-parse HEAD)
+            fi
+
+            if [[ -z $exit_code ]]; then
+                exit_code="-1"
+            fi
+
+            stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$RUN_UUID&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
+            url="$BASEURL/usage_stats.php?$stats_params"
+
+            curl -s "$url" 2>/dev/null >/dev/null
+
+            if [[ "$debug" -eq "1" ]]; then
+                yellow_text "Curling $url"
+            fi
+            #else
+            #	echo "Not sending anonymized user statistics"
+        fi
+    }
+
+    export NO_WHIPTAIL=1
+
+    function displaytime {
+        local T=$1
+        local D=$((T/60/60/24))
+        local H=$((T/60/60%24))
+        local M=$((T/60%60))
+        local S=$((T%60))
+        (( $D > 0 )) && printf '%d days ' $D
+        (( $H > 0 )) && printf '%d hours ' $H
+        (( $M > 0 )) && printf '%d minutes ' $M
+        (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+        printf '%d seconds\n' $S
+    }
+
+    function remaining_time {
+        target_date="$1"
+        target_date=$(echo "$target_date" | sed -E 's/\x1b\[[0-9;]*m//g')
+
+        target_epoch=$(date -d "$target_date" +%s)
+
+        current_epoch=$(date +%s)
+
+        difference=$(( target_epoch - current_epoch ))
+
+        if [ $difference -lt 0 ]; then
+            return
+        fi
+
+        difference_minutes=$(( difference / 60 ))
+
+        if [ $difference_minutes -lt 30 ]; then
+            minutes=$difference_minutes
+            if [ $minutes -eq 1 ]; then
+                result="in about $minutes minute"
+            else
+                result="in about $minutes minutes"
+            fi
+            echo "$result"
+            return
+        fi
+
+        difference_rounded=$(( (difference * 5 + 299) / 300 ))
+
+        minutes=$(( difference_rounded % 60 ))
+        hours=$(( (difference_rounded / 60) % 24 ))
+        days=$(( (difference_rounded / 1440) % 365 ))
+        years=$(( difference_rounded / 525600 ))
+
+        result=""
+        if [ $years -gt 0 ]; then
+            year_str="year"
+            if [ $years -gt 1 ]; then
+                year_str="years"
+            fi
+            result="$result $years $year_str"
+        fi
+
+        if [ $days -gt 0 ]; then
+            day_str="day"
+            if [ $days -gt 1 ]; then
+                day_str="days"
+            fi
+            if [ -n "$result" ]; then
+                result="$result and"
+            fi
+            result="$result $days $day_str"
+        fi
+
+        if [ $hours -gt 0 ]; then
+            hour_str="hour"
+            if [ $hours -gt 1 ]; then
+                hour_str="hours"
+            fi
+            if [ -n "$result" ]; then
+                result="$result and"
+            fi
+            result="$result $hours $hour_str"
+        fi
+
+        if [ $minutes -gt 0 ]; then
+            minute_str="minute"
+            if [ $minutes -gt 1 ]; then
+                minute_str="minutes"
+            fi
+            if [ -n "$result" ]; then
+                result="$result and"
+            fi
+            result="$result $minutes $minute_str"
+        fi
+
+        if [ -n "$result" ]; then
+            result="in about $result"
+            echo "$result"
+        fi
+    }
+
+    export CUDA_DEVICE_ORDER=PCI_BUS_ID
+    ORIGINAL_PWD="$(pwd)"
+    export ORIGINAL_PWD
+
+    mkdir -p "$ORIGINAL_PWD/logs" || {
+        red_text "Failed: mkdir -p $ORIGINAL_PWD/logs"
+        myexit 45
+    }
+
+    set -e
+    set -o pipefail
+
+    function mycd {
+        #echo "cd $1"
+        cd "$1"
+    }
+
+    slurmlogpath () {
+        if command -v scontrol 2>/dev/null >/dev/null; then
+            scontrol show job "$1" | grep StdOut | sed -e 's/^\s*StdOut=//'
+        fi
+    }
+
+    function calltracer {
+        exit_code=$?
+
+        values=(
+            "130"
+            "138"
+            "146"
+        )
+
+        if ! [[ " ${values[@]} " =~ " $exit_code" ]]; then
+            LINE_AND_FUNCTION="$(caller)"
+            if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
+                red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
+            fi
+
+            echo ""
+            caller
+            echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+        else
+            echo ""
+        fi
+
+        _tput bel
+    }
+
+    already_sent_signal=
+    kill_python_if_started_already_shown=0
+
+    kill_python_if_started () {
+        REASON="$1"
+        echo "kill_python_if_started $REASON"
+        re='^[0-9]+$'
+        if [[ -n "$SLURM_JOB_ID" ]]; then
+            if [[ $python_pid =~ $re ]] ; then
+                if [[ -z "$already_sent_signal" ]]; then
+                    if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
+                        already_sent_signal=1
+                        echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
+                        kill -USR1 "$python_pid"
+                    else
+                        echo "Could not find $python_pid process" >&2
+                    fi
+                fi
+            fi
+        fi
+
+        if [[ $kill_python_if_started_already_shown -eq 0 ]]; then
+            echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
+            kill_python_if_started_already_shown=1
+        fi
+
+        _tput bel
+    }
+
+    trap 'calltracer' ERR
+    trap 'kill_python_if_started CONT' CONT
+    trap 'kill_python_if_started TERM' TERM
+
+    if command -v kill 2>/dev/null >/dev/null; then
+        for i in $(kill -l 2>&1 | sed -e 's#[0-9][0-9]*[[:space:]]*)##g'); do
+            if
+            [[ "$i" != "ERR" ]] &&
+            [[ "$i" != "CONT" ]] &&
+            [[ "$i" != "TERM" ]] &&
+            [[ "$i" != "CHLD" ]] &&
+            [[ "$i" != "SIGCHLD" ]] &&
+            [[ "$i" != "SIGWINCH" ]] &&
+            [[ "$i" != "WINCH" ]] &&
+            [[ "$i" != "INT" ]] &&
+            [[ "$i" != "SIGINT" ]];
+            then
+                trap 'kill_python_if_started $i' "$i"
+            fi
+        done
+    else
+        red_text "kill cannot be found. Cannot register traps for existing signals."
+    fi
+
+    minutes_to_hh_mm_ss() {
+        var=$1
+
+        number_re='^[0-9]+$'
+        time_re='^[0-9]+:[0-9]+:[0-9]+$'
+
+        if [[ $var =~ $number_re ]] ; then
+            local total_minutes="$var"
+            local hours=$(( total_minutes / 60 ))
+            local minutes=$(( total_minutes % 60 ))
+            local seconds=00
+
+            printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+        elif [[ $var =~ $time_re ]]; then
+            echo $var
+        else
+            red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
+
+            myexit 103
+        fi
+    }
+
+    continue_previous_job=""
+    mem_gb=
+    gpus=
+    time=
+    if [[ -z $root_venv_dir ]]; then
+        root_venv_dir=$HOME
+    fi
+    experiment_name=
+    help=0
+    follow=0
+    wait_until_ended=0
+    tests=0
+    workdir=""
+
+    continue_was_set=0
+
+    args_string=""
+
+    args=("$@")
+    k=0
+
+    export args
+    export k
+
+    config_toml=""
+    config_yaml=""
+    config_json=""
+
+    generate_simple_config_handling_code () {
+        local option_name="$1"
+
+        local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
+        local current_var=${option_name//--/}
+
+        cat <<EOF
 		--$current_var)
 			$current_var=1
 			args_string+=" --$current_var "
 			;;
 
 EOF
-}
+    }
 
 
-generate_config_handling_code() {
-	local option_name="$1"
-	local check_type="$2"
+    generate_config_handling_code() {
+        local option_name="$1"
+        local check_type="$2"
 
-	local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
-	local current_var=${option_name//--/}
+        local previous_job_var=${option_name//--/old_}${option_name//--/previous_job}
+        local current_var=${option_name//--/}
 
-	local check_code=""
+        local check_code=""
 
-	if [[ $check_type == "int" ]]; then
-		check_code=$(cat <<EOF
+        if [[ $check_type == "int" ]]; then
+            check_code=$(cat <<EOF
 			if ! [[ \$$current_var =~ \$int_re ]] ; then
 				red_text "error: --$current_var not a INT: \$i" >&2
 				myexit 100
 			fi
 EOF
-)
-	elif [[ $check_type == "file" ]]; then
-		check_code=$(cat <<EOF
+            )
+        elif [[ $check_type == "file" ]]; then
+            check_code=$(cat <<EOF
 			if ! [[ -e "\$$current_var" ]] ; then
 				red_text "error: --$current_var specified the path to a file that doesn't exist: \$current_var" >&2
 				myexit 100
 			fi
 EOF
-)
+            )
 
-	elif [[ $check_type == "" ]]; then
-		true
-	else
-		red_text "Unknown type >$check_type<\n"
-	fi
+        elif [[ $check_type == "" ]]; then
+            true
+        else
+            red_text "Unknown type >$check_type<\n"
+        fi
 
-	cat <<EOF
+        cat <<EOF
 		    --$option_name=*)
 			${previous_job_var}=\$${current_var}_previous
 			${current_var}_previous="\${i#*=}"
@@ -643,57 +643,57 @@ $check_code
 
 			;;
 EOF
-}
+    }
 
-simple_options=(
-	"force_local_execution"
-	"follow"
-	"send_anonymized_usage_stats"
-	"tests"
-	"run_tests_that_fail_on_taurus"
-	"checkout_to_latest_tested_version"
-	"wait_until_ended"
-)
+    simple_options=(
+        "force_local_execution"
+        "follow"
+        "send_anonymized_usage_stats"
+        "tests"
+        "run_tests_that_fail_on_taurus"
+        "checkout_to_latest_tested_version"
+        "wait_until_ended"
+    )
 
-complex_options_with_files=(
-	"config_yaml"
-	"config_json"
-	"config_toml"
-)
+    complex_options_with_files=(
+        "config_yaml"
+        "config_json"
+        "config_toml"
+    )
 
-complex_options_with_int=(
-	"mem_gb"
-	"gpus"
-	"main_process_gb"
-)
+    complex_options_with_int=(
+        "mem_gb"
+        "gpus"
+        "main_process_gb"
+    )
 
-complex_options=(
-	"workdir"
-	"account"
-	"experiment_name"
-	"reservation"
-	"time"
-)
+    complex_options=(
+        "workdir"
+        "account"
+        "experiment_name"
+        "reservation"
+        "time"
+    )
 
-complex_options_str=""
+    complex_options_str=""
 
-for opt in "${simple_options[@]}"; do
-	complex_options_str+=$(generate_simple_config_handling_code "$opt")
-done
+    for opt in "${simple_options[@]}"; do
+        complex_options_str+=$(generate_simple_config_handling_code "$opt")
+    done
 
-for opt in "${complex_options_with_int[@]}"; do
-	complex_options_str+=$(generate_config_handling_code "$opt" "int")
-done
+    for opt in "${complex_options_with_int[@]}"; do
+        complex_options_str+=$(generate_config_handling_code "$opt" "int")
+    done
 
-for opt in "${complex_options_with_files[@]}"; do
-	complex_options_str+=$(generate_config_handling_code "$opt" "file")
-done
+    for opt in "${complex_options_with_files[@]}"; do
+        complex_options_str+=$(generate_config_handling_code "$opt" "file")
+    done
 
-for opt in "${complex_options[@]}"; do
-	complex_options_str+=$(generate_config_handling_code "$opt")
-done
+    for opt in "${complex_options[@]}"; do
+        complex_options_str+=$(generate_config_handling_code "$opt")
+    done
 
-PARAM_EVAL=$(cat <<EOF
+    PARAM_EVAL=$(cat <<EOF
 while [ \$k -lt \${#args[@]} ]; do
 	i="\${args[k]}"
 	case \$i in
@@ -806,812 +806,812 @@ $complex_options_str
 	k=\$((k+1))
 done
 EOF
-)
-
-eval "$PARAM_EVAL"
-
-function get_config_from_config_file {
-	key="$1"
-	warn_and_exit="$2"
-
-	if [[ "$warn_and_exit" != "1" ]] && [[ "$warn_and_exit" != 0 ]]; then
-		warn_and_exit=1
-	fi
-
-	if [[ "$config_toml" != "" ]]; then
-		parse_toml "$config_toml" "$key" || {
-			if [[ $warn_and_exit == 1 ]]; then
-				red_text "Error parsing $config_toml"
-				myexit 133
-			else
-				return 133
-			fi
-		}
-	elif [[ "$config_yaml" != "" ]]; then
-		parse_yaml "$config_yaml" "$key" || {
-			if [[ $warn_and_exit == 1 ]]; then
-				red_text "Error parsing $config_yaml"
-				myexit 133
-			else
-				return 133
-			fi
-		}
-	elif [[ "$config_json" != "" ]]; then
-		parse_json "$config_json" "$key" || {
-			if [[ $warn_and_exit == 1 ]]; then
-				red_text "Error parsing $config_json"
-				myexit 133
-			else
-				return 133
-			fi
-		}
-	else
-		if [[ $warn_and_exit == 1 ]]; then
-			red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
-			myexit 133
-		else
-			return 133
-		fi
-	fi
-}
-
-git_hash="NOT_DETERMININABLE"
-
-if ! command -v git 2>/dev/null >/dev/null; then
-	red_text "git not found. Cannot continue."
-	myexit 11
-fi
-
-if [[ -e git_hash ]]; then
-	new_git_hash=$(cat git_hash)
-else
-	trap - ERR
-	set +e
-	new_git_hash=$(git rev-parse HEAD 2>/dev/null)
-	set -e
-	trap 'calltracer' ERR
-fi
-
-if [[ -n $new_git_hash ]]; then
-	git_hash=$new_git_hash
-fi
-
-set +e
-trap - ERR
-git fetch --tags 2>/dev/null >/dev/null
-current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
-tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
-commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
-set -e
-trap 'calltracer' ERR
-
-if [[ -z "$SLURM_JOB_ID" ]]; then
-	if [[ -n $current_tag ]]; then
-		if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
-			echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
-		elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
-			if [[ $commits_since_tag -eq 1 ]]; then
-				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commit ago)"
-			else
-				if [[ "$git_hash" == "$tag_commit_hash" ]]; then
-					if [[ $commits_since_tag -eq 0 ]]; then
-						echo "Current git-hash: $git_hash (version: $current_tag)"
-					else
-						echo "Current git-hash: $git_hash (version: $current_tag, $commits_since_tag commits ago)"
-					fi
-				else
-					if [[ $commits_since_tag -eq 0 ]]; then
-						echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
-					else
-						echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
-					fi
-				fi
-			fi
-
-			if [[ "$commits_since_tag" -gt 0 ]]; then
-				if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
-					yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
-					git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
-						red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
-						myexit 211
-					}
-
-					bash omniopt $*
-					exit_code=$?
-
-					myexit $exit_code
-				else
-					if [[ -z $OO_MAIN_TESTS ]]; then
-						yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
-						yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
-					fi
-				fi
-			fi
-		else
-			echo "Current git-hash: $git_hash (version: $current_tag)"
-		fi
-	else
-		if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
-			echo "Current git-hash: $git_hash"
-		fi
-	fi
-fi
-
-
-if [[ $continue_previous_job =~ ^https?:// ]]; then
-	if echo "$continue_previous_job" | grep -Eq 'share\.php\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
-		zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
-
-		oo_tmp_dir=/tmp/oo_download/
-
-		oo_tmp_file="$oo_tmp_dir/tmp.zip"
-
-		mkdir -p $oo_tmp_dir
-
-		if [[ $continue_previous_job =~ user_id=([^&]+) ]]; then
-			user_id="${BASH_REMATCH[1]}"
-		else
-			red_text "Error: user_id parameter is missing in the URL."
-			exit 1
-		fi
-
-		if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
-			experiment_name="${BASH_REMATCH[1]}"
-		else
-			red_text "Error: experiment_name parameter is missing in the URL."
-			exit 1
-		fi
-
-		if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
-			#run_nr="${BASH_REMATCH[1]}"
-			true
-		else
-			red_text "Error: run_nr parameter is missing in the URL."
-			exit 1
-		fi
-
-		yellow_text "Downloaded file $oo_tmp_file"
-
-		wget -q "$zip_download_url" -O "$oo_tmp_file"
-
-		if unzip -tq "$oo_tmp_file" >/dev/null 2>&1; then
-			new_folder_base="runs/$user_id/$experiment_name"
-
-			i=0
-			new_folder="$new_folder_base/$i"
-
-			while [[ -d $new_folder ]]; do
-				new_folder="$new_folder_base/$i"
-				i=$((i+1))
-			done
-
-			mkdir -p "$new_folder"
-
-			unzip -q "$oo_tmp_file" -d "$new_folder"
-
-			yellow_text "Extracted file to $new_folder"
-
-			new_args_string=$(echo "$args_string" | sed -e "s#--continue\s*[^ ]*#--continue $new_folder#")
-
-			eval "bash $SCRIPT_DIR/omniopt $new_args_string"
-			exit_code=$?
-			rm -rf $oo_tmp_dir
-
-			exit $exit_code
-		elif [[ -s "$oo_tmp_file" ]]; then
-			cat $oo_tmp_file
-		fi
-
-		rm -rf $oo_tmp_dir
-
-		exit 19
-	else 
-		red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
-		myexit 19
-	fi
-fi
-
-if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
-	echo "--continue was set, but empty."
-	myexit 19
-fi
-
-if [[ -d ".git" ]]; then
-	if command -v whiptail 2>/dev/null >/dev/null; then
-		if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
-			REMOTEURL=$(git config --get remote.origin.url)
-			REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
-
-			if [ ! "$git_hash" = "$REMOTEHASH" ]; then
-				if command -v resize 2>/dev/null >/dev/null; then
-					eval "$(resize)"
-				fi
-				if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-					git pull
-					eval "./$SCRIPT_DIR/omniopt $args_string"
-					exit
-				else
-					if command -v resize 2>/dev/null >/dev/null; then
-						eval "$(resize)"
-					fi
-					if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-						echo "Asking again next time if you want to upgrade"
-					else
-						green_text "OK, not asking again"
-						touch .dont_ask_upgrade_omniopt
-					fi
-				fi
-			fi
-		fi
-	fi
-fi
-
-args_string=$(echo "$args_string" | sed -e 's#[[:space:]][[:space:]]*# #g')
-
-if [ -n "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
-	true
-elif [ -z "$config_toml" ] && [ -n "$config_json" ] && [ -z "$config_yaml" ]; then
-	true
-elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -n "$config_yaml" ]; then
-	true
-elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
-	true
-else
-	red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml."
-	myexit 5
-fi
-
-if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]]; then
-	set +e
-
-	if [[ -z "$mem_gb" ]]; then
-		set +e
-		trap - ERR
-
-		mem_gb=$(get_config_from_config_file "mem_gb" 0)
-		retcode=$?
-
-		set -e
-		trap 'calltracer' ERR
-
-		if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
-			red_text "Parameter --mem_gb is missing or empty" >&2
-			myexit 104
-		fi
-	fi
-
-	if [[ -z "$time" ]]; then
-		set +e
-		trap - ERR
-
-		time=$(get_config_from_config_file "time" 0)
-		retcode=$?
-
-		set -e
-		trap 'calltracer' ERR
-
-		if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
-			red_text "Parameter --time is missing or empty" >&2
-			myexit 104
-		fi
-	fi
-
-	if [[ -z $experiment_name ]]; then
-		set +e
-		trap - ERR
-
-		experiment_name=$(get_config_from_config_file "experiment_name" 0)
-		retcode=$?
-
-		set -e
-		trap 'calltracer' ERR
-
-		if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then
-			red_text "Parameter --experiment_name is missing or empty" >&2
-			myexit 104
-		fi
-	fi
-
-	set -e
-fi
-
-trap - ERR
-set +e
-
-if [[ -z $reservation ]]; then
-	_reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
-	retcode=$?
-	if [[ $retcode -ne 0 ]] && [[ -n $_reservation ]]; then
-		reservation=$_reservation
-	fi
-fi
-
-if [[ -z $account ]]; then
-	_account=$(get_config_from_config_file "account" 0 2>/dev/null)
-	retcode=$?
-	if [[ $retcode -ne 0 ]] && [[ -n $_account ]]; then
-		account=$_account
-	fi
-fi
-
-if [[ -z $follow ]]; then
-	_follow=$(get_config_from_config_file "follow" 0 2>/dev/null)
-	retcode=$?
-	if [[ $retcode -ne 0 ]] && [[ -n $_follow ]]; then
-		follow=$_follow
-	fi
-
-	shopt -s nocasematch
-
-	if [[ "$follow" =~ ^(true|1)$ ]]; then
-		follow=1
-	else
-		follow=0
-	fi
-
-	shopt -u nocasematch
-fi
-
-if [[ -z $force_local_execution ]]; then
-	_force_local_execution=$(get_config_from_config_file "force_local_execution" 0 2>/dev/null)
-	retcode=$?
-	if [[ $retcode -ne 0 ]] && [[ -n $_force_local_execution ]]; then
-		force_local_execution=$_force_local_execution
-	fi
-
-	shopt -s nocasematch
-
-	if [[ "$force_local_execution" =~ ^(true|1)$ ]]; then
-		force_local_execution=1
-	else
-		force_local_execution=0
-	fi
-
-	shopt -u nocasematch
-fi
-
-if [[ -z $gpus ]]; then
-	if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
-		_gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
-		retcode=$?
-		if [[ $retcode -eq 0 ]]; then
-			gpus=$_gpus
-		fi
-	fi
-fi
-
-if [[ -z $gpus ]]; then
-	gpus=0
-fi
-
-set -e
-trap 'calltracer' ERR
-
-if [[ "$continue_previous_job" != "" ]]; then
-	if [[ ! -d "$continue_previous_job" ]]; then
-		echo "The folder $continue_previous_job was not found"
-		myexit 105
-	fi
-
-	if [[ -z "$mem_gb" ]]; then
-		if [[ -e "$continue_previous_job/state_files/mem_gb" ]]; then
-			mem_gb=$(cat "$continue_previous_job/state_files/mem_gb")
-		else
-			echo "mem_gb could not be determined from previous run or --mem_gb"
-			myexit 105
-		fi
-	fi
-
-	if [[ -z "$main_process_gb" ]]; then
-		if [[ -e "$continue_previous_job/state_files/main_process_gb" ]]; then
-			main_process_gb=$(cat "$continue_previous_job/state_files/main_process_gb")
-		else
-			main_process_gb=$mem_gb
-		fi
-	fi
-
-	if [[ -z "$gpus" ]] || [[ $gpus -eq 0 ]]; then
-		if [[ -e "$continue_previous_job/state_files/gpus" ]]; then
-			gpus=$(cat "$continue_previous_job/state_files/gpus")
-		fi
-	fi
-
-	if [[ -z "$experiment_name" ]]; then
-		if [[ -e "$continue_previous_job/state_files/experiment_name" ]]; then
-			experiment_name=$(cat "$continue_previous_job/state_files/experiment_name")
-		else
-			echo "Experiment name could not be determined from previous run or --experiment_name"
-			myexit 105
-		fi
-	fi
-
-	if [[ -z "$follow" ]] || [[ "$file" -eq 0 ]]; then
-		if [[ -e "$continue_previous_job/state_files/follow" ]]; then
-			follow=1
-		fi
-	fi
-
-	if [[ -z "$time" ]]; then
-		if [[ -e "$continue_previous_job/state_files/time" ]]; then
-			time=$(cat "$continue_previous_job/state_files/time")
-		else
-			echo "Time could not be determined from previous run or --time"
-			myexit 105
-		fi
-	fi
-fi
-
-if [[ -z $main_process_gb ]]; then
-	if [[ -n $mem_gb ]]; then
-		main_process_gb=$mem_gb
-	else
-		main_process_gb=8 # default value
-	fi
-fi
-
-python_pid=""
-
-
-#echo "\$0: $0, SCRIPT_DIR: $SCRIPT_DIR"
-
-if [ -n "${SLURM_JOB_ID:-}" ] ; then
-	set +e
-	if command -v scontrol 2>/dev/null >/dev/null; then
-		SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-		#echo "scontrol show job $SLURM_JOB_ID: exited with $?"
-		SLURM_FILE_SCRIPT_DIR=$(dirname "$SLURM_FILE_SCRIPT_DIR")
-
-		if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
-			SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-		else
-			echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
-		fi
-	else
-		red_text "scontrol not found. Unsetting SLURM_JOB_ID"
-		unset SLURM_JOB_ID
-	fi
-	set -e
-fi
-
-if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
-	#echo "source $SCRIPT_DIR/.shellscript_functions"
-	source "$SCRIPT_DIR/.shellscript_functions"
-else
-	red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
-	myexit 23
-fi
-
-mycd "$ORIGINAL_PWD"
-
-if [[ "$workdir" != "" ]]; then
-	if [[ ! -d "$workdir" ]]; then
-		mkdir -p "$workdir" || {
-			red_text "$workdir could not be created. Cannot continue."
-			myexit 191
-		}
-	fi
-
-	mycd "$workdir"
-fi
-
-function help_and_test_py {
-	if command -v stdbuf 2>/dev/null >/dev/null; then
-		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			else
-				stdbuf -e 0 -o 0 python3 "$@"
-			fi
-		else
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			else
-				stdbuf -e 0 -o 0 coverage run -p "$@" --help
-			fi
-		fi
-	else
-		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -n $bash_logname ]]; then
-				python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			else
-				python3 "$@"
-			fi
-		else
-			if [[ -n $bash_logname ]]; then
-				coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			else
-				coverage run -p "$@" --help
-			fi
-		fi
-	fi
-}
-
-if [[ "$help" -eq "1" ]]; then
-	python3 "$SCRIPT_DIR/.omniopt.py" --help
-
-	myexit 0
-fi
-
-if [[ "$tests" -eq "1" ]]; then
-	exit_code=0
-	if [[ $run_tests_that_fail_on_taurus -eq 0 ]]; then
-		help_and_test_py "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
-		exit_code=$?
-	else
-		help_and_test_py "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
-		exit_code=$?
-	fi
-	myexit $exit_code
-fi
-
-kill_tail_when_squeue_job_empty () {
-	JOB_ID=$1
-
-	sleep 10
-
-	while squeue -u "$USER" | grep "$JOB_ID" 2>/dev/null >/dev/null; do
-		sleep 5
-	done
-
-	sleep 10
-
-	for child in $(pgrep -P $$); do
-		for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
-			kill -9 "$tail_process"
-		done
-	done
-
-	return 0
-}
-
-if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
-	# To start all subjobs independently from the omniopt job, unset all SLURM variables
-	for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
-		unset "$i"
-	done
-
-	if [[ -n $SLURM_JOB_ID ]]; then
-		echo -e "To cancel, press \033[1mCTRL\e[0m \033[1mc\e[0m, then run '\e[31mscancel $SLURM_JOB_ID\e[0m'"
-	fi
-
-	IFS=$' '
-	export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
-
-	set +e
-
-	if [[ $debug -eq 1 ]]; then
-		echo "args-string: $args_string"
-	fi
-
-	set +e
-	trap - ERR
-
-	if [[ -z $RUN_WITH_COVERAGE ]]; then
-		if [[ -n $bash_logname ]]; then
-			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-			EXIT_CODE=$?
-		else
-			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
-			EXIT_CODE=$?
-		fi
-	else
-		echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-		coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
-		EXIT_CODE=$?
-	fi
-
-	set -e
-	trap 'calltracer' ERR
-
-	set -e
-
-	_tput bel
-
-	myexit $EXIT_CODE
-else
-	IFS=$' '
-
-	formatted_time=$(minutes_to_hh_mm_ss "$time")
-
-	sbatch_result=""
-	exit_code=""
-
-	sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
-
-	if [[ $gpus -ne 0 ]]; then
-		sbatch_command+=" --gres=gpu:$gpus"
-	fi
-
-	if [[ -n $account ]]; then
-		sbatch_command+=" --account=$account"
-	fi
-
-	if [[ -n $reservation ]]; then
-		sbatch_command+=" --reservation=$reservation"
-	fi
-
-	sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
-
-	if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
-		yellow_text "$sbatch_command"
-	fi
-
-	set +e
-
-	sbatch_result=$($sbatch_command)
-	exit_code=$?
-
-	set -e
-
-	started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
-
-	if [[ $exit_code -eq 0 ]]; then
-		if [[ $follow -eq 1 ]]; then
-			if command -v sbatch 2>/dev/null >/dev/null; then
-				set +e
-				LOG_PATH=$(slurmlogpath "$started_job_nr" | tail -n1)
-	
-				spin[0]="-"
-				spin[1]="\\" # "
-				spin[2]="|"
-				spin[3]="/"
-
-				last_why_pending_time=$(date +%s)
-				last_sq_time=$(date +%s)
-
-				estimated_start_time=""
-				estimated_start_time_original=""
-				_remaining_time=""
-
-
-				if [[ $debug -eq 1 ]]; then
-					trap - DEBUG
-				fi
-
-				while ! [[ -e $LOG_PATH ]]; do
-					current_time=$(date +%s)
-
-					time_diff_whypending=$(($current_time - $last_why_pending_time))
-					time_diff_sq=$(($current_time - $last_sq_time))
-
-					if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_whypending -gt 10 ]]; then
-						trap - ERR
-						estimated_start_time_original=$(timeout 5 whypending "$started_job_nr" 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
-						trap 'calltracer' ERR
-
-						current_time=$(date +%s)
-						last_why_pending_time=$current_time
-						if [[ -n $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
-							estimated_start_time=". Estimated start:$estimated_start_time_original"
-							if [[ -n $estimated_start_time_original ]]; then
-								_remaining_time=""
-								_remaining_time=$(remaining_time "$estimated_start_time_original" | sed -e 's#[[:space:]][[:space:]]*# #g')
-
-								if [[ -n $_remaining_time ]]; then
-									estimated_start_time="$estimated_start_time ($_remaining_time)"
-								fi
-							fi
-						fi
-					fi
-					
-					if command -v squeue 2>/dev/null > /dev/null && [[ $time_diff_sq -gt 60 ]]; then
-						current_time=$(date +%s)
-						last_sq_time=$current_time
-
-						squeue_me_output=$(squeue --me 2>/dev/null)
-						squeue_exit_code=$?
-
-						if [[ $squeue_exit_code -eq "0" ]]; then
-							job_still_in_squeue=$(echo "$squeue_me_output" | grep -c "$started_job_nr")
-
-							if [[ "$job_still_in_squeue" -eq "0" ]]; then
-								red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
-
-								SCONTROL_STATUS=$(scontrol show job "$started_job_nr" | grep JobState | sed -e 's#^\s*[^=]*=#SLURM-Job-State: #')
-
-								if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
-									red_text "$SCONTROL_STATUS"
-									if [[ "$SCONTROL_STATUS" == *"RaisedSignal:53"* ]]; then
-										red_text "This may indicate a file system error"
-									fi
-
-									if command -v findmnt 2>/dev/null >/dev/null; then
-										red_text "Mount-Info:"
-										findmnt -T "$SCRIPT_DIR"
-									fi
-								fi
-
-								myexit 243
-							fi
-						fi
-					fi
-
-
-					for i in "${spin[@]}"; do
-						print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
-
-						print_line="$print_line$i"
-						_tput cr # Move cursor to beginning of line
-						_tput el # Delete line from start to finish
-
-						#echo -ne "$backspaces"
-						echo -ne "$print_line"
-						sleep 0.2
-					done
-
-
-				done
-
-				if [[ $debug -eq 1 ]]; then
-					set_debug
-				fi
-
-				set -e
-
-				printf "\r"
-
-				_tput el
-
-				if [[ -e "$LOG_PATH" ]]; then
-					kill_tail_when_squeue_job_empty "$started_job_nr" &
-					# weird exec stuff for disabling the "Terminated" message coming from kill
-					exec 3>&2          # 3 is now a copy of 2
-					exec 2> /dev/null  # 2 now points to /dev/null
-					tail -n1000000 -f "$LOG_PATH" || true
-					exec 2>&3          # restore stderr to saved
-					exec 3>&-          # close saved version
-
-					exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
-				else
-					red_text "$LOG_PATH could not be found"
-				fi
-			fi
-		elif [[ "$wait_until_ended" -eq "1" ]]; then
-			if command -v squeue 2>/dev/null >/dev/null; then
-				WAIT_NUM_SECONDS=10
-				yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
-
-				while [[ "$(squeue --me | grep -c "$started_job_nr")" -ne "0" ]]; do
-					sleep $WAIT_NUM_SECONDS
-				done
-
-				yellow_text "Done waiting for job to end"
-
-				LOG_PATH=$(slurmlogpath "$started_job_nr")
-				if [[ -e "$LOG_PATH" ]]; then
-					cat "$LOG_PATH"
-				else
-					red_text "$LOG_PATH could not be found"
-				fi
-			else
-				red_text "squeue not found. Cannot wait for job to end."
-			fi
-		fi
-	else
-		sbatch_command=$(echo "$sbatch_command" | sed -e 's#^\s*##' -e 's#\s*$##')
-		red_text "Failed to start sbatch job. Command:\n"
-		red_text "$sbatch_command\n"
-		red_text "Exit-Code: $exit_code\n"
-
-		myexit $exit_code
-	fi
-
-fi
-
-echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
-
-if [[ -n $RUN_WITH_COVERAGE ]]; then
-	echo "Run *coverage combine*, *coverage xml* and *coverage html*"
-fi
-
-if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
-	myexit "$exit_code"
-else
-	if [[ $exit_code != "" ]]; then
-		echo "Invalid exit-code >$exit_code< detected!"
-	else
-		echo "No exit-code could be found. Exiting with exit-code 3."
-	fi
-	myexit 3
-fi
+    )
+
+    eval "$PARAM_EVAL"
+
+    function get_config_from_config_file {
+        key="$1"
+        warn_and_exit="$2"
+
+        if [[ "$warn_and_exit" != "1" ]] && [[ "$warn_and_exit" != 0 ]]; then
+            warn_and_exit=1
+        fi
+
+        if [[ "$config_toml" != "" ]]; then
+            parse_toml "$config_toml" "$key" || {
+                if [[ $warn_and_exit == 1 ]]; then
+                    red_text "Error parsing $config_toml"
+                    myexit 133
+                else
+                    return 133
+                fi
+            }
+        elif [[ "$config_yaml" != "" ]]; then
+            parse_yaml "$config_yaml" "$key" || {
+                if [[ $warn_and_exit == 1 ]]; then
+                    red_text "Error parsing $config_yaml"
+                    myexit 133
+                else
+                    return 133
+                fi
+            }
+        elif [[ "$config_json" != "" ]]; then
+            parse_json "$config_json" "$key" || {
+                if [[ $warn_and_exit == 1 ]]; then
+                    red_text "Error parsing $config_json"
+                    myexit 133
+                else
+                    return 133
+                fi
+            }
+        else
+            if [[ $warn_and_exit == 1 ]]; then
+                red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
+                myexit 133
+            else
+                return 133
+            fi
+        fi
+    }
+
+    git_hash="NOT_DETERMININABLE"
+
+    if ! command -v git 2>/dev/null >/dev/null; then
+        red_text "git not found. Cannot continue."
+        myexit 11
+    fi
+
+    if [[ -e git_hash ]]; then
+        new_git_hash=$(cat git_hash)
+    else
+        trap - ERR
+        set +e
+        new_git_hash=$(git rev-parse HEAD 2>/dev/null)
+        set -e
+        trap 'calltracer' ERR
+    fi
+
+    if [[ -n $new_git_hash ]]; then
+        git_hash=$new_git_hash
+    fi
+
+    set +e
+    trap - ERR
+    git fetch --tags 2>/dev/null >/dev/null
+    current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+    tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
+    commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
+    set -e
+    trap 'calltracer' ERR
+
+    if [[ -z "$SLURM_JOB_ID" ]]; then
+        if [[ -n $current_tag ]]; then
+            if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
+                echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+            elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
+                if [[ $commits_since_tag -eq 1 ]]; then
+                    echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commit ago)"
+                else
+                    if [[ "$git_hash" == "$tag_commit_hash" ]]; then
+                        if [[ $commits_since_tag -eq 0 ]]; then
+                            echo "Current git-hash: $git_hash (version: $current_tag)"
+                        else
+                            echo "Current git-hash: $git_hash (version: $current_tag, $commits_since_tag commits ago)"
+                        fi
+                    else
+                        if [[ $commits_since_tag -eq 0 ]]; then
+                            echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+                        else
+                            echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
+                        fi
+                    fi
+                fi
+
+                if [[ "$commits_since_tag" -gt 0 ]]; then
+                    if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
+                        yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
+                        git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
+                            red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
+                            myexit 211
+                        }
+
+                        bash omniopt $*
+                        exit_code=$?
+
+                        myexit $exit_code
+                    else
+                        if [[ -z $OO_MAIN_TESTS ]]; then
+                            yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
+                            yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
+                        fi
+                    fi
+                fi
+            else
+                echo "Current git-hash: $git_hash (version: $current_tag)"
+            fi
+        else
+            if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
+                echo "Current git-hash: $git_hash"
+            fi
+        fi
+    fi
+
+
+    if [[ $continue_previous_job =~ ^https?:// ]]; then
+        if echo "$continue_previous_job" | grep -Eq 'share\.php\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
+            zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
+
+            oo_tmp_dir=/tmp/oo_download/
+
+            oo_tmp_file="$oo_tmp_dir/tmp.zip"
+
+            mkdir -p $oo_tmp_dir
+
+            if [[ $continue_previous_job =~ user_id=([^&]+) ]]; then
+                user_id="${BASH_REMATCH[1]}"
+            else
+                red_text "Error: user_id parameter is missing in the URL."
+                exit 1
+            fi
+
+            if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
+                experiment_name="${BASH_REMATCH[1]}"
+            else
+                red_text "Error: experiment_name parameter is missing in the URL."
+                exit 1
+            fi
+
+            if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
+                #run_nr="${BASH_REMATCH[1]}"
+                true
+            else
+                red_text "Error: run_nr parameter is missing in the URL."
+                exit 1
+            fi
+
+            yellow_text "Downloaded file $oo_tmp_file"
+
+            wget -q "$zip_download_url" -O "$oo_tmp_file"
+
+            if unzip -tq "$oo_tmp_file" >/dev/null 2>&1; then
+                new_folder_base="runs/$user_id/$experiment_name"
+
+                i=0
+                new_folder="$new_folder_base/$i"
+
+                while [[ -d $new_folder ]]; do
+                    new_folder="$new_folder_base/$i"
+                    i=$((i+1))
+                done
+
+                mkdir -p "$new_folder"
+
+                unzip -q "$oo_tmp_file" -d "$new_folder"
+
+                yellow_text "Extracted file to $new_folder"
+
+                new_args_string=$(echo "$args_string" | sed -e "s#--continue\s*[^ ]*#--continue $new_folder#")
+
+                eval "bash $SCRIPT_DIR/omniopt $new_args_string"
+                exit_code=$?
+                rm -rf $oo_tmp_dir
+
+                exit $exit_code
+            elif [[ -s "$oo_tmp_file" ]]; then
+                cat $oo_tmp_file
+            fi
+
+            rm -rf $oo_tmp_dir
+
+            exit 19
+        else
+            red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
+            myexit 19
+        fi
+    fi
+
+    if [[ $continue_was_set -eq 1 ]] && [[ -z $continue_previous_job ]]; then
+        echo "--continue was set, but empty."
+        myexit 19
+    fi
+
+    if [[ -d ".git" ]]; then
+        if command -v whiptail 2>/dev/null >/dev/null; then
+            if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
+                REMOTEURL=$(git config --get remote.origin.url)
+                REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
+
+                if [ ! "$git_hash" = "$REMOTEHASH" ]; then
+                    if command -v resize 2>/dev/null >/dev/null; then
+                        eval "$(resize)"
+                    fi
+                    if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                        git pull
+                        eval "./$SCRIPT_DIR/omniopt $args_string"
+                        exit
+                    else
+                        if command -v resize 2>/dev/null >/dev/null; then
+                            eval "$(resize)"
+                        fi
+                        if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                            echo "Asking again next time if you want to upgrade"
+                        else
+                            green_text "OK, not asking again"
+                            touch .dont_ask_upgrade_omniopt
+                        fi
+                    fi
+                fi
+            fi
+        fi
+    fi
+
+    args_string=$(echo "$args_string" | sed -e 's#[[:space:]][[:space:]]*# #g')
+
+    if [ -n "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
+        true
+    elif [ -z "$config_toml" ] && [ -n "$config_json" ] && [ -z "$config_yaml" ]; then
+        true
+    elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -n "$config_yaml" ]; then
+        true
+    elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
+        true
+    else
+        red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml."
+        myexit 5
+    fi
+
+    if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]]; then
+        set +e
+
+        if [[ -z "$mem_gb" ]]; then
+            set +e
+            trap - ERR
+
+            mem_gb=$(get_config_from_config_file "mem_gb" 0)
+            retcode=$?
+
+            set -e
+            trap 'calltracer' ERR
+
+            if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
+                red_text "Parameter --mem_gb is missing or empty" >&2
+                myexit 104
+            fi
+        fi
+
+        if [[ -z "$time" ]]; then
+            set +e
+            trap - ERR
+
+            time=$(get_config_from_config_file "time" 0)
+            retcode=$?
+
+            set -e
+            trap 'calltracer' ERR
+
+            if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
+                red_text "Parameter --time is missing or empty" >&2
+                myexit 104
+            fi
+        fi
+
+        if [[ -z $experiment_name ]]; then
+            set +e
+            trap - ERR
+
+            experiment_name=$(get_config_from_config_file "experiment_name" 0)
+            retcode=$?
+
+            set -e
+            trap 'calltracer' ERR
+
+            if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then
+                red_text "Parameter --experiment_name is missing or empty" >&2
+                myexit 104
+            fi
+        fi
+
+        set -e
+    fi
+
+    trap - ERR
+    set +e
+
+    if [[ -z $reservation ]]; then
+        _reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
+        retcode=$?
+        if [[ $retcode -ne 0 ]] && [[ -n $_reservation ]]; then
+            reservation=$_reservation
+        fi
+    fi
+
+    if [[ -z $account ]]; then
+        _account=$(get_config_from_config_file "account" 0 2>/dev/null)
+        retcode=$?
+        if [[ $retcode -ne 0 ]] && [[ -n $_account ]]; then
+            account=$_account
+        fi
+    fi
+
+    if [[ -z $follow ]]; then
+        _follow=$(get_config_from_config_file "follow" 0 2>/dev/null)
+        retcode=$?
+        if [[ $retcode -ne 0 ]] && [[ -n $_follow ]]; then
+            follow=$_follow
+        fi
+
+        shopt -s nocasematch
+
+        if [[ "$follow" =~ ^(true|1)$ ]]; then
+            follow=1
+        else
+            follow=0
+        fi
+
+        shopt -u nocasematch
+    fi
+
+    if [[ -z $force_local_execution ]]; then
+        _force_local_execution=$(get_config_from_config_file "force_local_execution" 0 2>/dev/null)
+        retcode=$?
+        if [[ $retcode -ne 0 ]] && [[ -n $_force_local_execution ]]; then
+            force_local_execution=$_force_local_execution
+        fi
+
+        shopt -s nocasematch
+
+        if [[ "$force_local_execution" =~ ^(true|1)$ ]]; then
+            force_local_execution=1
+        else
+            force_local_execution=0
+        fi
+
+        shopt -u nocasematch
+    fi
+
+    if [[ -z $gpus ]]; then
+        if [[ -n $config_yaml ]] || [[ -n $config_json ]] || [[ -n $config_toml ]]; then
+            _gpus=$(get_config_from_config_file "gpus" 0 2>/dev/null)
+            retcode=$?
+            if [[ $retcode -eq 0 ]]; then
+                gpus=$_gpus
+            fi
+        fi
+    fi
+
+    if [[ -z $gpus ]]; then
+        gpus=0
+    fi
+
+    set -e
+    trap 'calltracer' ERR
+
+    if [[ "$continue_previous_job" != "" ]]; then
+        if [[ ! -d "$continue_previous_job" ]]; then
+            echo "The folder $continue_previous_job was not found"
+            myexit 105
+        fi
+
+        if [[ -z "$mem_gb" ]]; then
+            if [[ -e "$continue_previous_job/state_files/mem_gb" ]]; then
+                mem_gb=$(cat "$continue_previous_job/state_files/mem_gb")
+            else
+                echo "mem_gb could not be determined from previous run or --mem_gb"
+                myexit 105
+            fi
+        fi
+
+        if [[ -z "$main_process_gb" ]]; then
+            if [[ -e "$continue_previous_job/state_files/main_process_gb" ]]; then
+                main_process_gb=$(cat "$continue_previous_job/state_files/main_process_gb")
+            else
+                main_process_gb=$mem_gb
+            fi
+        fi
+
+        if [[ -z "$gpus" ]] || [[ $gpus -eq 0 ]]; then
+            if [[ -e "$continue_previous_job/state_files/gpus" ]]; then
+                gpus=$(cat "$continue_previous_job/state_files/gpus")
+            fi
+        fi
+
+        if [[ -z "$experiment_name" ]]; then
+            if [[ -e "$continue_previous_job/state_files/experiment_name" ]]; then
+                experiment_name=$(cat "$continue_previous_job/state_files/experiment_name")
+            else
+                echo "Experiment name could not be determined from previous run or --experiment_name"
+                myexit 105
+            fi
+        fi
+
+        if [[ -z "$follow" ]] || [[ "$file" -eq 0 ]]; then
+            if [[ -e "$continue_previous_job/state_files/follow" ]]; then
+                follow=1
+            fi
+        fi
+
+        if [[ -z "$time" ]]; then
+            if [[ -e "$continue_previous_job/state_files/time" ]]; then
+                time=$(cat "$continue_previous_job/state_files/time")
+            else
+                echo "Time could not be determined from previous run or --time"
+                myexit 105
+            fi
+        fi
+    fi
+
+    if [[ -z $main_process_gb ]]; then
+        if [[ -n $mem_gb ]]; then
+            main_process_gb=$mem_gb
+        else
+            main_process_gb=8 # default value
+        fi
+    fi
+
+    python_pid=""
+
+
+    #echo "\$0: $0, SCRIPT_DIR: $SCRIPT_DIR"
+
+    if [ -n "${SLURM_JOB_ID:-}" ] ; then
+        set +e
+        if command -v scontrol 2>/dev/null >/dev/null; then
+            SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+            #echo "scontrol show job $SLURM_JOB_ID: exited with $?"
+            SLURM_FILE_SCRIPT_DIR=$(dirname "$SLURM_FILE_SCRIPT_DIR")
+
+            if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
+                SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
+            else
+                echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
+            fi
+        else
+            red_text "scontrol not found. Unsetting SLURM_JOB_ID"
+            unset SLURM_JOB_ID
+        fi
+        set -e
+    fi
+
+    if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
+        #echo "source $SCRIPT_DIR/.shellscript_functions"
+        source "$SCRIPT_DIR/.shellscript_functions"
+    else
+        red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
+        myexit 23
+    fi
+
+    mycd "$ORIGINAL_PWD"
+
+    if [[ "$workdir" != "" ]]; then
+        if [[ ! -d "$workdir" ]]; then
+            mkdir -p "$workdir" || {
+                red_text "$workdir could not be created. Cannot continue."
+                myexit 191
+            }
+        fi
+
+        mycd "$workdir"
+    fi
+
+    function help_and_test_py {
+        if command -v stdbuf 2>/dev/null >/dev/null; then
+            if [[ -z $RUN_WITH_COVERAGE ]]; then
+                if [[ -n $bash_logname ]]; then
+                    stdbuf -e 0 -o 0 python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+                else
+                    stdbuf -e 0 -o 0 python3 "$@"
+                fi
+            else
+                if [[ -n $bash_logname ]]; then
+                    stdbuf -e 0 -o 0 coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+                else
+                    stdbuf -e 0 -o 0 coverage run -p "$@" --help
+                fi
+            fi
+        else
+            if [[ -z $RUN_WITH_COVERAGE ]]; then
+                if [[ -n $bash_logname ]]; then
+                    python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+                else
+                    python3 "$@"
+                fi
+            else
+                if [[ -n $bash_logname ]]; then
+                    coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+                else
+                    coverage run -p "$@" --help
+                fi
+            fi
+        fi
+    }
+
+    if [[ "$help" -eq "1" ]]; then
+        python3 "$SCRIPT_DIR/.omniopt.py" --help
+
+        myexit 0
+    fi
+
+    if [[ "$tests" -eq "1" ]]; then
+        exit_code=0
+        if [[ $run_tests_that_fail_on_taurus -eq 0 ]]; then
+            help_and_test_py "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name ""
+            exit_code=$?
+        else
+            help_and_test_py "$SCRIPT_DIR/.omniopt.py" --tests --num_parallel_jobs=1 --max_eval=1 --worker_timeout=1 --run_program "" --experiment_name "" --run_tests_that_fail_on_taurus
+            exit_code=$?
+        fi
+        myexit $exit_code
+    fi
+
+    kill_tail_when_squeue_job_empty () {
+        JOB_ID=$1
+
+        sleep 10
+
+        while squeue -u "$USER" | grep "$JOB_ID" 2>/dev/null >/dev/null; do
+            sleep 5
+        done
+
+        sleep 10
+
+        for child in $(pgrep -P $$); do
+            for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
+                kill -9 "$tail_process"
+            done
+        done
+
+        return 0
+    }
+
+    if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
+        # To start all subjobs independently from the omniopt job, unset all SLURM variables
+        for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
+            unset "$i"
+        done
+
+        if [[ -n $SLURM_JOB_ID ]]; then
+            echo -e "To cancel, press \033[1mCTRL\e[0m \033[1mc\e[0m, then run '\e[31mscancel $SLURM_JOB_ID\e[0m'"
+        fi
+
+        IFS=$' '
+        export PYTHONPATH=$SCRIPT_DIR:$PYTHONPATH
+
+        set +e
+
+        if [[ $debug -eq 1 ]]; then
+            echo "args-string: $args_string"
+        fi
+
+        set +e
+        trap - ERR
+
+        if [[ -z $RUN_WITH_COVERAGE ]]; then
+            if [[ -n $bash_logname ]]; then
+                stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
+                EXIT_CODE=$?
+            else
+                stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
+                EXIT_CODE=$?
+            fi
+        else
+            echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
+            coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
+            EXIT_CODE=$?
+        fi
+
+        set -e
+        trap 'calltracer' ERR
+
+        set -e
+
+        _tput bel
+
+        myexit $EXIT_CODE
+    else
+        IFS=$' '
+
+        formatted_time=$(minutes_to_hh_mm_ss "$time")
+
+        sbatch_result=""
+        exit_code=""
+
+        sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
+
+        if [[ $gpus -ne 0 ]]; then
+            sbatch_command+=" --gres=gpu:$gpus"
+        fi
+
+        if [[ -n $account ]]; then
+            sbatch_command+=" --account=$account"
+        fi
+
+        if [[ -n $reservation ]]; then
+            sbatch_command+=" --reservation=$reservation"
+        fi
+
+        sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
+
+        if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
+            yellow_text "$sbatch_command"
+        fi
+
+        set +e
+
+        sbatch_result=$($sbatch_command)
+        exit_code=$?
+
+        set -e
+
+        started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
+
+        if [[ $exit_code -eq 0 ]]; then
+            if [[ $follow -eq 1 ]]; then
+                if command -v sbatch 2>/dev/null >/dev/null; then
+                    set +e
+                    LOG_PATH=$(slurmlogpath "$started_job_nr" | tail -n1)
+
+                    spin[0]="-"
+                    spin[1]="\\" # "
+                    spin[2]="|"
+                    spin[3]="/"
+
+                    last_why_pending_time=$(date +%s)
+                    last_sq_time=$(date +%s)
+
+                    estimated_start_time=""
+                    estimated_start_time_original=""
+                    _remaining_time=""
+
+
+                    if [[ $debug -eq 1 ]]; then
+                        trap - DEBUG
+                    fi
+
+                    while ! [[ -e $LOG_PATH ]]; do
+                        current_time=$(date +%s)
+
+                        time_diff_whypending=$(($current_time - $last_why_pending_time))
+                        time_diff_sq=$(($current_time - $last_sq_time))
+
+                        if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_whypending -gt 10 ]]; then
+                            trap - ERR
+                            estimated_start_time_original=$(timeout 5 whypending "$started_job_nr" 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
+                            trap 'calltracer' ERR
+
+                            current_time=$(date +%s)
+                            last_why_pending_time=$current_time
+                            if [[ -n $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
+                                estimated_start_time=". Estimated start:$estimated_start_time_original"
+                                if [[ -n $estimated_start_time_original ]]; then
+                                    _remaining_time=""
+                                    _remaining_time=$(remaining_time "$estimated_start_time_original" | sed -e 's#[[:space:]][[:space:]]*# #g')
+
+                                    if [[ -n $_remaining_time ]]; then
+                                        estimated_start_time="$estimated_start_time ($_remaining_time)"
+                                    fi
+                                fi
+                            fi
+                        fi
+
+                        if command -v squeue 2>/dev/null > /dev/null && [[ $time_diff_sq -gt 60 ]]; then
+                            current_time=$(date +%s)
+                            last_sq_time=$current_time
+
+                            squeue_me_output=$(squeue --me 2>/dev/null)
+                            squeue_exit_code=$?
+
+                            if [[ $squeue_exit_code -eq "0" ]]; then
+                                job_still_in_squeue=$(echo "$squeue_me_output" | grep -c "$started_job_nr")
+
+                                if [[ "$job_still_in_squeue" -eq "0" ]]; then
+                                    red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
+
+                                    SCONTROL_STATUS=$(scontrol show job "$started_job_nr" | grep JobState | sed -e 's#^\s*[^=]*=#SLURM-Job-State: #')
+
+                                    if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
+                                        red_text "$SCONTROL_STATUS"
+                                        if [[ "$SCONTROL_STATUS" == *"RaisedSignal:53"* ]]; then
+                                            red_text "This may indicate a file system error"
+                                        fi
+
+                                        if command -v findmnt 2>/dev/null >/dev/null; then
+                                            red_text "Mount-Info:"
+                                            findmnt -T "$SCRIPT_DIR"
+                                        fi
+                                    fi
+
+                                    myexit 243
+                                fi
+                            fi
+                        fi
+
+
+                        for i in "${spin[@]}"; do
+                            print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
+
+                            print_line="$print_line$i"
+                            _tput cr # Move cursor to beginning of line
+                            _tput el # Delete line from start to finish
+
+                            #echo -ne "$backspaces"
+                            echo -ne "$print_line"
+                            sleep 0.2
+                        done
+
+
+                    done
+
+                    if [[ $debug -eq 1 ]]; then
+                        set_debug
+                    fi
+
+                    set -e
+
+                    printf "\r"
+
+                    _tput el
+
+                    if [[ -e "$LOG_PATH" ]]; then
+                        kill_tail_when_squeue_job_empty "$started_job_nr" &
+                        # weird exec stuff for disabling the "Terminated" message coming from kill
+                        exec 3>&2          # 3 is now a copy of 2
+                        exec 2> /dev/null  # 2 now points to /dev/null
+                        tail -n1000000 -f "$LOG_PATH" || true
+                        exec 2>&3          # restore stderr to saved
+                        exec 3>&-          # close saved version
+
+                        exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
+                    else
+                        red_text "$LOG_PATH could not be found"
+                    fi
+                fi
+            elif [[ "$wait_until_ended" -eq "1" ]]; then
+                if command -v squeue 2>/dev/null >/dev/null; then
+                    WAIT_NUM_SECONDS=10
+                    yellow_text "Waiting for job $started_job_nr to end... (Checking every $WAIT_NUM_SECONDS seconds)"
+
+                    while [[ "$(squeue --me | grep -c "$started_job_nr")" -ne "0" ]]; do
+                        sleep $WAIT_NUM_SECONDS
+                    done
+
+                    yellow_text "Done waiting for job to end"
+
+                    LOG_PATH=$(slurmlogpath "$started_job_nr")
+                    if [[ -e "$LOG_PATH" ]]; then
+                        cat "$LOG_PATH"
+                    else
+                        red_text "$LOG_PATH could not be found"
+                    fi
+                else
+                    red_text "squeue not found. Cannot wait for job to end."
+                fi
+            fi
+        else
+            sbatch_command=$(echo "$sbatch_command" | sed -e 's#^\s*##' -e 's#\s*$##')
+            red_text "Failed to start sbatch job. Command:\n"
+            red_text "$sbatch_command\n"
+            red_text "Exit-Code: $exit_code\n"
+
+            myexit $exit_code
+        fi
+
+    fi
+
+    echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
+
+    if [[ -n $RUN_WITH_COVERAGE ]]; then
+        echo "Run *coverage combine*, *coverage xml* and *coverage html*"
+    fi
+
+    if [[ "$exit_code" =~ ^[0-9]+$ ]]; then
+        myexit "$exit_code"
+    else
+        if [[ $exit_code != "" ]]; then
+            echo "Invalid exit-code >$exit_code< detected!"
+        else
+            echo "No exit-code could be found. Exiting with exit-code 3."
+        fi
+        myexit 3
+    fi
 }

@@ -1,6 +1,5 @@
 psutil
 decorator
-six
 tensorflow
 tensorflowjs
 protobuf

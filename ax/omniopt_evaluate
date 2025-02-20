@@ -522,10 +522,6 @@ function change_variables {
             fi
 
             change_variables
-        elif [[ "$MENU_CHOICE" =~ "SCIENTIFICNOTATION" ]]; then
-            chosenvar=$(whiptail --inputbox "Use scientific notation? 0 = no, 1 = yes with 1 decimal point, 2 = yes with 2 decimal points, ..." 8 80 "$SCIENTIFICNOTATION" --title "SCIENTIFICNOTATION" 3>&1 1>&2 2>&3)
-            eval "export $MENU_CHOICE=$chosenvar"
-            change_variables
         elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
             DEFAULTNO=''
             if [[ "$DISPLAYGAUGE" == "0" ]]; then
@@ -577,7 +573,6 @@ function change_variables {
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
             echo "export DEBUG=$DEBUG" >> .oax_default_settings
-            echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .oax_default_settings
         elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
             if [[ -e "$HOME/.oax_default_settings" ]]; then
                 rm ~/.oax_default_settings
@@ -591,7 +586,6 @@ function change_variables {
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
             echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
-            echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
         else
             eval "$(resize)"
             whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3

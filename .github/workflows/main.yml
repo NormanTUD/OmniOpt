@@ -13,6 +13,7 @@ jobs:
     strategy:
       fail-fast: true
     runs-on: "ubuntu-latest"
+    environment: Production
 
     permissions:
       contents: write
@@ -49,6 +50,7 @@ jobs:
   docker-test:
     needs: [Linter, todo-to-issue]
     runs-on: ${{ matrix.os }}
+    environment: Production
     strategy:
       fail-fast: true
       matrix:
@@ -97,6 +99,7 @@ jobs:
   main-test:
     needs: [Linter, todo-to-issue, docker-test]
     runs-on: ${{ matrix.os }}
+    environment: Production
     strategy:
       fail-fast: true
       matrix:
@@ -167,6 +170,7 @@ jobs:
     strategy:
       fail-fast: true
     runs-on: "ubuntu-latest"
+    environment: Production
     steps:
       - uses: "actions/checkout@v4"
       - name: "TODO to Issue"
@@ -176,6 +180,7 @@ jobs:
     needs: [main-test, Linter, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
+    environment: Production
     steps:
     - name: Coveralls Finished
       uses: coverallsapp/github-action@v2

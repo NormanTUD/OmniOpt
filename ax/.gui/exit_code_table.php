@@ -66,6 +66,7 @@
 			244 => "get_executor() failed. See logs for more details.",
 			245 => "python3 is not installed",
 			246 => "A path that should have been a file is actually a folder. Check output for more details.",
+			247 => "Trying to continue a job which was started with --generation_strategy. This is currently not possible.",
 			255 => "sbatch error"
 		];
 

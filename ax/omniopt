@@ -177,7 +177,7 @@
     }
 
     if [[ $SCRIPT_DIR =~ /ax/?$ ]]; then
-        underline_red_text "Future Warning: Your script lies in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder."
+	    underline_red_text "Future Warning: Your script lies in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder. (Warning issued on 20th Feb., 2025)."
     fi
 
     function _tput {

@@ -17,11 +17,8 @@ export BASH_XTRACEFD="$FD"
 PROJECTDIR=$(pwd)/runs
 
 export BUBBLESIZEINPX=7
-export SVGEXPORTSIZE=2000
-export SHOWALLGPUS=0
 export ASKEDTOUPGRADE=0
 export DISPLAYGAUGE=1
-export SCIENTIFICNOTATION=4
 export DEBUG=0
 export LOAD_MODULES=1
 export UPGRADE=1
@@ -456,11 +453,9 @@ function change_variables {
             --menu "Choose an option" \
             $LINES $COLUMNS $(( $LINES - 8 )) \
             "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" \
-            "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" \
             "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" \
             "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" \
             "DEBUG" "Debug evaluate-run (currently $DEBUG)" \
-            "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" \
             "s)" "Save current settings as default for this OmniOpt2-installation" \
             "S)" "Save current settings as default for all OmniOpt2-installations on your account" \
             "m)" "Main menu" \
@@ -472,13 +467,6 @@ function change_variables {
             main
         elif [[ "$MENU_CHOICE" =~ "BUBBLESIZEINPX" ]]; then
             chosenvar=$(whiptail --inputbox "Size of the plot bubbles in px?" 8 39 "$BUBBLESIZEINPX" --title "BUBBLESIZEINPX" 3>&1 1>&2 2>&3)
-            eval "export $MENU_CHOICE=$chosenvar"
-            change_variables
-        elif [[ "$MENU_CHOICE" =~ "SVGEXPORTSIZE" ]]; then
-            chosenvar=$(whiptail --inputbox "Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
-            while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
-                chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
-            done
             eval "export $MENU_CHOICE=$chosenvar"
             change_variables
         elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
@@ -525,7 +513,6 @@ function change_variables {
             fi
 
             echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .oax_default_settings
-            echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .oax_default_settings
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
             echo "export DEBUG=$DEBUG" >> .oax_default_settings
@@ -535,7 +522,6 @@ function change_variables {
             fi
 
             echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oax_default_settings
-            echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oax_default_settings
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
             echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings

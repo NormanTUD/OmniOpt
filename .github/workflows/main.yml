@@ -141,7 +141,10 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage
+        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
+    - name: plot tests
+      run: |
+        bash ./ax/.tests/plots
     - name: Upload coverage to Coveralls
       uses: coverallsapp/github-action@v2
       with:

@@ -6047,8 +6047,10 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
         results = []
 
-        for _ in range(nr_of_jobs_to_get):
-            trial_index_to_param, optimization_complete = _get_next_trials(1, nr_of_jobs_to_get)
+        new_nr_of_jobs_to_get = min(max_eval - submitted_jobs(), nr_of_jobs_to_get)
+
+        for _ in range(new_nr_of_jobs_to_get):
+            trial_index_to_param, optimization_complete = _get_next_trials(1, new_nr_of_jobs_to_get)
             done_optimizing = handle_optimization_completion(optimization_complete)
             if done_optimizing:
                 continue

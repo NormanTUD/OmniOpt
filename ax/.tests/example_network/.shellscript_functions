@@ -1,5 +1,14 @@
 #!/bin/bash
 
+dont_install_on_hpc=(
+	"tensorflow"
+	"tensorflowjs"
+	"protobuf"
+	"keras"
+	"six"
+	"tf_keras"
+)
+
 {
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 	cd "$SCRIPT_DIR"
@@ -288,7 +297,13 @@
 					green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed$(bg_jobs_str)..."
 				fi
 
-				ppip "$install_this" "-" "$MAX_NR" &
+				if command -v sbatch 2>/dev/null >/dev/null; then
+					if [[ ! " ${dont_install_on_hpc[@]} " =~ " ${install_this} " ]]; then
+						ppip "$install_this" "-" "$MAX_NR" &
+					fi
+				else
+					ppip "$install_this" "-" "$MAX_NR" &
+				fi
 
 				nr_bg_jobs=$(get_nr_bg_jobs)
 

@@ -17,11 +17,8 @@ export BASH_XTRACEFD="$FD"
 PROJECTDIR=$(pwd)/runs
 
 export BUBBLESIZEINPX=7
-export NONZERODIGITS=2
-export SHOWFAILEDJOBSINPLOT=0
 export SVGEXPORTSIZE=2000
 export SHOWALLGPUS=0
-export HIDEMAXVALUESINPLOT=0
 export ASKEDTOUPGRADE=0
 export DISPLAYGAUGE=1
 export SCIENTIFICNOTATION=4
@@ -458,11 +455,8 @@ function change_variables {
             --title "Change variables" \
             --menu "Choose an option" \
             $LINES $COLUMNS $(( $LINES - 8 )) \
-            "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" \
-            "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" \
             "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" \
             "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" \
-            "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" \
             "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" \
             "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" \
             "DEBUG" "Debug evaluate-run (currently $DEBUG)" \
@@ -480,47 +474,12 @@ function change_variables {
             chosenvar=$(whiptail --inputbox "Size of the plot bubbles in px?" 8 39 "$BUBBLESIZEINPX" --title "BUBBLESIZEINPX" 3>&1 1>&2 2>&3)
             eval "export $MENU_CHOICE=$chosenvar"
             change_variables
-        elif [[ "$MENU_CHOICE" =~ "NONZERODIGITS" ]]; then
-            chosenvar=$(whiptail --inputbox "Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
-            while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
-                chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
-            done
-            eval "export $MENU_CHOICE=$chosenvar"
-            change_variables
         elif [[ "$MENU_CHOICE" =~ "SVGEXPORTSIZE" ]]; then
             chosenvar=$(whiptail --inputbox "Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
             while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
                 chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
             done
             eval "export $MENU_CHOICE=$chosenvar"
-            change_variables
-        elif [[ "$MENU_CHOICE" =~ "SHOWFAILEDJOBSINPLOT" ]]; then
-            DEFAULTNO=''
-            if [[ "$SHOWFAILEDJOBSINPLOT" == "0" ]]; then
-                DEFAULTNO=" --defaultno "
-            fi
-
-            eval "$(resize)"
-            if (whiptail --title "Show invalid jobs in plot?" --yesno "Do you want to show invalid jobs with really high values in plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-                export SHOWFAILEDJOBSINPLOT=1
-            else
-                export SHOWFAILEDJOBSINPLOT=0
-            fi
-
-            change_variables
-        elif [[ "$MENU_CHOICE" =~ "HIDEMAXVALUESINPLOT" ]]; then
-            DEFAULTNO=''
-            if [[ "$HIDEMAXVALUESINPLOT" == "0" ]]; then
-                DEFAULTNO=" --defaultno "
-            fi
-
-            eval "$(resize)"
-            if (whiptail --title "Hide max-values-string in plot?" --yesno "Do you want to hide the 'max value' string in plots?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-                export HIDEMAXVALUESINPLOT=1
-            else
-                export HIDEMAXVALUESINPLOT=0
-            fi
-
             change_variables
         elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
             DEFAULTNO=''
@@ -565,11 +524,8 @@ function change_variables {
                 rm .oax_default_settings
             fi
 
-            echo "export NONZERODIGITS=$NONZERODIGITS" >> .oax_default_settings
-            echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .oax_default_settings
             echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .oax_default_settings
             echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .oax_default_settings
-            echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .oax_default_settings
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
             echo "export DEBUG=$DEBUG" >> .oax_default_settings
@@ -578,11 +534,8 @@ function change_variables {
                 rm ~/.oax_default_settings
             fi
 
-            echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oax_default_settings
-            echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oax_default_settings
             echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oax_default_settings
             echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oax_default_settings
-            echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oax_default_settings
             echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
             echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
             echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings

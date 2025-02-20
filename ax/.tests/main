@@ -523,7 +523,7 @@ function delete_test {
 	if [[ -d "runs/$tn" ]]; then
 		yellow_text "Deleting old runs/$tn..."
 		if [[ -d runs/$tn ]]; then
-			rm -rf runs/$tn
+			rm -rf "runs/$tn"
 		fi
 	fi
 }
@@ -972,7 +972,7 @@ if [[ -n $GITHUB_STEP_SUMMARY ]]; then
 	print_table_markdown >> "$GITHUB_STEP_SUMMARY"
 fi
 
-if [[ $DEBUG -eq 1 ]]; then
+if [[ $debug -eq 1 ]]; then
 	set_debug
 fi
 

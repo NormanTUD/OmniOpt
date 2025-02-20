@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function set_debug {
-	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+    trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
 }
 
 function unset_debug {
-	trap - DEBUG
+    trap - DEBUG
 }
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -55,7 +55,7 @@ if [[ -e "$HOME/.oax_default_settings" ]]; then
 fi
 
 function this_help {
-	cat <<'EOF'
+    cat <<'EOF'
 This helps graphically to use OmniOpt2.
 
   --projectdir=/path/to/projects/                     Path to available projects
@@ -71,7 +71,7 @@ for i in "$@"; do
     case $i in
         --debug)
             DEBUG=1
-	    set_debug
+            set_debug
             ;;
 
         --nogauge)
@@ -108,104 +108,104 @@ source .shellscript_functions
 source .general.sh
 
 function info_message_large {
-	MSG=$1
-	eval "$(resize)"
-	#echo_green "$MSG"
-	whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
+    MSG=$1
+    eval "$(resize)"
+    #echo_green "$MSG"
+    whiptail --title "Info Message" --msgbox "$MSG" $LINES $COLUMNS
 }
 
 function inputbox {
-	TITLE=$1
-	MSG=$2
-	DEFAULT=$3
+    TITLE=$1
+    MSG=$2
+    DEFAULT=$3
 
-	eval "$(resize)"
-	RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
-	exitstatus=$?
-	if [[ $exitstatus == 0 ]]; then
-		echo "$RESULT"
-	else
-		echo_red "You chose to cancel (1)"
-		exit 1
-	fi
+    eval "$(resize)"
+    RESULT=$(whiptail --inputbox "$MSG" $LINES $COLUMNS "$DEFAULT" --title "$TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    if [[ $exitstatus == 0 ]]; then
+        echo "$RESULT"
+    else
+        echo_red "You chose to cancel (1)"
+        exit 1
+    fi
 }
 
 function print_wallclock_time {
-	PROJECT=$1
-	NUMBER=$2
+    PROJECT=$1
+    NUMBER=$2
 
-	file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+    file_path="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
 
-	awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file
+    awk -F',' '{print $1,$2}' "$file_path" | sed '1d' > temp_file
 
-	min_time=$(awk '{print $1}' temp_file | sort -n | head -n 1)
-	max_time=$(awk '{print $2}' temp_file | sort -n | tail -n 1)
+    min_time=$(awk '{print $1}' temp_file | sort -n | head -n 1)
+    max_time=$(awk '{print $2}' temp_file | sort -n | tail -n 1)
 
-	rm temp_file
+    rm temp_file
 
-	max_time=$(echo $max_time | sed -e 's#\..*##')
-	min_time=$(echo $min_time | sed -e 's#\..*##')
-	absolute_runtime=$((max_time - min_time))
+    max_time=$(echo $max_time | sed -e 's#\..*##')
+    min_time=$(echo $min_time | sed -e 's#\..*##')
+    absolute_runtime=$((max_time - min_time))
 
-	days=$((absolute_runtime / 86400))
-	hours=$(( (absolute_runtime % 86400) / 3600 ))
-	minutes=$(( (absolute_runtime % 3600) / 60 ))
-	remaining_seconds=$((absolute_runtime % 60))
+    days=$((absolute_runtime / 86400))
+    hours=$(( (absolute_runtime % 86400) / 3600 ))
+    minutes=$(( (absolute_runtime % 3600) / 60 ))
+    remaining_seconds=$((absolute_runtime % 60))
 
-	human_readable=""
-	if [ $days -gt 0 ]; then
-	    human_readable+=" ${days}d"
-	fi
-	if [ $hours -gt 0 ]; then
-	    human_readable+=" ${hours}h"
-	fi
-	if [ $minutes -gt 0 ]; then
-	    human_readable+=" ${minutes}m"
-	fi
-	human_readable+=" ${remaining_seconds}s"
+    human_readable=""
+    if [ $days -gt 0 ]; then
+        human_readable+=" ${days}d"
+    fi
+    if [ $hours -gt 0 ]; then
+        human_readable+=" ${hours}h"
+    fi
+    if [ $minutes -gt 0 ]; then
+        human_readable+=" ${minutes}m"
+    fi
+    human_readable+=" ${remaining_seconds}s"
 
-	echo "Wallclock time for $PROJECT (run nr. $NUMBER): ${absolute_runtime}s ($human_readable)"
+    echo "Wallclock time for $PROJECT (run nr. $NUMBER): ${absolute_runtime}s ($human_readable)"
 }
 
 function list_option_for_job {
-	PROJECT=$1
-	NUMBER=$2
+    PROJECT=$1
+    NUMBER=$2
 
-	eval "$(resize)"
+    eval "$(resize)"
 
-	THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
-	THISPDCSV="$THISPROJECTDIR/$NUMBER/results.csv"
-	THISMAINCSV="$THISPROJECTDIR/$NUMBER/0.csv"
+    THISPROJECTDIR="$PROJECTDIR/$PROJECT/"
+    THISPDCSV="$THISPROJECTDIR/$NUMBER/results.csv"
+    THISMAINCSV="$THISPROJECTDIR/$NUMBER/0.csv"
 
-	args=()
+    args=()
 
-	if [[ -e $THISPDCSV ]]; then
-		if [[ -n $DISPLAY ]]; then
-			args+=(
-				"plot)" "different plotting options" 
-			)
-		fi
-	fi
+    if [[ -e $THISPDCSV ]]; then
+        if [[ -n $DISPLAY ]]; then
+            args+=(
+                "plot)" "different plotting options"
+            )
+        fi
+    fi
 
-	if [[ -e $THISMAINCSV ]]; then
-		args+=(
-			"i)" "Get general info for this job"
-		)
-	fi
+    if [[ -e $THISMAINCSV ]]; then
+        args+=(
+            "i)" "Get general info for this job"
+        )
+    fi
 
-	if [[ -d "$THISPROJECTDIR" ]]; then
-		args+=("d)" "Create debug-zip")
-	fi
+    if [[ -d "$THISPROJECTDIR" ]]; then
+        args+=("d)" "Create debug-zip")
+    fi
 
-	CONTINUED_FROM=""
+    CONTINUED_FROM=""
 
-	if [[ -e "$THISPROJECTDIR/$NUMBER/checkpoint_load_source" ]]; then
-		CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
-	fi
+    if [[ -e "$THISPROJECTDIR/$NUMBER/checkpoint_load_source" ]]; then
+        CONTINUED_FROM="$(cat $THISPROJECTDIR/$NUMBER/checkpoint_load_source)"
+    fi
 
-	input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+    input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
 
-	FAILED_JOBS=$(perl -e '
+    FAILED_JOBS=$(perl -e '
 open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
 
 # Read header line
@@ -233,177 +233,177 @@ while (my $line = <$fh>) {
 }
 
 close $fh;
-' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
+    ' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
 
-	error_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
-	if [[ -e "$error_file" ]]; then
-		FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
-		args+=("e)" "detected errors")
-	fi
+    error_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
+    if [[ -e "$error_file" ]]; then
+        FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
+        args+=("e)" "detected errors")
+    fi
 
-	WHATTODO=$(whiptail \
-		--title "Available options for >${PROJECT}< (run number $NUMBER)" \
-		--menu \
-		"Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
-		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"${args[@]}" \
-		"b)" "back" \
-		"q)" "quit" 3>&1 1>&2 2>&3
-	)
-
-
-
-	exitstatus=$?
-
-	if [[ $exitstatus == 0 ]]; then
-		if [[ "$WHATTODO" =~ "b)" ]]; then
-			num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
-
-			if [[ $num_of_subfolder_numbers -eq 0 ]]; then
-				echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
-				list_projects
-			elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
-				list_projects
-			else
-				chose_project_number "$PROJECT"
-			fi
-		elif [[ "$WHATTODO" =~ "q)" ]]; then
-			exit
-		elif [[ "$WHATTODO" =~ "d)" ]]; then
-			DEBUGFILE=debug.zip
-			i=0
-			while [[ -e "$DEBUGFILE" ]]; do
-				DEBUGFILE="debug_${i}.zip"
-				i=$((i+1))
-			done
-
-			list_installed_modules=list_installed_modules.log
-			i=0
-			while [[ -e $list_installed_modules ]]; do
-				list_installed_modules="list_installed_modules_${i}.log"
-				i=$((i+1))
-			done
-
-			pip3 list > $list_installed_modules
-
-			zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/* debuglogs
-
-			if [[ -e $DEBUGFILE ]]; then
-				if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then
-					spin_up_temporary_webserver . $DEBUGFILE
-				else
-					if [[ "$USER" == "s3811141" ]]; then
-						info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp_taurus $(pwd)/$DEBUGFILE .\n"
-					else
-						info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp $USER@taurus.hrsk.tu-dresden.de://$(pwd)/$DEBUGFILE .\n"
-					fi
-				fi
-			else
-				error_message "Could not write $DEBUGFILE"
-			fi
-
-			list_option_for_job "$PROJECT" "$NUMBER"
-
-		elif [[ "$WHATTODO" =~ "plot)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
-				bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
-				exit_code=$?
-				if [[ $exit_code -ne 0 ]]; then
-					error_message "$OUTPUT"
-				fi
-			else
-				eval "$(resize)"
-				whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/results.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
-			fi
-			list_option_for_job "$PROJECT" "$NUMBER"
-
-		elif [[ "$WHATTODO" =~ "P)" ]]; then
-			if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
-				minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
-				maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
-
-				if [ -n "$minvalue" ]; then
-					# Check if $minvalue is a number (integer or float, positive or negative)
-					if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$minvalue is not a valid number. Setting it to empty."
-						minvalue=""
-					fi
-				fi
+    WHATTODO=$(whiptail \
+            --title "Available options for >${PROJECT}< (run number $NUMBER)" \
+            --menu \
+            "Chose what to do with >$PROJECT<. $CONTINUED_FROM$FAILED_JOBS_STRING" \
+            $LINES $COLUMNS $(( $LINES - 8 )) \
+            "${args[@]}" \
+            "b)" "back" \
+            "q)" "quit" 3>&1 1>&2 2>&3
+    )
 
 
-				if [ -n "$maxvalue" ]; then
-					# Check if $maxvalue is a number (integer or float, positive or negative)
-					if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
-						echo "\$maxvalue is not a valid number. Setting it to empty."
-						maxvalue=""
-					fi
-				fi
 
-				if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
-					# Check if minvalue is greater than maxvalue
-					if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
-						# Swap values
-						temp="$minvalue"
-						minvalue="$maxvalue"
-						maxvalue="$temp"
-					else
-						echo "minvalue is less than or equal to maxvalue. No need to swap."
-					fi
-				fi
+    exitstatus=$?
 
-				if [[ -z "$minvalue" ]]; then
-					if [[ -z "$maxvalue" ]]; then
-						set +e
-						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
-						exit_code=$?
-						if [[ $exit_code -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					else
-						set +e
-						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --max "$maxvalue"
-						exit_code=$?
-						if [[ $exit_code -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					fi
-				else
-					if [[ -z "$maxvalue" ]]; then
-						set +e
-						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue"
-						exit_code=$?
-						if [[ $exit_code -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					else
-						set +e
-						bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue" --max "$maxvalue"
-						exit_code=$?
-						if [[ $exit_code -ne 0 ]]; then
-							error_message "$OUTPUT"
-						fi
-						set -e
-					fi
-				fi
-			else
-				eval "$(resize)"
-				whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
-			fi
+    if [[ $exitstatus == 0 ]]; then
+        if [[ "$WHATTODO" =~ "b)" ]]; then
+            num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
 
-			list_option_for_job "$PROJECT" "$NUMBER"
-		elif [[ "$WHATTODO" =~ "i)" ]]; then
-			WALLCLOCK_TIME="$(print_wallclock_time $PROJECT $NUMBER)"
+            if [[ $num_of_subfolder_numbers -eq 0 ]]; then
+                echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
+                list_projects
+            elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
+                list_projects
+            else
+                chose_project_number "$PROJECT"
+            fi
+        elif [[ "$WHATTODO" =~ "q)" ]]; then
+            exit
+        elif [[ "$WHATTODO" =~ "d)" ]]; then
+            DEBUGFILE=debug.zip
+            i=0
+            while [[ -e "$DEBUGFILE" ]]; do
+                DEBUGFILE="debug_${i}.zip"
+                i=$((i+1))
+            done
 
-			input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
-			total_jobs="$(cat $input_file | grep -v 'start_time,end_time' | wc -l)"
+            list_installed_modules=list_installed_modules.log
+            i=0
+            while [[ -e $list_installed_modules ]]; do
+                list_installed_modules="list_installed_modules_${i}.log"
+                i=$((i+1))
+            done
 
-			NUMBEROFJOBS="Number of jobs (failed and successful): $total_jobs"
+            pip3 list > $list_installed_modules
 
-			# Inline Perl script to extract and print "exit_code" column
-			FAILED_JOBS=$(perl -e '
+            zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/* debuglogs
+
+            if [[ -e $DEBUGFILE ]]; then
+                if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then
+                    spin_up_temporary_webserver . $DEBUGFILE
+                else
+                    if [[ "$USER" == "s3811141" ]]; then
+                        info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp_taurus $(pwd)/$DEBUGFILE .\n"
+                    else
+                        info_message_large "Wrote $DEBUGFILE. Send this file to <norman.koch@tu-dresden.de> for debugging-help.\nscp $USER@taurus.hrsk.tu-dresden.de://$(pwd)/$DEBUGFILE .\n"
+                    fi
+                fi
+            else
+                error_message "Could not write $DEBUGFILE"
+            fi
+
+            list_option_for_job "$PROJECT" "$NUMBER"
+
+        elif [[ "$WHATTODO" =~ "plot)" ]]; then
+            if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
+                bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
+                exit_code=$?
+                if [[ $exit_code -ne 0 ]]; then
+                    error_message "$OUTPUT"
+                fi
+            else
+                eval "$(resize)"
+                whiptail --title "No runs" --msgbox "The file '$PROJECTDIR/$PROJECT/$NUMBER/results.csv' does not exist. This means the job has not yet ran. Cannot create graph from empty job. (Line $LINENO)" $LINES $COLUMNS $(( $LINES - 8 ))
+            fi
+            list_option_for_job "$PROJECT" "$NUMBER"
+
+        elif [[ "$WHATTODO" =~ "P)" ]]; then
+            if [[ -e "$PROJECTDIR/$PROJECT/$NUMBER/results.csv" ]]; then
+                minvalue=$(inputbox "Minimum value for plot" "Enter a Minimum value for plotting $PROJECT/$NUMBER (float), leave empty for no Minimum value" "")
+                maxvalue=$(inputbox "Maximum value for plot" "Enter a Maximum value for plotting $PROJECT/$NUMBER (float), leave empty for no Maximum value" "")
+
+                if [ -n "$minvalue" ]; then
+                    # Check if $minvalue is a number (integer or float, positive or negative)
+                    if [[ ! "$minvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                        echo "\$minvalue is not a valid number. Setting it to empty."
+                        minvalue=""
+                    fi
+                fi
+
+
+                if [ -n "$maxvalue" ]; then
+                    # Check if $maxvalue is a number (integer or float, positive or negative)
+                    if [[ ! "$maxvalue" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+                        echo "\$maxvalue is not a valid number. Setting it to empty."
+                        maxvalue=""
+                    fi
+                fi
+
+                if [ -n "$minvalue" ] && [ -n "$maxvalue" ]; then
+                    # Check if minvalue is greater than maxvalue
+                    if (( $(echo "$maxvalue > $minvalue" |bc -l) )); then
+                        # Swap values
+                        temp="$minvalue"
+                        minvalue="$maxvalue"
+                        maxvalue="$temp"
+                    else
+                        echo "minvalue is less than or equal to maxvalue. No need to swap."
+                    fi
+                fi
+
+                if [[ -z "$minvalue" ]]; then
+                    if [[ -z "$maxvalue" ]]; then
+                        set +e
+                        bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/"
+                        exit_code=$?
+                        if [[ $exit_code -ne 0 ]]; then
+                            error_message "$OUTPUT"
+                        fi
+                        set -e
+                    else
+                        set +e
+                        bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --max "$maxvalue"
+                        exit_code=$?
+                        if [[ $exit_code -ne 0 ]]; then
+                            error_message "$OUTPUT"
+                        fi
+                        set -e
+                    fi
+                else
+                    if [[ -z "$maxvalue" ]]; then
+                        set +e
+                        bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue"
+                        exit_code=$?
+                        if [[ $exit_code -ne 0 ]]; then
+                            error_message "$OUTPUT"
+                        fi
+                        set -e
+                    else
+                        set +e
+                        bash "$SCRIPT_DIR/omniopt_plot" --run_dir "$PROJECTDIR/$PROJECT/$NUMBER/" --min "$minvalue" --max "$maxvalue"
+                        exit_code=$?
+                        if [[ $exit_code -ne 0 ]]; then
+                            error_message "$OUTPUT"
+                        fi
+                        set -e
+                    fi
+                fi
+            else
+                eval "$(resize)"
+                whiptail --title "No runs" --msgbox "The folder '$PROJECTDIR/$PROJECT/singlelogs' does not exist. This means the job has not yet ran. Cannot create graph from empty job." $LINES $COLUMNS $(( $LINES - 8 ))
+            fi
+
+            list_option_for_job "$PROJECT" "$NUMBER"
+        elif [[ "$WHATTODO" =~ "i)" ]]; then
+            WALLCLOCK_TIME="$(print_wallclock_time $PROJECT $NUMBER)"
+
+            input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
+            total_jobs="$(cat $input_file | grep -v 'start_time,end_time' | wc -l)"
+
+            NUMBEROFJOBS="Number of jobs (failed and successful): $total_jobs"
+
+            # Inline Perl script to extract and print "exit_code" column
+            FAILED_JOBS=$(perl -e '
 open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
 
 # Read header line
@@ -431,384 +431,385 @@ while (my $line = <$fh>) {
 }
 
 close $fh;
-			' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
+            ' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
 
-			exit_code=$?
-			if [[ $exit_code -ne 0 ]]; then
-				echo "inline python script failed"
-				exit $exit_code
-			fi
+            exit_code=$?
+            if [[ $exit_code -ne 0 ]]; then
+                echo "inline python script failed"
+                exit $exit_code
+            fi
 
-			FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
+            FAILED_JOBS_STRING="Number of failed Jobs: $FAILED_JOBS"
 
-			GENERAL_INFO="$NUMBEROFJOBS\n$FAILED_JOBS_STRING\n$WALLCLOCK_TIME"
+            GENERAL_INFO="$NUMBEROFJOBS\n$FAILED_JOBS_STRING\n$WALLCLOCK_TIME"
 
-			info_message_large "$GENERAL_INFO"
+            info_message_large "$GENERAL_INFO"
 
-			list_option_for_job "$PROJECT" "$NUMBER"
-		elif [[ "$WHATTODO" =~ "e)" ]]; then
-			input_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
-			if [[ -e "$input_file" ]]; then
-				error_message "$(cat $input_file | tr -d '\r')"
-			else
-				error_message "$input_file could not be found."
-			fi
-		else
-			echo_red "Unknown option: $WHATTODO (Line $LINENO)"
-		fi
-	else
-		echo_red "You chose to cancel (2)"
-		exit 1
-	fi
+            list_option_for_job "$PROJECT" "$NUMBER"
+        elif [[ "$WHATTODO" =~ "e)" ]]; then
+            input_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
+            if [[ -e "$input_file" ]]; then
+                error_message "$(cat $input_file | tr -d '\r')"
+            else
+                error_message "$input_file could not be found."
+            fi
+        else
+            echo_red "Unknown option: $WHATTODO (Line $LINENO)"
+        fi
+    else
+        echo_red "You chose to cancel (2)"
+        exit 1
+    fi
 }
 
 function change_variables {
-	eval "$(resize)"
-	MENU_CHOICE=$(whiptail \
-		--title "Change variables" \
-		--menu "Choose an option" \
-		$LINES $COLUMNS $(( $LINES - 8 )) \
-		"NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" \
-		"SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" \
-		"BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" \
-		"SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" \
-		"HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" \
-		"DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" \
-		"PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" \
-		"DEBUG" "Debug evaluate-run (currently $DEBUG)" \
-		"SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" \
-		"s)" "Save current settings as default for this OmniOpt2-installation" \
-		"S)" "Save current settings as default for all OmniOpt2-installations on your account" \
-		"m)" "Main menu" \
-		3>&1 1>&2 2>&3
-	)
-	exitstatus=$?
-	if [[ $exitstatus == 0 ]]; then
-		if [[ "$MENU_CHOICE" =~ "m)" ]]; then
-			main
-		elif [[ "$MENU_CHOICE" =~ "BUBBLESIZEINPX" ]]; then
-			chosenvar=$(whiptail --inputbox "Size of the plot bubbles in px?" 8 39 "$BUBBLESIZEINPX" --title "BUBBLESIZEINPX" 3>&1 1>&2 2>&3)
-			eval "export $MENU_CHOICE=$chosenvar"
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "NONZERODIGITS" ]]; then
-			chosenvar=$(whiptail --inputbox "Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
-			while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
-				chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
-			done
-			eval "export $MENU_CHOICE=$chosenvar"
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "SVGEXPORTSIZE" ]]; then
-			chosenvar=$(whiptail --inputbox "Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
-			while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
-				chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
-			done
-			eval "export $MENU_CHOICE=$chosenvar"
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "SHOWFAILEDJOBSINPLOT" ]]; then
-			DEFAULTNO=''
-			if [[ "$SHOWFAILEDJOBSINPLOT" == "0" ]]; then
-				DEFAULTNO=" --defaultno "
-			fi
+    eval "$(resize)"
+    MENU_CHOICE=$(whiptail \
+            --title "Change variables" \
+            --menu "Choose an option" \
+            $LINES $COLUMNS $(( $LINES - 8 )) \
+            "NONZERODIGITS" "Max. number of non-zero decimal places in the graph plot (currently $NONZERODIGITS)" \
+            "SHOWFAILEDJOBSINPLOT" "Show failed runs in plots with really high values (currently $SHOWFAILEDJOBSINPLOT)" \
+            "BUBBLESIZEINPX" "Size of bubbles in the plot graph (currently $BUBBLESIZEINPX)" \
+            "SVGEXPORTSIZE" "Size of the exported SVG-Graphs of Plot and GPU-Plot (currently $SVGEXPORTSIZE)" \
+            "HIDEMAXVALUESINPLOT" "Hide max values in Plot (currently $HIDEMAXVALUESINPLOT)" \
+            "DISPLAYGAUGE" "Display gauge when possible (currently $DISPLAYGAUGE)" \
+            "PROJECTDIR" "The path where projects are (currently $PROJECTDIR)" \
+            "DEBUG" "Debug evaluate-run (currently $DEBUG)" \
+            "SCIENTIFICNOTATION" "Use scientific notation and with how many decimal places (currently $SCIENTIFICNOTATION)" \
+            "s)" "Save current settings as default for this OmniOpt2-installation" \
+            "S)" "Save current settings as default for all OmniOpt2-installations on your account" \
+            "m)" "Main menu" \
+            3>&1 1>&2 2>&3
+    )
+    exitstatus=$?
+    if [[ $exitstatus == 0 ]]; then
+        if [[ "$MENU_CHOICE" =~ "m)" ]]; then
+            main
+        elif [[ "$MENU_CHOICE" =~ "BUBBLESIZEINPX" ]]; then
+            chosenvar=$(whiptail --inputbox "Size of the plot bubbles in px?" 8 39 "$BUBBLESIZEINPX" --title "BUBBLESIZEINPX" 3>&1 1>&2 2>&3)
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "NONZERODIGITS" ]]; then
+            chosenvar=$(whiptail --inputbox "Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
+            while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
+                chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Max. number of non-zero decimal places in the graph plot?" 8 80 "$NONZERODIGITS" --title "NONZERODIGITS" 3>&1 1>&2 2>&3)
+            done
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "SVGEXPORTSIZE" ]]; then
+            chosenvar=$(whiptail --inputbox "Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
+            while [[ ! $chosenvar =~ ^[0-9]+$ ]]; do
+                chosenvar=$(whiptail --inputbox "The value you entered was not an integer. Width of the SVG-Exports:" 8 50 "$SVGEXPORTSIZE" --title "SVGEXPORTSIZE" 3>&1 1>&2 2>&3)
+            done
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "SHOWFAILEDJOBSINPLOT" ]]; then
+            DEFAULTNO=''
+            if [[ "$SHOWFAILEDJOBSINPLOT" == "0" ]]; then
+                DEFAULTNO=" --defaultno "
+            fi
 
-			eval "$(resize)"
-			if (whiptail --title "Show invalid jobs in plot?" --yesno "Do you want to show invalid jobs with really high values in plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-				export SHOWFAILEDJOBSINPLOT=1
-			else
-				export SHOWFAILEDJOBSINPLOT=0
-			fi
+            eval "$(resize)"
+            if (whiptail --title "Show invalid jobs in plot?" --yesno "Do you want to show invalid jobs with really high values in plot?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+                export SHOWFAILEDJOBSINPLOT=1
+            else
+                export SHOWFAILEDJOBSINPLOT=0
+            fi
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "HIDEMAXVALUESINPLOT" ]]; then
-			DEFAULTNO=''
-			if [[ "$HIDEMAXVALUESINPLOT" == "0" ]]; then
-				DEFAULTNO=" --defaultno "
-			fi
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "HIDEMAXVALUESINPLOT" ]]; then
+            DEFAULTNO=''
+            if [[ "$HIDEMAXVALUESINPLOT" == "0" ]]; then
+                DEFAULTNO=" --defaultno "
+            fi
 
-			eval "$(resize)"
-			if (whiptail --title "Hide max-values-string in plot?" --yesno "Do you want to hide the 'max value' string in plots?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-				export HIDEMAXVALUESINPLOT=1
-			else
-				export HIDEMAXVALUESINPLOT=0
-			fi
+            eval "$(resize)"
+            if (whiptail --title "Hide max-values-string in plot?" --yesno "Do you want to hide the 'max value' string in plots?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+                export HIDEMAXVALUESINPLOT=1
+            else
+                export HIDEMAXVALUESINPLOT=0
+            fi
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "SCIENTIFICNOTATION" ]]; then
-			chosenvar=$(whiptail --inputbox "Use scientific notation? 0 = no, 1 = yes with 1 decimal point, 2 = yes with 2 decimal points, ..." 8 80 "$SCIENTIFICNOTATION" --title "SCIENTIFICNOTATION" 3>&1 1>&2 2>&3)
-			eval "export $MENU_CHOICE=$chosenvar"
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
-			DEFAULTNO=''
-			if [[ "$DISPLAYGAUGE" == "0" ]]; then
-				DEFAULTNO=" --defaultno "
-			fi
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "SCIENTIFICNOTATION" ]]; then
+            chosenvar=$(whiptail --inputbox "Use scientific notation? 0 = no, 1 = yes with 1 decimal point, 2 = yes with 2 decimal points, ..." 8 80 "$SCIENTIFICNOTATION" --title "SCIENTIFICNOTATION" 3>&1 1>&2 2>&3)
+            eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "DISPLAYGAUGE" ]]; then
+            DEFAULTNO=''
+            if [[ "$DISPLAYGAUGE" == "0" ]]; then
+                DEFAULTNO=" --defaultno "
+            fi
 
-			eval "$(resize)"
-			if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge wherever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-				export DISPLAYGAUGE=1
-			else
-				export DISPLAYGAUGE=0
-			fi
+            eval "$(resize)"
+            if (whiptail --title "Enable gauge?" --yesno "Do you want to enable gauge wherever possible?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+                export DISPLAYGAUGE=1
+            else
+                export DISPLAYGAUGE=0
+            fi
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "PROJECTDIR" ]]; then
-			chosenvar=$(whiptail --inputbox "Path of Projects" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
-			while [[ ! -d $chosenvar ]]; do
-				chosenvar=$(whiptail --inputbox "The path you chose does not exist. Choose another project path:" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
-			done
-			eval "export $MENU_CHOICE=$chosenvar"
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "PROJECTDIR" ]]; then
+            chosenvar=$(whiptail --inputbox "Path of Projects" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
+            while [[ ! -d $chosenvar ]]; do
+                chosenvar=$(whiptail --inputbox "The path you chose does not exist. Choose another project path:" 8 80 "$PROJECTDIR" --title "PROJECTDIR" 3>&1 1>&2 2>&3)
+            done
+            eval "export $MENU_CHOICE=$chosenvar"
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "DEBUG" ]]; then
-			DEFAULTNO=''
-			if [[ "$DEBUG" == "0" ]]; then
-				DEFAULTNO=" --defaultno "
-			fi
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "DEBUG" ]]; then
+            DEFAULTNO=''
+            if [[ "$DEBUG" == "0" ]]; then
+                DEFAULTNO=" --defaultno "
+            fi
 
-			eval "$(resize)"
-			if (whiptail --title "Enable debug?" --yesno "Do you want to enable debug?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
-				export DEBUG=1
-				set_debug
-			else
-				export DEBUG=0
-				unset_debug
-			fi
+            eval "$(resize)"
+            if (whiptail --title "Enable debug?" --yesno "Do you want to enable debug?" $DEFAULTNO $LINES $COLUMNS $(( $LINES - 8 ))); then
+                export DEBUG=1
+                set_debug
+            else
+                export DEBUG=0
+                unset_debug
+            fi
 
-			change_variables
-		elif [[ "$MENU_CHOICE" =~ "s)" ]]; then
-			if [[ -e ".oax_default_settings" ]]; then
-				rm .oax_default_settings
-			fi
+            change_variables
+        elif [[ "$MENU_CHOICE" =~ "s)" ]]; then
+            if [[ -e ".oax_default_settings" ]]; then
+                rm .oax_default_settings
+            fi
 
-			echo "export NONZERODIGITS=$NONZERODIGITS" >> .oax_default_settings
-			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .oax_default_settings
-			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .oax_default_settings
-			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .oax_default_settings
-			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .oax_default_settings
-			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
-			echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
-			echo "export DEBUG=$DEBUG" >> .oax_default_settings
-			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .oax_default_settings
-		elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
-			if [[ -e "$HOME/.oax_default_settings" ]]; then
-				rm ~/.oax_default_settings
-			fi
+            echo "export NONZERODIGITS=$NONZERODIGITS" >> .oax_default_settings
+            echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> .oax_default_settings
+            echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> .oax_default_settings
+            echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> .oax_default_settings
+            echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> .oax_default_settings
+            echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> .oax_default_settings
+            echo "export PROJECTDIR=$PROJECTDIR" >> .oax_default_settings
+            echo "export DEBUG=$DEBUG" >> .oax_default_settings
+            echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> .oax_default_settings
+        elif [[ "$MENU_CHOICE" =~ "S)" ]]; then
+            if [[ -e "$HOME/.oax_default_settings" ]]; then
+                rm ~/.oax_default_settings
+            fi
 
-			echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oax_default_settings
-			echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oax_default_settings
-			echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oax_default_settings
-			echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oax_default_settings
-			echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oax_default_settings
-			echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
-			echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
-			echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
-			echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
-		else
-			eval "$(resize)"
-			whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3
-			change_variables
-		fi
-	else
-		echo_red "You chose to cancel (3)"
-		exit 1
-	fi
+            echo "export NONZERODIGITS=$NONZERODIGITS" >> ~/.oax_default_settings
+            echo "export SHOWFAILEDJOBSINPLOT=$SHOWFAILEDJOBSINPLOT" >> ~/.oax_default_settings
+            echo "export BUBBLESIZEINPX=$BUBBLESIZEINPX" >> ~/.oax_default_settings
+            echo "export SVGEXPORTSIZE=$SVGEXPORTSIZE" >> ~/.oax_default_settings
+            echo "export HIDEMAXVALUESINPLOT=$HIDEMAXVALUESINPLOT" >> ~/.oax_default_settings
+            echo "export DISPLAYGAUGE=$DISPLAYGAUGE" >> ~/.oax_default_settings
+            echo "export PROJECTDIR=$PROJECTDIR" >> ~/.oax_default_settings
+            echo "export DEBUG=$DEBUG" >> ~/.oax_default_settings
+            echo "export SCIENTIFICNOTATION=$SCIENTIFICNOTATION" >> ~/.oax_default_settings
+        else
+            eval "$(resize)"
+            whiptail --title "Invalid option" --msgbox "The option '$MENU_CHOICE' is not valid. Returning to the main menu" $LINES $COLUMNS $(( $LINES - 8 )) 3>&1 1>&2 2>&3
+            change_variables
+        fi
+    else
+        echo_red "You chose to cancel (3)"
+        exit 1
+    fi
 }
 
 function change_project_dir {
-	if [[ -d "$PROJECTDIR" ]]; then
-		PROJECTDIR=$(inputbox "Projectdir" "The project directory is currently '$PROJECTDIR'. Enter a new Projectdir (relative or absolute) or just press enter to continue using this one" "$PROJECTDIR")
-	else
-		PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
-	fi
+    if [[ -d "$PROJECTDIR" ]]; then
+        PROJECTDIR=$(inputbox "Projectdir" "The project directory is currently '$PROJECTDIR'. Enter a new Projectdir (relative or absolute) or just press enter to continue using this one" "$PROJECTDIR")
+    else
+        PROJECTDIR=$(inputbox "Projectdir" "The directory '$PROJECTDIR' could not be found. Enter a new Projectdir (relative or absolute)" "$PROJECTDIR")
+    fi
 }
 
 function chose_project_number {
-	PROJECT=$1
+    PROJECT=$1
 
-	num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
+    num_of_subfolder_numbers=$(ls "$PROJECTDIR/$PROJECT" | wc -l)
 
-	if [[ $num_of_subfolder_numbers -eq 0 ]]; then
-		echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
-		list_projects
-	elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
-		CHOSEN=$(ls "$PROJECTDIR/$PROJECT" | head -n1)
+    if [[ $num_of_subfolder_numbers -eq 0 ]]; then
+        echo_red "$PROJECTDIR/$PROJECT has no given subfolders. Cannot chose any. Returning to start-screen"
+        list_projects
+    elif [[ $num_of_subfolder_numbers -eq 1 ]]; then
+        CHOSEN=$(ls "$PROJECTDIR/$PROJECT" | head -n1)
 
-		list_option_for_job "$WHATTODO" "$CHOSEN"
-	else 
-		OLD_IFS=$IFS
-		unset IFS
-		available_numbers=$(ls "$PROJECTDIR/$PROJECT" | perl -e "while (<>) { chomp; print qq#\$_ \$_\n#; }" |  sort -nr)
+        list_option_for_job "$WHATTODO" "$CHOSEN"
+    else
+        OLD_IFS=$IFS
+        unset IFS
+        available_numbers=$(ls "$PROJECTDIR/$PROJECT" | perl -e "while (<>) { chomp; print qq#\$_ \$_\n#; }" |  sort -nr)
 
-		eval "$(resize)"
+        eval "$(resize)"
 
-		CHOSEN=$(whiptail --title "Available project-numbers for ${PROJECTDIR}/$PROJECT" --menu "Chose any of the available project numbers:" $LINES $COLUMNS $(( $LINES - 8 )) $available_numbers "b)" "Go back" "q)" "quit" 3>&1 1>&2 2>&3)
-		exitstatus=$?
+        CHOSEN=$(whiptail --title "Available project-numbers for ${PROJECTDIR}/$PROJECT" --menu "Chose any of the available project numbers:" $LINES $COLUMNS $(( $LINES - 8 )) $available_numbers "b)" "Go back" "q)" "quit" 3>&1 1>&2 2>&3)
+        exitstatus=$?
 
-		IFS=$OLD_IFS
+        IFS=$OLD_IFS
 
-		if [[ $exitstatus == 0 ]]; then
-			if [[ "$CHOSEN" =~ "b)" ]]; then
-				list_projects
-			elif [[ "$CHOSEN" =~ "q)" ]]; then
-				exit
-			else
-				list_option_for_job "$PROJECT" "$CHOSEN"
-			fi
-		else
-			echo_red "You chose to cancel (5)"
-			exit 0
-		fi
-	fi
+        if [[ $exitstatus == 0 ]]; then
+            if [[ "$CHOSEN" =~ "b)" ]]; then
+                list_projects
+            elif [[ "$CHOSEN" =~ "q)" ]]; then
+                exit
+            else
+                list_option_for_job "$PROJECT" "$CHOSEN"
+            fi
+        else
+            echo_red "You chose to cancel (5)"
+            exit 0
+        fi
+    fi
 }
 
 function list_projects {
-	AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/results.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/results.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
+    AVAILABLE_PROJECTS=$(ls $PROJECTDIR/*/*/results.csv 2>/dev/null | sed -e "s#${PROJECTDIR}/##" | sed -e 's#/[0-9]*/results.csv##' | perl -le 'while (<>) { chomp; chomp; print qq#$_ $_# }' | uniq)
 
-	if [[ -z "$AVAILABLE_PROJECTS" ]]; then
-		echo_red "No projects found (list_projects)"
-	fi
+    if [[ -z "$AVAILABLE_PROJECTS" ]]; then
+        echo_red "No projects found (list_projects)"
+    fi
 
-	eval "$(resize)"
-	
-	OLD_IFS=$IFS
+    eval "$(resize)"
 
-	unset IFS
+    OLD_IFS=$IFS
 
-	WHATTODO=$(whiptail \
-		--title "Available projects under ${PROJECTDIR}" \
-		--menu "Chose any of the available projects or options:" \
-		$LINES \
-		$COLUMNS \
-		$(( $LINES - 8 )) \
-		$AVAILABLE_PROJECTS \
-		"S)" "Start http-server here" \
-		"c)" "Change the project dir" \
-		"v)" "Show/Change Variables" \
-		"q)" "quit" 3>&1 1>&2 2>&3
-	)
+    unset IFS
 
-	IFS=$OLD_IFS
+    WHATTODO=$(whiptail \
+            --title "Available projects under ${PROJECTDIR}" \
+            --menu "Chose any of the available projects or options:" \
+            $LINES \
+            $COLUMNS \
+            $(( $LINES - 8 )) \
+            $AVAILABLE_PROJECTS \
+            "S)" "Start http-server here" \
+            "c)" "Change the project dir" \
+            "v)" "Show/Change Variables" \
+            "q)" "quit" 3>&1 1>&2 2>&3
+    )
 
-	exitstatus=$?
-	if [[ $exitstatus == 0 ]]; then
-		if [[ "$WHATTODO" =~ "c)" ]]; then
-			change_project_dir
-			main
-		elif [[ "$WHATTODO" =~ "S)" ]]; then
-			spin_up_temporary_webserver . ""
-			main
-		elif [[ "$WHATTODO" =~ "v)" ]]; then
-			change_variables
-			main
-		elif [[ "$WHATTODO" =~ "q)" ]]; then
-			debug_code "Exiting"
-			exit
-		else
-			chose_project_number "$WHATTODO"
-		fi
-	else
-		echo_red "You chose to cancel (4)"
-		exit 1
-	fi
+    IFS=$OLD_IFS
+
+    exitstatus=$?
+    if [[ $exitstatus == 0 ]]; then
+        if [[ "$WHATTODO" =~ "c)" ]]; then
+            change_project_dir
+            main
+        elif [[ "$WHATTODO" =~ "S)" ]]; then
+            spin_up_temporary_webserver . ""
+            main
+        elif [[ "$WHATTODO" =~ "v)" ]]; then
+            change_variables
+            main
+        elif [[ "$WHATTODO" =~ "q)" ]]; then
+            debug_code "Exiting"
+            exit
+        else
+            chose_project_number "$WHATTODO"
+        fi
+    else
+        echo_red "You chose to cancel (4)"
+        exit 1
+    fi
 }
 
 function main {
-	if [[ -d $PROJECTDIR ]]; then
-		debug_code "The folder '$PROJECTDIR' exists"
+    if [[ -d $PROJECTDIR ]]; then
+        debug_code "The folder '$PROJECTDIR' exists"
 
-		list_projects
-	else
-		debug_code "The folder '$PROJECTDIR' does not exist."
-		change_project_dir
-		main
-	fi
+        list_projects
+    else
+        debug_code "The folder '$PROJECTDIR' does not exist."
+        change_project_dir
+        main
+    fi
 }
 
 # https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced
 sourced=0
-if [ -n "$ZSH_EVAL_CONTEXT" ]; then 
-	case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
-elif [ -n "$KSH_VERSION" ]; then
-	[ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && sourced=1
-elif [ -n "$BASH_VERSION" ]; then
-	(return 0 2>/dev/null) && sourced=1 
-else # All other shells: examine $0 for known shell binary filenames
-	# Detects `sh` and `dash`; add additional shell filenames as needed.
-	case ${0##*/} in sh|dash) sourced=1;; esac
-fi
+if [ -n "$ZSH_EVAL_CONTEXT" ]; then
+case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
+    elif [ -n "$KSH_VERSION" ]; then
+        [ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && sourced=1
+    elif [ -n "$BASH_VERSION" ]; then
+        (return 0 2>/dev/null) && sourced=1
+    else # All other shells: examine $0 for known shell binary filenames
+        # Detects `sh` and `dash`; add additional shell filenames as needed.
+    case ${0##*/} in sh|dash) sourced=1 ;; esac
+    fi
 
-if [[ $sourced == "0" ]]; then
-    if [[ -z $DISPLAY ]]; then
-        if (whiptail --title "No X-Server detected" --yes-button "Continue without X-Server" --no-button "No, do not Continue without X-Server" --yesno "Without X-Server, some tools (like Graph-plotting with GUI) do not work, but some others (like plotting to SVG-files) still do. If you want to use the script fully, please use 'ssh -X $USER@taurus.hrsk.tu-dresden.de', then 'cd $(pwd)' and re-start this script" 10 120); then
-            echo_green "Continue without X-Server"
-        else
-            echo_red "Don't continue without X-Server"
-            exit 10
+    if [[ $sourced == "0" ]]; then
+        if [[ -z $DISPLAY ]]; then
+            if (whiptail --title "No X-Server detected" --yes-button "Continue without X-Server" --no-button "No, do not Continue without X-Server" --yesno "Without X-Server, some tools (like Graph-plotting with GUI) do not work, but some others (like plotting to SVG-files) still do. If you want to use the script fully, please use 'ssh -X $USER@taurus.hrsk.tu-dresden.de', then 'cd $(pwd)' and re-start this script" 10 120); then
+                echo_green "Continue without X-Server"
+            else
+                echo_red "Don't continue without X-Server"
+                exit 10
+            fi
         fi
-    fi
 
-    if [[ -d ".git" ]]; then
-	    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
-		if [[ "$UPGRADE" == "1" ]]; then
-		    ASKEDTOUPGRADE=1
-		    CURRENTHASH=$(git rev-parse HEAD)
+        if [[ -d ".git" ]]; then
+            if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
+                if [[ "$UPGRADE" == "1" ]]; then
+                    ASKEDTOUPGRADE=1
+                    CURRENTHASH=$(git rev-parse HEAD)
 
-		    REMOTEURL=$(git config --get remote.origin.url)
-		    REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
+                    REMOTEURL=$(git config --get remote.origin.url)
+                    REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
 
-		    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-			debug_code "Software seems up-to-date ($CURRENTHASH)"
-		    else
-			eval "$(resize)"
-			if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-				git pull
-				bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
-				exit
-			else
-				eval "$(resize)"
-				if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-					echo "Asking again next time"
-				else
-					echo "OK, not asking again"
-					touch .dont_ask_upgrade
-				fi
-			fi
-		    fi
-		fi
-	    fi
-    fi
+                    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
+                        debug_code "Software seems up-to-date ($CURRENTHASH)"
+                    else
+                        eval "$(resize)"
+                        if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                            git pull
+                            bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
+                            exit
+                        else
+                            eval "$(resize)"
+                            if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+                                echo "Asking again next time"
+                            else
+                                echo "OK, not asking again"
+                                touch .dont_ask_upgrade
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+        fi
 
-    modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)
+        modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)
 
-    load_percent=0
-    let stepsize=100/${#modules_to_load[*]}
+        load_percent=0
+        let stepsize=100/${#modules_to_load[*]}
 
-    if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
-	unset_debug
-        (
-		for this_module in ${modules_to_load[*]}; do
-			let load_percent=$load_percent+$stepsize
-			echo "XXX"
-			echo "$load_percent"
-			echo "Loading modules... ($this_module...)"
-			echo "XXX"
-			if ! myml is-loaded "$this_module"; then
-				ml "$this_module" 2>/dev/null
-			fi
-		done
-        ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
+        if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
+            unset_debug
+            (
+                for this_module in ${modules_to_load[*]}; do
+                    let load_percent=$load_percent+$stepsize
+                    echo "XXX"
+                    echo "$load_percent"
+                    echo "Loading modules... ($this_module...)"
+                    echo "XXX"
+                    if ! myml is-loaded "$this_module"; then
+                        ml "$this_module" 2>/dev/null
+                    fi
+                done
+            ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
 
-	if [[ "$DEBUG" -eq "1" ]]; then
-		set_debug
-	fi
-	else
-		if [[ "$LOAD_MODULES" -eq "1" ]]; then
-			for this_module in ${modules_to_load[*]}; do
-				if ! myml is-loaded "$this_module"; then
-					myml "$this_module" 2>/dev/null
-				fi
-			done
-		fi
-	fi
+                if [[ "$DEBUG" -eq "1" ]]; then
+                    set_debug
+                fi
+            else
+                if [[ "$LOAD_MODULES" -eq "1" ]]; then
+                    for this_module in ${modules_to_load[*]}; do
+                        if ! myml is-loaded "$this_module"; then
+                            myml "$this_module" 2>/dev/null
+                        fi
+                    done
+                fi
+            fi
 
-	main
-fi
+            main
+        fi
+esac

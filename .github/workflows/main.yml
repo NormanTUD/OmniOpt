@@ -104,7 +104,6 @@ jobs:
 
     steps:
     - name: Checkout code
-      progress-bar: true
       uses: actions/checkout@v4
 
     - name: Install dependencies

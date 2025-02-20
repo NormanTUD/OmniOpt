@@ -4557,7 +4557,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
             double_hashes[hashed_params_result[0]] = 1
 
     @beartype
-    def log_missing_result(parameters: dict, hashed_params_result: Tuple[str, List[Any] | None] | Tuple[str, str] | Tuple[str, float] | Tuple[str, int]) -> None: # pragma: no cover
+    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]

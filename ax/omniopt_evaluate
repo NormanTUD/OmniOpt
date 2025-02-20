@@ -12,16 +12,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $(pwd)
 
-mkdir -p debuglogs
-bash_logname=debuglogs/evaluate_run.log
-let i=1
-while [[ -e $bash_logname ]]; do
-    bash_logname=debuglogs/evaluate_run_${i}.log
-    let i++
-done
-exec 1> >(tee -ia $bash_logname)
-exec 2> >(tee -ia $bash_logname >& 2)
-
 export BASH_XTRACEFD="$FD"
 
 PROJECTDIR=$(pwd)/runs
@@ -287,7 +277,7 @@ close $fh;
 
             pip3 list > $list_installed_modules
 
-            zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/* debuglogs
+            zip -r $DEBUGFILE $list_installed_modules $PROJECTDIR/$PROJECT/$NUMBER/*
 
             if [[ -e $DEBUGFILE ]]; then
                 if (whiptail --title "Make this file available over a webserver?" --yesno "Do you want to make this file available over a webserver?" 8 78); then

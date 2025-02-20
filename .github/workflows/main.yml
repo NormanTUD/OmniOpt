@@ -49,12 +49,10 @@ jobs:
 
   docker-test:
     needs: [Linter, todo-to-issue]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-24.04
     environment: Production
     strategy:
       fail-fast: true
-      matrix:
-        os: [ubuntu-24.04] #, ubuntu-22.04, ubuntu-20.04] #, macos-14]
 
     steps:
     - name: Checkout code

@@ -5337,7 +5337,7 @@ def save_state_files() -> None:
         print_red(f"Error trying to write file: {e}")
 
 @beartype
-def submit_job(parameters: dict) -> Optional[Job[int | float | Dict[str, float | None] | List[float] | None]]:
+def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict[str, Optional[float]], List[float]]]]]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)
@@ -5845,7 +5845,7 @@ def get_matching_model_name(model_name: str) -> Optional[str]:
     return model_map.get(model_name_lower, None)
 
 @beartype
-def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list, int]:
+def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
     gen_strat_list = []
 
     cleaned_string = re.sub(r"\s+", "", gen_strat_str)

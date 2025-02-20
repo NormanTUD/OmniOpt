@@ -52,16 +52,6 @@ trap 'calltracer' ERR
 
 LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
 
-myml () {
-	if [[ -e $LMOD_DIR/ml_cmd ]]; then
-		eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
-	fi
-}
-
-if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
-	myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
-fi
-
 source $SCRIPT_DIR/.shellscript_functions
 
 function help () {

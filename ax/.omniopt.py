@@ -5896,7 +5896,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         if os.path.exists(generation_strategy_file):
             print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
             my_exit(247)
-            
+
     if generation_strategy is None:
         global random_steps
 

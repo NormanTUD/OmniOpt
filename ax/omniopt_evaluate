@@ -103,7 +103,6 @@ for i in "$@"; do
     esac
 done
 
-
 source .shellscript_functions
 source .general.sh
 
@@ -205,6 +204,9 @@ function list_option_for_job {
 
     input_file="$PROJECTDIR/$PROJECT/$NUMBER/0.csv"
 
+    FAILED_JOBS=0
+
+    if [[ -e "$input_file" ]]; then
     FAILED_JOBS=$(perl -e '
 open my $fh, "<", $ARGV[0] or die "Could not open file: $!";
 
@@ -233,7 +235,8 @@ while (my $line = <$fh>) {
 }
 
 close $fh;
-    ' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
+	    ' "$input_file" | grep -ev '^\s*0\s*$' | wc -l)
+    fi
 
     error_file="$PROJECTDIR/$PROJECT/$NUMBER/errors.log"
     if [[ -e "$error_file" ]]; then
@@ -250,8 +253,6 @@ close $fh;
             "b)" "back" \
             "q)" "quit" 3>&1 1>&2 2>&3
     )
-
-
 
     exitstatus=$?
 
@@ -329,7 +330,6 @@ close $fh;
                         minvalue=""
                     fi
                 fi
-
 
                 if [ -n "$maxvalue" ]; then
                     # Check if $maxvalue is a number (integer or float, positive or negative)

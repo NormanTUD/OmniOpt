@@ -4524,7 +4524,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @beartype
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, list[Any] | None], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]: # pragma: no cover
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[list[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, list[Any]]]: # pragma: no cover
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
             for resname in arg_result_names:

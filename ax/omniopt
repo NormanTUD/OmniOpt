@@ -168,9 +168,21 @@ function green_text {
 	echoerr -e "\033[0;32m$1\e[0m"
 }
 
+function underline_red_blinking_text {
+	echoerr -e "\e[5;4;31m$1\e[0m"
+}
+
 function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
+
+function underline_red_text {
+	echoerr -e "\e[4;31m$1\e[0m"
+}
+
+if [[ $SCRIPT_DIR =~ /ax/?$ ]]; then
+	underline_red_text "Future Warning: Your script lies in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder."
+fi
 
 function _tput {
 	set +e

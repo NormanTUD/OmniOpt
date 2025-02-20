@@ -649,90 +649,89 @@ function main {
 # https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced
 sourced=0
 if [ -n "$ZSH_EVAL_CONTEXT" ]; then
-case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
-    elif [ -n "$KSH_VERSION" ]; then
-        [ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && sourced=1
-    elif [ -n "$BASH_VERSION" ]; then
-        (return 0 2>/dev/null) && sourced=1
-    else # All other shells: examine $0 for known shell binary filenames
-        # Detects `sh` and `dash`; add additional shell filenames as needed.
-    case ${0##*/} in sh|dash) sourced=1 ;; esac
+	case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
+elif [ -n "$KSH_VERSION" ]; then
+[ "$(cd $(dirname -- $0) && pwd -P)/$(basename -- $0)" != "$(cd $(dirname -- ${.sh.file}) && pwd -P)/$(basename -- ${.sh.file})" ] && sourced=1
+elif [ -n "$BASH_VERSION" ]; then
+(return 0 2>/dev/null) && sourced=1
+else # All other shells: examine $0 for known shell binary filenames
+# Detects `sh` and `dash`; add additional shell filenames as needed.
+case ${0##*/} in sh|dash) sourced=1 ;; esac
+fi
+
+if [[ $sourced == "0" ]]; then
+if [[ -z $DISPLAY ]]; then
+    if (whiptail --title "No X-Server detected" --yes-button "Continue without X-Server" --no-button "No, do not Continue without X-Server" --yesno "Without X-Server, some tools (like Graph-plotting with GUI) do not work, but some others (like plotting to SVG-files) still do. If you want to use the script fully, please use 'ssh -X $USER@taurus.hrsk.tu-dresden.de', then 'cd $(pwd)' and re-start this script" 10 120); then
+	echo_green "Continue without X-Server"
+    else
+	echo_red "Don't continue without X-Server"
+	exit 10
+    fi
+fi
+
+if [[ -d ".git" ]]; then
+    if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
+	if [[ "$UPGRADE" == "1" ]]; then
+	    ASKEDTOUPGRADE=1
+	    CURRENTHASH=$(git rev-parse HEAD)
+
+	    REMOTEURL=$(git config --get remote.origin.url)
+	    REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
+
+	    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
+		debug_code "Software seems up-to-date ($CURRENTHASH)"
+	    else
+		eval "$(resize)"
+		if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+		    git pull
+		    bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
+		    exit
+		else
+		    eval "$(resize)"
+		    if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
+			echo "Asking again next time"
+		    else
+			echo "OK, not asking again"
+			touch .dont_ask_upgrade
+		    fi
+		fi
+	    fi
+	fi
+    fi
+fi
+
+modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)
+
+load_percent=0
+let stepsize=100/${#modules_to_load[*]}
+
+if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
+    unset_debug
+    (
+	for this_module in ${modules_to_load[*]}; do
+	    let load_percent=$load_percent+$stepsize
+	    echo "XXX"
+	    echo "$load_percent"
+	    echo "Loading modules... ($this_module...)"
+	    echo "XXX"
+	    if ! myml is-loaded "$this_module"; then
+		ml "$this_module" 2>/dev/null
+	    fi
+	done
+    ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
+
+	if [[ "$DEBUG" -eq "1" ]]; then
+	    set_debug
+	fi
+    else
+	if [[ "$LOAD_MODULES" -eq "1" ]]; then
+	    for this_module in ${modules_to_load[*]}; do
+		if ! myml is-loaded "$this_module"; then
+		    myml "$this_module" 2>/dev/null
+		fi
+	    done
+	fi
     fi
 
-    if [[ $sourced == "0" ]]; then
-        if [[ -z $DISPLAY ]]; then
-            if (whiptail --title "No X-Server detected" --yes-button "Continue without X-Server" --no-button "No, do not Continue without X-Server" --yesno "Without X-Server, some tools (like Graph-plotting with GUI) do not work, but some others (like plotting to SVG-files) still do. If you want to use the script fully, please use 'ssh -X $USER@taurus.hrsk.tu-dresden.de', then 'cd $(pwd)' and re-start this script" 10 120); then
-                echo_green "Continue without X-Server"
-            else
-                echo_red "Don't continue without X-Server"
-                exit 10
-            fi
-        fi
-
-        if [[ -d ".git" ]]; then
-            if [[ ! -e .dont_ask_upgrade ]] && [[ "$ASKEDTOUPGRADE" == 0 ]]; then
-                if [[ "$UPGRADE" == "1" ]]; then
-                    ASKEDTOUPGRADE=1
-                    CURRENTHASH=$(git rev-parse HEAD)
-
-                    REMOTEURL=$(git config --get remote.origin.url)
-                    REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
-
-                    if [ "$CURRENTHASH" = "$REMOTEHASH" ]; then
-                        debug_code "Software seems up-to-date ($CURRENTHASH)"
-                    else
-                        eval "$(resize)"
-                        if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-                            git pull
-                            bash $SCRIPT_DIR/evaluate-run --dont_load_modules --no_upgrade $@
-                            exit
-                        else
-                            eval "$(resize)"
-                            if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-                                echo "Asking again next time"
-                            else
-                                echo "OK, not asking again"
-                                touch .dont_ask_upgrade
-                            fi
-                        fi
-                    fi
-                fi
-            fi
-        fi
-
-        modules_to_load=(release/23.04 GCC/11.3.0 OpenMPI/4.1.4)
-
-        load_percent=0
-        let stepsize=100/${#modules_to_load[*]}
-
-        if [[ "$DISPLAYGAUGE" -eq "1" ]]; then
-            unset_debug
-            (
-                for this_module in ${modules_to_load[*]}; do
-                    let load_percent=$load_percent+$stepsize
-                    echo "XXX"
-                    echo "$load_percent"
-                    echo "Loading modules... ($this_module...)"
-                    echo "XXX"
-                    if ! myml is-loaded "$this_module"; then
-                        ml "$this_module" 2>/dev/null
-                    fi
-                done
-            ) | whiptail --title "Loading Modules" --gauge "Loading modules..." 6 70 0
-
-                if [[ "$DEBUG" -eq "1" ]]; then
-                    set_debug
-                fi
-            else
-                if [[ "$LOAD_MODULES" -eq "1" ]]; then
-                    for this_module in ${modules_to_load[*]}; do
-                        if ! myml is-loaded "$this_module"; then
-                            myml "$this_module" 2>/dev/null
-                        fi
-                    done
-                fi
-            fi
-
-            main
-        fi
-esac
+    main
+fi

@@ -1,5 +1,10 @@
 #!/bin/env python3
 
+#from mayhemmonkey import MayhemMonkey
+#mayhemmonkey = MayhemMonkey()
+#mayhemmonkey.set_function_fail_after_count("open", 1)
+#mayhemmonkey.install_faulty()
+
 import sys
 import os
 import re
@@ -694,10 +699,6 @@ with console.status("[bold green]Loading ax logger...") as status:
 disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
 NVIDIA_SMI_LOGS_BASE = None
-
-#from chaosape import ChaosApe
-#chaosape = ChaosApe()
-#chaosape.set_function_error_rate("open", 0.1)
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:

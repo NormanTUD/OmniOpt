@@ -101,7 +101,7 @@ def warn_versions() -> None:
         "threadpoolctl": ["3.5.0"],
         "mpmath": ["1.3.0"],
         "sympy": ["1.13.3", "1.13.1"],
-        "setuptools": ["66.1.1", "75.2.0", "58.1.0", "59.6.0", "75.3.0", "75.5.0", "75.6.0", "75.8.0", "70.2.0", "65.5.0"],
+        "setuptools": ["56.0.0", "66.1.1", "75.2.0", "58.1.0", "59.6.0", "75.3.0", "75.5.0", "75.6.0", "75.8.0", "70.2.0", "65.5.0"],
         "torchvision": ["0.19.0", "0.19.1", "0.20.1"]
     }
 
@@ -271,7 +271,7 @@ def print_color(color: str, text: str) -> None:
 
 def check_python_version() -> None:
     python_version = platform.python_version()
-    supported_versions = ["3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.11.3", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+", "3.12.8", "3.13.1", "3.13.2"]
+    supported_versions = ["3.8.20", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.11.3", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+", "3.12.8", "3.13.1", "3.13.2"]
     if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 

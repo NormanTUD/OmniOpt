@@ -3,7 +3,8 @@
 #from mayhemmonkey import MayhemMonkey
 #mayhemmonkey = MayhemMonkey()
 #mayhemmonkey.set_function_fail_after_count("open", 201)
-#mayhemmonkey.set_function_error_rate("open", 0.8)
+#mayhemmonkey.set_function_error_rate("open", 0.1)
+#mayhemmonkey.set_function_group_error_rate(["io", "math"], 0.8)
 #mayhemmonkey.install_faulty()
 
 import sys

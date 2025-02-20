@@ -56,17 +56,7 @@ function spin_up_temporary_webserver {
             <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) \
             | shuf | head -n1)
 
-        mkdir -p $GENERAL_SCRIPT_DIR/../debuglogs
-
-        i=0
-        SERVERLOG=$GENERAL_SCRIPT_DIR/../debuglogs/webserver.log
-        echo $SERVERLOG
-        while [ -e $SERVERLOG ]; do
-            SERVERLOG=$GENERAL_SCRIPT_DIR/../debuglogs/webserver_${i}.log
-            i=$((i+1))
-        done
-
-        python3 -u -m http.server $free_port 2>&1 > $SERVERLOG &
+        python3 -u -m http.server $free_port 2>/dev/null >/dev/null
 
         #{ sleep 3; curl 127.0.0.1:$free_port/ 2>&1 >/dev/null  } &
 

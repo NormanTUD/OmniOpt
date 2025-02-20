@@ -105,6 +105,14 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
+    - name: Log Versions
+      run: |
+        echo "::group::System Info"
+        uname -a | tee /dev/stderr
+        python3 --version | tee /dev/stderr
+        php --version | tee /dev/stderr
+        echo "::endgroup::"
+
     - name: Cache apt dependencies
       uses: actions/cache@v4
       with:

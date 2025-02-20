@@ -4537,7 +4537,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return pformat(parameters) + "====" + pformat(result), result
 
     @beartype
-    def should_insert(hashed_params_result: Tuple[str, list[Any] | None] | tuple[str, str] | tuple[str, float] | tuple[str, int]) -> bool: # pragma: no cover
+    def should_insert(hashed_params_result: Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> bool: # pragma: no cover
         result = hashed_params_result[1]
         res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
@@ -4546,7 +4546,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(parameters: Union[Tuple[str, str] | Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: tuple[str, list[Any] | None] | tuple[str, str] | tuple[str, float] | tuple[str, int]) -> None: # pragma: no cover
+    def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
         try:
             insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
@@ -4557,7 +4557,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
             double_hashes[hashed_params_result[0]] = 1
 
     @beartype
-    def log_missing_result(parameters: dict, hashed_params_result: tuple[str, list[Any] | None] | tuple[str, str] | tuple[str, float] | tuple[str, int]) -> None: # pragma: no cover
+    def log_missing_result(parameters: dict, hashed_params_result: Tuple[str, List[Any] | None] | Tuple[str, str] | Tuple[str, float] | Tuple[str, int]) -> None: # pragma: no cover
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["result"] = hashed_params_result[1]

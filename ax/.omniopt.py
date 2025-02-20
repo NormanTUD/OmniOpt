@@ -2,7 +2,8 @@
 
 #from mayhemmonkey import MayhemMonkey
 #mayhemmonkey = MayhemMonkey()
-#mayhemmonkey.set_function_fail_after_count("open", 1)
+#mayhemmonkey.set_function_fail_after_count("open", 201)
+#mayhemmonkey.set_function_error_rate("open", 0.8)
 #mayhemmonkey.install_faulty()
 
 import sys
@@ -6171,7 +6172,7 @@ def set_global_executor() -> None:
     except ModuleNotFoundError as e: # pragma: no cover
         print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
         sys.exit(244)
-    except (IsADirectoryError, FileNotFoundError) as e:
+    except (IsADirectoryError, PermissionError, FileNotFoundError) as e:
         print_red(f"Error trying to set_global_executor: {e}")
 
 @beartype

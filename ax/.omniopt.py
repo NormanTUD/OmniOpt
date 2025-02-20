@@ -76,7 +76,7 @@ try:
         from rich.pretty import pprint
 
         from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
@@ -1520,7 +1520,7 @@ def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, 
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @beartype
-def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[int | float | None, bool]:
+def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[int, float, None, bool]:
     found_in_file = False
     ret_val = None
 
@@ -1549,7 +1549,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
     return ret_val, found_in_file
 
 @beartype
-def get_bound_if_prev_data(_type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[float | int, bool], Any]:
+def get_bound_if_prev_data(_type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[Union[float, int], bool], Any]:
     ret_val = _default
 
     found_in_file = False
@@ -1565,7 +1565,7 @@ def get_bound_if_prev_data(_type: str, _column: str, _default: Union[None, float
     return ret_val, False
 
 @beartype
-def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[int | float, int | float]:
+def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[Union[int, float], Union[int, float]]:
     if lower_bound > upper_bound:
         print_yellow(f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
         upper_bound, lower_bound = lower_bound, upper_bound
@@ -1573,7 +1573,7 @@ def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[
     return lower_bound, upper_bound
 
 @beartype
-def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[int | float, int | float]:
+def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[Union[int, float], Union[int, float]]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
             print_yellow(f"{value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
@@ -1629,7 +1629,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
 
         return {}
 
-    values: list[float] = cast(list[float], np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist())
+    values: List[float] = cast(List[float], np.linspace(lower_bound, upper_bound, args.max_eval, endpoint=True).tolist())
 
     if value_type == "int":
         values = [int(value) for value in values]
@@ -1645,7 +1645,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
     }
 
 @beartype
-def get_bounds_from_previous_data(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[float | int, float | int]:
+def get_bounds_from_previous_data(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[Union[float, int], Union[float, int]]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
@@ -2012,7 +2012,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @beartype
-def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]: # pragma: no cover
+def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]: # pragma: no cover
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None
@@ -2022,7 +2022,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
         return None
 
     try:
-        results: dict[str, Optional[float]] = {}  # Typdefinition angepasst
+        results: Dict[str, Optional[float]] = {}  # Typdefinition angepasst
 
         for column_name in arg_result_names:
             _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
@@ -2044,7 +2044,7 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[d
         return None
 
 @beartype
-def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[str, Optional[float]], list[float]]]:
+def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]:
     if input_string is None:
         return None
 
@@ -2054,7 +2054,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[dict[
     return get_results_new(input_string) # pragma: no cover
 
 @beartype
-def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[list[float]]:
+def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[List[float]]:
     if input_string is None:
         print_red("get_results: Input-String is None") # pragma: no cover
         return None
@@ -2286,7 +2286,7 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
 @beartype
-def calculate_signed_harmonic_distance(_args: Union[dict, list[Union[int, float]]]) -> Union[int, float]:
+def calculate_signed_harmonic_distance(_args: Union[dict, List[Union[int, float]]]) -> Union[int, float]:
     if not _args or len(_args) == 0: # Handle empty input gracefully
         return 0
 
@@ -2300,7 +2300,7 @@ def calculate_signed_harmonic_distance(_args: Union[dict, list[Union[int, float]
     return sign * harmonic_mean
 
 @beartype
-def calculate_signed_euclidean_distance(_args: Union[dict, list[float]]) -> float:
+def calculate_signed_euclidean_distance(_args: Union[dict, List[float]]) -> float:
     _sum: float = 0
     for a in _args:
         _sum += a ** 2
@@ -2310,7 +2310,7 @@ def calculate_signed_euclidean_distance(_args: Union[dict, list[float]]) -> floa
     return sign * math.sqrt(_sum)
 
 @beartype
-def calculate_signed_geometric_distance(_args: Union[dict, list[float]]) -> float:
+def calculate_signed_geometric_distance(_args: Union[dict, List[float]]) -> float:
     product: float = 1  # Startwert für Multiplikation
     for a in _args:
         product *= abs(a)  # Absolutwerte für das Produkt verwenden
@@ -2324,7 +2324,7 @@ def calculate_signed_geometric_distance(_args: Union[dict, list[float]]) -> floa
     return sign * geometric_mean
 
 @beartype
-def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: Union[int, float] = 2) -> float:
+def calculate_signed_minkowski_distance(_args: Union[dict, List[float]], p: Union[int, float] = 2) -> float:
     if p <= 0:
         raise ValueError("p must be greater than 0.")
 
@@ -2333,7 +2333,7 @@ def calculate_signed_minkowski_distance(_args: Union[dict, list[float]], p: Unio
     return sign * minkowski_sum
 
 @beartype
-def calculate_signed_weighted_euclidean_distance(_args: Union[dict, list[float]], weights_string: str) -> float:
+def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
     if not re.fullmatch(pattern, weights_string): # pragma: no cover
@@ -2361,7 +2361,7 @@ class invalidOccType(Exception):
     pass
 
 @beartype
-def calculate_occ(_args: Optional[Union[dict, list[Union[int, float]]]]) -> Union[int, float]:
+def calculate_occ(_args: Optional[Union[dict, List[Union[int, float]]]]) -> Union[int, float]:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
@@ -2394,7 +2394,7 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
     str_parameters_values: List[str] = [str(v) for v in list(parameters.values())]
 
     extra_vars_names, extra_vars_values = extract_info(stdout)
@@ -2526,7 +2526,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         original_print("stderr was empty")
 
 @beartype
-def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
+def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
@@ -2542,7 +2542,7 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
     original_print(f"EXIT_CODE: {exit_code}")
 
 @beartype
-def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[str, Optional[float]], list[float]]]]:
+def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]:
     result = get_results(stdout)
 
     if result and args.occ: # pragma: no cover
@@ -2554,7 +2554,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[dict[s
     return result
 
 @beartype
-def evaluate(parameters: dict) -> int | float | dict[str, int | float | None] | list[float] | None:
+def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int, float, None]], List[float]]]:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()
@@ -2622,12 +2622,12 @@ class NpEncoder(json.JSONEncoder):
 
 @beartype
 def custom_warning_handler(
-    message: Warning | str,
-    category: type[Warning],
+    message: Union[Warning, str],
+    category: Type[Warning],
     filename: str,
     lineno: int,
-    file: TextIO | None = None,
-    line: str | None = None
+    file: Union[TextIO, None] = None,
+    line: Union[str, None] = None
 ) -> None: # pragma: no cover
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
@@ -2791,7 +2791,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
     return ""
 
 @beartype
-def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> tuple[str | np.ndarray | None, str | np.ndarray | None | int | float]:
+def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[Optional[Union[str, np.ndarray]], Optional[Union[str, np.ndarray, int, float]]]:
     best_line: Optional[str] = None
     best_result: Optional[str] = None
 
@@ -2820,7 +2820,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     return best_line, best_result
 
 @beartype
-def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> dict | None:
+def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> Optional[dict]:
     results: dict = {
         res_name: None,
         "parameters": {}
@@ -3071,8 +3071,8 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     return data
 
 @beartype
-def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[List[str]]:
-    plot_commands: list[List[str]] = []
+def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> List[List[str]]:
+    plot_commands: List[List[str]] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -3133,7 +3133,7 @@ def write_to_file(file_path: str, content: str) -> None:
         text_file.write(content)
 
 @beartype
-def create_result_table(res_name: str, best_params: Optional[dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
+def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
     table = Table(
         show_header=True,
         header_style="bold",
@@ -3155,7 +3155,7 @@ def create_result_table(res_name: str, best_params: Optional[dict[str, Any]], to
     return None
 
 @beartype
-def add_table_row(table: Table, best_params: Optional[dict[str, Any]], best_result: Any) -> None:
+def add_table_row(table: Table, best_params: Optional[Dict[str, Any]], best_result: Any) -> None:
     if best_params is not None:
         row = [
             str(helpers.to_int_when_possible(best_params["parameters"][key]))
@@ -3704,7 +3704,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
     return experiment_parameters
 
 @beartype
-def get_experiment_parameters(_params: list) -> Tuple[AxClient, list | dict, dict, str, str]:
+def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
 
     global ax_client
@@ -4740,7 +4740,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
     return errors
 
 @beartype
-def get_python_errors() -> list[List[str]]: # pragma: no cover
+def get_python_errors() -> List[List[str]]: # pragma: no cover
     synerr: str = "Python syntax error detected. Check log file."
 
     return [
@@ -5337,7 +5337,7 @@ def save_state_files() -> None:
         print_red(f"Error trying to write file: {e}")
 
 @beartype
-def submit_job(parameters: dict) -> Job[int | float | dict[str, float | None] | list[float] | None] | None:
+def submit_job(parameters: dict) -> Optional[Job[int | float | Dict[str, float | None] | List[float] | None]]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)
@@ -5584,7 +5584,7 @@ def get_parallelism_schedule_description() -> str:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
-def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[dict[int, Any], bool]]:
+def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 
     global error_8_saved
@@ -5624,7 +5624,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
         print_red(f"Error: {error}")
 
 @beartype
-def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tuple[Union[None | dict], bool]:
+def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     global global_vars
 
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
@@ -6397,7 +6397,7 @@ def check_max_eval(_max_eval: int) -> None:
         my_exit(19)
 
 @beartype
-def parse_parameters() -> Union[Tuple[Any | None, Any | None], Tuple[Any | None, Any | None]]:
+def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple[Union[Any, None], Union[Any, None]]]:
     experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:

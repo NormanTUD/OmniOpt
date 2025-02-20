@@ -1,6 +1,8 @@
 #!/bin/bash
 
 dont_install_on_hpc=(
+	"scikit-image"
+	"opencv-python"
 	"tensorflow"
 	"tensorflowjs"
 	"protobuf"

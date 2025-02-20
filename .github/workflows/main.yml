@@ -97,7 +97,6 @@ jobs:
   main-test:
     needs: [Linter, todo-to-issue, docker-test]
     runs-on: ${{ matrix.os }}
-    progress-bar: true
     strategy:
       fail-fast: true
       matrix:
@@ -105,6 +104,7 @@ jobs:
 
     steps:
     - name: Checkout code
+      progress-bar: true
       uses: actions/checkout@v4
 
     - name: Install dependencies

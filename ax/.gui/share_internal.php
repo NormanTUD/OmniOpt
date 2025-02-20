@@ -126,7 +126,7 @@
 					print("Could not determine filename for at least one uploaded file");
 				}
 			} else {
-				print("$_file_without_ending coulnd't be found in \$offered_files\n");
+				print("$_file_without_ending couldn't be found in \$offered_files\n");
 			}
 		}
 	}

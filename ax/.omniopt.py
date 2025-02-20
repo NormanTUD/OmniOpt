@@ -6024,7 +6024,7 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
             print_red(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.")
             die_no_random_steps()
         else:
-            print_red(f"Error 4: {e}")
+            print_debug(f"Error 4: {e}")
     elif isinstance(e, RuntimeError):
         print_red(f"\n⚠ Error 5: {e}")
     elif isinstance(e, botorch.exceptions.errors.ModelFittingError):

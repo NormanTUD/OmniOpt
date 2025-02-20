@@ -1,3 +1,4 @@
+Pillow
 packaging
 typing_extensions
 six

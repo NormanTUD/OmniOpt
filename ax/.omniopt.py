@@ -76,7 +76,7 @@ try:
         from rich.pretty import pprint
 
         from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
@@ -159,7 +159,7 @@ SHOWN_END_TABLE: bool = False
 max_eval: int = 1
 random_steps: int = 1
 progress_bar: Optional[tqdm] = None
-error_8_saved: list[str] = []
+error_8_saved: List[str] = []
 
 @beartype
 def get_current_run_folder() -> str:
@@ -362,7 +362,7 @@ class ConfigLoader:
     seed: int
     cpus_per_task: int
     parameter: str
-    experiment_constraints: Optional[list[str]]
+    experiment_constraints: Optional[List[str]]
     main_process_gb: int
     stderr_to_stdout: bool
     worker_timeout: int
@@ -1635,7 +1635,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
         values = [int(value) for value in values]
 
     values = sorted(set(values))
-    values_str: list[str] = [str(helpers.to_int_when_possible(value)) for value in values]
+    values_str: List[str] = [str(helpers.to_int_when_possible(value)) for value in values]
 
     return {
         "name": name,
@@ -1779,7 +1779,7 @@ def parse_experiment_parameters() -> list:
     global global_vars
 
     params: list = []
-    param_names: list[str] = []
+    param_names: List[str] = []
 
     i = 0
 
@@ -2098,7 +2098,7 @@ def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma
         csv_writer.writerow(data_line)
 
 @beartype
-def find_file_paths(_text: str) -> list[str]:
+def find_file_paths(_text: str) -> List[str]:
     file_paths = []
 
     if isinstance(_text, str):
@@ -2258,12 +2258,12 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
     return None
 
 @beartype
-def extract_info(data: Optional[str]) -> Tuple[list[str], list[str]]:
+def extract_info(data: Optional[str]) -> Tuple[List[str], List[str]]:
     if data is None:
         return [], []
 
-    names: list[str] = []
-    values: list[str] = []
+    names: List[str] = []
+    values: List[str] = []
 
     # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
     _pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
@@ -2395,7 +2395,7 @@ def get_return_in_case_of_errors() -> dict:
 
 @beartype
 def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[dict[str, Optional[float]], list[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
-    str_parameters_values: list[str] = [str(v) for v in list(parameters.values())]
+    str_parameters_values: List[str] = [str(v) for v in list(parameters.values())]
 
     extra_vars_names, extra_vars_values = extract_info(stdout)
 
@@ -2406,7 +2406,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
 
     parameters_keys = list(parameters.keys())
 
-    headline: list[str] = [
+    headline: List[str] = [
         "start_time",
         "end_time",
         "run_time",
@@ -2431,7 +2431,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
 
             result_values.append(rval)
 
-    values: list[str] = [
+    values: List[str] = [
         str(start_time),
         str(end_time),
         str(run_time),
@@ -3071,8 +3071,8 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     return data
 
 @beartype
-def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[list[str]]:
-    plot_commands: list[list[str]] = []
+def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> list[List[str]]:
+    plot_commands: list[List[str]] = []
     if "params" in plot.keys():
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
@@ -4132,7 +4132,7 @@ def get_types_of_errors_string() -> str:
     return types_of_errors_str
 
 @beartype
-def get_in_brackets_clean(in_brackets: list[str]) -> list[str]:
+def get_in_brackets_clean(in_brackets: List[str]) -> List[str]:
     in_brackets_clean = []
 
     for item in in_brackets:
@@ -4142,14 +4142,14 @@ def get_in_brackets_clean(in_brackets: list[str]) -> list[str]:
     return in_brackets_clean
 
 @beartype
-def get_desc_progress_text(new_msgs: list[str] = []) -> str:
+def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     global global_vars
     global random_steps
     global max_eval
 
     desc: str = ""
 
-    in_brackets: list[str] = []
+    in_brackets: List[str] = []
 
     if failed_jobs():
         in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}")
@@ -4200,7 +4200,7 @@ def get_desc_progress_text(new_msgs: list[str] = []) -> str:
     return desc
 
 @beartype
-def progressbar_description(new_msgs: list[str] = []) -> None:
+def progressbar_description(new_msgs: List[str] = []) -> None:
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
     if progress_bar is not None:
@@ -4321,7 +4321,7 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
     return old_result_simple
 
 @beartype
-def simulate_load_data_from_existing_run_folders(_paths: list[str]) -> int:
+def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 
     for this_path in _paths:
@@ -4509,7 +4509,7 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
                 print_red("Could not parse error while trying to insert_job_into_ax_client")
 
 @beartype
-def load_data_from_existing_run_folders(_paths: list[str]) -> None:
+def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     global already_inserted_param_hashes
     global already_inserted_param_data
     global double_hashes
@@ -4607,7 +4607,7 @@ def load_data_from_existing_run_folders(_paths: list[str]) -> None:
     display_table() # pragma: no cover
 
 @beartype
-def get_first_line_of_file(file_paths: list[str]) -> str:
+def get_first_line_of_file(file_paths: List[str]) -> str:
     first_line: str = ""
     if len(file_paths): # pragma: no cover
         first_file_as_string: str = ""
@@ -4624,7 +4624,7 @@ def get_first_line_of_file(file_paths: list[str]) -> str:
     return first_line
 
 @beartype
-def find_exec_errors(errors: list[str], file_as_string: str, file_paths: list[str]) -> list[str]:
+def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[str]) -> List[str]:
     if "Exec format error" in file_as_string:
         current_platform = platform.machine()
         file_output = ""
@@ -4639,8 +4639,8 @@ def find_exec_errors(errors: list[str], file_as_string: str, file_paths: list[st
     return errors
 
 @beartype
-def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: list[str], program_code: str) -> list[str]:
-    errors: list[str] = []
+def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: List[str], program_code: str) -> List[str]:
+    errors: List[str] = []
 
     if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"): # pragma: no cover
         errors.append("First line does not seem to be a shebang line: " + first_line)
@@ -4727,8 +4727,8 @@ def get_exit_codes() -> dict:
     }
 
 @beartype
-def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
-    errors: list[str] = []
+def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
+    errors: List[str] = []
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
         search_for_exit_code = "Exit-Code: " + str(r) + ","
@@ -4740,7 +4740,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> list[str]:
     return errors
 
 @beartype
-def get_python_errors() -> list[list[str]]: # pragma: no cover
+def get_python_errors() -> list[List[str]]: # pragma: no cover
     synerr: str = "Python syntax error detected. Check log file."
 
     return [
@@ -4802,8 +4802,8 @@ def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma
     return ""
 
 @beartype
-def check_for_python_errors(i: str, file_as_string: str) -> list[str]: # pragma: no cover
-    errors: list[str] = []
+def check_for_python_errors(i: str, file_as_string: str) -> List[str]: # pragma: no cover
+    errors: List[str] = []
 
     for search_array in get_python_errors():
         search_for_string = search_array[0]
@@ -4819,7 +4819,7 @@ def check_for_python_errors(i: str, file_as_string: str) -> list[str]: # pragma:
     return errors
 
 @beartype
-def get_errors_from_outfile(i: str) -> list[str]:
+def get_errors_from_outfile(i: str) -> List[str]:
     file_as_string = get_file_as_string(i)
 
     program_code = get_program_code_from_out_file(i)
@@ -4827,7 +4827,7 @@ def get_errors_from_outfile(i: str) -> list[str]:
 
     first_line: str = get_first_line_of_file(file_paths)
 
-    errors: list[str] = []
+    errors: List[str] = []
 
     if "Result: None" in file_as_string: # pragma: no cover
         errors.append("Got no result.")
@@ -4854,7 +4854,7 @@ def get_errors_from_outfile(i: str) -> list[str]:
 def print_outfile_analyzed(stdout_path: str) -> None:
     errors = get_errors_from_outfile(stdout_path)
 
-    _strs: list[str] = []
+    _strs: List[str] = []
     j: int = 0
 
     if len(errors): # pragma: no cover
@@ -5000,7 +5000,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     return this_jobs_finished
 
 @beartype
-def finish_previous_jobs(new_msgs: list[str]) -> None:
+def finish_previous_jobs(new_msgs: List[str]) -> None:
     global random_steps
     global ax_client
     global JOBS_FINISHED

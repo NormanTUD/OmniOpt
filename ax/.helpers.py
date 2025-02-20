@@ -117,7 +117,7 @@ def warn_versions() -> None:
     if len(wrns): # pragma: no cover
         print("- " + ("\n- ".join(wrns)))
 
-def looks_like_float(x: Union[float | int | str | None]) -> bool:
+def looks_like_float(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
 
@@ -130,7 +130,7 @@ def looks_like_float(x: Union[float | int | str | None]) -> bool:
 
     return False  # If x is neither str, int, nor float, it's not float-like
 
-def looks_like_int(x: Union[float | int | str | None]) -> bool:
+def looks_like_int(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, bool):
         return False
 
@@ -145,7 +145,7 @@ def looks_like_int(x: Union[float | int | str | None]) -> bool:
 
     return False
 
-def looks_like_number (x: Union[float | int | str | None]) -> bool:
+def looks_like_number (x: Union[float, int, str, None]) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
 def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
@@ -491,7 +491,7 @@ def is_not_equal(n: str, i: Any, o: Any) -> bool:
 
     return r # pragma: no cover
 
-def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[int | float | None, int | float | None]: # pragma: no cover
+def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[Union[int, float, None], Union[int, float, None]]: # pragma: no cover
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 

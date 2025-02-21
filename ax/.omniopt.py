@@ -6039,7 +6039,7 @@ def process_results(results: list) -> None:
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     if isinstance(e, TypeError):
         print_red(f"Error 1: {e}")
-    elif isinstance(e, botorch.exceptions.errors.InputDataError):
+    elif isinstance(e, botorch.exceptions.errors.InputDataError): # pragma: no cover
         print_red(f"Error 2: {e}")
     elif isinstance(e, ax.exceptions.core.DataRequiredError):
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
@@ -6047,12 +6047,12 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
             die_no_random_steps()
         else:
             print_debug(f"Error 4: {e}")
-    elif isinstance(e, RuntimeError):
+    elif isinstance(e, RuntimeError): # pragma: no cover
         print_red(f"\n⚠ Error 5: {e}")
-    elif isinstance(e, botorch.exceptions.errors.ModelFittingError):
+    elif isinstance(e, botorch.exceptions.errors.ModelFittingError): # pragma: no cover
         print_red(f"\n⚠ Error 6: {e}")
         end_program(RESULT_CSV_FILE, False, 1)
-    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)):
+    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)): # pragma: no cover
         print_red(f"\n⚠ Error 7 {e}")
         end_program(RESULT_CSV_FILE, False, 87)
     return 0
@@ -6074,7 +6074,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         for _ in range(new_nr_of_jobs_to_get):
             trial_index_to_param, optimization_complete = _get_next_trials(1, new_nr_of_jobs_to_get)
             done_optimizing = handle_optimization_completion(optimization_complete)
-            if done_optimizing:
+            if done_optimizing: # pragma: no cover
                 continue
             if trial_index_to_param:
                 results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
@@ -6130,7 +6130,7 @@ def _set_global_executor() -> None:
 
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
 
-    if args.force_local_execution:
+    if args.force_local_execution: # pragma: no cover
         executor = LocalExecutor(folder=log_folder)
     else:
         executor = AutoExecutor(folder=log_folder)

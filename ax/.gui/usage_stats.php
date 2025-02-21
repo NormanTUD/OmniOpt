@@ -125,7 +125,7 @@
 
 	if (!empty($developer_ids) || !empty($test_ids) || !empty($regular_data)) {
 		$sections = ['regular_data' => 'Regular Users', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
-		$sections = ['regular_data' => 'Regular Users'];
+		$sections = ['regular_data' => 'Usage overview'];
 ?>
 		<br>
 		<div id="tabs">

@@ -116,71 +116,56 @@
 		return [$developer_ids, $test_ids, $regular_data];
 	}
 
+	function calculate_median($values) {
+		$count = count($values);
+		if ($count === 0) return 0;
+
+		sort($values);
+		$middle = floor($count / 2);
+
+		return ($count % 2 === 0)
+			? ($values[$middle - 1] + $values[$middle]) / 2
+			: $values[$middle];
+	}
+
 	function calculate_statistics($data) {
 		$total_jobs = count($data);
-		$failed_jobs = count(
-			array_filter(
-				$data,
-				function ($row) {
-					return intval($row[4]) != 0;
-				}
-		)
-		);
+		$failed_jobs = count(array_filter($data, fn($row) => intval($row[4]) !== 0));
 		$successful_jobs = $total_jobs - $failed_jobs;
 		$failure_rate = $total_jobs > 0 ? ($failed_jobs / $total_jobs) * 100 : 0;
 
 		$runtimes = array_map('floatval', array_column($data, 5));
-		$total_runtime = array_sum($runtimes);
-		$average_runtime = $total_jobs > 0 ? $total_runtime / $total_jobs : 0;
 
-		sort($runtimes);
-		$median_runtime = $total_jobs > 0 ? (count($runtimes) % 2 == 0 ? ($runtimes[count($runtimes) / 2 - 1] + $runtimes[count($runtimes) / 2]) / 2 : $runtimes[floor(count($runtimes) / 2)]) : 0;
-
-		$successful_runtimes = array_filter(
-			$data,
-			function ($row) {
-				return intval($row[4]) == 0;
-			}
-		);
-		$successful_runtimes = array_map('floatval', array_column($successful_runtimes, 5));
-		$avg_success_runtime = !empty($successful_runtimes) ? array_sum($successful_runtimes) / count($successful_runtimes) : 0;
-		sort($successful_runtimes);
-		$median_success_runtime = !empty($successful_runtimes) ? (count($successful_runtimes) % 2 == 0 ? ($successful_runtimes[count($successful_runtimes) / 2 - 1] + $successful_runtimes[count($successful_runtimes) / 2]) / 2 : $successful_runtimes[floor(count($successful_runtimes) / 2)]) : 0;
-
-		$failed_runtimes = array_filter(
-			$data,
-			function ($row) {
-				return intval($row[4]) != 0;
-			}
-		);
-		$failed_runtimes = array_map('floatval', array_column($failed_runtimes, 5));
-		$avg_failed_runtime = !empty($failed_runtimes) ? array_sum($failed_runtimes) / count($failed_runtimes) : 0;
-		sort($failed_runtimes);
-		$median_failed_runtime = !empty($failed_runtimes) ? (count($failed_runtimes) % 2 == 0 ? ($failed_runtimes[count($failed_runtimes) / 2 - 1] + $failed_runtimes[count($failed_runtimes) / 2]) / 2 : $failed_runtimes[floor(count($failed_runtimes) / 2)]) : 0;
-
-		if (count($runtimes)) {
+		if ($total_jobs === 0) {
 			return [
-				'total_jobs' => $total_jobs,
-				'failed_jobs' => $failed_jobs,
-				'successful_jobs' => $successful_jobs,
-				'failure_rate' => $failure_rate,
-				'average_runtime' => $average_runtime,
-				'median_runtime' => $median_runtime,
-				'max_runtime' => max($runtimes),
-				'min_runtime' => min($runtimes),
-				'avg_success_runtime' => $avg_success_runtime,
-				'median_success_runtime' => $median_success_runtime,
-				'avg_failed_runtime' => $avg_failed_runtime,
-				'median_failed_runtime' => $median_failed_runtime
-			];
-		} else {
-			return [
-				'total_jobs' => $total_jobs,
-				'failed_jobs' => $failed_jobs,
-				'successful_jobs' => $successful_jobs,
-				'failure_rate' => $failure_rate
+				'total_jobs' => 0,
+				'failed_jobs' => 0,
+				'successful_jobs' => 0,
+				'failure_rate' => 0
 			];
 		}
+
+		$total_runtime = array_sum($runtimes);
+		$average_runtime = $total_runtime / $total_jobs;
+		$median_runtime = calculate_median($runtimes);
+
+		$successful_runtimes = array_map('floatval', array_column(array_filter($data, fn($row) => intval($row[4]) === 0), 5));
+		$failed_runtimes = array_map('floatval', array_column(array_filter($data, fn($row) => intval($row[4]) !== 0), 5));
+
+		return [
+			'total_jobs' => $total_jobs,
+			'failed_jobs' => $failed_jobs,
+			'successful_jobs' => $successful_jobs,
+			'failure_rate' => $failure_rate,
+			'average_runtime' => $average_runtime,
+			'median_runtime' => $median_runtime,
+			'max_runtime' => max($runtimes),
+			'min_runtime' => min($runtimes),
+			'avg_success_runtime' => count($successful_runtimes) ? array_sum($successful_runtimes) / count($successful_runtimes) : 0,
+			'median_success_runtime' => calculate_median($successful_runtimes),
+			'avg_failed_runtime' => count($failed_runtimes) ? array_sum($failed_runtimes) / count($failed_runtimes) : 0,
+			'median_failed_runtime' => calculate_median($failed_runtimes)
+		];
 	}
 
 	// Main code execution

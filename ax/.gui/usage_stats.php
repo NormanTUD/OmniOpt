@@ -7,7 +7,42 @@
 		die("Fatal error: SQLite3 extension is not installed. Try <tt>sudo apt-get install php-sqlite3</tt> on your host system.\n");
 	}
 
+	function check_database_path($db_path) {
+		$dir = dirname($db_path);
+		$user = posix_getpwuid(posix_geteuid())['name']; // Aktueller Benutzer
+
+		// Prüfen, ob das Verzeichnis existiert
+		if (!is_dir($dir)) {
+			die("Error: The directory '$dir' does not exist. \nSolution: Create it with:\n  mkdir -p '$dir' && chown $user '$dir' && chmod 755 '$dir'\n");
+		}
+
+		// Prüfen, ob das Verzeichnis beschreibbar ist
+		if (!is_writable($dir)) {
+			die("Error: The directory '$dir' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 775 '$dir'\nOr change the owner with:\n  chown $user '$dir'\n");
+		}
+
+		// Prüfen, ob die Datei existiert
+		if (file_exists($db_path)) {
+			// Prüfen, ob die Datei beschreibbar ist
+			if (!is_writable($db_path)) {
+				die("Error: The database file '$db_path' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 664 '$db_path'\nOr change the owner with:\n  chown $user '$db_path'\n");
+			}
+		} else {
+			// Falls die Datei nicht existiert, prüfen, ob sie erstellt werden kann
+			if (!is_writable($dir)) {
+				die("Error: The database file '$db_path' does not exist and cannot be created in '$dir'. \nSolution: Ensure the directory is writable using:\n  chmod 775 '$dir'\n");
+			}
+		}
+
+		// Prüfen, ob SQLite3 verfügbar ist
+		if (!class_exists('SQLite3')) {
+			die("Error: SQLite3 is not available in PHP. \nSolution: Install SQLite3 with:\n  sudo apt install php-sqlite3\nOr enable the extension in 'php.ini'.\n");
+		}
+	}
+
 	function initialize_database($db_path) {
+		check_database_path($db_path);
+
 		try {
 			$db = new SQLite3($db_path);
 			$db->exec("PRAGMA journal_mode=WAL;");

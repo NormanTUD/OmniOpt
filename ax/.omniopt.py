@@ -95,7 +95,6 @@ try:
         import traceback
 
         import cowsay
-        from pyfiglet import Figlet
 
         import psutil
         import shutil
@@ -125,6 +124,15 @@ with console.status("[bold green]Loading rich_argparse...") as status:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
         RichHelpFormatter = argparse.HelpFormatter
+
+figlet_loaded = False
+
+with console.status("[bold green]Loading rich_argparse...") as status:
+    try:
+        from pyfiglet import Figlet
+        figlet_loaded = True
+    except ModuleNotFoundError:
+        figlet_loaded = False
 
 @beartype
 def makedirs(p: str) -> bool:
@@ -954,24 +962,27 @@ def print_logo() -> None:
 
         cowsay.char_funcs[char](f"OmniOpt2 - {spruch}")
     else:
-        fonts = [
-            "slant",
-            "big",
-            "doom",
-            "larry3d",
-            "starwars",
-            "colossal",
-            "avatar",
-            "pebbles",
-            "script",
-            "stop",
-            "banner3",
-            "nancyj",
-            "poison"
-        ]
+        if figlet_loaded:
+            fonts = [
+                "slant",
+                "big",
+                "doom",
+                "larry3d",
+                "starwars",
+                "colossal",
+                "avatar",
+                "pebbles",
+                "script",
+                "stop",
+                "banner3",
+                "nancyj",
+                "poison"
+            ]
 
-        f = Figlet(font=random.choice(fonts))
-        original_print(f.renderText('OmniOpt2'))
+            f = Figlet(font=random.choice(fonts))
+            original_print(f.renderText('OmniOpt2'))
+        else:
+            original_print('OmniOpt2')
 
 process = None
 try:

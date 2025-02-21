@@ -51,32 +51,6 @@
 		return hash('sha256', $combinedHashes);
 	}
 
-	function get_header_file($file) {
-		$replaced_file = preg_replace("/.*\//", "", $file);
-
-		$names = array(
-			"best_result.txt" => "Best results",
-			"results.csv" => "Results",
-			"job_infos.csv" => "Job-Infos",
-			"parameters.txt" => "Parameter",
-			"get_next_trials.csv" => "get_next_trials",
-			"cpu_ram_usage.csv" => "CPU/RAM-usage of main worker",
-			"evaluation_errors.log" => "Evaluation Errors",
-			"oo_errors.txt" => "OmniOpt2-Errors",
-			"worker_usage.csv" => "Number of workers",
-			"result_names.txt" => "Result-Names",
-			"loaded_modules.json" => "A file containing all modules loaded that have versioning data",
-			"args_overview.txt" => "A file containing a table that gives an overview of all args",
-			"experiment_overview.txt" => "A table showing different parameters relating to the current experiment"
-		);
-
-		if (isset($names[$replaced_file])) {
-			return "<h2>" . $names[$replaced_file] . "</h2>";
-		} else {
-			return "<h2>" . $replaced_file . "</h2>";
-		}
-	}
-
 	function convert_to_int_or_float_if_possible($var) {
 		// Prüfen, ob die Eingabe ein numerischer Wert ist
 		if (is_numeric($var)) {

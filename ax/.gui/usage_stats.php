@@ -140,6 +140,7 @@
 			</ul>
 <?php
 		$sections = ['regular_data' => 'Regular Users', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
+		$sections = ['regular_data' => 'Regular Users'];
 		foreach ($sections as $key => $title) {
 			if (count(${$key})) {
 				echo '<div id="' . $key . '">';

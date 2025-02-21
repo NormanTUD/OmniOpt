@@ -4,9 +4,14 @@ import ast
 import argparse
 import re
 from pprint import pprint
-from spellchecker import SpellChecker
 from rich.progress import Progress
 from rich.console import Console
+
+try:
+    from spellchecker import SpellChecker
+except ModuleNotFoundError:
+    print("spellchecker could not be loaded")
+    sys.exit(0)
 
 def dier(msg):
     pprint(msg)

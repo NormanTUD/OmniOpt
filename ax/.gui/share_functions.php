@@ -582,10 +582,13 @@
 
 			foreach ($objects as $object) {
 				if ($object != '.' && $object != '..') {
-					if (filetype($dir.'/'.$object) == 'dir') {
-						rrmdir($dir.'/'.$object);
+					$object_path = $dir.'/'.$object;
+					if (filetype($object_path) == 'dir') {
+						rrmdir($object_path);
 					} else {
-						unlink($dir.'/'.$object);
+						if (file_exists($object_path)) {
+							unlink($object_path);
+						}
 					}
 				}
 			}

@@ -254,15 +254,6 @@
 		$unique_sbatch = array_unique($has_sbatch);
 		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
 
-		echo "<div class='usage_plot' id='$element_id-exit-codes' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runs' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtimes' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-exit-code-pie' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtime-box' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-top-users' style='height: 400px;'></div>";
-
 		$plots = [
 			'exit-codes',
 			'runs',

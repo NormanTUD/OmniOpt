@@ -24,7 +24,7 @@
 			$db->exec("CREATE INDEX IF NOT EXISTS idx_time ON usage_statistics(time);");
 			$db->close();
 		} catch (Exception $e) {
-			die("Failed to initialize database: " . $e->getMessage());
+			die("Failed to initialize database '$db_path': " . $e->getMessage());
 		}
 	}
 

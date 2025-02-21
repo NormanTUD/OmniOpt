@@ -2436,3 +2436,4 @@ zsh
 ZSH
 mapfile
 shuf
+chown

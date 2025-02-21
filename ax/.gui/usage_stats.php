@@ -1,18 +1,4 @@
 <?php
-	error_reporting(E_ALL);
-	set_error_handler(
-		function ($severity, $message, $file, $line) {
-			throw new \ErrorException($message, $severity, $severity, $file, $line);
-		}
-	);
-
-	ini_set('display_errors', 1);
-
-	function dier($msg) {
-		print("<pre>" . print_r($msg, true) . "</pre>");
-		exit(1);
-	}
-
 	require "_usage_stats_header.php";
 
 	function log_error($error_message) {

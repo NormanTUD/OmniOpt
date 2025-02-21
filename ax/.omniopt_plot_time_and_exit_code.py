@@ -17,7 +17,7 @@ import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
 
-from typing import Union, Optional
+from typing import Optional
 
 from beartype import beartype
 

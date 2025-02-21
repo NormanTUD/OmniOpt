@@ -65,9 +65,9 @@
 			<script>
 				$(document).ready(function() {
 					$.ajax({
-						url: 'get_usage_stats.php',
+						url: 'get_usage_stat.php',
 						type: 'GET',
-						data: { element_id: '<?= $element_id ?>' },
+						data: { element_id: '$element_id' },
 						dataType: 'json',
 						success: function(data) {
 							var anon_users_$element_id = data.anon_users;

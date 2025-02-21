@@ -4,12 +4,10 @@
 	}
 
 	function calculateDirectoryHash($directory) {
-		// Überprüfen, ob der Ordner existiert und lesbar ist
 		if (!is_dir($directory) || !is_readable($directory)) {
-			return false; // Fehler, Ordner existiert nicht oder ist nicht lesbar
+			return false;
 		}
 
-		// Rekursive Funktion zum Abrufen aller Dateien im Ordner und Unterordnern
 		function getFilesRecursive($dir)
 		{
 			$files = [];
@@ -22,46 +20,37 @@
 				}
 			}
 
-			// Alphabetisch sortieren
 			sort($files);
 			return $files;
 		}
 
-		// Alle Dateien im Ordner und Unterordner holen
 		$files = getFilesRecursive($directory);
 
-		// Falls keine Dateien gefunden wurden
 		if (empty($files)) {
-			return false; // Keine Dateien im Ordner
+			return false;
 		}
 
 		$combinedHashes = '';
 
-		// Für jede Datei den SHA256-Hash berechnen und an die Hash-Liste anhängen
 		foreach ($files as $file) {
 			$fileContent = file_get_contents($file);
 			if ($fileContent === false) {
-				return false; // Fehler beim Lesen der Datei
+				return false;
 			}
 
 			$combinedHashes .= hash('sha256', $fileContent);
 		}
 
-		// Endgültigen SHA256-Hash des kombinierten Hash-Strings berechnen
 		return hash('sha256', $combinedHashes);
 	}
 
 	function convert_to_int_or_float_if_possible($var) {
-		// Prüfen, ob die Eingabe ein numerischer Wert ist
 		if (is_numeric($var)) {
-			// Wenn es ein ganzzahliger Wert ist, nach int konvertieren
 			if (ctype_digit($var) || (is_numeric($var) && (float)$var == (int)$var)) {
 				return (int)$var;
 			}
-			// Sonst als float zurückgeben
 			return (float)$var;
 		}
-		// Wenn die Eingabe nicht numerisch ist, den originalen Wert zurückgeben
 		return $var;
 	}
 
@@ -99,25 +88,17 @@
 	}
 
 	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string {
-		// Glob-Muster, um alle passenden Dateien zu finden
-
 		$glob_str = "$sharesPath/*/*/*/run_uuid";
 		$files = glob($glob_str);
-		// dier($glob_str);
-		// dier($files);
 
 		foreach ($files as $file) {
-			// Dateiinhalt lesen und Whitespace (Leerzeichen, Newlines, Tabs) entfernen
 			$fileContent = preg_replace('/\s+/', '', file_get_contents($file));
 
-			// Überprüfen, ob die UUID übereinstimmt
 			if ($fileContent === $targetUUID) {
-				// Ordnerpfad ohne 'state_files/run_uuid' zurückgeben
-				return dirname($file);  // Zwei Ebenen zurück gehen
+				return dirname($file);
 			}
 		}
 
-		// Wenn keine Übereinstimmung gefunden wurde, null zurückgeben
 		return null;
 	}
 
@@ -230,19 +211,16 @@
 	}
 
 	function custom_sort($a, $b) {
-		// Extrahiere numerische und alphabetische Teile
 		$a_numeric = preg_replace('/[^0-9]/', '', $a);
 		$b_numeric = preg_replace('/[^0-9]/', '', $b);
 
-		// Falls beide numerisch sind, sortiere numerisch
 		if (is_numeric($a_numeric) && is_numeric($b_numeric)) {
 			if ((int)$a_numeric == (int)$b_numeric) {
-				return strcmp($a, $b); // Wenn numerisch gleich, alphabetisch sortieren
+				return strcmp($a, $b);
 			}
 			return (int)$a_numeric - (int)$b_numeric;
 		}
 
-		// Falls nur einer numerisch ist, numerische Sortierung bevorzugen
 		if (is_numeric($a_numeric)) {
 			return -1;
 		}
@@ -251,31 +229,24 @@
 			return 1;
 		}
 
-		// Falls keine numerisch sind, alphabetisch sortieren
 		return strcmp($a, $b);
 	}
 
 	function check_and_filter_folders($folders) {
-		// Überprüfe, ob das übergebene Argument ein Array ist
 		if (!is_array($folders)) {
 			throw new InvalidArgumentException("Der übergebene Parameter muss ein Array sein.");
 		}
 
 		$filtered_folders = array_filter($folders, function($folder) {
-			// Überprüfe, ob der Pfad ein Verzeichnis ist
 			if (!is_dir($folder)) {
-				// Wenn es kein Verzeichnis ist, gebe eine Warnung aus und behalte den Eintrag
 				error_log("Warnung: '$folder' ist kein gültiges Verzeichnis.");
 				return true;
 			}
 
-			// Öffne das Verzeichnis
 			$files = scandir($folder);
 
-			// Entferne "." und ".." aus der Liste der Dateien
 			$files = array_diff($files, array('.', '..'));
 
-			// Wenn Dateien vorhanden sind, behalte den Eintrag
 			return count($files) > 0;
 		});
 

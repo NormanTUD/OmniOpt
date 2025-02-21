@@ -1,3 +1,4 @@
+import_metadata_not_found = False
 import sys
 import json
 from typing import Union, Tuple, Any, Optional
@@ -10,7 +11,10 @@ import os
 import platform
 import re
 import traceback
-from importlib.metadata import version, PackageNotFoundError
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ModuleNotFoundError:
+    import_metadata_not_found = True
 from pprint import pprint
 import matplotlib
 from matplotlib.widgets import Button, TextBox
@@ -41,6 +45,9 @@ if not in_venv(): # pragma: no cover
     sys.exit(19)
 
 def write_loaded_modules_versions_to_json(output_file: str) -> None:
+    if import_metadata_not_found:
+        return
+
     modules_versions = {}
 
     for module_name in sys.modules.keys():
@@ -56,6 +63,9 @@ def write_loaded_modules_versions_to_json(output_file: str) -> None:
         print_color("red", f"Error while trying to write file '{output_file}': {e}")
 
 def warn_versions() -> None:
+    if import_metadata_not_found:
+        return
+
     wrns = []
 
     supported_versions = {
@@ -271,7 +281,7 @@ def print_color(color: str, text: str) -> None:
 
 def check_python_version() -> None:
     python_version = platform.python_version()
-    supported_versions = ["3.8.20", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.11.3", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+", "3.12.8", "3.13.1", "3.13.2"]
+    supported_versions = ["3.6.15", "3.8.20", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.11.3", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+", "3.12.8", "3.13.1", "3.13.2"]
     if python_version not in supported_versions: # pragma: no cover
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 

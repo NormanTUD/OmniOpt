@@ -6,8 +6,6 @@ dont_install_on_hpc=(
 	"tensorflow"
 	"tensorflowjs"
 	"protobuf"
-	"keras"
-	"tf_keras"
 )
 
 {

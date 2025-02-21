@@ -2,10 +2,15 @@ import os
 import sys
 import re
 import argparse
-from spellchecker import SpellChecker
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
+
+try:
+    from spellchecker import SpellChecker
+except ModuleNotFoundError:
+    print("spellchecker could not be loaded")
+    sys.exit(0)
 
 parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
 parser.add_argument(

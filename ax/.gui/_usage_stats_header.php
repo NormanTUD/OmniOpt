@@ -13,6 +13,11 @@
 		exit(1);
 	}
 
+	function log_error($error_message) {
+		error_log($error_message);
+		echo "<p>Error: $error_message</p>";
+	}
+
 	require "_header_base.php";
 ?>
 	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>

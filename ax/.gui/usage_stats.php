@@ -1,11 +1,6 @@
 <?php
 	require "_usage_stats_header.php";
 
-	function log_error($error_message) {
-		error_log($error_message);
-		echo "<p>Error: $error_message</p>";
-	}
-
 	function append_to_csv($params, $filepath) {
 		if (validate_parameters($params, $filepath)) {
 			$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];

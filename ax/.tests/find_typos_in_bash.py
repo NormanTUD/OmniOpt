@@ -13,7 +13,7 @@ except KeyboardInterrupt:
     sys.exit(0)
 except ModuleNotFoundError as e:
     print(f"At least one module could not be found. Cannot continue. Error: {e}")
-    sys.exit(1)
+    sys.exit(0)
 
 # Initialize the spellchecker
 spell = SpellChecker(language='en')

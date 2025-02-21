@@ -154,4 +154,65 @@
 				</script>
 			";
 	}
+
+	function display_statistics($stats) {
+		echo "<div class='statistics'>";
+		echo "<h3>Statistics</h3>";
+		echo "<p>Total jobs: {$stats['total_jobs']}</p>";
+		echo "<p>Failed jobs: {$stats['failed_jobs']} (" . number_format($stats['failure_rate'], 2) . "%)</p>";
+		echo "<p>Successful jobs: {$stats['successful_jobs']}</p>";
+
+		if (isset($stats["average_runtime"])) {
+			$runtime_labels = [
+				"average_runtime" => "Average runtime",
+				"median_runtime" => "Median runtime",
+				"max_runtime" => "Max runtime",
+				"min_runtime" => "Min runtime",
+				"avg_success_runtime" => "Average success runtime",
+				"median_success_runtime" => "Median success runtime",
+				"avg_failed_runtime" => "Average failed runtime",
+				"median_failed_runtime" => "Median failed runtime"
+			];
+
+			foreach ($runtime_labels as $key => $label) {
+				echo "<p>$label: " . gmdate("H:i:s", intval($stats[$key])) . "</p>";
+			}
+		}
+
+		echo "</div>";
+	}
+
+	function display_plots($data, $element_id) {
+		$statistics = calculate_statistics($data);
+		display_statistics($statistics);
+
+		$anon_users = array_column($data, 0);
+		$has_sbatch = array_column($data, 1);
+		$exit_codes = array_map('intval', array_column($data, 4));
+		$runtimes = array_map('floatval', array_column($data, 5));
+
+		$unique_sbatch = array_unique($has_sbatch);
+		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
+
+		$plots = [
+			'exit-codes',
+			'runs',
+			'runtimes',
+			'runtime-vs-exit-code',
+			'exit-code-pie',
+			'avg-runtime-bar',
+			'runtime-box',
+			'top-users'
+		];
+
+		foreach ($plots as $plot) {
+			echo "<div class='usage_plot' id='$element_id-$plot' style='height: 400px;'></div>";
+		}
+
+		if ($show_sbatch_plot) {
+			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
+		}
+
+		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot);
+	}
 ?>

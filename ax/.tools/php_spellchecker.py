@@ -3,12 +3,17 @@ import sys
 import re
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from bs4 import BeautifulSoup
-from spellchecker import SpellChecker
 import emoji
 from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn
 from rich.table import Table
+
+try:
+    from bs4 import BeautifulSoup
+    from spellchecker import SpellChecker
+except (SyntaxError, ModuleNotFoundError) as e:
+    print(f"Failed to load module: {e}")
+    sys.exit(0)
 
 spell = SpellChecker(language='en')
 

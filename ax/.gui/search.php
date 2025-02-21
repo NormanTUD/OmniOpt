@@ -69,7 +69,7 @@
 					continue;
 				}
 
-				if (preg_match($regex_pattern, $run_path, $matches)) {
+				if (preg_match($regex_pattern, $run_path)) {
 					$parsedPath = parsePath($run_path);
 					$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
 					$entry = [

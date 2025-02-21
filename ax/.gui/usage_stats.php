@@ -25,21 +25,19 @@
 	}
 
 	function group_data($data) {
-		$developer_ids = [];
-		$test_ids = [];
-		$regular_data = [];
+		$id_map = [
+			'affeaffeaffeaffeaffeaffeaffeaffe' => 'developer_ids',
+			'affed00faffed00faffed00faffed00f' => 'test_ids'
+		];
+
+		$groups = ['developer_ids' => [], 'test_ids' => [], 'regular_data' => []];
 
 		foreach ($data as $row) {
-			if ($row[0] == 'affeaffeaffeaffeaffeaffeaffeaffe') {
-				$developer_ids[] = $row;
-			} elseif ($row[0] == 'affed00faffed00faffed00faffed00f') {
-				$test_ids[] = $row;
-			} else {
-				$regular_data[] = $row;
-			}
+			$key = $id_map[$row[0]] ?? 'regular_data';
+			$groups[$key][] = $row;
 		}
 
-		return [$developer_ids, $test_ids, $regular_data];
+		return array_values($groups);
 	}
 
 	function calculate_statistics($data) {

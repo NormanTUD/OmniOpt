@@ -124,13 +124,14 @@
 	list($developer_ids, $test_ids, $regular_data) = get_group_data($db_path);
 
 	if (!empty($developer_ids) || !empty($test_ids) || !empty($regular_data)) {
+		$sections = ['regular_data' => 'Regular Users', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
+		$sections = ['regular_data' => 'Regular Users'];
 ?>
 		<br>
 		<div id="tabs">
 			<ul>
 <?php
-				$links = ['regular_data' => 'Regular Users', 'test_ids' => 'Tests', 'developer_ids' => 'Developer'];
-				foreach ($links as $key => $label) {
+				foreach ($sections as $key => $label) {
 					if (count(${$key})) {
 						echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
 					}
@@ -139,8 +140,6 @@
 				<li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
 			</ul>
 <?php
-		$sections = ['regular_data' => 'Regular Users', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
-		$sections = ['regular_data' => 'Regular Users'];
 		foreach ($sections as $key => $title) {
 			if (count(${$key})) {
 				echo '<div id="' . $key . '">';

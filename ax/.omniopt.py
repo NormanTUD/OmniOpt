@@ -70,7 +70,6 @@ try:
         import csv
 
         import rich
-        from rich_argparse import RichHelpFormatter
         from rich.table import Table
         from rich import print
         from rich.pretty import pprint
@@ -120,6 +119,12 @@ except ModuleNotFoundError as e: # pragma: no cover
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
+
+with console.status("[bold green]Loading rich_argparse...") as status:
+    try:
+        from rich_argparse import RichHelpFormatter
+    except:
+        RichHelpFormatter = argparse.HelpFormatter
 
 @beartype
 def makedirs(p: str) -> bool:

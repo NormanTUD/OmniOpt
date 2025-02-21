@@ -116,31 +116,8 @@
 		return [$developer_ids, $test_ids, $regular_data];
 	}
 
-	function display_plots($data, $element_id) {
-		$statistics = calculate_statistics($data);
-		display_statistics($statistics);
 
-		$anon_users = array_column($data, 0);
-		$has_sbatch = array_column($data, 1);
-		$exit_codes = array_map('intval', array_column($data, 4));
-		$runtimes = array_map('floatval', array_column($data, 5));
-
-		$unique_sbatch = array_unique($has_sbatch);
-		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
-
-		echo "<div class='usage_plot' id='$element_id-exit-codes' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runs' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtimes' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-exit-code-pie' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-runtime-box' style='height: 400px;'></div>";
-		echo "<div class='usage_plot' id='$element_id-top-users' style='height: 400px;'></div>";
-
-		if ($show_sbatch_plot) {
-			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
-		}
-
+	function print_js_code_for_plot ($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes) {
 		echo "
 			<script>
 				var anon_users_$element_id = " . json_encode($anon_users) . ";
@@ -263,6 +240,34 @@
 				}
 				</script>
 			";
+	}
+
+	function display_plots($data, $element_id) {
+		$statistics = calculate_statistics($data);
+		display_statistics($statistics);
+
+		$anon_users = array_column($data, 0);
+		$has_sbatch = array_column($data, 1);
+		$exit_codes = array_map('intval', array_column($data, 4));
+		$runtimes = array_map('floatval', array_column($data, 5));
+
+		$unique_sbatch = array_unique($has_sbatch);
+		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
+
+		echo "<div class='usage_plot' id='$element_id-exit-codes' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runs' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtimes' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtime-vs-exit-code' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-exit-code-pie' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-avg-runtime-bar' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-runtime-box' style='height: 400px;'></div>";
+		echo "<div class='usage_plot' id='$element_id-top-users' style='height: 400px;'></div>";
+
+		if ($show_sbatch_plot) {
+			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
+		}
+
+		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes);
 	}
 
 	function calculate_statistics($data) {

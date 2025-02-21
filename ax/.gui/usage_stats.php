@@ -8,8 +8,7 @@ set_error_handler(
 
 ini_set('display_errors', 1);
 
-function dier($msg)
-{
+function dier($msg) {
 	print("<pre>" . print_r($msg, true) . "</pre>");
 	exit(1);
 }
@@ -45,14 +44,12 @@ $(function() {
 });
 </script>
 <?php
-function log_error($error_message)
-{
+function log_error($error_message) {
 	error_log($error_message);
 	echo "<p>Error: $error_message</p>";
 }
 
-function validate_parameters($params)
-{
+function validate_parameters($params) {
 	assert(is_array($params), "Parameters should be an array");
 
 	$required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
@@ -89,8 +86,7 @@ function validate_parameters($params)
 	return true;
 }
 
-function append_to_csv($params, $filepath)
-{
+function append_to_csv($params, $filepath) {
 	if (validate_parameters($params)) {
 		assert(is_array($params), "Parameters should be an array");
 		assert(is_string($filepath), "Filepath should be a string");
@@ -113,8 +109,7 @@ function append_to_csv($params, $filepath)
 	}
 }
 
-function validate_csv($filepath)
-{
+function validate_csv($filepath) {
 	if (!file_exists($filepath) || !is_readable($filepath)) {
 		log_error("CSV file does not exist or is not readable.");
 		return false;
@@ -122,7 +117,7 @@ function validate_csv($filepath)
 
 	try {
 		$file = fopen($filepath, 'r');
-		$content = fread($file, filesize($filepath));
+		fread($file, filesize($filepath));
 		fclose($file);
 	} catch (Exception $e) {
 		log_error("Failed to read CSV file: " . $e->getMessage());
@@ -132,8 +127,7 @@ function validate_csv($filepath)
 	return true;
 }
 
-function filter_data($data)
-{
+function filter_data($data) {
 	$developer_ids = [];
 	$test_ids = [];
 	$regular_data = [];
@@ -151,8 +145,7 @@ function filter_data($data)
 	return [$developer_ids, $test_ids, $regular_data];
 }
 
-function display_plots($data, $title, $element_id)
-{
+function display_plots($data, $element_id) {
 	$statistics = calculate_statistics($data);
 	display_statistics($statistics);
 
@@ -301,8 +294,7 @@ function display_plots($data, $title, $element_id)
 		";
 }
 
-function calculate_statistics($data)
-{
+function calculate_statistics($data) {
 	$total_jobs = count($data);
 	$failed_jobs = count(
 		array_filter(
@@ -369,8 +361,7 @@ function calculate_statistics($data)
 	}
 }
 
-function display_statistics($stats)
-{
+function display_statistics($stats) {
 	echo "<div class='statistics'>";
 	echo "<h3>Statistics</h3>";
 	echo "<p>Total jobs: " . $stats['total_jobs'] . "</p>";
@@ -431,7 +422,7 @@ if (validate_csv($data_filepath)) {
 	    <div id="regular_data">
 <?php
 		echo "<h2>Regular Users</h2>";
-		display_plots($regular_data, 'Regular Users', 'regular');
+		display_plots($regular_data, 'regular');
 ?>
 	    </div>
 <?php
@@ -442,7 +433,7 @@ if (validate_csv($data_filepath)) {
 	    <div id="test_ids">
 <?php
 		echo "<h2>Test Users</h2>";
-		display_plots($test_ids, 'Test Users', 'test');
+		display_plots($test_ids, 'test');
 ?>
 	    </div>
 <?php
@@ -453,7 +444,7 @@ if (validate_csv($data_filepath)) {
 	    <div id="developer_ids">
 <?php
 		echo "<h2>Developer Users</h2>";
-		display_plots($developer_ids, 'Developer Users', 'developer');
+		display_plots($developer_ids, 'developer');
 ?>
 	    </div>
 <?php

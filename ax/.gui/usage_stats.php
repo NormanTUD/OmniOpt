@@ -386,38 +386,20 @@ $links = [
     <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
 </ul>
 <?php
-	if (count($regular_data)) {
-?>
-	    <div id="regular_data">
-<?php
-		echo "<h2>Regular Users</h2>";
-		display_plots($regular_data, 'regular');
-?>
-	    </div>
-<?php
-	}
+$sections = [
+    'regular_data' => 'Regular Users',
+    'test_ids' => 'Test Users',
+    'developer_ids' => 'Developer Users'
+];
 
-	if (count($test_ids)) {
-?>
-	    <div id="test_ids">
-<?php
-		echo "<h2>Test Users</h2>";
-		display_plots($test_ids, 'test');
-?>
-	    </div>
-<?php
-	}
-
-	if (count($developer_ids)) {
-?>
-	    <div id="developer_ids">
-<?php
-		echo "<h2>Developer Users</h2>";
-		display_plots($developer_ids, 'developer');
-?>
-	    </div>
-<?php
-	}
+foreach ($sections as $key => $title) {
+    if (count(${$key})) {
+        echo '<div id="' . $key . '">';
+        echo "<h2>$title</h2>";
+        display_plots(${$key}, explode('_', $key)[0]);
+        echo '</div>';
+    }
+}
 ?>
 	<div id="exit_codes">
 <?php

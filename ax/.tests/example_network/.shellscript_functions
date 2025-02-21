@@ -130,7 +130,9 @@ dont_install_on_hpc=(
 
 	if [ -z "$LOAD_MODULES" ] || [ "$LOAD_MODULES" -eq 1 ]; then
 		if env | grep -qi VIRTUAL_ENV; then
-			deactivate
+			if type deactivate >/dev/null 2>&1; then
+				deactivate
+			fi
 			myml purge
 		fi
 

@@ -215,4 +215,72 @@
 
 		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot);
 	}
+
+	function validate_parameters($params, $filepath) {
+		assert(is_array($params), "Parameters should be an array");
+		assert(is_string($filepath), "Filepath should be a string");
+
+		$required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
+		$patterns = [
+			'anon_user' => '/^[a-f0-9]{32}$/',
+			'has_sbatch' => '/^[01]$/',
+			'run_uuid' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+			'git_hash' => '/^[0-9a-f]{40}$/',
+			'exit_code' => '/^-?\d{1,3}$/',
+			'runtime' => '/^\d+(\.\d+)?$/'
+		];
+
+		foreach ($required_params as $param) {
+			if (!isset($params[$param])) {
+				dier("$param is not set");
+			}
+			if (!preg_match($patterns[$param], $params[$param])) {
+				dier("Invalid format for parameter: $param");
+			}
+		}
+
+		$exit_code = intval($params['exit_code']);
+		if ($exit_code < -1 || $exit_code > 255) {
+			log_error("Invalid exit_code value: $exit_code");
+			return false;
+		}
+
+		$runtime = floatval($params['runtime']);
+		if ($runtime < 0) {
+			log_error("Invalid runtime value: $runtime");
+			return false;
+		}
+
+		return true;
+	}
+
+	function validate_csv($filepath) {
+		if (!file_exists($filepath) || !is_readable($filepath)) {
+			log_error("CSV file does not exist or is not readable.");
+			return false;
+		}
+
+		try {
+			$file = fopen($filepath, 'r');
+			fread($file, filesize($filepath));
+			fclose($file);
+		} catch (Exception $e) {
+			log_error("Failed to read CSV file: " . $e->getMessage());
+			return false;
+		}
+
+		return true;
+	}
+
+	function calculate_median($values) {
+		$count = count($values);
+		if ($count === 0) return 0;
+
+		sort($values);
+		$middle = floor($count / 2);
+
+		return ($count % 2 === 0)
+			? ($values[$middle - 1] + $values[$middle]) / 2
+			: $values[$middle];
+	}
 ?>

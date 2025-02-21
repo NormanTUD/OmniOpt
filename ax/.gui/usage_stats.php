@@ -20,48 +20,8 @@
 		echo "<p>Error: $error_message</p>";
 	}
 
-	function validate_parameters($params) {
-		assert(is_array($params), "Parameters should be an array");
-
-		$required_params = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime'];
-		$patterns = [
-			'anon_user' => '/^[a-f0-9]{32}$/',
-			'has_sbatch' => '/^[01]$/',
-			'run_uuid' => '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
-			'git_hash' => '/^[0-9a-f]{40}$/',
-			'exit_code' => '/^-?\d{1,3}$/',
-			'runtime' => '/^\d+(\.\d+)?$/'
-		];
-
-		foreach ($required_params as $param) {
-			if (!isset($params[$param])) {
-				dier("$param is not set");
-			}
-			if (!preg_match($patterns[$param], $params[$param])) {
-				dier("Invalid format for parameter: $param");
-			}
-		}
-
-		$exit_code = intval($params['exit_code']);
-		if ($exit_code < -1 || $exit_code > 255) {
-			log_error("Invalid exit_code value: $exit_code");
-			return false;
-		}
-
-		$runtime = floatval($params['runtime']);
-		if ($runtime < 0) {
-			log_error("Invalid runtime value: $runtime");
-			return false;
-		}
-
-		return true;
-	}
-
 	function append_to_csv($params, $filepath) {
-		if (validate_parameters($params)) {
-			assert(is_array($params), "Parameters should be an array");
-			assert(is_string($filepath), "Filepath should be a string");
-
+		if (validate_parameters($params, $filepath)) {
 			$headers = ['anon_user', 'has_sbatch', 'run_uuid', 'git_hash', 'exit_code', 'runtime', 'time'];
 			$file_exists = file_exists($filepath);
 			$params["time"] = time();
@@ -77,28 +37,13 @@
 				log_error("Failed to write to CSV: " . $e->getMessage() . ". Make sure <tt>$filepath</tt> is owned by the www-data group and do <tt>chmod g+w $filepath</tt>");
 				exit(1);
 			}
+		} else {
+			log_error("Parameters contain wrong values. Cannot save.");
+			exit(1);
 		}
 	}
 
-	function validate_csv($filepath) {
-		if (!file_exists($filepath) || !is_readable($filepath)) {
-			log_error("CSV file does not exist or is not readable.");
-			return false;
-		}
-
-		try {
-			$file = fopen($filepath, 'r');
-			fread($file, filesize($filepath));
-			fclose($file);
-		} catch (Exception $e) {
-			log_error("Failed to read CSV file: " . $e->getMessage());
-			return false;
-		}
-
-		return true;
-	}
-
-	function filter_data($data) {
+	function group_data($data) {
 		$developer_ids = [];
 		$test_ids = [];
 		$regular_data = [];
@@ -114,18 +59,6 @@
 		}
 
 		return [$developer_ids, $test_ids, $regular_data];
-	}
-
-	function calculate_median($values) {
-		$count = count($values);
-		if ($count === 0) return 0;
-
-		sort($values);
-		$middle = floor($count / 2);
-
-		return ($count % 2 === 0)
-			? ($values[$middle - 1] + $values[$middle]) / 2
-			: $values[$middle];
 	}
 
 	function calculate_statistics($data) {
@@ -180,7 +113,7 @@
 		$data = array_map('str_getcsv', file($data_filepath));
 		array_shift($data); // Remove header row
 
-		list($developer_ids, $test_ids, $regular_data) = filter_data($data);
+		list($developer_ids, $test_ids, $regular_data) = group_data($data);
 ?>
 		<br>
 		<div id="tabs">

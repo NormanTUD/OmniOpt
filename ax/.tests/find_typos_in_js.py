@@ -2,10 +2,14 @@ import os
 import sys
 import re
 import argparse
-from spellchecker import SpellChecker
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
+try:
+    from spellchecker import SpellChecker
+except ModuleNotFoundError:
+    print("spellchecker could not be loaded")
+    sys.exit(0)
 
 # Initialize spellchecker with English dictionary
 spell = SpellChecker(language='en')

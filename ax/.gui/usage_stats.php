@@ -2,6 +2,7 @@
 	ini_set('memory_limit', '256M');
 
 	require "_usage_stats_header.php";
+	require "_usage_stat_functions.php";
 
 	$db_path = "stats/usage_statistics.db";
 
@@ -112,17 +113,6 @@
 			log_error("Parameters contain wrong values. Cannot save.");
 			exit(1);
 		}
-	}
-
-	function fetch_data($db_path) {
-		$db = new SQLite3($db_path);
-		$result = $db->query("SELECT anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time FROM usage_statistics");
-		$data = [];
-		while ($row = $result->fetchArray(SQLITE3_NUM)) {
-			$data[] = $row;
-		}
-		$db->close();
-		return $data;
 	}
 
 	function get_group_data($db_path) {

@@ -263,6 +263,21 @@
 		echo "<div class='usage_plot' id='$element_id-runtime-box' style='height: 400px;'></div>";
 		echo "<div class='usage_plot' id='$element_id-top-users' style='height: 400px;'></div>";
 
+		$plots = [
+			'exit-codes',
+			'runs',
+			'runtimes',
+			'runtime-vs-exit-code',
+			'exit-code-pie',
+			'avg-runtime-bar',
+			'runtime-box',
+			'top-users'
+		];
+
+		foreach ($plots as $plot) {
+			echo "<div class='usage_plot' id='$element_id-$plot' style='height: 400px;'></div>";
+		}
+
 		if ($show_sbatch_plot) {
 			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
 		}

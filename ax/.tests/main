@@ -795,15 +795,11 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Generation strategy" "./omniopt --partition=alpha --experiment_name=generation_strategy --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --result_names result=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --decimalrounding=4 --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --experiment_constraints 'MSpsciArIDIqZXBvY2hzIDw9IDEw' --generation_strategy 'sobol=2,BOTOrCH_MODULAR=1,UNIFORM=1'" 0
 
-		if [[ -e runs/generation_strategy/0/results.csv ]]; then
-			_test "Generation Strategy has the right amount of sobol jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "sobol" | wc -l) -eq 2 ]]' 0
+		_test "Generation Strategy has the right amount of sobol jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "sobol" | wc -l) -eq 2 ]]' 0
 
-			_test "Generation Strategy has the right amount of botorch_modular jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "botorch" | wc -l) -eq 1 ]]' 0
+		_test "Generation Strategy has the right amount of botorch_modular jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "botorch" | wc -l) -eq 1 ]]' 0
 
-			_test "Generation Strategy has the right amount of uniform jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "uniform" | wc -l) -eq 1 ]]' 0
-		else
-			_test "runs/generation_strategy/0/results.csv exists" 'false' 0
-		fi
+		_test "Generation Strategy has the right amount of uniform jobs" '[[ $(cat runs/generation_strategy/0/results.csv | grep  -i "uniform" | wc -l) -eq 1 ]]' 0
 
 		#_test "Generation strategy" "./omniopt --continue runs/generation_strategy/0" 0
 

@@ -9,4 +9,30 @@
 		$db->close();
 		return $data;
 	}
+
+	function get_group_data($db_path) {
+		$id_map = [
+			'affeaffeaffeaffeaffeaffeaffeaffe' => 'developer_ids',
+			'affed00faffed00faffed00faffed00f' => 'test_ids'
+		];
+
+		$groups = ['developer_ids' => [], 'test_ids' => [], 'regular_data' => []];
+
+		try {
+			$db = new SQLite3($db_path);
+			$query = "SELECT anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time FROM usage_statistics";
+			$result = $db->query($query);
+
+			while ($row = $result->fetchArray(SQLITE3_NUM)) {
+				$key = $id_map[$row[0]] ?? 'regular_data';
+				$groups[$key][] = $row;
+			}
+
+			$db->close();
+		} catch (Exception $e) {
+			die("Failed to fetch data: " . $e->getMessage());
+		}
+
+		return array_values($groups);
+	}
 ?>

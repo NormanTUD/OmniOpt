@@ -115,42 +115,15 @@
 		}
 	}
 
-	function get_group_data($db_path) {
-		$id_map = [
-			'affeaffeaffeaffeaffeaffeaffeaffe' => 'developer_ids',
-			'affed00faffed00faffed00faffed00f' => 'test_ids'
-		];
-
-		$groups = ['developer_ids' => [], 'test_ids' => [], 'regular_data' => []];
-
-		try {
-			$db = new SQLite3($db_path);
-			$query = "SELECT anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time FROM usage_statistics";
-			$result = $db->query($query);
-
-			while ($row = $result->fetchArray(SQLITE3_NUM)) {
-				$key = $id_map[$row[0]] ?? 'regular_data';
-				$groups[$key][] = $row;
-			}
-
-			$db->close();
-		} catch (Exception $e) {
-			die("Failed to fetch data: " . $e->getMessage());
-		}
-
-		return array_values($groups);
-	}
-
 	initialize_database($db_path);
 
 	if (isset($_SERVER["REQUEST_METHOD"]) && isset($_GET["anon_user"])) {
 		append_to_db($_GET, $db_path);
 	}
 
-	$data = fetch_data($db_path);
+	list($developer_ids, $test_ids, $regular_data) = get_group_data($db_path);
 
-	if (!empty($data)) {
-		list($developer_ids, $test_ids, $regular_data) = get_group_data($db_path);
+	if (!empty($developer_ids) || !empty($test_ids) || !empty($regular_data)) {
 ?>
 		<br>
 		<div id="tabs">

@@ -49,7 +49,18 @@
 		});
 	</script>
 <?php
-	function print_js_code_for_plot ($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot) {
+	function print_js_code_for_plot ($element_id, $data) {
+		$anon_users = array_column($data, 0);
+		$has_sbatch = array_column($data, 1);
+		$exit_codes = array_map('intval', array_column($data, 4));
+		$runtimes = array_map('floatval', array_column($data, 5));
+
+		$show_sbatch_plot = count(array_unique($has_sbatch)) > 1 ? '1' : 0;
+
+		if ($show_sbatch_plot) {
+			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
+		}
+
 		echo "
 			<script>
 				var anon_users_$element_id = " . json_encode($anon_users) . ";
@@ -268,14 +279,6 @@
 		$statistics = calculate_statistics_from_db($db_path);
 		display_statistics($statistics);
 
-		$anon_users = array_column($data, 0);
-		$has_sbatch = array_column($data, 1);
-		$exit_codes = array_map('intval', array_column($data, 4));
-		$runtimes = array_map('floatval', array_column($data, 5));
-
-		$unique_sbatch = array_unique($has_sbatch);
-		$show_sbatch_plot = count($unique_sbatch) > 1 ? '1' : 0;
-
 		$plots = [
 			'exit-codes',
 			'runs',
@@ -291,11 +294,7 @@
 			echo "<div class='usage_plot' id='$element_id-$plot' style='height: 400px;'></div>";
 		}
 
-		if ($show_sbatch_plot) {
-			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
-		}
-
-		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot);
+		print_js_code_for_plot($element_id, $data);
 	}
 
 	function validate_parameters($params, $filepath) {

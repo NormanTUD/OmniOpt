@@ -346,19 +346,27 @@
 	function display_statistics($stats) {
 		echo "<div class='statistics'>";
 		echo "<h3>Statistics</h3>";
-		echo "<p>Total jobs: " . $stats['total_jobs'] . "</p>";
-		echo "<p>Failed jobs: " . $stats['failed_jobs'] . " (" . number_format($stats['failure_rate'], 2) . "%)</p>";
-		echo "<p>Successful jobs: " . $stats['successful_jobs'] . "</p>";
+		echo "<p>Total jobs: {$stats['total_jobs']}</p>";
+		echo "<p>Failed jobs: {$stats['failed_jobs']} (" . number_format($stats['failure_rate'], 2) . "%)</p>";
+		echo "<p>Successful jobs: {$stats['successful_jobs']}</p>";
+
 		if (isset($stats["average_runtime"])) {
-			echo "<p>Average runtime: " . gmdate("H:i:s", intval($stats['average_runtime'])) . "</p>";
-			echo "<p>Median runtime: " . gmdate("H:i:s", intval($stats['median_runtime'])) . "</p>";
-			echo "<p>Max runtime: " . gmdate("H:i:s", intval($stats['max_runtime'])) . "</p>";
-			echo "<p>Min runtime: " . gmdate("H:i:s", intval($stats['min_runtime'])) . "</p>";
-			echo "<p>Average success runtime: " . gmdate("H:i:s", intval($stats['avg_success_runtime'])) . "</p>";
-			echo "<p>Median success runtime: " . gmdate("H:i:s", intval($stats['median_success_runtime'])) . "</p>";
-			echo "<p>Average failed runtime: " . gmdate("H:i:s", intval($stats['avg_failed_runtime'])) . "</p>";
-			echo "<p>Median failed runtime: " . gmdate("H:i:s", intval($stats['median_failed_runtime'])) . "</p>";
+			$runtime_labels = [
+				"average_runtime" => "Average runtime",
+				"median_runtime" => "Median runtime",
+				"max_runtime" => "Max runtime",
+				"min_runtime" => "Min runtime",
+				"avg_success_runtime" => "Average success runtime",
+				"median_success_runtime" => "Median success runtime",
+				"avg_failed_runtime" => "Average failed runtime",
+				"median_failed_runtime" => "Median failed runtime"
+			];
+
+			foreach ($runtime_labels as $key => $label) {
+				echo "<p>$label: " . gmdate("H:i:s", intval($stats[$key])) . "</p>";
+			}
 		}
+
 		echo "</div>";
 	}
 

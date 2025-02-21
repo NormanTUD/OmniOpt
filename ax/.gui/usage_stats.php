@@ -368,42 +368,41 @@ if (validate_csv($data_filepath)) {
 	<br>
 	<div id="tabs">
 <?php
-$links = [
-    'regular_data' => 'Regular Users',
-    'test_ids' => 'Tests',
-    'developer_ids' => 'Developer'
-];
+		$links = [
+		    'regular_data' => 'Regular Users',
+		    'test_ids' => 'Tests',
+		    'developer_ids' => 'Developer'
+		];
 ?>
-
-<ul>
-    <?php
-    foreach ($links as $key => $label) {
-        if (count(${$key})) {
-            echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
-        }
-    }
-    ?>
-    <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
-</ul>
+		<ul>
 <?php
-$sections = [
-    'regular_data' => 'Regular Users',
-    'test_ids' => 'Test Users',
-    'developer_ids' => 'Developer Users'
-];
+			foreach ($links as $key => $label) {
+				if (count(${$key})) {
+					echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
+				}
+			}
+?>
+			<li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
+		</ul>
+<?php
+	$sections = [
+		'regular_data' => 'Regular Users',
+		'test_ids' => 'Test Users',
+		'developer_ids' => 'Developer Users'
+	];
 
-foreach ($sections as $key => $title) {
-    if (count(${$key})) {
-        echo '<div id="' . $key . '">';
-        echo "<h2>$title</h2>";
-        display_plots(${$key}, explode('_', $key)[0]);
-        echo '</div>';
-    }
-}
+	foreach ($sections as $key => $title) {
+		if (count(${$key})) {
+			echo '<div id="' . $key . '">';
+			echo "<h2>$title</h2>";
+			display_plots(${$key}, explode('_', $key)[0]);
+			echo '</div>';
+		}
+	}
 ?>
 	<div id="exit_codes">
 <?php
-	include "exit_code_table.php";
+		include "exit_code_table.php";
 ?>
 	</div>
 <?php

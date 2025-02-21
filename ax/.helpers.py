@@ -1,4 +1,3 @@
-import_metadata_not_found = False
 import sys
 import json
 from typing import Union, Tuple, Any, Optional
@@ -11,16 +10,18 @@ import os
 import platform
 import re
 import traceback
+from pprint import pprint
+import numpy as np
+import pandas as pd
+import matplotlib
+from matplotlib.widgets import Button, TextBox
+from matplotlib.colors import LinearSegmentedColormap
+
+import_metadata_not_found = False
 try:
     from importlib.metadata import version, PackageNotFoundError
 except ModuleNotFoundError:
     import_metadata_not_found = True
-from pprint import pprint
-import matplotlib
-from matplotlib.widgets import Button, TextBox
-from matplotlib.colors import LinearSegmentedColormap
-import numpy as np
-import pandas as pd
 
 def check_environment_variable(variable_name: str) -> bool:
     try:

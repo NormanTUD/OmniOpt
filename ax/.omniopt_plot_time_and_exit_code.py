@@ -11,13 +11,12 @@ import os
 import signal
 import sys
 from datetime import datetime
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
-
-from typing import Optional
 
 from beartype import beartype
 

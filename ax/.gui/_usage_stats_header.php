@@ -201,8 +201,71 @@
 		echo "</div>";
 	}
 
-	function display_plots($data, $element_id) {
-		$statistics = calculate_statistics($data);
+	function calculate_statistics_from_db($db_path) {
+		try {
+			$db = new SQLite3($db_path);
+			$query = "SELECT exit_code, runtime FROM usage_statistics";
+			$result = $db->query($query);
+
+			$total_jobs = 0;
+			$failed_jobs = 0;
+			$runtimes = [];
+			$successful_runtimes = [];
+			$failed_runtimes = [];
+
+			while ($row = $result->fetchArray(SQLITE3_NUM)) {
+				$exit_code = intval($row[0]);
+				$runtime = floatval($row[1]);
+
+				$runtimes[] = $runtime;
+				$total_jobs++;
+
+				if ($exit_code !== 0) {
+					$failed_jobs++;
+					$failed_runtimes[] = $runtime;
+				} else {
+					$successful_runtimes[] = $runtime;
+				}
+			}
+
+			$db->close();
+
+			if ($total_jobs === 0) {
+				return [
+					'total_jobs' => 0,
+					'failed_jobs' => 0,
+					'successful_jobs' => 0,
+					'failure_rate' => 0
+				];
+			}
+
+			$successful_jobs = $total_jobs - $failed_jobs;
+			$failure_rate = ($failed_jobs / $total_jobs) * 100;
+			$total_runtime = array_sum($runtimes);
+			$average_runtime = $total_runtime / $total_jobs;
+			$median_runtime = calculate_median($runtimes);
+
+			return [
+				'total_jobs' => $total_jobs,
+				'failed_jobs' => $failed_jobs,
+				'successful_jobs' => $successful_jobs,
+				'failure_rate' => $failure_rate,
+				'average_runtime' => $average_runtime,
+				'median_runtime' => $median_runtime,
+				'max_runtime' => max($runtimes),
+				'min_runtime' => min($runtimes),
+				'avg_success_runtime' => count($successful_runtimes) ? array_sum($successful_runtimes) / count($successful_runtimes) : 0,
+				'median_success_runtime' => calculate_median($successful_runtimes),
+				'avg_failed_runtime' => count($failed_runtimes) ? array_sum($failed_runtimes) / count($failed_runtimes) : 0,
+				'median_failed_runtime' => calculate_median($failed_runtimes)
+			];
+		} catch (Exception $e) {
+			die("Failed to fetch data: " . $e->getMessage());
+		}
+	}
+
+	function display_plots($data, $element_id, $db_path) {
+		$statistics = calculate_statistics_from_db($db_path);
 		display_statistics($statistics);
 
 		$anon_users = array_column($data, 0);

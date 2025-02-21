@@ -367,26 +367,24 @@ if (validate_csv($data_filepath)) {
 ?>
 	<br>
 	<div id="tabs">
-	    <ul>
 <?php
-	if (count($regular_data)) {
+$links = [
+    'regular_data' => 'Regular Users',
+    'test_ids' => 'Tests',
+    'developer_ids' => 'Developer'
+];
 ?>
-		    <li class="invert_in_dark_mode"><a href="#regular_data">Regular Users</a></li>
-<?php
-	}
-	if (count($test_ids)) {
-?>
-		    <li class="invert_in_dark_mode"><a href="#test_ids">Tests</a></li>
-<?php
-	}
-	if (count($developer_ids)) {
-?>
-		    <li class="invert_in_dark_mode"><a href="#developer_ids">Developer</a></li>
-<?php
-	}
-?>
-	    <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
-	</ul>
+
+<ul>
+    <?php
+    foreach ($links as $key => $label) {
+        if (count(${$key})) {
+            echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
+        }
+    }
+    ?>
+    <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
+</ul>
 <?php
 	if (count($regular_data)) {
 ?>

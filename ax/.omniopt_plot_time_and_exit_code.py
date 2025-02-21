@@ -17,6 +17,8 @@ import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
 
+from typing import Union, Optional
+
 from beartype import beartype
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -43,7 +45,7 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 args = parser.parse_args()
 
 @beartype
-def load_from_csv(filepath: str) -> pd.DataFrame | None:
+def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
     if not os.path.exists(filepath):  # pragma: no cover
         print(f"Error: {filepath} not found")
         sys.exit(1)
@@ -148,7 +150,7 @@ def handle_output(fig: plt.Figure) -> None:
 @beartype
 def main() -> None:
     _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
-    df: pd.DataFrame | None = load_from_csv(_job_infos_csv)
+    df: Optional[pd.DataFrame] = load_from_csv(_job_infos_csv)
 
     if df is not None:
         validate_dataframe(df)

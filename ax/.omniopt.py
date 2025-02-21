@@ -123,7 +123,7 @@ except ModuleNotFoundError as e: # pragma: no cover
 with console.status("[bold green]Loading rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
-    except:
+    except ModuleNotFoundError:
         RichHelpFormatter = argparse.HelpFormatter
 
 @beartype

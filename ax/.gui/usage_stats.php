@@ -1,4 +1,6 @@
 <?php
+	ini_set('memory_limit', '256M');
+
 	require "_usage_stats_header.php";
 
 	$db_path = "stats/usage_statistics.db";

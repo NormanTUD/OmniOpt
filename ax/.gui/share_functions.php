@@ -195,7 +195,7 @@
 		return $c;
 	}
 
-	function show_run($folder) {
+	function show_run() {
 		$html = "<button id='refresh_button' class='invert_in_dark_mode' onclick='refresh()'>Refresh</button>\n";
 		$html .= "<div id='main_tabbed' style='width: max-content'>\n";
 		$html .= '<ul style="max-height: 200px; overflow: auto;">' . "\n";
@@ -369,7 +369,7 @@
 
 				print_script_and_folder($run_folder_without_shares);
 
-				show_run($run_folder);
+				show_run();
 			}
 		} else {
 			// given:

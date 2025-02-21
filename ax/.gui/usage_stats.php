@@ -117,7 +117,7 @@
 	}
 
 
-	function print_js_code_for_plot ($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes) {
+	function print_js_code_for_plot ($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot) {
 		echo "
 			<script>
 				var anon_users_$element_id = " . json_encode($anon_users) . ";
@@ -267,7 +267,7 @@
 			echo "<div id='$element_id-sbatch' style='height: 400px;'></div>";
 		}
 
-		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes);
+		print_js_code_for_plot($element_id, $anon_users, $has_sbatch, $exit_codes, $runtimes, $show_sbatch_plot);
 	}
 
 	function calculate_statistics($data) {

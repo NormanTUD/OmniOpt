@@ -4679,7 +4679,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
         errors.append(f"No files could be found in your program string: {program_code}")
 
     if "command not found" in file_as_string:
-        errors.append(f"Some command was not found")
+        errors.append("Some command was not found")
 
     return errors
 

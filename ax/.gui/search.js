@@ -81,7 +81,7 @@ async function displaySearchResults(searchTerm, results) {
 
 
 	if (results.length > 0) {
-		$searchResults.append("<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search.</p>");
+		$searchResults.append("<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search or press Escape.</p>");
 
 		var result_lis = [];
 

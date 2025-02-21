@@ -36,6 +36,7 @@
 			90 => "Error creating the experiment_args",
 			91 => "Error creating the experiment_args",
 			92 => "Error loading torch: This can happen when your disk is full",
+			93 => "Failed loading module. See output for specific errors.",
 			99 => "It seems like the run folder was deleted during the run",
 			100 => "--mem_gb or --gpus, which must be int, has received a value that is not int",
 			101 => "Error using ax_client: it was not defined where it should have been",

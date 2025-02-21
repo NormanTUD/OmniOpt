@@ -708,6 +708,9 @@ except AttributeError: # pragma: no cover
 except FileNotFoundError as e: # pragma: no cover
     print(f"\n⚠ Error {e}. This probably means that your hard disk is full")
     my_exit(92)
+except ImportError as e:
+    print(f"Failed to load module: {e}")
+    my_exit(93)
 
 with console.status("[bold green]Loading ax logger...") as status:
     from ax.utils.common.logger import disable_loggers

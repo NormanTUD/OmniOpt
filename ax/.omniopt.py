@@ -124,7 +124,7 @@ with console.status("[bold green]Loading rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
-        RichHelpFormatter = argparse.HelpFormatter
+        RichHelpFormatter: type[RichHelpFormatter] = argparse.HelpFormatter
 
 figlet_loaded = False
 
@@ -1920,7 +1920,7 @@ def get_memory_usage() -> float:
     return memory_usage
 
 class MonitorProcess:
-    def __init__(self, pid: int, interval: float = 1.0):
+    def __init__(self: Any, pid: int, interval: float = 1.0):
         self.pid = pid
         self.interval = interval
         self.running = True
@@ -1929,7 +1929,7 @@ class MonitorProcess:
 
         print_debug(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
 
-    def _monitor(self):
+    def _monitor(self: Any) -> None:
         try:
             _internal_process = psutil.Process(self.pid)
             while self.running and _internal_process.is_running():
@@ -1960,11 +1960,11 @@ class MonitorProcess:
         except psutil.NoSuchProcess:
             pass
 
-    def __enter__(self):
+    def __enter__(self: Any) -> None:
         self.thread.start()
         return self
 
-    def __exit__(self, exc_type, exc_value, _traceback):
+    def __exit__(self, exc_type, exc_value, _traceback) -> None:
         self.running = False
         self.thread.join()
 

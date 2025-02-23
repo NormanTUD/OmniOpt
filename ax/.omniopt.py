@@ -6522,7 +6522,7 @@ def show_pareto_frontier_data() -> None:
 
     pareto_front_data = {}
 
-    all_combinations = list(itertools.combinations(range(len(objectives)), 2))
+    all_combinations = list(combinations(range(len(objectives)), 2))
     total_combinations = math.comb(len(objectives), 2)
 
     k = 1

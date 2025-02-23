@@ -6522,12 +6522,13 @@ def show_pareto_frontier_data() -> None:
 
     pareto_front_data = {}
 
-    all_combinations = combinations(range(len(objectives)), 2)
+    all_combinations = list(itertools.combinations(range(len(objectives)), 2))
+    total_combinations = math.comb(len(objectives), 2)
 
     k = 1
 
     for i, j in all_combinations:
-        print(f"{k} of {all_combinations} Pareto Graphs/Tables:")
+        print(f"{k} of {total_combinations} Pareto Graphs/Tables:")
         try:
             metric_i = objectives[i].metric
             metric_j = objectives[j].metric

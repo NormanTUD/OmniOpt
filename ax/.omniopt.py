@@ -1548,7 +1548,7 @@ def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, 
     return get_min_or_max_column_value(pd_csv, column, _default, "min")
 
 @beartype
-def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Union[int, float], Optional[bool]]:
+def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Union[int, float], bool]:
     found_in_file = False
     ret_val = None
 

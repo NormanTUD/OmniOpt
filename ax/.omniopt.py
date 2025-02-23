@@ -6295,8 +6295,6 @@ def run_search(_progress_bar: Any) -> bool:
             raise SearchSpaceExhausted("Search space exhausted")
         log_what_needs_to_be_logged()
 
-    #wait_for_jobs_to_complete(2)
-
     while len(global_vars["jobs"]): # pragma: no cover
         wait_for_jobs_to_complete(1)
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
@@ -6305,6 +6303,7 @@ def run_search(_progress_bar: Any) -> bool:
             _sleep(1)
 
     log_what_needs_to_be_logged()
+
     return False
 
 @beartype

@@ -6530,14 +6530,18 @@ def show_pareto_frontier_data() -> None:
 
     for i, j in all_combinations:
         elapsed_time = time.perf_counter() - start_time
+        human_readable_eta = ""
+        hr_time_left = ""
+
         if k > 1:
             avg_time_per_iter = elapsed_time / (k - 1)
             remaining_time = avg_time_per_iter * (total_combinations - (k - 1))
             human_readable_eta = time.strftime("%H:%M:%S", time.gmtime(remaining_time))
-        else:
-            human_readable_eta = "Calculating..."
 
-        print(f"{k} of {total_combinations} Pareto Graphs/Tables (ETA: {human_readable_eta})")
+        if human_readable_eta:
+            hr_time_left = f"(ETA: {human_readable_eta})"
+
+        print(f"{k} of {total_combinations} Pareto Graphs/Tables{hr_time_left}:")
 
         try:
             metric_i = objectives[i].metric

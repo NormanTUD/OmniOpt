@@ -3015,7 +3015,7 @@ def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
     return plot_types
 
 @beartype
-def get_x_y_combinations() -> list:
+def get_x_y_combinations_parameter_names() -> list:
     return list(combinations(global_vars["parameter_names"], 2))
 
 @beartype
@@ -3062,7 +3062,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
         print_debug("Cannot handle empty data in global_vars -> parameter_names")
         return data
 
-    x_y_combinations = get_x_y_combinations()
+    x_y_combinations = get_x_y_combinations_parameter_names()
     plot_types = get_plot_types(x_y_combinations, _force)
 
     for plot in plot_types:
@@ -6526,9 +6526,19 @@ def show_pareto_frontier_data() -> None:
     total_combinations = math.comb(len(objectives), 2)
 
     k = 1
+    start_time = time.perf_counter()
 
     for i, j in all_combinations:
-        print(f"{k} of {total_combinations} Pareto Graphs/Tables:")
+        elapsed_time = time.perf_counter() - start_time
+        if k > 1:
+            avg_time_per_iter = elapsed_time / (k - 1)
+            remaining_time = avg_time_per_iter * (total_combinations - (k - 1))
+            human_readable_eta = time.strftime("%H:%M:%S", time.gmtime(remaining_time))
+        else:
+            human_readable_eta = "Calculating..."
+
+        print(f"{k} of {total_combinations} Pareto Graphs/Tables (ETA: {human_readable_eta})")
+
         try:
             metric_i = objectives[i].metric
             metric_j = objectives[j].metric
@@ -6578,7 +6588,7 @@ def show_pareto_frontier_data() -> None:
         except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
             print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
 
-        k = k + 1
+        k += 1
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)

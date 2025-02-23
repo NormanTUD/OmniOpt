@@ -1,6 +1,8 @@
 #!/bin/bash
 
 {
+	os_name=$(uname -s)
+
 	function echoerr {
 		echo "$@" 1>&2
 	}

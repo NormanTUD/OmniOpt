@@ -70,6 +70,7 @@ try:
         import csv
 
         import rich
+        from rich.progress import Progress, TimeRemainingColumn
         from rich.table import Table
         from rich import print
         from rich.pretty import pprint
@@ -676,6 +677,7 @@ try:
         import numpy as np
     with console.status("[bold green]Loading ax...") as status:
         import ax
+        from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
@@ -6508,93 +6510,80 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
 
 @beartype
 def show_pareto_frontier_data() -> None:
-    if len(arg_result_names) <= 1: # pragma: no cover
+    if len(arg_result_names) <= 1:  # pragma: no cover
         print_debug(f"--result_names (has {len(arg_result_names)} entries) must be at least 2.")
         return
 
-    if ax_client is None: # pragma: no cover
+    if ax_client is None:  # pragma: no cover
         print_red("show_pareto_frontier_data: Cannot plot pareto-front. ax_client is undefined.")
         return
 
-    from ax.plot.pareto_utils import compute_posterior_pareto_frontier
-
     objectives = ax_client.experiment.optimization_config.objective.objectives
-
     pareto_front_data = {}
-
     all_combinations = list(combinations(range(len(objectives)), 2))
-    total_combinations = math.comb(len(objectives), 2)
+    total_combinations = len(all_combinations)
+    collected_data = []
 
-    k = 1
-    start_time = time.perf_counter()
+    with Progress(
+        "[progress.description]{task.description}",
+        "[progress.percentage]{task.percentage:>3.0f}%",
+        TimeRemainingColumn(),
+        transient=True
+    ) as progress:
+        task = progress.add_task("Collecting Pareto data...", total=total_combinations)
 
-    for i, j in all_combinations:
-        elapsed_time = time.perf_counter() - start_time
-        human_readable_eta = ""
-        hr_time_left = ""
-
-        if k > 1:
-            avg_time_per_iter = elapsed_time / (k - 1)
-            remaining_time = avg_time_per_iter * (total_combinations - (k - 1))
-            human_readable_eta = time.strftime("%H:%M:%S", time.gmtime(remaining_time))
-
-        if human_readable_eta:
-            hr_time_left = f"(ETA: {human_readable_eta})"
-
-        print(f"{k} of {total_combinations} Pareto Graphs/Tables{hr_time_left}:")
-
-        try:
+        for i, j in all_combinations:
             metric_i = objectives[i].metric
             metric_j = objectives[j].metric
 
-            calculated_frontier = compute_posterior_pareto_frontier(
-                experiment=ax_client.experiment,
-                data=ax_client.experiment.fetch_data(),
-                primary_objective=metric_i,
-                secondary_objective=metric_j,
-                absolute_metrics=arg_result_names,
-                num_points=count_done_jobs()
-            )
+            try:
+                calculated_frontier = compute_posterior_pareto_frontier(
+                    experiment=ax_client.experiment,
+                    data=ax_client.experiment.fetch_data(),
+                    primary_objective=metric_i,
+                    secondary_objective=metric_j,
+                    absolute_metrics=arg_result_names,
+                    num_points=count_done_jobs()
+                )
 
-            plot_pareto_frontier_sixel(calculated_frontier, i, j)
+                collected_data.append((metric_i, metric_j, calculated_frontier))
 
-            if metric_i.name not in pareto_front_data:
-                pareto_front_data[metric_i.name] = {}
+            except ax.exceptions.core.DataRequiredError as e:  # pragma: no cover
+                print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
 
-            pareto_front_data[metric_i.name][metric_j.name] = {
-                "param_dicts": calculated_frontier.param_dicts,
-                "means": calculated_frontier.means,
-                "sems": calculated_frontier.sems,
-                "absolute_metrics": calculated_frontier.absolute_metrics
-            }
+            progress.update(task, advance=1)
 
-            rich_table = pareto_front_as_rich_table(
-                calculated_frontier.param_dicts,
-                calculated_frontier.means,
-                calculated_frontier.sems,
-                calculated_frontier.absolute_metrics,
-                metric_j.name,
-                metric_i.name
-            )
+    # Nach dem Sammeln: Daten verarbeiten und ausgeben
+    for metric_i, metric_j, calculated_frontier in collected_data:
+        plot_pareto_frontier_sixel(calculated_frontier, i, j)
 
-            table_str = ""
+        if metric_i.name not in pareto_front_data:
+            pareto_front_data[metric_i.name] = {}
 
+        pareto_front_data[metric_i.name][metric_j.name] = {
+            "param_dicts": calculated_frontier.param_dicts,
+            "means": calculated_frontier.means,
+            "sems": calculated_frontier.sems,
+            "absolute_metrics": calculated_frontier.absolute_metrics
+        }
+
+        rich_table = pareto_front_as_rich_table(
+            calculated_frontier.param_dicts,
+            calculated_frontier.means,
+            calculated_frontier.sems,
+            calculated_frontier.absolute_metrics,
+            metric_j.name,
+            metric_i.name
+        )
+
+        console.print(rich_table)
+
+        with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
             with console.capture() as capture:
                 console.print(rich_table)
+            text_file.write(capture.get())
 
-            table_str = capture.get()
-
-            console.print(rich_table)
-
-            if table_str:
-                with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
-                    text_file.write(table_str)
-        except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
-            print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
-
-        k += 1
-
-    with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
+    with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
 @beartype

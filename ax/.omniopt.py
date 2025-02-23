@@ -6522,7 +6522,12 @@ def show_pareto_frontier_data() -> None:
 
     pareto_front_data = {}
 
-    for i, j in combinations(range(len(objectives)), 2):
+    all_combinations = combinations(range(len(objectives)), 2)
+
+    k = 1
+
+    for i, j in all_combinations:
+        print(f"{k} of {all_combinations} Pareto Graphs/Tables:")
         try:
             metric_i = objectives[i].metric
             metric_j = objectives[j].metric
@@ -6571,6 +6576,8 @@ def show_pareto_frontier_data() -> None:
                     text_file.write(table_str)
         except ax.exceptions.core.DataRequiredError as e: # pragma: no cover
             print_red(f"Error: Trying to calculate the pareto-front failed with the following Error. This may mean that previous values, like multiple result-values, were missing:\n{e}")
+
+        k = k + 1
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="a", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)

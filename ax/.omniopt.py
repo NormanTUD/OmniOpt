@@ -6242,7 +6242,6 @@ def start_nvidia_smi_thread() -> None: # pragma: no cover
 @beartype
 def run_search(_progress_bar: Any) -> bool:
     global NR_OF_0_RESULTS
-
     NR_OF_0_RESULTS = 0
 
     log_what_needs_to_be_logged()
@@ -6251,60 +6250,84 @@ def run_search(_progress_bar: Any) -> bool:
     while submitted_jobs() <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
-
         finish_previous_jobs([])
 
-        if break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval:
+        if should_break_search(_progress_bar):
             break
 
         next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)
 
-        nr_of_items: int = 0
+        nr_of_items = execute_next_steps(next_nr_steps, _progress_bar)
 
-        if next_nr_steps:
-            progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
-
-            nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
-
-            if nr_of_items > 0:
-                progressbar_description([f"got {nr_of_items}, requested {next_nr_steps}"])
-            else:
-                print_debug(f"got {nr_of_items}, requested {next_nr_steps}")
-
-        _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
+        log_worker_status(nr_of_items, next_nr_steps)
 
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
-        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
-            _sleep(1)
+        handle_slurm_execution()
 
-        if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
-            NR_OF_0_RESULTS += 1
-            _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
-            progressbar_description([_wrn])
-            print_debug(_wrn)
-        else:
-            NR_OF_0_RESULTS = 0
-
-        if not args.disable_search_space_exhaustion_detection and NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
-            _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
-
-            print_debug(_wrn)
-            progressbar_description([_wrn])
-
+        if check_search_space_exhaustion(nr_of_items):
             raise SearchSpaceExhausted("Search space exhausted")
+
         log_what_needs_to_be_logged()
 
-    while len(global_vars["jobs"]): # pragma: no cover
-        wait_for_jobs_to_complete(1)
-        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-
-        if is_slurm_job() and not args.force_local_execution:
-            _sleep(1)
-
+    finalize_jobs()
     log_what_needs_to_be_logged()
 
     return False
+
+@beartype
+def should_break_search(_progress_bar: Any) -> bool:
+    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+
+@beartype
+def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
+    if next_nr_steps:
+        progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
+        nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+        log_execution_result(nr_of_items, next_nr_steps)
+        return nr_of_items
+    return 0
+
+@beartype
+def log_execution_result(nr_of_items: int, next_nr_steps: int) -> None:
+    msg = f"got {nr_of_items}, requested {next_nr_steps}"
+    progressbar_description([msg]) if nr_of_items > 0 else print_debug(msg)
+
+@beartype
+def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
+    _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
+
+@beartype
+def handle_slurm_execution() -> None:
+    if is_slurm_job() and not args.force_local_execution:  # pragma: no cover
+        _sleep(1)
+
+@beartype
+def check_search_space_exhaustion(nr_of_items: int) -> bool:
+    global NR_OF_0_RESULTS
+    if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
+        NR_OF_0_RESULTS += 1
+        _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
+        progressbar_description([_wrn])
+        print_debug(_wrn)
+    else:
+        NR_OF_0_RESULTS = 0
+
+    if not args.disable_search_space_exhaustion_detection and NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
+        _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
+        print_debug(_wrn)
+        progressbar_description([_wrn])
+        return True
+
+    return False
+
+@beartype
+def finalize_jobs() -> None:
+    while len(global_vars["jobs"]):  # pragma: no cover
+        wait_for_jobs_to_complete(1)
+        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+        handle_slurm_execution()
+
 
 @beartype
 def wait_for_jobs_to_complete(_num_parallel_jobs: int) -> None: # pragma: no cover

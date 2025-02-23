@@ -1057,10 +1057,14 @@ def log_system_usage() -> None:
 
         current_time = int(time.time())
 
-        ram_usage_mb = process.memory_info().rss / (1024 * 1024)  # RSS in MB
-        cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
+        if process is not None:
+            mem_proc = process.memory_info()
 
-        writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
+            if mem_proc is not None:
+                ram_usage_mb = mem_proc.rss / (1024 * 1024)  # RSS in MB
+                cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
+
+                writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
 @beartype
 def write_process_info() -> None:

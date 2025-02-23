@@ -6521,7 +6521,6 @@ def show_pareto_frontier_data() -> None:
     objectives = ax_client.experiment.optimization_config.objective.objectives
     pareto_front_data = {}
     all_combinations = list(combinations(range(len(objectives)), 2))
-    total_combinations = len(all_combinations)
     collected_data = []
 
     with Progress(
@@ -6530,7 +6529,7 @@ def show_pareto_frontier_data() -> None:
         TimeRemainingColumn(),
         transient=True
     ) as progress:
-        task = progress.add_task("Collecting Pareto data...", total=total_combinations)
+        task = progress.add_task("Collecting Pareto data...", total=len(all_combinations))
 
         for i, j in all_combinations:
             metric_i = objectives[i].metric

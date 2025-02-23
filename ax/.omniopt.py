@@ -1968,7 +1968,7 @@ class MonitorProcess:
         self.thread.start()
         return self
 
-    def __exit__(self, exc_type, exc_value, _traceback) -> None:
+    def __exit__(self: Any, exc_type: Any, exc_value: Any, _traceback: Any) -> None:
         self.running = False
         self.thread.join()
 

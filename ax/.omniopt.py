@@ -630,6 +630,9 @@ for _rn in args.result_names:
     arg_result_names.append(_key)
     arg_result_min_or_max.append(_min_or_max)
 
+if len(arg_result_names) > 20:
+    print_yellow(f"There are {len(arg_result_names)} result_names. This is probably too much.")
+
 if args.continue_previous_job is not None:
     look_for_result_names_file = f"{args.continue_previous_job}/result_names.txt"
     print_debug(f"--continue was set. Trying to figure out if there is a results file in {look_for_result_names_file} and, if so, trying to load it...")

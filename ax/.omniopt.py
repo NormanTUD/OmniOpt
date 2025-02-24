@@ -5831,7 +5831,9 @@ def create_random_generation_step() -> Tuple[GenerationStep, dict]:
         num_trials=max(num_parallel_jobs, random_steps),
         min_trials_observed=min(max_eval, random_steps),
         max_parallelism=_get_max_parallelism(),
-        model_kwargs={"seed": args.seed},
+        model_kwargs={
+            "seed": args.seed
+        },
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
     ), {
@@ -5839,7 +5841,9 @@ def create_random_generation_step() -> Tuple[GenerationStep, dict]:
         "num_trials": max(num_parallel_jobs, random_steps),
         "min_trials_observed": min(max_eval, random_steps),
         "max_parallelism": _get_max_parallelism(),
-        "model_kwargs": {"seed": args.seed},
+        "model_kwargs": {
+            "seed": args.seed
+        },
         "model_gen_kwargs": {'enforce_num_arms': False},
         "should_deduplicate": args.should_deduplicate
     }

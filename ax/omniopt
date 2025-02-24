@@ -33,6 +33,10 @@
 {
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
+	function echoerr {
+		echo "$@" 1>&2
+	}
+
 	function underline_red_text {
 		echoerr -e "\e[4;31m$1\e[0m"
 	}
@@ -163,10 +167,6 @@
 		fi
 
 		cat "$file" | .tools/jq_$(uname -m) -r ".$key" | sed -e 's#^null$##i'
-	}
-
-	function echoerr {
-		echo "$@" 1>&2
 	}
 
 	function yellow_text {

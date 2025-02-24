@@ -5620,19 +5620,18 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
 
     global error_8_saved
 
+    if not ax_client: # pragma: no cover
+        print_red("ax_client was not defined")
+        my_exit(9)
+
     try:
         print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
 
         trials_dict: dict = {}
 
         try:
-            if ax_client:
-                params, trial_index = ax_client.get_next_trial(force=True)
-
-                trials_dict[trial_index] = params
-            else: # pragma: no cover
-                print_red("ax_client was not defined")
-                my_exit(9)
+            params, trial_index = ax_client.get_next_trial(force=True)
+            trials_dict[trial_index] = params
         except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
             if str(e) not in error_8_saved:
                 print_red("\n⚠Error 8: " + str(e))

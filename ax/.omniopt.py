@@ -5575,7 +5575,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
 @beartype
 def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
-    base_msg = f"getting {nr_of_jobs_to_get}/{full_nr_of_jobs_to_get} trials "
+    base_msg = f"getting hyperparameter set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
 
     if SYSTEM_HAS_SBATCH and not args.force_local_execution: # pragma: no cover
         return base_msg
@@ -5631,7 +5631,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
 
     try:
         for k in range(0, nr_of_jobs_to_get):
-            progressbar_description([_get_trials_message(k, nr_of_jobs_to_get)])
+            progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get)])
 
             params, trial_index = ax_client.get_next_trial(force=True)
             trials_dict[trial_index] = params

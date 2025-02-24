@@ -3497,7 +3497,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
         else:
             if torch.cuda.device_count() >= 1: # pragma: no cover
                 torch_device = torch.cuda.current_device()
-                gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}"
+                gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}."
                 gpu_color = "green"
             else: # pragma: no cover
                 gpu_string = "No CUDA devices found."

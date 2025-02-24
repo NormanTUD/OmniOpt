@@ -5629,8 +5629,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
     trials_dict: dict = {}
 
     try:
-        params, trial_index = ax_client.get_next_trial(force=True)
-        trials_dict[trial_index] = params
+        for _ in range(0, nr_of_jobs_to_get):
+            params, trial_index = ax_client.get_next_trial(force=True)
+            trials_dict[trial_index] = params
 
         return trials_dict, False
     except np.linalg.LinAlgError as e: # pragma: no cover

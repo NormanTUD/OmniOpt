@@ -573,7 +573,6 @@
 EOF
 		}
 
-
 	generate_config_handling_code() {
 		local option_name="$1"
 		local check_type="$2"
@@ -937,7 +936,6 @@ EOF
 		fi
 	fi
 
-
 	if [[ $continue_previous_job =~ ^https?:// ]]; then
 		if echo "$continue_previous_job" | grep -Eq 'share\.php\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
 			zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
@@ -1251,7 +1249,6 @@ EOF
 
 	python_pid=""
 
-
 	if [ -n "${SLURM_JOB_ID:-}" ] ; then
 		set +e
 		if command -v scontrol 2>/dev/null >/dev/null; then
@@ -1461,7 +1458,6 @@ EOF
 					estimated_start_time_original=""
 					_remaining_time=""
 
-
 					if [[ $debug -eq 1 ]]; then
 						trap - DEBUG
 					fi
@@ -1524,7 +1520,6 @@ EOF
 							fi
 						fi
 
-
 						for i in "${spin[@]}"; do
 							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
 
@@ -1536,7 +1531,6 @@ EOF
 			    echo -ne "$print_line"
 			    sleep 0.2
 		    done
-
 
 	    done
 

@@ -3804,7 +3804,8 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,
                 #"use_batch_trials": True,
-                "max_parallelism_override": -1
+                "max_parallelism_override": -1,
+                "random_seed": seed
             },
         }
 

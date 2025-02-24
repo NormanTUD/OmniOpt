@@ -289,6 +289,7 @@ CHLD
 chmod
 ChoiceParameter
 choiceValues
+chown
 chr
 ci
 classAnimationActions
@@ -1153,6 +1154,7 @@ mainsite
 mainsiteshow
 makedirs
 mape
+mapfile
 mapName
 marginBottom
 marginLeft
@@ -1388,6 +1390,7 @@ noChange
 noDefault
 nodeIndex
 nodeName
+nofollow
 noheader
 noir
 noiseShape
@@ -1653,6 +1656,7 @@ profilenewBytes
 profilenewTensors
 progressbar
 Progressbar
+progressdescriptiontaskdescription
 projectdir
 Projectdir
 PROJECTDIR
@@ -1954,6 +1958,7 @@ showOn
 showOptions
 showOtherMonths
 showWeek
+shuf
 shuffleCombo
 shutil
 sigabrt
@@ -2434,7 +2439,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-mapfile
-shuf
-chown
-progressdescriptiontaskdescription

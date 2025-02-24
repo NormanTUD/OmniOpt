@@ -47,6 +47,13 @@
 		<?php js("search.js"); ?>
 		<?php js("initialization.js"); ?>
 
+<?php
+		if (strpos($_SERVER['REQUEST_URI'], 'share.php') !== false) {
+			echo '<meta name="robots" content="noindex, nofollow">';
+		}
+?>
+
+
 		<script>
 			apply_theme_based_on_system_preferences();
 		</script>

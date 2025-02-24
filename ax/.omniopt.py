@@ -5808,7 +5808,9 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model=model,
         num_trials=_num_trials,
         max_parallelism=_get_max_parallelism(),
-        model_gen_kwargs={'enforce_num_arms': False},
+        model_gen_kwargs={
+            'enforce_num_arms': False
+        },
         should_deduplicate=args.should_deduplicate,
         index=index
     )
@@ -5819,7 +5821,9 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         "model": model,
         "num_trials": _num_trials,
         "max_parallelism": _get_max_parallelism(),
-        "model_gen_kwargs": {'enforce_num_arms': False},
+        "model_gen_kwargs": {
+            'enforce_num_arms': False
+        },
         "should_deduplicate": args.should_deduplicate
     }
 

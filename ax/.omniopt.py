@@ -5537,17 +5537,18 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
 
     _counted_done_jobs = count_done_jobs()
     _submitted_jobs = submitted_jobs()
+    _failed_jobs = failed_jobs()
 
     conditions = [
         (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
-        (lambda: _submitted_jobs >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: _submitted_jobs >= max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} > max_eval {max_eval} + 1"),
+        (lambda: (_submitted_jobs - _failed_jobs) >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
+        (lambda: (_submitted_jobs - _failed_jobs) >= max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > max_eval {max_eval} + 1"),
     ]
 
     if _max_eval:
         conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
         conditions.append((lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
-        conditions.append((lambda: _submitted_jobs >= _max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} > _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: (_submitted_jobs - _failed_jobs) >= _max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > _max_eval {_max_eval} + 1"),)
         conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
 
     for condition_func, debug_msg in conditions:
@@ -5565,7 +5566,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
     """Calculates the number of jobs to retrieve."""
     return min(
         max_eval + simulated_jobs - count_done_jobs(),
-        max_eval + simulated_jobs - submitted_jobs(),
+        max_eval + simulated_jobs - (submitted_jobs() - failed_jobs()),
         num_parallel_jobs - currently_running_jobs
     )
 
@@ -5721,7 +5722,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 
     set_requested_to_zero_because_already_enough_jobs = False
 
-    if count_done_jobs() >= max_eval_plus_inserted or submitted_jobs() >= max_eval_plus_inserted:
+    if count_done_jobs() >= max_eval_plus_inserted or (submitted_jobs() - failed_jobs()) >= max_eval_plus_inserted:
         requested = 0
 
         set_requested_to_zero_because_already_enough_jobs = True
@@ -5737,6 +5738,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
     table.add_row("", "")
 
     table.add_row("submitted_jobs()", str(submitted_jobs()))
+    table.add_row("failed_jobs()", str(failed_jobs()))
     table.add_row("count_done_jobs()", str(count_done_jobs()))
 
     table.add_row("", "")
@@ -6075,7 +6077,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
         results = []
 
-        new_nr_of_jobs_to_get = min(max_eval - submitted_jobs(), nr_of_jobs_to_get)
+        new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 
         for _ in range(new_nr_of_jobs_to_get):
             trial_index_to_param, optimization_complete = _get_next_trials(1, new_nr_of_jobs_to_get)
@@ -6247,7 +6249,7 @@ def run_search(_progress_bar: Any) -> bool:
     log_what_needs_to_be_logged()
     write_process_info()
 
-    while submitted_jobs() <= max_eval:
+    while (submitted_jobs() - failed_jobs()) <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete(num_parallel_jobs)
         finish_previous_jobs([])

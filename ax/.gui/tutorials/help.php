@@ -64,6 +64,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--generate_all_jobs_at_once</samp></td>
+				<td>Generate all jobs at once rather than to create them and start them as soon as possible</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--generation_strategy</samp></td>
 				<td>A string containing the generation_strategy</td>
 				<td><samp>None</samp></td>

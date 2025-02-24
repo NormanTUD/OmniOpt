@@ -465,6 +465,7 @@ class ConfigLoader:
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
+        optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6073,8 +6074,15 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
         new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 
-        for _ in range(new_nr_of_jobs_to_get):
-            trial_index_to_param, optimization_complete = _get_next_trials(1, new_nr_of_jobs_to_get)
+        range_nr = new_nr_of_jobs_to_get
+        get_next_trials_nr = 1
+
+        if args.generate_all_jobs_at_once:
+            range_nr = 1
+            get_next_trials_nr = new_nr_of_jobs_to_get
+
+        for _ in range(range_nr):
+            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr, new_nr_of_jobs_to_get)
             done_optimizing = handle_optimization_completion(optimization_complete)
             if done_optimizing: # pragma: no cover
                 continue

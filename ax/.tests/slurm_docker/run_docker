@@ -177,8 +177,8 @@ cmd=(
     --max_nr_of_zero 3
 )
 
-if [[ "$generate_all_jobs_at_once" == "true" ]]; then
-	cmd+=(--generate_all_jobs_at_once)
+if [[ "$generate_all_jobs_at_once" == "1" ]]; then
+	cmd+=("--generate_all_jobs_at_once")
 fi
 
 "${cmd[@]}"

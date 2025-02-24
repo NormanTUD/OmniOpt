@@ -31,20 +31,22 @@ max_eval=4
 num_parallel_jobs=2
 num_random_steps=2
 install_slurm=false
+generate_all_jobs_at_once=0
 
 usage() {
 	echo "Usage: $0 [OPTIONS]"
 	echo ""
 	echo "Options:"
-	echo "  --mem_gb=MEM_GB             Memory in GB (default: 1)"
-	echo "  --time=TIME                 Time in minutes (default: 60)"
-	echo "  --worker_timeout=TIME       Timeout for workers (default: 5)"
-	echo "  --max_eval=MAX_EVAL         Maximum number of evaluations (default: 4)"
-	echo "  --num_parallel_jobs=NUM     Number of parallel jobs (default: 2)"
-	echo "  --num_random_steps=NUM      Number of random steps (default: 2)"
-	echo "  --install_slurm             Install SLURM in Docker (default: false)"
-	echo "  --stop                      Stop the Docker container"
-	echo "  --help                      Show this help message"
+	echo "  --mem_gb=MEM_GB               Memory in GB (default: 1)"
+	echo "  --time=TIME                   Time in minutes (default: 60)"
+	echo "  --worker_timeout=TIME         Timeout for workers (default: 5)"
+	echo "  --max_eval=MAX_EVAL           Maximum number of evaluations (default: 4)"
+	echo "  --num_parallel_jobs=NUM       Number of parallel jobs (default: 2)"
+	echo "  --num_random_steps=NUM        Number of random steps (default: 2)"
+	echo "  --install_slurm               Install SLURM in Docker (default: false)"
+	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
+	echo "  --stop                        Stop the Docker container"
+	echo "  --help                        Show this help message"
 	exit 1
 }
 
@@ -91,6 +93,9 @@ for arg in "$@"; do
 				echo "Error: --num_parallel_jobs must be an integer."
 				exit 1
 			fi
+			;;
+		--generate_all_jobs_at_once)
+			generate_all_jobs_at_once=1
 			;;
 		--install_slurm)
 			install_slurm=true
@@ -148,25 +153,33 @@ else
 	done
 fi
 
-docker exec slurm-frontend bash /oo_dir/omniopt \
-        --live_share \
-        --send_anonymized_usage_stats \
-        --partition alpha \
-        --experiment_name __main__tests__BOTORCH_MODULAR___nogridsearch \
-        --mem_gb="$mem_gb" \
-        --time="$time" \
-        --worker_timeout="$worker_timeout" \
-        --max_eval="$max_eval" \
-        --num_parallel_jobs="$num_parallel_jobs" \
-        --gpus 0 \
-        --run_program $(echo -n "echo \"RESULT: %(int_param)%(int_param_two)%(float_param)\"" | base64 -w 0) \
-        --parameter int_param range -100 10 int \
-        --parameter float_param range -100 10 float \
-        --parameter int_param_two range -100 10 int \
-        --follow \
-        --num_random_steps "$num_random_steps" \
-        --model BOTORCH_MODULAR \
-        --auto_exclude_defective_hosts \
-        --hide_ascii_plots \
-	--max_nr_of_zero 3
+cmd=(
+    docker exec slurm-frontend bash /oo_dir/omniopt
+    --live_share
+    --send_anonymized_usage_stats
+    --partition alpha
+    --experiment_name __main__tests__BOTORCH_MODULAR___nogridsearch
+    --mem_gb="$mem_gb"
+    --time="$time"
+    --worker_timeout="$worker_timeout"
+    --max_eval="$max_eval"
+    --num_parallel_jobs="$num_parallel_jobs"
+    --gpus 0
+    --run_program "$(echo -n 'echo "RESULT: %(int_param)%(int_param_two)%(float_param)"' | base64 -w 0)"
+    --parameter int_param range -100 10 int
+    --parameter float_param range -100 10 float
+    --parameter int_param_two range -100 10 int
+    --follow
+    --num_random_steps "$num_random_steps"
+    --model BOTORCH_MODULAR
+    --auto_exclude_defective_hosts
+    --hide_ascii_plots
+    --max_nr_of_zero 3
+)
+
+if [[ "$generate_all_jobs_at_once" == "true" ]]; then
+	cmd+=(--additional_flag)
+fi
+
+"${cmd[@]}"
 }

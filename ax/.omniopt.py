@@ -5624,24 +5624,23 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
         print_red("ax_client was not defined")
         my_exit(9)
 
+    print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
+
+    trials_dict: dict = {}
+
     try:
-        print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
-
-        trials_dict: dict = {}
-
-        try:
-            params, trial_index = ax_client.get_next_trial(force=True)
-            trials_dict[trial_index] = params
-        except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
-            if str(e) not in error_8_saved:
-                print_red("\n⚠Error 8: " + str(e))
-
-                error_8_saved.append(str(e))
+        params, trial_index = ax_client.get_next_trial(force=True)
+        trials_dict[trial_index] = params
 
         return trials_dict, False
     except np.linalg.LinAlgError as e: # pragma: no cover
         _handle_linalg_error(e)
         my_exit(242)
+    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
+        if str(e) not in error_8_saved:
+            print_red("\n⚠Error 8: " + str(e))
+
+            error_8_saved.append(str(e))
 
     return None # pragma: no cover
 

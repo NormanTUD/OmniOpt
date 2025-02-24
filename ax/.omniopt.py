@@ -6316,6 +6316,7 @@ def handle_slurm_execution() -> None:
 @beartype
 def check_search_space_exhaustion(nr_of_items: int) -> bool:
     global NR_OF_0_RESULTS
+
     if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
         NR_OF_0_RESULTS += 1
         _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"

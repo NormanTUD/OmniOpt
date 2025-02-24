@@ -5614,6 +5614,7 @@ def get_parallelism_schedule_description() -> str:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
+@beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 

@@ -5575,7 +5575,10 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
 @beartype
 def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
-    base_msg = f"getting hyperparameter set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
+    if nr_of_jobs_to_get != full_nr_of_jobs_to_get:
+        base_msg = f"getting hyperparameter set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
+    else:
+        base_msg = f"getting hyperparameter set"
 
     if SYSTEM_HAS_SBATCH and not args.force_local_execution: # pragma: no cover
         return base_msg

@@ -6040,11 +6040,6 @@ def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Option
     return results
 
 @beartype
-def process_results(results: list) -> None:
-    for r in results:
-        r.result()
-
-@beartype
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     if isinstance(e, TypeError):
         print_red(f"Error 1: {e}")
@@ -6088,7 +6083,6 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
             if trial_index_to_param:
                 results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
 
-        process_results(results)
         finish_previous_jobs(["finishing jobs after starting them"])
 
         if done_optimizing:

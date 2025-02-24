@@ -6071,6 +6071,7 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
 @beartype
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     if next_nr_steps == 0:
+        print_debug(f"Warning: create_and_execute_next_runs(next_nr_steps: {next_nr_steps}, phase: {phase}, _max_eval: {_max_eval}, progress_bar)")
         return 0
 
     trial_index_to_param = None
@@ -6102,11 +6103,19 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         if done_optimizing:
             end_program(RESULT_CSV_FILE, False, 0)
     except Exception as e:  # pragma: no cover
+        print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}")
         return handle_exceptions_create_and_execute_next_runs(e)
 
     try:
-        return len(trial_index_to_param.keys()) if trial_index_to_param else 0
-    except Exception:  # pragma: no cover
+        if trial_index_to_param:
+            res = len(trial_index_to_param.keys())
+            print_debug(f"Returning len(trial_index_to_param.keys()): {res}")
+            return res
+        else:
+            print_debug(f"Warning: trial_index_to_param is not true. It, stringified, looks like this: {trial_index_to_param}. Returning 0.")
+            return 0
+    except Exception as e:  # pragma: no cover
+        print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}. Returning 0.")
         return 0
 
 @beartype

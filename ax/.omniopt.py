@@ -6263,7 +6263,7 @@ def run_search(_progress_bar: Any) -> bool:
 
     while (submitted_jobs() - failed_jobs()) <= max_eval:
         log_what_needs_to_be_logged()
-        wait_for_jobs_to_complete(num_parallel_jobs)
+        wait_for_jobs_to_complete()
         finish_previous_jobs([])
 
         if should_break_search(_progress_bar):
@@ -6280,6 +6280,7 @@ def run_search(_progress_bar: Any) -> bool:
         handle_slurm_execution()
 
         if check_search_space_exhaustion(nr_of_items):
+            wait_for_jobs_to_complete()
             raise SearchSpaceExhausted("Search space exhausted")
 
         log_what_needs_to_be_logged()
@@ -6339,23 +6340,22 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
 @beartype
 def finalize_jobs() -> None:
     while len(global_vars["jobs"]):  # pragma: no cover
-        wait_for_jobs_to_complete(1)
+        wait_for_jobs_to_complete()
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
         handle_slurm_execution()
 
 
 @beartype
-def wait_for_jobs_to_complete(_num_parallel_jobs: int) -> None: # pragma: no cover
-    if SYSTEM_HAS_SBATCH: # pragma: no cover
-        while len(global_vars["jobs"]) > _num_parallel_jobs:
-            print_debug(f"Waiting for jobs to finish since it equals or exceeds the num_random_steps ({_num_parallel_jobs}), currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
-            progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
-            if is_slurm_job() and not args.force_local_execution:
-                _sleep(5)
+def wait_for_jobs_to_complete() -> None: # pragma: no cover
+    while len(global_vars["jobs"]):
+        print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
+        progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(5)
 
-            finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
 
-            clean_completed_jobs()
+        clean_completed_jobs()
 
 @beartype
 def human_readable_generation_strategy() -> Optional[str]:
@@ -6905,9 +6905,9 @@ def run_search_with_progress_bar() -> None:
 
         run_search(progress_bar)
 
-        wait_for_jobs_to_complete(num_parallel_jobs)
+        wait_for_jobs_to_complete()
 
-    wait_for_jobs_to_complete(0)
+    wait_for_jobs_to_complete()
 
 @beartype
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
@@ -7371,7 +7371,7 @@ def main_outside() -> None:
                     print_red(
                         f"\nIt seems like the search space was exhausted. "
                         f"You were able to get {_get_perc}% of the jobs you requested "
-                        f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, "
+                        f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, submitted: {submitted_jobs()}, failed: {failed_jobs()}, "
                         f"requested: {max_eval}) after main ran"
                     )
 

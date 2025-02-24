@@ -5654,8 +5654,6 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
 
 @beartype
 def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
-    global global_vars
-
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
     if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:

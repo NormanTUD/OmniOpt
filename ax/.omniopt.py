@@ -5573,11 +5573,11 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
     )
 
 @beartype
-def _get_trials_message(nr_of_jobs_to_get: int, force_local_execution: bool, full_nr_of_jobs_to_get: int) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     base_msg = f"getting {nr_of_jobs_to_get}/{full_nr_of_jobs_to_get} trials "
 
-    if SYSTEM_HAS_SBATCH and not force_local_execution: # pragma: no cover
+    if SYSTEM_HAS_SBATCH and not args.force_local_execution: # pragma: no cover
         return base_msg
 
     return f"{base_msg}(no sbatch)"
@@ -5630,7 +5630,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
     trials_dict: dict = {}
 
     try:
-        for _ in range(0, nr_of_jobs_to_get):
+        for k in range(0, nr_of_jobs_to_get):
+            progressbar_description([_get_trials_message(k, nr_of_jobs_to_get)])
+
             params, trial_index = ax_client.get_next_trial(force=True)
             trials_dict[trial_index] = params
 
@@ -5660,14 +5662,6 @@ def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tup
 
     if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
         return {}, True
-
-    message = _get_trials_message(
-        nr_of_jobs_to_get,
-        args.force_local_execution,
-        full_nr_of_jobs_to_get
-    )
-
-    progressbar_description([message])
 
     try:
         trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)

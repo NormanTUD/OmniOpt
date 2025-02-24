@@ -178,7 +178,7 @@ cmd=(
 )
 
 if [[ "$generate_all_jobs_at_once" == "true" ]]; then
-	cmd+=(--additional_flag)
+	cmd+=(--generate_all_jobs_at_once)
 fi
 
 "${cmd[@]}"

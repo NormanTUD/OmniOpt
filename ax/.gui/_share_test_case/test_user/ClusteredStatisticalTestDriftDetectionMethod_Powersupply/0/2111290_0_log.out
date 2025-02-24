@@ -1,0 +1,42 @@
+submitit INFO (2024-09-09 23:32:26,917) - Starting with JobEnvironment(job_id=2111290, hostname=i7163, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-09 23:32:26,919) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_Powersupply/0/single_runs/2111290/2111290_submitted.pkl
+Parameters: {"n_samples": 234, "confidence": 0.05, "feature_proportion": 0.1754751582367855, "n_clusters": 4}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py Powersupply 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 234 confidence 0.05 feature_proportion 0.1754751582367855 n_clusters 4
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1725917289.0
+Last modification: 1724759185.0
+Hostname: i7163
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1725553480.0
+Size: 1658 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1725917250.0
+Last modification: 1725549879.0
+Hostname: i7163
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py Powersupply 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 234 confidence 0.05 feature_proportion 0.1754751582367855 n_clusters 4
+stdout:
+RESULT: 0.13877100945634377
+OO-Info: runtime: 37
+OO-Info: lpd: -7.637632524858172e-06
+
+Result: 0.13877100945634377
+EXIT_CODE: 0
+submitit INFO (2024-09-09 23:33:08,830) - Job completed successfully
+submitit INFO (2024-09-09 23:33:08,833) - Exiting after successful completion

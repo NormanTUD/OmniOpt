@@ -1,0 +1,42 @@
+submitit INFO (2024-09-05 19:12:24,920) - Starting with JobEnvironment(job_id=2085890, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-05 19:12:24,934) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/single_runs/2085890/2085890_submitted.pkl
+Parameters: {"n_samples": 905, "confidence": 0.1, "feature_proportion": 0.049534662817342145, "n_clusters": 3}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 905 confidence 0.1 feature_proportion 0.049534662817342145 n_clusters 3
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1725556327.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1725553480.0
+Size: 1658 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1725556288.0
+Last modification: 1725549879.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 905 confidence 0.1 feature_proportion 0.049534662817342145 n_clusters 3
+stdout:
+RESULT: 0.6951756801409847
+OO-Info: runtime: 8
+OO-Info: lpd: 0.0015652083176329425
+
+Result: 0.6951756801409847
+EXIT_CODE: 0
+submitit INFO (2024-09-05 19:12:38,637) - Job completed successfully
+submitit INFO (2024-09-05 19:12:38,639) - Exiting after successful completion

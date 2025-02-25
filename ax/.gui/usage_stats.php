@@ -79,14 +79,32 @@
 		if (($handle = fopen($csvFile, "r")) !== FALSE) {
 			wrapped_fgetcsv($handle);
 
+			$successful_inserts = 0;
+			$failed_inserts = 0;
+
 			$stmt = $pdo->prepare("INSERT INTO usage_statistics 
 				(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time) 
 				VALUES (?, ?, ?, ?, ?, ?, ?)");
 
 			while (($data = wrapped_fgetcsv($handle)) !== FALSE) {
-				$stmt->execute($data);
+				$ret = $stmt->execute($data);
+
+				if(!$ret) {
+					echo "<pre>";
+					echo "Failed to insert:\n";
+					print_r($data);
+					echo "</pre>";
+
+					$failed_inserts++;
+				} else {
+					$successful_inserts++;
+				}
 			}
 			fclose($handle);
+
+			print("Succesful inserts: $successful_inserts, failed inserts: $failed_inserts\n");
+		} else {
+			print("Failed to load CSV file");
 		}
 
 		echo "<br>Import done! Reload the page.";

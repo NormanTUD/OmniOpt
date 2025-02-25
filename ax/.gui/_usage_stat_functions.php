@@ -1,7 +1,18 @@
 <?php
-	function fetch_data($db_path) {
+	function fetch_data($db_path, $element_id) {
 		$db = new SQLite3($db_path);
-		$result = $db->query("SELECT anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time FROM usage_statistics");
+
+		$query = "SELECT anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time FROM usage_statistics";
+
+		if($element_id == "test") {
+			$query .= " where anon_user = 'affed00faffed00faffed00faffed00f'";
+		} else if ($element_id == "developer") {
+			$query .= " where anon_user = 'affeaffeaffeaffeaffeaffeaffeaffe'";
+		} else {
+			$query .= " where anon_user != 'affeaffeaffeaffeaffeaffeaffeaffe' and anon_user != 'affed00faffed00faffed00faffed00f'";
+		}
+
+		$result = $db->query($query);
 		$data = [];
 		while ($row = $result->fetchArray(SQLITE3_NUM)) {
 			$data[] = $row;

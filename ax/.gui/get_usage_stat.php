@@ -21,7 +21,9 @@
 
 	$db_path = "stats/usage_statistics.db";
 
-	$data = fetch_data($db_path);
+	$element_id = $_GET["element_id"];
+
+	$data = fetch_data($db_path, $element_id);
 
 	$anon_users = array_column($data, 0);
 	$has_sbatch = array_column($data, 1);

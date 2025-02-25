@@ -145,16 +145,21 @@
 
 	list($developer_ids, $test_ids, $regular_data) = get_group_data($db_path);
 
+	$data = array(
+		"developer_ids" => $developer_ids,
+		"test_ids" => $test_ids,
+		"regular_data" => $regular_data
+	);
+
 	if (!empty($developer_ids) || !empty($test_ids) || !empty($regular_data)) {
-		$sections = ['regular_data' => 'Regular Users', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
-		$sections = ['regular_data' => 'Usage overview'];
+		$sections = ['regular_data' => 'Usage overview', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
 ?>
 		<br>
 		<div id="tabs">
 			<ul>
 <?php
 				foreach ($sections as $key => $label) {
-					if (count(${$key})) {
+					if (count($data[$key])) {
 						echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
 					}
 				}

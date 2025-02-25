@@ -66,6 +66,10 @@
 		}
 	}
 
+	function wrapped_fgetcsv($handle) {
+		return fgetcsv($handle, null, ",", "\"", "\\");
+	}
+
 	function importCsvToDatabase($db_path) {
 		$csvFile = __DIR__ . "/stats/usage_statistics.csv";
 
@@ -73,13 +77,13 @@
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		if (($handle = fopen($csvFile, "r")) !== FALSE) {
-			fgetcsv($handle);
+			wrapped_fgetcsv($handle);
 
 			$stmt = $pdo->prepare("INSERT INTO usage_statistics 
 				(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time) 
 				VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-			while (($data = fgetcsv($handle)) !== FALSE) {
+			while (($data = wrapped_fgetcsv($handle)) !== FALSE) {
 				$stmt->execute($data);
 			}
 			fclose($handle);

@@ -128,7 +128,7 @@
 
 					<td class='header_table'>
 						<a style="text-decoration: none;" href="index.php">
-							<img style="margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="logo.png" alt="OmniOpt2-Logo">
+							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="logo.png" alt="OmniOpt2-Logo">
 						</a>
 					</td>
 

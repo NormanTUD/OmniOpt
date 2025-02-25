@@ -135,4 +135,6 @@ RUN chown -R admin:admin /home/admin/.ssh \
 
 EXPOSE 22 6817 6818 6819
 
+ENV PATH="/bin:${PATH}"
+
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

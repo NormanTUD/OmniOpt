@@ -121,4 +121,6 @@ EXPOSE 22 6817 6818 6819 3306
 
 WORKDIR /home/admin
 
+ENV PATH="/bin:${PATH}"
+
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

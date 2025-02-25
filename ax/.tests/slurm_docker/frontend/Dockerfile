@@ -137,4 +137,6 @@ EXPOSE 22 8888
 ENV USER admin
 ENV SHELL bash
 
+ENV PATH="/bin:${PATH}"
+
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

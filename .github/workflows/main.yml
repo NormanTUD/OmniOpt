@@ -186,8 +186,19 @@ jobs:
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
 
+  slurm-docker:
+    needs: [docker-test, Linter, todo-to-issue]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+    - name: Run Slurm in Docker
+      if: ${{ success() }}
+      run: |
+        ./ax/.tests/slurm_docker/run_docker --max_eval=2 --num_parallel_jobs=1 --num_random_steps=1
+
   covering-uploader:
-    needs: [main-test, Linter, todo-to-issue]
+    needs: [main-test, Linter, todo-to-issue, slurm-docker]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     environment: Production

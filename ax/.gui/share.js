@@ -230,7 +230,9 @@ function fetchHashAndUpdateContent() {
 				$("#refresh_button").text("Refresh (new data available)");
 			}
 		} catch (e) {
-			error("" + e);
+			if (!("" + e).includes("A network error occured")) {
+				error("" + e);
+			}
 		} 
 	}
 }

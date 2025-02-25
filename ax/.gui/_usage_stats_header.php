@@ -204,6 +204,7 @@
 	function display_statistics($stats) {
 		echo "<div class='statistics'>";
 		echo "<h3>Statistics</h3>";
+		echo "<p>Unique users: {$stats['unique_users']}</p>";
 		echo "<p>Total jobs: {$stats['total_jobs']}</p>";
 		echo "<p>Failed jobs: {$stats['failed_jobs']} (" . number_format($stats['failure_rate'], 2) . "%)</p>";
 		echo "<p>Successful jobs: {$stats['successful_jobs']}</p>";
@@ -231,7 +232,7 @@
 	function calculate_statistics_from_db($db_path, $element_id) {
 		try {
 			$db = new SQLite3($db_path);
-			$query = "SELECT exit_code, runtime FROM usage_statistics";
+			$query = "SELECT exit_code, runtime, anon_user FROM usage_statistics";
 
 			if($element_id == "test") {
 				$query .= " where anon_user = 'affed00faffed00faffed00faffed00f'";
@@ -249,9 +250,16 @@
 			$successful_runtimes = [];
 			$failed_runtimes = [];
 
+			$unique_user_ids = [];
+
 			while ($row = $result->fetchArray(SQLITE3_NUM)) {
 				$exit_code = intval($row[0]);
 				$runtime = floatval($row[1]);
+				$anon_user = $row[2];
+
+				if (!in_array($anon_user, $unique_user_ids, true)) {
+					$unique_user_ids[] = $anon_user;
+				}
 
 				$runtimes[] = $runtime;
 				$total_jobs++;
@@ -281,10 +289,13 @@
 			$average_runtime = $total_runtime / $total_jobs;
 			$median_runtime = calculate_median($runtimes);
 
+			$unique_users = count($unique_user_ids);
+
 			return [
 				'total_jobs' => $total_jobs,
 				'failed_jobs' => $failed_jobs,
 				'successful_jobs' => $successful_jobs,
+				"unique_users" => $unique_users,
 				'failure_rate' => $failure_rate,
 				'average_runtime' => $average_runtime,
 				'median_runtime' => $median_runtime,

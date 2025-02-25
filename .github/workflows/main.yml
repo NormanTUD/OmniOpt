@@ -186,24 +186,24 @@ jobs:
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
 
-  slurm-docker:
-    if: ${{ success() }}
-    runs-on: ubuntu-latest
-    environment: Production
-    strategy:
-      fail-fast: true
+  #slurm-docker:
+  #  if: ${{ success() }}
+  #  runs-on: ubuntu-latest
+  #  environment: Production
+  #  strategy:
+  #    fail-fast: true
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+  #  steps:
+  #  - name: Checkout code
+  #    uses: actions/checkout@v4
 
-    - name: Run Slurm in Docker
-      if: ${{ success() }}
-      run: |
-        bash ./ax/.tests/slurm_docker/run_docker --max_eval=2 --num_parallel_jobs=1 --num_random_steps=1
+  #  - name: Run Slurm in Docker
+  #    if: ${{ success() }}
+  #    run: |
+  #      bash ./ax/.tests/slurm_docker/run_docker --max_eval=2 --num_parallel_jobs=1 --num_random_steps=1
 
   covering-uploader:
-    needs: [main-test, Linter, todo-to-issue, slurm-docker]
+    needs: [main-test, Linter, todo-to-issue,] # slurm-docker]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     environment: Production

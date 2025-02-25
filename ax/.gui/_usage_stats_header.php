@@ -64,11 +64,16 @@
 		echo "
 			<script>
 				$(document).ready(function() {
+					showSpinnerOverlay(\"Loading data for $element_id\");
 					$.ajax({
 						url: 'get_usage_stat.php',
 						type: 'GET',
 						data: { element_id: '$element_id' },
 						dataType: 'json',
+						error: function (d) {
+							err('Error loading data');
+							removeSpinnerOverlay();
+						},
 						success: function(data) {
 							var anon_users_$element_id = data.anon_users;
 							var has_sbatch_$element_id = data.has_sbatch;
@@ -188,6 +193,7 @@
 								};
 								Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: 'Runs with and without sbatch', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
 							}
+							removeSpinnerOverlay();
 						}
 					});
 				});

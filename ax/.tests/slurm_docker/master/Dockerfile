@@ -61,6 +61,8 @@ RUN chown munge:munge etc/munge/munge.key \
  && chmod 775 /etc/slurm \
  && chmod 775 /etc/slurm/*.conf
 
+RUN apt-get install -y zip
+
 RUN systemctl enable slurmctld
 
 COPY ssh /home/admin/.ssh

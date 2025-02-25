@@ -48,7 +48,7 @@
 		<?php js("initialization.js"); ?>
 
 <?php
-		if (strpos($_SERVER['REQUEST_URI'], 'share.php') !== false) {
+		if (isset($_SERVER["REQUEST_URI"]) && strpos($_SERVER['REQUEST_URI'], 'share.php') !== false) {
 			echo '<meta name="robots" content="noindex, nofollow">';
 		}
 ?>

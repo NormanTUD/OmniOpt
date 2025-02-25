@@ -5588,8 +5588,8 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
 
     if SYSTEM_HAS_SBATCH and not args.force_local_execution: # pragma: no cover
         ret = base_msg
-
-    ret = f"{base_msg} (no sbatch)"
+    else:
+        ret = f"{base_msg} (no sbatch)"
 
     ret = remove_extra_spaces(ret)
 

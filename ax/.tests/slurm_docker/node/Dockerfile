@@ -15,23 +15,7 @@ RUN apt-get update -y && apt-get install -y \
     libdbus-1-dev \
     libhwloc-dev \
     openssh-server \
-    sudo \
- && cd /tmp \
- && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2 \
- && tar -xaf slurm-23.11.7.tar.bz2 \
- && cd slurm-23.11.7 \
- && mk-build-deps -t "apt-get -y" -i debian/control \
- && debuild -b -uc -us \
- && cd .. \
- && ARCH=$(dpkg --print-architecture) \
- && dpkg --install slurm-smd_23.11.7-1_${ARCH}.deb \
- && dpkg --install slurm-smd-client_23.11.7-1_${ARCH}.deb \
- && dpkg --install slurm-smd-slurmd_23.11.7-1_${ARCH}.deb \
- && dpkg --install slurm-smd-dev_23.11.7-1_${ARCH}.deb \
- && dpkg --install slurm-smd-libpmi0_23.11.7-1_${ARCH}.deb \
- && dpkg --install slurm-smd-libpmi2-0_23.11.7-1_${ARCH}.deb \
- && rm -rf /tmp/slurm* \
- && rm -rf /var/lib/apt/lists/*
+    sudo vim bash git zip 2to3 curl xterm whiptail python3-dev php-cli unzip python3-lib2to3 python3-toolz php-mbstring bc uuid-runtime python3.10-venv zsh curl uuid-runtime xterm whiptail
 
 RUN useradd -m admin -s /usr/bin/bash -d /home/admin \
  && echo "admin:admin" | chpasswd \
@@ -40,30 +24,6 @@ RUN useradd -m admin -s /usr/bin/bash -d /home/admin \
     
 RUN useradd -m slurm -s /usr/bin/bash -d /home/slurm \
  && echo "slurm:slurm" | chpasswd
-
-RUN mkdir /var/run/sshd \
- && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
- && chmod -x /etc/update-motd.d/* \
- && rm -f /etc/legal
-
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
-    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "" >> /etc/apt/sources.list && \
-    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "" >> /etc/apt/sources.list && \
-    echo "deb http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list && \
-    echo "# deb-src http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list
-
-RUN apt-get update -y
-
-RUN apt-get install -y curl uuid-runtime xterm whiptail
 
 RUN echo "#!/bin/bash" >> /bin/sq
 RUN echo "squeue" >> /bin/sq
@@ -110,6 +70,43 @@ RUN echo '    echo "$job_id.0|$job_state|$node_list"' >> /bin/sacct
 RUN echo 'done' >> /bin/sacct
 RUN chmod +x /bin/sacct
 
+RUN mkdir /var/run/sshd \
+ && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
+ && chmod -x /etc/update-motd.d/* \
+ && rm -f /etc/legal
+
+RUN cd /tmp \
+ && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2 \
+ && tar -xaf slurm-23.11.7.tar.bz2 \
+ && cd slurm-23.11.7 \
+ && mk-build-deps -t "apt-get -y" -i debian/control \
+ && debuild -b -uc -us \
+ && cd .. \
+ && ARCH=$(dpkg --print-architecture) \
+ && dpkg --install slurm-smd_23.11.7-1_${ARCH}.deb \
+ && dpkg --install slurm-smd-client_23.11.7-1_${ARCH}.deb \
+ && dpkg --install slurm-smd-slurmd_23.11.7-1_${ARCH}.deb \
+ && dpkg --install slurm-smd-dev_23.11.7-1_${ARCH}.deb \
+ && dpkg --install slurm-smd-libpmi0_23.11.7-1_${ARCH}.deb \
+ && dpkg --install slurm-smd-libpmi2-0_23.11.7-1_${ARCH}.deb \
+ && rm -rf /tmp/slurm* \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "" >> /etc/apt/sources.list && \
+    echo "deb http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list && \
+    echo "# deb-src http://archive.canonical.com/ubuntu/ jammy partner" >> /etc/apt/sources.list
+
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/
@@ -124,8 +121,6 @@ RUN chown munge:munge etc/munge/munge.key \
  && chmod 600 /etc/munge/munge.key \
  && chmod 775 /etc/slurm \
  && chmod 775 /etc/slurm/*.conf
-
-RUN apt-get install -y zip
 
 RUN systemctl enable slurmd
 

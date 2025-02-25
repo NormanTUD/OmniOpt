@@ -15,8 +15,62 @@ RUN apt-get update -y && apt-get install -y \
     libdbus-1-dev \
     libhwloc-dev \
     openssh-server \
-    sudo \
- && cd /tmp \
+    sudo vim bash git zip 2to3 curl xterm whiptail python3-dev php-cli unzip python3-lib2to3 python3-toolz php-mbstring bc uuid-runtime python3.10-venv zsh curl uuid-runtime xterm whiptail
+
+RUN useradd -m admin -s /usr/bin/bash -d /home/admin \
+ && echo "admin:admin" | chpasswd \
+ && adduser admin sudo \
+ && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN useradd -m slurm -s /usr/bin/bash -d /home/slurm \
+ && echo "slurm:slurm" | chpasswd
+
+RUN echo "#!/bin/bash" >> /bin/sq
+RUN echo "squeue" >> /bin/sq
+RUN chmod +x /bin/sq
+
+RUN echo '#!/bin/bash' > /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo 'job_ids=()  # Job-IDs initialisieren' >> /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo '# Argumente parsen' >> /bin/sacct
+RUN echo 'while [[ $# -gt 0 ]]; do' >> /bin/sacct
+RUN echo '    case "$1" in' >> /bin/sacct
+RUN echo '        -j)  # Job-IDs sammeln' >> /bin/sacct
+RUN echo '            shift' >> /bin/sacct
+RUN echo '            job_ids+=("$1")' >> /bin/sacct
+RUN echo '            ;;' >> /bin/sacct
+RUN echo '        *)  # Alle anderen Optionen ignorieren' >> /bin/sacct
+RUN echo '            ;;' >> /bin/sacct
+RUN echo '    esac' >> /bin/sacct
+RUN echo '    shift' >> /bin/sacct
+RUN echo 'done' >> /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo '# Header für die Ausgabe' >> /bin/sacct
+RUN echo 'echo "JobID|State|NodeList"' >> /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo '# Durch die Job-IDs iterieren' >> /bin/sacct
+RUN echo 'for job_id in "${job_ids[@]}"; do' >> /bin/sacct
+RUN echo '    # Überprüfen, ob der Job noch in squeue ist' >> /bin/sacct
+RUN echo '    job_info=$(squeue -j "$job_id" --noheader -o "%i %T %N")' >> /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo '    if [[ -n "$job_info" ]]; then' >> /bin/sacct
+RUN echo '        # Job ist noch aktiv -> Status aus squeue nehmen' >> /bin/sacct
+RUN echo "        job_state=\$(echo "\$job_info" | awk '{print \$2}')" >> /bin/sacct
+RUN echo "        node_list=\$(echo "\$job_info" | awk '{print \$3}')" >> /bin/sacct
+RUN echo '    else' >> /bin/sacct
+RUN echo '        # Job nicht mehr in squeue -> als COMPLETED betrachten' >> /bin/sacct
+RUN echo '        job_state="COMPLETED"' >> /bin/sacct
+RUN echo '        node_list="UNKNOWN"' >> /bin/sacct
+RUN echo '    fi' >> /bin/sacct
+RUN echo '' >> /bin/sacct
+RUN echo '    # Ausgabe im Parsable2-Format' >> /bin/sacct
+RUN echo '    echo "$job_id|$job_state|$node_list"' >> /bin/sacct
+RUN echo '    echo "$job_id.0|$job_state|$node_list"' >> /bin/sacct
+RUN echo 'done' >> /bin/sacct
+RUN chmod +x /bin/sacct
+
+RUN cd /tmp \
  && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2 \
  && tar -xaf slurm-23.11.7.tar.bz2 \
  && cd slurm-23.11.7 \
@@ -32,14 +86,6 @@ RUN apt-get update -y && apt-get install -y \
  && dpkg --install slurm-smd-libpmi2-0_23.11.7-1_${ARCH}.deb \
  && rm -rf /tmp/slurm* \
  && rm -rf /var/lib/apt/lists/*
-
-RUN useradd -m admin -s /usr/bin/bash -d /home/admin \
- && echo "admin:admin" | chpasswd \
- && adduser admin sudo \
- && echo "admin     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-RUN useradd -m slurm -s /usr/bin/bash -d /home/slurm \
- && echo "slurm:slurm" | chpasswd
 
 RUN mkdir /var/run/sshd \
  && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \

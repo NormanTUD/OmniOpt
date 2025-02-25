@@ -2,352 +2,356 @@
 
 {
 
-    function echoerr {
-        echo "$@" 1>&2
-    }
-
-    function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
-    }
-
-    function green_text {
-        echoerr -e "\033[0;32m$1\e[0m"
-    }
-
-    function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-    }
-
-    function _tput {
-        set +e
-        CHAR=$1
-
-        if ! command -v tput 2>/dev/null >/dev/null; then
-            red_text "tput not installed" >&2
-            set +e
-            return 0
-        fi
-
-        if [[ -z $CHAR ]]; then
-            red_text "No character given" >&2
-            set +e
-            return 0
-        fi
-
-        if ! tty 2>/dev/null >/dev/null; then
-            echo ""
-            set +e
-            return 0
-        fi
-
-        tput "$CHAR"
-        set +e
-    }
-
-    function displaytime {
-        local T=$1
-        local D=$((T/60/60/24))
-        local H=$((T/60/60%24))
-        local M=$((T/60%60))
-        local S=$((T%60))
-        (( $D > 0 )) && printf '%d days ' $D
-        (( $H > 0 )) && printf '%d hours ' $H
-        (( $M > 0 )) && printf '%d minutes ' $M
-        (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-        printf '%d seconds\n' $S
-    }
-
-    disable_calltracer=0
-    function calltracer {
-        if [[ $disable_calltracer -eq 0 ]]; then
-            LINE_AND_FUNCTION="$(caller)"
-            if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-                red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
-            fi
-
-            echo ""
-            caller
-            echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
-            _tput bel
-        fi
-    }
-
-    trap 'calltracer' ERR
-    trap 'calltracer' EXIT
-
-    GREEN='\033[0;32m'
-    YELLOW='\033[0;33m'
-    BLUE='\033[0;34m'
-    CYAN='\033[0;36m'
-    MAGENTA='\033[0;35m'
-    NC='\033[0m'
-
-    function set_debug {
-        trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
-        true
-    }
-
-    function unset_debug {
-        trap - DEBUG
-    }
-
-    no_color=0
-    DEBUG=0
-    update=0
-    keep_tmp_dir=0
-    folders_to_share=()
-    username=$USER
-    outfile=
-
-    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-    function join_by {
-        local d=${1-} f=${2-}
-        if shift 2; then
-            printf %s "$f" "${@/#/$d}"
-        fi
-    }
-
-    RUN_DIR=$1
-
-    function help {
-        exit_code=$1
-
-        echo "OmniOpt2 share - Share your hyperparameter optimization results with others. Options:"
-        echo ""
-        echo "Example:"
-        echo "  bash omniopt_share runs/my_experiment/0"
-        echo ""
-        echo "  --help                                             This help"
-        echo "  --update                                           Update a job that had this run-UUID previously"
-        echo "  --debug                                            Enable debug options"
-        echo "  --no_color                                         Disables color output"
-        echo "  --username=s3811141                                Specify username (with or without = sign)"
-        echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
-        echo "  --outfile=slurm-12345.out                          Path to the outfile"
-
-        exit $exit_code
-    }
-
-    for arg in "$@"; do
-        if [ "$arg" == "--debug" ]; then
-            DEBUG=1
-            set_debug
-        elif [ "$arg" == "--help" ]; then
-            help 0
-        elif [ "$arg" == "--update" ]; then
-            update=1
-        elif [ "$arg" == "--keep_tmp_dir" ]; then
-            keep_tmp_dir=1
-        elif [ "$arg" == "--no_color" ]; then
-            no_color=1
-            function yellow_text {
-                echoerr -e "$1"
-            }
-
-            function green_text {
-                echoerr -e "$1"
-            }
-
-            function red_text {
-                echoerr -e "$1"
-            }
-        elif [[ "$arg" == --outfile=* ]]; then
-            outfile="${arg#--username=}"
-        elif [[ "$arg" == --username=* ]]; then
-            username="${arg#--username=}"
-            DONT_ASK_USERNAME=1
-        elif [ -d "$arg" ]; then
-            if [[ -d $arg ]]; then
-                folders_to_share+=("$arg")
-            else
-                red_text "Cannot share $arg: folder not found"
-            fi
-        else
-            red_text "Invalid option $arg, is this supposed to be your run folder? If so, it doesn't exist."
-            help 1
-        fi
-    done
-
-    source "$SCRIPT_DIR/.shellscript_functions"
-
-    k=0
-    for RUN_DIR in "${folders_to_share[@]}"; do
-        ok=1
-
-        if [[ -z $RUN_DIR ]]; then
-            red_text "Parameter for RUN_DIR is not set\n"
-            ok=0
-        fi
-
-        if [[ ! -d "$RUN_DIR" ]]; then
-            red_text "$RUN_DIR does not exist\n"
-            ok=0
-        fi
-
-        if [[ "$ok" -eq "1" ]]; then
-            experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
-
-            OO_tmp_dir=/tmp/oo_tmp
-            everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
-
-            curl_options=()
-
-            for available_file in $(ls "$RUN_DIR" 2>/dev/null); do
-                available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-                if echo "$available_file" | grep -Ei "\.(csv|txt|log|json)" 2>/dev/null > /dev/null; then
-                    curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-                fi
-            done
-
-            if [[ -d "$RUN_DIR/state_files" ]]; then
-                for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do
-                    available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-                    if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
-                        curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-                    fi
-                done
-            fi
-
-            if [[ -d "$RUN_DIR/single_runs" ]]; then
-                for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do
-                    for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
-                        _file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
-                        if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
-                            if echo "$_file" | grep -qE "\.(out|err)$"; then
-                                filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
-                                curl_options+=("-F" "$filename_on_server=@$_file")
-                            fi
-                        fi
-                    done
-                done
-            fi
-
-            if [[ "$k" -eq "0" ]]; then
-                if [[ -z $DONT_ASK_USERNAME ]]; then
-                    eval "$(resize)"
-                    user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
-                else
-                    user_id=$username
-                fi
-            fi
-
-            exitstatus=$?
-            if [ $exitstatus = 0 ]; then
-                true
-            else
-                yellow_text "You cancelled sharing."
-                exit 0
-            fi
-
-            BASEURL="https://imageseg.scads.de/omniax"
-
-            if [[ -e "$HOME/.oo_base_url" ]]; then
-                BASEURL=$(cat "$HOME/.oo_base_url")
-                if [[ -z $no_color ]]; then
-                    yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
-                fi
-            fi
-
-            set -e
-
-            url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
-
-            run_uuid_path="$RUN_DIR/state_files/run_uuid"
-
-            if [[ $update -eq 1 ]]; then
-                url="$url&update=1";
-            fi
-
-            if [[ -e $run_uuid_path ]]; then
-                run_uuid=$(cat "$run_uuid_path")
-                url="$url&update_uuid=$run_uuid"
-
-                curl_options+=("-F" "run_uuid=@$run_uuid_path")
-
-                mkdir -p $OO_tmp_dir || {
-                    red_text "mkdir -p $OO_tmp_dir failed"
-                    exit 1
-                }
-
-                original_pwd="$(pwd)"
-
-                cd $RUN_DIR
-
-                zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
-                    red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
-                    exit 1
-                }
-
-                curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
-
-                cd "$original_pwd"
-
-                if [[ -n $outfile ]]; then
-                    if [[ -e $outfile ]]; then
-                        curl_options+=("-F" "outfile=@$outfile")
-                    fi
-                fi
-
-                if [[ -z $outfile ]]; then
-                    if [[ -e "logs/$run_uuid" ]]; then
-                        curl_options+=("-F" "outfile=@logs/$run_uuid")
-                    fi
-                fi
-
-                if [[ -e "logs/${run_uuid}_progressbar" ]]; then
-                    curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
-                fi
-
-                if [[ -e "logs/${run_uuid}_install_errors" ]]; then
-                    curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
-                fi
-
-                if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
-                    curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
-                fi
-
-                if [[ -e "logs/${run_uuid}_log" ]]; then
-                    curl_options+=("-F" "log=@logs/${run_uuid}_log")
-                fi
-            fi
-
-            if [[ $DEBUG -eq 1 ]]; then
-                echo "curl -s ${curl_options[@]} $url"
-            fi
-
-            set +e
-
-            CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
-            exit_code=$?
-
-            set -e
-
-            if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
-                red_text "$CURL_OUTPUT"
-                if [[ $exit_code -ne 0 ]]; then
-                    echo "Curling $url failed. Curl exited with $exit_code instead of 0"
-                    if [[ $exit_code == 7 ]]; then
-                        echo "Exit code 7 means that the server was not reachable. Are you online? Is the server properly started?"
-                    fi
-                    exit $exit_code
-                fi
-            else
-                green_text "$CURL_OUTPUT"
-            fi
-
-            if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
-                rm -rf $OO_tmp_dir || {
-                    red_text "rm -rf $OO_tmp_dir failed"
-                    exit 1
-                }
-            else
-                yellow_text "Temporary file: $everything_but_singleruns"
-            fi
-        fi
-        k=$(($k+1))
-    done
-
-    disable_calltracer=1
-    exit 0
+	function echoerr {
+		echo "$@" 1>&2
+	}
+
+	function yellow_text {
+		echoerr -e "\e\033[0;33m$1\e[0m"
+	}
+
+	function green_text {
+		echoerr -e "\033[0;32m$1\e[0m"
+	}
+
+	function red_text {
+		echoerr -e "\e[31m$1\e[0m"
+	}
+
+	function _tput {
+		set +e
+		CHAR=$1
+
+		if ! command -v tput 2>/dev/null >/dev/null; then
+			red_text "tput not installed" >&2
+			set +e
+			return 0
+		fi
+
+		if [[ -z $CHAR ]]; then
+			red_text "No character given" >&2
+			set +e
+			return 0
+		fi
+
+		if ! tty 2>/dev/null >/dev/null; then
+			echo ""
+			set +e
+			return 0
+		fi
+
+		tput "$CHAR"
+		set +e
+	}
+
+	function displaytime {
+		local T=$1
+		local D=$((T/60/60/24))
+		local H=$((T/60/60%24))
+		local M=$((T/60%60))
+		local S=$((T%60))
+		(( $D > 0 )) && printf '%d days ' $D
+		(( $H > 0 )) && printf '%d hours ' $H
+		(( $M > 0 )) && printf '%d minutes ' $M
+		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+		printf '%d seconds\n' $S
+	}
+
+	disable_calltracer=0
+	function calltracer {
+		if [[ $disable_calltracer -eq 0 ]]; then
+			LINE_AND_FUNCTION="$(caller)"
+			if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
+				red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
+			fi
+
+			echo ""
+			caller
+			echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+			_tput bel
+		fi
+	}
+
+	trap 'calltracer' ERR
+	trap 'calltracer' EXIT
+
+	GREEN='\033[0;32m'
+	YELLOW='\033[0;33m'
+	BLUE='\033[0;34m'
+	CYAN='\033[0;36m'
+	MAGENTA='\033[0;35m'
+	NC='\033[0m'
+
+	function set_debug {
+		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+		true
+	}
+
+	function unset_debug {
+		trap - DEBUG
+	}
+
+	no_color=0
+	DEBUG=0
+	update=0
+	keep_tmp_dir=0
+	folders_to_share=()
+	username=$USER
+	outfile=
+
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+	function join_by {
+		local d=${1-} f=${2-}
+		if shift 2; then
+			printf %s "$f" "${@/#/$d}"
+		fi
+	}
+
+	RUN_DIR=$1
+
+	function help {
+		exit_code=$1
+
+		echo "OmniOpt2 share - Share your hyperparameter optimization results with others. Options:"
+		echo ""
+		echo "Example:"
+		echo "  bash omniopt_share runs/my_experiment/0"
+		echo ""
+		echo "  --help                                             This help"
+		echo "  --update                                           Update a job that had this run-UUID previously"
+		echo "  --debug                                            Enable debug options"
+		echo "  --no_color                                         Disables color output"
+		echo "  --username=s3811141                                Specify username (with or without = sign)"
+		echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
+		echo "  --outfile=slurm-12345.out                          Path to the outfile"
+
+		exit $exit_code
+	}
+
+	for arg in "$@"; do
+		if [ "$arg" == "--debug" ]; then
+			DEBUG=1
+			set_debug
+		elif [ "$arg" == "--help" ]; then
+			help 0
+		elif [ "$arg" == "--update" ]; then
+			update=1
+		elif [ "$arg" == "--keep_tmp_dir" ]; then
+			keep_tmp_dir=1
+		elif [ "$arg" == "--no_color" ]; then
+			no_color=1
+			function yellow_text {
+				echoerr -e "$1"
+			}
+
+			function green_text {
+				echoerr -e "$1"
+			}
+
+			function red_text {
+				echoerr -e "$1"
+			}
+		elif [[ "$arg" == --outfile=* ]]; then
+			outfile="${arg#--username=}"
+		elif [[ "$arg" == --username=* ]]; then
+			username="${arg#--username=}"
+			DONT_ASK_USERNAME=1
+		elif [ -d "$arg" ]; then
+			if [[ -d $arg ]]; then
+				folders_to_share+=("$arg")
+			else
+				red_text "Cannot share $arg: folder not found"
+			fi
+		else
+			red_text "Invalid option $arg, is this supposed to be your run folder? If so, it doesn't exist."
+			help 1
+		fi
+	done
+
+	source "$SCRIPT_DIR/.shellscript_functions"
+
+	k=0
+	for RUN_DIR in "${folders_to_share[@]}"; do
+		ok=1
+
+		if [[ -z $RUN_DIR ]]; then
+			red_text "Parameter for RUN_DIR is not set\n"
+			ok=0
+		fi
+
+		if [[ ! -d "$RUN_DIR" ]]; then
+			red_text "$RUN_DIR does not exist\n"
+			ok=0
+		fi
+
+		if [[ "$ok" -eq "1" ]]; then
+			experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
+
+			OO_tmp_dir=/tmp/oo_tmp
+			everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
+
+			curl_options=()
+
+			for available_file in $(ls "$RUN_DIR" 2>/dev/null); do
+				available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+				if echo "$available_file" | grep -Ei "\.(csv|txt|log|json)" 2>/dev/null > /dev/null; then
+					curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
+				fi
+			done
+
+			if [[ -d "$RUN_DIR/state_files" ]]; then
+				for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do
+					available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
+					if echo "$available_file" | grep -Ei "\.(csv|txt)" 2>/dev/null > /dev/null; then
+						curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
+					fi
+				done
+			fi
+
+			if [[ -d "$RUN_DIR/single_runs" ]]; then
+				for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do
+					for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
+						_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
+						if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
+							if echo "$_file" | grep -qE "\.(out|err)$"; then
+								filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
+								curl_options+=("-F" "$filename_on_server=@$_file")
+							fi
+						fi
+					done
+				done
+			fi
+
+			if [[ "$k" -eq "0" ]]; then
+				if [[ -z $DONT_ASK_USERNAME ]]; then
+					eval "$(resize)"
+					user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+				else
+					user_id=$username
+				fi
+			fi
+
+			exitstatus=$?
+			if [ $exitstatus = 0 ]; then
+				true
+			else
+				yellow_text "You cancelled sharing."
+				exit 0
+			fi
+
+			BASEURL="https://imageseg.scads.de/omniax"
+
+			if [[ -e "$HOME/.oo_base_url" ]]; then
+				BASEURL=$(cat "$HOME/.oo_base_url")
+				if [[ -z $no_color ]]; then
+					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
+				fi
+			fi
+
+			set -e
+
+			url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
+
+			run_uuid_path="$RUN_DIR/state_files/run_uuid"
+
+			if [[ $update -eq 1 ]]; then
+				url="$url&update=1";
+			fi
+
+			if [[ -e $run_uuid_path ]]; then
+				run_uuid=$(cat "$run_uuid_path")
+				url="$url&update_uuid=$run_uuid"
+
+				curl_options+=("-F" "run_uuid=@$run_uuid_path")
+
+				mkdir -p $OO_tmp_dir || {
+					red_text "mkdir -p $OO_tmp_dir failed"
+									exit 1
+								}
+
+								original_pwd="$(pwd)"
+
+								cd $RUN_DIR
+
+								if command -v zip 2>/dev/null >/dev/null; then
+									zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
+										red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
+																			exit 1
+																		}
+																	else
+																		red_text "zip not found. You will not be able to continue this job from the URL."
+								fi
+
+								curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
+
+								cd "$original_pwd"
+
+								if [[ -n $outfile ]]; then
+									if [[ -e $outfile ]]; then
+										curl_options+=("-F" "outfile=@$outfile")
+									fi
+								fi
+
+								if [[ -z $outfile ]]; then
+									if [[ -e "logs/$run_uuid" ]]; then
+										curl_options+=("-F" "outfile=@logs/$run_uuid")
+									fi
+								fi
+
+								if [[ -e "logs/${run_uuid}_progressbar" ]]; then
+									curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
+								fi
+
+								if [[ -e "logs/${run_uuid}_install_errors" ]]; then
+									curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
+								fi
+
+								if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
+									curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
+								fi
+
+								if [[ -e "logs/${run_uuid}_log" ]]; then
+									curl_options+=("-F" "log=@logs/${run_uuid}_log")
+								fi
+			fi
+
+			if [[ $DEBUG -eq 1 ]]; then
+				echo "curl -s ${curl_options[@]} $url"
+			fi
+
+			set +e
+
+			CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
+			exit_code=$?
+
+			set -e
+
+			if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
+				red_text "$CURL_OUTPUT"
+				if [[ $exit_code -ne 0 ]]; then
+					echo "Curling $url failed. Curl exited with $exit_code instead of 0"
+					if [[ $exit_code == 7 ]]; then
+						echo "Exit code 7 means that the server was not reachable. Are you online? Is the server properly started?"
+					fi
+					exit $exit_code
+				fi
+			else
+				green_text "$CURL_OUTPUT"
+			fi
+
+			if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
+				rm -rf $OO_tmp_dir || {
+					red_text "rm -rf $OO_tmp_dir failed"
+									exit 1
+								}
+							else
+								yellow_text "Temporary file: $everything_but_singleruns"
+			fi
+		fi
+		k=$(($k+1))
+	done
+
+	disable_calltracer=1
+	exit 0
 }

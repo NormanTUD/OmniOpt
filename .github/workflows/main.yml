@@ -187,7 +187,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   slurm-docker:
-    needs: [docker-test, Linter, todo-to-issue]
+    needs: [Linter, todo-to-issue]
     if: ${{ success() }}
     runs-on: ubuntu-latest
     environment: Production

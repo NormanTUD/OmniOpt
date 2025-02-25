@@ -78,12 +78,14 @@ RUN mkdir /var/run/sshd \
  && rm -f /etc/legal
 
 RUN cd /tmp \
- && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2 \
- && tar -xaf slurm-23.11.7.tar.bz2 \
+ && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2
+RUN cd /tmp \
+ && tar -xaf slurm-23.11.7.tar.bz2
+RUN cd /tmp \
  && cd slurm-23.11.7 \
  && mk-build-deps -t "apt-get -y" -i debian/control \
- && debuild -b -uc -us \
- && cd .. \
+ && debuild -b -uc -us
+RUN cd /tmp \
  && ARCH=$(dpkg --print-architecture) \
  && dpkg --install slurm-smd_23.11.7-1_${ARCH}.deb \
  && dpkg --install slurm-smd-client_23.11.7-1_${ARCH}.deb \

@@ -72,13 +72,20 @@ RUN echo '    echo "$job_id.0|$job_state|$node_list"' >> /bin/sacct
 RUN echo 'done' >> /bin/sacct
 RUN chmod +x /bin/sacct
 
+RUN mkdir /var/run/sshd \
+ && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
+ && chmod -x /etc/update-motd.d/* \
+ && rm -f /etc/legal
+
 RUN cd /tmp \
- && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2 \
- && tar -xaf slurm-23.11.7.tar.bz2 \
+ && wget https://download.schedmd.com/slurm/slurm-23.11.7.tar.bz2
+RUN cd /tmp \
+ && tar -xaf slurm-23.11.7.tar.bz2
+RUN cd /tmp \
  && cd slurm-23.11.7 \
  && mk-build-deps -t "apt-get -y" -i debian/control \
- && debuild -b -uc -us \
- && cd .. \
+ && debuild -b -uc -us
+RUN cd /tmp \
  && ARCH=$(dpkg --print-architecture) \
  && dpkg --install slurm-smd_23.11.7-1_${ARCH}.deb \
  && dpkg --install slurm-smd-client_23.11.7-1_${ARCH}.deb \
@@ -88,11 +95,6 @@ RUN cd /tmp \
  && dpkg --install slurm-smd-libpmi2-0_23.11.7-1_${ARCH}.deb \
  && rm -rf /tmp/slurm* \
  && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir /var/run/sshd \
- && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
- && chmod -x /etc/update-motd.d/* \
- && rm -f /etc/legal
 
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/

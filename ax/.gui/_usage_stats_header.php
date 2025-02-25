@@ -228,10 +228,19 @@
 		echo "</div>";
 	}
 
-	function calculate_statistics_from_db($db_path) {
+	function calculate_statistics_from_db($db_path, $element_id) {
 		try {
 			$db = new SQLite3($db_path);
 			$query = "SELECT exit_code, runtime FROM usage_statistics";
+
+			if($element_id == "test") {
+				$query .= " where anon_user = 'affed00faffed00faffed00faffed00f'";
+			} else if ($element_id == "developer") {
+				$query .= " where anon_user = 'affeaffeaffeaffeaffeaffeaffeaffe'";
+			} else {
+				$query .= " where anon_user != 'affeaffeaffeaffeaffeaffeaffeaffe' and anon_user != 'affed00faffed00faffed00faffed00f'";
+			}
+
 			$result = $db->query($query);
 
 			$total_jobs = 0;
@@ -292,7 +301,8 @@
 	}
 
 	function display_plots($data, $element_id, $db_path) {
-		$statistics = calculate_statistics_from_db($db_path);
+		$statistics = calculate_statistics_from_db($db_path, $element_id);
+
 		display_statistics($statistics);
 
 		$plots = array(

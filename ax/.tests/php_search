@@ -51,9 +51,22 @@ if command -v php 2>/dev/null >/dev/null; then
 		ERRORS+=("$error_msg")
 	fi
 
+	jq=""
 	if command -v jq 2>/dev/null >/dev/null; then
+		jq="jq"
+	else
+		jq_path="../.tools/jq_$(uname -m)"
+
+		if [[ -e $jq_path ]]; then
+			jq=$jq_path
+		else
+			red_text "Neither is jq installed, nor can the file $jq_path be found. Will skip the simple regex test"
+		fi
+	fi
+
+	if [[ $jq != "" ]]; then
 		export regex="a"
-		php_result=$(php search.php | jq 2>/dev/null >/dev/null)
+		php_result=$(php search.php | $jq 2>/dev/null >/dev/null)
 		exit_code=$?
 		unset regex
 

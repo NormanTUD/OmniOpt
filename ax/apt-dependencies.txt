@@ -19,3 +19,4 @@ sed
 cat
 tail
 zip
+jq

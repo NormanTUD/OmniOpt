@@ -195,7 +195,9 @@ jobs:
     - name: Run Slurm in Docker
       if: ${{ success() }}
       run: |
-        ./ax/.tests/slurm_docker/run_docker --max_eval=2 --num_parallel_jobs=1 --num_random_steps=1
+        ls
+        pwd
+        bash ./ax/.tests/slurm_docker/run_docker --max_eval=2 --num_parallel_jobs=1 --num_random_steps=1
 
   covering-uploader:
     needs: [main-test, Linter, todo-to-issue]

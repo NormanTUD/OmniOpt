@@ -24,11 +24,6 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-if ! command -v php 2>/dev/null >/dev/null; then
-	yellow_text "Cannot run php_search-test when PHP is not installed!"
-	exit 255
-fi
-
 ERRORS=()
 
 if command -v php 2>/dev/null >/dev/null; then
@@ -78,6 +73,9 @@ if command -v php 2>/dev/null >/dev/null; then
 			echo ""
 		done
 	fi
+else
+	yellow_text "Cannot run php_search-test when PHP is not installed!"
+	exit 255
 fi
 
 exit ${#ERRORS[@]}

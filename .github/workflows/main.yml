@@ -191,7 +191,13 @@ jobs:
     if: ${{ success() }}
     runs-on: ubuntu-latest
     environment: Production
+    strategy:
+      fail-fast: true
+
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Run Slurm in Docker
       if: ${{ success() }}
       run: |

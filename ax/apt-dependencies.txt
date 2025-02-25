@@ -10,13 +10,12 @@ python3-toolz
 php-mbstring
 bc
 2to3
-zip
 unzip
 sudo
-zip
 tail
 ls
 grep
 sed
 cat
 tail
+zip

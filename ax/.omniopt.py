@@ -124,7 +124,7 @@ with console.status("[bold green]Loading rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
-        RichHelpFormatter: type[RichHelpFormatter] = argparse.HelpFormatter
+        RichHelpFormatter: Any = argparse.HelpFormatter
 
 figlet_loaded = False
 
@@ -5579,8 +5579,8 @@ def remove_extra_spaces(text: str) -> str:
 
 @beartype
 def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> str:
-    ret = ""
     """Generates the appropriate message for the number of trials being retrieved."""
+    ret = ""
     if nr_of_jobs_to_get != full_nr_of_jobs_to_get:
         base_msg = f"getting hyperparameter set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
     else:
@@ -5670,7 +5670,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: 
         print_red(f"Error: {error}")
 
 @beartype
-def _get_next_trials(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
+def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
     if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
@@ -6098,7 +6098,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
             get_next_trials_nr = new_nr_of_jobs_to_get
 
         for _ in range(range_nr):
-            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr, new_nr_of_jobs_to_get)
+            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
             done_optimizing = handle_optimization_completion(optimization_complete)
             if done_optimizing: # pragma: no cover
                 continue
@@ -6118,9 +6118,9 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
             res = len(trial_index_to_param.keys())
             print_debug(f"Returning len(trial_index_to_param.keys()): {res}")
             return res
-        else:
-            print_debug(f"Warning: trial_index_to_param is not true. It, stringified, looks like this: {trial_index_to_param}. Returning 0.")
-            return 0
+
+        print_debug(f"Warning: trial_index_to_param is not true. It, stringified, looks like this: {trial_index_to_param}. Returning 0.")
+        return 0
     except Exception as e:  # pragma: no cover
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}. Returning 0.")
         return 0
@@ -6319,7 +6319,10 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
 @beartype
 def log_execution_result(nr_of_items: int, next_nr_steps: int) -> None:
     msg = f"got {nr_of_items}, requested {next_nr_steps}"
-    progressbar_description([msg]) if nr_of_items > 0 else print_debug(msg)
+    if nr_of_items > 0:
+        progressbar_description([msg])
+    else:
+        print_debug(msg)
 
 @beartype
 def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
@@ -6596,15 +6599,14 @@ def show_pareto_frontier_data() -> None:
                     num_points=count_done_jobs()
                 )
 
-                collected_data.append((metric_i, metric_j, calculated_frontier))
+                collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
 
             except ax.exceptions.core.DataRequiredError as e:  # pragma: no cover
                 print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
 
             progress.update(task, advance=1)
 
-    # Nach dem Sammeln: Daten verarbeiten und ausgeben
-    for metric_i, metric_j, calculated_frontier in collected_data:
+    for i, j, metric_i, metric_j, calculated_frontier in collected_data:
         plot_pareto_frontier_sixel(calculated_frontier, i, j)
 
         if metric_i.name not in pareto_front_data:

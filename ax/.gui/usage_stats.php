@@ -102,7 +102,7 @@
 			}
 			fclose($handle);
 
-			print("Succesful inserts: $successful_inserts, failed inserts: $failed_inserts\n");
+			print("Successful inserts: $successful_inserts, failed inserts: $failed_inserts\n");
 		} else {
 			print("Failed to load CSV file");
 		}

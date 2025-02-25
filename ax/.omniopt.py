@@ -2369,11 +2369,11 @@ def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]]
     weights = [float(w.strip()) for w in weights_string.split(",") if w.strip()]
 
     if len(weights) > len(_args):
-        print_yellow(f"Warning: Trimming {len(weights) - len(_args)} extra weight(s): {weights[len(_args):]}")
+        print_yellow(f"calculate_signed_weighted_euclidean_distance: Warning: Trimming {len(weights) - len(_args)} extra weight(s): {weights[len(_args):]}")
         weights = weights[:len(_args)]
 
     if len(weights) < len(_args):
-        print_yellow("Warning: Not enough weights, filling with 1s")
+        print_yellow("calculate_signed_weighted_euclidean_distance: Warning: Not enough weights, filling with 1s")
         weights.extend([1] * (len(_args) - len(weights)))
 
     if len(_args) != len(weights): # pragma: no cover

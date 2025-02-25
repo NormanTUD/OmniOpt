@@ -295,18 +295,19 @@
 		$statistics = calculate_statistics_from_db($db_path);
 		display_statistics($statistics);
 
-		$plots = [
-			'exit-codes',
-			'runs',
-			'runtimes',
-			'runtime-vs-exit-code',
-			'exit-code-pie',
-			'avg-runtime-bar',
-			'runtime-box',
-			'top-users'
-		];
+		$plots = array(
+			"Exit-Code distribution" => 'exit-codes',
+			"Runs" => 'runs',
+			"Runtimes" => 'runtimes',
+			"Runtime vs. exit code" => 'runtime-vs-exit-code',
+			"Exit-Code piechart" => 'exit-code-pie',
+			"Average runtime" => 'avg-runtime-bar',
+			"Runtime box plot" => 'runtime-box',
+			"Top users" => 'top-users'
+		);
 
-		foreach ($plots as $plot) {
+		foreach ($plots as $plot_header => $plot) {
+			echo "<h2>$plot_header</h2>\n";
 			echo "<div class='usage_plot' id='$element_id-$plot' style='height: 400px;'></div>";
 		}
 

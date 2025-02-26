@@ -860,11 +860,6 @@ EOF
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
 		_show_ram_every_n_seconds $show_ram_every_n_seconds &
-
-
-		sleep 100
-
-		exit
 	fi
 
 	function get_config_from_config_file {

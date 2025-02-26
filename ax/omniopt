@@ -52,8 +52,12 @@
 	MAGENTA='\033[0;35m'
 	NC='\033[0m'
 
+	function show_ram {
+		grep VmRSS /proc/$$/status | awk '{print $2 / 1024 " MB"}'
+	}
+
 	function set_debug {
-		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
+		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC} (RAM: $(show_ram))"' DEBUG
 	}
 
 	function unset_debug {

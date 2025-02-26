@@ -32,6 +32,10 @@ num_parallel_jobs=2
 num_random_steps=2
 install_slurm=false
 generate_all_jobs_at_once=0
+live_share=0
+send_anonymized_usage_stats=0
+max_nr_of_zero=3
+model=BOTORCH_MODULAR
 
 usage() {
 	echo "Usage: $0 [OPTIONS]"
@@ -42,9 +46,13 @@ usage() {
 	echo "  --worker_timeout=TIME         Timeout for workers (default: 1)"
 	echo "  --max_eval=MAX_EVAL           Maximum number of evaluations (default: 4)"
 	echo "  --num_parallel_jobs=NUM       Number of parallel jobs (default: 2)"
+	echo "  --model=<model name>          Name of the systematic mode (default: BOTORCH_MODULAR)"
 	echo "  --num_random_steps=NUM        Number of random steps (default: 2)"
 	echo "  --install_slurm               Install SLURM in Docker (default: false)"
 	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
+	echo "  --live_share                  Enable live share"
+	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
+	echo "  --max_nr_of_zero=NUM          The max. nr. of zero-jobs (default: 3)"
 	echo "  --stop                        Stop the Docker container"
 	echo "  --help                        Show this help message"
 	exit 1
@@ -87,12 +95,28 @@ for arg in "$@"; do
 				exit 1
 			fi
 			;;
+		--max_nr_of_zero=*)
+			max_nr_of_zero="${arg#*=}"
+			if ! [[ "$max_nr_of_zero" =~ ^[0-9]+$ ]]; then
+				echo "Error: --max_nr_of_zero must be an integer."
+				exit 1
+			fi
+			;;
+		--model=*)
+			model="${arg#*=}"
+			;;
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${arg#*=}"
 			if ! [[ "$num_parallel_jobs" =~ ^[0-9]+$ ]]; then
 				echo "Error: --num_parallel_jobs must be an integer."
 				exit 1
 			fi
+			;;
+		--send_anonymized_usage_stats)
+			send_anonymized_usage_stats=1
+			;;
+		--live_share)
+			live_share=1
 			;;
 		--generate_all_jobs_at_once)
 			generate_all_jobs_at_once=1
@@ -153,13 +177,12 @@ else
 	done
 fi
 
-#    --live_share
 #    --send_anonymized_usage_stats
 
 cmd=(
     docker exec slurm-frontend bash /oo_dir/omniopt
-    --partition alpha
-    --experiment_name __main__tests__BOTORCH_MODULAR___nogridsearch
+    --partition is_ignored_here
+    --experiment_name slurm_in_docker_test
     --mem_gb="$mem_gb"
     --time="$time"
     --worker_timeout="$worker_timeout"
@@ -172,14 +195,22 @@ cmd=(
     --parameter int_param_two range -100 10 int
     --follow
     --num_random_steps "$num_random_steps"
-    --model BOTORCH_MODULAR
+    --model $model
     --auto_exclude_defective_hosts
     --hide_ascii_plots
-    --max_nr_of_zero 3
+    --max_nr_of_zero $max_nr_of_zero
 )
 
 if [[ "$generate_all_jobs_at_once" == "1" ]]; then
 	cmd+=("--generate_all_jobs_at_once")
+fi
+
+if [[ "$send_anonymized_usage_stats" == "1" ]]; then
+	cmd+=("--send_anonymized_usage_stats")
+fi
+
+if [[ "$live_share" == "1" ]]; then
+	cmd+=("--live_share")
 fi
 
 "${cmd[@]}"

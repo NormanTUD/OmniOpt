@@ -158,11 +158,9 @@ if $install_slurm; then
 	for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9][0-9]*:" | sed -e 's#^\s*##' -e 's#:\s*##'); do
 		docker-compose build $nodename
 	done
-
-	docker-compose -f docker-compose.yml up -d --remove-orphans
-else
-	docker-compose -f docker-compose.yml up -d --remove-orphans
 fi
+
+docker-compose -f docker-compose.yml up -d --remove-orphans
 
 for i in frontend master node; do
 	rm $i/slurm.conf

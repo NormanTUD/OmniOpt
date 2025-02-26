@@ -54,7 +54,7 @@
 
 	function end_all_bg_processes {
 		for bg_job_id in $(jobs -p | sed -e 's#.*]\s*+\s*##' -e 's#\s.*##'); do
-			kill $bg_job_id
+			kill $bg_job_id 2>/dev/null >/dev/null
 		done
 	}
 

@@ -73,8 +73,6 @@
 		echo "uuidgen is not installed. It's recommended you install it." >&2
 	fi
 
-	_show_ram_counter=0
-
 	function show_ram {
 		ram_self=$(grep VmRSS /proc/$$/status | awk '{print $2 / 1024}')
 		ram_children=0
@@ -102,7 +100,7 @@
 		echo -e "RAM of main bash script: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
 
 		if [[ -n $RUN_UUID ]]; then
-			if [[ $_show_ram_counter -eq 0 ]]; then
+			if ! [[ -e "logs/${RUN_UUID}_ram_log" ]]; then
 				echo "time,ram,ram_children" > "logs/${RUN_UUID}_ram_log"
 			fi
 
@@ -112,8 +110,6 @@
 
 		prev_self=$ram_self
 		prev_children=$ram_children
-
-		_show_ram_counter=$((_show_ram_counter+1))
 	}
 
 	function _show_ram_every_n_seconds {

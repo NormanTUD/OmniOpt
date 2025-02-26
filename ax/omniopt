@@ -140,33 +140,36 @@
 	MAIN_PID=$$
 
 	log_cpu_usage() {
-		[[ -z "$RUN_UUID" ]] && return
-		command -v ps 2>/dev/null >/dev/null || return
+		if [[ -n "$RUN_UUID" ]]; then
+			if command -v ps 2>/dev/null >/dev/null; then
+				mkdir -p logs
 
-		mkdir -p logs
+				LOG_FILE="logs/${RUN_UUID}_cpu_log"
 
-		LOG_FILE="logs/${RUN_UUID}_cpu_log"
+				[[ ! -f "$LOG_FILE" ]] && echo "timestamp,process,command,cpu_usage" > "$LOG_FILE"
+				
+				_continue=1
 
-		[[ ! -f "$LOG_FILE" ]] && echo "timestamp,process,command,cpu_usage" > "$LOG_FILE"
+				while [[ $_continue -eq 1 ]]; do
+					if ! kill -0 "$MAIN_PID" 2>/dev/null; then
+						_continue=0
+					fi
 
-		while true; do
-			if ! kill -0 "$MAIN_PID" 2>/dev/null; then
-				return
+					TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+					if [[ -e "$LOG_FILE" ]]; then
+						ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
+					else
+						_continue=0
+					fi
+
+					sleep 1
+				done &
 			fi
-
-			TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-
-			if [[ -e "$LOG_FILE" ]]; then
-				ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
-			else
-				return
-			fi
-
-			sleep 1
-		done &
+		fi
 	}
 
-	log_cpu_usage &
+	#log_cpu_usage &
 
 	checkout_to_latest_tested_version=0
 	debug=0

@@ -150,6 +150,7 @@
 
 		while true; do
 			if ! kill -0 "$MAIN_PID" 2>/dev/null; then
+				echo "Main pid $MAIN_PID not found. Exiting log_cpu_usage." >&2
 				return
 			fi
 
@@ -158,6 +159,7 @@
 			if [[ -e "$LOG_FILE" ]]; then
 				ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
 			else
+				echo "$LOG_FILE not found. Exiting log_cpu_usage"
 				return
 			fi
 

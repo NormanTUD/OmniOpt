@@ -318,6 +318,8 @@
 	function myexit {
 		CODE=$1
 
+		end_all_bg_processes
+
 		if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
 			send_status_report -1
 		else
@@ -1720,9 +1722,5 @@ EOF
 			echo "No exit-code could be found. Exiting with exit-code 3."
 		fi
 		myexit 3
-	fi
-
-	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
-		end_all_bg_processes
 	fi
 }

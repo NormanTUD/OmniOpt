@@ -1591,6 +1591,7 @@ php
 PHP
 phpcs
 picklefile
+piechart
 PIL
 pipefail
 plotable
@@ -1619,6 +1620,7 @@ posProperty
 postMessage
 postProcess
 powerpc
+ppid
 pprint
 ppt
 pptx
@@ -2439,4 +2441,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-piechart

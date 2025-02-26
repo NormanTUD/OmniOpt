@@ -35,6 +35,7 @@ generate_all_jobs_at_once=0
 live_share=0
 send_anonymized_usage_stats=0
 max_nr_of_zero=3
+nr_nodes=4
 model=BOTORCH_MODULAR
 
 usage() {
@@ -49,6 +50,7 @@ usage() {
 	echo "  --model=<model name>          Name of the systematic mode (default: BOTORCH_MODULAR)"
 	echo "  --num_random_steps=NUM        Number of random steps (default: 2)"
 	echo "  --install_slurm               Install SLURM in Docker (default: false)"
+	echo "  --nr_nodes=INT                Some integer for the amount of nodes that should be created (default: 4)"
 	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
 	echo "  --live_share                  Enable live share"
 	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
@@ -56,6 +58,70 @@ usage() {
 	echo "  --stop                        Stop the Docker container"
 	echo "  --help                        Show this help message"
 	exit 1
+}
+
+function create_docker_compose_yml {
+	nr_nodes=$1
+
+	nodes=""
+
+	for n in $(seq 1 $nr_nodes); do
+nodes="$nodes
+  slurmnode$n:
+        build:
+          context: ./node
+          dockerfile: Dockerfile
+        container_name: slurm-node$n
+        shm_size: '4g'
+        hostname: slurmnode$n
+        user: admin
+        volumes:
+                - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
+        environment:
+                - SLURM_NODENAME=slurmnode$n
+                - SLURM_CPUS_ON_NODE=1
+        links:
+                - slurmmaster
+"
+	done
+
+	echo "services:
+  slurmfrontend:
+        build:
+          context: ./frontend
+          dockerfile: Dockerfile
+        container_name: slurm-frontend
+        shm_size: '4g'
+        hostname: slurmfrontend
+        user: admin
+        volumes:
+                - shared-vol:/home/admin
+                - ../../:/oo_dir
+        ports:
+                - 8888:8888
+  slurmmaster:
+        build:
+          context: ./master
+          dockerfile: Dockerfile
+        container_name: slurm-master
+        shm_size: '4g'
+        hostname: slurmmaster
+        user: admin
+        volumes:
+                - shared-vol:/home/admin:nocopy
+                - ../../:/oo_dir
+        environment:
+                - SLURM_CPUS_ON_NODE=1
+        ports:
+                - 6817:6817
+                - 6818:6818
+                - 6819:6819
+
+$nodes
+
+volumes:
+        shared-vol:"
 }
 
 for arg in "$@"; do
@@ -105,6 +171,13 @@ for arg in "$@"; do
 		--model=*)
 			model="${arg#*=}"
 			;;
+		--nr_nodes=*)
+			nr_nodes="${arg#*=}"
+			if ! [[ "$nr_nodes" =~ ^[0-9]+$ ]]; then
+				echo "Error: --nr_nodes must be an integer."
+				exit 1
+			fi
+			;;
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${arg#*=}"
 			if ! [[ "$num_parallel_jobs" =~ ^[0-9]+$ ]]; then
@@ -125,7 +198,9 @@ for arg in "$@"; do
 			install_slurm=true
 			;;
 		--stop)
+			create_docker_compose_yml $nr_nodes > docker-compose.yml
 			docker-compose -f docker-compose.yml stop
+			rm docker-compose.yml
 			exit 0
 			;;
 		--help)
@@ -141,6 +216,8 @@ done
 for i in frontend master node; do
 	cp slurm.conf $i/
 done
+
+create_docker_compose_yml $nr_nodes > docker-compose.yml
 
 if $install_slurm; then
 	if ! command -v docker-compose 2>/dev/null >/dev/null; then
@@ -161,6 +238,7 @@ if $install_slurm; then
 fi
 
 docker-compose -f docker-compose.yml up -d --remove-orphans
+rm docker-compose.yml
 
 for i in frontend master node; do
 	rm $i/slurm.conf

@@ -149,7 +149,11 @@
 		while true; do
 			TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-			ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
+			if [[ -e "$LOG_FILE" ]]; then
+				ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
+			else
+				return
+			fi
 
 			sleep 1
 		done &

@@ -6137,7 +6137,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     try:
         if trial_index_to_param:
             res = len(trial_index_to_param.keys())
-            print_debug(f"Returning len(trial_index_to_param.keys()): {res}")
+            print_debug(f"create_and_execute_next_runs: Returning len(trial_index_to_param.keys()): {res}")
             return res
 
         print_debug(f"Warning: trial_index_to_param is not true. It, stringified, looks like this: {trial_index_to_param}. Returning 0.")

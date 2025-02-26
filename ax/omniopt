@@ -66,11 +66,20 @@
 			ram_children=$(awk -v a="$ram_children" -v b="$child_ram" 'BEGIN {print a + b}')
 		done
 
-		local color_self="\e[32m"
-		local color_children="\e[32m"
+		local color_self=""
+		local color_children=""
 
-		(( $(echo "$ram_self > $prev_self" | bc -l) )) && color_self="\e[31m"
-		(( $(echo "$ram_children > $prev_children" | bc -l) )) && color_children="\e[31m"
+		if (( $(echo "$ram_self > $prev_self" | bc -l) )); then
+			color_self="\e[31m"
+		elif (( $(echo "$ram_self < $prev_self" | bc -l) )); then
+			color_self="\e[32m"
+		fi
+
+		if (( $(echo "$ram_children > $prev_children" | bc -l) )); then
+			color_children="\e[31m"
+		elif (( $(echo "$ram_children < $prev_children" | bc -l) )); then
+			color_children="\e[32m"
+		fi
 
 		echo -e "RAM: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
 

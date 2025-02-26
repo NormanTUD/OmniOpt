@@ -302,6 +302,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--generate_all_jobs_at_once)
 			generate_all_jobs_at_once=1
+			;;
 		--allow_failure)
 			allow_failure=1
 			;;

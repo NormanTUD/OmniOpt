@@ -26,7 +26,7 @@ cd $SCRIPT_DIR
 
 mem_gb=1
 time=60
-worker_timeout=5
+worker_timeout=1
 max_eval=4
 num_parallel_jobs=2
 num_random_steps=2
@@ -39,7 +39,7 @@ usage() {
 	echo "Options:"
 	echo "  --mem_gb=MEM_GB               Memory in GB (default: 1)"
 	echo "  --time=TIME                   Time in minutes (default: 60)"
-	echo "  --worker_timeout=TIME         Timeout for workers (default: 5)"
+	echo "  --worker_timeout=TIME         Timeout for workers (default: 1)"
 	echo "  --max_eval=MAX_EVAL           Maximum number of evaluations (default: 4)"
 	echo "  --num_parallel_jobs=NUM       Number of parallel jobs (default: 2)"
 	echo "  --num_random_steps=NUM        Number of random steps (default: 2)"

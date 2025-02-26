@@ -148,6 +148,8 @@ def makedirs(p: str) -> bool:
 
     return False
 
+print_debug_once_list: List = []
+
 YELLOW: str = "\033[93m"
 RESET: str = "\033[0m"
 
@@ -301,6 +303,13 @@ def print_debug(msg: str) -> None:
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e: # pragma: no cover
         original_print("_debug: Error trying to write log file: " + str(e))
+
+@beartype
+def print_debug_once(msg: str) -> None:
+    global print_debug_once_list
+    if msg not in print_debug_once_list:
+        print_debug(msg)
+        print_debug_once_list.append(msg)
 
 @beartype
 def my_exit(_code: int = 0) -> None:
@@ -1941,7 +1950,7 @@ class MonitorProcess:
         self.thread = threading.Thread(target=self._monitor)
         self.thread.daemon = True
 
-        print_debug(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
+        print_debug_once(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
 
     def _monitor(self: Any) -> None:
         try:

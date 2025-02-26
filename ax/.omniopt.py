@@ -280,6 +280,8 @@ def _get_debug_json(time_str: str, msg: str) -> str:
 
 @beartype
 def print_debug(msg: str) -> None:
+    original_msg = msg
+
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     stack_trace_element = _get_debug_json(time_str, msg)
@@ -293,7 +295,7 @@ def print_debug(msg: str) -> None:
 
     try:
         with open(logfile_bare, mode='a', encoding="utf-8") as f:
-            original_print(msg, file=f)
+            original_print(original_msg, file=f)
     except FileNotFoundError: # pragma: no cover
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run

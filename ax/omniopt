@@ -558,12 +558,14 @@
 			if [[ -n "$SLURM_JOB_ID" ]]; then
 				if [[ $python_pid =~ $re ]] ; then
 					if [[ -z "$already_sent_signal" ]]; then
-						if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
-							already_sent_signal=1
-							echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
-							kill -USR1 "$python_pid"
-						else
-							echo "Could not find $python_pid process" >&2
+						if command -v ps 2>/dev/null >/dev/null; then
+							if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
+								already_sent_signal=1
+								echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
+								kill -USR1 "$python_pid"
+							else
+								echo "Could not find $python_pid process" >&2
+							fi
 						fi
 					fi
 				fi
@@ -1460,11 +1462,15 @@ EOF
 
 		sleep 10
 
-		for child in $(pgrep -P $$); do
-			for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
-				kill -9 "$tail_process"
-			done
-		done
+		if command -v pgrep 2>/dev/null >/dev/null; then
+			if command -v ps 2>/dev/null >/dev/null; then
+				for child in $(pgrep -P $$); do
+					for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
+						kill -9 "$tail_process"
+					done
+				done
+			fi
+		fi
 
 		return 0
 	}

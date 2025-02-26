@@ -224,6 +224,7 @@ makedirs(LOG_DIR)
 
 log_uuid_dir = f"{LOG_DIR}/{run_uuid}"
 logfile: str = f'{log_uuid_dir}_log'
+logfile_bare: str = f'{log_uuid_dir}_log_bare'
 logfile_nr_workers: str = f'{log_uuid_dir}_nr_workers'
 logfile_progressbar: str = f'{log_uuid_dir}_progressbar'
 logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
@@ -289,6 +290,15 @@ def print_debug(msg: str) -> None:
     #    original_print(msg)
 
     _debug(msg)
+
+    try:
+        with open(logfile_bare, mode='a', encoding="utf-8") as f:
+            original_print(msg, file=f)
+    except FileNotFoundError: # pragma: no cover
+        print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
+        sys.exit(99) # generalized code for run folder deleted during run
+    except Exception as e: # pragma: no cover
+        original_print("_debug: Error trying to write log file: " + str(e))
 
 @beartype
 def my_exit(_code: int = 0) -> None:

@@ -56,11 +56,11 @@
 	prev_children=0
 
 	function show_ram {
-		local ram_self=$(grep VmRSS /proc/$$/status | awk '{print $2 / 1024}')
-		local ram_children=0
+		ram_self=$(grep VmRSS /proc/$$/status | awk '{print $2 / 1024}')
+		ram_children=0
 
 		for pid in $(pgrep -P $$); do
-			local child_ram=$(grep VmRSS /proc/$pid/status 2>/dev/null | awk '{print $2 / 1024}')
+			child_ram=$(grep VmRSS /proc/$pid/status 2>/dev/null | awk '{print $2 / 1024}')
 			ram_children=$(awk -v a="$ram_children" -v b="$child_ram" 'BEGIN {print a + b}')
 		done
 

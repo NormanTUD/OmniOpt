@@ -52,6 +52,8 @@
 	MAGENTA='\033[0;35m'
 	NC='\033[0m'
 
+	show_ram_every_n_seconds=0
+
 	prev_self=0
 	prev_children=0
 
@@ -76,6 +78,14 @@
 		prev_children=$ram_children
 	}
 
+	function _show_ram_every_n_seconds {
+		n=$1
+		while true; do
+			date_str=$(date +"%Y-%m-%d %H:%M:%S")
+			echo -e "$date_str -> $(show_ram)" >&2
+			sleep $n
+		done
+	}
 
 	function set_debug {
 		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC} (RAM: $(show_ram))"' DEBUG
@@ -792,6 +802,19 @@ $complex_options_str
 
 			;;
 
+		--show_ram_every_n_seconds=*)
+			show_ram_every_n_seconds="\${i#*=}"
+
+			;;
+
+		--show_ram_every_n_seconds)
+			shift
+			k=\$((k+1))
+
+			show_ram_every_n_seconds="\${args[k]}"
+
+			;;
+
 		-h|--help)
 			help=1
 			args_string+=" --help "
@@ -833,6 +856,16 @@ EOF
 	)
 
 	eval "$PARAM_EVAL"
+
+
+	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
+		_show_ram_every_n_seconds $show_ram_every_n_seconds &
+
+
+		sleep 100
+
+		exit
+	fi
 
 	function get_config_from_config_file {
 		key="$1"

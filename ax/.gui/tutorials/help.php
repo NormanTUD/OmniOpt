@@ -335,6 +335,11 @@
 				<td colspan="3">Debug</td>
 			</tr>
 			<tr>
+				<td><samp>--show_ram_every_n_seconds=n</samp></td>
+				<td>Shows the amount RAM used every n (int) seconds.</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--verbose</samp></td>
 				<td>Verbose logging.</td>
 				<td><samp>False</samp></td>

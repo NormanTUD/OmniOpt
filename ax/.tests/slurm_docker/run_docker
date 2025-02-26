@@ -39,8 +39,6 @@ nr_nodes=4
 model=BOTORCH_MODULAR
 
 cleanup() {
-	echo "Cleanup läuft..."
-	# Hier weitere Bereinigungen oder Aktionen einfügen
 	if [[ -e slurm.conf ]]; then
 		rm slurm.conf
 	fi
@@ -304,6 +302,8 @@ docker-compose -f docker-compose.yml up -d --remove-orphans
 for i in frontend master node; do
 	rm $i/slurm.conf
 done
+
+cleanup
 
 cmd=(
 	docker exec slurm-frontend bash /oo_dir/omniopt

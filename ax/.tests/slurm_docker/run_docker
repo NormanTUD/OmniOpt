@@ -241,7 +241,7 @@ for arg in "$@"; do
 			install_slurm=true
 			;;
 		--stop)
-			create_docker_compose_yml $nr_nodes
+			create_docker_compose_yml $(docker ps | grep slurmnode | wc -l)
 			docker-compose -f docker-compose.yml stop
 			rm docker-compose.yml
 			exit 0

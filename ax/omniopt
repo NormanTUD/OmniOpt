@@ -1669,6 +1669,8 @@ EOF
 	fi
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
-		kill %1
+		for bg_job_id in $(jobs -p | sed -e 's#.*]\s*+\s*##' -e 's#\s.*##'); do
+			kill $bg_job_id
+		done
 	fi
 }

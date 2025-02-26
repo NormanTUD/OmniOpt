@@ -81,7 +81,7 @@
 			color_children="\e[32m"
 		fi
 
-		echo -e "RAM: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
+		echo -e "RAM of main bash script: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
 
 		prev_self=$ram_self
 		prev_children=$ram_children

@@ -256,6 +256,9 @@ for arg in "$@"; do
 	esac
 done
 
+if [[ $num_parallel_jobs -gt $nr_nodes ]]; then
+	echo "!!! More parallel jobs than number of nodes-about-to-be-created."
+fi
 
 create_slurm_conf $nr_nodes
 

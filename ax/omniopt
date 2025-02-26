@@ -52,6 +52,14 @@
 	MAGENTA='\033[0;35m'
 	NC='\033[0m'
 
+	function end_all_bg_processes {
+		for bg_job_id in $(jobs -p | sed -e 's#.*]\s*+\s*##' -e 's#\s.*##'); do
+			kill $bg_job_id
+		done
+	}
+
+	trap end_all_bg_processes EXIT
+
 	show_ram_every_n_seconds=0
 
 	prev_self=0
@@ -128,6 +136,26 @@
 	function unset_debug {
 		trap - DEBUG
 	}
+
+	log_cpu_usage() {
+		[[ -z "$RUN_UUID" ]] && return
+
+		mkdir -p logs
+
+		LOG_FILE="logs/${RUN_UUID}_cpu_log"
+
+		[[ ! -f "$LOG_FILE" ]] && echo "timestamp,process,command,cpu_usage" > "$LOG_FILE"
+
+		while true; do
+			TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+			ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
+
+			sleep 1
+		done &
+	}
+
+	log_cpu_usage &
 
 	checkout_to_latest_tested_version=0
 	debug=0
@@ -1678,8 +1706,6 @@ EOF
 	fi
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
-		for bg_job_id in $(jobs -p | sed -e 's#.*]\s*+\s*##' -e 's#\s.*##'); do
-			kill $bg_job_id
-		done
+		end_all_bg_processes
 	fi
 }

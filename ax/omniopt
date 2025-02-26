@@ -58,7 +58,7 @@
 		done
 	}
 
-	trap end_all_bg_processes EXIT
+	#trap end_all_bg_processes EXIT
 
 	show_ram_every_n_seconds=0
 

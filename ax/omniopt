@@ -52,16 +52,28 @@
 	MAGENTA='\033[0;35m'
 	NC='\033[0m'
 
+	prev_self=0
+	prev_children=0
+
 	function show_ram {
 		local ram_self=$(grep VmRSS /proc/$$/status | awk '{print $2 / 1024}')
-
 		local ram_children=0
+
 		for pid in $(pgrep -P $$); do
 			local child_ram=$(grep VmRSS /proc/$pid/status 2>/dev/null | awk '{print $2 / 1024}')
 			ram_children=$(awk -v a="$ram_children" -v b="$child_ram" 'BEGIN {print a + b}')
 		done
 
-		echo "RAM: ${ram_self} MB, RAM of children: ${ram_children} MB"
+		local color_self="\e[32m"
+		local color_children="\e[32m"
+
+		(( $(echo "$ram_self > $prev_self" | bc -l) )) && color_self="\e[31m"
+		(( $(echo "$ram_children > $prev_children" | bc -l) )) && color_children="\e[31m"
+
+		echo -e "RAM: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
+
+		prev_self=$ram_self
+		prev_children=$ram_children
 	}
 
 

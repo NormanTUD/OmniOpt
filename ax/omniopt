@@ -1536,28 +1536,28 @@ EOF
 
 	    if [[ $debug -eq 1 ]]; then
 		    set_debug
-	    fi
+			fi
 
-	    set -e
+			set -e
 
-	    printf "\r"
+			printf "\r"
 
-	    _tput el
+			_tput el
 
-	    if [[ -e "$LOG_PATH" ]]; then
-		    kill_tail_when_squeue_job_empty "$started_job_nr" &
-		    # weird exec stuff for disabling the "Terminated" message coming from kill
-		    exec 3>&2          # 3 is now a copy of 2
-		    exec 2> /dev/null  # 2 now points to /dev/null
-		    tail -n1000000 -f "$LOG_PATH" || true
-		    exec 2>&3          # restore stderr to saved
-		    exec 3>&-          # close saved version
+			if [[ -e "$LOG_PATH" ]]; then
+				kill_tail_when_squeue_job_empty "$started_job_nr" &
+				# weird exec stuff for disabling the "Terminated" message coming from kill
+				exec 3>&2          # 3 is now a copy of 2
+				exec 2> /dev/null  # 2 now points to /dev/null
+				tail -n1000000 -f "$LOG_PATH" || true
+				exec 2>&3          # restore stderr to saved
+				exec 3>&-          # close saved version
 
-		    exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
-	    else
-		    red_text "$LOG_PATH could not be found"
-	    fi
-				fi
+				exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
+			else
+				red_text "$LOG_PATH could not be found"
+			fi
+		fi
 			elif [[ "$wait_until_ended" -eq "1" ]]; then
 				if command -v squeue 2>/dev/null >/dev/null; then
 					WAIT_NUM_SECONDS=10

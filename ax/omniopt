@@ -141,6 +141,7 @@
 
 	log_cpu_usage() {
 		[[ -z "$RUN_UUID" ]] && return
+		command -v ps 2>/dev/null >/dev/null || return
 
 		mkdir -p logs
 

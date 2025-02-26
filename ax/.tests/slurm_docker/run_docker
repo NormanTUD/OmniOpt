@@ -169,25 +169,25 @@ for i in frontend master node; do
 done
 
 cmd=(
-    docker exec slurm-frontend bash /oo_dir/omniopt
-    --partition is_ignored_here
-    --experiment_name slurm_in_docker_test
-    --mem_gb="$mem_gb"
-    --time="$time"
-    --worker_timeout="$worker_timeout"
-    --max_eval="$max_eval"
-    --num_parallel_jobs="$num_parallel_jobs"
-    --gpus 0
-    --run_program "$(echo -n 'echo "RESULT: %(int_param)%(int_param_two)%(float_param)"' | base64 -w 0)"
-    --parameter int_param range -100 10 int
-    --parameter float_param range -100 10 float
-    --parameter int_param_two range -100 10 int
-    --follow
-    --num_random_steps "$num_random_steps"
-    --model $model
-    --auto_exclude_defective_hosts
-    --hide_ascii_plots
-    --max_nr_of_zero $max_nr_of_zero
+	docker exec slurm-frontend bash /oo_dir/omniopt
+	--partition is_ignored_here
+	--experiment_name slurm_in_docker_test
+	--mem_gb="$mem_gb"
+	--time="$time"
+	--worker_timeout="$worker_timeout"
+	--max_eval="$max_eval"
+	--num_parallel_jobs="$num_parallel_jobs"
+	--gpus 0
+	--run_program "$(echo -n 'echo "RESULT: %(int_param)%(int_param_two)%(float_param)"' | base64 -w 0)"
+	--parameter int_param range -100 10 int
+	--parameter float_param range -100 10 float
+	--parameter int_param_two range -100 10 int
+	--follow
+	--num_random_steps "$num_random_steps"
+	--model $model
+	--auto_exclude_defective_hosts
+	--hide_ascii_plots
+	--max_nr_of_zero $max_nr_of_zero
 )
 
 if [[ "$generate_all_jobs_at_once" == "1" ]]; then

@@ -49,23 +49,24 @@ trap 'calltracer' ERR
 # Help Function
 function help () {
 	echo "Possible options:"
-	echo "  --max_eval=(INT)          Maximum number of evaluations for this test"
-	echo "  --mem_gb=(INT)            Memory in GB (0 for all)"
-	echo "  --num_parallel_jobs=(INT) Maximum number of parallel workers for this test"
-	echo "  --num_random_steps=(INT)  Number of random steps"
-	echo "  --model=STR               Model name"
-	echo "  --gridsearch              Perform grid search"
-	echo "  --gpus=(INT)              Number of GPUs per worker"
-	echo "  --time=(INT)              Time each subjob should run"
-	echo "  --allow_failure           Adds a parameter to randomly fail"
-	echo "  --force_local_execution   Run locally even if SLURM is installed"
-	echo "  --all_float               Use all_float logic"
-	echo "  --one_param               One parameter"
-	echo "  --two_params              Two parameters"
-	echo "  --nr_results=1            Nr of 'RESULT's (default: 1)"
-	echo "  --alternate_min_max       Alternate min/max when nr_results > 1"
-	echo "  --help                    This help"
-	echo "  --debug                   Enable debug mode"
+	echo "  --max_eval=(INT)             Maximum number of evaluations for this test"
+	echo "  --mem_gb=(INT)               Memory in GB (0 for all)"
+	echo "  --num_parallel_jobs=(INT)    Maximum number of parallel workers for this test"
+	echo "  --num_random_steps=(INT)     Number of random steps"
+	echo "  --model=STR                  Model name"
+	echo "  --gridsearch                 Perform grid search"
+	echo "  --gpus=(INT)                 Number of GPUs per worker"
+	echo "  --time=(INT)                 Time each subjob should run"
+	echo "  --allow_failure              Adds a parameter to randomly fail"
+	echo "  --force_local_executio n     Run locally even if SLURM is installed"
+	echo "  --all_float                  Use all_float logic"
+	echo "  --one_param                  One parameter"
+	echo "  --two_params                 Two parameters"
+	echo "  --nr_results=1               Nr of 'RESULT's (default: 1)"
+	echo "  --alternate_min_max          Alternate min/max when nr_results > 1"
+	echo "  --generate_all_jobs_at_once  Generate all jobs at once"
+	echo "  --help                       This help"
+	echo "  --debug                      Enable debug mode"
 	exit $1
 }
 
@@ -100,6 +101,7 @@ all_float=0
 one_param=0
 alternate_min_max=0
 nr_results=1
+generate_all_jobs_at_once=0
 
 function parse_argument() {
 	local arg="$1"
@@ -298,6 +300,8 @@ while [ $k -lt ${#args[@]} ]; do
 		--force_local_execution)
 			force_local_execution=1
 			;;
+		--generate_all_jobs_at_once)
+			generate_all_jobs_at_once=1
 		--allow_failure)
 			allow_failure=1
 			;;
@@ -415,6 +419,10 @@ elif [[ "$two_params" -eq "1" ]]; then
 	omniopt_cmd=$(build_omniopt_command_two_params)
 else
 	omniopt_cmd=$(build_omniopt_command_standard)
+fi
+
+if [[ "$generate_all_jobs_at_once" -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --generate_all_jobs_at_once"
 fi
 
 green_text "$omniopt_cmd"

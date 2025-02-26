@@ -322,6 +322,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--show_ram_every_n_seconds=*|--show_ram_every_n_seconds)
 			parse_argument "$i" "show_ram_every_n_seconds" 1
+			;;
 		--mem_gb=*|--mem_gb)
 			parse_argument "$i" "mem_gb" 1
 			;;

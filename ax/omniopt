@@ -137,6 +137,8 @@
 		trap - DEBUG
 	}
 
+	MAIN_PID=$$
+
 	log_cpu_usage() {
 		[[ -z "$RUN_UUID" ]] && return
 
@@ -147,6 +149,10 @@
 		[[ ! -f "$LOG_FILE" ]] && echo "timestamp,process,command,cpu_usage" > "$LOG_FILE"
 
 		while true; do
+			if ! kill -0 "$MAIN_PID" 2>/dev/null; then
+				return
+			fi
+
 			TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
 			if [[ -e "$LOG_FILE" ]]; then

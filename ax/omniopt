@@ -1667,4 +1667,8 @@ EOF
 		fi
 		myexit 3
 	fi
+
+	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
+		kill %1
+	fi
 }

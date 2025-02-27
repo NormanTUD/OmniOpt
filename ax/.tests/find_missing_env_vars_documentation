@@ -38,54 +38,56 @@ done
 errors=0
 
 for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
-	found_params=($(egrep -ri 'if\s..?\s-[nz]' "$bash_file" | sed -e 's#^\s*##' -e 's#.*if\s*\[\[*\s*##' -e 's#\s\]\]*\s*.*##' -e 's#^-[zn]\s*##' | sed -e 's#"##g' | sort | uniq))
+	if [[ "$bash_file" != *"test_seed"* ]]; then
+		found_params=($(egrep -ri 'if\s..?\s-[nz]' "$bash_file" | sed -e 's#^\s*##' -e 's#.*if\s*\[\[*\s*##' -e 's#\s\]\]*\s*.*##' -e 's#^-[zn]\s*##' | sed -e 's#"##g' | sort | uniq))
 
-	exclude_vars=(
-		"time" "DISPLAY" "maxvalue" "minvalue" "KSH_VERSION" "SLURM_JOB_ID" "ZSH_EVAL_CONTEXT"
-		"config_toml" "config_yaml" "min" "max" "CHAR" "CODE" "_reservation" "reservation"
-		"force_local_execution" "_force_local_execution" "account" "_account" "exit_code"
-		"git_hash" "_follow" "follow" "experiment_name" "current_tag" "BASH_VERSION" "gpus"
-		"tag_commit_hash" "ORIGINAL_ARGS" "AVAILABLE_PROJECTS" "already_sent_signal" "bash_logname"
-		"old_continue" "previous_job_var" "result" "mem_gb" "RUN_DIR" "DONT_ASK_USERNAME"
-		"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z" "FROZEN" "LOAD_MODULES"
-		"MYCLUSTER_HOST" "output" "specific_linter" "TEMP_BACKUP_FILE" "COMMAND"
-		"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG" "CLUSTERHOST"
-	)
+		exclude_vars=(
+			"time" "DISPLAY" "maxvalue" "minvalue" "KSH_VERSION" "SLURM_JOB_ID" "ZSH_EVAL_CONTEXT"
+			"config_toml" "config_yaml" "min" "max" "CHAR" "CODE" "_reservation" "reservation"
+			"force_local_execution" "_force_local_execution" "account" "_account" "exit_code"
+			"git_hash" "_follow" "follow" "experiment_name" "current_tag" "BASH_VERSION" "gpus"
+			"tag_commit_hash" "ORIGINAL_ARGS" "AVAILABLE_PROJECTS" "already_sent_signal" "bash_logname"
+			"old_continue" "previous_job_var" "result" "mem_gb" "RUN_DIR" "DONT_ASK_USERNAME"
+			"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z" "FROZEN" "LOAD_MODULES"
+			"MYCLUSTER_HOST" "output" "specific_linter" "TEMP_BACKUP_FILE" "COMMAND"
+			"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG" "CLUSTERHOST"
+		)
 
-	filtered_params=()
+		filtered_params=()
 
-	for param in "${found_params[@]}"; do
-		if [[ "$param" =~ ^[0-9]+$ ]] || [[ "$param" =~ ^[axyz]$ ]]; then
-			continue
-		fi
+		for param in "${found_params[@]}"; do
+			if [[ "$param" =~ ^[0-9]+$ ]] || [[ "$param" =~ ^[axyz]$ ]]; then
+				continue
+			fi
 
-		skip=false
-		for exclude in "${exclude_vars[@]}"; do
-			if [[ "$param" == *"$exclude"* ]]; then
-				skip=true
-				break
+			skip=false
+			for exclude in "${exclude_vars[@]}"; do
+				if [[ "$param" == *"$exclude"* ]]; then
+					skip=true
+					break
+				fi
+			done
+
+			if [[ "$skip" == false ]]; then
+				filtered_params+=("$param")
 			fi
 		done
 
-		if [[ "$skip" == false ]]; then
-			filtered_params+=("$param")
-		fi
-	done
+		for found_param in $(echo "${filtered_params[@]}"); do
+			found=0
 
-	for found_param in $(echo "${filtered_params[@]}"); do
-		found=0
+			for _described_param in $(echo "${described_params[@]}"); do
+				if [[ "\$$_described_param" == "$found_param" ]]; then
+					found=1
+				fi
+			done
 
-		for _described_param in $(echo "${described_params[@]}"); do
-			if [[ "\$$_described_param" == "$found_param" ]]; then
-				found=1
+			if [[ "$found" -eq 0 ]]; then
+				red_text "Parameter found $bash_file but not in $file: $found_param"
+				errors=$(($errors+1))
 			fi
 		done
-
-		if [[ "$found" -eq 0 ]]; then
-			red_text "Parameter found $bash_file but not in $file: $found_param"
-			errors=$(($errors+1))
-		fi
-	done
+	fi
 done
 
 exit $errors

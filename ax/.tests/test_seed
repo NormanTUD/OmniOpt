@@ -96,6 +96,7 @@ exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
 	red_text "OmniOpt2 failed! Exit code should have been 0, but is: $exit_code"
+	exit 2
 fi
 
 real_seed=$(cat $results_csv | md5sum | sed -e 's#\s.*##')

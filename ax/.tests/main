@@ -713,6 +713,10 @@ if [[ $superquick -eq 0 ]]; then
 			fi
 		fi
 
+		_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus 0 --hash 4f5fc193bd711113ac4cf7493c54725e" 0
+
+		_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus 0 --hash aa934c1012f971e60815c20c4b82ac76" 0
+
 		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
 		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0 87
 

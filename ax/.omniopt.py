@@ -6509,7 +6509,7 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
     return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_j: str, metric_i: str) -> rich.table.Table:
+def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_i: str, metric_j: str) -> rich.table.Table:
     table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics

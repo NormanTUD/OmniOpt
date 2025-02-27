@@ -3309,35 +3309,6 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     return _exit
 
 @beartype
-def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
-    global global_vars
-
-    if job:
-        try:
-            if ax_client:
-                _trial = ax_client.get_trial(trial_index)
-                _trial.mark_abandoned()
-                #global_vars["jobs"].remove((job, trial_index))
-            else:
-                print_red("ax_client could not be found")
-                my_exit(9)
-        except Exception as e: # pragma: no cover
-            print(f"ERROR in line {get_line_info()}: {e}")
-            print_debug(f"ERROR in line {get_line_info()}: {e}")
-            return False
-        job.cancel()
-        return True
-
-    return False
-
-@beartype
-def abandon_all_jobs() -> None: # pragma: no cover
-    for job, trial_index in global_vars["jobs"][:]:
-        abandoned = abandon_job(job, trial_index)
-        if not abandoned:
-            print_debug(f"Job {job} could not be abandoned.")
-
-@beartype
 def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global global_vars, END_PROGRAM_RAN
 
@@ -3382,8 +3353,6 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
             _exit = new_exit
     except TypeError as e: # pragma: no cover
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
-
-    abandon_all_jobs()
 
     save_pd_csv()
 
@@ -5051,7 +5020,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     else: # pragma: no cover
         print_red("ax_client could not be found or used")
         my_exit(9)
-    #global_vars["jobs"].remove((job, trial_index))
 
     return this_jobs_finished
 
@@ -5099,7 +5067,6 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                     orchestrate_job(job, trial_index)
                 failed_jobs(1)
                 this_jobs_finished += 1
-                #global_vars["jobs"].remove((job, trial_index))
             save_checkpoint()
             save_pd_csv()
         else: # pragma: no cover
@@ -5506,7 +5473,6 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cove
         new_job.cancel()
         print_debug("Cancelled failed job")
 
-        #global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
         save_checkpoint()
         save_pd_csv()

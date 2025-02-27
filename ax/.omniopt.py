@@ -3317,7 +3317,7 @@ def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
             if ax_client:
                 _trial = ax_client.get_trial(trial_index)
                 _trial.mark_abandoned()
-                global_vars["jobs"].remove((job, trial_index))
+                #global_vars["jobs"].remove((job, trial_index))
             else:
                 print_red("ax_client could not be found")
                 my_exit(9)
@@ -5033,6 +5033,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 progressbar_description([f"new result: {result} (entered)"])
             except Exception as e: # pragma: no cover
                 print(f"ERROR in line {get_line_info()}: {e}")
+
+            global_vars["jobs"].remove((job, trial_index))
         else:
             print_debug(f"Counting job {job} as failed, because the result is {result}")
             if job:
@@ -5049,7 +5051,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     else: # pragma: no cover
         print_red("ax_client could not be found or used")
         my_exit(9)
-    global_vars["jobs"].remove((job, trial_index))
+    #global_vars["jobs"].remove((job, trial_index))
 
     return this_jobs_finished
 
@@ -5097,7 +5099,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                     orchestrate_job(job, trial_index)
                 failed_jobs(1)
                 this_jobs_finished += 1
-                global_vars["jobs"].remove((job, trial_index))
+                #global_vars["jobs"].remove((job, trial_index))
             save_checkpoint()
             save_pd_csv()
         else: # pragma: no cover
@@ -5504,7 +5506,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cove
         new_job.cancel()
         print_debug("Cancelled failed job")
 
-        global_vars["jobs"].remove((new_job, trial_index))
+        #global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
         save_checkpoint()
         save_pd_csv()
@@ -6394,8 +6396,6 @@ def wait_for_jobs_to_complete() -> None: # pragma: no cover
             _sleep(5)
 
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-
-        clean_completed_jobs()
 
 @beartype
 def human_readable_generation_strategy() -> Optional[str]:

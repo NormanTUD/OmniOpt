@@ -84,7 +84,7 @@ test_name="seed_test_$seed"
 
 run_dir=runs/$test_name
 
-results_csv="$run_dir/0/results"
+results_csv="$run_dir/0/results.csv"
 
 if [[ -d $run_dir ]]; then
 	rm -rf $run_dir

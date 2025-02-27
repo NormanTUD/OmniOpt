@@ -108,6 +108,10 @@ if [ "$real_seed" = "$hash" ]; then
 	green_text "Hash of the '$results_csv' is $real_seed"
 	exit 0
 else
+	red_text "====> $results_csv ====>"
+	cat $results_csv
+	red_text "<==== $results_csv <===="
+
 	red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_seed)"
 	exit 1
 fi

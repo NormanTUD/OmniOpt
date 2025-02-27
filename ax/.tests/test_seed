@@ -100,7 +100,11 @@ fi
 
 real_seed=$(cat $results_csv | md5sum | sed -e 's#\s.*##')
 
-if [[ "$real_seed" == "$seed" ]]; then
+echo "Wanted Hash: '$hash' (length: ${#hash})"
+echo "Real Hash:   '$real_seed' (length: ${#real_seed})"
+
+if [ "$real_seed" = "$hash" ]; then
+
 	green_text "Hash of the '$results_csv' is $real_seed"
 	exit 0
 else

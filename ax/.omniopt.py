@@ -5042,8 +5042,9 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 except Exception as e: # pragma: no cover
                     print(f"ERROR in line {get_line_info()}: {e}")
                 job.cancel()
-                mark_trial_as_failed(_trial)
                 orchestrate_job(job, trial_index)
+
+            mark_trial_as_failed(_trial)
             failed_jobs(1)
     else: # pragma: no cover
         print_red("ax_client could not be found or used")

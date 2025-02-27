@@ -36,6 +36,7 @@ live_share=0
 send_anonymized_usage_stats=0
 max_nr_of_zero=3
 nr_nodes=4
+seed=""
 model=BOTORCH_MODULAR
 
 cleanup() {
@@ -224,6 +225,15 @@ for arg in "$@"; do
 		--model=*)
 			model="${arg#*=}"
 			;;
+		--seed=*)
+			seed="${arg#*=}"
+			if ! [[ "$seed" =~ ^[0-9]+$ ]]; then
+				if [[ $seed -lt 1 ]]; then
+					echo "Error: --seed must be a positive integer."
+					exit 1
+				fi
+			fi
+			;;
 		--nr_nodes=*)
 			nr_nodes="${arg#*=}"
 			if ! [[ "$nr_nodes" =~ ^[0-9]+$ ]]; then
@@ -337,6 +347,10 @@ fi
 
 if [[ "$live_share" == "1" ]]; then
 	cmd+=("--live_share")
+fi
+
+if [[ "$seed" != "" ]]; then
+	cmd+=("--seed $seed")
 fi
 
 "${cmd[@]}"

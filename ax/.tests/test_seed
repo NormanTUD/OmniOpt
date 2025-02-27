@@ -99,19 +99,19 @@ if [[ $exit_code -ne 0 ]]; then
 	exit 2
 fi
 
-real_seed=$(cat $results_csv | md5sum | sed -e 's#\s.*##')
+real_hash=$(cat $results_csv | sed -e 's#.*,##' | md5sum | sed -e 's#\s.*##')
 
 echo "Wanted Hash: '$hash' (length: ${#hash})"
-echo "Real Hash:   '$real_seed' (length: ${#real_seed})"
+echo "Real Hash:   '$real_hash' (length: ${#real_hash})"
 
-if [ "$real_seed" = "$hash" ]; then
-	green_text "Hash of the '$results_csv' is $real_seed"
+if [ "$real_hash" = "$hash" ]; then
+	green_text "Hash of the '$results_csv' is $real_hash"
 	exit 0
 else
 	red_text "====> $results_csv ====>"
 	cat $results_csv
 	red_text "<==== $results_csv <===="
 
-	red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_seed)"
+	red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_hash)"
 	exit 1
 fi

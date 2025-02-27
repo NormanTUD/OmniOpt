@@ -33,6 +33,7 @@ num_random_steps=2
 install_slurm=false
 generate_all_jobs_at_once=0
 live_share=0
+should_deduplicate=0
 send_anonymized_usage_stats=0
 max_nr_of_zero=3
 nr_nodes=4
@@ -66,6 +67,7 @@ usage() {
 	echo "  --nr_nodes=INT                Some integer for the amount of nodes that should be created (default: 4)"
 	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
 	echo "  --live_share                  Enable live share"
+	echo "  --should_deduplicate          Deduplicate jobs"
 	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
 	echo "  --max_nr_of_zero=NUM          The max. nr. of zero-jobs (default: 3)"
 	echo "  --seed=INT                    The seed for the run. Default is empty"
@@ -254,6 +256,9 @@ for arg in "$@"; do
 		--send_anonymized_usage_stats)
 			send_anonymized_usage_stats=1
 			;;
+		--should_deduplicate)
+			should_deduplicate=1
+			;;
 		--live_share)
 			live_share=1
 			;;
@@ -352,6 +357,10 @@ fi
 
 if [[ "$seed" != "" ]]; then
 	cmd+=("--seed $seed")
+fi
+
+if [[ $should_deduplicate == 1 ]]; then
+	cmd+=("--should_deduplicate")
 fi
 
 "${cmd[@]}"

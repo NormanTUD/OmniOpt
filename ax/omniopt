@@ -105,7 +105,13 @@
 			color_children="\e[32m"
 		fi
 
-		echo -e "RAM of main bash script: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB\e[0m"
+		slurm_msg=""
+
+		if command -v sbatch 2>/dev/null >/dev/null; then
+			slurm_msg=" (does not include SLURM-job-memory-data)"
+		fi
+
+		echo -e "RAM of main bash script: ${color_self}${ram_self} MB\e[0m, RAM of children: ${color_children}${ram_children} MB$slurm_msg\e[0m"
 
 		if [[ -n $RUN_UUID ]]; then
 			if ! [[ -e "logs/${RUN_UUID}_ram_log" ]]; then

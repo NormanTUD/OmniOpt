@@ -22,58 +22,58 @@ gpus=""
 hash=""
 
 function show_help() {
-    echo "Usage: $0 --seed <int> --gpus <int> --hash <string>"
-    echo "  --seed <int>    : Sets the seed value"
-    echo "  --gpus <int>    : Number of GPUs"
-    echo "  --hash <string> : MD5 hash value"
-    echo "  --help          : Displays this help message"
-    exit 0
+	echo "Usage: $0 --seed <int> --gpus <int> --hash <string>"
+	echo "  --seed <int>    : Sets the seed value"
+	echo "  --gpus <int>    : Number of GPUs"
+	echo "  --hash <string> : MD5 hash value"
+	echo "  --help          : Displays this help message"
+	exit 0
 }
 
 while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --seed)
-            if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
-                seed="$2"
-                shift 2
-            else
-                echo "Error: --seed requires an integer value" >&2
-                exit 1
-            fi
-            ;;
-        --gpus)
-            if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
-                gpus="$2"
-                shift 2
-            else
-                echo "Error: --gpus requires an integer value" >&2
-                exit 1
-            fi
-            ;;
-        --hash)
-            if [[ -n "$2" && "$2" =~ ^[a-fA-F0-9]{32}$ ]]; then
-                hash="$2"
-                shift 2
-            else
-                echo "Error: --hash requires a valid MD5 hash (32 hex characters)" >&2
-                exit 1
-            fi
-            ;;
-        --help)
-            show_help
-            ;;
-        *)
-            echo "Error: Unknown option $1" >&2
-            show_help
-            exit 1
-            ;;
-    esac
+	case "$1" in
+		--seed)
+			if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+				seed="$2"
+				shift 2
+			else
+				echo "Error: --seed requires an integer value" >&2
+				exit 1
+			fi
+			;;
+		--gpus)
+			if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+				gpus="$2"
+				shift 2
+			else
+				echo "Error: --gpus requires an integer value" >&2
+				exit 1
+			fi
+			;;
+		--hash)
+			if [[ -n "$2" && "$2" =~ ^[a-fA-F0-9]{32}$ ]]; then
+				hash="$2"
+				shift 2
+			else
+				echo "Error: --hash requires a valid MD5 hash (32 hex characters)" >&2
+				exit 1
+			fi
+			;;
+		--help)
+			show_help
+			;;
+		*)
+			echo "Error: Unknown option $1" >&2
+			show_help
+			exit 1
+			;;
+	esac
 done
 
 if [[ -z "$seed" || -z "$gpus" || -z "$hash" ]]; then
-    echo "Error: --seed, --gpus, and --hash are required options" >&2
-    show_help
-    exit 1
+	echo "Error: --seed, --gpus, and --hash are required options" >&2
+	show_help
+	exit 1
 fi
 
 echo "Seed: $seed"
@@ -105,7 +105,6 @@ echo "Wanted Hash: '$hash' (length: ${#hash})"
 echo "Real Hash:   '$real_seed' (length: ${#real_seed})"
 
 if [ "$real_seed" = "$hash" ]; then
-
 	green_text "Hash of the '$results_csv' is $real_seed"
 	exit 0
 else

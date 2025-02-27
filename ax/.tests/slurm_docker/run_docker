@@ -68,6 +68,7 @@ usage() {
 	echo "  --live_share                  Enable live share"
 	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
 	echo "  --max_nr_of_zero=NUM          The max. nr. of zero-jobs (default: 3)"
+	echo "  --seed=INT                    The seed for the run. Default is empty"
 	echo "  --stop                        Stop the Docker container"
 	echo "  --help                        Show this help message"
 	exit 1

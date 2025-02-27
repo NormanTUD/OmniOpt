@@ -97,7 +97,7 @@ real_seed=$(cat $results_csv | md5sum | sed -e 's#\s.*##')
 if [[ $real_seed == $seed ]]; then
 	green_text "Hash of the '$results_csv' is $real_seed"
 	exit 0
+else
+	red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_seed)"
+	exit 1
 fi
-
-red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_seed)"
-exit 1

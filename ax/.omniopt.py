@@ -4999,7 +4999,7 @@ def read_errors_from_file() -> list:
 def mark_trial_as_failed(_trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
-        _trial.mark_failed()
+        _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
 

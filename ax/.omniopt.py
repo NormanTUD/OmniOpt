@@ -5031,6 +5031,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 succeeded_jobs(1)
                 update_progress_bar(progress_bar, 1)
                 progressbar_description([f"new result: {result} (entered)"])
+                save_pd_csv()
             except Exception as e: # pragma: no cover
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:

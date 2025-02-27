@@ -6567,7 +6567,7 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     _ax.set_xlabel(x_metric)
     _ax.set_ylabel(y_metric)
 
-    _ax.set_title('Pareto-Frontier')
+    _ax.set_title(f'Pareto-Frontier {x_metric}/{y_metric}')
 
     _ax.ticklabel_format(style='plain', axis='both', useOffset=False)
 

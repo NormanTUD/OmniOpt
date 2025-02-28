@@ -41,7 +41,7 @@
 			100 => "--mem_gb or --gpus, which must be int, has received a value that is not int",
 			101 => "Error using ax_client: it was not defined where it should have been",
 			103 => "--time is not in minutes or HH:MM format",
-			104 => "One of the parameters --mem_gb, --time, --run_program, --max_eval, --generation_strategy or --experiment_name is missing",
+			104 => "One of the parameters --mem_gb, --time, --run_program, --max_eval, --generation_strategy, --continue_previous_job or --experiment_name is missing",
 			105 => "Continued job error: previous job has missing state files",
 			106 => "--num_parallel_jobs must be equal to or larger than 1",
 			123 => "Something is wrong the the --generation_strategy",

@@ -2850,7 +2850,21 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     return best_line, best_result
 
 @beartype
-def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "RESULT") -> Optional[dict]:
+def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Optional[dict]:
+    idx = -1
+
+    k = 0
+    for rn in arg_result_names:
+        if rn == res_name:
+            idx = k
+
+        k = k + 1
+
+    maximize = False
+
+    if arg_result_min_or_max[idx] == "max":
+        maximize = True
+
     results: dict = {
         res_name: None,
         "parameters": {}
@@ -2905,7 +2919,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
 def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
     csv_file_path: str = save_pd_csv()
 
-    return get_best_params_from_csv(csv_file_path, args.maximize, res_name)
+    return get_best_params_from_csv(csv_file_path, res_name)
 
 @beartype
 def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
@@ -3206,7 +3220,7 @@ def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> 
 
 @beartype
 def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print_to_file: bool) -> int:
-    best_params = get_best_params_from_csv(csv_file_path, maximize, res_name)
+    best_params = get_best_params_from_csv(csv_file_path, res_name)
     best_result = best_params.get(res_name, NO_RESULT) if best_params else NO_RESULT
 
     if str(best_result) in [NO_RESULT, None, "None"]:

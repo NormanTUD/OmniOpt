@@ -482,7 +482,7 @@ class ConfigLoader:
         optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
-        optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: result=min, or result=max when --maximize is set. Default is min.")
+        optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min, or RESULT=max when --maximize is set. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)

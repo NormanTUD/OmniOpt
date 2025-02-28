@@ -90,7 +90,7 @@ if [[ -d $run_dir ]]; then
 	rm -rf $run_dir
 fi
 
-./omniopt --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names result=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --decimalrounding=4 --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed
+./omniopt --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --decimalrounding=4 --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed
 
 exit_code=$?
 

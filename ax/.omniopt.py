@@ -3950,28 +3950,27 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
 
 @beartype
 def print_result_names_overview_table() -> None:
-    if len(arg_result_names) != 1:
-        if len(arg_result_names) != len(arg_result_min_or_max): # pragma: no cover
-            console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
-            return
+    if len(arg_result_names) != len(arg_result_min_or_max): # pragma: no cover
+        console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
+        return
 
-        __table = Table(title="Result-Names:")
+    __table = Table(title="Result-Names:")
 
-        __table.add_column("Result-Name", justify="left", style="cyan")
-        __table.add_column("Min or max?", justify="right", style="green")
+    __table.add_column("Result-Name", justify="left", style="cyan")
+    __table.add_column("Min or max?", justify="right", style="green")
 
-        for __name, __value in zip(arg_result_names, arg_result_min_or_max):
-            __table.add_row(str(__name), str(__value))
+    for __name, __value in zip(arg_result_names, arg_result_min_or_max):
+        __table.add_row(str(__name), str(__value))
 
+    console.print(__table)
+
+    with console.capture() as capture:
         console.print(__table)
 
-        with console.capture() as capture:
-            console.print(__table)
+    table_str = capture.get()
 
-        table_str = capture.get()
-
-        with open(f"{get_current_run_folder()}/result_names_overview.txt", mode="w", encoding="utf-8") as text_file:
-            text_file.write(table_str)
+    with open(f"{get_current_run_folder()}/result_names_overview.txt", mode="w", encoding="utf-8") as text_file:
+        text_file.write(table_str)
 
 @beartype
 def write_min_max_file() -> None:

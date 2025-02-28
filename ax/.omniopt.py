@@ -619,9 +619,9 @@ arg_result_min_or_max = []
 
 if len(args.result_names) == 0:
     if args.maximize:
-        args.result_names = ["result=max"]
+        args.result_names = ["RESULT=max"]
     else:
-        args.result_names = ["result=min"]
+        args.result_names = ["RESULT=min"]
 
 for _rn in args.result_names:
     _key = ""
@@ -2846,7 +2846,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     return best_line, best_result
 
 @beartype
-def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "result") -> Optional[dict]:
+def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str = "RESULT") -> Optional[dict]:
     results: dict = {
         res_name: None,
         "parameters": {}
@@ -2899,7 +2899,7 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
     return results
 
 @beartype
-def get_best_params(res_name: str = "result") -> Optional[dict]:
+def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
     csv_file_path: str = save_pd_csv()
 
     return get_best_params_from_csv(csv_file_path, args.maximize, res_name)
@@ -4057,7 +4057,7 @@ def get_current_model() -> str:
     return "initializing model"
 
 @beartype
-def get_best_params_str(res_name: str = "result") -> str:
+def get_best_params_str(res_name: str = "RESULT") -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params(res_name)
         if best_params and best_params is not None and res_name in best_params:
@@ -4258,7 +4258,7 @@ def value_to_true_or_false(value: str) -> Union[str, bool]:
     return value
 
 @beartype
-def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "result") -> Optional[Union[pd.DataFrame, str]]:
+def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "RESULT") -> Optional[Union[pd.DataFrame, str]]:
     """
     Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
     Return the value of the 'result' column from that row.
@@ -4326,7 +4326,7 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
     return None
 
 @beartype
-def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "result") -> Union[float, None, int]:
+def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "RESULT") -> Union[float, None, int]:
     tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
     old_result_simple: Union[float, None, int] = None
 
@@ -4579,7 +4579,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     @beartype
     def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
         try:
-            insert_job_into_ax_client(parameters, {"result": hashed_params_result[1]}, hashed_params_result[0])
+            insert_job_into_ax_client(parameters, {"RESULT": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
         except ValueError as e: # pragma: no cover
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
@@ -4591,7 +4591,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
-        parameters["result"] = hashed_params_result[1]
+        parameters["RESULT"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
     @beartype
@@ -7276,12 +7276,12 @@ Exit-Code: 159
 
     _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
 
-    #_expected_best_result_minimize: str = json.dumps(json.loads('{"result": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
+    #_expected_best_result_minimize: str = json.dumps(json.loads('{"RESULT": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
     #_best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
 
     #nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _best_results_from_example_file_minimize, _expected_best_result_minimize)
 
-    #_expected_best_result_maximize: str = json.dumps(json.loads('{"result": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
+    #_expected_best_result_maximize: str = json.dumps(json.loads('{"RESULT": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
     #_best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
 
     #nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _best_results_from_example_file_maximize, _expected_best_result_maximize)

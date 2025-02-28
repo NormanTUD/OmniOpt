@@ -2060,7 +2060,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @beartype
-def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]: # pragma: no cover
+def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]: # pragma: no cover
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None
@@ -2085,18 +2085,10 @@ def get_results_new(input_string: Optional[Union[int, str]]) -> Optional[Union[D
 
         if len(results):
             return results
-
-        return None
     except Exception as e: # pragma: no cover
         print_red(f"Error extracting the RESULT-string: {e}")
-        return None
 
-@beartype
-def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]:
-    if input_string is None:
-        return None
-
-    return get_results_new(input_string) # pragma: no cover
+    return None
 
 @beartype
 def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover

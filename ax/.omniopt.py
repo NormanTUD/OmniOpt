@@ -7270,15 +7270,15 @@ Exit-Code: 159
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
     _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
-    _best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
     _expected_best_result_minimize: str = json.dumps(json.loads('{"result": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
+    _best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
 
-    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _expected_best_result_minimize, _best_results_from_example_file_minimize)
+    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _best_results_from_example_file_minimize, _expected_best_result_minimize)
 
-    _best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
     _expected_best_result_maximize: str = json.dumps(json.loads('{"result": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
+    _best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
 
-    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _expected_best_result_maximize, _best_results_from_example_file_maximize)
+    nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _best_results_from_example_file_maximize, _expected_best_result_maximize)
 
     _print_best_result(_example_csv_file, False, False)
 

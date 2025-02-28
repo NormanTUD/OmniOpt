@@ -2872,7 +2872,6 @@ def get_best_params_from_csv(csv_file_path: str, maximize: bool, res_name: str =
     else:
         return results
 
-
     best_line, _ = get_best_line_and_best_result(nparray, result_idx, maximize)
 
     if best_line is None: # pragma: no cover

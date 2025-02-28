@@ -488,6 +488,7 @@ Dec
 December
 decille
 decimalrounding
+Deduplicate
 def
 defaultDate
 defaultLocale
@@ -1026,6 +1027,7 @@ Jax
 jaxtyping
 Jedi
 joblib
+jobresult
 jobsbatch
 jpeg
 jpg
@@ -2441,4 +2443,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-Deduplicate

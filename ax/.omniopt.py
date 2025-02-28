@@ -5653,8 +5653,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
         print_red("ax_client was not defined")
         my_exit(9)
 
-    print_debug(f"_fetch_next_trials({nr_of_jobs_to_get}), get_parallelism_schedule_description: {get_parallelism_schedule_description()}")
-
     trials_dict: dict = {}
 
     try:

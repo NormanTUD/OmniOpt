@@ -444,19 +444,19 @@ def _is_equal(name: str, _input: Any, output: Any) -> bool:
     ]
     for equal_type in _equal_types:
         if type(_input) is equal_type and type(output) and _input != output: # pragma: no cover
-            print_color("red", f"Failed test (1): {name}")
+            print_color("red", f"\n\nFailed test (1): {name}")
             return True
 
     if type(_input) is not type(output): # pragma: no cover
-        print_color("red", f"Failed test (4): {name}")
+        print_color("red", f"\n\nFailed test (4): {name}")
         return True
 
     if isinstance(_input, bool) and _input != output: # pragma: no cover
-        print_color("red", f"Failed test (6): {name}")
+        print_color("red", f"\n\nFailed test (6): {name}")
         return True
 
     if (output is None and _input is not None) or (output is not None and _input is None): # pragma: no cover
-        print_color("red", f"Failed test (7): {name}")
+        print_color("red", f"\n\nFailed test (7): {name}")
         return True
 
     #print_color("green", f"Test OK: {name}")
@@ -480,15 +480,15 @@ def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
     ]
     for equal_type in _equal_types:
         if isinstance(_input, equal_type) and isinstance(output, equal_type) and _input == output:
-            print_color("red", f"Failed test (1): {name}")
+            print_color("red", f"\n\nFailed test (1): {name}")
             return True
 
     if isinstance(_input, bool) and _input == output: # pragma: no cover
-        print_color("red", f"Failed test (2): {name}")
+        print_color("red", f"\n\nFailed test (2): {name}")
         return True
 
     if not (output is not None and _input is not None): # pragma: no cover
-        print_color("red", f"Failed test (3): {name}")
+        print_color("red", f"\n\nFailed test (3): {name}")
         return True
 
     #print_color("green", f"Test OK: {name}") # pragma: no cover

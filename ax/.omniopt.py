@@ -6968,7 +6968,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         res = get_results(stdout)
 
         if res_is_none:
-            nr_errors += is_equal(f"{_program_name} res is None", None, res)
+            nr_errors += is_equal(f"{_program_name} res is None", {"result": None}, res)
         else:
             nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int, list)))
         nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
@@ -7182,6 +7182,8 @@ Exit-Code: 159
         "current_type": "int",
         "expected_type": "float"
     }
+
+    global arg_result_names
 
     equal: list = [
         ["helpers.convert_string_to_number('123.123')", 123.123],

@@ -6806,8 +6806,6 @@ def main() -> None:
 
     write_run_uuid_to_file()
 
-    handle_maximize_argument()
-
     print_run_info()
 
     initialize_nvidia_logs()
@@ -6835,6 +6833,7 @@ def main() -> None:
     initialize_ax_client(gs)
 
     minimize_or_maximize: bool = not args.maximize
+
     ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
@@ -6879,11 +6878,6 @@ def set_run_folder() -> None:
     while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
         RUN_FOLDER_NUMBER += 1
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-
-@beartype
-def handle_maximize_argument() -> None:
-    if args.maximize: # pragma: no cover
-        print_red("--maximize is not fully supported yet!")
 
 @beartype
 def print_run_info() -> None:

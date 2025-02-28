@@ -76,10 +76,6 @@ if [[ -z "$seed" || -z "$gpus" || -z "$hash" ]]; then
 	exit 1
 fi
 
-echo "Seed: $seed"
-echo "GPUs: $gpus"
-echo "Hash: $hash"
-
 test_name="seed_test_$seed"
 
 run_dir=runs/$test_name

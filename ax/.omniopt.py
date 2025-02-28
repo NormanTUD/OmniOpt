@@ -3753,7 +3753,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
 
 @beartype
 def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
-    continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters, minimize_or_maximize = _params
+    continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters = _params
 
     global ax_client
 
@@ -6832,8 +6832,6 @@ def main() -> None:
 
     initialize_ax_client(gs)
 
-    minimize_or_maximize: bool = not args.maximize
-
     ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
         args.continue_previous_job,
         args.seed,
@@ -6841,7 +6839,6 @@ def main() -> None:
         args.parameter,
         cli_params_experiment_parameters,
         experiment_parameters,
-        minimize_or_maximize
     ])
 
     set_orchestrator()

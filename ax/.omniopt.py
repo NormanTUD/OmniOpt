@@ -2096,38 +2096,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
     if input_string is None:
         return None
 
-    if len(arg_result_names) == 1:
-        return get_results_old(input_string)
-
     return get_results_new(input_string) # pragma: no cover
-
-@beartype
-def get_results_old(input_string: Optional[Union[int, str]]) -> Optional[List[float]]:
-    if input_string is None:
-        print_red("get_results: Input-String is None") # pragma: no cover
-        return None
-
-    if not isinstance(input_string, str):
-        print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
-        add_to_global_error_list("Output was empty")
-        return None
-
-    try:
-        _pattern: str = r'\s*RESULT\d*:\s*(-?\d+(?:\.\d+)?)'
-
-        # Find all matches for the _pattern
-        matches = re.findall(_pattern, input_string)
-
-        if matches:
-            # Convert matches to floats
-            result_numbers = [float(match) for match in matches]
-            return result_numbers  # Return list if multiple results are found
-
-        add_to_global_error_list("result 'RESULT' not found in output")
-        return None
-    except Exception as e: # pragma: no cover
-        print_red(f"Error extracting the RESULT-string: {e}")
-        return None
 
 @beartype
 def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover
@@ -2636,11 +2605,17 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
         if len(arg_result_names) == 1:
             if isinstance(result, (int, float)): # pragma: no cover
-                return {"result": float(result)}
+                return {
+                    arg_result_names[0]: float(result)
+                }
             if isinstance(result, (list)) and len(result) == 1:
-                return {"result": float(result[0])}
+                return {
+                    arg_result_names[0]: float(result[0])
+                }
             if isinstance(result, (list)): # pragma: no cover
-                return {"result": cast(float | None, [float(r) for r in result])}
+                return {
+                    arg_result_names[0]: cast(float | None, [float(r) for r in result])
+                }
 
         else: # pragma: no cover
             return result

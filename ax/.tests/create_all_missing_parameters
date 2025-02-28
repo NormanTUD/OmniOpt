@@ -5,7 +5,7 @@ params=(
 	"--max_eval=2"
 	"--num_parallel_jobs=1"
 	"--num_random_steps=1"
-	"--result_names result"
+	"--result_names RESULT"
 	"--parameter y range 5431 1234 float false"
 )
 

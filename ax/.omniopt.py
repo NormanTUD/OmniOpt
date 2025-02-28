@@ -2595,17 +2595,14 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
         evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, end_time - start_time)
 
-        if isinstance(result, (int, float)): # pragma: no cover
+        if isinstance(result, (int, float)):  # pragma: no cover
             return {
-                arg_result_names[0]: float(result)
+                name: float(result) for name in arg_result_names
             }
-        if isinstance(result, (list)) and len(result) == 1:
+
+        if isinstance(result, list):  # pragma: no cover
             return {
-                arg_result_names[0]: float(result[0])
-            }
-        if isinstance(result, (list)): # pragma: no cover
-            return {
-                arg_result_names[0]: cast(float | None, [float(r) for r in result])
+                name: cast(float | None, [float(r) for r in result]) for name in arg_result_names
             }
 
         if isinstance(result, (dict)): # pragma: no cover

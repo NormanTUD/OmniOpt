@@ -127,6 +127,7 @@ function help () {
         echo "  --reallyquick                                      Only run really quick tests"
 	echo "  --superquick                                       Only run super quick tests"
         echo "  --debug                                            Enables debug mode"
+        echo "  --no_linkchecker                                   Disable link checker"
         echo "  --skip_test_job_nr                                 Skip testing for proper job nrs"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
@@ -152,6 +153,7 @@ superquick=0
 reallyquick=0
 quick=0
 exit_on_first_error=0
+no_linkchecker=0
 mem_gb=4
 no_plots=0
 
@@ -289,6 +291,11 @@ while [ $k -lt ${#args[@]} ]; do
 			reallyquick=1
 			quick=1
 			;;
+
+		--no_linkchecker)
+			no_linkchecker=1
+			;;
+
 		--quick)
 			quick=1
 			;;
@@ -594,7 +601,9 @@ _test "Simple optimization run" ".tests/start_simple_optimization_run --num_para
 _test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
 if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
-	_test "Linkchecker" ".tests/linkchecker" 0
+	if [[ $no_linkchecker -eq 0 ]]; then
+		_test "Linkchecker" ".tests/linkchecker" 0
+	fi
 fi
 
 _test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0

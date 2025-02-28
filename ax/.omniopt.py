@@ -6970,7 +6970,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         if res_is_none:
             nr_errors += is_equal(f"{_program_name} res is None", {"result": None}, res)
         else:
-            nr_errors += is_equal(f"{_program_name} res type is nr", True, isinstance(res, (float, int, list)))
+            nr_errors += is_equal(f"{_program_name} res type is dict", True, isinstance(res, dict))
         nr_errors += is_equal(f"{_program_name} stderr", True, wanted_stderr in stderr)
         nr_errors += is_equal(f"{_program_name} exit-code ", exit_code, wanted_exit_code)
         nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
@@ -7185,6 +7185,8 @@ Exit-Code: 159
 
     global arg_result_names
 
+    arg_result_names = ["RESULT"]
+
     equal: list = [
         ["helpers.convert_string_to_number('123.123')", 123.123],
         ["helpers.convert_string_to_number('1')", 1],
@@ -7195,7 +7197,7 @@ Exit-Code: 159
         ["parse_parameter_type_error(\"Value for parameter xxx: bla is of type <class 'int'>, expected <class 'float'>.\")", example_parse_parameter_type_error_result],
         ["get_hostname_from_outfile(None)", None],
         ["get_results(123)", None],
-        ["get_results('RESULT: 10')", [10.0]],
+        ["get_results('RESULT: 10')", {'RESULT': 10.0}],
         ["helpers.looks_like_float(10)", True],
         ["helpers.looks_like_float('hallo')", False],
         ["helpers.looks_like_int('hallo')", False],
@@ -7227,13 +7229,13 @@ Exit-Code: 159
     nr_errors += is_equal(
             "evaluate({'x': 123})",
             json.dumps(evaluate({'x': 123.0})),
-            json.dumps({'result': 123.0})
+            json.dumps({'RESULT': 123.0})
     )
 
     nr_errors += is_equal(
             "evaluate({'x': -0.05})",
             json.dumps(evaluate({'x': -0.05})),
-            json.dumps({'result': -0.05})
+            json.dumps({'RESULT': -0.05})
     )
 
     #complex_tests (_program_name, wanted_stderr, wanted_exit_code, wanted_signal, res_is_none=False):

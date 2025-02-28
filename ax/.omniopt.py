@@ -7277,7 +7277,7 @@ Exit-Code: 159
         None
     )
 
-    nr_errors += is_equal("calculate_cc(None)", calculate_occ(None), VAL_IF_NOTHING_FOUND)
+    nr_errors += is_equal("calculate_occ(None)", calculate_occ(None), VAL_IF_NOTHING_FOUND)
     nr_errors += is_equal("calculate_occ([])", calculate_occ([]), VAL_IF_NOTHING_FOUND)
 
     #nr_errors += is_equal("calculate_signed_harmonic_distance(None)", calculate_signed_harmonic_distance(None), 0)

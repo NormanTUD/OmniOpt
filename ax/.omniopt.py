@@ -610,7 +610,7 @@ class ConfigLoader:
 loader = ConfigLoader()
 args = loader.parse_arguments()
 
-if args.max_eval is None and args.generation_strategy is None and args.continue is None:
+if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None:
     print_red("Either --max_eval or --generation_strategy must be set.")
     my_exit(104)
 

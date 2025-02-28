@@ -2595,22 +2595,37 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
         evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, end_time - start_time)
 
-        if len(arg_result_names) == 1:
-            if isinstance(result, (int, float)): # pragma: no cover
-                return {
-                    arg_result_names[0]: float(result)
-                }
-            if isinstance(result, (list)) and len(result) == 1:
-                return {
-                    arg_result_names[0]: float(result[0])
-                }
-            if isinstance(result, (list)): # pragma: no cover
-                return {
-                    arg_result_names[0]: cast(float | None, [float(r) for r in result])
-                }
+        if isinstance(result, (int, float)): # pragma: no cover
+            return {
+                arg_result_names[0]: float(result)
+            }
+        if isinstance(result, (list)) and len(result) == 1:
+            return {
+                arg_result_names[0]: float(result[0])
+            }
+        if isinstance(result, (list)): # pragma: no cover
+            return {
+                arg_result_names[0]: cast(float | None, [float(r) for r in result])
+            }
 
-        else: # pragma: no cover
+        if isinstance(result, (dict)): # pragma: no cover
             return result
+
+        else:
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+            print("type:")
+            print(type(result))
+            print("result:")
+            print(result)
+
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         write_failed_logs(parameters, "No Result") # pragma: no cover
     except SignalUSR: # pragma: no cover

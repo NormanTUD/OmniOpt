@@ -128,6 +128,7 @@ function help () {
 	echo "  --superquick                                       Only run super quick tests"
         echo "  --debug                                            Enables debug mode"
         echo "  --no_linkchecker                                   Disable link checker"
+        echo "  --no_linter                                        Disable linter"
         echo "  --skip_test_job_nr                                 Skip testing for proper job nrs"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
@@ -154,6 +155,7 @@ reallyquick=0
 quick=0
 exit_on_first_error=0
 no_linkchecker=0
+no_linter=0
 mem_gb=4
 no_plots=0
 
@@ -290,6 +292,10 @@ while [ $k -lt ${#args[@]} ]; do
 		--reallyquick)
 			reallyquick=1
 			quick=1
+			;;
+
+		--no_linter)
+			no_linter=1
 			;;
 
 		--no_linkchecker)
@@ -624,11 +630,13 @@ if command -v sbatch 2>/dev/null >/dev/null; then
 fi
 
 if [[ -z $CI ]]; then
-	if [[ $quick -eq 0 ]]; then
-		_test "Linter" "bash .tests/linter" 0
-		_test "lint_python" ".tests/lint_python" 0
-	else
-		_test "Linter (quick)" "bash .tests/linter --quick" 0
+	if [[ $no_linter -eq 0 ]]; then
+		if [[ $quick -eq 0 ]]; then
+			_test "Linter" "bash .tests/linter" 0
+			_test "lint_python" ".tests/lint_python" 0
+		else
+			_test "Linter (quick)" "bash .tests/linter --quick" 0
+		fi
 	fi
 fi
 

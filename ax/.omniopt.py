@@ -2708,7 +2708,7 @@ def disable_logging() -> None:
     for module in modules:
         logging.getLogger(module).setLevel(logging.CRITICAL)
         logging.getLogger(module).disabled = True
-        print_debug(f"logging.getLogger({module}.disabled) set to {logging.getLogger(module).disabled}")
+        print_debug(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)
@@ -4985,6 +4985,9 @@ def mark_trial_as_completed(_trial: Any) -> None:
 @beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     result = job.result()
+
+    print_debug(f"job.result(): {result}")
+
     raw_result = result
     result_keys = list(result.keys())
     result = result[result_keys[0]]
@@ -6191,16 +6194,16 @@ def _set_global_executor() -> None:
 
         print_debug(f"""
     executor.update_parameters(
-        name={f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}
-        timeout_min={args.worker_timeout}
-        "slurm_gres={f"gpu:{args.gpus}"}
-        "cpus_per_task={args.cpus_per_task}
-        nodes={args.nodes_per_job}
-        stderr_to_stdout={args.stderr_to_stdout}
-        mem_gb={args.mem_gb}
-        slurm_signal_delay_s={args.slurm_signal_delay_s}
-        "slurm_use_srun={args.slurm_use_srun}
-        exclude={args.exclude}
+        "name"={f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}
+        "timeout_min"={args.worker_timeout}
+        "slurm_gres"={f"gpu:{args.gpus}"}
+        "cpus_per_task"={args.cpus_per_task}
+        "nodes"={args.nodes_per_job}
+        "stderr_to_stdout"={args.stderr_to_stdout}
+        "mem_gb"={args.mem_gb}
+        "slurm_signal_delay_s"={args.slurm_signal_delay_s}
+        "slurm_use_srun"={args.slurm_use_srun}
+        "exclude"={args.exclude}
     )
 """
         )

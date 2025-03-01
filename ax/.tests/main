@@ -130,10 +130,13 @@ function help () {
         echo "  --no_linkchecker                                   Disable link checker"
         echo "  --no_linter                                        Disable linter"
         echo "  --skip_test_job_nr                                 Skip testing for proper job nrs"
+        echo "  --skip_worker_check                                Skip worker checks"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
 }
 
+skip_worker_check=0
+skip_test_job_nr=0
 NUM_GPUS=0
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
 	NUM_GPUS=1
@@ -269,6 +272,10 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 		--help*)
 			help 0
+			;;
+
+		--skip_worker_check)
+			skip_worker_check=1
 			;;
 
 		--skip_test_job_nr)
@@ -507,22 +514,24 @@ function _test_internal {
 }
 
 calculate_average_and_check() {
-	local file="$1"
-	echo "$file"
-	avg=$(sed -e 's#.*,##' "$file" | tr '\n' ' ' | awk '{sum=0; for(i=1; i<=NF; i++) sum+=$i; print sum/NF}')
-	echo "Average: $avg"
-	failed=0
-	NAME="Testing worker usage for $file: Below 80%? Got $avg%"
+	if [[ $skip_worker_check -eq 0 ]]; then
+		local file="$1"
+		echo "$file"
+		avg=$(sed -e 's#.*,##' "$file" | tr '\n' ' ' | awk '{sum=0; for(i=1; i<=NF; i++) sum+=$i; print sum/NF}')
+		echo "Average: $avg"
+		failed=0
+		NAME="Testing worker usage for $file: Below 80%? Got $avg%"
 
-	if (( $(echo "$avg < 80" | bc -l) )); then
-		errmsg="Error: average worker usage was less than 80% (actual: $avg%)"
-		red_text "$errmsg"
-		errors+=($(echo "$errmsg" | base64))
-		failed=1
+		if (( $(echo "$avg < 80" | bc -l) )); then
+			errmsg="Error: average worker usage was less than 80% (actual: $avg%)"
+			red_text "$errmsg"
+			errors+=($(echo "$errmsg" | base64))
+			failed=1
+		fi
+
+
+		LOG_TIMES+=("$failed,$NAME,$failed,0,0,$failed_true_false")
 	fi
-
-
-	LOG_TIMES+=("$failed,$NAME,$failed,0,0,$failed_true_false")
 }
 
 PARTITION="alpha"

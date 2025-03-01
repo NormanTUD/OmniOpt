@@ -1,0 +1,51 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname $(realpath "$0"))
+CACHE_DIR="$SCRIPT_DIR/../.tmp"
+RETRIES=3
+DELAY=5
+
+mkdir -p "$CACHE_DIR"
+
+CACHE_KEY=$(echo "$@" | sha256sum | awk '{print $1}')
+CACHE_FILE="$CACHE_DIR/sacct_cache_$CACHE_KEY"
+
+run_sacct() {
+	sacct "$@" > "$CACHE_FILE.stdout" 2> "$CACHE_FILE.stderr"
+	return $?
+}
+
+for ((i=0; i<$RETRIES; i++)); do
+	run_sacct $*
+	EXIT_CODE=$?
+
+	if [[ $EXIT_CODE -eq 0 ]]; then
+		cat "$CACHE_FILE.stdout"
+		cat "$CACHE_FILE.stderr" >&2
+		exit 0
+	fi
+
+	sleep $DELAY
+done
+
+if [[ -f "$CACHE_FILE.stdout" ]]; then
+	cat "$CACHE_FILE.stdout"
+	cat "$CACHE_FILE.stderr" >&2
+	exit 0
+fi
+
+for ((i=0; i<$RETRIES; i++)); do
+	run_sacct $*
+	EXIT_CODE=$?
+
+	if [[ $EXIT_CODE -eq 0 ]]; then
+		cat "$CACHE_FILE.stdout"
+		cat "$CACHE_FILE.stderr" >&2
+		exit 0
+	fi
+
+	sleep $DELAY
+done
+
+sacct "$@"
+exit $?

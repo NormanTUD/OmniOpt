@@ -864,8 +864,6 @@ def save_pd_csv() -> str:
     except Exception as e: # pragma: no cover
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
-    live_share()
-
     return pd_csv
 
 @beartype

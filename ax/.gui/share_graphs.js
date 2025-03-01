@@ -1558,8 +1558,6 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 		url = url + "&no_raw_data=1";
 	}
 
-	log(url)
-
 	var _res = await fetchJsonFromUrl(url);
 
 	return _res;

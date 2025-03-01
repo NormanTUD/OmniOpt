@@ -190,7 +190,7 @@
 
 		$c = file_get_contents($fn);
 
-		$c = htmlentities($c);
+		#$c = htmlentities($c);
 
 		return $c;
 	}

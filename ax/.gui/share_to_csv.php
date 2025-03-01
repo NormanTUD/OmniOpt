@@ -43,6 +43,8 @@
 		"filename" => get_or_env("filename")
 	);
 
+	$no_raw_data = get_or_env("no_raw_data");
+
 	$missing = array();
 
 	foreach ($vars as $var_key => $var_value) {
@@ -125,13 +127,16 @@
 			$raw_file = remove_ansi_colors($raw_file);
 		}
 
-		echo json_encode(
-			array(
-				"data" => $raw_file,
-				"raw" => removeDuplicateCsvRows(remove_ansi_colors(file_get_contents($share_file))),
-				"hash" => hash("md5", file_get_contents($share_file))
-			)
+		$data = array(
+			"data" => $raw_file,
+			"hash" => hash("md5", file_get_contents($share_file))
 		);
+
+		if($no_raw_data != "1") {
+			$data["raw"] = removeDuplicateCsvRows(remove_ansi_colors(file_get_contents($share_file)));
+		}
+
+		echo json_encode($data);
 	} else {
 		$raw_file = file_get_contents($share_file);
 
@@ -139,11 +144,14 @@
 			$raw_file = parseAnsiToVirtualTerminal(remove_ansi_colors($raw_file));
 		}
 
-		echo json_encode(
-			array(
-				"raw" => $raw_file,
-				"hash" => hash("md5", file_get_contents($share_file))
-			)
+		$data = array(
+			"hash" => hash("md5", file_get_contents($share_file))
 		);
+
+		if($no_raw_data != "1") {
+			$data["raw"] = $raw_file;
+		}
+
+		echo json_encode($data);
 	}
 ?>

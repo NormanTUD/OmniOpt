@@ -208,6 +208,9 @@ function getHashUrlContent(url) {
 }
 
 function fetchHashAndUpdateContent() {
+	if (!loaded_share) {
+		return;
+	}
 	var urlParams = new URLSearchParams(window.location.search);
 
 	if(urlParams.get("user_id") && urlParams.get("experiment_name") && !isNaN(parseInt(urlParams.get("run_nr")))) {

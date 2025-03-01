@@ -3,6 +3,11 @@
 var hashcache = [];
 var max_nr_ticks = 1000;
 
+function add_load_log_button () {
+	$("#main_tabbed").after("<button id='load_debug_log_button' class='invert_in_dark_mode' style='width: 300px' onclick='load_debug_log()'>Load debug log</button>\n");
+	apply_theme_based_on_system_preferences();
+}
+
 function get_width() {
 	return Math.max(1200, parseInt(0.95 * window.innerWidth));
 }
@@ -591,6 +596,10 @@ function get_checkmark_if_contains_result(str, result_names) {
 	}
 }
 
+function escapeAngleBrackets(str) {
+	return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 async function load_out_files () {
 	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
@@ -657,7 +666,16 @@ async function load_out_files () {
 					var _fn = data.data[i].replaceAll(/.*\//g, ""); // Clean up filename
 					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
 						var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span>${get_checkmark_if_contains_result(_d.data, result_names)}</span>`;
-						var _new_tab_content = `<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${_d.data}</pre></div>`;
+						var ansi_html_data = _d.data;
+
+						ansi_html_data = escapeAngleBrackets(ansi_html_data);
+
+						ansi_html_data = ansi_to_html(ansi_html_data);
+
+						var _new_tab_content =
+							`<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'>
+								<pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${ansi_html_data}</pre>
+							</div>`;
 
 						add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id, false);
 					}
@@ -912,6 +930,7 @@ async function load_debug_log() {
 	}
 
 	add_tab("internal_log", "Debug-Log", "<div id='internal_log_element'></div>");
+	apply_theme_based_on_system_preferences();
 
 	if($("#internal_log_element").length == 0) {
 		error("Could not find #internal_log_element");
@@ -933,6 +952,9 @@ async function load_debug_log() {
 			$("#internal_log_table").hide();
 		}
 	}
+
+	removeSpinnerOverlay();
+	apply_theme_based_on_system_preferences();
 }
 
 async function load_outfile () {
@@ -1126,7 +1148,8 @@ async function load_best_result () {
 
 async function plot_planned_vs_real_worker_over_time () {
 	showSpinnerOverlay("Plotting planned vs. real workers...");
-	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv");
+	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv", false, false, true);
+
 	if(!data) {
 		return;
 	}
@@ -1188,7 +1211,7 @@ async function plot_planned_vs_real_worker_over_time () {
 	add_tab("worker_usage", "Worker-Usage", "<div id='worker_usage_plot'></div><div id='worker_usage_raw'></div>");
 	Plotly.newPlot("worker_usage_plot", [tracePlanned, traceActual], layout);
 
-	$("#worker_usage_raw").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
+	//$("#worker_usage_raw").html(`<pre class="stdout_file invert_in_dark_mode autotable">${data.raw}</pre>${copy_button("stdout_file")}`);
 }
 
 async function plot_cpu_ram_graph() {
@@ -1526,7 +1549,7 @@ async function load_overview_data() {
 	}
 }
 
-async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false) {
+async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false) {
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -1538,6 +1561,10 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 
 	if(parse_ansi) {
 		url = url + "&parse_ansi=1";
+	}
+
+	if(no_raw_data) {
+		url = url + "&no_raw_data=1";
 	}
 
 	var _res = await fetchJsonFromUrl(url);
@@ -1570,7 +1597,7 @@ async function load_all_data() {
 		promises.push(load_next_trials());
 		promises.push(load_results());
 		promises.push(load_outfile());
-		promises.push(load_debug_log());
+		//promises.push(load_debug_log());
 		promises.push(load_install_errors());
 		promises.push(load_trial_index_to_params_log());
 		promises.push(load_progressbar_log());
@@ -1597,7 +1624,11 @@ async function load_all_data() {
 		//log("Loaded page");
 
 		link_share_main();
+
+		add_load_log_button();
 	}
+
+	loaded_share = true;
 }
 
 async function refresh() {

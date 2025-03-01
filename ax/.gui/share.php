@@ -1,6 +1,9 @@
 <?php
         require "_header_base.php";
 ?>
+	<script>
+		var loaded_share = false;
+	</script>
 	<script src='plotly-latest.min.js'></script>
 	<script src='share.js'></script>
 	<script src='parallel.js'></script>
@@ -34,7 +37,7 @@
 
 			var auto_update = getParameterByName('update');
 
-			var interval = 5000;
+			var interval = 60000;
 			setInterval(function() {
 				fetchHashAndUpdateContent();
 			}, interval);

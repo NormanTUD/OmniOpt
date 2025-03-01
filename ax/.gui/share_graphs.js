@@ -591,6 +591,10 @@ function get_checkmark_if_contains_result(str, result_names) {
 	}
 }
 
+function escapeAngleBrackets(str) {
+	return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 async function load_out_files () {
 	showSpinnerOverlay("Loading out files...");
 	var urlParams = new URLSearchParams(window.location.search);
@@ -658,6 +662,9 @@ async function load_out_files () {
 					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
 						var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span>${get_checkmark_if_contains_result(_d.data, result_names)}</span>`;
 						var ansi_html_data = ansi_to_html(_d.data);
+
+						ansi_html_data = escapeAngleBrackets(ansi_html_data);
+
 						var _new_tab_content =
 							`<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'>
 								<pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${ansi_html_data}</pre>

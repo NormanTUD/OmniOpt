@@ -195,3 +195,4 @@ coverage.json
 coverage
 PLOT_TESTS
 .python-version
+.tmp

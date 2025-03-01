@@ -221,7 +221,7 @@ function showSpinnerOverlay(text) {
 	let overlay = document.getElementById('spinner-overlay');
 
 	if (overlay) {
-		document.getElementById('spinner-text').innerText = text;
+		document.getElementById('spinner-text').innerHTML = text;
 		return;
 	}
 

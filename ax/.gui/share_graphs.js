@@ -1588,7 +1588,7 @@ async function load_all_data() {
 		promises.push(load_next_trials());
 		promises.push(load_results());
 		promises.push(load_outfile());
-		promises.push(load_debug_log());
+		//promises.push(load_debug_log());
 		promises.push(load_install_errors());
 		promises.push(load_trial_index_to_params_log());
 		promises.push(load_progressbar_log());

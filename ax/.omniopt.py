@@ -320,10 +320,13 @@ def my_exit(_code: int = 0) -> None:
     except NameError:
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
-    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
-        _sleep(5)
-    else:
-        time.sleep(2)
+    try:
+        if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
+            _sleep(5)
+        else:
+            time.sleep(2)
+    except KeyboardInterrupt:
+        pass
 
     print("Exit-Code: " + str(_code))
     print_debug("Exit-Code: " + str(_code))

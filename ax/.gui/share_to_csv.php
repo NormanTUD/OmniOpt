@@ -152,8 +152,6 @@
 			$data["raw"] = $raw_file;
 		}
 
-		echo json_encode(
-
-		);
+		echo json_encode($data);
 	}
 ?>

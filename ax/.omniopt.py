@@ -2850,7 +2850,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     return best_line, best_result
 
 @beartype
-def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Optional[dict]:
+def get_res_name_is_maximized(res_name: str) -> bool:
     idx = -1
 
     k = 0
@@ -2860,10 +2860,19 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 
         k = k + 1
 
+    if idx == -1:
+        print_red(f"!!! get_res_name_is_maximized could not find '{res_name}' in the arg_result_names.")
+
     maximize = False
 
     if arg_result_min_or_max[idx] == "max":
         maximize = True
+
+    return maximize
+
+@beartype
+def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Optional[dict]:
+    maximize = get_res_name_is_maximized(res_name)
 
     results: dict = {
         res_name: None,
@@ -3246,7 +3255,7 @@ def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print
     return 0
 
 @beartype
-def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool = True) -> int:
+def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
     global SHOWN_END_TABLE
 
     crf = get_crf()
@@ -3255,6 +3264,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 
     try:
         for res_name in arg_result_names:
+            maximize = get_res_name_is_maximized(res_name)
             result_code = process_best_result(csv_file_path, res_name, maximize, print_to_file)
             if result_code != 0:
                 return result_code
@@ -3269,7 +3279,7 @@ def _print_best_result(csv_file_path: str, maximize: bool, print_to_file: bool =
 def print_best_result() -> int:
     csv_file_path = save_pd_csv()
 
-    return _print_best_result(csv_file_path, args.maximize, True)
+    return _print_best_result(csv_file_path, True)
 
 @beartype
 def show_end_table_and_save_end_files(csv_file_path: str) -> int:
@@ -7292,7 +7302,7 @@ Exit-Code: 159
 
     #nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _best_results_from_example_file_maximize, _expected_best_result_maximize)
 
-    _print_best_result(_example_csv_file, False, False)
+    _print_best_result(_example_csv_file, False)
 
     nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
 

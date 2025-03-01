@@ -209,7 +209,7 @@ function getHashUrlContent(url) {
 
 function fetchHashAndUpdateContent() {
 	if (!loaded_share) {
-		return
+		return;
 	}
 	var urlParams = new URLSearchParams(window.location.search);
 

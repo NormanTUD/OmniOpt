@@ -37,7 +37,7 @@
 
 			var auto_update = getParameterByName('update');
 
-			var interval = 5000;
+			var interval = 60000;
 			setInterval(function() {
 				fetchHashAndUpdateContent();
 			}, interval);

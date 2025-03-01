@@ -1698,7 +1698,7 @@ function link_share_main () {
 		const text = span.textContent;
 
 		if (urlPattern.test(text)) {
-			const newContent = text.replace(urlPattern, match => 
+			const newContent = text.replace(urlPattern, match =>
 				`<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`
 			);
 			const newSpan = document.createElement('span');

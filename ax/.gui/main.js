@@ -217,7 +217,7 @@ function add_status_bar () {
 	$("body").css("margin-bottom", "100px")
 }
 
-function showSpinnerOverlay(text) {                                                                                                                                                                                                     
+function showSpinnerOverlay(text) {
 	let overlay = document.getElementById('spinner-overlay');
 
 	if (overlay) {
@@ -403,8 +403,8 @@ function initialize_autotables() {
 		var table_container_id = tableContainer.attr('id');
 
 		create_table_from_csv_data(
-			csvText, 
-			table_container_id, 
+			csvText,
+			table_container_id,
 			`autotable_${index}`,
 			_optionalColumnTitles
 		);

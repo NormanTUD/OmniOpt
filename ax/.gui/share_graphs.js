@@ -1139,7 +1139,7 @@ async function load_best_result () {
 
 async function plot_planned_vs_real_worker_over_time () {
 	showSpinnerOverlay("Plotting planned vs. real workers...");
-	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv");
+	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv", false, false, true);
 
 	if(!data) {
 		return;

@@ -1,6 +1,17 @@
 #!/bin/bash
 
-if ! command -v sacct 2>/dev/null >/dev/null; then
+find_executable_from_path() {
+	local prog="$1"
+	for dir in $(echo "$PATH" | sed -e 's#:#\n#g'); do
+		if [[ -e "$dir/$prog" ]]; then
+			echo "$dir/$prog"
+		fi
+	done
+}
+
+found_sacct=$(find_executable_from_path "sacct" | grep -v "\.tools" | head -n1)
+
+if ! [[ -e $found_sacct ]]; then
 	echo "sacct not found on this system"
 	exit 1
 fi
@@ -16,7 +27,7 @@ CACHE_KEY=$(echo "$@" | sha256sum | awk '{print $1}')
 CACHE_FILE="$CACHE_DIR/sacct_cache_$CACHE_KEY"
 
 run_sacct() {
-	sacct "$@" > "$CACHE_FILE.stdout" 2> "$CACHE_FILE.stderr"
+	$found_sacct "$@" > "$CACHE_FILE.stdout" 2> "$CACHE_FILE.stderr"
 	return $?
 }
 
@@ -52,5 +63,5 @@ for ((i=0; i<$RETRIES; i++)); do
 	sleep $DELAY
 done
 
-sacct "$@"
+$found_sacct "$@"
 exit $?

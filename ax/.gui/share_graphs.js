@@ -657,7 +657,13 @@ async function load_out_files () {
 					var _fn = data.data[i].replaceAll(/.*\//g, ""); // Clean up filename
 					showSpinnerOverlay(`Loading log ${_fn} (${i + 1}/${got_data.length})...`);
 						var _new_tab_title = `${_fn.replace("_0_log.out", "")} <span>${get_checkmark_if_contains_result(_d.data, result_names)}</span>`;
-						var _new_tab_content = `<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'><pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>${ansi_to_html(_d.data)}</pre></div>`;
+						var _new_tab_content =
+							`<div class='out_file_internal' id='out_file_content_${md5(_d.data + _fn)}_internal'>
+								<pre style='color: lightgreen; background-color: black;' class='invert_in_dark_mode'>
+									${ansi_to_html(_d.data)}
+								</pre>
+							</div>
+						`;
 
 						add_tab(_new_tab_id, _new_tab_title, _new_tab_content, "#" + main_tabs_div_id, false);
 					}

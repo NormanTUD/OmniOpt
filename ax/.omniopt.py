@@ -3228,7 +3228,7 @@ def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> 
         write_to_file(file_path, capture.get())
 
 @beartype
-def process_best_result(csv_file_path: str, res_name: str, maximize: bool, print_to_file: bool) -> int:
+def process_best_result(csv_file_path: str, res_name: str, print_to_file: bool) -> int:
     best_params = get_best_params_from_csv(csv_file_path, res_name)
     best_result = best_params.get(res_name, NO_RESULT) if best_params else NO_RESULT
 
@@ -3264,8 +3264,7 @@ def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
 
     try:
         for res_name in arg_result_names:
-            maximize = get_res_name_is_maximized(res_name)
-            result_code = process_best_result(csv_file_path, res_name, maximize, print_to_file)
+            result_code = process_best_result(csv_file_path, res_name, print_to_file)
             if result_code != 0:
                 return result_code
         SHOWN_END_TABLE = True

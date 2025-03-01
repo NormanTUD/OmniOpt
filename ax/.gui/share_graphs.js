@@ -498,6 +498,7 @@ async function plot_all_possible () {
 		return;
 	}
 
+	showSpinnerOverlay("Trying to plot all possible plots: Filtering data...");
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values));
 
 	var header_line = _results_csv_json.data.shift();
@@ -511,6 +512,7 @@ async function plot_all_possible () {
 		return;
 	}
 
+	showSpinnerOverlay("Trying to plot all possible plots: Getting headers...");
 	for (var i = 0; i < header_line.length; i++) {
 		var this_element = header_line[i];
 
@@ -538,8 +540,11 @@ async function plot_all_possible () {
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 
-	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
+	showSpinnerOverlay("Trying to plot all possible plots: Trying to plot 2d plot...");
 	scatter(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
+
+	showSpinnerOverlay("Trying to plot all possible plots: Trying to plot 3d plot...");
+	scatter_3d(paramKeys, _results_csv_json.data, minResult, maxResult, resultValues, mappingKeyNameToIndex);
 
 	apply_theme_based_on_system_preferences();
 }

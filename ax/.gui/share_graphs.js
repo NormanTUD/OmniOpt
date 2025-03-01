@@ -3,6 +3,13 @@
 var hashcache = [];
 var max_nr_ticks = 1000;
 
+function add_plot_add_possible_graph () {
+	if (!$("#plot_all_possible_button").length) {
+		$("#main_tabbed").after("<button id='plot_all_possible_button' class='invert_in_dark_mode' style='width: 300px' onclick='plot_all_possible()'>Plot 2d and 3d plots if possible (may be slow)</button>\n");
+	}
+	apply_theme_based_on_system_preferences();
+}
+
 function add_load_worker_cpu_button () {
 	if (!$("#load_worker_cpu_button").length) {
 		$("#main_tabbed").after("<button id='load_worker_cpu_button' class='invert_in_dark_mode' style='width: 300px' onclick='plot_worker_cpu_ram()'>Load Worker/CPU graphs (slow)</button>\n");
@@ -1620,7 +1627,7 @@ async function load_all_data() {
 		promises.push(load_arg_overview());
 		promises.push(load_experiment_overview());
 
-		promises.push(plot_all_possible());
+		//promises.push(plot_all_possible());
 		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
 		//promises.push(plot_worker_cpu_ram());
@@ -1641,6 +1648,7 @@ async function load_all_data() {
 		link_share_main();
 
 		add_load_log_button();
+		add_plot_add_possible_graph();
 		add_load_worker_cpu_button();
 	}
 

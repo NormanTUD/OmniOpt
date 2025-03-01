@@ -29,7 +29,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 @beartype
@@ -48,7 +48,7 @@ def parse_arguments() -> Any:
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     if args is not None:
         if "result" not in dataframe:
-            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
 
@@ -88,7 +88,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
             fig = plt.figure(1)
             helpers.save_to_file(fig, args, plt)
         else:
-            if not args.no_plt_show: # pragma: no cover
+            if not args.no_plt_show:
                 plt.show()
 
 @beartype
@@ -113,14 +113,14 @@ def update_graph() -> None:
 
             if args.save_to_file:
                 _path = os.path.dirname(args.save_to_file)
-                if _path: # pragma: no cover
+                if _path:
                     os.makedirs(_path, exist_ok=True)
 
             plot_graph(dataframe, args.save_to_file)
 
-        except FileNotFoundError: # pragma: no cover
+        except FileNotFoundError:
             logging.error("File not found: %s", args.run_dir + "/results.csv")
-        except Exception as exception: # pragma: no cover
+        except Exception as exception:
             logging.error("An unexpected error occurred: %s", str(exception))
 
             helpers.print_traceback()
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir): # pragma: no cover
+    if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

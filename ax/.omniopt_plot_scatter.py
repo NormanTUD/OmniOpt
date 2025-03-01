@@ -33,7 +33,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
@@ -71,7 +71,7 @@ helpers.check_args(args)
 
 try:
     import matplotlib.pyplot as plt
-except ModuleNotFoundError as ee: # pragma: no cover
+except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
     sys.exit(244)
 
@@ -109,7 +109,7 @@ def plot_multiple_graphs(_params: list) -> None:
                         scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
                         axs.set_xlabel(param1)
                         axs.set_ylabel(param2)
-                    else: # pragma: no cover
+                    else:
                         print("ERROR: " + str(e))
 
                         tb = traceback.format_exc()
@@ -197,7 +197,7 @@ def main() -> None:
 
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
-        else: # pragma: no cover
+        else:
             global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
             button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
@@ -208,7 +208,7 @@ def main() -> None:
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None: # pragma: no cover
+def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event: # only for fooling pylint...
@@ -221,10 +221,10 @@ if __name__ == "__main__":
     try:
         theme = "fast"
 
-        if args is not None and args.darkmode: # pragma: no cover
+        if args is not None and args.darkmode:
             theme = "dark_background"
 
         with plt.style.context(theme):
             main()
-    except KeyboardInterrupt: # pragma: no cover
+    except KeyboardInterrupt:
         sys.exit(0)

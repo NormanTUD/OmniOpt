@@ -33,7 +33,7 @@ def check_environment_variable(variable_name: str) -> bool:
 
     return False
 
-if not check_environment_variable("RUN_VIA_RUNSH"): # pragma: no cover
+if not check_environment_variable("RUN_VIA_RUNSH"):
     print("Must be run via the bash script, cannot be run as standalone.")
 
     sys.exit(16)
@@ -41,7 +41,7 @@ if not check_environment_variable("RUN_VIA_RUNSH"): # pragma: no cover
 def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
-if not in_venv(): # pragma: no cover
+if not in_venv():
     print("No venv loaded. Cannot continue.")
     sys.exit(19)
 
@@ -120,12 +120,12 @@ def warn_versions() -> None:
         _supported_versions = supported_versions[key]
         try:
             _real_version = version(key)
-            if _real_version not in _supported_versions: # pragma: no cover
+            if _real_version not in _supported_versions:
                 wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported version(s): {', '.join(_supported_versions)}")
-        except Exception: # pragma: no cover
+        except Exception:
             pass
 
-    if len(wrns): # pragma: no cover
+    if len(wrns):
         print("- " + ("\n- ".join(wrns)))
 
 def looks_like_float(x: Union[float, int, str, None]) -> bool:
@@ -173,12 +173,12 @@ def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
                 decimal_places = len(str(val).split('.')[1])
                 formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
                 return formatted_value if formatted_value else '0'
-            return int(val) # pragma: no cover
-        return val # pragma: no cover
-    except Exception: # pragma: no cover
+            return int(val)
+        return val
+    except Exception:
         return val
 
-def dier(msg: Any) -> None: # pragma: no cover
+def dier(msg: Any) -> None:
     pprint(msg)
     sys.exit(1)
 
@@ -203,7 +203,7 @@ def convert_string_to_number(input_string: str) -> Union[int, float, None]:
             try:
                 number = float(number_str)
                 return number
-            except ValueError as e: # pragma: no cover
+            except ValueError as e:
                 print(f"Failed to convert {number_str} to float: {e}")
 
         int_match = int_pattern.search(input_string)
@@ -212,15 +212,15 @@ def convert_string_to_number(input_string: str) -> Union[int, float, None]:
     except AssertionError as e:
         print(f"Assertion error: {e}")
         return None
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"Unexpected error: {e}")
 
         tb = traceback.format_exc()
         print(tb)
 
-    return None # pragma: no cover
+    return None
 
-def log_error(error_text: str) -> None: # pragma: no cover
+def log_error(error_text: str) -> None:
     print(f"Error: {error_text}", file=sys.stderr)
 
 def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) -> None:
@@ -228,7 +228,7 @@ def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) ->
 
     number_of_non_nan_results = len(filtered_data)
 
-    if number_of_non_nan_results == 0: # pragma: no cover
+    if number_of_non_nan_results == 0:
         print(f"No values were found. Every evaluation found in {csv_file_path} evaluated to NaN.")
         sys.exit(11)
 
@@ -242,7 +242,7 @@ def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> Any:
     return result_column_values
 
 def check_path(_path: str) -> None:
-    if not os.path.exists(_path): # pragma: no cover
+    if not os.path.exists(_path):
         print(f'The folder {_path} does not exist.')
         sys.exit(1)
 
@@ -276,17 +276,17 @@ def print_color(color: str, text: str) -> None:
     try:
         assert color in color_codes, f"Color '{color}' is not supported."
         print(f"{color_codes[color]}{text}{end_color}")
-    except AssertionError as e: # pragma: no cover
+    except AssertionError as e:
         print(f"Error: {e}")
         print(text)
 
 def check_python_version() -> None:
     python_version = platform.python_version()
     supported_versions = ["3.6.15", "3.8.10", "3.8.20", "3.9.21", "3.10.4", "3.10.12", "3.11.2", "3.11.9", "3.9.2", "3.11.3", "3.12.3", "3.12.4", "3.12.5", "3.12.6", "3.12.7", "3.12.7+", "3.12.8", "3.13.1", "3.13.2"]
-    if python_version not in supported_versions: # pragma: no cover
+    if python_version not in supported_versions:
         print_color("yellow", f"Warning: Supported python versions are {', '.join(supported_versions)}, but you are running {python_version}. This may or may not cause problems. Just is just a warning.")
 
-def create_widgets(_data: Any) -> Any: # pragma: no cover
+def create_widgets(_data: Any) -> Any:
     _plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, _args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph = _data
 
     button_ax = _plt.axes([0.8, 0.025, 0.1, 0.04])
@@ -310,7 +310,7 @@ def create_widgets(_data: Any) -> Any: # pragma: no cover
 
     return button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-def die_if_no_nonempty_graph(non_empty_graphs: Any, _exit: Any) -> None: # pragma: no cover
+def die_if_no_nonempty_graph(non_empty_graphs: Any, _exit: Any) -> None:
     if not non_empty_graphs:
         print('No non-empty graphs to display.')
         if _exit:
@@ -319,7 +319,7 @@ def die_if_no_nonempty_graph(non_empty_graphs: Any, _exit: Any) -> None: # pragm
 def get_r(df_filtered: pd.DataFrame) -> int:
     r = 2
 
-    if len(list(df_filtered.columns)) == 1: # pragma: no cover
+    if len(list(df_filtered.columns)) == 1:
         r = 1
 
     return r
@@ -328,15 +328,15 @@ def save_to_file (_fig: Any, _args: Any, _plt: Any) -> None:
     _fig.set_size_inches(15.5, 9.5)
 
     _path = os.path.dirname(_args.save_to_file)
-    if _path: # pragma: no cover
+    if _path:
         os.makedirs(_path, exist_ok=True)
     try:
         _plt.savefig(_args.save_to_file)
-    except OSError as e: # pragma: no cover
+    except OSError as e:
         print(f"Error: {e}. This may happen on unstable file systems or in docker containers.")
         sys.exit(199)
 
-def check_dir_and_csv(_args: Any, csv_file_path: str) -> None: # pragma: no cover
+def check_dir_and_csv(_args: Any, csv_file_path: str) -> None:
     if not os.path.isdir(_args.run_dir):
         print(f"The path {_args.run_dir} does not point to a folder. Must be a folder.")
         sys.exit(11)
@@ -418,24 +418,24 @@ def _unidiff_output(expected: str, actual: str) -> str:
     Helper function. Returns a string containing the unified diff of two multiline strings.
     """
 
-    diff = difflib.unified_diff(expected, actual) # pragma: no cover
+    diff = difflib.unified_diff(expected, actual)
 
-    return ''.join(diff) # pragma: no cover
+    return ''.join(diff)
 
 def print_diff(i: str, o: str) -> None:
     if isinstance(i, str):
         print("Should be:", i.strip())
-    else: # pragma: no cover
+    else:
         print("Should be:", i)
 
     if isinstance(o, str):
         print("Is:", o.strip())
-    else: # pragma: no cover
+    else:
         print("Is:", o)
 
-    if isinstance(i, str) or isinstance(o, str): # pragma: no cover
+    if isinstance(i, str) or isinstance(o, str):
         output = _unidiff_output(str(json.dumps(i)), str(json.dumps(o)))
-        if output: # pragma: no cover
+        if output:
             print("Diff:", output)
 
 def _is_equal(name: str, _input: Any, output: Any) -> bool:
@@ -443,19 +443,19 @@ def _is_equal(name: str, _input: Any, output: Any) -> bool:
         int, str, float, bool
     ]
     for equal_type in _equal_types:
-        if type(_input) is equal_type and type(output) and _input != output: # pragma: no cover
+        if type(_input) is equal_type and type(output) and _input != output:
             print_color("red", f"\n\nFailed test (1): {name}")
             return True
 
-    if type(_input) is not type(output): # pragma: no cover
+    if type(_input) is not type(output):
         print_color("red", f"\n\nFailed test (4): {name}")
         return True
 
-    if isinstance(_input, bool) and _input != output: # pragma: no cover
+    if isinstance(_input, bool) and _input != output:
         print_color("red", f"\n\nFailed test (6): {name}")
         return True
 
-    if (output is None and _input is not None) or (output is not None and _input is None): # pragma: no cover
+    if (output is None and _input is not None) or (output is not None and _input is None):
         print_color("red", f"\n\nFailed test (7): {name}")
         return True
 
@@ -465,14 +465,14 @@ def _is_equal(name: str, _input: Any, output: Any) -> bool:
 def is_equal(n: str, o: Any, i: Any) -> bool:
     r = _is_equal(n, i, o)
 
-    if r: # pragma: no cover
+    if r:
         print_diff(i, o)
 
-    if os.path.exists("None"): # pragma: no cover
+    if os.path.exists("None"):
         print("Folder 'None' exists! Exiting.")
         sys.exit(255)
 
-    return r # pragma: no cover
+    return r
 
 def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
     _equal_types = [
@@ -483,26 +483,26 @@ def _is_not_equal(name: str, _input: Any, output: Any) -> bool:
             print_color("red", f"\n\nFailed test (1): {name}")
             return True
 
-    if isinstance(_input, bool) and _input == output: # pragma: no cover
+    if isinstance(_input, bool) and _input == output:
         print_color("red", f"\n\nFailed test (2): {name}")
         return True
 
-    if not (output is not None and _input is not None): # pragma: no cover
+    if not (output is not None and _input is not None):
         print_color("red", f"\n\nFailed test (3): {name}")
         return True
 
-    #print_color("green", f"Test OK: {name}") # pragma: no cover
+    #print_color("green", f"Test OK: {name}")
     return False
 
 def is_not_equal(n: str, i: Any, o: Any) -> bool:
     r = _is_not_equal(n, i, o)
 
-    if r: # pragma: no cover
+    if r:
         print_diff(i, o)
 
-    return r # pragma: no cover
+    return r
 
-def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[Union[int, float, None], Union[int, float, None]]: # pragma: no cover
+def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[Union[int, float, None], Union[int, float, None]]:
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
@@ -518,7 +518,7 @@ def get_num_subplots_rows_and_cols(non_empty_graphs: list) -> Tuple[int, int, in
 
     return num_subplots, num_cols, num_rows
 
-def remove_widgets(fig: Any, button: Any, MAXIMUM_TEXTBOX: Any, MINIMUM_TEXTBOX: Any) -> None: # pragma: no cover
+def remove_widgets(fig: Any, button: Any, MAXIMUM_TEXTBOX: Any, MINIMUM_TEXTBOX: Any) -> None:
     for widget in fig.axes:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
@@ -533,13 +533,13 @@ def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame
     else:
         if len(parameter_combinations) > 1 or type(parameter_combinations[0]) is tuple:
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb[0]].notna().any() and df_filtered[param_comb[1]].notna().any()]
-        elif len(parameter_combinations) == 1: # pragma: no cover
+        elif len(parameter_combinations) == 1:
             non_empty_graphs = [param_comb for param_comb in parameter_combinations if df_filtered[param_comb].notna().any()]
-        else: # pragma: no cover
+        else:
             print("Error: No non-empty parameter combinations")
             sys.exit(75)
 
-    if not non_empty_graphs: # pragma: no cover
+    if not non_empty_graphs:
         print('No non-empty graphs to display.')
         if _exit:
             sys.exit(2)
@@ -557,7 +557,7 @@ def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
         if col in all_columns_to_remove:
             columns_to_remove.append(col)
 
-    if len(_args.allow_axes): # pragma: no cover
+    if len(_args.allow_axes):
         for col in existing_columns:
             if col != res_col_name and col not in flatten_extend(_args.allow_axes):
                 columns_to_remove.append(col)
@@ -689,7 +689,7 @@ def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
 
             cbar.formatter.set_scientific(False)
             cbar.formatter.set_useMathText(False)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
 def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
@@ -715,7 +715,7 @@ def get_colors(df: pd.DataFrame) -> Any:
 
     try:
         colors = df[res_col_name]
-    except KeyError as e: # pragma: no cover
+    except KeyError as e:
         if str(e) == f"'{res_col_name}'":
             print("Could not find any results")
             sys.exit(3)
@@ -728,7 +728,7 @@ def get_colors(df: pd.DataFrame) -> Any:
 def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any) -> Any:
     colors = get_colors(df)
 
-    if colors is None: # pragma: no cover
+    if colors is None:
         print_color("yellow", "colors is None. Cannot plot.")
         sys.exit(3)
 
@@ -738,7 +738,7 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any) -> Any:
     norm = None
     try:
         norm = _plt.Normalize(colors.min(), colors.max())
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_color("red", f"Wrong values in CSV or error parsing CSV file: {e}")
         sys.exit(16)
 
@@ -751,7 +751,7 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any) -> Any:
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args: Any, df: pd.DataFrame, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame: # pragma: no cover
+def merge_df_with_old_data(_args: Any, df: pd.DataFrame, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame:
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
@@ -768,7 +768,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]: # pragma: no cover
+def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]:
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     if df:
@@ -777,7 +777,7 @@ def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None
 
     return None
 
-def _update_graph(_params: list) -> None: # pragma: no cover
+def _update_graph(_params: list) -> None:
     plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:
@@ -797,11 +797,11 @@ def _update_graph(_params: list) -> None: # pragma: no cover
     except Exception as e:
         _handle_exception(e)
 
-def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None: # pragma: no cover
+def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
-def plot_parameters(_params: list) -> None: # pragma: no cover
+def plot_parameters(_params: list) -> None:
     df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
     parameter_combinations = get_parameter_combinations(df_filtered)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
@@ -816,7 +816,7 @@ def plot_parameters(_params: list) -> None: # pragma: no cover
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
 def _handle_exception(e: Union[str, Exception]) -> None:
-    if "invalid command name" not in str(e): # pragma: no cover
+    if "invalid command name" not in str(e):
         print(f"Failed to update graph: {e}")
 
 def set_margins(fig: Any) -> None:
@@ -831,9 +831,9 @@ def set_margins(fig: Any) -> None:
 
 def use_matplotlib(_args: Any) -> None:
     try:
-        if not _args.save_to_file: # pragma: no cover
+        if not _args.save_to_file:
             matplotlib.use('TkAgg')
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
@@ -854,7 +854,7 @@ def print_traceback() -> None:
     tb = traceback.format_exc()
     print(tb)
 
-def is_valid_time_format(time_string: str) -> bool: # pragma: no cover
+def is_valid_time_format(time_string: str) -> bool:
     try:
         datetime.strptime(time_string, '%Y-%m-%d %H:%M:%S')
         return True
@@ -863,9 +863,9 @@ def is_valid_time_format(time_string: str) -> bool: # pragma: no cover
 
 def check_args(_args: Any) -> None:
     if _args.min and _args.max:
-        if _args.min > _args.max: # pragma: no cover
+        if _args.min > _args.max:
             _args.max, _args.min = _args.min, _args.max
-        elif _args.min == _args.max: # pragma: no cover
+        elif _args.min == _args.max:
             print("Max and min value are the same. May result in empty data")
 
     check_path(_args.run_dir)
@@ -876,13 +876,13 @@ def can_be_plotted(path: str) -> bool:
     if not os.path.exists(result_file):
         return True
 
-    with open(result_file, "r", encoding="utf-8") as file: # pragma: no cover
+    with open(result_file, "r", encoding="utf-8") as file:
         lines = [line.strip() for line in file if line.strip()]
 
-    return len(lines) == 1 # pragma: no cover
+    return len(lines) == 1
 
 def die_if_cannot_be_plotted(run_dir: str) -> None:
-    if not can_be_plotted(run_dir): # pragma: no cover
+    if not can_be_plotted(run_dir):
         log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)
 

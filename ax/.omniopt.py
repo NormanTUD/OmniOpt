@@ -115,7 +115,7 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
-except ModuleNotFoundError as e: # pragma: no cover
+except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
@@ -158,7 +158,7 @@ uuid_regex: Pattern = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3
 new_uuid: str = str(uuid.uuid4())
 run_uuid: str = os.getenv("RUN_UUID", new_uuid)
 
-if not uuid_regex.match(run_uuid): # pragma: no cover
+if not uuid_regex.match(run_uuid):
     print(f"{YELLOW}WARNING: The provided RUN_UUID is not a valid UUID. Using new UUID {new_uuid} instead.{RESET}")
     run_uuid = new_uuid
 
@@ -190,7 +190,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 dier: FunctionType = helpers.dier
@@ -210,7 +210,7 @@ class SignalCONT (Exception):
 
 @beartype
 def is_slurm_job() -> bool:
-    if os.environ.get('SLURM_JOB_ID') is not None: # pragma: no cover
+    if os.environ.get('SLURM_JOB_ID') is not None:
         return True
     return False
 
@@ -243,13 +243,13 @@ def print_red(text: str) -> None:
         try:
             with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(text + "\n\n")
-        except (OSError, FileNotFoundError) as e: # pragma: no cover
+        except (OSError, FileNotFoundError) as e:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
 @beartype
 def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    if _lvl > 3: # pragma: no cover
+    if _lvl > 3:
         original_print(f"Cannot write _debug, error: {eee}")
         print("Exit-Code: 193")
         sys.exit(193)
@@ -257,10 +257,10 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
     try:
         with open(logfile, mode='a', encoding="utf-8") as f:
             original_print(msg, file=f)
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         original_print("_debug: Error trying to write log file: " + str(e))
 
         _debug(msg, _lvl + 1, e)
@@ -290,7 +290,7 @@ def print_debug(msg: str) -> None:
 
     msg = f"{stack_trace_element}"
 
-    #if args is not None and args.debug: # pragma: no cover
+    #if args is not None and args.debug:
     #    original_print(msg)
 
     _debug(msg)
@@ -298,10 +298,10 @@ def print_debug(msg: str) -> None:
     try:
         with open(logfile_bare, mode='a', encoding="utf-8") as f:
             original_print(original_msg, file=f)
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         original_print("_debug: Error trying to write log file: " + str(e))
 
 @beartype
@@ -317,10 +317,10 @@ def my_exit(_code: int = 0) -> None:
 
     try:
         print_debug(f"Exiting with error code {_code}. Traceback: {tb}")
-    except NameError: # pragma: no cover
+    except NameError:
         print(f"Exiting with error code {_code}. Traceback: {tb}")
 
-    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result): # pragma: no cover
+    if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
         _sleep(5)
     else:
         time.sleep(2)
@@ -357,8 +357,8 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     if line in {"min", "max"}:
         return line
 
-    print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}") # pragma: no cover
-    return _default_min_max # pragma: no cover
+    print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}")
+    return _default_min_max
 
 class ConfigLoader:
     run_tests_that_fail_on_taurus: bool
@@ -516,7 +516,7 @@ class ConfigLoader:
 
     @beartype
     def load_config(self, config_path: str, file_format: str) -> dict:
-        if not os.path.isfile(config_path): # pragma: no cover
+        if not os.path.isfile(config_path):
             print("Exit-Code: 5")
             sys.exit(5)
 
@@ -535,7 +535,7 @@ class ConfigLoader:
                 print("Exit-Code: 5")
                 sys.exit(5)
 
-        return {} # pragma: no cover
+        return {}
 
     @beartype
     def validate_and_convert(self, config: dict, arg_defaults: dict) -> dict:
@@ -557,9 +557,9 @@ class ConfigLoader:
                 try:
                     # Convert the value to the expected type
                     converted_config[key] = expected_type(value)
-                except (ValueError, TypeError): # pragma: no cover
+                except (ValueError, TypeError):
                     print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
-            else: # pragma: no cover
+            else:
                 print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
 
         return converted_config
@@ -589,7 +589,7 @@ class ConfigLoader:
         yaml_and_json = _args.config_yaml and _args.config_json
         json_and_toml = _args.config_json and _args.config_toml
 
-        if yaml_and_toml or yaml_and_json or json_and_toml: # pragma: no cover
+        if yaml_and_toml or yaml_and_json or json_and_toml:
             print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
             print("Exit-Code: 5")
 
@@ -642,7 +642,7 @@ for _rn in args.result_names:
         _key = _rn
         _min_or_max = __default_min_max
 
-    if _min_or_max not in ["min", "max"]: # pragma: no cover
+    if _min_or_max not in ["min", "max"]:
         if _min_or_max:
             print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max' for key '{_key}', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
         _min_or_max = __default_min_max
@@ -675,16 +675,16 @@ if args.continue_previous_job is not None:
 
                 if found_result_names and found_result_names[-1] == '':
                     found_result_names.pop()
-        except FileNotFoundError: # pragma: no cover
+        except FileNotFoundError:
             print_red(f"Error: The file at '{look_for_result_names_file}' was not found.")
-        except IOError as e: # pragma: no cover
+        except IOError as e:
             print_red(f"Error reading file '{look_for_result_names_file}': {e}")
-    else: # pragma: no cover
+    else:
         print_yellow(f"{look_for_result_names_file} not found!")
 
     found_result_min_max = []
     default_min_max = "min"
-    if args.maximize: # pragma: no cover
+    if args.maximize:
         default_min_max = "max"
 
     for _n in range(0, len(found_result_names)):
@@ -692,8 +692,8 @@ if args.continue_previous_job is not None:
 
         found_result_min_max.append(min_max)
 
-    arg_result_names = found_result_names # pragma: no cover
-    arg_result_min_or_max = found_result_min_max # pragma: no cover
+    arg_result_names = found_result_names
+    arg_result_min_or_max = found_result_min_max
 
 disable_logs = None
 
@@ -719,25 +719,25 @@ try:
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob
-except ModuleNotFoundError as ee: # pragma: no cover
+except ModuleNotFoundError as ee:
     original_print(f"Base modules could not be loaded: {ee}")
     my_exit(31)
-except SignalINT: # pragma: no cover
+except SignalINT:
     print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
     my_exit(130)
-except SignalUSR: # pragma: no cover
+except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(138)
-except SignalCONT: # pragma: no cover
+except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(146)
-except KeyboardInterrupt: # pragma: no cover
+except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted.")
     my_exit(0)
-except AttributeError: # pragma: no cover
+except AttributeError:
     print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
     my_exit(7)
-except FileNotFoundError as e: # pragma: no cover
+except FileNotFoundError as e:
     print(f"\n⚠ Error {e}. This probably means that your hard disk is full")
     my_exit(92)
 except ImportError as e:
@@ -762,20 +762,20 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
 
         return nr_lines
 
-    except FileNotFoundError as e: # pragma: no cover
+    except FileNotFoundError as e:
         original_print(f"File not found: {e}")
-    except (SignalUSR, SignalINT, SignalCONT): # pragma: no cover
+    except (SignalUSR, SignalINT, SignalCONT):
         if recursion:
             print_red("Recursion error in append_and_read.")
             sys.exit(199)
         append_and_read(file, nr, recursion + 1)
-    except OSError as e: # pragma: no cover
+    except OSError as e:
         print_red(f"OSError: {e}. This may happen on unstable file systems.")
         sys.exit(199)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"Error editing the file: {e}")
 
-    return 0 # pragma: no cover
+    return 0
 
 @beartype
 def run_live_share_command() -> Tuple[str, str]:
@@ -785,7 +785,7 @@ def run_live_share_command() -> Tuple[str, str]:
         try:
             # Environment variable USER
             _user = os.getenv('USER')
-            if _user is None: # pragma: no cover
+            if _user is None:
                 _user = 'defaultuser'
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
@@ -798,25 +798,25 @@ def run_live_share_command() -> Tuple[str, str]:
 
             # Return stdout and stderr
             return str(result.stdout), str(result.stderr)
-        except subprocess.CalledProcessError as e: # pragma: no cover
+        except subprocess.CalledProcessError as e:
             if e.stderr:
                 original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
             else:
                 original_print(f"run_live_share_command: command failed with error: {e}")
             return "", str(e.stderr)
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print(f"run_live_share_command: An error occurred: {e}")
 
-    return "", "" # pragma: no cover
+    return "", ""
 
 @beartype
 def live_share() -> bool:
     global SHOWN_LIVE_SHARE_COUNTER
 
-    if not args.live_share: # pragma: no cover
+    if not args.live_share:
         return False
 
-    if not get_current_run_folder(): # pragma: no cover
+    if not get_current_run_folder():
         return False
 
     stdout, stderr = run_live_share_command()
@@ -855,13 +855,13 @@ def save_pd_csv() -> str:
             json.dump(json_snapshot, json_file, indent=4)
 
         save_experiment(ax_client.experiment, f"{get_current_run_folder()}/state_files/ax_client.experiment.json")
-    except SignalUSR as e: # pragma: no cover
+    except SignalUSR as e:
         raise SignalUSR(str(e)) from e
-    except SignalCONT as e: # pragma: no cover
+    except SignalCONT as e:
         raise SignalCONT(str(e)) from e
-    except SignalINT as e: # pragma: no cover
+    except SignalINT as e:
         raise SignalINT(str(e)) from e
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
@@ -900,7 +900,7 @@ already_inserted_param_data: list = []
 @beartype
 def print_logo() -> None:
     print_debug("print_logo()")
-    if os.environ.get('NO_OO_LOGO') is not None: # pragma: no cover
+    if os.environ.get('NO_OO_LOGO') is not None:
         return
 
     if random.choice([True, False]):
@@ -1049,7 +1049,7 @@ def set_max_eval(new_max_eval: int) -> None:
 
 @beartype
 def write_worker_usage() -> None:
-    if len(WORKER_PERCENTAGE_USAGE): # pragma: no cover
+    if len(WORKER_PERCENTAGE_USAGE):
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
@@ -1059,12 +1059,12 @@ def write_worker_usage() -> None:
             for row in WORKER_PERCENTAGE_USAGE:
                 csv_writer.writerow(row)
     else:
-        if is_slurm_job(): # pragma: no cover
+        if is_slurm_job():
             print_debug("WORKER_PERCENTAGE_USAGE seems to be empty. Not writing worker_usage.csv")
 
 @beartype
 def log_system_usage() -> None:
-    if not get_current_run_folder(): # pragma: no cover
+    if not get_current_run_folder():
         return
 
     csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
@@ -1094,18 +1094,18 @@ def log_system_usage() -> None:
 def write_process_info() -> None:
     try:
         log_system_usage()
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_debug(f"Error retrieving process information: {str(e)}")
 
 @beartype
 def log_nr_of_workers() -> None:
     try:
         write_process_info()
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_debug(f"log_nr_of_workers: failed to write_process_info: {e}")
         return None
 
-    if "jobs" not in global_vars: # pragma: no cover
+    if "jobs" not in global_vars:
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return None
 
@@ -1114,36 +1114,36 @@ def log_nr_of_workers() -> None:
     if not nr_of_workers:
         return None
 
-    try: # pragma: no cover
+    try:
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_of_workers) + "\n")
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         my_exit(99)
-    except OSError as e: # pragma: no cover
+    except OSError as e:
         print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt2 probably cannot do anything about it.")
         my_exit(199)
 
-    return None # pragma: no cover
+    return None
 
 @beartype
 def log_what_needs_to_be_logged() -> None:
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()
-        except Exception: # pragma: no cover
+        except Exception:
             pass
 
     if "write_process_info" in globals():
         try:
             write_process_info()
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print_debug(f"Error in write_process_info: {e}")
 
     if "log_nr_of_workers" in globals():
         try:
             log_nr_of_workers()
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print_debug(f"Error in log_nr_of_workers: {e}")
 
 @beartype
@@ -1170,7 +1170,7 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
         _sleep(2)
 
         return True
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_debug(
             f"Error converting and resizing image: "
             f"{str(e)}, width: {width}, image_path: {image_path}"
@@ -1180,10 +1180,10 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
 @beartype
 def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    if not _logfile: # pragma: no cover
+    if not _logfile:
         return None
 
-    if _lvl > 3: # pragma: no cover
+    if _lvl > 3:
         original_print(f"Cannot write _debug, error: {eee}")
         return None
 
@@ -1191,10 +1191,10 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
         with open(_logfile, mode='a', encoding="utf-8") as f:
             #original_print(f"========= {time.time()} =========", file=f)
             original_print(message, file=f)
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         original_print(f"Error trying to write log file: {e}")
         log_message_to_file(_logfile, message, _lvl + 1, e)
 
@@ -1209,7 +1209,7 @@ def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Except
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
 
 @beartype
-def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None: # pragma: no cover
+def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(_file, result, _lvl, str(eee))
 
 @beartype
@@ -1241,7 +1241,7 @@ def get_file_as_string(f: str) -> str:
 
         if isinstance(_df, str):
             datafile = _df
-        else: # pragma: no cover
+        else:
             datafile = "\n".join(_df)
 
     return "".join(datafile)
@@ -1261,7 +1261,7 @@ else:
     prev_job_file = prev_job_folder + "/state_files/joined_run_program"
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
-    else: # pragma: no cover
+    else:
         print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
 
@@ -1273,20 +1273,20 @@ global_vars["experiment_name"] = args.experiment_name
 
 @beartype
 def load_global_vars(_file: str) -> None:
-    if not os.path.exists(_file): # pragma: no cover
+    if not os.path.exists(_file):
         print_red(f"You've tried to continue a non-existing job: {_file}")
         my_exit(44)
     try:
         global global_vars
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
         my_exit(44)
 
 @beartype
 def load_or_exit(filepath: str, error_msg: str, exit_code: int) -> None:
-    if not os.path.exists(filepath): # pragma: no cover
+    if not os.path.exists(filepath):
         print_red(error_msg)
         my_exit(exit_code)
 
@@ -1308,7 +1308,7 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
 
         # Load experiment name from file if not already set
-        if not global_vars.get("experiment_name"): # pragma: no cover
+        if not global_vars.get("experiment_name"):
             exp_name_file = f"{continue_previous_job}/experiment_name"
             global_vars["experiment_name"] = get_file_content_or_exit(
                 exp_name_file,
@@ -1347,17 +1347,17 @@ def load_time_or_exit(_args: Any) -> None:
         time_content = get_file_content_or_exit(time_file, f"neither --time nor file {time_file} found", 19).rstrip()
         time_content = time_content.replace("\n", "").replace(" ", "")
 
-        if time_content.isdigit(): # pragma: no cover
+        if time_content.isdigit():
             global_vars["_time"] = int(time_content)
             print_yellow(f"Using old run's --time: {global_vars['_time']}")
-        else: # pragma: no cover
+        else:
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
         print_red("Missing --time parameter. Cannot continue.")
         my_exit(19)
 
 @beartype
-def load_mem_gb_or_exit(_args: Any) -> Optional[int]: # pragma: no cover
+def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
     if _args.mem_gb:
         return int(_args.mem_gb)
 
@@ -1387,17 +1387,17 @@ def load_gpus_or_exit(_args: Any) -> Optional[int]:
             print_yellow(f"Using old run's --gpus: {gpus}")
             return gpus
 
-        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number") # pragma: no cover
+        print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
     return _args.gpus
 
 @beartype
 def load_max_eval_or_exit(_args: Any) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
-        if _args.max_eval <= 0: # pragma: no cover
+        if _args.max_eval <= 0:
             print_red("--max_eval must be larger than 0")
             my_exit(19)
-    elif _args.continue_previous_job: # pragma: no cover
+    elif _args.continue_previous_job:
         max_eval_file = f"{_args.continue_previous_job}/state_files/max_eval"
         max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
         if max_eval_content.isdigit():
@@ -1421,7 +1421,7 @@ if not args.tests:
 
     loaded_gpus = load_gpus_or_exit(args)
 
-    if loaded_gpus: # pragma: no cover
+    if loaded_gpus:
         args.gpus = loaded_gpus
         global_vars["gpus"] = args.gpus
 
@@ -1442,15 +1442,15 @@ def print_debug_progressbar(msg: str) -> None:
     _debug_progressbar(msg)
 
 @beartype
-def receive_usr_signal_one(signum: int, stack: Any) -> None: # pragma: no cover
+def receive_usr_signal_one(signum: int, stack: Any) -> None:
     raise SignalUSR(f"USR1-signal received ({signum})")
 
 @beartype
-def receive_usr_signal_int(signum: int, stack: Any) -> None: # pragma: no cover
+def receive_usr_signal_int(signum: int, stack: Any) -> None:
     raise SignalINT(f"INT-signal received ({signum})")
 
 @beartype
-def receive_signal_cont(signum: int, stack: Any) -> None: # pragma: no cover
+def receive_signal_cont(signum: int, stack: Any) -> None:
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal_one)
@@ -1463,16 +1463,16 @@ signal.signal(signal.SIGCONT, receive_signal_cont)
 def is_executable_in_path(executable_name: str) -> bool:
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
-        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK): # pragma: no cover
+        if os.path.exists(executable_path) and os.access(executable_path, os.X_OK):
             return True
     return False
 
 SYSTEM_HAS_SBATCH: bool = False
 IS_NVIDIA_SMI_SYSTEM: bool = False
 
-if is_executable_in_path("sbatch"): # pragma: no cover
+if is_executable_in_path("sbatch"):
     SYSTEM_HAS_SBATCH = True
-if is_executable_in_path("nvidia-smi"): # pragma: no cover
+if is_executable_in_path("nvidia-smi"):
     IS_NVIDIA_SMI_SYSTEM = True
 
 if not SYSTEM_HAS_SBATCH:
@@ -1489,7 +1489,7 @@ def save_global_vars() -> None:
 @beartype
 def check_slurm_job_id() -> None:
     print_debug("check_slurm_job_id()")
-    if SYSTEM_HAS_SBATCH: # pragma: no cover
+    if SYSTEM_HAS_SBATCH:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
@@ -1530,7 +1530,7 @@ def get_program_code_from_out_file(f: str) -> str:
     fs = get_file_as_string(f)
 
     for line in fs.split("\n"):
-        if "Program-Code:" in line: # pragma: no cover
+        if "Program-Code:" in line:
             return line
 
     return ""
@@ -1545,7 +1545,7 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
 
         df = pd.read_csv(pd_csv, float_precision='round_trip')
 
-        if column not in df.columns: # pragma: no cover
+        if column not in df.columns:
             print_red(f"Cannot load data from {pd_csv}: column {column} does not exist. Returning default {_default}")
             return _value
 
@@ -1553,11 +1553,11 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
             _value = df[column].min()
         elif _type == "max":
             _value = df[column].max()
-        else: # pragma: no cover
+        else:
             dier(f"get_min_or_max_column_value: Unknown type {_type}")
 
         return _value
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error while getting {_type} value from column {column}: {str(e)}")
         raise
 
@@ -1582,7 +1582,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_min_col:
                 found_in_file = True
 
-            if found_in_file and isinstance(_old_min_col, (int, float)) and isinstance(_default, (int, float)) and _default > _old_min_col: # pragma: no cover
+            if found_in_file and isinstance(_old_min_col, (int, float)) and isinstance(_default, (int, float)) and _default > _old_min_col:
                 ret_val = _old_min_col
             else:
                 ret_val = _default
@@ -1591,11 +1591,11 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             if _old_max_col:
                 found_in_file = True
 
-            if found_in_file and isinstance(_old_max_col, (int, float)) and isinstance(_default, (int, float)) and _default < _old_max_col: # pragma: no cover
+            if found_in_file and isinstance(_old_max_col, (int, float)) and isinstance(_default, (int, float)) and _default < _old_max_col:
                 ret_val = _old_max_col
             else:
                 ret_val = _default
-    else: # pragma: no cover
+    else:
         print_red(f"'{pd_csv}' was not found")
 
     return ret_val, found_in_file
@@ -1641,7 +1641,7 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
-    except Exception: # pragma: no cover
+    except Exception:
         print_red(f"\n{this_args[j + 2]} is not a number")
         my_exit(181)
 
@@ -1675,7 +1675,7 @@ def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_b
 
 @beartype
 def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
-    if lower_bound is None or upper_bound is None: # pragma: no cover
+    if lower_bound is None or upper_bound is None:
         print_red("handle_grid_search: lower_bound or upper_bound is None")
         my_exit(91)
 
@@ -1708,11 +1708,11 @@ def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound:
     old_upper_bound = upper_bound
 
     if args.continue_previous_job:
-        if old_lower_bound != lower_bound: # pragma: no cover
+        if old_lower_bound != lower_bound:
             print_yellow(f"previous jobs contained smaller values for {name}. Lower bound adjusted from {old_lower_bound} to {lower_bound}")
             search_space_reduction_warning = True
 
-        if old_upper_bound != upper_bound: # pragma: no cover
+        if old_upper_bound != upper_bound:
             print_yellow(f"previous jobs contained larger values for {name}. Upper bound adjusted from {old_upper_bound} to {upper_bound}")
             search_space_reduction_warning = True
 
@@ -1723,7 +1723,7 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
     skip = 5
     try:
         value_type = this_args[j + 4]
-    except Exception: # pragma: no cover
+    except Exception:
         value_type = "float"
         skip = 4
 
@@ -1862,11 +1862,11 @@ def parse_experiment_parameters() -> list:
 
             try:
                 param_type = this_args[j + 1]
-            except Exception: # pragma: no cover
+            except Exception:
                 print_red("Not enough arguments for --parameter")
                 my_exit(181)
 
-            if param_type not in valid_types: # pragma: no cover
+            if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
                 print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
                 my_exit(181)
@@ -1877,18 +1877,18 @@ def parse_experiment_parameters() -> list:
                 j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
             elif param_type == "choice":
                 j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
-            else: # pragma: no cover
+            else:
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
         i += 1
 
-    if search_space_reduction_warning: # pragma: no cover
+    if search_space_reduction_warning:
         print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
     return params
 
 @beartype
-def check_factorial_range() -> None: # pragma: no cover
+def check_factorial_range() -> None:
     if args.model and args.model == "FACTORIAL":
         print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
         my_exit(181)
@@ -1908,15 +1908,15 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
 
 @beartype
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
-    if upper_bound is None or lower_bound is None: # pragma: no cover
+    if upper_bound is None or lower_bound is None:
         print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
         my_exit(91)
     if upper_bound == lower_bound:
         if lower_bound == 0:
             print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
             my_exit(181)
-        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound") # pragma: no cover
-        if upper_bound is not None: # pragma: no cover
+        print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
+        if upper_bound is not None:
             lower_bound = -upper_bound
 
 @beartype
@@ -1932,7 +1932,7 @@ def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
         input_string = input_string.replace('\r', ' ').replace('\n', ' ')
 
         return input_string
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"\n⚠ Error: {e}")
         return ""
 
@@ -2029,13 +2029,13 @@ def execute_bash_code(code: str) -> list:
             capture_output=True
         )
 
-        if result.returncode != 0: # pragma: no cover
+        if result.returncode != 0:
             print(f"Exit-Code: {result.returncode}")
 
         real_exit_code = result.returncode
 
         signal_code = None
-        if real_exit_code < 0: # pragma: no cover
+        if real_exit_code < 0:
             signal_code = abs(result.returncode)
             real_exit_code = 1
 
@@ -2045,11 +2045,11 @@ def execute_bash_code(code: str) -> list:
         real_exit_code = e.returncode
 
         signal_code = None
-        if real_exit_code < 0: # pragma: no cover
+        if real_exit_code < 0:
             signal_code = abs(e.returncode)
             real_exit_code = 1
 
-        if not args.tests: # pragma: no cover
+        if not args.tests:
             print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
             if len(e.stdout):
                 print(f"stdout: {e.stdout}")
@@ -2064,7 +2064,7 @@ def execute_bash_code(code: str) -> list:
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
 @beartype
-def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]: # pragma: no cover
+def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]:
     if input_string is None:
         print_red("get_results: Input-String is None")
         return None
@@ -2089,13 +2089,13 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
         if len(results):
             return results
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error extracting the RESULT-string: {e}")
 
     return None
 
 @beartype
-def add_to_csv(file_path: str, heading: list, data_line: list) -> None: # pragma: no cover
+def add_to_csv(file_path: str, heading: list, data_line: list) -> None:
     is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
 
     data_line = [helpers.to_int_when_possible(x) for x in data_line]
@@ -2123,7 +2123,7 @@ def find_file_paths(_text: str) -> List[str]:
 
         return file_paths
 
-    return [] # pragma: no cover
+    return []
 
 @beartype
 def check_file_info(file_path: str) -> str:
@@ -2131,7 +2131,7 @@ def check_file_info(file_path: str) -> str:
         print(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
-    if not os.access(file_path, os.R_OK): # pragma: no cover
+    if not os.access(file_path, os.R_OK):
         print(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
@@ -2154,7 +2154,7 @@ def check_file_info(file_path: str) -> str:
     string += f"UID: {uid}\n"
     string += f"GID: {gid}\n"
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "": # pragma: no cover
+    if _SLURM_JOB_ID is not None and _SLURM_JOB_ID is not False and _SLURM_JOB_ID != "":
         string += f"SLURM_JOB_ID: {_SLURM_JOB_ID}\n"
     string += f"Status-Change-Time: {status_change_time}\n"
     string += f"Size: {size} Bytes\n"
@@ -2185,7 +2185,7 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     return string
 
 @beartype
-def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # pragma: no cover
+def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
     assert isinstance(data_dict, dict), "The parameter must be a dictionary."
     assert isinstance(error_description, str), "The error_description must be a string."
 
@@ -2213,7 +2213,7 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # p
                     writer = csv.writer(header_file)
                     writer.writerow(headers)
                     print_debug(f"Header file created with headers: {headers}")
-            except Exception as e: # pragma: no cover
+            except Exception as e:
                 print_red(f"Failed to write header file: {e}")
 
         # Append data to the data file
@@ -2223,10 +2223,10 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None: # p
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
 
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print_red(f"Failed to append data to file: {e}")
 
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Unexpected error: {e}")
 
 @beartype
@@ -2244,18 +2244,18 @@ def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None)
 
             entries = [line.strip() for line in lines]
 
-            if entry is not None and entry not in entries: # pragma: no cover
+            if entry is not None and entry not in entries:
                 file.write(entry + '\n')
                 entries.append(entry)
 
         return sorted(set(entries))
 
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"An error has occurred: {e}")
         return []
 
 @beartype
-def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]: # pragma: no cover
+def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]:
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
             for i in range(torch.cuda.device_count()):
@@ -2349,7 +2349,7 @@ def calculate_signed_minkowski_distance(_args: Union[dict, List[float]], p: Unio
 def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
-    if not re.fullmatch(pattern, weights_string): # pragma: no cover
+    if not re.fullmatch(pattern, weights_string):
         print_red(f"String '{weights_string}' does not match pattern {pattern}")
         my_exit(32)
 
@@ -2363,7 +2363,7 @@ def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]]
         print_yellow("calculate_signed_weighted_euclidean_distance: Warning: Not enough weights, filling with 1s")
         weights.extend([1] * (len(_args) - len(weights)))
 
-    if len(_args) != len(weights): # pragma: no cover
+    if len(_args) != len(weights):
         raise ValueError("Length of _args and weights must match.")
 
     weighted_sum: float = sum(w * (a ** 2) for a, w in zip(_args, weights))
@@ -2378,18 +2378,18 @@ def calculate_occ(_args: Optional[Union[dict, List[Union[int, float]]]]) -> Unio
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
 
-    if args.occ_type == "euclid": # pragma: no cover
+    if args.occ_type == "euclid":
         return calculate_signed_euclidean_distance(_args)
-    if args.occ_type == "geometric": # pragma: no cover
+    if args.occ_type == "geometric":
         return calculate_signed_geometric_distance(_args)
-    if args.occ_type == "signed_harmonic": # pragma: no cover
+    if args.occ_type == "signed_harmonic":
         return calculate_signed_harmonic_distance(_args)
-    if args.occ_type == "minkowski":  # pragma: no cover
+    if args.occ_type == "minkowski":
         return calculate_signed_minkowski_distance(_args, args.minkowski_p)
-    if args.occ_type == "weighted_euclidean":  # pragma: no cover
+    if args.occ_type == "weighted_euclidean":
         return calculate_signed_weighted_euclidean_distance(_args, args.signed_weighted_euclidean_weights)
 
-    raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}") # pragma: no cover
+    raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}")
 
 @beartype
 def get_return_in_case_of_errors() -> dict:
@@ -2399,7 +2399,7 @@ def get_return_in_case_of_errors() -> dict:
     for _rn in arg_result_names:
         if arg_result_min_or_max[i] == "min":
             return_in_case_of_error[_rn] = VAL_IF_NOTHING_FOUND
-        else: # pragma: no cover
+        else:
             return_in_case_of_error[_rn] = -VAL_IF_NOTHING_FOUND
 
         i = i + 1
@@ -2413,7 +2413,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     extra_vars_names, extra_vars_values = extract_info(stdout)
 
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
-    if _SLURM_JOB_ID: # pragma: no cover
+    if _SLURM_JOB_ID:
         extra_vars_names.append("OO_Info_SLURM_JOB_ID")
         extra_vars_values.append(str(_SLURM_JOB_ID))
 
@@ -2434,10 +2434,10 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
 
     result_values = []
 
-    if isinstance(result, list): # pragma: no cover
+    if isinstance(result, list):
         for rkey in result:
             result_values.append(str(rkey))
-    elif isinstance(result, dict): # pragma: no cover
+    elif isinstance(result, dict):
         result_keys: list = list(result.keys())
         for rkey in result_keys:
             rval = str(result[str(rkey)])
@@ -2460,7 +2460,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     headline = ['None' if element is None else element for element in headline]
     values = ['None' if element is None else element for element in values]
 
-    if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()): # pragma: no cover
+    if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()):
         add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
     else:
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
@@ -2558,7 +2558,7 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]:
     result = get_results(stdout)
 
-    if result and args.occ: # pragma: no cover
+    if result and args.occ:
         occed_result = calculate_occ(result)
 
         if occed_result is not None:
@@ -2582,7 +2582,7 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
     ignore_signals()
 
     try:
-        if args.raise_in_eval: # pragma: no cover
+        if args.raise_in_eval:
             raise SignalUSR("Raised in eval")
 
         program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
@@ -2599,17 +2599,17 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
         evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, end_time - start_time)
 
-        if isinstance(result, (int, float)):  # pragma: no cover
+        if isinstance(result, (int, float)):
             return {
                 name: float(result) for name in arg_result_names
             }
 
-        if isinstance(result, list):  # pragma: no cover
+        if isinstance(result, list):
             return {
                 name: cast(float | None, [float(r) for r in result]) for name in arg_result_names
             }
 
-        if isinstance(result, (dict)): # pragma: no cover
+        if isinstance(result, (dict)):
             return result
 
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -2627,21 +2627,21 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-        write_failed_logs(parameters, "No Result") # pragma: no cover
-    except SignalUSR: # pragma: no cover
+        write_failed_logs(parameters, "No Result")
+    except SignalUSR:
         print("\n⚠ USR1-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "USR1-signal")
-    except SignalCONT: # pragma: no cover
+    except SignalCONT:
         print("\n⚠ CONT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "CONT-signal")
-    except SignalINT: # pragma: no cover
+    except SignalINT:
         print("\n⚠ INT-Signal was sent. Cancelling evaluation.")
         write_failed_logs(parameters, "INT-signal")
 
-    return return_in_case_of_error # pragma: no cover
+    return return_in_case_of_error
 
 class NpEncoder(json.JSONEncoder):
-    def default(self: Any, obj: Any) -> Union[int, float, list, str]: # pragma: no cover
+    def default(self: Any, obj: Any) -> Union[int, float, list, str]:
         if isinstance(obj, np.integer):
             return int(obj)
         if isinstance(obj, np.floating):
@@ -2658,13 +2658,13 @@ def custom_warning_handler(
     lineno: int,
     file: Union[TextIO, None] = None,
     line: Union[str, None] = None
-) -> None: # pragma: no cover
+) -> None:
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
 
 @beartype
 def disable_logging() -> None:
-    if args.verbose: # pragma: no cover
+    if args.verbose:
         return
 
     logging.basicConfig(level=logging.CRITICAL)
@@ -2733,15 +2733,15 @@ def display_failed_jobs_table() -> None:
     parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
     # Assert the existence of the folder and files
-    if not os.path.exists(failed_jobs_file): # pragma: no cover
+    if not os.path.exists(failed_jobs_file):
         print_debug(f"Failed jobs {failed_jobs_file} file does not exist.")
         return
 
-    if not os.path.isfile(header_file): # pragma: no cover
+    if not os.path.isfile(header_file):
         print_debug(f"Failed jobs Header file ({header_file}) does not exist.")
         return
 
-    if not os.path.isfile(parameters_file): # pragma: no cover
+    if not os.path.isfile(parameters_file):
         print_debug(f"Failed jobs Parameters file ({parameters_file}) does not exist.")
         return
 
@@ -2773,11 +2773,11 @@ def display_failed_jobs_table() -> None:
 
         # Print the table to the console
         console.print(table)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error: {str(e)}")
 
 @beartype
-def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None: # pragma: no cover
+def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None:
     if not helpers.looks_like_int(_width):
         print_red(f"Error: {_width} does not look like an int")
         sys.exit(8)
@@ -2813,7 +2813,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
             replaced_string = replaced_string.replace(f"%{i}", str(param))
             i += 1
         return replaced_string
-    except AssertionError as e: # pragma: no cover
+    except AssertionError as e:
         error_text = f"Error in replace_string_with_params: {e}"
         print(error_text)
         raise
@@ -2829,7 +2829,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
-        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None: # pragma: no cover
+        if isinstance(this_line_result, str) and re.match(r'^-?\d+(?:\.\d+)$', this_line_result) is not None:
             this_line_result = float(this_line_result)
 
         if type(this_line_result) in [float, int]:
@@ -2879,7 +2879,7 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
         "parameters": {}
     }
 
-    if not os.path.exists(csv_file_path): # pragma: no cover
+    if not os.path.exists(csv_file_path):
         return results
 
     df = None
@@ -2901,7 +2901,7 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 
     best_line, _ = get_best_line_and_best_result(nparray, result_idx, maximize)
 
-    if best_line is None: # pragma: no cover
+    if best_line is None:
         print_debug(f"Could not determine best {res_name}")
         return results
 
@@ -2949,17 +2949,17 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     try:
         df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=arg_result_names, inplace=True)
-    except KeyError: # pragma: no cover
+    except KeyError:
         _err = True
-    except pd.errors.EmptyDataError: # pragma: no cover
+    except pd.errors.EmptyDataError:
         _err = True
-    except pd.errors.ParserError as e: # pragma: no cover
+    except pd.errors.ParserError as e:
         print_red(f"Error reading CSV file 2: {str(e)}")
         _err = True
-    except UnicodeDecodeError as e: # pragma: no cover
+    except UnicodeDecodeError as e:
         print_red(f"Error reading CSV file 3: {str(e)}")
         _err = True
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error reading CSV file 4: {str(e)}")
         _err = True
 
@@ -2970,7 +2970,7 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
     if _type == "Sobol":
-        rows = df[df["generation_method"] == _type] # pragma: no cover
+        rows = df[df["generation_method"] == _type]
     else:
         rows = df[df["trial_status"] == _type]
     count = len(rows)
@@ -3001,7 +3001,7 @@ def get_random_steps_from_prev_job() -> int:
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
 
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job) # pragma: no cover
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
 @beartype
 def failed_jobs(nr: int = 0) -> int:
@@ -3089,11 +3089,11 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
         print_debug(f"Cannot find path {_pd_csv}")
         return data
 
-    if not _show_sixel_graphics: # pragma: no cover
+    if not _show_sixel_graphics:
         print_debug("_show_sixel_graphics was false. Will not plot.")
         return data
 
-    if len(global_vars["parameter_names"]) == 0: # pragma: no cover
+    if len(global_vars["parameter_names"]) == 0:
         print_debug("Cannot handle empty data in global_vars -> parameter_names")
         return data
 
@@ -3104,7 +3104,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
         plot_type = plot["type"]
         min_done_jobs = plot.get("min_done_jobs", 1)
 
-        if not _force and count_done_jobs() < min_done_jobs: # pragma: no cover
+        if not _force and count_done_jobs() < min_done_jobs:
             print_debug(f"Cannot plot {plot_type}, because it needs {min_done_jobs}, but you only have {count_done_jobs()} jobs done")
             continue
 
@@ -3112,7 +3112,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
             _tmp = f"{get_current_run_folder()}/plots/"
             _width = plot.get("width", "1200")
 
-            if not _force and not os.path.exists(_tmp): # pragma: no cover
+            if not _force and not os.path.exists(_tmp):
                 makedirs(_tmp)
 
             tmp_file = get_plot_filename(plot, _tmp)
@@ -3120,7 +3120,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
             _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
             data.append(_params)
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             tb = traceback.format_exc()
             print_red(f"Error trying to print {plot_type} to CLI: {e}, {tb}")
             print_debug(f"Error trying to print {plot_type} to CLI: {e}")
@@ -3148,7 +3148,7 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
                             if len(_p):
                                 tmp_file = f"{_tmp}/{replace_string_with_params(_fn, _p)}.png"
 
-                            while os.path.exists(tmp_file): # pragma: no cover
+                            while os.path.exists(tmp_file):
                                 j += 1
                                 tmp_file = f"{_tmp}/{plot_type}_{j}.png"
                                 if "filename" in plot and len(_p):
@@ -3164,13 +3164,13 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
 
 @beartype
 def plot_sixel_imgs(csv_file_path: str) -> None:
-    if ci_env: # pragma: no cover
+    if ci_env:
         print("Not printing sixel graphics in CI")
         return
 
-    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path) # pragma: no cover
+    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
 
-    for c in sixel_graphic_commands: # pragma: no cover
+    for c in sixel_graphic_commands:
         commands = get_plot_commands(*c)
 
         for command in commands:
@@ -3289,7 +3289,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
     global global_vars
 
-    if SHOWN_END_TABLE: # pragma: no cover
+    if SHOWN_END_TABLE:
         print("End table already shown, not doing it again")
         return -1
 
@@ -3304,7 +3304,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     if best_result_exit > 0:
         _exit = best_result_exit
 
-    if args.show_worker_percentage_table_at_end and len(WORKER_PERCENTAGE_USAGE) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: # pragma: no cover
+    if args.show_worker_percentage_table_at_end and len(WORKER_PERCENTAGE_USAGE) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME:
         ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = True
 
         table = Table(header_style="bold", title="Worker usage over time:")
@@ -3318,7 +3318,7 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     return _exit
 
 @beartype
-def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
+def abandon_job(job: Job, trial_index: int) -> bool:
     global global_vars
 
     if job:
@@ -3330,7 +3330,7 @@ def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
             else:
                 print_red("ax_client could not be found")
                 my_exit(9)
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
             print_debug(f"ERROR in line {get_line_info()}: {e}")
             return False
@@ -3340,7 +3340,7 @@ def abandon_job(job: Job, trial_index: int) -> bool: # pragma: no cover
     return False
 
 @beartype
-def abandon_all_jobs() -> None: # pragma: no cover
+def abandon_all_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index)
         if not abandoned:
@@ -3355,11 +3355,11 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
-    if os.getpid() != main_pid: # pragma: no cover
+    if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
         return
 
-    if END_PROGRAM_RAN and not _force: # pragma: no cover
+    if END_PROGRAM_RAN and not _force:
         print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
         return
 
@@ -3368,28 +3368,28 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
     _exit: int = 0
 
     try:
-        if get_current_run_folder() is None: # pragma: no cover
+        if get_current_run_folder() is None:
             print_debug("[end_program] get_current_run_folder() was empty. Not running end-algorithm.")
             return
 
-        if ax_client is None: # pragma: no cover
+        if ax_client is None:
             print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
             return
 
-        if console is None: # pragma: no cover
+        if console is None:
             print_debug("[end_program] console was empty. Not running end-algorithm.")
             return
 
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
-    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
+    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:
             _exit = new_exit
-    except TypeError as e: # pragma: no cover
+    except TypeError as e:
         print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
     abandon_all_jobs()
@@ -3408,7 +3408,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 
 @beartype
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    if trial_nr > 3: # pragma: no cover
+    if trial_nr > 3:
         if eee:
             print("Error during saving checkpoint: " + str(eee))
         else:
@@ -3423,10 +3423,10 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if ax_client:
             ax_client.save_to_json_file(filepath=checkpoint_filepath)
-        else: # pragma: no cover
+        else:
             print_red("Something went wrong using the ax_client")
             my_exit(9)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
 @beartype
@@ -3435,13 +3435,13 @@ def get_tmp_file_from_json(experiment_args: dict) -> str:
 
     k = 0
 
-    while os.path.exists(f"/{_tmp_dir}/{k}"): # pragma: no cover
+    while os.path.exists(f"/{_tmp_dir}/{k}"):
         k = k + 1
 
     try:
         with open(f'/{_tmp_dir}/{k}', mode="w", encoding="utf-8") as f:
             json.dump(experiment_args, f)
-    except PermissionError as e: # pragma: no cover
+    except PermissionError as e:
         print_red(f"Error writing '{k}' in get_tmp_file_from_json: {e}")
 
     return f"/{_tmp_dir}/{k}"
@@ -3461,11 +3461,11 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
             differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
             return differences_message
 
-        return "No differences found between the old and new parameters." # pragma: no cover
+        return "No differences found between the old and new parameters."
 
-    except AssertionError as e: # pragma: no cover
+    except AssertionError as e:
         print(f"Assertion error: {e}")
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"Unexpected error: {e}")
 
     return ""
@@ -3489,7 +3489,7 @@ def get_ax_param_representation(data: dict) -> dict:
             "is_fidelity": False,
             "target_value": None
         }
-    if data["type"] == "choice": # pragma: no cover
+    if data["type"] == "choice":
         parameter_type = "FLOAT" if all(isinstance(i, float) for i in data["values"]) else ("INT" if all(isinstance(i, int) for i in data["values"]) else "STRING")
 
         return {
@@ -3507,13 +3507,13 @@ def get_ax_param_representation(data: dict) -> dict:
             'values': data["values"]
         }
 
-    print("data:") # pragma: no cover
-    pprint(data) # pragma: no cover
-    print_red(f"Unknown data range {data['type']}") # pragma: no cover
-    my_exit(19) # pragma: no cover
+    print("data:")
+    pprint(data)
+    print_red(f"Unknown data range {data['type']}")
+    my_exit(19)
 
     # only for linter, never reached because of die
-    return {} # pragma: no cover
+    return {}
 
 @beartype
 def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> Tuple[dict, str, str]:
@@ -3527,17 +3527,17 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
             gpu_string = "No CUDA devices found."
             gpu_color = "yellow"
         else:
-            if torch.cuda.device_count() >= 1: # pragma: no cover
+            if torch.cuda.device_count() >= 1:
                 torch_device = torch.cuda.current_device()
                 gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}."
                 gpu_color = "green"
-            else: # pragma: no cover
+            else:
                 gpu_string = "No CUDA devices found."
                 gpu_color = "yellow"
-    except ModuleNotFoundError: # pragma: no cover
+    except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 
-    if torch_device: # pragma: no cover
+    if torch_device:
         if experiment_args:
             experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
         else:
@@ -3551,7 +3551,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
 
 @beartype
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
-    if not os.path.exists(_file): # pragma: no cover
+    if not os.path.exists(_file):
         print_red(f"Cannot find {_file}")
         my_exit(47)
 
@@ -3566,7 +3566,7 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
             shutil.copy(old_state_file, new_state_file)
 
 @beartype
-def die_something_went_wrong_with_parameters() -> None: # pragma: no cover
+def die_something_went_wrong_with_parameters() -> None:
     my_exit(49)
 
 @beartype
@@ -3580,7 +3580,7 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
             "value": item
         })
     elif item in [">=", "<="]:
-        if comparer_found: # pragma: no cover
+        if comparer_found:
             print("There is already one comparison operator! Cannot have more than one in an equation!")
             return_totally = True
         comparer_found = True
@@ -3602,7 +3602,7 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
             "type": "variable",
             "value": item
         })
-    else: # pragma: no cover
+    else:
         print_red(f"constraint error: Invalid variable {item} in constraint '{equation}' is not defined in the parameters. Possible variables: {', '.join(variables)}")
         return_totally = True
 
@@ -3669,7 +3669,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
     if order_check:
         return equation
 
-    return False # pragma: no cover
+    return False
 
 @beartype
 def set_objectives() -> dict:
@@ -3685,12 +3685,12 @@ def set_objectives() -> dict:
             value = ""
 
         if value not in ["min", "max"]:
-            if value: # pragma: no cover
+            if value:
                 print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
 
             value = "min"
 
-            if args.maximize: # pragma: no cover
+            if args.maximize:
                 value = "max"
 
         _min = True
@@ -3740,7 +3740,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
                     if compared_params:
                         print_yellow(compared_params)
 
-            if not _replaced: # pragma: no cover
+            if not _replaced:
                 print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
     return experiment_parameters
@@ -3754,7 +3754,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
 
         with open(checkpoint_file, encoding="utf-8") as f:
             experiment_parameters = json.load(f)
-    except json.decoder.JSONDecodeError: # pragma: no cover
+    except json.decoder.JSONDecodeError:
         print_red(f"Error parsing checkpoint_file {checkpoint_file}")
         my_exit(47)
 
@@ -3816,13 +3816,13 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
                 json.dump(experiment_parameters, outfile)
 
-            if not os.path.exists(checkpoint_filepath): # pragma: no cover
+            if not os.path.exists(checkpoint_filepath):
                 print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
                 my_exit(47)
 
             with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
                 print(f"Continuation from checkpoint {continue_previous_job}", file=f)
-        else: # pragma: no cover
+        else:
             print_red("Something went wrong with the ax_client")
             my_exit(9)
     else:
@@ -3854,13 +3854,13 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
                 new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
                 ax_client.experiment.add_tracking_metrics(new_metrics)
-            else: # pragma: no cover
+            else:
                 print_red("ax_client could not be found!")
                 sys.exit(9)
-        except ValueError as error: # pragma: no cover
+        except ValueError as error:
             print_red(f"An error has occurred while creating the experiment (1): {error}")
             die_something_went_wrong_with_parameters()
-        except TypeError as error: # pragma: no cover
+        except TypeError as error:
             print_red(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.")
             die_something_went_wrong_with_parameters()
         except ax.exceptions.core.UserInputError as error:
@@ -3926,7 +3926,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: Union[list, d
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
-        else: # pragma: no cover
+        else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
 
@@ -3959,7 +3959,7 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
 
 @beartype
 def print_result_names_overview_table() -> None:
-    if len(arg_result_names) != len(arg_result_min_or_max): # pragma: no cover
+    if len(arg_result_names) != len(arg_result_min_or_max):
         console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
         return
 
@@ -4026,11 +4026,11 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
 
 @beartype
 def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:
-    if not experiment_parameters: # pragma: no cover
+    if not experiment_parameters:
         print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
         return
 
-    if not experiment_parameters: # pragma: no cover
+    if not experiment_parameters:
         print_red("Experiment parameters could not be determined for display")
         return
 
@@ -4118,21 +4118,21 @@ def get_workers_string() -> str:
 
     stats: dict = {}
 
-    for job, _ in global_vars["jobs"][:]: # pragma: no cover
+    for job, _ in global_vars["jobs"][:]:
         state = state_from_job(job)
 
         if state not in stats.keys():
             stats[state] = 0
         stats[state] += 1
 
-    for key in stats.keys(): # pragma: no cover
+    for key in stats.keys():
         if args.abbreviate_job_names:
             string_keys.append(key.lower()[0])
         else:
             string_keys.append(key.lower())
         string_values.append(str(stats[key]))
 
-    if len(string_keys) and len(string_values): # pragma: no cover
+    if len(string_keys) and len(string_values):
         _keys = "/".join(string_keys)
         _values = "/".join(string_values)
 
@@ -4155,7 +4155,7 @@ def submitted_jobs(nr: int = 0) -> int:
 def get_slurm_in_brackets(in_brackets: list) -> list:
     global WORKER_PERCENTAGE_USAGE
 
-    if is_slurm_job(): # pragma: no cover
+    if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
@@ -4266,7 +4266,7 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
 @beartype
 def clean_completed_jobs() -> None:
-    for job, trial_index in global_vars["jobs"][:]: # pragma: no cover
+    for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
@@ -4301,11 +4301,11 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 
     try:
         df = pd.read_csv(file_path, float_precision='round_trip')
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Failed to read the CSV file: {str(e)}")
         return None
 
-    if resname not in df.columns: # pragma: no cover
+    if resname not in df.columns:
         print_red(f"Error: Could not get RESULT-NAME '{resname}' old result for {params} in {file_path}")
         return None
 
@@ -4322,9 +4322,9 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
                     assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
                 else:
                     if isinstance(value, str):
-                        if matching_rows[param].dtype == np.int64: # pragma: no cover
+                        if matching_rows[param].dtype == np.int64:
                             value = int(value)
-                        elif matching_rows[param].dtype == np.float64: # pragma: no cover
+                        elif matching_rows[param].dtype == np.float64:
                             value = float(value)
 
                     new_matching_rows = matching_rows[matching_rows[param] == value]
@@ -4338,14 +4338,14 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
 
                     assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
 
-        if matching_rows.empty: # pragma: no cover
+        if matching_rows.empty:
             return None
 
         return matching_rows
-    except AssertionError as ae: # pragma: no cover
+    except AssertionError as ae:
         print_red(f"Assertion error: {str(ae)}")
         raise
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error during filtering or extracting result: {str(e)}")
         raise
 
@@ -4372,7 +4372,7 @@ def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str 
             else:
                 print_debug(f"old_res is not a string that looks like an int or a float, but it looks like this: {old_res}. Will return None.")
                 #old_result_simple = old_res
-        else: # pragma: no cover
+        else:
             print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
 
     return old_result_simple
@@ -4384,7 +4384,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     for this_path in _paths:
         this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
 
-        if not os.path.exists(this_path_json): # pragma: no cover
+        if not os.path.exists(this_path_json):
             print_red(f"{this_path_json} does not exist, cannot load data from it")
             return 0
 
@@ -4401,7 +4401,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
                 trial_status = old_trial.status
                 trial_status_str = trial_status.__repr__
 
-                if "COMPLETED".lower() not in str(trial_status_str).lower(): # pragma: no cover
+                if "COMPLETED".lower() not in str(trial_status_str).lower():
                     # or "MANUAL".lower() in str(trial_status_str).lower()):
                     continue
 
@@ -4412,7 +4412,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
                 try:
                     for resname in arg_result_names:
                         old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
-                except Exception as e: # pragma: no cover
+                except Exception as e:
                     print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}/{PD_CSV_FILENAME}")
 
                 if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
@@ -4435,7 +4435,7 @@ def get_nr_of_imported_jobs() -> int:
 def load_existing_job_data_into_ax_client() -> None:
     global NR_INSERTED_JOBS
 
-    if len(already_inserted_param_hashes.keys()): # pragma: no cover
+    if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
             print(f"Missing results: {len(missing_results)}")
             #NR_INSERTED_JOBS += len(double_hashes)
@@ -4481,12 +4481,12 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
             "current_type": current_type,
             "expected_type": expected_type
         }
-    except AssertionError as e: # pragma: no cover
+    except AssertionError as e:
         print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
 
 @beartype
-def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]: # pragma: no cover
+def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]:
     try:
         if not data_list:
             return None, None
@@ -4504,12 +4504,12 @@ def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[
             rows.append(row)
 
         return headers, rows
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"extract_headers_and_rows: An error occurred: {e}")
         return None, None
 
 @beartype
-def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str: # pragma: no cover
+def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str:
     _str: list = []
 
     if len(double_hashes):
@@ -4531,7 +4531,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @beartype
-def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, str, float]) -> None: # pragma: no cover
+def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, str, float]) -> None:
     done_converting = False
 
     if ax_client is None or not ax_client:
@@ -4581,7 +4581,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @beartype
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, List[Any]]]: # pragma: no cover
+    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, List[Any]]]:
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
             for resname in arg_result_names:
@@ -4594,7 +4594,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return pformat(parameters) + "====" + pformat(result), result
 
     @beartype
-    def should_insert(hashed_params_result: Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> bool: # pragma: no cover
+    def should_insert(hashed_params_result: Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> bool:
         result = hashed_params_result[1]
         res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
 
@@ -4603,25 +4603,25 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
+    def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
         try:
             insert_job_into_ax_client(parameters, {"RESULT": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
-        except ValueError as e: # pragma: no cover
+        except ValueError as e:
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
         else:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
     @beartype
-    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None: # pragma: no cover
+    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
         parameters["RESULT"] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
     @beartype
-    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None: # pragma: no cover
+    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -4639,7 +4639,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
     @beartype
-    def display_table() -> None: # pragma: no cover
+    def display_table() -> None:
         headers, rows = extract_headers_and_rows(already_inserted_param_data)
         if headers and rows:
             table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
@@ -4658,15 +4658,15 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
                 print_red(f"{this_path_json} does not exist, cannot load data from it")
                 return
 
-            old_experiments = load_experiment(this_path_json) # pragma: no cover
-            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx) # pragma: no cover
+            old_experiments = load_experiment(this_path_json)
+            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx)
 
-    display_table() # pragma: no cover
+    display_table()
 
 @beartype
 def get_first_line_of_file(file_paths: List[str]) -> str:
     first_line: str = ""
-    if len(file_paths): # pragma: no cover
+    if len(file_paths):
         first_file_as_string: str = ""
         try:
             first_file_as_string = get_file_as_string(file_paths[0])
@@ -4686,7 +4686,7 @@ def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[st
         current_platform = platform.machine()
         file_output = ""
 
-        if len(file_paths): # pragma: no cover
+        if len(file_paths):
             file_result = execute_bash_code("file " + file_paths[0])
             if len(file_result) and isinstance(file_result[0], str):
                 file_output = ", " + file_result[0].strip()
@@ -4699,18 +4699,18 @@ def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[st
 def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: List[str], program_code: str) -> List[str]:
     errors: List[str] = []
 
-    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"): # pragma: no cover
+    if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
         errors.append("First line does not seem to be a shebang line: " + first_line)
 
-    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string: # pragma: no cover
+    if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
         errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
 
     errors = find_exec_errors(errors, file_as_string, file_paths)
 
-    if "/bin/sh" in file_as_string and "not found" in file_as_string: # pragma: no cover
+    if "/bin/sh" in file_as_string and "not found" in file_as_string:
         errors.append("Wrong path? File not found")
 
-    if len(file_paths) and os.stat(file_paths[0]).st_size == 0: # pragma: no cover
+    if len(file_paths) and os.stat(file_paths[0]).st_size == 0:
         errors.append(f"File in {program_code} is empty")
 
     if len(file_paths) == 0:
@@ -4722,7 +4722,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
     return errors
 
 @beartype
-def get_base_errors() -> list: # pragma: no cover
+def get_base_errors() -> list:
     base_errors: list = [
         "Segmentation fault",
         "Illegal division by zero",
@@ -4733,7 +4733,7 @@ def get_base_errors() -> list: # pragma: no cover
     return base_errors
 
 @beartype
-def check_for_base_errors(file_as_string: str) -> list: # pragma: no cover
+def check_for_base_errors(file_as_string: str) -> list:
     errors: list = []
     for err in get_base_errors():
         if isinstance(err, list):
@@ -4792,7 +4792,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
         search_for_exit_code = "Exit-Code: " + str(r) + ","
-        if search_for_exit_code in file_as_string: # pragma: no cover
+        if search_for_exit_code in file_as_string:
             _error: str = "Non-zero exit-code detected: " + str(r)
             if str(r) in special_exit_codes:
                 _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
@@ -4800,7 +4800,7 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
     return errors
 
 @beartype
-def get_python_errors() -> List[List[str]]: # pragma: no cover
+def get_python_errors() -> List[List[str]]:
     synerr: str = "Python syntax error detected. Check log file."
 
     return [
@@ -4835,7 +4835,7 @@ def get_python_errors() -> List[List[str]]: # pragma: no cover
     ]
 
 @beartype
-def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma: no cover
+def get_first_line_of_file_that_contains_string(i: str, s: str) -> str:
     if not os.path.exists(i):
         print_debug(f"File {i} not found")
         return ""
@@ -4862,7 +4862,7 @@ def get_first_line_of_file_that_contains_string(i: str, s: str) -> str: # pragma
     return ""
 
 @beartype
-def check_for_python_errors(i: str, file_as_string: str) -> List[str]: # pragma: no cover
+def check_for_python_errors(i: str, file_as_string: str) -> List[str]:
     errors: List[str] = []
 
     for search_array in get_python_errors():
@@ -4889,7 +4889,7 @@ def get_errors_from_outfile(i: str) -> List[str]:
 
     errors: List[str] = []
 
-    if "Result: None" in file_as_string: # pragma: no cover
+    if "Result: None" in file_as_string:
         errors.append("Got no result.")
 
         new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
@@ -4917,7 +4917,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
     _strs: List[str] = []
     j: int = 0
 
-    if len(errors): # pragma: no cover
+    if len(errors):
         if j == 0:
             _strs.append("")
         _strs.append(f"Out file {stdout_path} contains potential errors:\n")
@@ -4932,11 +4932,11 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
     out_files_string: str = "\n".join(_strs)
 
-    if len(_strs): # pragma: no cover
+    if len(_strs):
         try:
             with open(f'{get_current_run_folder()}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
 
         print_red(out_files_string)
@@ -4944,7 +4944,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 @beartype
 def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
     try:
-        with open(stdout_path, mode='r', encoding="utf-8") as file: # pragma: no cover
+        with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
                 if line.lower().startswith("parameters: "):
                     params = line.split(":", 1)[1].strip()
@@ -4952,7 +4952,7 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
                     return params
     except FileNotFoundError:
         original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"get_parameters_from_outfile: There was an error: {e}")
 
     return None
@@ -4967,11 +4967,11 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
                 if line.lower().startswith("hostname: "):
                     hostname = line.split(":", 1)[1].strip()
                     return hostname
-        return None # pragma: no cover
+        return None
     except FileNotFoundError:
         original_print(f"The file '{stdout_path}' was not found.")
         return None
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"There was an error: {e}")
         return None
 
@@ -5045,7 +5045,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 new_pd_csv_path = save_pd_csv()
 
                 print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed")
-            except Exception as e: # pragma: no cover
+            except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
             print_debug(f"Counting job {job} as failed, because the result is {result}")
@@ -5053,14 +5053,14 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 try:
                     progressbar_description(["job_failed"])
                     ax_client.log_trial_failure(trial_index=trial_index)
-                except Exception as e: # pragma: no cover
+                except Exception as e:
                     print(f"ERROR while trying to mark job as failure in line {get_line_info()}: {e}")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 
             mark_trial_as_failed(_trial)
             failed_jobs(1)
-    else: # pragma: no cover
+    else:
         print_red("ax_client could not be found or used")
         my_exit(9)
     global_vars["jobs"].remove((job, trial_index))
@@ -5081,7 +5081,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     for job, trial_index in global_vars["jobs"][:]:
         # Poll if any jobs completed
         # Local and debug jobs don't run until .result() is called.
-        if job is None: # pragma: no cover
+        if job is None:
             print_debug(f"finish_previous_jobs: job {job} is None")
             continue
 
@@ -5090,7 +5090,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error: # pragma: no cover
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:
@@ -5105,7 +5105,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                         else:
                             print_red("ax_client failed")
                             my_exit(9)
-                    except Exception as e: # pragma: no cover
+                    except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
                     orchestrate_job(job, trial_index)
@@ -5114,13 +5114,13 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 global_vars["jobs"].remove((job, trial_index))
             save_checkpoint()
             save_pd_csv()
-        else: # pragma: no cover
+        else:
             if f"{job}" != "SlurmJob":
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
-    elif this_jobs_finished > 0: # pragma: no cover
+    elif this_jobs_finished > 0:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
 
     JOBS_FINISHED += this_jobs_finished
@@ -5128,7 +5128,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     clean_completed_jobs()
 
 @beartype
-def check_orchestrator(stdout_path: str, trial_index: int) -> list: # pragma: no cover
+def check_orchestrator(stdout_path: str, trial_index: int) -> list:
     behavs: list = []
 
     if orchestrator and "errors" in orchestrator:
@@ -5180,13 +5180,13 @@ def orchestrate_job(job: Job, trial_index: int) -> None:
     _orchestrate(stderr_path, trial_index)
 
     orchestrate_todo_copy = ORCHESTRATE_TODO
-    for todo_stdout_file in orchestrate_todo_copy.keys(): # pragma: no cover
+    for todo_stdout_file in orchestrate_todo_copy.keys():
         old_behavs = check_orchestrator(todo_stdout_file, ORCHESTRATE_TODO[todo_stdout_file])
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
 @beartype
-def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
+def is_already_in_defective_nodes(hostname: str) -> bool:
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
     makedirs(os.path.dirname(file_path))
@@ -5200,14 +5200,14 @@ def is_already_in_defective_nodes(hostname: str) -> bool: # pragma: no cover
             for line in file:
                 if line.strip() == hostname:
                     return True
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"is_already_in_defective_nodes: Error reading the file {file_path}: {e}")
         return False
 
     return False
 
 @beartype
-def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None: # pragma: no cover
+def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None:
     global global_vars
 
     if executor and ax_client:
@@ -5228,7 +5228,7 @@ def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index
         my_exit(9)
 
 @beartype
-def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
+def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
@@ -5239,7 +5239,7 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
 @beartype
-def handle_restart(stdout_path: str, trial_index: int) -> None: # pragma: no cover
+def handle_restart(stdout_path: str, trial_index: int) -> None:
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
@@ -5247,7 +5247,7 @@ def handle_restart(stdout_path: str, trial_index: int) -> None: # pragma: no cov
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
 @beartype
-def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None: # pragma: no cover
+def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
@@ -5259,7 +5259,7 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
 @beartype
-def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None: # pragma: no cover
+def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
@@ -5270,7 +5270,7 @@ def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file
         print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
 
 @beartype
-def _orchestrate(stdout_path: str, trial_index: int) -> None: # pragma: no cover
+def _orchestrate(stdout_path: str, trial_index: int) -> None:
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs:
@@ -5311,7 +5311,7 @@ def write_continue_run_uuid_to_file() -> bool:
                     file.write(continue_from_uuid)
 
                 return True
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
 
     return False
@@ -5327,10 +5327,10 @@ def write_run_uuid_to_file() -> bool:
             file.write(run_uuid)
 
         return True
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"write_run_uuid_to_file: An error occurred: {e}")
 
-    return False # pragma: no cover
+    return False
 
 @beartype
 def save_state_files() -> None:
@@ -5412,13 +5412,13 @@ def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict
             submitted_jobs(1)
             return new_job
 
-        print_red("executor could not be found") # pragma: no cover
-        my_exit(9) # pragma: no cover
-    except Exception as e: # pragma: no cover
+        print_red("executor could not be found")
+        my_exit(9)
+    except Exception as e:
         print_debug(f"Error while trying to submit job: {e}")
         raise
 
-    return None # pragma: no cover
+    return None
 
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:
@@ -5433,7 +5433,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
         def mark_trial_stage(stage: str, error_msg: str) -> None:
             try:
                 getattr(_trial, stage)()
-            except Exception as e: # pragma: no cover
+            except Exception as e:
                 print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
 
         mark_trial_stage("mark_staged", "Marking the trial as staged failed")
@@ -5445,28 +5445,28 @@ def execute_evaluation(_params: list) -> Optional[int]:
             new_job = submit_job(parameters)
 
             global_vars["jobs"].append((new_job, trial_index))
-            if is_slurm_job() and not args.force_local_execution: # pragma: no cover
+            if is_slurm_job() and not args.force_local_execution:
                 _sleep(1)
 
             mark_trial_stage("mark_running", "Marking the trial as running failed")
             trial_counter += 1
 
             update_progress()
-        except submitit.core.utils.FailedJobError as error: # pragma: no cover
+        except submitit.core.utils.FailedJobError as error:
             handle_failed_job(error, trial_index, new_job)
             trial_counter += 1
-        except (SignalUSR, SignalINT, SignalCONT): # pragma: no cover
+        except (SignalUSR, SignalINT, SignalCONT):
             handle_exit_signal()
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             handle_generic_error(e)
 
         add_to_phase_counter(phase, 1)
         return trial_counter
 
-    print_red("Failed to get ax_client") # pragma: no cover
-    my_exit(9) # pragma: no cover
+    print_red("Failed to get ax_client")
+    my_exit(9)
 
-    return None # pragma: no cover
+    return None
 
 @beartype
 def initialize_job_environment() -> None:
@@ -5476,15 +5476,15 @@ def initialize_job_environment() -> None:
 
 @beartype
 def set_sbatch_environment() -> None:
-    if args.reservation: # pragma: no cover
+    if args.reservation:
         os.environ['SBATCH_RESERVATION'] = args.reservation
-    if args.account: # pragma: no cover
+    if args.account:
         os.environ['SBATCH_ACCOUNT'] = args.account
 
 @beartype
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
-    if len(excluded_string) > 1: # pragma: no cover
+    if len(excluded_string) > 1:
         if executor:
             executor.update_parameters(exclude=excluded_string)
         else:
@@ -5492,7 +5492,7 @@ def exclude_defective_nodes() -> None:
             my_exit(9)
 
 @beartype
-def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Job) -> None: # pragma: no cover
+def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Job) -> None:
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
     else:
@@ -5500,11 +5500,11 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
 
     try:
         cancel_failed_job(trial_index, new_job)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
 
 @beartype
-def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cover
+def cancel_failed_job(trial_index: int, new_job: Job) -> None:
     print_debug("Trying to cancel job that failed")
     if new_job:
         try:
@@ -5513,7 +5513,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None: # pragma: no cove
             else:
                 print_red("ax_client not defined")
                 my_exit(9)
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
         print_debug("Cancelled failed job")
@@ -5530,12 +5530,12 @@ def update_progress() -> None:
     progressbar_description(["started new job"])
 
 @beartype
-def handle_exit_signal() -> None: # pragma: no cover
+def handle_exit_signal() -> None:
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(RESULT_CSV_FILE, False, 1)
 
 @beartype
-def handle_generic_error(e: Union[Exception, str]) -> None: # pragma: no cover
+def handle_generic_error(e: Union[Exception, str]) -> None:
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
@@ -5549,7 +5549,7 @@ def succeeded_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
 @beartype
-def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None: # pragma: no cover
+def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None:
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -5596,7 +5596,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
             print_debug(f"breaking {_name}: {debug_msg}")
             _ret = True
 
-    if args.verbose: # pragma: no cover
+    if args.verbose:
         show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     return _ret
@@ -5624,7 +5624,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
     else:
         base_msg = "getting new hyperparameter set"
 
-    if SYSTEM_HAS_SBATCH and not args.force_local_execution: # pragma: no cover
+    if SYSTEM_HAS_SBATCH and not args.force_local_execution:
         ret = base_msg
     else:
         ret = f"{base_msg} (no sbatch)"
@@ -5639,7 +5639,7 @@ def get_parallelism_schedule_description() -> str:
         if ax_client:
             max_parallelism_settings = ax_client.get_max_parallelism()
 
-            if not max_parallelism_settings: # pragma: no cover
+            if not max_parallelism_settings:
                 return "No parallelism settings available."
 
             descriptions = []
@@ -5649,7 +5649,7 @@ def get_parallelism_schedule_description() -> str:
                 else:
                     trial_text = f"{num_trials} trials"
 
-                if max_parallelism == -1: # pragma: no cover
+                if max_parallelism == -1:
                     parallelism_text = "any number of trials can be run in parallel"
                 else:
                     parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
@@ -5659,10 +5659,10 @@ def get_parallelism_schedule_description() -> str:
             human_readable_output: str = "\n".join(descriptions)
             return human_readable_output
 
-        print_red("Error defining ax_client") # pragma: no cover
-        sys.exit(9) # pragma: no cover
+        print_red("Error defining ax_client")
+        sys.exit(9)
 
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
@@ -5672,7 +5672,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
 
     global error_8_saved
 
-    if not ax_client: # pragma: no cover
+    if not ax_client:
         print_red("ax_client was not defined")
         my_exit(9)
 
@@ -5686,19 +5686,19 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
             trials_dict[trial_index] = params
 
         return trials_dict, False
-    except np.linalg.LinAlgError as e: # pragma: no cover
+    except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
         my_exit(242)
-    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e: # pragma: no cover
+    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e:
         if str(e) not in error_8_saved:
             print_red("\n⚠Error 8: " + str(e))
 
             error_8_saved.append(str(e))
 
-    return None # pragma: no cover
+    return None
 
 @beartype
-def _handle_linalg_error(error: Union[None, str, Exception]) -> None: # pragma: no cover
+def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
         print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
@@ -5729,7 +5729,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
         _log_trial_index_to_param(trial_index_to_param)
 
         return trial_index_to_param, optimization_complete
-    except OverflowError as e: # pragma: no cover
+    except OverflowError as e:
         if len(arg_result_names) > 1:
             print_red(f"Error while trying to create next trials. The number of result-names are probably too large. You have {len(arg_result_names)} parameters. Error: {e}")
         else:
@@ -5738,7 +5738,7 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
         return None, True
 
 @beartype
-def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma: no cover
+def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     if not SYSTEM_HAS_SBATCH:
         return 1
 
@@ -5818,10 +5818,10 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int: # pragma:
 def check_max_parallelism_arg(possible_values: list) -> bool:
     if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
         return True
-    return False # pragma: no cover
+    return False
 
 @beartype
-def _get_max_parallelism() -> int: # pragma: no cover
+def _get_max_parallelism() -> int:
     possible_values: list = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
 
     ret: int = 0
@@ -5905,7 +5905,7 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
         model_upper = str(model_arg).upper()
         if model_upper in available_models:
             chosen_model = Models.__members__[model_upper]
-        else: # pragma: no cover
+        else:
             print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
         if model_arg.lower() != "factorial" and args.gridsearch:
@@ -5993,7 +5993,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
         random_steps = random_steps or 0
 
         # Set max_eval if it's None
-        if max_eval is None: # pragma: no cover
+        if max_eval is None:
             set_max_eval(max(1, random_steps))
 
         # Add a random generation step if conditions are met
@@ -6050,7 +6050,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
-    while len(global_vars["jobs"]) > num_parallel_jobs: # pragma: no cover
+    while len(global_vars["jobs"]) > num_parallel_jobs:
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
@@ -6059,10 +6059,10 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
         if is_slurm_job() and not args.force_local_execution:
             _sleep(5)
 
-    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar): # pragma: no cover
+    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
         return True
 
-    if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval: # pragma: no cover
+    if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval:
         return True
 
     return False
@@ -6093,7 +6093,7 @@ def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Option
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     if isinstance(e, TypeError):
         print_red(f"Error 1: {e}")
-    elif isinstance(e, botorch.exceptions.errors.InputDataError): # pragma: no cover
+    elif isinstance(e, botorch.exceptions.errors.InputDataError):
         print_red(f"Error 2: {e}")
     elif isinstance(e, ax.exceptions.core.DataRequiredError):
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
@@ -6101,12 +6101,12 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
             die_no_random_steps()
         else:
             print_debug(f"Error 4: {e}")
-    elif isinstance(e, RuntimeError): # pragma: no cover
+    elif isinstance(e, RuntimeError):
         print_red(f"\n⚠ Error 5: {e}")
-    elif isinstance(e, botorch.exceptions.errors.ModelFittingError): # pragma: no cover
+    elif isinstance(e, botorch.exceptions.errors.ModelFittingError):
         print_red(f"\n⚠ Error 6: {e}")
         end_program(RESULT_CSV_FILE, False, 1)
-    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)): # pragma: no cover
+    elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)):
         print_red(f"\n⚠ Error 7 {e}")
         end_program(RESULT_CSV_FILE, False, 87)
     return 0
@@ -6136,7 +6136,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         for _ in range(range_nr):
             trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
             done_optimizing = handle_optimization_completion(optimization_complete)
-            if done_optimizing: # pragma: no cover
+            if done_optimizing:
                 continue
             if trial_index_to_param:
                 results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
@@ -6145,7 +6145,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
         if done_optimizing:
             end_program(RESULT_CSV_FILE, False, 0)
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}")
         return handle_exceptions_create_and_execute_next_runs(e)
 
@@ -6157,7 +6157,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
         print_debug(f"Warning: trial_index_to_param is not true. It, stringified, looks like this: {trial_index_to_param}. Returning 0.")
         return 0
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}. Returning 0.")
         return 0
 
@@ -6173,15 +6173,15 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
         print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")
         _random_steps, _max_eval = _max_eval, _random_steps
 
-    if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH: # pragma: no cover
+    if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
         print_yellow("Warning: --num_random_steps is smaller than --num_parallel_jobs. It's recommended that --num_parallel_jobs is the same as or a multiple of --num_random_steps")
 
-    if _random_steps > _max_eval: # pragma: no cover
+    if _random_steps > _max_eval:
         set_max_eval(_random_steps)
 
     original_second_steps = _max_eval - _random_steps
     second_step_steps = max(0, original_second_steps)
-    if second_step_steps != original_second_steps: # pragma: no cover
+    if second_step_steps != original_second_steps:
         original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
     if second_step_steps == 0:
         print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
@@ -6199,7 +6199,7 @@ def _set_global_executor() -> None:
 
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
 
-    if args.force_local_execution: # pragma: no cover
+    if args.force_local_execution:
         executor = LocalExecutor(folder=log_folder)
     else:
         executor = AutoExecutor(folder=log_folder)
@@ -6240,9 +6240,9 @@ def _set_global_executor() -> None:
 """
         )
 
-        if args.exclude: # pragma: no cover
+        if args.exclude:
             print_yellow(f"Excluding the following nodes: {args.exclude}")
-    else: # pragma: no cover
+    else:
         print_red("executor could not be found")
         my_exit(9)
 
@@ -6250,14 +6250,14 @@ def _set_global_executor() -> None:
 def set_global_executor() -> None:
     try:
         _set_global_executor()
-    except ModuleNotFoundError as e: # pragma: no cover
+    except ModuleNotFoundError as e:
         print_red(f"_set_global_executor() failed with error {e}. It may help if you can delete and re-install the virtual Environment containing the OmniOpt2 modules.")
         sys.exit(244)
     except (IsADirectoryError, PermissionError, FileNotFoundError) as e:
         print_red(f"Error trying to set_global_executor: {e}")
 
 @beartype
-def execute_nvidia_smi() -> None: # pragma: no cover
+def execute_nvidia_smi() -> None:
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
         return
@@ -6291,13 +6291,13 @@ def execute_nvidia_smi() -> None: # pragma: no cover
                     print_debug("NVIDIA_SMI_LOGS_BASE not defined")
                 if not host:
                     print_debug("host not defined")
-        except Exception as e: # pragma: no cover
+        except Exception as e:
             print(f"execute_nvidia_smi: An error occurred: {e}")
-        if is_slurm_job() and not args.force_local_execution: # pragma: no cover
+        if is_slurm_job() and not args.force_local_execution:
             _sleep(10)
 
 @beartype
-def start_nvidia_smi_thread() -> None: # pragma: no cover
+def start_nvidia_smi_thread() -> None:
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
@@ -6366,7 +6366,7 @@ def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
 
 @beartype
 def handle_slurm_execution() -> None:
-    if is_slurm_job() and not args.force_local_execution:  # pragma: no cover
+    if is_slurm_job() and not args.force_local_execution:
         _sleep(1)
 
 @beartype
@@ -6391,14 +6391,14 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
 
 @beartype
 def finalize_jobs() -> None:
-    while len(global_vars["jobs"]):  # pragma: no cover
+    while len(global_vars["jobs"]):
         wait_for_jobs_to_complete()
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
         handle_slurm_execution()
 
 
 @beartype
-def wait_for_jobs_to_complete() -> None: # pragma: no cover
+def wait_for_jobs_to_complete() -> None:
     while len(global_vars["jobs"]):
         print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
         progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
@@ -6422,10 +6422,10 @@ def human_readable_generation_strategy() -> Optional[str]:
             content = match.group(1)
             return content
 
-    return None # pragma: no cover
+    return None
 
 @beartype
-def die_orchestrator_exit_code_206(_test: bool) -> None: # pragma: no cover
+def die_orchestrator_exit_code_206(_test: bool) -> None:
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
@@ -6438,14 +6438,14 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
             try:
                 data = yaml.safe_load(file)
 
-                if "errors" not in data: # pragma: no cover
+                if "errors" not in data:
                     print_red(f"{_f} file does not contain key 'errors'")
                     die_orchestrator_exit_code_206(_test)
 
                 valid_keys: list = ['name', 'match_strings', 'behavior']
                 valid_behaviours: list = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
-                for x in data["errors"]: # pragma: no cover
+                for x in data["errors"]:
                     if not isinstance(x, dict):
                         print_red(f"Entry is not of type dict but {type(x)}")
                         die_orchestrator_exit_code_206(_test)
@@ -6472,19 +6472,19 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
                             die_orchestrator_exit_code_206(_test)
 
                 return data
-            except Exception as e: # pragma: no cover
+            except Exception as e:
                 print(f"Error while parse_experiment_parameters({_f}): {e}")
-    else: # pragma: no cover
+    else:
         print_red(f"{_f} could not be found")
 
-    return None # pragma: no cover
+    return None
 
 @beartype
 def set_orchestrator() -> None:
     global orchestrator
 
     if args.orchestrator_file:
-        if SYSTEM_HAS_SBATCH: # pragma: no cover
+        if SYSTEM_HAS_SBATCH:
             orchestrator = parse_orchestrator_file(args.orchestrator_file, False)
         else:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
@@ -6501,7 +6501,7 @@ def check_if_has_random_steps() -> None:
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:
-    if args.exclude: # pragma: no cover
+    if args.exclude:
         entries = [entry.strip() for entry in args.exclude.split(',')]
 
         for entry in entries:
@@ -6509,7 +6509,7 @@ def add_exclude_to_defective_nodes() -> None:
 
 @beartype
 def check_max_eval(_max_eval: int) -> None:
-    if not _max_eval: # pragma: no cover
+    if not _max_eval:
         print_red("--max_eval needs to be set!")
         my_exit(19)
 
@@ -6547,14 +6547,14 @@ def supports_sixel() -> bool:
     if "xterm" in term or "mlterm" in term:
         return True
 
-    try: # pragma: no cover
+    try:
         output = subprocess.run(["tput", "setab", "256"], capture_output=True, text=True, check=True)
         if output.returncode == 0 and "sixel" in output.stdout.lower():
             return True
-    except (subprocess.CalledProcessError, FileNotFoundError): # pragma: no cover
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
-    return False # pragma: no cover
+    return False
 
 @beartype
 def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
@@ -6563,7 +6563,7 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     x_metric = absolute_metrics[i]
     y_metric = absolute_metrics[j]
 
-    if not supports_sixel(): # pragma: no cover
+    if not supports_sixel():
         console.print(f"[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
         return
 
@@ -6595,17 +6595,17 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
 
 @beartype
 def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
-    if isinstance(obj, np.ndarray): # pragma: no cover
+    if isinstance(obj, np.ndarray):
         return obj.tolist()
-    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable") # pragma: no cover
+    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @beartype
 def show_pareto_frontier_data() -> None:
-    if len(arg_result_names) <= 1:  # pragma: no cover
+    if len(arg_result_names) <= 1:
         print_debug(f"--result_names (has {len(arg_result_names)} entries) must be at least 2.")
         return
 
-    if ax_client is None:  # pragma: no cover
+    if ax_client is None:
         print_red("show_pareto_frontier_data: Cannot plot pareto-front. ax_client is undefined.")
         return
 
@@ -6638,7 +6638,7 @@ def show_pareto_frontier_data() -> None:
 
                 collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
 
-            except ax.exceptions.core.DataRequiredError as e:  # pragma: no cover
+            except ax.exceptions.core.DataRequiredError as e:
                 print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
 
             progress.update(task, advance=1)
@@ -6733,7 +6733,7 @@ def show_experiment_overview_table() -> None:
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
     #table.add_row("Max. parallelism", str(args.max_parallelism))
 
-    if SYSTEM_HAS_SBATCH: # pragma: no cover
+    if SYSTEM_HAS_SBATCH:
         table.add_row("Main process memory (GB)", str(args.main_process_gb))
         table.add_row("Worker memory (GB)", str(args.mem_gb))
 
@@ -6798,7 +6798,7 @@ def main() -> None:
     except Exception as e:
         print_red(f"Error trying to open file '{fn}': {e}")
 
-    if os.getenv("CI"): # pragma: no cover
+    if os.getenv("CI"):
         data_dict: dict = {
             "param1": "value1",
             "param2": "value2",
@@ -6905,7 +6905,7 @@ def write_ui_url_if_present() -> None:
 @beartype
 def handle_random_steps() -> None:
     global random_steps
-    if args.parameter and args.continue_previous_job and random_steps <= 0: # pragma: no cover
+    if args.parameter and args.continue_previous_job and random_steps <= 0:
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         random_steps = args.num_random_steps
 
@@ -6960,7 +6960,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
 
     program_path: str = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
-    if not os.path.exists(program_path): # pragma: no cover
+    if not os.path.exists(program_path):
         print_red(f"Program path {program_path} not found!")
         my_exit(18)
 
@@ -6996,7 +6996,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
         nr_errors += is_equal(f"{_program_name} signal", _signal, wanted_signal)
 
         return nr_errors
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print_red(f"Error complex_tests: {e}")
 
         return 1
@@ -7031,7 +7031,7 @@ def test_find_paths(program_code: str) -> int:
 
     for i in files:
         if i not in string:
-            if os.path.exists(i): # pragma: no cover
+            if os.path.exists(i):
                 print("Missing {i} in find_file_paths string!")
                 nr_errors += 1
 
@@ -7052,11 +7052,11 @@ def run_tests() -> None:
     try:
         ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", 'result', -123)), '-123')
 
-        if not ie: # pragma: no cover
+        if not ie:
             nr_errors += 1
     except FileNotFoundError:
         pass
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
         nr_errors += 1
 
@@ -7180,7 +7180,7 @@ Exit-Code: 159
     if not SYSTEM_HAS_SBATCH or args.run_tests_that_fail_on_taurus:
         nr_errors += complex_tests("signal_but_has_output", "Killed", 137, None) # Doesnt show Killed on taurus
         nr_errors += complex_tests("signal", "Killed", 137, None, True) # Doesnt show Killed on taurus
-    else: # pragma: no cover
+    else:
         print_yellow("Ignoring tests complex_tests(signal_but_has_output) and complex_tests(signal) because SLURM is installed and --run_tests_that_fail_on_taurus was not set")
 
     _not_equal: list = [
@@ -7276,7 +7276,7 @@ Exit-Code: 159
         nr_errors += complex_tests(*_item)
 
     find_path_res = test_find_paths("ls")
-    if find_path_res: # pragma: no cover
+    if find_path_res:
         is_equal("test_find_paths failed", True, False)
         nr_errors += find_path_res
 
@@ -7286,7 +7286,7 @@ Exit-Code: 159
         _is: str = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
         should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
         nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
-    else: # pragma: no cover
+    else:
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
     _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
@@ -7336,7 +7336,7 @@ Exit-Code: 159
 
     try:
         calculate_signed_minkowski_distance([0.1, 0.2], -1)
-        nr_errors = nr_errors + 1 # pragma: no cover
+        nr_errors = nr_errors + 1
     except ValueError:
         pass
 
@@ -7376,7 +7376,7 @@ Exit-Code: 159
 
 @beartype
 def live_share_background(interval: int) -> None:
-    if not args.live_share: # pragma: no cover
+    if not args.live_share:
         return
 
     while True:
@@ -7385,7 +7385,7 @@ def live_share_background(interval: int) -> None:
 
 @beartype
 def start_live_share_background_job() -> None:
-    if not args.live_share: # pragma: no cover
+    if not args.live_share:
         return
 
     live_share()
@@ -7408,7 +7408,7 @@ def main_outside() -> None:
         else:
             try:
                 main()
-            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt): # pragma: no cover
+            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
                 end_program(RESULT_CSV_FILE, False, 1)
@@ -7425,7 +7425,7 @@ def main_outside() -> None:
 
                 if _get_perc != 100:
                     end_program(RESULT_CSV_FILE, True, 87)
-                else: # pragma: no cover
+                else:
                     end_program(RESULT_CSV_FILE, True)
 
 if __name__ == "__main__":

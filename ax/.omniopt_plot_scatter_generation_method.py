@@ -26,7 +26,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
@@ -51,20 +51,20 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
 
     if save_to_file:
         helpers.save_to_file(pair_plot.fig, args, plt)
-    else: # pragma: no cover
+    else:
         if args is not None:
             if not args.no_plt_show:
                 plt.show()
 
 @beartype
 def handle_empty_data(filepath: str) -> None:
-    if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+    if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(f"Could not find values in file {filepath}")
     sys.exit(19)
 
 @beartype
 def handle_unicode_error(filepath: str) -> None:
-    if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
+    if not os.environ.get("PLOT_TESTS"):
         print(f"{filepath} seems to be invalid utf8.")
     sys.exit(7)
 
@@ -82,7 +82,7 @@ def update_graph() -> None:
             dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
 
         if dataframe.empty:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print("DataFrame is empty after filtering.")
             return
 
@@ -91,28 +91,28 @@ def update_graph() -> None:
 
         plot_graph(dataframe, args.save_to_file)
 
-    except FileNotFoundError:  # pragma: no cover
+    except FileNotFoundError:
         print(f"File not found: {csv_path}")
     except pd.errors.EmptyDataError:
         handle_empty_data(csv_path)
     except UnicodeDecodeError:
         handle_unicode_error(csv_path)
-    except KeyError:  # pragma: no cover
+    except KeyError:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{csv_path} seems to have no 'result' column.")
-    except Exception as exception:  # pragma: no cover
+    except Exception as exception:
         print(f"An unexpected error occurred: {exception}")
 
 @beartype
 def ensure_directory_exists(file_path: str) -> None:
     directory = os.path.dirname(file_path)
-    if directory:  # pragma: no cover
+    if directory:
         os.makedirs(directory, exist_ok=True)
 
 if __name__ == "__main__":
     helpers.setup_logging()
 
-    if not os.path.exists(args.run_dir): # pragma: no cover
+    if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 

@@ -35,7 +35,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
@@ -66,7 +66,7 @@ parser.add_argument('--no_plt_show', help='Disable showing the plot', action='st
 
 args = parser.parse_args()
 
-if args.bins: # pragma: no cover
+if args.bins:
     if not (args.bins == "log" or helpers.looks_like_int(args.bins)):
         print(f"Error: --bin must be 'log' or a number, or left out entirely. Is: {args.bins}")
         sys.exit(193)
@@ -80,7 +80,7 @@ helpers.check_args(args)
 
 try:
     import matplotlib.pyplot as plt
-except ModuleNotFoundError as ee: # pragma: no cover
+except ModuleNotFoundError as ee:
     print(f"Error: {ee}")
     sys.exit(244)
 
@@ -115,28 +115,28 @@ def plot_multiple_graphs(_params: list) -> None:
 
                     gridsize: int = args.gridsize
 
-                    if bins: # pragma: no cover
+                    if bins:
                         scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins)
                     else:
                         scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap)
                     axs[row][col].set_xlabel(param1)
                     axs[row][col].set_ylabel(param2)
-                except Exception as e: # pragma: no cover
+                except Exception as e:
                     if "'Axes' object is not subscriptable" in str(e):
-                        if bins: # pragma: no cover
+                        if bins:
                             scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
                         else:
                             scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
                         axs.set_xlabel(param1)
                         axs.set_ylabel(param2)
-                    elif "could not convert string to float" in str(e): # pragma: no cover
+                    elif "could not convert string to float" in str(e):
                         print("ERROR: " + str(e))
 
                         tb = traceback.format_exc()
                         print(tb)
 
                         sys.exit(177)
-                    else: # pragma: no cover
+                    else:
                         print("ERROR: " + str(e))
 
                         tb = traceback.format_exc()
@@ -164,7 +164,7 @@ def plot_single_graph(_params: list) -> None:
             _y.append(_l[1])
 
         global bins
-        if bins: # pragma: no cover
+        if bins:
             axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
         else:
             axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
@@ -232,7 +232,7 @@ def main() -> None:
 
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
-        else: # pragma: no cover
+        else:
             global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
             button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
@@ -243,10 +243,10 @@ def main() -> None:
             update_graph(args.min, args.max)
 
 # Define update function for the button
-def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None: # pragma: no cover
+def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
-    if event:  # pragma: no cover
+    if event:
         # only for fooling pylint...
         pass
 
@@ -257,10 +257,10 @@ if __name__ == "__main__":
     try:
         theme = "fast"
 
-        if args is not None and args.darkmode: # pragma: no cover
+        if args is not None and args.darkmode:
             theme = "dark_background"
 
         with plt.style.context(theme):
             main()
-    except KeyboardInterrupt: # pragma: no cover
+    except KeyboardInterrupt:
         sys.exit(0)

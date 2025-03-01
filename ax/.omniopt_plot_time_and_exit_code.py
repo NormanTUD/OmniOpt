@@ -31,7 +31,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
@@ -45,7 +45,7 @@ args = parser.parse_args()
 
 @beartype
 def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
-    if not os.path.exists(filepath):  # pragma: no cover
+    if not os.path.exists(filepath):
         print(f"Error: {filepath} not found")
         sys.exit(1)
 
@@ -60,20 +60,20 @@ def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
 
 @beartype
 def handle_empty_data(filepath: str) -> None:
-    if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+    if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(f"Could not find values in file {filepath}")
     sys.exit(19)
 
 @beartype
 def handle_unicode_error(filepath: str) -> None:
-    if not os.environ.get("PLOT_TESTS"):  # pragma: no cover
+    if not os.environ.get("PLOT_TESTS"):
         print(f"{filepath} seems to be invalid utf8.")
     sys.exit(7)
 
 @beartype
 def validate_dataframe(df: pd.DataFrame) -> None:
     if "run_time" not in df:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):  # pragma: no cover
+        if not os.environ.get("NO_NO_RESULT_ERROR"):
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
         sys.exit(2)
 
@@ -139,7 +139,7 @@ def create_plots(df: pd.DataFrame) -> plt.Figure:
 def handle_output(fig: plt.Figure) -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
-    else:  # pragma: no cover
+    else:
         window_title = f'Times and exit codes for {args.run_dir}'
         if fig.canvas.manager is not None:
             fig.canvas.manager.set_window_title(window_title)

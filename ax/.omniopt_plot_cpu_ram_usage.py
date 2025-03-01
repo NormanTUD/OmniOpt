@@ -31,7 +31,7 @@ def load_helpers(script_dir: str) -> None:
     if spec is not None and spec.loader is not None:
         helpers = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helpers)
-    else: # pragma: no cover
+    else:
         raise ImportError(f"Could not load module from {helpers_file}")
 
 parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
@@ -45,19 +45,19 @@ def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
     """Loads data from the given CSV file."""
     try:
         dataframe = pd.read_csv(csv_path)
-        if dataframe.empty: # pragma: no cover
+        if dataframe.empty:
             logging.warning("DataFrame is empty after reading.")
             return None
         return dataframe
-    except pd.errors.EmptyDataError: # pragma: no cover
+    except pd.errors.EmptyDataError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file %s is empty.", csv_path)
         sys.exit(19)
-    except UnicodeDecodeError: # pragma: no cover
+    except UnicodeDecodeError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file %s contains invalid UTF-8.", csv_path)
         sys.exit(7)
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
@@ -80,7 +80,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
         fig = plt.figure(1)
         if fig is not None and args is not None and plt is not None and helpers is not None:
             helpers.save_to_file(fig, args, plt)
-    elif args is not None and not args.no_plt_show: # pragma: no cover
+    elif args is not None and not args.no_plt_show:
         if plt is not None:
             plt.show()
 
@@ -101,7 +101,7 @@ def main() -> None:
         helpers.setup_logging()
 
     if args:
-        if not os.path.exists(args.run_dir): # pragma: no cover
+        if not os.path.exists(args.run_dir):
             print("Specified --run_dir does not exist")
             sys.exit(1)
 

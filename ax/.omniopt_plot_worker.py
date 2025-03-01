@@ -26,7 +26,7 @@ spec = importlib.util.spec_from_file_location(
 if spec is not None and spec.loader is not None:
     helpers = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helpers)
-else: # pragma: no cover
+else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
 @beartype
@@ -46,7 +46,7 @@ def plot_worker_usage(args: Any, pd_csv: str) -> None:
         data = data[valid_times]
 
         if "time" not in data:
-            if not os.environ.get("NO_NO_RESULT_ERROR"): # pragma: no cover
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
                 print("time could not be found in data")
             sys.exit(19)
 
@@ -76,17 +76,17 @@ def plot_worker_usage(args: Any, pd_csv: str) -> None:
             fig = plt.figure(1)
             helpers.save_to_file(fig, args, plt)
         else:
-            if not args.no_plt_show: # pragma: no cover
+            if not args.no_plt_show:
                 plt.show()
-    except FileNotFoundError: # pragma: no cover
+    except FileNotFoundError:
         helpers.log_error(f"File '{pd_csv}' not found.")
-    except AssertionError as e: # pragma: no cover
+    except AssertionError as e:
         helpers.log_error(str(e))
-    except UnicodeDecodeError: # pragma: no cover
-        if not os.environ.get("PLOT_TESTS"): # pragma: no cover
+    except UnicodeDecodeError:
+        if not os.environ.get("PLOT_TESTS"):
             print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
         sys.exit(7)
-    except Exception as e: # pragma: no cover
+    except Exception as e:
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
 
@@ -100,7 +100,7 @@ def main() -> None:
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
     args = parser.parse_args()
 
-    if args.debug: # pragma: no cover
+    if args.debug:
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
     helpers.die_if_cannot_be_plotted(args.run_dir)
@@ -110,10 +110,10 @@ def main() -> None:
         if os.path.exists(worker_usage_csv):
             try:
                 plot_worker_usage(args, worker_usage_csv)
-            except Exception as e: # pragma: no cover
+            except Exception as e:
                 helpers.log_error(f"Error: {e}")
                 sys.exit(3)
-        else: # pragma: no cover
+        else:
             helpers.log_error(f"File '{worker_usage_csv}' does not exist.")
             sys.exit(19)
 

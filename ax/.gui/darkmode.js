@@ -44,6 +44,7 @@ function enable_dark_mode() {
 	loadCss("jquery-ui.darkmode.css");
 
 	$("body").css("color", "#6F116F");
+	$("body").css("background-color", "white");
 	$(".header_table").css("color", "green");
 }
 
@@ -65,6 +66,7 @@ function enable_light_mode() {
 	unloadCss("jquery-ui.darkmode.css");
 
 	$("body").css("color", "unset");
+	$("body").css("background-color", "unset");
 	$(".header_table").css("color", "unset");
 }
 

@@ -3,6 +3,11 @@
 var hashcache = [];
 var max_nr_ticks = 1000;
 
+function add_load_log_button () {
+	$("#main_tabbed").after("<button id='load_debug_log_button' class='invert_in_dark_mode' style='width: 300px' onclick='load_debug_log()'>Load debug log</button>\n");
+	apply_theme_based_on_system_preferences();
+}
+
 function get_width() {
 	return Math.max(1200, parseInt(0.95 * window.innerWidth));
 }
@@ -925,6 +930,7 @@ async function load_debug_log() {
 	}
 
 	add_tab("internal_log", "Debug-Log", "<div id='internal_log_element'></div>");
+	apply_theme_based_on_system_preferences();
 
 	if($("#internal_log_element").length == 0) {
 		error("Could not find #internal_log_element");
@@ -946,6 +952,7 @@ async function load_debug_log() {
 			$("#internal_log_table").hide();
 		}
 	}
+	apply_theme_based_on_system_preferences();
 }
 
 async function load_outfile () {
@@ -1615,6 +1622,8 @@ async function load_all_data() {
 		//log("Loaded page");
 
 		link_share_main();
+
+		add_load_log_button();
 	}
 
 	loaded_share = true;

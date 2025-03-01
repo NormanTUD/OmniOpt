@@ -43,6 +43,8 @@
 		"filename" => get_or_env("filename")
 	);
 
+	$no_raw_data = get_or_env("no_raw_data");
+
 	$missing = array();
 
 	foreach ($vars as $var_key => $var_value) {

@@ -3,6 +3,11 @@
 var hashcache = [];
 var max_nr_ticks = 1000;
 
+function add_load_worker_cpu_button () {
+	$("#main_tabbed").after("<button id='load_worker_cpu_button' class='invert_in_dark_mode' style='width: 300px' onclick='plot_worker_cpu_ram()'>Load debug log</button>\n");
+	apply_theme_based_on_system_preferences();
+}
+
 function add_load_log_button () {
 	$("#main_tabbed").after("<button id='load_debug_log_button' class='invert_in_dark_mode' style='width: 300px' onclick='load_debug_log()'>Load debug log</button>\n");
 	apply_theme_based_on_system_preferences();
@@ -1608,7 +1613,7 @@ async function load_all_data() {
 		promises.push(plot_all_possible());
 		promises.push(plot_cpu_ram_graph());
 		promises.push(plot_parallel_plot());
-		promises.push(plot_worker_cpu_ram());
+		//promises.push(plot_worker_cpu_ram());
 		promises.push(plot_planned_vs_real_worker_over_time());
 
 		for (var i = 0; i < promises.length; i++) {
@@ -1626,6 +1631,7 @@ async function load_all_data() {
 		link_share_main();
 
 		add_load_log_button();
+		add_load_worker_cpu_button();
 	}
 
 	loaded_share = true;

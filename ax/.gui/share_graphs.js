@@ -498,16 +498,16 @@ async function plot_all_possible () {
 	var mappingKeyNameToIndex = {};
 	var paramKeys = [];
 
+	var result_names = await get_result_names_data()
+
 	for (var i = 0; i < header_line.length; i++) {
 		var this_element = header_line[i];
 
-		if(!["trial_index", "arm_name", "trial_status", "generation_method", "result"].includes(this_element)) {
+		if(!["trial_index", "arm_name", "trial_status", "generation_method", ...result_names].includes(this_element)) {
 			paramKeys.push(this_element);
 			mappingKeyNameToIndex[this_element] = i;
 		}
 	}
-
-	var result_names = await get_result_names_data()
 
 	if(result_names != 1) {
 		return;

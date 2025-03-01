@@ -952,6 +952,8 @@ async function load_debug_log() {
 			$("#internal_log_table").hide();
 		}
 	}
+
+	removeSpinnerOverlay();
 	apply_theme_based_on_system_preferences();
 }
 

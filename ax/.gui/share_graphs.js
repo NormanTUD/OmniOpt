@@ -4,14 +4,14 @@ var hashcache = [];
 var max_nr_ticks = 1000;
 
 function add_load_worker_cpu_button () {
-	if (!("#load_worker_cpu_button").length) {
+	if (!$("#load_worker_cpu_button").length) {
 		$("#main_tabbed").after("<button id='load_worker_cpu_button' class='invert_in_dark_mode' style='width: 300px' onclick='plot_worker_cpu_ram()'>Load Worker/CPU graphs (slow)</button>\n");
 	}
 	apply_theme_based_on_system_preferences();
 }
 
 function add_load_log_button () {
-	if (!("#load_debug_log_button").length) {
+	if (!$("#load_debug_log_button").length) {
 		$("#main_tabbed").after("<button id='load_debug_log_button' class='invert_in_dark_mode' style='width: 300px' onclick='load_debug_log()'>Load debug log</button>\n");
 	}
 	apply_theme_based_on_system_preferences();
@@ -635,7 +635,7 @@ async function load_out_files () {
 			var batchRequests = [];
 
 			for (var j = i; j < i + maxConcurrentRequests && j < data.data.length; j++) {
-				showSpinnerOverlay(`Loading log ${j + 1}/${data.data.length}`);
+				showSpinnerOverlay(`Adding log tab ${j + 1}/${data.data.length}`);
 
 				if (!$("#" + main_tabs_div_id).length) {
 					add_tab("out_files", "Out-Files", `

@@ -6,7 +6,7 @@ if ! command -v sacct 2>/dev/null >/dev/null; then
 fi
 
 SCRIPT_DIR=$(dirname $(realpath "$0"))
-CACHE_DIR="$SCRIPT_DIR/../.tmp"
+CACHE_DIR="$SCRIPT_DIR/../$SLURM_JOB_ID/.tmp"
 RETRIES=3
 DELAY=5
 

@@ -2085,7 +2085,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                 results[column_name] = [float(match) for match in matches][0]
             else:
                 results[column_name] = None
-                add_to_global_error_list(f"result '{column_name}' not found in output")
+                add_to_global_error_list(f"'{column_name}: <number>' not found in output")
 
         if len(results):
             return results

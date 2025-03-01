@@ -132,7 +132,7 @@
 			"hash" => hash("md5", file_get_contents($share_file))
 		);
 
-		if(!$no_raw_data) {
+		if($no_raw_data != "1") {
 			$data["raw"] = removeDuplicateCsvRows(remove_ansi_colors(file_get_contents($share_file)));
 		}
 
@@ -148,7 +148,7 @@
 			"hash" => hash("md5", file_get_contents($share_file))
 		);
 
-		if(!$no_raw_data) {
+		if($no_raw_data != "1") {
 			$data["raw"] = $raw_file;
 		}
 

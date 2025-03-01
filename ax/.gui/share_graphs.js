@@ -500,6 +500,7 @@ async function plot_all_possible () {
 
 	showSpinnerOverlay("Trying to plot all possible plots: Filtering data...");
 	convertToIntAndFilter(_results_csv_json.data.map(Object.values));
+	showSpinnerOverlay("Trying to plot all possible plots: Done filtering data...");
 
 	var header_line = _results_csv_json.data.shift();
 

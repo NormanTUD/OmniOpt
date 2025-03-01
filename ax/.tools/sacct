@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if command -v sacct 2>/dev/null >/dev/null; then
+	echo "sacct not found on this system"
+	exit 1
+fi
+
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 CACHE_DIR="$SCRIPT_DIR/../.tmp"
 RETRIES=3

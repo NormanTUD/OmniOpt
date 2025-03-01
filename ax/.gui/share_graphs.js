@@ -485,16 +485,19 @@ async function plot_all_possible () {
 	var _results_csv_json = await fetchJsonFromUrlFilenameOnly("results.csv");
 
 	if(!_results_csv_json) {
+		removeSpinnerOverlay();
 		return;
 	}
 
 	if(!Object.keys(_results_csv_json).includes("data")) {
 		warn("plot_all_possible: Could not plot seemingly empty _results_csv_json: no data found");
+		removeSpinnerOverlay();
 		return;
 	}
 
 	if(!Object.keys(_results_csv_json).includes("data") && !results_csv_json.data.length) {
 		warn("plot_all_possible: Could not plot seemingly empty _results_csv_json");
+		removeSpinnerOverlay();
 		return;
 	}
 
@@ -510,6 +513,7 @@ async function plot_all_possible () {
 	var result_names = await get_result_names_data()
 
 	if(result_names != 1) {
+		removeSpinnerOverlay();
 		return;
 	}
 
@@ -527,17 +531,21 @@ async function plot_all_possible () {
 
 	if(result_idx < 0) {
 		//error("Cannot find result column index!");
+		removeSpinnerOverlay();
 		return;
 	}
 
+	showSpinnerOverlay("Trying to plot all possible plots: Parsing data as float...");
 	var resultValues = _results_csv_json.data.map(function(row) {
 		return parseFloat(row[result_idx]);
 	});
 
+	showSpinnerOverlay("Trying to plot all possible plots: Filtering NaN-values...");
 	resultValues = resultValues.filter(function (value) {
 		return !Number.isNaN(value);
 	});
 
+	showSpinnerOverlay("Trying to plot all possible plots: Finding min/max values...");
 	var minResult = Math.min.apply(null, resultValues);
 	var maxResult = Math.max.apply(null, resultValues);
 

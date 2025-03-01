@@ -86,6 +86,8 @@
 	}
 
 	function respond_with_json($data) {
+		header('Content-Type: application/json');
+
 		print json_encode(array(
 			"data" => $data,
 			"hash" => hash("md5", json_encode($data))
@@ -94,6 +96,8 @@
 	}
 
 	function respond_with_error($error_message) {
+		header('Content-Type: application/json');
+
 		print json_encode(array("error" => $error_message));
 		exit(1);
 	}

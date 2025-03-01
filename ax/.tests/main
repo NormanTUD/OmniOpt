@@ -852,6 +852,8 @@ if [[ $superquick -eq 0 ]]; then
 
 		if [[ -z $CI ]] && ! [[ -e /.dockerenv ]] && command -v docker 2>/dev/null >/dev/null; then
 			_test "Docker" "bash omniopt_docker ./.tests/main --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error" 0
+
+			_test "Running Slurm-Docker-Test" ".tests/slurm_docker/run_docker --run_tests" 0
 		fi
 	fi
 fi

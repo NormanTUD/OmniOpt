@@ -6623,7 +6623,7 @@ def show_pareto_frontier_data() -> None:
         TimeRemainingColumn(),
         transient=True
     ) as progress:
-        task = progress.add_task("Collecting Pareto data...", total=len(all_combinations))
+        task = progress.add_task("Calculating Pareto-Front...", total=len(all_combinations))
 
         for i, j in all_combinations:
             metric_i = objectives[i].metric

@@ -507,7 +507,13 @@ async function plot_all_possible () {
 		}
 	}
 
-	var result_idx = header_line.indexOf("result");
+	var result_names = await get_result_names_data()
+
+	if(result_names != 1) {
+		return;
+	}
+
+	var result_idx = header_line.indexOf(result_names[0]);
 
 	if(result_idx < 0) {
 		//error("Cannot find result column index!");

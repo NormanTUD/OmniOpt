@@ -1609,6 +1609,8 @@ async function load_all_data() {
 
 		link_share_main();
 	}
+
+	loaded_share = true;
 }
 
 async function refresh() {

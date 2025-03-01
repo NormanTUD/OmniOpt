@@ -1140,6 +1140,7 @@ async function load_best_result () {
 async function plot_planned_vs_real_worker_over_time () {
 	showSpinnerOverlay("Plotting planned vs. real workers...");
 	var data = await fetchJsonFromUrlFilenameOnly("worker_usage.csv");
+
 	if(!data) {
 		return;
 	}
@@ -1539,7 +1540,7 @@ async function load_overview_data() {
 	}
 }
 
-async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false) {
+async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false) {
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -1551,6 +1552,10 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 
 	if(parse_ansi) {
 		url = url + "&parse_ansi=1";
+	}
+
+	if(no_raw_data) {
+		url = url + "&no_raw_data=1";
 	}
 
 	var _res = await fetchJsonFromUrl(url);

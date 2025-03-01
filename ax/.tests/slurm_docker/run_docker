@@ -372,7 +372,7 @@ if [[ $run_tests -eq 1 ]]; then
 	echo "Discarding almost all other options because you chose to --run_tests"
 
 	cmd=(
-		docker exec slurm-frontend bash /oo_dir/omniopt/.tests/main --max_eval=2 --num_random_steps=1 --exit_on_first_error --no_linkchecker --no_linter --run_with_coverage --superquick --run_with_coverage
+		docker exec slurm-frontend bash /oo_dir/.tests/main --max_eval=2 --num_random_steps=1 --exit_on_first_error --no_linkchecker --no_linter --run_with_coverage --superquick --run_with_coverage
 	)
 fi
 

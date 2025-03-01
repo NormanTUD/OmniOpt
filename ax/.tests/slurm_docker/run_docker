@@ -382,6 +382,7 @@ if [[ $run_tests -eq 1 ]]; then
 		--superquick
 		--run_with_coverage
 		--skip_test_job_nr
+		--skip_worker_check
 	)
 fi
 

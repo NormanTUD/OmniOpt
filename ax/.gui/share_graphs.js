@@ -500,6 +500,10 @@ async function plot_all_possible () {
 
 	var result_names = await get_result_names_data()
 
+	if(result_names != 1) {
+		return;
+	}
+
 	for (var i = 0; i < header_line.length; i++) {
 		var this_element = header_line[i];
 
@@ -507,10 +511,6 @@ async function plot_all_possible () {
 			paramKeys.push(this_element);
 			mappingKeyNameToIndex[this_element] = i;
 		}
-	}
-
-	if(result_names != 1) {
-		return;
 	}
 
 	var result_idx = header_line.indexOf(result_names[0]);

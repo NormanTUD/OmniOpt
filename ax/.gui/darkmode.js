@@ -42,6 +42,9 @@ function enable_dark_mode() {
 	loadCss("jquery-ui.structure.css");
 	loadCss("jquery-ui.theme.css");
 	loadCss("jquery-ui.darkmode.css");
+
+	$("body").css("color", "#6F116F");
+	$(".header_table").css("color", "green");
 }
 
 function enable_light_mode() {
@@ -60,6 +63,9 @@ function enable_light_mode() {
 	unloadCss("jquery-ui.structure.css");
 	unloadCss("jquery-ui.theme.css");
 	unloadCss("jquery-ui.darkmode.css");
+
+	$("body").css("color", "unset");
+	$(".header_table").css("color", "unset");
 }
 
 function apply_theme_based_on_system_preferences() {

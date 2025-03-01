@@ -7278,7 +7278,7 @@ Exit-Code: 159
     for _item in _complex_tests:
         nr_errors += complex_tests(*_item)
 
-    nr_errors += is_equal("test_find_paths failed", test_find_paths("ls"), False)
+    nr_errors += is_equal("test_find_paths failed", bool(test_find_paths("ls")), False)
 
     orchestrator_yaml: str = ".tests/example_orchestrator_config.yaml"
 

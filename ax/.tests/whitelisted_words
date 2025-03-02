@@ -604,6 +604,7 @@ effectsEffectHighlight
 effectsEffectSize
 effectsEffectTransfer
 eg
+egrep
 egularizer
 ehasOwnPropertymessage
 eincludesCorrupted
@@ -927,6 +928,7 @@ ifwindowFileReader
 ifworked
 ig
 ii
+iiuu
 im
 imageData
 ImageDataGenerator
@@ -1839,6 +1841,7 @@ rwxrxrx
 Sa
 saasbo
 SAASBO
+sacct
 SameSite
 SameSiteNone
 Saturday
@@ -2443,5 +2446,3 @@ zipContents
 zipWriter
 zsh
 ZSH
-iiuu
-sacct

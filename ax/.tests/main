@@ -581,6 +581,7 @@ fi
 _test "find_functions_that_are_defined_multiple_times" ".tests/find_functions_that_are_defined_multiple_times" 0
 _test "Unit tests" ".tests/unit_tests" 0 255
 _test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0
+_test "Find unused parameters in main script" ".tests/find_unused_params" 0
 
 _test "help page Documentation" ".tests/help_page" 0
 _test "folder structure Documentation" ".tests/folder_structure" 0

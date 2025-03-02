@@ -344,7 +344,6 @@ cmd=(
 	--num_random_steps "$num_random_steps"
 	--model $model
 	--auto_exclude_defective_hosts
-	--hide_ascii_plots
 	--max_nr_of_zero $max_nr_of_zero
 )
 

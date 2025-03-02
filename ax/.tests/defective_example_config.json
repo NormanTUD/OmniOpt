@@ -37,7 +37,6 @@ experiment_name": "__main__tests__",
     },
     {
       "auto_exclude_defective_hosts": true,
-      "hide_ascii_plots": true,
       "model": "BOTORCH_MODULAR",
       "num_random_steps": 1,
       "param": [

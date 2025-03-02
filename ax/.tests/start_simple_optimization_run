@@ -174,7 +174,7 @@ function build_omniopt_command_standard() {
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
 	fi
 
-	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --nr_results=$nr_results" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts" "--hide_ascii_plots")
+	local base_cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --nr_results=$nr_results" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
 		base_cmd+=("--gridsearch")
@@ -214,7 +214,7 @@ function build_omniopt_command_one_param() {
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
 	fi
 
-	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
+	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
 		cmd+=("--gridsearch")
@@ -255,7 +255,7 @@ function build_omniopt_command_two_params() {
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
 	fi
 
-	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--hide_ascii_plots")
+	local cmd=("./omniopt" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example --int_param='%(int_param)' --float_param='1' --choice_param='1'  --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
 		cmd+=("--gridsearch")

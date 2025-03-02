@@ -169,11 +169,6 @@
 				<td><samp>False</samp></td>
 			</tr>
 			<tr>
-				<td><samp>--hide_ascii_plots</samp></td>
-				<td>Hide ASCII-plots.</td>
-				<td><samp>False</samp></td>
-			</tr>
-			<tr>
 				<td><samp>--model MODEL</samp></td>
 				<td>Use special models for nonrandom steps. Valid models are: SOBOL, GPEI, FACTORIAL, SAASBO, FULLYBAYESIAN, LEGACY_BOTORCH, BOTORCH_MODULAR, UNIFORM, BO_MIXED.</td>
 				<td><samp>BOTORCH_MODULAR</samp></td>

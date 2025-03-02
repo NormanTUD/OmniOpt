@@ -201,7 +201,6 @@ fi
 	--num_parallel_jobs=10 \
 	--run_program=$(echo -n "./.tests/test_wronggoing_stuff.bin/bin/%(program)" | base64 -w 0) \
 	--parameter program choice $which_programs_string \
-	--hide_ascii_plots \
 	--num_random_steps=$num_random_steps \
 	--follow
 

@@ -2,14 +2,26 @@
 
 unused_params=0
 
+allowed=(
+	workdir
+	show_ram_every_n_seconds
+	send_anonymized_usage_stats
+	run_mode
+	root_venv_dir
+	partition
+	checkout_to_latest_tested_version
+)
+
 for each in $(
 	for arg in $(cat .omniopt.py | grep "add_argument" | grep - "--" | sed -e "s#.*['\"]--##" -e "s#[\"'],.*##" | egrep "^\w*$"); do
 		cnt=$(cat .omniopt.py | grep "args.$arg" | wc -l)
 		echo "$cnt: $arg"
-	done | sort -nr | grep "^0:" | grep -v "workdir" | grep -v "show_ram_every_n_seconds" | grep -v "partition" | grep -v "checkout_to_latest_tested_version" | \
-		grep "send_anonymized_usage_stats" | grep -v "run_mode" | grep -v "send_anonymized_usage_stats"
-	); do
-	unused_params=$((unused_params+1))
+	done | sort -nr | grep "^0:" | sed -e 's#^0:\s*##'
+); do
+	if [[ ! " ${allowed[@]} " =~ " ${each} " ]]; then
+		echo "Parameter $each found in .omniopt.py, but never used anywhere nor in the special \$allowed-array" >&2
+		unused_params=$((unused_params+1))
+	fi
 done
 
 echo "Unused params: $unused_params"

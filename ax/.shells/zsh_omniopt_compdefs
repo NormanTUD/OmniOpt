@@ -23,7 +23,6 @@ _omniopt() {
     '--decimalrounding=[Decimal places for rounding]:DECIMALROUNDING:' \
     '--enforce_sequential_optimization[Enforce sequential optimization]' \
     '--verbose_tqdm[Show verbose tqdm messages]' \
-    '--hide_ascii_plots[Hide ASCII-plots]' \
     '--model=[Use special models]:MODEL:(SOBOL GPEI FACTORIAL SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED)' \
     '--gridsearch[Enable gridsearch]' \
     '--occ[Use optimization with combined criteria (OCC)]' \

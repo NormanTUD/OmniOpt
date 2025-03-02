@@ -22,7 +22,6 @@ _omniopt() {
     "--decimalrounding"
     "--enforce_sequential_optimization"
     "--verbose_tqdm"
-    "--hide_ascii_plots"
     "--model"
     "--gridsearch"
     "--occ"

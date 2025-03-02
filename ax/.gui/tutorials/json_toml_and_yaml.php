@@ -41,7 +41,6 @@ param = ["int_param_two", "range", "-100", "10", "int"]
 num_random_steps = 1
 model = "BOTORCH_MODULAR"
 auto_exclude_defective_hosts = true
-hide_ascii_plots = true
 </code></pre>
 <h3 id="yaml">YAML</h3>
 <pre class="invert_in_dark_mode"><code class="language-bash">live_share: true
@@ -83,7 +82,6 @@ parameter:
     num_random_steps: 1
     model: BOTORCH_MODULAR
     auto_exclude_defective_hosts: true
-    hide_ascii_plots: true
 </code></pre>
 
 <h3 id="json">JSON</h3>
@@ -126,7 +124,6 @@ parameter:
     },
     {
       "auto_exclude_defective_hosts": true,
-      "hide_ascii_plots": true,
       "model": "BOTORCH_MODULAR",
       "num_random_steps": 1,
       "param": [

@@ -22,6 +22,7 @@ async function plot_parallel_plot() {
 	if (resnames.length == 1) {
 		minResult = minResult[resnames[0]];
 		maxResult = maxResult[resnames[0]];
+		resultValues = resultValues[resnames[0]];
 	}
 
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
@@ -101,6 +102,9 @@ function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, m
 
 	let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
+
+	console.log(trace);
+
 	let layout = createParallelLayout();
 
 	renderParallelPlot(trace, layout, data_md5);

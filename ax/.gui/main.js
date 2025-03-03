@@ -215,6 +215,8 @@ function add_status_bar () {
 	inject_status_bar_css();
 
 	$("body").css("margin-bottom", "100px")
+
+	apply_theme_based_on_system_preferences();
 }
 
 function showSpinnerOverlay(text) {

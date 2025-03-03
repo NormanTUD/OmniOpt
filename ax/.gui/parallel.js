@@ -4,7 +4,8 @@ async function plot_parallel_plot() {
 	var resnames = await get_result_names_data();
 
 	showSpinnerOverlay("Plotting parallel-plot");
-	let _results_csv_json = await fetchData("job_infos.csv");
+	//async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false, only_raw_data=false) {
+	let _results_csv_json = await fetchData("job_infos.csv", false, false, false, true);
 	if (!_results_csv_json) {
 		return;
 	}
@@ -16,8 +17,8 @@ async function plot_parallel_plot() {
 	apply_theme_based_on_system_preferences();
 }
 
-async function fetchData(filename) {
-	let jsonData = await fetchJsonFromUrlFilenameOnly(filename);
+async function fetchData(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false, only_raw_data=false) {
+	let jsonData = await fetchJsonFromUrlFilenameOnly(filename, remove_ansi, parse_ansi, no_raw_data, only_raw_data);
 	if (!jsonData || !jsonData.data || !jsonData.data.length) {
 		//error(`Could not plot: empty or invalid data from ${filename}`);
 		return null;

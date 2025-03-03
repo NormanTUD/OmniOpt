@@ -1,6 +1,4 @@
 <?php
-	header('Content-Type: application/json; charset=utf-8');
-
 	include_once("_functions.php");
 	include_once("share_functions.php");
 
@@ -44,6 +42,7 @@
 	);
 
 	$no_raw_data = get_or_env("no_raw_data");
+	$only_raw_data = get_or_env("only_raw_data");
 
 	$missing = array();
 
@@ -136,7 +135,12 @@
 			$data["raw"] = removeDuplicateCsvRows(remove_ansi_colors(file_get_contents($share_file)));
 		}
 
-		echo json_encode($data);
+		if ($only_raw_data == 1) {
+			echo $data["raw"];
+		} else {
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode($data);
+		}
 	} else {
 		$raw_file = file_get_contents($share_file);
 
@@ -152,6 +156,11 @@
 			$data["raw"] = $raw_file;
 		}
 
-		echo json_encode($data);
+		if ($only_raw_data) {
+			echo $data["raw"];
+		} else {
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode($data);
+		}
 	}
 ?>

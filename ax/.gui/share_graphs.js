@@ -1599,7 +1599,7 @@ async function load_overview_data() {
 	}
 }
 
-async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false) {
+async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false, only_raw_data=false) {
 	//debug_function(`fetchJsonFromUrlFilenameOnly('${filename}')`);
 	var urlParams = new URLSearchParams(window.location.search);
 
@@ -1615,6 +1615,10 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 
 	if(no_raw_data) {
 		url = url + "&no_raw_data=1";
+	}
+
+	if(only_raw_data) {
+		url = url + "&only_raw_data=1";
 	}
 
 	var _res = await fetchJsonFromUrl(url);

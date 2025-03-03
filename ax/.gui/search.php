@@ -177,7 +177,7 @@
 	foreach ($files as $fn => $n) {
 		if (is_array($n)) {
 			foreach ($n["entries"] as $sub_fn => $sub_n) {
-				$php_files[] = "tutorials/$sub_fn.php";
+				$php_files[] = "_tutorials/$sub_fn.php";
 			}
 		} else {
 			$php_files[] = "$fn.php";

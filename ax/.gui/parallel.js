@@ -5,8 +5,9 @@ async function plot_parallel_plot() {
 
 	showSpinnerOverlay("Plotting parallel-plot");
 	//async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false, only_raw_data=false) {
-	let _results_csv_json = await fetchData("job_infos.csv", false, false, false, true);
+	let _results_csv_json = await fetchData("job_infos.csv", false, false, false, false);
 	if (!_results_csv_json) {
+		log("C");
 		return;
 	}
 

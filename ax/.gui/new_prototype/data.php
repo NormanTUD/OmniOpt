@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // Anzahl der Dummy-Datenpunkte
-$num_points = 100;
+$num_points = 10;
 
 // Zufallsdaten generieren
 $data = [];

@@ -87,7 +87,11 @@
         y: data.map(d => d.accuracy),
         mode: 'markers',
         type: 'scatter'
-      }], { title: '2D Scatter Plot' });
+      }], {
+	      title: '2D Scatter Plot',
+	      lot_bgcolor: 'rgba(0, 0, 0, 0)',
+	      paper_bgcolor: 'rgba(0, 0, 0, 0)'
+      });
     }
 
     function createScatter3D(data) {
@@ -97,7 +101,11 @@
         z: data.map(d => d.accuracy),
         mode: 'markers',
         type: 'scatter3d'
-      }], { title: '3D Scatter Plot' });
+      }], {
+	      title: '3D Scatter Plot',
+	      lot_bgcolor: 'rgba(0, 0, 0, 0)',
+	      paper_bgcolor: 'rgba(0, 0, 0, 0)'
+      });
     }
 
     function createParallelPlot(data) {
@@ -108,7 +116,11 @@
           { label: 'Batch Size', values: data.map(d => d.batch_size) },
           { label: 'Accuracy', values: data.map(d => d.accuracy) }
         ]
-      }], { title: 'Parallel Coordinates' });
+      }], {
+	      title: 'Parallel Coordinates',
+	      lot_bgcolor: 'rgba(0, 0, 0, 0)',
+	      paper_bgcolor: 'rgba(0, 0, 0, 0)'
+      });
     }
 
     function createTable(data) {

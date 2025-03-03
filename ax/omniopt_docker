@@ -83,10 +83,10 @@ _mkdir logs
 git rev-parse HEAD > git_hash
 
 if groups | grep -q '\bdocker\b'; then
-    DOCKER_COMPOSE_CMD="docker compose"
+    DOCKER_COMPOSE_CMD="docker-compose"
     DOCKER_CMD="docker"
 else
-    DOCKER_COMPOSE_CMD="sudo docker compose"
+    DOCKER_COMPOSE_CMD="sudo docker-compose"
     DOCKER_CMD="sudo docker"
 fi
 

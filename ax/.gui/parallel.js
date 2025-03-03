@@ -25,7 +25,7 @@ async function plot_parallel_plot() {
 		resultValues = resultValues[resnames[0]];
 	}
 
-	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
+	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult, resnames);
 
 	apply_theme_based_on_system_preferences();
 }
@@ -92,7 +92,7 @@ function extractResultValues(data, result_idx) {
 		.filter(value => value !== undefined && !isNaN(value));
 }
 
-function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
+function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult, resnames) {
 	//console.log("=>", header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult, "<=");
 	let data_md5 = md5(JSON.stringify(data));
 	if ($("#parallel_plot_container").data("md5") == data_md5) return;
@@ -103,9 +103,7 @@ function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, m
 	let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
 
-	console.log(trace);
-
-	let layout = createParallelLayout();
+	let layout = createParallelLayout(resnames);
 
 	renderParallelPlot(trace, layout, data_md5);
 }
@@ -197,9 +195,9 @@ function createParallelTrace(dimensions, resultValues, minResult, maxResult) {
 	};
 }
 
-function createParallelLayout() {
+function createParallelLayout(resnames) {
 	return {
-		title: "Parallel Coordinates Plot",
+		title: `Parallel Coordinates Plot (${resnames.join(", ")})`,
 		width: get_width(),
 		height: get_height(),
 		paper_bgcolor: "rgba(0,0,0,0)",

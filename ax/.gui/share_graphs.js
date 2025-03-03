@@ -1391,6 +1391,8 @@ async function plot_worker_cpu_ram() {
 			const cpu = parseFloat(match[3]);
 			const ram = parseFloat(match[4]);
 
+			showSpinnerOverlay(`Loading worker CPU/RAM plot: Parsing data for ${hostname} at ${timestamp}`);
+
 			if (!hostData[hostname]) {
 				hostData[hostname] = { timestamps: [], cpuUsage: [], ramUsage: [] };
 			}
@@ -1414,12 +1416,16 @@ async function plot_worker_cpu_ram() {
 	const container = document.getElementById("cpuRamWorkerChartContainer");
 	container.innerHTML = "";
 
+	var i = 1;
+
 	Object.entries(hostData).forEach(([hostname, { timestamps, cpuUsage, ramUsage }], index) => {
 		const chartId = `workerChart_${index}`;
 		const chartDiv = document.createElement("div");
 		chartDiv.id = chartId;
 		chartDiv.style.marginBottom = "40px";
 		container.appendChild(chartDiv);
+
+		showSpinnerOverlay(`Loading worker CPU/RAM plot: Plotting ${hostname} at ${timestamp} (${i} of ${len(Object.entries(hostData))})`);
 
 		const cpuTrace = {
 			x: timestamps,
@@ -1457,6 +1463,7 @@ async function plot_worker_cpu_ram() {
 		};
 
 		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
+		i++;
 	});
 
 	removeSpinnerOverlay();

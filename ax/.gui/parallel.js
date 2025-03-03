@@ -163,8 +163,8 @@ function createResultDimension(resultValues, minResult, maxResult) {
 		label: "result",
 		values: resultValues,
 		colorscale: "Jet",
-		tickvals: createTicks(resultValues), // Ensure full range of results is displayed
-		ticktext: createTickText(createTicks(resultValues)) // Show all results with precision
+		tickvals: createTicks(resultValues),
+		ticktext: createTickText(createTicks(resultValues))
 	};
 }
 

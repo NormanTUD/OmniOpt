@@ -65,6 +65,7 @@ install_if_missing docker-compose "" 2
 install_if_missing wget "" 2
 install_if_missing git "" 2
 install_if_missing docker "" 2
+install_if_missing docker-compose "" 2
 
 if ! groups | grep -q '\bdocker\b'; then
     install_if_missing sudo "" 2

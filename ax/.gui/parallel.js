@@ -12,16 +12,17 @@ async function plot_parallel_plot() {
 
 	var preprocessedData = await preprocessData(_results_csv_json, resnames);;
 
-	log(preprocessedData);
-
 	var header_line = preprocessedData.header_line;
 	var data = preprocessedData.data;
 	var mappingKeyNameToIndex = preprocessedData.mappingKeyNameToIndex;
 	var resultValues = preprocessedData.resultValues;
-	var minResult = preprocessedData.minResult;
-	var maxResult = preprocessedData.maxResult;
+	var minResult = preprocessedData.minResults;
+	var maxResult = preprocessedData.maxResults;
 
-	//let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json, resnames);
+	if (resnames.length == 1) {
+		minResult = minResult[resnames[0]];
+		maxResult = maxResult[resnames[0]];
+	}
 
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 
@@ -91,6 +92,7 @@ function extractResultValues(data, result_idx) {
 }
 
 function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
+	//console.log("=>", header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult, "<=");
 	let data_md5 = md5(JSON.stringify(data));
 	if ($("#parallel_plot_container").data("md5") == data_md5) return;
 

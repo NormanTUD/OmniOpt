@@ -25,7 +25,9 @@ async function plot_new_parallel_plot() {
 			.data(data)
 			.hideAxis(["name"])
 			.composite("darken")
-			.color(function(d) { return blue_to_brown(d['result']); })  // quantitative color scale
+			.color(function(d) {
+				return blue_to_brown(d['result']);
+			})  // quantitative color scale
 			.alpha(0.35)
 			.render()
 			.brushMode("1D-axes")  // enable brushing

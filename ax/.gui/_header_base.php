@@ -3,7 +3,7 @@
 		$modules = apache_get_modules();
 		if (!in_array('mod_rewrite', $modules)) {
 			echo "!!! mod_rewrite is NOT activated !!!<br>\n";
-			echo "Run <tt>sudo a2enmod rewrite</tt> to activate!<br>\n"a;
+			echo "Run <tt>sudo a2enmod rewrite</tt> to activate!<br>\n";
 		}
 	}
 

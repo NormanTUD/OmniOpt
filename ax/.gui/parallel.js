@@ -1,5 +1,14 @@
 "use strict";
 
+async function plot_new_parallel_plot() {
+	var urlParams = new URLSearchParams(window.location.search);
+	var filename = "results.csv";
+
+	var url = `share_to_csv.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}&filename=${filename}&only_raw_data=1`;
+	
+	log(`url: ${url}`);
+}
+
 async function plot_parallel_plot() {
 	var resnames = await get_result_names_data();
 

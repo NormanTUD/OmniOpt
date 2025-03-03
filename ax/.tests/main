@@ -871,19 +871,19 @@ fi
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then
-		coverage combine 2>/dev/null >/dev/null
-		coverage xml -i 2>/dev/null >/dev/null
-		coverage json -i 2>/dev/null >/dev/null
-		coverage html -i 2>/dev/null >/dev/null
+		coverage combine 2>/dev/null >/dev/null || true
+		coverage xml -i 2>/dev/null >/dev/null || true
+		coverage json -i 2>/dev/null >/dev/null || true
+		coverage html -i 2>/dev/null >/dev/null || true
 
-		coverage report -i
+		coverage report -i || true
 
 		if [[ -n $GITHUB_STEP_SUMMARY ]]; then
-			echo "$(coverage report --format=markdown)" >> "$GITHUB_STEP_SUMMARY"
+			echo "$(coverage report --format=markdown || true)" >> "$GITHUB_STEP_SUMMARY"
 		fi
 
 		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
-			firefox htmlcov/index.html
+			firefox htmlcov/index.html || true
 		fi
 	else
 		red_text "--run_with_coverage was defined, but coverage could not be found"

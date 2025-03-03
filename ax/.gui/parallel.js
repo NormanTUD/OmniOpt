@@ -8,16 +8,22 @@ async function plot_new_parallel_plot() {
 
 	log(`url: ${url}`);
 
-	$("body").append("<div id='example1'></div>");
+	$("body").append("<div style='height: 600px; width: 800px;' id='example1'></div>");
 
 	// linear color scale
-	var blue_to_brown = d3.scaleLinear()
+	var blue_to_brown = d3.scale.linear()
 		.domain([9, 50])
 		.range(["steelblue", "brown"])
 		.interpolate(d3.interpolateLab);
 
 	// interact with this variable from a javascript console
 	var pc1;
+
+	var result_names = await get_result_names_data();
+
+	if(result_names.length == 1) {
+
+	}
 
 	// load csv file and create the chart
 	d3.csv(url, function(data) {
@@ -26,7 +32,13 @@ async function plot_new_parallel_plot() {
 			.hideAxis(["name"])
 			.composite("darken")
 			.color(function(d) {
-				return blue_to_brown(d['result']);
+				if(result_names.length == 1) {
+					var chosen_color = blue_to_brown(d[result_names[0]]);
+
+					return chosen_color;
+				} else {
+					return "#0091d3";
+				}
 			})  // quantitative color scale
 			.alpha(0.35)
 			.render()

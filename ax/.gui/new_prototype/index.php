@@ -57,6 +57,7 @@
         <button class="tab-button" data-tab="scatter3d">3D Scatter</button>
         <button class="tab-button" data-tab="parallel">Parallel Coordinates</button>
         <button class="tab-button" data-tab="table">Data Table</button>
+        <button class="tab-button" data-tab="logs">Logs</button>
       </div>
 
       <!-- Tab content -->
@@ -64,6 +65,18 @@
       <div class="tab-content" id="scatter3d"></div>
       <div class="tab-content" id="parallel"></div>
       <div class="tab-content" id="table"></div>
+	<div class="tab-content" id="logs">
+		<div class="tabs">
+			<button class="tab-button active" data-tab="output1">A</button>
+			<button class="tab-button" data-tab="output2">B</button>
+		</div>
+		<div class="tab-content" id="output1">
+			<pre>Hallo</pre>
+		</div>
+		<div class="tab-content" id="output2">
+			<pre>Hallo</pre>
+		</div>
+	</div>
 
       <!-- Loading spinner -->
       <div id="spinner" class="spinner"></div>

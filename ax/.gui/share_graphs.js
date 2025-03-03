@@ -1425,7 +1425,7 @@ async function plot_worker_cpu_ram() {
 		chartDiv.style.marginBottom = "40px";
 		container.appendChild(chartDiv);
 
-		showSpinnerOverlay(`Loading worker CPU/RAM plot: Plotting ${hostname} at ${timestamp} (${i} of ${len(Object.entries(hostData))})`);
+		showSpinnerOverlay(`Loading worker CPU/RAM plot: Plotting ${hostname} (${i} of ${len(Object.entries(hostData))})`);
 
 		const cpuTrace = {
 			x: timestamps,

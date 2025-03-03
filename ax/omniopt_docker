@@ -65,7 +65,6 @@ install_if_missing docker-compose "" 2
 install_if_missing wget "" 2
 install_if_missing git "" 2
 install_if_missing docker "" 2
-install_if_missing docker-compose "" 2
 
 if ! groups | grep -q '\bdocker\b'; then
     install_if_missing sudo "" 2
@@ -84,10 +83,10 @@ _mkdir logs
 git rev-parse HEAD > git_hash
 
 if groups | grep -q '\bdocker\b'; then
-    DOCKER_COMPOSE_CMD="docker-compose"
+    DOCKER_COMPOSE_CMD="docker compose"
     DOCKER_CMD="docker"
 else
-    DOCKER_COMPOSE_CMD="sudo docker-compose"
+    DOCKER_COMPOSE_CMD="sudo docker compose"
     DOCKER_CMD="sudo docker"
 fi
 

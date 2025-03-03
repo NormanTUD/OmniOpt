@@ -7,11 +7,21 @@ async function plot_parallel_plot() {
 	//async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_ansi=false, no_raw_data=false, only_raw_data=false) {
 	let _results_csv_json = await fetchData("job_infos.csv", false, false, false, false);
 	if (!_results_csv_json) {
-		log("C");
 		return;
 	}
 
-	let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json, resnames);
+	var preprocessedData = await preprocessData(_results_csv_json, resnames);;
+
+	log(preprocessedData);
+
+	var header_line = preprocessedData.header_line;
+	var data = preprocessedData.data;
+	var mappingKeyNameToIndex = preprocessedData.mappingKeyNameToIndex;
+	var resultValues = preprocessedData.resultValues;
+	var minResult = preprocessedData.minResult;
+	var maxResult = preprocessedData.maxResult;
+
+	//let { header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult } = await preprocessData(_results_csv_json, resnames);
 
 	parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
 
@@ -88,7 +98,6 @@ function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, m
 	let filtered_header_line = header_line.filter(key => !excludedKeys.includes(key));
 
 	let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
-	console.log(dimensions);
 	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
 	let layout = createParallelLayout();
 

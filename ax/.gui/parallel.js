@@ -6,8 +6,6 @@ async function plot_new_parallel_plot() {
 
 	var url = `share_to_csv.php?user_id=${urlParams.get("user_id")}&experiment_name=${urlParams.get("experiment_name")}&run_nr=${urlParams.get("run_nr")}&filename=${filename}&only_raw_data=1`;
 
-	log(`url: ${url}`);
-
 	$("body").append("<div style='height: 600px; width: 800px;' id='example1'></div>");
 
 	// linear color scale

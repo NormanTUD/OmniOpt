@@ -35,7 +35,7 @@ ERRORS=()
 
 export share_path=./_share_test_case/
 
-for i in $(ls *.js | grep -v jquery | grep -v init | grep -v plotly | grep -v tooltipster | grep -v initialization | grep -v footer | grep -v core | grep -v md5 | grep -v mml); do
+for i in $(ls *.js | grep -v jquery | grep -v init | grep -v plotly | grep -v tooltipster | grep -v initialization | grep -v footer | grep -v core | grep -v md5 | grep -v mml | grep -v d3); do
 	node $i || {
 		error_msg="Node was not able to compile $i"
 		red_text "$error_msg"

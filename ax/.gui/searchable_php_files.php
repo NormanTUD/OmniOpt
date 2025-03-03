@@ -11,12 +11,12 @@
 		"usage_stats" => "Statistics"
 	);
 
-	$_files = scandir('tutorials/');
+	$_files = scandir('_tutorials/');
 	foreach ($_files as $file) {
 		if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
 			$name = $file;
 
-			$heading_content = get_first_heading_content("tutorials/$file");
+			$heading_content = get_first_heading_content("_tutorials/$file");
 
 			if ($heading_content !== null) {
 				$name = $heading_content;

@@ -4,13 +4,13 @@
 	if (isset($_GET["tutorial"])) {
 		$tutorial_file = $_GET["tutorial"];
 		if (preg_match("/^[a-z_]+$/", $tutorial_file)) {
-			if (file_exists("tutorials/$tutorial_file.php")) {
+			if (file_exists("_tutorials/$tutorial_file.php")) {
 				$tutorial_file = "$tutorial_file.php";
 			}
 		}
 
-		if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("tutorials/$tutorial_file")) {
-			$load_file = "tutorials/$tutorial_file";
+		if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
+			$load_file = "_tutorials/$tutorial_file";
 			include $load_file;
 		} else {
 			echo "Invalid file: $tutorial_file";
@@ -21,12 +21,12 @@
 
 		<ul>
 <?php
-			$files = scandir('tutorials/');
+			$files = scandir('_tutorials/');
 			foreach ($files as $file) {
 				if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
 					$name = $file;
 
-					$file_path = "tutorials/$file";
+					$file_path = "_tutorials/$file";
 
 					$heading_content = get_first_heading_content($file_path);
 
@@ -44,7 +44,7 @@
 					}
 
 
-					print "<li class='li_list'><a href='tutorials.php?tutorial=$file'>$name</a>$comment</li>\n";
+					print "<li class='li_list'><a href='tutorials?tutorial=$file'>$name</a>$comment</li>\n";
 				}
 			}
 ?>

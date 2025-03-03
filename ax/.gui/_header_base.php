@@ -136,7 +136,7 @@
 					</td>
 
 					<td class='header_table'>
-						<a style="text-decoration: none;" href="index.php">
+						<a style="text-decoration: none;" href="index">
 							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="logo.png" alt="OmniOpt2-Logo">
 						</a>
 					</td>
@@ -180,10 +180,15 @@
 						$_link = "$fn.php";
 
 						if (!file_exists($_link)) {
-							dier("Coult not find $_link");
+							dier("Could not find $_link");
 						}
+
+						$link_no_php = $_link;
+
+						$link_no_php = preg_replace("/\.php$/", "", $link_no_php);
+
 						echo "<td class='header_table invert_in_dark_mode' style='border: 0'>";
-						echo "\t<a href='$_link' class='tab $tab_class'>$n</a>\n";
+						echo "\t<a href='$link_no_php' class='tab $tab_class'>$n</a>\n";
 						echo "</td>";
 					}
 

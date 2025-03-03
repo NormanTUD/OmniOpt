@@ -15,7 +15,7 @@ function parsePathAndGenerateLink(path) {
 
 
 		// Construct the query string
-		var queryString = "share.php?user_id=" + encodeURIComponent(user);
+		var queryString = "share?user_id=" + encodeURIComponent(user);
 		if (experiment) {
 			queryString += "&experiment_name=" + encodeURIComponent(experiment);
 		}
@@ -55,7 +55,7 @@ function createBreadcrumb(currentFolderPath) {
 
 			if (folderName == "Start") {
 				eval(`$(link).on("click", async function () {
-						window.location.href = "share.php";
+						window.location.href = "share";
 					});
 				`);
 			} else {

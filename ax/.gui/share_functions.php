@@ -285,7 +285,7 @@
 				}
 			}
 
-			echo "<a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$name</a><br>";
+			echo "<a class='_share_link' href=\"share?user_id=$user&experiment_name=$experiment_name&run_nr=$run_nr$sharesPathLink\">$name</a><br>";
 		}
 	}
 
@@ -336,7 +336,7 @@
 				foreach ($experiment_subfolders as $experiment) {
 					$experiment = preg_replace("/.*\//", "", $experiment);
 					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
-					echo "<!-- show_dir_view_or_plot A " . __LINE__ . " --><a class='_share_link' href=\"share.php?user_id=$user&experiment_name=$experiment$sharesPathLink\">$experiment</a><br>\n";
+					echo "<!-- show_dir_view_or_plot A " . __LINE__ . " --><a class='_share_link' href=\"share?user_id=$user&experiment_name=$experiment$sharesPathLink\">$experiment</a><br>\n";
 				}
 				print("<!-- $user/$experiment_name/ -->");
 				print_script_and_folder("$user/$experiment_name/");
@@ -385,7 +385,7 @@
 					$sharesPathLink = $sharesPath == "./shares/" ? "" : "&share_path=$sharesPath";
 
 					echo "<!-- show_dir_view_or_plot B " . __LINE__ . " -->\n";
-					echo "<a class='_share_link' href=\"share.php?user_id=$user$sharesPathLink\">$user</a><br>\n";
+					echo "<a class='_share_link' href=\"share?user_id=$user$sharesPathLink\">$user</a><br>\n";
 				}
 			} else {
 				echo "No users found";
@@ -481,12 +481,12 @@
 
 		if ($found_hash_file && is_null($update_uuid)) {
 			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir, $sharesPath);
-			$old_url = remove_extra_slashes_from_url("$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
+			$old_url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 			echo "This project already seems to have been uploaded. See $old_url\n";
 			exit(0);
 		} else {
 			if (!$uuid_folder || !is_dir($uuid_folder)) {
-				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
+				$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 
 				move_files(
 					$offered_files,
@@ -496,7 +496,7 @@
 					"Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n"
 				);
 			} else {
-				$url = remove_extra_slashes_from_url("$BASEURL/share.php?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
+				$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 
 				move_files(
 					$offered_files,

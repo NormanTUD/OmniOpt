@@ -1,4 +1,13 @@
 <?php
+	if (function_exists('apache_get_modules')) {
+		$modules = apache_get_modules();
+		if (!in_array('mod_rewrite', $modules)) {
+			echo "!!! mod_rewrite is NOT activated !!!<br>\n";
+			echo "Run <tt>sudo a2enmod rewrite</tt> to activate!<br>\n"a;
+		}
+	}
+
+
 	require_once "power_on_self_test.php";
 	require_once "_functions.php";
 

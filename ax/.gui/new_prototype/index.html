@@ -81,25 +81,30 @@
       document.body.classList.remove('dark-mode');
     }
 
-function createScatter2D(data) {                     
+
+    function createScatter2D(data) {
   const minVal = Math.min(...data.map(d => d.accuracy));
   const maxVal = Math.max(...data.map(d => d.accuracy));
 
-  const colors = data.map(d => {
-    if (d.accuracy === maxVal) return 'red';
-    if (d.accuracy === minVal) return 'green';
-    return 'blue';  // Standardfarbe für andere Punkte
-  });
+  // Farbskala von Rot (max) bis Grün (min)
+  const colorscale = 'RdYlGn'; // Farbskala (rot bis grün)
 
   Plotly.newPlot('scatter2d', [{
-    x: data.map(d => d.learning_rate),               
-    y: data.map(d => d.accuracy),                    
-    mode: 'markers',                                 
+    x: data.map(d => d.learning_rate),
+    y: data.map(d => d.accuracy),
+    mode: 'markers',
     type: 'scatter',
     marker: {
-      color: colors
+      color: data.map(d => d.accuracy),  // Farbe basierend auf Accuracy
+      colorscale: colorscale,  // Farbskala
+      colorbar: {  // Farbbalken
+        title: 'Accuracy',
+        tickvals: [minVal, (minVal + maxVal) / 2, maxVal],
+        ticktext: [minVal.toFixed(2), ((minVal + maxVal) / 2).toFixed(2), maxVal.toFixed(2)],
+        tickmode: 'array'
+      }
     }
-  }], { 
+  }], {
     title: '2D Scatter Plot',
     plot_bgcolor: 'rgba(0, 0, 0, 0)',  // Hintergrund transparent
     paper_bgcolor: 'rgba(0, 0, 0, 0)',  // Papierhintergrund transparent
@@ -112,7 +117,7 @@ function createScatter2D(data) {
         size: 12
       }
     }
-  });                 
+  });
 }
 
 

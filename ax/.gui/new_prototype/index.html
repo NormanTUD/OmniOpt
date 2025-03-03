@@ -81,18 +81,40 @@
       document.body.classList.remove('dark-mode');
     }
 
-    function createScatter2D(data) {
-      Plotly.newPlot('scatter2d', [{
-        x: data.map(d => d.learning_rate),
-        y: data.map(d => d.accuracy),
-        mode: 'markers',
-        type: 'scatter'
-      }], {
-	      title: '2D Scatter Plot',
-	      lot_bgcolor: 'rgba(0, 0, 0, 0)',
-	      paper_bgcolor: 'rgba(0, 0, 0, 0)'
-      });
+function createScatter2D(data) {                     
+  const minVal = Math.min(...data.map(d => d.accuracy));
+  const maxVal = Math.max(...data.map(d => d.accuracy));
+
+  const colors = data.map(d => {
+    if (d.accuracy === maxVal) return 'red';
+    if (d.accuracy === minVal) return 'green';
+    return 'blue';  // Standardfarbe für andere Punkte
+  });
+
+  Plotly.newPlot('scatter2d', [{
+    x: data.map(d => d.learning_rate),               
+    y: data.map(d => d.accuracy),                    
+    mode: 'markers',                                 
+    type: 'scatter',
+    marker: {
+      color: colors
     }
+  }], { 
+    title: '2D Scatter Plot',
+    plot_bgcolor: 'rgba(0, 0, 0, 0)',  // Hintergrund transparent
+    paper_bgcolor: 'rgba(0, 0, 0, 0)',  // Papierhintergrund transparent
+    showlegend: true,  // Legende anzeigen
+    legend: {
+      x: 0.8,  // Position der Legende (x-Achse)
+      y: 0.9,  // Position der Legende (y-Achse)
+      title: 'Accuracy',  // Titel der Legende
+      font: {
+        size: 12
+      }
+    }
+  });                 
+}
+
 
     function createScatter3D(data) {
       Plotly.newPlot('scatter3d', [{

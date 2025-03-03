@@ -88,16 +88,25 @@ function parallel_plot(header_line, data, mappingKeyNameToIndex, resultValues, m
 	let filtered_header_line = header_line.filter(key => !excludedKeys.includes(key));
 
 	let dimensions = createDimensions(filtered_header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult);
+	console.log(dimensions);
 	let trace = createParallelTrace(dimensions, resultValues, minResult, maxResult);
 	let layout = createParallelLayout();
 
 	renderParallelPlot(trace, layout, data_md5);
 }
 
+function areAllValuesNA(values) {
+	return values.every(value => value === "N/A");
+}
+
 function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues, minResult, maxResult) {
 	let dimensions = header_line.map(key => {
 		let idx = mappingKeyNameToIndex[key];
 		let values = cleanValues(data.map(row => row[idx]));
+
+		if(areAllValuesNA(values)) {
+			return null;
+		}
 
 		if(isNumericArray(values)) {
 			return createNumericDimension(key, values);
@@ -114,6 +123,8 @@ function createDimensions(header_line, data, mappingKeyNameToIndex, resultValues
 		var resname = resnames[i];
 		dimensions.push(createResultDimension(resultValues[resname], minResult[resname], maxResult[resname]));
 	}
+
+	dimensions = dimensions.filter(item => item !== null);
 
 	return dimensions;
 }

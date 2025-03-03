@@ -12,6 +12,7 @@
 	);
 
 	$_files = scandir('_tutorials/');
+
 	foreach ($_files as $file) {
 		if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
 			$name = $file;
@@ -27,3 +28,4 @@
 			$GLOBALS["files"]["tutorials"]["entries"][$file] = $name;
 		}
 	}
+?>

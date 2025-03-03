@@ -71,7 +71,7 @@
 
 				if (preg_match($regex_pattern, $run_path)) {
 					$parsedPath = parsePath($run_path);
-					$url = "share.php?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
+					$url = "share?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
 					$entry = [
 						'link' => $url,
 						'content' => "OmniOpt2-Share: $run_path"
@@ -221,7 +221,7 @@
 							];
 							if ($result['context']) {
 								$tutorial_file = preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
-								$entry['link'] = "tutorials.php?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
+								$entry['link'] = "tutorials?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
 								$output[] = $entry;
 								$GLOBALS["cnt"] += 1;
 							}

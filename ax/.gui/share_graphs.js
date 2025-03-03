@@ -1621,6 +1621,18 @@ async function fetchJsonFromUrlFilenameOnly(filename, remove_ansi=false, parse_a
 		url = url + "&only_raw_data=1";
 	}
 
+	if(only_raw_data) {
+		log(`url: ${url}`);
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error("Network response was not ok: " + response.statusText);
+		}
+
+		var res_text = await response.text();
+
+		return res_text;
+	}
+
 	var _res = await fetchJsonFromUrl(url);
 
 	return _res;

@@ -1,3 +1,4 @@
+
 abc
 aboveMin
 accentunder
@@ -49,6 +50,7 @@ ampoptimizerwrapper
 AMSGrad
 anchorId
 anchorUrl
+animationTime
 anims
 Anims
 anonymized
@@ -114,6 +116,7 @@ Aug
 autocomplete
 Autocomplete
 autocompletion
+autodetect
 autoset
 autoSize
 Autoskip
@@ -128,6 +131,8 @@ awk
 axcoredata
 axcoreexperiment
 axcoreparameter
+axesreorder
+axisElement
 axmodelbridgeaxmodelbridgebase
 axmodelbridgebase
 axmodelbridgetorch
@@ -166,6 +171,7 @@ BC
 beartype
 beforeActivate
 beforeClose
+beforesend
 beforeShow
 beforeShowDay
 beforeShowSettings
@@ -173,6 +179,7 @@ beforeStop
 betaConstraint
 betaInitializer
 betaRegularizer
+bezier
 biasConstraint
 biasInitializer
 biasRegularizer
@@ -205,6 +212,7 @@ borderTop
 borderTopColor
 borderTopStyle
 borderTopWidth
+Bostock
 botorch
 BoTorch
 botorchmodelsutilsassorted
@@ -215,6 +223,12 @@ br
 Brandschutz
 browserHeight
 browserWidth
+brushedColor
+brushend
+brushExtents
+brushReset
+brushSelections
+brushstart
 bs
 btnIsLeft
 btoa
@@ -224,6 +238,7 @@ buffetendless
 builtin
 builtins
 builtinsopen
+bundleDimension
 burlywood
 buttonCell
 buttonImage
@@ -250,6 +265,7 @@ canvasHeight
 canvasIndex
 canvasWidth
 captureEvents
+carefull
 categoricalAccuracy
 categoricalCrossentropy
 categoricalHinge
@@ -311,6 +327,7 @@ clipRegex
 closeButton
 closeText
 cloudpickle
+clusterCounts
 clusterhost
 CLUSTERHOST
 cmp
@@ -368,6 +385,7 @@ convolutional
 cookieOptions
 cookieValue
 coolwarm
+coords
 copyButton
 coreCount
 cornerClass
@@ -388,6 +406,7 @@ cpus
 CQF
 createBreadcrumb
 createImageBitmap
+crispEdges
 crossorigin
 CryptoJS
 CSF
@@ -408,6 +427,7 @@ curlcommand
 curleft
 Curling
 curOption
+currentColor
 currentDate
 currentElement
 currentElements
@@ -430,6 +450,8 @@ curtop
 customfunc
 customise
 customizable
+cx
+cy
 cyanEmpty
 cyanFace
 cyanGeneral
@@ -493,6 +515,7 @@ def
 defaultDate
 defaultLocale
 defaultMode
+defaultScales
 defaultuser
 Deffered
 deg
@@ -519,6 +542,7 @@ detectionsconfidence
 detectionslabel
 detectionsmodel
 deviceId
+devicePixelRatio
 df
 dfd
 dh
@@ -534,6 +558,7 @@ DifferentSeries
 difflib
 dilationRate
 dilations
+dimensionTitles
 dir
 dirname
 disableSelection
@@ -556,6 +581,7 @@ doesnt
 doFlush
 DOM
 DOMContentLoaded
+DOMURL
 dont
 dotFileContent
 downAnim
@@ -563,6 +589,7 @@ downloadNetworkZip
 doy
 dp
 dpi
+dragend
 draggable
 Draggable
 draggables
@@ -647,6 +674,7 @@ ESC
 escapedCharacter
 estatusText
 euclid
+ev
 eval
 evals
 evaluatex
@@ -709,12 +737,14 @@ findInitializerElementarr
 findmnt
 firefox
 firstDay
+firstDim
 fixedValue
 fixLeft
 fixnr
 fixTop
 flattenSquareBottomY
 flattenSquareTopY
+flipAxes
 flipLeftRight
 floatingpoint
 floatmatch
@@ -879,6 +909,7 @@ hexscatter
 hexStr
 hexString
 hiddenTableData
+hideAxis
 hideIfNoPrevNext
 HIDEMAXVALUESINPLOT
 Hitchcock
@@ -897,6 +928,7 @@ hpcsystems
 hProps
 href
 hrt
+hsl
 hsla
 html
 HTMLElement
@@ -1019,6 +1051,7 @@ isValid
 isVisible
 itemHeight
 itemWithLeastDistance
+iterable
 itertools
 iValue
 IWILLNEVERFINDANYTHINGHOPEFULLY
@@ -1109,6 +1142,7 @@ limupper
 linebreak
 linebreakContainer
 lineHeight
+LineString
 linkchecker
 Linkchecker
 linkonclick
@@ -1166,6 +1200,7 @@ marginRight
 marginTop
 MariaDB
 maskZero
+matchesSelector
 matchMedia
 MathJax
 MathML
@@ -1224,6 +1259,7 @@ MenuRule
 MENURULE
 MenuSlider
 MENUSLIDER
+mergedCanvas
 mergeMode
 messageUpdate
 meta
@@ -1279,6 +1315,7 @@ Montana
 monthNames
 monthNamesShort
 mos
+mousclick
 mouseCapture
 mousedown
 mouseenter
@@ -1293,11 +1330,15 @@ mouseStart
 mouseStop
 mouseup
 mouseups
+mousewheel
 movablelimits
 moveBy
 moveTo
 movingMeanInitializer
 movingVarianceInitializer
+moz
+Moz
+MozMousePixelScroll
 mpadded
 mphantom
 mpmath
@@ -1325,10 +1366,12 @@ multdimensional
 multi
 multibound
 multiline
+MultiLineString
 multipe
 multipledispatch
 multipleOperatorsRegex
 multiplicator
+MultiPolygon
 munder
 MUNDER
 munderover
@@ -1369,6 +1412,7 @@ newOverLeft
 newOverRight
 newOverTop
 newRow
+newSelection
 newSrc
 newStyle
 newSubmenus
@@ -1427,6 +1471,8 @@ nplinalgLinAlgError
 nr
 Nr
 nrs
+nullValueSeparator
+NullValueSeparator
 num
 Num
 numberArray
@@ -1465,6 +1511,7 @@ offsetNumeric
 offsetParent
 offsetString
 offsetTop
+OfYear
 og
 oise
 ok
@@ -1492,7 +1539,9 @@ oneHot
 oneHotArray
 onEpochBegin
 onEpochEnd
+onload
 onlyUnique
+onmousewheel
 onresize
 onSelect
 onselectstart
@@ -1500,6 +1549,7 @@ ontouchstart
 onTrainBegin
 onTrainEnd
 onUpdateDatepicker
+onwheel
 onxxx
 oom
 oorun
@@ -1598,6 +1648,7 @@ picklefile
 piechart
 PIL
 pipefail
+pixelDifference
 plotable
 plotCanvas
 Plotly
@@ -1615,11 +1666,14 @@ pointwiseInitializer
 pointwiseRegularizer
 poisson
 polyfil
+polyline
+polylines
 poolSize
 popstate
 popup
 pos
 positionOption
+positionSortedKeys
 posProperty
 postMessage
 postProcess
@@ -1696,11 +1750,17 @@ queueLength
 queueMicrotask
 quickfix
 quot
+rad
 ramChart
 Randomizer
 randomNormal
 randomUniform
+rangeBands
 RangeParameter
+rangePoints
+rangeRound
+rangeRoundBands
+rangeRoundPoints
 rawLength
 rb
 rck
@@ -1761,6 +1821,7 @@ repredict
 req
 requestAnimationFrame
 requestIdleCallback
+rerendering
 res
 RES
 rescaleFactor
@@ -1822,6 +1883,7 @@ rowElement
 rowIndex
 rp
 rplusequals
+rq
 rquote
 RTL
 rundir
@@ -1928,6 +1990,7 @@ Seperator
 sepLen
 September
 serializable
+serializer
 seriesa
 seriesA
 SeriesA
@@ -1981,6 +2044,7 @@ sigint
 SIGINT
 SIGIO
 sigkill
+signedAngle
 sigpipe
 sigpoll
 sigprof
@@ -2048,6 +2112,7 @@ sqlalchemy
 SQLite
 sqrt
 squaredHinge
+squarify
 squeue
 src
 SRE
@@ -2074,6 +2139,7 @@ stderr
 STDERR
 stdout
 STDOUT
+steelblue
 stepBigMonths
 stepHooks
 stepMonths
@@ -2090,6 +2156,8 @@ strLen
 strokeend
 struct
 structuredClone
+strumRect
+sturm
 styleInfo
 stylesheet
 Su
@@ -2119,6 +2187,7 @@ suppressKeyPressRepeat
 sv
 svg
 SVGEXPORTSIZE
+svgStr
 sw
 Swal
 Swalfire
@@ -2187,8 +2256,13 @@ ThresholdedReLU
 Thu
 thumbnailContainerId
 Thursday
+tickFormat
+tickPadding
+tickSize
+tickSubdivide
 ticktext
 tickvals
+tickValues
 timebin
 timeDistributed
 timestamp
@@ -2286,6 +2360,7 @@ UNSELECTING
 Unsetting
 upAnim
 uparrow
+updateAxes
 updateCommands
 updiagonalarrow
 Upsampling
@@ -2298,6 +2373,7 @@ useNesterov
 userAgent
 userJobCounts
 userPlot
+userSelect
 usr
 USR
 utilizationgpu
@@ -2327,6 +2403,7 @@ verticalOffset
 verticalSpacing
 videoElement
 videoinput
+viewBox
 viewport
 virtualenv
 visualizable
@@ -2386,6 +2463,7 @@ windowlocationhref
 windowmatchMedia
 windowonbeforeunload
 windowonresize
+withCredentials
 withinOffset
 Wk
 wname
@@ -2413,6 +2491,7 @@ xScale
 xterm
 xxx
 XXX
+xy
 yaml
 yaxis
 yCoord
@@ -2444,63 +2523,7 @@ zIndexMax
 zIndices
 zipContents
 zipWriter
+zoomend
+zoomstart
 zsh
 ZSH
-
-iterable
-currentColor
-xy
-viewBox
-crispEdges
-MultiPolygon
-coords
-Bostock
-NullValueSeparator
-defaultScales
-axisElement
-animationTime
-updateAxes
-firstDim
-rerendering
-positionSortedKeys
-pixelDifference
-newSelection
-brushReset
-strumRect
-brushSelections
-brushExtents
-ev
-rad
-signedAngle
-devicePixelRatio
-mergedCanvas
-DOMURL
-serializer
-svgStr
-rq
-dimensionTitles
-brushend
-brushstart
-axesreorder
-brushedColor
-bundleDimension
-hideAxis
-flipAxes
-nullValueSeparator
-tickValues
-tickSubdivide
-tickSize
-tickPadding
-tickFormat
-crispEdges
-dragend
-cx
-cy
-autodetect
-clusterCounts
-bezier
-polyline
-polylines
-sturm
-mousclick
-carefull

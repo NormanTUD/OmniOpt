@@ -22,7 +22,7 @@ cd $SCRIPT_DIR
 
 cd ..
 
-file=".gui/tutorials/environment_variables.php"
+file=".gui/_tutorials/environment_variables.php"
 
 if ! [[ -f "$file" ]]; then
 	echo "$file not found" 

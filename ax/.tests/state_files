@@ -34,8 +34,8 @@ cd $SCRIPT_DIR
 cd ..
 
 for existing_state_file in $(ls runs/*/*/state_files 2>/dev/null | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
-	if ! grep "<i>$existing_state_file" .gui/tutorials/folder_structure.php 2>&1 >/dev/null; then
-		errmsg="State file type $existing_state_file does not appear in .gui/tutorials/folder_structure.php"
+	if ! grep "<i>$existing_state_file" .gui/_tutorials/folder_structure.php 2>&1 >/dev/null; then
+		errmsg="State file type $existing_state_file does not appear in .gui/_tutorials/folder_structure.php"
 		red_text "$errmsg"
 		errors+=("$errmsg")
 	fi

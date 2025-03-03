@@ -220,7 +220,7 @@
 								'content' => $result['line']
 							];
 							if ($result['context']) {
-								$tutorial_file = preg_replace("/(tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
+								$tutorial_file = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
 								$entry['link'] = "tutorials?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
 								$output[] = $entry;
 								$GLOBALS["cnt"] += 1;

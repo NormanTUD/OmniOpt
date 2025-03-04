@@ -9,14 +9,14 @@
 
 	function read_file_as_array($filePath) {
 		if (!is_readable($filePath)) {
-			trigger_error("Datei kann nicht gelesen werden: $filePath", E_USER_WARNING);
+			trigger_error("File cannot be read: $filePath", E_USER_WARNING);
 			return [];
 		}
 
 		$lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
 		if ($lines === false) {
-			trigger_error("Fehler beim Lesen der Datei: $filePath", E_USER_WARNING);
+			trigger_error("Error while reading this file: $filePath", E_USER_WARNING);
 			return [];
 		}
 
@@ -26,7 +26,7 @@
 	function add_simple_pre_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$tabs[$name] = [
-				'id' => $tabname,
+				'id' => $id,
 				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>',
 			];
 		}
@@ -234,7 +234,7 @@
 		}
 		$output .= '</menu>';
 		for ($i = 0; $i < $nr_files; $i++) {
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>C:\WINDOWS\SYSTEM32> Single-Run ' . $i . '</pre></article>';
+			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>C:\WINDOWS\SYSTEM32> Single-Run ' . $i . "</pre></article>\n";
 		}
 		$output .= '</section>';
 		return $output;
@@ -298,7 +298,6 @@
 
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max.txt";
-		$args_overview_file = "$run_dir/args_overview.txt";
 
 		$result_names = ["RESULT"];
 		$result_min_max = ["min"];
@@ -348,7 +347,7 @@
 			];
 		}
 
-		$tabs = add_simple_pre_from_file($tabs, $args_overview_file, "Args Overview", "tab_args_overview");
+		$tabs = add_simple_pre_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 
 		if ($results_html != "") {
 			$tabs['Results'] = [
@@ -439,9 +438,9 @@
 
 <?php
 							foreach ($tabs as $tab_name => $tab_data) {
-								echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . '>';
+								echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . ">\n";
 								echo $tab_data['content'];
-								echo '</article>';
+								echo "</article>\n";
 							}
 ?>
 						</section>

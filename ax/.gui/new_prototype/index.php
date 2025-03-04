@@ -51,7 +51,7 @@
 								<button role="tab" aria-controls="single_run_2">Single-Run-2</button>
 							</menu>
 
-							<article role="tabpanel" hidden id="single_run_1">
+							<article role="tabpanel" id="single_run_1">
 								<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run 1</pre>
 							</article>
 

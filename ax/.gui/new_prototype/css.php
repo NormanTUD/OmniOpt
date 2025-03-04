@@ -40,7 +40,7 @@
 	}
 
 	pre {
-		color: green;
+		color: green !important;
 		background-color: black !important;
 	}
 </style>

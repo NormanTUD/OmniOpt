@@ -1,6 +1,13 @@
 <?php
 	$GLOBALS["json_data"] = [];
 
+	error_reporting(E_ALL);
+	set_error_handler(
+		function ($severity, $message, $file, $line) {
+			throw new \ErrorException($message, $severity, $severity, $file, $line);
+		}
+	);
+
 	$SPECIAL_COL_NAMES = [
 		"trial_index",
 		"arm_name",
@@ -24,6 +31,49 @@
 
 		return $lines;
 	}
+
+	/*
+	function getStatusForResultsCsv($csvFilePath) {
+		// Überprüfen, ob die Datei existiert und lesbar ist
+		if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
+			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
+		}
+
+		$statuses = [
+			"failed" => 0,
+			"succeeded" => 0,
+			"running" => 0,
+			"total" => 0
+		];
+
+		$k = 0;
+
+		if (($handle = fopen($csvFilePath, "r")) !== false) {
+			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
+				if (count($data) < 3) continue; // Sicherstellen, dass es genug Spalten gibt
+
+				$status = strtolower(trim($data[2]));
+
+				if ($k > 0) {
+					$statuses["total"]++;
+
+					if ($status === "completed") {
+						$statuses["succeeded"]++;
+					} elseif ($status === "failed") {
+						$statuses["failed"]++;
+					} elseif ($status === "running") {
+						$statuses["running"]++;
+					}
+				}
+
+				$k++;
+			}
+			fclose($handle);
+		}
+
+		return $statuses;
+	}
+	 */
 
 	function copy_raw_to_clipboard_string ($filename) {
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
@@ -413,6 +463,12 @@
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
+
+		/*
+		if(is_file("$run_dir/results.csv")) {
+			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
+		}
+		 */
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [

@@ -833,7 +833,7 @@ def live_share() -> bool:
     return True
 
 @beartype
-def save_pd_csv() -> str:
+def save_pd_csv() -> Optional[str]:
     #print_debug("save_pd_csv()")
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
@@ -843,13 +843,12 @@ def save_pd_csv() -> str:
     makedirs(state_files_folder)
 
     if ax_client is None:
-        return pd_csv
+        return None
 
     try:
         pd_frame = ax_client.get_trials_data_frame()
 
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
-        #pd_frame.to_json(pd_json)
 
         json_snapshot = ax_client.to_json_snapshot()
 
@@ -2930,7 +2929,11 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
     csv_file_path: str = save_pd_csv()
 
-    return get_best_params_from_csv(csv_file_path, res_name)
+    if csv_file_path:
+        return get_best_params_from_csv(csv_file_path, res_name)
+
+    print_red("save_pd_csv returned None")
+    return None
 
 @beartype
 def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
@@ -2991,7 +2994,11 @@ def _count_done_jobs(csv_file_path: str) -> int:
 def count_sobol_steps() -> int:
     csv_file_path: str = save_pd_csv()
 
-    return _count_sobol_steps(csv_file_path)
+    if csv_file_path:
+        return _count_sobol_steps(csv_file_path)
+
+    print_red("save_pd_csv returned None")
+    return 0
 
 @beartype
 def get_random_steps_from_prev_job() -> int:
@@ -3017,7 +3024,11 @@ def failed_jobs(nr: int = 0) -> int:
 def count_done_jobs() -> int:
     csv_file_path: str = save_pd_csv()
 
-    return _count_done_jobs(csv_file_path)
+    if csv_file_path:
+        return _count_done_jobs(csv_file_path)
+
+    print_red("save_pd_csv returned None")
+    return 0
 
 @beartype
 def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
@@ -3280,7 +3291,12 @@ def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
 def print_best_result() -> int:
     csv_file_path = save_pd_csv()
 
-    return _print_best_result(csv_file_path, True)
+    if csv_file_path:
+        return _print_best_result(csv_file_path, True)
+
+    print_red("save_pd_csv returned None")
+
+    return 0
 
 @beartype
 def show_end_table_and_save_end_files(csv_file_path: str) -> int:
@@ -5046,7 +5062,10 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 progressbar_description([f"new result: {result} (entered)"])
                 new_pd_csv_path = save_pd_csv()
 
-                print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed")
+                if new_pd_csv_path:
+                    print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed")
+                else:
+                    print_debug("save_pd_csv returned None")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:

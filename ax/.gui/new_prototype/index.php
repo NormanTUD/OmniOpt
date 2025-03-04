@@ -44,11 +44,7 @@
 					</article>
 
 					<article role="tabpanel" hidden id="tab_logs">
-						<p>Lorem Ipsum Dolor Sit</p>
-						<pre>Microsoft&#10094;R&#10095; Windows DOS
-							&#10094;C&#10095; Copyright Microsoft Corp 1990-2001.
-							<br>C:&#92;WINDOWS&#92;SYSTEM32> You can build a command line easily with a window and pre tag
-						</pre>
+						<pre><br>C:&#92;WINDOWS&#92;SYSTEM32></pre>
 					</article>
 				</section>
 			</div>

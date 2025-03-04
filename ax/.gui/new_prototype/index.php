@@ -428,14 +428,6 @@
 			];
 		}
 
-		/*
-		'Job-Infos' => [
-			'id' => 'tab_job_infos',
-			'content' => '<pre>Job-Infos</pre>',
-		],
-		 */
-
-
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");

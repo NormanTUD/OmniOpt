@@ -13,7 +13,7 @@ fetchData().then(data => {
 	document.getElementById('main_window').style.display = 'block';
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+function initialize_tabs () {
 	function setupTabs(container) {
 		const tabs = container.querySelectorAll('[role="tab"]');
 		const tabPanels = container.querySelectorAll('[role="tabpanel"]');
@@ -61,6 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	document.querySelectorAll(".tabs").forEach(setupTabs);
-});
+}
+
+document.addEventListener("DOMContentLoaded", initialize_tabs);
 
 document.getElementById('spinner').style.display = 'block';

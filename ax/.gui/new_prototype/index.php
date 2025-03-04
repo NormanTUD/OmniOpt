@@ -99,6 +99,10 @@
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>
+				<div class="title-bar-controls">
+					<button aria-label="Help"></button>
+					<button onclick='alert("TODO")' aria-label="Close"></button>
+				</div>
 			</div>
 			<div id="spinner" class="spinner"></div>
 

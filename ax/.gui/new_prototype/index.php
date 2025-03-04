@@ -203,7 +203,7 @@
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>
 <?php
-				if(get_get("user_id") || get_get("run_nr") || get_get("experiment_name")) {
+				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
 ?>
 					<div class="title-bar-controls">
 						<button onclick='close_main_window()' aria-label="Close"></button>

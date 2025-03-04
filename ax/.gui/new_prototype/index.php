@@ -1,4 +1,6 @@
 <?php
+	$GLOBALS["json_data"] = [];
+
 	$SPECIAL_COL_NAMES = [
 		"trial_index",
 		"arm_name",
@@ -28,6 +30,33 @@
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>',
+			];
+		}
+
+		return $tabs;
+	}
+
+	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$csv_contents = getCsvDataAsArray($filename);   
+			$headers = $csv_contents[0]; // Erste Zeile als Header speichern
+			$csv_contents_no_header = $csv_contents;
+			array_shift($csv_contents_no_header); // Entferne die Kopfzeile
+
+			$csv_json = $csv_contents_no_header;
+			$headers_json = $headers;
+
+			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
+			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
+
+			$results_html = "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$results_html .= "<div id='${id}_csv_table'></div>\n";
+			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
+			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+
+			$tabs[$name] = [
+				'id' => 'tab_results',
+				'content' => $results_html,
 			];
 		}
 
@@ -370,8 +399,6 @@
 
 	$run_dir = "";
 
-	$global_json_data = [];
-
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
@@ -388,32 +415,11 @@
 			$result_min_max = read_file_as_array($result_min_max_file);
 		}
 
-		$global_json_data["result_names"] = $result_names;
-		$global_json_data["result_min_max"] = $result_min_max;
+		$GLOBALS["json_data"]["result_names"] = $result_names;
+		$GLOBALS["json_data"]["result_min_max"] = $result_min_max;
 
 		$best_results_txt = "$run_dir/best_result.txt";
-		$results_csv = "$run_dir/results.csv";
-
 		$overview_html = "";
-		$results_html = "";
-
-		if($results_csv) {
-			$csv_contents = getCsvDataAsArray($results_csv);   
-			$headers = $csv_contents[0]; // Erste Zeile als Header speichern
-			$csv_contents_no_header = $csv_contents;
-			array_shift($csv_contents_no_header); // Entferne die Kopfzeile
-
-			$results_csv_json = $csv_contents_no_header;
-			$results_headers_json = $headers;
-
-			$global_json_data["results_csv_json"] = $results_csv_json;
-			$global_json_data["results_headers_json"] = $results_headers_json;
-
-			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";
-			$results_html .= "<div id='results_csv_table'></div>\n";
-			$results_html .= "<script>\n\tcreateTable(results_csv_json, results_headers_json, 'results_csv_table')</script>\n";
-			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";
-		}
 
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
@@ -426,6 +432,7 @@
 			];
 		}
 
+		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 
@@ -435,13 +442,6 @@
 			$tabs['Single Logs'] = [
 				'id' => 'tab_logs',
 				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
-			];
-		}
-
-		if ($results_html != "") {
-			$tabs['Results'] = [
-				'id' => 'tab_results',
-				'content' => $results_html,
 			];
 		}
 	}
@@ -467,10 +467,10 @@
 	</head>
 	<body>
 <?php
-		if(count($global_json_data)) {
+		if(count($GLOBALS["json_data"])) {
 			print "<script>\n";
-			print "<!-- global_json_data -->\n";
-			foreach ($global_json_data as $json_name => $json_data) {
+			print "<!-- GLOBALS[json_data] -->\n";
+			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
 				print "\tvar $json_name = ".json_encode($json_data).";\n";
 			}
 			print "</script>\n";

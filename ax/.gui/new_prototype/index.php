@@ -273,10 +273,11 @@
 
 		if($results_csv) {
 			$csv_contents = getCsvDataAsArray($results_csv);
+			$csv_contents_no_header = $csv_contents;
 
-			array_shift($csv_contents);
+			array_shift($csv_contents_no_header);
 
-			$results_csv_json = json_encode($csv_contents);
+			$results_csv_json = json_encode($csv_contents_no_header);
 			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n</script>\n";
 			$results_html .= "<div id='results_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(results_csv_json, 'results_csv_table')</script>\n";

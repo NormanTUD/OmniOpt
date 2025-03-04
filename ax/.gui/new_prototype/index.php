@@ -15,7 +15,8 @@
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>
 			</div>
-			<div class="container py-4 window-body has-space">
+			<div id="spinner" class="spinner"></div>
+			<div id="main_window" style="display: none" class="container py-4 window-body has-space">
 				<section class="tabs" style="max-width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">
 						<button role="tab" aria-selected="true" aria-controls="tab_scatter_2d">2D-Scatter</button>
@@ -49,21 +50,6 @@
 						</pre>
 					</article>
 				</section>
-
-				<!--
-				<div class="tabs">
-					<button class="tab-button active" data-tab="scatter2d">2D Scatter</button>
-					<button class="tab-button" data-tab="scatter3d">3D Scatter</button>
-					<button class="tab-button" data-tab="parallel">Parallel Coordinates</button>
-					<button class="tab-button" data-tab="table">Data Table</button>
-				</div>
-
-				<div class="tab-content active" id="scatter2d"></div>
-				<div class="tab-content" id="scatter3d"></div>
-				<div class="tab-content" id="parallel"></div>
-				<div class="tab-content" id="table"></div>
-				-->
-				<div id="spinner" class="spinner"></div>
 			</div>
 		</div>
 

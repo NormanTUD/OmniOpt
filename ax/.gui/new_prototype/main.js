@@ -1,6 +1,7 @@
 fetchData().then(data => {
 	// Hide the spinner when data is loaded
 	document.getElementById('spinner').style.display = 'none';
+	document.getElementById('main_window').style.display = 'block';
 
 	createScatter2D(data);
 	createScatter3D(data);

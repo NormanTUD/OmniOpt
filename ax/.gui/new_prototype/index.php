@@ -511,16 +511,17 @@
 		<script src="main.js"></script>
 	</head>
 	<body>
+		<script>
+			var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
 <?php
 		if(count($GLOBALS["json_data"])) {
-			print "<script>\n";
 			print "<!-- GLOBALS[json_data] -->\n";
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
 				print "\tvar $json_name = ".json_encode($json_data).";\n";
 			}
-			print "</script>\n";
 		}
 ?>
+		</script>
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar" style="height: fit-content;">
 				<div class="title-bar-text">OmniOpt2-Share

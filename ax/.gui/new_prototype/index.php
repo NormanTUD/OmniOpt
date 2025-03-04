@@ -214,7 +214,7 @@
 					</script>
 <?php
 				} else {
-					if($user_id && $experiment_name && $run_nr) {
+					if($user_id && $experiment_name && !is_null($run_nr)) {
 ?>
 						<section class="tabs" style="width: 100%">
 							<menu role="tablist" aria-label="OmniOpt2-Run">
@@ -242,7 +242,7 @@
 						} else if($user_id && !$experiment_name && !$run_nr) {
 							generateFolderButtons("$share_folder/$user_id", "experiment_name");
 						} else if($user_id && $experiment_name && !$run_nr) {
-							generateFolderButtons("$share_folder/$user_id/$experiment_name", "run_id");
+							generateFolderButtons("$share_folder/$user_id/$experiment_name", "run_nr");
 						} else {
 							print "DONT KNOW!!! >>$run_nr<<";
 						}

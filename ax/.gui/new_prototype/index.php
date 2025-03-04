@@ -247,13 +247,35 @@
 
 	$tabs = [];
 
-	function generate_log_tabs($run_dir, $log_files) {
+	function file_contains_results($filename, $names) {
+		if (!file_exists($filename) || !is_readable($filename)) {
+			return false;
+		}
+
+		$file_content = file_get_contents($filename);
+
+		foreach ($names as $name) {
+			$pattern = '/^\s*' . preg_quote($name, '/') . ':\s*[-+]?\d+(?:\.\d+)?\s*$/m';
+
+			if (!preg_match($pattern, $file_content)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	function generate_log_tabs($run_dir, $log_files, $result_names) {
+		$red_cross = "&#10060;";
+		$green_checkmark = "&#9989;";
+
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
 		// Tab-Buttons erstellen
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
-			$output .= '<button role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">Single-Run-' . $nr . '</button>';
+			$checkmark = file_contains_results("$run_dir/$file", $result_names) ? $green_checkmark : $red_cross;
+			$output .= '<button role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">' . $nr . $checkmark . '</button>';
 			$i++;
 		}
 
@@ -386,7 +408,7 @@
 		if(count($out_files)) {
 			$tabs['Single Logs'] = [
 				'id' => 'tab_logs',
-				'content' => generate_log_tabs($run_dir, $out_files)
+				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
 			];
 		}
 

@@ -5039,10 +5039,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
         values_to_check = result if isinstance(result, list) else [result]
 
-        if (
-            result is not None
-            and all(r not in possible_val_not_found_values for r in values_to_check)
-        ):
+        if result is not None and all(r not in possible_val_not_found_values for r in values_to_check):
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
@@ -5646,38 +5643,6 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
     ret = remove_extra_spaces(ret)
 
     return ret
-
-@beartype
-def get_parallelism_schedule_description() -> str:
-    try:
-        if ax_client:
-            max_parallelism_settings = ax_client.get_max_parallelism()
-
-            if not max_parallelism_settings:
-                return "No parallelism settings available."
-
-            descriptions = []
-            for num_trials, max_parallelism in max_parallelism_settings:
-                if num_trials == -1:
-                    trial_text = "all remaining trials"
-                else:
-                    trial_text = f"{num_trials} trials"
-
-                if max_parallelism == -1:
-                    parallelism_text = "any number of trials can be run in parallel"
-                else:
-                    parallelism_text = f"up to {max_parallelism} trials can be run in parallel"
-
-                descriptions.append(f"For {trial_text}, {parallelism_text}.")
-
-            human_readable_output: str = "\n".join(descriptions)
-            return human_readable_output
-
-        print_red("Error defining ax_client")
-        sys.exit(9)
-
-    except Exception as e:
-        return f"An error occurred while processing parallelism schedule: {str(e)}"
 
 @disable_logs
 @beartype

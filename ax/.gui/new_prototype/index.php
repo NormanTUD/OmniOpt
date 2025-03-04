@@ -237,10 +237,6 @@
 			'id' => 'tab_debug_log',
 			'content' => '<pre>Debug Log</pre>',
 		],
-		'Args Overview' => [
-			'id' => 'tab_args_overview',
-			'content' => '<pre>Args-Overview</pre>',
-		],
 		'CPU/Ram Usage' => [
 			'id' => 'tab_cpu_ram_usage',
 			'content' => '<pre>CPU-Ram-Usage</pre>',

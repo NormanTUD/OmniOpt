@@ -16,6 +16,7 @@
 				<div class="title-bar-text">OmniOpt2-Share</div>
 			</div>
 			<div id="spinner" class="spinner"></div>
+
 			<div id="main_window" style="display: none" class="container py-4 window-body has-space">
 				<section class="tabs" style="max-width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">

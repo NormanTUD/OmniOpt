@@ -61,9 +61,7 @@
 <?php
 	$theme = "xp.css";
 
-	if($_GET["theme"] == 98) {
-		$theme = "98.css";
-	} else if($_GET["theme"] == 7) {
+	if($_GET["theme"] == 7) {
 		$theme = "7.css";
 	} else if($_GET["theme"] == "none") {
 		$theme = "none";

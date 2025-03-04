@@ -25,6 +25,11 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .tab-button.active { background-color: #3498db; color: white; }
+
+	pre {
+		color: green;
+		background-color: black !important;
+	}
   </style>
 	<?php include("css.php"); ?>
 </head>
@@ -59,6 +64,11 @@
     <p>
       Read more at <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Tab_Role" target="_blank">MDN Web docs - ARIA: tab role</a>
     </p>
+
+    <pre>Microsoft&#10094;R&#10095; Windows DOS
+&#10094;C&#10095; Copyright Microsoft Corp 1990-2001.
+      <br>C:&#92;WINDOWS&#92;SYSTEM32> You can build a command line easily with a window and pre tag
+    </pre>
   </article>
   <article role="tabpanel" hidden id="tab-B">
     <h3>More...</h3>

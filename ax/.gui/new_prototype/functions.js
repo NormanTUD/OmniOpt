@@ -103,15 +103,3 @@ function filterTableOnZoom(eventData, data, keyX, keyY) {
 	document.getElementById('table').innerHTML = '';
 	createTable(filtered);
 }
-
-function showTab(tabId) {
-	const tabs = document.querySelectorAll('.tab-content');
-	tabs.forEach(tab => tab.classList.remove('active'));
-
-	const tabButtons = document.querySelectorAll('.tab-button');
-	tabButtons.forEach(button => button.classList.remove('active'));
-
-	document.getElementById(tabId).classList.add('active');
-	const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
-	activeButton.classList.add('active');
-}

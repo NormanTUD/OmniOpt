@@ -33,7 +33,6 @@
 	}
 
 	function getStatusForResultsCsv($csvFilePath) {
-		// Überprüfen, ob die Datei existiert und lesbar ist
 		if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
 			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
 		}
@@ -49,7 +48,7 @@
 
 		if (($handle = fopen($csvFilePath, "r")) !== false) {
 			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
-				if (count($data) < 3) continue; // Sicherstellen, dass es genug Spalten gibt
+				if (count($data) < 3) continue;
 
 				$status = strtolower(trim($data[2]));
 
@@ -95,9 +94,9 @@
 	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$csv_contents = getCsvDataAsArray($filename);   
-			$headers = $csv_contents[0]; // Erste Zeile als Header speichern
+			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
-			array_shift($csv_contents_no_header); // Entferne die Kopfzeile
+			array_shift($csv_contents_no_header);
 
 			$csv_json = $csv_contents_no_header;
 			$headers_json = $headers;
@@ -123,13 +122,13 @@
 		$log_files = [];
 
 		if (!is_dir($run_dir)) {
-			error_log("Fehler: Verzeichnis existiert nicht - $run_dir");
+			error_log("Error: Directory does not exist - $run_dir");
 			return $log_files;
 		}
 
 		$files = scandir($run_dir);
 		if ($files === false) {
-			error_log("Fehler: Konnte Verzeichnis nicht lesen - $run_dir");
+			error_log("Error: Could not read Directory- $run_dir");
 			return $log_files;
 		}
 
@@ -209,15 +208,13 @@
 
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if(!isset($_SERVER["REQUEST_URI"])) {
-			return; // Don't run this in CLI
+			return;
 		}
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
 
-			// Aktuelle URL abrufen   
 			$currentUrl = $_SERVER['REQUEST_URI'];
 
-			// Ordner in einem Array speichern
 			$folders = [];
 			while (($folder = readdir($dir)) !== false) {
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
@@ -225,24 +222,18 @@
 				}
 			}
 
-			// Schließen des Verzeichnisses
 			closedir($dir);
 
-			// Sortieren der Ordner
 			usort($folders, function($a, $b) {
-				// Überprüfen, ob beide Ordner numerisch sind
 				if (is_numeric($a) && is_numeric($b)) {
-					return (int)$a - (int)$b;  // Numerisch aufsteigend
+					return (int)$a - (int)$b;
 				}
-				return strcmp($a, $b);  // Alphabetisch aufsteigend
+				return strcmp($a, $b);
 			});
 
-			// Erstellen der Buttons
 			foreach ($folders as $folder) {
-				// URL mit dem neuen Parameter an die aktuelle URL anhängen
 				$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
 
-				// Button als Link mit der erzeugten URL
 				echo '<a href="' . htmlspecialchars($url) . '" style="margin: 10px;">';
 				echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
 				echo '</a><br><br>';
@@ -306,7 +297,6 @@
 	$tabs = [];
 
 	function ansi_to_html($string) {
-		// ANSI Farb-Codes nach HTML-Farbcodes umwandeln
 		$ansi_colors = [
 			'30' => 'black', '31' => 'red', '32' => 'green', '33' => 'yellow',
 			'34' => 'blue', '35' => 'magenta', '36' => 'cyan', '37' => 'white',
@@ -315,21 +305,18 @@
 			'96' => 'brightcyan', '97' => 'brightwhite'
 		];
 
-		// ANSI Escape Codes finden und durch HTML-Stile ersetzen
 		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
 		return preg_replace_callback($pattern, function($matches) use ($ansi_colors) {
 			$codes = explode(';', $matches[1]);
 			$style = '';
 
-			// Alle Farbcodes durch HTML-Stile ersetzen
 			foreach ($codes as $code) {
 				if (isset($ansi_colors[$code])) {
 					$style = 'color:' . $ansi_colors[$code] . ';';
-					break;  // Für den Fall, dass mehrere Farben in einem Code vorkommen
+					break;
 				}
 			}
 
-			// Das ursprüngliche Escape-Zeichen entfernen und den HTML-Stil anwenden
 			return $style ? '<span style="' . $style . '">' : '';
 		}, $string);
 	}
@@ -358,7 +345,6 @@
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
-		// Tab-Buttons erstellen
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$checkmark = file_contains_results("$run_dir/$file", $result_names) ? $green_checkmark : $red_cross;
@@ -368,11 +354,10 @@
 
 		$output .= '</menu>';
 
-		// Tab-Inhalte erstellen
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
-			$file_path = $run_dir . '/' . $file; // Hier den vollständigen Pfad zur Datei anpassen
-			$content = file_get_contents($file_path); // Inhalt der Datei holen
+			$file_path = $run_dir . '/' . $file;
+			$content = file_get_contents($file_path);
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
 			$output .= copy_raw_to_clipboard_string($file_path);
 			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';

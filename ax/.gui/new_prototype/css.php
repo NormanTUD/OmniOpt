@@ -40,9 +40,18 @@
 		font-family: monospace;
 	}
 
-	.tabs {
-		overflow: scroll;
-	}
+menu[role="tablist"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px; /* Optional: Fügt Abstand zwischen den Buttons hinzu */
+    max-width: 100%; /* Stellt sicher, dass es sich an das Eltern-Element anpasst */
+}
+
+menu[role="tablist"] button {
+    white-space: nowrap; /* Verhindert, dass Text umbricht, aber erlaubt das Umfließen */
+    min-width: 100px; /* Optional: Mindestbreite für die Buttons */
+}
+
 </style>
 <?php
 	$theme = "xp.css";

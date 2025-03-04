@@ -179,6 +179,14 @@
 		}
 	}
 
+	if($user_id) {
+		$run_dir = "$share_folder/$user_id";
+
+		if(!is_dir($run_dir)) {
+			$errors[] = "<tt>".htmlentities($run_dir)."</tt> cannot be found!";
+		}
+	}
+
 	if($run_nr == -1) {
 		$run_nr = null;
 	}

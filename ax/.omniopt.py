@@ -847,9 +847,6 @@ def save_pd_csv() -> Optional[str]:
 
     try:
         pd_frame = ax_client.get_trials_data_frame()
-
-        print_debug(f"ax_client.experiment.trials: {ax_client.experiment.trials}")
-
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
         json_snapshot = ax_client.to_json_snapshot()

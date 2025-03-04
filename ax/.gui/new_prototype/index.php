@@ -202,9 +202,15 @@
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>
-				<div class="title-bar-controls">
-					<button onclick='close_main_window()' aria-label="Close"></button>
-				</div>
+<?php
+				if(get_get("user_id") || get_get("run_nr") || get_get("experiment_name")) {
+?>
+					<div class="title-bar-controls">
+						<button onclick='close_main_window()' aria-label="Close"></button>
+					</div>
+<?php
+				}
+?>
 			</div>
 			<div id="spinner" class="spinner"></div>
 

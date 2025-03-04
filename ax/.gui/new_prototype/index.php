@@ -7,7 +7,7 @@
 		return $default;
 	}
 
-	function generateFolderButtons($folderPath) {
+	function generateFolderButtons($folderPath, $new_param_name) {
 		// Check if the folder exists
 		if (is_dir($folderPath)) {
 			// Open the directory
@@ -18,8 +18,8 @@
 				// Skip "." and ".."
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
 					// Create a button for each folder
-					echo '<form action="" method="get">';
-					echo '<button type="submit" name="user_id" value="' . htmlspecialchars($folder) . '">Go to ' . htmlspecialchars($folder) . '</button>';
+					echo '<form style="margin: 10px" action="" method="get">';
+					echo '<button type="submit" name="'.$new_param_name.'" value="' . htmlspecialchars($folder) . '">' . htmlspecialchars($folder) . '</button>';
 					echo '</form>';
 				}
 			}
@@ -141,13 +141,13 @@
 
 	#user_id=s3811141&experiment_name=signs&run_nr=11
 
-	$username = get_get("user_id");
+	$user_id = get_get("user_id");
 	$experiment_name = get_get("experiment_name");
 	$run_nr = get_get("run_nr", -1);
 
-	if($username) {
-		if(!is_valid_user_or_experiment_name($username)) {
-			$errors[] = "<tt>".htmlentities($username)."</tt> is not a valid username";
+	if($user_id) {
+		if(!is_valid_user_or_experiment_name($user_id)) {
+			$errors[] = "<tt>".htmlentities($user_id)."</tt> is not a valid username";
 		}
 	}
 
@@ -237,13 +237,13 @@
 <?php
 					} else {
 						if(!$user_id && !$experiment_name && !$run_nr) {
-							generateFolderButtons($share_folder);
+							generateFolderButtons($share_folder, "user_id");
 						} else if($user_id && !$experiment_name && !$run_nr) {
-							print "Overview Experiments";
+							generateFolderButtons("$share_folder/$user_id", "experiment_name");
 						} else if($user_id && $experiment_name && !$run_nr) {
 							print "Overview Runs";
 						} else {
-							print "DONT KNOW!!!";
+							print "DONT KNOW!!! >>$run_nr<<";
 						}
 					}
 				}

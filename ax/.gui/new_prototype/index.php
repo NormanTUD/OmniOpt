@@ -16,80 +16,74 @@
 			<div class="title-bar-text">
 				Hyperparameter Optimization Dashboard
 			</div>
-
-			<div class="title-bar-controls">
-				<button aria-label="Minimize"></button>
-				<button aria-label="Maximize"></button>
-				<button aria-label="Close"></button>
 			</div>
-		</div>
-		<div class="container py-4 window-body has-space">
-			<section class="tabs" style="max-width: 500px">
-				<menu role="tablist" aria-label="Sample Tabs">
-					<button role="tab" aria-selected="true" aria-controls="tab-A">Tab A</button>
-					<button role="tab" aria-controls="tab-B">Tab B</button>
-					<button role="tab" aria-controls="tab-C">Tab C</button>
-				</menu>
-				<!-- the tab content -->
-				<article role="tabpanel" id="tab-A">
-					<h3>Tab Content</h3>
-					<p>
-						You create the tabs, you would use a <code>menu role="tablist"</code> element then for the tab titles you use a <code>button</code> with the <code>aria-controls</code> parameter set to match the relative <code>role="tabpanel"</code>'s element.
-					</p>
-					<pre>Microsoft&#10094;R&#10095; Windows DOS
-						&#10094;C&#10095; Copyright Microsoft Corp 1990-2001.
-						<br>C:&#92;WINDOWS&#92;SYSTEM32> You can build a command line easily with a window and pre tag
-					</pre>
+			<div class="container py-4 window-body has-space">
+				<section class="tabs" style="max-width: 500px">
+					<menu role="tablist" aria-label="Sample Tabs">
+						<button role="tab" aria-selected="true" aria-controls="tab-A">Tab A</button>
+						<button role="tab" aria-controls="tab-B">Tab B</button>
+						<button role="tab" aria-controls="tab-C">Tab C</button>
+					</menu>
+					<!-- the tab content -->
+					<article role="tabpanel" id="tab-A">
+						<h3>Tab Content</h3>
+						<p>
+							You create the tabs, you would use a <code>menu role="tablist"</code> element then for the tab titles you use a <code>button</code> with the <code>aria-controls</code> parameter set to match the relative <code>role="tabpanel"</code>'s element.
+						</p>
+						<pre>Microsoft&#10094;R&#10095; Windows DOS
+							&#10094;C&#10095; Copyright Microsoft Corp 1990-2001.
+							<br>C:&#92;WINDOWS&#92;SYSTEM32> You can build a command line easily with a window and pre tag
+						</pre>
 
-					<div id="scatter2d"></div>
-					<div id="scatter3d"></div>
-					<div id="parallel"></div>
-					<div id="table"></div>
-				</article>
-				<article role="tabpanel" hidden id="tab-B">
-					<h3>More...</h3>
-					<p>This tab contains a GroupBox</p>
-					<fieldset>
-						<legend>Today's mood</legend>
-						<div class="field-row">
-							<input id="radio10" type="radio" name="fieldset-example2">
-							<label for="radio10">Claire Saffitz</label>
-						</div>
-						<div class="field-row">
-							<input id="radio11" type="radio" name="fieldset-example2">
-							<label for="radio11">Brad Leone</label>
-						</div>
-						<div class="field-row">
-							<input id="radio12" type="radio" name="fieldset-example2">
-							<label for="radio12">Chris Morocco</label>
-						</div>
-						<div class="field-row">
-							<input id="radio13" type="radio" name="fieldset-example2">
-							<label for="radio13">Carla Lalli Music</label>
-						</div>
-					</fieldset>
-				</article>
-				<article role="tabpanel" hidden id="tab-C">
-					<h3>Tab 3</h3>
-					<p>Lorem Ipsum Dolor Sit</p>
-				</article>
-			</section>
+						<div id="scatter2d"></div>
+						<div id="scatter3d"></div>
+						<div id="parallel"></div>
+						<div id="table"></div>
+					</article>
+					<article role="tabpanel" hidden id="tab-B">
+						<h3>More...</h3>
+						<p>This tab contains a GroupBox</p>
+						<fieldset>
+							<legend>Today's mood</legend>
+							<div class="field-row">
+								<input id="radio10" type="radio" name="fieldset-example2">
+								<label for="radio10">Claire Saffitz</label>
+							</div>
+							<div class="field-row">
+								<input id="radio11" type="radio" name="fieldset-example2">
+								<label for="radio11">Brad Leone</label>
+							</div>
+							<div class="field-row">
+								<input id="radio12" type="radio" name="fieldset-example2">
+								<label for="radio12">Chris Morocco</label>
+							</div>
+							<div class="field-row">
+								<input id="radio13" type="radio" name="fieldset-example2">
+								<label for="radio13">Carla Lalli Music</label>
+							</div>
+						</fieldset>
+					</article>
+					<article role="tabpanel" hidden id="tab-C">
+						<h3>Tab 3</h3>
+						<p>Lorem Ipsum Dolor Sit</p>
+					</article>
+				</section>
 
-			<!--
-			<div class="tabs">
-				<button class="tab-button active" data-tab="scatter2d">2D Scatter</button>
-				<button class="tab-button" data-tab="scatter3d">3D Scatter</button>
-				<button class="tab-button" data-tab="parallel">Parallel Coordinates</button>
-				<button class="tab-button" data-tab="table">Data Table</button>
+				<!--
+				<div class="tabs">
+					<button class="tab-button active" data-tab="scatter2d">2D Scatter</button>
+					<button class="tab-button" data-tab="scatter3d">3D Scatter</button>
+					<button class="tab-button" data-tab="parallel">Parallel Coordinates</button>
+					<button class="tab-button" data-tab="table">Data Table</button>
+				</div>
+
+				<div class="tab-content active" id="scatter2d"></div>
+				<div class="tab-content" id="scatter3d"></div>
+				<div class="tab-content" id="parallel"></div>
+				<div class="tab-content" id="table"></div>
+				-->
+				<div id="spinner" class="spinner"></div>
 			</div>
-
-			<div class="tab-content active" id="scatter2d"></div>
-			<div class="tab-content" id="scatter3d"></div>
-			<div class="tab-content" id="parallel"></div>
-			<div class="tab-content" id="table"></div>
-			-->
-
-			<div id="spinner" class="spinner"></div>
 		</div>
 
 		<script src="functions.js"></script>

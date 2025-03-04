@@ -104,7 +104,6 @@ function createTable(data, headers, table_name) {
 		columns: headers, // Hier explizit die Spaltennamen übergeben
 		data: data,
 		search: true,
-		pagination: true,
 		sort: true
 	}).render(document.getElementById(table_name));
 }

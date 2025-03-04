@@ -30,7 +30,7 @@
 						<div id="scatter2d"></div>
 					</article>
 
-					<article role="tabpanel" id="tab_scatter_3d">
+					<article role="tabpanel" hidden id="tab_scatter_3d">
 						<div id="scatter3d"></div>
 					</article>
 

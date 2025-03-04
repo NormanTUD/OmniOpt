@@ -202,17 +202,29 @@
 		}
 	}
 
+	$run_dir = "";
+
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
 		$best_results_txt = "$run_dir/best_result.txt";
 
+		$overview_html = "";
+
 		if(is_file($best_results_txt)) {
+			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".remove_ansi_colors(file_get_contents($best_results_txt))."</pre>";
+		}
+
+		if($overview_html) {
 			$tabs['Overview'] = [
 				'id' => 'tab_overview',
-				'content' => "<pre>\n".remove_ansi_colors(file_get_contents($best_results_txt))."</pre>",
+				'content' => $overview_html
 			];
 		}
+	}
+
+	if(!count($tabs) && $run_dir != "") {
+		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 ?>
 <!DOCTYPE html>

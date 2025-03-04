@@ -282,17 +282,19 @@
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
-		$result_names = ["RESULT"];
-		$result_min_max = ["min"];
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max.txt";
+		$args_overview_file = "$run_dir/args_overview.txt";
+
+		$result_names = ["RESULT"];
+		$result_min_max = ["min"];
+
 		if(is_file($result_names_file)) {
 			$result_names = read_file_as_array($result_names_file);
 		}
 		if(is_file($result_min_max_file)) {
 			$result_min_max = read_file_as_array($result_min_max_file);
 		}
-
 
 		$global_json_data["result_names"] = $result_names;
 		$global_json_data["result_min_max"] = $result_min_max;
@@ -322,13 +324,20 @@
 		}
 
 		if(is_file($best_results_txt)) {
-			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".remove_ansi_colors(file_get_contents($best_results_txt))."</pre>";
+			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [
 				'id' => 'tab_overview',
 				'content' => $overview_html
+			];
+		}
+
+		if(is_file($args_overview_file)) {
+			$tabs['Args Overview'] = [
+				'id' => 'tab_args_overview',
+				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($args_overview_file))).'</pre>',
 			];
 		}
 

@@ -59,8 +59,6 @@
 		$theme = "98.css";
 	} else if($_GET["theme"] == 7) {
 		$theme = "7.css";
-	} else if($_GET["theme"] == "nes") {
-		$theme = "nes.css";
 	} else if($_GET["theme"] == "none") {
 		$theme = "none";
 	}

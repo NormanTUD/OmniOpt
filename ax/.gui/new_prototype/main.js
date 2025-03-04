@@ -19,11 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	tabs.forEach(tab => {
 		tab.addEventListener("click", function () {
-			// Aktiven Tab zurücksetzen
 			tabs.forEach(t => t.setAttribute("aria-selected", "false"));
 			tabPanels.forEach(panel => panel.hidden = true);
 
-			// Aktuellen Tab aktiv setzen
 			this.setAttribute("aria-selected", "true");
 			const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
 			if (targetPanel) {
@@ -33,5 +31,4 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 });
 
-// Show spinner while data is loading
 document.getElementById('spinner').style.display = 'block';

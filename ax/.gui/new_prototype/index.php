@@ -85,7 +85,7 @@
 	}
 
 	function add_parallel_plot_tab ($tabs) {
-		$html = '<div id="parallel-plot" style="width: 100%; height: 600px;"></div>';
+		$html = '<div id="parallel-plot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 
 		$tabs['Parallel Plot'] = [
 			'id' => 'tab_parallel',

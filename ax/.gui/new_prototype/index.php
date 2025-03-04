@@ -136,6 +136,8 @@
 		],
 	];
 
+	$tabs = [];
+
 	function generate_log_tabs($nr_files) {
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 		for ($i = 0; $i < $nr_files; $i++) {
@@ -189,6 +191,27 @@
 
 	if($run_nr == -1) {
 		$run_nr = null;
+	} else {
+		if(!count($errors)) {
+			$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
+
+			if(!is_dir($run_dir)) {
+				$errors[] = "<tt>".htmlentities($run_dir)."</tt> cannot be found!";
+			}
+		}
+	}
+
+	if(!count($errors)) {
+		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
+
+		$best_results_txt = "$run_dir/best_result.txt";
+
+		if(is_file($best_results_txt)) {
+			$tabs['Overview'] = [
+				'id' => 'tab_overview',
+				'content' => "<pre>".file_get_contents($best_results_txt)."</pre>",
+			];
+		}
 	}
 ?>
 <!DOCTYPE html>

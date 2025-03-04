@@ -1,4 +1,12 @@
 <?php
+	function get_get($name, $default = null) {
+		if(isset($_GET[$name])) {
+			return $_GET[$name];
+		}
+
+		return $default;
+	}
+
 	$tabs = [
 		'Overview' => [
 			'id' => 'tab_overview',
@@ -82,6 +90,13 @@
 		$output .= '</section>';
 		return $output;
 	}
+
+	$share_folder = "shares_abc";
+
+	$errors = [];
+	if(!is_dir($share_folder)) {
+		$errors[] = "Folder <tt>$share_folder</tt> not found.";
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -90,6 +105,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>OmniOpt2-Share</title>
 		<script src="../plotly-latest.min.js"></script>
+		<script src="../jquery-3.7.1.js"></script>
 		<script src="gridjs.umd.js"></script>
 		<link href="mermaid.min.css" rel="stylesheet" />
 		<link href="tabler.min.css" rel="stylesheet">
@@ -106,25 +122,47 @@
 			<div id="spinner" class="spinner"></div>
 
 			<div id="main_window" style="display: none" class="container py-4 has-space">
-				<section class="tabs" style="width: 100%">
-					<menu role="tablist" aria-label="OmniOpt2-Run">
 <?php
-						$first_tab = true;
-						foreach ($tabs as $tab_name => $tab_data) {
-							echo '<button role="tab" aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
-							$first_tab = false;
+				if(count($errors)) {
+					if (count($errors) > 1) {
+						print "<ul>\n";
+						foreach ($errors as $error) {
+							print "<li>$error</li>";
 						}
+						print "</ul>\n";
+					} else {
+						print $errors[0];
+					}
+
 ?>
-					</menu>
+					<script>
+						show_main_window();
+					</script>
+<?php
+				} else {
+?>
+					<section class="tabs" style="width: 100%">
+						<menu role="tablist" aria-label="OmniOpt2-Run">
+<?php
+							$first_tab = true;
+							foreach ($tabs as $tab_name => $tab_data) {
+								echo '<button role="tab" aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
+								$first_tab = false;
+							}
+?>
+						</menu>
 
 <?php
-					foreach ($tabs as $tab_name => $tab_data) {
-						echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . '>';
-						echo $tab_data['content'];
-						echo '</article>';
-					}
+						foreach ($tabs as $tab_name => $tab_data) {
+							echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . '>';
+							echo $tab_data['content'];
+							echo '</article>';
+						}
 ?>
-				</section>
+					</section>
+<?php
+				}
+?>
 			</div>
 		</div>
 

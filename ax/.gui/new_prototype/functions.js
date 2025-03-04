@@ -13,6 +13,10 @@ function disable_dark_mode() {
 
 
 function createScatter2D(data) {
+	if(!$("#scatter2d").length) {
+		console.warn("#scatter2d not found");
+		return;
+	}
 	const minVal = Math.min(...data.map(d => d.accuracy));
 	const maxVal = Math.max(...data.map(d => d.accuracy));
 
@@ -48,10 +52,18 @@ function createScatter2D(data) {
 			}
 		}
 	});
+
+	document.getElementById('scatter2d').on('plotly_relayout', (eventData) =>
+		filterTableOnZoom(eventData, data, 'learning_rate', 'accuracy')
+	);
 }
 
 
 function createScatter3D(data) {
+	if(!$("#scatter3d").length) {
+		console.warn("#scatter3d not found");
+		return;
+	}
 	Plotly.newPlot('scatter3d', [{
 		x: data.map(d => d.learning_rate),
 		y: data.map(d => d.batch_size),
@@ -66,6 +78,10 @@ function createScatter3D(data) {
 }
 
 function createParallelPlot(data) {
+	if(!$("#parallel").length) {
+		console.warn("#parallel not found");
+		return;
+	}
 	Plotly.newPlot('parallel', [{
 		type: 'parcoords',
 		dimensions: [
@@ -81,6 +97,11 @@ function createParallelPlot(data) {
 }
 
 function createTable(data) {
+	if(!$("#table").length) {
+		console.warn("#table not found");
+		return;
+	}
+
 	new gridjs.Grid({
 		columns: Object.keys(data[0]),
 		data: data.map(Object.values),
@@ -91,6 +112,10 @@ function createTable(data) {
 }
 
 function filterTableOnZoom(eventData, data, keyX, keyY) {
+	if(!$("#table").length) {
+		console.warn("#table not found");
+		return;
+	}
 	const xRange = eventData['xaxis.range'];
 	const yRange = eventData['yaxis.range'];
 	if (!xRange || !yRange) return;

@@ -1,16 +1,15 @@
-fetchData().then(data => {
+function show_main_window() {
+	document.getElementById('spinner').style.display = 'none';
+	document.getElementById('main_window').style.display = 'block';
+}
 
+fetchData().then(data => {
 	createScatter2D(data);
 	createScatter3D(data);
 	createParallelPlot(data);
 	createTable(data);
 
-	document.getElementById('scatter2d').on('plotly_relayout', (eventData) =>
-		filterTableOnZoom(eventData, data, 'learning_rate', 'accuracy')
-	);
-
-	document.getElementById('spinner').style.display = 'none';
-	document.getElementById('main_window').style.display = 'block';
+	show_main_window();
 });
 
 function initialize_tabs () {

@@ -30,7 +30,6 @@ fetchData().then(data => {
 	createScatter2D(data);
 	createScatter3D(data);
 	createParallelPlot(data);
-	createTable(data);
 
 	show_main_window();
 });

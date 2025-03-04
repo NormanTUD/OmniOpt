@@ -272,16 +272,17 @@
 		$results_html = "";
 
 		if($results_csv) {
-			$csv_contents = getCsvDataAsArray($results_csv);
+			$csv_contents = getCsvDataAsArray($results_csv);   
+			$headers = $csv_contents[0]; // Erste Zeile als Header speichern
 			$csv_contents_no_header = $csv_contents;
-
-			array_shift($csv_contents_no_header);
+			array_shift($csv_contents_no_header); // Entferne die Kopfzeile
 
 			$results_csv_json = json_encode($csv_contents_no_header);
-			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n</script>\n";
+			$results_headers_json = json_encode($headers);
+
+			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n\tvar results_headers_json = $results_headers_json;\n</script>\n";
 			$results_html .= "<div id='results_csv_table'></div>\n";
-			$results_html .= "<script>\n\tcreateTable(results_csv_json, 'results_csv_table')</script>\n";
-			$results_html .= "<pre>".htmlentities(file_get_contents($results_csv))."</pre>\n";
+			$results_html .= "<script>\n\tcreateTable(results_csv_json, results_headers_json, 'results_csv_table')</script>\n";
 		}
 
 		if(is_file($best_results_txt)) {

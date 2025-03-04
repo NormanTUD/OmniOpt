@@ -96,15 +96,15 @@ function createParallelPlot(data) {
 	});
 }
 
-function createTable(data, table_name) {
-	if(!$("#" + table_name).length) {
+function createTable(data, headers, table_name) {
+	if (!$("#" + table_name).length) {
 		console.warn("#" + table_name + " not found");
 		return;
 	}
 
 	new gridjs.Grid({
-		columns: Object.keys(data[0]),
-		data: data.map(Object.values),
+		columns: headers, // Hier explizit die Spaltennamen übergeben
+		data: data,
 		search: true,
 		pagination: true,
 		sort: true

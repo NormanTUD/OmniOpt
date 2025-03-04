@@ -35,7 +35,7 @@
 	}
 
 	pre {
-		color: green !important;
+		color: #00CC00 !important;
 		background-color: black !important;
 	}
 </style>

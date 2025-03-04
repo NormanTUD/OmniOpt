@@ -1,13 +1,6 @@
 <?php
 	$GLOBALS["json_data"] = [];
 
-	#error_reporting(E_ALL);
-	#set_error_handler(
-	#	function ($severity, $message, $file, $line) {
-	#		throw new \ErrorException($message, $severity, $severity, $file, $line);
-	#	}
-	#);
-
 	$SPECIAL_COL_NAMES = [
 		"trial_index",
 		"arm_name",

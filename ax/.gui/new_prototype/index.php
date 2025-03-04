@@ -25,11 +25,15 @@
 		return $lines;
 	}
 
+	function copy_raw_to_clipboard_string ($filename) {
+		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
+	}
+
 	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = "<button onclick='copy_to_clipboard_base64(\"".htmlentities(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$html = copy_raw_to_clipboard_string($filename);
 			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
-			$html .= "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$html .= copy_raw_to_clipboard_string($filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -53,10 +57,10 @@
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
 
-			$results_html = "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$results_html = copy_raw_to_clipboard_string($filename);
 			$results_html .= "<div id='${id}_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
-			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$results_html .= copy_raw_to_clipboard_string($filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -325,7 +329,11 @@
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file; // Hier den vollständigen Pfad zur Datei anpassen
 			$content = file_get_contents($file_path); // Inhalt der Datei holen
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre></article>';
+			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
+			$output .= copy_raw_to_clipboard_string($file_path);
+			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+			$output .= copy_raw_to_clipboard_string($file_path);
+			$output .= '</article>';
 			$i++;
 		}
 

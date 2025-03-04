@@ -1,7 +1,4 @@
 fetchData().then(data => {
-	// Hide the spinner when data is loaded
-	document.getElementById('spinner').style.display = 'none';
-	document.getElementById('main_window').style.display = 'block';
 
 	createScatter2D(data);
 	createScatter3D(data);
@@ -12,12 +9,8 @@ fetchData().then(data => {
 		filterTableOnZoom(eventData, data, 'learning_rate', 'accuracy')
 	);
 
-	// Set up tab navigation
-	document.querySelectorAll('.tab-button').forEach(button => {
-		button.addEventListener('click', () => {
-			showTab(button.getAttribute('data-tab'));
-		});
-	});
+	document.getElementById('spinner').style.display = 'none';
+	document.getElementById('main_window').style.display = 'block';
 });
 
 // Show spinner while data is loading

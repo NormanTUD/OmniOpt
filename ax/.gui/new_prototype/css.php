@@ -34,11 +34,6 @@
 		display: block;
 	}
 
-	.tab-button.active {
-		background-color: #3498db;
-		color: white;
-	}
-
 	pre {
 		color: green !important;
 		background-color: black !important;

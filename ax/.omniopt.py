@@ -848,6 +848,8 @@ def save_pd_csv() -> Optional[str]:
     try:
         pd_frame = ax_client.get_trials_data_frame()
 
+        print_debug(f"ax_client.experiment.trials: {ax_client.experiment.trials}")
+
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
         json_snapshot = ax_client.to_json_snapshot()
@@ -5054,7 +5056,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             and all(r not in possible_val_not_found_values for r in values_to_check)
         ):
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
-            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result_clean)
+            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
 
             save_pd_csv()

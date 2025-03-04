@@ -283,6 +283,7 @@
 			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n\tvar results_headers_json = $results_headers_json;\n</script>\n";
 			$results_html .= "<div id='results_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(results_csv_json, results_headers_json, 'results_csv_table')</script>\n";
+			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";
 		}
 
 		if(is_file($best_results_txt)) {

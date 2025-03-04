@@ -128,3 +128,30 @@ function filterTableOnZoom(eventData, data, keyX, keyY) {
 	document.getElementById('table').innerHTML = '';
 	createTable(filtered);
 }
+
+function copy_to_clipboard_base64(text) {
+	copy_to_clipboard(atob(text));
+}
+
+function copy_to_clipboard(text) {
+	if (!navigator.clipboard) {
+		// Fallback für ältere Browser
+		let textarea = document.createElement("textarea");
+		textarea.value = text;
+		document.body.appendChild(textarea);
+		textarea.select();
+		try {
+			document.execCommand("copy");
+		} catch (err) {
+			console.error("Copy failed:", err);
+		}
+		document.body.removeChild(textarea);
+		return;
+	}
+
+	navigator.clipboard.writeText(text).then(() => {
+		console.log("Text copied to clipboard");
+	}).catch(err => {
+		console.error("Failed to copy text:", err);
+	});
+}

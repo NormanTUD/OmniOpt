@@ -73,6 +73,14 @@
 	.gridjs-pages>button {
 		font-family: unset;
 	}
+
+	.title-bar-text {
+		font-size: 22px;
+	}
+
+	.title-bar {
+		height: fit-content;
+	}
 </style>
 <?php
 	$theme = "xp.css";

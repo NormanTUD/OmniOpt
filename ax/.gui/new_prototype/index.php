@@ -20,12 +20,17 @@
 			<div id="main_window" style="display: none" class="container py-4 window-body has-space">
 				<section class="tabs" style="width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">
-						<button role="tab" aria-selected="true" aria-controls="tab_scatter_2d">2D-Scatter</button>
+						<button role="tab" aria-selected="true" aria-controls="tab_general_info">General Info</button>
+						<button role="tab" aria-controls="tab_scatter_2d">2D-Scatter</button>
 						<button role="tab" aria-controls="tab_scatter_3d">3D-Scatter</button>
 						<button role="tab" aria-controls="tab_parallel">Parallel Plot</button>
 						<button role="tab" aria-controls="tab_table">Results-Table</button>
 						<button role="tab" aria-controls="tab_logs">Single Logs</button>
 					</menu>
+
+					<article role="tabpanel" id="tab_general_info">
+						<pre>XYZ</pre>
+					</article>
 
 					<article role="tabpanel" id="tab_scatter_2d">
 						<div id="scatter2d"></div>

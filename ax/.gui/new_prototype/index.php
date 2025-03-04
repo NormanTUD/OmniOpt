@@ -247,6 +247,35 @@
 
 	$tabs = [];
 
+	function ansi_to_html($string) {
+		// ANSI Farb-Codes nach HTML-Farbcodes umwandeln
+		$ansi_colors = [
+			'30' => 'black', '31' => 'red', '32' => 'green', '33' => 'yellow',
+			'34' => 'blue', '35' => 'magenta', '36' => 'cyan', '37' => 'white',
+			'90' => 'brightblack', '91' => 'brightred', '92' => 'brightgreen',
+			'93' => 'brightyellow', '94' => 'brightblue', '95' => 'brightmagenta',
+			'96' => 'brightcyan', '97' => 'brightwhite'
+		];
+
+		// ANSI Escape Codes finden und durch HTML-Stile ersetzen
+		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
+		return preg_replace_callback($pattern, function($matches) use ($ansi_colors) {
+			$codes = explode(';', $matches[1]);
+			$style = '';
+
+			// Alle Farbcodes durch HTML-Stile ersetzen
+			foreach ($codes as $code) {
+				if (isset($ansi_colors[$code])) {
+					$style = 'color:' . $ansi_colors[$code] . ';';
+					break;  // Für den Fall, dass mehrere Farben in einem Code vorkommen
+				}
+			}
+
+			// Das ursprüngliche Escape-Zeichen entfernen und den HTML-Stil anwenden
+			return $style ? '<span style="' . $style . '">' : '';
+		}, $string);
+	}
+
 	function file_contains_results($filename, $names) {
 		if (!file_exists($filename) || !is_readable($filename)) {
 			return false;
@@ -286,7 +315,7 @@
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file; // Hier den vollständigen Pfad zur Datei anpassen
 			$content = file_get_contents($file_path); // Inhalt der Datei holen
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>' . htmlspecialchars($content) . '</pre></article>';
+			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre></article>';
 			$i++;
 		}
 

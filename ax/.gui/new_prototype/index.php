@@ -7,6 +7,11 @@
 		return $default;
 	}
 
+	function remove_ansi_colors($contents) {
+		$contents = preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $contents);
+		return $contents;
+	}
+
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
@@ -66,10 +71,6 @@
 	}
 
 	$tabs = [
-		'Overview' => [
-			'id' => 'tab_overview',
-			'content' => '<pre>Overview</pre>',
-		],
 		'Experiment Overview' => [
 			'id' => 'tab_experiment_overview',
 			'content' => '<pre>Experiment overview</pre>',
@@ -209,7 +210,7 @@
 		if(is_file($best_results_txt)) {
 			$tabs['Overview'] = [
 				'id' => 'tab_overview',
-				'content' => "<pre>".file_get_contents($best_results_txt)."</pre>",
+				'content' => "<pre>\n".remove_ansi_colors(file_get_contents($best_results_txt))."</pre>",
 			];
 		}
 	}

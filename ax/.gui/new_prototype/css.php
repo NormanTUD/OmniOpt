@@ -37,7 +37,7 @@
 	pre {
 		color: #00CC00 !important;
 		background-color: black !important;
-		font-family: monospace;
+		font-family: monospace !important;
 	}
 
 	menu[role="tablist"] {

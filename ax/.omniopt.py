@@ -5063,8 +5063,10 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 #raw_result_clean[key] = tuple(0 if v is None else v for v in raw_result_clean[key])
 
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}, raw_result_clean: {raw_result_clean}...")
-            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result_clean)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}, raw_result_clean: {raw_result_clean}... Done!")
+
+            save_pd_csv()
 
             #count_done_jobs(1)
             try:

@@ -188,7 +188,7 @@
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>
 				<div class="title-bar-controls">
-					<button onclick='alert("TODO")' aria-label="Close"></button>
+					<button onclick='close_main_window()' aria-label="Close"></button>
 				</div>
 			</div>
 			<div id="spinner" class="spinner"></div>

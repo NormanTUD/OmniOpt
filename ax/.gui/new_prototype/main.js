@@ -1,3 +1,26 @@
+function close_main_window() {
+	// Hole die aktuelle URL
+	const url = new URL(window.location.href);
+
+	// Prüfe, ob run_nr gesetzt ist, dann entferne es
+	if (url.searchParams.has('run_nr')) {
+		url.searchParams.delete('run_nr');
+	}
+
+	// Wenn run_nr nicht gesetzt ist, entferne stattdessen experiment_name
+	else if (url.searchParams.has('experiment_name')) {
+		url.searchParams.delete('experiment_name');
+	}
+
+	// Entferne abschließend user_id, wenn vorhanden
+	if (url.searchParams.has('user_id')) {
+		url.searchParams.delete('user_id');
+	}
+
+	// Aktualisiere die URL und verhalte dich wie ein Link-Klick
+	window.location.assign(url.toString()); // Wie ein Klick auf einen neuen Link
+}
+
 function show_main_window() {
 	document.getElementById('spinner').style.display = 'none';
 	document.getElementById('main_window').style.display = 'block';

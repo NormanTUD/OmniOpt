@@ -1,0 +1,42 @@
+submitit INFO (2024-09-27 18:59:27,696) - Starting with JobEnvironment(job_id=2258740, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-27 18:59:27,698) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_OutdoorObjects/0/single_runs/2258740/2258740_submitted.pkl
+Parameters: {"n_samples": 524, "const": 0.30062407197698976, "max_depth": 3, "threshold": 0.5140606220485004}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 BayesianNonparametricDetectionMethod n_samples 524 const 0.30062407197698976 max_depth 3 threshold 0.5140606220485004
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727456354.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727456354.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 BayesianNonparametricDetectionMethod n_samples 524 const 0.30062407197698976 max_depth 3 threshold 0.5140606220485004
+stdout:
+RESULT: 0.3905976494123531
+OO-Info: runtime: 39
+OO-Info: lpd: 0.08377094273568392
+
+Result: 0.3905976494123531
+EXIT_CODE: 0
+submitit INFO (2024-09-27 19:00:12,831) - Job completed successfully
+submitit INFO (2024-09-27 19:00:12,833) - Exiting after successful completion

@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 16:43:33,295) - Starting with JobEnvironment(job_id=2296622, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 16:43:33,297) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2296622/2296622_submitted.pkl
+Parameters: {"n_samples": 107, "const": 0.7600774037198313, "max_depth": 3, "threshold": 0.5358391542701793}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 107 const 0.7600774037198313 max_depth 3 threshold 0.5358391542701793
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727621000.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727621000.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 107 const 0.7600774037198313 max_depth 3 threshold 0.5358391542701793
+stdout:
+RESULT: 0.2832272069464544
+OO-Info: runtime: 590
+OO-Info: lpd: 8.642712937502312e-05
+
+Result: 0.2832272069464544
+EXIT_CODE: 0
+submitit INFO (2024-09-29 16:53:32,904) - Job completed successfully
+submitit INFO (2024-09-29 16:53:32,907) - Exiting after successful completion

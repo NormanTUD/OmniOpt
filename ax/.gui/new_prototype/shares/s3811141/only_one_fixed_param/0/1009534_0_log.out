@@ -1,0 +1,13 @@
+submitit INFO (2025-02-26 09:49:20,605) - Starting with JobEnvironment(job_id=1009534, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-26 09:49:20,605) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/only_one_fixed_param/0/single_runs/1009534/1009534_submitted.pkl
+
+Parameters: {"fixed_param": 16}
+Debug-Infos: 
+echo "RESULT: 16"
+stdout: RESULT: 16
+
+stderr was empty
+Result: [16.0]
+EXIT_CODE: 0
+submitit INFO (2025-02-26 09:49:22,992) - Job completed successfully
+submitit INFO (2025-02-26 09:49:22,992) - Exiting after successful completion

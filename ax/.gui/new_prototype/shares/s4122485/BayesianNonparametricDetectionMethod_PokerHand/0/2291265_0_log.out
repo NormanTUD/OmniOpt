@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 14:18:22,012) - Starting with JobEnvironment(job_id=2291265, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 14:18:22,014) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2291265/2291265_submitted.pkl
+Parameters: {"n_samples": 100, "const": 0.24175228089388673, "max_depth": 4, "threshold": 0.7994691252698152}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 100 const 0.24175228089388673 max_depth 4 threshold 0.7994691252698152
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727612287.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727612287.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 100 const 0.24175228089388673 max_depth 4 threshold 0.7994691252698152
+stdout:
+RESULT: 0.2803207911239749
+OO-Info: runtime: 622
+OO-Info: lpd: 8.14765173484421e-05
+
+Result: 0.2803207911239749
+EXIT_CODE: 0
+submitit INFO (2024-09-29 14:28:53,498) - Job completed successfully
+submitit INFO (2024-09-29 14:28:53,500) - Exiting after successful completion

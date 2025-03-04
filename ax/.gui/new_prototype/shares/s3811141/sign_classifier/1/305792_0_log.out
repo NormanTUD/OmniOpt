@@ -1,0 +1,2 @@
+submitit INFO (2025-02-12 13:18:16,614) - Starting with JobEnvironment(job_id=305792, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-12 13:18:16,614) - Loading pickle: /home/s3811141/test/oo_example/omniopt/ax/runs/sign_classifier/0/single_runs/305792/305792_submitted.pkl

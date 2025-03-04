@@ -1,0 +1,13 @@
+submitit INFO (2025-03-03 10:23:55,469) - Starting with JobEnvironment(job_id=337487, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-03-03 10:23:55,470) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/result_name_different_but_only_one/0/single_runs/337487/337487_submitted.pkl
+
+Parameters: {"iiuu": -9984.475154975893}
+Debug-Infos: 
+echo "xresultx: -9984.475154975893"
+stdout: xresultx: -9984.475154975893
+
+stderr was empty
+Result: {'xresultx': -9984.475154975893}
+EXIT_CODE: 0
+submitit INFO (2025-03-03 10:23:57,785) - Job completed successfully
+submitit INFO (2025-03-03 10:23:57,785) - Exiting after successful completion

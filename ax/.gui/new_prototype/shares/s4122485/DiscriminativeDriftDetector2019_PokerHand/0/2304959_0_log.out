@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 21:37:55,800) - Starting with JobEnvironment(job_id=2304959, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 21:37:55,802) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/DiscriminativeDriftDetector2019_PokerHand/0/single_runs/2304959/2304959_submitted.pkl
+Parameters: {"n_reference_samples": 89, "recent_samples_proportion": 0.42632930149239123, "threshold": 0.5}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 DiscriminativeDriftDetector2019 n_reference_samples 89 recent_samples_proportion 0.42632930149239123 threshold 0.5
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727638579.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727638579.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 DiscriminativeDriftDetector2019 n_reference_samples 89 recent_samples_proportion 0.42632930149239123 threshold 0.5
+stdout:
+RESULT: 0.2618572117703811
+OO-Info: runtime: 543
+OO-Info: lpd: 3.87151845233244e-05
+
+Result: 0.2618572117703811
+EXIT_CODE: 0
+submitit INFO (2024-09-29 21:47:07,797) - Job completed successfully
+submitit INFO (2024-09-29 21:47:07,799) - Exiting after successful completion

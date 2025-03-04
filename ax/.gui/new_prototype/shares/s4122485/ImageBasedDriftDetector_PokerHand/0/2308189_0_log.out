@@ -1,0 +1,42 @@
+submitit INFO (2024-09-30 03:20:55,529) - Starting with JobEnvironment(job_id=2308189, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-30 03:20:55,531) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ImageBasedDriftDetector_PokerHand/0/single_runs/2308189/2308189_submitted.pkl
+Parameters: {"n_samples": 311, "n_permutations": 50, "update_interval": 59, "n_consecutive_deviations": 5}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ImageBasedDriftDetector n_samples 311 n_permutations 50 update_interval 59 n_consecutive_deviations 5
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727659198.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727659198.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ImageBasedDriftDetector n_samples 311 n_permutations 50 update_interval 59 n_consecutive_deviations 5
+stdout:
+RESULT: 0.2523191027496382
+OO-Info: runtime: 928
+OO-Info: lpd: 1.6294134414718393e-05
+
+Result: 0.2523191027496382
+EXIT_CODE: 0
+submitit INFO (2024-09-30 03:36:33,774) - Job completed successfully
+submitit INFO (2024-09-30 03:36:33,777) - Exiting after successful completion

@@ -1,0 +1,30 @@
+submitit INFO (2025-02-04 08:59:57,649) - Starting with JobEnvironment(job_id=1342685, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 08:59:57,649) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0/single_runs/1342685/1342685_submitted.pkl
+Parameters: {"program": "simple_ok"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/simple_ok
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/test_wronggoing_stuff.bin/bin/simple_ok
+UID: 1000
+GID: 1000
+Status-Change-Time: 1710134182.2937162
+Size: 54 Bytes
+Permissions: -rwxr-xr-x
+Owner: s3811141
+Last access: 1738651829.0453262
+Last modification: 1710134182.2937162
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/test_wronggoing_stuff.bin/bin/simple_ok
+stdout: RESULT: 10321
+
+stderr: hallo
+
+Result: [10321.0]
+EXIT_CODE: 0
+submitit INFO (2025-02-04 09:00:00,753) - Job completed successfully
+submitit INFO (2025-02-04 09:00:00,753) - Exiting after successful completion

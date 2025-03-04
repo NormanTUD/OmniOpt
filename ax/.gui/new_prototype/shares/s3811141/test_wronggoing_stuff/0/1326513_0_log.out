@@ -1,0 +1,33 @@
+submitit INFO (2025-02-04 08:57:51,289) - Starting with JobEnvironment(job_id=1326513, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 08:57:51,289) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0/single_runs/1326513/1326513_submitted.pkl
+Error at execution of your program: ./.tests/test_wronggoing_stuff.bin/bin/wrong_arch. Exit-Code: 126, Signal-Code: None
+No stdout
+stderr: /bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/wrong_arch: Exec format error
+
+Parameters: {"program": "wrong_arch"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/wrong_arch
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/test_wronggoing_stuff.bin/bin/wrong_arch
+UID: 1000
+GID: 1000
+Status-Change-Time: 1710134182.2937162
+Size: 78736 Bytes
+Permissions: -rwxr-xr-x
+Owner: s3811141
+Last access: 1738651829.0453262
+Last modification: 1710134182.2937162
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/test_wronggoing_stuff.bin/bin/wrong_arch
+stdout was empty
+stderr: /bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/wrong_arch: Exec format error
+
+Result: None
+EXIT_CODE: 126
+submitit INFO (2025-02-04 08:57:54,288) - Job completed successfully
+submitit INFO (2025-02-04 08:57:54,289) - Exiting after successful completion

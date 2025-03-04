@@ -1,0 +1,42 @@
+submitit INFO (2024-09-27 19:25:33,324) - Starting with JobEnvironment(job_id=2259749, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-27 19:25:33,326) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_OutdoorObjects/0/single_runs/2259749/2259749_submitted.pkl
+Parameters: {"n_samples": 135, "const": 0.7458221167849169, "max_depth": 2, "threshold": 0.5441219418151052}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 BayesianNonparametricDetectionMethod n_samples 135 const 0.7458221167849169 max_depth 2 threshold 0.5441219418151052
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727457916.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727457916.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 BayesianNonparametricDetectionMethod n_samples 135 const 0.7458221167849169 max_depth 2 threshold 0.5441219418151052
+stdout:
+RESULT: 0.2998249562390598
+OO-Info: runtime: 30
+OO-Info: lpd: 0.024434680098596073
+
+Result: 0.2998249562390598
+EXIT_CODE: 0
+submitit INFO (2024-09-27 19:26:09,105) - Job completed successfully
+submitit INFO (2024-09-27 19:26:09,107) - Exiting after successful completion

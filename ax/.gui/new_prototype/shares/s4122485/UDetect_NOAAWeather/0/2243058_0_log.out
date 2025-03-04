@@ -1,0 +1,42 @@
+submitit INFO (2024-09-27 09:29:11,847) - Starting with JobEnvironment(job_id=2243058, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-27 09:29:11,849) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/UDetect_NOAAWeather/0/single_runs/2243058/2243058_submitted.pkl
+Parameters: {"n_samples": 420, "n_windows": 241, "disjoint_training_windows": "False"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 UDetect n_samples 420 n_windows 241 disjoint_training_windows False
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727422139.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727422140.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 UDetect n_samples 420 n_windows 241 disjoint_training_windows False
+stdout:
+RESULT: 0.2949664059918493
+OO-Info: runtime: 8
+OO-Info: lpd: 0.0012773184484578019
+
+Result: 0.2949664059918493
+EXIT_CODE: 0
+submitit INFO (2024-09-27 09:29:24,824) - Job completed successfully
+submitit INFO (2024-09-27 09:29:24,826) - Exiting after successful completion

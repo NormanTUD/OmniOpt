@@ -1,0 +1,188 @@
+submitit INFO (2025-02-04 14:00:09,522) - Starting with JobEnvironment(job_id=1509214, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 14:00:09,523) - Loading pickle: /home/s3811141/test/randomtest_12986/omniopt/ax/runs/simple_experiment/0/single_runs/1509214/1509214_submitted.pkl
+
+
+[0;32m➤Checking environment /home/s3811141/.omniax_test_x86_64_Python_3.10.0...[0m
+
+[0;32m[##                            ] ➤Checking if setuptools>=62.4 is installed...[0m
+
+[0;32m[##                            ] ➤Checking if absl-py is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if decorator is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if six is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tensorflowjs is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if protobuf is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if scikit-image is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if opencv-python is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if keras is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if termcolor is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if pyyaml is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if h5py is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tf_keras is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tensorflow is installed (Currently 1 background job)...[0m
+
+
+
+[0;32m✅Environment checking done![0m
+
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv2d (Conv2D)                 │ (None, 26, 26, 4)      │           112 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_1 (Conv2D)               │ (None, 24, 24, 4)      │           148 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 2304)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 32)             │        73,760 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 32)             │         1,056 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (Dense)                 │ (None, 5)              │           165 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 75,241 (293.91 KB)
+ Trainable params: 75,241 (293.91 KB)
+ Non-trainable params: 0 (0.00 B)
+Found 200 images belonging to 5 classes.
+Found 50 images belonging to 5 classes.
+
+[1m 1/20[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m41s[0m 2s/step - accuracy: 0.1000 - loss: 1.8048
+[1m 5/20[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 16ms/step - accuracy: 0.2113 - loss: 1.7719
+[1m 8/20[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - accuracy: 0.2427 - loss: 1.7452
+[1m11/20[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 18ms/step - accuracy: 0.2568 - loss: 1.7290
+[1m13/20[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 20ms/step - accuracy: 0.2609 - loss: 1.7212
+[1m15/20[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 23ms/step - accuracy: 0.2634 - loss: 1.7195
+[1m17/20[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 23ms/step - accuracy: 0.2652 - loss: 1.7192
+[1m20/20[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - accuracy: 0.2670 - loss: 1.7185
+[1m20/20[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 47ms/step - accuracy: 0.2672 - loss: 1.7185 - val_accuracy: 0.2200 - val_loss: 1.7077
+RESULT: 1.719512
+
+2025-02-04 14:00:14.775266: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-02-04 14:00:14.781773: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-02-04 14:00:14.800748: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:477] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1738674014.833494 1511668 cuda_dnn.cc:8310] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1738674014.842581 1511668 cuda_blas.cc:1418] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-02-04 14:00:14.871879: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-02-04 14:00:18.992746: E external/local_xla/xla/stream_executor/cuda/cuda_driver.cc:152] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+/home/s3811141/.omniax_test_x86_64_Python_3.10.0/lib/python3.10/site-packages/keras/src/trainers/data_adapters/py_dataset_adapter.py:121: UserWarning: Your `PyDataset` class should call `super().__init__(**kwargs)` in its constructor. `**kwargs` can include `workers`, `use_multiprocessing`, `max_queue_size`. Do not pass these arguments to `fit()`, as they will be ignored.
+  self._warn_if_super_not_called()
+
+Parameters: {"lr": 0, "epochs": 1, "width_or_height": 28}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=1 --width=28 --height=28
+pwd: /home/s3811141/test/randomtest_12986/omniopt/ax
+File: /home/s3811141/Dokumente/oo2/demo/run.sh
+UID: 1000
+GID: 1000
+Status-Change-Time: 1738672881.4496439
+Size: 3097 Bytes
+Permissions: -rwxrwxr-x
+Owner: s3811141
+Last access: 1738672924.7376444
+Last modification: 1738672881.389644
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=1 --width=28 --height=28
+stdout: 
+
+[0;32m➤Checking environment /home/s3811141/.omniax_test_x86_64_Python_3.10.0...[0m
+
+[0;32m[##                            ] ➤Checking if setuptools>=62.4 is installed...[0m
+
+[0;32m[##                            ] ➤Checking if absl-py is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if decorator is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if six is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tensorflowjs is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if protobuf is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if scikit-image is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if opencv-python is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if keras is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if termcolor is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if pyyaml is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if h5py is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tf_keras is installed (Currently 1 background job)...[0m
+
+[0;32m[##                            ] ➤Checking if tensorflow is installed (Currently 1 background job)...[0m
+
+
+
+[0;32m✅Environment checking done![0m
+
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv2d (Conv2D)                 │ (None, 26, 26, 4)      │           112 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv2d_1 (Conv2D)               │ (None, 24, 24, 4)      │           148 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 2304)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 32)             │        73,760 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_1 (Dense)                 │ (None, 32)             │         1,056 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_2 (Dense)                 │ (None, 5)              │           165 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 75,241 (293.91 KB)
+ Trainable params: 75,241 (293.91 KB)
+ Non-trainable params: 0 (0.00 B)
+Found 200 images belonging to 5 classes.
+Found 50 images belonging to 5 classes.
+
+[1m 1/20[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m41s[0m 2s/step - accuracy: 0.1000 - loss: 1.8048
+[1m 5/20[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 16ms/step - accuracy: 0.2113 - loss: 1.7719
+[1m 8/20[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - accuracy: 0.2427 - loss: 1.7452
+[1m11/20[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 18ms/step - accuracy: 0.2568 - loss: 1.7290
+[1m13/20[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 20ms/step - accuracy: 0.2609 - loss: 1.7212
+[1m15/20[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 23ms/step - accuracy: 0.2634 - loss: 1.7195
+[1m17/20[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 23ms/step - accuracy: 0.2652 - loss: 1.7192
+[1m20/20[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - accuracy: 0.2670 - loss: 1.7185
+[1m20/20[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 47ms/step - accuracy: 0.2672 - loss: 1.7185 - val_accuracy: 0.2200 - val_loss: 1.7077
+RESULT: 1.719512
+
+stderr: 2025-02-04 14:00:14.775266: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-02-04 14:00:14.781773: I external/local_xla/xla/tsl/cuda/cudart_stub.cc:32] Could not find cuda drivers on your machine, GPU will not be used.
+2025-02-04 14:00:14.800748: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:477] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1738674014.833494 1511668 cuda_dnn.cc:8310] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1738674014.842581 1511668 cuda_blas.cc:1418] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-02-04 14:00:14.871879: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-02-04 14:00:18.992746: E external/local_xla/xla/stream_executor/cuda/cuda_driver.cc:152] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)
+/home/s3811141/.omniax_test_x86_64_Python_3.10.0/lib/python3.10/site-packages/keras/src/trainers/data_adapters/py_dataset_adapter.py:121: UserWarning: Your `PyDataset` class should call `super().__init__(**kwargs)` in its constructor. `**kwargs` can include `workers`, `use_multiprocessing`, `max_queue_size`. Do not pass these arguments to `fit()`, as they will be ignored.
+  self._warn_if_super_not_called()
+
+Result: [1.719512]
+EXIT_CODE: 0
+submitit INFO (2025-02-04 14:00:23,246) - Job completed successfully
+submitit INFO (2025-02-04 14:00:23,246) - Exiting after successful completion

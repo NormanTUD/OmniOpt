@@ -1,0 +1,42 @@
+submitit INFO (2024-09-26 09:35:51,833) - Starting with JobEnvironment(job_id=2224712, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-26 09:35:51,835) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ImageBasedDriftDetector_NOAAWeather/0/single_runs/2224712/2224712_submitted.pkl
+Parameters: {"n_samples": 532, "n_permutations": 22, "update_interval": 162, "n_consecutive_deviations": 3}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ImageBasedDriftDetector n_samples 532 n_permutations 22 update_interval 162 n_consecutive_deviations 3
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727336131.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727336131.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ImageBasedDriftDetector n_samples 532 n_permutations 22 update_interval 162 n_consecutive_deviations 3
+stdout:
+RESULT: 0.28114329772001323
+OO-Info: runtime: 13
+OO-Info: lpd: 0.000414108373442077
+
+Result: 0.28114329772001323
+EXIT_CODE: 0
+submitit INFO (2024-09-26 09:36:09,768) - Job completed successfully
+submitit INFO (2024-09-26 09:36:09,771) - Exiting after successful completion

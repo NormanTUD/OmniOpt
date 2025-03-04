@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 14:58:37,579) - Starting with JobEnvironment(job_id=2292798, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 14:58:37,581) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2292798/2292798_submitted.pkl
+Parameters: {"n_samples": 207, "const": 0.6932484575736728, "max_depth": 4, "threshold": 0.40315272195767304}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 207 const 0.6932484575736728 max_depth 4 threshold 0.40315272195767304
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727614671.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727614671.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 207 const 0.6932484575736728 max_depth 4 threshold 0.40315272195767304
+stdout:
+RESULT: 0.2981355523396044
+OO-Info: runtime: 583
+OO-Info: lpd: 0.00015975221112703023
+
+Result: 0.2981355523396044
+EXIT_CODE: 0
+submitit INFO (2024-09-29 15:08:29,953) - Job completed successfully
+submitit INFO (2024-09-29 15:08:29,955) - Exiting after successful completion

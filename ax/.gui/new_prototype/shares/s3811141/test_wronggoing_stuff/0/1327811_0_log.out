@@ -1,0 +1,39 @@
+submitit INFO (2025-02-04 08:58:09,921) - Starting with JobEnvironment(job_id=1327811, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 08:58:09,921) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0/single_runs/1327811/1327811_submitted.pkl
+Error at execution of your program: ./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt. Exit-Code: 130, Signal-Code: None
+No stdout
+stderr: Traceback (most recent call last):
+  File "/home/s3811141/repos/OmniOpt/ax/./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt", line 3, in <module>
+    raise KeyboardInterrupt("Test error")
+KeyboardInterrupt: Test error
+
+Parameters: {"program": "force_keyboard_interrupt"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt
+UID: 1000
+GID: 1000
+Status-Change-Time: 1710134182.2937162
+Size: 57 Bytes
+Permissions: -rwxr-xr-x
+Owner: s3811141
+Last access: 1738651829.0453262
+Last modification: 1710134182.2937162
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt
+stdout was empty
+stderr: Traceback (most recent call last):
+  File "/home/s3811141/repos/OmniOpt/ax/./.tests/test_wronggoing_stuff.bin/bin/force_keyboard_interrupt", line 3, in <module>
+    raise KeyboardInterrupt("Test error")
+KeyboardInterrupt: Test error
+
+Result: None
+EXIT_CODE: 130
+submitit INFO (2025-02-04 08:58:13,453) - Job completed successfully
+submitit INFO (2025-02-04 08:58:13,453) - Exiting after successful completion

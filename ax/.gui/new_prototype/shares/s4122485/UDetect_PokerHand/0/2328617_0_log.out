@@ -1,0 +1,42 @@
+submitit INFO (2024-10-01 19:49:13,170) - Starting with JobEnvironment(job_id=2328617, hostname=i7174, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-10-01 19:49:13,172) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/UDetect_PokerHand/0/single_runs/2328617/2328617_submitted.pkl
+Parameters: {"n_samples": 100, "n_windows": 25, "disjoint_training_windows": "False"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 UDetect n_samples 100 n_windows 25 disjoint_training_windows False
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727804391.0
+Last modification: 1724759185.0
+Hostname: i7174
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727804391.0
+Last modification: 1727277242.0
+Hostname: i7174
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 UDetect n_samples 100 n_windows 25 disjoint_training_windows False
+stdout:
+RESULT: 0.26486131210805597
+OO-Info: runtime: 451
+OO-Info: lpd: 4.3271834179885174e-05
+
+Result: 0.26486131210805597
+EXIT_CODE: 0
+submitit INFO (2024-10-01 19:56:54,044) - Job completed successfully
+submitit INFO (2024-10-01 19:56:54,047) - Exiting after successful completion

@@ -1,0 +1,42 @@
+submitit INFO (2024-09-26 10:59:28,072) - Starting with JobEnvironment(job_id=2224841, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-26 10:59:28,074) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ImageBasedDriftDetector_NOAAWeather/0/single_runs/2224841/2224841_submitted.pkl
+Parameters: {"n_samples": 1000, "n_permutations": 27, "update_interval": 160, "n_consecutive_deviations": 1}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ImageBasedDriftDetector n_samples 1000 n_permutations 27 update_interval 160 n_consecutive_deviations 1
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727341151.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727341151.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 ImageBasedDriftDetector n_samples 1000 n_permutations 27 update_interval 160 n_consecutive_deviations 1
+stdout:
+RESULT: 0.2884128207952418
+OO-Info: runtime: 22
+OO-Info: lpd: 0.00030217216132080363
+
+Result: 0.2884128207952418
+EXIT_CODE: 0
+submitit INFO (2024-09-26 10:59:55,434) - Job completed successfully
+submitit INFO (2024-09-26 10:59:55,436) - Exiting after successful completion

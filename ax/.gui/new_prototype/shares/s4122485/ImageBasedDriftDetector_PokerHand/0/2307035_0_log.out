@@ -1,0 +1,42 @@
+submitit INFO (2024-09-30 01:18:58,986) - Starting with JobEnvironment(job_id=2307035, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-30 01:18:58,989) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ImageBasedDriftDetector_PokerHand/0/single_runs/2307035/2307035_submitted.pkl
+Parameters: {"n_samples": 1000, "n_permutations": 50, "update_interval": 50, "n_consecutive_deviations": 1}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ImageBasedDriftDetector n_samples 1000 n_permutations 50 update_interval 50 n_consecutive_deviations 1
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727650569.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727650569.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ImageBasedDriftDetector n_samples 1000 n_permutations 50 update_interval 50 n_consecutive_deviations 1
+stdout:
+RESULT: 0.2583055957549445
+OO-Info: runtime: 1322
+OO-Info: lpd: 1.1857242623663936e-05
+
+Result: 0.2583055957549445
+EXIT_CODE: 0
+submitit INFO (2024-09-30 01:41:10,524) - Job completed successfully
+submitit INFO (2024-09-30 01:41:10,526) - Exiting after successful completion

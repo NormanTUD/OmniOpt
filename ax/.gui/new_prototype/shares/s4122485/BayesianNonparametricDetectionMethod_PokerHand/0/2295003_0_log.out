@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 15:59:50,150) - Starting with JobEnvironment(job_id=2295003, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 15:59:50,153) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2295003/2295003_submitted.pkl
+Parameters: {"n_samples": 101, "const": 0.21601798615613016, "max_depth": 4, "threshold": 0.47910924430790985}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 101 const 0.21601798615613016 max_depth 4 threshold 0.47910924430790985
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727618374.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727618374.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 101 const 0.21601798615613016 max_depth 4 threshold 0.47910924430790985
+stdout:
+RESULT: 0.281702846116739
+OO-Info: runtime: 619
+OO-Info: lpd: 8.19538466729661e-05
+
+Result: 0.281702846116739
+EXIT_CODE: 0
+submitit INFO (2024-09-29 16:10:18,767) - Job completed successfully
+submitit INFO (2024-09-29 16:10:18,769) - Exiting after successful completion

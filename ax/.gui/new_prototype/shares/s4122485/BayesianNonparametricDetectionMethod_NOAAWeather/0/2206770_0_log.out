@@ -1,0 +1,42 @@
+submitit INFO (2024-09-25 21:03:10,859) - Starting with JobEnvironment(job_id=2206770, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-25 21:03:10,861) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_NOAAWeather/0/single_runs/2206770/2206770_submitted.pkl
+Parameters: {"n_samples": 120, "const": 0.24119216360262946, "max_depth": 4, "threshold": 0.4608824658277272}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 BayesianNonparametricDetectionMethod n_samples 120 const 0.24119216360262946 max_depth 4 threshold 0.4608824658277272
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727290980.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727290980.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 BayesianNonparametricDetectionMethod n_samples 120 const 0.24119216360262946 max_depth 4 threshold 0.4608824658277272
+stdout:
+RESULT: 0.2916070051767816
+OO-Info: runtime: 8
+OO-Info: lpd: 0.0005698131218562974
+
+Result: 0.2916070051767816
+EXIT_CODE: 0
+submitit INFO (2024-09-25 21:03:23,793) - Job completed successfully
+submitit INFO (2024-09-25 21:03:23,795) - Exiting after successful completion

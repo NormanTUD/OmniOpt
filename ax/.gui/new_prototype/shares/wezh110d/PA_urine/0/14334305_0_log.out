@@ -1,0 +1,93 @@
+submitit INFO (2025-02-04 11:07:28,514) - Starting with JobEnvironment(job_id=14334305, hostname=n1720, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 11:07:28,515) - Loading pickle: /data/horse/ws/wezh110d-PROSALDO_URINE/omniopt_2/ax/runs/PA_urine/1/single_runs/14334305/14334305_submitted.pkl
+Error at execution of your program: bash 
+/data/horse/ws/wezh110d-PROSALDO_URINE/my.sh --kernel=sigmoid 
+--C=5.335848349664361  --gamma=2.330973677136935. Exit-Code: 2, Signal-Code: 
+None
+No stdout
+stderr: 
+Inactive Modules:
+  1) Brotli/1.0.9        9) Tkinter/3.10.4       17) libpciaccess/0.16
+  2) GMP/6.2.1          10) X11/20220504         18) libpng/1.6.37
+  3) OpenSSL/1.1        11) XZ/5.2.5             19) libreadline/8.1.2
+  4) PostgreSQL/14.4    12) bzip2/1.0.8          20) ncurses/6.3
+  5) Python/3.10.4      13) expat/2.4.8          21) util-linux/2.38
+  6) SQLite/3.38.3      14) fontconfig/2.14.0    22) xorg-macros/1.19.3
+  7) Tcl/8.6.12         15) freetype/2.12.1
+  8) Tk/8.6.12          16) libffi/3.4.2
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) slurm/slurm-paths
+
+The following have been reloaded with a version change:
+  1) GCCcore/11.3.0 => GCCcore/13.2.0     3) release/23.04 => release/24.04
+  2) binutils/2.38 => binutils/2.40       4) zlib/1.2.12 => zlib/1.2.13
+
+Modules GCCcore/11.3.0, zlib/1.2.12, OpenSSL/1.1, xorg-macros/1.19.3, 
+binutils/2.38, bzip2/1.0.8, ncurses/6.3, libreadline/8.1.2, Tcl/8.6.12, 
+SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2, Python/3.10.4, expat/2.4.8, 
+libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, util-linux/2.38, 
+fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, Tkinter/3.10.4, 
+PostgreSQL/14.4, xorg-macros/1.19.3, bzip2/1.0.8, ncurses/6.3, 
+libreadline/8.1.2, Tcl/8.6.12, SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2,
+Python/3.10.4, expat/2.4.8, libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, 
+util-linux/2.38, fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, 
+Tkinter/3.10.4 and 6 dependencies unloaded.
+Modules GCCcore/11.3.0, zlib/1.2.12, OpenSSL/1.1, xorg-macros/1.19.3, 
+binutils/2.38, bzip2/1.0.8, ncurses/6.3, libreadline/8.1.2, Tcl/8.6.12, 
+SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2, Python/3.10.4, expat/2.4.8, 
+libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, util-linux/2.38, 
+fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, Tkinter/3.10.4, 
+GCC/13.2.0, bzip2/1.0.8, ncurses/6.3 and 3 dependencies loaded.
+usage: PA_urine.py [-h] [--kernel KERNEL] [--C C] [--gamma GAMMA]
+PA_urine.py: error: argument --kernel: expected one argument
+
+Parameters: {"kernel": "sigmoid", "C": 5.335848349664361, "gamma": 2.330973677136935}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: bash /data/horse/ws/wezh110d-PROSALDO_URINE/my.sh --kernel=sigmoid --C=5.335848349664361  --gamma=2.330973677136935
+pwd: /data/horse/ws/wezh110d-PROSALDO_URINE/omniopt_2/ax
+File: /data/horse/ws/wezh110d-PROSALDO_URINE/my.sh
+UID: 2173032
+GID: 202354
+SLURM_JOB_ID: 14334305
+Status-Change-Time: 1737545240.0
+Size: 195 Bytes
+Permissions: -rw-r--r--
+Owner: wezh110d
+Last access: 1738663653.0
+Last modification: 1737541637.0
+Hostname: n1720
+========
+DEBUG INFOS END
+
+bash /data/horse/ws/wezh110d-PROSALDO_URINE/my.sh --kernel=sigmoid --C=5.335848349664361  --gamma=2.330973677136935
+stdout was empty
+stderr: 
+Inactive Modules:
+  1) Brotli/1.0.9        9) Tkinter/3.10.4       17) libpciaccess/0.16
+  2) GMP/6.2.1          10) X11/20220504         18) libpng/1.6.37
+  3) OpenSSL/1.1        11) XZ/5.2.5             19) libreadline/8.1.2
+  4) PostgreSQL/14.4    12) bzip2/1.0.8          20) ncurses/6.3
+  5) Python/3.10.4      13) expat/2.4.8          21) util-linux/2.38
+  6) SQLite/3.38.3      14) fontconfig/2.14.0    22) xorg-macros/1.19.3
+  7) Tcl/8.6.12         15) freetype/2.12.1
+  8) Tk/8.6.12          16) libffi/3.4.2
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) slurm/slurm-paths
+
+The following have been reloaded with a version change:
+  1) GCCcore/11.3.0 => GCCcore/13.2.0     3) release/23.04 => release/24.04
+  2) binutils/2.38 => binutils/2.40       4) zlib/1.2.12 => zlib/1.2.13
+
+Modules GCCcore/11.3.0, zlib/1.2.12, OpenSSL/1.1, xorg-macros/1.19.3, binutils/2.38, bzip2/1.0.8, ncurses/6.3, libreadline/8.1.2, Tcl/8.6.12, SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2, Python/3.10.4, expat/2.4.8, libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, util-linux/2.38, fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, Tkinter/3.10.4, PostgreSQL/14.4, xorg-macros/1.19.3, bzip2/1.0.8, ncurses/6.3, libreadline/8.1.2, Tcl/8.6.12, SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2, Python/3.10.4, expat/2.4.8, libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, util-linux/2.38, fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, Tkinter/3.10.4 and 6 dependencies unloaded.
+Modules GCCcore/11.3.0, zlib/1.2.12, OpenSSL/1.1, xorg-macros/1.19.3, binutils/2.38, bzip2/1.0.8, ncurses/6.3, libreadline/8.1.2, Tcl/8.6.12, SQLite/3.38.3, XZ/5.2.5, GMP/6.2.1, libffi/3.4.2, Python/3.10.4, expat/2.4.8, libpng/1.6.37, Brotli/1.0.9, freetype/2.12.1, util-linux/2.38, fontconfig/2.14.0, libpciaccess/0.16, X11/20220504, Tk/8.6.12, Tkinter/3.10.4, GCC/13.2.0, bzip2/1.0.8, ncurses/6.3 and 3 dependencies loaded.
+usage: PA_urine.py [-h] [--kernel KERNEL] [--C C] [--gamma GAMMA]
+PA_urine.py: error: argument --kernel: expected one argument
+
+Result: None
+EXIT_CODE: 2
+submitit INFO (2025-02-04 11:07:33,647) - Job completed successfully
+submitit INFO (2025-02-04 11:07:33,649) - Exiting after successful completion

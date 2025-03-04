@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 12:24:26,229) - Starting with JobEnvironment(job_id=2290718, hostname=i7181, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 12:24:26,231) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2290718/2290718_submitted.pkl
+Parameters: {"n_samples": 153, "const": 0.22280506087841168, "max_depth": 4, "threshold": 0.5902366783664135}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 153 const 0.22280506087841168 max_depth 4 threshold 0.5902366783664135
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727605421.0
+Last modification: 1724759185.0
+Hostname: i7181
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727605421.0
+Last modification: 1727277242.0
+Hostname: i7181
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 153 const 0.22280506087841168 max_depth 4 threshold 0.5902366783664135
+stdout:
+RESULT: 0.29069343945972026
+OO-Info: runtime: 586
+OO-Info: lpd: 0.00012080695443196703
+
+Result: 0.29069343945972026
+EXIT_CODE: 0
+submitit INFO (2024-09-29 12:34:22,079) - Job completed successfully
+submitit INFO (2024-09-29 12:34:22,081) - Exiting after successful completion

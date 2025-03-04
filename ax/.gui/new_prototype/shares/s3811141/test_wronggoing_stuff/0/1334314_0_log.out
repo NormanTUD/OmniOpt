@@ -1,0 +1,33 @@
+submitit INFO (2025-02-04 08:59:01,790) - Starting with JobEnvironment(job_id=1334314, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-04 08:59:01,790) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0/single_runs/1334314/1334314_submitted.pkl
+Error at execution of your program: ./.tests/test_wronggoing_stuff.bin/bin/empty. Exit-Code: 126, Signal-Code: None
+No stdout
+stderr: /bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/empty: Permission denied
+
+Parameters: {"program": "empty"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/empty
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/test_wronggoing_stuff.bin/bin/empty
+UID: 1000
+GID: 1000
+Status-Change-Time: 1710134182.2897162
+Size: 0 Bytes
+Permissions: -rw-r--r--
+Owner: s3811141
+Last access: 1738651829.0453262
+Last modification: 1710134182.2897162
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/test_wronggoing_stuff.bin/bin/empty
+stdout was empty
+stderr: /bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/empty: Permission denied
+
+Result: None
+EXIT_CODE: 126
+submitit INFO (2025-02-04 08:59:05,060) - Job completed successfully
+submitit INFO (2025-02-04 08:59:05,060) - Exiting after successful completion

@@ -1,0 +1,42 @@
+submitit INFO (2024-10-01 13:33:19,634) - Starting with JobEnvironment(job_id=2328302, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-10-01 13:33:19,636) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/SemiParametricLogLikelihood_PokerHand/0/single_runs/2328302/2328302_submitted.pkl
+Parameters: {"n_samples": 181, "n_clusters": 1, "threshold": 0.06633023966676371}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 SemiParametricLogLikelihood n_samples 181 n_clusters 1 threshold 0.06633023966676371
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727782276.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727782276.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 SemiParametricLogLikelihood n_samples 181 n_clusters 1 threshold 0.06633023966676371
+stdout:
+RESULT: 0.28756632899179935
+OO-Info: runtime: 1043
+OO-Info: lpd: 8.794068406284791e-05
+
+Result: 0.28756632899179935
+EXIT_CODE: 0
+submitit INFO (2024-10-01 13:50:57,941) - Job completed successfully
+submitit INFO (2024-10-01 13:50:57,943) - Exiting after successful completion

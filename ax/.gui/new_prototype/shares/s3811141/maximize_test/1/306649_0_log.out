@@ -1,0 +1,13 @@
+submitit INFO (2025-03-03 10:09:41,859) - Starting with JobEnvironment(job_id=306649, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-03-03 10:09:41,860) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/maximize_test/0/single_runs/306649/306649_submitted.pkl
+
+Parameters: {"res": 10000}
+Debug-Infos: 
+echo "RESULT: 10000"
+stdout: RESULT: 10000
+
+stderr was empty
+Result: {'RESULT': 10000.0}
+EXIT_CODE: 0
+submitit INFO (2025-03-03 10:09:44,645) - Job completed successfully
+submitit INFO (2025-03-03 10:09:44,645) - Exiting after successful completion

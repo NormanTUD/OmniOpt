@@ -1,0 +1,34 @@
+submitit INFO (2025-03-03 10:21:33,353) - Starting with JobEnvironment(job_id=332272, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-03-03 10:21:33,353) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/example_all_float/0/single_runs/332272/332272_submitted.pkl
+
+Parameters: {"x": 966.2784969284448, "y": -997.1331551888104, "z": 841.9508872796353, "a": -700.2641537958445}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: .tests/optimization_example_all_float --x=966.2784969284448 --y=-997.1331551888104 --z=841.9508872796353 --a=-700.2641537958445 
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: .tests/optimization_example_all_float
+UID: 1000
+GID: 1000
+Status-Change-Time: 1729492122.6250048
+Size: 3749 Bytes
+Permissions: -rwxrwxr-x
+Owner: s3811141
+Last access: 1740985418.64797
+Last modification: 1729492122.6250048
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+.tests/optimization_example_all_float --x=966.2784969284448 --y=-997.1331551888104 --z=841.9508872796353 --a=-700.2641537958445 
+stdout: x: 966.2784969284448
+y: -997.1331551888104
+z: 841.9508872796353
+a: -700.2641537958445
+RESULT: -31242035.3094014
+
+stderr was empty
+Result: {'RESULT': -31242035.3094014}
+EXIT_CODE: 0
+submitit INFO (2025-03-03 10:21:36,398) - Job completed successfully
+submitit INFO (2025-03-03 10:21:36,399) - Exiting after successful completion

@@ -1,0 +1,33 @@
+submitit INFO (2025-02-03 10:15:35,310) - Starting with JobEnvironment(job_id=798696, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-02-03 10:15:35,310) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/__main__tests__BOTORCH_MODULAR___nogridsearch/1/single_runs/798696/798696_submitted.pkl
+Parameters: {"int_param": 10, "float_param": -88.47945926939356, "choice_param": 1, "int_param_two": -100}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/optimization_example --int_param='10' --float_param='-88.47945926939356' --choice_param='1'  --int_param_two='-100' --nr_results=1
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/optimization_example
+UID: 1000
+GID: 1000
+Status-Change-Time: 1738303856.203212
+Size: 5297 Bytes
+Permissions: -rwxrwxr-x
+Owner: s3811141
+Last access: 1738564938.9520156
+Last modification: 1738303856.203212
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/optimization_example --int_param='10' --float_param='-88.47945926939356' --choice_param='1'  --int_param_two='-100' --nr_results=1
+stdout: OO-Info: int_param: 10
+OO-Info: int_param_two: -100
+OO-Info: float_param: -88.47945926939356
+OO-Info: choice_param: 1
+RESULT: -197139.413052982
+
+stderr was empty
+Result: [-197139.413052982]
+EXIT_CODE: 0
+submitit INFO (2025-02-03 10:15:37,957) - Job completed successfully
+submitit INFO (2025-02-03 10:15:37,957) - Exiting after successful completion

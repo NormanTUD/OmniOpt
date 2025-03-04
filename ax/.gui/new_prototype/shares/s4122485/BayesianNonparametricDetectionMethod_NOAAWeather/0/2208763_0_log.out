@@ -1,0 +1,42 @@
+submitit INFO (2024-09-25 21:59:15,788) - Starting with JobEnvironment(job_id=2208763, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-25 21:59:15,790) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_NOAAWeather/0/single_runs/2208763/2208763_submitted.pkl
+Parameters: {"n_samples": 737, "const": 0.9425886577600473, "max_depth": 2, "threshold": 0.8}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 BayesianNonparametricDetectionMethod n_samples 737 const 0.9425886577600473 max_depth 2 threshold 0.8
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727294328.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727294328.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py NOAAWeather 1000 BayesianNonparametricDetectionMethod n_samples 737 const 0.9425886577600473 max_depth 2 threshold 0.8
+stdout:
+RESULT: 0.2971692917722216
+OO-Info: runtime: 25
+OO-Info: lpd: 0.0033844336080265077
+
+Result: 0.2971692917722216
+EXIT_CODE: 0
+submitit INFO (2024-09-25 21:59:45,633) - Job completed successfully
+submitit INFO (2024-09-25 21:59:45,636) - Exiting after successful completion

@@ -1,0 +1,13 @@
+submitit INFO (2025-03-03 09:40:50,966) - Starting with JobEnvironment(job_id=251437, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-03-03 09:40:50,967) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/constraint_test_to_be_continued/0/single_runs/251437/251437_submitted.pkl
+
+Parameters: {"x": 20, "y": 421.22986912727356}
+Debug-Infos: 
+echo "RESULT: 20421.22986912727356"
+stdout: RESULT: 20421.22986912727356
+
+stderr was empty
+Result: {'RESULT': 20421.229869127274}
+EXIT_CODE: 0
+submitit INFO (2025-03-03 09:40:52,920) - Job completed successfully
+submitit INFO (2025-03-03 09:40:52,920) - Exiting after successful completion

@@ -1,0 +1,31 @@
+submitit INFO (2025-03-03 10:10:33,526) - Starting with JobEnvironment(job_id=308635, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-03-03 10:10:33,526) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff/0/single_runs/308635/308635_submitted.pkl
+/bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x: Permission denied
+
+Parameters: {"program": "no_chmod_x"}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x
+pwd: /home/s3811141/repos/OmniOpt/ax
+File: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x
+UID: 1000
+GID: 1000
+Status-Change-Time: 1710134182.2937162
+Size: 36 Bytes
+Permissions: -rw-r--r--
+Owner: s3811141
+Last access: 1740985418.64797
+Last modification: 1710134182.2937162
+Hostname: arbeitsrechner
+========
+DEBUG INFOS END
+
+./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x
+stdout was empty
+stderr: /bin/sh: 1: ./.tests/test_wronggoing_stuff.bin/bin/no_chmod_x: Permission denied
+
+Result: {'RESULT': None}
+EXIT_CODE: 126
+submitit INFO (2025-03-03 10:10:35,577) - Job completed successfully
+submitit INFO (2025-03-03 10:10:35,578) - Exiting after successful completion

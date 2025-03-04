@@ -1,0 +1,42 @@
+submitit INFO (2024-09-29 14:47:24,612) - Starting with JobEnvironment(job_id=2292366, hostname=i7186, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-09-29 14:47:24,614) - Loading pickle: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/BayesianNonparametricDetectionMethod_PokerHand/0/single_runs/2292366/2292366_submitted.pkl
+Parameters: {"n_samples": 113, "const": 0.5984508291956254, "max_depth": 4, "threshold": 0.8}
+Debug-Infos: 
+========
+DEBUG INFOS START:
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 113 const 0.5984508291956254 max_depth 4 threshold 0.8
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1724762786.0
+Size: 2165 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727614007.0
+Last modification: 1724759185.0
+Hostname: i7186
+pwd: /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main
+File: main_omniopt.py
+UID: 2063769
+GID: 200270
+Status-Change-Time: 1727277242.0
+Size: 1729 Bytes
+Permissions: -rw-r--r--
+Owner: s4122485
+Last access: 1727614007.0
+Last modification: 1727277242.0
+Hostname: i7186
+========
+DEBUG INFOS END
+
+module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 BayesianNonparametricDetectionMethod n_samples 113 const 0.5984508291956254 max_depth 4 threshold 0.8
+stdout:
+RESULT: 0.28529787747226243
+OO-Info: runtime: 694
+OO-Info: lpd: 9.084150779455394e-05
+
+Result: 0.28529787747226243
+EXIT_CODE: 0
+submitit INFO (2024-09-29 14:59:08,057) - Job completed successfully
+submitit INFO (2024-09-29 14:59:08,059) - Exiting after successful completion

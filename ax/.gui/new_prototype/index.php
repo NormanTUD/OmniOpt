@@ -34,6 +34,30 @@
 		return $tabs;
 	}
 
+	function get_log_files($run_dir) {
+		$log_files = [];
+
+		if (!is_dir($run_dir)) {
+			error_log("Fehler: Verzeichnis existiert nicht - $run_dir");
+			return $log_files;
+		}
+
+		$files = scandir($run_dir);
+		if ($files === false) {
+			error_log("Fehler: Konnte Verzeichnis nicht lesen - $run_dir");
+			return $log_files;
+		}
+
+		foreach ($files as $file) {
+			if (preg_match('/^(\d+)_0_log\.out$/', $file, $matches)) {
+				$nr = $matches[1];
+				$log_files[$nr] = $file;
+			}
+		}
+
+		return $log_files;
+	}
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			#$source_data = debug_backtrace()[0];
@@ -218,24 +242,32 @@
 		'Parallel Plot' => [
 			'id' => 'tab_parallel',
 			'content' => '<div id="parallel"></div>',
-		],
-		'Single Logs' => [
-			'id' => 'tab_logs',
-			'content' => generate_log_tabs(50),  // Beispiel: 50 Logs dynamisch generiert
-		],
+		]
 	];
 
 	$tabs = [];
 
-	function generate_log_tabs($nr_files) {
+	function generate_log_tabs($run_dir, $log_files) {
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
-		for ($i = 0; $i < $nr_files; $i++) {
-			$output .= '<button role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">Single-Run-' . $i . '</button>';
+
+		// Tab-Buttons erstellen
+		$i = 0;
+		foreach ($log_files as $nr => $file) {
+			$output .= '<button role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">Single-Run-' . $nr . '</button>';
+			$i++;
 		}
+
 		$output .= '</menu>';
-		for ($i = 0; $i < $nr_files; $i++) {
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>C:\WINDOWS\SYSTEM32> Single-Run ' . $i . "</pre></article>\n";
+
+		// Tab-Inhalte erstellen
+		$i = 0;
+		foreach ($log_files as $nr => $file) {
+			$file_path = $run_dir . '/' . $file; // Hier den vollständigen Pfad zur Datei anpassen
+			$content = file_get_contents($file_path); // Inhalt der Datei holen
+			$output .= '<article role="tabpanel" id="single_run_' . $i . '"><pre>' . htmlspecialchars($content) . '</pre></article>';
+			$i++;
 		}
+
 		$output .= '</section>';
 		return $output;
 	}
@@ -348,6 +380,15 @@
 		}
 
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
+
+		$out_files = get_log_files($run_dir);
+
+		if(count($out_files)) {
+			$tabs['Single Logs'] = [
+				'id' => 'tab_logs',
+				'content' => generate_log_tabs($run_dir, $out_files)
+			];
+		}
 
 		if ($results_html != "") {
 			$tabs['Results'] = [

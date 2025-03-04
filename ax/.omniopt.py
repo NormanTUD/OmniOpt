@@ -5053,18 +5053,9 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             result is not None
             and all(r not in possible_val_not_found_values for r in values_to_check)
         ):
-            raw_result_clean = {}
-
-            for key in raw_result.keys():
-                raw_result_clean[key] = raw_result[key]
-                print_red(f"raw_result_clean[key] = {raw_result_clean[key]}")
-
-                #if isinstance(raw_result_clean[key], dict)
-                #raw_result_clean[key] = tuple(0 if v is None else v for v in raw_result_clean[key])
-
-            print_debug(f"Completing trial: {trial_index} with result: {raw_result}, raw_result_clean: {raw_result_clean}...")
+            print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result_clean)
-            print_debug(f"Completing trial: {trial_index} with result: {raw_result}, raw_result_clean: {raw_result_clean}... Done!")
+            print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
 
             save_pd_csv()
 

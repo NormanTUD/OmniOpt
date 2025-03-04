@@ -65,6 +65,10 @@
 	td.gridjs-td {
 		overflow: clip;
 	}
+
+	.gridjs-input {
+		font-family: unset;
+	}
 </style>
 <?php
 	$theme = "xp.css";

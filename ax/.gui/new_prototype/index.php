@@ -1,8 +1,48 @@
 <?php
 	$tabs = [
-		'General Info' => [
-			'id' => 'tab_general_info',
-			'content' => '<pre>General Info</pre>',
+		'Overview' => [
+			'id' => 'tab_overview',
+			'content' => '<pre>Overview</pre>',
+		],
+		'Experiment Overview' => [
+			'id' => 'tab_experiment_overview',
+			'content' => '<pre>Experiment overview</pre>',
+		],
+		'Progressbar-Logs' => [
+			'id' => 'tab_progressbar_logs',
+			'content' => '<pre>Progressbar-Logs</pre>',
+		],
+		'Job-Infos' => [
+			'id' => 'tab_job_infos',
+			'content' => '<pre>Job-Infos</pre>',
+		],
+		'Worker-Usage' => [
+			'id' => 'tab_worker_usage',
+			'content' => '<pre>Worker-Usage</pre>',
+		],
+		'Main-Log' => [
+			'id' => 'tab_main_log',
+			'content' => '<pre>Main Log</pre>',
+		],
+		'Worker-CPU-RAM-Graphs' => [
+			'id' => 'tab_worker_cpu_ram_graphs',
+			'content' => '<pre>Worker CPU RAM Graphs</pre>',
+		],
+		'Debug-Log' => [
+			'id' => 'tab_debug_log',
+			'content' => '<pre>Debug Log</pre>',
+		],
+		'Args Overview' => [
+			'id' => 'tab_args_overview',
+			'content' => '<pre>Args-Overview</pre>',
+		],
+		'CPU/Ram Usage' => [
+			'id' => 'tab_cpu_ram_usage',
+			'content' => '<pre>CPU-Ram-Usage</pre>',
+		],
+		'Trial-Index-to-Param' => [
+			'id' => 'tab_trial_index_to_param',
+			'content' => '<pre>Trial index to param</pre>',
 		],
 		'Next-Trials' => [
 			'id' => 'tab_next_trials',
@@ -20,8 +60,8 @@
 			'id' => 'tab_parallel',
 			'content' => '<div id="parallel"></div>',
 		],
-		'Results-Table' => [
-			'id' => 'tab_table',
+		'Results' => [
+			'id' => 'tab_results',
 			'content' => '<div id="table"></div>',
 		],
 		'Single Logs' => [

@@ -23,6 +23,17 @@
 		return $lines;
 	}
 
+	function add_simple_pre_from_file ($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$tabs[$name] = [
+				'id' => $tabname,
+				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>',
+			];
+		}
+
+		return $tabs;
+	}
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			#$source_data = debug_backtrace()[0];
@@ -91,6 +102,9 @@
 	}
 
 	function generateFolderButtons($folderPath, $new_param_name) {
+		if(!isset($_SERVER["REQUEST_URI"])) {
+			return; // Don't run this in CLI
+		}
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
 
@@ -334,12 +348,7 @@
 			];
 		}
 
-		if(is_file($args_overview_file)) {
-			$tabs['Args Overview'] = [
-				'id' => 'tab_args_overview',
-				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($args_overview_file))).'</pre>',
-			];
-		}
+		$tabs = add_simple_pre_from_file($tabs, $args_overview_file, "Args Overview", "tab_args_overview");
 
 		if ($results_html != "") {
 			$tabs['Results'] = [

@@ -77,10 +77,13 @@
 <?php
 	$theme = "xp.css";
 
-	if($_GET["theme"] == 7) {
-		$theme = "7.css";
-	} else if($_GET["theme"] == "none") {
-		$theme = "none";
+
+	if(isset($_GET["theme"])) {
+		if($_GET["theme"] == 7) {
+			$theme = "7.css";
+		} else if($_GET["theme"] == "none") {
+			$theme = "none";
+		}
 	}
 
 	if ($theme != "none") {

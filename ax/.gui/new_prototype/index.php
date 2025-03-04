@@ -7,6 +7,30 @@
 		return $default;
 	}
 
+	function generateFolderButtons($folderPath) {
+		// Check if the folder exists
+		if (is_dir($folderPath)) {
+			// Open the directory
+			$dir = opendir($folderPath);
+
+			// Loop through the files in the directory
+			while (($folder = readdir($dir)) !== false) {
+				// Skip "." and ".."
+				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
+					// Create a button for each folder
+					echo '<form action="" method="get">';
+					echo '<button type="submit" name="user_id" value="' . htmlspecialchars($folder) . '">Go to ' . htmlspecialchars($folder) . '</button>';
+					echo '</form>';
+				}
+			}
+
+			// Close the directory
+			closedir($dir);
+		} else {
+			echo "The specified folder does not exist.";
+		}
+	}
+
 	function is_valid_user_or_experiment_name ($name) {
 		if(preg_match("/^[a-zA-Z0-9_]+$/", $name)) {
 			return true;
@@ -213,7 +237,7 @@
 <?php
 					} else {
 						if(!$user_id && !$experiment_name && !$run_nr) {
-							print "Overview users";
+							generateFolderButtons($share_folder);
 						} else if($user_id && !$experiment_name && !$run_nr) {
 							print "Overview Experiments";
 						} else if($user_id && $experiment_name && !$run_nr) {

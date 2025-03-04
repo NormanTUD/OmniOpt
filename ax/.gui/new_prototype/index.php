@@ -464,6 +464,30 @@
 
 		if(is_file("$run_dir/results.csv")) {
 			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
+
+			$overview_table = '<table border="1">';
+			$overview_table .= '<tbody>';
+			$overview_table .= '<tr>';  // Beginnt die Zeile für die Überschriften
+
+			// Füge alle Schlüsselnamen als Überschriften hinzu
+			foreach ($status_data as $key => $value) {
+				$capitalizedKey = ucfirst($key);
+				$overview_table .= '<th>' . $capitalizedKey . '</th>';
+			}
+			$overview_table .= '</tr>';  // Ende der Überschriftenreihe
+
+			$overview_table .= '<tr>';  // Beginnt die Zeile für die Werte
+
+			// Füge alle Werte in eine einzelne Zeile ein
+			foreach ($status_data as $value) {
+				$overview_table .= '<td>' . $value . '</td>';
+			}
+			$overview_table .= '</tr>';  // Ende der Wertezeile
+
+			$overview_table .= '</tbody>';
+			$overview_table .= '</table>';
+
+			$overview_html .= "<br>$overview_table";
 		}
 
 		if($overview_html != "") {

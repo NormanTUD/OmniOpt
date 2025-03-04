@@ -23,7 +23,7 @@
 		return $lines;
 	}
 
-	function add_simple_pre_from_file ($tabs, $filename, $name, $id) {
+	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$tabs[$name] = [
 				'id' => $id,
@@ -347,7 +347,7 @@
 			];
 		}
 
-		$tabs = add_simple_pre_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
+		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 
 		if ($results_html != "") {
 			$tabs['Results'] = [

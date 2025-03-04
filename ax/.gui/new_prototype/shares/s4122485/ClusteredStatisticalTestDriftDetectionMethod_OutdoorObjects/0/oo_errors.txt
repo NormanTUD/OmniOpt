@@ -1,0 +1,2196 @@
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252001/2252001_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252004/2252004_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252008/2252008_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252015/2252015_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.01 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252018/2252018_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252020/2252020_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252023/2252023_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 190 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(190, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252024/2252024_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252028/2252028_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252034/2252034_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252041/2252041_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252042/2252042_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252047/2252047_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252044/2252044_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 266 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(266, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252052/2252052_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252053/2252053_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252054/2252054_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252055/2252055_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 233 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(233, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252056/2252056_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252057/2252057_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252060/2252060_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 257 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(257, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252061/2252061_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.05 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252062/2252062_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 183 confidence 0.25 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(183, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252064/2252064_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252065/2252065_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 232 confidence 0.1 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(232, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252066/2252066_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252067/2252067_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 191 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(191, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252070/2252070_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252072/2252072_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252074/2252074_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252077/2252077_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 250 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(250, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252078/2252078_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252080/2252080_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252082/2252082_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252083/2252083_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252084/2252084_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252085/2252085_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252086/2252086_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252089/2252089_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252095/2252095_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252098/2252098_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252099/2252099_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252100/2252100_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252101/2252101_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252104/2252104_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252106/2252106_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252109/2252109_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252111/2252111_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 273 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(273, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252115/2252115_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252116/2252116_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252117/2252117_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.1 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252119/2252119_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252135/2252135_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252140/2252140_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 153 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(153, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252142/2252142_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 153 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(153, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252148/2252148_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 151 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(151, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252171/2252171_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252172/2252172_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252173/2252173_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252174/2252174_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 156 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(156, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252176/2252176_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 156 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(156, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252177/2252177_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252178/2252178_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 138 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(138, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252180/2252180_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 147 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(147, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252182/2252182_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252185/2252185_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252188/2252188_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252191/2252191_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252192/2252192_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252193/2252193_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252194/2252194_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252195/2252195_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252196/2252196_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252200/2252200_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.05 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252203/2252203_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 120 confidence 0.01 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(120, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252204/2252204_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252206/2252206_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252209/2252209_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252210/2252210_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252211/2252211_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252212/2252212_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252217/2252217_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252220/2252220_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252221/2252221_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252318/2252318_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252333/2252333_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252341/2252341_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252349/2252349_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252357/2252357_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252380/2252380_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252388/2252388_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252405/2252405_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252413/2252413_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252453/2252453_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252462/2252462_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252470/2252470_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252630/2252630_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 103 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(103, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252643/2252643_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 210 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(210, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252652/2252652_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 154 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(154, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252655/2252655_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252668/2252668_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252687/2252687_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252695/2252695_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 115 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(115, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252711/2252711_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252735/2252735_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 133 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(133, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252743/2252743_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 101 confidence 0.005 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(101, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252766/2252766_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252916/2252916_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252924/2252924_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252947/2252947_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252971/2252971_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 104 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(104, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2252994/2252994_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 116 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(116, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253009/2253009_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253024/2253024_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253032/2253032_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253047/2253047_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253055/2253055_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253078/2253078_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 131 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(131, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253086/2253086_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253221/2253221_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253236/2253236_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253244/2253244_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253259/2253259_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253282/2253282_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253283/2253283_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253298/2253298_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253313/2253313_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253329/2253329_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253337/2253337_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253352/2253352_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 442 confidence 0.005 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(442, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253375/2253375_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253383/2253383_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253406/2253406_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253542/2253542_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253572/2253572_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253580/2253580_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253588/2253588_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253618/2253618_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253626/2253626_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253634/2253634_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253642/2253642_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253672/2253672_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253680/2253680_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253703/2253703_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253718/2253718_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253798/2253798_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253813/2253813_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253828/2253828_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253836/2253836_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253851/2253851_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 242 confidence 0.001 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(242, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253874/2253874_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253882/2253882_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253890/2253890_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253905/2253905_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253935/2253935_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253951/2253951_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2253966/2253966_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254144/2254144_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254159/2254159_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254174/2254174_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 127 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(127, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254189/2254189_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254197/2254197_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 128 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(128, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254212/2254212_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254235/2254235_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 126 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(126, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254249/2254249_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254258/2254258_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254296/2254296_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 212 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(212, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254309/2254309_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254326/2254326_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 128 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(128, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254349/2254349_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254519/2254519_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254528/2254528_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254543/2254543_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254575/2254575_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 139 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(139, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254589/2254589_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 139 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(139, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254625/2254625_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 169 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(169, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254657/2254657_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254689/2254689_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254697/2254697_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 139 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(139, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254727/2254727_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254869/2254869_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254891/2254891_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254899/2254899_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 135 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(135, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254907/2254907_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254929/2254929_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 142 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(142, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254937/2254937_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254952/2254952_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254982/2254982_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2254990/2254990_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255005/2255005_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255020/2255020_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255035/2255035_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 139 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(139, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255058/2255058_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 143 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(143, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255073/2255073_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 143 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(143, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255264/2255264_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255302/2255302_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 141 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(141, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255332/2255332_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255340/2255340_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 146 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(146, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255370/2255370_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255400/2255400_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 233 confidence 0.005 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(233, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255415/2255415_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 230 confidence 0.005 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(230, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255430/2255430_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 137 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(137, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255445/2255445_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255475/2255475_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255639/2255639_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 144 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(144, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255655/2255655_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 142 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(142, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255689/2255689_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255705/2255705_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255720/2255720_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 145 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(145, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255737/2255737_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255761/2255761_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255777/2255777_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 141 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(141, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255793/2255793_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 146 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(146, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255832/2255832_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255846/2255846_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 142 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(142, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2255862/2255862_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256048/2256048_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 137 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(137, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256078/2256078_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 139 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(139, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256093/2256093_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256108/2256108_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256130/2256130_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 165 confidence 0.01 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(165, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256145/2256145_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 141 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(141, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256153/2256153_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 137 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(137, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256175/2256175_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256190/2256190_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 135 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(135, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256205/2256205_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256235/2256235_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256272/2256272_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 149 confidence 0.001 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(149, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256462/2256462_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256492/2256492_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 137 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(137, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256515/2256515_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 137 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(137, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256567/2256567_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256657/2256657_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 141 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(141, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256871/2256871_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 138 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(138, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256886/2256886_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 132 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(132, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256931/2256931_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 130 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(130, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256946/2256946_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 138 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(138, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2256983/2256983_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 118 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(118, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257028/2257028_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 144 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(144, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257043/2257043_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 142 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(142, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257381/2257381_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257764/2257764_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257794/2257794_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 140 confidence 0.001 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(140, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_OutdoorObjects/0/single_runs/2257825/2257825_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py OutdoorObjects 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 

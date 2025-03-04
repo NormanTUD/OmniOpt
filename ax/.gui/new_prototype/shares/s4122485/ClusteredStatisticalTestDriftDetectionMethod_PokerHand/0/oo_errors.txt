@@ -1,0 +1,333 @@
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2289994/2289994_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2289995/2289995_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290000/2290000_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.1 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290009/2290009_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.1 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290010/2290010_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290011/2290011_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290012/2290012_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.01 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290013/2290013_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290015/2290015_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.25 feature_proportion 0 n_clusters 3
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290088/2290088_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.025 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290099/2290099_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 230 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(230, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290101/2290101_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 229 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(229, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290102/2290102_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 227 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(227, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290124/2290124_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 151 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(151, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290168/2290168_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.025 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290174/2290174_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.025 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290178/2290178_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.01 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290188/2290188_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 569 confidence 0.001 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(569, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290190/2290190_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.025 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290195/2290195_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 250 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(250, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290197/2290197_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.025 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290199/2290199_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 106 confidence 0.005 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(106, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290204/2290204_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 250 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(250, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290207/2290207_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 260 confidence 0.05 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(260, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290209/2290209_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 212 confidence 0.025 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(212, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290212/2290212_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 249 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(249, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290214/2290214_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 268 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(268, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290217/2290217_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 261 confidence 0.01 feature_proportion 0 n_clusters 2
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(261, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290218/2290218_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 255 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(255, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290220/2290220_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 255 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(255, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290223/2290223_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 258 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(258, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290225/2290225_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 100 confidence 0.05 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(100, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290226/2290226_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 258 confidence 0.25 feature_proportion 0 n_clusters 4
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(258, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290249/2290249_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 545 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(545, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290252/2290252_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 562 confidence 0.001 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(562, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290413/2290413_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 165 confidence 0.05 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(165, 0)) while a minimum of 1 
+
+Out file /data/horse/ws/s4122485-compPerfDD/benchmark/dfki/unsupervised-concept-drift-detection-main/runs/ClusteredStatisticalTestDriftDetectionMethod_PokerHand/0/single_runs/2290590/2290590_0_log.out contains potential errors:
+
+Program-Code: module load GCCcore/10.3.0 Python && source /data/horse/ws/s4122485-compPerfDD/benchmark/venv/bin/activate && python main_omniopt.py PokerHand 1000 ClusteredStatisticalTestDriftDetectionMethod n_samples 124 confidence 0.25 feature_proportion 0 n_clusters 1
+- Got no result.
+
+- Non-zero exit-code detected: 1
+
+- raise ValueError(ValueError: Found array with 0 feature(s) (shape=(124, 0)) while a minimum of 1 

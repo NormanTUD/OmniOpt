@@ -69,6 +69,10 @@
 	.gridjs-input {
 		font-family: unset;
 	}
+
+	.gridjs-pages>button {
+		font-family: unset;
+	}
 </style>
 <?php
 	$theme = "xp.css";

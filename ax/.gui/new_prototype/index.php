@@ -21,6 +21,7 @@
 				<section class="tabs" style="width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">
 						<button role="tab" aria-selected="true" aria-controls="tab_general_info">General Info</button>
+						<button role="tab" aria-controls="tab_next_trials">Next-Trials</button>
 						<button role="tab" aria-controls="tab_scatter_2d">2D-Scatter</button>
 						<button role="tab" aria-controls="tab_scatter_3d">3D-Scatter</button>
 						<button role="tab" aria-controls="tab_parallel">Parallel Plot</button>
@@ -29,7 +30,11 @@
 					</menu>
 
 					<article role="tabpanel" id="tab_general_info">
-						<pre>XYZ</pre>
+						<pre>General Info</pre>
+					</article>
+
+					<article role="tabpanel" id="tab_next_trials">
+						<p>Next Trials</p>
 					</article>
 
 					<article role="tabpanel" id="tab_scatter_2d">

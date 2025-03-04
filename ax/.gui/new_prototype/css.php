@@ -39,6 +39,10 @@
 		background-color: black !important;
 		font-family: monospace;
 	}
+
+	.tabs {
+		overflow: scroll;
+	}
 </style>
 <?php
 	$theme = "xp.css";

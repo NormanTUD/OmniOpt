@@ -56,7 +56,7 @@
 					<article role="tabpanel" hidden id="tab_logs">
 						<section class="tabs" style="width: 100%">
 <?php
-							$nr_files = 10;
+							$nr_files = 50;
 ?>
 							<menu role="tablist" aria-label="Single-Runs">
 <?php

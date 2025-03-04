@@ -84,6 +84,17 @@
 		return $tabs;
 	}
 
+	function add_parallel_plot_tab ($tabs) {
+		$html = '<div id="parallel-plot" style="width: 100%; height: 600px;"></div>';
+
+		$tabs['Parallel Plot'] = [
+			'id' => 'tab_parallel',
+			'content' => $html
+		];
+
+		return $tabs;
+	}
+
 	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$csv_contents = getCsvDataAsArray($filename);   
@@ -281,10 +292,7 @@
 			'id' => 'tab_scatter_3d',
 			'content' => '<div id="scatter3d"></div>',
 		],
-		'Parallel Plot' => [
-			'id' => 'tab_parallel',
-			'content' => '<div id="parallel"></div>',
-		]
+
 	];
 
 	$tabs = [];
@@ -414,6 +422,8 @@
 
 	$run_dir = "";
 
+	$functions_after_tab_creation = [];
+
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
@@ -439,6 +449,8 @@
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
+
+		$status_data = null;
 
 		if(is_file("$run_dir/results.csv")) {
 			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
@@ -471,6 +483,11 @@
 				'id' => 'tab_overview',
 				'content' => $overview_html
 			];
+		}
+
+		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
+			$tabs = add_parallel_plot_tab($tabs);
+			$functions_after_tab_creation[] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";
 		}
 
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
@@ -603,6 +620,15 @@
 ?>
 			</div>
 		</div>
+<?php
+	if(count($functions_after_tab_creation)) {
+		print "<script>\n";
+		foreach ($functions_after_tab_creation as $fn) {
+			print "\t$fn\n";
+		}
+		print "</script>\n";
+	}
+?>
 	</body>
 	<script>
 		show_main_window();

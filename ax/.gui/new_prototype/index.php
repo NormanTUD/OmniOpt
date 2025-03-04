@@ -27,9 +27,13 @@
 
 	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
+			$html = "<button onclick='copy_to_clipboard_base64(\"".htmlentities(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>',
+				'content' => $html
 			];
 		}
 
@@ -49,10 +53,10 @@
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
 
-			$results_html = "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$results_html = "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
 			$results_html .= "<div id='${id}_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
-			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
+			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -241,14 +245,6 @@
 			'id' => 'tab_cpu_ram_usage',
 			'content' => '<pre>CPU-Ram-Usage</pre>',
 		],
-		'Trial-Index-to-Param' => [
-			'id' => 'tab_trial_index_to_param',
-			'content' => '<pre>Trial index to param</pre>',
-		],
-		'Next-Trials' => [
-			'id' => 'tab_next_trials',
-			'content' => '<p>Next Trials</p>',
-		],
 		'2D-Scatter' => [
 			'id' => 'tab_scatter_2d',
 			'content' => '<div id="scatter2d"></div>',
@@ -428,6 +424,7 @@
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");
+		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");

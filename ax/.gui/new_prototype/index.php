@@ -13,9 +13,7 @@
 	<body>
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar">
-				<div class="title-bar-text">
-					Hyperparameter Optimization Dashboard
-				</div>
+				<div class="title-bar-text">OmniOpt2-Share</div>
 			</div>
 			<div class="container py-4 window-body has-space">
 				<section class="tabs" style="max-width: 100%">

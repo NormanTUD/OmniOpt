@@ -1,4 +1,66 @@
 <?php
+	$SPECIAL_COL_NAMES = [
+		"trial_index",
+		"arm_name",
+		"trial_status",
+		"generation_method",
+		"generation_node"
+	];
+
+	if (!function_exists("dier")) {
+		function dier($data, $enable_html = 0, $exception = 0) {
+			#$source_data = debug_backtrace()[0];
+			#@$source = 'Aufgerufen von <b>' . debug_backtrace()[1]['file'] . '</b>::<i>' . debug_backtrace()[1]['function'] . '</i>, line ' . htmlentities($source_data['line']) . "<br>\n";
+			#$print = $source;
+			$print = "";
+
+			$print .= "<pre>\n";
+			ob_start();
+			print_r($data);
+			$buffer = ob_get_clean();
+			if ($enable_html) {
+				$print .= $buffer;
+			} else {
+				$print .= htmlentities($buffer);
+			}
+			$print .= "</pre>\n";
+
+			$print .= "Backtrace:\n";
+			$print .= "<pre>\n";
+			foreach (debug_backtrace() as $trace) {
+				$print .= htmlentities(sprintf("\n%s:%s %s", $trace['file'], $trace['line'], $trace['function']));
+			}
+			$print .= "</pre>\n";
+
+			if (!$exception) {
+				print $print;
+				exit();
+			} else {
+				throw new Exception($print);
+			}
+		}
+	}
+
+	function getCsvDataAsArray($filePath, $delimiter = ",") {
+		if (!file_exists($filePath) || !is_readable($filePath)) {
+			error_log("CSV file not found or not readable: " . $filePath);
+			return [];
+		}
+
+		$data = [];
+
+		if (($handle = fopen($filePath, "r")) !== false) {
+			while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+				$data[] = $row;
+			}
+			fclose($handle);
+		} else {
+			error_log("Failed to open CSV file: " . $filePath);
+		}
+
+		return $data;
+	}
+
 	function get_get($name, $default = null) {
 		if(isset($_GET[$name])) {
 			return $_GET[$name];
@@ -207,22 +269,35 @@
 		$results_csv = "$run_dir/results.csv";
 
 		$overview_html = "";
+		$results_html = "";
+
+		if($results_csv) {
+			$csv_contents = getCsvDataAsArray($results_csv);
+
+			array_shift($csv_contents);
+
+			$results_csv_json = json_encode($csv_contents);
+			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n</script>\n";
+			$results_html .= "<div id='results_csv_table'></div>\n";
+			$results_html .= "<script>\n\tcreateTable(results_csv_json, 'results_csv_table')</script>\n";
+			$results_html .= "<pre>".htmlentities(file_get_contents($results_csv))."</pre>\n";
+		}
 
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".remove_ansi_colors(file_get_contents($best_results_txt))."</pre>";
 		}
 
-		if($overview_html) {
+		if($overview_html != "") {
 			$tabs['Overview'] = [
 				'id' => 'tab_overview',
 				'content' => $overview_html
 			];
 		}
 
-		if ($results_csv) {
+		if ($results_html != "") {
 			$tabs['Results'] = [
 				'id' => 'tab_results',
-				'content' => "<pre>".htmlentities(file_get_contents($results_csv))."</pre>",
+				'content' => $results_html,
 			];
 		}
 	}

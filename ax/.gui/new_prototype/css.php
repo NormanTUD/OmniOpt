@@ -57,6 +57,10 @@
 	.container {
 		max-width: 100% !important;
 	}
+
+	.gridjs-sort {
+		min-width: 1px !important;
+	}
 </style>
 <?php
 	$theme = "xp.css";

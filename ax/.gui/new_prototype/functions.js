@@ -96,9 +96,9 @@ function createParallelPlot(data) {
 	});
 }
 
-function createTable(data) {
-	if(!$("#table").length) {
-		console.warn("#table not found");
+function createTable(data, table_name) {
+	if(!$("#" + table_name).length) {
+		console.warn("#" + table_name + " not found");
 		return;
 	}
 
@@ -108,7 +108,7 @@ function createTable(data) {
 		search: true,
 		pagination: true,
 		sort: true
-	}).render(document.getElementById('table'));
+	}).render(document.getElementById(table_name));
 }
 
 function filterTableOnZoom(eventData, data, keyX, keyY) {

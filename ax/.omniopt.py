@@ -3368,6 +3368,8 @@ def abandon_all_jobs() -> None:
 def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global global_vars, END_PROGRAM_RAN
 
+    wait_for_jobs_to_complete()
+
     if len(arg_result_names) > 1:
         show_pareto_frontier_data()
     else:
@@ -5063,9 +5065,9 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 new_pd_csv_path = save_pd_csv()
 
                 if new_pd_csv_path:
-                    print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed")
+                    print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed; result(s): {result}")
                 else:
-                    print_debug("save_pd_csv returned None")
+                    print_debug("save_pd_csv returned None; result(s): {result}")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:

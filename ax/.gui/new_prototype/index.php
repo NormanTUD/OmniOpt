@@ -411,7 +411,7 @@
 		$overview_html = "";
 
 		if(is_file($best_results_txt)) {
-			$overview_html .= "<h3>Best results:</h3>\n<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
+			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
 
 		if($overview_html != "") {

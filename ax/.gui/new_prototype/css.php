@@ -61,6 +61,10 @@
 	.gridjs-sort {
 		min-width: 1px !important;
 	}
+
+	td.gridjs-td {
+		overflow: clip;
+	}
 </style>
 <?php
 	$theme = "xp.css";

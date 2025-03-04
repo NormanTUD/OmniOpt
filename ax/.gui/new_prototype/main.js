@@ -4,21 +4,21 @@ function close_main_window() {
 
 	// Prüfe, ob run_nr gesetzt ist, dann entferne es
 	if (url.searchParams.has('run_nr')) {
-		url.searchParams.delete('run_nr');
+		url.searchParams.delete('run_nr');  // Nur 'run_nr' entfernen
 	}
 
-	// Wenn run_nr nicht gesetzt ist, entferne stattdessen experiment_name
+	// Prüfe, ob experiment_name gesetzt ist, dann entferne es
 	else if (url.searchParams.has('experiment_name')) {
-		url.searchParams.delete('experiment_name');
+		url.searchParams.delete('experiment_name');  // Nur 'experiment_name' entfernen
 	}
 
-	// Entferne abschließend user_id, wenn vorhanden
-	if (url.searchParams.has('user_id')) {
-		url.searchParams.delete('user_id');
+	// Prüfe, ob user_id gesetzt ist, dann entferne es
+	else if (url.searchParams.has('user_id')) {
+		url.searchParams.delete('user_id');  // Nur 'user_id' entfernen
 	}
 
-	// Aktualisiere die URL und verhalte dich wie ein Link-Klick
-	window.location.assign(url.toString()); // Wie ein Klick auf einen neuen Link
+	// Aktualisiere die URL, ohne dass andere Parameter verloren gehen
+	window.location.assign(url.toString()); // Die geänderte URL wird wie ein Link-Klick aufgerufen
 }
 
 function show_main_window() {

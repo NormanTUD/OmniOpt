@@ -140,8 +140,6 @@
 	}
 
 
-	#user_id=s3811141&experiment_name=signs&run_nr=11
-
 	$user_id = get_get("user_id");
 	$experiment_name = get_get("experiment_name");
 	$run_nr = get_get("run_nr", -1);

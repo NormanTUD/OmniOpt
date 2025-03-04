@@ -5,9 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Hyperparameter Dashboard</title>
 		<script src="../plotly-latest.min.js"></script>
-		<script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
-		<link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-		<link href="https://unpkg.com/tabler@latest/dist/css/tabler.min.css" rel="stylesheet">
+		<script src="gridjs.umd.js"></script>
+		<link href="mermaid.min.css" rel="stylesheet" />
+		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
 	</head>
 	<body>

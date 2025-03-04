@@ -55,7 +55,7 @@
 			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button>\n";
 
 			$tabs[$name] = [
-				'id' => 'tab_results',
+				'id' => $id,
 				'content' => $results_html,
 			];
 		}
@@ -433,6 +433,7 @@
 		}
 
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
+		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 

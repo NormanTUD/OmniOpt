@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Hyperparameter Dashboard</title>
+		<title>OmniOpt2-Share</title>
 		<script src="../plotly-latest.min.js"></script>
 		<script src="gridjs.umd.js"></script>
 		<link href="mermaid.min.css" rel="stylesheet" />
@@ -44,7 +44,21 @@
 					</article>
 
 					<article role="tabpanel" hidden id="tab_logs">
-						<pre>C:&#92;WINDOWS&#92;SYSTEM32></pre>
+
+						<section class="tabs" style="width: 100%">
+							<menu role="tablist" aria-label="Single-Runs">
+								<button role="tab" aria-selected="true" aria-controls="single_run_1">Single-Run-1</button>
+								<button role="tab" aria-controls="single_run_2">Single-Run-2</button>
+							</menu>
+
+							<article role="tabpanel" hidden id="single_run_1">
+								<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run 1</pre>
+							</article>
+
+							<article role="tabpanel" hidden id="single_run_2">
+								<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run 2</pre>
+							</article>
+						</section>
 					</article>
 				</section>
 			</div>

@@ -14,21 +14,34 @@ fetchData().then(data => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-	const tabs = document.querySelectorAll('[role="tab"]');
-	const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+	function setupTabs(container) {
+		const tabs = container.querySelectorAll('[role="tab"]');
+		const tabPanels = container.querySelectorAll('[role="tabpanel"]');
 
-	tabs.forEach(tab => {
-		tab.addEventListener("click", function () {
-			tabs.forEach(t => t.setAttribute("aria-selected", "false"));
-			tabPanels.forEach(panel => panel.hidden = true);
+		tabs.forEach(tab => {
+			tab.addEventListener("click", function () {
+				// Finde das aktuelle Tab-Container-Element (damit es auch für verschachtelte Tabs funktioniert)
+				const parentContainer = tab.closest(".tabs");
 
-			this.setAttribute("aria-selected", "true");
-			const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
-			if (targetPanel) {
-				targetPanel.hidden = false;
-			}
+				// Deaktiviere alle Tabs und verstecke alle Panels im aktuellen Tab-Bereich
+				const parentTabs = parentContainer.querySelectorAll('[role="tab"]');
+				const parentPanels = parentContainer.querySelectorAll('[role="tabpanel"]');
+
+				parentTabs.forEach(t => t.setAttribute("aria-selected", "false"));
+				parentPanels.forEach(panel => panel.hidden = true);
+
+				// Aktuelles Tab aktivieren
+				this.setAttribute("aria-selected", "true");
+				const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
+				if (targetPanel) {
+					targetPanel.hidden = false;
+				}
+			});
 		});
-	});
+	}
+
+	// Setzt Tabs für alle `.tabs`-Container
+	document.querySelectorAll(".tabs").forEach(setupTabs);
 });
 
 document.getElementById('spinner').style.display = 'block';

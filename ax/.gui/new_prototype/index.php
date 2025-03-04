@@ -138,6 +138,10 @@
 			$errors[] = "<tt>".htmlentities($run_nr)."</tt> is not a valid run nr";
 		}
 	}
+
+	if($run_nr == -1) {
+		$run_nr = null;
+	}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -185,27 +189,39 @@
 					</script>
 <?php
 				} else {
+					if($user_id && $experiment_name && $run_nr) {
 ?>
-					<section class="tabs" style="width: 100%">
-						<menu role="tablist" aria-label="OmniOpt2-Run">
+						<section class="tabs" style="width: 100%">
+							<menu role="tablist" aria-label="OmniOpt2-Run">
 <?php
-							$first_tab = true;
-							foreach ($tabs as $tab_name => $tab_data) {
-								echo '<button role="tab" aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
-								$first_tab = false;
-							}
+								$first_tab = true;
+								foreach ($tabs as $tab_name => $tab_data) {
+									echo '<button role="tab" aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
+									$first_tab = false;
+								}
 ?>
-						</menu>
+							</menu>
 
 <?php
-						foreach ($tabs as $tab_name => $tab_data) {
-							echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . '>';
-							echo $tab_data['content'];
-							echo '</article>';
-						}
+							foreach ($tabs as $tab_name => $tab_data) {
+								echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . '>';
+								echo $tab_data['content'];
+								echo '</article>';
+							}
 ?>
-					</section>
+						</section>
 <?php
+					} else {
+						if(!$user_id && !$experiment_name && !$run_nr) {
+							print "Overview users";
+						} else if($user_id && !$experiment_name && !$run_nr) {
+							print "Overview Experiments";
+						} else if($user_id && $experiment_name && !$run_nr) {
+							print "Overview Runs";
+						} else {
+							print "DONT KNOW!!!";
+						}
+					}
 				}
 ?>
 			</div>

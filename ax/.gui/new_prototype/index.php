@@ -262,6 +262,8 @@
 
 	$run_dir = "";
 
+	$global_json_data = [];
+
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
@@ -280,7 +282,9 @@
 			$results_csv_json = json_encode($csv_contents_no_header);
 			$results_headers_json = json_encode($headers);
 
-			$results_html .= "<script>\n\tvar results_csv_json = $results_csv_json;\n\tvar results_headers_json = $results_headers_json;\n</script>\n";
+			$global_json_data["results_csv_json"] = $results_csv_json;
+			$global_json_data["results_headers_json"] = $results_headers_json;
+
 			$results_html .= "<div id='results_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(results_csv_json, results_headers_json, 'results_csv_table')</script>\n";
 			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";
@@ -325,6 +329,16 @@
 		<script src="main.js"></script>
 	</head>
 	<body>
+<?php
+		if(count($global_json_data)) {
+			print "<script>\n";
+			print "<!-- global_json_data -->\n";
+			foreach ($global_json_data as $json_name => $json_data) {
+				print "\tvar $json_name = $json_data;\n";
+			}
+			print "</script>\n";
+		}
+?>
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar">
 				<div class="title-bar-text">OmniOpt2-Share</div>

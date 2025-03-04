@@ -26,14 +26,6 @@ function show_main_window() {
 	document.getElementById('main_window').style.display = 'block';
 }
 
-fetchData().then(data => {
-	createScatter2D(data);
-	createScatter3D(data);
-	createParallelPlot(data);
-
-	show_main_window();
-});
-
 function initialize_tabs () {
 	function setupTabs(container) {
 		const tabs = container.querySelectorAll('[role="tab"]');

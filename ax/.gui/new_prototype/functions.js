@@ -1,8 +1,3 @@
-async function fetchData() {
-	const response = await fetch('data.php');
-	return response.json();
-}
-
 function enable_dark_mode() {
 	document.body.classList.add('dark-mode');
 }

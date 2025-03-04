@@ -556,4 +556,7 @@
 			</div>
 		</div>
 	</body>
+	<script>
+		show_main_window();
+	</script>
 </html>

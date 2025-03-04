@@ -91,7 +91,7 @@
 		return $output;
 	}
 
-	$share_folder = "shares_abc";
+	$share_folder = "shares";
 
 	$errors = [];
 	if(!is_dir($share_folder)) {

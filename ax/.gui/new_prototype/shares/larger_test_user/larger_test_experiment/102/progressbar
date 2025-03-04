@@ -1,0 +1,181 @@
+2025-03-04 17:27:16: Initializing model, Started OmniOpt2 run...
+2025-03-04 17:27:16: Initializing model, trying to get 1 next steps (current done: 0, max: 20)
+2025-03-04 17:27:16: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-04 17:27:16: SobolGenerator, starting parameter set
+2025-03-04 17:27:16: SobolGenerator, starting new job
+2025-03-04 17:27:16: SobolGenerator, started new job
+2025-03-04 17:27:29: SobolGenerator, best RESULT: -155264.750310166, new result: -155264.750310166
+2025-03-04 17:27:29: SobolGenerator, best RESULT: -155264.750310166, new result: -155264.750310166 (entered)
+2025-03-04 17:27:29: SobolGenerator, best RESULT: -155264.750310166, finishing jobs after starting them, finished 1 job
+2025-03-04 17:27:30: SobolGenerator, best RESULT: -155264.750310166, got 1, requested 1
+2025-03-04 17:27:30: SobolGenerator, best RESULT: -155264.750310166, trying to get 1 next steps (current done: 1, max: 20)
+2025-03-04 17:27:30: SobolGenerator, best RESULT: -155264.750310166, getting new hyperparameter set (no sbatch)
+2025-03-04 17:27:34: BoTorchModel, best RESULT: -155264.750310166, starting parameter set
+2025-03-04 17:27:34: BoTorchModel, best RESULT: -155264.750310166, starting new job
+2025-03-04 17:27:34: BoTorchModel, best RESULT: -155264.750310166, started new job
+2025-03-04 17:27:40: BoTorchModel, best RESULT: -155264.750310166, new result: -111600.52
+2025-03-04 17:27:40: BoTorchModel, best RESULT: -155264.750310166, new result: -111600.52 (entered)
+2025-03-04 17:27:40: BoTorchModel, best RESULT: -155264.750310166, finishing jobs after starting them, finished 1 job
+2025-03-04 17:27:40: BoTorchModel, best RESULT: -155264.750310166, got 1, requested 1
+2025-03-04 17:27:41: BoTorchModel, best RESULT: -155264.750310166, trying to get 1 next steps (current done: 2, max: 20)
+2025-03-04 17:27:41: BoTorchModel, best RESULT: -155264.750310166, getting new hyperparameter set (no sbatch)
+2025-03-04 17:27:58: BoTorchModel, best RESULT: -155264.750310166, starting parameter set
+2025-03-04 17:27:58: BoTorchModel, best RESULT: -155264.750310166, starting new job
+2025-03-04 17:27:59: BoTorchModel, best RESULT: -155264.750310166, started new job
+2025-03-04 17:28:04: BoTorchModel, best RESULT: -225101.32, new result: -225101.32
+2025-03-04 17:28:05: BoTorchModel, best RESULT: -225101.32, new result: -225101.32 (entered)
+2025-03-04 17:28:05: BoTorchModel, best RESULT: -225101.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:28:05: BoTorchModel, best RESULT: -225101.32, got 1, requested 1
+2025-03-04 17:28:05: BoTorchModel, best RESULT: -225101.32, trying to get 1 next steps (current done: 3, max: 20)
+2025-03-04 17:28:06: BoTorchModel, best RESULT: -225101.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:28:10: BoTorchModel, best RESULT: -225101.32, starting parameter set
+2025-03-04 17:28:10: BoTorchModel, best RESULT: -225101.32, starting new job
+2025-03-04 17:28:10: BoTorchModel, best RESULT: -225101.32, started new job
+2025-03-04 17:28:16: BoTorchModel, best RESULT: -225101.32, new result: -220005.32
+2025-03-04 17:28:16: BoTorchModel, best RESULT: -225101.32, new result: -220005.32 (entered)
+2025-03-04 17:28:17: BoTorchModel, best RESULT: -225101.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:28:17: BoTorchModel, best RESULT: -225101.32, got 1, requested 1
+2025-03-04 17:28:17: BoTorchModel, best RESULT: -225101.32, trying to get 1 next steps (current done: 4, max: 20)
+2025-03-04 17:28:17: BoTorchModel, best RESULT: -225101.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:28:27: BoTorchModel, best RESULT: -225101.32, starting parameter set
+2025-03-04 17:28:27: BoTorchModel, best RESULT: -225101.32, starting new job
+2025-03-04 17:28:28: BoTorchModel, best RESULT: -225101.32, started new job
+2025-03-04 17:28:33: BoTorchModel, best RESULT: -284245.32, new result: -284245.32
+2025-03-04 17:28:34: BoTorchModel, best RESULT: -284245.32, new result: -284245.32 (entered)
+2025-03-04 17:28:34: BoTorchModel, best RESULT: -284245.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:28:34: BoTorchModel, best RESULT: -284245.32, got 1, requested 1
+2025-03-04 17:28:34: BoTorchModel, best RESULT: -284245.32, trying to get 1 next steps (current done: 5, max: 20)
+2025-03-04 17:28:35: BoTorchModel, best RESULT: -284245.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:28:40: BoTorchModel, best RESULT: -284245.32, starting parameter set
+2025-03-04 17:28:40: BoTorchModel, best RESULT: -284245.32, starting new job
+2025-03-04 17:28:40: BoTorchModel, best RESULT: -284245.32, started new job
+2025-03-04 17:28:46: BoTorchModel, best RESULT: -284245.32, new result: -254122.92
+2025-03-04 17:28:46: BoTorchModel, best RESULT: -284245.32, new result: -254122.92 (entered)
+2025-03-04 17:28:46: BoTorchModel, best RESULT: -284245.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:28:47: BoTorchModel, best RESULT: -284245.32, got 1, requested 1
+2025-03-04 17:28:47: BoTorchModel, best RESULT: -284245.32, trying to get 1 next steps (current done: 6, max: 20)
+2025-03-04 17:28:47: BoTorchModel, best RESULT: -284245.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:28:56: BoTorchModel, best RESULT: -284245.32, starting parameter set
+2025-03-04 17:28:56: BoTorchModel, best RESULT: -284245.32, starting new job
+2025-03-04 17:28:56: BoTorchModel, best RESULT: -284245.32, started new job
+2025-03-04 17:29:02: BoTorchModel, best RESULT: -284245.32, new result: -282318.92
+2025-03-04 17:29:03: BoTorchModel, best RESULT: -284245.32, new result: -282318.92 (entered)
+2025-03-04 17:29:03: BoTorchModel, best RESULT: -284245.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:29:03: BoTorchModel, best RESULT: -284245.32, got 1, requested 1
+2025-03-04 17:29:03: BoTorchModel, best RESULT: -284245.32, trying to get 1 next steps (current done: 7, max: 20)
+2025-03-04 17:29:04: BoTorchModel, best RESULT: -284245.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:29:09: BoTorchModel, best RESULT: -284245.32, starting parameter set
+2025-03-04 17:29:09: BoTorchModel, best RESULT: -284245.32, starting new job
+2025-03-04 17:29:09: BoTorchModel, best RESULT: -284245.32, started new job
+2025-03-04 17:29:15: BoTorchModel, best RESULT: -284245.32, new result: -268163.859585825
+2025-03-04 17:29:15: BoTorchModel, best RESULT: -284245.32, new result: -268163.859585825 (entered)
+2025-03-04 17:29:16: BoTorchModel, best RESULT: -284245.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:29:16: BoTorchModel, best RESULT: -284245.32, got 1, requested 1
+2025-03-04 17:29:16: BoTorchModel, best RESULT: -284245.32, trying to get 1 next steps (current done: 8, max: 20)
+2025-03-04 17:29:17: BoTorchModel, best RESULT: -284245.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:29:21: BoTorchModel, best RESULT: -284245.32, starting parameter set
+2025-03-04 17:29:21: BoTorchModel, best RESULT: -284245.32, starting new job
+2025-03-04 17:29:22: BoTorchModel, best RESULT: -284245.32, started new job
+2025-03-04 17:29:27: BoTorchModel, best RESULT: -284245.32, new result: -164610.12
+2025-03-04 17:29:28: BoTorchModel, best RESULT: -284245.32, new result: -164610.12 (entered)
+2025-03-04 17:29:28: BoTorchModel, best RESULT: -284245.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:29:28: BoTorchModel, best RESULT: -284245.32, got 1, requested 1
+2025-03-04 17:29:29: BoTorchModel, best RESULT: -284245.32, trying to get 1 next steps (current done: 9, max: 20)
+2025-03-04 17:29:29: BoTorchModel, best RESULT: -284245.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:29:36: BoTorchModel, best RESULT: -284245.32, starting parameter set
+2025-03-04 17:29:36: BoTorchModel, best RESULT: -284245.32, starting new job
+2025-03-04 17:29:36: BoTorchModel, best RESULT: -284245.32, started new job
+2025-03-04 17:29:42: BoTorchModel, best RESULT: -330166.12, new result: -330166.12
+2025-03-04 17:29:42: BoTorchModel, best RESULT: -330166.12, new result: -330166.12 (entered)
+2025-03-04 17:29:43: BoTorchModel, best RESULT: -330166.12, finishing jobs after starting them, finished 1 job
+2025-03-04 17:29:43: BoTorchModel, best RESULT: -330166.12, got 1, requested 1
+2025-03-04 17:29:44: BoTorchModel, best RESULT: -330166.12, trying to get 1 next steps (current done: 10, max: 20)
+2025-03-04 17:29:44: BoTorchModel, best RESULT: -330166.12, getting new hyperparameter set (no sbatch)
+2025-03-04 17:29:48: BoTorchModel, best RESULT: -330166.12, starting parameter set
+2025-03-04 17:29:48: BoTorchModel, best RESULT: -330166.12, starting new job
+2025-03-04 17:29:48: BoTorchModel, best RESULT: -330166.12, started new job
+2025-03-04 17:29:54: BoTorchModel, best RESULT: -330412.52, new result: -330412.52
+2025-03-04 17:29:54: BoTorchModel, best RESULT: -330412.52, new result: -330412.52 (entered)
+2025-03-04 17:29:55: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:29:55: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:29:56: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 11, max: 20)
+2025-03-04 17:29:56: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:29:59: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:29:59: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:30:00: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:30:06: BoTorchModel, best RESULT: -330412.52, new result: -110192.52
+2025-03-04 17:30:06: BoTorchModel, best RESULT: -330412.52, new result: -110192.52 (entered)
+2025-03-04 17:30:07: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:30:07: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:30:07: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 12, max: 20)
+2025-03-04 17:30:08: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:30:14: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:30:14: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:30:15: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:30:21: BoTorchModel, best RESULT: -330412.52, new result: -330225.32
+2025-03-04 17:30:21: BoTorchModel, best RESULT: -330412.52, new result: -330225.32 (entered)
+2025-03-04 17:30:21: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:30:22: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:30:22: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 13, max: 20)
+2025-03-04 17:30:22: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:30:30: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:30:30: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:30:31: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:30:36: BoTorchModel, best RESULT: -330412.52, new result: -330107.72
+2025-03-04 17:30:37: BoTorchModel, best RESULT: -330412.52, new result: -330107.72 (entered)
+2025-03-04 17:30:37: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:30:38: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:30:38: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 14, max: 20)
+2025-03-04 17:30:38: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:30:42: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:30:42: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:30:42: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:30:50: BoTorchModel, best RESULT: -330412.52, new result: -1193.32
+2025-03-04 17:30:50: BoTorchModel, best RESULT: -330412.52, new result: -1193.32 (entered)
+2025-03-04 17:30:51: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:30:51: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:30:52: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 15, max: 20)
+2025-03-04 17:30:52: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:31:04: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:31:04: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:31:05: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:31:09: BoTorchModel, best RESULT: -330412.52, new result: -220412.52
+2025-03-04 17:31:09: BoTorchModel, best RESULT: -330412.52, new result: -220412.52 (entered)
+2025-03-04 17:31:10: BoTorchModel, best RESULT: -330412.52, finishing jobs after starting them, finished 1 job
+2025-03-04 17:31:10: BoTorchModel, best RESULT: -330412.52, got 1, requested 1
+2025-03-04 17:31:10: BoTorchModel, best RESULT: -330412.52, trying to get 1 next steps (current done: 16, max: 20)
+2025-03-04 17:31:11: BoTorchModel, best RESULT: -330412.52, getting new hyperparameter set (no sbatch)
+2025-03-04 17:31:17: BoTorchModel, best RESULT: -330412.52, starting parameter set
+2025-03-04 17:31:17: BoTorchModel, best RESULT: -330412.52, starting new job
+2025-03-04 17:31:18: BoTorchModel, best RESULT: -330412.52, started new job
+2025-03-04 17:31:24: BoTorchModel, best RESULT: -330225.32, new result: -330412.52
+2025-03-04 17:31:24: BoTorchModel, best RESULT: -330225.32, new result: -330412.52 (entered)
+2025-03-04 17:31:25: BoTorchModel, best RESULT: -330225.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:31:25: BoTorchModel, best RESULT: -330225.32, got 1, requested 1
+2025-03-04 17:31:25: BoTorchModel, best RESULT: -330225.32, trying to get 1 next steps (current done: 15, max: 20)
+2025-03-04 17:31:26: BoTorchModel, best RESULT: -330225.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:31:34: BoTorchModel, best RESULT: -330225.32, starting parameter set
+2025-03-04 17:31:34: BoTorchModel, best RESULT: -330225.32, starting new job
+2025-03-04 17:31:34: BoTorchModel, best RESULT: -330225.32, started new job
+2025-03-04 17:31:47: BoTorchModel, best RESULT: -330225.32, new result: -330412.52
+2025-03-04 17:31:47: BoTorchModel, best RESULT: -330225.32, new result: -330412.52 (entered)
+2025-03-04 17:31:48: BoTorchModel, best RESULT: -330225.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:31:48: BoTorchModel, best RESULT: -330225.32, got 1, requested 1
+2025-03-04 17:31:49: BoTorchModel, best RESULT: -330225.32, trying to get 1 next steps (current done: 15, max: 20)
+2025-03-04 17:31:49: BoTorchModel, best RESULT: -330225.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:32:02: BoTorchModel, best RESULT: -330225.32, starting parameter set
+2025-03-04 17:32:02: BoTorchModel, best RESULT: -330225.32, starting new job
+2025-03-04 17:32:02: BoTorchModel, best RESULT: -330225.32, started new job
+2025-03-04 17:32:08: BoTorchModel, best RESULT: -330225.32, new result: -330412.52
+2025-03-04 17:32:08: BoTorchModel, best RESULT: -330225.32, new result: -330412.52 (entered)
+2025-03-04 17:32:09: BoTorchModel, best RESULT: -330225.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:32:09: BoTorchModel, best RESULT: -330225.32, got 1, requested 1
+2025-03-04 17:32:10: BoTorchModel, best RESULT: -330225.32, trying to get 1 next steps (current done: 15, max: 20)
+2025-03-04 17:32:11: BoTorchModel, best RESULT: -330225.32, getting new hyperparameter set (no sbatch)
+2025-03-04 17:32:19: BoTorchModel, best RESULT: -330225.32, starting parameter set
+2025-03-04 17:32:19: BoTorchModel, best RESULT: -330225.32, starting new job
+2025-03-04 17:32:19: BoTorchModel, best RESULT: -330225.32, started new job
+2025-03-04 17:32:25: BoTorchModel, best RESULT: -330225.32, new result: -330412.52
+2025-03-04 17:32:26: BoTorchModel, best RESULT: -330225.32, new result: -330412.52 (entered)
+2025-03-04 17:32:27: BoTorchModel, best RESULT: -330225.32, finishing jobs after starting them, finished 1 job
+2025-03-04 17:32:27: BoTorchModel, best RESULT: -330225.32, got 1, requested 1

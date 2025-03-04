@@ -37,6 +37,7 @@
 	pre {
 		color: #00CC00 !important;
 		background-color: black !important;
+		font-family: monospace;
 	}
 </style>
 <?php

@@ -485,6 +485,23 @@
 			];
 		}
 
+		if(count($result_names)) {
+			$result_names_table = '<table border="1">';
+			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>';
+			for ($i = 0; $i < count($result_names); $i++) {
+				$result_names_table .= '<tr>';
+				$result_names_table .= '<td>' . htmlspecialchars($result_names[$i]) . '</td>';
+				$result_names_table .= '<td>' . htmlspecialchars($result_min_max[$i]) . '</td>';
+				$result_names_table .= '</tr>';
+			}
+			$result_names_table .= '</table>';
+
+			$tabs['Result-Names'] = [
+				'id' => 'tab_result_names',
+				'content' => $result_names_table
+			];
+		}
+
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 			$functions_after_tab_creation[] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";

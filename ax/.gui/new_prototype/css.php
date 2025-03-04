@@ -45,6 +45,8 @@
 		flex-wrap: wrap;
 		gap: 4px;
 		max-width: 100%;
+		max-height: 100px;
+		overflow: scroll;
 	}
 
 	menu[role="tablist"] button {

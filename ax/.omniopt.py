@@ -5047,7 +5047,12 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
         possible_val_not_found_values = [VAL_IF_NOTHING_FOUND, -VAL_IF_NOTHING_FOUND, -99999999999999997168788049560464200849936328366177157906432, 99999999999999997168788049560464200849936328366177157906432]
 
-        if result not in possible_val_not_found_values and result is not None:
+        values_to_check = result if isinstance(result, list) else [result]
+
+        if (
+            result is not None
+            and all(r not in possible_val_not_found_values for r in values_to_check)
+        ):
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")

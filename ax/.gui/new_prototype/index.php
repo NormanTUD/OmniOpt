@@ -44,20 +44,28 @@
 					</article>
 
 					<article role="tabpanel" hidden id="tab_logs">
-
 						<section class="tabs" style="width: 100%">
+<?php
+							$nr_files = 500;
+?>
 							<menu role="tablist" aria-label="Single-Runs">
-								<button role="tab" aria-selected="true" aria-controls="single_run_1">Single-Run-1</button>
-								<button role="tab" aria-controls="single_run_2">Single-Run-2</button>
+<?php
+								for ($i = 0; $i < $nr_files; $i++) {
+?>
+									<button role="tab" <?php print $i == 0 ? 'aria-selected="true"' : ""; ?> aria-controls="single_run_<?php print $i; ?>">Single-Run-<?php print $i; ?></button>
+<?php
+								}
+?>
 							</menu>
-
-							<article role="tabpanel" id="single_run_1">
-								<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run 1</pre>
-							</article>
-
-							<article role="tabpanel" hidden id="single_run_2">
-								<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run 2</pre>
-							</article>
+<?php
+								for ($i = 0; $i < $nr_files; $i++) {
+?>
+									<article role="tabpanel" id="single_run_<?php print $i; ?>">
+										<pre>C:&#92;WINDOWS&#92;SYSTEM32> Single-Run <?php print $i; ?></pre>
+									</article>
+<?php
+								}
+?>
 						</section>
 					</article>
 				</section>

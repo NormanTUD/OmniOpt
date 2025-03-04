@@ -11,22 +11,39 @@
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
 
-			// Aktuelle URL abrufen
+			// Aktuelle URL abrufen   
 			$currentUrl = $_SERVER['REQUEST_URI'];
 
+			// Ordner in einem Array speichern
+			$folders = [];
 			while (($folder = readdir($dir)) !== false) {
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
-					// URL mit dem neuen Parameter an die aktuelle URL anhängen
-					$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
-
-					// Button als Link mit der erzeugten URL
-					echo '<a href="' . htmlspecialchars($url) . '" style="margin: 10px;">';
-					echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
-					echo '</a><br><br>';
+					$folders[] = $folder;
 				}
 			}
 
+			// Schließen des Verzeichnisses
 			closedir($dir);
+
+			// Sortieren der Ordner
+			usort($folders, function($a, $b) {
+				// Überprüfen, ob beide Ordner numerisch sind
+				if (is_numeric($a) && is_numeric($b)) {
+					return (int)$a - (int)$b;  // Numerisch aufsteigend
+				}
+				return strcmp($a, $b);  // Alphabetisch aufsteigend
+			});
+
+			// Erstellen der Buttons
+			foreach ($folders as $folder) {
+				// URL mit dem neuen Parameter an die aktuelle URL anhängen
+				$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
+
+				// Button als Link mit der erzeugten URL
+				echo '<a href="' . htmlspecialchars($url) . '" style="margin: 10px;">';
+				echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
+				echo '</a><br><br>';
+			}
 		} else {
 			echo "The specified folder does not exist.";
 		}

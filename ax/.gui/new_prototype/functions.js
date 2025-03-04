@@ -11,7 +11,6 @@ function disable_dark_mode() {
 	document.body.classList.remove('dark-mode');
 }
 
-
 function createScatter2D(data) {
 	if(!$("#scatter2d").length) {
 		console.warn("#scatter2d not found");
@@ -57,7 +56,6 @@ function createScatter2D(data) {
 		filterTableOnZoom(eventData, data, 'learning_rate', 'accuracy')
 	);
 }
-
 
 function createScatter3D(data) {
 	if(!$("#scatter3d").length) {

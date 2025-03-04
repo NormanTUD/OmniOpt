@@ -44,7 +44,7 @@
 					</article>
 
 					<article role="tabpanel" hidden id="tab_logs">
-						<pre><br>C:&#92;WINDOWS&#92;SYSTEM32></pre>
+						<pre>C:&#92;WINDOWS&#92;SYSTEM32></pre>
 					</article>
 				</section>
 			</div>

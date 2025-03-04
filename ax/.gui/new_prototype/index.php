@@ -217,10 +217,6 @@
 	}
 
 	$tabs = [
-		'Progressbar-Logs' => [
-			'id' => 'tab_progressbar_logs',
-			'content' => '<pre>Progressbar-Logs</pre>',
-		],
 		'Worker-Usage' => [
 			'id' => 'tab_worker_usage',
 			'content' => '<pre>Worker-Usage</pre>',

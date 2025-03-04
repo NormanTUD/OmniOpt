@@ -127,12 +127,14 @@
 <?php
 				if(count($errors)) {
 					if (count($errors) > 1) {
+						print "<h2>Errors:</h2>\n";
 						print "<ul>\n";
 						foreach ($errors as $error) {
 							print "<li>$error</li>";
 						}
 						print "</ul>\n";
 					} else {
+						print "<h2>Error:</h2>\n";
 						print $errors[0];
 					}
 

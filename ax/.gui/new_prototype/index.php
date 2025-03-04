@@ -18,7 +18,7 @@
 			<div id="spinner" class="spinner"></div>
 
 			<div id="main_window" style="display: none" class="container py-4 window-body has-space">
-				<section class="tabs" style="max-width: 100%">
+				<section class="tabs" style="width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">
 						<button role="tab" aria-selected="true" aria-controls="tab_scatter_2d">2D-Scatter</button>
 						<button role="tab" aria-controls="tab_scatter_3d">3D-Scatter</button>

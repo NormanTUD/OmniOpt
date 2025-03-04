@@ -53,6 +53,10 @@
 		white-space: nowrap;
 		min-width: 100px;
 	}
+
+	.container {
+		max-width: 100% !important;
+	}
 </style>
 <?php
 	$theme = "xp.css";

@@ -102,7 +102,7 @@
 			</div>
 			<div id="spinner" class="spinner"></div>
 
-			<div id="main_window" style="display: none" class="container py-4 window-body has-space">
+			<div id="main_window" style="display: none" class="container py-4 has-space">
 				<section class="tabs" style="width: 100%">
 					<menu role="tablist" aria-label="OmniOpt2-Run">
 <?php

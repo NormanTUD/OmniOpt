@@ -5824,7 +5824,7 @@ def _get_max_parallelism() -> int:
     return ret
 
 @beartype
-def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> Tuple[GenerationStep, dict]:
+def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> Tuple[GenerationStep]:
     """Creates a generation step for Bayesian optimization."""
     gs = GenerationStep(
         model=model,
@@ -5839,18 +5839,10 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
 
     #print(gs)
 
-    return gs, {
-        "model": model,
-        "num_trials": _num_trials,
-        "max_parallelism": _get_max_parallelism(),
-        "model_gen_kwargs": {
-            'enforce_num_arms': False
-        },
-        "should_deduplicate": args.should_deduplicate
-    }
+    return gs
 
 @beartype
-def create_random_generation_step() -> Tuple[GenerationStep, dict]:
+def create_random_generation_step() -> Tuple[GenerationStep]:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -5862,17 +5854,7 @@ def create_random_generation_step() -> Tuple[GenerationStep, dict]:
         },
         model_gen_kwargs={'enforce_num_arms': False},
         should_deduplicate=args.should_deduplicate
-    ), {
-        "model": Models.SOBOL,
-        "num_trials": max(num_parallel_jobs, random_steps),
-        "min_trials_observed": min(max_eval, random_steps),
-        "max_parallelism": _get_max_parallelism(),
-        "model_kwargs": {
-            "seed": args.seed
-        },
-        "model_gen_kwargs": {'enforce_num_arms': False},
-        "should_deduplicate": args.should_deduplicate
-    }
+    )
 
 @beartype
 def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
@@ -5947,7 +5929,7 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
     console.print(table)
 
 @beartype
-def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
+def get_generation_strategy() -> Tuple[GenerationStrategy]:
     generation_strategy = args.generation_strategy
 
     if args.continue_previous_job:
@@ -5962,7 +5944,6 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
         # Initialize steps for the generation strategy
         steps: list = []
-        gs_readable: list = []
 
         # Get the number of imported jobs and update max evaluations
         num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5977,20 +5958,18 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
 
         # Add a random generation step if conditions are met
         if random_steps >= 1 and num_imported_jobs < random_steps:
-            this_step, readable_random_step = create_random_generation_step()
+            this_step = create_random_generation_step()
             steps.append(this_step)
-            gs_readable.append(readable_random_step)
 
         # Choose a model for the non-random step
         chosen_non_random_model = select_model(args.model)
 
         # Append the Bayesian optimization step
-        sys_step, readable_systematic_step = create_systematic_step(chosen_non_random_model)
+        sys_step = create_systematic_step(chosen_non_random_model)
         steps.append(sys_step)
-        gs_readable.append(readable_systematic_step)
 
         # Create and return the GenerationStrategy
-        return GenerationStrategy(steps=steps), gs_readable
+        return GenerationStrategy(steps=steps)
 
     generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
 
@@ -6004,16 +5983,14 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     print_generation_strategy(generation_strategy_array)
 
     steps = []
-    gs_readable = []
 
     start_index = int(len(generation_strategy_array) / 2)
 
     for gs_element in generation_strategy_array:
         model_name = list(gs_element.keys())[0]
 
-        gs_elem, gs_readable_dict = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+        gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
         steps.append(gs_elem)
-        gs_readable.append(gs_readable_dict)
 
         start_index = start_index + 1
 
@@ -6025,7 +6002,7 @@ def get_generation_strategy() -> Tuple[GenerationStrategy, list]:
     except Exception as e:
         print_red(f"Failed writing '{generation_strategy_file}': {e}")
 
-    return GenerationStrategy(steps=steps), gs_readable
+    return GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6816,7 +6793,7 @@ def main() -> None:
     add_exclude_to_defective_nodes()
     handle_random_steps()
 
-    gs, gs_array = get_generation_strategy()
+    gs = get_generation_strategy()
 
     initialize_ax_client(gs)
 

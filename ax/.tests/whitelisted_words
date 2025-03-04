@@ -221,6 +221,14 @@ botorchoptimoptimize
 boxplot
 br
 Brandschutz
+brightblack
+brightblue
+brightcyan
+brightgreen
+brightmagenta
+brightred
+brightwhite
+brightyellow
 browserHeight
 browserWidth
 brushedColor
@@ -878,6 +886,7 @@ grep
 greyscale
 gridsearch
 gridsize
+groupbox
 gru
 gruCell
 gt
@@ -1016,6 +1025,7 @@ INT
 intendation
 intval
 InvalidMathMLAttr
+ipsum
 isActive
 isCache
 isContentEditable
@@ -1107,6 +1117,7 @@ ktotalBytesSnapshot
 kullbackLeiblerDivergence
 labelCell
 labelContents
+lalli
 lang
 languagelangtensors
 lastTabIndex
@@ -1177,6 +1188,7 @@ logoutshow
 logt
 longNames
 lookAhead
+lorem
 lossFunction
 lowerCaseColor
 lowercased
@@ -1223,6 +1235,7 @@ maxval
 maxvalue
 maxValue
 maxY
+mdn
 meanAbsoluteError
 meanAbsolutePercentageError
 meanSquaredError
@@ -1270,6 +1283,7 @@ metricsNames
 MFENCED
 mglyph
 mib
+microsoftr
 min
 minContentHeight
 minDate
@@ -1904,6 +1918,7 @@ Sa
 saasbo
 SAASBO
 sacct
+saffitz
 SameSite
 SameSiteNone
 Saturday
@@ -2527,18 +2542,3 @@ zoomend
 zoomstart
 zsh
 ZSH
-groupbox
-ipsum
-lalli
-lorem
-mdn
-microsoftr
-saffitz
-brightblack
-brightred
-brightgreen
-brightyellow
-brightblue
-brightmagenta
-brightcyan
-brightwhite

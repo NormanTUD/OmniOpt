@@ -7,6 +7,22 @@
 		return $default;
 	}
 
+	function is_valid_user_or_experiment_name ($name) {
+		if(preg_match("/^[a-zA-Z0-9_]+$/", $name)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	function string_is_numeric ($name) {
+		if(preg_match("/^\d+$/", $name)) {
+			return true;
+		}
+
+		return false;
+	}
+
 	$tabs = [
 		'Overview' => [
 			'id' => 'tab_overview',
@@ -96,6 +112,31 @@
 	$errors = [];
 	if(!is_dir($share_folder)) {
 		$errors[] = "Folder <tt>$share_folder</tt> not found.";
+	}
+
+
+	#user_id=s3811141&experiment_name=signs&run_nr=11
+
+	$username = get_get("user_id");
+	$experiment_name = get_get("experiment_name");
+	$run_nr = get_get("run_nr", -1);
+
+	if($username) {
+		if(!is_valid_user_or_experiment_name($username)) {
+			$errors[] = "<tt>".htmlentities($username)."</tt> is not a valid username";
+		}
+	}
+
+	if($experiment_name) {
+		if(!is_valid_user_or_experiment_name($experiment_name)) {
+			$errors[] = "<tt>".htmlentities($experiment_name)."</tt> is not a valid experiment name";
+		}
+	}
+
+	if($run_nr != -1) {
+		if(!string_is_numeric($run_nr)) {
+			$errors[] = "<tt>".htmlentities($run_nr)."</tt> is not a valid run nr";
+		}
 	}
 ?>
 <!DOCTYPE html>

@@ -7,6 +7,22 @@
 		"generation_node"
 	];
 
+	function read_file_as_array($filePath) {
+		if (!is_readable($filePath)) {
+			trigger_error("Datei kann nicht gelesen werden: $filePath", E_USER_WARNING);
+			return [];
+		}
+
+		$lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+		if ($lines === false) {
+			trigger_error("Fehler beim Lesen der Datei: $filePath", E_USER_WARNING);
+			return [];
+		}
+
+		return $lines;
+	}
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			#$source_data = debug_backtrace()[0];
@@ -266,6 +282,21 @@
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
+		$result_names = ["RESULT"];
+		$result_min_max = ["min"];
+		$result_names_file = "$run_dir/result_names.txt";
+		$result_min_max_file = "$run_dir/result_min_max.txt";
+		if(is_file($result_names_file)) {
+			$result_names = read_file_as_array($result_names_file);
+		}
+		if(is_file($result_min_max_file)) {
+			$result_min_max = read_file_as_array($result_min_max_file);
+		}
+
+
+		$global_json_data["result_names"] = $result_names;
+		$global_json_data["result_min_max"] = $result_min_max;
+
 		$best_results_txt = "$run_dir/best_result.txt";
 		$results_csv = "$run_dir/results.csv";
 
@@ -278,8 +309,8 @@
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header); // Entferne die Kopfzeile
 
-			$results_csv_json = json_encode($csv_contents_no_header);
-			$results_headers_json = json_encode($headers);
+			$results_csv_json = $csv_contents_no_header;
+			$results_headers_json = $headers;
 
 			$global_json_data["results_csv_json"] = $results_csv_json;
 			$global_json_data["results_headers_json"] = $results_headers_json;
@@ -334,7 +365,7 @@
 			print "<script>\n";
 			print "<!-- global_json_data -->\n";
 			foreach ($global_json_data as $json_name => $json_data) {
-				print "\tvar $json_name = $json_data;\n";
+				print "\tvar $json_name = ".json_encode($json_data).";\n";
 			}
 			print "</script>\n";
 		}

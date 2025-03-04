@@ -2929,12 +2929,10 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 
 @beartype
 def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
-    csv_file_path: str = save_pd_csv()
-
-    if csv_file_path:
+    csv_file_path = f"{get_current_run_folder()}/results.csv"
+    if os.path.exists(csv_file_path):
         return get_best_params_from_csv(csv_file_path, res_name)
 
-    print_red("save_pd_csv returned None")
     return None
 
 @beartype
@@ -2994,12 +2992,10 @@ def _count_done_jobs(csv_file_path: str) -> int:
 
 @beartype
 def count_sobol_steps() -> int:
-    csv_file_path: str = save_pd_csv()
-
-    if csv_file_path:
+    csv_file_path = f"{get_current_run_folder()}/results.csv"
+    if os.path.exists(csv_file_path):
         return _count_sobol_steps(csv_file_path)
 
-    print_red("save_pd_csv returned None")
     return 0
 
 @beartype
@@ -3024,12 +3020,10 @@ def failed_jobs(nr: int = 0) -> int:
 
 @beartype
 def count_done_jobs() -> int:
-    csv_file_path: str = save_pd_csv()
-
-    if csv_file_path:
+    csv_file_path = f"{get_current_run_folder()}/results.csv"
+    if os.path.exists(csv_file_path):
         return _count_done_jobs(csv_file_path)
 
-    print_red("save_pd_csv returned None")
     return 0
 
 @beartype
@@ -3291,12 +3285,9 @@ def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
 
 @beartype
 def print_best_result() -> int:
-    csv_file_path = save_pd_csv()
-
-    if csv_file_path:
+    csv_file_path = f"{get_current_run_folder()}/results.csv"
+    if os.path.exists(csv_file_path):
         return _print_best_result(csv_file_path, True)
-
-    print_red("save_pd_csv returned None")
 
     return 0
 
@@ -5059,8 +5050,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
 
-            save_pd_csv()
-
             #count_done_jobs(1)
             try:
                 progressbar_description([f"new result: {result}"])
@@ -5071,12 +5060,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 succeeded_jobs(1)
                 update_progress_bar(progress_bar, 1)
                 progressbar_description([f"new result: {result} (entered)"])
-                new_pd_csv_path = save_pd_csv()
-
-                if new_pd_csv_path:
-                    print_debug(f"Saving '{new_pd_csv_path}' after marking trial as completed; result(s): {result}")
-                else:
-                    print_debug("save_pd_csv returned None; result(s): {result}")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
@@ -5144,11 +5127,13 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 failed_jobs(1)
                 this_jobs_finished += 1
                 global_vars["jobs"].remove((job, trial_index))
+
             save_checkpoint()
-            save_pd_csv()
         else:
             if f"{job}" != "SlurmJob":
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
+
+    save_pd_csv()
 
     if this_jobs_finished == 1:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])

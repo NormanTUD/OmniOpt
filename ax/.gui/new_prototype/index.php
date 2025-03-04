@@ -41,7 +41,7 @@
           <button aria-label="Close"></button>
         </div>
       </div>
-    <div class="container py-4">
+    <div class="container py-4 window-body has-space">
       <h1 class="mb-4"></h1>
       
       <!-- Tab navigation -->

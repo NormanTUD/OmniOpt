@@ -40,18 +40,17 @@
 		font-family: monospace;
 	}
 
-menu[role="tablist"] {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px; /* Optional: Fügt Abstand zwischen den Buttons hinzu */
-    max-width: 100%; /* Stellt sicher, dass es sich an das Eltern-Element anpasst */
-}
+	menu[role="tablist"] {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+		max-width: 100%;
+	}
 
-menu[role="tablist"] button {
-    white-space: nowrap; /* Verhindert, dass Text umbricht, aber erlaubt das Umfließen */
-    min-width: 100px; /* Optional: Mindestbreite für die Buttons */
-}
-
+	menu[role="tablist"] button {
+		white-space: nowrap;
+		min-width: 100px;
+	}
 </style>
 <?php
 	$theme = "xp.css";

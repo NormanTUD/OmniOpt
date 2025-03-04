@@ -8,23 +8,24 @@
 	}
 
 	function generateFolderButtons($folderPath, $new_param_name) {
-		// Check if the folder exists
 		if (is_dir($folderPath)) {
-			// Open the directory
 			$dir = opendir($folderPath);
 
-			// Loop through the files in the directory
+			// Aktuelle URL abrufen
+			$currentUrl = $_SERVER['REQUEST_URI'];
+
 			while (($folder = readdir($dir)) !== false) {
-				// Skip "." and ".."
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
-					// Create a button for each folder
-					echo '<form style="margin: 10px" action="" method="get">';
-					echo '<button type="submit" name="'.$new_param_name.'" value="' . htmlspecialchars($folder) . '">' . htmlspecialchars($folder) . '</button>';
-					echo '</form>';
+					// URL mit dem neuen Parameter an die aktuelle URL anhängen
+					$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
+
+					// Button als Link mit der erzeugten URL
+					echo '<a href="' . htmlspecialchars($url) . '" style="margin: 10px;">';
+					echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
+					echo '</a><br><br>';
 				}
 			}
 
-			// Close the directory
 			closedir($dir);
 		} else {
 			echo "The specified folder does not exist.";
@@ -241,7 +242,7 @@
 						} else if($user_id && !$experiment_name && !$run_nr) {
 							generateFolderButtons("$share_folder/$user_id", "experiment_name");
 						} else if($user_id && $experiment_name && !$run_nr) {
-							print "Overview Runs";
+							generateFolderButtons("$share_folder/$user_id/$experiment_name", "run_id");
 						} else {
 							print "DONT KNOW!!! >>$run_nr<<";
 						}

@@ -217,7 +217,6 @@
 		$errors[] = "Folder <tt>$share_folder</tt> not found.";
 	}
 
-
 	$user_id = get_get("user_id");
 	$experiment_name = get_get("experiment_name");
 	$run_nr = get_get("run_nr", -1);

@@ -512,11 +512,6 @@
 						print $errors[0];
 					}
 
-?>
-					<script>
-						show_main_window();
-					</script>
-<?php
 				} else {
 					if($user_id && $experiment_name && !is_null($run_nr)) {
 ?>

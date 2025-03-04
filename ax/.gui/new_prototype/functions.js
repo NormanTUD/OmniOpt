@@ -101,7 +101,7 @@ function createTable(data, headers, table_name) {
 	}
 
 	new gridjs.Grid({
-		columns: headers, // Hier explizit die Spaltennamen übergeben
+		columns: headers,
 		data: data,
 		search: true,
 		sort: true

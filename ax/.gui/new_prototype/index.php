@@ -284,6 +284,7 @@
 			$global_json_data["results_csv_json"] = $results_csv_json;
 			$global_json_data["results_headers_json"] = $results_headers_json;
 
+			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";
 			$results_html .= "<div id='results_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(results_csv_json, results_headers_json, 'results_csv_table')</script>\n";
 			$results_html .= "<button onclick='copy_to_clipboard_base64(\"".base64_encode(htmlentities(file_get_contents($results_csv)))."\")'>Copy raw data to clipboard</button>\n";

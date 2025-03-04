@@ -64,4 +64,6 @@ function initialize_tabs () {
 
 document.addEventListener("DOMContentLoaded", initialize_tabs);
 
-document.getElementById('spinner').style.display = 'block';
+if($("#spinner").length) {
+	document.getElementById('spinner').style.display = 'block';
+}

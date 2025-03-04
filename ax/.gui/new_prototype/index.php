@@ -110,6 +110,8 @@
 		<link href="mermaid.min.css" rel="stylesheet" />
 		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
+		<script src="functions.js"></script>
+		<script src="main.js"></script>
 	</head>
 	<body>
 		<div class="page window" style='font-family: sans-serif'>
@@ -165,8 +167,5 @@
 ?>
 			</div>
 		</div>
-
-		<script src="functions.js"></script>
-		<script src="main.js"></script>
 	</body>
 </html>

@@ -187,10 +187,6 @@
 	}
 
 	$tabs = [
-		'Experiment Overview' => [
-			'id' => 'tab_experiment_overview',
-			'content' => '<pre>Experiment overview</pre>',
-		],
 		'Progressbar-Logs' => [
 			'id' => 'tab_progressbar_logs',
 			'content' => '<pre>Progressbar-Logs</pre>',
@@ -430,6 +426,7 @@
 			];
 		}
 
+		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 
 		$out_files = get_log_files($run_dir);
@@ -481,7 +478,20 @@
 ?>
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar">
-				<div class="title-bar-text">OmniOpt2-Share</div>
+				<div class="title-bar-text">OmniOpt2-Share
+<?php
+				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
+					$path = get_get("user_id") . "/" . get_get("experiment_name") . "/" . get_get("run_nr");
+					$path = preg_replace("/\/+/", "/", $path);
+					$path = preg_replace("/^\//", "", $path);
+					$path = preg_replace("/\/$/", "", $path);
+
+					if($path) {
+						print " (".htmlentities($path).")";
+					}
+				}
+?>
+				</div>
 <?php
 				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
 ?>

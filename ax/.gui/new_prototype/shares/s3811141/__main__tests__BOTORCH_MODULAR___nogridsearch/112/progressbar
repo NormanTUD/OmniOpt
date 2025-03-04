@@ -1,0 +1,29 @@
+2025-02-24 10:13:03: Initializing model, Started OmniOpt2 run...
+2025-02-24 10:13:03: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:03: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:03: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:04: Initializing model, starting parameter set
+2025-02-24 10:13:04: Initializing model, found 1 zero-jobs (max: 50)
+2025-02-24 10:13:04: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:04: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:04: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:04: Initializing model, starting parameter set
+2025-02-24 10:13:04: Initializing model, found 2 zero-jobs (max: 50)
+2025-02-24 10:13:04: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:04: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:05: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:05: Initializing model, starting parameter set
+2025-02-24 10:13:05: Initializing model, found 3 zero-jobs (max: 50)
+2025-02-24 10:13:05: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:05: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:05: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:05: Initializing model, starting parameter set
+2025-02-24 10:13:06: Initializing model, found 4 zero-jobs (max: 50)
+2025-02-24 10:13:06: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:06: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:06: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:06: Initializing model, starting parameter set
+2025-02-24 10:13:06: Initializing model, found 5 zero-jobs (max: 50)
+2025-02-24 10:13:06: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:13:06: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:13:06: Initializing model, getting 1/1 trials (no sbatch)

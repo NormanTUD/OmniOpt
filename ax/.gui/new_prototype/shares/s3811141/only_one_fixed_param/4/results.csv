@@ -1,0 +1,2 @@
+trial_index,arm_name,trial_status,generation_method,generation_node,RESULT,fixed_param
+0,0_0,COMPLETED,Sobol,GenerationStep_0,16.000000000000000000000000000000,16

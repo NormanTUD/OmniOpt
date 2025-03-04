@@ -1,0 +1,11 @@
+
+Out file /home/s3811141/repos/OmniOpt/ax/runs/test_wronggoing_stuff_nosuccess/0/single_runs/1359098/1359098_0_log.out contains potential errors:
+
+Program-Code: ./.tests/test_wronggoing_stuff.bin/bin/divide_by_0
+- Got no result.
+
+- Illegal division by zero detected
+
+
+Best result could not be determined
+

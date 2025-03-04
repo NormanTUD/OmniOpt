@@ -1,0 +1,19 @@
+2025-02-24 10:04:44: Initializing model, Started OmniOpt2 run...
+2025-02-24 10:04:44: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:04:44: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:44: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:44: Initializing model, starting parameter set
+2025-02-24 10:04:44: Initializing model, found 1 zero-jobs (max: 50)
+2025-02-24 10:04:44: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:04:44: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:44: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:45: Initializing model, starting parameter set
+2025-02-24 10:04:45: Initializing model, found 2 zero-jobs (max: 50)
+2025-02-24 10:04:45: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:04:45: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:45: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:45: Initializing model, starting parameter set
+2025-02-24 10:04:46: Initializing model, found 3 zero-jobs (max: 50)
+2025-02-24 10:04:46: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:04:46: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:04:46: Initializing model, getting 1/1 trials (no sbatch)

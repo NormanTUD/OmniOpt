@@ -1,0 +1,34 @@
+2025-03-03 09:44:03: Initializing model, Started OmniOpt2 run...
+2025-03-03 09:44:03: Initializing model, trying to get 1 next steps (current done: 0, max: 4)
+2025-03-03 09:44:03: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 09:44:03: SobolGenerator, starting parameter set
+2025-03-03 09:44:03: SobolGenerator, starting new job
+2025-03-03 09:44:04: SobolGenerator, started new job
+2025-03-03 09:44:08: SobolGenerator, job_failed
+2025-03-03 09:44:08: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, finishing jobs after starting them, finished 1 job
+2025-03-03 09:44:08: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, got 1, requested 1
+2025-03-03 09:44:08: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, trying to get 1 next steps (current done: 0, max: 4)
+2025-03-03 09:44:08: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, getting new hyperparameter set (no sbatch)
+2025-03-03 09:44:09: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting parameter set
+2025-03-03 09:44:09: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting new job
+2025-03-03 09:44:09: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, started new job
+2025-03-03 09:44:13: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, SobolGenerator, job_failed
+2025-03-03 09:44:13: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, finishing jobs after starting them, finished 1 job
+2025-03-03 09:44:13: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, got 1, requested 1
+2025-03-03 09:44:14: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, trying to get 1 next steps (current done: 0, max: 4)
+2025-03-03 09:44:14: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, getting new hyperparameter set (no sbatch)
+2025-03-03 09:44:14: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting parameter set
+2025-03-03 09:44:14: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting new job
+2025-03-03 09:44:14: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, started new job
+2025-03-03 09:44:18: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, SobolGenerator, job_failed
+2025-03-03 09:44:19: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, finishing jobs after starting them, finished 1 job
+2025-03-03 09:44:19: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, got 1, requested 1
+2025-03-03 09:44:19: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, trying to get 1 next steps (current done: 0, max: 4)
+2025-03-03 09:44:20: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, getting new hyperparameter set (no sbatch)
+2025-03-03 09:44:20: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting parameter set
+2025-03-03 09:44:20: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, starting new job
+2025-03-03 09:44:20: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, started new job
+2025-03-03 09:44:24: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, best RESULT: 0.123, new result: 0.123
+2025-03-03 09:44:25: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, best RESULT: 0.123, new result: 0.123 (entered)
+2025-03-03 09:44:25: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, best RESULT: 0.123, finishing jobs after starting them, finished 1 job
+2025-03-03 09:44:25: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, SobolGenerator, best RESULT: 0.123, got 1, requested 1

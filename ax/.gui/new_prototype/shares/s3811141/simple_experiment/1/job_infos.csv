@@ -1,0 +1,2 @@
+start_time,end_time,run_time,program_string,lr,epochs,width_or_height,result,exit_code,signal,hostname
+1738678355,1738678373,18,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=9.407866001129151e-05 --epochs=16 --width=23 --height=23,9.407866001129151e-05,16,23,1.275183,0,None,arbeitsrechner

@@ -1,0 +1,3 @@
+start_time,end_time,run_time,program_string,iiuu,xresultx,exit_code,signal,hostname
+1740988011,1740988011,0,"echo ""xresultx: 6090.18087387085""",6090.18087387085,6090.18087387085,0,None,arbeitsrechner
+1740988019,1740988019,0,"echo ""xresultx: -9997.446909549708""",-9997.446909549708,-9997.446909549708,0,None,arbeitsrechner

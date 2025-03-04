@@ -1,0 +1,55 @@
+[?25l[32m⠋[0m [1;32mLoading base modules...[0m[2K[32m⠙[0m [1;32mLoading base modules...[0m[2K[32m⠹[0m [1;32mLoading base modules...[0m[2K[32m⠸[0m [1;32mLoading base modules...[0m[2K[32m⠼[0m [1;32mLoading base modules...[0m[2K[32m⠴[0m [1;32mLoading base modules...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m[2K[32m⠸[0m [1;32mLoading torch...[0m[2K[32m⠼[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m[2K[32m⠦[0m [1;32mLoading torch...[0m[2K[32m⠧[0m [1;32mLoading torch...[0m[2K[32m⠇[0m [1;32mLoading torch...[0m[2K[32m⠏[0m [1;32mLoading torch...[0m[2K[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading numpy...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠇[0m [1;32mLoading ax...[0m[2K[32m⠏[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠇[0m [1;32mLoading ax...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading botorch...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading submitit...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax logger...[0m
+[?25h[1A[2KRun-UUID: 5380640e-5496-46b4-a7be-b39f0b86b844
+  _________________________________
+| OmniOpt2 - Tuning like a maestro! |
+  =================================
+                                  \
+                                   \
+                                    \
+                                     \
+                                         .    _  .
+                                        |\_|/__/|
+                                        / / \/ \  \
+                                       /__|O||O|__ \
+                                      |/_ \_/\_/ _\ |
+                                      | | (____) | ||
+                                      \/\___/\__/  //
+                                      (_/         ||
+                                       |          ||
+                                       |          ||\
+                                        \        //_/
+                                         \______//
+                                        __ || __||
+                                       (____(____)
+./omniopt --partition=alpha --experiment_name=sign_classifier --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=200 --num_parallel_jobs=20 --gpus=1 --num_random_steps=20 --follow --live_share --send_anonymized_usage_stats --run_program='YmFzaCAvaG9tZS9zMzgxMTE0MS9yZXBvcy9PbW5pT3B0L2F4Ly50ZXN0cy9leGFtcGxlX25ldHdvcmsvcnVuLnNoIC0tbGVhcm5pbmdfcmF0ZT0lKGxyKSAtLWVwb2Nocz0lKGVwb2NocykgLS12YWxpZGF0aW9uX3NwbGl0PSUodmFsX3NwbGl0KSAtLXdpZHRoPSUod2lkdGhfaGVpZ2h0KSAtLWhlaWdodD0lKHdpZHRoX2hlaWdodCk=' --result_names RESULT=min RAM_USAGE=min VAL_ACCURACY=max TOTAL_PARAMS RUNTIME --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --decimalrounding=4 --parameter lr range 0.00001 0.1 float false --parameter epochs range 30 50 int false --parameter val_split fixed 0.2 --parameter width_height choice 5,10,15,20 --ui_url aHR0cHM6Ly9pbWFnZXNlZy5zY2Fkcy5kZS9vbW5pYXgvZ3VpLnBocD9wYXJ0aXRpb249YWxwaGEmZXhwZXJpbWVudF9uYW1lPXNpZ25fY2xhc3NpZmllciZyZXNlcnZhdGlvbj0mYWNjb3VudD0mbWVtX2diPTEmdGltZT02MCZ3b3JrZXJfdGltZW91dD02MCZtYXhfZXZhbD0yMDAmbnVtX3BhcmFsbGVsX2pvYnM9MjAmZ3B1cz0xJm51bV9yYW5kb21fc3RlcHM9MjAmZm9sbG93PTEmbGl2ZV9zaGFyZT0wJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJmNoZWNrb3V0X3RvX2xhdGVzdF90ZXN0ZWRfdmVyc2lvbj0xJnJ1bl9wcm9ncmFtPWJhc2glMjAlMkZob21lJTJGczM4MTExNDElMkZyZXBvcyUyRk9tbmlPcHQlMkZheCUyRi50ZXN0cyUyRmV4YW1wbGVfbmV0d29yayUyRnJ1bi5zaCUyMC0tbGVhcm5pbmdfcmF0ZSUzRCUyNShsciklMjAtLWVwb2NocyUzRCUyNShlcG9jaHMpJTIwLS12YWxpZGF0aW9uX3NwbGl0JTNEJTI1KHZhbF9zcGxpdCklMjAtLXdpZHRoJTNEJTI1KHdpZHRoX2hlaWdodCklMjAtLWhlaWdodCUzRCUyNSh3aWR0aF9oZWlnaHQpJnJlc3VsdF9uYW1lcz1SRVNVTFQlM0RtaW4lMjBSQU1fVVNBR0UlM0RtaW4lMjBWQUxfQUNDVVJBQ1klM0RtYXglMjBUT1RBTF9QQVJBTVMlMjBSVU5USU1FJmNwdXNfcGVyX3Rhc2s9MSZub2Rlc19wZXJfam9iPTEmc2VlZD0mdmVyYm9zZT0wJmRlYnVnPTAmZ3JpZHNlYXJjaD0wJm1vZGVsPUJPVE9SQ0hfTU9EVUxBUiZvY2NfdHlwZT1ldWNsaWQmaW5zdGFsbGF0aW9uX21ldGhvZD1jbG9uZSZydW5fbW9kZT1sb2NhbCZjb25zdHJhaW50cz0mZGVjaW1hbHJvdW5kaW5nPTQmcGFyYW1ldGVyXzBfbmFtZT1sciZwYXJhbWV0ZXJfMF90eXBlPXJhbmdlJnBhcmFtZXRlcl8wX21pbj0wLjAwMDAxJnBhcmFtZXRlcl8wX21heD0wLjEmcGFyYW1ldGVyXzBfbnVtYmVyX3R5cGU9ZmxvYXQmcGFyYW1ldGVyXzBfbG9nX3NjYWxlPWZhbHNlJnBhcmFtZXRlcl8xX25hbWU9ZXBvY2hzJnBhcmFtZXRlcl8xX3R5cGU9cmFuZ2UmcGFyYW1ldGVyXzFfbWluPTMwJnBhcmFtZXRlcl8xX21heD01MCZwYXJhbWV0ZXJfMV9udW1iZXJfdHlwZT1pbnQmcGFyYW1ldGVyXzFfbG9nX3NjYWxlPWZhbHNlJnBhcmFtZXRlcl8yX25hbWU9dmFsX3NwbGl0JnBhcmFtZXRlcl8yX3R5cGU9Zml4ZWQmcGFyYW1ldGVyXzJfdmFsdWU9MC4yJnBhcmFtZXRlcl8zX25hbWU9d2lkdGhfaGVpZ2h0JnBhcmFtZXRlcl8zX3R5cGU9Y2hvaWNlJnBhcmFtZXRlcl8zX3ZhbHVlcz01JTJDMTAlMkMxNSUyQzIwJnBhcnRpdGlvbj1hbHBoYSZudW1fcGFyYW1ldGVycz00
+Run-folder: runs/sign_classifier/0
+[32mYou have [0m[1;32m8[0m[32m CPUs available for the main process.[0m [33mNo CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.[0m [32mGeneration strategy: Sobol for [0m[1;32m20[0m[32m trials, BoTorch for subsequent trials.[0m
+Run-Program: bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=%(lr) --epochs=%(epochs) --validation_split=%(val_split) --width=%(width_height) --height=%(width_height)
+[3m                                  Experiment parameters:                                  [0m
+┏━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┓
+┃[1m [0m[1mName        [0m[1m [0m┃[1m [0m[1mType  [0m[1m [0m┃[1m [0m[1mLower bound[0m[1m [0m┃[1m [0m[1mUpper bound[0m[1m [0m┃[1m [0m[1mValues       [0m[1m [0m┃[1m [0m[1mType [0m[1m [0m┃[1m [0m[1mLog Scale?[0m[1m [0m┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━┩
+│[92m [0m[92mlr          [0m[92m [0m│[92m [0m[92mrange [0m[92m [0m│[92m [0m[92m0          [0m[92m [0m│[92m [0m[92m0.1        [0m[92m [0m│[92m [0m[92m             [0m[92m [0m│[92m [0m[92mfloat[0m[92m [0m│[92m [0m[92mNo        [0m[92m [0m│
+│[92m [0m[92mepochs      [0m[92m [0m│[92m [0m[92mrange [0m[92m [0m│[92m [0m[92m30         [0m[92m [0m│[92m [0m[92m50         [0m[92m [0m│[92m [0m[92m             [0m[92m [0m│[92m [0m[92mint  [0m[92m [0m│[92m [0m[92mNo        [0m[92m [0m│
+│[92m [0m[92mval_split   [0m[92m [0m│[92m [0m[92mfixed [0m[92m [0m│[92m [0m[92m           [0m[92m [0m│[92m [0m[92m           [0m[92m [0m│[92m [0m[92m0.2          [0m[92m [0m│[92m [0m[92m     [0m[92m [0m│[92m [0m[92m          [0m[92m [0m│
+│[92m [0m[92mwidth_height[0m[92m [0m│[92m [0m[92mchoice[0m[92m [0m│[92m [0m[92m           [0m[92m [0m│[92m [0m[92m           [0m[92m [0m│[92m [0m[92m5, 10, 15, 20[0m[92m [0m│[92m [0m[92m     [0m[92m [0m│[92m [0m[92m          [0m[92m [0m│
+└──────────────┴────────┴─────────────┴─────────────┴───────────────┴───────┴────────────┘
+[3m        Result-Names:         [0m
+┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃[1m [0m[1mResult-Name [0m[1m [0m┃[1m [0m[1mMin or max?[0m[1m [0m┃
+┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│[36m [0m[36mRESULT      [0m[36m [0m│[32m [0m[32m        min[0m[32m [0m│
+│[36m [0m[36mRAM_USAGE   [0m[36m [0m│[32m [0m[32m        min[0m[32m [0m│
+│[36m [0m[36mVAL_ACCURACY[0m[36m [0m│[32m [0m[32m        max[0m[32m [0m│
+│[36m [0m[36mTOTAL_PARAMS[0m[36m [0m│[32m [0m[32m        min[0m[32m [0m│
+│[36m [0m[36mRUNTIME     [0m[36m [0m│[32m [0m[32m        min[0m[32m [0m│
+└──────────────┴─────────────┘
+[92mSee http://localhost/oo2_gui/share.php?user_id=s3811141&experiment_name=sign_classifier&run_nr=1 for a live-trace.
+[0m
+  0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 200):   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 200):   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]Initializing model, getting 1 trials (no sbatch):   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]                          Initializing model, getting 1 trials (no sbatch):   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]          SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]      SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/200 [00:00<?, ?it/s]SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/200 [00:01<?, ?it/s] SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/200 [00:01<?, ?it/s]

@@ -1,0 +1,63 @@
+[?25l[32m⠋[0m [1;32mLoading base modules...[0m[2K[32m⠙[0m [1;32mLoading base modules...[0m[2K[32m⠹[0m [1;32mLoading base modules...[0m[2K[32m⠸[0m [1;32mLoading base modules...[0m[2K[32m⠼[0m [1;32mLoading base modules...[0m[2K[32m⠴[0m [1;32mLoading base modules...[0m[2K[32m⠦[0m [1;32mLoading base modules...[0m[2K[32m⠧[0m [1;32mLoading base modules...[0m[2K[32m⠇[0m [1;32mLoading base modules...[0m[2K[32m⠇[0m [1;32mLoading base modules...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m[2K[32m⠸[0m [1;32mLoading torch...[0m[2K[32m⠼[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m[2K[32m⠦[0m [1;32mLoading torch...[0m[2K[32m⠧[0m [1;32mLoading torch...[0m[2K[32m⠇[0m [1;32mLoading torch...[0m[2K[32m⠏[0m [1;32mLoading torch...[0m[2K[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m[2K[32m⠸[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading numpy...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠇[0m [1;32mLoading ax...[0m[2K[32m⠏[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠇[0m [1;32mLoading ax...[0m[2K[32m⠏[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading botorch...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading submitit...[0m
+[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax logger...[0m
+[?25h[1A[2KRun-UUID: e4760be1-cc12-4d05-844d-b8c724edc631
+  _________________________________________________
+ /                                                 \
+| OmniOpt2 - It’s a hyperparameter life – every twe |
+| ak counts!                                        |
+ \                                                 /
+  =================================================
+                                                        \
+                                                         \
+                                                          \
+                                                           \
+                                                              .-=-==--==--.
+                                                        ..-=="  ,'o`)      `.
+                                                      ,'         `"'         \
+                                                     :  (                     `.__...._
+                                                     |                  )    /         `-=-.
+                                                     :       ,vv.-._   /    /               `---==-._
+                                                      \/\/\/VV ^ d88`;'    /                         `.
+                                                          ``  ^/d88P!'    /             ,              `._
+                                                             ^/    !'   ,.      ,      /                  "-,,__,,--'""""-.
+                                                            ^/    !'  ,'  \ . .(      (         _           )  ) ) ) ))_,-.\
+                                                           ^(__ ,!',"'   ;:+.:%:a.     \:.. . ,'          )  )  ) ) ,"'    '
+                                                           ',,,'','     /o:::":%:%a.    \:.:.:         .    )  ) _,'
+                                                            """'       ;':::'' `+%%%a._  \%:%|         ;.). _,-""
+                                                                   ,-='_.-'      ``:%::)  )%:|        /:._,"
+                                                                  (/(/"           ," ,'_,'%%%:       (_,'
+                                                                                 (  (//(`.___;        \
+                                                                                  \     \    `         `
+                                                                                   `.    `.   `.        :
+                                                                                     \. . .\    : . . . :
+                                                                                      \. . .:    `.. . .:
+                                                                                       `..:.:\     \:...\
+                                                                                        ;:.:.;      ::...:
+                                                                                        ):%::       :::::;
+                                                                                    __,::%:(        :::::
+                                                                                 ,;:%%%%%%%:        ;:%::
+                                                                                   ;,--""-.`\  ,=--':%:%:\
+                                                                                  /"       "| /-".:%%%%%%%\
+                                                                                                  ;,-"'`)%%)
+                                                                                                 /"      "|
+./omniopt --partition=alpha --experiment_name=simple_experiment --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=20 --num_parallel_jobs=5 --gpus=1 --num_random_steps=10 --follow --live_share --send_anonymized_usage_stats --checkout_to_latest_tested_version --run_program=YmFzaCAvaG9tZS9zMzgxMTE0MS9Eb2t1bWVudGUvb28yL2RlbW8vcnVuLnNoIC0tbGVhcm5pbmdfcmF0ZT0lKGxyKSAtLWVwb2Nocz0lKGVwb2NocykgLS13aWR0aD0lKHdpZHRoX29yX2hlaWdodCkgLS1oZWlnaHQ9JSh3aWR0aF9vcl9oZWlnaHQp --result_names result --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --parameter lr range 1e-7 0.0001 float false --parameter epochs range 10 30 int false --parameter width_or_height range 20 80 int false --ui_url aHR0cHM6Ly9pbWFnZXNlZy5zY2Fkcy5kZS9vbW5pYXgvZ3VpLnBocD9wYXJ0aXRpb249YWxwaGEmZXhwZXJpbWVudF9uYW1lPXNpbXBsZV9leHBlcmltZW50JnJlc2VydmF0aW9uPSZhY2NvdW50PSZtZW1fZ2I9MSZ0aW1lPTYwJndvcmtlcl90aW1lb3V0PTYwJm1heF9ldmFsPTIwJm51bV9wYXJhbGxlbF9qb2JzPTUmZ3B1cz0xJm51bV9yYW5kb21fc3RlcHM9MTAmZm9sbG93PTEmbGl2ZV9zaGFyZT0wJnNlbmRfYW5vbnltaXplZF91c2FnZV9zdGF0cz0xJmNoZWNrb3V0X3RvX2xhdGVzdF90ZXN0ZWRfdmVyc2lvbj0xJnJ1bl9wcm9ncmFtPWJhc2glMjAlMkZob21lJTJGczM4MTExNDElMkZEb2t1bWVudGUlMkZvbzIlMkZkZW1vJTJGcnVuLnNoJTIwLS1sZWFybmluZ19yYXRlJTNEJTI1KGxyKSUyMC0tZXBvY2hzJTNEJTI1KGVwb2NocyklMjAtLXdpZHRoJTNEJTI1KHdpZHRoX29yX2hlaWdodCklMjAtLWhlaWdodCUzRCUyNSh3aWR0aF9vcl9oZWlnaHQpJnJlc3VsdF9uYW1lcz1yZXN1bHQmY3B1c19wZXJfdGFzaz0xJm5vZGVzX3Blcl9qb2I9MSZzZWVkPSZ2ZXJib3NlPTAmZGVidWc9MCZncmlkc2VhcmNoPTAmbW9kZWw9Qk9UT1JDSF9NT0RVTEFSJm9jY190eXBlPWV1Y2xpZCZpbnN0YWxsYXRpb25fbWV0aG9kPWNsb25lJnJ1bl9tb2RlPWxvY2FsJmNvbnN0cmFpbnRzPSZwYXJhbWV0ZXJfMF9uYW1lPWxyJnBhcmFtZXRlcl8wX3R5cGU9cmFuZ2UmcGFyYW1ldGVyXzBfbWluPTAuMDAwMDAwMSZwYXJhbWV0ZXJfMF9tYXg9MC4wMDAxJnBhcmFtZXRlcl8wX251bWJlcl90eXBlPWZsb2F0JnBhcmFtZXRlcl8wX2xvZ19zY2FsZT1mYWxzZSZwYXJhbWV0ZXJfMV9uYW1lPWVwb2NocyZwYXJhbWV0ZXJfMV90eXBlPXJhbmdlJnBhcmFtZXRlcl8xX21pbj0xMCZwYXJhbWV0ZXJfMV9tYXg9MzAmcGFyYW1ldGVyXzFfbnVtYmVyX3R5cGU9aW50JnBhcmFtZXRlcl8xX2xvZ19zY2FsZT1mYWxzZSZwYXJhbWV0ZXJfMl9uYW1lPXdpZHRoX29yX2hlaWdodCZwYXJhbWV0ZXJfMl90eXBlPXJhbmdlJnBhcmFtZXRlcl8yX21pbj0yMCZwYXJhbWV0ZXJfMl9tYXg9ODAmcGFyYW1ldGVyXzJfbnVtYmVyX3R5cGU9aW50JnBhcmFtZXRlcl8yX2xvZ19zY2FsZT1mYWxzZSZwYXJ0aXRpb249YWxwaGEmbnVtX3BhcmFtZXRlcnM9Mw==
+Run-folder: runs/simple_experiment/3
+[33m⚠ No CUDA devices found. This means, the generation of new evaluation points will not be accelerated by a GPU.[0m
+Generation strategy: Sobol for 10 trials, BoTorch for subsequent trials
+[3m                           Experiment parameters:                           [0m
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┓
+┃[1m [0m[1mName           [0m[1m [0m┃[1m [0m[1mType [0m[1m [0m┃[1m [0m[1mLower bound[0m[1m [0m┃[1m [0m[1mUpper bound[0m[1m [0m┃[1m [0m[1mType [0m[1m [0m┃[1m [0m[1mLog Scale?[0m[1m [0m┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━┩
+│[92m [0m[92mlr             [0m[92m [0m│[92m [0m[92mrange[0m[92m [0m│[92m [0m[92m0          [0m[92m [0m│[92m [0m[92m0.0001     [0m[92m [0m│[92m [0m[92mfloat[0m[92m [0m│[92m [0m[92mNo        [0m[92m [0m│
+│[92m [0m[92mepochs         [0m[92m [0m│[92m [0m[92mrange[0m[92m [0m│[92m [0m[92m10         [0m[92m [0m│[92m [0m[92m30         [0m[92m [0m│[92m [0m[92mint  [0m[92m [0m│[92m [0m[92mNo        [0m[92m [0m│
+│[92m [0m[92mwidth_or_height[0m[92m [0m│[92m [0m[92mrange[0m[92m [0m│[92m [0m[92m20         [0m[92m [0m│[92m [0m[92m80         [0m[92m [0m│[92m [0m[92mint  [0m[92m [0m│[92m [0m[92mNo        [0m[92m [0m│
+└─────────────────┴───────┴─────────────┴─────────────┴───────┴────────────┘
+Run-Program: bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=%(lr) --epochs=%(epochs) --width=%(width_or_height) --height=%(width_or_height)
+[92mSee http://localhost/oo2_gui/share.php?user_id=s3811141&experiment_name=simple_experiment&run_nr=2 for a live-trace.
+[0m
+  0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 20):   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 20):   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]Initializing model, getting 1 trials (no sbatch):   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]                         Initializing model, getting 1 trials (no sbatch):   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]          SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]      SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s] SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/20 [00:00<?, ?it/s]

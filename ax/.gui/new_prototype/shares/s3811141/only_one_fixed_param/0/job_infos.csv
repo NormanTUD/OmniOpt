@@ -1,0 +1,2 @@
+start_time,end_time,run_time,program_string,fixed_param,result,exit_code,signal,hostname
+1740559762,1740559762,0,"echo ""RESULT: 16""",16,16,0,None,arbeitsrechner

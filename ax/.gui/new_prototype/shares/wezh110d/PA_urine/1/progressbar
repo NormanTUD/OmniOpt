@@ -1,0 +1,513 @@
+2025-02-04 11:14:38: Initializing model, Started OmniOpt2 run...
+2025-02-04 11:14:38: Initializing model, trying to get 20 next steps (current done: 0, max: 1000)
+2025-02-04 11:14:38: Initializing model, getting 1 trials 
+2025-02-04 11:14:39: SobolGenerator, starting parameter set
+2025-02-04 11:14:39: SobolGenerator, starting new job
+2025-02-04 11:14:40: SobolGenerator, pending 1 (5%/20), started new job
+2025-02-04 11:14:40: SobolGenerator, pending 1 (5%/20), getting 1 trials (last/avg 0.07s/0.07s)
+2025-02-04 11:14:40: SobolGenerator, pending 1 (5%/20), starting parameter set
+2025-02-04 11:14:40: SobolGenerator, pending 1 (5%/20), starting new job
+2025-02-04 11:14:42: SobolGenerator, pending/unknown 1/1 (10%/20), started new job
+2025-02-04 11:14:42: SobolGenerator, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:14:42: SobolGenerator, pending/unknown 1/1 (10%/20), starting parameter set
+2025-02-04 11:14:42: SobolGenerator, pending/unknown 1/1 (10%/20), starting new job
+2025-02-04 11:14:43: SobolGenerator, pending/unknown 1/2 (15%/20), started new job
+2025-02-04 11:14:44: SobolGenerator, pending/unknown 1/2 (15%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:14:44: SobolGenerator, pending/unknown 1/2 (15%/20), starting parameter set
+2025-02-04 11:14:44: SobolGenerator, pending/unknown 1/2 (15%/20), starting new job
+2025-02-04 11:14:46: SobolGenerator, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:14:47: SobolGenerator, pending/unknown 3/1 (20%/20), getting 1 trials (last/avg 0.05s/0.05s)
+2025-02-04 11:14:47: SobolGenerator, pending/unknown 3/1 (20%/20), starting parameter set
+2025-02-04 11:14:47: SobolGenerator, pending/unknown 3/1 (20%/20), starting new job
+2025-02-04 11:14:48: SobolGenerator, pending/unknown 3/2 (25%/20), started new job
+2025-02-04 11:14:48: SobolGenerator, pending/unknown 3/2 (25%/20), getting 1 trials (last/avg 0.04s/0.05s)
+2025-02-04 11:14:49: SobolGenerator, pending/unknown 3/2 (25%/20), starting parameter set
+2025-02-04 11:14:49: SobolGenerator, pending/unknown 3/2 (25%/20), starting new job
+2025-02-04 11:14:50: SobolGenerator, pending 6 (30%/20), started new job
+2025-02-04 11:14:50: SobolGenerator, pending 6 (30%/20), getting 1 trials (last/avg 0.04s/0.05s)
+2025-02-04 11:14:51: SobolGenerator, pending 6 (30%/20), starting parameter set
+2025-02-04 11:14:51: SobolGenerator, pending 6 (30%/20), starting new job
+2025-02-04 11:14:52: SobolGenerator, pending/unknown 6/1 (35%/20), started new job
+2025-02-04 11:14:53: SobolGenerator, pending/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.04s/0.05s)
+2025-02-04 11:14:53: SobolGenerator, pending/unknown 6/1 (35%/20), starting parameter set
+2025-02-04 11:14:53: SobolGenerator, pending/unknown 6/1 (35%/20), starting new job
+2025-02-04 11:14:54: SobolGenerator, pending/unknown 6/2 (40%/20), started new job
+2025-02-04 11:14:55: SobolGenerator, pending/unknown 6/2 (40%/20), getting 1 trials (last/avg 0.07s/0.05s)
+2025-02-04 11:14:55: SobolGenerator, pending/unknown 6/2 (40%/20), starting parameter set
+2025-02-04 11:14:56: SobolGenerator, pending/unknown 6/2 (40%/20), starting new job
+2025-02-04 11:14:57: SobolGenerator, running/unknown 8/1 (45%/20), started new job
+2025-02-04 11:14:58: SobolGenerator, running/unknown 8/1 (45%/20), getting 1 trials (last/avg 0.04s/0.05s)
+2025-02-04 11:14:58: SobolGenerator, running/unknown 8/1 (45%/20), starting parameter set
+2025-02-04 11:14:58: SobolGenerator, running/unknown 8/1 (45%/20), starting new job
+2025-02-04 11:14:59: SobolGenerator, running/unknown 8/2 (50%/20), started new job
+2025-02-04 11:15:00: SobolGenerator, running/unknown 8/2 (50%/20), getting 1 trials (last/avg 0.05s/0.05s)
+2025-02-04 11:15:01: SobolGenerator, running/unknown 8/2 (50%/20), starting parameter set
+2025-02-04 11:15:01: SobolGenerator, running/unknown 8/2 (50%/20), starting new job
+2025-02-04 11:15:02: SobolGenerator, running/pending 8/3 (55%/20), started new job
+2025-02-04 11:15:03: SobolGenerator, running/pending 8/3 (55%/20), getting 1 trials (last/avg 0.05s/0.05s)
+2025-02-04 11:15:03: SobolGenerator, running/pending 8/3 (55%/20), starting parameter set
+2025-02-04 11:15:04: SobolGenerator, running/pending 8/3 (55%/20), starting new job
+2025-02-04 11:15:05: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), started new job
+2025-02-04 11:15:06: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), getting 1 trials (last/avg 0.06s/0.05s)
+2025-02-04 11:15:06: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), starting parameter set
+2025-02-04 11:15:07: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), starting new job
+2025-02-04 11:15:08: SobolGenerator, running/pending/unknown 8/4/1 (65%/20), started new job
+2025-02-04 11:15:10: SobolGenerator, running/completed/pending/unknown 7/1/4/1 (65%/20), getting 1 trials (last/avg 0.08s/0.05s)
+2025-02-04 11:15:11: SobolGenerator, running/completed/pending/unknown 7/1/4/1 (65%/20), starting parameter set
+2025-02-04 11:15:11: SobolGenerator, running/completed/pending/unknown 7/1/4/1 (65%/20), starting new job
+2025-02-04 11:15:12: SobolGenerator, running/completed/pending 6/2/6 (70%/20), started new job
+2025-02-04 11:15:12: SobolGenerator, best result: 0.6445993123784475, running/completed/pending 6/2/6 (70%/20), new result: 0.6445993123784475
+2025-02-04 11:15:13: SobolGenerator, best result: 0.40307471443563925, running/completed/pending 6/1/6 (65%/20), new result: 0.40307471443563925
+2025-02-04 11:15:14: SobolGenerator, best result: 0.40307471443563925, running/pending 6/6 (60%/20), finishing jobs (_get_next_trials), finished 2 jobs
+2025-02-04 11:15:14: SobolGenerator, best result: 0.40307471443563925, running/pending 6/6 (60%/20), getting 1 trials (last/avg 0.10s/0.06s)
+2025-02-04 11:15:14: SobolGenerator, best result: 0.40307471443563925, running/pending 6/6 (60%/20), starting parameter set
+2025-02-04 11:15:14: SobolGenerator, best result: 0.40307471443563925, running/pending 6/6 (60%/20), starting new job
+2025-02-04 11:15:16: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/6/1 (65%/20), started new job
+2025-02-04 11:15:17: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/6/1 (65%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:15:17: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/6/1 (65%/20), starting parameter set
+2025-02-04 11:15:17: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/6/1 (65%/20), starting new job
+2025-02-04 11:15:19: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/7/1 (70%/20), started new job
+2025-02-04 11:15:20: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/7/1 (70%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:15:20: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/7/1 (70%/20), starting parameter set
+2025-02-04 11:15:20: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/7/1 (70%/20), starting new job
+2025-02-04 11:15:22: SobolGenerator, best result: 0.40307471443563925, running/pending 6/9 (75%/20), started new job
+2025-02-04 11:15:23: SobolGenerator, best result: 0.40307471443563925, running/pending 6/9 (75%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:15:24: SobolGenerator, best result: 0.40307471443563925, running/pending 6/9 (75%/20), starting parameter set
+2025-02-04 11:15:24: SobolGenerator, best result: 0.40307471443563925, running/pending 6/9 (75%/20), starting new job
+2025-02-04 11:15:25: SobolGenerator, best result: 0.40307471443563925, running/pending/unknown 6/9/1 (80%/20), started new job
+2025-02-04 11:15:28: SobolGenerator, best result: 0.40307471443563925, running 16 (80%/20), getting 1 trials (last/avg 0.07s/0.06s)
+2025-02-04 11:15:29: SobolGenerator, best result: 0.40307471443563925, running 16 (80%/20), starting parameter set
+2025-02-04 11:15:29: SobolGenerator, best result: 0.40307471443563925, running 16 (80%/20), starting new job
+2025-02-04 11:15:30: SobolGenerator, best result: 0.40307471443563925, running/unknown 16/1 (85%/20), started new job
+2025-02-04 11:15:32: SobolGenerator, best result: 0.40307471443563925, running/unknown 16/1 (85%/20), getting 1 trials (last/avg 0.10s/0.06s)
+2025-02-04 11:15:32: SobolGenerator, best result: 0.40307471443563925, running/unknown 16/1 (85%/20), starting parameter set
+2025-02-04 11:15:32: SobolGenerator, best result: 0.40307471443563925, running/unknown 16/1 (85%/20), starting new job
+2025-02-04 11:15:34: SobolGenerator, best result: 0.40307471443563925, running/completed/pending/unknown 12/4/1/1 (90%/20), started new job
+2025-02-04 11:15:34: SobolGenerator, best result: 0.2165342550771635, running/completed/pending/unknown 12/4/1/1 (90%/20), new result: 0.2165342550771635
+2025-02-04 11:15:34: SobolGenerator, best result: 0.2165342550771635, running/completed/pending/unknown 12/3/1/1 (85%/20), new result: 0.2222047726170322
+2025-02-04 11:15:34: SobolGenerator, best result: 0.2165342550771635, running/completed/pending/unknown 12/2/1/1 (80%/20), new result: 0.38379932820914364
+2025-02-04 11:15:35: SobolGenerator, best result: 0.2165342550771635, running/completed/pending/unknown 12/1/1/1 (75%/20), new result: 0.46450787986733744
+2025-02-04 11:15:36: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 12/1/1 (70%/20), new result: 0.6596453299394613
+2025-02-04 11:15:36: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 11/1/1 (65%/20), finishing jobs (_get_next_trials), finished 5 jobs
+2025-02-04 11:15:36: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 11/1/1 (65%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:37: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 11/1/1 (65%/20), got 0, requested 20
+2025-02-04 11:15:37: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 11/1/1 (65%/20), new result: 0.2848547799845522
+2025-02-04 11:15:37: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 10/1/1 (60%/20), new result: 0.4225097664439822
+2025-02-04 11:15:38: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 9/1/1 (55%/20), new result: 0.22167481087386565
+2025-02-04 11:15:38: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 8/1/1 (50%/20), new result: 0.22231746137069452
+2025-02-04 11:15:38: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 7/1/1 (45%/20), new result: 0.38482970481690415
+2025-02-04 11:15:38: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 6/1/1 (40%/20), new result: 0.3125579200226257
+2025-02-04 11:15:39: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 5/1/1 (35%/20), new result: 0.3341959700945245
+2025-02-04 11:15:39: SobolGenerator, best result: 0.2165342550771635, running/pending/unknown 4/1/1 (30%/20), finishing previous jobs, finished 7 jobs
+2025-02-04 11:15:41: SobolGenerator, best result: 0.2165342550771635, running/pending 4/2 (30%/20), trying to get 14 next steps (current done: 14, max: 1000)
+2025-02-04 11:15:42: SobolGenerator, best result: 0.2165342550771635, running/pending 4/2 (30%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:43: SobolGenerator, best result: 0.2165342550771635, running/pending 4/2 (30%/20), got 0, requested 14
+2025-02-04 11:15:43: SobolGenerator, best result: 0.2165342550771635, running/pending 4/2 (30%/20), new result: 0.36106859657805057
+2025-02-04 11:15:44: SobolGenerator, best result: 0.2165342550771635, running/pending 3/2 (25%/20), finishing previous jobs, finished 1 job
+2025-02-04 11:15:46: SobolGenerator, best result: 0.2165342550771635, running/pending 3/2 (25%/20), new result: 0.3743900251458221
+2025-02-04 11:15:46: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), finished 1 job
+2025-02-04 11:15:47: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), trying to get 16 next steps (current done: 16, max: 1000)
+2025-02-04 11:15:47: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:48: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), got 0, requested 16
+2025-02-04 11:15:50: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), trying to get 16 next steps (current done: 16, max: 1000)
+2025-02-04 11:15:50: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:50: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), got 0, requested 16
+2025-02-04 11:15:52: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), trying to get 16 next steps (current done: 16, max: 1000)
+2025-02-04 11:15:53: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:53: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), got 0, requested 16
+2025-02-04 11:15:53: SobolGenerator, best result: 0.2165342550771635, running/pending 2/2 (20%/20), new result: 0.36212121193503444
+2025-02-04 11:15:54: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), finishing previous jobs, finished 1 job
+2025-02-04 11:15:55: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), trying to get 17 next steps (current done: 17, max: 1000)
+2025-02-04 11:15:56: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:56: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), got 0, requested 17
+2025-02-04 11:15:58: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), trying to get 17 next steps (current done: 17, max: 1000)
+2025-02-04 11:15:59: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:15:59: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), got 0, requested 17
+2025-02-04 11:16:01: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), trying to get 17 next steps (current done: 17, max: 1000)
+2025-02-04 11:16:02: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:02: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), got 0, requested 17
+2025-02-04 11:16:04: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), trying to get 17 next steps (current done: 17, max: 1000)
+2025-02-04 11:16:05: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:05: SobolGenerator, best result: 0.2165342550771635, running/pending 1/2 (15%/20), got 0, requested 17
+2025-02-04 11:16:07: SobolGenerator, best result: 0.2165342550771635, running 3 (15%/20), trying to get 17 next steps (current done: 17, max: 1000)
+2025-02-04 11:16:07: SobolGenerator, best result: 0.2165342550771635, running 3 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:07: SobolGenerator, best result: 0.2165342550771635, running 3 (15%/20), got 0, requested 17
+2025-02-04 11:16:08: SobolGenerator, best result: 0.2165342550771635, running 3 (15%/20), new result: 0.3855737608563403
+2025-02-04 11:16:08: SobolGenerator, best result: 0.2165342550771635, running 2 (10%/20), finishing previous jobs, finished 1 job
+2025-02-04 11:16:09: SobolGenerator, best result: 0.2165342550771635, running 2 (10%/20), new result: 0.2217823377555862
+2025-02-04 11:16:09: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), finished 1 job
+2025-02-04 11:16:09: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), trying to get 19 next steps (current done: 19, max: 1000)
+2025-02-04 11:16:10: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:10: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), got 0, requested 19
+2025-02-04 11:16:11: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), trying to get 19 next steps (current done: 19, max: 1000)
+2025-02-04 11:16:12: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:12: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), got 0, requested 19
+2025-02-04 11:16:13: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), trying to get 19 next steps (current done: 19, max: 1000)
+2025-02-04 11:16:13: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:14: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), got 0, requested 19
+2025-02-04 11:16:15: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), trying to get 19 next steps (current done: 19, max: 1000)
+2025-02-04 11:16:16: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:16: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), got 0, requested 19
+2025-02-04 11:16:16: SobolGenerator, best result: 0.2165342550771635, running 1 (5%/20), new result: 0.36135673573089544
+2025-02-04 11:16:17: SobolGenerator, best result: 0.2165342550771635, finishing previous jobs, finished 1 job
+2025-02-04 11:16:18: SobolGenerator, best result: 0.2165342550771635, found 0 zero-jobs (max: 20)
+2025-02-04 11:16:18: SobolGenerator, best result: 0.2165342550771635, trying to get 20 next steps (current done: 20, max: 1000)
+2025-02-04 11:16:18: SobolGenerator, best result: 0.2165342550771635, getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:16:23: BoTorchModel, best result: 0.2165342550771635, starting parameter set
+2025-02-04 11:16:23: BoTorchModel, best result: 0.2165342550771635, starting new job
+2025-02-04 11:16:24: BoTorchModel, best result: 0.2165342550771635, unknown 1 (5%/20), started new job
+2025-02-04 11:16:25: BoTorchModel, best result: 0.2165342550771635, unknown 1 (5%/20), getting 1 trials (last/avg 4.14s/0.25s)
+2025-02-04 11:16:26: BoTorchModel, best result: 0.2165342550771635, unknown 1 (5%/20), starting parameter set
+2025-02-04 11:16:27: BoTorchModel, best result: 0.2165342550771635, unknown 1 (5%/20), starting new job
+2025-02-04 11:16:28: BoTorchModel, best result: 0.2165342550771635, unknown 2 (10%/20), started new job
+2025-02-04 11:16:28: BoTorchModel, best result: 0.2165342550771635, unknown 2 (10%/20), getting 1 trials (last/avg 1.52s/0.31s)
+2025-02-04 11:16:30: BoTorchModel, best result: 0.2165342550771635, pending 2 (10%/20), starting parameter set
+2025-02-04 11:16:30: BoTorchModel, best result: 0.2165342550771635, pending 2 (10%/20), starting new job
+2025-02-04 11:16:32: BoTorchModel, best result: 0.2165342550771635, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:16:32: BoTorchModel, best result: 0.2165342550771635, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 1.55s/0.36s)
+2025-02-04 11:16:35: BoTorchModel, best result: 0.2165342550771635, running 3 (15%/20), starting parameter set
+2025-02-04 11:16:36: BoTorchModel, best result: 0.2165342550771635, running 3 (15%/20), starting new job
+2025-02-04 11:16:37: BoTorchModel, best result: 0.2165342550771635, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:16:38: BoTorchModel, best result: 0.2165342550771635, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 2.58s/0.46s)
+2025-02-04 11:16:43: BoTorchModel, best result: 0.2165342550771635, completed/pending 3/1 (20%/20), starting parameter set
+2025-02-04 11:16:43: BoTorchModel, best result: 0.2165342550771635, completed/pending 3/1 (20%/20), starting new job
+2025-02-04 11:16:45: BoTorchModel, best result: 0.2165342550771635, completed/pending 3/2 (25%/20), started new job
+2025-02-04 11:16:45: BoTorchModel, best result: 0.18313571381541605, completed/pending 3/2 (25%/20), new result: 0.18313571381541605
+2025-02-04 11:16:45: BoTorchModel, best result: 0.18313571381541605, completed/pending 2/2 (20%/20), new result: 0.2173969317734875
+2025-02-04 11:16:46: BoTorchModel, best result: 0.18313571381541605, completed/pending 1/2 (15%/20), new result: 0.22209724573531187
+2025-02-04 11:16:46: BoTorchModel, best result: 0.18313571381541605, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:16:46: BoTorchModel, best result: 0.18313571381541605, pending 2 (10%/20), getting 1 trials (last/avg 3.20s/0.57s)
+2025-02-04 11:16:49: BoTorchModel, best result: 0.18313571381541605, pending 2 (10%/20), starting parameter set
+2025-02-04 11:16:50: BoTorchModel, best result: 0.18313571381541605, pending 2 (10%/20), starting new job
+2025-02-04 11:16:51: BoTorchModel, best result: 0.18313571381541605, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:16:52: BoTorchModel, best result: 0.18313571381541605, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 1.97s/0.62s)
+2025-02-04 11:16:54: BoTorchModel, best result: 0.18313571381541605, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:16:54: BoTorchModel, best result: 0.18313571381541605, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:16:56: BoTorchModel, best result: 0.18313571381541605, pending 4 (20%/20), started new job
+2025-02-04 11:16:56: BoTorchModel, best result: 0.18313571381541605, pending 4 (20%/20), getting 1 trials (last/avg 2.01s/0.67s)
+2025-02-04 11:16:59: BoTorchModel, best result: 0.18313571381541605, pending 4 (20%/20), starting parameter set
+2025-02-04 11:16:59: BoTorchModel, best result: 0.18313571381541605, pending 4 (20%/20), starting new job
+2025-02-04 11:17:01: BoTorchModel, best result: 0.18313571381541605, pending 5 (25%/20), started new job
+2025-02-04 11:17:02: BoTorchModel, best result: 0.18313571381541605, pending 5 (25%/20), getting 1 trials (last/avg 2.13s/0.72s)
+2025-02-04 11:17:05: BoTorchModel, best result: 0.18313571381541605, pending 5 (25%/20), starting parameter set
+2025-02-04 11:17:05: BoTorchModel, best result: 0.18313571381541605, pending 5 (25%/20), starting new job
+2025-02-04 11:17:08: BoTorchModel, best result: 0.18313571381541605, running/unknown 5/1 (30%/20), started new job
+2025-02-04 11:17:09: BoTorchModel, best result: 0.18313571381541605, running/unknown 5/1 (30%/20), getting 1 trials (last/avg 2.37s/0.78s)
+2025-02-04 11:17:13: BoTorchModel, best result: 0.18313571381541605, running/pending 5/1 (30%/20), starting parameter set
+2025-02-04 11:17:13: BoTorchModel, best result: 0.18313571381541605, running/pending 5/1 (30%/20), starting new job
+2025-02-04 11:17:15: BoTorchModel, best result: 0.18313571381541605, running/pending/unknown 5/1/1 (35%/20), started new job
+2025-02-04 11:17:15: BoTorchModel, best result: 0.18313571381541605, running/pending/unknown 5/1/1 (35%/20), new result: 0.22209724573531187
+2025-02-04 11:17:15: BoTorchModel, best result: 0.18313571381541605, running/pending/unknown 4/1/1 (30%/20), new result: 0.22209724573531187
+2025-02-04 11:17:16: BoTorchModel, best result: 0.18313571381541605, running/pending/unknown 3/1/1 (25%/20), new result: 0.2173969317734875
+2025-02-04 11:17:16: BoTorchModel, best result: 0.18313571381541605, running/pending/unknown 2/1/1 (20%/20), new result: 0.2173969317734875
+2025-02-04 11:17:16: BoTorchModel, best result: 0.18150933094623634, running/pending/unknown 1/1/1 (15%/20), new result: 0.18150933094623634
+2025-02-04 11:17:17: BoTorchModel, best result: 0.18150933094623634, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 5 jobs
+2025-02-04 11:17:18: BoTorchModel, best result: 0.18150933094623634, pending 2 (10%/20), getting 1 trials (last/avg 3.85s/0.88s)
+2025-02-04 11:17:20: BoTorchModel, best result: 0.18150933094623634, pending 2 (10%/20), starting parameter set
+2025-02-04 11:17:20: BoTorchModel, best result: 0.18150933094623634, pending 2 (10%/20), starting new job
+2025-02-04 11:17:22: BoTorchModel, best result: 0.18150933094623634, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:17:23: BoTorchModel, best result: 0.18150933094623634, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 1.73s/0.91s)
+2025-02-04 11:17:25: BoTorchModel, best result: 0.18150933094623634, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:17:26: BoTorchModel, best result: 0.18150933094623634, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:17:27: BoTorchModel, best result: 0.18150933094623634, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:17:28: BoTorchModel, best result: 0.18150933094623634, pending/unknown 3/1 (20%/20), getting 1 trials (last/avg 1.78s/0.94s)
+2025-02-04 11:17:31: BoTorchModel, best result: 0.18150933094623634, pending 4 (20%/20), starting parameter set
+2025-02-04 11:17:31: BoTorchModel, best result: 0.18150933094623634, pending 4 (20%/20), starting new job
+2025-02-04 11:17:32: BoTorchModel, best result: 0.18150933094623634, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:17:33: BoTorchModel, best result: 0.18150933094623634, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 1.98s/0.97s)
+2025-02-04 11:17:36: BoTorchModel, best result: 0.18150933094623634, pending 5 (25%/20), starting parameter set
+2025-02-04 11:17:36: BoTorchModel, best result: 0.18150933094623634, pending 5 (25%/20), starting new job
+2025-02-04 11:17:37: BoTorchModel, best result: 0.18150933094623634, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:17:38: BoTorchModel, best result: 0.18150933094623634, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 2.31s/1.01s)
+2025-02-04 11:17:41: BoTorchModel, best result: 0.18150933094623634, running/pending 5/1 (30%/20), starting parameter set
+2025-02-04 11:17:41: BoTorchModel, best result: 0.18150933094623634, running/pending 5/1 (30%/20), starting new job
+2025-02-04 11:17:44: BoTorchModel, best result: 0.18150933094623634, running/unknown 6/1 (35%/20), started new job
+2025-02-04 11:17:45: BoTorchModel, best result: 0.18150933094623634, running/unknown 6/1 (35%/20), getting 1 trials (last/avg 2.39s/1.05s)
+2025-02-04 11:17:49: BoTorchModel, best result: 0.18150933094623634, completed/pending 6/1 (35%/20), starting parameter set
+2025-02-04 11:17:49: BoTorchModel, best result: 0.18150933094623634, completed/pending 6/1 (35%/20), starting new job
+2025-02-04 11:17:51: BoTorchModel, best result: 0.18150933094623634, completed/pending/unknown 6/1/1 (40%/20), started new job
+2025-02-04 11:17:51: BoTorchModel, best result: 0.18150933094623634, completed/pending/unknown 6/1/1 (40%/20), new result: 0.21605517990931045
+2025-02-04 11:17:52: BoTorchModel, best result: 0.18150933094623634, completed/pending/unknown 5/1/1 (35%/20), new result: 0.21626507180080934
+2025-02-04 11:17:53: BoTorchModel, best result: 0.18150933094623634, completed/pending/unknown 4/1/1 (30%/20), new result: 0.1815142654951133
+2025-02-04 11:17:54: BoTorchModel, best result: 0.18150933094623634, completed/pending 3/2 (25%/20), new result: 0.18313571381541605
+2025-02-04 11:17:54: BoTorchModel, best result: 0.18150933094623634, completed/pending 2/2 (20%/20), new result: 0.28998286577996335
+2025-02-04 11:17:55: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/2 (15%/20), new result: 0.18144538251048026
+2025-02-04 11:17:56: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 6 jobs
+2025-02-04 11:17:56: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), getting 1 trials (last/avg 3.22s/1.11s)
+2025-02-04 11:17:58: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:17:58: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:18:00: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:18:00: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 1.32s/1.11s)
+2025-02-04 11:18:05: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:18:05: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:18:07: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), started new job
+2025-02-04 11:18:07: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), getting 1 trials (last/avg 4.30s/1.20s)
+2025-02-04 11:18:09: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting parameter set
+2025-02-04 11:18:10: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting new job
+2025-02-04 11:18:13: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), started new job
+2025-02-04 11:18:15: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), getting 1 trials (last/avg 1.37s/1.20s)
+2025-02-04 11:18:18: BoTorchModel, best result: 0.18144538251048026, running/pending 4/1 (25%/20), starting parameter set
+2025-02-04 11:18:18: BoTorchModel, best result: 0.18144538251048026, running/pending 4/1 (25%/20), starting new job
+2025-02-04 11:18:20: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 4/1/1 (30%/20), started new job
+2025-02-04 11:18:20: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 4/1/1 (30%/20), new result: 0.18204230830393753
+2025-02-04 11:18:20: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), new result: 0.22154397006626259
+2025-02-04 11:18:21: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 2/1/1 (20%/20), new result: 0.2172675337505634
+2025-02-04 11:18:21: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/1/1 (15%/20), new result: 0.1821852361451456
+2025-02-04 11:18:22: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:18:22: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 2.35s/1.23s)
+2025-02-04 11:18:26: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:18:26: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:18:29: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), started new job
+2025-02-04 11:18:29: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), got 1, requested 20
+2025-02-04 11:18:32: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), trying to get 17 next steps (current done: 36, max: 1000)
+2025-02-04 11:18:33: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), getting 1 trials (last/avg 3.26s/1.28s)
+2025-02-04 11:18:36: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:18:36: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:18:38: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), started new job
+2025-02-04 11:18:39: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), getting 1 trials (last/avg 2.51s/1.31s)
+2025-02-04 11:18:43: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting parameter set
+2025-02-04 11:18:43: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting new job
+2025-02-04 11:18:46: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), started new job
+2025-02-04 11:18:47: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), getting 1 trials (last/avg 3.76s/1.37s)
+2025-02-04 11:18:51: BoTorchModel, best result: 0.18144538251048026, running/pending 4/1 (25%/20), starting parameter set
+2025-02-04 11:18:51: BoTorchModel, best result: 0.18144538251048026, running/pending 4/1 (25%/20), starting new job
+2025-02-04 11:18:52: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 4/1/1 (30%/20), started new job
+2025-02-04 11:18:53: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 4/1/1 (30%/20), new result: 0.18313571381541605
+2025-02-04 11:18:53: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), new result: 0.3561857421949598
+2025-02-04 11:18:54: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 2/1/1 (20%/20), new result: 0.22167481087386565
+2025-02-04 11:18:54: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/1/1 (15%/20), new result: 0.7559040797015145
+2025-02-04 11:18:55: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:18:55: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), getting 1 trials (last/avg 3.67s/1.42s)
+2025-02-04 11:18:59: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:18:59: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:19:02: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:19:03: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 2.95s/1.45s)
+2025-02-04 11:19:06: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:19:07: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:19:08: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), started new job
+2025-02-04 11:19:09: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), getting 1 trials (last/avg 2.28s/1.47s)
+2025-02-04 11:19:12: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting parameter set
+2025-02-04 11:19:12: BoTorchModel, best result: 0.18144538251048026, pending 4 (20%/20), starting new job
+2025-02-04 11:19:14: BoTorchModel, best result: 0.18144538251048026, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:19:15: BoTorchModel, best result: 0.18144538251048026, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 2.32s/1.49s)
+2025-02-04 11:19:19: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting parameter set
+2025-02-04 11:19:19: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting new job
+2025-02-04 11:19:20: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), started new job
+2025-02-04 11:19:21: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), getting 1 trials (last/avg 3.66s/1.53s)
+2025-02-04 11:19:26: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 3/2/1 (30%/20), starting parameter set
+2025-02-04 11:19:27: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 3/2/1 (30%/20), starting new job
+2025-02-04 11:19:28: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 3/2/1/1 (35%/20), started new job
+2025-02-04 11:19:29: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 3/2/1/1 (35%/20), new result: 0.7633001963886966
+2025-02-04 11:19:30: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 2/2/1/1 (30%/20), new result: 0.19501062940124836
+2025-02-04 11:19:31: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 2/1/2 (25%/20), new result: 0.2173969317734875
+2025-02-04 11:19:32: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 1/1/2 (20%/20), new result: 0.33352522676755714
+2025-02-04 11:19:33: BoTorchModel, best result: 0.18144538251048026, running/pending 1/2 (15%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:19:33: BoTorchModel, best result: 0.18144538251048026, running/pending 1/2 (15%/20), getting 1 trials (last/avg 4.07s/1.59s)
+2025-02-04 11:19:38: BoTorchModel, best result: 0.18144538251048026, running/pending 1/2 (15%/20), starting parameter set
+2025-02-04 11:19:38: BoTorchModel, best result: 0.18144538251048026, running/pending 1/2 (15%/20), starting new job
+2025-02-04 11:19:40: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/2/1 (20%/20), started new job
+2025-02-04 11:19:41: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/2/1 (20%/20), getting 1 trials (last/avg 3.92s/1.63s)
+2025-02-04 11:19:44: BoTorchModel, best result: 0.18144538251048026, running/pending 1/3 (20%/20), starting parameter set
+2025-02-04 11:19:45: BoTorchModel, best result: 0.18144538251048026, running/pending 1/3 (20%/20), starting new job
+2025-02-04 11:19:46: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/3/1 (25%/20), started new job
+2025-02-04 11:19:47: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/3/1 (25%/20), getting 1 trials (last/avg 2.98s/1.66s)
+2025-02-04 11:19:51: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting parameter set
+2025-02-04 11:19:51: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting new job
+2025-02-04 11:19:53: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), started new job
+2025-02-04 11:19:55: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), getting 1 trials (last/avg 3.45s/1.69s)
+2025-02-04 11:20:00: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 1/4/1 (30%/20), starting parameter set
+2025-02-04 11:20:01: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 1/4/1 (30%/20), starting new job
+2025-02-04 11:20:02: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 1/4/1/1 (35%/20), started new job
+2025-02-04 11:20:03: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 1/4/1/1 (35%/20), new result: 0.36135673573089544
+2025-02-04 11:20:04: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 4/1/1 (30%/20), new result: 0.22209724573531187
+2025-02-04 11:20:05: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), new result: 0.764513003852102
+2025-02-04 11:20:06: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 2/1/1 (20%/20), new result: 0.3834095162554936
+2025-02-04 11:20:07: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/1/1 (15%/20), new result: 0.3542000424541184
+2025-02-04 11:20:08: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), finishing jobs (_get_next_trials), finished 5 jobs
+2025-02-04 11:20:08: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 4.45s/1.75s)
+2025-02-04 11:20:14: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:20:14: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:20:16: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:20:16: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.82s/1.78s)
+2025-02-04 11:20:20: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:20:20: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:20:24: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:20:25: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 3.48s/1.82s)
+2025-02-04 11:20:31: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting parameter set
+2025-02-04 11:20:31: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting new job
+2025-02-04 11:20:33: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), started new job
+2025-02-04 11:20:34: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), new result: 0.39065119047143637
+2025-02-04 11:20:35: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 2/1/1 (20%/20), new result: 0.2222047726170322
+2025-02-04 11:20:36: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/2 (15%/20), new result: 0.18899725133647005
+2025-02-04 11:20:37: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:20:38: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), getting 1 trials (last/avg 5.27s/1.88s)
+2025-02-04 11:20:42: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:20:43: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:20:44: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:20:45: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.69s/1.91s)
+2025-02-04 11:20:48: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:20:49: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:20:50: BoTorchModel, best result: 0.18144538251048026, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:20:51: BoTorchModel, best result: 0.18144538251048026, pending/unknown 3/1 (20%/20), getting 1 trials (last/avg 2.92s/1.93s)
+2025-02-04 11:20:55: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting parameter set
+2025-02-04 11:20:55: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting new job
+2025-02-04 11:20:57: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), started new job
+2025-02-04 11:20:58: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), got 1, requested 17
+2025-02-04 11:21:02: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), trying to get 15 next steps (current done: 51, max: 1000)
+2025-02-04 11:21:03: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), new result: 0.6971187559243515
+2025-02-04 11:21:04: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 1/2/1 (20%/20), new result: 0.2219484238780559
+2025-02-04 11:21:04: BoTorchModel, best result: 0.18144538251048026, running/pending 2/1 (15%/20), new result: 0.2222047726170322
+2025-02-04 11:21:05: BoTorchModel, best result: 0.18144538251048026, running/pending 1/1 (10%/20), new result: 0.22209208386336987
+2025-02-04 11:21:06: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:21:07: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), getting 1 trials (last/avg 3.39s/1.95s)
+2025-02-04 11:21:15: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting parameter set
+2025-02-04 11:21:15: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting new job
+2025-02-04 11:21:17: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), started new job
+2025-02-04 11:21:17: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), getting 1 trials (last/avg 6.46s/2.03s)
+2025-02-04 11:21:22: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:21:22: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:21:24: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:21:24: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.94s/2.06s)
+2025-02-04 11:21:31: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting parameter set
+2025-02-04 11:21:31: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting new job
+2025-02-04 11:21:34: BoTorchModel, best result: 0.18144538251048026, completed/unknown 3/1 (20%/20), started new job
+2025-02-04 11:21:34: BoTorchModel, best result: 0.18144538251048026, completed/unknown 3/1 (20%/20), new result: 0.21739616174220389
+2025-02-04 11:21:35: BoTorchModel, best result: 0.18144538251048026, completed/unknown 2/1 (15%/20), new result: 0.1941704167292574
+2025-02-04 11:21:37: BoTorchModel, best result: 0.18144538251048026, completed/unknown 1/1 (10%/20), new result: 0.6520841086125029
+2025-02-04 11:21:38: BoTorchModel, best result: 0.18144538251048026, unknown 1 (5%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:21:39: BoTorchModel, best result: 0.18144538251048026, unknown 1 (5%/20), getting 1 trials (last/avg 5.38s/2.11s)
+2025-02-04 11:21:44: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting parameter set
+2025-02-04 11:21:45: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting new job
+2025-02-04 11:21:47: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), started new job
+2025-02-04 11:21:47: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 4.72s/2.15s)
+2025-02-04 11:21:51: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:21:52: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:21:53: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:21:54: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.49s/2.17s)
+2025-02-04 11:21:58: BoTorchModel, best result: 0.18144538251048026, running/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:21:58: BoTorchModel, best result: 0.18144538251048026, running/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:22:00: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:22:02: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 3.45s/2.19s)
+2025-02-04 11:22:09: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting parameter set
+2025-02-04 11:22:09: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting new job
+2025-02-04 11:22:11: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), started new job
+2025-02-04 11:22:12: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 3/1/1 (25%/20), new result: 0.22209724573531187
+2025-02-04 11:22:13: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 2/1/1 (20%/20), new result: 0.18265553889543718
+2025-02-04 11:22:14: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/1/1 (15%/20), new result: 0.22209208386336987
+2025-02-04 11:22:15: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:22:16: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 5.31s/2.24s)
+2025-02-04 11:22:21: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:22:21: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:22:23: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:22:23: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.50s/2.26s)
+2025-02-04 11:22:27: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting parameter set
+2025-02-04 11:22:28: BoTorchModel, best result: 0.18144538251048026, pending 3 (15%/20), starting new job
+2025-02-04 11:22:29: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:22:30: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 3.63s/2.28s)
+2025-02-04 11:22:37: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting parameter set
+2025-02-04 11:22:37: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting new job
+2025-02-04 11:22:39: BoTorchModel, best result: 0.18144538251048026, completed/unknown 4/1 (25%/20), started new job
+2025-02-04 11:22:40: BoTorchModel, best result: 0.18144538251048026, completed/unknown 4/1 (25%/20), new result: 0.22209724573531187
+2025-02-04 11:22:41: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), new result: 0.2222537402580036
+2025-02-04 11:22:42: BoTorchModel, best result: 0.18144538251048026, completed/pending 2/1 (15%/20), new result: 0.7577187475072541
+2025-02-04 11:22:43: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/1 (10%/20), new result: 0.361247587892364
+2025-02-04 11:22:44: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:22:45: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), getting 1 trials (last/avg 5.47s/2.33s)
+2025-02-04 11:22:49: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting parameter set
+2025-02-04 11:22:50: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting new job
+2025-02-04 11:22:52: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), started new job
+2025-02-04 11:22:53: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 3.14s/2.34s)
+2025-02-04 11:22:57: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:22:57: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:22:58: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:22:59: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 3.24s/2.35s)
+2025-02-04 11:23:04: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting parameter set
+2025-02-04 11:23:04: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting new job
+2025-02-04 11:23:06: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:23:07: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 4.10s/2.37s)
+2025-02-04 11:23:13: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting parameter set
+2025-02-04 11:23:14: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/1 (20%/20), starting new job
+2025-02-04 11:23:17: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/2 (25%/20), started new job
+2025-02-04 11:23:18: BoTorchModel, best result: 0.18144538251048026, completed/pending 3/2 (25%/20), new result: 0.22231746137069452
+2025-02-04 11:23:19: BoTorchModel, best result: 0.18144538251048026, completed/pending 2/2 (20%/20), new result: 0.6958185642459525
+2025-02-04 11:23:20: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/2 (15%/20), new result: 0.1824302484262229
+2025-02-04 11:23:21: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:23:22: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), getting 1 trials (last/avg 4.93s/2.41s)
+2025-02-04 11:23:29: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting parameter set
+2025-02-04 11:23:29: BoTorchModel, best result: 0.18144538251048026, pending 2 (10%/20), starting new job
+2025-02-04 11:23:32: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:23:33: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 5.63s/2.45s)
+2025-02-04 11:23:39: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting parameter set
+2025-02-04 11:23:39: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting new job
+2025-02-04 11:23:41: BoTorchModel, best result: 0.18144538251048026, completed/running/unknown 2/1/1 (20%/20), started new job
+2025-02-04 11:23:41: BoTorchModel, best result: 0.18144538251048026, completed/running/unknown 2/1/1 (20%/20), new result: 0.18696899405550182
+2025-02-04 11:23:42: BoTorchModel, best result: 0.18144538251048026, running/completed/unknown 1/1/1 (15%/20), new result: 0.1828740629195429
+2025-02-04 11:23:42: BoTorchModel, best result: 0.18144538251048026, running/unknown 1/1 (10%/20), finishing jobs after starting them, finished 2 jobs
+2025-02-04 11:23:43: BoTorchModel, best result: 0.18144538251048026, running/unknown 1/1 (10%/20), got 1, requested 15
+2025-02-04 11:23:46: BoTorchModel, best result: 0.18144538251048026, running/unknown 1/1 (10%/20), trying to get 18 next steps (current done: 70, max: 1000)
+2025-02-04 11:23:48: BoTorchModel, best result: 0.18144538251048026, running/pending 1/1 (10%/20), getting 1 trials (last/avg 4.94s/2.49s)
+2025-02-04 11:23:54: BoTorchModel, best result: 0.18144538251048026, running/pending 1/1 (10%/20), starting parameter set
+2025-02-04 11:23:55: BoTorchModel, best result: 0.18144538251048026, running/pending 1/1 (10%/20), starting new job
+2025-02-04 11:23:56: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/1/1 (15%/20), started new job
+2025-02-04 11:23:58: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/1/1 (15%/20), getting 1 trials (last/avg 5.32s/2.52s)
+2025-02-04 11:24:04: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting parameter set
+2025-02-04 11:24:05: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting new job
+2025-02-04 11:24:06: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), started new job
+2025-02-04 11:24:07: BoTorchModel, best result: 0.18144538251048026, running/unknown 3/1 (20%/20), getting 1 trials (last/avg 5.09s/2.56s)
+2025-02-04 11:24:13: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 2/1/1 (20%/20), starting parameter set
+2025-02-04 11:24:13: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 2/1/1 (20%/20), starting new job
+2025-02-04 11:24:15: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 2/1/1/1 (25%/20), started new job
+2025-02-04 11:24:16: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 2/1/1/1 (25%/20), new result: 0.18289713416269393
+2025-02-04 11:24:16: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 2/1/1 (20%/20), finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 11:24:17: BoTorchModel, best result: 0.18144538251048026, running/pending 2/2 (20%/20), getting 1 trials (last/avg 4.89s/2.59s)
+2025-02-04 11:24:24: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 1/1/2 (20%/20), starting parameter set
+2025-02-04 11:24:25: BoTorchModel, best result: 0.18144538251048026, completed/running/pending 1/1/2 (20%/20), starting new job
+2025-02-04 11:24:28: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 1/1/2/1 (25%/20), started new job
+2025-02-04 11:24:28: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 1/1/2/1 (25%/20), new result: 0.36135673573089544
+2025-02-04 11:24:30: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/2/1 (20%/20), finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 11:24:31: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/2/1 (20%/20), getting 1 trials (last/avg 5.94s/2.63s)
+2025-02-04 11:24:37: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting parameter set
+2025-02-04 11:24:37: BoTorchModel, best result: 0.18144538251048026, running 4 (20%/20), starting new job
+2025-02-04 11:24:39: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), started new job
+2025-02-04 11:24:41: BoTorchModel, best result: 0.18144538251048026, running/unknown 4/1 (25%/20), getting 1 trials (last/avg 4.67s/2.65s)
+2025-02-04 11:24:49: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 3/1/1 (25%/20), starting parameter set
+2025-02-04 11:24:49: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 3/1/1 (25%/20), starting new job
+2025-02-04 11:24:51: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 2/2/1/1 (30%/20), started new job
+2025-02-04 11:24:51: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 2/2/1/1 (30%/20), new result: 0.36135673573089544
+2025-02-04 11:24:52: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 2/1/1/1 (25%/20), new result: 0.2173969317734875
+2025-02-04 11:24:53: BoTorchModel, best result: 0.18144538251048026, running/pending 2/2 (20%/20), finishing jobs (_get_next_trials), finished 2 jobs
+2025-02-04 11:24:54: BoTorchModel, best result: 0.18144538251048026, running/pending 2/2 (20%/20), getting 1 trials (last/avg 6.90s/2.71s)
+2025-02-04 11:24:59: BoTorchModel, best result: 0.18144538251048026, running/pending 2/2 (20%/20), starting parameter set
+2025-02-04 11:25:00: BoTorchModel, best result: 0.18144538251048026, running/pending 2/2 (20%/20), starting new job
+2025-02-04 11:25:01: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 2/2/1 (25%/20), started new job
+2025-02-04 11:25:03: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 2/2/1 (25%/20), getting 1 trials (last/avg 4.54s/2.73s)
+2025-02-04 11:25:09: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting parameter set
+2025-02-04 11:25:09: BoTorchModel, best result: 0.18144538251048026, running 5 (25%/20), starting new job
+2025-02-04 11:25:11: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), started new job
+2025-02-04 11:25:13: BoTorchModel, best result: 0.18144538251048026, running/unknown 5/1 (30%/20), getting 1 trials (last/avg 4.37s/2.75s)
+2025-02-04 11:25:22: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 2/3/1 (30%/20), starting parameter set
+2025-02-04 11:25:23: BoTorchModel, best result: 0.18144538251048026, running/completed/pending 2/3/1 (30%/20), starting new job
+2025-02-04 11:25:25: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 4/1/1/1 (35%/20), started new job
+2025-02-04 11:25:26: BoTorchModel, best result: 0.18144538251048026, completed/running/pending/unknown 4/1/1/1 (35%/20), new result: 0.36135673573089544
+2025-02-04 11:25:28: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 1/3/1/1 (30%/20), new result: 0.2163484809340971
+2025-02-04 11:25:29: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 1/2/1/1 (25%/20), new result: 0.2223957086320404
+2025-02-04 11:25:29: BoTorchModel, best result: 0.18144538251048026, running/completed/pending/unknown 1/1/1/1 (20%/20), new result: 0.2217626497349895
+2025-02-04 11:25:30: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/1/1 (15%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:25:31: BoTorchModel, best result: 0.18144538251048026, running/pending/unknown 1/1/1 (15%/20), getting 1 trials (last/avg 7.72s/2.81s)
+2025-02-04 11:25:34: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/2 (15%/20), starting parameter set
+2025-02-04 11:25:35: BoTorchModel, best result: 0.18144538251048026, completed/pending 1/2 (15%/20), starting new job
+2025-02-04 11:25:36: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/2/1 (20%/20), started new job
+2025-02-04 11:25:36: BoTorchModel, best result: 0.18144538251048026, completed/pending/unknown 1/2/1 (20%/20), new result: 0.36135673573089544
+2025-02-04 11:25:38: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 11:25:39: BoTorchModel, best result: 0.18144538251048026, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 2.54s/2.80s)
+2025-02-04 11:25:45: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting parameter set
+2025-02-04 11:25:46: BoTorchModel, best result: 0.18144538251048026, running 3 (15%/20), starting new job
+2025-02-04 11:25:47: BoTorchModel, best result: 0.18144538251048026, completed/unknown 3/1 (20%/20), started new job
+2025-02-04 11:25:48: BoTorchModel, best result: 0.18144538251048026, completed/unknown 3/1 (20%/20), new result: 0.6199893803265404
+2025-02-04 11:25:50: BoTorchModel, best result: 0.18144538251048026, completed/unknown 2/1 (15%/20), new result: 0.22211177188396658
+2025-02-04 11:25:51: BoTorchModel, best result: 0.18144538251048026, completed/unknown 1/1 (10%/20), new result: 0.22209208386336987
+2025-02-04 11:25:52: BoTorchModel, best result: 0.18144538251048026, unknown 1 (5%/20), finishing jobs (_get_next_trials), finished 3 jobs
+2025-02-04 11:25:53: BoTorchModel, best result: 0.18144538251048026, unknown 1 (5%/20), getting 1 trials (last/avg 4.98s/2.83s)
+2025-02-04 11:26:02: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting parameter set
+2025-02-04 11:26:02: BoTorchModel, best result: 0.18144538251048026, pending 1 (5%/20), starting new job
+2025-02-04 11:26:04: BoTorchModel, best result: 0.18144538251048026, pending/unknown 1/1 (10%/20), started new job

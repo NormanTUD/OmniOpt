@@ -1,0 +1,26 @@
+2025-02-13 09:28:11: Initializing model, Started OmniOpt2 run...
+2025-02-13 09:28:11: Initializing model, trying to get 1 next steps (current done: 0, max: 200)
+2025-02-13 09:28:11: Initializing model, getting 1 trials (no sbatch)
+2025-02-13 09:28:11: SobolGenerator, starting parameter set
+2025-02-13 09:28:11: SobolGenerator, starting new job
+2025-02-13 09:28:12: SobolGenerator, started new job
+2025-02-13 09:29:35: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, new result: 0.1792
+2025-02-13 09:29:35: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 09:29:36: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, getting 1 trials (no sbatch), last/avg 0.10s/0.10s
+2025-02-13 09:29:36: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, starting parameter set
+2025-02-13 09:29:36: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, starting new job
+2025-02-13 09:29:37: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, started new job
+2025-02-13 09:31:29: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, new result: 1.5242
+2025-02-13 09:31:30: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, finishing jobs after starting them, finished 1 job
+2025-02-13 09:31:30: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, got 1, requested 1
+2025-02-13 09:31:30: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, trying to get 1 next steps (current done: 2, max: 200)
+2025-02-13 09:31:30: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, getting 1 trials (no sbatch), last/avg 0.10s/0.10s
+2025-02-13 09:31:31: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, starting parameter set
+2025-02-13 09:31:31: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, starting new job
+2025-02-13 09:31:31: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 641.2, RUNTIME: 80, started new job
+2025-02-13 09:33:46: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, new result: 1.5254
+2025-02-13 09:33:47: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 09:33:47: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, getting 1 trials (no sbatch), last/avg 0.11s/0.10s
+2025-02-13 09:33:48: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, starting parameter set
+2025-02-13 09:33:48: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, starting new job
+2025-02-13 09:33:49: SobolGenerator, best VAL_LOSS: 0.1792, RAM_USAGE: 637.47, RUNTIME: 80, started new job

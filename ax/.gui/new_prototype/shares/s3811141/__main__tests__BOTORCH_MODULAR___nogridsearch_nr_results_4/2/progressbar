@@ -1,0 +1,19 @@
+2025-03-03 08:44:11: Initializing model, Started OmniOpt2 run...
+2025-03-03 08:44:11: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-03-03 08:44:11: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 08:44:11: SobolGenerator, starting parameter set
+2025-03-03 08:44:12: SobolGenerator, starting new job
+2025-03-03 08:44:12: SobolGenerator, started new job
+2025-03-03 08:44:17: SobolGenerator, 1 jobs done, new result: 1.09873449483803
+2025-03-03 08:44:18: SobolGenerator, 1 jobs done, new result: 1.09873449483803 (entered)
+2025-03-03 08:44:18: SobolGenerator, 1 jobs done, finishing jobs after starting them, finished 1 job
+2025-03-03 08:44:19: SobolGenerator, 1 jobs done, got 1, requested 1
+2025-03-03 08:44:19: SobolGenerator, 1 jobs done, trying to get 1 next steps (current done: 1, max: 2)
+2025-03-03 08:44:19: SobolGenerator, 1 jobs done, getting new hyperparameter set (no sbatch)
+2025-03-03 08:44:34: BoTorchModel, 1 jobs done, starting parameter set
+2025-03-03 08:44:34: BoTorchModel, 1 jobs done, starting new job
+2025-03-03 08:44:35: BoTorchModel, 1 jobs done, started new job
+2025-03-03 08:44:42: BoTorchModel, 2 jobs done, new result: 1.05495074654846
+2025-03-03 08:44:42: BoTorchModel, 2 jobs done, new result: 1.05495074654846 (entered)
+2025-03-03 08:44:44: BoTorchModel, 2 jobs done, finishing jobs after starting them, finished 1 job
+2025-03-03 08:44:44: BoTorchModel, 2 jobs done, got 1, requested 1

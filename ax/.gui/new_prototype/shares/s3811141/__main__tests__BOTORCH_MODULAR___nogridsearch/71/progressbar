@@ -1,0 +1,15 @@
+2025-02-05 08:40:50: Initializing model, Started OmniOpt2 run...
+2025-02-05 08:40:50: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-05 08:40:50: Initializing model, getting 1 trials (no sbatch)
+2025-02-05 08:40:50: SobolGenerator, starting parameter set
+2025-02-05 08:40:51: SobolGenerator, starting new job
+2025-02-05 08:40:51: SobolGenerator, started new job
+2025-02-05 08:40:55: SobolGenerator, best result: -123153.343112404, new result: -123153.343112404
+2025-02-05 08:40:55: SobolGenerator, best result: -123153.343112404, finishing jobs (_get_next_trials), finished 1 job
+2025-02-05 08:40:56: SobolGenerator, best result: -123153.343112404, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-05 08:41:01: BoTorchModel, best result: -123153.343112404, starting parameter set
+2025-02-05 08:41:01: BoTorchModel, best result: -123153.343112404, starting new job
+2025-02-05 08:41:01: BoTorchModel, best result: -123153.343112404, started new job
+2025-02-05 08:41:06: BoTorchModel, best result: -220412.52, new result: -220412.52
+2025-02-05 08:41:06: BoTorchModel, best result: -220412.52, finishing jobs after starting them, finished 1 job
+2025-02-05 08:41:06: BoTorchModel, best result: -220412.52, got 1, requested 1

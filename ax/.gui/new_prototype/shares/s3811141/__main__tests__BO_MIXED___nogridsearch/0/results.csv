@@ -1,0 +1,3 @@
+trial_index,arm_name,trial_status,generation_method,generation_node,RESULT,int_param,float_param,choice_param,int_param_two
+0,0_0,COMPLETED,Sobol,GenerationStep_0,-166609.768426179012749344110488891602,-96,-71.947286128997802734375000000000,hallo,-17
+1,1_0,COMPLETED,BO_MIXED,GenerationStep_1,-110005.320000000006984919309616088867,10,10.000000000000000000000000000000,1,-100

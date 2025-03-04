@@ -1,0 +1,21 @@
+start_time,end_time,run_time,program_string,lr,epochs,width_or_height,result,exit_code,signal,hostname
+1738673665,1738673677,12,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.2825304865837097 --epochs=2 --width=16 --height=16,0.2825304865837097,2,16,1.726236,0,None,arbeitsrechner
+1738673684,1738673707,23,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.09187458921223879 --epochs=9 --width=44 --height=44,0.09187458921223879,9,44,1.628242,0,None,arbeitsrechner
+1738673715,1738673733,18,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.19192482717335224 --epochs=4 --width=25 --height=25,0.19192482717335224,4,25,1.626807,0,None,arbeitsrechner
+1738673739,1738673754,15,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.43345649912953377 --epochs=7 --width=33 --height=33,0.43345649912953377,7,33,1.691803,0,None,arbeitsrechner
+1738673763,1738673777,14,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.438980826176703 --epochs=4 --width=46 --height=46,0.438980826176703,4,46,1.679902,0,None,arbeitsrechner
+1738673783,1738673798,15,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.186400487087667 --epochs=7 --width=12 --height=12,0.186400487087667,7,12,1.651121,0,None,arbeitsrechner
+1738673804,1738673817,13,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.035447753965854645 --epochs=2 --width=36 --height=36,0.035447753965854645,2,36,1.103793,0,None,arbeitsrechner
+1738673823,1738673841,18,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.33895729295909405 --epochs=10 --width=23 --height=23,0.33895729295909405,10,23,1.695243,0,None,arbeitsrechner
+1738673847,1738673861,14,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.35586305940523744 --epochs=5 --width=40 --height=40,0.35586305940523744,5,40,1.695715,0,None,arbeitsrechner
+1738673867,1738673882,15,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.018786099273711443 --epochs=6 --width=22 --height=22,0.018786099273711443,6,22,0.598623,0,None,arbeitsrechner
+1738673906,1738673923,17,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=4 --width=17 --height=17,0,4,17,1.590246,0,None,arbeitsrechner
+1738673940,1738673958,18,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=6 --width=26 --height=26,0,6,26,1.805499,0,None,arbeitsrechner
+1738673966,1738673977,11,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=1 --width=50 --height=50,0,1,50,1.596807,0,None,arbeitsrechner
+1738673986,1738674002,16,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=10 --width=10 --height=10,0,10,10,1.805747,0,None,arbeitsrechner
+1738674012,1738674023,11,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=1 --width=28 --height=28,0,1,28,1.719512,0,None,arbeitsrechner
+1738674032,1738674047,15,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=5 --width=50 --height=50,0,5,50,1.623934,0,None,arbeitsrechner
+1738674056,1738674068,12,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=1 --width=10 --height=10,0,1,10,2.108033,0,None,arbeitsrechner
+1738674102,1738674116,14,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=6 --width=21 --height=21,0,6,21,1.772958,0,None,arbeitsrechner
+1738674130,1738674147,17,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0 --epochs=10 --width=31 --height=31,0,10,31,1.821797,0,None,arbeitsrechner
+1738674157,1738674170,13,bash /home/s3811141/Dokumente/oo2/demo/run.sh --learning_rate=0.5 --epochs=1 --width=41 --height=41,0.5,1,41,59.839367,0,None,arbeitsrechner

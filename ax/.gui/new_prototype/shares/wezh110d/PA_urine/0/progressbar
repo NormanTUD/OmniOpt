@@ -1,0 +1,317 @@
+2025-02-04 11:05:00: Initializing model, Started OmniOpt2 run...
+2025-02-04 11:05:00: Initializing model, trying to get 20 next steps (current done: 0, max: 1000)
+2025-02-04 11:05:00: Initializing model, getting 1 trials 
+2025-02-04 11:05:01: SobolGenerator, starting parameter set
+2025-02-04 11:05:01: SobolGenerator, starting new job
+2025-02-04 11:05:02: SobolGenerator, unknown 1 (5%/20), started new job
+2025-02-04 11:05:02: SobolGenerator, unknown 1 (5%/20), getting 1 trials (last/avg 0.10s/0.10s)
+2025-02-04 11:05:02: SobolGenerator, unknown 1 (5%/20), starting parameter set
+2025-02-04 11:05:03: SobolGenerator, unknown 1 (5%/20), starting new job
+2025-02-04 11:05:04: SobolGenerator, unknown 2 (10%/20), started new job
+2025-02-04 11:05:04: SobolGenerator, unknown 2 (10%/20), getting 1 trials (last/avg 0.08s/0.09s)
+2025-02-04 11:05:04: SobolGenerator, unknown 2 (10%/20), starting parameter set
+2025-02-04 11:05:04: SobolGenerator, unknown 2 (10%/20), starting new job
+2025-02-04 11:05:06: SobolGenerator, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:05:06: SobolGenerator, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 0.04s/0.07s)
+2025-02-04 11:05:06: SobolGenerator, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:05:06: SobolGenerator, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:05:07: SobolGenerator, pending/unknown 2/2 (20%/20), started new job
+2025-02-04 11:05:08: SobolGenerator, pending/unknown 2/2 (20%/20), getting 1 trials (last/avg 0.05s/0.07s)
+2025-02-04 11:05:08: SobolGenerator, pending/unknown 2/2 (20%/20), starting parameter set
+2025-02-04 11:05:08: SobolGenerator, pending/unknown 2/2 (20%/20), starting new job
+2025-02-04 11:05:09: SobolGenerator, pending/unknown 2/3 (25%/20), started new job
+2025-02-04 11:05:10: SobolGenerator, pending/unknown 2/3 (25%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:05:10: SobolGenerator, pending/unknown 2/3 (25%/20), starting parameter set
+2025-02-04 11:05:10: SobolGenerator, pending/unknown 2/3 (25%/20), starting new job
+2025-02-04 11:05:11: SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:05:12: SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:05:12: SobolGenerator, pending/unknown 5/1 (30%/20), starting parameter set
+2025-02-04 11:05:12: SobolGenerator, pending/unknown 5/1 (30%/20), starting new job
+2025-02-04 11:05:13: SobolGenerator, pending/unknown 5/2 (35%/20), started new job
+2025-02-04 11:05:14: SobolGenerator, pending/unknown 5/2 (35%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:05:14: SobolGenerator, pending/unknown 5/2 (35%/20), starting parameter set
+2025-02-04 11:05:14: SobolGenerator, pending/unknown 5/2 (35%/20), starting new job
+2025-02-04 11:05:15: SobolGenerator, pending 8 (40%/20), started new job
+2025-02-04 11:05:16: SobolGenerator, pending 8 (40%/20), getting 1 trials (last/avg 0.04s/0.05s)
+2025-02-04 11:05:16: SobolGenerator, pending 8 (40%/20), starting parameter set
+2025-02-04 11:05:17: SobolGenerator, pending 8 (40%/20), starting new job
+2025-02-04 11:05:18: SobolGenerator, running/unknown 8/1 (45%/20), started new job
+2025-02-04 11:05:19: SobolGenerator, running/unknown 8/1 (45%/20), getting 1 trials (last/avg 0.11s/0.06s)
+2025-02-04 11:05:19: SobolGenerator, running/unknown 8/1 (45%/20), starting parameter set
+2025-02-04 11:05:19: SobolGenerator, running/unknown 8/1 (45%/20), starting new job
+2025-02-04 11:05:22: SobolGenerator, running/pending/unknown 8/1/1 (50%/20), started new job
+2025-02-04 11:05:23: SobolGenerator, running/pending/unknown 8/1/1 (50%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:05:23: SobolGenerator, running/pending/unknown 8/1/1 (50%/20), starting parameter set
+2025-02-04 11:05:23: SobolGenerator, running/pending/unknown 8/1/1 (50%/20), starting new job
+2025-02-04 11:05:24: SobolGenerator, running/pending/unknown 8/1/2 (55%/20), started new job
+2025-02-04 11:05:25: SobolGenerator, running/pending/unknown 8/1/2 (55%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:05:26: SobolGenerator, running/pending/unknown 8/1/2 (55%/20), starting parameter set
+2025-02-04 11:05:26: SobolGenerator, running/pending/unknown 8/1/2 (55%/20), starting new job
+2025-02-04 11:05:27: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), started new job
+2025-02-04 11:05:28: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:05:28: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), starting parameter set
+2025-02-04 11:05:28: SobolGenerator, running/pending/unknown 8/3/1 (60%/20), starting new job
+2025-02-04 11:05:30: SobolGenerator, running/pending 8/5 (65%/20), started new job
+2025-02-04 11:05:31: SobolGenerator, running/pending 8/5 (65%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:05:32: SobolGenerator, running/pending 8/5 (65%/20), starting parameter set
+2025-02-04 11:05:32: SobolGenerator, running/pending 8/5 (65%/20), starting new job
+2025-02-04 11:05:33: SobolGenerator, running/pending/unknown 8/5/1 (70%/20), started new job
+2025-02-04 11:05:36: SobolGenerator, running/pending 8/6 (70%/20), getting 1 trials (last/avg 0.08s/0.06s)
+2025-02-04 11:05:36: SobolGenerator, running/pending 8/6 (70%/20), starting parameter set
+2025-02-04 11:05:36: SobolGenerator, running/pending 8/6 (70%/20), starting new job
+2025-02-04 11:05:37: SobolGenerator, completed/running/pending/unknown 7/1/6/1 (75%/20), started new job
+2025-02-04 11:05:37: SobolGenerator, completed/running/pending/unknown 7/1/6/1 (75%/20), job_failed
+2025-02-04 11:05:38: [91mFailed jobs: 1[0m, SobolGenerator, completed/running/pending/unknown 6/1/6/1 (70%/20), job_failed
+2025-02-04 11:05:38: [91mFailed jobs: 2[0m, SobolGenerator, completed/running/pending/unknown 5/1/6/1 (65%/20), job_failed
+2025-02-04 11:05:39: [91mFailed jobs: 3[0m, SobolGenerator, completed/pending/unknown 5/6/1 (60%/20), job_failed
+2025-02-04 11:05:40: [91mFailed jobs: 4[0m, SobolGenerator, completed/pending/unknown 4/6/1 (55%/20), job_failed
+2025-02-04 11:05:40: [91mFailed jobs: 5[0m, SobolGenerator, completed/pending/unknown 3/6/1 (50%/20), job_failed
+2025-02-04 11:05:40: [91mFailed jobs: 6[0m, SobolGenerator, completed/pending/unknown 2/6/1 (45%/20), job_failed
+2025-02-04 11:05:40: [91mFailed jobs: 7[0m, SobolGenerator, completed/pending/unknown 1/6/1 (40%/20), job_failed
+2025-02-04 11:05:41: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 6/1 (35%/20), finishing jobs (_get_next_trials), finished 8 jobs
+2025-02-04 11:05:41: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:05:42: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting parameter set
+2025-02-04 11:05:42: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting new job
+2025-02-04 11:05:43: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 7/1 (40%/20), started new job
+2025-02-04 11:05:44: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 7/1 (40%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:05:44: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 7/1 (40%/20), starting parameter set
+2025-02-04 11:05:44: [91mFailed jobs: 8[0m, SobolGenerator, pending/unknown 7/1 (40%/20), starting new job
+2025-02-04 11:05:46: [91mFailed jobs: 8[0m, SobolGenerator, pending 9 (45%/20), started new job
+2025-02-04 11:05:47: [91mFailed jobs: 8[0m, SobolGenerator, pending 9 (45%/20), getting 1 trials (last/avg 0.04s/0.06s)
+2025-02-04 11:05:47: [91mFailed jobs: 8[0m, SobolGenerator, pending 9 (45%/20), starting parameter set
+2025-02-04 11:05:47: [91mFailed jobs: 8[0m, SobolGenerator, pending 9 (45%/20), starting new job
+2025-02-04 11:05:50: [91mFailed jobs: 8[0m, SobolGenerator, running/pending 9/1 (50%/20), started new job
+2025-02-04 11:05:52: [91mFailed jobs: 8[0m, SobolGenerator, running/pending 9/1 (50%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:05:52: [91mFailed jobs: 8[0m, SobolGenerator, running/pending 9/1 (50%/20), starting parameter set
+2025-02-04 11:05:52: [91mFailed jobs: 8[0m, SobolGenerator, running/pending 9/1 (50%/20), starting new job
+2025-02-04 11:05:54: [91mFailed jobs: 8[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), started new job
+2025-02-04 11:05:55: [91mFailed jobs: 8[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), getting 1 trials (last/avg 0.10s/0.06s)
+2025-02-04 11:05:55: [91mFailed jobs: 8[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), starting parameter set
+2025-02-04 11:05:55: [91mFailed jobs: 8[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), starting new job
+2025-02-04 11:05:57: [91mFailed jobs: 8[0m, SobolGenerator, running/completed/pending/unknown 8/1/2/1 (60%/20), started new job
+2025-02-04 11:05:57: [91mFailed jobs: 8[0m, SobolGenerator, running/completed/pending/unknown 8/1/2/1 (60%/20), job_failed
+2025-02-04 11:05:57: [91mFailed jobs: 9[0m, SobolGenerator, running/completed/pending/unknown 7/1/2/1 (55%/20), job_failed
+2025-02-04 11:05:58: [91mFailed jobs: 10[0m, SobolGenerator, running/completed/pending/unknown 6/1/2/1 (50%/20), job_failed
+2025-02-04 11:05:58: [91mFailed jobs: 11[0m, SobolGenerator, completed/running/pending/unknown 1/5/2/1 (45%/20), job_failed
+2025-02-04 11:05:59: [91mFailed jobs: 12[0m, SobolGenerator, completed/pending/unknown 5/2/1 (40%/20), job_failed
+2025-02-04 11:06:00: [91mFailed jobs: 13[0m, SobolGenerator, completed/pending/unknown 4/2/1 (35%/20), job_failed
+2025-02-04 11:06:00: [91mFailed jobs: 14[0m, SobolGenerator, completed/pending/unknown 3/2/1 (30%/20), job_failed
+2025-02-04 11:06:00: [91mFailed jobs: 15[0m, SobolGenerator, completed/pending/unknown 2/2/1 (25%/20), job_failed
+2025-02-04 11:06:01: [91mFailed jobs: 16[0m, SobolGenerator, completed/pending/unknown 1/2/1 (20%/20), job_failed
+2025-02-04 11:06:01: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 2/1 (15%/20), finishing jobs (_get_next_trials), finished 9 jobs
+2025-02-04 11:06:02: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:06:02: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:06:02: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:06:03: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:06:04: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 3/1 (20%/20), got 1, requested 20
+2025-02-04 11:06:07: [91mFailed jobs: 17[0m, SobolGenerator, pending 4 (20%/20), trying to get 16 next steps (current done: 0, max: 1000)
+2025-02-04 11:06:08: [91mFailed jobs: 17[0m, SobolGenerator, pending 4 (20%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:08: [91mFailed jobs: 17[0m, SobolGenerator, pending 4 (20%/20), starting parameter set
+2025-02-04 11:06:08: [91mFailed jobs: 17[0m, SobolGenerator, pending 4 (20%/20), starting new job
+2025-02-04 11:06:10: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:06:10: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 0.08s/0.06s)
+2025-02-04 11:06:11: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 4/1 (25%/20), starting parameter set
+2025-02-04 11:06:11: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 4/1 (25%/20), starting new job
+2025-02-04 11:06:13: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:06:14: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:14: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting parameter set
+2025-02-04 11:06:14: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting new job
+2025-02-04 11:06:15: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/2 (35%/20), started new job
+2025-02-04 11:06:16: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/2 (35%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:16: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/2 (35%/20), starting parameter set
+2025-02-04 11:06:17: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 5/2 (35%/20), starting new job
+2025-02-04 11:06:18: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/1 (40%/20), started new job
+2025-02-04 11:06:19: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/1 (40%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:19: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/1 (40%/20), starting parameter set
+2025-02-04 11:06:19: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/1 (40%/20), starting new job
+2025-02-04 11:06:21: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/2 (45%/20), started new job
+2025-02-04 11:06:22: [91mFailed jobs: 17[0m, SobolGenerator, pending/unknown 7/2 (45%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:23: [91mFailed jobs: 17[0m, SobolGenerator, running 9 (45%/20), starting parameter set
+2025-02-04 11:06:23: [91mFailed jobs: 17[0m, SobolGenerator, running 9 (45%/20), starting new job
+2025-02-04 11:06:25: [91mFailed jobs: 17[0m, SobolGenerator, running/unknown 9/1 (50%/20), started new job
+2025-02-04 11:06:26: [91mFailed jobs: 17[0m, SobolGenerator, running/unknown 9/1 (50%/20), getting 1 trials (last/avg 0.12s/0.06s)
+2025-02-04 11:06:27: [91mFailed jobs: 17[0m, SobolGenerator, running/pending 9/1 (50%/20), starting parameter set
+2025-02-04 11:06:27: [91mFailed jobs: 17[0m, SobolGenerator, running/pending 9/1 (50%/20), starting new job
+2025-02-04 11:06:29: [91mFailed jobs: 17[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), started new job
+2025-02-04 11:06:29: [91mFailed jobs: 17[0m, SobolGenerator, running/pending/unknown 9/1/1 (55%/20), job_failed
+2025-02-04 11:06:29: [91mFailed jobs: 18[0m, SobolGenerator, running/pending/unknown 8/1/1 (50%/20), job_failed
+2025-02-04 11:06:30: [91mFailed jobs: 19[0m, SobolGenerator, running/pending/unknown 7/1/1 (45%/20), job_failed
+2025-02-04 11:06:30: [91mFailed jobs: 20[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), job_failed
+2025-02-04 11:06:32: [91mFailed jobs: 21[0m, SobolGenerator, completed/pending/unknown 5/1/1 (35%/20), job_failed
+2025-02-04 11:06:32: [91mFailed jobs: 22[0m, SobolGenerator, completed/pending/unknown 4/1/1 (30%/20), job_failed
+2025-02-04 11:06:33: [91mFailed jobs: 23[0m, SobolGenerator, completed/pending/unknown 3/1/1 (25%/20), job_failed
+2025-02-04 11:06:33: [91mFailed jobs: 24[0m, SobolGenerator, completed/pending/unknown 2/1/1 (20%/20), job_failed
+2025-02-04 11:06:34: [91mFailed jobs: 25[0m, SobolGenerator, completed/pending/unknown 1/1/1 (15%/20), job_failed
+2025-02-04 11:06:34: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 1/1 (10%/20), finishing jobs (_get_next_trials), finished 9 jobs
+2025-02-04 11:06:34: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 1/1 (10%/20), getting 1 trials (last/avg 0.10s/0.06s)
+2025-02-04 11:06:35: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 1/1 (10%/20), starting parameter set
+2025-02-04 11:06:35: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 1/1 (10%/20), starting new job
+2025-02-04 11:06:36: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:06:37: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:37: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:06:38: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:06:39: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:06:40: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 3/1 (20%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:06:41: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 3/1 (20%/20), starting parameter set
+2025-02-04 11:06:41: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 3/1 (20%/20), starting new job
+2025-02-04 11:06:42: [91mFailed jobs: 26[0m, SobolGenerator, pending 5 (25%/20), started new job
+2025-02-04 11:06:43: [91mFailed jobs: 26[0m, SobolGenerator, pending 5 (25%/20), getting 1 trials (last/avg 0.08s/0.06s)
+2025-02-04 11:06:44: [91mFailed jobs: 26[0m, SobolGenerator, pending 5 (25%/20), starting parameter set
+2025-02-04 11:06:44: [91mFailed jobs: 26[0m, SobolGenerator, pending 5 (25%/20), starting new job
+2025-02-04 11:06:46: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:06:46: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.09s/0.06s)
+2025-02-04 11:06:47: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting parameter set
+2025-02-04 11:06:47: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting new job
+2025-02-04 11:06:48: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/1 (35%/20), started new job
+2025-02-04 11:06:49: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:50: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting parameter set
+2025-02-04 11:06:50: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting new job
+2025-02-04 11:06:51: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/2 (40%/20), started new job
+2025-02-04 11:06:52: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/2 (40%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:52: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/2 (40%/20), starting parameter set
+2025-02-04 11:06:53: [91mFailed jobs: 26[0m, SobolGenerator, pending/unknown 6/2 (40%/20), starting new job
+2025-02-04 11:06:55: [91mFailed jobs: 26[0m, SobolGenerator, running/unknown 8/1 (45%/20), started new job
+2025-02-04 11:06:57: [91mFailed jobs: 26[0m, SobolGenerator, running/unknown 8/1 (45%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:06:57: [91mFailed jobs: 26[0m, SobolGenerator, running/unknown 8/1 (45%/20), starting parameter set
+2025-02-04 11:06:58: [91mFailed jobs: 26[0m, SobolGenerator, running/unknown 8/1 (45%/20), starting new job
+2025-02-04 11:06:59: [91mFailed jobs: 26[0m, SobolGenerator, running/pending/unknown 8/1/1 (50%/20), started new job
+2025-02-04 11:07:01: [91mFailed jobs: 26[0m, SobolGenerator, running/pending/unknown 8/1/1 (50%/20), getting 1 trials (last/avg 0.10s/0.06s)
+2025-02-04 11:07:02: [91mFailed jobs: 26[0m, SobolGenerator, running/pending/unknown 8/1/1 (50%/20), starting parameter set
+2025-02-04 11:07:03: [91mFailed jobs: 26[0m, SobolGenerator, running/pending/unknown 8/1/1 (50%/20), starting new job
+2025-02-04 11:07:04: [91mFailed jobs: 26[0m, SobolGenerator, completed/pending/unknown 8/2/1 (55%/20), started new job
+2025-02-04 11:07:05: [91mFailed jobs: 26[0m, SobolGenerator, completed/pending/unknown 8/2/1 (55%/20), job_failed
+2025-02-04 11:07:06: [91mFailed jobs: 27[0m, SobolGenerator, completed/pending/unknown 7/2/1 (50%/20), job_failed
+2025-02-04 11:07:07: [91mFailed jobs: 28[0m, SobolGenerator, completed/pending/unknown 6/2/1 (45%/20), job_failed
+2025-02-04 11:07:07: [91mFailed jobs: 29[0m, SobolGenerator, completed/pending/unknown 5/2/1 (40%/20), job_failed
+2025-02-04 11:07:08: [91mFailed jobs: 30[0m, SobolGenerator, completed/pending/unknown 4/2/1 (35%/20), job_failed
+2025-02-04 11:07:08: [91mFailed jobs: 31[0m, SobolGenerator, completed/pending/unknown 3/2/1 (30%/20), job_failed
+2025-02-04 11:07:09: [91mFailed jobs: 32[0m, SobolGenerator, completed/pending/unknown 2/2/1 (25%/20), job_failed
+2025-02-04 11:07:09: [91mFailed jobs: 33[0m, SobolGenerator, completed/pending/unknown 1/2/1 (20%/20), job_failed
+2025-02-04 11:07:10: [91mFailed jobs: 34[0m, SobolGenerator, pending/unknown 2/1 (15%/20), finishing jobs (_get_next_trials), finished 8 jobs
+2025-02-04 11:07:11: [91mFailed jobs: 34[0m, SobolGenerator, pending 3 (15%/20), getting 1 trials (last/avg 0.09s/0.06s)
+2025-02-04 11:07:11: [91mFailed jobs: 34[0m, SobolGenerator, pending 3 (15%/20), starting parameter set
+2025-02-04 11:07:12: [91mFailed jobs: 34[0m, SobolGenerator, pending 3 (15%/20), starting new job
+2025-02-04 11:07:13: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), started new job
+2025-02-04 11:07:13: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), got 1, requested 16
+2025-02-04 11:07:16: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), trying to get 16 next steps (current done: 0, max: 1000)
+2025-02-04 11:07:16: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:07:17: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), starting parameter set
+2025-02-04 11:07:17: [91mFailed jobs: 34[0m, SobolGenerator, pending 4 (20%/20), starting new job
+2025-02-04 11:07:18: [91mFailed jobs: 34[0m, SobolGenerator, pending 5 (25%/20), started new job
+2025-02-04 11:07:20: [91mFailed jobs: 34[0m, SobolGenerator, pending 5 (25%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:07:20: [91mFailed jobs: 34[0m, SobolGenerator, pending 5 (25%/20), starting parameter set
+2025-02-04 11:07:21: [91mFailed jobs: 34[0m, SobolGenerator, pending 5 (25%/20), starting new job
+2025-02-04 11:07:22: [91mFailed jobs: 34[0m, SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:07:24: [91mFailed jobs: 34[0m, SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.08s/0.06s)
+2025-02-04 11:07:24: [91mFailed jobs: 34[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting parameter set
+2025-02-04 11:07:25: [91mFailed jobs: 34[0m, SobolGenerator, pending 6 (30%/20), starting new job
+2025-02-04 11:07:28: [91mFailed jobs: 34[0m, SobolGenerator, running/unknown 6/1 (35%/20), started new job
+2025-02-04 11:07:29: [91mFailed jobs: 34[0m, SobolGenerator, running/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.09s/0.06s)
+2025-02-04 11:07:30: [91mFailed jobs: 34[0m, SobolGenerator, running/unknown 6/1 (35%/20), starting parameter set
+2025-02-04 11:07:30: [91mFailed jobs: 34[0m, SobolGenerator, running/unknown 6/1 (35%/20), starting new job
+2025-02-04 11:07:32: [91mFailed jobs: 34[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), started new job
+2025-02-04 11:07:33: [91mFailed jobs: 34[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:07:33: [91mFailed jobs: 34[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), starting parameter set
+2025-02-04 11:07:34: [91mFailed jobs: 34[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), starting new job
+2025-02-04 11:07:35: [91mFailed jobs: 34[0m, SobolGenerator, completed/pending/unknown 6/2/1 (45%/20), started new job
+2025-02-04 11:07:35: [91mFailed jobs: 34[0m, SobolGenerator, completed/pending/unknown 6/2/1 (45%/20), job_failed
+2025-02-04 11:07:36: [91mFailed jobs: 35[0m, SobolGenerator, completed/pending/unknown 5/2/1 (40%/20), job_failed
+2025-02-04 11:07:37: [91mFailed jobs: 36[0m, SobolGenerator, completed/pending/unknown 4/2/1 (35%/20), job_failed
+2025-02-04 11:07:38: [91mFailed jobs: 37[0m, SobolGenerator, completed/pending/unknown 3/2/1 (30%/20), job_failed
+2025-02-04 11:07:39: [91mFailed jobs: 38[0m, SobolGenerator, completed/pending/unknown 2/2/1 (25%/20), job_failed
+2025-02-04 11:07:40: [91mFailed jobs: 39[0m, SobolGenerator, completed/pending/unknown 1/2/1 (20%/20), job_failed
+2025-02-04 11:07:41: [91mFailed jobs: 40[0m, SobolGenerator, pending 3 (15%/20), finishing jobs (_get_next_trials), finished 6 jobs
+2025-02-04 11:07:42: [91mFailed jobs: 40[0m, SobolGenerator, pending 3 (15%/20), getting 1 trials (last/avg 0.06s/0.06s)
+2025-02-04 11:07:43: [91mFailed jobs: 40[0m, SobolGenerator, pending 3 (15%/20), starting parameter set
+2025-02-04 11:07:43: [91mFailed jobs: 40[0m, SobolGenerator, pending 3 (15%/20), starting new job
+2025-02-04 11:07:45: [91mFailed jobs: 40[0m, SobolGenerator, pending 4 (20%/20), started new job
+2025-02-04 11:07:46: [91mFailed jobs: 40[0m, SobolGenerator, pending 4 (20%/20), getting 1 trials (last/avg 0.10s/0.07s)
+2025-02-04 11:07:47: [91mFailed jobs: 40[0m, SobolGenerator, pending 4 (20%/20), starting parameter set
+2025-02-04 11:07:48: [91mFailed jobs: 40[0m, SobolGenerator, pending 4 (20%/20), starting new job
+2025-02-04 11:07:49: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:07:50: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 0.09s/0.07s)
+2025-02-04 11:07:51: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 4/1 (25%/20), starting parameter set
+2025-02-04 11:07:51: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 4/1 (25%/20), starting new job
+2025-02-04 11:07:52: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:07:53: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.05s/0.07s)
+2025-02-04 11:07:54: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting parameter set
+2025-02-04 11:07:54: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 5/1 (30%/20), starting new job
+2025-02-04 11:07:55: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 6/1 (35%/20), started new job
+2025-02-04 11:07:56: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.05s/0.07s)
+2025-02-04 11:07:57: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting parameter set
+2025-02-04 11:07:57: [91mFailed jobs: 40[0m, SobolGenerator, pending/unknown 6/1 (35%/20), starting new job
+2025-02-04 11:08:01: [91mFailed jobs: 40[0m, SobolGenerator, running/unknown 7/1 (40%/20), started new job
+2025-02-04 11:08:03: [91mFailed jobs: 40[0m, SobolGenerator, running/unknown 7/1 (40%/20), getting 1 trials (last/avg 0.05s/0.06s)
+2025-02-04 11:08:05: [91mFailed jobs: 40[0m, SobolGenerator, running/unknown 7/1 (40%/20), starting parameter set
+2025-02-04 11:08:06: [91mFailed jobs: 40[0m, SobolGenerator, running/unknown 7/1 (40%/20), starting new job
+2025-02-04 11:08:08: [91mFailed jobs: 40[0m, SobolGenerator, completed/pending/unknown 7/1/1 (45%/20), started new job
+2025-02-04 11:08:09: [91mFailed jobs: 40[0m, SobolGenerator, completed/pending/unknown 7/1/1 (45%/20), job_failed
+2025-02-04 11:08:10: [91mFailed jobs: 41[0m, SobolGenerator, completed/pending/unknown 6/1/1 (40%/20), job_failed
+2025-02-04 11:08:11: [91mFailed jobs: 42[0m, SobolGenerator, completed/pending 5/2 (35%/20), job_failed
+2025-02-04 11:08:12: [91mFailed jobs: 43[0m, SobolGenerator, completed/pending 4/2 (30%/20), job_failed
+2025-02-04 11:08:13: [91mFailed jobs: 44[0m, SobolGenerator, completed/pending 3/2 (25%/20), job_failed
+2025-02-04 11:08:14: [91mFailed jobs: 45[0m, SobolGenerator, completed/pending 2/2 (20%/20), job_failed
+2025-02-04 11:08:14: [91mFailed jobs: 46[0m, SobolGenerator, completed/pending 1/2 (15%/20), job_failed
+2025-02-04 11:08:15: [91mFailed jobs: 47[0m, SobolGenerator, pending 2 (10%/20), finishing jobs (_get_next_trials), finished 7 jobs
+2025-02-04 11:08:16: [91mFailed jobs: 47[0m, SobolGenerator, pending 2 (10%/20), getting 1 trials (last/avg 0.10s/0.07s)
+2025-02-04 11:08:16: [91mFailed jobs: 47[0m, SobolGenerator, pending 2 (10%/20), starting parameter set
+2025-02-04 11:08:17: [91mFailed jobs: 47[0m, SobolGenerator, pending 2 (10%/20), starting new job
+2025-02-04 11:08:18: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 2/1 (15%/20), started new job
+2025-02-04 11:08:19: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 2/1 (15%/20), getting 1 trials (last/avg 0.07s/0.07s)
+2025-02-04 11:08:20: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting parameter set
+2025-02-04 11:08:20: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 2/1 (15%/20), starting new job
+2025-02-04 11:08:22: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 3/1 (20%/20), started new job
+2025-02-04 11:08:22: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 3/1 (20%/20), getting 1 trials (last/avg 0.06s/0.07s)
+2025-02-04 11:08:23: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 3/1 (20%/20), starting parameter set
+2025-02-04 11:08:24: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 3/1 (20%/20), starting new job
+2025-02-04 11:08:25: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:08:27: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 0.06s/0.07s)
+2025-02-04 11:08:28: [91mFailed jobs: 47[0m, SobolGenerator, pending 5 (25%/20), starting parameter set
+2025-02-04 11:08:28: [91mFailed jobs: 47[0m, SobolGenerator, pending 5 (25%/20), starting new job
+2025-02-04 11:08:30: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 5/1 (30%/20), started new job
+2025-02-04 11:08:31: [91mFailed jobs: 47[0m, SobolGenerator, pending/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.09s/0.07s)
+2025-02-04 11:08:33: [91mFailed jobs: 47[0m, SobolGenerator, running 6 (30%/20), starting parameter set
+2025-02-04 11:08:33: [91mFailed jobs: 47[0m, SobolGenerator, running 6 (30%/20), starting new job
+2025-02-04 11:08:35: [91mFailed jobs: 47[0m, SobolGenerator, running/unknown 6/1 (35%/20), started new job
+2025-02-04 11:08:36: [91mFailed jobs: 47[0m, SobolGenerator, running/unknown 6/1 (35%/20), getting 1 trials (last/avg 0.09s/0.07s)
+2025-02-04 11:08:37: [91mFailed jobs: 47[0m, SobolGenerator, running/pending 6/1 (35%/20), starting parameter set
+2025-02-04 11:08:37: [91mFailed jobs: 47[0m, SobolGenerator, running/pending 6/1 (35%/20), starting new job
+2025-02-04 11:08:39: [91mFailed jobs: 47[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), started new job
+2025-02-04 11:08:39: [91mFailed jobs: 47[0m, SobolGenerator, running/pending/unknown 6/1/1 (40%/20), job_failed
+2025-02-04 11:08:40: [91mFailed jobs: 48[0m, SobolGenerator, running/pending/unknown 5/1/1 (35%/20), job_failed
+2025-02-04 11:08:41: [91mFailed jobs: 49[0m, SobolGenerator, running/pending/unknown 4/1/1 (30%/20), job_failed
+2025-02-04 11:08:41: [91mFailed jobs: 50[0m, SobolGenerator, completed/pending/unknown 3/1/1 (25%/20), job_failed
+2025-02-04 11:08:42: [91mFailed jobs: 51[0m, SobolGenerator, completed/pending/unknown 2/1/1 (20%/20), job_failed
+2025-02-04 11:08:43: [91mFailed jobs: 52[0m, SobolGenerator, completed/pending/unknown 1/1/1 (15%/20), job_failed
+2025-02-04 11:08:44: [91mFailed jobs: 53[0m, SobolGenerator, pending/unknown 1/1 (10%/20), finishing jobs after starting them, finished 6 jobs
+2025-02-04 11:08:44: [91mFailed jobs: 53[0m, SobolGenerator, pending/unknown 1/1 (10%/20), got 1, requested 16
+2025-02-04 11:08:47: [91mFailed jobs: 53[0m, SobolGenerator, pending 2 (10%/20), trying to get 18 next steps (current done: 0, max: 1000)
+2025-02-04 11:08:49: [91mFailed jobs: 53[0m, SobolGenerator, pending 2 (10%/20), getting 1 trials (last/avg 0.06s/0.07s)
+2025-02-04 11:08:50: [91mFailed jobs: 53[0m, SobolGenerator, pending 2 (10%/20), starting parameter set
+2025-02-04 11:08:51: [91mFailed jobs: 53[0m, SobolGenerator, pending 2 (10%/20), starting new job
+2025-02-04 11:08:52: [91mFailed jobs: 53[0m, SobolGenerator, pending 3 (15%/20), started new job
+2025-02-04 11:08:54: [91mFailed jobs: 53[0m, SobolGenerator, pending 3 (15%/20), getting 1 trials (last/avg 0.14s/0.07s)
+2025-02-04 11:08:56: [91mFailed jobs: 53[0m, SobolGenerator, pending 3 (15%/20), starting parameter set
+2025-02-04 11:08:56: [91mFailed jobs: 53[0m, SobolGenerator, pending 3 (15%/20), starting new job
+2025-02-04 11:08:58: [91mFailed jobs: 53[0m, SobolGenerator, pending 4 (20%/20), started new job
+2025-02-04 11:08:59: [91mFailed jobs: 53[0m, SobolGenerator, pending 4 (20%/20), getting 1 trials (last/avg 0.09s/0.07s)
+2025-02-04 11:09:00: [91mFailed jobs: 53[0m, SobolGenerator, pending 4 (20%/20), starting parameter set
+2025-02-04 11:09:00: [91mFailed jobs: 53[0m, SobolGenerator, pending 4 (20%/20), starting new job
+2025-02-04 11:09:01: [91mFailed jobs: 53[0m, SobolGenerator, pending/unknown 4/1 (25%/20), started new job
+2025-02-04 11:09:02: [91mFailed jobs: 53[0m, SobolGenerator, pending/unknown 4/1 (25%/20), getting 1 trials (last/avg 0.06s/0.07s)
+2025-02-04 11:09:03: [91mFailed jobs: 53[0m, SobolGenerator, pending/unknown 4/1 (25%/20), starting parameter set
+2025-02-04 11:09:03: [91mFailed jobs: 53[0m, SobolGenerator, pending 5 (25%/20), starting new job
+2025-02-04 11:09:06: [91mFailed jobs: 53[0m, SobolGenerator, running/unknown 5/1 (30%/20), started new job
+2025-02-04 11:09:07: [91mFailed jobs: 53[0m, SobolGenerator, running/unknown 5/1 (30%/20), getting 1 trials (last/avg 0.06s/0.07s)
+2025-02-04 11:09:08: [91mFailed jobs: 53[0m, SobolGenerator, running/pending 5/1 (30%/20), starting parameter set
+2025-02-04 11:09:09: [91mFailed jobs: 53[0m, SobolGenerator, running/pending 5/1 (30%/20), starting new job
+2025-02-04 11:09:10: [91mFailed jobs: 53[0m, SobolGenerator, running/pending/unknown 5/1/1 (35%/20), started new job
+2025-02-04 11:09:11: [91mFailed jobs: 53[0m, SobolGenerator, running/pending/unknown 5/1/1 (35%/20), job_failed
+2025-02-04 11:09:13: [91mFailed jobs: 54[0m, SobolGenerator, completed/pending 4/2 (30%/20), job_failed
+2025-02-04 11:09:14: [91mFailed jobs: 55[0m, SobolGenerator, completed/pending 3/2 (25%/20), job_failed
+2025-02-04 11:09:15: [91mFailed jobs: 56[0m, SobolGenerator, completed/pending 2/2 (20%/20), job_failed
+2025-02-04 11:09:17: [91mFailed jobs: 57[0m, SobolGenerator, completed/pending 1/2 (15%/20), finishing jobs (_get_next_trials), finished 4 jobs
+2025-02-04 11:09:18: [91mFailed jobs: 57[0m, SobolGenerator, pending 2 (10%/20), getting 1 trials (last/avg 0.07s/0.07s)
+2025-02-04 11:09:19: [91mFailed jobs: 57[0m, SobolGenerator, pending 2 (10%/20), starting parameter set
+2025-02-04 11:09:20: [91mFailed jobs: 57[0m, SobolGenerator, pending 2 (10%/20), starting new job
+2025-02-04 11:09:22: [91mFailed jobs: 57[0m, SobolGenerator, pending/unknown 2/1 (15%/20), started new job

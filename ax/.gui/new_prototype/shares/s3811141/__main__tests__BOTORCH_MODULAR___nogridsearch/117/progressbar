@@ -1,0 +1,124 @@
+2025-02-24 10:17:20: Initializing model, Started OmniOpt2 run...
+2025-02-24 10:17:20: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:20: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:20: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:21: Initializing model, starting parameter set
+2025-02-24 10:17:21: Initializing model, found 1 zero-jobs (max: 50)
+2025-02-24 10:17:21: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:21: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:21: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:21: Initializing model, starting parameter set
+2025-02-24 10:17:22: Initializing model, found 2 zero-jobs (max: 50)
+2025-02-24 10:17:22: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:22: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:22: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:23: Initializing model, starting parameter set
+2025-02-24 10:17:23: Initializing model, found 3 zero-jobs (max: 50)
+2025-02-24 10:17:23: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:23: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:23: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:24: Initializing model, starting parameter set
+2025-02-24 10:17:24: Initializing model, found 4 zero-jobs (max: 50)
+2025-02-24 10:17:24: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:24: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:24: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:24: Initializing model, starting parameter set
+2025-02-24 10:17:25: Initializing model, found 5 zero-jobs (max: 50)
+2025-02-24 10:17:25: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:25: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:25: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:25: Initializing model, starting parameter set
+2025-02-24 10:17:26: Initializing model, found 6 zero-jobs (max: 50)
+2025-02-24 10:17:26: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:26: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:26: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:26: Initializing model, starting parameter set
+2025-02-24 10:17:27: Initializing model, found 7 zero-jobs (max: 50)
+2025-02-24 10:17:27: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:27: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:27: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:27: Initializing model, starting parameter set
+2025-02-24 10:17:27: Initializing model, found 8 zero-jobs (max: 50)
+2025-02-24 10:17:27: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:27: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:28: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:28: Initializing model, starting parameter set
+2025-02-24 10:17:28: Initializing model, found 9 zero-jobs (max: 50)
+2025-02-24 10:17:28: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:28: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:28: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:29: Initializing model, starting parameter set
+2025-02-24 10:17:29: Initializing model, found 10 zero-jobs (max: 50)
+2025-02-24 10:17:29: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:29: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:29: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:29: Initializing model, starting parameter set
+2025-02-24 10:17:30: Initializing model, found 11 zero-jobs (max: 50)
+2025-02-24 10:17:30: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:30: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:30: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:30: Initializing model, starting parameter set
+2025-02-24 10:17:31: Initializing model, found 12 zero-jobs (max: 50)
+2025-02-24 10:17:31: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:31: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:31: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:31: Initializing model, starting parameter set
+2025-02-24 10:17:31: Initializing model, found 13 zero-jobs (max: 50)
+2025-02-24 10:17:32: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:32: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:32: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:32: Initializing model, starting parameter set
+2025-02-24 10:17:32: Initializing model, found 14 zero-jobs (max: 50)
+2025-02-24 10:17:32: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:32: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:32: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:33: Initializing model, starting parameter set
+2025-02-24 10:17:33: Initializing model, found 15 zero-jobs (max: 50)
+2025-02-24 10:17:33: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:33: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:33: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:34: Initializing model, starting parameter set
+2025-02-24 10:17:34: Initializing model, found 16 zero-jobs (max: 50)
+2025-02-24 10:17:34: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:34: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:34: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:35: Initializing model, starting parameter set
+2025-02-24 10:17:35: Initializing model, found 17 zero-jobs (max: 50)
+2025-02-24 10:17:35: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:35: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:35: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:36: Initializing model, starting parameter set
+2025-02-24 10:17:36: Initializing model, found 18 zero-jobs (max: 50)
+2025-02-24 10:17:36: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:36: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:36: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:36: Initializing model, starting parameter set
+2025-02-24 10:17:37: Initializing model, found 19 zero-jobs (max: 50)
+2025-02-24 10:17:37: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:37: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:37: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:37: Initializing model, starting parameter set
+2025-02-24 10:17:38: Initializing model, found 20 zero-jobs (max: 50)
+2025-02-24 10:17:38: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:38: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:38: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:38: Initializing model, starting parameter set
+2025-02-24 10:17:39: Initializing model, found 21 zero-jobs (max: 50)
+2025-02-24 10:17:39: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:39: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:39: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:39: Initializing model, starting parameter set
+2025-02-24 10:17:39: Initializing model, found 22 zero-jobs (max: 50)
+2025-02-24 10:17:39: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:40: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:40: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:40: Initializing model, starting parameter set
+2025-02-24 10:17:40: Initializing model, found 23 zero-jobs (max: 50)
+2025-02-24 10:17:40: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:40: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:40: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:41: Initializing model, starting parameter set
+2025-02-24 10:17:41: Initializing model, found 24 zero-jobs (max: 50)
+2025-02-24 10:17:41: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:17:41: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:17:41: Initializing model, getting 1/1 trials (no sbatch)

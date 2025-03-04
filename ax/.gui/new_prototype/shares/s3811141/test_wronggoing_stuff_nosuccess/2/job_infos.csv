@@ -1,0 +1,2 @@
+start_time,end_time,run_time,program_string,program,RESULT,exit_code,signal,hostname
+1740987563,1740987563,0,./.tests/test_wronggoing_stuff.bin/bin/divide_by_0,divide_by_0,None,255,None,arbeitsrechner

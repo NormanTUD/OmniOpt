@@ -1,0 +1,2 @@
+trial_index,arm_name,trial_status,generation_method,generation_node,lr,epochs,width_and_height
+0,0_0,COMPLETED,Sobol,GenerationStep_0,0.175690257549285910876335492503,6,22

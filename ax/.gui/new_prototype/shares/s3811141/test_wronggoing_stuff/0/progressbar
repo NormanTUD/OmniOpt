@@ -1,0 +1,165 @@
+2025-02-04 08:57:32: Initializing model, Started OmniOpt2 run...
+2025-02-04 08:57:32: Initializing model, trying to get 1 next steps (current done: 0, max: 23)
+2025-02-04 08:57:32: Initializing model, getting 1 trials (no sbatch)
+2025-02-04 08:57:33: SobolGenerator, starting parameter set
+2025-02-04 08:57:33: SobolGenerator, starting new job
+2025-02-04 08:57:33: SobolGenerator, started new job
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, new result: 5217.0
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.12s/0.12s
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:57:38: SobolGenerator, best result: 5217, started new job
+2025-02-04 08:57:43: SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:57:43: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, finishing jobs after starting them, finished 1 job
+2025-02-04 08:57:43: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, got 1, requested 1
+2025-02-04 08:57:43: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, trying to get 1 next steps (current done: 1, max: 23)
+2025-02-04 08:57:43: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.09s/0.10s
+2025-02-04 08:57:44: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:57:44: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:57:44: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:57:49: [91mFailed jobs: 1[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:57:50: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:57:50: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.10s/0.10s
+2025-02-04 08:57:50: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:57:50: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:57:50: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:57:55: [91mFailed jobs: 2[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:57:55: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, finishing jobs after starting them, finished 1 job
+2025-02-04 08:57:55: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, got 1, requested 1
+2025-02-04 08:57:56: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, trying to get 1 next steps (current done: 1, max: 23)
+2025-02-04 08:57:56: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.10s/0.10s
+2025-02-04 08:57:56: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:57:56: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:57:56: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:02: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, new result: 20668.0
+2025-02-04 08:58:02: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:58:02: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.09s/0.10s
+2025-02-04 08:58:02: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:03: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:03: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:07: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, new result: 29561.0
+2025-02-04 08:58:07: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, finishing jobs after starting them, finished 1 job
+2025-02-04 08:58:07: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, got 1, requested 1
+2025-02-04 08:58:08: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, trying to get 1 next steps (current done: 3, max: 23)
+2025-02-04 08:58:08: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.10s/0.10s
+2025-02-04 08:58:08: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:09: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:09: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:14: [91mFailed jobs: 3[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:58:15: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:58:15: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.11s/0.10s
+2025-02-04 08:58:15: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:16: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:16: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:21: [91mFailed jobs: 4[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:58:22: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, finishing jobs after starting them, finished 1 job
+2025-02-04 08:58:22: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, got 1, requested 1
+2025-02-04 08:58:22: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, trying to get 1 next steps (current done: 3, max: 23)
+2025-02-04 08:58:23: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.12s/0.10s
+2025-02-04 08:58:23: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:24: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:24: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:29: [91mFailed jobs: 5[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:58:30: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:58:30: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.14s/0.11s
+2025-02-04 08:58:30: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:31: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:31: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:36: [91mFailed jobs: 6[0m, SobolGenerator, best result: 5217, job_failed
+2025-02-04 08:58:37: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, finishing jobs after starting them, finished 1 job
+2025-02-04 08:58:37: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, got 1, requested 1
+2025-02-04 08:58:37: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, trying to get 1 next steps (current done: 3, max: 23)
+2025-02-04 08:58:38: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-04 08:58:38: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, starting parameter set
+2025-02-04 08:58:38: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, starting new job
+2025-02-04 08:58:39: [91mFailed jobs: 7[0m, SobolGenerator, best result: 5217, started new job
+2025-02-04 08:58:53: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, new result: 1234.0
+2025-02-04 08:58:53: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:58:53: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-04 08:58:54: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, starting parameter set
+2025-02-04 08:58:54: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, starting new job
+2025-02-04 08:58:54: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, started new job
+2025-02-04 08:58:59: [91mFailed jobs: 7[0m, SobolGenerator, best result: 1234, job_failed
+2025-02-04 08:58:59: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, finishing jobs after starting them, finished 1 job
+2025-02-04 08:58:59: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, got 1, requested 1
+2025-02-04 08:58:59: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, trying to get 1 next steps (current done: 4, max: 23)
+2025-02-04 08:59:00: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, getting 1 trials (no sbatch), last/avg 0.12s/0.11s
+2025-02-04 08:59:00: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, starting parameter set
+2025-02-04 08:59:01: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, starting new job
+2025-02-04 08:59:01: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, started new job
+2025-02-04 08:59:05: [91mFailed jobs: 8[0m, SobolGenerator, best result: 1234, job_failed
+2025-02-04 08:59:06: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:59:06: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, getting 1 trials (no sbatch), last/avg 0.13s/0.11s
+2025-02-04 08:59:06: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, starting parameter set
+2025-02-04 08:59:07: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, starting new job
+2025-02-04 08:59:07: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, started new job
+2025-02-04 08:59:11: [91mFailed jobs: 9[0m, SobolGenerator, best result: 1234, job_failed
+2025-02-04 08:59:12: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, finishing jobs after starting them, finished 1 job
+2025-02-04 08:59:12: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, got 1, requested 1
+2025-02-04 08:59:12: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, trying to get 1 next steps (current done: 4, max: 23)
+2025-02-04 08:59:12: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, getting 1 trials (no sbatch), last/avg 0.10s/0.11s
+2025-02-04 08:59:13: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, starting parameter set
+2025-02-04 08:59:13: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, starting new job
+2025-02-04 08:59:14: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, started new job
+2025-02-04 08:59:19: [91mFailed jobs: 10[0m, SobolGenerator, best result: 1234, job_failed
+2025-02-04 08:59:20: [91mFailed jobs: 11[0m, SobolGenerator, best result: 1234, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:59:20: [91mFailed jobs: 11[0m, SobolGenerator, best result: 1234, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-04 08:59:20: [91mFailed jobs: 11[0m, SobolGenerator, best result: 1234, starting parameter set
+2025-02-04 08:59:20: [91mFailed jobs: 11[0m, SobolGenerator, best result: 1234, starting new job
+2025-02-04 08:59:21: [91mFailed jobs: 11[0m, SobolGenerator, best result: 1234, started new job
+2025-02-04 08:59:25: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, new result: 0.710785927790315
+2025-02-04 08:59:25: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs after starting them, finished 1 job
+2025-02-04 08:59:25: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, got 1, requested 1
+2025-02-04 08:59:26: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, trying to get 1 next steps (current done: 5, max: 23)
+2025-02-04 08:59:26: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-04 08:59:27: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 08:59:27: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 08:59:28: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 08:59:33: [91mFailed jobs: 11[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 08:59:33: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:59:34: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.17s/0.11s
+2025-02-04 08:59:34: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 08:59:34: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 08:59:35: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 08:59:39: [91mFailed jobs: 12[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 08:59:39: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs after starting them, finished 1 job
+2025-02-04 08:59:40: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, got 1, requested 1
+2025-02-04 08:59:40: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, trying to get 1 next steps (current done: 5, max: 23)
+2025-02-04 08:59:41: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.12s/0.11s
+2025-02-04 08:59:41: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 08:59:42: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 08:59:42: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 08:59:47: [91mFailed jobs: 13[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 08:59:48: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 08:59:48: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.14s/0.11s
+2025-02-04 08:59:49: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 08:59:49: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 08:59:49: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 08:59:54: [91mFailed jobs: 14[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 08:59:54: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs after starting them, finished 1 job
+2025-02-04 08:59:54: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, got 1, requested 1
+2025-02-04 08:59:55: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, trying to get 1 next steps (current done: 5, max: 23)
+2025-02-04 08:59:55: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.11s/0.11s
+2025-02-04 08:59:56: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 08:59:56: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 08:59:57: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 09:00:01: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, new result: 10321.0
+2025-02-04 09:00:02: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 09:00:02: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.16s/0.12s
+2025-02-04 09:00:02: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 09:00:03: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 09:00:03: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 09:00:07: [91mFailed jobs: 15[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 09:00:08: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs after starting them, finished 1 job
+2025-02-04 09:00:08: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, got 1, requested 1
+2025-02-04 09:00:09: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, trying to get 1 next steps (current done: 6, max: 23)
+2025-02-04 09:00:09: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.11s/0.12s
+2025-02-04 09:00:10: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, starting parameter set
+2025-02-04 09:00:10: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, starting new job
+2025-02-04 09:00:11: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, started new job
+2025-02-04 09:00:16: [91mFailed jobs: 16[0m, SobolGenerator, best result: 0.710785927790315, job_failed
+2025-02-04 09:00:17: [91mFailed jobs: 17[0m, SobolGenerator, best result: 0.710785927790315, finishing jobs (_get_next_trials), finished 1 job
+2025-02-04 09:00:17: [91mFailed jobs: 17[0m, SobolGenerator, best result: 0.710785927790315, getting 1 trials (no sbatch), last/avg 0.16s/0.12s
+2025-02-04 09:00:19: [91mFailed jobs: 17[0m, SobolGenerator, best result: 0.710785927790315, got 0, requested 1
+2025-02-04 09:00:19: [91mFailed jobs: 17[0m, SobolGenerator, best result: 0.710785927790315, found 0 zero-jobs (max: 3)

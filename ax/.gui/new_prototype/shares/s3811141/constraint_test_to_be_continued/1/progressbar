@@ -1,0 +1,37 @@
+2025-03-03 09:27:19: Initializing model, Started OmniOpt2 run...
+2025-03-03 09:27:19: Initializing model, trying to get 1 next steps (current done: 0, max: 4)
+2025-03-03 09:27:20: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 09:27:20: SobolGenerator, starting parameter set
+2025-03-03 09:27:20: SobolGenerator, starting new job
+2025-03-03 09:27:21: SobolGenerator, total submitted: 1, max_eval: 4, started new job
+2025-03-03 09:27:26: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, new result: 20421.229869127274
+2025-03-03 09:27:26: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, new result: 20421.229869127274 (entered)
+2025-03-03 09:27:26: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, finishing jobs after starting them, finished 1 job
+2025-03-03 09:27:27: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, got 1, requested 1
+2025-03-03 09:27:27: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, trying to get 1 next steps (current done: 1, max: 4)
+2025-03-03 09:27:28: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, getting new hyperparameter set (no sbatch)
+2025-03-03 09:27:28: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, starting parameter set
+2025-03-03 09:27:29: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 1, max_eval: 4, starting new job
+2025-03-03 09:27:29: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, started new job
+2025-03-03 09:27:35: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, new result: 62615.248365327716
+2025-03-03 09:27:36: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, new result: 62615.248365327716 (entered)
+2025-03-03 09:27:37: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, finishing jobs after starting them, finished 1 job
+2025-03-03 09:27:37: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, got 1, requested 1
+2025-03-03 09:27:37: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, trying to get 1 next steps (current done: 2, max: 4)
+2025-03-03 09:27:38: SobolGenerator, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, getting new hyperparameter set (no sbatch)
+2025-03-03 09:27:51: BoTorchModel, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, starting parameter set
+2025-03-03 09:27:51: BoTorchModel, best RESULT: 20421.229869127274, total submitted: 2, max_eval: 4, starting new job
+2025-03-03 09:27:52: BoTorchModel, best RESULT: 20421.229869127274, total submitted: 3, max_eval: 4, started new job
+2025-03-03 09:27:56: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, new result: 2325.449264961628
+2025-03-03 09:27:56: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, new result: 2325.449264961628 (entered)
+2025-03-03 09:27:57: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, finishing jobs after starting them, finished 1 job
+2025-03-03 09:27:57: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, got 1, requested 1
+2025-03-03 09:27:57: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, trying to get 1 next steps (current done: 3, max: 4)
+2025-03-03 09:27:58: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, getting new hyperparameter set (no sbatch)
+2025-03-03 09:28:08: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, starting parameter set
+2025-03-03 09:28:08: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 3, max_eval: 4, starting new job
+2025-03-03 09:28:09: BoTorchModel, best RESULT: 2325.449264961628, total submitted: 4, max_eval: 4, started new job
+2025-03-03 09:28:13: BoTorchModel, best RESULT: 23.944271847648615, total submitted: 4, max_eval: 4, new result: 23.944271847648615
+2025-03-03 09:28:13: BoTorchModel, best RESULT: 23.944271847648615, total submitted: 4, max_eval: 4, new result: 23.944271847648615 (entered)
+2025-03-03 09:28:14: BoTorchModel, best RESULT: 23.944271847648615, total submitted: 4, max_eval: 4, finishing jobs after starting them, finished 1 job
+2025-03-03 09:28:14: BoTorchModel, best RESULT: 23.944271847648615, total submitted: 4, max_eval: 4, got 1, requested 1

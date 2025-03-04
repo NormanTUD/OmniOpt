@@ -1,0 +1,1401 @@
+2025-02-12 14:49:27: Initializing model, Started OmniOpt2 run...
+2025-02-12 14:49:27: Initializing model, trying to get 1 next steps (current done: 0, max: 200)
+2025-02-12 14:49:27: Initializing model, getting 1 trials (no sbatch)
+2025-02-12 14:49:28: SobolGenerator, starting parameter set
+2025-02-12 14:49:28: SobolGenerator, starting new job
+2025-02-12 14:49:29: SobolGenerator, started new job
+2025-02-12 14:52:50: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, new result: 1.5268
+2025-02-12 14:52:51: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 14:52:51: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, getting 1 trials (no sbatch), last/avg 0.13s/0.13s
+2025-02-12 14:52:51: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, starting parameter set
+2025-02-12 14:52:52: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, starting new job
+2025-02-12 14:52:52: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 193, started new job
+2025-02-12 14:55:37: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, new result: 1.5283
+2025-02-12 14:55:37: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, finishing jobs after starting them, finished 1 job
+2025-02-12 14:55:37: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, got 1, requested 1
+2025-02-12 14:55:37: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, trying to get 1 next steps (current done: 2, max: 200)
+2025-02-12 14:55:38: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, getting 1 trials (no sbatch), last/avg 0.19s/0.16s
+2025-02-12 14:55:38: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, starting parameter set
+2025-02-12 14:55:38: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, starting new job
+2025-02-12 14:55:38: SobolGenerator, best VAL_LOSS: 1.5268, RAM_USAGE: 637.61, RUNTIME: 155, started new job
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.4988
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.05s/0.12s
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 14:56:32: SobolGenerator, best VAL_LOSS: 1.4988, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 14:57:36: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.009
+2025-02-12 14:57:36: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs after starting them, finished 1 job
+2025-02-12 14:57:36: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, got 1, requested 1
+2025-02-12 14:57:36: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, trying to get 1 next steps (current done: 4, max: 200)
+2025-02-12 14:57:36: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.04s/0.10s
+2025-02-12 14:57:37: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 14:57:37: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 14:57:37: SobolGenerator, best VAL_LOSS: 1.009, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 14:58:40: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 0.0942
+2025-02-12 14:58:41: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 14:58:41: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.05s/0.09s
+2025-02-12 14:58:41: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 14:58:42: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 14:58:42: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:00:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.5237
+2025-02-12 15:00:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs after starting them, finished 1 job
+2025-02-12 15:00:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, got 1, requested 1
+2025-02-12 15:00:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, trying to get 1 next steps (current done: 6, max: 200)
+2025-02-12 15:00:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.06s/0.09s
+2025-02-12 15:00:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 15:00:04: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 15:00:04: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:01:00: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.5487
+2025-02-12 15:01:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:01:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.07s/0.08s
+2025-02-12 15:01:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 15:01:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 15:01:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:02:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.1383
+2025-02-12 15:02:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs after starting them, finished 1 job
+2025-02-12 15:02:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, got 1, requested 1
+2025-02-12 15:02:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, trying to get 1 next steps (current done: 8, max: 200)
+2025-02-12 15:02:08: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.08s/0.08s
+2025-02-12 15:02:08: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 15:02:08: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 15:02:09: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:03:12: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.0735
+2025-02-12 15:03:13: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:03:13: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.07s/0.08s
+2025-02-12 15:03:13: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 15:03:14: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 15:03:14: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:04:30: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, new result: 1.539
+2025-02-12 15:04:31: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, finishing jobs after starting them, finished 1 job
+2025-02-12 15:04:31: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, got 1, requested 1
+2025-02-12 15:04:31: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, trying to get 1 next steps (current done: 10, max: 200)
+2025-02-12 15:04:32: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, getting 1 trials (no sbatch), last/avg 0.07s/0.08s
+2025-02-12 15:04:32: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting parameter set
+2025-02-12 15:04:32: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, starting new job
+2025-02-12 15:04:33: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 51, started new job
+2025-02-12 15:05:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, new result: 1.5236
+2025-02-12 15:05:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:05:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, getting 1 trials (no sbatch), last/avg 0.07s/0.08s
+2025-02-12 15:05:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, starting parameter set
+2025-02-12 15:05:24: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, starting new job
+2025-02-12 15:05:24: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, started new job
+2025-02-12 15:06:22: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, new result: 0.2004
+2025-02-12 15:06:22: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, finishing jobs after starting them, finished 1 job
+2025-02-12 15:06:22: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, got 1, requested 1
+2025-02-12 15:06:22: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, trying to get 1 next steps (current done: 12, max: 200)
+2025-02-12 15:06:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, getting 1 trials (no sbatch), last/avg 0.05s/0.08s
+2025-02-12 15:06:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, starting parameter set
+2025-02-12 15:06:24: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, starting new job
+2025-02-12 15:06:24: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 47, started new job
+2025-02-12 15:07:05: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, new result: 1.5231
+2025-02-12 15:07:06: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:07:06: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.05s/0.08s
+2025-02-12 15:07:06: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, starting parameter set
+2025-02-12 15:07:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, starting new job
+2025-02-12 15:07:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, started new job
+2025-02-12 15:08:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, new result: 1.5307
+2025-02-12 15:08:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:08:01: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:08:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, trying to get 1 next steps (current done: 14, max: 200)
+2025-02-12 15:08:02: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.08s/0.08s
+2025-02-12 15:08:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, starting parameter set
+2025-02-12 15:08:03: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, starting new job
+2025-02-12 15:08:04: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.61, RUNTIME: 39, started new job
+2025-02-12 15:09:07: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, new result: 1.5276
+2025-02-12 15:09:08: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:09:08: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.06s/0.07s
+2025-02-12 15:09:09: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting parameter set
+2025-02-12 15:09:09: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting new job
+2025-02-12 15:09:10: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, started new job
+2025-02-12 15:10:37: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, new result: 1.5257
+2025-02-12 15:10:38: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:10:38: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:10:39: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, trying to get 1 next steps (current done: 16, max: 200)
+2025-02-12 15:10:40: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.06s/0.07s
+2025-02-12 15:10:40: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting parameter set
+2025-02-12 15:10:41: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting new job
+2025-02-12 15:10:41: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, started new job
+2025-02-12 15:11:51: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, new result: 1.5248
+2025-02-12 15:11:51: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:11:52: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.14s/0.08s
+2025-02-12 15:11:53: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting parameter set
+2025-02-12 15:11:53: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting new job
+2025-02-12 15:11:54: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, started new job
+2025-02-12 15:13:21: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, new result: 1.531
+2025-02-12 15:13:22: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:13:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:13:23: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, trying to get 1 next steps (current done: 18, max: 200)
+2025-02-12 15:13:24: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.08s/0.08s
+2025-02-12 15:13:25: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting parameter set
+2025-02-12 15:13:25: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, starting new job
+2025-02-12 15:13:26: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 637.25, RUNTIME: 39, started new job
+2025-02-12 15:14:26: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 1.5259
+2025-02-12 15:14:26: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:14:27: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.09s/0.08s
+2025-02-12 15:14:28: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:14:28: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:14:29: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:15:32: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 1.4488
+2025-02-12 15:15:33: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:15:33: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:15:34: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 20, max: 200)
+2025-02-12 15:15:35: SobolGenerator, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 0.10s/0.08s
+2025-02-12 15:16:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:16:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:16:07: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:16:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.3855
+2025-02-12 15:16:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:16:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 30.45s/1.53s
+2025-02-12 15:17:26: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:17:26: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:17:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:18:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.105
+2025-02-12 15:18:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:18:41: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:18:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 22, max: 200)
+2025-02-12 15:18:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 27.77s/2.72s
+2025-02-12 15:19:26: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:19:28: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:19:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:21:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.2956
+2025-02-12 15:21:32: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:21:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 42.48s/4.45s
+2025-02-12 15:22:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:22:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:22:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:23:41: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.2448
+2025-02-12 15:23:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:23:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:23:45: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 24, max: 200)
+2025-02-12 15:23:46: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 42.43s/6.03s
+2025-02-12 15:24:34: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:24:35: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:24:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:25:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.5488
+2025-02-12 15:25:52: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:25:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 45.90s/7.63s
+2025-02-12 15:26:48: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:26:49: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:26:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:28:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.1793
+2025-02-12 15:28:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:28:45: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:28:47: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 26, max: 200)
+2025-02-12 15:28:48: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 53.52s/9.39s
+2025-02-12 15:29:37: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:29:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:29:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:31:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 1.523
+2025-02-12 15:31:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:31:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 46.73s/10.77s
+2025-02-12 15:31:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:32:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:32:01: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:33:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 2.0015
+2025-02-12 15:33:29: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:33:29: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:33:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 28, max: 200)
+2025-02-12 15:33:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 38.25s/11.75s
+2025-02-12 15:34:29: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:34:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:34:32: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:36:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 1.6226
+2025-02-12 15:36:23: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:36:24: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 55.74s/13.27s
+2025-02-12 15:37:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:37:20: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:37:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:39:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.8675
+2025-02-12 15:39:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:39:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:39:20: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 30, max: 200)
+2025-02-12 15:39:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 52.48s/14.58s
+2025-02-12 15:40:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:40:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:40:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:41:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.3148
+2025-02-12 15:41:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:41:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 55.44s/15.90s
+2025-02-12 15:42:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:42:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:42:24: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:43:47: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, new result: 0.9226
+2025-02-12 15:43:48: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:43:50: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:43:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, trying to get 1 next steps (current done: 32, max: 200)
+2025-02-12 15:43:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 35.74s/16.52s
+2025-02-12 15:44:41: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting parameter set
+2025-02-12 15:44:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, starting new job
+2025-02-12 15:44:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 636.34, RUNTIME: 39, started new job
+2025-02-12 15:46:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.1019
+2025-02-12 15:46:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:46:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 46.06s/17.41s
+2025-02-12 15:47:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:47:02: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:47:03: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 15:48:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.5217
+2025-02-12 15:48:35: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:48:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:48:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 34, max: 200)
+2025-02-12 15:48:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 40.71s/18.10s
+2025-02-12 15:49:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:49:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:49:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 15:50:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.9084
+2025-02-12 15:50:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:50:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 54.44s/19.14s
+2025-02-12 15:51:48: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:51:49: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:51:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 15:53:24: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.0632
+2025-02-12 15:53:26: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:53:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:53:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 36, max: 200)
+2025-02-12 15:53:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 48.65s/19.96s
+2025-02-12 15:54:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:54:23: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:54:25: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 15:56:04: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.2307
+2025-02-12 15:56:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 15:56:08: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 48.33s/20.72s
+2025-02-12 15:57:05: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:57:07: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:57:09: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 15:58:32: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.4987
+2025-02-12 15:58:34: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 15:58:35: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 15:58:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 38, max: 200)
+2025-02-12 15:58:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 54.78s/21.62s
+2025-02-12 15:59:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 15:59:41: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 15:59:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:01:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.3261
+2025-02-12 16:01:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:01:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 59.25s/22.58s
+2025-02-12 16:02:12: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:02:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:02:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:03:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.2634
+2025-02-12 16:03:46: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:03:48: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:03:50: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 40, max: 200)
+2025-02-12 16:03:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 47.60s/23.21s
+2025-02-12 16:04:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:04:58: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:05:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:06:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5229
+2025-02-12 16:06:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:06:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 61.51s/24.14s
+2025-02-12 16:07:38: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:07:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:07:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:08:47: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.4323
+2025-02-12 16:08:49: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:08:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:08:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 42, max: 200)
+2025-02-12 16:08:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 55.30s/24.89s
+2025-02-12 16:10:09: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:10:11: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:10:13: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:11:23: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.8833
+2025-02-12 16:11:25: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:11:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 70.86s/25.95s
+2025-02-12 16:12:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:12:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:12:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:14:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.5405
+2025-02-12 16:14:29: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:14:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:14:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 44, max: 200)
+2025-02-12 16:14:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 84.53s/27.29s
+2025-02-12 16:15:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:15:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:16:01: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:17:12: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.699
+2025-02-12 16:17:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:17:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 78.41s/28.42s
+2025-02-12 16:18:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:18:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:18:23: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:20:02: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5255
+2025-02-12 16:20:05: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:20:07: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:20:09: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 46, max: 200)
+2025-02-12 16:20:11: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 59.87s/29.11s
+2025-02-12 16:21:20: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:21:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:21:24: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:22:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.2294
+2025-02-12 16:22:55: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:22:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 65.86s/29.89s
+2025-02-12 16:24:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:24:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:24:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:25:29: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.1339
+2025-02-12 16:25:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:25:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:25:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 48, max: 200)
+2025-02-12 16:25:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 73.57s/30.80s
+2025-02-12 16:27:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:27:03: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:27:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:28:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5258
+2025-02-12 16:28:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:28:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 78.80s/31.78s
+2025-02-12 16:30:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:30:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:30:21: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:31:47: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5346
+2025-02-12 16:31:50: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:31:52: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:31:55: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 50, max: 200)
+2025-02-12 16:31:58: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 74.75s/32.64s
+2025-02-12 16:33:13: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:33:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:33:18: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:34:28: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.0835
+2025-02-12 16:34:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:34:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 72.92s/33.43s
+2025-02-12 16:35:41: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:35:43: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:35:46: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:36:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.8578
+2025-02-12 16:36:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:37:01: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:37:04: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 52, max: 200)
+2025-02-12 16:37:07: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 65.10s/34.04s
+2025-02-12 16:38:34: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:38:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:38:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:39:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5285
+2025-02-12 16:39:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:39:58: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 83.92s/34.98s
+2025-02-12 16:41:12: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:41:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:41:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:42:28: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.5321
+2025-02-12 16:42:31: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:42:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:42:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 54, max: 200)
+2025-02-12 16:42:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 70.20s/35.63s
+2025-02-12 16:44:05: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:44:08: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:44:10: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:45:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.1149
+2025-02-12 16:45:25: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:45:27: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 82.80s/36.49s
+2025-02-12 16:46:52: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:46:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:46:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:48:10: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.5689
+2025-02-12 16:48:13: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:48:15: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:48:19: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 56, max: 200)
+2025-02-12 16:48:22: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 81.03s/37.28s
+2025-02-12 16:49:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:49:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:50:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:51:11: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.9201
+2025-02-12 16:51:14: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:51:17: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 88.91s/38.19s
+2025-02-12 16:52:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:52:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:52:47: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:54:01: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.5611
+2025-02-12 16:54:05: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:54:07: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 16:54:11: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 58, max: 200)
+2025-02-12 16:54:15: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 80.68s/38.92s
+2025-02-12 16:55:50: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:55:52: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:55:55: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:57:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.1106
+2025-02-12 16:57:09: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 16:57:12: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 91.65s/39.81s
+2025-02-12 16:58:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 16:58:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 16:58:42: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 16:59:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.4582
+2025-02-12 16:59:56: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 16:59:59: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:00:03: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 60, max: 200)
+2025-02-12 17:00:06: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 81.10s/40.50s
+2025-02-12 17:01:33: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:01:36: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:01:39: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:02:53: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.9322
+2025-02-12 17:02:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:03:00: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 83.92s/41.21s
+2025-02-12 17:04:10: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:04:13: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:04:16: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:05:30: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.2896
+2025-02-12 17:05:34: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:05:37: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:05:40: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 62, max: 200)
+2025-02-12 17:05:44: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 66.25s/41.62s
+2025-02-12 17:06:51: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:06:54: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:06:57: BoTorchModel, best VAL_LOSS: 0.0942, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:08:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.0664
+2025-02-12 17:08:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:08:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 62.83s/41.95s
+2025-02-12 17:09:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:09:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:09:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:11:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, new result: 0.3917
+2025-02-12 17:11:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:11:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:11:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, trying to get 1 next steps (current done: 64, max: 200)
+2025-02-12 17:11:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 69.78s/42.39s
+2025-02-12 17:13:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:13:08: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:13:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:14:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, new result: 1.4018
+2025-02-12 17:14:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:14:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 87.63s/43.09s
+2025-02-12 17:16:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting parameter set
+2025-02-12 17:16:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, starting new job
+2025-02-12 17:16:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 635.54, RUNTIME: 39, started new job
+2025-02-12 17:17:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, new result: 1.5257
+2025-02-12 17:17:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:17:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:17:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, trying to get 1 next steps (current done: 66, max: 200)
+2025-02-12 17:17:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 90.75s/43.81s
+2025-02-12 17:19:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting parameter set
+2025-02-12 17:19:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting new job
+2025-02-12 17:19:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, started new job
+2025-02-12 17:20:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, new result: 1.5445
+2025-02-12 17:20:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:20:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 92.72s/44.54s
+2025-02-12 17:22:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting parameter set
+2025-02-12 17:22:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting new job
+2025-02-12 17:22:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, started new job
+2025-02-12 17:23:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, new result: 0.1396
+2025-02-12 17:23:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:23:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:24:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, trying to get 1 next steps (current done: 68, max: 200)
+2025-02-12 17:24:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 65.83s/44.85s
+2025-02-12 17:25:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting parameter set
+2025-02-12 17:25:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting new job
+2025-02-12 17:25:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, started new job
+2025-02-12 17:27:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, new result: 1.5334
+2025-02-12 17:27:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:27:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 81.16s/45.38s
+2025-02-12 17:28:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting parameter set
+2025-02-12 17:29:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting new job
+2025-02-12 17:29:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, started new job
+2025-02-12 17:30:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, new result: 0.2451
+2025-02-12 17:30:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:30:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:30:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, trying to get 1 next steps (current done: 70, max: 200)
+2025-02-12 17:30:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 83.13s/45.92s
+2025-02-12 17:31:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting parameter set
+2025-02-12 17:31:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, starting new job
+2025-02-12 17:32:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 634.58, RUNTIME: 39, started new job
+2025-02-12 17:33:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.533
+2025-02-12 17:33:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:33:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 83.11s/46.44s
+2025-02-12 17:34:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:34:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:34:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:36:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1818
+2025-02-12 17:36:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:36:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:36:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 72, max: 200)
+2025-02-12 17:36:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 62.67s/46.67s
+2025-02-12 17:37:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:37:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:38:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:39:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.0352
+2025-02-12 17:39:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:39:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 91.50s/47.28s
+2025-02-12 17:40:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:40:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:41:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:42:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5273
+2025-02-12 17:42:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:42:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:43:02: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 74, max: 200)
+2025-02-12 17:43:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 85.64s/47.80s
+2025-02-12 17:44:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:44:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:44:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:46:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5457
+2025-02-12 17:46:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:46:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 82.62s/48.26s
+2025-02-12 17:48:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:48:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:48:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:49:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5258
+2025-02-12 17:49:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:49:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:49:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 76, max: 200)
+2025-02-12 17:49:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 89.10s/48.80s
+2025-02-12 17:51:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:51:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:51:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:52:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1303
+2025-02-12 17:52:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:52:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 80.18s/49.21s
+2025-02-12 17:54:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:54:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:54:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:56:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.527
+2025-02-12 17:56:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 17:56:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 17:56:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 78, max: 200)
+2025-02-12 17:56:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 99.58s/49.85s
+2025-02-12 17:58:08: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 17:58:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 17:58:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 17:59:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1422
+2025-02-12 17:59:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 17:59:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 78.56s/50.22s
+2025-02-12 18:00:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:00:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:01:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:02:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1602
+2025-02-12 18:02:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:02:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:02:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 80, max: 200)
+2025-02-12 18:02:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 74.33s/50.52s
+2025-02-12 18:03:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:04:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:04:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:05:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1256
+2025-02-12 18:05:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:05:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 74.39s/50.81s
+2025-02-12 18:07:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:07:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:07:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:08:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.128
+2025-02-12 18:08:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:08:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:09:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 82, max: 200)
+2025-02-12 18:09:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 78.23s/51.15s
+2025-02-12 18:10:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:10:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:11:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:12:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.3127
+2025-02-12 18:12:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:12:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 98.87s/51.72s
+2025-02-12 18:13:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:14:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:14:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:15:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2318
+2025-02-12 18:15:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:15:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:15:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 84, max: 200)
+2025-02-12 18:15:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 76.38s/52.02s
+2025-02-12 18:17:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:17:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:17:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:19:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1853
+2025-02-12 18:19:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:19:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 81.93s/52.37s
+2025-02-12 18:21:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:21:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:21:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:22:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5252
+2025-02-12 18:22:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:22:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:22:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 86, max: 200)
+2025-02-12 18:22:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 102.09s/52.95s
+2025-02-12 18:24:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:24:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:24:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:26:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6429
+2025-02-12 18:26:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:26:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 92.13s/53.40s
+2025-02-12 18:27:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:27:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:28:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:29:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.9645
+2025-02-12 18:29:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:29:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:29:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 88, max: 200)
+2025-02-12 18:29:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 98.72s/53.91s
+2025-02-12 18:31:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:31:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:31:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:33:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.524
+2025-02-12 18:33:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:33:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 96.16s/54.39s
+2025-02-12 18:34:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:34:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:35:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:36:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5467
+2025-02-12 18:36:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:36:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:36:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 90, max: 200)
+2025-02-12 18:36:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 92.37s/54.81s
+2025-02-12 18:38:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:38:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:38:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:40:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5298
+2025-02-12 18:40:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:40:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 100.51s/55.31s
+2025-02-12 18:41:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:41:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:41:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:43:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2843
+2025-02-12 18:43:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:43:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:43:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 92, max: 200)
+2025-02-12 18:43:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 88.97s/55.68s
+2025-02-12 18:45:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:45:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:45:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:46:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.8658
+2025-02-12 18:46:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:46:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 100.01s/56.15s
+2025-02-12 18:48:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:48:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:48:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:49:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5235
+2025-02-12 18:49:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:49:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:50:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 94, max: 200)
+2025-02-12 18:50:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 97.61s/56.59s
+2025-02-12 18:51:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:51:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:51:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:53:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1154
+2025-02-12 18:53:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 18:53:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 73.42s/56.77s
+2025-02-12 18:54:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:54:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:54:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 18:56:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1551
+2025-02-12 18:56:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 18:56:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 18:56:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 96, max: 200)
+2025-02-12 18:56:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 77.67s/56.99s
+2025-02-12 18:58:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 18:58:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 18:58:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:00:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5256
+2025-02-12 19:00:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:00:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 84.68s/57.27s
+2025-02-12 19:01:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:01:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:01:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:03:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.523
+2025-02-12 19:03:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:03:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:03:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 98, max: 200)
+2025-02-12 19:03:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 90.34s/57.61s
+2025-02-12 19:05:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:05:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:05:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:06:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5262
+2025-02-12 19:07:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:07:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 96.30s/58.00s
+2025-02-12 19:08:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:09:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:09:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:10:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5251
+2025-02-12 19:10:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:10:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:10:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 100, max: 200)
+2025-02-12 19:11:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 104.32s/58.47s
+2025-02-12 19:12:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:12:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:12:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:14:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.5992
+2025-02-12 19:14:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:14:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 97.75s/58.85s
+2025-02-12 19:16:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:16:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:16:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:17:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5359
+2025-02-12 19:17:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:17:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:18:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 102, max: 200)
+2025-02-12 19:18:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 103.70s/59.29s
+2025-02-12 19:19:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:19:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:20:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:21:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.0445
+2025-02-12 19:21:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:21:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 97.56s/59.67s
+2025-02-12 19:23:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:23:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:23:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:24:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.3661
+2025-02-12 19:24:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:25:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:25:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 104, max: 200)
+2025-02-12 19:25:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 109.35s/60.14s
+2025-02-12 19:27:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:27:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:27:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:28:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5291
+2025-02-12 19:28:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:28:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 114.62s/60.66s
+2025-02-12 19:30:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:30:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:30:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:32:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5271
+2025-02-12 19:32:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:32:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:32:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 106, max: 200)
+2025-02-12 19:32:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 110.05s/61.13s
+2025-02-12 19:34:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:34:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:34:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:35:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6057
+2025-02-12 19:35:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:36:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 105.75s/61.54s
+2025-02-12 19:37:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:37:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:38:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:39:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.9865
+2025-02-12 19:39:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:39:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:39:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 108, max: 200)
+2025-02-12 19:39:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 102.37s/61.92s
+2025-02-12 19:41:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:41:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:41:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:43:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.7995
+2025-02-12 19:43:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:43:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 108.42s/62.35s
+2025-02-12 19:45:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:45:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:45:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:47:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5275
+2025-02-12 19:47:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:47:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:47:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 110, max: 200)
+2025-02-12 19:47:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 93.36s/62.63s
+2025-02-12 19:49:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:49:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:49:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:50:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.0955
+2025-02-12 19:50:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:50:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 99.06s/62.96s
+2025-02-12 19:52:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:52:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:52:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:54:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5257
+2025-02-12 19:54:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 19:54:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 19:54:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 112, max: 200)
+2025-02-12 19:54:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 102.15s/63.31s
+2025-02-12 19:56:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 19:56:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 19:56:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 19:58:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2079
+2025-02-12 19:58:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 19:58:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 100.09s/63.63s
+2025-02-12 20:00:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:00:08: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:00:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:01:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5338
+2025-02-12 20:01:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:01:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:01:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 114, max: 200)
+2025-02-12 20:02:02: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 101.16s/63.96s
+2025-02-12 20:03:51: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:03:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:04:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:05:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1987
+2025-02-12 20:05:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:05:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 101.72s/64.29s
+2025-02-12 20:07:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:07:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:07:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:09:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1518
+2025-02-12 20:09:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:09:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:09:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 116, max: 200)
+2025-02-12 20:09:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 105.88s/64.65s
+2025-02-12 20:11:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:11:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:12:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:13:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.919
+2025-02-12 20:13:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:13:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.45s/65.12s
+2025-02-12 20:15:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:15:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:15:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:17:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.3637
+2025-02-12 20:17:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:18:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:18:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 118, max: 200)
+2025-02-12 20:18:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 129.95s/65.67s
+2025-02-12 20:20:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:20:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:20:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:21:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5294
+2025-02-12 20:22:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:22:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 101.84s/65.97s
+2025-02-12 20:24:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:24:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:24:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:26:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6502
+2025-02-12 20:26:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:26:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:26:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 120, max: 200)
+2025-02-12 20:26:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 106.05s/66.31s
+2025-02-12 20:28:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:28:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:28:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:30:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.545
+2025-02-12 20:30:20: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:30:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 114.34s/66.70s
+2025-02-12 20:32:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:32:28: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:32:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:33:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5331
+2025-02-12 20:33:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:33:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:34:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 122, max: 200)
+2025-02-12 20:34:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 109.19s/67.05s
+2025-02-12 20:36:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:36:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:36:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:37:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5285
+2025-02-12 20:37:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:37:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 107.30s/67.38s
+2025-02-12 20:39:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:39:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:39:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:41:00: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1665
+2025-02-12 20:41:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:41:13: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:41:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 124, max: 200)
+2025-02-12 20:41:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 99.85s/67.64s
+2025-02-12 20:43:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:43:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:43:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:44:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5242
+2025-02-12 20:45:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:45:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 115.94s/68.03s
+2025-02-12 20:47:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:47:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:47:17: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:49:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1342
+2025-02-12 20:49:17: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:49:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:49:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 126, max: 200)
+2025-02-12 20:49:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 106.94s/68.34s
+2025-02-12 20:51:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:51:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:51:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:53:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2685
+2025-02-12 20:53:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 20:53:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 111.50s/68.68s
+2025-02-12 20:55:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:55:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:55:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 20:56:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2027
+2025-02-12 20:57:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 20:57:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 20:57:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 128, max: 200)
+2025-02-12 20:57:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.90s/69.08s
+2025-02-12 20:59:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 20:59:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 20:59:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:01:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.5703
+2025-02-12 21:01:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:01:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 114.65s/69.43s
+2025-02-12 21:03:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:03:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:03:35: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:05:25: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6485
+2025-02-12 21:05:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:05:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:05:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 130, max: 200)
+2025-02-12 21:05:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 108.33s/69.73s
+2025-02-12 21:07:49: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:07:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:08:02: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:09:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.3514
+2025-02-12 21:09:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:09:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 107.44s/70.02s
+2025-02-12 21:11:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:11:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:11:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:13:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5231
+2025-02-12 21:13:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:13:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:13:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 132, max: 200)
+2025-02-12 21:13:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 102.12s/70.26s
+2025-02-12 21:15:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:15:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:15:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:17:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5288
+2025-02-12 21:17:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:17:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 107.40s/70.54s
+2025-02-12 21:19:42: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:19:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:19:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:21:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2242
+2025-02-12 21:21:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:21:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:21:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 134, max: 200)
+2025-02-12 21:21:44: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 101.06s/70.77s
+2025-02-12 21:23:50: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:23:57: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:24:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:25:26: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5296
+2025-02-12 21:25:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:25:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 118.20s/71.12s
+2025-02-12 21:27:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:27:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:27:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:29:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.536
+2025-02-12 21:29:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:29:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:29:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 136, max: 200)
+2025-02-12 21:29:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 109.30s/71.40s
+2025-02-12 21:31:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:31:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:31:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:33:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.5121
+2025-02-12 21:33:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:33:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 111.09s/71.69s
+2025-02-12 21:35:21: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:35:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:35:34: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:36:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.525
+2025-02-12 21:37:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:37:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:37:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 138, max: 200)
+2025-02-12 21:37:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 109.55s/71.96s
+2025-02-12 21:39:33: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:39:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:39:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:41:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5306
+2025-02-12 21:41:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:41:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 116.85s/72.29s
+2025-02-12 21:43:29: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:43:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:43:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:45:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5322
+2025-02-12 21:45:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:45:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:45:38: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 140, max: 200)
+2025-02-12 21:45:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 121.36s/72.64s
+2025-02-12 21:48:04: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:48:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:48:18: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:49:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5244
+2025-02-12 21:49:41: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:49:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 127.83s/73.03s
+2025-02-12 21:51:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:52:02: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:52:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:53:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5378
+2025-02-12 21:53:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 21:53:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 21:53:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 142, max: 200)
+2025-02-12 21:53:56: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.91s/73.36s
+2025-02-12 21:56:10: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 21:56:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 21:56:24: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 21:58:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5274
+2025-02-12 21:58:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 21:58:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 124.22s/73.71s
+2025-02-12 22:00:39: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:00:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:00:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:02:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5309
+2025-02-12 22:02:15: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:02:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:02:32: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 144, max: 200)
+2025-02-12 22:02:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 120.09s/74.04s
+2025-02-12 22:04:48: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:04:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:05:03: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:06:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5337
+2025-02-12 22:06:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:06:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.78s/74.35s
+2025-02-12 22:08:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:08:47: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:08:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:10:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.53
+2025-02-12 22:10:16: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:10:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:10:31: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 146, max: 200)
+2025-02-12 22:10:40: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 120.95s/74.67s
+2025-02-12 22:12:59: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:13:06: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:13:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:14:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1287
+2025-02-12 22:14:36: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:14:43: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 129.40s/75.04s
+2025-02-12 22:16:54: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:17:01: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:17:09: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:18:22: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5398
+2025-02-12 22:18:30: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:18:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:18:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 148, max: 200)
+2025-02-12 22:18:55: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 121.70s/75.36s
+2025-02-12 22:21:07: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:21:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:21:23: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:22:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5282
+2025-02-12 22:22:45: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:22:53: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 123.14s/75.68s
+2025-02-12 22:24:58: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:25:05: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:25:14: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:26:37: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5244
+2025-02-12 22:26:46: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:26:52: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:27:02: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 150, max: 200)
+2025-02-12 22:27:11: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 116.05s/75.95s
+2025-02-12 22:29:12: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:29:19: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:29:27: BoTorchModel, best VAL_LOSS: 0.0664, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:31:22: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.0441
+2025-02-12 22:31:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:31:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 110.76s/76.18s
+2025-02-12 22:33:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:33:49: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:33:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:35:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5274
+2025-02-12 22:35:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:35:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:36:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 152, max: 200)
+2025-02-12 22:36:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 114.10s/76.43s
+2025-02-12 22:38:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:38:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:38:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:40:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5347
+2025-02-12 22:40:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:40:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 120.85s/76.72s
+2025-02-12 22:42:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:42:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:42:40: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:44:34: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.4995
+2025-02-12 22:44:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:44:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:45:00: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 154, max: 200)
+2025-02-12 22:45:09: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 115.98s/76.97s
+2025-02-12 22:46:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:47:01: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:47:10: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:48:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.8543
+2025-02-12 22:48:48: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:48:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 96.28s/77.10s
+2025-02-12 22:50:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:50:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:51:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:52:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.4714
+2025-02-12 22:52:51: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 22:52:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 22:53:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 156, max: 200)
+2025-02-12 22:53:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 99.37s/77.24s
+2025-02-12 22:55:25: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:55:32: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:55:41: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 22:56:58: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.777
+2025-02-12 22:57:07: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 22:57:16: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 116.61s/77.49s
+2025-02-12 22:59:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 22:59:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 22:59:40: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:01:01: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5293
+2025-02-12 23:01:10: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:01:18: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:01:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 158, max: 200)
+2025-02-12 23:01:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 118.36s/77.75s
+2025-02-12 23:03:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:03:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:04:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:05:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2301
+2025-02-12 23:05:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:05:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 118.33s/78.01s
+2025-02-12 23:07:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:07:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:08:07: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:09:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.164
+2025-02-12 23:09:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:09:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:09:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 160, max: 200)
+2025-02-12 23:09:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 121.24s/78.28s
+2025-02-12 23:12:00: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:12:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:12:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:13:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.148
+2025-02-12 23:13:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:13:49: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 112.90s/78.49s
+2025-02-12 23:16:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:16:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:16:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:17:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1075
+2025-02-12 23:17:52: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:17:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:18:09: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 162, max: 200)
+2025-02-12 23:18:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 133.67s/78.83s
+2025-02-12 23:20:25: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:20:32: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:20:41: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:22:18: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1583
+2025-02-12 23:22:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:22:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 114.34s/79.05s
+2025-02-12 23:25:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:25:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:25:32: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:27:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.191
+2025-02-12 23:27:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:27:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:27:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 164, max: 200)
+2025-02-12 23:27:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 148.79s/79.47s
+2025-02-12 23:30:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:30:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:30:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:32:05: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2182
+2025-02-12 23:32:14: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:32:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 141.15s/79.85s
+2025-02-12 23:35:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:35:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:35:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:36:56: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.184
+2025-02-12 23:37:06: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:37:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:37:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 166, max: 200)
+2025-02-12 23:37:34: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 150.59s/80.27s
+2025-02-12 23:39:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:40:07: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:40:16: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:42:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2107
+2025-02-12 23:42:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:42:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 134.19s/80.60s
+2025-02-12 23:45:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:45:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:45:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:46:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1621
+2025-02-12 23:46:55: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:47:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:47:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 168, max: 200)
+2025-02-12 23:47:25: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 154.82s/81.04s
+2025-02-12 23:49:56: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:50:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:50:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:51:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.0059
+2025-02-12 23:51:49: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-12 23:51:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 139.36s/81.38s
+2025-02-12 23:54:33: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:54:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:54:51: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-12 23:56:06: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1071
+2025-02-12 23:56:16: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-12 23:56:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-12 23:56:35: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 170, max: 200)
+2025-02-12 23:56:45: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 143.18s/81.75s
+2025-02-12 23:59:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-12 23:59:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-12 23:59:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:00:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5376
+2025-02-13 00:01:00: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:01:10: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 143.14s/82.11s
+2025-02-13 00:03:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:03:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:03:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:05:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1676
+2025-02-13 00:06:00: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:06:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:06:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 172, max: 200)
+2025-02-13 00:06:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 137.99s/82.43s
+2025-02-13 00:09:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:09:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:09:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:10:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1442
+2025-02-13 00:11:07: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:11:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 142.79s/82.78s
+2025-02-13 00:14:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:14:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:14:22: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:15:41: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1846
+2025-02-13 00:15:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:16:00: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:16:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 174, max: 200)
+2025-02-13 00:16:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 156.54s/83.20s
+2025-02-13 00:19:07: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:19:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:19:25: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:20:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5306
+2025-02-13 00:20:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:20:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 154.52s/83.61s
+2025-02-13 00:23:34: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:23:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:23:51: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:25:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5268
+2025-02-13 00:25:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:26:06: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:26:18: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 176, max: 200)
+2025-02-13 00:26:28: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 145.15s/83.96s
+2025-02-13 00:28:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:28:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:28:58: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:30:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5275
+2025-02-13 00:30:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:30:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.43s/84.16s
+2025-02-13 00:32:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:32:55: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:33:06: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:34:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5269
+2025-02-13 00:34:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:34:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:34:51: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 178, max: 200)
+2025-02-13 00:35:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 125.87s/84.40s
+2025-02-13 00:37:44: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:37:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:38:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:39:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5343
+2025-02-13 00:39:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:39:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 150.96s/84.77s
+2025-02-13 00:42:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:42:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:42:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:43:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5509
+2025-02-13 00:43:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:44:01: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:44:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 180, max: 200)
+2025-02-13 00:44:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 141.45s/85.08s
+2025-02-13 00:46:35: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:46:44: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:46:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:48:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5284
+2025-02-13 00:48:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:48:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 119.92s/85.28s
+2025-02-13 00:50:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:51:08: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:51:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:52:33: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5266
+2025-02-13 00:52:44: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 00:52:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 00:53:05: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 182, max: 200)
+2025-02-13 00:53:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 138.91s/85.57s
+2025-02-13 00:55:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 00:55:52: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 00:56:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 00:57:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.532
+2025-02-13 00:57:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 00:57:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 134.68s/85.84s
+2025-02-13 01:00:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:00:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:00:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:02:06: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1555
+2025-02-13 01:02:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:02:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:02:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 184, max: 200)
+2025-02-13 01:02:49: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 150.70s/86.19s
+2025-02-13 01:05:28: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:05:37: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:05:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:07:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5294
+2025-02-13 01:07:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:07:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 146.61s/86.52s
+2025-02-13 01:10:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:10:34: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:10:45: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:12:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1422
+2025-02-13 01:12:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:12:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:12:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 186, max: 200)
+2025-02-13 01:12:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 157.51s/86.90s
+2025-02-13 01:15:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:15:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:15:49: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:17:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.4558
+2025-02-13 01:17:14: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:17:24: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 140.03s/87.18s
+2025-02-13 01:20:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:20:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:20:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:22:27: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1316
+2025-02-13 01:22:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:22:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:22:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 188, max: 200)
+2025-02-13 01:23:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 166.79s/87.61s
+2025-02-13 01:25:46: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:25:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:26:05: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:27:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2762
+2025-02-13 01:27:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:27:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 142.44s/87.90s
+2025-02-13 01:30:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:30:32: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:30:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:31:58: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5235
+2025-02-13 01:32:09: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:32:18: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:32:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 190, max: 200)
+2025-02-13 01:32:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 148.53s/88.22s
+2025-02-13 01:35:09: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:35:19: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:35:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:36:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5256
+2025-02-13 01:36:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:37:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 135.77s/88.46s
+2025-02-13 01:39:54: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:40:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:40:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:41:28: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5494
+2025-02-13 01:41:41: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:41:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:42:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 192, max: 200)
+2025-02-13 01:42:14: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 158.31s/88.83s
+2025-02-13 01:44:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:45:02: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:45:12: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:46:31: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.1856
+2025-02-13 01:46:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:46:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 146.04s/89.12s
+2025-02-13 01:49:30: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:49:39: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:49:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:51:09: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5242
+2025-02-13 01:51:20: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 01:51:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 01:51:42: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 194, max: 200)
+2025-02-13 01:51:55: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 143.70s/89.41s
+2025-02-13 01:54:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:54:45: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:54:56: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 01:56:10: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6501
+2025-02-13 01:56:21: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 01:56:33: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 148.29s/89.71s
+2025-02-13 01:59:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 01:59:48: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 01:59:59: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 02:01:17: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.6666
+2025-02-13 02:01:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 02:01:38: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 02:01:50: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 196, max: 200)
+2025-02-13 02:02:03: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 172.75s/90.13s
+2025-02-13 02:04:43: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 02:04:53: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 02:05:03: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 02:06:18: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.527
+2025-02-13 02:06:29: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 02:06:40: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 148.20s/90.43s
+2025-02-13 02:09:52: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 02:10:01: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 02:10:13: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 02:11:36: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 0.2
+2025-02-13 02:11:47: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 02:11:57: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1
+2025-02-13 02:12:10: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, trying to get 1 next steps (current done: 198, max: 200)
+2025-02-13 02:12:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 179.78s/90.88s
+2025-02-13 02:15:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 02:15:33: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 02:15:44: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 02:17:04: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5273
+2025-02-13 02:17:15: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs (_get_next_trials), finished 1 job
+2025-02-13 02:17:26: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, getting 1 trials (no sbatch), last/avg 167.19s/91.26s
+2025-02-13 02:20:34: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting parameter set
+2025-02-13 02:20:44: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, starting new job
+2025-02-13 02:20:56: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, started new job
+2025-02-13 02:22:11: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, new result: 1.5245
+2025-02-13 02:22:23: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, finishing jobs after starting them, finished 1 job
+2025-02-13 02:22:33: BoTorchModel, best VAL_LOSS: 0.0441, RAM_USAGE: 633.44, RUNTIME: 39, got 1, requested 1

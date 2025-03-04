@@ -1,0 +1,19 @@
+2025-03-03 08:34:51: Initializing model, Started OmniOpt2 run...
+2025-03-03 08:34:51: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-03-03 08:34:51: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 08:34:51: SobolGenerator, starting parameter set
+2025-03-03 08:34:52: SobolGenerator, starting new job
+2025-03-03 08:34:52: SobolGenerator, started new job
+2025-03-03 08:34:56: SobolGenerator, best RESULT: -166609.768426179, new result: -166609.768426179
+2025-03-03 08:34:56: SobolGenerator, best RESULT: -166609.768426179, new result: -166609.768426179 (entered)
+2025-03-03 08:34:56: SobolGenerator, best RESULT: -166609.768426179, finishing jobs after starting them, finished 1 job
+2025-03-03 08:34:56: SobolGenerator, best RESULT: -166609.768426179, got 1, requested 1
+2025-03-03 08:34:57: SobolGenerator, best RESULT: -166609.768426179, trying to get 1 next steps (current done: 1, max: 2)
+2025-03-03 08:34:57: SobolGenerator, best RESULT: -166609.768426179, getting new hyperparameter set (no sbatch)
+2025-03-03 08:35:02: BoTorchModel, best RESULT: -166609.768426179, starting parameter set
+2025-03-03 08:35:02: BoTorchModel, best RESULT: -166609.768426179, starting new job
+2025-03-03 08:35:02: BoTorchModel, best RESULT: -166609.768426179, started new job
+2025-03-03 08:35:06: BoTorchModel, best RESULT: -166609.768426179, new result: -110005.32
+2025-03-03 08:35:07: BoTorchModel, best RESULT: -166609.768426179, new result: -110005.32 (entered)
+2025-03-03 08:35:07: BoTorchModel, best RESULT: -166609.768426179, finishing jobs after starting them, finished 1 job
+2025-03-03 08:35:07: BoTorchModel, best RESULT: -166609.768426179, got 1, requested 1

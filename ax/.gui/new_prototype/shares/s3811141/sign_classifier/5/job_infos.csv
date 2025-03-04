@@ -1,0 +1,4 @@
+start_time,end_time,run_time,program_string,lr,epochs,width_height,val_split,VAL_LOSS,RAM_USAGE,RUNTIME,exit_code,signal,hostname
+1739435294,1739435374,80,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.000988936610519886 --epochs=35 --validation_split=0.2 --width=5 --height=5,0.000988936610519886,35,5,0.2,0.1792,641.2,80,0,None,arbeitsrechner
+1739435380,1739435488,108,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.06647367831319571 --epochs=43 --validation_split=0.2 --width=15 --height=15,0.06647367831319571,43,15,0.2,1.5242,652.25,108,0,None,arbeitsrechner
+1739435494,1739435624,130,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.08926887745037676 --epochs=40 --validation_split=0.2 --width=10 --height=10,0.08926887745037676,40,10,0.2,1.5254,637.47,130,0,None,arbeitsrechner

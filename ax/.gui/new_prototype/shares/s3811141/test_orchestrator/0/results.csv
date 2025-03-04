@@ -1,0 +1,5 @@
+trial_index,arm_name,trial_status,generation_method,generation_node,RESULT,name
+0,0_0,FAILED,Sobol,GenerationStep_0,,gpu_disconnected
+1,1_0,FAILED,Sobol,GenerationStep_0,,storage_error
+2,2_0,FAILED,Sobol,GenerationStep_0,,timeout_failure
+3,3_0,COMPLETED,Sobol,GenerationStep_0,0.122999999999999998223643160600,simple_ok

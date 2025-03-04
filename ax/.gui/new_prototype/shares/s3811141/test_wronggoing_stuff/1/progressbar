@@ -1,0 +1,186 @@
+2025-03-03 08:36:36: Initializing model, Started OmniOpt2 run...
+2025-03-03 08:36:36: Initializing model, trying to get 1 next steps (current done: 0, max: 23)
+2025-03-03 08:36:36: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 08:36:37: SobolGenerator, starting parameter set
+2025-03-03 08:36:37: SobolGenerator, starting new job
+2025-03-03 08:36:37: SobolGenerator, started new job
+2025-03-03 08:36:41: SobolGenerator, best RESULT: 28634, new result: 28634.0
+2025-03-03 08:36:41: SobolGenerator, best RESULT: 28634, new result: 28634.0 (entered)
+2025-03-03 08:36:41: SobolGenerator, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:36:42: SobolGenerator, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:36:42: SobolGenerator, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:36:42: SobolGenerator, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:36:42: BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:36:43: BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:36:43: BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:36:49: BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:36:49: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:36:56: [91mFailed jobs: 1 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:36:56: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:36:56: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:36:56: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:36:57: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:36:57: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:36:57: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:36:57: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:02: [91mFailed jobs: 2 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:02: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:12: [91mFailed jobs: 3 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:12: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:12: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:13: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:13: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:13: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:13: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:13: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:17: [91mFailed jobs: 4 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:17: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:17: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:17: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:17: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:18: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:18: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:18: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:23: [91mFailed jobs: 5 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:23: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:23: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:23: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:23: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:24: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:24: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:24: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:29: [91mFailed jobs: 6 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:29: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:29: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:30: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:30: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:30: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:30: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:30: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:35: [91mFailed jobs: 7 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:35: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:36: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:36: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:36: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:36: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:37: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:37: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:42: [91mFailed jobs: 8 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:42: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:42: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:43: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:43: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:43: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:43: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:43: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:48: [91mFailed jobs: 9 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:48: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:49: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:49: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:49: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:49: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:50: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:50: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:55: [91mFailed jobs: 10 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:37:55: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:37:55: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:37:55: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:37:55: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:37:55: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:37:56: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:37:56: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:37:59: [91mFailed jobs: 11 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:00: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:00: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:00: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:00: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:01: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:01: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:01: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:06: [91mFailed jobs: 12 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:06: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:07: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:07: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:07: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:07: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:07: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:08: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:12: [91mFailed jobs: 13 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:13: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:13: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:13: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:13: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:14: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:14: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:14: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:18: [91mFailed jobs: 14 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:18: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:18: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:18: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:18: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:19: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:19: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:19: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:23: [91mFailed jobs: 15 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:23: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:24: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:24: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:24: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:24: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:25: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:25: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:30: [91mFailed jobs: 16 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:30: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:30: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:30: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:31: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:31: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:31: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:32: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:36: [91mFailed jobs: 17 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:37: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:37: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:38: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:38: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:39: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:39: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:39: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:44: [91mFailed jobs: 18 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:45: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:45: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:45: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:45: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:46: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:46: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:47: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:50: [91mFailed jobs: 19 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:51: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:51: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:51: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:51: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:52: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:52: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:52: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:38:56: [91mFailed jobs: 20 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:38:56: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:38:56: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1
+2025-03-03 08:38:57: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, trying to get 1 next steps (current done: 1, max: 23)
+2025-03-03 08:38:57: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, getting new hyperparameter set (no sbatch)
+2025-03-03 08:38:58: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting parameter set
+2025-03-03 08:38:58: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, starting new job
+2025-03-03 08:38:58: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, started new job
+2025-03-03 08:39:03: [91mFailed jobs: 21 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, job_failed
+2025-03-03 08:39:03: [91mFailed jobs: 22 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, finishing jobs after starting them, finished 1 job
+2025-03-03 08:39:03: [91mFailed jobs: 22 ('RESULT: <number>' not found in output)[0m, BoTorchModel, best RESULT: 28634, got 1, requested 1

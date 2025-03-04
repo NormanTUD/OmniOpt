@@ -1,0 +1,19 @@
+2025-03-03 10:07:39: Initializing model, Started OmniOpt2 run...
+2025-03-03 10:07:39: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-03-03 10:07:40: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 10:07:40: SobolGenerator, starting parameter set
+2025-03-03 10:07:40: SobolGenerator, starting new job
+2025-03-03 10:07:40: SobolGenerator, started new job
+2025-03-03 10:07:44: SobolGenerator, best RESULT: -120237.415488635, new result: -120237.415488635
+2025-03-03 10:07:45: SobolGenerator, best RESULT: -120237.415488635, new result: -120237.415488635 (entered)
+2025-03-03 10:07:45: SobolGenerator, best RESULT: -120237.415488635, finishing jobs after starting them, finished 1 job
+2025-03-03 10:07:45: SobolGenerator, best RESULT: -120237.415488635, got 1, requested 1
+2025-03-03 10:07:45: SobolGenerator, best RESULT: -120237.415488635, trying to get 1 next steps (current done: 1, max: 2)
+2025-03-03 10:07:45: SobolGenerator, best RESULT: -120237.415488635, getting new hyperparameter set (no sbatch)
+2025-03-03 10:07:46: UniformGenerator, best RESULT: -120237.415488635, starting parameter set
+2025-03-03 10:07:46: UniformGenerator, best RESULT: -120237.415488635, starting new job
+2025-03-03 10:07:46: UniformGenerator, best RESULT: -120237.415488635, started new job
+2025-03-03 10:07:50: UniformGenerator, best RESULT: -120237.415488635, new result: -98312.1292073692
+2025-03-03 10:07:50: UniformGenerator, best RESULT: -120237.415488635, new result: -98312.1292073692 (entered)
+2025-03-03 10:07:51: UniformGenerator, best RESULT: -120237.415488635, finishing jobs after starting them, finished 1 job
+2025-03-03 10:07:51: UniformGenerator, best RESULT: -120237.415488635, got 1, requested 1

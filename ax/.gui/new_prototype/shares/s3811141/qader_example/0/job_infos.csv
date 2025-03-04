@@ -1,0 +1,4 @@
+start_time,end_time,run_time,program_string,lr,epochs,width_and_height,VAL_ACCURACY,RAM_USAGE,exit_code,signal,hostname
+1739873392,1739873410,18,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.1271156668663025 --epochs=9 --width=25 --height=25,0.1271156668663025,9,25,0.3028,670.82,0,None,arbeitsrechner
+1739873418,1739873430,12,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0 --epochs=1 --width=30 --height=30,0,1,30,0.1606,659.73,0,None,arbeitsrechner
+1739873436,1739873449,13,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.04146388256574766 --epochs=1 --width=20 --height=20,0.04146388256574766,1,20,0.2798,635.64,0,None,arbeitsrechner

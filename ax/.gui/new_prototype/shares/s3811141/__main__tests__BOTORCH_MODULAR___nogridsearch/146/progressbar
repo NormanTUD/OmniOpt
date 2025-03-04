@@ -1,0 +1,17 @@
+2025-02-25 09:16:20: Initializing model, best result: -172216.017128888, Started OmniOpt2 run...
+2025-02-25 09:16:20: Initializing model, best result: -172216.017128888, trying to get 1 next steps (current done: 2, max: 4)
+2025-02-25 09:16:21: Initializing model, best result: -172216.017128888, getting hyperparameter set (no sbatch)
+2025-02-25 09:16:31: BoTorchModel, best result: -172216.017128888, starting parameter set
+2025-02-25 09:16:31: BoTorchModel, best result: -172216.017128888, starting new job
+2025-02-25 09:16:32: BoTorchModel, best result: -172216.017128888, started new job
+2025-02-25 09:16:37: BoTorchModel, best result: -237663.72, new result: -237663.72
+2025-02-25 09:16:37: BoTorchModel, best result: -237663.72, finishing jobs after starting them, finished 1 job
+2025-02-25 09:16:37: BoTorchModel, best result: -237663.72, got 1, requested 1
+2025-02-25 09:16:37: BoTorchModel, best result: -237663.72, trying to get 1 next steps (current done: 3, max: 4)
+2025-02-25 09:16:38: BoTorchModel, best result: -237663.72, getting hyperparameter set (no sbatch)
+2025-02-25 09:16:41: BoTorchModel, best result: -237663.72, starting parameter set
+2025-02-25 09:16:41: BoTorchModel, best result: -237663.72, starting new job
+2025-02-25 09:16:41: BoTorchModel, best result: -237663.72, started new job
+2025-02-25 09:16:46: BoTorchModel, best result: -292628.52, new result: -292628.52
+2025-02-25 09:16:46: BoTorchModel, best result: -292628.52, finishing jobs after starting them, finished 1 job
+2025-02-25 09:16:46: BoTorchModel, best result: -292628.52, got 1, requested 1

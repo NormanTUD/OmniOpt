@@ -1,0 +1,4 @@
+{0: {'name': 'gpu_disconnected'}}
+{1: {'name': 'storage_error'}}
+{2: {'name': 'timeout_failure'}}
+{3: {'name': 'simple_ok'}}

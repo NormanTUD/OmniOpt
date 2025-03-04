@@ -1,0 +1,83 @@
+2025-02-24 10:40:59: Initializing model, Started OmniOpt2 run...
+2025-02-24 10:40:59: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:40:59: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:40:59: Initializing model, starting parameter set
+2025-02-24 10:40:59: Initializing model, got 1, requested 1
+2025-02-24 10:40:59: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:00: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:00: Initializing model, starting parameter set
+2025-02-24 10:41:00: Initializing model, got 1, requested 1
+2025-02-24 10:41:00: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:00: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:00: Initializing model, starting parameter set
+2025-02-24 10:41:01: Initializing model, got 1, requested 1
+2025-02-24 10:41:01: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:01: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:01: Initializing model, starting parameter set
+2025-02-24 10:41:01: Initializing model, got 1, requested 1
+2025-02-24 10:41:01: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:01: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:01: Initializing model, starting parameter set
+2025-02-24 10:41:02: Initializing model, got 1, requested 1
+2025-02-24 10:41:02: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:02: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:02: Initializing model, starting parameter set
+2025-02-24 10:41:02: Initializing model, got 1, requested 1
+2025-02-24 10:41:02: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:02: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:02: Initializing model, starting parameter set
+2025-02-24 10:41:03: Initializing model, got 1, requested 1
+2025-02-24 10:41:03: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:03: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:03: Initializing model, starting parameter set
+2025-02-24 10:41:03: Initializing model, got 1, requested 1
+2025-02-24 10:41:03: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:03: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:03: Initializing model, starting parameter set
+2025-02-24 10:41:03: Initializing model, got 1, requested 1
+2025-02-24 10:41:04: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:04: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:04: Initializing model, starting parameter set
+2025-02-24 10:41:04: Initializing model, got 1, requested 1
+2025-02-24 10:41:04: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:04: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:04: Initializing model, starting parameter set
+2025-02-24 10:41:04: Initializing model, got 1, requested 1
+2025-02-24 10:41:04: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:05: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:05: Initializing model, starting parameter set
+2025-02-24 10:41:05: Initializing model, got 1, requested 1
+2025-02-24 10:41:05: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:05: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:05: Initializing model, starting parameter set
+2025-02-24 10:41:05: Initializing model, got 1, requested 1
+2025-02-24 10:41:05: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:06: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:06: Initializing model, starting parameter set
+2025-02-24 10:41:06: Initializing model, got 1, requested 1
+2025-02-24 10:41:06: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:06: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:06: Initializing model, starting parameter set
+2025-02-24 10:41:07: Initializing model, got 1, requested 1
+2025-02-24 10:41:07: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:07: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:07: Initializing model, starting parameter set
+2025-02-24 10:41:07: Initializing model, got 1, requested 1
+2025-02-24 10:41:07: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:07: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:08: Initializing model, starting parameter set
+2025-02-24 10:41:08: Initializing model, got 1, requested 1
+2025-02-24 10:41:08: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:08: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:08: Initializing model, starting parameter set
+2025-02-24 10:41:08: Initializing model, got 1, requested 1
+2025-02-24 10:41:08: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:08: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:09: Initializing model, starting parameter set
+2025-02-24 10:41:09: Initializing model, got 1, requested 1
+2025-02-24 10:41:09: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:09: Initializing model, getting 1/1 trials (no sbatch)
+2025-02-24 10:41:09: Initializing model, starting parameter set
+2025-02-24 10:41:09: Initializing model, got 1, requested 1
+2025-02-24 10:41:09: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
+2025-02-24 10:41:09: Initializing model, getting 1/1 trials (no sbatch)

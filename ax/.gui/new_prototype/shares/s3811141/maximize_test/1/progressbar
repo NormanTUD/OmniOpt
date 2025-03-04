@@ -1,0 +1,46 @@
+2025-03-03 10:09:07: Initializing model, Started OmniOpt2 run...
+2025-03-03 10:09:07: Initializing model, trying to get 1 next steps (current done: 0, max: 5)
+2025-03-03 10:09:07: Initializing model, getting new hyperparameter set (no sbatch)
+2025-03-03 10:09:08: SobolGenerator, starting parameter set
+2025-03-03 10:09:08: SobolGenerator, starting new job
+2025-03-03 10:09:08: SobolGenerator, started new job
+2025-03-03 10:09:13: SobolGenerator, best RESULT: 2031.4396917819977, new result: 2031.4396917819977
+2025-03-03 10:09:13: SobolGenerator, best RESULT: 2031.4396917819977, new result: 2031.4396917819977 (entered)
+2025-03-03 10:09:14: SobolGenerator, best RESULT: 2031.4396917819977, finishing jobs after starting them, finished 1 job
+2025-03-03 10:09:14: SobolGenerator, best RESULT: 2031.4396917819977, got 1, requested 1
+2025-03-03 10:09:14: SobolGenerator, best RESULT: 2031.4396917819977, trying to get 1 next steps (current done: 1, max: 5)
+2025-03-03 10:09:14: SobolGenerator, best RESULT: 2031.4396917819977, getting new hyperparameter set (no sbatch)
+2025-03-03 10:09:15: SobolGenerator, best RESULT: 2031.4396917819977, starting parameter set
+2025-03-03 10:09:15: SobolGenerator, best RESULT: 2031.4396917819977, starting new job
+2025-03-03 10:09:15: SobolGenerator, best RESULT: 2031.4396917819977, started new job
+2025-03-03 10:09:25: SobolGenerator, best RESULT: 6307.666869834065, new result: 6307.666869834065
+2025-03-03 10:09:25: SobolGenerator, best RESULT: 6307.666869834065, new result: 6307.666869834065 (entered)
+2025-03-03 10:09:26: SobolGenerator, best RESULT: 6307.666869834065, finishing jobs after starting them, finished 1 job
+2025-03-03 10:09:26: SobolGenerator, best RESULT: 6307.666869834065, got 1, requested 1
+2025-03-03 10:09:27: SobolGenerator, best RESULT: 6307.666869834065, trying to get 1 next steps (current done: 2, max: 5)
+2025-03-03 10:09:27: SobolGenerator, best RESULT: 6307.666869834065, getting new hyperparameter set (no sbatch)
+2025-03-03 10:09:29: BoTorchModel, best RESULT: 6307.666869834065, starting parameter set
+2025-03-03 10:09:30: BoTorchModel, best RESULT: 6307.666869834065, starting new job
+2025-03-03 10:09:30: BoTorchModel, best RESULT: 6307.666869834065, started new job
+2025-03-03 10:09:35: BoTorchModel, best RESULT: 7977.042341090905, new result: 7977.042341090905
+2025-03-03 10:09:36: BoTorchModel, best RESULT: 7977.042341090905, new result: 7977.042341090905 (entered)
+2025-03-03 10:09:36: BoTorchModel, best RESULT: 7977.042341090905, finishing jobs after starting them, finished 1 job
+2025-03-03 10:09:37: BoTorchModel, best RESULT: 7977.042341090905, got 1, requested 1
+2025-03-03 10:09:37: BoTorchModel, best RESULT: 7977.042341090905, trying to get 1 next steps (current done: 3, max: 5)
+2025-03-03 10:09:38: BoTorchModel, best RESULT: 7977.042341090905, getting new hyperparameter set (no sbatch)
+2025-03-03 10:09:40: BoTorchModel, best RESULT: 7977.042341090905, starting parameter set
+2025-03-03 10:09:41: BoTorchModel, best RESULT: 7977.042341090905, starting new job
+2025-03-03 10:09:41: BoTorchModel, best RESULT: 7977.042341090905, started new job
+2025-03-03 10:09:45: BoTorchModel, best RESULT: 10000, new result: 10000.0
+2025-03-03 10:09:46: BoTorchModel, best RESULT: 10000, new result: 10000.0 (entered)
+2025-03-03 10:09:47: BoTorchModel, best RESULT: 10000, finishing jobs after starting them, finished 1 job
+2025-03-03 10:09:47: BoTorchModel, best RESULT: 10000, got 1, requested 1
+2025-03-03 10:09:48: BoTorchModel, best RESULT: 10000, trying to get 1 next steps (current done: 4, max: 5)
+2025-03-03 10:09:48: BoTorchModel, best RESULT: 10000, getting new hyperparameter set (no sbatch)
+2025-03-03 10:09:52: BoTorchModel, best RESULT: 10000, starting parameter set
+2025-03-03 10:09:52: BoTorchModel, best RESULT: 10000, starting new job
+2025-03-03 10:09:53: BoTorchModel, best RESULT: 10000, started new job
+2025-03-03 10:09:57: BoTorchModel, best RESULT: 7977.042341090905, new result: 10000.0
+2025-03-03 10:09:57: BoTorchModel, best RESULT: 7977.042341090905, new result: 10000.0 (entered)
+2025-03-03 10:09:58: BoTorchModel, best RESULT: 7977.042341090905, finishing jobs after starting them, finished 1 job
+2025-03-03 10:09:59: BoTorchModel, best RESULT: 7977.042341090905, got 1, requested 1

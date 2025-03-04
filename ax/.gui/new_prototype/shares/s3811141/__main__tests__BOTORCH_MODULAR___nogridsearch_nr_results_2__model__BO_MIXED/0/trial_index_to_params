@@ -1,0 +1,2 @@
+{0: {'int_param': -96, 'float_param': -5.000654458999634, 'choice_param': 'hallo', 'int_param_two': -50}}
+{1: {'int_param': 10, 'float_param': -100.0, 'choice_param': '1', 'int_param_two': 10}}

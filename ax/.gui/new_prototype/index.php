@@ -127,10 +127,6 @@
 			'id' => 'tab_parallel',
 			'content' => '<div id="parallel"></div>',
 		],
-		'Results' => [
-			'id' => 'tab_results',
-			'content' => '<div id="table"></div>',
-		],
 		'Single Logs' => [
 			'id' => 'tab_logs',
 			'content' => generate_log_tabs(50),  // Beispiel: 50 Logs dynamisch generiert
@@ -208,6 +204,7 @@
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
 		$best_results_txt = "$run_dir/best_result.txt";
+		$results_csv = "$run_dir/results.csv";
 
 		$overview_html = "";
 
@@ -221,9 +218,16 @@
 				'content' => $overview_html
 			];
 		}
+
+		if ($results_csv) {
+			$tabs['Results'] = [
+				'id' => 'tab_results',
+				'content' => "<pre>".htmlentities(file_get_contents($results_csv))."</pre>",
+			];
+		}
 	}
 
-	if(!count($tabs) && $run_dir != "") {
+	if(!count($tabs) && $run_dir != "" && count($errors)) {
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 ?>

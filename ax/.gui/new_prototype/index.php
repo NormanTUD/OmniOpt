@@ -26,14 +26,7 @@
     .tab-content.active { display: block; }
     .tab-button.active { background-color: #3498db; color: white; }
   </style>
-<?php
-	$theme = "xp";
-
-	if($_GET["theme"] == 98) {
-		$theme = "98";
-	}
-?>
-  <link rel="stylesheet" href="https://unpkg.com/<?php print $theme; ?>.css">
+	<?php include("css.php"); ?>
 </head>
 <body>
   <div class="page window" style='font-family: sans-serif'>

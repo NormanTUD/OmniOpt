@@ -86,6 +86,18 @@
 		width: fit-content;
 		min-width: 100%;
 	}
+
+        #left_tree_view {
+            width: 200px;
+            background-color: #f0f0f0;
+            height: 100vh; /* Damit es den gesamten Bildschirm ausfüllt */
+        }
+
+        #main_window {
+            flex-grow: 1;
+            background-color: #ffffff;
+            height: 100vh; /* Damit es den gesamten Bildschirm ausfüllt */
+        }
 </style>
 <?php
 	$theme = "xp.css";

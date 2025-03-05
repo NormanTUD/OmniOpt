@@ -214,10 +214,13 @@
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
 			if(!$remove_ansi_colors) {
-				$html .= '<pre id="simple_pre_tab_' . $i . '">'.htmlentities($contents).'</pre>';
+				$contents = htmlentities($contents);
 			} else {
-				$html .= '<pre id="simple_pre_tab_' . $i . '">'.remove_sixel($contents).'</pre>';
+				$contents = remove_sixel($contents);
 			}
+
+			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
+
 			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id");
 
 			$tabs[$name] = [

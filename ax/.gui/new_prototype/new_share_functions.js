@@ -247,7 +247,9 @@ function plotScatter2d() {
 	}
 
 	// Extrahiere RESULT-Spalte für die Farbgebung
-	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
+	var resultIndex = tab_results_headers_json.findIndex(function(header) {
+		return header.toLowerCase() === result_names[0].toLowerCase();
+	});
 	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
@@ -322,7 +324,9 @@ function plotScatter3d() {
 		return;
 	}
 
-	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
+	var resultIndex = tab_results_headers_json.findIndex(function(header) {
+		return header.toLowerCase() === result_names[0].toLowerCase();
+	});
 	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));

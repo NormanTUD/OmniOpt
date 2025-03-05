@@ -10,6 +10,27 @@
 		"generation_node"
 	];
 
+
+	function filter_empty_columns($csv_data) {
+		$filtered_data = [];
+
+		foreach ($csv_data as $row) {
+			$filtered_row = [];
+
+			foreach ($row as $column) {
+				if ($column !== "") {
+					$filtered_row[] = $column;
+				}
+			}
+
+			if (!empty($filtered_row)) {
+				$filtered_data[] = $filtered_row;
+			}
+		}
+
+		return $filtered_data;
+	}
+
 	function read_file_as_array($filePath) {
 		if (!is_readable($filePath)) {
 			trigger_error("File cannot be read: $filePath", E_USER_WARNING);
@@ -268,8 +289,9 @@
 			$csv_json = $csv_contents_no_header;
 			$headers_json = $headers;
 
-			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
+			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
+			$GLOBALS["json_data"]["${id}_csv_json_non_empty"] = filter_empty_columns($csv_json);
 
 			$results_html = copy_raw_to_clipboard_string($filename);
 			$results_html .= "<div id='${id}_csv_table'></div>\n";

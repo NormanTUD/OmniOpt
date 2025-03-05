@@ -862,9 +862,11 @@
 <?php
 				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
 ?>
+					<!--
 					<div class="title-bar-controls">
 						<button onclick='close_main_window()' aria-label="Close"></button>
 					</div>
+					-->
 <?php
 				}
 ?>

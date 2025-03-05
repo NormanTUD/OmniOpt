@@ -400,10 +400,6 @@
 	}
 
 	$tabs = [
-		'Main-Log' => [
-			'id' => 'tab_main_log',
-			'content' => '<pre>Main Log</pre>',
-		],
 		'Worker-CPU-RAM-Graphs' => [
 			'id' => 'tab_worker_cpu_ram_graphs',
 			'content' => '<pre>Worker CPU RAM Graphs</pre>',

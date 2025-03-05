@@ -119,8 +119,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		const resultCol = numericalCols.find(col => col.name === resultNames[0]);
 		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
 		colorScale = [[0, 'green'], [1, 'red']];
-	} else {
-		console.log(numericalCols);
 	}
 
 	const trace = {

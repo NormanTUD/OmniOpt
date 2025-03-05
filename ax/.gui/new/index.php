@@ -389,6 +389,17 @@
 
 		if (($handle = fopen($filePath, "r")) !== false) {
 			while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+				foreach ($row as &$value) {
+					if (is_numeric($value)) {
+						if (strpos($value, '.') !== false || stripos($value, 'e') !== false) {
+							$value = (float)$value;
+						} else {
+							$value = (int)$value;
+						}
+					}
+					// Sonst bleibt der Wert wie er ist
+				}
+				unset($value); // Referenz lösen
 				$data[] = $row;
 			}
 			fclose($handle);

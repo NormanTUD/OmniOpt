@@ -797,7 +797,7 @@
 						$home = preg_replace("/.*\//", "", $home);
 						$home = preg_replace("/\.php$/", "", $home);
 
-						array_unshift($links, "<button onclick=\"window.location.href=\'$home\'\">Home</button>");
+						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
 					}
 
 					$path_with_links = implode(" / ", $links);

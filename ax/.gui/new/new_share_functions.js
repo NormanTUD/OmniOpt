@@ -118,7 +118,11 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	$("#parallel-plot").data("loaded", "true");
 }
 
-function plotWorkerUsage(data) {
+function plotWorkerUsage() {
+	if($("#workerUsagePlot").data("loaded") == "true") {
+		return;
+	}
+	var data = tab_worker_usage_csv_json;
 	if (!Array.isArray(data) || data.length === 0) {
 		console.error("Invalid or empty data provided.");
 		return;
@@ -174,9 +178,13 @@ function plotWorkerUsage(data) {
 	};
 
 	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);
+	$("#workerUsagePlot").data("loaded", "true");
 }
 
 function plotCPUAndRAMUsage() {
+	if($("#mainWorkerCPURAM").data("loaded") == "true") {
+		return;
+	}
 	// Convert timestamps to human-readable format (optional)
 	var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000)); // Convert from Unix timestamp to Date object
 	var ramUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[1]);
@@ -222,6 +230,7 @@ function plotCPUAndRAMUsage() {
 	// Plot the data using Plotly
 	var data = [trace1, trace2];
 	Plotly.newPlot('mainWorkerCPURAM', data, layout);
+	$("#mainWorkerCPURAM").data("loaded", "true");
 }
 
 function plotScatter2d() {
@@ -514,6 +523,10 @@ async function load_pareto_graph() {
 }
 
 async function plot_worker_cpu_ram() {
+	if($("#worker_cpu_ram_pre").data("loaded") == "true") {
+		return;
+	}
+
 	const logData = $("#worker_cpu_ram_pre").text();
 	const regex = /^Unix-Timestamp: (\d+), Hostname: ([\w-]+), CPU: ([\d.]+)%, RAM: ([\d.]+) MB \/ ([\d.]+) MB$/;
 
@@ -593,6 +606,8 @@ async function plot_worker_cpu_ram() {
 		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
 		i++;
 	});
+
+	$("#worker_cpu_ram_pre").data("loaded", "true");
 }
 
 function load_log_file(log_nr, filename) {

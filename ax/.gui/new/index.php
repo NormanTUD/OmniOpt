@@ -1,6 +1,5 @@
 <?php
 	$GLOBALS["json_data"] = [];
-	$GLOBALS["functions_after_tab_creation"] = [];
 
 	$SPECIAL_COL_NAMES = [
 		"trial_index",
@@ -106,9 +105,8 @@
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $html,
+				"onclick" => "plot_worker_cpu_ram();"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plot_worker_cpu_ram();";
 		}
 
 		return $tabs;
@@ -148,10 +146,9 @@
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $html
+				'content' => $html,
+				"onclick" => "plotCPUAndRAMUsage();"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plotCPUAndRAMUsage();";
 		}
 
 		return $tabs;
@@ -198,10 +195,9 @@
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $html
+				'content' => $html,
+				"onclick" => "plotWorkerUsage();"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plotWorkerUsage(tab_worker_usage_csv_json);";
 		}
 
 		return $tabs;
@@ -895,13 +891,6 @@
 			</div>
 		</div>
 		<script>
-<?php
-			if(count($GLOBALS["functions_after_tab_creation"])) {
-				foreach ($GLOBALS["functions_after_tab_creation"] as $fn) {
-					print "\t\t\t$fn\n";
-				}
-			}
-?>
 			show_main_window();
 		</script>
 	</body>

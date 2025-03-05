@@ -398,10 +398,6 @@
 			'id' => 'tab_worker_cpu_ram_graphs',
 			'content' => '<pre>Worker CPU RAM Graphs</pre>',
 		],
-		'Debug-Log' => [
-			'id' => 'tab_debug_log',
-			'content' => '<pre>Debug Log</pre>',
-		],
 		'2D-Scatter' => [
 			'id' => 'tab_scatter_2d',
 			'content' => '<div id="scatter2d"></div>',

@@ -722,6 +722,7 @@
 		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
 		<script src="new_share_functions.js"></script>
+		<script src="sixel.js"></script>
 		<script src="main.js"></script>
 	</head>
 	<body>

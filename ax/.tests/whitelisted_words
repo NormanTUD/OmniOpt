@@ -2542,3 +2542,5 @@ zoomend
 zoomstart
 zsh
 ZSH
+mainWorkerCPURAM
+workerUsagePlot

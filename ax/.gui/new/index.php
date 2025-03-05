@@ -783,12 +783,11 @@
 		<script>
 			var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
 <?php
-		if(count($GLOBALS["json_data"])) {
-			print "<!-- GLOBALS[json_data] -->\n";
-			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-				print "\tvar $json_name = ".json_encode($json_data).";\n";
+			if(count($GLOBALS["json_data"])) {
+				foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
+					print "\tvar $json_name = ".json_encode($json_data).";\n";
+				}
 			}
-		}
 ?>
 		</script>
 		<div class="page window" style='font-family: sans-serif'>

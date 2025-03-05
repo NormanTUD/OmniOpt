@@ -608,14 +608,14 @@
 
 			foreach ($status_data as $key => $value) {
 				$capitalizedKey = ucfirst($key);
-				$overview_table .= '<th>' . $capitalizedKey . '</th>';
+				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>';
 			}
 			$overview_table .= '</tr>';
 
 			$overview_table .= '<tr>';
 
 			foreach ($status_data as $value) {
-				$overview_table .= '<td>' . $value . '</td>';
+				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>';
 			}
 			$overview_table .= '</tr>';
 
@@ -627,11 +627,11 @@
 
 		if(count($result_names)) {
 			$result_names_table = '<br><table border="1">';
-			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>';
+			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>';
 			for ($i = 0; $i < count($result_names); $i++) {
 				$result_names_table .= '<tr>';
-				$result_names_table .= '<td>' . htmlspecialchars($result_names[$i]) . '</td>';
-				$result_names_table .= '<td>' . htmlspecialchars($result_min_max[$i]) . '</td>';
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>';
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_min_max[$i]) . '</td>';
 				$result_names_table .= '</tr>';
 			}
 			$result_names_table .= '</table><br>';

@@ -195,10 +195,20 @@
 		return $tabs;
 	}
 
-	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id) {
+	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename)) {
+			$contents = file_get_contents($filename);
+			if(!$remove_ansi_colors) {
+				$contents = remove_ansi_colors($contents);
+			} else {
+				$contents = ansi_to_html(htmlspecialchars($contents));
+			}
 			$html = copy_raw_to_clipboard_string($filename);
-			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			if(!$remove_ansi_colors) {
+				$html .= '<pre>'.htmlentities($contents).'</pre>';
+			} else {
+				$html .= '<pre>'.$contents.'</pre>';
+			}
 			$html .= copy_raw_to_clipboard_string($filename);
 
 			$tabs[$name] = [
@@ -635,6 +645,7 @@
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");
+		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");

@@ -287,10 +287,6 @@
 	}
 
 	$tabs = [
-		'Worker-Usage' => [
-			'id' => 'tab_worker_usage',
-			'content' => '<pre>Worker-Usage</pre>',
-		],
 		'Main-Log' => [
 			'id' => 'tab_main_log',
 			'content' => '<pre>Main Log</pre>',

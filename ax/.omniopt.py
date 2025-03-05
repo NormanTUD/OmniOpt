@@ -372,7 +372,6 @@ class ConfigLoader:
     slurm_use_srun: bool
     reservation: Optional[str]
     account: Optional[str]
-    should_deduplicate: bool
     exclude: Optional[str]
     show_sixel_trial_index_result: bool
     num_parallel_jobs: int
@@ -481,7 +480,6 @@ class ConfigLoader:
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
         optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
-        optional.add_argument('--should_deduplicate', help='Try to de-duplicate ARMs', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min, or RESULT=max when --maximize is set. Default is min.")
@@ -5835,7 +5833,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model_gen_kwargs={
             'enforce_num_arms': False
         },
-        should_deduplicate=args.should_deduplicate,
+        should_deduplicate=True,
         index=index
     )
 
@@ -5855,7 +5853,7 @@ def create_random_generation_step() -> GenerationStep:
             "seed": args.seed
         },
         model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=args.should_deduplicate
+        should_deduplicate=True
     )
 
 @beartype

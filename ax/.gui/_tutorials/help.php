@@ -104,11 +104,6 @@
 				<td><samp>max_eval_times_thousand_plus_thousand</samp></td>
 			</tr>
 			<tr>
-				<td><samp>--should_deduplicate</samp></td>
-				<td>Try to de-duplicate ARMs</td>
-				<td><samp>False</samp></td>
-			</tr>
-			<tr>
 				<td><samp>--workdir</samp></td>
 				<td>Working directory (doesn't yet work! TODO)</td>
 				<td><samp>False</samp></td>

@@ -655,14 +655,13 @@
 
 			$GLOBALS["json_data"]["pareto_front_data"] = json_decode(file_get_contents("$run_dir/pareto_front_data.json"));
 
-			$GLOBALS["functions_after_tab_creation"][] = "load_pareto_graph();";
-
 			if($pareto_front_html) {
 				$pareto_front_html = "<div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
 
 				$tabs['Pareto-Fronts'] = [
 					'id' => 'tab_pareto_fronts',
-					'content' => $pareto_front_html
+					'content' => $pareto_front_html,
+					'onclick' => "load_pareto_graph();"
 				];
 			}
 		}

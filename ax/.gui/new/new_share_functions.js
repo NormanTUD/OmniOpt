@@ -406,6 +406,11 @@ function plotScatter3d() {
 }
 
 async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+		
 	var data = pareto_front_data;
 
 	if (!data || typeof data !== "object") {
@@ -510,6 +515,8 @@ async function load_pareto_graph() {
 			}
 		}
 	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
 }
 
 async function plot_worker_cpu_ram() {

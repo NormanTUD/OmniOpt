@@ -672,6 +672,25 @@
 			];
 		}
 
+		if(file_exists("$run_dir/pareto_front_data.json") && file_exists("$run_dir/pareto_front_table.txt")) {
+			$pareto_front_html = "";
+
+			$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
+
+			$pareto_front_txt = remove_ansi_colors(file_get_contents($pareto_front_txt_file));
+
+			if($pareto_front_txt) {
+				$pareto_front_html .= "<pre>$pareto_front_txt</pre><br>\n";
+			}
+
+			if($pareto_front_html) {
+				$tabs['Pareto-Fronts'] = [
+					'id' => 'tab_pareto_fronts',
+					'content' => $pareto_front_html
+				];
+			}
+		}
+
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 			$GLOBALS["functions_after_tab_creation"][] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";

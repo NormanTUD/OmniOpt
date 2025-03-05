@@ -310,7 +310,6 @@
 
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
-			$GLOBALS["json_data"]["${id}_csv_json_non_empty"] = filter_empty_columns($csv_json);
 
 			$results_html = "<div id='${id}_csv_table'></div>\n";
 			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");

@@ -694,12 +694,17 @@
 
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
+
 			if (count($result_names) == 1) {
-				$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
 
-				$difference = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
 
-				if(count($difference) >= 3) {
+				if(count($non_special_columns_without_result_columns) >= 2) {
+					$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+				}
+
+				if(count($non_special_columns_without_result_columns) >= 3) {
 					$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
 				}
 			}

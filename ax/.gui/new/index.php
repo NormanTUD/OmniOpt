@@ -10,6 +10,12 @@
 		"generation_node"
 	];
 
+	function remove_sixel ($output) {
+		$output = preg_replace("/(P[0-9;]+q.*?)(?=(P|$|\s))/", "<br>", $output);
+
+		return $output;
+	}
+
 	function filter_empty_columns($csv_data) {
 		$filtered_data = [];
 
@@ -216,7 +222,7 @@
 			if(!$remove_ansi_colors) {
 				$html .= '<pre id="simple_pre_tab_' . $i . '">'.htmlentities($contents).'</pre>';
 			} else {
-				$html .= '<pre id="simple_pre_tab_' . $i . '">'.$contents.'</pre>';
+				$html .= '<pre id="simple_pre_tab_' . $i . '">'.remove_sixel($contents).'</pre>';
 			}
 			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id");
 
@@ -722,7 +728,6 @@
 		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
 		<script src="new_share_functions.js"></script>
-		<script src="sixel.js"></script>
 		<script src="main.js"></script>
 	</head>
 	<body>

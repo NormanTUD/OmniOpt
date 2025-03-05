@@ -1,5 +1,6 @@
 <?php
 	$GLOBALS["json_data"] = [];
+	$GLOBALS["functions_after_tab_creation"] = [];
 
 	$SPECIAL_COL_NAMES = [
 		"trial_index",
@@ -67,6 +68,28 @@
 
 	function copy_raw_to_clipboard_string ($filename) {
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
+	}
+
+	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$html = copy_raw_to_clipboard_string($filename);
+			$html .= "<div id='workerUsagePlot'></div>";
+			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_raw_to_clipboard_string($filename);
+
+			$csv_contents = getCsvDataAsArray($filename);   
+
+			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_contents;
+
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => $html
+			];
+
+			$GLOBALS["functions_after_tab_creation"][] = "plotWorkerUsage(tab_worker_usage_csv_json);";
+		}
+
+		return $tabs;
 	}
 
 	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id) {
@@ -422,8 +445,6 @@
 
 	$run_dir = "";
 
-	$functions_after_tab_creation = [];
-
 	if(!count($errors)) {
 		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
@@ -504,7 +525,7 @@
 
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
-			$functions_after_tab_creation[] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";
+			$GLOBALS["functions_after_tab_creation"][] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";
 		}
 
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
@@ -514,6 +535,7 @@
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
+		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
 
 		$out_files = get_log_files($run_dir);
 
@@ -638,9 +660,9 @@
 			</div>
 		</div>
 <?php
-	if(count($functions_after_tab_creation)) {
+	if(count($GLOBALS["functions_after_tab_creation"])) {
 		print "<script>\n";
-		foreach ($functions_after_tab_creation as $fn) {
+		foreach ($GLOBALS["functions_after_tab_creation"] as $fn) {
 			print "\t$fn\n";
 		}
 		print "</script>\n";

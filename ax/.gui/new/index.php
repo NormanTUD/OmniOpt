@@ -92,8 +92,11 @@
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = copy_id_to_clipboard_string("worker_cpu_ram_pre");
-			$html .= '<div id="cpuRamWorkerChartContainer"></div><br>'."\n".'<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
+			$html = '<div id="cpuRamWorkerChartContainer"></div><br>';
+			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
+			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
+			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
+
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $html,
@@ -181,6 +184,7 @@
 			$html = "<div id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_id_to_clipboard_string("pre_$id");
 
 			$csv_contents = getCsvDataAsArray($filename);   
 			$headers = $csv_contents[0];
@@ -239,6 +243,7 @@
 			$html = "<div id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_id_to_clipboard_string("pre_$id");
 
 			$csv_contents = getCsvDataAsArray($filename);   
 
@@ -269,6 +274,7 @@
 			} else {
 				$html .= '<pre id="simple_pre_tab_' . $i . '">'.$contents.'</pre>';
 			}
+			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -306,6 +312,7 @@
 
 			$results_html = copy_id_to_clipboard_string("${id}_csv_table");
 			$results_html .= "<div id='${id}_csv_table'></div>\n";
+			$results_html = copy_id_to_clipboard_string("${id}_csv_table");
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
 
 			$tabs[$name] = [
@@ -525,6 +532,7 @@
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
 			$output .= copy_id_to_clipboard_string("single_run_$i");
 			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+			$output .= copy_id_to_clipboard_string("single_run_$i");
 			$output .= '</article>';
 			$i++;
 		}

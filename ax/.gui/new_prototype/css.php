@@ -81,6 +81,11 @@
 	.title-bar {
 		height: fit-content;
 	}
+
+	.window {
+		width: fit-content;
+		min-width: 100%;
+	}
 </style>
 <?php
 	$theme = "xp.css";

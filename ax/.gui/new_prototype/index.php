@@ -72,8 +72,8 @@
 
 	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = copy_raw_to_clipboard_string($filename);
-			$html .= "<div id='workerUsagePlot'></div>";
+			$html = "<div id='workerUsagePlot'></div>";
+			$html .= copy_raw_to_clipboard_string($filename);
 			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_raw_to_clipboard_string($filename);
 

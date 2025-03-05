@@ -86,15 +86,18 @@
 		return $statuses;
 	}
 
-	function copy_raw_to_clipboard_string ($filename) {
+	function copy_raw_to_clipboard_string($filename) {
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
+			$html = copy_raw_to_clipboard_string($filename);
+			$html .= '<div id="cpuRamWorkerChartContainer"></div><br>'."\n".'<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
+			$html .= copy_raw_to_clipboard_string($filename);
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => '<div id="cpuRamWorkerChartContainer"></div><br>'."\n".'<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>',
+				'content' => $html,
 			];
 
 			$GLOBALS["functions_after_tab_creation"][] = "plot_worker_cpu_ram();";

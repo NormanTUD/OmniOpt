@@ -491,6 +491,10 @@
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
+			if($i != 0) {
+				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
+			}
+
 			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
 			if ($i == 0) {
 				$content = file_get_contents($file_path);

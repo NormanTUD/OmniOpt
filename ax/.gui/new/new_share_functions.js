@@ -608,9 +608,12 @@ function load_log_file(log_nr, filename) {
 				} else {
 					log(`No 'data' key found in response.`);
 				}
+
+				$("#spinner_log_" + log_nr).remove();
 			})
 			.catch(error => {
 				log(`Error loading log: ${error}`);
+				$("#spinner_log_" + log_nr).remove();
 			});
 	}
 }

@@ -93,18 +93,6 @@ function parseSixelData(sixelCode, colorPalette) {
 	return pixelData;
 }
 
-// 3. Berechnung der Bilddimensionen (Breite und Höhe)
-function calculateDimensions(pixelData) {
-	let maxX = 0, maxY = 0;
-
-	for (const { x, y } of pixelData) {
-		maxX = Math.max(maxX, x);
-		maxY = Math.max(maxY, y + 6);  // 6 Pixel pro Zeile (Sixel)
-	}
-
-	return { width: maxX + 1, height: maxY };  // maxX + 1, weil x bei 0 beginnt
-}
-
 // 4. Canvas erstellen und Pixel darauf zeichnen
 function generateImage(pixelData, colorPalette, width, height) {
 	const canvas = document.createElement('canvas');

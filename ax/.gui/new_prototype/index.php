@@ -476,6 +476,10 @@
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
 
+		if(is_file("$run_dir/parameters.txt")) {
+			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents("$run_dir/parameters.txt")))."</pre>";
+		}
+
 		$status_data = null;
 
 		if(is_file("$run_dir/results.csv")) {
@@ -503,7 +507,6 @@
 
 			$overview_html .= "<br>$overview_table";
 		}
-
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [

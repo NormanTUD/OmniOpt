@@ -846,6 +846,8 @@ def save_pd_csv() -> Optional[str]:
         return None
 
     try:
+        ax_client.experiment.fetch_data()
+
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 

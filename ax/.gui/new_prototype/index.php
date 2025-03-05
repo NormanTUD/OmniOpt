@@ -70,7 +70,6 @@
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
 	}
 
-
 	function add_log_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			// Attempt to read the file content
@@ -131,7 +130,6 @@
 			// End the HTML table
 			$output .= "</tbody></table>";
 
-
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $output
@@ -160,7 +158,6 @@
 
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
-
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -609,13 +606,6 @@
 			$overview_html .= "<br>$overview_table";
 		}
 
-		if($overview_html != "") {
-			$tabs['Overview'] = [
-				'id' => 'tab_overview',
-				'content' => $overview_html
-			];
-		}
-
 		if(count($result_names)) {
 			$result_names_table = '<table border="1">';
 			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>';
@@ -627,9 +617,13 @@
 			}
 			$result_names_table .= '</table>';
 
-			$tabs['Result-Names'] = [
-				'id' => 'tab_result_names',
-				'content' => $result_names_table
+			$overview_html .= $result_names_table;
+		}
+
+		if($overview_html != "") {
+			$tabs['Overview'] = [
+				'id' => 'tab_overview',
+				'content' => $overview_html
 			];
 		}
 

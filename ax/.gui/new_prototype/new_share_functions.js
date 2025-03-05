@@ -402,3 +402,110 @@ function plotScatter3d() {
 		}
 	}
 }
+
+async function load_pareto_graph() {
+	var data = pareto_front_data;
+
+	if (!data || typeof data !== "object") {
+		console.error("Invalid data format for pareto_front_data");
+		return;
+	}
+
+	if (!Object.keys(data).length) {
+		console.warn("No data found in pareto_front_data");
+		return;
+	}
+
+	let categories = Object.keys(data);
+	let allMetrics = new Set();
+
+	function extractMetrics(obj, prefix = "") {
+		let keys = Object.keys(obj);
+		for (let key of keys) {
+			let newPrefix = prefix ? `${prefix} -> ${key}` : key;
+			if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+				extractMetrics(obj[key], newPrefix);
+			} else {
+				if (!newPrefix.includes("param_dicts") && !newPrefix.includes(" -> sems -> ") && !newPrefix.includes("absolute_metrics")) {
+					allMetrics.add(newPrefix);
+				}
+			}
+		}
+	}
+
+	for (let cat of categories) {
+		extractMetrics(data[cat]);
+	}
+
+	allMetrics = Array.from(allMetrics);
+
+	function extractValues(obj, metricPath, values) {
+		let parts = metricPath.split(" -> ");
+		let data = obj;
+		for (let part of parts) {
+			if (data && typeof data === "object") {
+				data = data[part];
+			} else {
+				return;
+			}
+		}
+		if (Array.isArray(data)) {
+			values.push(...data);
+		}
+	}
+
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.innerHTML = "";
+
+	var already_plotted = [];
+
+	for (let i = 0; i < allMetrics.length; i++) {
+		for (let j = i + 1; j < allMetrics.length; j++) {
+			let xMetric = allMetrics[i];
+			let yMetric = allMetrics[j];
+
+			let xValues = [];
+			let yValues = [];
+
+			for (let cat of categories) {
+				let metricData = data[cat];
+				extractValues(metricData, xMetric, xValues);
+				extractValues(metricData, yMetric, yValues);
+			}
+
+			xValues = xValues.filter(v => v !== undefined && v !== null);
+			yValues = yValues.filter(v => v !== undefined && v !== null);
+
+			let cleanXMetric = xMetric.replace(/.* -> /g, "");
+			let cleanYMetric = yMetric.replace(/.* -> /g, "");
+
+			let plot_key = `${cleanXMetric}-${cleanYMetric}`;
+
+			if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length && !already_plotted.includes(plot_key)) {
+				let div = document.createElement("div");
+				div.id = `pareto_front_graph_${i}_${j}`;
+				div.style.marginBottom = "20px";
+				graphContainer.appendChild(div);
+
+				let layout = {
+					title: `${cleanXMetric} vs ${cleanYMetric}`,
+					xaxis: { title: cleanXMetric },
+					yaxis: { title: cleanYMetric },
+					hovermode: "closest"
+				};
+
+				let trace = {
+					x: xValues,
+					y: yValues,
+					mode: "markers",
+					type: "scatter",
+					name: `${cleanXMetric} vs ${cleanYMetric}`
+				};
+
+				Plotly.newPlot(div.id, [trace], layout);
+
+				already_plotted.push(plot_key);
+			}
+		}
+	}
+}

@@ -329,10 +329,6 @@
 			'id' => 'tab_debug_log',
 			'content' => '<pre>Debug Log</pre>',
 		],
-		'CPU/Ram Usage' => [
-			'id' => 'tab_cpu_ram_usage',
-			'content' => '<pre>CPU-Ram-Usage</pre>',
-		],
 		'2D-Scatter' => [
 			'id' => 'tab_scatter_2d',
 			'content' => '<div id="scatter2d"></div>',

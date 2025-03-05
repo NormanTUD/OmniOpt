@@ -8,6 +8,33 @@
 
 	ini_set('display_errors', 1);
 
+	function ansi_to_html($string) {
+		$ansi_colors = [
+			'30' => 'black', '31' => 'red', '32' => 'green', '33' => 'yellow',
+			'34' => 'blue', '35' => 'magenta', '36' => 'cyan', '37' => 'white',
+			'90' => 'brightblack', '91' => 'brightred', '92' => 'brightgreen',
+			'93' => 'brightyellow', '94' => 'brightblue', '95' => 'brightmagenta',
+			'96' => 'brightcyan', '97' => 'brightwhite'
+		];
+
+		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
+		return preg_replace_callback($pattern, function($matches) use ($ansi_colors) {
+			$codes = explode(';', $matches[1]);
+			$style = '';
+
+			foreach ($codes as $code) {
+				if (isset($ansi_colors[$code])) {
+					$style = 'color:' . $ansi_colors[$code] . ';';
+					break;
+				}
+			}
+
+			return $style ? '<span style="' . $style . '">' : '';
+		}, $string);
+	}
+
+
+
 	function get_get($name, $default = null) {
 		if(isset($_GET[$name])) {
 			return $_GET[$name];
@@ -31,7 +58,7 @@
 		$path = "$run_folder/$filename";;
 
 		if(file_exists($path)) {
-			$out_file = file_get_contents($path);
+			$out_file = ansi_to_html(file_get_contents($path));
 			respond_with_json($out_file);
 		} else {
 			respond_with_error("Invalid path $path found");
@@ -74,3 +101,4 @@
 		print json_encode(array("error" => $error_message));
 		exit(1);
 	}
+?>

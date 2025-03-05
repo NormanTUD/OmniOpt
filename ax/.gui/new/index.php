@@ -108,74 +108,15 @@
 		return $tabs;
 	}
 
-	function add_log_from_file($tabs, $filename, $name, $id) {
+	function add_debug_log_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			// Attempt to read the file content
-			$fileContent = file_get_contents($filename);
-
-			// Check if reading the file was successful
-			if ($fileContent === false) {
-				$output = "Error loading the file!";
-				exit;
-			}
-
-			// Split the file content into individual lines
-			$lines = explode("\n", $fileContent);
-
-			// Start the HTML table
-			$output = "<table border='1'>";
-			$output .= "<thead><tr><th>Time</th><th>Function Stack</th><th>Message</th></tr></thead>";
-			$output .= "<tbody>";
-
-			// Process each line
-			foreach ($lines as $line) {
-				// Skip empty lines
-				if (trim($line) === "") {
-					continue;
-				}
-
-				// Try to parse the line as JSON
-				$jsonData = json_decode($line, true);
-
-				// Check if JSON parsing was successful
-				if ($jsonData === null) {
-					$output .= "<tr><td colspan='3'>Error parsing the JSON data: $line</td></tr>";
-					continue;
-				}
-
-				// Extract Time, Function Stack, and Message
-				$time = isset($jsonData['time']) ? $jsonData['time'] : 'Not available';
-				$msg = isset($jsonData['msg']) ? $jsonData['msg'] : 'Not available';
-
-				// Format the Function Stack
-				$functionStack = '';
-				if (isset($jsonData['function_stack'])) {
-					foreach ($jsonData['function_stack'] as $functionData) {
-						$function = isset($functionData['function']) ? $functionData['function'] : 'Unknown';
-						if($function != "_get_debug_json") {
-							$lineNumber = isset($functionData['line_number']) ? $functionData['line_number'] : 'Unknown';
-							$functionStack .= "$function (Line $lineNumber)<br>";
-						}
-					}
-				}
-
-				// Add a row to the table
-				$output .= "<tr>";
-				$output .= "<td style='border: 1px solid black;'>$time</td>";
-				$output .= "<td style='border: 1px solid black;'>$functionStack</td>";
-				$output .= "<td style='border: 1px solid black;'>$msg</td>";
-				$output .= "</tr>";
-			}
-
-			// End the HTML table
-			$output .= "</tbody></table>";
+			$output = "<div id='here_debuglogs_go'></div>";
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $output
+				'content' => $output,
+				'onclick' => "load_debug_log()"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plotCPUAndRAMUsage();";
 		}
 
 		return $tabs;
@@ -741,7 +682,7 @@
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
 		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main worker)", "tab_main_worker_cpu_ram");
-		$tabs = add_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
+		$tabs = add_debug_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
 		$tabs = add_worker_cpu_ram_from_file($tabs, "$run_dir/eval_nodes_cpu_ram_logs.txt", "Worker-CPU-RAM-Graphs", "tab_worker_cpu_ram_graphs");
 
 		$out_files = get_log_files($run_dir);
@@ -915,7 +856,7 @@
 <?php
 								$first_tab = true;
 								foreach ($tabs as $tab_name => $tab_data) {
-									echo '<button role="tab" aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
+									echo '<button role="tab" '.(isset($tab_data["onclick"]) ? " onclick='" . $tab_data["onclick"] . "'" : "" ).' aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
 									$first_tab = false;
 								}
 ?>

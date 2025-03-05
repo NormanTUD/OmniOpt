@@ -610,7 +610,35 @@ function load_log_file(log_nr, filename) {
 			.then(response => response.json())
 			.then(data => {
 				if (data.data) {
-					$("#" + pre_id).text(data.data);
+					$("#" + pre_id).html(data.data);
+					$("#" + pre_id).data("loaded", true);
+				} else {
+					log(`No 'data' key found in response.`);
+				}
+			})
+			.catch(error => {
+				log(`Error loading log: ${error}`);
+			});
+	}
+}
+
+function load_debug_log () {
+	var pre_id = `here_debuglogs_go`;
+
+	if (!$("#" + pre_id).data("loaded")) {
+		const params = new URLSearchParams(window.location.search);
+
+		const user_id = params.get('user_id');
+		const experiment_name = params.get('experiment_name');
+		const run_nr = params.get('run_nr');
+
+		var url = `get_debug_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}`;
+
+		fetch(url)
+			.then(response => response.json())
+			.then(data => {
+				if (data.data) {
+					$("#" + pre_id).html(data.data);
 					$("#" + pre_id).data("loaded", true);
 				} else {
 					log(`No 'data' key found in response.`);

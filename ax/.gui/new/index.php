@@ -105,7 +105,7 @@
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $html,
-				"onclick" => "plot_worker_cpu_ram();"
+				"onclick" => "ask_plot_worker_cpu_ram();"
 			];
 		}
 

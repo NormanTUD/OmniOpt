@@ -522,6 +522,16 @@ async function load_pareto_graph() {
 	$("#tab_pareto_fronts").data("loaded", "true");
 }
 
+function ask_plot_worker_cpu_ram () {
+	if($("#worker_cpu_ram_pre").data("loaded") == "true") {
+		return;
+	}
+
+	if(confirm("Loading this can very slow, since it's many graphs. Are you sure?")) {
+		plot_worker_cpu_ram();
+	}
+}
+
 async function plot_worker_cpu_ram() {
 	if($("#worker_cpu_ram_pre").data("loaded") == "true") {
 		return;

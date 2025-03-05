@@ -234,3 +234,67 @@ function plotCPUAndRAMUsage() {
     var data = [trace1, trace2];
     Plotly.newPlot('mainWorkerCPURAM', data, layout);
 }
+
+function plotScatter2d() {
+	var numericColumns = tab_results_headers_json.filter(col =>
+		!special_col_names.includes(col) && !result_names.includes(col) &&
+		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+	);
+
+	if (numericColumns.length < 2) {
+		console.error("Not enough columns for Scatter-Plots");
+		return;
+	}
+
+	// Extrahiere RESULT-Spalte für die Farbgebung
+	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
+	var resultValues = tab_results_csv_json.map(row => parseFloat(row[resultIndex]));
+	var minResult = Math.min(...resultValues);
+	var maxResult = Math.max(...resultValues);
+
+	// Erstelle Scatter-Plots für jede einzigartige Spaltenkombination
+	var plotDiv = document.getElementById("plotScatter2d");
+	plotDiv.innerHTML = "";
+
+	for (let i = 0; i < numericColumns.length; i++) {
+		for (let j = i + 1; j < numericColumns.length; j++) {
+			let xCol = numericColumns[i];
+			let yCol = numericColumns[j];
+
+			let xIndex = tab_results_headers_json.indexOf(xCol);
+			let yIndex = tab_results_headers_json.indexOf(yCol);
+
+			let data = tab_results_csv_json.map(row => ({
+				x: parseFloat(row[xIndex]),
+				y: parseFloat(row[yIndex]),
+				result: parseFloat(row[resultIndex])
+			}));
+
+			let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+					     0)`);
+
+			let trace = {
+				x: data.map(d => d.x),
+				y: data.map(d => d.y),
+				mode: 'markers',
+				marker: { size: 10, color: colors },
+				text: data.map(d => `Result: ${d.result}`),
+				type: 'scatter'
+			};
+
+			let layout = {
+				title: `${xCol} vs ${yCol}`,
+				xaxis: { title: xCol },
+				yaxis: { title: yCol },
+				showlegend: false,
+				coloraxis: { colorscale: [[0, 'green'], [1, 'red']] }
+			};
+
+			let subDiv = document.createElement("div");
+			plotDiv.appendChild(subDiv);
+
+			Plotly.newPlot(subDiv, [trace], layout);
+		}
+	}
+}

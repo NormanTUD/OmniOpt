@@ -170,6 +170,23 @@
 		return $tabs;
 	}
 
+	function add_scatter_2d_plots($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$html = "<div id='plotScatter2d'></div>";
+
+			$csv_contents = getCsvDataAsArray($filename);   
+
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => $html
+			];
+
+			$GLOBALS["functions_after_tab_creation"][] = "plotScatter2d();";
+		}
+
+		return $tabs;
+	}
+
 	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div id='workerUsagePlot'></div>";
@@ -645,6 +662,10 @@
 		$tabs = add_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
 
 		$out_files = get_log_files($run_dir);
+
+		if (count($result_names) == 1) {
+			$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+		}
 
 		if(count($out_files)) {
 			$tabs['Single Logs'] = [

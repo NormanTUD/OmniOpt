@@ -430,16 +430,7 @@
 		'Worker-CPU-RAM-Graphs' => [
 			'id' => 'tab_worker_cpu_ram_graphs',
 			'content' => '<pre>Worker CPU RAM Graphs</pre>',
-		],
-		'2D-Scatter' => [
-			'id' => 'tab_scatter_2d',
-			'content' => '<div id="scatter2d"></div>',
-		],
-		'3D-Scatter' => [
-			'id' => 'tab_scatter_3d',
-			'content' => '<div id="scatter3d"></div>',
-		],
-
+		]
 	];
 
 	$tabs = [];

@@ -300,8 +300,7 @@ function plotScatter2d() {
 }
 
 function plotScatter3d() {
-	// Filter numeric columns (excluding special_col_names and result_names)
-	var numericColumns = tab_results_headers_json.filter(col =>
+	var numericColumns = tab_results_headers_json.filter(col => 
 		!special_col_names.includes(col) && !result_names.includes(col) &&
 		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 	);
@@ -311,7 +310,6 @@ function plotScatter3d() {
 		return;
 	}
 
-	// Extract RESULT column for color mapping
 	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
 	var resultValues = tab_results_csv_json.map(row => parseFloat(row[resultIndex]));
 	var minResult = Math.min(...resultValues);
@@ -342,8 +340,8 @@ function plotScatter3d() {
 					result: parseFloat(row[resultIndex])
 				}));
 
-				let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+				let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))}, 
+					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))}, 
 					     0)`);
 
 				let trace = {
@@ -351,7 +349,7 @@ function plotScatter3d() {
 					y: data.map(d => d.y),
 					z: data.map(d => d.z),
 					mode: 'markers',
-					marker: { size: 5, color: colors },
+					marker: { size: 10, color: colors },
 					text: data.map(d => `Result: ${d.result}`),
 					type: 'scatter3d'
 				};
@@ -367,6 +365,7 @@ function plotScatter3d() {
 				};
 
 				let subDiv = document.createElement("div");
+				subDiv.style.marginBottom = "20px"; // Add some spacing between plots
 				plotDiv.appendChild(subDiv);
 
 				Plotly.newPlot(subDiv, [trace], layout);

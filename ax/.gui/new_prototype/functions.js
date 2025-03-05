@@ -298,3 +298,79 @@ function plotScatter2d() {
 		}
 	}
 }
+
+function plotScatter3d() {
+	// Filter numeric columns (excluding special_col_names and result_names)
+	var numericColumns = tab_results_headers_json.filter(col =>
+		!special_col_names.includes(col) && !result_names.includes(col) &&
+		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+	);
+
+	if (numericColumns.length < 3) {
+		console.error("Not enough numeric columns for 3D scatter plots");
+		return;
+	}
+
+	// Extract RESULT column for color mapping
+	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
+	var resultValues = tab_results_csv_json.map(row => parseFloat(row[resultIndex]));
+	var minResult = Math.min(...resultValues);
+	var maxResult = Math.max(...resultValues);
+
+	var plotDiv = document.getElementById("plotScatter3d");
+	if (!plotDiv) {
+		console.error("Div element with id 'plotScatter3d' not found");
+		return;
+	}
+	plotDiv.innerHTML = "";
+
+	for (let i = 0; i < numericColumns.length; i++) {
+		for (let j = i + 1; j < numericColumns.length; j++) {
+			for (let k = j + 1; k < numericColumns.length; k++) {
+				let xCol = numericColumns[i];
+				let yCol = numericColumns[j];
+				let zCol = numericColumns[k];
+
+				let xIndex = tab_results_headers_json.indexOf(xCol);
+				let yIndex = tab_results_headers_json.indexOf(yCol);
+				let zIndex = tab_results_headers_json.indexOf(zCol);
+
+				let data = tab_results_csv_json.map(row => ({
+					x: parseFloat(row[xIndex]),
+					y: parseFloat(row[yIndex]),
+					z: parseFloat(row[zIndex]),
+					result: parseFloat(row[resultIndex])
+				}));
+
+				let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+					     0)`);
+
+				let trace = {
+					x: data.map(d => d.x),
+					y: data.map(d => d.y),
+					z: data.map(d => d.z),
+					mode: 'markers',
+					marker: { size: 5, color: colors },
+					text: data.map(d => `Result: ${d.result}`),
+					type: 'scatter3d'
+				};
+
+				let layout = {
+					title: `${xCol} vs ${yCol} vs ${zCol}`,
+					scene: {
+						xaxis: { title: xCol },
+						yaxis: { title: yCol },
+						zaxis: { title: zCol }
+					},
+					showlegend: false
+				};
+
+				let subDiv = document.createElement("div");
+				plotDiv.appendChild(subDiv);
+
+				Plotly.newPlot(subDiv, [trace], layout);
+			}
+		}
+	}
+}

@@ -170,11 +170,24 @@
 		return $tabs;
 	}
 
+	function add_scatter_3d_plots($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$html = "<div id='plotScatter3d'></div>";
+
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => $html
+			];
+
+			$GLOBALS["functions_after_tab_creation"][] = "plotScatter3d();";
+		}
+
+		return $tabs;
+	}
+
 	function add_scatter_2d_plots($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div id='plotScatter2d'></div>";
-
-			$csv_contents = getCsvDataAsArray($filename);   
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -665,6 +678,12 @@
 
 		if (count($result_names) == 1) {
 			$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+
+			$difference = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+
+			if(count($difference) >= 3) {
+				$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+			}
 		}
 
 		if(count($out_files)) {

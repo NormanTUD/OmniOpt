@@ -713,6 +713,7 @@
 			</div>
 			<div id="spinner" class="spinner"></div>
 
+			<!--
 			<div id="left_tree_view">
 				<ul class="tree-view">
 					<li>OmniOpt2-Share</li>
@@ -729,6 +730,7 @@
 					</li>
 				</ul>
 			</div>
+			-->
 
 			<div id="main_window" style="display: none" class="container py-4 has-space">
 <?php

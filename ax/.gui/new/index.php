@@ -532,7 +532,7 @@
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$checkmark = file_contains_results("$run_dir/$file", $result_names) ? $green_checkmark : $red_cross;
-			$output .= '<button role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">' . $nr . $checkmark . '</button>';
+			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">' . $nr . $checkmark . '</button>';
 			$i++;
 		}
 
@@ -541,10 +541,14 @@
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
-			$content = file_get_contents($file_path);
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
 			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
-			$output .= '<pre id="single_run_'.$i.'_pre">' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+			if ($i == 0) {
+				$content = file_get_contents($file_path);
+				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+			} else {
+				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
+			}
 			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
 			$output .= '</article>';
 			$i++;

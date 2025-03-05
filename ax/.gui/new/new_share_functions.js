@@ -593,3 +593,31 @@ async function plot_worker_cpu_ram() {
 		i++;
 	});
 }
+
+function load_log_file(log_nr, filename) {
+	var pre_id = `single_run_${log_nr}_pre`;
+
+	if (!$("#" + pre_id).data("loaded")) {
+		const params = new URLSearchParams(window.location.search);
+
+		const user_id = params.get('user_id');
+		const experiment_name = params.get('experiment_name');
+		const run_nr = params.get('run_nr');
+
+		var url = `get_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}&filename=${filename}`;
+
+		fetch(url)
+			.then(response => response.json())
+			.then(data => {
+				if (data.data) {
+					$("#" + pre_id).text(data.data);
+					$("#" + pre_id).data("loaded", true);
+				} else {
+					log(`No 'data' key found in response.`);
+				}
+			})
+			.catch(error => {
+				log(`Error loading log: ${error}`);
+			});
+	}
+}

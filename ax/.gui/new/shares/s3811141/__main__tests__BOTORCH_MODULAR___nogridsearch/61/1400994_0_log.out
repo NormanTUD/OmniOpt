@@ -1,2 +1,0 @@
-submitit INFO (2025-02-04 11:37:45,359) - Starting with JobEnvironment(job_id=1400994, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
-submitit INFO (2025-02-04 11:37:45,360) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/__main__tests__BOTORCH_MODULAR___nogridsearch/1/single_runs/1400994/1400994_submitted.pkl

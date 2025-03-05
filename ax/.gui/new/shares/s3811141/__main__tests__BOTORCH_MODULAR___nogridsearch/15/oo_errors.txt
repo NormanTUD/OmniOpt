@@ -1,4 +1,0 @@
-Error during parallel trial fetching: INT-signal received (2)
-
-Best result could not be determined
-

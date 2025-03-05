@@ -1,2 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,lr,epochs,width_or_height
-0,0_0,RUNNING,Sobol,0.000061936622858047485264826326,21,34

@@ -1,6 +1,0 @@
-submitit INFO (2025-03-03 09:22:52,901) - Starting with JobEnvironment(job_id=218548, hostname=arbeitsrechner, local_rank=0(1), node=0(1), global_rank=0(1))
-submitit INFO (2025-03-03 09:22:52,901) - Loading pickle: /home/s3811141/repos/OmniOpt/ax/runs/only_one_fixed_param/1/single_runs/218548/218548_submitted.pkl
-
-⚠ USR1-Signal was sent. Cancelling evaluation.
-submitit INFO (2025-03-03 09:22:54,635) - Job completed successfully
-submitit INFO (2025-03-03 09:22:54,635) - Exiting after successful completion

@@ -1,5 +1,0 @@
-start_time,end_time,run_time,program_string,name,RESULT,exit_code,signal,hostname
-1740991446,1740991446,0,./.tests/orchestrator_tests.bin/gpu_disconnected,gpu_disconnected,None,0,None,arbeitsrechner
-1740991451,1740991451,0,./.tests/orchestrator_tests.bin/storage_error,storage_error,None,0,None,arbeitsrechner
-1740991456,1740991456,0,./.tests/orchestrator_tests.bin/timeout_failure,timeout_failure,None,0,None,arbeitsrechner
-1740991462,1740991462,0,./.tests/orchestrator_tests.bin/simple_ok,simple_ok,0.123,0,None,arbeitsrechner

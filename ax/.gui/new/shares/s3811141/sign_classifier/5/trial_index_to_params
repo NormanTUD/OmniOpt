@@ -1,4 +1,0 @@
-{0: {'lr': 0.000988936610519886, 'epochs': 35, 'width_height': 5.0, 'val_split': '0.2'}}
-{1: {'lr': 0.06647367831319571, 'epochs': 43, 'width_height': 15.0, 'val_split': '0.2'}}
-{2: {'lr': 0.08926887745037676, 'epochs': 40, 'width_height': 10.0, 'val_split': '0.2'}}
-{3: {'lr': 0.029741555172950032, 'epochs': 48, 'width_height': 20.0, 'val_split': '0.2'}}

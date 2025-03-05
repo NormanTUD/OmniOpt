@@ -1,1 +1,0 @@
-Unix-Timestamp: 1740987051, Hostname: arbeitsrechner, CPU: 23.60%, RAM: 7885.24 MB / 23695.22 MB

@@ -1,4 +1,0 @@
-Error during parallel trial fetching: name 'get_next_trials' is not defined
-
-Best result could not be determined
-

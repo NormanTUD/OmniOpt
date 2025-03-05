@@ -1,9 +1,0 @@
-2025-02-26 09:49:43: Initializing model, Started OmniOpt2 run...
-2025-02-26 09:49:43: Initializing model, trying to get 1 next steps (current done: 0, max: 1)
-2025-02-26 09:49:43: Initializing model, getting hyperparameter set (no sbatch)
-2025-02-26 09:49:43: SobolGenerator, starting parameter set
-2025-02-26 09:49:43: SobolGenerator, starting new job
-2025-02-26 09:49:43: SobolGenerator, started new job
-2025-02-26 09:49:49: SobolGenerator, job_failed
-2025-02-26 09:49:49: [91mFailed jobs: 1[0m, SobolGenerator, finishing jobs after starting them, finished 1 job
-2025-02-26 09:49:49: [91mFailed jobs: 1[0m, SobolGenerator, got 1, requested 1

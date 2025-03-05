@@ -1,56 +1,0 @@
-[?25l[32m⠋[0m [1;32mLoading base modules...[0m[2K[32m⠙[0m [1;32mLoading base modules...[0m[2K[32m⠹[0m [1;32mLoading base modules...[0m[2K[32m⠸[0m [1;32mLoading base modules...[0m[2K[32m⠼[0m [1;32mLoading base modules...[0m[2K[32m⠴[0m [1;32mLoading base modules...[0m[2K[32m⠦[0m [1;32mLoading base modules...[0m[2K[32m⠧[0m [1;32mLoading base modules...[0m[2K[32m⠧[0m [1;32mLoading base modules...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading rich_argparse...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading rich_argparse...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m[2K[32m⠸[0m [1;32mLoading torch...[0m[2K[32m⠼[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m[2K[32m⠦[0m [1;32mLoading torch...[0m[2K[32m⠧[0m [1;32mLoading torch...[0m[2K[32m⠇[0m [1;32mLoading torch...[0m[2K[32m⠏[0m [1;32mLoading torch...[0m[2K[32m⠋[0m [1;32mLoading torch...[0m[2K[32m⠙[0m [1;32mLoading torch...[0m[2K[32m⠹[0m [1;32mLoading torch...[0m[2K[32m⠸[0m [1;32mLoading torch...[0m[2K[32m⠼[0m [1;32mLoading torch...[0m[2K[32m⠴[0m [1;32mLoading torch...[0m[2K[32m⠦[0m [1;32mLoading torch...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading numpy...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠇[0m [1;32mLoading ax...[0m[2K[32m⠏[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠋[0m [1;32mLoading ax...[0m[2K[32m⠙[0m [1;32mLoading ax...[0m[2K[32m⠹[0m [1;32mLoading ax...[0m[2K[32m⠸[0m [1;32mLoading ax...[0m[2K[32m⠼[0m [1;32mLoading ax...[0m[2K[32m⠴[0m [1;32mLoading ax...[0m[2K[32m⠦[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m[2K[32m⠧[0m [1;32mLoading ax...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading botorch...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading submitit...[0m
-[?25h[1A[2K[?25l[32m⠋[0m [1;32mLoading ax logger...[0m
-[?25h[1A[2KRun-UUID: dd3d15a7-2524-4357-83ee-14cfea389226
-  _________________________________________________
- /                                                 \
-| OmniOpt2 - Fine-tuning on the frequency of realit |
-| y.                                                |
- \                                                 /
-  =================================================
-                                                         \
-                                                          \
-                                                           \
-                                                            \
-                                                             /- _  `-/  '
-                                                            (/\/ \ \   /\
-                                                            / /   | `    \
-                                                            O O   ) /    |
-                                                            `-^--'`<     '
-                                                           (_.)  _  )   /
-                                                            `.___/`    /
-                                                              `-----' /
-                                                 <----.     __ / __   \
-                                                 <----|====O)))==) \) /====
-                                                 <----'    `--' `.__,' \
-                                                              |        |
-                                                               \       /
-                                                         ______( (_  / \______
-                                                       ,'  ,-----'   |        \
-                                                       `--{__________)        \/
-./omniopt --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=0 --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program=ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --live_share --follow --raise_in_eval
-Run-folder: runs/only_one_fixed_param/1
-[33mThis is basically a random search. Increase --max_eval or reduce --num_random_steps[0m
-[32mYou have [0m[1;32m8[0m[32m CPUs available for the main process.[0m [33mNo CUDA devices found.[0m [32mGeneration strategy: Sobol for [0m[1;32m1[0m[32m trials, BoTorch for subsequent trials.[0m
-Run-Program: echo "RESULT: %(fixed_param)"
-[3m     Experiment parameters:     [0m
-┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━┓
-┃[1m [0m[1mName       [0m[1m [0m┃[1m [0m[1mType [0m[1m [0m┃[1m [0m[1mValues[0m[1m [0m┃
-┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━┩
-│[92m [0m[92mfixed_param[0m[92m [0m│[92m [0m[92mfixed[0m[92m [0m│[92m [0m[92m16    [0m[92m [0m│
-└─────────────┴───────┴────────┘
-[92mSee http://localhost/oo2_gui/share.php?user_id=s3811141&experiment_name=only_one_fixed_param&run_nr=1 for a live-trace.
-[0m
-  0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]Initializing model, Started OmniOpt2 run...:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 1):   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]Initializing model, trying to get 1 next steps (current done: 0, max: 1):   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]Initializing model, getting hyperparameter set (no sbatch):   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]              Initializing model, getting hyperparameter set (no sbatch):   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]                    SobolGenerator, starting parameter set:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]      SobolGenerator, starting new job:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s] SobolGenerator, started new job:   0%|░░░░░░░░░░| 0/1 [00:00<?, ?it/s]SobolGenerator, job_failed:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s]     SobolGenerator, job_failed:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s][91mFailed jobs: 1[0m, SobolGenerator, finishing jobs after starting them, finished 1 job:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s][91mFailed jobs: 1[0m, SobolGenerator, finishing jobs after starting them, finished 1 job:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s][91mFailed jobs: 1[0m, SobolGenerator, got 1, requested 1:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s]                                [91mFailed jobs: 1[0m, SobolGenerator, got 1, requested 1:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s][91mFailed jobs: 1[0m, SobolGenerator, got 1, requested 1:   0%|░░░░░░░░░░| 0/1 [00:06<?, ?it/s]
-[3m      Failed Jobs parameters:      [0m
-┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
-┃[1;31m [0m[1;31mfixed_param[0m[1;31m [0m┃[1;31m [0m[1;31merror_description[0m[1;31m [0m┃
-┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
-│[31m [0m[31m16         [0m[31m [0m│[31m [0m[31mUSR1-signal      [0m[31m [0m│
-└─────────────┴───────────────────┘

@@ -1,3 +1,0 @@
-
-⚠Error 8: Rejection sampling error (specified maximum draws (10000) exhausted, without finding sufficiently many (1) candidates). This likely means that there are no new points left in the search space.
-

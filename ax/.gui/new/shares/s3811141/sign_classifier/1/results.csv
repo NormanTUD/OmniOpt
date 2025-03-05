@@ -1,2 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,generation_node,lr,epochs,width_height,val_split
-0,0_0,RUNNING,Sobol,GenerationStep_0,0.057892638444900515470870061563,44,20.000000000000000000000000000000,0.2

@@ -1,2 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,int_param,float_param,choice_param,int_param_two
-0,0_0,RUNNING,Sobol,9,-39.436354637145996093750000000000,2,-29

@@ -1,3 +1,0 @@
-start_time,end_time,run_time,program_string,int_param,float_param,choice_param,int_param_two,RESULT,exit_code,signal,hostname,OO_Info_int_param,OO_Info_int_param_two,OO_Info_float_param,OO_Info_choice_param
-1740986189,1740986189,0,./.tests/optimization_example --int_param='-25' --float_param='-64.48167234659195' --choice_param='hallo' --int_param_two='-30',-25,-64.48167234659195,hallo,-30,-69795.5479207916,0,None,arbeitsrechner,-25,-30,-64.48167234659195,hallo
-1740986195,1740986195,0,./.tests/optimization_example --int_param='-58' --float_param='0.6433471944183111' --choice_param='2' --int_param_two='-65',-58,0.6433471944183111,2,-65,-88589.9242366838,0,None,arbeitsrechner,-58,-65,0.6433471944183111,2

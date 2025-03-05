@@ -1,3 +1,0 @@
-start_time,end_time,run_time,program_string,x,RESULT,exit_code,signal,hostname
-1740990197,1740990197,0,"echo ""RESULT: 0""",0,0,0,None,arbeitsrechner
-1740990202,1740990202,0,"echo ""RESULT: 1""",1,1,0,None,arbeitsrechner

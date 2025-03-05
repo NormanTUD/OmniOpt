@@ -1,3 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,int_param,float_param,choice_param,int_param_two
-0,0_0,FAILED,Sobol,-56,-59.187001287937164306640625000000,hallo,-33
-1,1_0,RUNNING,Sobol,5,-16.429578084498643875122070312500,1,-49

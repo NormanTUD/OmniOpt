@@ -1,2 +1,0 @@
-start_time,end_time,run_time,program_string,lr,epochs,width_and_height,RESULT,exit_code,signal,hostname
-1739875552,1739875570,18,bash /home/s3811141/repos/OmniOpt/ax/.tests/example_network/run.sh --learning_rate=0.1756902575492859 --epochs=6 --width=22 --height=22,0.1756902575492859,6,22,1.550568,0,None,arbeitsrechner

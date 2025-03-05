@@ -1,2 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,generation_node,program
-0,0_0,FAILED,Sobol,GenerationStep_0,divide_by_0

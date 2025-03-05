@@ -1,3 +1,0 @@
-trial_index,arm_name,trial_status,generation_method,generation_node,result,int_param,float_param,choice_param,int_param_two
-0,0_0,COMPLETED,Sobol,GenerationStep_0,-144317.294179680990055203437805175781,-94,-12.093783020973205566406250000000,2,-61
-1,1_0,COMPLETED,BoTorch,GenerationStep_1,-111380.520000000004074536263942718506,10,-100.000000000000000000000000000000,hallo,10

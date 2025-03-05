@@ -1,3 +1,0 @@
-2025-02-26 16:26:46: Initializing model, Started OmniOpt2 run...
-2025-02-26 16:26:46: Initializing model, trying to get 1 next steps (current done: 0, max: 2)
-2025-02-26 16:26:46: Initializing model, getting hyperparameter set (no sbatch)

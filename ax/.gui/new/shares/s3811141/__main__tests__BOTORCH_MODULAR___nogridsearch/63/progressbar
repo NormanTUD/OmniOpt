@@ -1,8 +1,0 @@
-2025-02-04 11:40:37: Initializing model, Started OmniOpt2 run...
-2025-02-04 11:40:37: Initializing model, trying to get 1 next steps (current done: 0, max: 1)
-2025-02-04 11:40:37: Initializing model, getting 1 trials (no sbatch)
-2025-02-04 11:40:38: SobolGenerator, starting parameter set
-2025-02-04 11:40:38: SobolGenerator, starting new job
-2025-02-04 11:40:38: SobolGenerator, started new job
-2025-02-04 11:40:44: SobolGenerator, best result: -187353.863767771, new result: -187353.863767771
-2025-02-04 11:40:44: SobolGenerator, best result: -187353.863767771, finishing jobs (_get_next_trials), finished 1 job

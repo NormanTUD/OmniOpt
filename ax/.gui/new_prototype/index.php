@@ -90,6 +90,19 @@
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
 	}
 
+	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => '<div id="cpuRamWorkerChartContainer"></div><br>'."\n".'<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>',
+			];
+
+			$GLOBALS["functions_after_tab_creation"][] = "plot_worker_cpu_ram();";
+		}
+
+		return $tabs;
+	}
+
 	function add_log_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			// Attempt to read the file content
@@ -447,13 +460,6 @@
 		return false;
 	}
 
-	$tabs = [
-		'Worker-CPU-RAM-Graphs' => [
-			'id' => 'tab_worker_cpu_ram_graphs',
-			'content' => '<pre>Worker CPU RAM Graphs</pre>',
-		]
-	];
-
 	$tabs = [];
 
 	function ansi_to_html($string) {
@@ -708,6 +714,7 @@
 		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
 		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main worker)", "tab_main_worker_cpu_ram");
 		$tabs = add_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
+		$tabs = add_worker_cpu_ram_from_file($tabs, "$run_dir/eval_nodes_cpu_ram_logs.txt", "Worker-CPU-RAM-Graphs", "tab_worker_cpu_ram_graphs");
 
 		$out_files = get_log_files($run_dir);
 

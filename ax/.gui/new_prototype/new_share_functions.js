@@ -509,3 +509,85 @@ async function load_pareto_graph() {
 		}
 	}
 }
+
+async function plot_worker_cpu_ram() {
+	const logData = $("#worker_cpu_ram_pre").text();
+	const regex = /^Unix-Timestamp: (\d+), Hostname: ([\w-]+), CPU: ([\d.]+)%, RAM: ([\d.]+) MB \/ ([\d.]+) MB$/;
+
+	const hostData = {};
+
+	logData.split("\n").forEach(line => {
+		line = line.trim();
+		const match = line.match(regex);
+		if (match) {
+			const timestamp = new Date(parseInt(match[1]) * 1000);
+			const hostname = match[2];
+			const cpu = parseFloat(match[3]);
+			const ram = parseFloat(match[4]);
+
+			if (!hostData[hostname]) {
+				hostData[hostname] = { timestamps: [], cpuUsage: [], ramUsage: [] };
+			}
+
+			hostData[hostname].timestamps.push(timestamp);
+			hostData[hostname].cpuUsage.push(cpu);
+			hostData[hostname].ramUsage.push(ram);
+		}
+	});
+
+	if (!Object.keys(hostData).length) {
+		console.log("No valid data found");
+		return;
+	}
+
+	const container = document.getElementById("cpuRamWorkerChartContainer");
+	container.innerHTML = "";
+
+	var i = 1;
+
+	Object.entries(hostData).forEach(([hostname, { timestamps, cpuUsage, ramUsage }], index) => {
+		const chartId = `workerChart_${index}`;
+		const chartDiv = document.createElement("div");
+		chartDiv.id = chartId;
+		chartDiv.style.marginBottom = "40px";
+		container.appendChild(chartDiv);
+
+		const cpuTrace = {
+			x: timestamps,
+			y: cpuUsage,
+			mode: "lines+markers",
+			name: "CPU Usage (%)",
+			yaxis: "y1",
+			line: { color: "red" }
+		};
+
+		const ramTrace = {
+			x: timestamps,
+			y: ramUsage,
+			mode: "lines+markers",
+			name: "RAM Usage (MB)",
+			yaxis: "y2",
+			line: { color: "blue" }
+		};
+
+		const layout = {
+			title: `Worker CPU and RAM Usage - ${hostname}`,
+			xaxis: { title: "Timestamp" },
+			yaxis: {
+				title: "CPU Usage (%)",
+				side: "left",
+				color: "red"
+			},
+			yaxis2: {
+				title: "RAM Usage (MB)",
+				side: "right",
+				overlaying: "y",
+				color: "blue"
+			},
+			showlegend: true
+		};
+
+		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
+		i++;
+	});
+}

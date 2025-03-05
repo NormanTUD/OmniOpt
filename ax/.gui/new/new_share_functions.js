@@ -10,7 +10,7 @@ function disable_dark_mode() {
 
 function createTable(data, headers, table_name) {
 	if (!$("#" + table_name).length) {
-		console.warn("#" + table_name + " not found");
+		console.error("#" + table_name + " not found");
 		return;
 	}
 
@@ -20,24 +20,6 @@ function createTable(data, headers, table_name) {
 		search: true,
 		sort: true
 	}).render(document.getElementById(table_name));
-}
-
-function filterTableOnZoom(eventData, data, keyX, keyY) {
-	if(!$("#table").length) {
-		console.warn("#table not found");
-		return;
-	}
-	const xRange = eventData['xaxis.range'];
-	const yRange = eventData['yaxis.range'];
-	if (!xRange || !yRange) return;
-
-	const filtered = data.filter(row =>
-		row[keyX] >= xRange[0] && row[keyX] <= xRange[1] &&
-		row[keyY] >= yRange[0] && row[keyY] <= yRange[1]
-	);
-
-	document.getElementById('table').innerHTML = '';
-	createTable(filtered);
 }
 
 function copy_to_clipboard_from_id (id) {

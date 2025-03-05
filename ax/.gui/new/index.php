@@ -163,10 +163,9 @@
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $html
+				'content' => $html,
+				"onclick" => "plotScatter3d()"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plotScatter3d();";
 		}
 
 		return $tabs;
@@ -178,10 +177,9 @@
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $html
+				'content' => $html,
+				"onclick" => "plotScatter2d();"
 			];
-
-			$GLOBALS["functions_after_tab_creation"][] = "plotScatter2d();";
 		}
 
 		return $tabs;

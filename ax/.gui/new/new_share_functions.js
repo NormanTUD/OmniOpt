@@ -225,6 +225,9 @@ function plotCPUAndRAMUsage() {
 }
 
 function plotScatter2d() {
+	if($("#plotScatter2d").data("loaded") == "true") {
+		return;
+	}
 	var numericColumns = tab_results_headers_json.filter(col =>
 		!special_col_names.includes(col) && !result_names.includes(col) &&
 		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
@@ -300,9 +303,13 @@ function plotScatter2d() {
 			Plotly.newPlot(subDiv, [trace], layout);
 		}
 	}
+	$("#plotScatter2d").data("loaded", "true");
 }
 
 function plotScatter3d() {
+	if($("#plotScatter3d").data("loaded") == "true") {
+		return;
+	}
 	var numericColumns = [];
 	var categoricalColumns = {};
 
@@ -389,6 +396,7 @@ function plotScatter3d() {
 			}
 		}
 	}
+	$("#plotScatter3d").data("loaded", "true");
 }
 
 async function load_pareto_graph() {

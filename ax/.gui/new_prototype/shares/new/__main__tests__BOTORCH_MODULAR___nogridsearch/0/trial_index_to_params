@@ -1,0 +1,13 @@
+{0: {'int_param': 8, 'float_param': 0.2904367446899414, 'choice_param': 'hallo', 'int_param_two': -30}}
+{1: {'int_param': -86, 'float_param': -88.63623006269336, 'choice_param': '2', 'int_param_two': -49}}
+{2: {'int_param': -67, 'float_param': -42.762933326885104, 'choice_param': '8', 'int_param_two': -12}}
+{3: {'int_param': -36, 'float_param': -49.24037406221032, 'choice_param': '1', 'int_param_two': -88}}
+{4: {'int_param': -27, 'float_param': -27.835051016882062, 'choice_param': '2', 'int_param_two': -76}}
+{5: {'int_param': -51, 'float_param': -63.51691987365484, 'choice_param': 'hallo', 'int_param_two': 3}}
+{6: {'int_param': -88, 'float_param': -12.502503925934434, 'choice_param': '16', 'int_param_two': -64}}
+{7: {'int_param': -15, 'float_param': -75.63527844846249, 'choice_param': '4', 'int_param_two': -43}}
+{8: {'int_param': -7, 'float_param': -35.81845613196492, 'choice_param': '1', 'int_param_two': 7}}
+{9: {'int_param': -94, 'float_param': -56.045423774048686, 'choice_param': '4', 'int_param_two': -87}}
+{10: {'int_param': -100, 'float_param': -100.0, 'choice_param': '4', 'int_param_two': -100}}
+{11: {'int_param': -100, 'float_param': -100.0, 'choice_param': 'hallo', 'int_param_two': -100}}
+{12: {'int_param': -100, 'float_param': -100.0, 'choice_param': '1', 'int_param_two': -100}}

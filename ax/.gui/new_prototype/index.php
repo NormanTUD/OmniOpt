@@ -717,29 +717,15 @@
 				<ul class="tree-view">
 					<li>OmniOpt2-Share</li>
 					<li>
-						<details open>
-							<summary>s3811141</summary>
 							<ul>
 								<li>
-									<details open>
 										<summary>test_job</summary>
 										<ul>
-											<li>
-												<details open>
-													<summary>0</summary>
-													<ul>
-														<li>Avoid</li>
-														<li>At</li>
-														<li>All</li>
-														<li>Cost</li>
-													</ul>
-												</details>
-											</li>
+											<li>0</li>
+											<li>1</li>
 										</ul>
-									</details>
 								</li>
 							</ul>
-						</details>
 					</li>
 				</ul>
 			</div>

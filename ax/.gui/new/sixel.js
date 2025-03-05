@@ -30,7 +30,8 @@ function test_sixel_replace() {
 function renderSixelToDataUrl(sixelCode) {
   const colorPalette = parseColorPalette(sixelCode);  // Farbpalette extrahieren
   const pixelData = parseSixelData(sixelCode, colorPalette);  // Sixel-Daten extrahieren und in Pixel umwandeln
-  const { width, height } = calculateDimensions(pixelData);  // Dimensionen des Bildes berechnen
+	const width = get_width(sixelCode)
+	const height = get_height(sixelCode)
 
   return generateImage(pixelData, colorPalette, width, height);  // Bild auf Canvas erstellen und als Base64 PNG zurückgeben
 }
@@ -132,4 +133,28 @@ function processSixelChar(char, x, y, colorIndex, pixelData) {
       pixelData.push({ x, y: y + bit, color: colorIndex });
     }
   }
+}
+
+function get_width(sixelCode) {
+    // Extrahiert die Breite des Bildes aus dem Sixel-Code
+    const widthMatch = /q"1;1;(\d+);(\d+)/.exec(sixelCode);  // Sucht nach der Breite
+    if (widthMatch) {
+        console.log('Width found:', widthMatch[1]);  // Der zweite Wert ist die Breite
+        return parseInt(widthMatch[1], 10);
+    }
+
+    console.error('No width found.');
+    return 0;  // Rückgabe von 0, wenn keine Breite gefunden wurde
+}
+
+function get_height(sixelCode) {
+    // Extrahiert die Höhe des Bildes aus dem Sixel-Code
+    const heightMatch = /q"1;1;(\d+);(\d+)/.exec(sixelCode);  // Sucht nach der Höhe
+    if (heightMatch) {
+        console.log('Height found:', heightMatch[2]);  // Der erste Wert ist die Höhe
+        return parseInt(heightMatch[2], 10);
+    }
+
+    console.error('No height found.');
+    return 0;  // Rückgabe von 0, wenn keine Höhe gefunden wurde
 }

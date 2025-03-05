@@ -152,8 +152,10 @@
 				if (isset($jsonData['function_stack'])) {
 					foreach ($jsonData['function_stack'] as $functionData) {
 						$function = isset($functionData['function']) ? $functionData['function'] : 'Unknown';
-						$lineNumber = isset($functionData['line_number']) ? $functionData['line_number'] : 'Unknown';
-						$functionStack .= "$function (Line $lineNumber)<br>";
+						if($function != "_get_debug_json") {
+							$lineNumber = isset($functionData['line_number']) ? $functionData['line_number'] : 'Unknown';
+							$functionStack .= "$function (Line $lineNumber)<br>";
+						}
 					}
 				}
 

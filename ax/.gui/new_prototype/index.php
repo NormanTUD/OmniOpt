@@ -10,7 +10,6 @@
 		"generation_node"
 	];
 
-
 	function filter_empty_columns($csv_data) {
 		$filtered_data = [];
 
@@ -452,10 +451,6 @@
 		'Worker-CPU-RAM-Graphs' => [
 			'id' => 'tab_worker_cpu_ram_graphs',
 			'content' => '<pre>Worker CPU RAM Graphs</pre>',
-		],
-		"Pareto-Front" => [
-			"id" => "tab_pareto_front",
-			"content" => ""
 		]
 	];
 

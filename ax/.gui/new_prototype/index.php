@@ -715,21 +715,11 @@
 
 			<div id="left_tree_view">
 				<ul class="tree-view">
-					<li>Table of Contents</li>
-					<li>What is web development?</li>
-					<li>
-						CSS
-						<ul>
-							<li>Selectors</li>
-							<li>Specificity</li>
-							<li>Properties</li>
-						</ul>
-					</li>
+					<li>OmniOpt2-Share</li>
 					<li>
 						<details open>
 							<summary>JavaScript</summary>
 							<ul>
-								<li>Avoid at all costs</li>
 								<li>
 									<details>
 										<summary>Unless</summary>
@@ -754,8 +744,6 @@
 							</ul>
 						</details>
 					</li>
-					<li>HTML</li>
-					<li>Special Thanks</li>
 				</ul>
 			</div>
 

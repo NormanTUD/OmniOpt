@@ -543,9 +543,9 @@
 			$file_path = $run_dir . '/' . $file;
 			$content = file_get_contents($file_path);
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
-			$output .= copy_id_to_clipboard_string("single_run_$i");
-			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
-			$output .= copy_id_to_clipboard_string("single_run_$i");
+			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
+			$output .= '<pre id="single_run_'.$i.'_pre">' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
 			$output .= '</article>';
 			$i++;
 		}

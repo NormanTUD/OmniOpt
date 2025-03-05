@@ -781,15 +781,15 @@
 					$links = [];
 
 					if (!empty($user_id_link)) {
-						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '">' . $user_id_link . '</a>';
-					}
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
+					}   
 
 					if (!empty($experiment_name_link)) {
-						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '">' . $experiment_name_link . '</a>';
-					}
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
+					}   
 
 					if ($run_nr_link != "") {
-						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '">' . $run_nr_link . '</a>';
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
 					}
 
 					if(count($links)) {
@@ -797,7 +797,7 @@
 						$home = preg_replace("/.*\//", "", $home);
 						$home = preg_replace("/\.php$/", "", $home);
 
-						array_unshift($links, "<a class='top_link' href='$home'>Home</a>");
+						array_unshift($links, "<button onclick=\"window.location.href=\'$home\'\">Home</button>");
 					}
 
 					$path_with_links = implode(" / ", $links);
@@ -821,25 +821,6 @@
 ?>
 			</div>
 			<div id="spinner" class="spinner"></div>
-
-			<!--
-			<div id="left_tree_view">
-				<ul class="tree-view">
-					<li>OmniOpt2-Share</li>
-					<li>
-							<ul>
-								<li>
-										<summary>test_job</summary>
-										<ul>
-											<li>0</li>
-											<li>1</li>
-										</ul>
-								</li>
-							</ul>
-					</li>
-				</ul>
-			</div>
-			-->
 
 			<div id="main_window" style="display: none" class="container py-4 has-space">
 <?php

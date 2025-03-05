@@ -719,7 +719,11 @@
 				<div class="title-bar-text">OmniOpt2-Share
 <?php
 				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
-					$path = get_get("user_id") . "/" . get_get("experiment_name") . "/" . get_get("run_nr");
+					$user_id_link = get_get("user_id");
+					$experiment_name_link = get_get("experiment_name");
+					$run_nr_link = get_get("run_nr");
+
+					$path = $user_id_link . "/" . $experiment_name_link . "/" . $run_nr_link;
 					$path = preg_replace("/\/+/", "/", $path);
 					$path = preg_replace("/^\//", "", $path);
 					$path = preg_replace("/\/$/", "", $path);

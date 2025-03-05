@@ -188,51 +188,51 @@ function plotWorkerUsage(data) {
 }
 
 function plotCPUAndRAMUsage() {
-    // Convert timestamps to human-readable format (optional)
-    var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000)); // Convert from Unix timestamp to Date object
-    var ramUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[1]);
-    var cpuUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[2]);
+	// Convert timestamps to human-readable format (optional)
+	var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000)); // Convert from Unix timestamp to Date object
+	var ramUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[1]);
+	var cpuUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[2]);
 
-    // Create traces for the plot
-    var trace1 = {
-        x: timestamps,
-        y: ramUsage,
-        mode: 'lines+markers',
-        name: 'RAM Usage (MB)',
-        type: 'scatter'
-    };
+	// Create traces for the plot
+	var trace1 = {
+		x: timestamps,
+		y: ramUsage,
+		mode: 'lines+markers',
+		name: 'RAM Usage (MB)',
+		type: 'scatter'
+	};
 
-    var trace2 = {
-        x: timestamps,
-        y: cpuUsage,
-        mode: 'lines+markers',
-        name: 'CPU Usage (%)',
-        type: 'scatter'
-    };
+	var trace2 = {
+		x: timestamps,
+		y: cpuUsage,
+		mode: 'lines+markers',
+		name: 'CPU Usage (%)',
+		type: 'scatter'
+	};
 
-    // Layout for the plot
-    var layout = {
-        title: 'CPU and RAM Usage Over Time',
-        xaxis: {
-            title: 'Timestamp',
-            tickmode: 'array',
-            tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0), // Reduce number of ticks
-            ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()), // Convert timestamps to readable format
-            tickangle: -45
-        },
-        yaxis: {
-            title: 'Usage',
-            rangemode: 'tozero'
-        },
-        legend: {
-            x: 0.1,
-            y: 0.9
-        }
-    };
+	// Layout for the plot
+	var layout = {
+		title: 'CPU and RAM Usage Over Time',
+		xaxis: {
+			title: 'Timestamp',
+			tickmode: 'array',
+			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0), // Reduce number of ticks
+			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()), // Convert timestamps to readable format
+			tickangle: -45
+		},
+		yaxis: {
+			title: 'Usage',
+			rangemode: 'tozero'
+		},
+		legend: {
+			x: 0.1,
+			y: 0.9
+		}
+	};
 
-    // Plot the data using Plotly
-    var data = [trace1, trace2];
-    Plotly.newPlot('mainWorkerCPURAM', data, layout);
+	// Plot the data using Plotly
+	var data = [trace1, trace2];
+	Plotly.newPlot('mainWorkerCPURAM', data, layout);
 }
 
 function plotScatter2d() {
@@ -248,9 +248,9 @@ function plotScatter2d() {
 
 	// Extrahiere RESULT-Spalte für die Farbgebung
 	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
-	var resultValues = tab_results_csv_json.map(row => parseFloat(row[resultIndex]));
-	var minResult = Math.min(...resultValues);
-	var maxResult = Math.max(...resultValues);
+	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
 	// Erstelle Scatter-Plots für jede einzigartige Spaltenkombination
 	var plotDiv = document.getElementById("plotScatter2d");
@@ -267,19 +267,26 @@ function plotScatter2d() {
 			let data = tab_results_csv_json.map(row => ({
 				x: parseFloat(row[xIndex]),
 				y: parseFloat(row[yIndex]),
-				result: parseFloat(row[resultIndex])
+				result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 			}));
 
-			let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+			// Erstelle die Farben für den Scatter-Plot, wobei null-Werte schwarz sind
+			let colors = data.map(d => {
+				if (d.result === null) {
+					return 'rgb(0, 0, 0)'; // Schwarz für null-Werte
+				} else {
+					return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
 					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-					     0)`);
+					     0)`;
+				}
+			});
 
 			let trace = {
 				x: data.map(d => d.x),
 				y: data.map(d => d.y),
 				mode: 'markers',
 				marker: { size: 10, color: colors },
-				text: data.map(d => `Result: ${d.result}`),
+				text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 				type: 'scatter'
 			};
 
@@ -287,8 +294,13 @@ function plotScatter2d() {
 				title: `${xCol} vs ${yCol}`,
 				xaxis: { title: xCol },
 				yaxis: { title: yCol },
-				showlegend: false,
-				coloraxis: { colorscale: [[0, 'green'], [1, 'red']] }
+				showlegend: true,
+				coloraxis: { colorscale: [[0, 'green'], [1, 'red']] },
+				colorbar: {
+					title: 'Result',
+					tickvals: [0, 1],
+					ticktext: [`${minResult}`, `${maxResult}`]
+				}
 			};
 
 			let subDiv = document.createElement("div");
@@ -311,9 +323,9 @@ function plotScatter3d() {
 	}
 
 	var resultIndex = tab_results_headers_json.indexOf(result_names[0]);
-	var resultValues = tab_results_csv_json.map(row => parseFloat(row[resultIndex]));
-	var minResult = Math.min(...resultValues);
-	var maxResult = Math.max(...resultValues);
+	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
 	var plotDiv = document.getElementById("plotScatter3d");
 	if (!plotDiv) {
@@ -337,12 +349,19 @@ function plotScatter3d() {
 					x: parseFloat(row[xIndex]),
 					y: parseFloat(row[yIndex]),
 					z: parseFloat(row[zIndex]),
-					result: parseFloat(row[resultIndex])
+					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 				}));
 
-				let colors = data.map(d => `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))}, 
-					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))}, 
-					     0)`);
+				// Erstelle die Farben für den Scatter-Plot, wobei null-Werte schwarz sind
+				let colors = data.map(d => {
+					if (d.result === null) {
+						return 'rgb(0, 0, 0)'; // Schwarz für null-Werte
+					} else {
+						return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+					     0)`;
+					}
+				});
 
 				let trace = {
 					x: data.map(d => d.x),
@@ -350,7 +369,7 @@ function plotScatter3d() {
 					z: data.map(d => d.z),
 					mode: 'markers',
 					marker: { size: 10, color: colors },
-					text: data.map(d => `Result: ${d.result}`),
+					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 					type: 'scatter3d'
 				};
 
@@ -361,7 +380,13 @@ function plotScatter3d() {
 						yaxis: { title: yCol },
 						zaxis: { title: zCol }
 					},
-					showlegend: false
+					showlegend: true,
+					coloraxis: { colorscale: [[0, 'green'], [1, 'red']] },
+					colorbar: {
+						title: 'Result',
+						tickvals: [0, 1],
+						ticktext: [`${minResult}`, `${maxResult}`]
+					}
 				};
 
 				let subDiv = document.createElement("div");

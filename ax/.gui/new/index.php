@@ -86,15 +86,14 @@
 		return $statuses;
 	}
 
-	function copy_raw_to_clipboard_string($filename) {
-		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
+	function copy_id_to_clipboard_string($id) {
+		return "<br><button onclick='copy_to_clipboard_from_id(\"".$id."\")'>Copy raw data to clipboard</button><br><br>\n";
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = copy_raw_to_clipboard_string($filename);
+			$html = copy_id_to_clipboard_string("worker_cpu_ram_pre");
 			$html .= '<div id="cpuRamWorkerChartContainer"></div><br>'."\n".'<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
-			$html .= copy_raw_to_clipboard_string($filename);
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $html,
@@ -180,8 +179,8 @@
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div id='mainWorkerCPURAM'></div>";
-			$html .= copy_raw_to_clipboard_string($filename);
-			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 
 			$csv_contents = getCsvDataAsArray($filename);   
 			$headers = $csv_contents[0];
@@ -238,8 +237,8 @@
 	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div id='workerUsagePlot'></div>";
-			$html .= copy_raw_to_clipboard_string($filename);
-			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 
 			$csv_contents = getCsvDataAsArray($filename);   
 
@@ -264,11 +263,11 @@
 			} else {
 				$contents = ansi_to_html(htmlspecialchars($contents));
 			}
-			$html = copy_raw_to_clipboard_string($filename);
+			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
 			if(!$remove_ansi_colors) {
-				$html .= '<pre>'.htmlentities($contents).'</pre>';
+				$html .= '<pre id="simple_pre_tab_' . $i . '">'.htmlentities($contents).'</pre>';
 			} else {
-				$html .= '<pre>'.$contents.'</pre>';
+				$html .= '<pre id="simple_pre_tab_' . $i . '">'.$contents.'</pre>';
 			}
 
 			$tabs[$name] = [
@@ -305,7 +304,7 @@
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["${id}_csv_json_non_empty"] = filter_empty_columns($csv_json);
 
-			$results_html = copy_raw_to_clipboard_string($filename);
+			$results_html = copy_id_to_clipboard_string("${id}_csv_table");
 			$results_html .= "<div id='${id}_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
 
@@ -524,7 +523,7 @@
 			$file_path = $run_dir . '/' . $file;
 			$content = file_get_contents($file_path);
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
-			$output .= copy_raw_to_clipboard_string($file_path);
+			$output .= copy_id_to_clipboard_string("single_run_$i");
 			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
 			$output .= '</article>';
 			$i++;

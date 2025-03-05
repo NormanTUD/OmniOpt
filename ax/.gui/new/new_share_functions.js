@@ -40,8 +40,10 @@ function filterTableOnZoom(eventData, data, keyX, keyY) {
 	createTable(filtered);
 }
 
-function copy_to_clipboard_base64(text) {
-	copy_to_clipboard(atob(text));
+function copy_to_clipboard_from_id (id) {
+	var text = $("#" + id).text();
+
+	copy_to_clipboard(text);
 }
 
 function copy_to_clipboard(text) {

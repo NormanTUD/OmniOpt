@@ -816,7 +816,7 @@
 						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '">' . $experiment_name_link . '</a>';
 					}
 
-					if (!empty($run_nr_link)) {
+					if ($run_nr_link != "") {
 						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '">' . $run_nr_link . '</a>';
 					}
 

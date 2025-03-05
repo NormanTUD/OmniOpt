@@ -70,6 +70,36 @@
 		return "<br><button onclick='copy_to_clipboard_base64(\"".htmlentities(base64_encode(file_get_contents($filename)))."\")'>Copy raw data to clipboard</button><br><br>\n";
 	}
 
+	function add_cpu_ram_usage_main_worker_from_file($tabs, $filename, $name, $id) {
+		if(is_file($filename)) {
+			$html = "<div id='mainWorkerCPURAM'></div>";
+			$html .= copy_raw_to_clipboard_string($filename);
+			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= copy_raw_to_clipboard_string($filename);
+
+			$csv_contents = getCsvDataAsArray($filename);   
+			$headers = $csv_contents[0];
+			$csv_contents_no_header = $csv_contents;
+			array_shift($csv_contents_no_header);
+
+			$csv_json = $csv_contents_no_header;
+			$headers_json = $headers;
+
+			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
+			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
+
+
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => $html
+			];
+
+			$GLOBALS["functions_after_tab_creation"][] = "plotCPUAndRAMUsage();";
+		}
+
+		return $tabs;
+	}
+
 	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<div id='workerUsagePlot'></div>";
@@ -545,6 +575,7 @@
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
+		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main worker)", "tab_main_worker_cpu_ram");
 
 		$out_files = get_log_files($run_dir);
 

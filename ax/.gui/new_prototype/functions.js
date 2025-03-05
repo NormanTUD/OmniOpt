@@ -186,3 +186,51 @@ function plotWorkerUsage(data) {
 
 	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);
 }
+
+function plotCPUAndRAMUsage() {
+    // Convert timestamps to human-readable format (optional)
+    var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000)); // Convert from Unix timestamp to Date object
+    var ramUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[1]);
+    var cpuUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[2]);
+
+    // Create traces for the plot
+    var trace1 = {
+        x: timestamps,
+        y: ramUsage,
+        mode: 'lines+markers',
+        name: 'RAM Usage (MB)',
+        type: 'scatter'
+    };
+
+    var trace2 = {
+        x: timestamps,
+        y: cpuUsage,
+        mode: 'lines+markers',
+        name: 'CPU Usage (%)',
+        type: 'scatter'
+    };
+
+    // Layout for the plot
+    var layout = {
+        title: 'CPU and RAM Usage Over Time',
+        xaxis: {
+            title: 'Timestamp',
+            tickmode: 'array',
+            tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0), // Reduce number of ticks
+            ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()), // Convert timestamps to readable format
+            tickangle: -45
+        },
+        yaxis: {
+            title: 'Usage',
+            rangemode: 'tozero'
+        },
+        legend: {
+            x: 0.1,
+            y: 0.9
+        }
+    };
+
+    // Plot the data using Plotly
+    var data = [trace1, trace2];
+    Plotly.newPlot('mainWorkerCPURAM', data, layout);
+}

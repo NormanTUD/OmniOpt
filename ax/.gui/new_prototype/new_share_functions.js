@@ -316,7 +316,7 @@ function plotScatter2d() {
 	}
 }
 
-function plotScatter3d() {                                                                                                                                                                                                                                                                                                                                                            
+function plotScatter3d() {
 	var numericColumns = [];
 	var categoricalColumns = {};
 
@@ -339,7 +339,7 @@ function plotScatter3d() {
 	if (allColumns.length < 3) {
 		console.error("Not enough columns for 3D scatter plots");
 		return;
-	}            
+	}
 
 	var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[0].toLowerCase());
 	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
@@ -401,6 +401,6 @@ function plotScatter3d() {
 
 				Plotly.newPlot(subDiv, [trace], layout);
 			}
-		}    
-	}            
+		}
+	}
 }

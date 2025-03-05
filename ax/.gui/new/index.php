@@ -938,16 +938,14 @@
 ?>
 			</div>
 		</div>
-<?php
-	if(count($GLOBALS["functions_after_tab_creation"])) {
-		print "<script>\n";
-		foreach ($GLOBALS["functions_after_tab_creation"] as $fn) {
-			print "\t$fn\n";
-		}
-		print "</script>\n";
-	}
-?>
 		<script>
+<?php
+			if(count($GLOBALS["functions_after_tab_creation"])) {
+				foreach ($GLOBALS["functions_after_tab_creation"] as $fn) {
+					print "\t\t\t$fn\n";
+				}
+			}
+?>
 			show_main_window();
 		</script>
 	</body>

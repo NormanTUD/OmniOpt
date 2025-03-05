@@ -31,7 +31,7 @@ function renderSixelToDataUrl(sixelCode) {
   const colorPalette = parseColorPalette(sixelCode);  // Farbpalette extrahieren
   const pixelData = parseSixelData(sixelCode, colorPalette);  // Sixel-Daten extrahieren und in Pixel umwandeln
   const { width, height } = calculateDimensions(pixelData);  // Dimensionen des Bildes berechnen
-  
+
   return generateImage(pixelData, colorPalette, width, height);  // Bild auf Canvas erstellen und als Base64 PNG zurückgeben
 }
 
@@ -40,7 +40,7 @@ function parseColorPalette(sixelCode) {
   const colorPalette = {};
   const colorRegex = /#(\d+);(\d+);(\d+);(\d+)/g;
   let colorMatch;
-  
+
   while ((colorMatch = colorRegex.exec(sixelCode)) !== null) {
     const index = parseInt(colorMatch[1], 10);
     const r = Math.round((parseInt(colorMatch[2], 10) / 100) * 255);
@@ -59,16 +59,16 @@ function parseSixelData(sixelCode, colorPalette) {
   let x = 0, y = 0, currentColor = 0;
   const dataStart = sixelCode.indexOf('"');
   const data = sixelCode.slice(dataStart + 1);
-  
+
   let i = 0;
   while (i < data.length) {
     const char = data[i];
-    
+
     if (char === '$') {
       x = 0; // Zeilenumbruch horizontal
     } else if (char === '-') {
       x = 0;
-      y += 6; // Zeilenvorschub vertikal
+      y += 6; // Zeilenvorschub vertikal (6 Pixel pro Zeile)
     } else if (char === '#') {
       const match = data.slice(i).match(/^#(\d+)/);
       if (match) {
@@ -95,13 +95,13 @@ function parseSixelData(sixelCode, colorPalette) {
 // 3. Berechnung der Bilddimensionen (Breite und Höhe)
 function calculateDimensions(pixelData) {
   let maxX = 0, maxY = 0;
-  
+
   for (const { x, y } of pixelData) {
     maxX = Math.max(maxX, x);
     maxY = Math.max(maxY, y + 6);  // 6 Pixel pro Zeile (Sixel)
   }
 
-  return { width: maxX, height: maxY };
+  return { width: maxX + 1, height: maxY };  // maxX + 1, weil x bei 0 beginnt
 }
 
 // 4. Canvas erstellen und Pixel darauf zeichnen
@@ -126,7 +126,7 @@ function generateImage(pixelData, colorPalette, width, height) {
 
 // 5. Sixel-Zeichen in Pixel umwandeln (jede 6 Pixel hoch)
 function processSixelChar(char, x, y, colorIndex, pixelData) {
-  const bits = char.charCodeAt(0) - 63;
+  const bits = char.charCodeAt(0) - 63; // Umwandlung von ASCII-Wert
   for (let bit = 0; bit < 6; bit++) {
     if (bits & (1 << bit)) {
       pixelData.push({ x, y: y + bit, color: colorIndex });

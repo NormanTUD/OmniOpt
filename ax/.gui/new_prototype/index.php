@@ -558,11 +558,9 @@
 		}
 	}
 
-	$run_dir = "";
+	$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
 
-	if(!count($errors)) {
-		$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
-
+	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max.txt";
 

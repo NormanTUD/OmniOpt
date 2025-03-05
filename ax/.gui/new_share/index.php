@@ -182,7 +182,6 @@
 			$html = "<div id='mainWorkerCPURAM'></div>";
 			$html .= copy_raw_to_clipboard_string($filename);
 			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
-			$html .= copy_raw_to_clipboard_string($filename);
 
 			$csv_contents = getCsvDataAsArray($filename);   
 			$headers = $csv_contents[0];
@@ -241,7 +240,6 @@
 			$html = "<div id='workerUsagePlot'></div>";
 			$html .= copy_raw_to_clipboard_string($filename);
 			$html .= '<pre>'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
-			$html .= copy_raw_to_clipboard_string($filename);
 
 			$csv_contents = getCsvDataAsArray($filename);   
 
@@ -272,7 +270,6 @@
 			} else {
 				$html .= '<pre>'.$contents.'</pre>';
 			}
-			$html .= copy_raw_to_clipboard_string($filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -311,7 +308,6 @@
 			$results_html = copy_raw_to_clipboard_string($filename);
 			$results_html .= "<div id='${id}_csv_table'></div>\n";
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
-			$results_html .= copy_raw_to_clipboard_string($filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -530,7 +526,6 @@
 			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
 			$output .= copy_raw_to_clipboard_string($file_path);
 			$output .= '<pre>' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
-			$output .= copy_raw_to_clipboard_string($file_path);
 			$output .= '</article>';
 			$i++;
 		}
@@ -659,9 +654,15 @@
 			$result_names_table = '<br><table border="1">';
 			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>';
 			for ($i = 0; $i < count($result_names); $i++) {
+				$min_or_max = "min";
+
+				if(isset($result_min_max[$i])) {
+					$min_or_max = $result_min_max[$i];
+				}
+
 				$result_names_table .= '<tr>';
 				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>';
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_min_max[$i]) . '</td>';
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>';
 				$result_names_table .= '</tr>';
 			}
 			$result_names_table .= '</table><br>';

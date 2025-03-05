@@ -463,6 +463,15 @@
 		$best_results_txt = "$run_dir/best_result.txt";
 		$overview_html = "";
 
+		if(is_file("$run_dir/ui_url.txt")) {
+			$filePath = "$run_dir/ui_url.txt";
+			$firstLine = fgets(fopen($filePath, 'r'));
+
+			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
+				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">Link to the GUI page with all the settings of this job</button>";
+			}
+		}
+
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
 		}
@@ -494,6 +503,7 @@
 
 			$overview_html .= "<br>$overview_table";
 		}
+
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [

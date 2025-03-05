@@ -452,6 +452,10 @@
 		'Worker-CPU-RAM-Graphs' => [
 			'id' => 'tab_worker_cpu_ram_graphs',
 			'content' => '<pre>Worker CPU RAM Graphs</pre>',
+		],
+		"Pareto-Front" => [
+			"id" => "tab_pareto_front",
+			"content" => ""
 		]
 	];
 

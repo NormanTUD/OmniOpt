@@ -675,10 +675,6 @@
 			}
 		}
 
-		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
-			$tabs = add_parallel_plot_tab($tabs);
-		}
-
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");
@@ -695,13 +691,17 @@
 
 		$out_files = get_log_files($run_dir);
 
-		if (count($result_names) == 1) {
-			$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
 
-			$difference = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
+			$tabs = add_parallel_plot_tab($tabs);
+			if (count($result_names) == 1) {
+				$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
 
-			if(count($difference) >= 3) {
-				$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+				$difference = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+
+				if(count($difference) >= 3) {
+					$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+				}
 			}
 		}
 

@@ -211,13 +211,14 @@
 			} else {
 				$contents = ansi_to_html(htmlspecialchars($contents));
 			}
+
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
 			if(!$remove_ansi_colors) {
 				$html .= '<pre id="simple_pre_tab_' . $i . '">'.htmlentities($contents).'</pre>';
 			} else {
 				$html .= '<pre id="simple_pre_tab_' . $i . '">'.$contents.'</pre>';
 			}
-			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
+			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id");
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -255,7 +256,7 @@
 
 			$results_html = "<div id='${id}_csv_table'></div>\n";
 			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
-			$results_html = "<pre id='${id}_csv_table_pre'>".htmlentities(file_get_contents($filename))."</pre>\n";
+			$results_html .= "<pre id='${id}_csv_table_pre'>".htmlentities(file_get_contents($filename))."</pre>\n";
 			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
 

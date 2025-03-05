@@ -233,7 +233,8 @@
 
 		$tabs['Parallel Plot'] = [
 			'id' => 'tab_parallel',
-			'content' => $html
+			'content' => $html,
+			"onclick" => "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);"
 		];
 
 		return $tabs;
@@ -668,7 +669,6 @@
 
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
-			$GLOBALS["functions_after_tab_creation"][] = "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);";
 		}
 
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");

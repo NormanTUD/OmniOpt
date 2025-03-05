@@ -73,6 +73,9 @@ function filterNonEmptyRows(data) {
 }
 
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+	if($("#parallel-plot").data("loaded") == "true") {
+		return;
+	}
 	dataArray = filterNonEmptyRows(dataArray);
 	const ignoreSet = new Set(ignoreColumns);
 	const numericalCols = [];
@@ -130,6 +133,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	};
 
 	Plotly.newPlot('parallel-plot', [trace]);
+	$("#parallel-plot").data("loaded", "true");
 }
 
 function plotWorkerUsage(data) {

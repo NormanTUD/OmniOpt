@@ -699,7 +699,7 @@
 		<link href="mermaid.min.css" rel="stylesheet" />
 		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
-		<script src="functions.js"></script>
+		<script src="new_share_functions.js"></script>
 		<script src="main.js"></script>
 	</head>
 	<body>

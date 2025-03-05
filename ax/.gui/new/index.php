@@ -947,8 +947,8 @@
 		print "</script>\n";
 	}
 ?>
+		<script>
+			show_main_window();
+		</script>
 	</body>
-	<script>
-		show_main_window();
-	</script>
 </html>

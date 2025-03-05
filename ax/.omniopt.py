@@ -5824,7 +5824,7 @@ def _get_max_parallelism() -> int:
     return ret
 
 @beartype
-def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> Tuple[GenerationStep]:
+def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     """Creates a generation step for Bayesian optimization."""
     gs = GenerationStep(
         model=model,
@@ -5842,7 +5842,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
     return gs
 
 @beartype
-def create_random_generation_step() -> Tuple[GenerationStep]:
+def create_random_generation_step() -> GenerationStep:
     """Creates a generation step for random models."""
     return GenerationStep(
         model=Models.SOBOL,
@@ -5929,7 +5929,7 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
     console.print(table)
 
 @beartype
-def get_generation_strategy() -> Tuple[GenerationStrategy]:
+def get_generation_strategy() -> GenerationStrategy:
     generation_strategy = args.generation_strategy
 
     if args.continue_previous_job:

@@ -66,7 +66,12 @@ function copy_to_clipboard(text) {
 	});
 }
 
+function filterNonEmptyRows(data) {
+	return data.filter(row => !row.includes(""));
+}
+
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+	dataArray = filterNonEmptyRows(dataArray);
 	const ignoreSet = new Set(ignoreColumns);
 	const numericalCols = [];
 	const categoricalCols = [];
@@ -76,8 +81,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		if (ignoreSet.has(header)) return;
 
 		const values = dataArray.map(row => row[colIndex]);
-		log(header);
-		log(values);
 		if (values.every(val => !isNaN(parseFloat(val)))) {
 			numericalCols.push({ name: header, index: colIndex });
 		} else {

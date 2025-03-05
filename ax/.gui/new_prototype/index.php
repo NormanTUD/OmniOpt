@@ -719,17 +719,54 @@
 				<div class="title-bar-text">OmniOpt2-Share
 <?php
 				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
+					function is_valid_user_id($value) {
+						return preg_match('/^[a-zA-Z0-9_]+$/', $value);
+					}
+
+					function is_valid_experiment_name($value) {
+						return preg_match('/^[a-zA-Z0-9_]+$/', $value);
+					}
+
+					function is_valid_run_nr($value) {
+						return preg_match('/^\d+$/', $value);
+					}
+
 					$user_id_link = get_get("user_id");
 					$experiment_name_link = get_get("experiment_name");
 					$run_nr_link = get_get("run_nr");
 
-					$path = $user_id_link . "/" . $experiment_name_link . "/" . $run_nr_link;
-					$path = preg_replace("/\/+/", "/", $path);
-					$path = preg_replace("/^\//", "", $path);
-					$path = preg_replace("/\/$/", "", $path);
+					if (!is_valid_user_id($user_id_link)) {
+						$user_id_link = '';
+					}
 
-					if($path) {
-						print " (".htmlentities($path).")";
+					if (!is_valid_experiment_name($experiment_name_link)) {
+						$experiment_name_link = '';
+					}
+
+					if (!is_valid_run_nr($run_nr_link)) {
+						$run_nr_link = '';
+					}
+
+					$base_url = "?";
+
+					$links = [];
+
+					if (!empty($user_id_link)) {
+						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '">' . $user_id_link . '</a>';
+					}
+
+					if (!empty($experiment_name_link)) {
+						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '">' . $experiment_name_link . '</a>';
+					}
+
+					if (!empty($run_nr_link)) {
+						$links[] = '<a class="top_link" href="' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '">' . $run_nr_link . '</a>';
+					}
+
+					$path_with_links = implode(" / ", $links);
+
+					if(count($links)) {
+						echo " ($path_with_links)";
 					}
 				}
 ?>

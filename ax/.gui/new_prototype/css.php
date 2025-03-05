@@ -86,6 +86,30 @@
 		width: fit-content;
 		min-width: 100%;
 	}
+
+	.top_link {
+		display: inline-block;
+		padding: 5px 5px;
+		background-color: #007bff; /* Blau, kannst du anpassen */
+		color: white;
+		text-decoration: none;
+		font-size: 16px;
+		font-weight: bold;
+		border-radius: 6px;
+		border: 2px solid #0056b3;
+		text-align: center;
+		transition: all 0.3s ease-in-out;
+	}
+
+	.top_link:hover {
+		background-color: #0056b3;
+		border-color: #004494;
+	}
+
+	.top_link:active {
+		background-color: #003366;
+		border-color: #002244;
+	}
 </style>
 <?php
 	$theme = "xp.css";

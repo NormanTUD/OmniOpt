@@ -316,20 +316,32 @@ function plotScatter2d() {
 	}
 }
 
-function plotScatter3d() {
-	var numericColumns = tab_results_headers_json.filter(col => 
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
+function plotScatter3d() {                                                                                                                                                                                                                                                                                                                                                            
+	var numericColumns = [];
+	var categoricalColumns = {};
 
-	if (numericColumns.length < 3) {
-		console.error("Not enough numeric columns for 3D scatter plots");
-		return;
-	}
+	// Kategorische und numerische Spalten trennen
+	tab_results_headers_json.forEach(col => {
+		if (!special_col_names.includes(col) && !result_names.includes(col)) {
+			let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
+			let isNumeric = values.every(v => !isNaN(parseFloat(v)));
 
-	var resultIndex = tab_results_headers_json.findIndex(function(header) {
-		return header.toLowerCase() === result_names[0].toLowerCase();
+			if (isNumeric) {
+				numericColumns.push(col);
+			} else {
+				categoricalColumns[col] = [...new Set(values)]; // Einzigartige Werte speichern
+			}
+		}
 	});
+
+	let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
+
+	if (allColumns.length < 3) {
+		console.error("Not enough columns for 3D scatter plots");
+		return;
+	}            
+
+	var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[0].toLowerCase());
 	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
@@ -341,34 +353,28 @@ function plotScatter3d() {
 	}
 	plotDiv.innerHTML = "";
 
-	for (let i = 0; i < numericColumns.length; i++) {
-		for (let j = i + 1; j < numericColumns.length; j++) {
-			for (let k = j + 1; k < numericColumns.length; k++) {
-				let xCol = numericColumns[i];
-				let yCol = numericColumns[j];
-				let zCol = numericColumns[k];
+	for (let i = 0; i < allColumns.length; i++) {
+		for (let j = i + 1; j < allColumns.length; j++) {
+			for (let k = j + 1; k < allColumns.length; k++) {
+				let xCol = allColumns[i];
+				let yCol = allColumns[j];
+				let zCol = allColumns[k];
 
 				let xIndex = tab_results_headers_json.indexOf(xCol);
 				let yIndex = tab_results_headers_json.indexOf(yCol);
 				let zIndex = tab_results_headers_json.indexOf(zCol);
 
 				let data = tab_results_csv_json.map(row => ({
-					x: parseFloat(row[xIndex]),
-					y: parseFloat(row[yIndex]),
-					z: parseFloat(row[zIndex]),
+					x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
+					y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
+					z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
 					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 				}));
 
-				// Erstelle die Farben für den Scatter-Plot, wobei null-Werte schwarz sind
-				let colors = data.map(d => {
-					if (d.result === null) {
-						return 'rgb(0, 0, 0)'; // Schwarz für null-Werte
-					} else {
-						return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-					     ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-					     0)`;
-					}
-				});
+				let colors = data.map(d => d.result === null ? 'rgb(0, 0, 0)' :
+					`rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+					${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+					0)`);
 
 				let trace = {
 					x: data.map(d => d.x),
@@ -386,22 +392,15 @@ function plotScatter3d() {
 						xaxis: { title: xCol },
 						yaxis: { title: yCol },
 						zaxis: { title: zCol }
-					},
-					showlegend: true,
-					coloraxis: { colorscale: [[0, 'green'], [1, 'red']] },
-					colorbar: {
-						title: 'Result',
-						tickvals: [0, 1],
-						ticktext: [`${minResult}`, `${maxResult}`]
 					}
 				};
 
 				let subDiv = document.createElement("div");
-				subDiv.style.marginBottom = "20px"; // Add some spacing between plots
+				subDiv.style.marginBottom = "20px";
 				plotDiv.appendChild(subDiv);
 
 				Plotly.newPlot(subDiv, [trace], layout);
 			}
-		}
-	}
+		}    
+	}            
 }

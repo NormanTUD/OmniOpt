@@ -5691,6 +5691,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
 
             error_8_saved.append(str(e))
 
+        print_red("TODO: Generating random points from here on")
+
     return {}, True
 
 @beartype

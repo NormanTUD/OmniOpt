@@ -6,5 +6,8 @@
 				<a href="mailto:norman.koch@scads.ai">Contact Us</a>
 			</p>
 		</footer>
+		<script>
+			apply_theme_based_on_system_preferences();
+		</script>
 	</body>
 </html>

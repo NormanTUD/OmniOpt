@@ -10,6 +10,8 @@ function createTable(data, headers, table_name) {
 		search: true,
 		sort: true
 	}).render(document.getElementById(table_name));
+
+	apply_theme_based_on_system_preferences();
 }
 
 function copy_to_clipboard_from_id (id) {

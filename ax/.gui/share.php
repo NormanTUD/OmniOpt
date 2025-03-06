@@ -426,3 +426,6 @@
 	<script>
 		show_main_window();
 	</script>
+<?php
+	include("footer.php");
+?>

@@ -537,7 +537,17 @@
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$checkmark = file_contains_results("$run_dir/$file", $result_names) ? $green_checkmark : $red_cross;
-			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" ' . ($i == 0 ? 'aria-selected="true"' : '') . ' aria-controls="single_run_' . $i . '">' . $nr . $checkmark . '</button>';
+
+
+			$runtime_string = get_runtime_from_outfile(file_get_contents("$run_dir/$file"));
+
+			if($runtime_string == "0s" || !$runtime_string) {
+				$runtime_string = "";
+			} else {
+				$runtime_string = " ($runtime_string)";
+			}
+
+			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.($i == 0 ? 'aria-selected="true"' : '').' aria-controls="single_run_'.$i.'">'.$nr.$runtime_string.$checkmark.'</button>';
 			$i++;
 		}
 
@@ -629,5 +639,45 @@
 		$log = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})/', '<span style="color:blue;">$1</span>', $log);
 
 		return $log;
+	}
+
+	function get_runtime_from_outfile ($string) {
+		if(!$string) {
+			return null;
+		}
+
+		$pattern = '/submitit INFO \((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\)/';
+
+		preg_match_all($pattern, $string, $matches);
+
+		$dates = $matches[1];
+
+		$unixTimes = [];
+		foreach ($dates as $date) {
+			$formattedDate = str_replace(',', '.', $date);
+			$unixTimes[] = strtotime($formattedDate);
+		}
+
+		$minTime = min($unixTimes);
+		$maxTime = max($unixTimes);
+		$timeDiff = $maxTime - $minTime;
+
+		$hours = floor($timeDiff / 3600);
+		$minutes = floor(($timeDiff % 3600) / 60);
+		$seconds = $timeDiff % 60;
+
+		$result = [];
+
+		if ($hours > 0) {
+			$result[] = "{$hours}h";
+		}
+		if ($minutes > 0) {
+			$result[] = "{$minutes}m";
+		}
+		if ($seconds > 0 || empty($result)) {
+			$result[] = "{$seconds}s";
+		}
+
+		return implode(":", $result);
 	}
 ?>

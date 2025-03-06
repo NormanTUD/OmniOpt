@@ -1,5 +1,5 @@
 <?php
-	include_once("share_functions.php");
+	include_once("../share_functions.php");
 
 	try {
 		$run_nr = validate_param("run_nr", "/^\d+$/", "Invalid run_nr");

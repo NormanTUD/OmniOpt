@@ -243,13 +243,9 @@
 
 			if (url.searchParams.has('run_nr')) {
 				url.searchParams.delete('run_nr');
-			}
-
-			else if (url.searchParams.has('experiment_name')) {
+			} else if (url.searchParams.has('experiment_name')) {
 				url.searchParams.delete('experiment_name');
-			}
-
-			else if (url.searchParams.has('user_id')) {
+			} else if (url.searchParams.has('user_id')) {
 				url.searchParams.delete('user_id');
 			}
 

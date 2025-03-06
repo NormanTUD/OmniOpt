@@ -1,6 +1,8 @@
 <?php
 	include_once("share_functions.php");
 
+        require "_header_base.php";
+
 	$GLOBALS["json_data"] = [];
 
 	$SPECIAL_COL_NAMES = [

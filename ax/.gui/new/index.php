@@ -204,7 +204,7 @@
 	}
 
 	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id, $remove_ansi_colors = false) {
-		if(is_file($filename)) {
+		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);

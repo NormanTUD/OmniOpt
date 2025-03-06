@@ -907,67 +907,66 @@ function plotViolin() {
 }
 
 function plotBubbleChart() {
-    if ($("#plotBubbleChart").data("loaded") == "true") {
-        return;
-    }
-    var numericColumns = tab_results_headers_json.filter(col =>
-        !special_col_names.includes(col) && !result_names.includes(col) &&
-        tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-    );
+	if ($("#plotBubbleChart").data("loaded") == "true") {
+		return;
+	}
+	var numericColumns = tab_results_headers_json.filter(col =>
+		!special_col_names.includes(col) && !result_names.includes(col) &&
+		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+	);
 
-    if (numericColumns.length < 2) {
-        console.error("Not enough columns for Bubble Chart");
-        return;
-    }
+	if (numericColumns.length < 2) {
+		console.error("Not enough columns for Bubble Chart");
+		return;
+	}
 
-    var resultIndex = tab_results_headers_json.findIndex(function(header) {
-        return result_names.includes(header.toLowerCase());
-    });
+	var resultIndex = tab_results_headers_json.findIndex(function(header) {
+		return result_names.includes(header.toLowerCase());
+	});
 
-    var plotDiv = document.getElementById("plotBubbleChart");
-    plotDiv.innerHTML = "";
+	var plotDiv = document.getElementById("plotBubbleChart");
+	plotDiv.innerHTML = "";
 
-    let xCol = numericColumns[0];
-    let yCol = numericColumns[1];
-    let sizeCol = "run_time";  // Beispielgröße für Blasen
+	let xCol = numericColumns[0];
+	let yCol = numericColumns[1];
+	let sizeCol = "run_time";  // Beispielgröße für Blasen
 
-    let xIndex = tab_results_headers_json.indexOf(xCol);
-    let yIndex = tab_results_headers_json.indexOf(yCol);
-    let sizeIndex = tab_results_headers_json.indexOf(sizeCol);
+	let xIndex = tab_results_headers_json.indexOf(xCol);
+	let yIndex = tab_results_headers_json.indexOf(yCol);
+	let sizeIndex = tab_results_headers_json.indexOf(sizeCol);
 
-    let data = tab_results_csv_json.map(row => ({
-        x: parseFloat(row[xIndex]),
-        y: parseFloat(row[yIndex]),
-        size: parseFloat(row[sizeIndex]),
-        result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-    }));
+	let data = tab_results_csv_json.map(row => ({
+		x: parseFloat(row[xIndex]),
+		y: parseFloat(row[yIndex]),
+		size: parseFloat(row[sizeIndex]),
+		result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+	}));
 
-    let trace = {
-        x: data.map(d => d.x),
-        y: data.map(d => d.y),
-        mode: 'markers',
-        marker: {
-            size: data.map(d => d.size),
-            color: data.map(d => d.result),
-            colorscale: 'Viridis',
-            showscale: true
-        },
-        type: 'scatter',
-        showlegend: false
-    };
+	let trace = {
+		x: data.map(d => d.x),
+		y: data.map(d => d.y),
+		mode: 'markers',
+		marker: {
+			size: data.map(d => d.size),
+			color: data.map(d => d.result),
+			colorscale: 'Viridis',
+			showscale: true
+		},
+		type: 'scatter',
+		showlegend: false
+	};
 
-    let layout = {
-        title: `${xCol} vs ${yCol}`,
-        xaxis: { title: xCol },
-        yaxis: { title: yCol },
-        showlegend: false,
-        width: get_graph_width(),
-        height: 800,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)'
-    };
+	let layout = {
+		title: `${xCol} vs ${yCol}`,
+		xaxis: { title: xCol },
+		yaxis: { title: yCol },
+		showlegend: false,
+		width: get_graph_width(),
+		height: 800,
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	};
 
-    Plotly.newPlot(plotDiv, [trace], layout);
-    $("#plotBubbleChart").data("loaded", "true");
+	Plotly.newPlot(plotDiv, [trace], layout);
+	$("#plotBubbleChart").data("loaded", "true");
 }
-

@@ -1674,6 +1674,7 @@ plotHeatmap
 plotHistogram
 Plotly
 plotpy
+plotResultEvolution
 plotViolin
 plusequals
 Pmatches

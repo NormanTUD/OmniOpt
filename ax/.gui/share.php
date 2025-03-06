@@ -10,7 +10,14 @@
 		"arm_name",
 		"trial_status",
 		"generation_method",
-		"generation_node"
+		"generation_node",
+		"hostname",
+		"run_time",
+		"start_time",
+		"exit_code",
+		"signal",
+		"end_time",
+		"program_string",
 	];
 
 	$errors = [];
@@ -224,6 +231,8 @@
 				$tabs = add_violin_plot($tabs);
 				$tabs = add_histogram_plot($tabs);
 			}
+
+			$tabs = add_result_evolution_tab($tabs);
 		}
 
 		if($status_data && isset($status_data["total"]) && $status_data["total"] > 0) {

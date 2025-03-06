@@ -1015,3 +1015,58 @@ function plotExitCodesPieChart() {
 	Plotly.newPlot(plotDiv, [trace], layout);
 	$("#plotExitCodesPieChart").data("loaded", "true");
 }
+
+function plotResultEvolution() {
+	if ($("#plotResultEvolution").data("loaded") == "true") {
+		return;
+	}
+
+	// Gehe durch die result_names
+	result_names.forEach(resultName => {
+		// Filtere die relevanten Spalten (ignoriert special_col_names und alles mit OO_Info)
+		var relevantColumns = tab_job_infos_headers_json.filter(col =>
+			!special_col_names.includes(col) && !col.startsWith("OO_Info") && col.toLowerCase() !== resultName.toLowerCase()
+		);
+
+		// Wichtige Variablen
+		var timeColumnIndex = tab_job_infos_headers_json.indexOf("start_time");
+		var resultIndex = tab_job_infos_headers_json.indexOf(resultName);
+
+		// Extrahiere die Daten für den resultName
+		let xData = tab_job_infos_csv_json.map(row => new Date(row[timeColumnIndex] * 1000)); // Unixzeit in Millisekunden
+		let yData = tab_job_infos_csv_json.map(row => parseFloat(row[resultIndex]));
+
+		// Erstelle die Visualisierung für den resultName
+		let trace = {
+			x: xData,
+			y: yData,
+			mode: 'lines+markers',
+			name: resultName,
+			line: { shape: 'linear' },
+			marker: { size: 8 }
+		};
+
+		let layout = {
+			title: `Entwicklung von ${resultName} über die Zeit`,
+			xaxis: {
+				title: 'Zeit',
+				type: 'date'
+			},
+			yaxis: {
+				title: `Wert von ${resultName}`
+			},
+			showlegend: true,
+			width: get_graph_width(),
+			height: 800,
+			paper_bgcolor: 'rgba(0,0,0,0)',
+			plot_bgcolor: 'rgba(0,0,0,0)'
+		};
+
+		let subDiv = document.createElement("div");
+		document.getElementById("plotResultEvolution").appendChild(subDiv);
+
+		Plotly.newPlot(subDiv, [trace], layout);
+	});
+
+	$("#plotResultEvolution").data("loaded", "true");
+}

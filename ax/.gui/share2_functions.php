@@ -373,6 +373,18 @@
 		return $tabs;
 	}
 
+	function add_result_evolution_tab ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotResultEvolution" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+
+		$tabs['Evolution'] = [
+			'id' => 'tab_hyperparam_evolution',
+			'content' => $html,
+			"onclick" => "plotResultEvolution();"
+		];
+
+		return $tabs;
+	}
+
 	function add_histogram_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotHistogram" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 

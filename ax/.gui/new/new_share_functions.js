@@ -383,7 +383,7 @@ function plotScatter3d() {
 					y: data.map(d => d.y),
 					z: data.map(d => d.z),
 					mode: 'markers',
-					marker: { size: 10, color: colors },
+					marker: { size: 5, color: colors },
 					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 					type: 'scatter3d'
 				};

@@ -84,7 +84,8 @@
 		"everything.zip",
 		"args_overview.txt",
 		"experiment_overview.txt",
-		"eval_nodes_cpu_ram_logs.txt"
+		"eval_nodes_cpu_ram_logs.txt",
+		"verbose_log.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {

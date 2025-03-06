@@ -2664,28 +2664,14 @@ def custom_warning_handler(
 
 @beartype
 def disable_logging() -> None:
-    log_file = f"{get_current_run_folder()}/verbose_log.txt"
-
     if args.verbose:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.FileHandler(log_file, mode='w'),
-                logging.StreamHandler()
-            ]
-        )
-    else:
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.FileHandler(log_file, mode='w')
-            ]
-        )
+        return
 
     logging.basicConfig(level=logging.CRITICAL)
     logging.getLogger().setLevel(logging.CRITICAL)
+    logging.getLogger().disabled = True
+
+    print_debug(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
@@ -2728,6 +2714,8 @@ def disable_logging() -> None:
 
     for module in modules:
         logging.getLogger(module).setLevel(logging.CRITICAL)
+        logging.getLogger(module).disabled = True
+        print_debug(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)

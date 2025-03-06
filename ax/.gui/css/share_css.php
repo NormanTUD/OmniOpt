@@ -121,6 +121,27 @@
 	.share_folder_buttons {
 		width: fit-content;
 	}
+
+	button {
+		background: #fcfcfe;
+		border-color: #919b9c;
+		border-top-color: rgb(145, 155, 156);
+		border-bottom-color: rgb(145, 155, 156);
+		margin-right: -1px;
+		border-bottom: 1px solid transparent;
+		border-top: 1px solid #e68b2c;
+		box-shadow: inset 0 2px #ffc73c;
+	}
+
+	button {
+		padding-bottom: 2px;
+		margin-top: -2px;
+		background-color: #ece9d8;
+		position: relative;
+		z-index: 8;
+		margin-left: -3px;
+		margin-bottom: 1px;
+	}
 </style>
 <?php
 	$theme = "xp.css";

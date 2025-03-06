@@ -830,7 +830,6 @@ function plotHistogram() {
 	var plotDiv = document.getElementById("plotHistogram");
 	plotDiv.innerHTML = "";
 
-	// Defining a color palette for the histogram bars
 	const colorPalette = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6'];
 
 	let traces = numericColumns.map((col, index) => {
@@ -841,7 +840,7 @@ function plotHistogram() {
 			type: 'histogram',
 			name: col,
 			opacity: 0.7,
-			marker: { color: colorPalette[index % colorPalette.length] }, // Using different colors
+			marker: { color: colorPalette[index % colorPalette.length] },
 			autobinx: true
 		};
 	});
@@ -932,7 +931,7 @@ function plotBubbleChart() {
 
 	let xCol = numericColumns[0];
 	let yCol = numericColumns[1];
-	let sizeCol = "run_time";  // Beispielgröße für Blasen
+	let sizeCol = "run_time";
 
 	let xIndex = tab_results_headers_json.indexOf(xCol);
 	let yIndex = tab_results_headers_json.indexOf(yCol);
@@ -1021,22 +1020,17 @@ function plotResultEvolution() {
 		return;
 	}
 
-	// Gehe durch die result_names
 	result_names.forEach(resultName => {
-		// Filtere die relevanten Spalten (ignoriert special_col_names und alles mit OO_Info)
 		var relevantColumns = tab_job_infos_headers_json.filter(col =>
 			!special_col_names.includes(col) && !col.startsWith("OO_Info") && col.toLowerCase() !== resultName.toLowerCase()
 		);
 
-		// Wichtige Variablen
 		var timeColumnIndex = tab_job_infos_headers_json.indexOf("start_time");
 		var resultIndex = tab_job_infos_headers_json.indexOf(resultName);
 
-		// Extrahiere die Daten für den resultName
-		let xData = tab_job_infos_csv_json.map(row => new Date(row[timeColumnIndex] * 1000)); // Unixzeit in Millisekunden
+		let xData = tab_job_infos_csv_json.map(row => new Date(row[timeColumnIndex] * 1000));
 		let yData = tab_job_infos_csv_json.map(row => parseFloat(row[resultIndex]));
 
-		// Erstelle die Visualisierung für den resultName
 		let trace = {
 			x: xData,
 			y: yData,
@@ -1047,13 +1041,13 @@ function plotResultEvolution() {
 		};
 
 		let layout = {
-			title: `Entwicklung von ${resultName} über die Zeit`,
+			title: `Evolution of ${resultName} over time`,
 			xaxis: {
-				title: 'Zeit',
+				title: 'Time',
 				type: 'date'
 			},
 			yaxis: {
-				title: `Wert von ${resultName}`
+				title: `Value of ${resultName}`
 			},
 			showlegend: true,
 			width: get_graph_width(),

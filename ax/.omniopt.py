@@ -456,7 +456,6 @@ class ConfigLoader:
         optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
-        optional.add_argument('--max_gen_draws', help='Maximal number of draws if repeated arms are found', type=int, default=100)
         optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
         optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
         optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
@@ -706,6 +705,7 @@ try:
         import numpy as np
     with console.status("[bold green]Loading ax...") as status:
         import ax
+
         from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core import Metric
         import ax.exceptions.core
@@ -6780,8 +6780,6 @@ def main() -> None:
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
     experiment_parameters, cli_params_experiment_parameters = parse_parameters()
-
-    ax.modelbridge.generation_node.MAX_GEN_DRAWS = args.max_gen_draws
 
     fn = f'{get_current_run_folder()}/job_start_time.txt'
     try:

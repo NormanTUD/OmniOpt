@@ -60,7 +60,7 @@ var hiddenTableData = [
 	{ label: "Verbose", id: "verbose", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
 	{ label: "Generate all jobs at once", id: "generate_all_jobs_at_once", type: "checkbox", value: 1, "help": "This generates all hyperparameter sets for the set of workers at once." },
 	{ label: "Debug", id: "debug", type: "checkbox", value: 0, "help": "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization." },
-	//{ label: "Maximize?", id: "maximize", type: "checkbox", value: 0, "help": "When set, the job will be maximized instead of minimized. This option may not work with all plots currently (TODO).", 'info': 'Currently, this is in alpha and may give wrong results!' },
+	{ label: "Revert to random", id: "--revert_to_random_when_seemingly_exhausted", type: "checkbox", value: 0, "help": "Reverts to random model if the systematic model cannot generate new points." },
 	{ label: "Grid search?", id: "gridsearch", type: "checkbox", value: 0, info: "Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.", "help": "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)" },
 	{ label: "Model", id: "model", type: "select", value: "",
 		options: [

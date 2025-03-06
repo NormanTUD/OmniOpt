@@ -6821,7 +6821,7 @@ def main() -> None:
 
     global_gs = gs
 
-    dier(help(gs))
+    #dier(help(gs))
 
     initialize_ax_client(gs)
 

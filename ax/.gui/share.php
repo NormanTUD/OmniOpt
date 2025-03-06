@@ -322,7 +322,7 @@
 		}
 	</script>
 	<div class="page window" style='font-family: sans-serif'>
-		<div class="title-bar" style="height: fit-content;">
+		<div class="title-bar invert_in_dark_mode" style="height: fit-content;">
 			<div class="title-bar-text">OmniOpt2-Share
 <?php
 			if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {

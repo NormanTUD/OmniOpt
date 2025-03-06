@@ -220,6 +220,8 @@
 
 			$tabs = add_box_plot_tab($tabs);
 			$tabs = add_heatmap_plot_tab($tabs);
+			$tabs = add_histogram_plot($tabs);
+			$tabs = add_violin_plot($tabs);
 		}
 
 		if(count($out_files)) {

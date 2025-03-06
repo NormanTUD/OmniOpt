@@ -1,20 +1,5 @@
 <?php
-	error_reporting(E_ALL);
-	set_error_handler(
-		function ($severity, $message, $file, $line) {
-			throw new \ErrorException($message, $severity, $severity, $file, $line);
-		}
-	);
-
-	ini_set('display_errors', 1);
-
-	function get_get($name, $default = null) {
-		if(isset($_GET[$name])) {
-			return $_GET[$name];
-		}
-
-		return $default;
-	}
+	include_once("new_share_functions.php");
 
 	$sharesPath = "../shares/";
 
@@ -89,40 +74,5 @@
 		$output .= "</tbody></table>";
 
 		return $output;
-	}
-
-	function validate_param($param_name, $pattern, $error_message) {
-		$value = get_get($param_name);
-		if (!preg_match($pattern, $value)) {
-			throw new Exception($error_message);
-		}
-		return $value;
-	}
-
-	function build_run_folder_path($user_id, $experiment_name, $run_nr) {
-		return "$user_id/$experiment_name/$run_nr/";
-	}
-
-	function validate_directory($dir_path) {
-		if (!is_dir($dir_path)) {
-			throw new Exception("$dir_path not found");
-		}
-	}
-
-	function respond_with_json($data) {
-		header('Content-Type: application/json');
-
-		print json_encode(array(
-			"data" => $data,
-			"hash" => hash("md5", json_encode($data))
-		));
-		exit(0);
-	}
-
-	function respond_with_error($error_message) {
-		header('Content-Type: application/json');
-
-		print json_encode(array("error" => $error_message));
-		exit(1);
 	}
 ?>

@@ -93,7 +93,12 @@
 		];
 
 		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
-		return preg_replace_callback($pattern, function($matches) use ($ansi_colors) {
+
+		// Um die aktuelle Farbe zu verfolgen
+		$current_style = '';
+
+		// Rückgabe der verarbeiteten String mit richtigen Tags
+		return preg_replace_callback($pattern, function($matches) use ($ansi_colors, &$current_style) {
 			$codes = explode(';', $matches[1]);
 			$style = '';
 
@@ -104,8 +109,20 @@
 				}
 			}
 
-			return $style ? '<span style="' . $style . '">' : '';
-		}, $string);
+			// Wenn sich die Farbe ändert, schließe das alte Span und öffne das neue
+			$output = '';
+			if ($style !== $current_style) {
+				if ($current_style) {
+					$output .= '</span>'; // Schließe das vorherige Span
+				}
+				if ($style) {
+					$output .= '<span style="' . $style . '">'; // Öffne das neue Span
+				}
+				$current_style = $style; // Update die aktuelle Farbe
+			}
+
+			return $output;
+		}, $string) . ($current_style ? '</span>' : ''); // Falls die letzte Farbe noch offen ist, schließe sie
 	}
 
 	function remove_sixel ($output) {

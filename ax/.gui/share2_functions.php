@@ -531,8 +531,8 @@
 	}
 
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
-		$red_cross = "&#10060;";
-		$green_checkmark = "&#9989;";
+		$red_cross = "<span class='invert_in_dark_mode'>&#10060;</span>";
+		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 

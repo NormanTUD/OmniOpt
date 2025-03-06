@@ -348,6 +348,18 @@
 		return $tabs;
 	}
 
+	function add_box_plot_tab ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotBoxplot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+
+		$tabs['Boxplots'] = [
+			'id' => 'tab_boxplots',
+			'content' => $html,
+			"onclick" => "plotBoxplot();"
+		];
+
+		return $tabs;
+	}
+
 	function add_parallel_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="parallel-plot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 

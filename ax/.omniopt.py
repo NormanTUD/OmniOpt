@@ -6821,6 +6821,8 @@ def main() -> None:
 
     global_gs = gs
 
+    dier(help(gs))
+
     initialize_ax_client(gs)
 
     ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([

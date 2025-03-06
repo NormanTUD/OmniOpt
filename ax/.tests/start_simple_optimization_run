@@ -65,6 +65,7 @@ function help () {
 	echo "  --nr_results=1               Nr of 'RESULT's (default: 1)"
 	echo "  --alternate_min_max          Alternate min/max when nr_results > 1"
 	echo "  --generate_all_jobs_at_once  Generate all jobs at once"
+	echo "  --verbose                    Verbose output"
 	echo "  --show_ram_every_n_seconds=n Show ram usage every n seconds"
 	echo "  --help                       This help"
 	echo "  --debug                      Enable debug mode"
@@ -103,6 +104,7 @@ one_param=0
 alternate_min_max=0
 nr_results=1
 generate_all_jobs_at_once=0
+verbose=0
 show_ram_every_n_seconds=0
 
 function parse_argument() {
@@ -302,6 +304,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--force_local_execution)
 			force_local_execution=1
 			;;
+		--verbose)
+			verbose=1
+			;;
 		--generate_all_jobs_at_once)
 			generate_all_jobs_at_once=1
 			;;
@@ -438,6 +443,11 @@ fi
 if [[ "$generate_all_jobs_at_once" -eq 1 ]]; then
 	omniopt_cmd="$omniopt_cmd --generate_all_jobs_at_once"
 fi
+
+if [[ "$verbose" -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --verbose"
+fi
+
 
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"

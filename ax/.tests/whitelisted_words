@@ -1669,6 +1669,7 @@ pixelDifference
 plotable
 plotBoxplot
 plotCanvas
+plotExitCodesPieChart
 plotHeatmap
 plotHistogram
 Plotly

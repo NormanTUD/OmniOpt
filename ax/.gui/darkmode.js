@@ -29,6 +29,8 @@ function get_cookie(name) {
 function enable_dark_mode() {
 	$("#themeSelect").val("dark");
 
+	$('#main_window pre:not(.invert_in_dark_mode)').addClass('invert_in_dark_mode');
+
 	$("html").css("filter", "invert(1)");
 	$(".invert_in_dark_mode").css("filter", "invert(1)");
 	$("img").css("filter", "invert(1)");

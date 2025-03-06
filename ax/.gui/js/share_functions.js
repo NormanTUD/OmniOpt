@@ -1,5 +1,3 @@
-var log = console.log;
-
 function createTable(data, headers, table_name) {
 	if (!$("#" + table_name).length) {
 		console.error("#" + table_name + " not found");

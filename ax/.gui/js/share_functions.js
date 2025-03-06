@@ -766,3 +766,48 @@ function plotBoxplot() {
 	Plotly.newPlot(plotDiv, traces, layout);
 	$("#plotBoxplot").data("loaded", "true");
 }
+
+function plotHeatmap() {
+	if ($("#plotHeatmap").data("loaded") == "true") {
+		return;
+	}
+	var numericColumns = tab_results_headers_json.filter(col =>
+		!special_col_names.includes(col) && !result_names.includes(col) &&
+		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+	);
+
+	if (numericColumns.length < 2) {
+		console.error("Not enough columns for Heatmap");
+		return;
+	}
+
+	var dataMatrix = numericColumns.map(col => {
+		let index = tab_results_headers_json.indexOf(col);
+		return tab_results_csv_json.map(row => parseFloat(row[index]));
+	});
+
+	var trace = {
+		z: dataMatrix,
+		x: numericColumns,
+		y: numericColumns,
+		colorscale: 'Viridis',
+		type: 'heatmap',
+	};
+
+	var layout = {
+		title: 'Correlation Heatmap',
+		xaxis: { title: 'Columns' },
+		yaxis: { title: 'Columns' },
+		showlegend: false,
+		width: get_graph_width(),
+		height: 800,
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	};
+
+	var plotDiv = document.getElementById("plotHeatmap");
+	plotDiv.innerHTML = "";
+
+	Plotly.newPlot(plotDiv, [trace], layout);
+	$("#plotHeatmap").data("loaded", "true");
+}

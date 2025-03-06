@@ -348,6 +348,18 @@
 		return $tabs;
 	}
 
+	function add_heatmap_plot_tab ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotHeatmap" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+
+		$tabs['Heatmap'] = [
+			'id' => 'tab_heatmap',
+			'content' => $html,
+			"onclick" => "plotHeatmap();"
+		];
+
+		return $tabs;
+	}
+
 	function add_box_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotBoxplot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 

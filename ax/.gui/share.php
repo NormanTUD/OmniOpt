@@ -219,6 +219,7 @@
 			}
 
 			$tabs = add_box_plot_tab($tabs);
+			$tabs = add_heatmap_plot_tab($tabs);
 		}
 
 		if(count($out_files)) {

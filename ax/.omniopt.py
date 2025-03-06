@@ -717,7 +717,6 @@ try:
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
-        from ax.modelbridge.modelbridge_utils import get_pending_observation_features
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
     with console.status("[bold green]Loading submitit...") as status:
@@ -5668,6 +5667,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
             params, trial_index = ax_client.get_next_trial(force=True)
 
             ####################################
+            #from ax.modelbridge.modelbridge_utils import get_pending_observation_features
             #generator_run = global_gs.gen(
             #    experiment=ax_client.experiment,
             #    n=1,

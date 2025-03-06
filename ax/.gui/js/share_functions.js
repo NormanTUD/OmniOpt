@@ -1,3 +1,8 @@
+function get_graph_width() {
+	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	return Math.floor(width * 0.9);
+}
+
 function createTable(data, headers, table_name) {
 	if (!$("#" + table_name).length) {
 		console.error("#" + table_name + " not found");
@@ -115,7 +120,14 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		}
 	});
 
-	Plotly.newPlot('parallel-plot', [trace], {paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+	let layout = {
+		width: get_graph_width(),
+		height: 800,
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
+	}
+
+	Plotly.newPlot('parallel-plot', [trace], layout);
 
 	$("#parallel-plot").data("loaded", "true");
 }
@@ -310,7 +322,7 @@ function plotScatter2d() {
 				xaxis: { title: xCol },
 				yaxis: { title: yCol },
 				showlegend: false,
-				width: 1600,
+				width: get_graph_width(),
 				height: 800,
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)'
@@ -418,7 +430,7 @@ function plotScatter3d() {
 						zaxis: { title: zCol }
 					},
 					showlegend: false,
-					width: 1600,
+					width: get_graph_width(),
 					height: 800,
 					paper_bgcolor: 'rgba(0,0,0,0)',
 					plot_bgcolor: 'rgba(0,0,0,0)'

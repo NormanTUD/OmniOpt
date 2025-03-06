@@ -2666,24 +2666,27 @@ def custom_warning_handler(
 def disable_logging() -> None:
     log_file = Path(get_current_run_folder()) / "verbose_log.txt"
 
-    # Logging-Handler für die Datei
+    # FileHandler für Logfile
     file_handler = logging.FileHandler(log_file, mode="w")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
 
     root_logger = logging.getLogger()
+    root_logger.handlers = []  # Entfernt evtl. bestehende Handler
     root_logger.addHandler(file_handler)
 
-    if not args.verbose:
-        # Alles auf CRITICAL setzen und Ausgabe unterdrücken
-        root_logger.setLevel(logging.CRITICAL)
-        root_logger.disabled = True
-    else:
-        # Bei verbose alles anzeigen
+    if args.verbose:
+        # Zusätzlich zum Logfile auch wieder die Konsole aktivieren
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
+        root_logger.addHandler(console_handler)
         root_logger.setLevel(logging.DEBUG)
-        root_logger.disabled = False
+    else:
+        # Keine Konsolenausgabe, nur ins Logfile
+        root_logger.setLevel(logging.DEBUG)
 
-    print_debug(f"logging.getLogger().disabled set to {root_logger.disabled}")
+    print_debug(f"Root logger setup complete. Verbose: {args.verbose}")
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
@@ -2719,14 +2722,13 @@ def disable_logging() -> None:
 
     for module in modules:
         mod_logger = logging.getLogger(module)
+        mod_logger.handlers = []  # Eventuell bestehende Handler entfernen
         mod_logger.addHandler(file_handler)
-        if not args.verbose:
-            mod_logger.setLevel(logging.CRITICAL)
-            mod_logger.disabled = True
-        else:
+        if args.verbose:
             mod_logger.setLevel(logging.DEBUG)
-            mod_logger.disabled = False
-        print_debug(f"logging.getLogger('{module}').disabled set to {mod_logger.disabled}")
+        else:
+            mod_logger.setLevel(logging.DEBUG)  # Weiterhin alles loggen, aber nicht anzeigen
+        print_debug(f"Configured logger for '{module}' with verbose={args.verbose}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)

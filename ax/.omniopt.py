@@ -5689,7 +5689,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         my_exit(242)
     except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e:
         if str(e) not in error_8_saved:
-            print_red("\n⚠Error 8: " + str(e))
+            if recursion is False and args.revert_to_random_when_seemingly_exhausted:
+                print_yellow("\n⚠Error 8: " + str(e) + ", from now on, random points will be generated.")
+            else:
+                print_red("\n⚠Error 8: " + str(e))
 
             error_8_saved.append(str(e))
 

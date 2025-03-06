@@ -219,6 +219,7 @@ botorchmodelsutilsassorted
 botorchoptimfit
 botorchoptimoptimize
 boxplot
+Boxplots
 br
 Brandschutz
 brightblack
@@ -909,6 +910,7 @@ havent
 headerdatadebug
 headerId
 headerscsv
+Heatmap
 heightStyle
 helperIsFunction
 helperspy
@@ -1202,6 +1204,7 @@ mae
 mainContent
 mainsite
 mainsiteshow
+mainWorkerCPURAM
 makedirs
 mape
 mapfile
@@ -1664,9 +1667,13 @@ PIL
 pipefail
 pixelDifference
 plotable
+plotBoxplot
 plotCanvas
+plotHeatmap
+plotHistogram
 Plotly
 plotpy
+plotViolin
 plusequals
 Pmatches
 pMaxHeight
@@ -2486,6 +2493,7 @@ wordArray
 WordArray
 workaround
 workdir
+workerUsagePlot
 wouldn
 wrn
 wrndocumentready
@@ -2542,5 +2550,3 @@ zoomend
 zoomstart
 zsh
 ZSH
-mainWorkerCPURAM
-workerUsagePlot

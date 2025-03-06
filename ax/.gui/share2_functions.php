@@ -349,7 +349,7 @@
 	}
 
 	function add_exit_codes_pie_plot($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotExitCodesPieChart" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotExitCodesPieChart"></div>';
 
 		$tabs['Exit-Codes'] = [
 			'id' => 'tab_exit_codes_plot',
@@ -362,7 +362,7 @@
 
 
 	function add_violin_plot ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotViolin" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotViolin"></div>';
 
 		$tabs['Violin'] = [
 			'id' => 'tab_violin',
@@ -374,7 +374,7 @@
 	}
 
 	function add_result_evolution_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotResultEvolution" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
 
 		$tabs['Evolution'] = [
 			'id' => 'tab_hyperparam_evolution',
@@ -386,7 +386,7 @@
 	}
 
 	function add_histogram_plot ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotHistogram" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotHistogram"></div>';
 
 		$tabs['Histogram'] = [
 			'id' => 'tab_histogram',
@@ -398,7 +398,7 @@
 	}
 
 	function add_heatmap_plot_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotHeatmap" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotHeatmap"></div>';
 
 		$tabs['Heatmap'] = [
 			'id' => 'tab_heatmap',
@@ -410,7 +410,7 @@
 	}
 
 	function add_box_plot_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotBoxplot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="plotBoxplot"></div>';
 
 		$tabs['Boxplots'] = [
 			'id' => 'tab_boxplots',
@@ -422,7 +422,7 @@
 	}
 
 	function add_parallel_plot_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="parallel-plot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
 
 		$tabs['Parallel Plot'] = [
 			'id' => 'tab_parallel',

@@ -58,7 +58,7 @@
 		<?php js("initialization.js"); ?>
 
 <?php
-		if (isset($_SERVER["REQUEST_URI"]) && strpos($_SERVER['REQUEST_URI'], 'share') !== false) {
+		if (isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER['SCRIPT_FILENAME'], 'share.php') !== false) {
 			include("css/share_css.php");
 ?>
 			<meta name="robots" content="noindex, nofollow">

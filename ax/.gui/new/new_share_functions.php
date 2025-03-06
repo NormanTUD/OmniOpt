@@ -8,6 +8,8 @@
 
 	ini_set('display_errors', 1);
 
+	$GLOBALS["sharesPath"] = "../shares/";
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			$print = "";

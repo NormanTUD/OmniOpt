@@ -11,11 +11,9 @@
 		"generation_node"
 	];
 
-	$share_folder = "../shares";
-
 	$errors = [];
-	if(!is_dir($share_folder)) {
-		$errors[] = "Folder <tt>$share_folder</tt> not found.";
+	if(!is_dir($GLOBALS["sharesPath"])) {
+		$errors[] = "Folder <tt>$".$GLOBALS["sharesPath"]."</tt> not found.";
 	}
 
 	$user_id = get_get("user_id");
@@ -41,7 +39,7 @@
 	}
 
 	if($user_id) {
-		$run_dir = "$share_folder/$user_id";
+		$run_dir = $GLOBALS["sharesPath"]."/$user_id";
 
 		if(!is_dir($run_dir)) {
 			$errors[] = "<tt>".htmlentities($run_dir)."</tt> cannot be found!";
@@ -52,7 +50,7 @@
 		$run_nr = null;
 	} else {
 		if(!count($errors)) {
-			$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
+			$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 			if(!is_dir($run_dir)) {
 				$errors[] = "<tt>".htmlentities($run_dir)."</tt> cannot be found!";
@@ -60,7 +58,7 @@
 		}
 	}
 
-	$run_dir = "$share_folder/$user_id/$experiment_name/$run_nr";
+	$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
 		$result_names_file = "$run_dir/result_names.txt";
@@ -429,11 +427,11 @@
 <?php
 					} else {
 						if(!$user_id && !$experiment_name && !$run_nr) {
-							generateFolderButtons($share_folder, "user_id");
+							generateFolderButtons($GLOBALS["sharesPath"], "user_id");
 						} else if($user_id && !$experiment_name && !$run_nr) {
-							generateFolderButtons("$share_folder/$user_id", "experiment_name");
+							generateFolderButtons($GLOBALS["sharesPath"]."/$user_id", "experiment_name");
 						} else if($user_id && $experiment_name && !$run_nr) {
-							generateFolderButtons("$share_folder/$user_id/$experiment_name", "run_nr");
+							generateFolderButtons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
 						} else {
 							print "DONT KNOW!!! >>$run_nr<<";
 						}

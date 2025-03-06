@@ -1,5 +1,5 @@
 <?php
-	include_once("new_share_functions.php");
+	include_once("share_functions.php");
 
 	$GLOBALS["json_data"] = [];
 

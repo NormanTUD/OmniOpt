@@ -196,15 +196,15 @@
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = '<div id="cpuRamWorkerChartContainer"></div><br>';
+			$html = "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
+			$html .= '<div id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
 			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
 
 			$tabs[$name] = [
 				'id' => $id,
-				'content' => $html,
-				"onclick" => "ask_plot_worker_cpu_ram();"
+				'content' => $html
 			];
 		}
 

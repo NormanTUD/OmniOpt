@@ -114,6 +114,15 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		line: colorValues ? { color: colorValues, colorscale: colorScale } : {}
 	};
 
+	dimensions.forEach(dim => {
+		if (!dim.line) {
+			dim.line = {};
+		}
+		if (!dim.line.color) {
+			dim.line.color = 'rgba(169,169,169, 0.01)';
+		}
+	});
+
 	Plotly.newPlot('parallel-plot', [trace]);
 	$("#parallel-plot").data("loaded", "true");
 }

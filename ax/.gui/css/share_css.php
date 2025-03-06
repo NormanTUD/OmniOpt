@@ -117,6 +117,10 @@
 		color: black;
 		font-family: -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif
 	}
+
+	.share_folder_buttons {
+		width: fit-content;
+	}
 </style>
 <?php
 	$theme = "xp.css";

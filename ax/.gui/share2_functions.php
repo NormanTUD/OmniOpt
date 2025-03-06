@@ -485,7 +485,7 @@
 			foreach ($folders as $folder) {
 				$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
 
-				echo '<a href="' . htmlspecialchars($url) . '" style="margin: 10px;">';
+				echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
 				echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
 				echo '</a><br><br>';
 			}

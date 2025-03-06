@@ -813,50 +813,53 @@ function plotHeatmap() {
 }
 
 function plotHistogram() {
-	if ($("#plotHistogram").data("loaded") == "true") {
-		return;
-	}
-	var numericColumns = tab_results_headers_json.filter(col =>
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
+    if ($("#plotHistogram").data("loaded") == "true") {
+        return;
+    }
 
-	if (numericColumns.length < 1) {
-		console.error("Not enough columns for Histogram");
-		return;
-	}
+    var numericColumns = tab_results_headers_json.filter(col =>
+        !special_col_names.includes(col) && !result_names.includes(col) &&
+        tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+    );
 
-	var plotDiv = document.getElementById("plotHistogram");
-	plotDiv.innerHTML = "";
+    if (numericColumns.length < 1) {
+        console.error("Not enough columns for Histogram");
+        return;
+    }
 
-	let traces = numericColumns.map(col => {
-		let index = tab_results_headers_json.indexOf(col);
-		let data = tab_results_csv_json.map(row => parseFloat(row[index]));
+    var plotDiv = document.getElementById("plotHistogram");
+    plotDiv.innerHTML = "";
 
-		return {
-			x: data,
-			type: 'histogram',
-			name: col,
-			opacity: 0.7,
-			marker: { color: 'rgb(0, 255, 0)' },
-			autobinx: true
-		};
-	});
+    // Defining a color palette for the histogram bars
+    const colorPalette = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6'];
 
-	let layout = {
-		title: 'Histogram of Numerical Columns',
-		xaxis: { title: 'Value' },
-		yaxis: { title: 'Frequency' },
-		showlegend: true,
-		barmode: 'overlay',
-		width: get_graph_width(),
-		height: 800,
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
-	};
+    let traces = numericColumns.map((col, index) => {
+        let data = tab_results_csv_json.map(row => parseFloat(row[tab_results_headers_json.indexOf(col)]));
 
-	Plotly.newPlot(plotDiv, traces, layout);
-	$("#plotHistogram").data("loaded", "true");
+        return {
+            x: data,
+            type: 'histogram',
+            name: col,
+            opacity: 0.7,
+            marker: { color: colorPalette[index % colorPalette.length] }, // Using different colors
+            autobinx: true
+        };
+    });
+
+    let layout = {
+        title: 'Histogram of Numerical Columns',
+        xaxis: { title: 'Value' },
+        yaxis: { title: 'Frequency' },
+        showlegend: true,
+        barmode: 'overlay',
+        width: get_graph_width(),
+        height: 800,
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)'
+    };
+
+    Plotly.newPlot(plotDiv, traces, layout);
+    $("#plotHistogram").data("loaded", "true");
 }
 
 function plotViolin() {

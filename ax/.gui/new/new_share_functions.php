@@ -213,7 +213,8 @@
 
 	function add_debug_log_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$output = "<div id='here_debuglogs_go'></div>";
+			$output = "<div id='debug_log_spinner' class='spinner'></div>";
+			$output .= "<div id='here_debuglogs_go'></div>";
 
 			$tabs[$name] = [
 				'id' => $id,

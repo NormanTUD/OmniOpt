@@ -673,6 +673,8 @@ function load_debug_log () {
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
+				$("#debug_log_spinner").remove();
+
 				if (data.data) {
 					$("#" + pre_id).html(data.data);
 					$("#" + pre_id).data("loaded", true);
@@ -682,6 +684,7 @@ function load_debug_log () {
 			})
 			.catch(error => {
 				log(`Error loading log: ${error}`);
+				$("#debug_log_spinner").remove();
 			});
 	}
 }

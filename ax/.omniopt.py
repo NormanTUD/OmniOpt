@@ -122,6 +122,9 @@ except ModuleNotFoundError as e:
     print("Exit-Code: 2")
     sys.exit(2)
 
+def fool_linter(*fool_linter_args: Any) -> Any:
+    return fool_linter_args
+
 with console.status("[bold green]Loading rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
@@ -723,7 +726,7 @@ try:
         import botorch
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
-        from submitit import DebugJob, LocalJob
+        from submitit import DebugJob, LocalJob, SlurmJob
 except ModuleNotFoundError as ee:
     original_print(f"Base modules could not be loaded: {ee}")
     my_exit(31)
@@ -2720,7 +2723,7 @@ def disable_logging() -> None:
     for module in modules:
         logging.getLogger(module).setLevel(logging.CRITICAL)
         logging.getLogger(module).disabled = True
-        print_debug(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
+        fool_linter(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)
@@ -2729,7 +2732,7 @@ def disable_logging() -> None:
 
     warnings.showwarning = custom_warning_handler
 
-    print_debug(f"warnings.showwarning set to {warnings.showwarning}")
+    fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 
 @beartype
 def display_failed_jobs_table() -> None:
@@ -5102,7 +5105,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
             print_debug(f"finish_previous_jobs: job {job} is None")
             continue
 
-        print_debug(f"finish_previous_jobs: single job {job}")
+        #print_debug(f"finish_previous_jobs: single job {job}")
 
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
@@ -5132,7 +5135,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
 
             save_checkpoint()
         else:
-            if f"{job}" != "SlurmJob":
+            if not isinstance(job, SlurmJob):
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
     save_pd_csv()

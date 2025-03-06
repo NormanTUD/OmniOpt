@@ -207,7 +207,7 @@
 	}
 
 	function copy_id_to_clipboard_string($id) {
-		return "<br><button onclick='copy_to_clipboard_from_id(\"".$id."\")'>Copy raw data to clipboard</button><br><br>\n";
+		return "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'>Copy raw data to clipboard</button>\n";
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {

@@ -340,6 +340,11 @@
 				<td><samp>False</samp></td>
 			</tr>
 			<tr>
+				<td><samp>--verbose_break_run_search_table</samp></td>
+				<td>Verbose logging for break_run_search.</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--debug</samp></td>
 				<td>Enable debugging.</td>
 				<td><samp>False</samp></td>

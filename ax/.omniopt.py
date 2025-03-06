@@ -506,6 +506,7 @@ class ConfigLoader:
         installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
         debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+        debug.add_argument('--verbose_break_run_search_table', help='Verbose logging for break_run_search', action='store_true', default=False)
         debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
         debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
         debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
@@ -5608,7 +5609,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
             print_debug(f"breaking {_name}: {debug_msg}")
             _ret = True
 
-    if args.verbose:
+    if args.verbose_break_run_search_table:
         show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
 
     return _ret

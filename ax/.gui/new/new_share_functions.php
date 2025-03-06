@@ -309,7 +309,7 @@
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
 			} else {
-				$contents = ansi_to_html(htmlspecialchars($contents));
+				$contents = removeAnsiEscapeSequences(ansi_to_html(htmlspecialchars($contents)));
 			}
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
@@ -573,5 +573,11 @@
 			return false;
 		}
 		return preg_match('/^\d+$/', $value);
+	}
+
+	function removeAnsiEscapeSequences($string) {
+		$string = preg_replace('/.\[?(1A|2(5[hl]|K))/', '', $string);
+		$string = preg_replace('/\[/', '', $string);
+		return $string;
 	}
 ?>

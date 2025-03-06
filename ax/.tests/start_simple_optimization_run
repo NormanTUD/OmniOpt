@@ -63,6 +63,7 @@ function help () {
 	echo "  --one_param                  One parameter"
 	echo "  --two_params                 Two parameters"
 	echo "  --nr_results=1               Nr of 'RESULT's (default: 1)"
+	echo "  --seed=1                     Seed"
 	echo "  --alternate_min_max          Alternate min/max when nr_results > 1"
 	echo "  --generate_all_jobs_at_once  Generate all jobs at once"
 	echo "  --verbose                    Verbose output"
@@ -103,6 +104,7 @@ all_float=0
 one_param=0
 alternate_min_max=0
 nr_results=1
+seed=""
 generate_all_jobs_at_once=0
 verbose=0
 show_ram_every_n_seconds=0
@@ -346,6 +348,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--num_parallel_jobs=*|--num_parallel_jobs)
 			parse_argument "$i" "num_parallel_jobs" 1
 			;;
+		--seed=*|--seed)
+			parse_argument "$i" "seed" 1
+			;;
 		--nr_results=*|--nr_results)
 			parse_argument "$i" "nr_results" 1
 			;;
@@ -448,6 +453,9 @@ if [[ "$verbose" -eq 1 ]]; then
 	omniopt_cmd="$omniopt_cmd --verbose"
 fi
 
+if [[ "$seed" != "" ]]; then
+	omniopt_cmd="$omniopt_cmd --seed $seed"
+fi
 
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"

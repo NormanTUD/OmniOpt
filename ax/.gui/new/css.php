@@ -115,7 +115,7 @@
 	$theme = "xp.css";
 
 
-	if($_GET["theme"] == "none") {
+	if(isset($_GET["theme"]) && $_GET["theme"] == "none") {
 		$theme = "none";
 	}
 

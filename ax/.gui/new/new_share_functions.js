@@ -185,12 +185,10 @@ function plotCPUAndRAMUsage() {
 	if($("#mainWorkerCPURAM").data("loaded") == "true") {
 		return;
 	}
-	// Convert timestamps to human-readable format (optional)
-	var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000)); // Convert from Unix timestamp to Date object
+	var timestamps = tab_main_worker_cpu_ram_csv_json.map(row => new Date(row[0] * 1000));
 	var ramUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[1]);
 	var cpuUsage = tab_main_worker_cpu_ram_csv_json.map(row => row[2]);
 
-	// Create traces for the plot
 	var trace1 = {
 		x: timestamps,
 		y: ramUsage,
@@ -207,14 +205,13 @@ function plotCPUAndRAMUsage() {
 		type: 'scatter'
 	};
 
-	// Layout for the plot
 	var layout = {
 		title: 'CPU and RAM Usage Over Time',
 		xaxis: {
 			title: 'Timestamp',
 			tickmode: 'array',
-			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0), // Reduce number of ticks
-			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()), // Convert timestamps to readable format
+			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
+			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
 			tickangle: -45
 		},
 		yaxis: {
@@ -227,7 +224,6 @@ function plotCPUAndRAMUsage() {
 		}
 	};
 
-	// Plot the data using Plotly
 	var data = [trace1, trace2];
 	Plotly.newPlot('mainWorkerCPURAM', data, layout);
 	$("#mainWorkerCPURAM").data("loaded", "true");
@@ -247,7 +243,6 @@ function plotScatter2d() {
 		return;
 	}
 
-	// Extrahiere RESULT-Spalte für die Farbgebung
 	var resultIndex = tab_results_headers_json.findIndex(function(header) {
 		return header.toLowerCase() === result_names[0].toLowerCase();
 	});
@@ -255,7 +250,6 @@ function plotScatter2d() {
 	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-	// Erstelle Scatter-Plots für jede einzigartige Spaltenkombination
 	var plotDiv = document.getElementById("plotScatter2d");
 	plotDiv.innerHTML = "";
 
@@ -273,10 +267,9 @@ function plotScatter2d() {
 				result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 			}));
 
-			// Erstelle die Farben für den Scatter-Plot, wobei null-Werte schwarz sind
 			let colors = data.map(d => {
 				if (d.result === null) {
-					return 'rgb(0, 0, 0)'; // Schwarz für null-Werte
+					return 'rgb(0, 0, 0)';
 				} else {
 					return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
 			 ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
@@ -303,14 +296,16 @@ function plotScatter2d() {
 				},
 				text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 				type: 'scatter',
-				showlegend: false  // Entferne die Legende für dieses Trace
+				showlegend: false
 			};
 
 			let layout = {
 				title: `${xCol} vs ${yCol}`,
 				xaxis: { title: xCol },
 				yaxis: { title: yCol },
-				showlegend: false // Entferne die Legende aus dem gesamten Layout
+				showlegend: false,
+				width: 1600,
+				height: 800
 			};
 
 			let subDiv = document.createElement("div");
@@ -323,111 +318,111 @@ function plotScatter2d() {
 }
 
 function plotScatter3d() {
-    if($("#plotScatter3d").data("loaded") == "true") {
-        return;
-    }
-    var numericColumns = [];
-    var categoricalColumns = {};
+	if($("#plotScatter3d").data("loaded") == "true") {
+		return;
+	}
+	var numericColumns = [];
+	var categoricalColumns = {};
 
-    // Kategorische und numerische Spalten trennen
-    tab_results_headers_json.forEach(col => {
-        if (!special_col_names.includes(col) && !result_names.includes(col)) {
-            let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
-            let isNumeric = values.every(v => !isNaN(parseFloat(v)));
+	tab_results_headers_json.forEach(col => {
+		if (!special_col_names.includes(col) && !result_names.includes(col)) {
+			let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
+			let isNumeric = values.every(v => !isNaN(parseFloat(v)));
 
-            if (isNumeric) {
-                numericColumns.push(col);
-            } else {
-                categoricalColumns[col] = [...new Set(values)]; // Einzigartige Werte speichern
-            }
-        }
-    });
+			if (isNumeric) {
+				numericColumns.push(col);
+			} else {
+				categoricalColumns[col] = [...new Set(values)];
+			}
+		}
+	});
 
-    let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
+	let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
 
-    if (allColumns.length < 3) {
-        console.error("Not enough columns for 3D scatter plots");
-        return;
-    }
+	if (allColumns.length < 3) {
+		console.error("Not enough columns for 3D scatter plots");
+		return;
+	}
 
-    var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[0].toLowerCase());
-    var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-    var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-    var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+	var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[0].toLowerCase());
+	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-    var plotDiv = document.getElementById("plotScatter3d");
-    if (!plotDiv) {
-        console.error("Div element with id 'plotScatter3d' not found");
-        return;
-    }
-    plotDiv.innerHTML = "";
+	var plotDiv = document.getElementById("plotScatter3d");
+	if (!plotDiv) {
+		console.error("Div element with id 'plotScatter3d' not found");
+		return;
+	}
+	plotDiv.innerHTML = "";
 
-    for (let i = 0; i < allColumns.length; i++) {
-        for (let j = i + 1; j < allColumns.length; j++) {
-            for (let k = j + 1; k < allColumns.length; k++) {
-                let xCol = allColumns[i];
-                let yCol = allColumns[j];
-                let zCol = allColumns[k];
+	for (let i = 0; i < allColumns.length; i++) {
+		for (let j = i + 1; j < allColumns.length; j++) {
+			for (let k = j + 1; k < allColumns.length; k++) {
+				let xCol = allColumns[i];
+				let yCol = allColumns[j];
+				let zCol = allColumns[k];
 
-                let xIndex = tab_results_headers_json.indexOf(xCol);
-                let yIndex = tab_results_headers_json.indexOf(yCol);
-                let zIndex = tab_results_headers_json.indexOf(zCol);
+				let xIndex = tab_results_headers_json.indexOf(xCol);
+				let yIndex = tab_results_headers_json.indexOf(yCol);
+				let zIndex = tab_results_headers_json.indexOf(zCol);
 
-                let data = tab_results_csv_json.map(row => ({
-                    x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
-                    y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
-                    z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
-                    result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-                }));
+				let data = tab_results_csv_json.map(row => ({
+					x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
+					y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
+					z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
+					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+				}));
 
-                // Berechne Farben für den Farbverlauf
-                let colors = data.map(d => d.result === null ? 'rgb(0, 0, 0)' :
-                    `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-                    ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-                    0)`);
+				let colors = data.map(d => d.result === null ? 'rgb(0, 0, 0)' :
+					`rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+					    ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+					    0)`);
 
-                let trace = {
-                    x: data.map(d => d.x),
-                    y: data.map(d => d.y),
-                    z: data.map(d => d.z),
-                    mode: 'markers',
-                    marker: {
-                        size: 5,
-                        color: data.map(d => d.result),
-                        colorscale: [
-                            [0, 'green'],
-                            [1, 'red']
-                        ],
-                        colorbar: {
-                            title: 'Result',
-                            tickvals: [minResult, maxResult],
-                            ticktext: [`${minResult}`, `${maxResult}`]
-                        }
-                    },
-                    text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-                    type: 'scatter3d',
-                    showlegend: false  // Entferne die Legende für dieses Trace
-                };
+				let trace = {
+					x: data.map(d => d.x),
+					y: data.map(d => d.y),
+					z: data.map(d => d.z),
+					mode: 'markers',
+					marker: {
+						size: 5,
+						color: data.map(d => d.result),
+						colorscale: [
+							[0, 'green'],
+							[1, 'red']
+						],
+						colorbar: {
+							title: 'Result',
+							tickvals: [minResult, maxResult],
+							ticktext: [`${minResult}`, `${maxResult}`]
+						}
+					},
+					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+					type: 'scatter3d',
+					showlegend: false
+				};
 
-                let layout = {
-                    title: `${xCol} vs ${yCol} vs ${zCol}`,
-                    scene: {
-                        xaxis: { title: xCol },
-                        yaxis: { title: yCol },
-                        zaxis: { title: zCol }
-                    },
-                    showlegend: false // Entferne die Legende aus dem gesamten Layout
-                };
+				let layout = {
+					title: `${xCol} vs ${yCol} vs ${zCol}`,
+					scene: {
+						xaxis: { title: xCol },
+						yaxis: { title: yCol },
+						zaxis: { title: zCol }
+					},
+					showlegend: false,
+					width: 1600,
+					height: 800
+				};
 
-                let subDiv = document.createElement("div");
-                subDiv.style.marginBottom = "20px";
-                plotDiv.appendChild(subDiv);
+				let subDiv = document.createElement("div");
+				subDiv.style.marginBottom = "20px";
+				plotDiv.appendChild(subDiv);
 
-                Plotly.newPlot(subDiv, [trace], layout);
-            }
-        }
-    }
-    $("#plotScatter3d").data("loaded", "true");
+				Plotly.newPlot(subDiv, [trace], layout);
+			}
+		}
+	}
+	$("#plotScatter3d").data("loaded", "true");
 }
 
 async function load_pareto_graph() {

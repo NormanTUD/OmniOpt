@@ -180,7 +180,7 @@
 
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
 		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
-		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials");
+		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]);
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/oo_errors.txt", "Errors", "tab_errors", true);
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");

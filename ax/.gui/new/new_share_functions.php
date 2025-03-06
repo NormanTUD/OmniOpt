@@ -343,9 +343,9 @@
 		return $tabs;
 	}
 
-	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id) {
-		if(is_file($filename)) {
-			$csv_contents = getCsvDataAsArray($filename);   
+	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id, $header_line = null) {
+		if(is_file($filename) && filesize($filename)) {
+			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);   
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);
@@ -356,9 +356,15 @@
 			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
 
+			$content = htmlentities(file_get_contents($filename));
+
+			if($content && $header_line) {
+				$content = implode(",", $header_line)."\n$content";
+			}
+
 			$results_html = "<div id='${id}_csv_table'></div>\n";
 			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
-			$results_html .= "<pre id='${id}_csv_table_pre'>".htmlentities(file_get_contents($filename))."</pre>\n";
+			$results_html .= "<pre id='${id}_csv_table_pre'>".$content."</pre>\n";
 			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
 			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
 
@@ -395,13 +401,17 @@
 		return $log_files;
 	}
 
-	function getCsvDataAsArray($filePath, $delimiter = ",") {
+	function getCsvDataAsArray($filePath, $delimiter = ",", $header_line = null) {
 		if (!file_exists($filePath) || !is_readable($filePath)) {
 			error_log("CSV file not found or not readable: " . $filePath);
 			return [];
 		}
 
 		$data = [];
+
+		if($header_line != null) {
+			$data[] = $header_line;
+		}
 
 		if (($handle = fopen($filePath, "r")) !== false) {
 			while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {

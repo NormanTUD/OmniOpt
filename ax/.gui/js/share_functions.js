@@ -115,7 +115,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		}
 	});
 
-	Plotly.newPlot('parallel-plot', [trace]);
+	Plotly.newPlot('parallel-plot', [trace], {paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
+
 	$("#parallel-plot").data("loaded", "true");
 }
 

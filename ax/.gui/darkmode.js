@@ -46,6 +46,7 @@ function enable_dark_mode() {
 	$("body").css("color", "#6F116F");
 	$("body").css("background-color", "white");
 	$(".header_table").css("color", "green");
+	$(".window").css("background", "unset");
 }
 
 function enable_light_mode() {
@@ -68,6 +69,7 @@ function enable_light_mode() {
 	$("body").css("color", "unset");
 	$("body").css("background-color", "unset");
 	$(".header_table").css("color", "unset");
+	$(".window").css("background", "#ece9d8");
 }
 
 function apply_theme_based_on_system_preferences() {

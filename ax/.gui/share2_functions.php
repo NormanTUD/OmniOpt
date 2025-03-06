@@ -348,6 +348,19 @@
 		return $tabs;
 	}
 
+	function add_exit_codes_pie_plot($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotExitCodesPieChart" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+
+		$tabs['Exit-Codes'] = [
+			'id' => 'tab_exit_codes_plot',
+			'content' => $html,
+			"onclick" => "plotExitCodesPieChart();"
+		];
+
+		return $tabs;
+	}
+
+
 	function add_violin_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotViolin" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 

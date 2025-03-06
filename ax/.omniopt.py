@@ -2664,27 +2664,36 @@ def custom_warning_handler(
 
 @beartype
 def disable_logging() -> None:
-    if args.verbose:
-        return
+    log_file = Path(get_current_run_folder()) / "verbose_log.txt"
 
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.getLogger().setLevel(logging.CRITICAL)
-    logging.getLogger().disabled = True
+    # Logging-Handler für die Datei
+    file_handler = logging.FileHandler(log_file, mode="w")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
 
-    print_debug(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+
+    if not args.verbose:
+        # Alles auf CRITICAL setzen und Ausgabe unterdrücken
+        root_logger.setLevel(logging.CRITICAL)
+        root_logger.disabled = True
+    else:
+        # Bei verbose alles anzeigen
+        root_logger.setLevel(logging.DEBUG)
+        root_logger.disabled = False
+
+    print_debug(f"logging.getLogger().disabled set to {root_logger.disabled}")
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
     modules = [
         "ax",
-
         "ax.core.data",
         "ax.core.parameter",
         "ax.core.experiment",
-
         "ax.models.torch.botorch_modular.acquisition",
-
-        "ax.modelbridge"
+        "ax.modelbridge",
         "ax.modelbridge.base",
         "ax.modelbridge.standardize_y",
         "ax.modelbridge.transforms",
@@ -2695,27 +2704,29 @@ def disable_logging() -> None:
         "ax.modelbridge.torch",
         "ax.modelbridge.generation_node",
         "ax.modelbridge.best_model_selector",
-
         "ax.service",
         "ax.service.utils",
         "ax.service.utils.instantiation",
         "ax.service.utils.report_utils",
         "ax.service.utils.best_point",
-
         "botorch.optim.fit",
         "botorch.models.utils.assorted",
         "botorch.optim.optimize",
-
         "linear_operator.utils.cholesky",
-
         "torch.autograd",
         "torch.autograd.__init__",
     ]
 
     for module in modules:
-        logging.getLogger(module).setLevel(logging.CRITICAL)
-        logging.getLogger(module).disabled = True
-        print_debug(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
+        mod_logger = logging.getLogger(module)
+        mod_logger.addHandler(file_handler)
+        if not args.verbose:
+            mod_logger.setLevel(logging.CRITICAL)
+            mod_logger.disabled = True
+        else:
+            mod_logger.setLevel(logging.DEBUG)
+            mod_logger.disabled = False
+        print_debug(f"logging.getLogger('{module}').disabled set to {mod_logger.disabled}")
 
     for cat in categories:
         warnings.filterwarnings("ignore", category=cat)
@@ -2723,7 +2734,6 @@ def disable_logging() -> None:
             warnings.filterwarnings("ignore", category=cat, module=module)
 
     warnings.showwarning = custom_warning_handler
-
     print_debug(f"warnings.showwarning set to {warnings.showwarning}")
 
 @beartype

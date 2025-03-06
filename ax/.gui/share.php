@@ -218,10 +218,12 @@
 				}
 			}
 
-			$tabs = add_box_plot_tab($tabs);
-			$tabs = add_heatmap_plot_tab($tabs);
-			$tabs = add_histogram_plot($tabs);
-			$tabs = add_violin_plot($tabs);
+			if($status_data["succeeded"] > 1) {
+				$tabs = add_box_plot_tab($tabs);
+				$tabs = add_heatmap_plot_tab($tabs);
+				$tabs = add_violin_plot($tabs);
+				$tabs = add_histogram_plot($tabs);
+			}
 		}
 
 		if($status_data && isset($status_data["total"]) && $status_data["total"] > 0) {

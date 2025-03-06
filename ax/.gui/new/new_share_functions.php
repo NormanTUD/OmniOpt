@@ -544,14 +544,23 @@
 	}
 
 	function is_valid_user_id($value) {
+		if($value === null) {
+			return false;
+		}
 		return preg_match('/^[a-zA-Z0-9_]+$/', $value);
 	}
 
 	function is_valid_experiment_name($value) {
+		if($value === null) {
+			return false;
+		}
 		return preg_match('/^[a-zA-Z0-9_]+$/', $value);
 	}
 
 	function is_valid_run_nr($value) {
+		if($value === null) {
+			return false;
+		}
 		return preg_match('/^\d+$/', $value);
 	}
 ?>

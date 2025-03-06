@@ -201,7 +201,6 @@
 
 		$out_files = get_log_files($run_dir);
 
-
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 
@@ -246,10 +245,79 @@
 		<link href="tabler.min.css" rel="stylesheet">
 		<?php include("css.php"); ?>
 		<script src="new_share_functions.js"></script>
-		<script src="main.js"></script>
 	</head>
 	<body>
 		<script>
+			function close_main_window() {
+				const url = new URL(window.location.href);
+
+				if (url.searchParams.has('run_nr')) {
+					url.searchParams.delete('run_nr');
+				}
+
+				else if (url.searchParams.has('experiment_name')) {
+					url.searchParams.delete('experiment_name');
+				}
+
+				else if (url.searchParams.has('user_id')) {
+					url.searchParams.delete('user_id');
+				}
+
+				window.location.assign(url.toString());
+			}
+
+			function show_main_window() {
+				document.getElementById('spinner').style.display = 'none';
+				document.getElementById('main_window').style.display = 'block';
+			}
+
+			function initialize_tabs () {
+				function setupTabs(container) {
+					const tabs = container.querySelectorAll('[role="tab"]');
+					const tabPanels = container.querySelectorAll('[role="tabpanel"]');
+
+					if (tabs.length === 0 || tabPanels.length === 0) {
+						return;
+					}
+
+					tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
+					tabPanels.forEach(panel => panel.hidden = true);
+
+					const firstTab = tabs[0];
+					const firstPanel = tabPanels[0];
+
+					if (firstTab && firstPanel) {
+						firstTab.setAttribute("aria-selected", "true");
+						firstPanel.hidden = false;
+					}
+
+					tabs.forEach(tab => {
+						tab.addEventListener("click", function () {
+							const parentContainer = tab.closest(".tabs");
+
+							const parentTabs = parentContainer.querySelectorAll('[role="tab"]');
+							const parentPanels = parentContainer.querySelectorAll('[role="tabpanel"]');
+
+							parentTabs.forEach(t => t.setAttribute("aria-selected", "false"));
+							parentPanels.forEach(panel => panel.hidden = true);
+
+							this.setAttribute("aria-selected", "true");
+							const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
+							if (targetPanel) {
+								targetPanel.hidden = false;
+
+								const nestedTabs = targetPanel.querySelector(".tabs");
+								if (nestedTabs) {
+									setupTabs(nestedTabs);
+								}
+							}
+						});
+					});
+				}
+
+				document.querySelectorAll(".tabs").forEach(setupTabs);
+			}
+
 			var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
 <?php
 			if(count($GLOBALS["json_data"])) {
@@ -258,6 +326,12 @@
 				}
 			}
 ?>
+
+			document.addEventListener("DOMContentLoaded", initialize_tabs);
+
+			if($("#spinner").length) {
+				document.getElementById('spinner').style.display = 'block';
+			}
 		</script>
 		<div class="page window" style='font-family: sans-serif'>
 			<div class="title-bar" style="height: fit-content;">
@@ -286,11 +360,11 @@
 
 					if (!empty($user_id_link)) {
 						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
-					}   
+					}
 
 					if (!empty($experiment_name_link)) {
 						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
-					}   
+					}
 
 					if ($run_nr_link != "") {
 						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';

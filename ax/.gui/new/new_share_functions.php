@@ -547,7 +547,9 @@
 				$runtime_string = " ($runtime_string)";
 			}
 
-			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.($i == 0 ? 'aria-selected="true"' : '').' aria-controls="single_run_'.$i.'">'.$nr.$runtime_string.$checkmark.'</button>';
+			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
+				$i == 0 ? 'aria-selected="true"' : ''
+			).' aria-controls="single_run_'.$i.'">'.$nr.$runtime_string.$checkmark.'</button>';
 			$i++;
 		}
 

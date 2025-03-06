@@ -49,27 +49,28 @@ trap 'calltracer' ERR
 # Help Function
 function help () {
 	echo "Possible options:"
-	echo "  --max_eval=(INT)             Maximum number of evaluations for this test"
-	echo "  --mem_gb=(INT)               Memory in GB (0 for all)"
-	echo "  --num_parallel_jobs=(INT)    Maximum number of parallel workers for this test"
-	echo "  --num_random_steps=(INT)     Number of random steps"
-	echo "  --model=STR                  Model name"
-	echo "  --gridsearch                 Perform grid search"
-	echo "  --gpus=(INT)                 Number of GPUs per worker"
-	echo "  --time=(INT)                 Time each subjob should run"
-	echo "  --allow_failure              Adds a parameter to randomly fail"
-	echo "  --force_local_executio n     Run locally even if SLURM is installed"
-	echo "  --all_float                  Use all_float logic"
-	echo "  --one_param                  One parameter"
-	echo "  --two_params                 Two parameters"
-	echo "  --nr_results=1               Nr of 'RESULT's (default: 1)"
-	echo "  --seed=1                     Seed"
-	echo "  --alternate_min_max          Alternate min/max when nr_results > 1"
-	echo "  --generate_all_jobs_at_once  Generate all jobs at once"
-	echo "  --verbose                    Verbose output"
-	echo "  --show_ram_every_n_seconds=n Show ram usage every n seconds"
-	echo "  --help                       This help"
-	echo "  --debug                      Enable debug mode"
+	echo "  --max_eval=(INT)                                                 Maximum number of evaluations for this test"
+	echo "  --mem_gb=(INT)                                                   Memory in GB (0 for all)"
+	echo "  --num_parallel_jobs=(INT)                                        Maximum number of parallel workers for this test"
+	echo "  --num_random_steps=(INT)                                         Number of random steps"
+	echo "  --model=STR                                                      Model name"
+	echo "  --gridsearch                                                     Perform grid search"
+	echo "  --gpus=(INT)                                                     Number of GPUs per worker"
+	echo "  --time=(INT)                                                     Time each subjob should run"
+	echo "  --allow_failure                                                  Adds a parameter to randomly fail"
+	echo "  --force_local_executio n                                         Run locally even if SLURM is installed"
+	echo "  --all_float                                                      Use all_float logic"
+	echo "  --one_param                                                      One parameter"
+	echo "  --two_params                                                     Two parameters"
+	echo "  --nr_results=1                                                   Nr of 'RESULT's (default: 1)"
+	echo "  --seed=1                                                         Seed"
+	echo "  --alternate_min_max                                              Alternate min/max when nr_results > 1"
+	echo "  --generate_all_jobs_at_once                                      Generate all jobs at once"
+	echo "  --verbose                                                        Verbose output"
+	echo "  --revert_to_random_when_seemingly_exhausted                      Revert to random if the model space is seemingly exhausted"
+	echo "  --show_ram_every_n_seconds=n                                     Show ram usage every n seconds"
+	echo "  --help                                                           This help"
+	echo "  --debug                                                          Enable debug mode"
 	exit $1
 }
 
@@ -107,6 +108,7 @@ nr_results=1
 seed=""
 generate_all_jobs_at_once=0
 verbose=0
+revert_to_random_when_seemingly_exhausted=0
 show_ram_every_n_seconds=0
 
 function parse_argument() {
@@ -306,6 +308,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--force_local_execution)
 			force_local_execution=1
 			;;
+		--revert_to_random_when_seemingly_exhausted)
+			revert_to_random_when_seemingly_exhausted=1
+			;;
 		--verbose)
 			verbose=1
 			;;
@@ -451,6 +456,10 @@ fi
 
 if [[ "$verbose" -eq 1 ]]; then
 	omniopt_cmd="$omniopt_cmd --verbose"
+fi
+
+if [[ "$revert_to_random_when_seemingly_exhausted" -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --revert_to_random_when_seemingly_exhausted"
 fi
 
 if [[ "$seed" != "" ]]; then

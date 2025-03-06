@@ -544,12 +544,14 @@
 			if($runtime_string == "0s" || !$runtime_string) {
 				$runtime_string = "";
 			} else {
-				$runtime_string = " ($runtime_string)";
+				$runtime_string = " ($runtime_string) ";
 			}
+
+			$tabname = "$nr$runtime_string$checkmark";
 
 			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
 				$i == 0 ? 'aria-selected="true"' : ''
-			).' aria-controls="single_run_'.$i.'">'.$nr.$runtime_string.$checkmark.'</button>';
+			).' aria-controls="single_run_'.$i.'">'.$tabname.'</button>';
 			$i++;
 		}
 

@@ -122,7 +122,7 @@
 
 	if ($theme != "none") {
 ?>
-		<link rel="stylesheet" href="<?php print $theme; ?>">
+		<link rel="stylesheet" href="css/<?php print $theme; ?>">
 <?php
 	}
 ?>

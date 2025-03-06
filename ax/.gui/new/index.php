@@ -233,9 +233,9 @@
 	<script src="../plotly-latest.min.js"></script>
 	<script src="../jquery-3.7.1.js"></script>
 	<script src="gridjs.umd.js"></script>
-	<link href="mermaid.min.css" rel="stylesheet" />
-	<link href="tabler.min.css" rel="stylesheet">
-	<?php include("share_css.php"); ?>
+	<link href="css/mermaid.min.css" rel="stylesheet" />
+	<link href="css/tabler.min.css" rel="stylesheet">
+	<?php include("css/share_css.php"); ?>
 	<script src="new_share_functions.js"></script>
 	<script>
 		function close_main_window() {

@@ -18,6 +18,7 @@ import statistics
 shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
+overwritten_to_random: bool = False
 global_gs = None
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
@@ -4088,6 +4089,9 @@ def update_progress_bar(_progress_bar: Any, nr: int) -> None:
 def get_current_model() -> str:
     global ax_client
 
+    if overwritten_to_random:
+        return "Random*"
+
     if ax_client:
         gs_model = ax_client.generation_strategy.model
 
@@ -5653,8 +5657,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 
-    global global_gs
-    global error_8_saved
+    global global_gs, error_8_saved, overwritten_to_random
 
     if not ax_client:
         print_red("ax_client was not defined")
@@ -5703,6 +5706,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             steps = [create_systematic_step(select_model("SOBOL"), -1, start_index)]
             global_gs = GenerationStrategy(steps=steps)
+
+            overwritten_to_random = True
 
             print_debug(f"New global_gs: {global_gs}")
 

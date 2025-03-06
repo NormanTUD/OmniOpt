@@ -150,7 +150,7 @@
 	if(isset($_GET["theme"])) {
 		if($_GET["theme"] == "none") {
 			$theme = "none";
-		} else if ($_GET["theme"] == "none") {
+		} else if ($_GET["theme"] == "7") {
 			$theme = "7.css";
 		}
 	}

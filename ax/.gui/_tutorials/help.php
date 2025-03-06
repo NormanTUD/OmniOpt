@@ -64,6 +64,11 @@
 				<td colspan="3">Optional</td>
 			</tr>
 			<tr>
+				<td><samp>--revert_to_random_when_seemingly_exhausted</samp></td>
+				<td>Generate random steps instead of systematic steps when the search space is (seemingly) exhausted</td>
+				<td><samp>False</samp></td>
+			</tr>
+			<tr>
 				<td><samp>--generate_all_jobs_at_once</samp></td>
 				<td>Generate all jobs at once rather than to create them and start them as soon as possible</td>
 				<td><samp>False</samp></td>

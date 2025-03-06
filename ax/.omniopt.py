@@ -488,6 +488,7 @@ class ConfigLoader:
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
+        optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -5649,9 +5650,10 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
 
 @disable_logs
 @beartype
-def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any], bool]]:
+def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 
+    global global_gs
     global error_8_saved
 
     if not ax_client:
@@ -5691,7 +5693,17 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
 
             error_8_saved.append(str(e))
 
-        print_red("TODO: Generating random points from here on")
+        if recursion is False and args.revert_to_random_when_seemingly_exhausted:
+            print_debug("The search space seems exhausted. Generating random points from here on.")
+
+            start_index = submitted_jobs() + NR_INSERTED_JOBS
+
+            steps = [create_systematic_step(select_model("SOBOL"), -1, start_index)]
+            global_gs = GenerationStrategy(steps=steps)
+
+            print_debug(f"New global_gs: {global_gs}")
+
+            return _fetch_next_trials(nr_of_jobs_to_get, True)
 
     return {}, True
 

@@ -147,6 +147,12 @@
 			$overview_html .= $result_names_table;
 		}
 
+		if(file_exists("$run_dir/progressbar") && filesize("$run_dir/progressbar")) {
+			$lastLine = trim(array_slice(file("$run_dir/progressbar"), -1)[0]);
+
+			$overview_html .= "Last progressbar status: <tt>".htmlentities($lastLine)."</tt>";
+		}
+
 		if($overview_html != "") {
 			$tabs['Overview'] = [
 				'id' => 'tab_overview',

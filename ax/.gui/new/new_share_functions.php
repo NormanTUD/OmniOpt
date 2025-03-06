@@ -94,10 +94,8 @@
 
 		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
 
-		// Um die aktuelle Farbe zu verfolgen
 		$current_style = '';
 
-		// Rückgabe der verarbeiteten String mit richtigen Tags
 		return preg_replace_callback($pattern, function($matches) use ($ansi_colors, &$current_style) {
 			$codes = explode(';', $matches[1]);
 			$style = '';
@@ -109,20 +107,19 @@
 				}
 			}
 
-			// Wenn sich die Farbe ändert, schließe das alte Span und öffne das neue
 			$output = '';
 			if ($style !== $current_style) {
 				if ($current_style) {
-					$output .= '</span>'; // Schließe das vorherige Span
+					$output .= '</span>';
 				}
 				if ($style) {
-					$output .= '<span style="' . $style . '">'; // Öffne das neue Span
+					$output .= '<span style="' . $style . '">';
 				}
-				$current_style = $style; // Update die aktuelle Farbe
+				$current_style = $style;
 			}
 
 			return $output;
-		}, $string) . ($current_style ? '</span>' : ''); // Falls die letzte Farbe noch offen ist, schließe sie
+		}, $string) . ($current_style ? '</span>' : '');
 	}
 
 	function remove_sixel ($output) {
@@ -250,7 +247,7 @@
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id");
 
-			$csv_contents = getCsvDataAsArray($filename);   
+			$csv_contents = getCsvDataAsArray($filename);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);
@@ -306,7 +303,7 @@
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id");
 
-			$csv_contents = getCsvDataAsArray($filename);   
+			$csv_contents = getCsvDataAsArray($filename);
 
 			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_contents;
 
@@ -363,7 +360,7 @@
 
 	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id, $header_line = null) {
 		if(is_file($filename) && filesize($filename)) {
-			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);   
+			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);
@@ -441,9 +438,8 @@
 							$value = (int)$value;
 						}
 					}
-					// Sonst bleibt der Wert wie er ist
 				}
-				unset($value); // Referenz lösen
+				unset($value);
 				$data[] = $row;
 			}
 			fclose($handle);
@@ -558,7 +554,7 @@
 			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
 			if ($i == 0) {
 				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . ansi_to_html(htmlspecialchars($content)) . '</pre>';
+				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlightDebugInfo(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
 				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
 			}
@@ -596,5 +592,42 @@
 		$string = preg_replace('/.\[?(1A|2(5[hl]|K))/', '', $string);
 		$string = preg_replace('/\[/', '', $string);
 		return $string;
+	}
+
+	function highlightDebugInfo($log) {
+		$log = preg_replace('/(E[0-9]{4}.*?)(?=\n|$)/', '<span style="color:red;">$1</span>', $log);
+
+		$log = preg_replace('/(WARNING:.*?)(?=\n|$)/', '<span style="color:orange;">$1</span>', $log);
+
+		$log = preg_replace('/(INFO.*?)(?=\n|$)/', '<span style="color:green;">$1</span>', $log);
+
+		
+		$log = preg_replace_callback('/(DEBUG INFOS START.*?DEBUG INFOS END)/s', function($matches) {
+			$debugInfo = $matches[0];
+
+			$debugInfo = preg_replace('/(Program-Code:.*?)(?=\n|$)/', '<span style="color:green;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(File:.*?)(?=\n|$)/', '<span style="color:blue;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(UID:.*?)(?=\n|$)/', '<span style="color:gray;">$1</span>', $debugInfo);
+			$debugInfo = preg_replace('/(GID:.*?)(?=\n|$)/', '<span style="color:gray;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(Status-Change-Time:.*?)(?=\n|$)/', '<span style="color:blue;">$1</span>', $debugInfo);
+			$debugInfo = preg_replace('/(Last access:.*?)(?=\n|$)/', '<span style="color:blue;">$1</span>', $debugInfo);
+			$debugInfo = preg_replace('/(Last modification:.*?)(?=\n|$)/', '<span style="color:blue;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(Size:.*?)(?=\n|$)/', '<span style="color:purple;">$1</span>', $debugInfo);
+			$debugInfo = preg_replace('/(Permissions:.*?)(?=\n|$)/', '<span style="color:purple;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(Owner:.*?)(?=\n|$)/', '<span style="color:green;">$1</span>', $debugInfo);
+
+			$debugInfo = preg_replace('/(Hostname:.*?)(?=\n|$)/', '<span style="color:orange;">$1</span>', $debugInfo);
+
+			return '<div style="background-color:#f0f0f0;padding:10px;border:1px solid #ddd;">' . $debugInfo . '</div>';
+		}, $log);
+
+		$log = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})/', '<span style="color:blue;">$1</span>', $log);
+
+		return $log;
 	}
 ?>

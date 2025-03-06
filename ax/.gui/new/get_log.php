@@ -17,6 +17,7 @@
 
 		if(file_exists($path)) {
 			$out_file = ansi_to_html(file_get_contents($path));
+			$out_file = highlightDebugInfo($out_file);
 			respond_with_json($out_file);
 		} else {
 			respond_with_error("Invalid path $path found");

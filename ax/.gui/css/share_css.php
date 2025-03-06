@@ -147,8 +147,12 @@
 	$theme = "xp.css";
 
 
-	if(isset($_GET["theme"]) && $_GET["theme"] == "none") {
-		$theme = "none";
+	if(isset($_GET["theme"])) {
+		if($_GET["theme"] == "none") {
+			$theme = "none";
+		} else if ($_GET["theme"] == "none") {
+			$theme = "7.css";
+		}
 	}
 
 	if ($theme != "none") {

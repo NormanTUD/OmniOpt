@@ -230,218 +230,208 @@
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>OmniOpt2-Share</title>
-		<script src="../plotly-latest.min.js"></script>
-		<script src="../jquery-3.7.1.js"></script>
-		<script src="gridjs.umd.js"></script>
-		<link href="mermaid.min.css" rel="stylesheet" />
-		<link href="tabler.min.css" rel="stylesheet">
-		<?php include("css.php"); ?>
-		<script src="new_share_functions.js"></script>
-	</head>
-	<body>
-		<script>
-			function close_main_window() {
-				const url = new URL(window.location.href);
+	<script src="../plotly-latest.min.js"></script>
+	<script src="../jquery-3.7.1.js"></script>
+	<script src="gridjs.umd.js"></script>
+	<link href="mermaid.min.css" rel="stylesheet" />
+	<link href="tabler.min.css" rel="stylesheet">
+	<?php include("share_css.php"); ?>
+	<script src="new_share_functions.js"></script>
+	<script>
+		function close_main_window() {
+			const url = new URL(window.location.href);
 
-				if (url.searchParams.has('run_nr')) {
-					url.searchParams.delete('run_nr');
-				}
-
-				else if (url.searchParams.has('experiment_name')) {
-					url.searchParams.delete('experiment_name');
-				}
-
-				else if (url.searchParams.has('user_id')) {
-					url.searchParams.delete('user_id');
-				}
-
-				window.location.assign(url.toString());
+			if (url.searchParams.has('run_nr')) {
+				url.searchParams.delete('run_nr');
 			}
 
-			function show_main_window() {
-				document.getElementById('spinner').style.display = 'none';
-				document.getElementById('main_window').style.display = 'block';
+			else if (url.searchParams.has('experiment_name')) {
+				url.searchParams.delete('experiment_name');
 			}
 
-			function initialize_tabs () {
-				function setupTabs(container) {
-					const tabs = container.querySelectorAll('[role="tab"]');
-					const tabPanels = container.querySelectorAll('[role="tabpanel"]');
+			else if (url.searchParams.has('user_id')) {
+				url.searchParams.delete('user_id');
+			}
 
-					if (tabs.length === 0 || tabPanels.length === 0) {
-						return;
-					}
+			window.location.assign(url.toString());
+		}
 
-					tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
-					tabPanels.forEach(panel => panel.hidden = true);
+		function show_main_window() {
+			document.getElementById('spinner').style.display = 'none';
+			document.getElementById('main_window').style.display = 'block';
+		}
 
-					const firstTab = tabs[0];
-					const firstPanel = tabPanels[0];
+		function initialize_tabs () {
+			function setupTabs(container) {
+				const tabs = container.querySelectorAll('[role="tab"]');
+				const tabPanels = container.querySelectorAll('[role="tabpanel"]');
 
-					if (firstTab && firstPanel) {
-						firstTab.setAttribute("aria-selected", "true");
-						firstPanel.hidden = false;
-					}
+				if (tabs.length === 0 || tabPanels.length === 0) {
+					return;
+				}
 
-					tabs.forEach(tab => {
-						tab.addEventListener("click", function () {
-							const parentContainer = tab.closest(".tabs");
+				tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
+				tabPanels.forEach(panel => panel.hidden = true);
 
-							const parentTabs = parentContainer.querySelectorAll('[role="tab"]');
-							const parentPanels = parentContainer.querySelectorAll('[role="tabpanel"]');
+				const firstTab = tabs[0];
+				const firstPanel = tabPanels[0];
 
-							parentTabs.forEach(t => t.setAttribute("aria-selected", "false"));
-							parentPanels.forEach(panel => panel.hidden = true);
+				if (firstTab && firstPanel) {
+					firstTab.setAttribute("aria-selected", "true");
+					firstPanel.hidden = false;
+				}
 
-							this.setAttribute("aria-selected", "true");
-							const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
-							if (targetPanel) {
-								targetPanel.hidden = false;
+				tabs.forEach(tab => {
+					tab.addEventListener("click", function () {
+						const parentContainer = tab.closest(".tabs");
 
-								const nestedTabs = targetPanel.querySelector(".tabs");
-								if (nestedTabs) {
-									setupTabs(nestedTabs);
-								}
+						const parentTabs = parentContainer.querySelectorAll('[role="tab"]');
+						const parentPanels = parentContainer.querySelectorAll('[role="tabpanel"]');
+
+						parentTabs.forEach(t => t.setAttribute("aria-selected", "false"));
+						parentPanels.forEach(panel => panel.hidden = true);
+
+						this.setAttribute("aria-selected", "true");
+						const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
+						if (targetPanel) {
+							targetPanel.hidden = false;
+
+							const nestedTabs = targetPanel.querySelector(".tabs");
+							if (nestedTabs) {
+								setupTabs(nestedTabs);
 							}
-						});
+						}
 					});
-				}
-
-				document.querySelectorAll(".tabs").forEach(setupTabs);
+				});
 			}
 
-			var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
+			document.querySelectorAll(".tabs").forEach(setupTabs);
+		}
+
+		var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
 <?php
-			if(count($GLOBALS["json_data"])) {
-				foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-					print "\tvar $json_name = ".json_encode($json_data).";\n";
+		if(count($GLOBALS["json_data"])) {
+			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
+				print "\tvar $json_name = ".json_encode($json_data).";\n";
+			}
+		}
+?>
+
+		document.addEventListener("DOMContentLoaded", initialize_tabs);
+
+		if($("#spinner").length) {
+			document.getElementById('spinner').style.display = 'block';
+		}
+	</script>
+	<div class="page window" style='font-family: sans-serif'>
+		<div class="title-bar" style="height: fit-content;">
+			<div class="title-bar-text">OmniOpt2-Share
+<?php
+			if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
+				$user_id_link = get_get("user_id");
+				$experiment_name_link = get_get("experiment_name");
+				$run_nr_link = get_get("run_nr");
+
+				if (!is_valid_user_id($user_id_link)) {
+					$user_id_link = '';
+				}
+
+				if (!is_valid_experiment_name($experiment_name_link)) {
+					$experiment_name_link = '';
+				}
+
+				if (!is_valid_run_nr($run_nr_link)) {
+					$run_nr_link = '';
+				}
+
+				$base_url = "?";
+
+				$links = [];
+
+				if (!empty($user_id_link)) {
+					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
+				}
+
+				if (!empty($experiment_name_link)) {
+					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
+				}
+
+				if ($run_nr_link != "") {
+					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
+				}
+
+				if(count($links)) {
+					$home = $_SERVER["PHP_SELF"];
+					$home = preg_replace("/.*\//", "", $home);
+					$home = preg_replace("/\.php$/", "", $home);
+
+					array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
+				}
+
+				$path_with_links = implode(" / ", $links);
+
+				if(count($links)) {
+					echo " ($path_with_links)";
 				}
 			}
-?>
-
-			document.addEventListener("DOMContentLoaded", initialize_tabs);
-
-			if($("#spinner").length) {
-				document.getElementById('spinner').style.display = 'block';
-			}
-		</script>
-		<div class="page window" style='font-family: sans-serif'>
-			<div class="title-bar" style="height: fit-content;">
-				<div class="title-bar-text">OmniOpt2-Share
-<?php
-				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
-					$user_id_link = get_get("user_id");
-					$experiment_name_link = get_get("experiment_name");
-					$run_nr_link = get_get("run_nr");
-
-					if (!is_valid_user_id($user_id_link)) {
-						$user_id_link = '';
-					}
-
-					if (!is_valid_experiment_name($experiment_name_link)) {
-						$experiment_name_link = '';
-					}
-
-					if (!is_valid_run_nr($run_nr_link)) {
-						$run_nr_link = '';
-					}
-
-					$base_url = "?";
-
-					$links = [];
-
-					if (!empty($user_id_link)) {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
-					}
-
-					if (!empty($experiment_name_link)) {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
-					}
-
-					if ($run_nr_link != "") {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
-					}
-
-					if(count($links)) {
-						$home = $_SERVER["PHP_SELF"];
-						$home = preg_replace("/.*\//", "", $home);
-						$home = preg_replace("/\.php$/", "", $home);
-
-						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
-					}
-
-					$path_with_links = implode(" / ", $links);
-
-					if(count($links)) {
-						echo " ($path_with_links)";
-					}
-				}
-?>
-				</div>
-			</div>
-			<div id="spinner" class="spinner"></div>
-
-			<div id="main_window" style="display: none" class="container py-4 has-space">
-<?php
-				if(count($errors)) {
-					if (count($errors) > 1) {
-						print "<h2>Errors:</h2>\n";
-						print "<ul>\n";
-						foreach ($errors as $error) {
-							print "<li>$error</li>";
-						}
-						print "</ul>\n";
-					} else {
-						print "<h2>Error:</h2>\n";
-						print $errors[0];
-					}
-
-				} else {
-					if($user_id && $experiment_name && !is_null($run_nr)) {
-?>
-						<section class="tabs" style="width: 100%">
-							<menu role="tablist" aria-label="OmniOpt2-Run">
-<?php
-								$first_tab = true;
-								foreach ($tabs as $tab_name => $tab_data) {
-									echo '<button role="tab" '.(isset($tab_data["onclick"]) ? " onclick='" . $tab_data["onclick"] . "'" : "" ).' aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
-									$first_tab = false;
-								}
-?>
-							</menu>
-
-<?php
-							foreach ($tabs as $tab_name => $tab_data) {
-								echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . ">\n";
-								echo $tab_data['content'];
-								echo "</article>\n";
-							}
-?>
-						</section>
-<?php
-					} else {
-						if(!$user_id && !$experiment_name && !$run_nr) {
-							generateFolderButtons($GLOBALS["sharesPath"], "user_id");
-						} else if($user_id && !$experiment_name && !$run_nr) {
-							generateFolderButtons($GLOBALS["sharesPath"]."/$user_id", "experiment_name");
-						} else if($user_id && $experiment_name && !$run_nr) {
-							generateFolderButtons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
-						} else {
-							print "DONT KNOW!!! >>$run_nr<<";
-						}
-					}
-				}
 ?>
 			</div>
 		</div>
-		<script>
-			show_main_window();
-		</script>
-	</body>
-</html>
+		<div id="spinner" class="spinner"></div>
+
+		<div id="main_window" style="display: none" class="container py-4 has-space">
+<?php
+			if(count($errors)) {
+				if (count($errors) > 1) {
+					print "<h2>Errors:</h2>\n";
+					print "<ul>\n";
+					foreach ($errors as $error) {
+						print "<li>$error</li>";
+					}
+					print "</ul>\n";
+				} else {
+					print "<h2>Error:</h2>\n";
+					print $errors[0];
+				}
+
+			} else {
+				if($user_id && $experiment_name && !is_null($run_nr)) {
+?>
+					<section class="tabs" style="width: 100%">
+						<menu role="tablist" aria-label="OmniOpt2-Run">
+<?php
+							$first_tab = true;
+							foreach ($tabs as $tab_name => $tab_data) {
+								echo '<button role="tab" '.(isset($tab_data["onclick"]) ? " onclick='" . $tab_data["onclick"] . "'" : "" ).' aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
+								$first_tab = false;
+							}
+?>
+						</menu>
+
+<?php
+						foreach ($tabs as $tab_name => $tab_data) {
+							echo '<article role="tabpanel" id="' . $tab_data['id'] . '" ' . ($tab_name === 'General Info' ? '' : 'hidden') . ">\n";
+							echo $tab_data['content'];
+							echo "</article>\n";
+						}
+?>
+					</section>
+<?php
+				} else {
+					if(!$user_id && !$experiment_name && !$run_nr) {
+						generateFolderButtons($GLOBALS["sharesPath"], "user_id");
+					} else if($user_id && !$experiment_name && !$run_nr) {
+						generateFolderButtons($GLOBALS["sharesPath"]."/$user_id", "experiment_name");
+					} else if($user_id && $experiment_name && !$run_nr) {
+						generateFolderButtons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
+					} else {
+						print "DONT KNOW!!! >>$run_nr<<";
+					}
+				}
+			}
+?>
+		</div>
+	</div>
+	<script>
+		show_main_window();
+	</script>

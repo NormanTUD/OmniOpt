@@ -1,13 +1,5 @@
 var log = console.log;
 
-function enable_dark_mode() {
-	document.body.classList.add('dark-mode');
-}
-
-function disable_dark_mode() {
-	document.body.classList.remove('dark-mode');
-}
-
 function createTable(data, headers, table_name) {
 	if (!$("#" + table_name).length) {
 		console.error("#" + table_name + " not found");

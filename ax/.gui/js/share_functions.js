@@ -1028,8 +1028,17 @@ function plotResultEvolution() {
 		var timeColumnIndex = tab_job_infos_headers_json.indexOf("start_time");
 		var resultIndex = tab_job_infos_headers_json.indexOf(resultName);
 
-		let xData = tab_job_infos_csv_json.map(row => new Date(row[timeColumnIndex] * 1000));
-		let yData = tab_job_infos_csv_json.map(row => parseFloat(row[resultIndex]));
+		let data = tab_job_infos_csv_json.map(row => ({
+			x: new Date(row[timeColumnIndex] * 1000),  // Zeitstempel in Date-Objekt umwandeln
+			y: parseFloat(row[resultIndex])  // Wert des Ergebnisses
+		}));
+
+		// Daten nach Zeit (x-Wert) sortieren
+		data.sort((a, b) => a.x - b.x);
+
+		// Sortierte x- und y-Daten extrahieren
+		let xData = data.map(item => item.x);
+		let yData = data.map(item => item.y);
 
 		let trace = {
 			x: xData,

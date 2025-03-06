@@ -58,8 +58,19 @@
 		<?php js("initialization.js"); ?>
 
 <?php
-		if (isset($_SERVER["REQUEST_URI"]) && strpos($_SERVER['REQUEST_URI'], 'share.php') !== false) {
-			echo '<meta name="robots" content="noindex, nofollow">';
+		if (isset($_SERVER["REQUEST_URI"]) && strpos($_SERVER['REQUEST_URI'], 'share') !== false) {
+			include("css/share_css.php");
+?>
+			<meta name="robots" content="noindex, nofollow">
+			<?php js("plotly-latest.min.js"); ?>
+			<?php js("js/gridjs.umd.js"); ?>
+
+
+			<?php js("js/share_functions.js"); ?>
+
+			<link href="css/mermaid.min.css" rel="stylesheet" />
+			<link href="css/tabler.min.css" rel="stylesheet">
+<?php
 		}
 ?>
 

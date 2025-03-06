@@ -487,7 +487,7 @@
 
 				echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
 				echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
-				echo '</a><br><br>';
+				echo '</a><br>';
 			}
 		} else {
 			echo "The specified folder does not exist.";

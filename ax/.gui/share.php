@@ -232,13 +232,6 @@
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 ?>
-	<script src="plotly-latest.min.js"></script>
-	<script src="jquery-3.7.1.js"></script>
-	<script src="js/gridjs.umd.js"></script>
-	<link href="css/mermaid.min.css" rel="stylesheet" />
-	<link href="css/tabler.min.css" rel="stylesheet">
-	<?php include("css/share_css.php"); ?>
-	<script src="js/share_functions.js"></script>
 	<script>
 		function close_main_window() {
 			const url = new URL(window.location.href);

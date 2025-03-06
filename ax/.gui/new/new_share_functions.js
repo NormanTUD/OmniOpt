@@ -430,7 +430,6 @@ async function load_pareto_graph() {
 		return;
 	}
 
-		
 	var data = pareto_front_data;
 
 	if (!data || typeof data !== "object") {

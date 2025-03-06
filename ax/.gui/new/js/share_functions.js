@@ -677,7 +677,7 @@ function load_debug_log () {
 		const experiment_name = params.get('experiment_name');
 		const run_nr = params.get('run_nr');
 
-		var url = `get_debug_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}`;
+		var url = `share_php/get_debug_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}`;
 
 		fetch(url)
 			.then(response => response.json())

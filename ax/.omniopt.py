@@ -5664,24 +5664,19 @@ def _fetch_next_trials(nr_of_jobs_to_get: int) -> Optional[Tuple[Dict[int, Any],
         for k in range(0, nr_of_jobs_to_get):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get)])
 
-            params, trial_index = ax_client.get_next_trial(force=True)
+            #params, trial_index = ax_client.get_next_trial(force=True)
 
             ####################################
-            #from ax.modelbridge.modelbridge_utils import get_pending_observation_features
-            #generator_run = global_gs.gen(
-            #    experiment=ax_client.experiment,
-            #    n=1,
-            #    pending_observations=get_pending_observation_features(experiment=ax_client.experiment),
-            #)
-
-            #trial = ax_client.experiment.new_trial(generator_run)
-
-            #params = generator_run.arms[0].parameters
-
-            #trial_index = submitted_jobs() + NR_INSERTED_JOBS
-
-            #trial.mark_running(no_runner_required=True)
-
+            from ax.modelbridge.modelbridge_utils import get_pending_observation_features
+            generator_run = global_gs.gen(
+                experiment=ax_client.experiment,
+                n=1,
+                pending_observations=get_pending_observation_features(experiment=ax_client.experiment),
+            )
+            trial = ax_client.experiment.new_trial(generator_run)
+            params = generator_run.arms[0].parameters
+            trial_index = submitted_jobs() + NR_INSERTED_JOBS
+            trial.mark_running(no_runner_required=True)
             ####################################
 
             trials_dict[trial_index] = params

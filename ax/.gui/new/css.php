@@ -38,6 +38,7 @@
 		color: #00CC00 !important;
 		background-color: black !important;
 		font-family: monospace !important;
+		line-break: anywhere;
 	}
 
 	menu[role="tablist"] {

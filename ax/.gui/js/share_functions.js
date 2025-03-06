@@ -175,7 +175,9 @@ function plotWorkerUsage() {
 		title: "Worker Usage Over Time",
 		xaxis: { title: "Time", type: 'date' },
 		yaxis: { title: "Number of Workers" },
-		legend: { x: 0, y: 1 }
+		legend: { x: 0, y: 1 },
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
 
 	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);
@@ -222,7 +224,9 @@ function plotCPUAndRAMUsage() {
 		legend: {
 			x: 0.1,
 			y: 0.9
-		}
+		},
+		paper_bgcolor: 'rgba(0,0,0,0)',
+		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
 
 	var data = [trace1, trace2];
@@ -306,7 +310,9 @@ function plotScatter2d() {
 				yaxis: { title: yCol },
 				showlegend: false,
 				width: 1600,
-				height: 800
+				height: 800,
+				paper_bgcolor: 'rgba(0,0,0,0)',
+				plot_bgcolor: 'rgba(0,0,0,0)'
 			};
 
 			let subDiv = document.createElement("div");
@@ -412,7 +418,9 @@ function plotScatter3d() {
 					},
 					showlegend: false,
 					width: 1600,
-					height: 800
+					height: 800,
+					paper_bgcolor: 'rgba(0,0,0,0)',
+					plot_bgcolor: 'rgba(0,0,0,0)'
 				};
 
 				let subDiv = document.createElement("div");
@@ -518,7 +526,9 @@ async function load_pareto_graph() {
 					title: `${cleanXMetric} vs ${cleanYMetric}`,
 					xaxis: { title: cleanXMetric },
 					yaxis: { title: cleanYMetric },
-					hovermode: "closest"
+					hovermode: "closest",
+					paper_bgcolor: 'rgba(0,0,0,0)',
+					plot_bgcolor: 'rgba(0,0,0,0)'
 				};
 
 				let trace = {
@@ -617,7 +627,9 @@ async function plot_worker_cpu_ram() {
 				overlaying: "y",
 				color: "blue"
 			},
-			showlegend: true
+			showlegend: true,
+			paper_bgcolor: 'rgba(0,0,0,0)',
+			plot_bgcolor: 'rgba(0,0,0,0)'
 		};
 
 		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);

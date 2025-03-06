@@ -213,7 +213,7 @@
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
 			$html = "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
-			$html .= '<div id="cpuRamWorkerChartContainer"></div><br>';
+			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
 			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
@@ -244,7 +244,7 @@
 
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = "<div id='mainWorkerCPURAM'></div>";
+			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id");
@@ -272,7 +272,7 @@
 
 	function add_scatter_3d_plots($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = "<div id='plotScatter3d'></div>";
+			$html = "<div class='invert_in_dark_mode' id='plotScatter3d'></div>";
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -286,7 +286,7 @@
 
 	function add_scatter_2d_plots($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = "<div id='plotScatter2d'></div>";
+			$html = "<div class='invert_in_dark_mode' id='plotScatter2d'></div>";
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -300,7 +300,7 @@
 
 	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename)) {
-			$html = "<div id='workerUsagePlot'></div>";
+			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id");
@@ -349,7 +349,7 @@
 	}
 
 	function add_parallel_plot_tab ($tabs) {
-		$html = '<div id="parallel-plot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
+		$html = '<div class="invert_in_dark_mode" id="parallel-plot" style="min-width: 1600px; width: 1600px; height: 800px;"></div>';
 
 		$tabs['Parallel Plot'] = [
 			'id' => 'tab_parallel',

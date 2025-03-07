@@ -196,3 +196,5 @@ coverage
 PLOT_TESTS
 .python-version
 .tmp
+.tests/slurm_docker/docker-compose.yml
+.tests/slurm_docker/slurm.conf

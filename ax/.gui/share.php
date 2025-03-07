@@ -251,9 +251,10 @@
 				if (count($result_names) > 1) {
 					$tabs = add_plot_result_pairs($tabs);
 				}
+
+				$tabs = add_result_evolution_tab($tabs);
 			}
 
-			$tabs = add_result_evolution_tab($tabs);
 		}
 
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {

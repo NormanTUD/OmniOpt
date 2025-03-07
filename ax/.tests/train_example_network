@@ -90,6 +90,8 @@ export validation_split=0.2
 export min_learning_rate=0.001
 export max_learning_rate=0.4
 
+export revert_to_random_when_seemingly_exhausted=0
+
 function help () {
 	echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
 	echo "Possible options:"
@@ -121,6 +123,7 @@ function help () {
 	echo "  --validation_split=FLOAT                           Validation split (default: $validation_split)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
+	echo "  --revert_to_random_when_seemingly_exhausted        Revert to random search when search space seems exhausted"
 	exit $1
 }
 
@@ -270,6 +273,9 @@ for i in "$@"; do
 		-h|--help)
 			help 0
 			;;
+		--revert_to_random_when_seemingly_exhausted)
+			revert_to_random_when_seemingly_exhausted=1
+			;;
 		--debug)
 			set_debug
 			;;
@@ -346,6 +352,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	experiment_name="example_network_gridsearch"
 else
 	experiment_name="example_network"
+fi
+
+if [[ $revert_to_random_when_seemingly_exhausted -eq 1 ]]; then
+	cmd+=(" --revert_to_random_when_seemingly_exhausted")
 fi
 
 cmd=$(echo "$cmd" | sed "s/--experiment_name=example_network/--experiment_name=$experiment_name/")

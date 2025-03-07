@@ -398,7 +398,59 @@
 	}
 
 	function add_heatmap_plot_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotHeatmap"></div>';
+		$explanation = "
+    <h1>Correlation Heatmap Explanation</h1>
+
+    <p>
+        This is a heatmap that visualizes the correlation between numerical columns in a dataset. The values represented in the heatmap show the strength and direction of relationships between different variables.
+    </p>
+
+    <h2>How It Works</h2>
+    <p>
+        The heatmap uses a matrix to represent correlations between each pair of numerical columns. The calculation behind this is based on the concept of \"correlation,\" which measures how strongly two variables are related. A correlation can be positive, negative, or zero:
+    </p>
+    <ul>
+        <li><strong>Positive correlation</strong>: Both variables increase or decrease together (e.g., if the temperature rises, ice cream sales increase).</li>
+        <li><strong>Negative correlation</strong>: As one variable increases, the other decreases (e.g., as the price of a product rises, the demand for it decreases).</li>
+        <li><strong>Zero correlation</strong>: There is no relationship between the two variables (e.g., height and shoe size might show zero correlation in some contexts).</li>
+    </ul>
+
+    <h2>Color Scale: Yellow to Purple (Viridis)</h2>
+    <p>
+        The heatmap uses a color scale called \"Viridis,\" which ranges from yellow to purple. Here's what the colors represent:
+    </p>
+    <ul>
+        <li><strong>Yellow (brightest)</strong>: A strong positive correlation (close to +1). This indicates that as one variable increases, the other increases in a very predictable manner.</li>
+        <li><strong>Green</strong>: A moderate positive correlation. Variables are still positively related, but the relationship is not as strong.</li>
+        <li><strong>Blue</strong>: A weak or near-zero correlation. There is a small or no discernible relationship between the variables.</li>
+        <li><strong>Purple (darkest)</strong>: A strong negative correlation (close to -1). This indicates that as one variable increases, the other decreases in a very predictable manner.</li>
+    </ul>
+
+    <h2>How the Data is Calculated</h2>
+    <p>
+        The heatmap is based on the correlation coefficient, which is calculated using the following formula:
+    </p>
+    <pre>r = (Σ(x_i - x̄)(y_i - ȳ)) / (√Σ(x_i - x̄)² * Σ(y_i - ȳ)²)</pre>
+    <p>
+        - <code>r</code> is the correlation coefficient.
+        - <code>x_i</code> and <code>y_i</code> are individual data points for two variables.
+        - <code>x̄</code> and <code>ȳ</code> are the means of the two variables.
+    </p>
+    <p>
+        This formula calculates how much one variable changes in relation to another. The result is a number between -1 and 1, where:
+    </p>
+    <ul>
+        <li><strong>1</strong>: Perfect positive correlation</li>
+        <li><strong>-1</strong>: Perfect negative correlation</li>
+        <li><strong>0</strong>: No correlation</li>
+    </ul>
+
+    <h2>What the Heatmap Shows</h2>
+    <p>
+        In the heatmap, each cell represents the correlation between two numerical columns. The color of the cell is determined by the correlation coefficient: from yellow for strong positive correlations, through green and blue for weaker correlations, to purple for strong negative correlations.
+    </p>
+";
+		$html = '<div class="invert_in_dark_mode" id="plotHeatmap"></div><br>'.$explanation;
 
 		$tabs['Heatmap'] = [
 			'id' => 'tab_heatmap',

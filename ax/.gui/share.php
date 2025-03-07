@@ -93,7 +93,7 @@
 		if(is_file($result_min_max_file)) {
 			$result_min_max = read_file_as_array($result_min_max_file);
 		} else {
-			$warnings[] = "$result_min_max not found";
+			$warnings[] = "$result_min_max_file not found";
 		}
 
 		$GLOBALS["json_data"]["result_names"] = $result_names;

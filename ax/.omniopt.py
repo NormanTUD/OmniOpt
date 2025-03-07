@@ -720,6 +720,7 @@ try:
         from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models
         from ax.service.ax_client import AxClient, ObjectiveProperties
+        from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
     with console.status("[bold green]Loading botorch...") as status:
@@ -5688,19 +5689,20 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             #params, trial_index = ax_client.get_next_trial(force=True)
 
             ####################################
-            from ax.modelbridge.modelbridge_utils import get_pending_observation_features
+            print_debug(f"_fetch_next_trials: fetching trial {k}/{nr_of_jobs_to_get}...")
             generator_run = global_gs.gen(
                 experiment=ax_client.experiment,
                 n=1,
-                pending_observations=get_pending_observation_features(experiment=ax_client.experiment),
+                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
             )
             trial = ax_client.experiment.new_trial(generator_run)
             params = generator_run.arms[0].parameters
-            trial_index = submitted_jobs() + NR_INSERTED_JOBS
+            trial_index = submitted_jobs() + NR_INSERTED_JOBS + k
             trial.mark_running(no_runner_required=True)
             ####################################
 
             trials_dict[trial_index] = params
+            print_debug(f"_fetch_next_trials: got trial {k}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:
@@ -6963,8 +6965,6 @@ def run_search_with_progress_bar() -> None:
         update_progress_bar(progress_bar, count_done_jobs())
 
         run_search(progress_bar)
-
-        wait_for_jobs_to_complete()
 
     wait_for_jobs_to_complete()
 

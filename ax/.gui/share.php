@@ -81,8 +81,8 @@
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max";
 
-		$result_names = ["RESULT"];
-		$result_min_max = ["min"];
+		$result_names = [];
+		$result_min_max = [];
 
 		if(is_file($result_names_file)) {
 			$result_names = read_file_as_array($result_names_file);
@@ -145,6 +145,8 @@
 			$overview_table .= '</table>';
 
 			$overview_html .= "<br>$overview_table";
+		} else {
+			$warnings[] = "$run_dir/results.csv not found";
 		}
 
 		if(count($result_names)) {
@@ -165,6 +167,8 @@
 			$result_names_table .= '</table><br>';
 
 			$overview_html .= $result_names_table;
+		} else {
+			$warnings[] = "No result-names could be found";
 		}
 
 		if(file_exists("$run_dir/progressbar") && filesize("$run_dir/progressbar")) {

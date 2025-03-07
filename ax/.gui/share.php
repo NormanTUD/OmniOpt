@@ -276,7 +276,11 @@
 
 				if(count($result_names)) {
 					$tabs = add_result_evolution_tab($tabs);
+				} else {
+					$warnings[] = "Not adding evolution tab because no result names could be found";
 				}
+			} else {
+				$warnings[] = "No succeeded jobs found";
 			}
 		} else {
 			$warnings[] = "No successful jobs were found";

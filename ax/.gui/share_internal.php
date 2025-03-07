@@ -65,6 +65,7 @@
 		"ui_url.txt",
 		"cpu_ram_usage.csv",
 		"get_next_trials.csv",
+		"global_vars.json",
 		"run_uuid",
 		"outfile.txt",
 		"oo_errors.txt",

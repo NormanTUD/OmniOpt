@@ -15,32 +15,6 @@
 
 	$sharesPath = './shares/';
 
-	if (getenv("share_path") || isset($_GET["share_path"])) {
-		$sharesPath = getenv("share_path");
-		if(!$sharesPath) {
-			$sharesPath = "./" . $_GET["share_path"] . "/";
-			$sharesPath = preg_replace("/\/*$/", "/", $sharesPath);
-		}
-
-		if (preg_match("/^\//", $sharesPath)) {
-			print("Absolute path is not allowed.");
-			exit(1);
-		}
-
-		if (preg_match("/\.\./", $sharesPath)) {
-			print("It is not allowed to traverse upwards.");
-			exit(2);
-		}
-
-		if (!is_dir($sharesPath)) {
-			print("Share dir $sharesPath could not be found!");
-			exit(3);
-		}
-
-
-		print("Using sharesPath $sharesPath\n");
-	}
-
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 
 	delete_old_shares();
@@ -69,7 +43,6 @@
 		"trial_index_to_params",
 		"worker_usage.csv",
 		"job_start_time.txt",
-		"result_names.txt",
 		"pareto_front_table.txt",
 		"pareto_front_data.json",
 		"everything_but_singleruns.zip",
@@ -79,14 +52,13 @@
 		"experiment_overview.txt",
 		"eval_nodes_cpu_ram_logs.txt",
 		"verbose_log.txt",
+		"result_names.txt",
 		"result_min_max.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {
 		return preg_replace('/\.[^.]+$/', '', $file);
 	}, $acceptable_file_names);
-
-	require_once "share_functions.php";
 
 	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
 	$uuid_folder = null;

@@ -53,7 +53,8 @@
 		"eval_nodes_cpu_ram_logs.txt",
 		"verbose_log.txt",
 		"result_names.txt",
-		"result_min_max.txt"
+		"result_min_max.txt",
+		"result_min_max"
 	];
 
 	$acceptable_files = array_map(function($file) {

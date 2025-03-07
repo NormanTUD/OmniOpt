@@ -4287,15 +4287,21 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
 @beartype
 def clean_completed_jobs() -> None:
+    job_states_to_be_removed = ["completed", "early_stopped", "abandoned", "cancelled", "timeout"]
+    job_states_to_be_ignored = ["unknown", "pending", "running", "completing"]
+
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
-        if _state in ["completed", "early_stopped", "abandoned", "cancelled", "timeout"]:
+        if _state in job_states_to_be_removed:
             global_vars["jobs"].remove((job, trial_index))
-        elif _state in ["unknown", "pending", "running", "completing"]:
+        elif _state in job_states_to_be_ignored:
             pass
         else:
-            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending, timeout, completing or running: {_state}")
+            job_states_to_be_removed_string = "', '".join(job_states_to_be_removed)
+            job_states_to_be_ignored_string = "', '".join(job_states_to_be_ignored)
+
+            print_red(f"Job {job}, state not in ['{job_states_to_be_removed_string}'], which would be removed from the job list, or ['{job_states_to_be_ignored_string}'], which would be ignored: {_state}")
 
 @beartype
 def value_to_true_or_false(value: str) -> Union[str, bool]:

@@ -111,7 +111,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
 		unselected: {
 			line: {
-				color: 'yellow'
+				color: 'white'
 			}
 		},
 	};

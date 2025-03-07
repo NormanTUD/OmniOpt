@@ -842,12 +842,9 @@
 		$min_ram = min($ram_values);
 		$max_ram = max($ram_values);
 
-		$first_ram = $ram_values[0];
-
 		$html = '<table border="1">';
-		$html .= '<tr><th>Erster RAM-Wert (MB)</th><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Min CPU (%)</th><th>Max CPU (%)</th></tr>';
+		$html .= '<tr><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Min CPU (%)</th><th>Max CPU (%)</th></tr>';
 		$html .= '<tr>';
-		$html .= '<td>' . htmlspecialchars($first_ram) . '</td>';
 		$html .= '<td>' . htmlspecialchars($min_ram) . '</td>';
 		$html .= '<td>' . htmlspecialchars($max_ram) . '</td>';
 		$html .= '<td>' . htmlspecialchars($min_cpu) . '</td>';

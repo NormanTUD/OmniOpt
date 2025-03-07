@@ -25,6 +25,12 @@
 		$errors[] = "Folder <tt>$".$GLOBALS["sharesPath"]."</tt> not found.";
 	}
 
+	$expected_user_and_group = "www-data";
+	$alternative_user_and_group = get_current_user();
+	if(checkFolderPermissions($GLOBALS["sharesPath"], $expected_user_and_group, $expected_user_and_group, $alternative_user_and_group, $alternative_user_and_group, 0755)) {
+		exit(1);
+	}
+
 	$user_id = get_get("user_id");
 	$experiment_name = get_get("experiment_name");
 	$run_nr = get_get("run_nr", -1);

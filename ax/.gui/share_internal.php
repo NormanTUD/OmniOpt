@@ -41,14 +41,6 @@
 		print("Using sharesPath $sharesPath\n");
 	}
 
-	$expected_user_and_group = "www-data";
-
-	$alternative_user_and_group = get_current_user();
-
-	if(checkFolderPermissions($sharesPath, $expected_user_and_group, $expected_user_and_group, $alternative_user_and_group, $alternative_user_and_group, 0755)) {
-		exit(1);
-	}
-
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 
 	delete_old_shares();

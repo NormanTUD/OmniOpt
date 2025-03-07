@@ -130,26 +130,6 @@
 		return $output;
 	}
 
-	function filter_empty_columns($csv_data) {
-		$filtered_data = [];
-
-		foreach ($csv_data as $row) {
-			$filtered_row = [];
-
-			foreach ($row as $column) {
-				if ($column !== "") {
-					$filtered_row[] = $column;
-				}
-			}
-
-			if (!empty($filtered_row)) {
-				$filtered_data[] = $filtered_row;
-			}
-		}
-
-		return $filtered_data;
-	}
-
 	function read_file_as_array($filePath) {
 		if (!is_readable($filePath)) {
 			trigger_error("File cannot be read: $filePath", E_USER_WARNING);

@@ -212,13 +212,14 @@
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename)) {
-			$min_max_table = extract_min_max_ram_cpu_from_worker_info ($worker_info);
+			$worker_info = file_get_contents($filename);
+			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
 
 			$html = $min_max_table;
 			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
-			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
+			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities($worker_info).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
 
 			$tabs[$name] = [

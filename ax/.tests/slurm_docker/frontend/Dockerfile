@@ -98,45 +98,45 @@ ENV SHELL bash
 
 ENV PATH="/bin:${PATH}"
 
-RUN echo '#!/bin/bash' > /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo 'job_ids=()  # Job-IDs initialisieren' >> /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo '# Argumente parsen' >> /bin/sacct
-RUN echo 'while [[ $# -gt 0 ]]; do' >> /bin/sacct
-RUN echo '    case "$1" in' >> /bin/sacct
-RUN echo '        -j)  # Job-IDs sammeln' >> /bin/sacct
-RUN echo '            shift' >> /bin/sacct
-RUN echo '            job_ids+=("$1")' >> /bin/sacct
-RUN echo '            ;;' >> /bin/sacct
-RUN echo '        *)  # Alle anderen Optionen ignorieren' >> /bin/sacct
-RUN echo '            ;;' >> /bin/sacct
-RUN echo '    esac' >> /bin/sacct
-RUN echo '    shift' >> /bin/sacct
-RUN echo 'done' >> /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo '# Header für die Ausgabe' >> /bin/sacct
-RUN echo 'echo "JobID|State|NodeList"' >> /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo '# Durch die Job-IDs iterieren' >> /bin/sacct
-RUN echo 'for job_id in "${job_ids[@]}"; do' >> /bin/sacct
-RUN echo '    # Überprüfen, ob der Job noch in squeue ist' >> /bin/sacct
-RUN echo '    job_info=$(squeue -j "$job_id" --noheader -o "%i %T %N")' >> /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo '    if [[ -n "$job_info" ]]; then' >> /bin/sacct
-RUN echo '        # Job ist noch aktiv -> Status aus squeue nehmen' >> /bin/sacct
-RUN echo "        job_state=\$(echo "\$job_info" | awk '{print \$2}')" >> /bin/sacct
-RUN echo "        node_list=\$(echo "\$job_info" | awk '{print \$3}')" >> /bin/sacct
-RUN echo '    else' >> /bin/sacct
-RUN echo '        # Job nicht mehr in squeue -> als COMPLETED betrachten' >> /bin/sacct
-RUN echo '        job_state="COMPLETED"' >> /bin/sacct
-RUN echo '        node_list="UNKNOWN"' >> /bin/sacct
-RUN echo '    fi' >> /bin/sacct
-RUN echo '' >> /bin/sacct
-RUN echo '    # Ausgabe im Parsable2-Format' >> /bin/sacct
-RUN echo '    echo "$job_id|$job_state|$node_list"' >> /bin/sacct
-RUN echo '    echo "$job_id.0|$job_state|$node_list"' >> /bin/sacct
-RUN echo 'done' >> /bin/sacct
-RUN chmod +x /bin/sacct
+RUN echo '#!/bin/bash' > /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo 'job_ids=()  # Job-IDs initialisieren' >> /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo '# Argumente parsen' >> /bin/sacct && \
+	echo 'while [[ $# -gt 0 ]]; do' >> /bin/sacct && \
+	echo '    case "$1" in' >> /bin/sacct && \
+	echo '        -j)  # Job-IDs sammeln' >> /bin/sacct && \
+	echo '            shift' >> /bin/sacct && \
+	echo '            job_ids+=("$1")' >> /bin/sacct && \
+	echo '            ;;' >> /bin/sacct && \
+	echo '        *)  # Alle anderen Optionen ignorieren' >> /bin/sacct && \
+	echo '            ;;' >> /bin/sacct && \
+	echo '    esac' >> /bin/sacct && \
+	echo '    shift' >> /bin/sacct && \
+	echo 'done' >> /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo '# Header für die Ausgabe' >> /bin/sacct && \
+	echo 'echo "JobID|State|NodeList"' >> /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo '# Durch die Job-IDs iterieren' >> /bin/sacct && \
+	echo 'for job_id in "${job_ids[@]}"; do' >> /bin/sacct && \
+	echo '    # Überprüfen, ob der Job noch in squeue ist' >> /bin/sacct && \
+	echo '    job_info=$(squeue -j "$job_id" --noheader -o "%i %T %N")' >> /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo '    if [[ -n "$job_info" ]]; then' >> /bin/sacct && \
+	echo '        # Job ist noch aktiv -> Status aus squeue nehmen' >> /bin/sacct && \
+	echo "        job_state=\$(echo "\$job_info" | awk '{print \$2}')" >> /bin/sacct && \
+	echo "        node_list=\$(echo "\$job_info" | awk '{print \$3}')" >> /bin/sacct && \
+	echo '    else' >> /bin/sacct && \
+	echo '        # Job nicht mehr in squeue -> als COMPLETED betrachten' >> /bin/sacct && \
+	echo '        job_state="COMPLETED"' >> /bin/sacct && \
+	echo '        node_list="UNKNOWN"' >> /bin/sacct && \
+	echo '    fi' >> /bin/sacct && \
+	echo '' >> /bin/sacct && \
+	echo '    # Ausgabe im Parsable2-Format' >> /bin/sacct && \
+	echo '    echo "$job_id|$job_state|$node_list"' >> /bin/sacct && \
+	echo '    echo "$job_id.0|$job_state|$node_list"' >> /bin/sacct && \
+	echo 'done' >> /bin/sacct && \
+	chmod +x /bin/sacct
 
 ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]

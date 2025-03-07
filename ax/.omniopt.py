@@ -5670,8 +5670,9 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
         avg_time = sum(trial_durations) / len(trial_durations)
         remaining = full_nr_of_jobs_to_get - nr_of_jobs_to_get
         eta = avg_time * remaining
-        eta_str = f"{int(eta // 60)}m {int(eta % 60)}s"
-        ret += f" | ETA: {eta_str}"
+        if eta > 0:
+            eta_str = f"{int(eta // 60)}m {int(eta % 60)}s"
+            ret += f" | ETA: {eta_str}"
 
     return ret
 

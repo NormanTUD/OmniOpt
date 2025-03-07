@@ -436,9 +436,6 @@
         - <code>x_i</code> and <code>y_i</code> are individual data points for two variables.
         - <code>x̄</code> and <code>ȳ</code> are the means of the two variables.
     </p>
-    <p>
-        This formula calculates how much one variable changes in relation to another. The result is a number between -1 and 1, where:
-    </p>
     <ul>
         <li><strong>1</strong>: Perfect positive correlation</li>
         <li><strong>-1</strong>: Perfect negative correlation</li>

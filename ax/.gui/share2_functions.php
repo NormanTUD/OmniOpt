@@ -211,8 +211,11 @@
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
-		if(is_file($filename)) {
-			$html = "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
+		if(is_file($filename) && filesize($filename)) {
+			$min_max_table = extract_min_max_ram_cpu_from_worker_info ($worker_info);
+
+			$html = $min_max_table;
+			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
 			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities(file_get_contents($filename)).'</pre>';
@@ -819,5 +822,38 @@
 		}
 
 		return implode(":", $result);
+	}
+
+	function extract_min_max_ram_cpu_from_worker_info ($worker_info) {
+		preg_match_all('/CPU: ([\d\.]+)%, RAM: ([\d\.]+) MB/', $data, $matches);
+
+		$cpu_values = $matches[1];
+		$ram_values = $matches[2];
+
+		if (empty($cpu_values) || empty($ram_values)) {
+			echo "";
+			exit;
+		}
+
+		$min_cpu = min($cpu_values);
+		$max_cpu = max($cpu_values);
+
+		$min_ram = min($ram_values);
+		$max_ram = max($ram_values);
+
+		$first_ram = $ram_values[0];
+
+		$html = '<table border="1">';
+		$html .= '<tr><th>Erster RAM-Wert (MB)</th><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Min CPU (%)</th><th>Max CPU (%)</th></tr>';
+		$html .= '<tr>';
+		$html .= '<td>' . htmlspecialchars($first_ram) . '</td>';
+		$html .= '<td>' . htmlspecialchars($min_ram) . '</td>';
+		$html .= '<td>' . htmlspecialchars($max_ram) . '</td>';
+		$html .= '<td>' . htmlspecialchars($min_cpu) . '</td>';
+		$html .= '<td>' . htmlspecialchars($max_cpu) . '</td>';
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
 	}
 ?>

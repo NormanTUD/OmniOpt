@@ -86,7 +86,8 @@
 		"args_overview.txt",
 		"experiment_overview.txt",
 		"eval_nodes_cpu_ram_logs.txt",
-		"verbose_log.txt"
+		"verbose_log.txt",
+		"result_min_max.txt"
 	];
 
 	$acceptable_files = array_map(function($file) {

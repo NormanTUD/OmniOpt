@@ -227,7 +227,11 @@
 
 			if($status_data["succeeded"] > 1) {
 				$tabs = add_box_plot_tab($tabs);
-				$tabs = add_heatmap_plot_tab($tabs);
+				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
+				if(count($non_special_columns_without_result_columns)) {
+					$tabs = add_heatmap_plot_tab($tabs);
+				}
 				$tabs = add_violin_plot($tabs);
 				$tabs = add_histogram_plot($tabs);
 			}

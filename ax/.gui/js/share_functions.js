@@ -1109,7 +1109,6 @@ function plotResultPairs() {
 	var plotDiv = document.getElementById("plotResultPairs");
 	plotDiv.innerHTML = "";
 
-	// Alle Zweierkombinationen der Ergebnisnamen durchgehen
 	for (let i = 0; i < result_names.length; i++) {
 		for (let j = i + 1; j < result_names.length; j++) {
 			let xName = result_names[i];

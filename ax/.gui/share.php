@@ -234,7 +234,9 @@
 				}
 				$tabs = add_violin_plot($tabs);
 				$tabs = add_histogram_plot($tabs);
-				$tabs = add_plot_result_pairs($tabs);
+				if (count($result_names) >= 1) {
+					$tabs = add_plot_result_pairs($tabs);
+				}
 			}
 
 			$tabs = add_result_evolution_tab($tabs);

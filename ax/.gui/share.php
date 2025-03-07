@@ -109,14 +109,20 @@
 			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
 				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br><br>";
 			}
+		} else {
+			$warnings[] = "$run_dir/ui_url.txt not found";
 		}
 
 		if(is_file($best_results_txt)) {
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
+		} else {
+			$warnings[] = "$best_results_txt not found";
 		}
 
 		if(is_file("$run_dir/parameters.txt")) {
 			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents("$run_dir/parameters.txt")))."</pre>";
+		} else {
+			$warnings[] = "$run_dir/parameters.txt not found";
 		}
 
 		$status_data = null;
@@ -175,6 +181,8 @@
 			$lastLine = trim(array_slice(file("$run_dir/progressbar"), -1)[0]);
 
 			$overview_html .= "Last progressbar status: <pre>".htmlentities($lastLine)."</pre>";
+		} else {
+			$warnings[] = "$run_dir/progressbar not found";
 		}
 
 		if($overview_html != "") {
@@ -182,6 +190,8 @@
 				'id' => 'tab_overview',
 				'content' => $overview_html
 			];
+		} else {
+			$warnings[] = "\$overview_html was empty";
 		}
 
 		if(file_exists("$run_dir/pareto_front_data.json") && file_exists("$run_dir/pareto_front_table.txt")) {
@@ -205,6 +215,14 @@
 					'content' => $pareto_front_html,
 					'onclick' => "load_pareto_graph();"
 				];
+			}
+		} else {
+			if(!file_exists("$run_dir/pareto_front_data.json")) {
+				$warnings[] = "$run_dir/pareto_front_data.json not found";
+			}
+
+			if(!file_exists("$run_dir/pareto_front_table.txt")) {
+				$warnings[] = "$run_dir/pareto_front_table.txt not found";
 			}
 		}
 
@@ -258,11 +276,21 @@
 
 				$tabs = add_result_evolution_tab($tabs);
 			}
-
+		} else {
+			$warnings[] = "No successful jobs were found";
 		}
 
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
 			$tabs = add_exit_codes_pie_plot($tabs);
+		}
+
+		if(count($out_files)) {
+			$tabs['Single Logs'] = [
+				'id' => 'tab_logs',
+				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
+			];
+		} else {
+			$warnings[] = "No out-files found";
 		}
 
 		if(count($warnings)) {
@@ -280,13 +308,6 @@
 			$tabs['Share-Warnings'] = [
 				'id' => 'tab_warnings',
 				'content' => $html
-			];
-		}
-
-		if(count($out_files)) {
-			$tabs['Single Logs'] = [
-				'id' => 'tab_logs',
-				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
 			];
 		}
 	}

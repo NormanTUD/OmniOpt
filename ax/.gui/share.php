@@ -215,9 +215,9 @@
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log");
 		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
-		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main worker)", "tab_main_worker_cpu_ram");
+		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram");
 		$tabs = add_debug_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
-		$tabs = add_worker_cpu_ram_from_file($tabs, "$run_dir/eval_nodes_cpu_ram_logs.txt", "Worker-CPU-RAM-Graphs", "tab_worker_cpu_ram_graphs");
+		$tabs = add_worker_cpu_ram_from_file($tabs, "$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs");
 
 		$out_files = get_log_files($run_dir);
 

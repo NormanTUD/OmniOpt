@@ -385,6 +385,18 @@
 		return $tabs;
 	}
 
+	function add_plot_result_pairs ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotResultPairs"></div>';
+
+		$tabs['Result-Pairs'] = [
+			'id' => 'tab_result_pairs',
+			'content' => $html,
+			"onclick" => "plotResultPairs();"
+		];
+
+		return $tabs;
+	}
+
 	function add_histogram_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotHistogram"></div>';
 

@@ -1087,3 +1087,65 @@ function plotResultEvolution() {
 
 	$("#plotResultEvolution").data("loaded", "true");
 }
+
+function plotResultPairs() {
+	if ($("#plotResultPairs").data("loaded") == "true") {
+		return;
+	}
+
+	var plotDiv = document.getElementById("plotResultPairs");
+	plotDiv.innerHTML = "";
+
+	// Alle Zweierkombinationen der Ergebnisnamen durchgehen
+	for (let i = 0; i < result_names.length; i++) {
+		for (let j = i + 1; j < result_names.length; j++) {
+			let xName = result_names[i];
+			let yName = result_names[j];
+
+			let xIndex = tab_results_headers_json.indexOf(xName);
+			let yIndex = tab_results_headers_json.indexOf(yName);
+
+			// Daten extrahieren
+			let data = tab_results_csv_json
+				.filter(row => row[xIndex] !== "" && row[yIndex] !== "")
+				.map(row => ({
+					x: parseFloat(row[xIndex]),
+					y: parseFloat(row[yIndex]),
+					status: row[tab_results_headers_json.indexOf("trial_status")]
+				}));
+
+			// Farben nach Status
+			let colors = data.map(d => d.status === "COMPLETED" ? 'green' : (d.status === "FAILED" ? 'red' : 'gray'));
+
+			let trace = {
+				x: data.map(d => d.x),
+				y: data.map(d => d.y),
+				mode: 'markers',
+				marker: {
+					size: 10,
+					color: colors
+				},
+				text: data.map(d => `Status: ${d.status}`),
+				type: 'scatter',
+				showlegend: false
+			};
+
+			let layout = {
+				title: `${xName} vs ${yName}`,
+				xaxis: { title: xName },
+				yaxis: { title: yName },
+				showlegend: false,
+				width: get_graph_width(),
+				height: 800,
+				paper_bgcolor: 'rgba(0,0,0,0)',
+				plot_bgcolor: 'rgba(0,0,0,0)'
+			};
+
+			let subDiv = document.createElement("div");
+			plotDiv.appendChild(subDiv);
+
+			Plotly.newPlot(subDiv, [trace], layout);
+		}
+	}
+	$("#plotResultPairs").data("loaded", "true");
+}

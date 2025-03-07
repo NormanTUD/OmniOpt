@@ -456,7 +456,7 @@
 								$first_tab = $first_tab ? 'aria-selected="true"' : '';
 								$tab_id = $tab_data['id'];
 
-								echo "<button role='tab' $onclick aria-controls='{$tab_id}' $first_tab>$tab_name</button>";
+								echo "<button role='tab' $onclick aria-controls='$tab_id' $first_tab>$tab_name</button>";
 
 								$first_tab = false;
 							}

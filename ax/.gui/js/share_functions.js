@@ -241,7 +241,9 @@ function plotCPUAndRAMUsage() {
 			y: 0.9
 		},
 		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		plot_bgcolor: 'rgba(0,0,0,0)',
+		width: get_graph_width(),
+		height: 800
 	};
 
 	var data = [trace1, trace2];

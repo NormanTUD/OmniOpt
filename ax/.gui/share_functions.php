@@ -218,7 +218,7 @@
 	}
 
 	function add_debug_log_from_file($tabs, $warnings, $filename, $name, $id) {
-		if(is_file($filename) && $filesize($filename)) {
+		if(is_file($filename) && filesize($filename)) {
 			$output = "<div id='debug_log_spinner' class='spinner'></div>";
 			$output .= "<div id='here_debuglogs_go'></div>";
 

@@ -4290,7 +4290,7 @@ def clean_completed_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
-        if _state in ["completed", "early_stopped", "abandoned", "cancelled"]:
+        if _state in ["completed", "early_stopped", "abandoned", "cancelled", "timeout"]:
             global_vars["jobs"].remove((job, trial_index))
         elif _state in ["unknown", "pending", "running", "completing"]:
             pass

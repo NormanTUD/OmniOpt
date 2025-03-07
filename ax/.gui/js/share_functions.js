@@ -251,6 +251,10 @@ function plotScatter2d() {
 	if ($("#plotScatter2d").data("loaded") == "true") {
 		return;
 	}
+
+	var plotDiv = document.getElementById("plotScatter2d");
+	plotDiv.innerHTML = "";
+
 	for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
 		var numericColumns = tab_results_headers_json.filter(col =>
 			!special_col_names.includes(col) && !result_names.includes(col) &&
@@ -269,8 +273,6 @@ function plotScatter2d() {
 		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-		var plotDiv = document.getElementById("plotScatter2d");
-		plotDiv.innerHTML = "";
 
 		for (let i = 0; i < numericColumns.length; i++) {
 			for (let j = i + 1; j < numericColumns.length; j++) {
@@ -343,6 +345,14 @@ function plotScatter3d() {
 	if($("#plotScatter3d").data("loaded") == "true") {
 		return;
 	}
+
+	var plotDiv = document.getElementById("plotScatter3d");
+	if (!plotDiv) {
+		console.error("Div element with id 'plotScatter3d' not found");
+		return;
+	}
+	plotDiv.innerHTML = "";
+
 	for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
 		var numericColumns = [];
 		var categoricalColumns = {};
@@ -372,12 +382,6 @@ function plotScatter3d() {
 		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-		var plotDiv = document.getElementById("plotScatter3d");
-		if (!plotDiv) {
-			console.error("Div element with id 'plotScatter3d' not found");
-			return;
-		}
-		plotDiv.innerHTML = "";
 
 		for (let i = 0; i < allColumns.length; i++) {
 			for (let j = i + 1; j < allColumns.length; j++) {

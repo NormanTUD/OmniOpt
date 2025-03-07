@@ -6088,16 +6088,15 @@ def handle_optimization_completion(optimization_complete: bool) -> bool:
 def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> list:
     results = []
     i = 1
-    with ThreadPoolExecutor() as con_exe:
-        for trial_index, parameters in trial_index_to_param.items():
-            if wait_for_jobs_or_break(_max_eval, _progress_bar):
-                break
-            if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
-                break
-            progressbar_description(["starting parameter set"])
-            _args = [trial_index, parameters, i, next_nr_steps, phase]
-            results.append(con_exe.submit(execute_evaluation, _args))
-            i += 1
+    for trial_index, parameters in trial_index_to_param.items():
+        if wait_for_jobs_or_break(_max_eval, _progress_bar):
+            break
+        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+            break
+        progressbar_description(["starting parameter set"])
+        _args = [trial_index, parameters, i, next_nr_steps, phase]
+        results.append(execute_evaluation(_args))
+        i += 1
     return results
 
 @beartype

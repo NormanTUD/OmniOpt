@@ -282,6 +282,8 @@
 
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
 			$tabs = add_exit_codes_pie_plot($tabs);
+		} else {
+			$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
 		}
 
 		if(count($out_files)) {

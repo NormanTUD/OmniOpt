@@ -239,7 +239,7 @@
 			$tabs = add_result_evolution_tab($tabs);
 		}
 
-		if($status_data && isset($status_data["total"]) && $status_data["total"] > 0) {
+		if($status_data && (isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) && (isset($status_data["failed"]) && $status_data["failed"] > 0)) {
 			$tabs = add_exit_codes_pie_plot($tabs);
 		}
 

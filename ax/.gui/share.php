@@ -226,20 +226,20 @@
 			}
 		}
 
-		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/results.csv", "Results", "tab_results");
-		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
-		$tabs = add_simple_csv_tab_from_file($tabs, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]);
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/oo_errors.txt", "Errors", "tab_errors", true);
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
-		$tabs = add_simple_pre_tab_from_file($tabs, "$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log");
-		$tabs = add_worker_usage_plot_from_file($tabs, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
-		$tabs = add_debug_log_from_file($tabs, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
-		$tabs = add_cpu_ram_usage_main_worker_from_file($tabs, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram");
-		$tabs = add_worker_cpu_ram_from_file($tabs, "$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs");
+		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/results.csv", "Results", "tab_results");
+		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
+		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]);
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/oo_errors.txt", "Errors", "tab_errors", true);
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
+		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log");
+		[$tabs, $warnings] = add_worker_usage_plot_from_file($tabs, $warnings, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
+		[$tabs, $warnings] = add_debug_log_from_file($tabs, $warnings, "$run_dir/log", "Debug-Logs", "tab_debug_logs");
+		[$tabs, $warnings] = add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram");
+		[$tabs, $warnings] = add_worker_cpu_ram_from_file($tabs, $warnings, "$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs");
 
 		$out_files = get_log_files($run_dir);
 
@@ -294,6 +294,9 @@
 		}
 
 		if(count($warnings)) {
+			$warnings = array_unique($warnings);
+			sort($warnings);
+
 			$html = "";
 			if(count($warnings) == 1) {
 				$html = $warnings[0];

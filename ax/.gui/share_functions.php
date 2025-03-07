@@ -190,7 +190,7 @@
 		return "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'>Copy raw data to clipboard</button>\n";
 	}
 
-	function add_worker_cpu_ram_from_file($tabs, $filename, $name, $id) {
+	function add_worker_cpu_ram_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename)) {
 			$worker_info = file_get_contents($filename);
 			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
@@ -206,13 +206,19 @@
 				'id' => $id,
 				'content' => $html
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
-	function add_debug_log_from_file($tabs, $filename, $name, $id) {
-		if(is_file($filename)) {
+	function add_debug_log_from_file($tabs, $warnings, $filename, $name, $id) {
+		if(is_file($filename) && $filesize($filename)) {
 			$output = "<div id='debug_log_spinner' class='spinner'></div>";
 			$output .= "<div id='here_debuglogs_go'></div>";
 
@@ -221,13 +227,19 @@
 				'content' => $output,
 				'onclick' => "load_debug_log()"
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
-	function add_cpu_ram_usage_main_worker_from_file($tabs, $filename, $name, $id) {
-		if(is_file($filename)) {
+	function add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, $filename, $name, $id) {
+		if(is_file($filename) && filesize($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
@@ -249,9 +261,15 @@
 				'content' => $html,
 				"onclick" => "plotCPUAndRAMUsage();"
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
 	function add_scatter_3d_plots($tabs, $filename, $name, $id) {
@@ -282,8 +300,8 @@
 		return $tabs;
 	}
 
-	function add_worker_usage_plot_from_file($tabs, $filename, $name, $id) {
-		if(is_file($filename)) {
+	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
+		if(is_file($filename) && filesize($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id");
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
@@ -298,12 +316,18 @@
 				'content' => $html,
 				"onclick" => "plotWorkerUsage();"
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
-	function add_simple_pre_tab_from_file ($tabs, $filename, $name, $id, $remove_ansi_colors = false) {
+	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);
 			if(!$remove_ansi_colors) {
@@ -327,9 +351,15 @@
 				'id' => $id,
 				'content' => $html
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
 	function add_exit_codes_pie_plot($tabs) {
@@ -462,7 +492,7 @@
 		return $tabs;
 	}
 
-	function add_simple_csv_tab_from_file ($tabs, $filename, $name, $id, $header_line = null) {
+	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
 		if(is_file($filename) && filesize($filename)) {
 			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);
 			$headers = $csv_contents[0];
@@ -491,9 +521,15 @@
 				'id' => $id,
 				'content' => $results_html,
 			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
 		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
 	function get_log_files($run_dir) {

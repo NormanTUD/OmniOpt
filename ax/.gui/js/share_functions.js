@@ -209,18 +209,20 @@ function plotCPUAndRAMUsage() {
 
 	var trace1 = {
 		x: timestamps,
-		y: ramUsage,
+		y: cpuUsage,
 		mode: 'lines+markers',
-		name: 'RAM Usage (MB)',
-		type: 'scatter'
+		name: 'CPU Usage (%)',
+		type: 'scatter',
+		yaxis: 'y1'
 	};
 
 	var trace2 = {
 		x: timestamps,
-		y: cpuUsage,
+		y: ramUsage,
 		mode: 'lines+markers',
-		name: 'CPU Usage (%)',
-		type: 'scatter'
+		name: 'RAM Usage (MB)',
+		type: 'scatter',
+		yaxis: 'y2'
 	};
 
 	var layout = {
@@ -233,7 +235,13 @@ function plotCPUAndRAMUsage() {
 			tickangle: -45
 		},
 		yaxis: {
-			title: 'Usage',
+			title: 'CPU Usage (%)',
+			rangemode: 'tozero'
+		},
+		yaxis2: {
+			title: 'RAM Usage (MB)',
+			overlaying: 'y',
+			side: 'right',
 			rangemode: 'tozero'
 		},
 		legend: {

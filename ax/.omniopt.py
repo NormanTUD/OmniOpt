@@ -1991,7 +1991,7 @@ class MonitorProcess:
 
                         unix_timestamp = int(time.time())
 
-                        log_file.write(f"Unix-Timestamp: {unix_timestamp}, Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB / {total_memory:.2f} MB\n")
+                        log_file.write(f"\nUnix-Timestamp: {unix_timestamp}, Hostname: {hostname}, CPU: {cpu_usage:.2f}%, RAM: {memory_usage:.2f} MB / {total_memory:.2f} MB\n")
                 time.sleep(self.interval)
         except psutil.NoSuchProcess:
             pass

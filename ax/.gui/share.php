@@ -452,7 +452,7 @@
 <?php
 							$first_tab = true;
 							foreach ($tabs as $tab_name => $tab_data) {
-								echo '<button role="tab" '.(isset($tab_data["onclick"]) ? " onclick='" . $tab_data["onclick"] . "'" : "" ).' aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
+								echo '<button class="invert_in_dark_mode" role="tab" '.(isset($tab_data["onclick"]) ? " onclick='" . $tab_data["onclick"] . "'" : "" ).' aria-controls="' . $tab_data['id'] . '" ' . ($first_tab ? 'aria-selected="true"' : '') . '>' . $tab_name . '</button>';
 								$first_tab = false;
 							}
 ?>

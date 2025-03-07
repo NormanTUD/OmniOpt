@@ -593,7 +593,7 @@
 					echo '</a><br>';
 				}
 			} else {
-				print "<h2>Sorry, no jobs have been uploadet yet.</h2>";
+				print "<h2>Sorry, no jobs have been uploaded yet.</h2>";
 			}
 		} else {
 			echo "The specified folder does not exist.";

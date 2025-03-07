@@ -4295,7 +4295,7 @@ def clean_completed_jobs() -> None:
         elif _state in ["unknown", "pending", "running", "completing"]:
             pass
         else:
-            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending, completing or running: {_state}")
+            print_red(f"Job {job}, state not in completed, early_stopped, abandoned, cancelled, unknown, pending, timeout, completing or running: {_state}")
 
 @beartype
 def value_to_true_or_false(value: str) -> Union[str, bool]:

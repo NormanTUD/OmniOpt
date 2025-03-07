@@ -3342,6 +3342,7 @@ def abandon_job(job: Job, trial_index: int) -> bool:
             if ax_client:
                 _trial = ax_client.get_trial(trial_index)
                 _trial.mark_abandoned()
+                print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
                 print_red("ax_client could not be found")
@@ -4294,7 +4295,7 @@ def clean_completed_jobs() -> None:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in job_states_to_be_removed:
-            print_debug(f"Removing job {job}, trial_index: {trial_index} (state: {_state})")
+            print_debug(f"clean_completed_jobs: removing job {job}, trial_index: {trial_index}")
             global_vars["jobs"].remove((job, trial_index))
         elif _state in job_states_to_be_ignored:
             pass
@@ -5090,6 +5091,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     else:
         print_red("ax_client could not be found or used")
         my_exit(9)
+    print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
 
     return this_jobs_finished
@@ -5138,6 +5140,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                     orchestrate_job(job, trial_index)
                 failed_jobs(1)
                 this_jobs_finished += 1
+                print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
 
             save_checkpoint()
@@ -5545,8 +5548,8 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
-        print_debug("Cancelled failed job")
 
+        print_debug(f"cancel_failed_job: removing job {job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
         save_checkpoint()

@@ -1,5 +1,5 @@
 <?php
-	include_once("share2_functions.php");
+	include_once("share_functions.php");
 
         require "_header_base.php";
 

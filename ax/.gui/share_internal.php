@@ -169,18 +169,4 @@
 			exit(0);
 		}
 	}
-
-	$dir_path = ".";
-	if (preg_match("/\/tutorials\/?$/", dirname($_SERVER["PHP_SELF"]))) {
-		$dir_path = "..";
-	}
-
-	if (!isset($_GET["get_hash_only"])) {
-?>
-	    <div id="breadcrumb"></div>
-<?php
-	}
-
-	$run_nr = get_or_env("run_nr");
-	include("footer.php");
 ?>

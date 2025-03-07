@@ -21,6 +21,8 @@
 	];
 
 	$errors = [];
+	$warnings = [];
+
 	if(!is_dir($GLOBALS["sharesPath"])) {
 		$errors[] = "Folder <tt>$".$GLOBALS["sharesPath"]."</tt> not found.";
 	}
@@ -84,9 +86,14 @@
 
 		if(is_file($result_names_file)) {
 			$result_names = read_file_as_array($result_names_file);
+		} else {
+			$warnings[] = "$result_names_file not found";
 		}
+
 		if(is_file($result_min_max_file)) {
 			$result_min_max = read_file_as_array($result_min_max_file);
+		} else {
+			$warnings[] = "$result_min_max not found";
 		}
 
 		$GLOBALS["json_data"]["result_names"] = $result_names;
@@ -251,6 +258,24 @@
 
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
 			$tabs = add_exit_codes_pie_plot($tabs);
+		}
+
+		if(count($warnings)) {
+			$html = "";
+			if(count($warnings) == 1) {
+				$html = $warnings[0];
+			} else {
+				$html .= "<ul>";
+				foreach ($warnings as $warning) {
+					$html .= "<li>" . htmlspecialchars($warning) . "</li>";
+				}
+				$html .= "</ul>";
+			}
+
+			$tabs['Share-Warnings'] = [
+				'id' => 'tab_warnings',
+				'content' => $html
+			];
 		}
 
 		if(count($out_files)) {

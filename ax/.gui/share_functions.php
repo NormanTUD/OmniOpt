@@ -492,7 +492,7 @@
 					$offered_files,
 					$added_files,
 					$userFolder,
-					"See $url for a live-trace.\n",
+					"See $url for live-results.\n",
 					"Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n"
 				);
 			} else {
@@ -502,8 +502,8 @@
 					$offered_files,
 					$added_files,
 					$uuid_folder,
-					"See $url for a live-trace.\n",
-					"See $url for a live-trace.\n"
+					"See $url for live-results.\n",
+					"See $url for live-results.\n"
 				);
 			}
 		}

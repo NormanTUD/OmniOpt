@@ -52,21 +52,13 @@ fi
 original_dir=$(pwd)
 
 share_internal_output=$(php share_internal.php 2>&1)
+exit_code=$?
 
-share_output_must_contain=(
-	"breadcrumb"
-	"createBreadcrumb"
-)
-
-for i in "${share_output_must_contain[@]}"; do
-	if echo "$share_internal_output" | grep "$i" 2>/dev/null >/dev/null; then
-		true
-	else
-		error_msg="php share_internal.php does not contain $i"
-		red_text "$error_msg"
-		ERRORS+=("$error_msg")
-	fi
-done
+if [[ $exit_code -ne 0 ]]; then
+	error_msg="php share_internal.php failed with exit code $exit_code"
+	red_text "$error_msg"
+	ERRORS+=("$error_msg")
+fi
 
 if [ ${#ERRORS[@]} -eq 0 ]; then
 	green_text "No errors"

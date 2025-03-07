@@ -241,8 +241,8 @@
 			$csv_json = $csv_contents_no_header;
 			$headers_json = $headers;
 
-			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
-			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
+			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
+			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -291,7 +291,7 @@
 
 			$csv_contents = getCsvDataAsArray($filename);
 
-			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_contents;
+			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_contents;
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -488,8 +488,8 @@
 			$csv_json = $csv_contents_no_header;
 			$headers_json = $headers;
 
-			$GLOBALS["json_data"]["${id}_headers_json"] = $headers_json;
-			$GLOBALS["json_data"]["${id}_csv_json"] = $csv_json;
+			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
+			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 
 			$content = htmlentities(file_get_contents($filename));
 
@@ -497,11 +497,11 @@
 				$content = implode(",", $header_line)."\n$content";
 			}
 
-			$results_html = "<div id='${id}_csv_table'></div>\n";
-			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
-			$results_html .= "<pre id='${id}_csv_table_pre'>".$content."</pre>\n";
-			$results_html .= copy_id_to_clipboard_string("${id}_csv_table_pre");
-			$results_html .= "<script>\n\tcreateTable(${id}_csv_json, ${id}_headers_json, '${id}_csv_table')</script>\n";
+			$results_html = "<div id='{$id}_csv_table'></div>\n";
+			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre");
+			$results_html .= "<pre id='{$id}_csv_table_pre'>".$content."</pre>\n";
+			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre");
+			$results_html .= "<script>\n\tcreateTable({$id}_csv_json, {$id}_headers_json, '{$id}_csv_table')</script>\n";
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -685,14 +685,14 @@
 				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
 			}
 
-			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
+			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre");
 			if ($i == 0) {
 				$content = file_get_contents($file_path);
 				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlightDebugInfo(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
 				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
 			}
-			$output .= copy_id_to_clipboard_string("single_run_${i}_pre");
+			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre");
 			$output .= '</article>';
 			$i++;
 		}

@@ -825,7 +825,7 @@
 		return implode(":", $result);
 	}
 
-	function extract_min_max_ram_cpu_from_worker_info ($worker_info) {
+	function extract_min_max_ram_cpu_from_worker_info ($data) {
 		preg_match_all('/CPU: ([\d\.]+)%, RAM: ([\d\.]+) MB/', $data, $matches);
 
 		$cpu_values = $matches[1];

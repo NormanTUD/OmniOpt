@@ -620,7 +620,7 @@
 	}
 
 	function is_valid_user_or_experiment_name ($name) {
-		if(preg_match("/^[a-zA-Z0-9_]+$/", $name)) {
+		if(preg_match("/^[a-zA-Z0-9_-]+$/", $name)) {
 			return true;
 		}
 

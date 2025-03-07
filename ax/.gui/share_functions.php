@@ -422,22 +422,6 @@
         <li><strong>Purple (darkest)</strong>: A strong negative correlation (close to -1). This indicates that as one variable increases, the other decreases in a very predictable manner.</li>
     </ul>
 
-    <h2>How the Data is Calculated</h2>
-    <p>
-        The heatmap is based on the correlation coefficient, which is calculated using the following formula:
-    </p>
-    <pre>r = (Σ(x_i - x̄)(y_i - ȳ)) / (√Σ(x_i - x̄)² * Σ(y_i - ȳ)²)</pre>
-    <p>
-        - <code>r</code> is the correlation coefficient.
-        - <code>x_i</code> and <code>y_i</code> are individual data points for two variables.
-        - <code>x̄</code> and <code>ȳ</code> are the means of the two variables.
-    </p>
-    <ul>
-        <li><strong>Large positive values</strong>: Positive correlation</li>
-        <li><strong>-large negative values</strong>: Negative correlation</li>
-        <li><strong>0</strong>: No correlation</li>
-    </ul>
-
     <h2>What the Heatmap Shows</h2>
     <p>
         In the heatmap, each cell represents the correlation between two numerical columns. The color of the cell is determined by the correlation coefficient: from yellow for strong positive correlations, through green and blue for weaker correlations, to purple for strong negative correlations.

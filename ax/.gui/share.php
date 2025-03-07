@@ -211,7 +211,8 @@
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 
-			if (count($result_names) >= 1) {
+			#if (count($result_names) >= 1) { // TODO: This works theoretically, but when there are too many plots, it may crash the browser.
+			if (count($result_names) == 1) {
 				/* Calculating the difference of the sets of columns to find how many parameters have been used, except the special column names and result column names. */
 				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
 				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);

@@ -21,7 +21,7 @@ tasks with built-in fault tolerance and flexibility. A graphical user interface
 (GUI) is available for command creation, accessible at 
 [OmniOpt2 GUI](https://imageseg.scads.de/omniax/). For tutorials on 
 configuration, exit codes, and debugging, visit
-[OmniOpt2 Tutorials](https://imageseg.scads.de/omniax/tutorials.php).
+[OmniOpt2 Tutorials](https://imageseg.scads.de/omniax/tutorials).
 
 ## Main program
 
@@ -59,7 +59,7 @@ jobs and ensuring program resilience.
 ```
 
 See
-[the automated tests tutorial page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=tests)
+[the automated tests tutorial page](https://imageseg.scads.de/omniax/tutorials?tutorial=tests)
 for more details.
 
 ## Install from pypi
@@ -82,7 +82,7 @@ dependencies automatically if required.
 ## Error Codes
 
 For common issues and exit codes, see the
-[exit codes tutorial-page](https://imageseg.scads.de/omniax/tutorials.php?tutorial=exit_codes_and_bash_scripting).
+[exit codes tutorial-page](https://imageseg.scads.de/omniax/tutorials?tutorial=exit_codes_and_bash_scripting).
 
 ## Autocompletions
 

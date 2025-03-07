@@ -4294,6 +4294,7 @@ def clean_completed_jobs() -> None:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in job_states_to_be_removed:
+            print_debug(f"Removing job {job}, trial_index: {trial_index} (state: {_state})")
             global_vars["jobs"].remove((job, trial_index))
         elif _state in job_states_to_be_ignored:
             pass

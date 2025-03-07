@@ -1169,27 +1169,28 @@
 		}
 	}
 
-	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {
-		if (!is_dir($directory)) {
-			return false;
-		}
+	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {                                                                                                                                            
+		if (!is_dir($directory)) {       
+			return false;                              
+		}                                                       
 
 		$files = array_diff(scandir($directory), ['.', '..']);
 
-		foreach ($files as $file) {
+		foreach ($files as $file) {                            
 			$path = $directory . DIRECTORY_SEPARATOR . $file;
-			if (is_dir($path)) {
+			if (is_dir($path)) {             
 				deleteEmptyDirectories($path, true);
-			}
-		}
+			}                                
+		}                                           
 
 		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
-		if ($is_recursive_call && empty($filesAfterCheck)) {
-			rmdir($directory);
-			return true;
-		}
 
-		return false;
+		// Überprüfung, ob das Verzeichnis leer ist und älter als ein Tag
+		if ($is_recursive_call && empty($filesAfterCheck) && filemtime($directory) < time() - 86400) {
+			rmdir($directory);                             
+			return true;                 
+		}                                                                                                                               
+		return false;                                                                                                     
 	}
 
 	function _delete_old_shares($dir) {

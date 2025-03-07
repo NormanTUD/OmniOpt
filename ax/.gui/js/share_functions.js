@@ -652,7 +652,9 @@ async function plot_worker_cpu_ram() {
 			},
 			showlegend: true,
 			paper_bgcolor: 'rgba(0,0,0,0)',
-			plot_bgcolor: 'rgba(0,0,0,0)'
+			plot_bgcolor: 'rgba(0,0,0,0)',
+			width: get_graph_width(),
+			height: 800
 		};
 
 		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);

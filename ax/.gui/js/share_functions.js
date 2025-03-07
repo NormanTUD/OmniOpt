@@ -190,7 +190,9 @@ function plotWorkerUsage() {
 		yaxis: { title: "Number of Workers" },
 		legend: { x: 0, y: 1 },
 		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		plot_bgcolor: 'rgba(0,0,0,0)',
+		width: get_graph_width(),
+		height: 800,
 	};
 
 	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);

@@ -1117,7 +1117,6 @@ function plotResultPairs() {
 			let xIndex = tab_results_headers_json.indexOf(xName);
 			let yIndex = tab_results_headers_json.indexOf(yName);
 
-			// Daten extrahieren
 			let data = tab_results_csv_json
 				.filter(row => row[xIndex] !== "" && row[yIndex] !== "")
 				.map(row => ({
@@ -1126,7 +1125,6 @@ function plotResultPairs() {
 					status: row[tab_results_headers_json.indexOf("trial_status")]
 				}));
 
-			// Farben nach Status
 			let colors = data.map(d => d.status === "COMPLETED" ? 'green' : (d.status === "FAILED" ? 'red' : 'gray'));
 
 			let trace = {
@@ -1143,7 +1141,7 @@ function plotResultPairs() {
 			};
 
 			let layout = {
-				title: `${xName} vs ${yName}`,
+				title: '', // lassen wir leer, weil wir's jetzt als Überschrift machen
 				xaxis: { title: xName },
 				yaxis: { title: yName },
 				showlegend: false,
@@ -1152,6 +1150,11 @@ function plotResultPairs() {
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)'
 			};
+
+			// Überschrift einfügen
+			let header = document.createElement("h2");
+			header.textContent = `${xName} vs ${yName}:`;
+			plotDiv.appendChild(header);
 
 			let subDiv = document.createElement("div");
 			plotDiv.appendChild(subDiv);

@@ -584,12 +584,16 @@
 				return strcmp($a, $b);
 			});
 
-			foreach ($folders as $folder) {
-				$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
+			if(count($folders)) {
+				foreach ($folders as $folder) {
+					$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
 
-				echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
-				echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
-				echo '</a><br>';
+					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
+					echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
+					echo '</a><br>';
+				}
+			} else {
+				print "<h2>Sorry, no jobs have been uploadet yet.</h2>";
 			}
 		} else {
 			echo "The specified folder does not exist.";

@@ -825,7 +825,7 @@
 		return implode(":", $result);
 	}
 
-	function extract_min_max_ram_cpu_from_worker_info ($data) {
+	function extract_min_max_ram_cpu_from_worker_info($data) {
 		preg_match_all('/CPU: ([\d\.]+)%, RAM: ([\d\.]+) MB/', $data, $matches);
 
 		$cpu_values = $matches[1];
@@ -836,19 +836,45 @@
 			exit;
 		}
 
+		// Hilfsfunktionen für Durchschnitt und Median
+		function calculate_average($values) {
+			return array_sum($values) / count($values);
+		}
+
+		function calculate_median($values) {
+			sort($values);
+			$count = count($values);
+			$middle = floor($count / 2);
+			if ($count % 2) {
+				return $values[$middle];
+			} else {
+				return ($values[$middle - 1] + $values[$middle]) / 2;
+			}
+		}
+
+		// Werte berechnen
 		$min_cpu = min($cpu_values);
 		$max_cpu = max($cpu_values);
+		$avg_cpu = calculate_average($cpu_values);
+		$median_cpu = calculate_median($cpu_values);
 
 		$min_ram = min($ram_values);
 		$max_ram = max($ram_values);
+		$avg_ram = calculate_average($ram_values);
+		$median_ram = calculate_median($ram_values);
 
 		$html = '<table border="1">';
-		$html .= '<tr><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Min CPU (%)</th><th>Max CPU (%)</th></tr>';
+		$html .= '<tr><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Avg RAM (MB)</th><th>Median RAM (MB)</th>';
+		$html .= '<th>Min CPU (%)</th><th>Max CPU (%)</th><th>Avg CPU (%)</th><th>Median CPU (%)</th></tr>';
 		$html .= '<tr>';
 		$html .= '<td>' . htmlspecialchars($min_ram) . '</td>';
 		$html .= '<td>' . htmlspecialchars($max_ram) . '</td>';
+		$html .= '<td>' . htmlspecialchars(round($avg_ram, 2)) . '</td>';
+		$html .= '<td>' . htmlspecialchars($median_ram) . '</td>';
 		$html .= '<td>' . htmlspecialchars($min_cpu) . '</td>';
 		$html .= '<td>' . htmlspecialchars($max_cpu) . '</td>';
+		$html .= '<td>' . htmlspecialchars(round($avg_cpu, 2)) . '</td>';
+		$html .= '<td>' . htmlspecialchars($median_cpu) . '</td>';
 		$html .= '</tr>';
 		$html .= '</table>';
 

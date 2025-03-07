@@ -1153,7 +1153,7 @@ function plotResultPairs() {
 
 			// Überschrift einfügen
 			let header = document.createElement("h2");
-			header.textContent = `${xName} vs ${yName}:`;
+			header.textContent = `${xName} (x) vs ${yName} (y):`;
 			plotDiv.appendChild(header);
 
 			let subDiv = document.createElement("div");

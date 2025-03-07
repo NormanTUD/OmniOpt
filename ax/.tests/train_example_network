@@ -66,6 +66,7 @@ export min_epochs=10
 export max_epochs=40
 export min_dense=1
 export max_dense=10
+export data=data
 
 export min_conv=1
 export max_conv=10
@@ -94,6 +95,7 @@ function help () {
 	echo "Possible options:"
 	echo "  --help                                             This help"
 	echo "  --debug                                            Enables debug mode"
+	echo "  --data=[data,data_tiny,data_full]                  Data folder (default: data)"
 	echo "  --num_parallel_jobs=n                              Number of parallel jobs (default: $num_parallel_jobs)"
 	echo "  --worker_timeout=n                                 Number of minutes for a single-worker to timeout (default: $worker_timeout)"
 	echo "  --mem_gb=n                                         Memory in GB (default $mem_gb)"
@@ -153,6 +155,10 @@ for i in "$@"; do
 				exit 100
 			fi
 
+			;;
+		--data=*)
+			data="${i#*=}"
+			shift
 			;;
 		--mem_gb=*)
 			mem_gb="${i#*=}"
@@ -322,7 +328,7 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--max_eval=$max_eval \
 	--num_parallel_jobs=$num_parallel_jobs \
 	--gpus=$NUM_GPUS \
-	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters)" | base64 -w 0) \
+	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters) --data=$data" | base64 -w 0) \
 	$(generate_parameter validation_split $validation_split $validation_split float) \
 	$(generate_parameter width $min_width $max_width int) \
 	$(generate_parameter height $min_height $max_height int) \

@@ -84,7 +84,6 @@ try:
         from submitit import Job
 
         import threading
-        from concurrent.futures import ThreadPoolExecutor
 
         import importlib.util
         import inspect
@@ -5553,7 +5552,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
 
-        print_debug(f"cancel_failed_job: removing job {job}, trial_index: {trial_index}")
+        print_debug(f"cancel_failed_job: removing job {new_job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
         save_checkpoint()

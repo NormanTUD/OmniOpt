@@ -719,7 +719,7 @@
 		if($value === null) {
 			return false;
 		}
-		return preg_match('/^[a-zA-Z0-9_]+$/', $value);
+		return preg_match('/^[a-zA-Z-0-9_]+$/', $value);
 	}
 
 	function is_valid_run_nr($value) {

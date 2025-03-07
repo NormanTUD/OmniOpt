@@ -453,8 +453,8 @@
         - <code>x̄</code> and <code>ȳ</code> are the means of the two variables.
     </p>
     <ul>
-        <li><strong>Large positive values</strong>: Perfect positive correlation</li>
-        <li><strong>-large negative values</strong>: Perfect negative correlation</li>
+        <li><strong>Large positive values</strong>: Positive correlation</li>
+        <li><strong>-large negative values</strong>: Negative correlation</li>
         <li><strong>0</strong>: No correlation</li>
     </ul>
 

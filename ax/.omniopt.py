@@ -5254,6 +5254,7 @@ def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index
             print_debug(f"orchestrator_start_trial: error {e}")
         _trial.mark_running(unsafe=True, no_runner_required=True)
 
+        print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
         global_vars["jobs"].append((new_job, trial_index))
     else:
         print_red("executor or ax_client could not be found properly")
@@ -5476,7 +5477,9 @@ def execute_evaluation(_params: list) -> Optional[int]:
             initialize_job_environment()
             new_job = submit_job(parameters)
 
+            print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
             global_vars["jobs"].append((new_job, trial_index))
+
             if is_slurm_job() and not args.force_local_execution:
                 _sleep(1)
 

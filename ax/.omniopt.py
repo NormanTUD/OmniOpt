@@ -5651,7 +5651,7 @@ def remove_extra_spaces(text: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
 
 @beartype
-def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: list) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     ret = ""
     if full_nr_of_jobs_to_get > 1:
@@ -5665,6 +5665,12 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int) -> 
         ret = f"{base_msg} (no sbatch)"
 
     ret = remove_extra_spaces(ret)
+
+    if trial_durations and full_nr_of_jobs_to_get > 1:
+        avg_time = sum(trial_durations) / len(trial_durations)
+        remaining = full_nr_of_jobs_to_get - nr_of_jobs_to_get
+        eta = avg_time * remaining
+        ret = f"{ret} | ETA: {eta:.1f}s"
 
     return ret
 
@@ -5681,10 +5687,13 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trials_dict: dict = {}
 
+    trial_durations = []
+
     try:
         for k in range(0, nr_of_jobs_to_get):
-            progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get)])
+            progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
+            start_time = time.time()
             #params, trial_index = ax_client.get_next_trial(force=True)
 
             ####################################
@@ -5702,6 +5711,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             trials_dict[trial_index] = params
             print_debug(f"_fetch_next_trials: got trial {k}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
+            end_time = time.time()
+
+            trial_durations.append(end_time - start_time)
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:

@@ -90,6 +90,7 @@ export validation_split=0.2
 export min_learning_rate=0.001
 export max_learning_rate=0.4
 
+export generate_all_jobs_at_once=0
 export revert_to_random_when_seemingly_exhausted=0
 
 function help () {
@@ -123,6 +124,7 @@ function help () {
 	echo "  --validation_split=FLOAT                           Validation split (default: $validation_split)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
+	echo "  --generate_all_jobs_at_once                        Generate all jobs at once"
 	echo "  --revert_to_random_when_seemingly_exhausted        Revert to random search when search space seems exhausted"
 	exit $1
 }
@@ -273,6 +275,9 @@ for i in "$@"; do
 		-h|--help)
 			help 0
 			;;
+		--generate_all_jobs_at_once)
+			generate_all_jobs_at_once=1
+			;;
 		--revert_to_random_when_seemingly_exhausted)
 			revert_to_random_when_seemingly_exhausted=1
 			;;
@@ -352,6 +357,10 @@ if [[ "$gridsearch" -eq "1" ]]; then
 	experiment_name="example_network_gridsearch"
 else
 	experiment_name="example_network"
+fi
+
+if [[ $generate_all_jobs_at_once -eq 1 ]]; then
+	cmd+=(" --generate_all_jobs_at_once")
 fi
 
 if [[ $revert_to_random_when_seemingly_exhausted -eq 1 ]]; then

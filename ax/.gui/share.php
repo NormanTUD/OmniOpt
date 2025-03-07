@@ -305,7 +305,7 @@
 				$html .= "</ul>";
 			}
 
-			$tabs['Share-Warnings'] = [
+			$tabs['Share-Debug'] = [
 				'id' => 'tab_warnings',
 				'content' => $html
 			];

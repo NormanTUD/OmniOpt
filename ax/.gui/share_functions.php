@@ -1,8 +1,4 @@
 <?php
-	function copy_button($name_to_search_for) {
-		return "<button class='copy_to_clipboard_button invert_in_dark_mode' onclick='find_closest_element_behind_and_copy_content_to_clipboard(this, \"$name_to_search_for\")'>📋 Copy raw data to clipboard</button>";
-	}
-
 	function calculateDirectoryHash($directory) {
 		if (!is_dir($directory) || !is_readable($directory)) {
 			return false;

@@ -251,87 +251,89 @@ function plotScatter2d() {
 	if ($("#plotScatter2d").data("loaded") == "true") {
 		return;
 	}
-	var numericColumns = tab_results_headers_json.filter(col =>
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
+	for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
+		var numericColumns = tab_results_headers_json.filter(col =>
+			!special_col_names.includes(col) && !result_names.includes(col) &&
+			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+		);
 
-	if (numericColumns.length < 2) {
-		console.error("Not enough columns for Scatter-Plots");
-		return;
-	}
+		if (numericColumns.length < 2) {
+			console.error("Not enough columns for Scatter-Plots");
+			return;
+		}
 
-	var resultIndex = tab_results_headers_json.findIndex(function(header) {
-		return header.toLowerCase() === result_names[0].toLowerCase();
-	});
-	var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-	var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-	var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+		var resultIndex = tab_results_headers_json.findIndex(function(header) {
+			return header.toLowerCase() === result_names[result_nr].toLowerCase();
+		});
+		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-	var plotDiv = document.getElementById("plotScatter2d");
-	plotDiv.innerHTML = "";
+		var plotDiv = document.getElementById("plotScatter2d");
+		plotDiv.innerHTML = "";
 
-	for (let i = 0; i < numericColumns.length; i++) {
-		for (let j = i + 1; j < numericColumns.length; j++) {
-			let xCol = numericColumns[i];
-			let yCol = numericColumns[j];
+		for (let i = 0; i < numericColumns.length; i++) {
+			for (let j = i + 1; j < numericColumns.length; j++) {
+				let xCol = numericColumns[i];
+				let yCol = numericColumns[j];
 
-			let xIndex = tab_results_headers_json.indexOf(xCol);
-			let yIndex = tab_results_headers_json.indexOf(yCol);
+				let xIndex = tab_results_headers_json.indexOf(xCol);
+				let yIndex = tab_results_headers_json.indexOf(yCol);
 
-			let data = tab_results_csv_json.map(row => ({
-				x: parseFloat(row[xIndex]),
-				y: parseFloat(row[yIndex]),
-				result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-			}));
+				let data = tab_results_csv_json.map(row => ({
+					x: parseFloat(row[xIndex]),
+					y: parseFloat(row[yIndex]),
+					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+				}));
 
-			let colors = data.map(d => {
-				if (d.result === null) {
-					return 'rgb(0, 0, 0)';
-				} else {
-					return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-			 ${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-			 0)`;
-				}
-			});
-
-			let trace = {
-				x: data.map(d => d.x),
-				y: data.map(d => d.y),
-				mode: 'markers',
-				marker: {
-					size: 10,
-					color: data.map(d => d.result),
-					colorscale: [
-						[0, 'green'],
-						[1, 'red']
-					],
-					colorbar: {
-						title: 'Result',
-						tickvals: [minResult, maxResult],
-						ticktext: [`${minResult}`, `${maxResult}`]
+				let colors = data.map(d => {
+					if (d.result === null) {
+						return 'rgb(0, 0, 0)';
+					} else {
+						return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
+				${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
+				0)`;
 					}
-				},
-				text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-				type: 'scatter',
-				showlegend: false
-			};
+				});
 
-			let layout = {
-				title: `${xCol} vs ${yCol}`,
-				xaxis: { title: xCol },
-				yaxis: { title: yCol },
-				showlegend: false,
-				width: get_graph_width(),
-				height: 800,
-				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)'
-			};
+				let trace = {
+					x: data.map(d => d.x),
+					y: data.map(d => d.y),
+					mode: 'markers',
+					marker: {
+						size: 10,
+						color: data.map(d => d.result),
+						colorscale: [
+							[0, 'green'],
+							[1, 'red']
+						],
+						colorbar: {
+							title: 'Result',
+							tickvals: [minResult, maxResult],
+							ticktext: [`${minResult}`, `${maxResult}`]
+						}
+					},
+					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+					type: 'scatter',
+					showlegend: false
+				};
 
-			let subDiv = document.createElement("div");
-			plotDiv.appendChild(subDiv);
+				let layout = {
+					title: `${xCol} vs ${yCol}, result: ${result_names[result_nr]}`,
+					xaxis: { title: xCol },
+					yaxis: { title: yCol },
+					showlegend: false,
+					width: get_graph_width(),
+					height: 800,
+					paper_bgcolor: 'rgba(0,0,0,0)',
+					plot_bgcolor: 'rgba(0,0,0,0)'
+				};
 
-			Plotly.newPlot(subDiv, [trace], layout);
+				let subDiv = document.createElement("div");
+				plotDiv.appendChild(subDiv);
+
+				Plotly.newPlot(subDiv, [trace], layout);
+			}
 		}
 	}
 	$("#plotScatter2d").data("loaded", "true");

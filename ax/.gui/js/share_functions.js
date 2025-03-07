@@ -108,7 +108,12 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	const trace = {
 		type: 'parcoords',
 		dimensions: dimensions,
-		line: colorValues ? { color: colorValues, colorscale: colorScale } : {}
+		line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+		unselected: {
+			line: {
+				color: 'yellow'
+			}
+		},
 	};
 
 	dimensions.forEach(dim => {

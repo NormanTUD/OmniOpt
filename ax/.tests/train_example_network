@@ -353,18 +353,18 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--num_random_steps=$num_random_steps"
 
 if [[ "$gridsearch" -eq "1" ]]; then
-	cmd+=(" --gridsearch")
+	cmd="$cmd --gridsearch"
 	experiment_name="example_network_gridsearch"
 else
 	experiment_name="example_network"
 fi
 
 if [[ $generate_all_jobs_at_once -eq 1 ]]; then
-	cmd+=(" --generate_all_jobs_at_once")
+	cmd="$cmd --generate_all_jobs_at_once"
 fi
 
 if [[ $revert_to_random_when_seemingly_exhausted -eq 1 ]]; then
-	cmd+=(" --revert_to_random_when_seemingly_exhausted")
+	cmd="$cmd --revert_to_random_when_seemingly_exhausted"
 fi
 
 cmd=$(echo "$cmd" | sed "s/--experiment_name=example_network/--experiment_name=$experiment_name/")

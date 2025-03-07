@@ -274,7 +274,9 @@
 					$tabs = add_plot_result_pairs($tabs);
 				}
 
-				$tabs = add_result_evolution_tab($tabs);
+				if(count($result_names)) {
+					$tabs = add_result_evolution_tab($tabs);
+				}
 			}
 		} else {
 			$warnings[] = "No successful jobs were found";

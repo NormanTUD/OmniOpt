@@ -374,3 +374,7 @@ a, a:visited, a:active, a:hover, a:link {
 ._share_link {
 	color: black !important;
 }
+
+#footer_element {
+	height: 30px; background-color: #f8f9fa; padding: 0px; text-align: center; border-top: 1px solid #dee2e6; width: 100%; box-sizing: border-box; position: fixed; bottom: 0; z-index: 2
+}

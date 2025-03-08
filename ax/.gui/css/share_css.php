@@ -1,4 +1,8 @@
 <style>
+	debug_log_pre {
+		min-width: 300px;
+	}
+
 	body.dark-mode {
 		background-color: #1e1e1e; color: #fff;
 	}

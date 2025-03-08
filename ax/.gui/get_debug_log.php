@@ -65,7 +65,7 @@
 			$output .= "<tr>\n";
 			$output .= "<td style='border: 1px solid black;'>$time</td>\n";
 			$output .= "<td style='border: 1px solid black;'>$functionStack</td>\n";
-			$output .= "<td style='border: 1px solid black;'><pre>$msg</pre></td>\n";
+			$output .= "<td style='border: 1px solid black;'><pre class='debug_log_pre'>$msg</pre></td>\n";
 			$output .= "</tr>\n";
 		}
 

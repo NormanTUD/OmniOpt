@@ -97,6 +97,27 @@
 		is_equal('is_valid_run_nr test', $result, $expected);
 	}
 
+	// Test für remove_extra_slashes_from_url
+	$remove_extra_slashes_from_url_test_cases = [
+		['http://example.com//path///to///file', 'http://example.com/path/to/file'],
+		['https://www.example.com//about//us', 'https://www.example.com/about/us'],
+		['ftp://example.com///files///docs', 'ftp://example.com/files/docs'],
+		['http://example.com', 'http://example.com'], // Keine Änderungen notwendig
+		['http://example.com////', 'http://example.com/'], // Überflüssige Schrägstriche am Ende
+		['http://example.com//path//to//file/', 'http://example.com/path/to/file/'], // Schrägstriche am Ende entfernt
+		['http://example.com////path', 'http://example.com/path'], // Schrägstriche am Anfang
+		['http://example.com/path//to//file//', 'http://example.com/path/to/file/'], // Überflüssige Schrägstriche in der Mitte
+		['http://example.com////file', 'http://example.com/file'], // Überflüssige Schrägstriche vor einem Ordner
+		['https://example.com///', 'https://example.com/'], // Überflüssige Schrägstriche nach dem Protokoll
+	];
+
+	foreach ($remove_extra_slashes_from_url_test_cases as $test_case) {
+		list($input, $expected) = $test_case;
+		$result = remove_extra_slashes_from_url($input);
+		is_equal('remove_extra_slashes_from_url test', $result, $expected);
+	}
+
+
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

@@ -2537,12 +2537,12 @@ def print_debug_infos(program_string_with_params: str) -> None:
 @beartype
 def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> None:
     if stdout:
-        original_print("stdout:", stdout)
+        original_print("stdout:\n", stdout)
     else:
         original_print("stdout was empty")
 
     if stderr:
-        original_print("stderr:", stderr)
+        original_print("stderr:\n", stderr)
     else:
         original_print("stderr was empty")
 

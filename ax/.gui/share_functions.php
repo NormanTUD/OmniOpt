@@ -707,9 +707,11 @@
 	}
 
 	function endsWithSubmititInfo($file) {
-		if (!file_exists($file)) {
+		if (file_exists($file)) {
 			$string = file_get_contents($file);
-			return preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
+			$ret = preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
+
+			return $ret;
 		}
 
 		return true; // True, because then the red cross is shown when the file does not exist

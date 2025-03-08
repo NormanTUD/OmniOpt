@@ -146,6 +146,10 @@
 		margin-left: -3px;
 		margin-bottom: 1px;
 	}
+
+	.window {
+		min-width: 1100px;
+	}
 </style>
 <?php
 	$theme = "xp.css";

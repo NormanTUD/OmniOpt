@@ -116,9 +116,7 @@
 		} else {
 			if(!file_exists($experiment_overview)) {
 				$warnings[] = "$experiment_overview not found";
-			}
-
-			if(!filesize($experiment_overview)) {
+			} else if(!filesize($experiment_overview)) {
 				$warnings[] = "$experiment_overview is empty";
 			}
 		}

@@ -151,7 +151,7 @@
 		if(is_file("$run_dir/results.csv")) {
 			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
 
-			$overview_table = '<h2>Number of evaluations</h2>';
+			$overview_table = '<h2>Number of evaluations:</h2>';
 			$overview_table .= '<table border="1">';
 			$overview_table .= '<tbody>';
 			$overview_table .= '<tr>';
@@ -178,7 +178,7 @@
 		}
 
 		if(count($result_names)) {
-			$result_names_table = '<h2>Result names and types</h2>';
+			$result_names_table = '<h2>Result names and types:</h2>';
 			$result_names_table .= '<br><table border="1">';
 			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>';
 			for ($i = 0; $i < count($result_names); $i++) {

@@ -59,6 +59,24 @@
 		is_equal('is_valid_user_id test', $result, $expected);
 	}
 
+	$is_valid_experiment_name_test_cases = [
+		['experiment1', true],
+		['experiment-2', true],
+		['experiment_3', true],
+		['exp 4', false],
+		[null, false],
+		['', false],
+		['exp#5', false],
+		['exp@6', false],
+		['experiment/7', false],
+		['exp!8', false]
+	];
+
+	foreach ($is_valid_experiment_name_test_cases as $test_case) {
+		list($input, $expected) = $test_case;
+		$result = is_valid_experiment_name($input);
+		is_equal('is_valid_experiment_name test', $result, $expected);
+	}
 
 	$final_errors = min(255, $nr_of_errors);
 

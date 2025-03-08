@@ -327,6 +327,40 @@
 		return [$tabs, $warnings];
 	}
 
+	function add_simple_table_from_ascii_table_file($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
+		if(is_file($filename) && filesize($filename) > 0) {
+			$contents = file_get_contents($filename);
+			if(!$remove_ansi_colors) {
+				$contents = remove_ansi_colors($contents);
+			} else {
+				$contents = removeAnsiEscapeSequences(ansi_to_html(htmlspecialchars($contents)));
+			}
+
+			if(!$remove_ansi_colors) {
+				$contents = htmlentities($contents);
+			} else {
+				$contents = remove_sixel($contents);
+			}
+
+			$html_table = asciiTableToHtml($contents);
+			$html = $html_table;
+
+
+			$tabs[$name] = [
+				'id' => $id,
+				'content' => $html
+			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			}
+		}
+
+		return [$tabs, $warnings];
+	}
+
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);
@@ -1273,5 +1307,48 @@
 		deleteEmptyDirectories($directoryToCheck, false);
 
 		return $oldDirs;
+	}
+
+	function asciiTableToHtml($asciiTable) {
+		$lines = explode("\n", trim($asciiTable));
+
+		while (!empty($lines) && trim($lines[0]) === '') {
+			array_shift($lines);
+		}
+
+		$headerText = null;
+		if (!empty($lines) && !preg_match('/^[\s]*[┏━┡┩└─]+/u', $lines[0])) {
+			$headerText = array_shift($lines);
+		}
+
+		$lines = array_filter($lines, function ($line) {
+			return !preg_match('/^[\s]*[┏━┡┩└─]+/u', $line);
+		});
+
+		if (empty($lines)) return '<p>Fehler: Keine gültige Tabelle erkannt.</p>';
+
+		$headerLine = array_shift($lines);
+		$headerCells = preg_split('/\s*[┃│]\s*/u', trim($headerLine, "┃│"));
+
+		$html = $headerText ? "<h2>$headerText</h2>" : '';
+		$html .= '<table border="1" cellspacing="0" cellpadding="5"><thead><tr>';
+		foreach ($headerCells as $cell) {
+			$html .= '<th>' . $cell . '</th>';
+		}
+		$html .= '</tr></thead><tbody>';
+
+		foreach ($lines as $line) {
+			$cells = preg_split('/\s*[┃│]\s*/u', trim($line, "┃│"));
+			if (count($cells) === count($headerCells)) {
+				$html .= '<tr>';
+				foreach ($cells as $cell) {
+					$html .= '<td>' . $cell . '</td>';
+				}
+				$html .= '</tr>';
+			}
+		}
+
+		$html .= '</tbody></table>';
+		return $html;
 	}
 ?>

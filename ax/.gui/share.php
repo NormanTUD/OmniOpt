@@ -114,13 +114,13 @@
 		}
 
 		if(is_file($best_results_txt)) {
-			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents($best_results_txt)))."</pre>";
+			$overview_html .= asciiTableToHtml(remove_ansi_colors(file_get_contents($best_results_txt)));
 		} else {
 			$warnings[] = "$best_results_txt not found";
 		}
 
 		if(is_file("$run_dir/parameters.txt")) {
-			$overview_html .= "<pre>\n".htmlentities(remove_ansi_colors(file_get_contents("$run_dir/parameters.txt")))."</pre>";
+			$overview_html .= asciiTableToHtml(remove_ansi_colors(file_get_contents("$run_dir/parameters.txt")));
 		} else {
 			$warnings[] = "$run_dir/parameters.txt not found";
 		}
@@ -232,9 +232,9 @@
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/oo_errors.txt", "Errors", "tab_errors", true);
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
-		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
+		[$tabs, $warnings] = add_simple_table_from_ascii_table_file($tabs, $warnings, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
-		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
+		[$tabs, $warnings] = add_simple_table_from_ascii_table_file($tabs, $warnings, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log");
 		[$tabs, $warnings] = add_worker_usage_plot_from_file($tabs, $warnings, "$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage");
 		[$tabs, $warnings] = add_debug_log_from_file($tabs, $warnings, "$run_dir/log", "Debug-Logs", "tab_debug_logs");

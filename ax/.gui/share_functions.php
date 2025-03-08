@@ -706,15 +706,34 @@
 		return true;
 	}
 
+	function endsWithSubmititInfo($file) {
+		if (!file_exists($file)) {
+			$string = file_get_contents($file);
+			return preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - (.+)$/', $string) === 1;
+		}
+
+		return true; // True, because then the red cross is shown when the file does not exist
+	}
+
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span class='invert_in_dark_mode'>&#10060;</span>";
 		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
+		$gear = "<span class='invert_in_dark_mode'>&#9881;</span>";
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
-			$checkmark = file_contains_results("$run_dir/$file", $result_names) ? $green_checkmark : $red_cross;
+			$checkmark = $red_cross;
+			if (file_contains_results("$run_dir/$file", $result_names)) {
+				$checkmark = $green_checkmark;
+			} else {
+				if(endsWithSubmititInfo("$run_dir/$file")) {
+					$checkmark = $red_cross;
+				} else {
+					$checkmark = $gear;
+				}
+			}
 
 
 			$runtime_string = get_runtime_from_outfile(file_get_contents("$run_dir/$file"));

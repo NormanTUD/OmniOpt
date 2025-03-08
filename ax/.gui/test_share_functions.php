@@ -117,7 +117,6 @@
 		is_equal('remove_extra_slashes_from_url test', $result, $expected);
 	}
 
-
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

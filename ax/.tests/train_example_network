@@ -339,8 +339,7 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	--max_eval=$max_eval \
 	--num_parallel_jobs=$num_parallel_jobs \
 	--gpus=$NUM_GPUS \
-	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=%(validation_split) --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters) --data=$data" | base64 -w 0) \
-	$(generate_parameter validation_split $validation_split $validation_split float) \
+	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=$validation_split --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters) --data=$data" | base64 -w 0) \
 	$(generate_parameter width $min_width $max_width int) \
 	$(generate_parameter height $min_height $max_height int) \
 	$(generate_parameter dense $min_dense $max_dense int) \

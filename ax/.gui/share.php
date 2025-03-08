@@ -130,7 +130,8 @@
 		if(is_file("$run_dir/results.csv")) {
 			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
 
-			$overview_table = '<table border="1">';
+			$overview_table = '<h2>Number of evaluations</h2>';
+			$overview_table .= '<table border="1">';
 			$overview_table .= '<tbody>';
 			$overview_table .= '<tr>';
 
@@ -156,7 +157,8 @@
 		}
 
 		if(count($result_names)) {
-			$result_names_table = '<br><table border="1">';
+			$result_names_table = '<h2>Result names and types</h2>';
+			$result_names_table .= '<br><table border="1">';
 			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>';
 			for ($i = 0; $i < count($result_names); $i++) {
 				$min_or_max = "min";
@@ -180,7 +182,8 @@
 		if(file_exists("$run_dir/progressbar") && filesize("$run_dir/progressbar")) {
 			$lastLine = trim(array_slice(file("$run_dir/progressbar"), -1)[0]);
 
-			$overview_html .= "Last progressbar status: <tt>".htmlentities($lastLine)."</tt>";
+			$overview_html .= "<h2>Last progressbar status:</h2>\n";
+			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
 		} else {
 			$warnings[] = "$run_dir/progressbar not found";
 		}

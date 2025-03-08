@@ -39,6 +39,15 @@
 
 	is_equal('Ansi to HTML conversion', $html_result, $expected_html);
 
+	// Test für copy_id_to_clipboard_string
+	$id = '123abc';
+	$html_result = copy_id_to_clipboard_string($id);
+
+	// Erwartetes HTML: <button onclick='copy_to_clipboard_from_id("123abc")'>Copy raw data to clipboard</button>
+	$expected_html = '<button onclick=\'copy_to_clipboard_from_id("123abc")\'>Copy raw data to clipboard</button>';
+
+	is_equal('Copy ID to Clipboard button', $html_result, $expected_html);
+
 	$final_errors = min(255, $nr_of_errors);
 	if ($final_errors > 0) {
 		echo "\033[31mTotal errors: $final_errors\033[0m\n";

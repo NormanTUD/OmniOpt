@@ -39,16 +39,29 @@
 
 	is_equal('Ansi to HTML conversion', $html_result, $expected_html);
 
-	// Test für copy_id_to_clipboard_string
-	$id = '123abc';
-	$html_result = copy_id_to_clipboard_string($id);
 
-	// Erwartetes HTML: <button onclick='copy_to_clipboard_from_id("123abc")'>Copy raw data to clipboard</button>
-	$expected_html = '<button onclick=\'copy_to_clipboard_from_id("123abc")\'>Copy raw data to clipboard</button>';
+	$is_valid_user_id_test_cases = [
+		['user123', true],
+		['user_456', true],
+		['user@123', false],
+		['123abc', true],
+		[null, false],
+		['', false],
+		['user name', false],
+		['user123#', false],
+		['user123!', false],
+		['user123$', false]
+	];
 
-	is_equal('Copy ID to Clipboard button', $html_result, $expected_html);
+	foreach ($is_valid_user_id_test_cases as $test_case) {
+		list($input, $expected) = $test_case;
+		$result = is_valid_user_id($input);
+		is_equal('is_valid_user_id test', $result, $expected);
+	}
+
 
 	$final_errors = min(255, $nr_of_errors);
+
 	if ($final_errors > 0) {
 		echo "\033[31mTotal errors: $final_errors\033[0m\n";
 	} else {

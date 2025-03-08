@@ -420,7 +420,7 @@
 <?php
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-				print "\tvar $json_name = ".json_encode($json_data).";\n";
+				print "\tvar $json_name = ".json_encode($json_data, JSON_PRETTY_PRINT).";\n";
 			}
 		}
 ?>

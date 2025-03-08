@@ -33,6 +33,8 @@
 {
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
+	export TQDM_MININTERVAL=10
+
 	function echoerr {
 		echo "$@" 1>&2
 	}

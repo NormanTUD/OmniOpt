@@ -180,7 +180,7 @@
 		if(file_exists("$run_dir/progressbar") && filesize("$run_dir/progressbar")) {
 			$lastLine = trim(array_slice(file("$run_dir/progressbar"), -1)[0]);
 
-			$overview_html .= "Last progressbar status: <pre>".htmlentities($lastLine)."</pre>";
+			$overview_html .= "Last progressbar status: <tt>".htmlentities($lastLine)."</tt>";
 		} else {
 			$warnings[] = "$run_dir/progressbar not found";
 		}

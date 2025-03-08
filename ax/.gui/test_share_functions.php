@@ -78,6 +78,25 @@
 		is_equal('is_valid_experiment_name test', $result, $expected);
 	}
 
+	$is_valid_run_nr_test_cases = [
+		['123', true],
+		['0001', true],
+		['5', true],
+		['a123', false],
+		[null, false],
+		['', false],
+		['12.34', false],
+		['run123', false],
+		['12abc', false],
+		['123run', false]
+	];
+
+	foreach ($is_valid_run_nr_test_cases as $test_case) {
+		list($input, $expected) = $test_case;
+		$result = is_valid_run_nr($input);
+		is_equal('is_valid_run_nr test', $result, $expected);
+	}
+
 	$final_errors = min(255, $nr_of_errors);
 
 	if ($final_errors > 0) {

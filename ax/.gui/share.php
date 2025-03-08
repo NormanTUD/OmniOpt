@@ -102,6 +102,27 @@
 		$best_results_txt = "$run_dir/best_result.txt";
 		$overview_html = "";
 
+		$experiment_overview = "$run_dir/experiment_overview.txt";
+
+		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
+			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(file_get_contents($experiment_overview)));
+			if($experiment_overview_table) {
+				$experiment_overview .= $experiment_overview_table;
+
+				$overview_html .= $experiment_overview_table;
+			} else {
+				$warnings[] = "Could not create \$experiment_overview_table";
+			}
+		} else {
+			if(!file_exists($experiment_overview)) {
+				$warnings[] = "$experiment_overview not found";
+			}
+
+			if(!filesize($experiment_overview)) {
+				$warnings[] = "$experiment_overview is empty";
+			}
+		}
+
 		if(is_file("$run_dir/ui_url.txt")) {
 			$filePath = "$run_dir/ui_url.txt";
 			$firstLine = fgets(fopen($filePath, 'r'));
@@ -235,7 +256,7 @@
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/oo_errors.txt", "Errors", "tab_errors", true);
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/outfile", "Main-Log", "tab_main_log", true);
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param");
-		[$tabs, $warnings] = add_simple_table_from_ascii_table_file($tabs, $warnings, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
+		//[$tabs, $warnings] = add_simple_table_from_ascii_table_file($tabs, $warnings, "$run_dir/experiment_overview.txt", "Experiment Overview", "tab_experiment_overview");
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/progressbar", "Progressbar log", "tab_progressbar_log");
 		[$tabs, $warnings] = add_simple_table_from_ascii_table_file($tabs, $warnings, "$run_dir/args_overview.txt", "Args Overview", "tab_args_overview");
 		[$tabs, $warnings] = add_simple_pre_tab_from_file($tabs, $warnings, "$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log");

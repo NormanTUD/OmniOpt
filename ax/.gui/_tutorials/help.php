@@ -1,5 +1,9 @@
 <div id="toc"></div>
 
+<h2 id="available_parameters_help">Available Parameters (--help)</h2>
+
+<p>An overview table of all arguments that OmniOpt2 accepts via the Command line. Same data as in <tt>./omniopt --help</tt>.</p>
+
 <?php
 	function parse_arguments($file_path) {
 		$groups = [];
@@ -57,7 +61,6 @@
 			return "<p><strong>No arguments found.</strong></p>";
 		}
 
-		$html = "<h2>Available Parameters (--help)</h2>\n";
 		$html .= "<table border='1'>\n<thead>\n<tr class='invert_in_dark_mode'>\n<th>Parameter</th>\n<th>Description</th>\n<th>Default Value</th>\n</tr>\n</thead>\n<tbody>\n";
 
 		foreach ($arguments as $group => $data) {

@@ -104,6 +104,17 @@
 
 		$experiment_overview = "$run_dir/experiment_overview.txt";
 
+		if(is_file("$run_dir/ui_url.txt")) {
+			$filePath = "$run_dir/ui_url.txt";
+			$firstLine = fgets(fopen($filePath, 'r'));
+
+			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
+				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br><br>";
+			}
+		} else {
+			$warnings[] = "$run_dir/ui_url.txt not found";
+		}
+
 		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
 			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(file_get_contents($experiment_overview)));
 			if($experiment_overview_table) {
@@ -119,17 +130,6 @@
 			} else if(!filesize($experiment_overview)) {
 				$warnings[] = "$experiment_overview is empty";
 			}
-		}
-
-		if(is_file("$run_dir/ui_url.txt")) {
-			$filePath = "$run_dir/ui_url.txt";
-			$firstLine = fgets(fopen($filePath, 'r'));
-
-			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
-				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br><br>";
-			}
-		} else {
-			$warnings[] = "$run_dir/ui_url.txt not found";
 		}
 
 		if(is_file($best_results_txt)) {

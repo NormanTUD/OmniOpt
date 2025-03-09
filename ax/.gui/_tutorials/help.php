@@ -61,7 +61,7 @@
 			return "<p><strong>No arguments found.</strong></p>";
 		}
 
-		$html .= "<table border='1'>\n<thead>\n<tr class='invert_in_dark_mode'>\n<th>Parameter</th>\n<th>Description</th>\n<th>Default Value</th>\n</tr>\n</thead>\n<tbody>\n";
+		$html = "<table border='1'>\n<thead>\n<tr class='invert_in_dark_mode'>\n<th>Parameter</th>\n<th>Description</th>\n<th>Default Value</th>\n</tr>\n</thead>\n<tbody>\n";
 
 		foreach ($arguments as $group => $data) {
 			if (!empty($data["args"])) {

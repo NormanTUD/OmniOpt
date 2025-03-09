@@ -42,7 +42,7 @@
 				// Try to detect the last known group (by variable name reference)
 				foreach (array_reverse($group_vars) as $var => $group) {
 					if (strpos($line, $var . ".add_argument") !== false) {
-						$groups[$group]["args"][] = [$arg_name, $description, $default];
+						$groups[$group]["args"][] = [$arg_name, htmlentities($description), $default];
 						break;
 					}
 				}
@@ -64,7 +64,7 @@
 			if (!empty($data["args"])) {
 				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong> - {$data['desc']}</td>\n</tr>\n";
 				foreach ($data["args"] as [$name, $desc, $default]) {
-					$html .= "<tr>\n<td><samp>$name</samp></td>\n<td>$desc</td>\n<td><samp>$default</samp></td>\n</tr>\n";
+					$html .= "<tr>\n<td><pre>$name</pre></td>\n<td>$desc</td>\n<td><pre>$default</pre></td>\n</tr>\n";
 				}
 			}
 		}

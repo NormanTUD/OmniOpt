@@ -334,7 +334,7 @@ function plotScatter2d() {
 					mode: 'markers',
 					marker: {
 						size: 10,
-						color: data.map(d => d.result),
+						color: data.map(d => d.result !== null ? d.result : null),
 						colorscale: invertColor ? [
 							[0, 'red'],
 							[1, 'green']
@@ -346,7 +346,8 @@ function plotScatter2d() {
 							title: 'Result',
 							tickvals: [minResult, maxResult],
 							ticktext: [`${minResult}`, `${maxResult}`]
-						}
+						},
+						symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
 					},
 					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 					type: 'scatter',
@@ -460,7 +461,7 @@ function plotScatter3d() {
 						mode: 'markers',
 						marker: {
 							size: 5,
-							color: data.map(d => d.result),
+							color: data.map(d => d.result !== null ? d.result : null),
 							colorscale: invertColor ? [
 								[0, 'red'],
 								[1, 'green']
@@ -472,7 +473,8 @@ function plotScatter3d() {
 								title: 'Result',
 								tickvals: [minResult, maxResult],
 								ticktext: [`${minResult}`, `${maxResult}`]
-							}
+							},
+							symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
 						},
 						text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 						type: 'scatter3d',

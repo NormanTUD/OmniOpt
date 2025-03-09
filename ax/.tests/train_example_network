@@ -92,6 +92,7 @@ export max_learning_rate=0.4
 
 export generate_all_jobs_at_once=0
 export revert_to_random_when_seemingly_exhausted=0
+export result_names=()
 
 function help () {
 	echo "train_example_network: Trains an example network from asanAI for testing OmniOpt2"
@@ -122,11 +123,16 @@ function help () {
 	echo "  --min_learning_rate=FLOAT                          Min learning_rate (default: $min_learning_rate)"
 	echo "  --max_learning_rate=FLOAT                          Max learning_rate (default: $max_learning_rate)"
 	echo "  --validation_split=FLOAT                           Validation split (default: $validation_split)"
+	echo "  --result_names NAME=min/max                        Result names (default: VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min)"
 	echo "  --follow                                           Follow the output (default: $follow)"
 	echo "  --gridsearch                                       Do gridsearch"
 	echo "  --generate_all_jobs_at_once                        Generate all jobs at once"
 	echo "  --revert_to_random_when_seemingly_exhausted        Revert to random search when search space seems exhausted"
 	exit $1
+}
+
+iarray_to_string() {
+    echo "$*"
 }
 
 function join_by {
@@ -219,7 +225,6 @@ for i in "$@"; do
 			shift
 			;;
 
-
 		--min_width=*)
 			min_width="${i#*=}"
 			shift
@@ -272,6 +277,12 @@ for i in "$@"; do
 			follow=1
 			shift
 			;;
+
+		--result_names=*)
+			result_names+=("${i#*=}")
+			shift
+			;;
+
 		-h|--help)
 			help 0
 			;;
@@ -290,6 +301,10 @@ for i in "$@"; do
 			;;
 	esac
 done
+
+if [ -z "$result_names" ]; then
+	result_names="VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min"
+fi
 
 PARTITION="alpha"
 NUM_GPUS=0
@@ -348,7 +363,7 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	$(generate_parameter conv $min_conv $max_conv int) \
 	$(generate_parameter conv_filters $min_conv_filters $max_conv_filters int) \
 	$(generate_parameter learning_rate $min_learning_rate $max_learning_rate float) \
-	--result_names VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min \
+	--result_names $(iarray_to_string "${result_names[@]}") \
 	--num_random_steps=$num_random_steps"
 
 if [[ "$gridsearch" -eq "1" ]]; then

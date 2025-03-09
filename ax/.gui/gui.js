@@ -257,40 +257,40 @@ var hiddenTableData = [
 		value: "",
 		options: [
 			{
-				"text": "BOTORCH_MODULAR"
-				,"value": "BOTORCH_MODULAR"
+				text: "BOTORCH_MODULAR",
+				value: "BOTORCH_MODULAR"
 			},
 			{
-				"text": "SOBOL",
-				"value": "SOBOL"
+				text: "SOBOL",
+				value: "SOBOL"
 			},
 			{
-				"text": "GPEI",
-				"value": "GPEI"
+				text: "GPEI",
+				value: "GPEI"
 			},
 			{
-				"text": "FACTORIAL",
-				"value": "FACTORIAL"
+				text: "FACTORIAL",
+				value: "FACTORIAL"
 			},
 			{
-				"text": "SAASBO",
-				"value": "SAASBO"
+				text: "SAASBO",
+				value: "SAASBO"
 			},
 			{
-				"text": "FULLYBAYESIAN",
-				"value": "FULLYBAYESIAN"
+				text: "FULLYBAYESIAN",
+				value: "FULLYBAYESIAN"
 			},
 			/*{
-				"text": "LEGACY_BOTORCH",
-				"value": "LEGACY_BOTORCH"
+				text: "LEGACY_BOTORCH",
+				value: "LEGACY_BOTORCH"
 			},*/
 			{
-				"text": "UNIFORM",
-				"value": "UNIFORM"
+				text: "UNIFORM",
+				value: "UNIFORM"
 			},
 			{
-				"text": "BO_MIXED",
-				"value": "BO_MIXED"
+				text: "BO_MIXED",
+				value: "BO_MIXED"
 			}
 		], "required": true,
 		info: `
@@ -306,7 +306,7 @@ var hiddenTableData = [
 			    <li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
 			</ul>
 `,
-		"help": "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
+		help: "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 	},
 
 	{
@@ -316,16 +316,16 @@ var hiddenTableData = [
 		value: "euclid",
 		options: [
 			{
-				"text": "Calculate the euclidean distance to the origo of the search space",
-				"value": "euclid"
+				text: "Calculate the euclidean distance to the origo of the search space",
+				value: "euclid"
 			},
 			{
-				"text": "Calculate the geometric distance to the origo of the search space",
-				"value": "geometric"
+				text: "Calculate the geometric distance to the origo of the search space",
+				value: "geometric"
 			},
 			{
-				"text": "Calculate the signed harmonic distance to the origo of the search space",
-				"value": "signed_harmonic"
+				text: "Calculate the signed harmonic distance to the origo of the search space",
+				value: "signed_harmonic"
 			},
 		],
 		required: true,
@@ -339,12 +339,12 @@ var hiddenTableData = [
 		value: "",
 		options: [
 			{
-				"text": "Use git clone to clone OmniOpt2",
-				"value": "clone"
+				text: "Use git clone to clone OmniOpt2",
+				value: "clone"
 			},
 			{
-				"text": "Use pip and install OmniOpt2 from pypi (may not be the latest version)",
-				"value": "pip"
+				text: "Use pip and install OmniOpt2 from pypi (may not be the latest version)",
+				value: "pip"
 			}
 		],
 		required: true,
@@ -356,12 +356,12 @@ var hiddenTableData = [
 		label: "Run-Mode", id: "run_mode", type: "select", value: "",
 		options: [
 			{
-				"text": "Locally or on a HPC system",
-				"value": "local"
+				text: "Locally or on a HPC system",
+				value: "local"
 			},
 			{
-				"text": "Docker",
-				"value": "docker"
+				text: "Docker",
+				value: "docker"
 			}
 		],
 		required: true,

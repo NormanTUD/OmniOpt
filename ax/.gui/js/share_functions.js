@@ -52,7 +52,7 @@ function filterNonEmptyRows(data) {
 }
 
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
-	if($("#parallel-plot").data("loaded") == "true") {
+	if ($("#parallel-plot").data("loaded") == "true") {
 		return;
 	}
 	dataArray = filterNonEmptyRows(dataArray);
@@ -102,7 +102,16 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	if (resultNames.length === 1 && numericalCols.some(col => col.name.toLowerCase() === resultNames[0].toLowerCase())) {
 		const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
 		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
-		colorScale = [[0, 'green'], [1, 'red']];
+
+		let minResult = Math.min(...colorValues);
+		let maxResult = Math.max(...colorValues);
+
+		// Prüfen, ob min oder max grün sein soll
+		let invertColor = result_min_max[0] === "max";
+
+		colorScale = invertColor
+			? [[0, 'red'], [1, 'green']] // Max ist grün
+			: [[0, 'green'], [1, 'red']]; // Min ist grün
 	}
 
 	const trace = {

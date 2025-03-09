@@ -274,108 +274,165 @@ function plotCPUAndRAMUsage() {
 }
 
 function plotScatter2d() {
+	// Überprüfen, ob die Daten bereits geladen wurden
 	if ($("#plotScatter2d").data("loaded") == "true") {
 		return;
 	}
 
 	var plotDiv = document.getElementById("plotScatter2d");
-	plotDiv.innerHTML = "";
 
-	for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
-		var numericColumns = tab_results_headers_json.filter(col =>
-			!special_col_names.includes(col) && !result_names.includes(col) &&
-			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-		);
+	// Überprüfen, ob die Min/Max Eingabefelder bereits existieren, ansonsten erstellen
+	var minInput = document.getElementById("minValue");
+	var maxInput = document.getElementById("maxValue");
 
-		if (numericColumns.length < 2) {
-			console.error("Not enough columns for Scatter-Plots");
-			return;
+	if (!minInput || !maxInput) {
+		// Min/Max Eingabefelder hinzufügen, falls noch nicht vorhanden
+		minInput = document.createElement("input");
+		minInput.id = "minValue";
+		minInput.type = "number";
+		minInput.placeholder = "Min Value";
+		minInput.step = "any";
+
+		maxInput = document.createElement("input");
+		maxInput.id = "maxValue";
+		maxInput.type = "number";
+		maxInput.placeholder = "Max Value";
+		maxInput.step = "any";
+
+		// Container für die Eingabefelder
+		var inputContainer = document.createElement("div");
+		inputContainer.style.marginBottom = "10px";
+		inputContainer.appendChild(minInput);
+		inputContainer.appendChild(maxInput);
+		plotDiv.appendChild(inputContainer);
+	}
+
+	// Event Listener für Min/Max Eingabe
+	minInput.addEventListener("input", updatePlots);
+	maxInput.addEventListener("input", updatePlots);
+
+	// Initiale Diagramme ohne Filter (Min/Max-Werte)
+	updatePlots();  // Wird direkt beim Laden der Seite aufgerufen
+
+	function updatePlots() {
+		var minValue = parseFloat(minInput.value);
+		var maxValue = parseFloat(maxInput.value);
+
+		if (isNaN(minValue)) minValue = -Infinity;
+		if (isNaN(maxValue)) maxValue = Infinity;
+
+		// Alte Graphen entfernen (aber Min/Max Eingabefelder beibehalten)
+		while (plotDiv.children.length > 1) {
+			plotDiv.removeChild(plotDiv.lastChild);
 		}
 
-		var resultIndex = tab_results_headers_json.findIndex(header =>
-			header.toLowerCase() === result_names[result_nr].toLowerCase()
-		);
-		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+		// Graphen neu rendern
+		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
+			var numericColumns = tab_results_headers_json.filter(col =>
+				!special_col_names.includes(col) && !result_names.includes(col) &&
+				tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+			);
 
-		// Prüfen, ob min oder max den grünen Wert bekommt
-		var invertColor = result_min_max[result_nr] === "max";
+			if (numericColumns.length < 2) {
+				console.error("Not enough columns for Scatter-Plots");
+				return;
+			}
 
-		for (let i = 0; i < numericColumns.length; i++) {
-			for (let j = i + 1; j < numericColumns.length; j++) {
-				let xCol = numericColumns[i];
-				let yCol = numericColumns[j];
+			var resultIndex = tab_results_headers_json.findIndex(header =>
+				header.toLowerCase() === result_names[result_nr].toLowerCase()
+			);
+			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 
-				let xIndex = tab_results_headers_json.indexOf(xCol);
-				let yIndex = tab_results_headers_json.indexOf(yCol);
+			// Min und Max für den aktuellen Plot berechnen und ggf. mit den Eingabewerten überschreiben
+			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-				let data = tab_results_csv_json.map(row => ({
-					x: parseFloat(row[xIndex]),
-					y: parseFloat(row[yIndex]),
-					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-				}));
+			// Benutzerdefinierte Filter anwenden
+			minResult = Math.max(minResult, minValue);
+			maxResult = Math.min(maxResult, maxValue);
 
-				let colors = data.map(d => {
-					if (d.result === null) {
-						return 'rgb(0, 0, 0)';
-					} else {
-						let norm = (d.result - minResult) / (maxResult - minResult);
-						if (invertColor) {
-							norm = 1 - norm; // Invertieren für max
+			// Prüfen, ob min oder max den grünen Wert bekommt
+			var invertColor = result_min_max[result_nr] === "max";
+
+			for (let i = 0; i < numericColumns.length; i++) {
+				for (let j = i + 1; j < numericColumns.length; j++) {
+					let xCol = numericColumns[i];
+					let yCol = numericColumns[j];
+
+					let xIndex = tab_results_headers_json.indexOf(xCol);
+					let yIndex = tab_results_headers_json.indexOf(yCol);
+
+					let data = tab_results_csv_json.map(row => ({
+						x: parseFloat(row[xIndex]),
+						y: parseFloat(row[yIndex]),
+						result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+					}));
+
+					// Daten nach Min/Max-Werten filtern
+					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+
+					let colors = data.map(d => {
+						if (d.result === null) {
+							return 'rgb(0, 0, 0)';
+						} else {
+							let norm = (d.result - minResult) / (maxResult - minResult);
+							if (invertColor) {
+								norm = 1 - norm; // Invertieren für max
+							}
+							return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
 						}
-						return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
-					}
-				});
+					});
 
-				let trace = {
-					x: data.map(d => d.x),
-					y: data.map(d => d.y),
-					mode: 'markers',
-					marker: {
-						size: 10,
-						color: data.map(d => d.result !== null ? d.result : null),
-						colorscale: invertColor ? [
-							[0, 'red'],
-							[1, 'green']
-						] : [
-							[0, 'green'],
-							[1, 'red']
-						],
-						colorbar: {
-							title: 'Result',
-							tickvals: [minResult, maxResult],
-							ticktext: [`${minResult}`, `${maxResult}`]
+					let trace = {
+						x: data.map(d => d.x),
+						y: data.map(d => d.y),
+						mode: 'markers',
+						marker: {
+							size: 10,
+							color: data.map(d => d.result !== null ? d.result : null),
+							colorscale: invertColor ? [
+								[0, 'red'],
+								[1, 'green']
+							] : [
+								[0, 'green'],
+								[1, 'red']
+							],
+							colorbar: {
+								title: 'Result',
+								tickvals: [minResult, maxResult],
+								ticktext: [`${minResult}`, `${maxResult}`]
+							},
+							symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
 						},
-						symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
-					},
-					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-					type: 'scatter',
-					showlegend: false
-				};
+						text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+						type: 'scatter',
+						showlegend: false
+					};
 
-				let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
-				let layout = {
-					title: layoutTitle,
-					xaxis: { title: xCol },
-					yaxis: { title: yCol },
-					showlegend: false,
-					width: get_graph_width(),
-					height: 800,
-					paper_bgcolor: 'rgba(0,0,0,0)',
-					plot_bgcolor: 'rgba(0,0,0,0)'
-				};
+					let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
+					let layout = {
+						title: layoutTitle,
+						xaxis: { title: xCol },
+						yaxis: { title: yCol },
+						showlegend: false,
+						width: get_graph_width(),
+						height: 800,
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)'
+					};
 
-				let subDiv = document.createElement("div");
-				let titleElement = document.createElement("h3");
-				titleElement.innerText = layoutTitle;
-				plotDiv.appendChild(titleElement);
-				plotDiv.appendChild(subDiv);
+					let subDiv = document.createElement("div");
+					let titleElement = document.createElement("h3");
+					titleElement.innerText = layoutTitle;
+					plotDiv.appendChild(titleElement);
+					plotDiv.appendChild(subDiv);
 
-				Plotly.newPlot(subDiv, [trace], layout);
+					Plotly.newPlot(subDiv, [trace], layout);
+				}
 			}
 		}
 	}
+
 	$("#plotScatter2d").data("loaded", "true");
 }
 

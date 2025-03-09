@@ -6,8 +6,8 @@
 		$current_group = "Ungrouped"; // Default group if no add_argument_group is found
 
 		// Regex patterns
-		$pattern_group = "/add_argument_group\(['\"](.+?)['\"],\s*['\"](.+?)['\"]/";
-		$pattern_argument = "/add_argument\(\s*['\"]([^'\"]+)['\"](?:,\s*[^)]*help=['\"]([^'\"]+)['\"])?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
+		$pattern_group = "/(\w+)\s*=\s*self\.parser\.add_argument_group\(\s*['\"](.+?)['\"],\s*['\"](.+?)['\"]/";
+		$pattern_argument = "/\.add_argument\(\s*['\"]([^'\"]+)['\"](?:,\s*[^)]*help=['\"]([^'\"]+)['\"])?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
 
 		// Check if file exists
 		if (!file_exists($file_path)) {
@@ -15,40 +15,38 @@
 			return [];
 		}
 
-		#echo "<p>Loading file: <code>$file_path</code></p>";
-
 		// Read the file
 		$file = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
 		if (!$file) {
 			echo "<p><strong>ERROR:</strong> Unable to read file.</p>";
 			return [];
 		}
 
-		#echo "<p>File loaded successfully. Parsing lines...</p>";
+		$group_vars = []; // Stores variable names linked to group names
 
 		foreach ($file as $line) {
 			// Detect argument groups
 			if (preg_match($pattern_group, $line, $matches)) {
-				$current_group = trim($matches[2]); // Use full group description
-				$groups[$current_group] = []; // Ensure the group is initialized
-				#echo "<p>Detected group: <strong>$current_group</strong></p>";
-			}
+				$group_var = trim($matches[1]);  // The variable name used for the group
+				$group_name = trim($matches[2]); // Short name (e.g., "Required")
+				$group_desc = trim($matches[3]); // Full description
 
-			// Detect arguments
-			if (preg_match($pattern_argument, $line, $matches)) {
+				$group_vars[$group_var] = $group_name; // Map variable to group name
+				$groups[$group_name] = ["desc" => $group_desc, "args" => []];
+
+			} elseif (preg_match($pattern_argument, $line, $matches)) {
 				$arg_name = trim($matches[1]);
 				$description = isset($matches[2]) ? trim($matches[2]) : "No description available.";
 				$default = isset($matches[4]) ? trim($matches[4], "\"'") : "-";
 
-				$groups[$current_group][] = [$arg_name, $description, $default];
-
-				#echo "<p>Detected argument: <code>$arg_name</code> (Group: <strong>$current_group</strong>)</p>";
+				// Try to detect the last known group (by variable name reference)
+				foreach (array_reverse($group_vars) as $var => $group) {
+					if (strpos($line, $var . ".add_argument") !== false) {
+						$groups[$group]["args"][] = [$arg_name, $description, $default];
+						break;
+					}
+				}
 			}
-		}
-
-		if (empty($groups)) {
-			echo "<p><strong>WARNING:</strong> No arguments detected.</p>";
 		}
 
 		return $groups;
@@ -62,10 +60,10 @@
 		$html = "<h2>Available Parameters (--help)</h2>\n";
 		$html .= "<table border='1'>\n<thead>\n<tr class='invert_in_dark_mode'>\n<th>Parameter</th>\n<th>Description</th>\n<th>Default Value</th>\n</tr>\n</thead>\n<tbody>\n";
 
-		foreach ($arguments as $group => $args) {
-			if (!empty($args)) {
-				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong></td>\n</tr>\n";
-				foreach ($args as [$name, $desc, $default]) {
+		foreach ($arguments as $group => $data) {
+			if (!empty($data["args"])) {
+				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong> - {$data['desc']}</td>\n</tr>\n";
+				foreach ($data["args"] as [$name, $desc, $default]) {
 					$html .= "<tr>\n<td><samp>$name</samp></td>\n<td>$desc</td>\n<td><samp>$default</samp></td>\n</tr>\n";
 				}
 			}

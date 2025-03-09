@@ -283,13 +283,15 @@ function plotScatter2d() {
 			return;
 		}
 
-		var resultIndex = tab_results_headers_json.findIndex(function(header) {
-			return header.toLowerCase() === result_names[result_nr].toLowerCase();
-		});
+		var resultIndex = tab_results_headers_json.findIndex(header =>
+			header.toLowerCase() === result_names[result_nr].toLowerCase()
+		);
 		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
+		// Prüfen, ob min oder max den grünen Wert bekommt
+		var invertColor = result_min_max[result_nr] === "max";
 
 		for (let i = 0; i < numericColumns.length; i++) {
 			for (let j = i + 1; j < numericColumns.length; j++) {
@@ -309,9 +311,11 @@ function plotScatter2d() {
 					if (d.result === null) {
 						return 'rgb(0, 0, 0)';
 					} else {
-						return `rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-				${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-				0)`;
+						let norm = (d.result - minResult) / (maxResult - minResult);
+						if (invertColor) {
+							norm = 1 - norm; // Invertieren für max
+						}
+						return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
 					}
 				});
 
@@ -322,7 +326,10 @@ function plotScatter2d() {
 					marker: {
 						size: 10,
 						color: data.map(d => d.result),
-						colorscale: [
+						colorscale: invertColor ? [
+							[0, 'red'],
+							[1, 'green']
+						] : [
 							[0, 'green'],
 							[1, 'red']
 						],
@@ -337,8 +344,9 @@ function plotScatter2d() {
 					showlegend: false
 				};
 
+				let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
 				let layout = {
-					title: `${xCol} vs ${yCol}, result: ${result_names[result_nr]}`,
+					title: layoutTitle,
 					xaxis: { title: xCol },
 					yaxis: { title: yCol },
 					showlegend: false,
@@ -349,6 +357,9 @@ function plotScatter2d() {
 				};
 
 				let subDiv = document.createElement("div");
+				let titleElement = document.createElement("h3");
+				titleElement.innerText = layoutTitle;
+				plotDiv.appendChild(titleElement);
 				plotDiv.appendChild(subDiv);
 
 				Plotly.newPlot(subDiv, [trace], layout);
@@ -358,8 +369,9 @@ function plotScatter2d() {
 	$("#plotScatter2d").data("loaded", "true");
 }
 
+
 function plotScatter3d() {
-	if($("#plotScatter3d").data("loaded") == "true") {
+	if ($("#plotScatter3d").data("loaded") == "true") {
 		return;
 	}
 
@@ -394,11 +406,13 @@ function plotScatter3d() {
 			return;
 		}
 
-		var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[0].toLowerCase());
+		var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[result_nr].toLowerCase());
 		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
+		// Prüfen, ob min oder max den grünen Wert bekommt
+		var invertColor = result_min_max[result_nr] === "max";
 
 		for (let i = 0; i < allColumns.length; i++) {
 			for (let j = i + 1; j < allColumns.length; j++) {
@@ -418,10 +432,17 @@ function plotScatter3d() {
 						result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 					}));
 
-					let colors = data.map(d => d.result === null ? 'rgb(0, 0, 0)' :
-						`rgb(${Math.round(255 * (d.result - minResult) / (maxResult - minResult))},
-							${Math.round(255 * (1 - (d.result - minResult) / (maxResult - minResult)))},
-							0)`);
+					let colors = data.map(d => {
+						if (d.result === null) {
+							return 'rgb(0, 0, 0)';
+						} else {
+							let norm = (d.result - minResult) / (maxResult - minResult);
+							if (invertColor) {
+								norm = 1 - norm; // Invertieren für max
+							}
+							return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+						}
+					});
 
 					let trace = {
 						x: data.map(d => d.x),
@@ -431,7 +452,10 @@ function plotScatter3d() {
 						marker: {
 							size: 5,
 							color: data.map(d => d.result),
-							colorscale: [
+							colorscale: invertColor ? [
+								[0, 'red'],
+								[1, 'green']
+							] : [
 								[0, 'green'],
 								[1, 'red']
 							],
@@ -446,8 +470,9 @@ function plotScatter3d() {
 						showlegend: false
 					};
 
+					let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
 					let layout = {
-						title: `${xCol} vs ${yCol} vs ${zCol}, result: ${result_names[result_nr]}`,
+						title: layoutTitle,
 						scene: {
 							xaxis: { title: xCol },
 							yaxis: { title: yCol },
@@ -462,6 +487,9 @@ function plotScatter3d() {
 
 					let subDiv = document.createElement("div");
 					subDiv.style.marginBottom = "20px";
+					let titleElement = document.createElement("h3");
+					titleElement.innerText = layoutTitle;
+					plotDiv.appendChild(titleElement);
 					plotDiv.appendChild(subDiv);
 
 					Plotly.newPlot(subDiv, [trace], layout);

@@ -106,12 +106,11 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		let minResult = Math.min(...colorValues);
 		let maxResult = Math.max(...colorValues);
 
-		// Prüfen, ob min oder max grün sein soll
 		let invertColor = result_min_max[0] === "max";
 
 		colorScale = invertColor
-			? [[0, 'red'], [1, 'green']] // Max ist grün
-			: [[0, 'green'], [1, 'red']]; // Min ist grün
+			? [[0, 'red'], [1, 'green']]
+			: [[0, 'green'], [1, 'red']];
 	}
 
 	const trace = {
@@ -274,19 +273,16 @@ function plotCPUAndRAMUsage() {
 }
 
 function plotScatter2d() {
-	// Überprüfen, ob die Daten bereits geladen wurden
 	if ($("#plotScatter2d").data("loaded") == "true") {
 		return;
 	}
 
 	var plotDiv = document.getElementById("plotScatter2d");
 
-	// Überprüfen, ob die Min/Max Eingabefelder bereits existieren, ansonsten erstellen
 	var minInput = document.getElementById("minValue");
 	var maxInput = document.getElementById("maxValue");
 
 	if (!minInput || !maxInput) {
-		// Min/Max Eingabefelder hinzufügen, falls noch nicht vorhanden
 		minInput = document.createElement("input");
 		minInput.id = "minValue";
 		minInput.type = "number";
@@ -299,7 +295,6 @@ function plotScatter2d() {
 		maxInput.placeholder = "Max Value";
 		maxInput.step = "any";
 
-		// Container für die Eingabefelder
 		var inputContainer = document.createElement("div");
 		inputContainer.style.marginBottom = "10px";
 		inputContainer.appendChild(minInput);
@@ -307,12 +302,10 @@ function plotScatter2d() {
 		plotDiv.appendChild(inputContainer);
 	}
 
-	// Event Listener für Min/Max Eingabe
 	minInput.addEventListener("input", updatePlots);
 	maxInput.addEventListener("input", updatePlots);
 
-	// Initiale Diagramme ohne Filter (Min/Max-Werte)
-	updatePlots();  // Wird direkt beim Laden der Seite aufgerufen
+	updatePlots();
 
 	function updatePlots() {
 		var minValue = parseFloat(minInput.value);
@@ -321,12 +314,10 @@ function plotScatter2d() {
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
-		// Alte Graphen entfernen (aber Min/Max Eingabefelder beibehalten)
 		while (plotDiv.children.length > 1) {
 			plotDiv.removeChild(plotDiv.lastChild);
 		}
 
-		// Graphen neu rendern
 		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
 			var numericColumns = tab_results_headers_json.filter(col =>
 				!special_col_names.includes(col) && !result_names.includes(col) &&
@@ -343,15 +334,12 @@ function plotScatter2d() {
 			);
 			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
 
-			// Min und Max für den aktuellen Plot berechnen und ggf. mit den Eingabewerten überschreiben
 			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-			// Benutzerdefinierte Filter anwenden
 			minResult = Math.max(minResult, minValue);
 			maxResult = Math.min(maxResult, maxValue);
 
-			// Prüfen, ob min oder max den grünen Wert bekommt
 			var invertColor = result_min_max[result_nr] === "max";
 
 			for (let i = 0; i < numericColumns.length; i++) {
@@ -368,7 +356,6 @@ function plotScatter2d() {
 						result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 					}));
 
-					// Daten nach Min/Max-Werten filtern
 					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
 
 					let colors = data.map(d => {
@@ -377,7 +364,7 @@ function plotScatter2d() {
 						} else {
 							let norm = (d.result - minResult) / (maxResult - minResult);
 							if (invertColor) {
-								norm = 1 - norm; // Invertieren für max
+								norm = 1 - norm;
 							}
 							return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
 						}
@@ -402,7 +389,7 @@ function plotScatter2d() {
 								tickvals: [minResult, maxResult],
 								ticktext: [`${minResult}`, `${maxResult}`]
 							},
-							symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
+							symbol: data.map(d => d.result === null ? 'x' : 'circle'),
 						},
 						text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 						type: 'scatter',
@@ -436,7 +423,6 @@ function plotScatter2d() {
 	$("#plotScatter2d").data("loaded", "true");
 }
 
-
 function plotScatter3d() {
 	if ($("#plotScatter3d").data("loaded") == "true") {
 		return;
@@ -449,122 +435,164 @@ function plotScatter3d() {
 	}
 	plotDiv.innerHTML = "";
 
-	for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
-		var numericColumns = [];
-		var categoricalColumns = {};
+	var minInput3d = document.getElementById("minValue3d");
+	var maxInput3d = document.getElementById("maxValue3d");
 
-		tab_results_headers_json.forEach(col => {
-			if (!special_col_names.includes(col) && !result_names.includes(col)) {
-				let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
-				let isNumeric = values.every(v => !isNaN(parseFloat(v)));
+	if (!minInput3d || !maxInput3d) {
+		minInput3d = document.createElement("input");
+		minInput3d.id = "minValue3d";
+		minInput3d.type = "number";
+		minInput3d.placeholder = "Min Value";
+		minInput3d.step = "any";
 
-				if (isNumeric) {
-					numericColumns.push(col);
-				} else {
-					categoricalColumns[col] = [...new Set(values)];
-				}
-			}
-		});
+		maxInput3d = document.createElement("input");
+		maxInput3d.id = "maxValue3d";
+		maxInput3d.type = "number";
+		maxInput3d.placeholder = "Max Value";
+		maxInput3d.step = "any";
 
-		let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
+		var inputContainer3d = document.createElement("div");
+		inputContainer3d.style.marginBottom = "10px";
+		inputContainer3d.appendChild(minInput3d);
+		inputContainer3d.appendChild(maxInput3d);
+		plotDiv.appendChild(inputContainer3d);
+	}
 
-		if (allColumns.length < 3) {
-			console.error("Not enough columns for 3D scatter plots");
-			return;
+	minInput3d.addEventListener("input", updatePlots3d);
+	maxInput3d.addEventListener("input", updatePlots3d);
+
+	updatePlots3d();
+
+	function updatePlots3d() {
+		var minValue3d = parseFloat(minInput3d.value);
+		var maxValue3d = parseFloat(maxInput3d.value);
+
+		if (isNaN(minValue3d)) minValue3d = -Infinity;
+		if (isNaN(maxValue3d)) maxValue3d = Infinity;
+
+		while (plotDiv.children.length > 1) {
+			plotDiv.removeChild(plotDiv.lastChild);
 		}
 
-		var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[result_nr].toLowerCase());
-		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
+			var numericColumns = [];
+			var categoricalColumns = {};
 
-		// Prüfen, ob min oder max den grünen Wert bekommt
-		var invertColor = result_min_max[result_nr] === "max";
+			tab_results_headers_json.forEach(col => {
+				if (!special_col_names.includes(col) && !result_names.includes(col)) {
+					let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
+					let isNumeric = values.every(v => !isNaN(parseFloat(v)));
 
-		for (let i = 0; i < allColumns.length; i++) {
-			for (let j = i + 1; j < allColumns.length; j++) {
-				for (let k = j + 1; k < allColumns.length; k++) {
-					let xCol = allColumns[i];
-					let yCol = allColumns[j];
-					let zCol = allColumns[k];
+					if (isNumeric) {
+						numericColumns.push(col);
+					} else {
+						categoricalColumns[col] = [...new Set(values)];
+					}
+				}
+			});
 
-					let xIndex = tab_results_headers_json.indexOf(xCol);
-					let yIndex = tab_results_headers_json.indexOf(yCol);
-					let zIndex = tab_results_headers_json.indexOf(zCol);
+			let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
 
-					let data = tab_results_csv_json.map(row => ({
-						x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
-						y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
-						z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
-						result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-					}));
+			if (allColumns.length < 3) {
+				console.error("Not enough columns for 3D scatter plots");
+				return;
+			}
 
-					let colors = data.map(d => {
-						if (d.result === null) {
-							return 'rgb(0, 0, 0)';
-						} else {
-							let norm = (d.result - minResult) / (maxResult - minResult);
-							if (invertColor) {
-								norm = 1 - norm; // Invertieren für max
+			var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[result_nr].toLowerCase());
+			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+
+			var invertColor = result_min_max[result_nr] === "max";
+
+			for (let i = 0; i < allColumns.length; i++) {
+				for (let j = i + 1; j < allColumns.length; j++) {
+					for (let k = j + 1; k < allColumns.length; k++) {
+						let xCol = allColumns[i];
+						let yCol = allColumns[j];
+						let zCol = allColumns[k];
+
+						let xIndex = tab_results_headers_json.indexOf(xCol);
+						let yIndex = tab_results_headers_json.indexOf(yCol);
+						let zIndex = tab_results_headers_json.indexOf(zCol);
+
+						let data = tab_results_csv_json.map(row => ({
+							x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
+							y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
+							z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
+							result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+						}));
+
+						data = data.filter(d => d.result >= minResult && d.result <= maxResult && d.result >= minValue3d && d.result <= maxValue3d);
+
+						let colors = data.map(d => {
+							if (d.result === null) {
+								return 'rgb(0, 0, 0)';
+							} else {
+								let norm = (d.result - minResult) / (maxResult - minResult);
+								if (invertColor) {
+									norm = 1 - norm; 
+								}
+								return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
 							}
-							return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
-						}
-					});
+						});
 
-					let trace = {
-						x: data.map(d => d.x),
-						y: data.map(d => d.y),
-						z: data.map(d => d.z),
-						mode: 'markers',
-						marker: {
-							size: 5,
-							color: data.map(d => d.result !== null ? d.result : null),
-							colorscale: invertColor ? [
-								[0, 'red'],
-								[1, 'green']
-							] : [
-								[0, 'green'],
-								[1, 'red']
-							],
-							colorbar: {
-								title: 'Result',
-								tickvals: [minResult, maxResult],
-								ticktext: [`${minResult}`, `${maxResult}`]
+						let trace = {
+							x: data.map(d => d.x),
+							y: data.map(d => d.y),
+							z: data.map(d => d.z),
+							mode: 'markers',
+							marker: {
+								size: 5,
+								color: data.map(d => d.result !== null ? d.result : null),
+								colorscale: invertColor ? [
+									[0, 'red'],
+									[1, 'green']
+								] : [
+									[0, 'green'],
+									[1, 'red']
+								],
+								colorbar: {
+									title: 'Result',
+									tickvals: [minResult, maxResult],
+									ticktext: [`${minResult}`, `${maxResult}`]
+								},
+								symbol: data.map(d => d.result === null ? 'x' : 'circle'), 
 							},
-							symbol: data.map(d => d.result === null ? 'x' : 'circle'), // 'x' für null-Werte
-						},
-						text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-						type: 'scatter3d',
-						showlegend: false
-					};
+							text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+							type: 'scatter3d',
+							showlegend: false
+						};
 
-					let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
-					let layout = {
-						title: layoutTitle,
-						scene: {
-							xaxis: { title: xCol },
-							yaxis: { title: yCol },
-							zaxis: { title: zCol }
-						},
-						showlegend: false,
-						width: get_graph_width(),
-						height: 800,
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)'
-					};
+						let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
+						let layout = {
+							title: layoutTitle,
+							scene: {
+								xaxis: { title: xCol },
+								yaxis: { title: yCol },
+								zaxis: { title: zCol }
+							},
+							showlegend: false,
+							width: get_graph_width(),
+							height: 800,
+							paper_bgcolor: 'rgba(0,0,0,0)',
+							plot_bgcolor: 'rgba(0,0,0,0)'
+						};
 
-					let subDiv = document.createElement("div");
-					subDiv.style.marginBottom = "20px";
-					let titleElement = document.createElement("h3");
-					titleElement.innerText = layoutTitle;
-					plotDiv.appendChild(titleElement);
-					plotDiv.appendChild(subDiv);
+						let subDiv = document.createElement("div");
+						subDiv.style.marginBottom = "20px";
+						let titleElement = document.createElement("h3");
+						titleElement.innerText = layoutTitle;
+						plotDiv.appendChild(titleElement);
+						plotDiv.appendChild(subDiv);
 
-					Plotly.newPlot(subDiv, [trace], layout);
+						Plotly.newPlot(subDiv, [trace], layout);
+					}
 				}
 			}
 		}
 	}
+
 	$("#plotScatter3d").data("loaded", "true");
 }
 
@@ -1152,14 +1180,12 @@ function plotResultEvolution() {
 		var resultIndex = tab_job_infos_headers_json.indexOf(resultName);
 
 		let data = tab_job_infos_csv_json.map(row => ({
-			x: new Date(row[timeColumnIndex] * 1000),  // Zeitstempel in Date-Objekt umwandeln
-			y: parseFloat(row[resultIndex])  // Wert des Ergebnisses
+			x: new Date(row[timeColumnIndex] * 1000),
+			y: parseFloat(row[resultIndex])
 		}));
 
-		// Daten nach Zeit (x-Wert) sortieren
 		data.sort((a, b) => a.x - b.x);
 
-		// Sortierte x- und y-Daten extrahieren
 		let xData = data.map(item => item.x);
 		let yData = data.map(item => item.y);
 
@@ -1237,7 +1263,7 @@ function plotResultPairs() {
 			};
 
 			let layout = {
-				title: '', // lassen wir leer, weil wir's jetzt als Überschrift machen
+				title: '',
 				xaxis: { title: xName },
 				yaxis: { title: yName },
 				showlegend: false,
@@ -1247,7 +1273,6 @@ function plotResultPairs() {
 				plot_bgcolor: 'rgba(0,0,0,0)'
 			};
 
-			// Überschrift einfügen
 			let header = document.createElement("h2");
 			header.innerHTML = `${xName} (x&rarr;) vs ${yName} (y&uarr;):`;
 			plotDiv.appendChild(header);

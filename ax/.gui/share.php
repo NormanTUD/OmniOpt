@@ -453,9 +453,9 @@
 					}
 
 					$base_url = "?";
-					if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
-						$base_url = "?sort=" . $_GET["sort"];
-					}
+					#if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
+					#	$base_url = "?sort=" . $_GET["sort"];
+					#}
 
 					$links = [];
 

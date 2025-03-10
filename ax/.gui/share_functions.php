@@ -650,7 +650,6 @@
 			}               
 			closedir($dir); 
 
-			// Funktion zum Finden des neuesten Änderungsdatums eines Ordners (rekursiv)
 			function getLatestModificationTime($folderPath) {
 				$latestTime = 0;
 				$dir = opendir($folderPath);
@@ -659,10 +658,8 @@
 					$filePath = $folderPath . '/' . $file;
 					if ($file != "." && $file != "..") {
 						if (is_dir($filePath)) {
-							// Rekursiv in Unterordner gehen
 							$latestTime = max($latestTime, getLatestModificationTime($filePath));
 						} else {
-							// Datei prüfen
 							$latestTime = max($latestTime, filemtime($filePath));
 						}
 					}
@@ -719,13 +716,11 @@
 	function getSortOptions() {
 		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
 
-		// Hole die aktuelle URL ohne den 'sort' Parameter
 		$currentUrl = $_SERVER['REQUEST_URI'];
 		$urlParts = parse_url($currentUrl);
 		parse_str($urlParts['query'] ?? '', $queryParams);
-		unset($queryParams['sort']); // Entferne den 'sort' Parameter, um ihn später neu hinzuzufügen
+		unset($queryParams['sort']);
 
-		// Gib das Dropdown zurück mit der aktuellen 'sort'-Option
 		return '
 			<form id="sortForm" method="get">
 			    <select name="sort" onchange="updateUrl()">

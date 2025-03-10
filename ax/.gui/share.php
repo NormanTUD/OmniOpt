@@ -433,7 +433,7 @@
 	</script>
 	<div class="page" style='font-family: sans-serif'>
 		<div class="invert_in_dark_mode" style="height: fit-content;">
-			<div class="title-bar-text">
+			<div id="share_path" class="title-bar-text">
 <?php
 				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
 					$user_id_link = get_get("user_id");
@@ -476,10 +476,10 @@
 						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
 					}
 
-					$path_with_links = implode(" / ", $links);
+					$path_with_links = implode(" <div class='invert_in_dark_mode'>/</div> ", $links);
 
 					if(count($links)) {
-						echo " ($path_with_links)";
+						echo $path_with_links;
 					}
 				}
 ?>

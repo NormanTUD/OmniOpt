@@ -1,4 +1,8 @@
 <style>
+	#share_path {
+		color: black;
+	}
+
 	.debug_log_pre {
 		min-width: 300px;
 	}

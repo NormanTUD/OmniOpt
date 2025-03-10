@@ -25,6 +25,8 @@ valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minko
 
 SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
+IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "generation_node"]
+
 try:
     from rich.console import Console
 
@@ -2915,16 +2917,7 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 
     for i in range(0, len(cols)):
         col = cols[i]
-        if col not in [
-            "start_time",
-            "end_time",
-            "hostname",
-            "signal",
-            "exit_code",
-            "run_time",
-            "program_string",
-            "generation_node"
-        ]:
+        if col not in IGNORABLE_COLUMNS:
             if col == res_name:
                 results[res_name] = repr(best_line[i]) if type(best_line[i]) in [int, float] else best_line[i]
             else:
@@ -6548,22 +6541,59 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
     return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_i: str, metric_j: str) -> rich.table.Table:
-    table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
+def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_i: str, metric_j: str) -> Table:
+    # Der Pfad zur CSV-Datei
+    csv_path: str = f"{get_current_run_folder()}/results.csv"
+    
+    # CSV-Datei einlesen
+    with open(csv_path, mode='r') as file:
+        reader = csv.DictReader(file)
 
+        # Die Spaltennamen aus der CSV extrahieren und die Ergebnisse dynamisch bestimmen
+        all_columns = reader.fieldnames
+        
+        # Spalten, die ignoriert werden sollen, herausfiltern
+        param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
+        
+        # Ergebnisse für die Metriken bestimmen (nur Spalten, die mit "RESULT" anfangen)
+        metrics = [col for col in all_columns if col in arg_result_names]
+
+        # Initialisiere die Dictionaries
+        param_dicts = []
+        means = {metric: [] for metric in metrics}
+        sems = {metric: [] for metric in metrics}
+
+        # Durch die CSV-Daten iterieren und Werte extrahieren
+        for row in reader:
+            param_dict = {}
+            # Parameterwerte in ein Dictionary extrahieren
+            for param in param_names:
+                param_dict[param] = row[param]
+            
+            # Ergebnisse für die Metriken extrahieren
+            for metric in metrics:
+                means[metric].append(float(row[metric]))  # Realer Wert aus der CSV
+                sems[metric].append(0.0)  # Sem als 0, da du diesen nicht weiter benötigst
+
+            param_dicts.append(param_dict)
+
+    # Erstellen der Rich-Tabelle
+    table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
+    
+    # Tabellenkopf erstellen (Parameter + Metriken)
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
-
+    
+    # Durch die Parameter-Daten iterieren und Zeilen hinzufügen
     for i, params in enumerate(param_dicts):
         row: list = []
-        row.extend(str(params[k]) for k in params.keys())
+        row.extend(str(params[k]) for k in params.keys())  # Parameter-Werte
         for metric in metrics:
-            mean = means[metric][i]
-            sem = sems[metric][i]
-            row.append(f"{mean:.3f} ± {sem:.3f}")
+            mean = means[metric][i]  # Echte Werte aus der CSV
+            row.append(f"{mean:.3f}")  # Nur den tatsächlichen Wert anzeigen, kein ± mehr
         table.add_row(*row, style="bold green")
-
+    
     return table
 
 @beartype

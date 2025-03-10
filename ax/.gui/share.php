@@ -366,7 +366,7 @@
 
 		function show_main_window() {
 			document.getElementById('spinner').style.display = 'none';
-			document.getElementById('main_window').style.display = 'block';
+			document.getElementById('main_window').style.display = 'contents';
 		}
 
 		function initialize_tabs () {

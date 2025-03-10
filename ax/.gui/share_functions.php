@@ -631,43 +631,67 @@
 
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
-			return;
+			return;         
 		}
 
 		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
 
-		echo getSortOptions();
+		echo getSortOptions();  
 
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
 			$currentUrl = $_SERVER['REQUEST_URI'];
-			$folders = [];
+			$folders = [];  
 
 			while (($folder = readdir($dir)) !== false) {
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
 					$folders[] = $folder;
+				}       
+			}               
+			closedir($dir); 
+
+			// Funktion zum Finden des neuesten Änderungsdatums eines Ordners (rekursiv)
+			function getLatestModificationTime($folderPath) {
+				$latestTime = 0;
+				$dir = opendir($folderPath);
+
+				while (($file = readdir($dir)) !== false) {
+					$filePath = $folderPath . '/' . $file;
+					if ($file != "." && $file != "..") {
+						if (is_dir($filePath)) {
+							// Rekursiv in Unterordner gehen
+							$latestTime = max($latestTime, getLatestModificationTime($filePath));
+						} else {
+							// Datei prüfen
+							$latestTime = max($latestTime, filemtime($filePath));
+						}
+					}
 				}
+				closedir($dir);
+				return $latestTime;
 			}
 
-			closedir($dir);
-
 			switch ($sort) {
-				case 'time_asc':
-					usort($folders, function($a, $b) use ($folderPath) {
-						return filemtime($folderPath . '/' . $a) - filemtime($folderPath . '/' . $b);
-					});
-					break;
-				case 'time_desc':
-					usort($folders, function($a, $b) use ($folderPath) {
-						return filemtime($folderPath . '/' . $b) - filemtime($folderPath . '/' . $a);
-					});
-					break;
-				case 'nr_asc':
-					sort($folders);
-					break;
-				case 'nr_desc':
-					rsort($folders);
-					break;
+			case 'time_asc':                                                                                                                                                                                                                         
+				usort($folders, function($a, $b) use ($folderPath) {
+					$timeA = getLatestModificationTime($folderPath . '/' . $a);
+					$timeB = getLatestModificationTime($folderPath . '/' . $b);
+					return $timeA - $timeB;
+				});
+				break;
+			case 'time_desc':
+				usort($folders, function($a, $b) use ($folderPath) {
+					$timeA = getLatestModificationTime($folderPath . '/' . $a);
+					$timeB = getLatestModificationTime($folderPath . '/' . $b);
+					return $timeB - $timeA;
+				});
+				break;
+			case 'nr_asc':
+				sort($folders);
+				break;
+			case 'nr_desc':
+				rsort($folders);
+				break;
 			}
 
 			if (count($folders)) {
@@ -678,18 +702,18 @@
 						$url .= '&sort=' . urlencode($sort);
 					}
 
-					$lastModified = date("F d Y H:i:s", filemtime($folderPathWithFile));
+					$lastModified = date("F d Y H:i:s", getLatestModificationTime($folderPathWithFile));
 
 					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
 					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ')</button>';
 					echo '</a><br>';
-				}
-			} else {
+				}       
+			} else {        
 				print "<h2>Sorry, no jobs have been uploaded yet.</h2>";
-			}
-		} else {
+			}               
+		} else {                
 			echo "The specified folder does not exist.";
-		}
+		}                       
 	}
 
 	function getSortOptions() {

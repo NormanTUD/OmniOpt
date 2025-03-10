@@ -73,7 +73,6 @@ try:
         import toml
         import csv
 
-        import rich
         from rich.progress import Progress, TimeRemainingColumn
         from rich.table import Table
         from rich import print
@@ -6544,17 +6543,17 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
 def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_i: str, metric_j: str) -> Table:
     # Der Pfad zur CSV-Datei
     csv_path: str = f"{get_current_run_folder()}/results.csv"
-    
+
     # CSV-Datei einlesen
-    with open(csv_path, mode='r') as file:
+    with open(csv_path, encoding="utf-8", mode='r') as file:
         reader = csv.DictReader(file)
 
         # Die Spaltennamen aus der CSV extrahieren und die Ergebnisse dynamisch bestimmen
         all_columns = reader.fieldnames
-        
+
         # Spalten, die ignoriert werden sollen, herausfiltern
         param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
-        
+
         # Ergebnisse für die Metriken bestimmen (nur Spalten, die mit "RESULT" anfangen)
         metrics = [col for col in all_columns if col in arg_result_names]
 
@@ -6569,7 +6568,7 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
             # Parameterwerte in ein Dictionary extrahieren
             for param in param_names:
                 param_dict[param] = row[param]
-            
+
             # Ergebnisse für die Metriken extrahieren
             for metric in metrics:
                 means[metric].append(float(row[metric]))  # Realer Wert aus der CSV
@@ -6579,12 +6578,12 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
 
     # Erstellen der Rich-Tabelle
     table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
-    
+
     # Tabellenkopf erstellen (Parameter + Metriken)
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
-    
+
     # Durch die Parameter-Daten iterieren und Zeilen hinzufügen
     for i, params in enumerate(param_dicts):
         row: list = []
@@ -6593,7 +6592,7 @@ def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metri
             mean = means[metric][i]  # Echte Werte aus der CSV
             row.append(f"{mean:.3f}")  # Nur den tatsächlichen Wert anzeigen, kein ± mehr
         table.add_row(*row, style="bold green")
-    
+
     return table
 
 @beartype

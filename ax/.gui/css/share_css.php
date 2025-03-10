@@ -1,5 +1,5 @@
 <style>
-	debug_log_pre {
+	.debug_log_pre {
 		min-width: 300px;
 	}
 
@@ -151,21 +151,4 @@
 		min-width: 1100px;
 	}
 </style>
-<?php
-	$theme = "xp.css";
-
-
-	if(isset($_GET["theme"])) {
-		if($_GET["theme"] == "none") {
-			$theme = "none";
-		} else if ($_GET["theme"] == "7") {
-			$theme = "7.css";
-		}
-	}
-
-	if ($theme != "none") {
-?>
-		<link rel="stylesheet" href="css/<?php print $theme; ?>">
-<?php
-	}
-?>
+<link rel="stylesheet" href="css/xp.css">

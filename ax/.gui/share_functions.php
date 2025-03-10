@@ -630,15 +630,19 @@
 	}
 
 	function generateFolderButtons($folderPath, $new_param_name) {
-		if(!isset($_SERVER["REQUEST_URI"])) {
+		if (!isset($_SERVER["REQUEST_URI"])) {
 			return;
 		}
+
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
+
+		echo getSortOptions();
+
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
-
 			$currentUrl = $_SERVER['REQUEST_URI'];
-
 			$folders = [];
+
 			while (($folder = readdir($dir)) !== false) {
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
 					$folders[] = $folder;
@@ -647,19 +651,37 @@
 
 			closedir($dir);
 
-			usort($folders, function($a, $b) {
-				if (is_numeric($a) && is_numeric($b)) {
-					return (int)$a - (int)$b;
-				}
-				return strcmp($a, $b);
-			});
+			switch ($sort) {
+				case 'time_asc':
+					usort($folders, function($a, $b) use ($folderPath) {
+						return filemtime($folderPath . '/' . $a) - filemtime($folderPath . '/' . $b);
+					});
+					break;
+				case 'time_desc':
+					usort($folders, function($a, $b) use ($folderPath) {
+						return filemtime($folderPath . '/' . $b) - filemtime($folderPath . '/' . $a);
+					});
+					break;
+				case 'nr_asc':
+					sort($folders);
+					break;
+				case 'nr_desc':
+					rsort($folders);
+					break;
+			}
 
-			if(count($folders)) {
+			if (count($folders)) {
 				foreach ($folders as $folder) {
+					$folderPathWithFile = $folderPath . '/' . $folder;
 					$url = $currentUrl . (strpos($currentUrl, '?') === false ? '?' : '&') . $new_param_name . '=' . urlencode($folder);
+					if ($sort != 'nr_asc') {
+						$url .= '&sort=' . urlencode($sort);
+					}
+
+					$lastModified = date("F d Y H:i:s", filemtime($folderPathWithFile));
 
 					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
-					echo '<button type="button">' . htmlspecialchars($folder) . '</button>';
+					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ')</button>';
 					echo '</a><br>';
 				}
 			} else {
@@ -669,6 +691,43 @@
 			echo "The specified folder does not exist.";
 		}
 	}
+
+	function getSortOptions() {
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
+
+		// Hole die aktuelle URL ohne den 'sort' Parameter
+		$currentUrl = $_SERVER['REQUEST_URI'];
+		$urlParts = parse_url($currentUrl);
+		parse_str($urlParts['query'] ?? '', $queryParams);
+		unset($queryParams['sort']); // Entferne den 'sort' Parameter, um ihn später neu hinzuzufügen
+
+		// Gib das Dropdown zurück mit der aktuellen 'sort'-Option
+		return '
+			<form id="sortForm" method="get">
+			    <select name="sort" onchange="updateUrl()">
+				<option value="time_asc"' . ($sort == 'time_asc' ? ' selected' : '') . '>Time (ascending)</option>
+				<option value="time_desc"' . ($sort == 'time_desc' ? ' selected' : '') . '>Time (descending)</option>
+				<option value="nr_asc"' . ($sort == 'nr_asc' ? ' selected' : '') . '>Name (ascending)</option>
+				<option value="nr_desc"' . ($sort == 'nr_desc' ? ' selected' : '') . '>Name (descending)</option>
+			    </select>
+			</form>
+			<script>
+			    function updateUrl() {
+				const currentUrl = window.location.href;
+				const url = new URL(currentUrl);
+
+				const sortValue = document.querySelector("select[name=\'sort\']").value;
+
+				url.searchParams.set("sort", sortValue);
+
+				window.location.href = url.toString();
+			    }
+			</script>
+		';
+	}
+
+
+
 
 	function is_valid_user_or_experiment_name ($name) {
 		if(preg_match("/^[a-zA-Z0-9_-]+$/", $name)) {
@@ -1276,7 +1335,6 @@
 
 		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
 
-		// Überprüfung, ob das Verzeichnis leer ist und älter als ein Tag
 		if ($is_recursive_call && empty($filesAfterCheck) && filemtime($directory) < time() - 86400) {
 			rmdir($directory);                             
 			return true;                 

@@ -6540,57 +6540,43 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
     return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, means: dict, sems: dict, metrics: list, metric_i: str, metric_j: str) -> Table:
-    # Der Pfad zur CSV-Datei
+def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Table:
     csv_path: str = f"{get_current_run_folder()}/results.csv"
 
-    # CSV-Datei einlesen
     with open(csv_path, encoding="utf-8", mode='r') as file:
         reader = csv.DictReader(file)
 
-        # Die Spaltennamen aus der CSV extrahieren und die Ergebnisse dynamisch bestimmen
         all_columns = reader.fieldnames
 
-        # Spalten, die ignoriert werden sollen, herausfiltern
         param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
 
-        # Ergebnisse für die Metriken bestimmen (nur Spalten, die mit "RESULT" anfangen)
         metrics = [col for col in all_columns if col in arg_result_names]
 
-        # Initialisiere die Dictionaries
         param_dicts = []
         means = {metric: [] for metric in metrics}
-        sems = {metric: [] for metric in metrics}
 
-        # Durch die CSV-Daten iterieren und Werte extrahieren
         for row in reader:
             param_dict = {}
-            # Parameterwerte in ein Dictionary extrahieren
             for param in param_names:
                 param_dict[param] = row[param]
 
-            # Ergebnisse für die Metriken extrahieren
             for metric in metrics:
-                means[metric].append(float(row[metric]))  # Realer Wert aus der CSV
-                sems[metric].append(0.0)  # Sem als 0, da du diesen nicht weiter benötigst
+                means[metric].append(float(row[metric]))
 
             param_dicts.append(param_dict)
 
-    # Erstellen der Rich-Tabelle
-    table = Table(title=f"Pareto Frontier Results for {metric_j}/{metric_i}:", show_lines=True)
+    table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
 
-    # Tabellenkopf erstellen (Parameter + Metriken)
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
 
-    # Durch die Parameter-Daten iterieren und Zeilen hinzufügen
     for i, params in enumerate(param_dicts):
         row: list = []
-        row.extend(str(params[k]) for k in params.keys())  # Parameter-Werte
+        row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
-            mean = means[metric][i]  # Echte Werte aus der CSV
-            row.append(f"{mean:.3f}")  # Nur den tatsächlichen Wert anzeigen, kein ± mehr
+            mean = means[metric][i]
+            row.append(f"{mean:.3f}")
         table.add_row(*row, style="bold green")
 
     return table
@@ -6712,8 +6698,6 @@ def show_pareto_frontier_data() -> None:
 
         rich_table = pareto_front_as_rich_table(
             calculated_frontier.param_dicts,
-            calculated_frontier.means,
-            calculated_frontier.sems,
             calculated_frontier.absolute_metrics,
             metric_j.name,
             metric_i.name

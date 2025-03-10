@@ -305,12 +305,14 @@ function plotScatter2d() {
 	minInput.addEventListener("input", updatePlots);
 	maxInput.addEventListener("input", updatePlots);
 
+	// Erstes Laden der Diagramme ohne Min/Max-Filter
 	updatePlots();
 
-	function updatePlots() {
+	async function updatePlots() {
 		var minValue = parseFloat(minInput.value);
 		var maxValue = parseFloat(maxInput.value);
 
+		// Wenn Min/Max nicht gesetzt -> Alle Werte anzeigen
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
@@ -337,8 +339,9 @@ function plotScatter2d() {
 			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-			minResult = Math.max(minResult, minValue);
-			maxResult = Math.min(maxResult, maxValue);
+			// Begrenzung nur falls Min/Max gesetzt wurde
+			if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+			if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
 
 			var invertColor = result_min_max[result_nr] === "max";
 
@@ -357,6 +360,51 @@ function plotScatter2d() {
 					}));
 
 					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+
+					let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
+					let layout = {
+						title: layoutTitle,
+						xaxis: { title: xCol },
+						yaxis: { title: yCol },
+						showlegend: false,
+						width: get_graph_width(),
+						height: 800,
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)'
+					};
+
+					let subDiv = document.createElement("div");
+					let titleElement = document.createElement("h3");
+					titleElement.innerText = layoutTitle;
+
+					// Spinner Container
+					let spinnerContainer = document.createElement("div");
+					spinnerContainer.style.display = "flex";
+					spinnerContainer.style.alignItems = "center";
+					spinnerContainer.style.justifyContent = "center";
+					spinnerContainer.style.width = layout.width + "px";
+					spinnerContainer.style.height = layout.height + "px";
+					spinnerContainer.style.position = "relative";
+
+					// Spinner
+					let spinner = document.createElement("div");
+					spinner.className = "spinner";
+					spinner.style.width = "40px";
+					spinner.style.height = "40px";
+
+					// Lade-Text
+					let loadingText = document.createElement("span");
+					loadingText.innerText = `Loading ${layoutTitle}`;
+					loadingText.style.marginLeft = "10px";
+
+					// Zusammenfügen
+					spinnerContainer.appendChild(spinner);
+					spinnerContainer.appendChild(loadingText);
+
+					plotDiv.appendChild(titleElement);
+					plotDiv.appendChild(spinnerContainer);
+
+					await new Promise(resolve => setTimeout(resolve, 50)); // Verhindert UI-Blockade
 
 					let colors = data.map(d => {
 						if (d.result === null) {
@@ -396,24 +444,8 @@ function plotScatter2d() {
 						showlegend: false
 					};
 
-					let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
-					let layout = {
-						title: layoutTitle,
-						xaxis: { title: xCol },
-						yaxis: { title: yCol },
-						showlegend: false,
-						width: get_graph_width(),
-						height: 800,
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)'
-					};
-
-					let subDiv = document.createElement("div");
-					let titleElement = document.createElement("h3");
-					titleElement.innerText = layoutTitle;
-					plotDiv.appendChild(titleElement);
-					plotDiv.appendChild(subDiv);
-
+					// Spinner ersetzen durch das Diagramm
+					plotDiv.replaceChild(subDiv, spinnerContainer);
 					Plotly.newPlot(subDiv, [trace], layout);
 				}
 			}

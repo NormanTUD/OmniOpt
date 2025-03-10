@@ -221,10 +221,10 @@
 
 			$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
 
-			$pareto_front_txt = remove_ansi_colors(file_get_contents($pareto_front_txt_file));
+			$pareto_front_text = remove_ansi_colors(file_get_contents($pareto_front_txt_file));
 
-			if($pareto_front_txt) {
-				$pareto_front_html .= "<pre>$pareto_front_txt</pre><br>\n";
+			if($pareto_front_text) {
+				$pareto_front_html .= asciiTableToHtml($pareto_front_text);
 			}
 
 			$GLOBALS["json_data"]["pareto_front_data"] = json_decode(file_get_contents("$run_dir/pareto_front_data.json"));

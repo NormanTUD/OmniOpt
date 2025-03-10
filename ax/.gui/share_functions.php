@@ -631,24 +631,24 @@
 
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
-			return;         
+			return;
 		}
 
-		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'time_desc';
 
-		echo getSortOptions();  
+		echo getSortOptions();
 
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
 			$currentUrl = $_SERVER['REQUEST_URI'];
-			$folders = [];  
+			$folders = [];
 
 			while (($folder = readdir($dir)) !== false) {
 				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
 					$folders[] = $folder;
-				}       
-			}               
-			closedir($dir); 
+				}
+			}
+			closedir($dir);
 
 			function getLatestModificationTime($folderPath) {
 				$latestTime = 0;
@@ -669,7 +669,7 @@
 			}
 
 			switch ($sort) {
-			case 'time_asc':                                                                                                                                                                                                                         
+			case 'time_asc':
 				usort($folders, function($a, $b) use ($folderPath) {
 					$timeA = getLatestModificationTime($folderPath . '/' . $a);
 					$timeB = getLatestModificationTime($folderPath . '/' . $b);
@@ -704,17 +704,17 @@
 					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
 					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ')</button>';
 					echo '</a><br>';
-				}       
-			} else {        
+				}
+			} else {
 				print "<h2>Sorry, no jobs have been uploaded yet.</h2>";
-			}               
-		} else {                
+			}
+		} else {
 			echo "The specified folder does not exist.";
-		}                       
+		}
 	}
 
 	function getSortOptions() {
-		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'nr_asc';
+		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'time_desc';
 
 		$currentUrl = $_SERVER['REQUEST_URI'];
 		$urlParts = parse_url($currentUrl);
@@ -892,7 +892,7 @@
 
 		$log = preg_replace('/(INFO.*?)(?=\n|$)/', '<span style="color:green;">$1</span>', $log);
 
-		
+
 		$log = preg_replace_callback('/(DEBUG INFOS START.*?DEBUG INFOS END)/s', function($matches) {
 			$debugInfo = $matches[0];
 
@@ -1338,27 +1338,27 @@
 		}
 	}
 
-	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {                                                                                                                                            
-		if (!is_dir($directory)) {       
-			return false;                              
-		}                                                       
+	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {
+		if (!is_dir($directory)) {
+			return false;
+		}
 
 		$files = array_diff(scandir($directory), ['.', '..']);
 
-		foreach ($files as $file) {                            
+		foreach ($files as $file) {
 			$path = $directory . DIRECTORY_SEPARATOR . $file;
-			if (is_dir($path)) {             
+			if (is_dir($path)) {
 				deleteEmptyDirectories($path, true);
-			}                                
-		}                                           
+			}
+		}
 
 		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
 
 		if ($is_recursive_call && empty($filesAfterCheck) && filemtime($directory) < time() - 86400) {
-			rmdir($directory);                             
-			return true;                 
-		}                                                                                                                               
-		return false;                                                                                                     
+			rmdir($directory);
+			return true;
+		}
+		return false;
 	}
 
 	function _delete_old_shares($dir) {

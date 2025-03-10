@@ -431,63 +431,63 @@
 			document.getElementById('spinner').style.display = 'block';
 		}
 	</script>
-	<div class="page window" style='font-family: sans-serif'>
-		<div class="title-bar invert_in_dark_mode" style="height: fit-content;">
-			<div class="title-bar-text">OmniOpt2-Share
+	<div class="page" style='font-family: sans-serif'>
+		<div class="invert_in_dark_mode" style="height: fit-content;">
+			<div class="title-bar-text">
 <?php
-			if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
-				$user_id_link = get_get("user_id");
-				$experiment_name_link = get_get("experiment_name");
-				$run_nr_link = get_get("run_nr");
+				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
+					$user_id_link = get_get("user_id");
+					$experiment_name_link = get_get("experiment_name");
+					$run_nr_link = get_get("run_nr");
 
-				if (!is_valid_user_id($user_id_link)) {
-					$user_id_link = '';
+					if (!is_valid_user_id($user_id_link)) {
+						$user_id_link = '';
+					}
+
+					if (!is_valid_experiment_name($experiment_name_link)) {
+						$experiment_name_link = '';
+					}
+
+					if (!is_valid_run_nr($run_nr_link)) {
+						$run_nr_link = '';
+					}
+
+					$base_url = "?";
+
+					$links = [];
+
+					if (!empty($user_id_link)) {
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
+					}
+
+					if (!empty($experiment_name_link)) {
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
+					}
+
+					if ($run_nr_link != "") {
+						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
+					}
+
+					if(count($links)) {
+						$home = $_SERVER["PHP_SELF"];
+						$home = preg_replace("/.*\//", "", $home);
+						$home = preg_replace("/\.php$/", "", $home);
+
+						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
+					}
+
+					$path_with_links = implode(" / ", $links);
+
+					if(count($links)) {
+						echo " ($path_with_links)";
+					}
 				}
-
-				if (!is_valid_experiment_name($experiment_name_link)) {
-					$experiment_name_link = '';
-				}
-
-				if (!is_valid_run_nr($run_nr_link)) {
-					$run_nr_link = '';
-				}
-
-				$base_url = "?";
-
-				$links = [];
-
-				if (!empty($user_id_link)) {
-					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
-				}
-
-				if (!empty($experiment_name_link)) {
-					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
-				}
-
-				if ($run_nr_link != "") {
-					$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
-				}
-
-				if(count($links)) {
-					$home = $_SERVER["PHP_SELF"];
-					$home = preg_replace("/.*\//", "", $home);
-					$home = preg_replace("/\.php$/", "", $home);
-
-					array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
-				}
-
-				$path_with_links = implode(" / ", $links);
-
-				if(count($links)) {
-					echo " ($path_with_links)";
-				}
-			}
 ?>
 			</div>
 		</div>
 		<div id="spinner" class="spinner"></div>
 
-		<div id="main_window" style="display: none" class="container py-4 has-space">
+		<div id="main_window" style="display: none; border: 1px solid black;" class="container py-4 has-space">
 <?php
 			if(count($errors)) {
 				if (count($errors) > 1) {

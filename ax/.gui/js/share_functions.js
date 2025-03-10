@@ -493,9 +493,10 @@ function plotScatter3d() {
 	minInput3d.addEventListener("input", updatePlots3d);
 	maxInput3d.addEventListener("input", updatePlots3d);
 
+	// Erstes Laden der Diagramme ohne Min/Max-Filter
 	updatePlots3d();
 
-	function updatePlots3d() {
+	async function updatePlots3d() {
 		var minValue3d = parseFloat(minInput3d.value);
 		var maxValue3d = parseFloat(maxInput3d.value);
 
@@ -507,55 +508,91 @@ function plotScatter3d() {
 		}
 
 		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
-			var numericColumns = [];
-			var categoricalColumns = {};
+			var numericColumns = tab_results_headers_json.filter(col =>
+				!special_col_names.includes(col) && !result_names.includes(col) &&
+				tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+			);
 
-			tab_results_headers_json.forEach(col => {
-				if (!special_col_names.includes(col) && !result_names.includes(col)) {
-					let values = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf(col)]);
-					let isNumeric = values.every(v => !isNaN(parseFloat(v)));
-
-					if (isNumeric) {
-						numericColumns.push(col);
-					} else {
-						categoricalColumns[col] = [...new Set(values)];
-					}
-				}
-			});
-
-			let allColumns = [...numericColumns, ...Object.keys(categoricalColumns)];
-
-			if (allColumns.length < 3) {
+			if (numericColumns.length < 3) {
 				console.error("Not enough columns for 3D scatter plots");
 				return;
 			}
 
-			var resultIndex = tab_results_headers_json.findIndex(header => header.toLowerCase() === result_names[result_nr].toLowerCase());
+			var resultIndex = tab_results_headers_json.findIndex(header =>
+				header.toLowerCase() === result_names[result_nr].toLowerCase()
+			);
 			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+
 			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
+			if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+			if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+
 			var invertColor = result_min_max[result_nr] === "max";
 
-			for (let i = 0; i < allColumns.length; i++) {
-				for (let j = i + 1; j < allColumns.length; j++) {
-					for (let k = j + 1; k < allColumns.length; k++) {
-						let xCol = allColumns[i];
-						let yCol = allColumns[j];
-						let zCol = allColumns[k];
+			for (let i = 0; i < numericColumns.length; i++) {
+				for (let j = i + 1; j < numericColumns.length; j++) {
+					for (let k = j + 1; k < numericColumns.length; k++) {
+						let xCol = numericColumns[i];
+						let yCol = numericColumns[j];
+						let zCol = numericColumns[k];
 
 						let xIndex = tab_results_headers_json.indexOf(xCol);
 						let yIndex = tab_results_headers_json.indexOf(yCol);
 						let zIndex = tab_results_headers_json.indexOf(zCol);
 
 						let data = tab_results_csv_json.map(row => ({
-							x: numericColumns.includes(xCol) ? parseFloat(row[xIndex]) : categoricalColumns[xCol].indexOf(row[xIndex]),
-							y: numericColumns.includes(yCol) ? parseFloat(row[yIndex]) : categoricalColumns[yCol].indexOf(row[yIndex]),
-							z: numericColumns.includes(zCol) ? parseFloat(row[zIndex]) : categoricalColumns[zCol].indexOf(row[zIndex]),
+							x: parseFloat(row[xIndex]),
+							y: parseFloat(row[yIndex]),
+							z: parseFloat(row[zIndex]),
 							result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 						}));
 
-						data = data.filter(d => d.result >= minResult && d.result <= maxResult && d.result >= minValue3d && d.result <= maxValue3d);
+						data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+
+						let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
+						let layout = {
+							title: layoutTitle,
+							scene: {
+								xaxis: { title: xCol },
+								yaxis: { title: yCol },
+								zaxis: { title: zCol }
+							},
+							showlegend: false,
+							width: get_graph_width(),
+							height: 800,
+							paper_bgcolor: 'rgba(0,0,0,0)',
+							plot_bgcolor: 'rgba(0,0,0,0)'
+						};
+
+						// Spinner Container
+						let spinnerContainer = document.createElement("div");
+						spinnerContainer.style.display = "flex";
+						spinnerContainer.style.alignItems = "center";
+						spinnerContainer.style.justifyContent = "center";
+						spinnerContainer.style.width = layout.width + "px";
+						spinnerContainer.style.height = layout.height + "px";
+						spinnerContainer.style.position = "relative";
+
+						// Spinner
+						let spinner = document.createElement("div");
+						spinner.className = "spinner";
+						spinner.style.width = "40px";
+						spinner.style.height = "40px";
+
+						// Lade-Text
+						let loadingText = document.createElement("span");
+						loadingText.innerText = `Loading ${layoutTitle}`;
+						loadingText.style.marginLeft = "10px";
+
+						// Zusammenfügen
+						spinnerContainer.appendChild(spinner);
+						spinnerContainer.appendChild(loadingText);
+
+						plotDiv.appendChild(spinnerContainer);
+
+						await new Promise(resolve => setTimeout(resolve, 50));
 
 						let colors = data.map(d => {
 							if (d.result === null) {
@@ -563,7 +600,7 @@ function plotScatter3d() {
 							} else {
 								let norm = (d.result - minResult) / (maxResult - minResult);
 								if (invertColor) {
-									norm = 1 - norm; 
+									norm = 1 - norm;
 								}
 								return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
 							}
@@ -589,35 +626,15 @@ function plotScatter3d() {
 									tickvals: [minResult, maxResult],
 									ticktext: [`${minResult}`, `${maxResult}`]
 								},
-								symbol: data.map(d => d.result === null ? 'x' : 'circle'), 
+								symbol: data.map(d => d.result === null ? 'x' : 'circle'),
 							},
 							text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
 							type: 'scatter3d',
 							showlegend: false
 						};
 
-						let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
-						let layout = {
-							title: layoutTitle,
-							scene: {
-								xaxis: { title: xCol },
-								yaxis: { title: yCol },
-								zaxis: { title: zCol }
-							},
-							showlegend: false,
-							width: get_graph_width(),
-							height: 800,
-							paper_bgcolor: 'rgba(0,0,0,0)',
-							plot_bgcolor: 'rgba(0,0,0,0)'
-						};
-
 						let subDiv = document.createElement("div");
-						subDiv.style.marginBottom = "20px";
-						let titleElement = document.createElement("h3");
-						titleElement.innerText = layoutTitle;
-						plotDiv.appendChild(titleElement);
-						plotDiv.appendChild(subDiv);
-
+						plotDiv.replaceChild(subDiv, spinnerContainer);
 						Plotly.newPlot(subDiv, [trace], layout);
 					}
 				}

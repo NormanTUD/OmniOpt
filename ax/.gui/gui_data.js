@@ -413,6 +413,14 @@ var hiddenTableData = [
 		help: "Show sixel scatter graphic."
 	},
 	{
+		label: "Show worker percentage table?",
+		id: "show_worker_percentage_table_at_end",
+		type: "checkbox",
+		value: 0,
+		help: "Shows a table of the workers percentage at the end."
+	},
+
+	{
 		label: "No sleep?",
 		id: "no_sleep",
 		type: "checkbox",

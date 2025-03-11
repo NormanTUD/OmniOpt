@@ -133,7 +133,7 @@
 		}
 
 		if(is_file($best_results_txt)) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(file_get_contents($best_results_txt)));
+			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
 		} else {
 			$warnings[] = "$best_results_txt not found";
 		}
@@ -156,7 +156,7 @@
 
 			foreach ($status_data as $key => $value) {
 				$capitalizedKey = ucfirst($key);
-				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>."\n"';
+				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
 			}
 			$overview_table .= '</tr>'."\n";
 

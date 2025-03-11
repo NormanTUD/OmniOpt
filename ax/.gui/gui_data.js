@@ -427,6 +427,14 @@ var hiddenTableData = [
 		help: "Enforce sequential optimization."
 	},
 	{
+		label: "Optimization with combined criteria?",
+		id: "occ",
+		type: "checkbox",
+		value: 0,
+		help: "Use optimization with combined criteria (OCC)."
+	},
+
+	{
 		label: "Stderr to Stdout?",
 		id: "stderr_to_stdout",
 		type: "checkbox",
@@ -522,7 +530,16 @@ var hiddenTableData = [
 		value: "",
 		info: "An absolute path where the virtual env should be installed to",
 		required: false,
-		regex: "^((/[a-zA-Z0-9_-]+/?)*)?$",
+		regex: "^(/([a-zA-Z0-9_-]+/?)*)?$",
 		help: "Path where the virtual env should be installed to",
+	},
+	{
+		label: "Workdir",
+		id: "workdir",
+		type: "text",
+		value: "",
+		info: "An absolute path what the working directory of jobs should be",
+		required: false,
+		regex: "^(/([a-zA-Z0-9_-]+/?)*)?$"
 	},
 ];

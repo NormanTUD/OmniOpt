@@ -1,5 +1,5 @@
 var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
-var valid_models_regex_string = `(?:${valid_models.join("|")})`;
+var valid_models_regex_string = ``;
 
 var tableData = [
 	{
@@ -484,9 +484,9 @@ var hiddenTableData = [
 		id: "generation_strategy",
 		type: "text",
 		value: "",
-		info: "A comma-seperated list of strings of the form 'MODELNAME=count', for example, 'SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10'. This will override the number of random steps and the --model option",
+		info: `A comma-seperated list of strings of the form 'MODELNAME=count', for example, 'SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10'. This will override the number of random steps and the --model option. Valid models are: <ul><li>${valid_models.join('</li><li>')}</li></ul>`,
 		required: false,
-		regex: `^(${valid_models_regex_string}+=\\d+,?)*$`,
+		regex: `^((?:${valid_models.join("|")})+=\\d+,?)*$`,
 		help: "Specify a custom generation strategy",
 	},
 	{

@@ -408,7 +408,6 @@ class ConfigLoader:
     main_process_gb: int
     stderr_to_stdout: bool
     worker_timeout: int
-    disable_search_space_exhaustion_detection: bool
     slurm_signal_delay_s: int
     gridsearch: bool
     auto_exclude_defective_hosts: bool
@@ -478,7 +477,6 @@ class ConfigLoader:
         optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=int, default=8)
         optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
         optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client\'s get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=50)
-        optional.add_argument('--disable_search_space_exhaustion_detection', help='Disables automatic search space reduction detection', action='store_true', default=False)
         optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
         optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
@@ -6398,7 +6396,7 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
     else:
         NR_OF_0_RESULTS = 0
 
-    if not args.disable_search_space_exhaustion_detection and NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
+    if NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
         _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
         print_debug(_wrn)
         progressbar_description([_wrn])

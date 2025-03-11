@@ -378,10 +378,44 @@ var hiddenTableData = [
 		help: "Show more verbose TQDM output."
 	},
 	{
+		label: "Force local execution?",
+		id: "force_local_execution",
+		type: "checkbox",
+		value: 0,
+		help: "Forces local execution, even when SLURM is installed."
+	},
+	{
+		label: "No sleep?",
+		id: "no_sleep",
+		type: "checkbox",
+		value: 0,
+		help: "Disables sleeping in certain parts of the code."
+	},
+	{
 		label: "Abbreviate job names?",
 		id: "abbreviate_job_names",
 		type: "checkbox",
 		value: 0,
 		help: "Abbreviate job names (Running -> R, Pending -> P and so on)."
 	},
+	{
+		label: "Max nr. of zero results",
+		id: "max_nr_of_zero_results",
+		type: "number",
+		value: 50,
+		help: "Max nr. of jobs where the fetch_next_trial is emtpy to be considered as search space exhausted",
+		min: 1
+	},
+
+	{
+		label: "Exclude",
+		id: "exclude",
+		type: "text",
+		value: "",
+		placeholder: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
+		required: false,
+		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
+		help: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
+	},
+	
 ];

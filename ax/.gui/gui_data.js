@@ -328,7 +328,10 @@ var hiddenTableData = [
 		use_in_curl_bash: true
 	},
 	{
-		label: "Run-Mode", id: "run_mode", type: "select", value: "",
+		label: "Run-Mode",
+		id: "run_mode",
+		type: "select",
+		value: "",
 		options: [
 			{
 				text: "Locally or on a HPC system",
@@ -353,5 +356,3 @@ var hiddenTableData = [
 		max: 32
 	}
 ];
-
-

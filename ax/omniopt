@@ -44,7 +44,7 @@
 	}
 
 	if [[ $SCRIPT_DIR =~ /ax/?$ ]]; then
-		underline_red_text "Future Warning: Your script resides in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder. (Warning issued on 20th Feb., 2025)."
+		underline_red_text "Future Warning: The OmniOpt2-script resides in the ax-Subfolder of OmniOpt. This is about to change in one of the next releases. Keep that in mind. It will be moved to the main folder. (Warning issued on 20th Feb., 2025)."
 	fi
 
 	GREEN='\033[0;32m'

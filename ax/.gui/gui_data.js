@@ -462,6 +462,14 @@ var hiddenTableData = [
 		help: "Abbreviate job names (Running -> R, Pending -> P and so on)."
 	},
 	{
+		label: "Main process GB",
+		id: "main_process_gb",
+		type: "number",
+		value: 8,
+		help: "How much RAM the main process should have. Default is 8GB.",
+		min: 1
+	},
+	{
 		label: "Max nr. of zero results",
 		id: "max_nr_of_zero_results",
 		type: "number",

@@ -54,3 +54,7 @@ elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
     # OmniOpt2 call for expanded search space here
 fi
 </code></pre>
+
+<h2 id="fire_and_forget">Start multiple jobs with a bash script, or how to fire-and-forget</h2>
+
+<p>When you want to start multiple jobs, it's recommended to omit the <pre>--follow</pre>-parameter. This way, jobs will get started, but you dont need to wait for them to be finished.</p>

@@ -372,10 +372,7 @@ function plotScatter2d() {
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
-
 					let subDiv = document.createElement("div");
-					let titleElement = document.createElement("h3");
-					titleElement.innerText = layoutTitle;
 
 					// Spinner Container
 					let spinnerContainer = document.createElement("div");
@@ -401,7 +398,6 @@ function plotScatter2d() {
 					spinnerContainer.appendChild(spinner);
 					spinnerContainer.appendChild(loadingText);
 
-					plotDiv.appendChild(titleElement);
 					plotDiv.appendChild(spinnerContainer);
 
 					await new Promise(resolve => setTimeout(resolve, 50)); // Verhindert UI-Blockade

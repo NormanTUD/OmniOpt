@@ -6808,15 +6808,16 @@ def write_git_version():
     try:
         commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 
+        git_tag = ""
+
         try:
-            tag = subprocess.check_output(["git", "describe", "--tags"], text=True).strip()
+            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True).strip()
+            git_tag = f" ({git_tag})"
         except subprocess.CalledProcessError:
-            tag = None
+            pass
 
         with open(file_path, "w") as f:
-            f.write(f"Commit: {commit_hash}\n")
-            if tag:
-                f.write(f"Tag: {tag}\n")
+            f.write(f"Commit: {commit_hash}{git_tag}\n")
 
     except subprocess.CalledProcessError:
         pass

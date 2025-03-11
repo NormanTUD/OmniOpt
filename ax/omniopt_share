@@ -199,6 +199,10 @@
 				fi
 			done
 
+			if [[ -e "$RUN_DIR/git_version" ]]; then
+				curl_options+=("-F" "git_version=@$RUN_DIR/git_version")
+			fi
+
 			if [[ -d "$RUN_DIR/state_files" ]]; then
 				for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do
 					available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
@@ -266,55 +270,55 @@
 
 				mkdir -p $OO_tmp_dir || {
 					red_text "mkdir -p $OO_tmp_dir failed"
-									exit 1
-								}
+					exit 1
+				}
 
-								original_pwd="$(pwd)"
+				original_pwd="$(pwd)"
 
-								cd $RUN_DIR
+				cd $RUN_DIR
 
-								if false; then
-									if command -v zip 2>/dev/null >/dev/null; then
-										zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
-											red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
-																				exit 1
-																			}
-																		else
-																			red_text "zip not found. You will not be able to continue this job from the URL."
-									fi
+				if false; then
+					if command -v zip 2>/dev/null >/dev/null; then
+						zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
+							red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
+																exit 1
+															}
+														else
+															red_text "zip not found. You will not be able to continue this job from the URL."
+					fi
 
-									curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
-								fi
+					curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
+				fi
 
-								cd "$original_pwd"
+				cd "$original_pwd"
 
-								if [[ -n $outfile ]]; then
-									if [[ -e $outfile ]]; then
-										curl_options+=("-F" "outfile=@$outfile")
-									fi
-								fi
+				if [[ -n $outfile ]]; then
+					if [[ -e $outfile ]]; then
+						curl_options+=("-F" "outfile=@$outfile")
+					fi
+				fi
 
-								if [[ -z $outfile ]]; then
-									if [[ -e "logs/$run_uuid" ]]; then
-										curl_options+=("-F" "outfile=@logs/$run_uuid")
-									fi
-								fi
+				if [[ -z $outfile ]]; then
+					if [[ -e "logs/$run_uuid" ]]; then
+						curl_options+=("-F" "outfile=@logs/$run_uuid")
+					fi
+				fi
 
-								if [[ -e "logs/${run_uuid}_progressbar" ]]; then
-									curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
-								fi
+				if [[ -e "logs/${run_uuid}_progressbar" ]]; then
+					curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
+				fi
 
-								if [[ -e "logs/${run_uuid}_install_errors" ]]; then
-									curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
-								fi
+				if [[ -e "logs/${run_uuid}_install_errors" ]]; then
+					curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
+				fi
 
-								if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
-									curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
-								fi
+				if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
+					curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
+				fi
 
-								if [[ -e "logs/${run_uuid}_log" ]]; then
-									curl_options+=("-F" "log=@logs/${run_uuid}_log")
-								fi
+				if [[ -e "logs/${run_uuid}_log" ]]; then
+					curl_options+=("-F" "log=@logs/${run_uuid}_log")
+				fi
 			fi
 
 			if [[ $DEBUG -eq 1 ]]; then

@@ -341,14 +341,14 @@
 				green_text "$CURL_OUTPUT"
 			fi
 
-			if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
-				rm -rf $OO_tmp_dir || {
-					red_text "rm -rf $OO_tmp_dir failed"
-					exit 1
-				}
-			else
-				yellow_text "Temporary file: $everything_but_singleruns"
-			fi
+			#if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
+			#	rm -rf $OO_tmp_dir || {
+			#		red_text "rm -rf $OO_tmp_dir failed"
+			#		exit 1
+			#	}
+			#else
+			#	yellow_text "Temporary file: $everything_but_singleruns"
+			#fi
 		fi
 		k=$(($k+1))
 	done

@@ -1,4 +1,6 @@
 <?php
+
+
 	if (function_exists('apache_get_modules')) {
 		$modules = apache_get_modules();
 		if (!in_array('mod_rewrite', $modules)) {
@@ -10,6 +12,13 @@
 
 	require_once "power_on_self_test.php";
 	require_once "_functions.php";
+
+	function get_main_script_dir() {
+		$script_name = $_SERVER["SCRIPT_NAME"];
+		$main_script_dir = preg_replace("/(\/.*)\/.*/", "\\1/", $script_name);
+		$main_script_dir = preg_replace("/\/+/", "/", $main_script_dir);
+		return $main_script_dir;
+	}
 
 	function get_dir_path () {
 		$dir_path = realpath(dirname(__FILE__));
@@ -31,7 +40,7 @@
 				dier("$_p not found");
 			}
 ?>
-			<script src="<?php print $_p; ?>"></script>
+			<script src="<?php print get_main_script_dir()."/$_p"; ?>"></script>
 <?php
 		}
 	}
@@ -143,13 +152,13 @@
 				<tr class="header_table">
 					<td class='header_table'>
 						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
-							<img height=90 class="img_auto_width invert_in_dark_mode" src="scads_logo.svg" alt="ScaDS.ai-Logo">
+							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
 						</a>
 					</td>
 
 					<td class='header_table'>
 						<a style="text-decoration: none;" href="index">
-							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="logo.png" alt="OmniOpt2-Logo">
+							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
 						</a>
 					</td>
 

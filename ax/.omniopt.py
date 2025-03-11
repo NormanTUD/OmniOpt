@@ -2676,7 +2676,7 @@ def disable_logging() -> None:
     logging.getLogger().setLevel(logging.CRITICAL)
     logging.getLogger().disabled = True
 
-    print_debug(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
+    fool_linter(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
 
     categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 

@@ -149,26 +149,26 @@
 		if(is_file("$run_dir/results.csv")) {
 			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
 
-			$overview_table = '<h2>Number of evaluations:</h2>';
-			$overview_table .= '<table border="1">';
-			$overview_table .= '<tbody>';
-			$overview_table .= '<tr>';
+			$overview_table = '<h2>Number of evaluations:</h2>'."\n";
+			$overview_table .= '<table border="1">'."\n";
+			$overview_table .= '<tbody>'."\n";
+			$overview_table .= '<tr>'."\n";
 
 			foreach ($status_data as $key => $value) {
 				$capitalizedKey = ucfirst($key);
-				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>';
+				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>."\n"';
 			}
-			$overview_table .= '</tr>';
+			$overview_table .= '</tr>'."\n";
 
-			$overview_table .= '<tr>';
+			$overview_table .= '<tr>'."\n";
 
 			foreach ($status_data as $value) {
-				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>';
+				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
 			}
-			$overview_table .= '</tr>';
+			$overview_table .= '</tr>'."\n";
 
-			$overview_table .= '</tbody>';
-			$overview_table .= '</table>';
+			$overview_table .= '</tbody>'."\n";
+			$overview_table .= '</table>'."\n";
 
 			$overview_html .= "<br>$overview_table";
 		} else {
@@ -176,9 +176,9 @@
 		}
 
 		if(count($result_names)) {
-			$result_names_table = '<h2>Result names and types:</h2>';
-			$result_names_table .= '<br><table border="1">';
-			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>';
+			$result_names_table = '<h2>Result names and types:</h2>'."\n";
+			$result_names_table .= '<br><table border="1">'."\n";
+			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>'."\n";
 			for ($i = 0; $i < count($result_names); $i++) {
 				$min_or_max = "min";
 
@@ -186,12 +186,12 @@
 					$min_or_max = $result_min_max[$i];
 				}
 
-				$result_names_table .= '<tr>';
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>';
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>';
-				$result_names_table .= '</tr>';
+				$result_names_table .= '<tr>'."\n";
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>'."\n";
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>'."\n";
+				$result_names_table .= '</tr>'."\n";
 			}
-			$result_names_table .= '</table><br>';
+			$result_names_table .= '</table><br>'."\n";
 
 			$overview_html .= $result_names_table;
 		} else {

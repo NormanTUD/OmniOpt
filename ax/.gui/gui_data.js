@@ -419,7 +419,20 @@ var hiddenTableData = [
 		value: 0,
 		help: "Shows a table of the workers percentage at the end."
 	},
-
+	{
+		label: "Enforce sequential optimization?",
+		id: "enforce_sequential_optimization",
+		type: "checkbox",
+		value: 0,
+		help: "Enforce sequential optimization."
+	},
+	{
+		label: "Stderr to Stdout?",
+		id: "stderr_to_stdout",
+		type: "checkbox",
+		value: 0,
+		help: "Redirect stderr to stdout for subjobs."
+	},
 	{
 		label: "No sleep?",
 		id: "no_sleep",
@@ -473,5 +486,15 @@ var hiddenTableData = [
 		required: false,
 		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
 		help: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
+	},
+	{
+		label: "Generation strategy",
+		id: "generation_strategy",
+		type: "text",
+		value: "",
+		info: "A comma-seperated list of strings of the form 'MODELNAME=count', for example, 'SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10'. This will override the number of random steps and the --model option",
+		required: false,
+		regex: "^([a-zA-Z_]+=\\d+,?)*$",
+		help: "Specify a custom generation strategy",
 	},
 ];

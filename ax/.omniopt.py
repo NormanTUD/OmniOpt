@@ -6800,7 +6800,8 @@ def write_files_and_show_overviews() -> None:
     start_live_share_background_job()
     write_continue_run_uuid_to_file()
 
-def write_git_version():
+@beartype
+def write_git_version() -> None:
     folder = f"{get_current_run_folder()}/"
     os.makedirs(folder, exist_ok=True)
     file_path = os.path.join(folder, "git_version")

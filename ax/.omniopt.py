@@ -6800,6 +6800,27 @@ def write_files_and_show_overviews() -> None:
     start_live_share_background_job()
     write_continue_run_uuid_to_file()
 
+def write_git_version():
+    folder = f"{get_current_run_folder()}/git_version"
+    os.makedirs(folder, exist_ok=True)
+    file_path = os.path.join(folder, "version.txt")
+
+    try:
+        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+
+        try:
+            tag = subprocess.check_output(["git", "describe", "--tags"], text=True).strip()
+        except subprocess.CalledProcessError:
+            tag = None
+
+        with open(file_path, "w") as f:
+            f.write(f"Commit: {commit_hash}\n")
+            if tag:
+                f.write(f"Tag: {tag}\n")
+
+    except subprocess.CalledProcessError:
+        pass
+
 @beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
@@ -6863,6 +6884,8 @@ def main() -> None:
             f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     except Exception as e:
         print_red(f"Error trying to write {fn}: {e}")
+
+    write_git_version()
 
     disable_logging()
     check_max_eval(max_eval)

@@ -60,7 +60,8 @@
 		"verbose_log.txt",
 		"result_names.txt",
 		"result_min_max.txt",
-		"result_min_max"
+		"result_min_max",
+		"git_version"
 	];
 
 	$acceptable_files = array_map(function($file) {

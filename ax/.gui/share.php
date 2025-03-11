@@ -309,7 +309,34 @@
 		}
 
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
-			$tabs = add_exit_codes_pie_plot($tabs);
+			if(isset($GLOBALS["json_data"]["tab_job_infos_headers_json"]) && isset($GLOBALS["json_data"]["tab_job_infos_csv_json"])) {
+				$headers = $GLOBALS["json_data"]["tab_job_infos_headers_json"];
+				$rows = $GLOBALS["json_data"]["tab_job_infos_csv_json"];
+
+				$exitCodeIndex = array_search("exit_code", $headers, true);
+
+				if ($exitCodeIndex !== false) {
+					$exitCodes = array_column($rows, $exitCodeIndex);
+
+					$uniqueExitCodes = array_unique($exitCodes);
+
+					$uniqueExitCodes = array_filter($uniqueExitCodes, function ($value) {
+						return $value !== "None";
+					});
+
+					$uniqueExitCodes = array_values($uniqueExitCodes);
+
+					if (count($uniqueExitCodes) > 0) {
+						$tabs = add_exit_codes_pie_plot($tabs);
+					} else {
+						$warnings[] = "No exit-codes found or all are none";
+					}
+				} else {
+					$warnings[] = "exit_code not found in the headers.";
+				}
+			} else {
+				$warnings[] = "Global variables tab_job_infos_headers_json or tab_job_infos_csv_json is not set.";
+			}
 		} else {
 			$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
 		}

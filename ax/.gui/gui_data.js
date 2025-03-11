@@ -1,4 +1,5 @@
 var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
+var valid_models_regex_string = `(?:${valid_models.join("|")})`;
 
 var tableData = [
 	{
@@ -485,7 +486,7 @@ var hiddenTableData = [
 		value: "",
 		info: "A comma-seperated list of strings of the form 'MODELNAME=count', for example, 'SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10'. This will override the number of random steps and the --model option",
 		required: false,
-		regex: "^([a-zA-Z_]+=\\d+,?)*$",
+		regex: `^(${valid_models_regex_string}+=\\d+,?)*$`,
 		help: "Specify a custom generation strategy",
 	},
 	{

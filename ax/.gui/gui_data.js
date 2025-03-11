@@ -431,7 +431,7 @@ var hiddenTableData = [
 		id: "max_nr_of_zero_results",
 		type: "number",
 		value: 50,
-		help: "Max nr. of jobs where the fetch_next_trial is emtpy to be considered as search space exhausted",
+		help: "Max nr. of jobs where the fetch_next_trial is empty to be considered as search space exhausted",
 		min: 1
 	},
 

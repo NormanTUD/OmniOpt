@@ -30,8 +30,19 @@ cd ..
 
 errors=0
 
-declare -a gui_exceptions=("constraints" "installation_method")
-declare -a help_exceptions=("parameter" "continue_previous_job")
+declare -a gui_exceptions=(
+	"constraints"
+	"installation_method"
+)
+
+declare -a help_exceptions=(
+	"raise_in_eval"
+	"run_tests_that_fail_on_taurus"
+	"tests"
+	"parameter"
+	"continue_previous_job"
+	"orchestrator_file"
+)
 
 for gui_option in $gui_options; do
 	if printf '%s\n' "${help_options[@]}" | grep -qx "$gui_option" || printf '%s\n' "${gui_exceptions[@]}" | grep -qx "$gui_option"; then

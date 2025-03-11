@@ -93,7 +93,7 @@
 	no_color=0
 	DEBUG=0
 	update=0
-	keep_tmp_dir=0
+	#keep_tmp_dir=0
 	folders_to_share=()
 	username=$USER
 	outfile=
@@ -122,7 +122,7 @@
 		echo "  --debug                                            Enable debug options"
 		echo "  --no_color                                         Disables color output"
 		echo "  --username=s3811141                                Specify username (with or without = sign)"
-		echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
+		#echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
 		echo "  --outfile=slurm-12345.out                          Path to the outfile"
 
 		exit $exit_code
@@ -136,8 +136,8 @@
 			help 0
 		elif [ "$arg" == "--update" ]; then
 			update=1
-		elif [ "$arg" == "--keep_tmp_dir" ]; then
-			keep_tmp_dir=1
+		#elif [ "$arg" == "--keep_tmp_dir" ]; then
+		#	keep_tmp_dir=1
 		elif [ "$arg" == "--no_color" ]; then
 			no_color=1
 			function yellow_text {

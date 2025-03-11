@@ -433,7 +433,6 @@ var hiddenTableData = [
 		value: 0,
 		help: "Use optimization with combined criteria (OCC)."
 	},
-
 	{
 		label: "Stderr to Stdout?",
 		id: "stderr_to_stdout",

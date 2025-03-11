@@ -201,7 +201,7 @@
 						$link_no_php = preg_replace("/\.php$/", "", $link_no_php);
 
 						echo "<td class='header_table invert_in_dark_mode' style='border: 0'>";
-						echo "\t<a href='$link_no_php' class='tab $tab_class'>$n</a>\n";
+						echo "\t<a href='".get_main_script_dir()."/$link_no_php' class='tab $tab_class'>$n</a>\n";
 						echo "</td>";
 					}
 

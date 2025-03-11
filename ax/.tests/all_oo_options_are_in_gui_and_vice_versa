@@ -1,0 +1,50 @@
+#!/bin/bash
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+gui_options="$(cat .gui/gui_data.js | grep "id:" | sed -e 's#.*:##' -e 's#",##' -e 's#"##' -e 's#^\s*##')"
+
+cd .gui
+help_options="$(php _tutorials/help.php | grep '<pre>--' | sed -e 's#.*<pre>--##' -e 's#</pre>.*##')"
+cd ..
+
+errors=0
+
+
+for help_option in $help_options; do
+	if printf '%s\n' "${gui_options[@]}" | grep -qx "$help_option"; then
+		true
+	else
+		red_text "$help_option is not in the GUI"
+		errors=$((errors+1))
+	fi
+done
+
+
+if [[ $errors -eq 0 ]]; then
+	green_text "No errors"
+	exit 0
+fi
+
+red_text "$errors errors"
+exit $errors

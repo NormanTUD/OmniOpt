@@ -1314,18 +1314,18 @@ function plotResultPairs() {
 
 			let layout = {
 				title: '',
-				xaxis: { title: xName },
-				yaxis: { title: yName },
+				xaxis: {
+					title: { text: xName, font: { size: 14, color: 'black' } }
+				},
+				yaxis: {
+					title: { text: yName, font: { size: 14, color: 'black' } }
+				},
 				showlegend: false,
 				width: get_graph_width(),
 				height: 800,
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)'
 			};
-
-			let header = document.createElement("h2");
-			header.innerHTML = `${xName} (x&rarr;) vs ${yName} (y&uarr;):`;
-			plotDiv.appendChild(header);
 
 			let subDiv = document.createElement("div");
 			plotDiv.appendChild(subDiv);

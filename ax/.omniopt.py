@@ -6801,9 +6801,9 @@ def write_files_and_show_overviews() -> None:
     write_continue_run_uuid_to_file()
 
 def write_git_version():
-    folder = f"{get_current_run_folder()}/git_version"
+    folder = f"{get_current_run_folder()}/"
     os.makedirs(folder, exist_ok=True)
-    file_path = os.path.join(folder, "version.txt")
+    file_path = os.path.join(folder, "git_version")
 
     try:
         commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()

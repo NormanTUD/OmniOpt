@@ -57,4 +57,4 @@ fi
 
 <h2 id="fire_and_forget">Start multiple jobs with a bash script, or how to fire-and-forget</h2>
 
-<p>When you want to start multiple jobs, it's recommended to omit the <pre>--follow</pre>-parameter. This way, jobs will get started, but you dont need to wait for them to be finished.</p>
+<p>When you want to start multiple jobs, it's recommended to omit the <tt>--follow</tt>-parameter. This way, jobs will get started, but you dont need to wait for them to be finished.</p>

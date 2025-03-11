@@ -360,14 +360,14 @@ var hiddenTableData = [
 		id: "maximize",
 		type: "checkbox",
 		value: 0,
-		help: "Maximize by default (when nothing else is set specifically overriding it)."
+		info: "Maximize by default (when nothing else is set specifically overriding it)."
 	},
 	{
 		label: "Disable TQDM",
 		id: "disable_tqdm",
 		type: "checkbox",
 		value: 0,
-		help: "Disable TQDM."
+		info: "Disable TQDM."
 	},
 
 	{
@@ -375,105 +375,105 @@ var hiddenTableData = [
 		id: "verbose_tqdm",
 		type: "checkbox",
 		value: 0,
-		help: "Show more verbose TQDM output."
+		info: "Show more verbose TQDM output."
 	},
 	{
 		label: "Force local execution?",
 		id: "force_local_execution",
 		type: "checkbox",
 		value: 0,
-		help: "Forces local execution, even when SLURM is installed."
+		info: "Forces local execution, even when SLURM is installed."
 	},
 	{
 		label: "Auto exclude defective hosts?",
 		id: "auto_exclude_defective_hosts",
 		type: "checkbox",
 		value: 0,
-		help: "If set, before each evaluation there is a tiny test run on the GPU (if available) to test if the GPU is working properly. If not, the host chosen will be added to the excluded hosts list automatically."
+		info: "If set, before each evaluation there is a tiny test run on the GPU (if available) to test if the GPU is working properly. If not, the host chosen will be added to the excluded hosts list automatically."
 	},
 	{
 		label: "Show SIXEL general?",
 		id: "show_sixel_general",
 		type: "checkbox",
 		value: 0,
-		help: "Show sixel general."
+		info: "Show sixel general."
 	},
 	{
 		label: "Show SIXEL trial-index-to-result?",
 		id: "show_sixel_trial_index_result",
 		type: "checkbox",
 		value: 0,
-		help: "Show sixel trial-index-to-result."
+		info: "Show sixel trial-index-to-result."
 	},
 	{
 		label: "Show SIXEL scatter?",
 		id: "show_sixel_scatter",
 		type: "checkbox",
 		value: 0,
-		help: "Show sixel scatter graphic."
+		info: "Show sixel scatter graphic."
 	},
 	{
 		label: "Show worker percentage table?",
 		id: "show_worker_percentage_table_at_end",
 		type: "checkbox",
 		value: 0,
-		help: "Shows a table of the workers percentage at the end."
+		info: "Shows a table of the workers percentage at the end."
 	},
 	{
 		label: "Enforce sequential optimization?",
 		id: "enforce_sequential_optimization",
 		type: "checkbox",
 		value: 0,
-		help: "Enforce sequential optimization."
+		info: "Enforce sequential optimization."
 	},
 	{
 		label: "Optimization with combined criteria?",
 		id: "occ",
 		type: "checkbox",
 		value: 0,
-		help: "Use optimization with combined criteria (OCC)."
+		info: "Use optimization with combined criteria (OCC)."
 	},
 	{
 		label: "Stderr to Stdout?",
 		id: "stderr_to_stdout",
 		type: "checkbox",
 		value: 0,
-		help: "Redirect stderr to stdout for subjobs."
+		info: "Redirect stderr to stdout for subjobs."
 	},
 	{
 		label: "No sleep?",
 		id: "no_sleep",
 		type: "checkbox",
 		value: 0,
-		help: "Disables sleeping in certain parts of the code."
+		info: "Disables sleeping in certain parts of the code."
 	},
 	{
 		label: "Use srun instead of sbatch?",
 		id: "slurm_use_srun",
 		type: "checkbox",
 		value: 0,
-		help: "Use srun instead of sbatch for starting slurm jobs"
+		info: "Use srun instead of sbatch for starting slurm jobs"
 	},
 	{
 		label: "Verbose break run search table?",
 		id: "verbose_break_run_search_table",
 		type: "checkbox",
 		value: 0,
-		help: "Show a verbose table when the break_run_search is run."
+		info: "Show a verbose table when the break_run_search is run."
 	},
 	{
 		label: "Abbreviate job names?",
 		id: "abbreviate_job_names",
 		type: "checkbox",
 		value: 0,
-		help: "Abbreviate job names (Running -> R, Pending -> P and so on)."
+		info: "Abbreviate job names (Running -> R, Pending -> P and so on)."
 	},
 	{
 		label: "Main process GB",
 		id: "main_process_gb",
 		type: "number",
 		value: 8,
-		help: "How much RAM the main process should have. Default is 8GB.",
+		info: "How much RAM the main process should have. Default is 8GB.",
 		min: 1
 	},
 	{
@@ -481,7 +481,7 @@ var hiddenTableData = [
 		id: "max_nr_of_zero_results",
 		type: "number",
 		value: 50,
-		help: "Max nr. of jobs where the fetch_next_trial is empty to be considered as search space exhausted",
+		info: "Max nr. of jobs where the fetch_next_trial is empty to be considered as search space exhausted",
 		min: 1
 	},
 	{
@@ -489,7 +489,7 @@ var hiddenTableData = [
 		id: "pareto_front_confidence",
 		type: "number",
 		value: 1,
-		help: "How certain OmniOpt2 should be regarding the pareto-front to count values in",
+		info: "How certain OmniOpt2 should be regarding the pareto-front to count values in",
 		min: 0,
 		max: 1,
 		step: 0.01
@@ -499,7 +499,7 @@ var hiddenTableData = [
 		id: "slurm_signal_delay_s",
 		type: "number",
 		value: 0,
-		help: "When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.",
+		info: "When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.",
 		min: 0
 	},
 	{
@@ -510,7 +510,7 @@ var hiddenTableData = [
 		placeholder: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
 		required: false,
 		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
-		help: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
+		info: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
 	},
 	{
 		label: "Generation strategy",

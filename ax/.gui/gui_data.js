@@ -1,3 +1,5 @@
+var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
+
 var tableData = [
 	{
 		label: "Partition",
@@ -230,44 +232,8 @@ var hiddenTableData = [
 		id: "model",
 		type: "select",
 		value: "",
-		options: [
-			{
-				text: "BOTORCH_MODULAR",
-				value: "BOTORCH_MODULAR"
-			},
-			{
-				text: "SOBOL",
-				value: "SOBOL"
-			},
-			{
-				text: "GPEI",
-				value: "GPEI"
-			},
-			{
-				text: "FACTORIAL",
-				value: "FACTORIAL"
-			},
-			{
-				text: "SAASBO",
-				value: "SAASBO"
-			},
-			{
-				text: "FULLYBAYESIAN",
-				value: "FULLYBAYESIAN"
-			},
-			/*{
-				text: "LEGACY_BOTORCH",
-				value: "LEGACY_BOTORCH"
-			},*/
-			{
-				text: "UNIFORM",
-				value: "UNIFORM"
-			},
-			{
-				text: "BO_MIXED",
-				value: "BO_MIXED"
-			}
-		], "required": true,
+		options: valid_models.map(model => ({ text: model, value: model })),
+		required: true,
 		info: `
 			<ul>
 			    <li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
@@ -276,7 +242,7 @@ var hiddenTableData = [
 			    <li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
 			    <li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
 			    <li>FULLYBAYESIAN: Considers the full uncertainty of the Bayesian model in the optimization process</li>
-			    <!--<li>LEGACY_BOTORCH: ???</li>-->
+			    <li>LEGACY_BOTORCH: ???</li>
 			    <li>UNIFORM: Random (uniformly distributed)</li>
 			    <li>BO_MIXED: '<i><a href='https://ax.dev/api/_modules/ax/modelbridge/dispatch_utils.html'>BO_MIXED</a></i>' optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
 			</ul>

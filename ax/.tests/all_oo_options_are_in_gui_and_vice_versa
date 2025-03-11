@@ -49,6 +49,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		experiment_constraints
 		minkowski_p
 		max_parallelism
+		show_ram_every_n_seconds
 	)
 
 	for gui_option in $gui_options; do

@@ -898,7 +898,7 @@ function create_table_row (table, tbody, item) {
 			$(input).change(item.onchange);
 		}
 	} else {
-		var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max }).css("width", "95%");
+		var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max, step: item.step }).css("width", "95%");
 
 		$(input).addClass("invert_in_dark_mode");
 

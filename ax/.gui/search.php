@@ -71,7 +71,11 @@
 
 				if (preg_match($regex_pattern, $run_path)) {
 					$parsedPath = parsePath($run_path);
-					$url = "share?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'] . "&run_nr=" . $parsedPath['file'];
+					$url = "share?user_id=" . $parsedPath['user'] . "&experiment_name=" . $parsedPath['directory'];
+					if($parsedPath["file"]) {
+						$url = $url . "&run_nr=" . $parsedPath['file'];
+					}
+
 					$entry = [
 						'link' => $url,
 						'content' => "OmniOpt2-Share: $run_path"

@@ -51,8 +51,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>OmniOpt2</title>
-		<link href="prism.css" rel="stylesheet">
-		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<link href="<?php print get_main_script_dir(); ?>/prism.css" rel="stylesheet">
+		<link rel="icon" type="image/x-icon" href="<?php print get_main_script_dir(); ?>/favicon.ico">
 		<?php js("jquery-3.7.1.js"); ?>
 		<?php js("jquery-ui.min.js"); ?>
 		<?php js("prism.js"); ?>
@@ -77,8 +77,8 @@
 
 			<?php js("js/share_functions.js"); ?>
 
-			<link href="css/mermaid.min.css" rel="stylesheet" />
-			<link href="css/tabler.min.css" rel="stylesheet">
+			<link href="<?php print get_main_script_dir(); ?>/css/mermaid.min.css" rel="stylesheet" />
+			<link href="<?php print get_main_script_dir(); ?>/css/tabler.min.css" rel="stylesheet">
 <?php
 		}
 ?>
@@ -88,15 +88,15 @@
 			apply_theme_based_on_system_preferences();
 		</script>
 
-		<link href="style.css" rel="stylesheet">
+		<link href="<?php print get_main_script_dir(); ?>/style.css" rel="stylesheet">
 <?php
 		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
 ?>
-			    <link href="_tutorial.css" rel="stylesheet">
+			    <link href="<?php print get_main_script_dir(); ?>/_tutorial.css" rel="stylesheet">
 <?php
 		}
 ?>
-		<link href="jquery-ui.css" rel="stylesheet">
+		<link href="<?php print get_main_script_dir(); ?>/jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
@@ -225,7 +225,7 @@
 			</table>
 		<br>
 		<span style="display: inline-flex;">
-			<img src="images/search.svg" height=32 alt="Search">
+			<img src="<?php print get_main_script_dir(); ?>/images/search.svg" height=32 alt="Search">
 			<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 500px;" type="text" placeholder="Search help topics and shares (Regex without delimiter by default)..." id="search">
 			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
 		</span>

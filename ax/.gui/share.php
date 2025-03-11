@@ -274,12 +274,24 @@
 				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
 				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
 
+				$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
+
+				list($nr_numerical_cols, $nr_string_cols) = count_column_types($nr_of_numerical_and_non_numerical_columns);
+
 				if(count($non_special_columns_without_result_columns) >= 2) {
-					$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+					if($nr_numerical_cols >= 2) {
+						$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+					} else {
+						$warnings[] = "Has enough columns for 2d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
+					}
 				}
 
 				if(count($non_special_columns_without_result_columns) >= 3) {
-					$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+					if($nr_numerical_cols >= 3) {
+						$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+					} else {
+						$warnings[] = "Has enough columns for 3d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
+					}
 				}
 			}
 

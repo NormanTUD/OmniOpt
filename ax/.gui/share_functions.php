@@ -795,7 +795,7 @@
 			return $ret;
 		}
 
-		return true; // True, because then the red cross is shown when the file does not exist
+		return true;
 	}
 
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
@@ -1370,7 +1370,7 @@
 
 		// Helper function to check if a directory is empty
 		function is_dir_empty($dir) {
-			return (is_readable($dir) && count(scandir($dir)) == 2); // Only '.' and '..' are present in an empty directory
+			return (is_readable($dir) && count(scandir($dir)) == 2);
 		}
 
 		foreach (glob("$dir/*/*/*", GLOB_ONLYDIR) as $subdir) {
@@ -1451,5 +1451,51 @@
 
 		$html .= '</tbody></table>';
 		return $html;
+	}
+
+	function analyze_column_types($csv_data, $column_indices) {
+		$column_analysis = [];
+
+		foreach ($column_indices as $index => $column_name) {
+			$has_string = false;
+			$has_numeric = false;
+
+			foreach ($csv_data as $row) {
+				if (!isset($row[$index])) {
+					continue;
+				}
+				if (is_numeric($row[$index])) {
+					$has_numeric = true;
+				} else {
+					$has_string = true;
+				}
+
+				if ($has_numeric && $has_string) {
+					break;
+				}
+			}
+
+			$column_analysis[$column_name] = [
+				'numeric' => $has_numeric,
+				'string' => $has_string
+			];
+		}
+
+		return $column_analysis;
+	}
+
+	function count_column_types($column_analysis) {
+		$nr_numerical = 0;
+		$nr_string = 0;
+
+		foreach ($column_analysis as $column => $types) {
+			if (!empty($types['numeric']) && empty($types['string'])) {
+				$nr_numerical++;
+			} elseif (!empty($types['string'])) {
+				$nr_string++;
+			}
+		}
+
+		return [$nr_numerical, $nr_string];
 	}
 ?>

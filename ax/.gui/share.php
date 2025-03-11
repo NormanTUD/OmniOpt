@@ -221,7 +221,7 @@
 
 			$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
 
-			$pareto_front_text = remove_ansi_colors(file_get_contents($pareto_front_txt_file));
+			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
 
 			if($pareto_front_text) {
 				$pareto_front_html .= "<pre>$pareto_front_text</pre>";

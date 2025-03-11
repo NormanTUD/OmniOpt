@@ -1,3 +1,5 @@
+"use strict";
+
 var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
 
 var tableData = [

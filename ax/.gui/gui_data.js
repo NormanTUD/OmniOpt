@@ -420,6 +420,13 @@ var hiddenTableData = [
 		help: "Disables sleeping in certain parts of the code."
 	},
 	{
+		label: "Use srun instead of sbatch?",
+		id: "slurm_use_srun",
+		type: "checkbox",
+		value: 0,
+		help: "Use srun instead of sbatch for starting slurm jobs"
+	},
+	{
 		label: "Abbreviate job names?",
 		id: "abbreviate_job_names",
 		type: "checkbox",
@@ -445,5 +452,4 @@ var hiddenTableData = [
 		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
 		help: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
 	},
-	
 ];

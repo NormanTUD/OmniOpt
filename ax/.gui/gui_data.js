@@ -8,7 +8,8 @@ var tableData = [
 		value: "",
 		options: [],
 		required: true,
-		help: "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options." },
+		help: "The Partition your job will run on. This choice may restrict the amount of workers, GPUs, maximum time limits and a few more options."
+	},
 	{
 		label: "Experiment name",
 		id: "experiment_name",

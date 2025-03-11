@@ -139,7 +139,7 @@
 		}
 
 		if(is_file("$run_dir/parameters.txt")) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(file_get_contents("$run_dir/parameters.txt")));
+			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
 		} else {
 			$warnings[] = "$run_dir/parameters.txt not found";
 		}

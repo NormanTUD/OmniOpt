@@ -208,7 +208,7 @@
 		}
 
 		if(file_exists("$run_dir/git_version") && filesize("$run_dir/git_version")) {
-			$lastLine = trim(array_slice(file("$run_dir/git_version"), -1)[0]);
+			$lastLine = file_get_contents("$run_dir/git_version");
 
 			$overview_html .= "<h2>Git-Version:</h2>\n";
 			$overview_html .= "<pre>".htmlentities($lastLine)."</pre>";

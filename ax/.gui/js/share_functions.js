@@ -902,7 +902,12 @@ function load_debug_log () {
 				$("#debug_log_spinner").remove();
 
 				if (data.data) {
-					$("#" + pre_id).html(data.data);
+					try {
+						$("#" + pre_id).html(data.data);
+					} catch (err) {
+						$("#" + pre_id).text(`Error loading data: ${err}`);
+					}
+
 					$("#" + pre_id).data("loaded", true);
 				} else {
 					log(`No 'data' key found in response.`);

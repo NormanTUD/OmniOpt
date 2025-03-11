@@ -482,7 +482,7 @@ var hiddenTableData = [
 		id: "pareto_front_confidence",
 		type: "number",
 		value: 1,
-		help: "How certan OmniOpt2 should be regarding the pareto-front to count values in",
+		help: "How certain OmniOpt2 should be regarding the pareto-front to count values in",
 		min: 0,
 		max: 1,
 		step: 0.01
@@ -514,5 +514,15 @@ var hiddenTableData = [
 		required: false,
 		regex: "^([a-zA-Z_]+=\\d+,?)*$",
 		help: "Specify a custom generation strategy",
+	},
+	{
+		label: "Root venv dir",
+		id: "root_venv_dir",
+		type: "text",
+		value: "",
+		info: "An absolute path where the virtual env should be installed to",
+		required: false,
+		regex: "^((/[a-zA-Z0-9_-]/?)*)?$",
+		help: "Path where the virtual env should be installed to",
 	},
 ];

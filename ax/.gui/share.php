@@ -338,7 +338,7 @@
 
 					$uniqueExitCodes = array_values($uniqueExitCodes);
 
-					if (count($uniqueExitCodes) > 0) {
+					if (count($uniqueExitCodes) > 1) {
 						$tabs = add_exit_codes_pie_plot($tabs);
 					} else {
 						$warnings[] = "No exit-codes found or all are none";

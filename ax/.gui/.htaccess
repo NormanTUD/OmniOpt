@@ -1,15 +1,6 @@
 RewriteEngine On
 
-RewriteRule ^shares/ - [F,L]
-RewriteRule ^_share_test_case/ - [F,L]
-RewriteRule ^stats/ - [F,L]
-RewriteRule ^_tutorials/ - [F,L]
-
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteCond %{REQUEST_URI} !\.php$
 RewriteRule ^([^/.]+)$ $1.php [L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule .* 404.php [L]

@@ -1,6 +1,13 @@
 RewriteEngine On
 
 RewriteRule ^shares/ - [F,L]
+RewriteRule ^css/ - [F,L]
+RewriteRule ^imgs/ - [F,L]
+RewriteRule ^js/ - [F,L]
+RewriteRule ^output/ - [F,L]
+RewriteRule ^_share_test_case/ - [F,L]
+RewriteRule ^stats/ - [F,L]
+RewriteRule ^_tutorials/ - [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f

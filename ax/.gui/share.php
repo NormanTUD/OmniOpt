@@ -309,7 +309,11 @@
 				}
 
 				if(count($result_names)) {
-					$tabs = add_result_evolution_tab($tabs);
+					if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
+						$tabs = add_result_evolution_tab($tabs);
+					} else {
+						$warnings[] = "tab_job_infos_headers_json not found in global json_data";
+					}
 				} else {
 					$warnings[] = "Not adding evolution tab because no result names could be found";
 				}
@@ -365,6 +369,8 @@
 		if(count($warnings)) {
 			$warnings = array_unique($warnings);
 			sort($warnings);
+
+			$warnings = array_map(fn($w) => str_starts_with($w, 'shares//') ? substr($w, 8) : $w, $warnings);
 
 			$html = "";
 			if(count($warnings) == 1) {

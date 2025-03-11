@@ -1,3 +1,5 @@
+"use strict";
+
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	return Math.floor(width * 0.9);

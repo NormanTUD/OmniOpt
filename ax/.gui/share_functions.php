@@ -195,6 +195,11 @@
 			$worker_info = file_get_contents($filename);
 			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
 
+			if($min_max_table) {
+				$warnings[] = htmlentities($filename)." does not contain valid worker info";
+				return [$tabs, $warnings];
+			}
+
 			$html = $min_max_table;
 			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
@@ -942,6 +947,10 @@
 			$unixTimes[] = strtotime($formattedDate);
 		}
 
+		if(!count($unixTimes)) {
+			return "";
+		}
+
 		$minTime = min($unixTimes);
 		$maxTime = max($unixTimes);
 		$timeDiff = $maxTime - $minTime;
@@ -973,7 +982,7 @@
 
 		if (empty($cpu_values) || empty($ram_values)) {
 			echo "";
-			exit;
+			return "";
 		}
 
 		// Hilfsfunktionen für Durchschnitt und Median

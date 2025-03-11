@@ -354,5 +354,34 @@ var hiddenTableData = [
 		placeholder: "Number of decimal places to be rounded to",
 		min: 0,
 		max: 32
-	}
+	},
+	{
+		label: "Maximize",
+		id: "maximize",
+		type: "checkbox",
+		value: 0,
+		help: "Maximize by default (when nothing else is set specifically overriding it)."
+	},
+	{
+		label: "Disable TQDM",
+		id: "disable_tqdm",
+		type: "checkbox",
+		value: 0,
+		help: "Disable TQDM."
+	},
+
+	{
+		label: "Verbose TQDM?",
+		id: "verbose_tqdm",
+		type: "checkbox",
+		value: 0,
+		help: "Show more verbose TQDM output."
+	},
+	{
+		label: "Abbreviate job names?",
+		id: "abbreviate_job_names",
+		type: "checkbox",
+		value: 0,
+		help: "Abbreviate job names (Running -> R, Pending -> P and so on)."
+	},
 ];

@@ -31,17 +31,19 @@ cd ..
 errors=0
 
 declare -a gui_exceptions=(
-	"constraints"
-	"installation_method"
+	constraints
+	installation_method
 )
 
 declare -a help_exceptions=(
-	"raise_in_eval"
-	"run_tests_that_fail_on_taurus"
-	"tests"
-	"parameter"
-	"continue_previous_job"
-	"orchestrator_file"
+	raise_in_eval
+	run_tests_that_fail_on_taurus
+	tests
+	parameter
+	continue_previous_job
+	orchestrator_file
+	ui_url
+	run_dir
 )
 
 for gui_option in $gui_options; do

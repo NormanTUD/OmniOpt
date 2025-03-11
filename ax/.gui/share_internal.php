@@ -1,4 +1,6 @@
 <?php
+	if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'wb'));
+
 	$GLOBALS["time_start"] = microtime(true);
 
 	error_reporting(E_ALL);
@@ -17,7 +19,11 @@
 
 	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
 
-	delete_old_shares();
+	try {
+		delete_old_shares();
+	} catch (\Throwable $e) {
+		fwrite(STDERR, strval($e));
+	}
 
 	$user_id = get_or_env("user_id");
 

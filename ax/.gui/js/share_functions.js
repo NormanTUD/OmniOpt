@@ -551,9 +551,9 @@ function plotScatter3d() {
 						let layout = {
 							title: layoutTitle,
 							scene: {
-								xaxis: { title: xCol },
-								yaxis: { title: yCol },
-								zaxis: { title: zCol }
+								xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
+								yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
+								zaxis: { title: { text: zCol, font: { size: 14, color: 'black' } } }
 							},
 							showlegend: false,
 							width: get_graph_width(),

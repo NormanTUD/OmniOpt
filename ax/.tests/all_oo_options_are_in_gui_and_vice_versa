@@ -45,6 +45,7 @@ declare -a help_exceptions=(
 	ui_url
 	run_dir
 	signed_weighted_euclidean_weights
+	experiment_constraints
 )
 
 for gui_option in $gui_options; do

@@ -522,7 +522,7 @@ var hiddenTableData = [
 		value: "",
 		info: "An absolute path where the virtual env should be installed to",
 		required: false,
-		regex: "^((/[a-zA-Z0-9_-]/?)*)?$",
+		regex: "^((/[a-zA-Z0-9_-]+/?)*)?$",
 		help: "Path where the virtual env should be installed to",
 	},
 ];

@@ -204,8 +204,18 @@
 			$overview_html .= "<h2>Last progressbar status:</h2>\n";
 			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
 		} else {
-			$warnings[] = "$run_dir/progressbar not found";
+			$warnings[] = "$run_dir/progressbar not found or empty";
 		}
+
+		if(file_exists("$run_dir/git_version") && filesize("$run_dir/git_version")) {
+			$lastLine = trim(array_slice(file("$run_dir/git_version"), -1)[0]);
+
+			$overview_html .= "<h2>Git-Version:</h2>\n";
+			$overview_html .= "<pre>".htmlentities($lastLine)."</pre>";
+		} else {
+			$warnings[] = "$run_dir/git_version not found or empty";
+		}
+
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [

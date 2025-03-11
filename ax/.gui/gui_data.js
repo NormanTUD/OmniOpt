@@ -150,7 +150,8 @@ var tableData = [
 		placeholder: "Name of the value that should be searched for, like 'result'",
 		required: true,
 		regex: /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max)(\s\s*|$))?)(\s|$)?)+)$/,
-		help: "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.", "info": "This is used for the regex to search through the STDOUT of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. Default is minimizing. Adding values here is the same as doing Multi-Objective-Optimization."
+		help: "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.",
+		info: "This is used for the regex to search through the STDOUT of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. Default is minimizing. Adding values here is the same as doing Multi-Objective-Optimization."
 	},
 	{
 		label: "Run program",
@@ -159,7 +160,8 @@ var tableData = [
 		value: "",
 		placeholder: "Your program with parameters",
 		required: true,
-		info: "Use Variable names like this: <br><code class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file", "help": "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled."
+		info: "Use Variable names like this: <br><code class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(learning_rate) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file",
+		help: "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled."
 	}
 ];
 

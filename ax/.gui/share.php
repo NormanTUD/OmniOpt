@@ -116,7 +116,7 @@
 		}
 
 		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
-			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(file_get_contents($experiment_overview)));
+			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
 				$experiment_overview .= $experiment_overview_table;
 

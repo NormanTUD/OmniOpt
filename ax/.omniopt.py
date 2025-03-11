@@ -906,7 +906,6 @@ already_inserted_param_data: list = []
 
 @beartype
 def print_logo() -> None:
-    print_debug("print_logo()")
     if os.environ.get('NO_OO_LOGO') is not None:
         return
 
@@ -1495,7 +1494,6 @@ def save_global_vars() -> None:
 
 @beartype
 def check_slurm_job_id() -> None:
-    print_debug("check_slurm_job_id()")
     if SYSTEM_HAS_SBATCH:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
@@ -5689,7 +5687,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             #params, trial_index = ax_client.get_next_trial(force=True)
 
             ####################################
-            print_debug(f"_fetch_next_trials: fetching trial {k}/{nr_of_jobs_to_get}...")
+            print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
             generator_run = global_gs.gen(
                 experiment=ax_client.experiment,
                 n=1,
@@ -5702,7 +5700,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             ####################################
 
             trials_dict[trial_index] = params
-            print_debug(f"_fetch_next_trials: got trial {k}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
             end_time = time.time()
 
             trial_durations.append(end_time - start_time)

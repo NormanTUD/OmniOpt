@@ -476,7 +476,7 @@ class ConfigLoader:
         optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
         optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=int, default=8)
         optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
-        optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by ax_client\'s get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=50)
+        optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by the ax_clients get_next_trial() before the search space is seen as exhausted. Default is 20', type=int, default=50)
         optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
         optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)

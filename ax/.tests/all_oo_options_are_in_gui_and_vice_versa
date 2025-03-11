@@ -30,12 +30,20 @@ cd ..
 
 errors=0
 
+for gui_option in $gui_options; do
+	if printf '%s\n' "${help_options[@]}" | grep -qx "$gui_option"; then
+		true
+	else
+		red_text "GUI option $gui_option is not in the --help"
+		errors=$((errors+1))
+	fi
+done
 
 for help_option in $help_options; do
 	if printf '%s\n' "${gui_options[@]}" | grep -qx "$help_option"; then
 		true
 	else
-		red_text "$help_option is not in the GUI"
+		red_text "--help option $help_option is not in the GUI"
 		errors=$((errors+1))
 	fi
 done

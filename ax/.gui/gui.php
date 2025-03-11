@@ -2,9 +2,10 @@
         require "_header_base.php";
 ?>
         <script>
-	    var partition_data = <?php include("partition_data.json"); ?>;
+		var partition_data = <?php include("partition_data.json"); ?>;
         </script>
 <?php
+        js("gui_data.js");
         js("gui.js");
 ?>
 	<script>

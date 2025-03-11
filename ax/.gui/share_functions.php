@@ -602,8 +602,11 @@
 			$data[] = $header_line;
 		}
 
+		$enclosure = "\"";
+		$escape = "\\";
+
 		if (($handle = fopen($filePath, "r")) !== false) {
-			while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+			while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 				foreach ($row as &$value) {
 					if (is_numeric($value)) {
 						if (strpos($value, '.') !== false || stripos($value, 'e') !== false) {

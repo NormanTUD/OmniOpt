@@ -385,6 +385,34 @@ var hiddenTableData = [
 		help: "Forces local execution, even when SLURM is installed."
 	},
 	{
+		label: "Auto exclude defective hosts?",
+		id: "auto_exclude_defective_hosts",
+		type: "checkbox",
+		value: 0,
+		help: "If set, before each evaluation there is a tiny test run on the GPU (if available) to test if the GPU is working properly. If not, the host chosen will be added to the excluded hosts list automatically."
+	},
+	{
+		label: "Show SIXEL general?",
+		id: "show_sixel_general",
+		type: "checkbox",
+		value: 0,
+		help: "Show sixel general."
+	},
+	{
+		label: "Show SIXEL trial-index-to-result?",
+		id: "show_sixel_trial_index_result",
+		type: "checkbox",
+		value: 0,
+		help: "Show sixel trial-index-to-result."
+	},
+	{
+		label: "Show SIXEL scatter?",
+		id: "show_sixel_scatter",
+		type: "checkbox",
+		value: 0,
+		help: "Show sixel scatter graphic."
+	},
+	{
 		label: "No sleep?",
 		id: "no_sleep",
 		type: "checkbox",

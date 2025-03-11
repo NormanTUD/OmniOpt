@@ -46,6 +46,7 @@ declare -a help_exceptions=(
 	run_dir
 	signed_weighted_euclidean_weights
 	experiment_constraints
+	minkowski_p
 )
 
 for gui_option in $gui_options; do

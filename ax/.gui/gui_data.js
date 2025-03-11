@@ -427,6 +427,13 @@ var hiddenTableData = [
 		help: "Use srun instead of sbatch for starting slurm jobs"
 	},
 	{
+		label: "Verbose break run search table?",
+		id: "verbose_break_run_search_table",
+		type: "checkbox",
+		value: 0,
+		help: "Show a verbose table when the break_run_search is run."
+	},
+	{
 		label: "Abbreviate job names?",
 		id: "abbreviate_job_names",
 		type: "checkbox",
@@ -441,7 +448,14 @@ var hiddenTableData = [
 		help: "Max nr. of jobs where the fetch_next_trial is empty to be considered as search space exhausted",
 		min: 1
 	},
-
+	{
+		label: "Slurm-Signal-Delay",
+		id: "slurm_signal_delay_s",
+		type: "number",
+		value: 0,
+		help: "When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.",
+		min: 0
+	},
 	{
 		label: "Exclude",
 		id: "exclude",

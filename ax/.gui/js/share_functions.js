@@ -364,8 +364,8 @@ function plotScatter2d() {
 					let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
 					let layout = {
 						title: layoutTitle,
-						xaxis: { title: xCol },
-						yaxis: { title: yCol },
+						xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
+						yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
 						showlegend: false,
 						width: get_graph_width(),
 						height: 800,

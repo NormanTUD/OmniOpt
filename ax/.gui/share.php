@@ -1,8 +1,6 @@
 <?php
 	include_once("share_functions.php");
 
-        require "_header_base.php";
-
 	$GLOBALS["json_data"] = [];
 
 	$SPECIAL_COL_NAMES = [
@@ -203,6 +201,12 @@
 	if(!count($tabs) && $run_dir != "" && count($errors)) {
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
+
+	if(count($errors)) {
+		http_response_code(400);
+	}
+
+        require "_header_base.php";
 ?>
 	<?php js("share.js"); ?>
 	<script>

@@ -198,7 +198,7 @@ function cd_and_run_command {
 
 	dbg "cd_and_run_command $_to_dir $_start_command"
 
-	ax_dir="$_to_dir/ax/"
+	ax_dir="$_to_dir/"
 
 	if [[ -d $ax_dir ]]; then
 		cd $ax_dir

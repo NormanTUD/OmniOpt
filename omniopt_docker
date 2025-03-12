@@ -90,7 +90,7 @@ else
     DOCKER_CMD="sudo docker"
 fi
 
-$DOCKER_COMPOSE_CMD build --build-arg GetMyUsername=$(whoami) -t omniopt2_1 . || {
+$DOCKER_COMPOSE_CMD build --build-arg GetMyUsername=$(whoami) || {
     echo "Failed composing container"
     exit 1
 }

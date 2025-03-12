@@ -363,7 +363,7 @@ cmd="./omniopt --live_share --send_anonymized_usage_stats \
 	$(generate_parameter conv $min_conv $max_conv int) \
 	$(generate_parameter conv_filters $min_conv_filters $max_conv_filters int) \
 	$(generate_parameter learning_rate $min_learning_rate $max_learning_rate float) \
-	--parameter choice activation relu,sigmoid,swish,leaky_relu,tanh,gelu \
+	--parameter activation choice relu,sigmoid,swish,leaky_relu,tanh,gelu \
 	--result_names $(iarray_to_string "${result_names[@]}") \
 	--num_random_steps=$num_random_steps"
 

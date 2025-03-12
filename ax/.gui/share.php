@@ -61,19 +61,18 @@
 		}
 	}
 
+	$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
+
 	if($run_nr == -1) {
 		$run_nr = null;
 	} else {
 		if(!count($errors)) {
-			$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 			if(!is_dir($run_dir)) {
 				$errors[] = "<tt>".htmlentities($run_dir)."</tt> cannot be found!";
 			}
 		}
 	}
-
-	$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
 		[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max($run_dir, $warnings);

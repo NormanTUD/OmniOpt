@@ -154,5 +154,9 @@
 	.window {
 		min-width: 1100px;
 	}
+
+	.error_text {
+		color: red;
+	}
 </style>
 <link rel="stylesheet" href="css/xp.css">

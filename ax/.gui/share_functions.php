@@ -732,24 +732,24 @@
 
 		return '
 			<form id="sortForm" method="get">
-			    <select name="sort" onchange="updateUrl()">
-				<option value="time_asc"' . ($sort == 'time_asc' ? ' selected' : '') . '>Time (ascending)</option>
-				<option value="time_desc"' . ($sort == 'time_desc' ? ' selected' : '') . '>Time (descending)</option>
-				<option value="nr_asc"' . ($sort == 'nr_asc' ? ' selected' : '') . '>Name (ascending)</option>
-				<option value="nr_desc"' . ($sort == 'nr_desc' ? ' selected' : '') . '>Name (descending)</option>
-			    </select>
+				<select name="sort" onchange="updateUrl()">
+					<option value="time_asc"' . ($sort == 'time_asc' ? ' selected' : '') . '>Time (ascending)</option>
+					<option value="time_desc"' . ($sort == 'time_desc' ? ' selected' : '') . '>Time (descending)</option>
+					<option value="nr_asc"' . ($sort == 'nr_asc' ? ' selected' : '') . '>Name (ascending)</option>
+					<option value="nr_desc"' . ($sort == 'nr_desc' ? ' selected' : '') . '>Name (descending)</option>
+				</select>
 			</form>
 			<script>
-			    function updateUrl() {
-				const currentUrl = window.location.href;
-				const url = new URL(currentUrl);
+				function updateUrl() {
+					const currentUrl = window.location.href;
+					const url = new URL(currentUrl);
 
-				const sortValue = document.querySelector("select[name=\'sort\']").value;
+					const sortValue = document.querySelector("select[name=\'sort\']").value;
 
-				url.searchParams.set("sort", sortValue);
+					url.searchParams.set("sort", sortValue);
 
-				window.location.href = url.toString();
-			    }
+					window.location.href = url.toString();
+				}
 			</script>
 		';
 	}

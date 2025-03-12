@@ -5402,14 +5402,6 @@ def save_state_files() -> None:
         print_red(f"Error trying to write file: {e}")
 
     try:
-        with open(f'{state_files_folder}/env', mode='a', encoding="utf-8") as f:
-            env: dict = dict(os.environ)
-            for key in env:
-                original_print(str(key) + " = " + str(env[key]), file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
         with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
             original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
     except Exception as e:

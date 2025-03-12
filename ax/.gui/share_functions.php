@@ -426,16 +426,24 @@
 		return $tabs;
 	}
 
-	function add_result_evolution_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
+	function add_result_evolution_tab ($tabs, $warnings, $result_names) {
+		if(count($result_names)) {
+			if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
+				$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
 
-		$tabs['Evolution'] = [
-			'id' => 'tab_hyperparam_evolution',
-			'content' => $html,
-			"onclick" => "plotResultEvolution();"
-		];
+				$tabs['Evolution'] = [
+					'id' => 'tab_hyperparam_evolution',
+					'content' => $html,
+					"onclick" => "plotResultEvolution();"
+				];
+			} else {
+				$warnings[] = "tab_job_infos_headers_json not found in global json_data";
+			}
+		} else {
+			$warnings[] = "Not adding evolution tab because no result names could be found";
+		}
 
-		return $tabs;
+		return [$tabs, $warnings];
 	}
 
 	function add_plot_result_pairs ($tabs) {

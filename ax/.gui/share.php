@@ -142,15 +142,7 @@
 					$tabs = add_plot_result_pairs($tabs);
 				}
 
-				if(count($result_names)) {
-					if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
-						$tabs = add_result_evolution_tab($tabs);
-					} else {
-						$warnings[] = "tab_job_infos_headers_json not found in global json_data";
-					}
-				} else {
-					$warnings[] = "Not adding evolution tab because no result names could be found";
-				}
+				[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);
 			} else {
 				$warnings[] = "No succeeded jobs found";
 			}

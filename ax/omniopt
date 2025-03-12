@@ -284,6 +284,17 @@
 		echoerr -e "\e[31m$1\e[0m"
 	}
 
+	for old_folder_name in runs logs; do
+		old_dir="$SCRIPT_DIR/ax/$old_folder_name"
+
+		if [[ -d $old_dir ]]; then
+			underline_red_text "Moving $old_dir to current folder. This is an artifact of the old way of running OmniOpt."
+			mv $old_dir $SCRIPT_DIR || {
+				red_text "Failed to move $old_dir $SCRIPT_DIR"
+			}
+		fi
+	done
+
 	function _tput {
 		set +e
 		CHAR=$1

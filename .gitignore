@@ -199,3 +199,4 @@ PLOT_TESTS
 .tests/slurm_docker/docker-compose.yml
 .tests/slurm_docker/slurm.conf
 .tests/__pycache__/
+ax

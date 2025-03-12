@@ -1664,7 +1664,26 @@
 		if(is_file($best_results_txt)) {
 			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
 		} else {
-			$warnings[] = "$best_results_txt not found";
+			if(!is_file($best_results_txt)) {
+				$warnings[] = "$best_results_txt not found";
+			} else if (!filesize($best_results_txt)) {
+				$warnings[] = "$best_results_txt is empty";
+			}
+		}
+
+		return [$overview_html, $warnings];
+	}
+
+	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
+		$parameters_txt_file = "$run_dir/parameters.txt";
+		if(is_file($parameters_txt_file) && filesize($parameters_txt_file)) {
+			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
+		} else {
+			if(!is_file($parameters_txt_file)) {
+				$warnings[] = "$run_dir/parameters.txt not found";
+			} else if (!filesize($parameters_txt_file)) {
+				$warnings[] = "$run_dir/parameters.txt is empty";
+			}
 		}
 
 		return [$overview_html, $warnings];

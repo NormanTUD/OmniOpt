@@ -88,12 +88,7 @@
 		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
-
-		if(is_file("$run_dir/parameters.txt")) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
-		} else {
-			$warnings[] = "$run_dir/parameters.txt not found";
-		}
+		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
 
 		$status_data = null;
 

@@ -4927,7 +4927,7 @@ def get_errors_from_outfile(i: str) -> List[str]:
                 errors.append(n)
 
         if f"{resname}: nan" in file_as_string:
-            errors.append(f"The string '{resname}: nan' appeared. This may indicate the vanishing-gradient-problem if you are training a neural network.")
+            errors.append(f"The string '{resname}: nan' appeared. This may indicate the vanishing-gradient-problem, or a learning rate that is too high (if you are training a neural network).")
 
     return errors
 

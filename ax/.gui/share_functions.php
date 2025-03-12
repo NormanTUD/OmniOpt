@@ -1514,4 +1514,39 @@
 			return substr($haystack, 0, strlen($needle)) === $needle;
 		}
 	}
+
+	function add_pareto_from_from_file($tabs, $warnings, $pareto_front_txt_file, $pareto_front_json_file) {
+		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file)) {
+			$pareto_front_html = "";
+
+
+			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
+
+			if($pareto_front_text) {
+				$pareto_front_html .= "<pre>$pareto_front_text</pre>";
+			}
+
+			$GLOBALS["json_data"]["pareto_front_data"] = json_decode(file_get_contents($pareto_front_json_file));
+
+			if($pareto_front_html) {
+				$pareto_front_html = "<div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
+
+				$tabs['Pareto-Fronts'] = [
+					'id' => 'tab_pareto_fronts',
+					'content' => $pareto_front_html,
+					'onclick' => "load_pareto_graph();"
+				];
+			}
+		} else {
+			if(!file_exists($pareto_front_json_file)) {
+				$warnings[] = "$pareto_front_json_file not found";
+			}
+
+			if(!file_exists("$pareto_front_txt_file")) {
+				$warnings[] = "$pareto_front_txt_file not found";
+			}
+		}
+
+		return [$tabs, $warnings];
+	}
 ?>

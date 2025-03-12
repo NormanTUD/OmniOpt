@@ -226,38 +226,10 @@
 			$warnings[] = "\$overview_html was empty";
 		}
 
-		if(file_exists("$run_dir/pareto_front_data.json") && file_exists("$run_dir/pareto_front_table.txt")) {
-			$pareto_front_html = "";
+		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
+		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
 
-			$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
-
-			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
-
-			if($pareto_front_text) {
-				$pareto_front_html .= "<pre>$pareto_front_text</pre>";
-			}
-
-			$GLOBALS["json_data"]["pareto_front_data"] = json_decode(file_get_contents("$run_dir/pareto_front_data.json"));
-
-			if($pareto_front_html) {
-				$pareto_front_html = "<div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
-
-				$tabs['Pareto-Fronts'] = [
-					'id' => 'tab_pareto_fronts',
-					'content' => $pareto_front_html,
-					'onclick' => "load_pareto_graph();"
-				];
-			}
-		} else {
-			if(!file_exists("$run_dir/pareto_front_data.json")) {
-				$warnings[] = "$run_dir/pareto_front_data.json not found";
-			}
-
-			if(!file_exists("$run_dir/pareto_front_table.txt")) {
-				$warnings[] = "$run_dir/pareto_front_table.txt not found";
-			}
-		}
-
+		[$tabs, $warnings] = add_pareto_from_from_file($tabs, $warnings, $pareto_front_txt_file, $pareto_front_json_file);
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/results.csv", "Results", "tab_results");
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]);

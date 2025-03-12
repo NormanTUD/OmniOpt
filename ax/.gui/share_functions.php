@@ -1705,4 +1705,112 @@
 
 		return [$overview_html, $warnings];
 	}
+
+	function add_result_names_table_to_overview ($result_names, $result_min_max, $overview_html, $warnings) {
+		if(count($result_names)) {
+			$result_names_table = '<h2>Result names and types:</h2>'."\n";
+			$result_names_table .= '<br><table border="1">'."\n";
+			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>'."\n";
+			for ($i = 0; $i < count($result_names); $i++) {
+				$min_or_max = "min";
+
+				if(isset($result_min_max[$i])) {
+					$min_or_max = $result_min_max[$i];
+				}
+
+				$result_names_table .= '<tr>'."\n";
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>'."\n";
+				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>'."\n";
+				$result_names_table .= '</tr>'."\n";
+			}
+			$result_names_table .= '</table><br>'."\n";
+
+			$overview_html .= $result_names_table;
+		} else {
+			$warnings[] = "No result-names could be found";
+		}
+
+		return [$overview_html, $warnings];
+	}
+
+	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
+		$git_version_file = "$run_dir/git_version";
+		if(file_exists($git_version_file) && filesize($git_version_file)) {
+			$lastLine = htmlentities(file_get_contents($git_version_file));
+
+			$overview_html .= "<h2>Git-Version:</h2>\n";
+			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
+		} else {
+			if(!is_file($git_version_file)) {
+				$warnings[] = "$git_version_file not found";
+			} else if (!filesize($git_version_file)) {
+				$warnings[] = "$git_version_file empty";
+			}
+		}
+
+		return [$overview_html, $warnings];
+	}
+
+	function add_overview_table_to_overview_and_get_status_data ($run_dir, $status_data, $overview_html, $warnings) {
+		$results_csv_file = "$run_dir/results.csv";
+
+		if(is_file($results_csv_file) && filesize($results_csv_file)) {
+			$status_data = getStatusForResultsCsv($results_csv_file);
+
+			$overview_table = '<h2>Number of evaluations:</h2>'."\n";
+			$overview_table .= '<table border="1">'."\n";
+			$overview_table .= '<tbody>'."\n";
+			$overview_table .= '<tr>'."\n";
+
+			foreach ($status_data as $key => $value) {
+				$capitalizedKey = ucfirst($key);
+				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
+			}
+			$overview_table .= '</tr>'."\n";
+
+			$overview_table .= '<tr>'."\n";
+
+			foreach ($status_data as $value) {
+				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
+			}
+			$overview_table .= '</tr>'."\n";
+
+			$overview_table .= '</tbody>'."\n";
+			$overview_table .= '</table>'."\n";
+
+			$overview_html .= "<br>$overview_table";
+		} else {
+			if(!is_file($results_csv_file)) {
+				$warnings[] = "$results_csv_file not found";
+			} else if (!filesize($results_csv_file)) {
+				$warnings[] = "$results_csv_file is emtpy";
+			}
+		}
+
+		return [$overview_html, $warnings, $status_data];
+	}
+
+	function add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max) {
+		$overview_html = "";
+
+		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings, $status_data] = add_overview_table_to_overview_and_get_status_data($run_dir, $status_data, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_result_names_table_to_overview($result_names, $result_min_max, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_progressbar_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_git_version_to_overview($run_dir, $overview_html, $warnings);
+
+		if($overview_html != "") {
+			$tabs['Overview'] = [
+				'id' => 'tab_overview',
+				'content' => $overview_html
+			];
+		} else {
+			$warnings[] = "\$overview_html was empty";
+		}
+
+		return [$tabs, $warnings, $status_data];
+	}
 ?>

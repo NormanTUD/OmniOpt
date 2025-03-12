@@ -83,87 +83,8 @@
 		$GLOBALS["json_data"]["result_names"] = $result_names;
 		$GLOBALS["json_data"]["result_min_max"] = $result_min_max;
 
-		$overview_html = "";
-
-		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
-		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
-		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
-		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
-
 		$status_data = null;
-
-		if(is_file("$run_dir/results.csv")) {
-			$status_data = getStatusForResultsCsv("$run_dir/results.csv");
-
-			$overview_table = '<h2>Number of evaluations:</h2>'."\n";
-			$overview_table .= '<table border="1">'."\n";
-			$overview_table .= '<tbody>'."\n";
-			$overview_table .= '<tr>'."\n";
-
-			foreach ($status_data as $key => $value) {
-				$capitalizedKey = ucfirst($key);
-				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
-			}
-			$overview_table .= '</tr>'."\n";
-
-			$overview_table .= '<tr>'."\n";
-
-			foreach ($status_data as $value) {
-				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
-			}
-			$overview_table .= '</tr>'."\n";
-
-			$overview_table .= '</tbody>'."\n";
-			$overview_table .= '</table>'."\n";
-
-			$overview_html .= "<br>$overview_table";
-		} else {
-			$warnings[] = "$run_dir/results.csv not found";
-		}
-
-		if(count($result_names)) {
-			$result_names_table = '<h2>Result names and types:</h2>'."\n";
-			$result_names_table .= '<br><table border="1">'."\n";
-			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>'."\n";
-			for ($i = 0; $i < count($result_names); $i++) {
-				$min_or_max = "min";
-
-				if(isset($result_min_max[$i])) {
-					$min_or_max = $result_min_max[$i];
-				}
-
-				$result_names_table .= '<tr>'."\n";
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>'."\n";
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>'."\n";
-				$result_names_table .= '</tr>'."\n";
-			}
-			$result_names_table .= '</table><br>'."\n";
-
-			$overview_html .= $result_names_table;
-		} else {
-			$warnings[] = "No result-names could be found";
-		}
-
-		[$overview_html, $warnings] = add_progressbar_to_overview($run_dir, $overview_html, $warnings);
-
-
-		if(file_exists("$run_dir/git_version") && filesize("$run_dir/git_version")) {
-			$lastLine = htmlentities(file_get_contents("$run_dir/git_version"));
-
-			$overview_html .= "<h2>Git-Version:</h2>\n";
-			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
-		} else {
-			$warnings[] = "$run_dir/git_version not found or empty";
-		}
-
-		if($overview_html != "") {
-			$tabs['Overview'] = [
-				'id' => 'tab_overview',
-				'content' => $overview_html
-			];
-		} else {
-			$warnings[] = "\$overview_html was empty";
-		}
+		[$tabs, $warnings, $status_data] = add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max);
 
 		[$tabs, $warnings] = add_pareto_from_from_file($tabs, $warnings, $run_dir);
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/results.csv", "Results", "tab_results");

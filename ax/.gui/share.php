@@ -266,6 +266,10 @@
 						$home = preg_replace("/.*\//", "", $home);
 						$home = preg_replace("/\.php$/", "", $home);
 
+						if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
+							$home = "?sort=" . $_GET["sort"] . "&";
+						}
+
 						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
 					}
 

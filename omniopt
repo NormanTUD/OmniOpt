@@ -1150,36 +1150,6 @@ EOF
 		myexit 19
 	fi
 
-	if [[ -d ".git" ]]; then
-		if command -v whiptail 2>/dev/null >/dev/null; then
-			if [[ ! -e .dont_ask_upgrade_omniopt ]]; then
-				REMOTEURL=$(git config --get remote.origin.url)
-				REMOTEHASH=$(git ls-remote "$REMOTEURL" HEAD | awk '{ print $1}')
-
-				if [ ! "$git_hash" = "$REMOTEHASH" ]; then
-					if command -v resize 2>/dev/null >/dev/null; then
-						eval "$(resize)"
-					fi
-					if (whiptail --title "There is a new version of OmniOpt2 available" --yesno "Do you want to upgrade?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-						git pull
-						eval "./$SCRIPT_DIR/omniopt $args_string"
-						exit
-					else
-						if command -v resize 2>/dev/null >/dev/null; then
-							eval "$(resize)"
-						fi
-						if (whiptail --title "Ask again?" --yesno "You chose not to upgrade. Ask again at next start?" $LINES $COLUMNS $(( $LINES - 8 ))); then
-							echo "Asking again next time if you want to upgrade"
-						else
-							green_text "OK, not asking again"
-							touch .dont_ask_upgrade_omniopt
-						fi
-					fi
-				fi
-			fi
-		fi
-	fi
-
 	args_string=$(echo "$args_string" | sed -e 's#[[:space:]][[:space:]]*# #g')
 
 	if [ -n "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then

@@ -7013,7 +7013,7 @@ def run_search_with_progress_bar() -> None:
         progress_bar = _progress_bar
 
         progressbar_description(["Started OmniOpt2 run..."])
-        update_progress_bar(progress_bar, count_done_jobs())
+        update_progress_bar(progress_bar, count_done_jobs() + NR_INSERTED_JOBS)
 
         run_search(progress_bar)
 

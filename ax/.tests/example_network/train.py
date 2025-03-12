@@ -15,6 +15,7 @@ try:
     parser.add_argument("--beta2", type=float, help="beta2", default=0.999)
     parser.add_argument("--epsilon", type=float, help="epsilon", default=0.0001)
     parser.add_argument('--data', type=str, help='Data dir', default='data_full')
+    parser.add_argument('--activation', type=str, help='Activation function (default: relu)', default='relu')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)
     parser.add_argument('--conv', type=int, help='Number of conv layers', default=2)
@@ -54,7 +55,7 @@ try:
             (3,3),
             trainable=True,
             use_bias=True,
-            activation="relu",
+            activation=args.activation,
             padding="valid",
             strides=(1, 1),
             dilation_rate=(1,1),
@@ -72,7 +73,7 @@ try:
             trainable=True,
             use_bias=True,
             units=args.dense_units,
-            activation="relu",
+            activation=args.activation,
             kernel_initializer="glorot_uniform",
             bias_initializer="variance_scaling",
             dtype="float32"

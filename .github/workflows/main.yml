@@ -49,7 +49,7 @@ jobs:
 
     - name: Run linter
       run: |
-        ./ax/.tests/linter
+        ./.tests/linter
   docker-test:
     needs: [Linter, todo-to-issue]
     runs-on: ubuntu-24.04
@@ -95,7 +95,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
+        ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
     needs: [Linter, todo-to-issue, docker-test]
@@ -152,10 +152,10 @@ jobs:
 
     - name: main test script
       run: |
-        ./ax/.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
+        ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
     - name: plot tests
       run: |
-        bash ./ax/.tests/plots
+        bash ./.tests/plots
     - uses: release-drafter/release-drafter@v5
       with:
           config-name: release-drafter.yml

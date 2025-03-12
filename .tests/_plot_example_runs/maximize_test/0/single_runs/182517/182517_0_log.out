@@ -1,0 +1,12 @@
+submitit INFO (2024-10-24 11:22:28,199) - Starting with JobEnvironment(job_id=182517, hostname=thinkpad44020211128, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2024-10-24 11:22:28,199) - Loading pickle: /home/norman/repos/OmniOpt/ax/runs/maximize_test/0/single_runs/182517/182517_submitted.pkl
+Parameters: {"res": 5481.485724449158}
+Debug-Infos: 
+echo "RESULT: 5481.485724449158"
+stdout:
+RESULT: 5481.485724449158
+
+Result: 5481.485724449158
+EXIT_CODE: 0
+submitit INFO (2024-10-24 11:22:31,031) - Job completed successfully
+submitit INFO (2024-10-24 11:22:31,031) - Exiting after successful completion

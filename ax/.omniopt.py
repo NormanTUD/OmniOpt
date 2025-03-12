@@ -4906,24 +4906,28 @@ def get_errors_from_outfile(i: str) -> List[str]:
 
     errors: List[str] = []
 
-    if "Result: None" in file_as_string:
-        errors.append("Got no result.")
+    for resname in arg_result_names:
+        if f"{resname}: None" in file_as_string:
+            errors.append("Got no result.")
 
-        new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
-        for n in new_errors:
-            errors.append(n)
+            new_errors = check_for_basic_string_errors(file_as_string, first_line, file_paths, program_code)
+            for n in new_errors:
+                errors.append(n)
 
-        new_errors = check_for_base_errors(file_as_string)
-        for n in new_errors:
-            errors.append(n)
+            new_errors = check_for_base_errors(file_as_string)
+            for n in new_errors:
+                errors.append(n)
 
-        new_errors = check_for_non_zero_exit_codes(file_as_string)
-        for n in new_errors:
-            errors.append(n)
+            new_errors = check_for_non_zero_exit_codes(file_as_string)
+            for n in new_errors:
+                errors.append(n)
 
-        new_errors = check_for_python_errors(i, file_as_string)
-        for n in new_errors:
-            errors.append(n)
+            new_errors = check_for_python_errors(i, file_as_string)
+            for n in new_errors:
+                errors.append(n)
+
+        if f"{resname}: nan" in file_as_string:
+            errors.append(f"The string '{resname}: nan' appeared. This may indicate the vanishing-gradient-problem if you are training a neural network.")
 
     return errors
 

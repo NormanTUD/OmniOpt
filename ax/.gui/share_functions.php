@@ -1757,28 +1757,32 @@
 		if(is_file($results_csv_file) && filesize($results_csv_file)) {
 			$status_data = getStatusForResultsCsv($results_csv_file);
 
-			$overview_table = '<h2>Number of evaluations:</h2>'."\n";
-			$overview_table .= '<table border="1">'."\n";
-			$overview_table .= '<tbody>'."\n";
-			$overview_table .= '<tr>'."\n";
+			if($status_data["total"]) {
+				$overview_table = '<h2>Number of evaluations:</h2>'."\n";
+				$overview_table .= '<table border="1">'."\n";
+				$overview_table .= '<tbody>'."\n";
+				$overview_table .= '<tr>'."\n";
 
-			foreach ($status_data as $key => $value) {
-				$capitalizedKey = ucfirst($key);
-				$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
+				foreach ($status_data as $key => $value) {
+					$capitalizedKey = ucfirst($key);
+					$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
+				}
+				$overview_table .= '</tr>'."\n";
+
+				$overview_table .= '<tr>'."\n";
+
+				foreach ($status_data as $value) {
+					$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
+				}
+				$overview_table .= '</tr>'."\n";
+
+				$overview_table .= '</tbody>'."\n";
+				$overview_table .= '</table>'."\n";
+
+				$overview_html .= "<br>$overview_table";
+			} else {
+				$warnings[] = "No evaluations detected";
 			}
-			$overview_table .= '</tr>'."\n";
-
-			$overview_table .= '<tr>'."\n";
-
-			foreach ($status_data as $value) {
-				$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
-			}
-			$overview_table .= '</tr>'."\n";
-
-			$overview_table .= '</tbody>'."\n";
-			$overview_table .= '</table>'."\n";
-
-			$overview_html .= "<br>$overview_table";
 		} else {
 			if(!is_file($results_csv_file)) {
 				$warnings[] = "$results_csv_file not found";

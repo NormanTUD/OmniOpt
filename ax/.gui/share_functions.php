@@ -1688,4 +1688,22 @@
 
 		return [$overview_html, $warnings];
 	}
+
+	function add_progressbar_to_overview($run_dir, $overview_html, $warnings) {
+		$progressbar_file = "$run_dir/progressbar";
+		if(file_exists($progressbar_file) && filesize($progressbar_file)) {
+			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
+
+			$overview_html .= "<h2>Last progressbar status:</h2>\n";
+			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
+		} else {
+			if(!is_file($progressbar_file)) {
+				$warnings[] = "$progressbar_file not found";
+			} else if(!filesize($progressbar_file)) {
+				$warnings[] = "$progressbar_file is empty";
+			}
+		}
+
+		return [$overview_html, $warnings];
+	}
 ?>

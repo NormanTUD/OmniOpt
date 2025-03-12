@@ -144,14 +144,8 @@
 			$warnings[] = "No result-names could be found";
 		}
 
-		if(file_exists("$run_dir/progressbar") && filesize("$run_dir/progressbar")) {
-			$lastLine = trim(array_slice(file("$run_dir/progressbar"), -1)[0]);
+		[$overview_html, $warnings] = add_progressbar_to_overview($run_dir, $overview_html, $warnings);
 
-			$overview_html .= "<h2>Last progressbar status:</h2>\n";
-			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
-		} else {
-			$warnings[] = "$run_dir/progressbar not found or empty";
-		}
 
 		if(file_exists("$run_dir/git_version") && filesize("$run_dir/git_version")) {
 			$lastLine = htmlentities(file_get_contents("$run_dir/git_version"));

@@ -63,6 +63,8 @@ try:
             dtype="float32"
         ))
 
+        model.add(layers.BatchNormalization())
+
     model.add(layers.Flatten())
 
     for i in range(0, args.dense):

@@ -340,28 +340,7 @@
 
 		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
 
-		if(count($warnings)) {
-			$warnings = array_unique($warnings);
-			sort($warnings);
-
-			$warnings = array_map(fn($w) => str_starts_with($w, 'shares//') ? substr($w, 8) : $w, $warnings);
-
-			$html = "";
-			if(count($warnings) == 1) {
-				$html = $warnings[0];
-			} else {
-				$html .= "<ul>";
-				foreach ($warnings as $warning) {
-					$html .= "<li>" . htmlspecialchars($warning) . "</li>";
-				}
-				$html .= "</ul>";
-			}
-
-			$tabs['Share-Debug'] = [
-				'id' => 'tab_warnings',
-				'content' => $html
-			];
-		}
+		$tabs = get_share_debug_tab($tabs, $warnings);
 	}
 
 	if(!count($tabs) && $run_dir != "" && count($errors)) {

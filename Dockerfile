@@ -20,6 +20,5 @@ RUN adduser --disabled-password --gecos '' ${GetMyUsername}
 COPY ./ /var/opt/omniopt/
 COPY ./.tests /var/opt/omniopt/.tests
 COPY ./.tools /var/opt/omniopt/.tools
-COPY ./.gui /var/opt/omniopt/.gui
 
 WORKDIR /var/opt/omniopt

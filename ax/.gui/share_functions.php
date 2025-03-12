@@ -1783,7 +1783,7 @@
 			if(!is_file($results_csv_file)) {
 				$warnings[] = "$results_csv_file not found";
 			} else if (!filesize($results_csv_file)) {
-				$warnings[] = "$results_csv_file is emtpy";
+				$warnings[] = "$results_csv_file is empty";
 			}
 		}
 

@@ -139,6 +139,8 @@
 					} else {
 						$warnings[] = "Has enough columns for 2d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
 					}
+				} else {
+					$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 2d scatter plot: " . count($non_special_columns_without_result_columns);
 				}
 
 				if(count($non_special_columns_without_result_columns) >= 3) {
@@ -147,6 +149,8 @@
 					} else {
 						$warnings[] = "Has enough columns for 3d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
 					}
+				} else {
+					$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 3d scatter plot: " . count($non_special_columns_without_result_columns);
 				}
 			}
 

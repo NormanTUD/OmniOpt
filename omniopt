@@ -1048,18 +1048,18 @@ EOF
 						yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
 						git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
 							red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
-													myexit 211
-												}
+							myexit 211
+						}
 
-												bash omniopt $*
-												exit_code=$?
+						bash omniopt $*
+						exit_code=$?
 
-												myexit $exit_code
-											else
-												if [[ -z $OO_MAIN_TESTS ]]; then
-													yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
-													yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
-												fi
+						myexit $exit_code
+					else
+						if [[ -z $OO_MAIN_TESTS ]]; then
+							yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
+							yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
+						fi
 					fi
 				fi
 			else

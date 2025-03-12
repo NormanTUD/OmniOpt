@@ -1557,4 +1557,19 @@
 
 		return [$tabs, $warnings];
 	}
+
+	function get_outfiles_tab_from_run_dir ($run_dir, $tabs, $warnings, $result_names) {
+		$out_files = get_log_files($run_dir);
+
+		if(count($out_files)) {
+			$tabs['Single Logs'] = [
+				'id' => 'tab_logs',
+				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
+			];
+		} else {
+			$warnings[] = "No out-files found";
+		}
+
+		return [$tabs, $warnings];
+	}
 ?>

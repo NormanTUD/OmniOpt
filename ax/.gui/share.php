@@ -244,7 +244,6 @@
 		[$tabs, $warnings] = add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram");
 		[$tabs, $warnings] = add_worker_cpu_ram_from_file($tabs, $warnings, "$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs");
 
-		$out_files = get_log_files($run_dir);
 
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
@@ -338,14 +337,8 @@
 			$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
 		}
 
-		if(count($out_files)) {
-			$tabs['Single Logs'] = [
-				'id' => 'tab_logs',
-				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
-			];
-		} else {
-			$warnings[] = "No out-files found";
-		}
+
+		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
 
 		if(count($warnings)) {
 			$warnings = array_unique($warnings);

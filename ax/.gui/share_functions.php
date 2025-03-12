@@ -1516,7 +1516,7 @@
 	}
 
 	function add_pareto_from_from_file($tabs, $warnings, $pareto_front_txt_file, $pareto_front_json_file) {
-		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file)) {
+		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
 
 
@@ -1538,6 +1538,14 @@
 				];
 			}
 		} else {
+			if(!filesize($pareto_front_json_file)) {
+				$warnings[] = "$pareto_front_json_file is empty";
+			}
+
+			if(!filesize("$pareto_front_txt_file")) {
+				$warnings[] = "$pareto_front_txt_file is empty";
+			}
+
 			if(!file_exists($pareto_front_json_file)) {
 				$warnings[] = "$pareto_front_json_file not found";
 			}

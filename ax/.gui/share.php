@@ -307,11 +307,12 @@
 		if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
 			if(isset($GLOBALS["json_data"]["tab_job_infos_headers_json"]) && isset($GLOBALS["json_data"]["tab_job_infos_csv_json"])) {
 				$headers = $GLOBALS["json_data"]["tab_job_infos_headers_json"];
-				$rows = $GLOBALS["json_data"]["tab_job_infos_csv_json"];
 
 				$exitCodeIndex = array_search("exit_code", $headers, true);
 
 				if ($exitCodeIndex !== false) {
+					$rows = $GLOBALS["json_data"]["tab_job_infos_csv_json"];
+
 					$exitCodes = array_column($rows, $exitCodeIndex);
 
 					$uniqueExitCodes = array_unique($exitCodes);

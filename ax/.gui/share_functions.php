@@ -1515,7 +1515,10 @@
 		}
 	}
 
-	function add_pareto_from_from_file($tabs, $warnings, $pareto_front_txt_file, $pareto_front_json_file) {
+	function add_pareto_from_from_file($tabs, $warnings, $run_dir) {
+		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
+		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
+
 		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
 
@@ -1538,20 +1541,16 @@
 				];
 			}
 		} else {
-			if(!filesize($pareto_front_json_file)) {
-				$warnings[] = "$pareto_front_json_file is empty";
-			}
-
-			if(!filesize("$pareto_front_txt_file")) {
-				$warnings[] = "$pareto_front_txt_file is empty";
-			}
-
 			if(!file_exists($pareto_front_json_file)) {
 				$warnings[] = "$pareto_front_json_file not found";
+			} else if(!filesize($pareto_front_json_file)) {
+				$warnings[] = "$pareto_front_json_file is empty";
 			}
 
 			if(!file_exists("$pareto_front_txt_file")) {
 				$warnings[] = "$pareto_front_txt_file not found";
+			} else if(!filesize("$pareto_front_txt_file")) {
+				$warnings[] = "$pareto_front_txt_file is empty";
 			}
 		}
 

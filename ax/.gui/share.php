@@ -165,10 +165,7 @@
 			$warnings[] = "\$overview_html was empty";
 		}
 
-		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
-		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
-
-		[$tabs, $warnings] = add_pareto_from_from_file($tabs, $warnings, $pareto_front_txt_file, $pareto_front_json_file);
+		[$tabs, $warnings] = add_pareto_from_from_file($tabs, $warnings, $run_dir);
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/results.csv", "Results", "tab_results");
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos");
 		[$tabs, $warnings] = add_simple_csv_tab_from_file($tabs, $warnings, "$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]);

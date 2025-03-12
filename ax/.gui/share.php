@@ -85,41 +85,9 @@
 
 		$overview_html = "";
 
-		$ui_url_txt = "$run_dir/ui_url.txt";
-		if(is_file($ui_url_txt)) {
-			$firstLine = fgets(fopen($ui_url_txt, 'r'));
-
-			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
-				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br><br>";
-			}
-		} else {
-			$warnings[] = "$ui_url_txt not found";
-		}
-
-		$experiment_overview = "$run_dir/experiment_overview.txt";
-		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
-			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
-			if($experiment_overview_table) {
-				$experiment_overview .= $experiment_overview_table;
-
-				$overview_html .= $experiment_overview_table;
-			} else {
-				$warnings[] = "Could not create \$experiment_overview_table";
-			}
-		} else {
-			if(!file_exists($experiment_overview)) {
-				$warnings[] = "$experiment_overview not found";
-			} else if(!filesize($experiment_overview)) {
-				$warnings[] = "$experiment_overview is empty";
-			}
-		}
-
-		$best_results_txt = "$run_dir/best_result.txt";
-		if(is_file($best_results_txt)) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
-		} else {
-			$warnings[] = "$best_results_txt not found";
-		}
+		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
 
 		if(is_file("$run_dir/parameters.txt")) {
 			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
@@ -198,7 +166,6 @@
 		} else {
 			$warnings[] = "$run_dir/git_version not found or empty";
 		}
-
 
 		if($overview_html != "") {
 			$tabs['Overview'] = [

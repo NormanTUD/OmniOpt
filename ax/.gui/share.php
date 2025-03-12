@@ -331,7 +331,10 @@
 					} else if($user_id && $experiment_name && !$run_nr) {
 						generateFolderButtons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
 					} else {
-						print "DONT KNOW!!! >>$run_nr<<";
+						print "UNKNOWN STATE!<br>";
+						print "user_id: " . ($user_id ? "Yes" : "No") . ", ";
+						print "experiment_name: " . ($experiment_name ? "Yes" : "No") . ", ";
+						print "run_nr: " . ($run_nr ? "Yes" : "No");
 					}
 				}
 			}

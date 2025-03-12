@@ -101,7 +101,6 @@
 		[$tabs, $warnings] = add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, "$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram");
 		[$tabs, $warnings] = add_worker_cpu_ram_from_file($tabs, $warnings, "$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs");
 
-
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 
@@ -205,73 +204,8 @@
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 ?>
+	<?php js("share.js"); ?>
 	<script>
-		function close_main_window() {
-			const url = new URL(window.location.href);
-
-			if (url.searchParams.has('run_nr')) {
-				url.searchParams.delete('run_nr');
-			} else if (url.searchParams.has('experiment_name')) {
-				url.searchParams.delete('experiment_name');
-			} else if (url.searchParams.has('user_id')) {
-				url.searchParams.delete('user_id');
-			}
-
-			window.location.assign(url.toString());
-		}
-
-		function show_main_window() {
-			document.getElementById('spinner').style.display = 'none';
-			document.getElementById('main_window').style.display = 'contents';
-		}
-
-		function initialize_tabs () {
-			function setupTabs(container) {
-				const tabs = container.querySelectorAll('[role="tab"]');
-				const tabPanels = container.querySelectorAll('[role="tabpanel"]');
-
-				if (tabs.length === 0 || tabPanels.length === 0) {
-					return;
-				}
-
-				tabs.forEach(tab => tab.setAttribute("aria-selected", "false"));
-				tabPanels.forEach(panel => panel.hidden = true);
-
-				const firstTab = tabs[0];
-				const firstPanel = tabPanels[0];
-
-				if (firstTab && firstPanel) {
-					firstTab.setAttribute("aria-selected", "true");
-					firstPanel.hidden = false;
-				}
-
-				tabs.forEach(tab => {
-					tab.addEventListener("click", function () {
-						const parentContainer = tab.closest(".tabs");
-
-						const parentTabs = parentContainer.querySelectorAll('[role="tab"]');
-						const parentPanels = parentContainer.querySelectorAll('[role="tabpanel"]');
-
-						parentTabs.forEach(t => t.setAttribute("aria-selected", "false"));
-						parentPanels.forEach(panel => panel.hidden = true);
-
-						this.setAttribute("aria-selected", "true");
-						const targetPanel = document.getElementById(this.getAttribute("aria-controls"));
-						if (targetPanel) {
-							targetPanel.hidden = false;
-
-							const nestedTabs = targetPanel.querySelector(".tabs");
-							if (nestedTabs) {
-								setupTabs(nestedTabs);
-							}
-						}
-					});
-				});
-			}
-
-			document.querySelectorAll(".tabs").forEach(setupTabs);
-		}
-
 		var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
 <?php
 		if(count($GLOBALS["json_data"])) {

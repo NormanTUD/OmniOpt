@@ -634,6 +634,7 @@
 
 	function remove_ansi_colors($contents) {
 		$contents = preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $contents);
+		$contents = preg_replace('#\[(?:0|91)m#', '', $contents);
 		return $contents;
 	}
 

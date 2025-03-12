@@ -1599,4 +1599,26 @@
 
 		return $tabs;
 	}
+
+	function get_result_names_and_min_max ($run_dir, $warnings) {
+		$result_names_file = "$run_dir/result_names.txt";
+		$result_min_max_file = "$run_dir/result_min_max";
+
+		$result_names = [];
+		$result_min_max = [];
+
+		if(is_file($result_names_file)) {
+			$result_names = read_file_as_array($result_names_file);
+		} else {
+			$warnings[] = "$result_names_file not found";
+		}
+
+		if(is_file($result_min_max_file)) {
+			$result_min_max = read_file_as_array($result_min_max_file);
+		} else {
+			$warnings[] = "$result_min_max_file not found";
+		}
+
+		return [$result_names, $result_min_max, $warnings];
+	}
 ?>

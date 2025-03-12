@@ -78,43 +78,25 @@
 	$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
-		$result_names_file = "$run_dir/result_names.txt";
-		$result_min_max_file = "$run_dir/result_min_max";
-
-		$result_names = [];
-		$result_min_max = [];
-
-		if(is_file($result_names_file)) {
-			$result_names = read_file_as_array($result_names_file);
-		} else {
-			$warnings[] = "$result_names_file not found";
-		}
-
-		if(is_file($result_min_max_file)) {
-			$result_min_max = read_file_as_array($result_min_max_file);
-		} else {
-			$warnings[] = "$result_min_max_file not found";
-		}
+		[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max($run_dir, $warnings);
 
 		$GLOBALS["json_data"]["result_names"] = $result_names;
 		$GLOBALS["json_data"]["result_min_max"] = $result_min_max;
 
-		$best_results_txt = "$run_dir/best_result.txt";
 		$overview_html = "";
 
-		$experiment_overview = "$run_dir/experiment_overview.txt";
-
-		if(is_file("$run_dir/ui_url.txt")) {
-			$filePath = "$run_dir/ui_url.txt";
-			$firstLine = fgets(fopen($filePath, 'r'));
+		$ui_url_txt = "$run_dir/ui_url.txt";
+		if(is_file($ui_url_txt)) {
+			$firstLine = fgets(fopen($ui_url_txt, 'r'));
 
 			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
 				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br><br>";
 			}
 		} else {
-			$warnings[] = "$run_dir/ui_url.txt not found";
+			$warnings[] = "$ui_url_txt not found";
 		}
 
+		$experiment_overview = "$run_dir/experiment_overview.txt";
 		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
 			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
@@ -132,6 +114,7 @@
 			}
 		}
 
+		$best_results_txt = "$run_dir/best_result.txt";
 		if(is_file($best_results_txt)) {
 			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
 		} else {

@@ -88,13 +88,13 @@
 			'add_simple_csv_tab_from_file' => [
 				["$run_dir/results.csv", "Results", "tab_results"],
 				["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"],
-				["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
+				//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
 			],
 			'add_simple_pre_tab_from_file' => [
 				["$run_dir/oo_errors.txt", "Errors", "tab_errors", true],
 				["$run_dir/outfile", "Main-Log", "tab_main_log", true],
-				["$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param"],
-				["$run_dir/progressbar", "Progressbar log", "tab_progressbar_log"],
+				//["$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param"],
+				//["$run_dir/progressbar", "Progressbar log", "tab_progressbar_log"],
 				["$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log"],
 			],
 			'add_simple_table_from_ascii_table_file' => [

@@ -349,6 +349,8 @@ fi
 
 declare -g TEST_CASES=()
 
+.tools/start_apache_if_needed
+
 function _test {
 	NAME=$1
 	COMMAND=$2

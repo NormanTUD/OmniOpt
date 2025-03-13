@@ -185,7 +185,3 @@ select {
 	border-radius: 0;
 	border: 1px solid black;
 }
-
-#themeSelect {
-	all: unset;
-}

@@ -45,6 +45,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		orchestrator_file
 		ui_url
 		run_dir
+		maximize
 		signed_weighted_euclidean_weights
 		experiment_constraints
 		minkowski_p

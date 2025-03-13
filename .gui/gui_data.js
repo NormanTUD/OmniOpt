@@ -303,13 +303,6 @@ var hiddenTableData = [
 		max: 32
 	},
 	{
-		label: "Maximize",
-		id: "maximize",
-		type: "checkbox",
-		value: 0,
-		info: "Maximize by default (when nothing else is set specifically overriding it)."
-	},
-	{
 		label: "Disable TQDM",
 		id: "disable_tqdm",
 		type: "checkbox",

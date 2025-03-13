@@ -68,8 +68,9 @@
 
 <?php
 		if (isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER['SCRIPT_FILENAME'], 'share.php') !== false) {
-			include("css/share_css.php");
 ?>
+			<link rel="stylesheet" href="css/share.css">
+			<link rel="stylesheet" href="css/xp.css">
 			<meta name="robots" content="noindex, nofollow">
 			<?php js("plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>

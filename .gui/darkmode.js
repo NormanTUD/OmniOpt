@@ -65,7 +65,7 @@ function enable_dark_mode() {
 	$(".header_table").css("color", "green");
 	$(".window").css("background", "unset");
 
-	$(".mode-text").text("Light-Mode");
+	$(".mode-text").text("Switch to Light-Mode");
 }
 
 function enable_light_mode() {
@@ -90,7 +90,7 @@ function enable_light_mode() {
 	$(".header_table").css("color", "unset");
 	$(".window").css("background", "#ece9d8");
 
-	$(".mode-text").text("Dark-Mode");
+	$(".mode-text").text("Switch to Dark-Mode");
 }
 
 function apply_theme_based_on_system_preferences() {

@@ -431,7 +431,7 @@ input:checked + .slider:before {
 	font-size: 14px;
 	color: black;
 	transition: .4s;
-	width: 100px;
+	width: 150px;
 }
 
 input:checked + .slider .mode-text {

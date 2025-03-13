@@ -218,7 +218,7 @@
 							<label class="switch">
 								<input type="checkbox" id="themeSelect">
 								<span class="slider">
-									<span class="invert_in_dark_mode mode-text">Light Mode</span>
+									<span class="invert_in_dark_mode mode-text">Switch to Light Mode</span>
 								</span>
 							</label>
 						</span>

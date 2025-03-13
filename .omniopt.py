@@ -1448,21 +1448,21 @@ def print_debug_progressbar(msg: str) -> None:
     _debug_progressbar(msg)
 
 @beartype
-def receive_usr_signal_one(signum: int, stack: Any) -> None:
+def receive_usr_signal(signum: int, stack: Any) -> None:
     raise SignalUSR(f"USR1-signal received ({signum})")
 
 @beartype
-def receive_usr_signal_int(signum: int, stack: Any) -> None:
+def receive_usr_signal_int_or_term(signum: int, stack: Any) -> None:
     raise SignalINT(f"INT-signal received ({signum})")
 
 @beartype
 def receive_signal_cont(signum: int, stack: Any) -> None:
     raise SignalCONT(f"CONT-signal received ({signum})")
 
-signal.signal(signal.SIGUSR1, receive_usr_signal_one)
-signal.signal(signal.SIGUSR2, receive_usr_signal_one)
-signal.signal(signal.SIGINT, receive_usr_signal_int)
-signal.signal(signal.SIGTERM, receive_usr_signal_int)
+signal.signal(signal.SIGUSR1, receive_usr_signal)
+signal.signal(signal.SIGUSR2, receive_usr_signal)
+signal.signal(signal.SIGINT, receive_usr_signal_int_or_term)
+signal.signal(signal.SIGTERM, receive_usr_signal_int_or_term)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
 @beartype
@@ -6924,11 +6924,14 @@ def main() -> None:
 
     write_files_and_show_overviews()
 
-    run_search_with_progress_bar()
+    try:
+        run_search_with_progress_bar()
 
-    live_share()
+        live_share()
 
-    time.sleep(2)
+        time.sleep(2)
+    except ax.exceptions.core.UnsupportedError:
+        pass
 
     end_program(RESULT_CSV_FILE)
 

@@ -500,17 +500,6 @@ function plotScatter3d() {
 	}
 	plotDiv.innerHTML = "";
 
-	// Neues Select-Element für 3D-Scatter
-	var select3d = document.getElementById("select3dScatter");
-	if (!select3d) {
-		select3d = document.createElement("select");
-		select3d.id = "select3dScatter";
-		select3d.style.marginBottom = "10px";
-		select3d.innerHTML = result_names.map(name => `<option value="${name}">${name}</option>`).join("");
-
-		plotDiv.appendChild(select3d);
-	}
-
 	var minInput3d = document.getElementById("minValue3d");
 	var maxInput3d = document.getElementById("maxValue3d");
 
@@ -532,6 +521,16 @@ function plotScatter3d() {
 		inputContainer3d.appendChild(minInput3d);
 		inputContainer3d.appendChild(maxInput3d);
 		plotDiv.appendChild(inputContainer3d);
+	}
+
+	var select3d = document.getElementById("select3dScatter");
+	if (!select3d) {
+		select3d = document.createElement("select");
+		select3d.id = "select3dScatter";
+		select3d.style.marginBottom = "10px";
+		select3d.innerHTML = result_names.map(name => `<option value="${name}">${name}</option>`).join("");
+
+		plotDiv.appendChild(select3d);
 	}
 
 	select3d.addEventListener("change", updatePlots3d);

@@ -949,6 +949,8 @@ function load_debug_log () {
 					}
 
 					$("#" + pre_id).data("loaded", true);
+
+					apply_theme_based_on_system_preferences();
 				} else {
 					log(`No 'data' key found in response.`);
 				}

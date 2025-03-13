@@ -5,9 +5,14 @@ SCRIPT_DIR=$(dirname $(realpath $0))
 
 cd "$SCRIPT_DIR"
 
-# Default values
+function echoerr {
+	echo "$@" 1>&2
+}
 
-# Help message
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
 help_message() {
 	echo "Usage: docker [OPTIONS]"
 	echo "Options:"
@@ -120,23 +125,35 @@ case "$ORIGINAL_ARGS" in
 				-v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				-t --rm $docker_name \
-				bash /var/opt/omniopt/$ORIGINAL_ARGS
-						else
-							$DOCKER_CMD run \
-								-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
-								-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
-								-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
-								-v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \
-								--mount type=tmpfs,destination=/tmp \
-								--user=$(id -u) \
-								--env="DISPLAY" \
-								--volume="/etc/group:/etc/group:ro" \
-								--volume="/etc/passwd:/etc/passwd:ro" \
-								--volume="/etc/shadow:/etc/shadow:ro" \
-								--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
-								--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-								-t --rm $docker_name \
-								bash /var/opt/omniopt/$ORIGINAL_ARGS
+				bash /var/opt/omniopt/$ORIGINAL_ARGS \
+			|| {
+				exit_code=$?
+				red_text "Command 2 failed. Docker images:"
+				$DOCKER_CMD images
+				exit $exit_code
+			}
+		else
+			$DOCKER_CMD run \
+				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
+				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
+				-v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \
+				--mount type=tmpfs,destination=/tmp \
+				--user=$(id -u) \
+				--env="DISPLAY" \
+				--volume="/etc/group:/etc/group:ro" \
+				--volume="/etc/passwd:/etc/passwd:ro" \
+				--volume="/etc/shadow:/etc/shadow:ro" \
+				--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
+				--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+				-t --rm $docker_name \
+				bash /var/opt/omniopt/$ORIGINAL_ARGS \
+			|| {
+				exit_code=$?
+				red_text "Command 2 failed. Docker images:"
+				$DOCKER_CMD images
+				exit $exit_code
+			}
 		fi
 		;;
 	*)

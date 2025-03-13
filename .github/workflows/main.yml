@@ -50,52 +50,51 @@ jobs:
     - name: Run linter
       run: |
         ./.tests/linter
-  #docker-test:
-  #  needs: [Linter, todo-to-issue]
-  #  runs-on: ubuntu-24.04
-  #  environment: Production
-  #  strategy:
-  #    fail-fast: true
-  #  steps:
-  #  - name: Checkout code
-  #    uses: actions/checkout@v4
-  #  - name: Install dependencies
-  #    run: |
-  #      if [[ $RUNNER_OS == 'Linux' ]]; then
-  #        if grep -q '^ID=ubuntu' /etc/os-release; then
-  #          sudo apt-get update || sudo apt-get update || sudo apt-get update
-  #          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux uuid-runtimen
-  #          curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-  #          sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-  #        else
-  #          echo "Invalid OS for pipeline. Only works with Ubuntu"
-  #          exit 1
-  #        fi
-  #      else
-  #          echo "Invalid OS detected"
-  #          exit 2
-  #      fi
-  #  - name: Creating virtualenv
-  #    run: |
-  #      python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-  #      source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-  #      if command -v brew; then
-  #        pip install psycopg2-binary
-  #      fi
-  #  - name: Installing stuff...
-  #    run: |
-  #      source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-  #      pip install --no-cache-dir --upgrade pip
-  #      pip install --no-cache-dir setuptools
-  #      pip install --no-cache-dir pip wheel
-  #      pip install --no-cache-dir multidict
-  #  - name: main test script
-  #    run: |
-  #      ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
+  docker-test:
+    needs: [Linter, todo-to-issue]
+    runs-on: ubuntu-24.04
+    environment: Production
+    strategy:
+      fail-fast: true
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        if [[ $RUNNER_OS == 'Linux' ]]; then
+          if grep -q '^ID=ubuntu' /etc/os-release; then
+            sudo apt-get update || sudo apt-get update || sudo apt-get update
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux uuid-runtimen
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          else
+            echo "Invalid OS for pipeline. Only works with Ubuntu"
+            exit 1
+          fi
+        else
+            echo "Invalid OS detected"
+            exit 2
+        fi
+    - name: Creating virtualenv
+      run: |
+        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        if command -v brew; then
+          pip install psycopg2-binary
+        fi
+    - name: Installing stuff...
+      run: |
+        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
+        pip install --no-cache-dir --upgrade pip
+        pip install --no-cache-dir setuptools
+        pip install --no-cache-dir pip wheel
+        pip install --no-cache-dir multidict
+    - name: main test script
+      run: |
+        ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
-    #needs: [Linter, todo-to-issue, docker-test]
-    needs: [Linter] #, todo-to-issue]
+    needs: [Linter, todo-to-issue, docker-test]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:

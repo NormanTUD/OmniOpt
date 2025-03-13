@@ -1400,6 +1400,9 @@ function plotResultPairs() {
 			Plotly.newPlot(subDiv, [trace], layout);
 		}
 	}
+
+	invert_xyz_titles();
+
 	$("#plotResultPairs").data("loaded", "true");
 }
 

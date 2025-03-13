@@ -43,7 +43,7 @@ is_url_reachable() {
 }
 
 is_apache_installed() {
-	if command -v apache2ctl >/dev/null 2>&1 || command -v httpd >/dev/null 2>&1; then
+	if dpkg --list | grep apache2 >/dev/null 2>&1 || command -v httpd >/dev/null 2>&1; then
 		return 0
 	else
 		echo "Apache is not installed."

@@ -162,5 +162,9 @@
 	[role="tab"] {
 		padding: 10px !important;
 	}
+
+	[role="tabpanel"] {
+		min-width: fit-content;
+	}
 </style>
 <link rel="stylesheet" href="css/xp.css">

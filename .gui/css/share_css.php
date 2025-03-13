@@ -158,5 +158,9 @@
 	.error_text {
 		color: red;
 	}
+
+	[role="tab"] {
+		padding: 10px !important;
+	}
 </style>
 <link rel="stylesheet" href="css/xp.css">

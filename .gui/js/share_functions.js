@@ -21,6 +21,18 @@ function createTable(data, headers, table_name) {
 	apply_theme_based_on_system_preferences();
 }
 
+function download_as_file(id, filename) {
+	var text = $("#" + id).text();
+	var blob = new Blob([text], { type: "text/plain" });
+	var link = document.createElement("a");
+	link.href = URL.createObjectURL(blob); 
+	link.download = filename;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+}
+
+
 function copy_to_clipboard_from_id (id) {
 	var text = $("#" + id).text();
 
@@ -307,14 +319,12 @@ function plotScatter2d() {
 	minInput.addEventListener("input", updatePlots);
 	maxInput.addEventListener("input", updatePlots);
 
-	// Erstes Laden der Diagramme ohne Min/Max-Filter
 	updatePlots();
 
 	async function updatePlots() {
 		var minValue = parseFloat(minInput.value);
 		var maxValue = parseFloat(maxInput.value);
 
-		// Wenn Min/Max nicht gesetzt -> Alle Werte anzeigen
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
@@ -341,7 +351,6 @@ function plotScatter2d() {
 			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
 			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
 
-			// Begrenzung nur falls Min/Max gesetzt wurde
 			if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
 			if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
 
@@ -376,7 +385,6 @@ function plotScatter2d() {
 					};
 					let subDiv = document.createElement("div");
 
-					// Spinner Container
 					let spinnerContainer = document.createElement("div");
 					spinnerContainer.style.display = "flex";
 					spinnerContainer.style.alignItems = "center";
@@ -385,24 +393,21 @@ function plotScatter2d() {
 					spinnerContainer.style.height = layout.height + "px";
 					spinnerContainer.style.position = "relative";
 
-					// Spinner
 					let spinner = document.createElement("div");
 					spinner.className = "spinner";
 					spinner.style.width = "40px";
 					spinner.style.height = "40px";
 
-					// Lade-Text
 					let loadingText = document.createElement("span");
 					loadingText.innerText = `Loading ${layoutTitle}`;
 					loadingText.style.marginLeft = "10px";
 
-					// Zusammenfügen
 					spinnerContainer.appendChild(spinner);
 					spinnerContainer.appendChild(loadingText);
 
 					plotDiv.appendChild(spinnerContainer);
 
-					await new Promise(resolve => setTimeout(resolve, 50)); // Verhindert UI-Blockade
+					await new Promise(resolve => setTimeout(resolve, 50));
 
 					let colors = data.map(d => {
 						if (d.result === null) {
@@ -442,7 +447,6 @@ function plotScatter2d() {
 						showlegend: false
 					};
 
-					// Spinner ersetzen durch das Diagramm
 					plotDiv.replaceChild(subDiv, spinnerContainer);
 					Plotly.newPlot(subDiv, [trace], layout);
 				}
@@ -491,7 +495,6 @@ function plotScatter3d() {
 	minInput3d.addEventListener("input", updatePlots3d);
 	maxInput3d.addEventListener("input", updatePlots3d);
 
-	// Erstes Laden der Diagramme ohne Min/Max-Filter
 	updatePlots3d();
 
 	async function updatePlots3d() {
@@ -564,7 +567,6 @@ function plotScatter3d() {
 							plot_bgcolor: 'rgba(0,0,0,0)'
 						};
 
-						// Spinner Container
 						let spinnerContainer = document.createElement("div");
 						spinnerContainer.style.display = "flex";
 						spinnerContainer.style.alignItems = "center";
@@ -573,18 +575,15 @@ function plotScatter3d() {
 						spinnerContainer.style.height = layout.height + "px";
 						spinnerContainer.style.position = "relative";
 
-						// Spinner
 						let spinner = document.createElement("div");
 						spinner.className = "spinner";
 						spinner.style.width = "40px";
 						spinner.style.height = "40px";
 
-						// Lade-Text
 						let loadingText = document.createElement("span");
 						loadingText.innerText = `Loading ${layoutTitle}`;
 						loadingText.style.marginLeft = "10px";
 
-						// Zusammenfügen
 						spinnerContainer.appendChild(spinner);
 						spinnerContainer.appendChild(loadingText);
 

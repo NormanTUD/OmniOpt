@@ -186,8 +186,12 @@
 		return $statuses;
 	}
 
-	function copy_id_to_clipboard_string($id) {
-		return "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'>Copy raw data to clipboard</button>\n";
+	function copy_id_to_clipboard_string($id, $filename) {
+		$str = "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'>&#128203; Copy raw data to clipboard</button>\n";
+		$filename = basename($filename);
+		$str .= "<button onclick='download_as_file(\"".$id."\", \"".$filename."\")'>&DoubleDownArrow; Download as file</button>\n";
+
+		return $str;
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $warnings, $filename, $name, $id) {
@@ -203,9 +207,9 @@
 			$html = $min_max_table;
 			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
-			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
+			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
 			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities($worker_info).'</pre>';
-			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre");
+			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -246,9 +250,9 @@
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
-			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
-			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = getCsvDataAsArray($filename);
 			$headers = $csv_contents[0];
@@ -308,9 +312,9 @@
 	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
-			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
-			$html .= copy_id_to_clipboard_string("pre_$id");
+			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = getCsvDataAsArray($filename);
 
@@ -375,7 +379,7 @@
 				$contents = removeAnsiEscapeSequences(ansi_to_html(htmlspecialchars($contents)));
 			}
 
-			$html = copy_id_to_clipboard_string("simple_pre_tab_$id");
+			$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
@@ -384,7 +388,7 @@
 
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
 
-			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id");
+			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 
 			$tabs[$name] = [
 				'id' => $id,
@@ -559,9 +563,9 @@
 			}
 
 			$results_html = "<div id='{$id}_csv_table'></div>\n";
-			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre");
+			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
 			$results_html .= "<pre id='{$id}_csv_table_pre'>".$content."</pre>\n";
-			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre");
+			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
 			$results_html .= "<script>\n\tcreateTable({$id}_csv_json, {$id}_headers_json, '{$id}_csv_table')</script>\n";
 
 			$tabs[$name] = [
@@ -859,14 +863,14 @@
 				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
 			}
 
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre");
+			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
 			if ($i == 0) {
 				$content = file_get_contents($file_path);
 				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlightDebugInfo(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
 				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
 			}
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre");
+			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
 			$output .= '</article>';
 			$i++;
 		}

@@ -1336,3 +1336,83 @@ function plotResultPairs() {
 	}
 	$("#plotResultPairs").data("loaded", "true");
 }
+
+function add_up_down_arrows_for_scrolling () {
+	const upArrow = document.createElement('div');
+	const downArrow = document.createElement('div');
+
+	const style = document.createElement('style');
+	style.innerHTML = `
+		.scroll-arrow {
+			position: fixed;
+			right: 10px;
+			z-index: 100;
+			cursor: pointer;
+			font-size: 15px;
+			display: none;
+			background-color: green;
+			color: white;
+			outline: 4px solid white;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			transition: background-color 0.3s, transform 0.3s;
+		}
+		.scroll-arrow:hover {
+			background-color: darkgreen;
+			transform: scale(1.1);
+		}
+		#up-arrow {
+			top: 10px;
+		}
+		#down-arrow {
+			bottom: 10px;
+		}
+	`;
+	document.head.appendChild(style);
+
+	upArrow.id = "up-arrow";
+	upArrow.classList.add("scroll-arrow");
+	upArrow.innerHTML = "&#8593;";
+
+	downArrow.id = "down-arrow";
+	downArrow.classList.add("scroll-arrow");
+	downArrow.innerHTML = "&#8595;";
+
+	document.body.appendChild(upArrow);
+	document.body.appendChild(downArrow);
+
+	function checkScrollPosition() {
+		const scrollPosition = window.scrollY;
+		const pageHeight = document.documentElement.scrollHeight;
+		const windowHeight = window.innerHeight;
+
+		if (scrollPosition > 0) {
+			upArrow.style.display = "block";
+		} else {
+			upArrow.style.display = "none";
+		}
+
+		if (scrollPosition + windowHeight < pageHeight) {
+			downArrow.style.display = "block";
+		} else {
+			downArrow.style.display = "none";
+		}
+	}
+
+	window.addEventListener("scroll", checkScrollPosition);
+
+	upArrow.addEventListener("click", function () {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	});
+
+	downArrow.addEventListener("click", function () {
+		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+	});
+
+	checkScrollPosition();
+}
+
+document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
+
+$( document ).ready(function() {
+	add_up_down_arrows_for_scrolling();
+});

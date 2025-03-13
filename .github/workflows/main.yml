@@ -169,12 +169,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #todo-to-issue:
-  #  strategy:
-  #    fail-fast: true
-  #  runs-on: "ubuntu-latest"
-  #  environment: Production
-  #  steps:
-  #    - uses: "actions/checkout@v4"
-  #    - name: "TODO to Issue"
-  #      uses: "alstr/todo-to-issue-action@v5"
+  todo-to-issue:
+    strategy:
+      fail-fast: true
+    runs-on: "ubuntu-latest"
+    environment: Production
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "TODO to Issue"
+        uses: "alstr/todo-to-issue-action@v5"

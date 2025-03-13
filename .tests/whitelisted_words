@@ -652,6 +652,7 @@ elemHeight
 elemWidth
 elif
 elIsCancel
+elseif
 elu
 ELU
 embeddingsConstraint
@@ -1675,6 +1676,7 @@ plotHistogram
 Plotly
 plotpy
 plotResultEvolution
+plotResultPairs
 plotViolin
 plusequals
 Pmatches
@@ -2126,6 +2128,7 @@ Softmax
 softplus
 softsign
 sortables
+sortForm
 spacebar
 spaceName
 sparseCategoricalCrossentropy
@@ -2368,6 +2371,7 @@ uln
 uname
 underover
 unexported
+Ungrouped
 unicode
 UnicodeError
 uniq
@@ -2389,6 +2393,7 @@ updateCommands
 updiagonalarrow
 Upsampling
 url
+URL
 urlParams
 urls
 URLSearchParamswindowlocationsearch
@@ -2552,7 +2557,3 @@ zoomend
 zoomstart
 zsh
 ZSH
-plotResultPairs
-Ungrouped
-sortForm
-elseif

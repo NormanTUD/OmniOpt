@@ -524,23 +524,26 @@ function plotScatter3d() {
 	}
 
 	var select3d = document.getElementById("select3dScatter");
-	if (!select3d) {
-		select3d = document.createElement("select");
-		select3d.id = "select3dScatter";
-		select3d.style.marginBottom = "10px";
-		select3d.innerHTML = result_names.map(name => `<option value="${name}">${name}</option>`).join("");
+	if (result_names.length > 1 && !resultSelect) {
+		if (!select3d) {
+			select3d = document.createElement("select");
+			select3d.id = "select3dScatter";
+			select3d.style.marginBottom = "10px";
+			select3d.innerHTML = result_names.map(name => `<option value="${name}">${name}</option>`).join("");
 
-		plotDiv.appendChild(select3d);
+			select3d.addEventListener("change", updatePlots3d);
+
+			plotDiv.appendChild(select3d);
+		}
 	}
 
-	select3d.addEventListener("change", updatePlots3d);
 	minInput3d.addEventListener("input", updatePlots3d);
 	maxInput3d.addEventListener("input", updatePlots3d);
 
 	updatePlots3d();
 
 	async function updatePlots3d() {
-		var selectedResult = select3d.value;
+		var selectedResult = select3d ? select3d.value : result_names[0];
 		var minValue3d = parseFloat(minInput3d.value);
 		var maxValue3d = parseFloat(maxInput3d.value);
 

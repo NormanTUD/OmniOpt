@@ -36,3 +36,17 @@ async function start_gremlins () {
 		document.body.appendChild(s);
 	})();
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+	var themeSelect = document.getElementById("themeSelect");
+
+	themeSelect.checked = (theme === "dark");
+
+	themeSelect.addEventListener("change", function() {
+		if (themeSelect.checked) {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
+		}
+	});
+});

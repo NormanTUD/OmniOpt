@@ -1,20 +1,6 @@
 "use strict";
 var theme = "light";
 
-document.addEventListener("DOMContentLoaded", function() {
-	var themeSelect = document.getElementById("themeSelect");
-
-	themeSelect.checked = (theme === "dark");
-
-	themeSelect.addEventListener("change", function() {
-		if (themeSelect.checked) {
-			enable_dark_mode();
-		} else {
-			enable_light_mode();
-		}
-	});
-});
-
 function invertColor(color) {
 	var rgb = color.match(/\d+/g);
 	if (rgb) {

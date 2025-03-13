@@ -28,7 +28,7 @@
 # and the program looks basically the same on every device.
 # This logic is defined in .shellscript_functions
 
-#SBATCH --signal=B:USR1@600
+#SBATCH --signal=B:INT@600
 
 {
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
@@ -56,7 +56,7 @@
 			sleep "$sleep_time"
 		fi
 
-		pkill -USR1 -f "python3"
+		pkill -INT -f "python3"
 	}
 
 	if [ -n "$SLURM_JOB_ID" ]; then

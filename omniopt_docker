@@ -106,7 +106,7 @@ if [ -z "$ORIGINAL_ARGS" ]; then
 	exit 0
 fi
 
-docker_name="omniopt_omniopt2_1"
+docker_name="omniopt_omniopt2"
 
 _mkdir $HOME/.config/matplotlib_docker_omniopt
 

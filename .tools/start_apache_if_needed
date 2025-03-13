@@ -1,0 +1,70 @@
+#!/bin/bash
+
+FILE="$HOME/.oo_base_url"
+
+check_file_exists() {
+	if [[ -f "$FILE" ]]; then
+		return 0
+	else
+		echo "File $FILE does not exist."
+		return 1
+	fi
+}
+
+get_url_from_file() {
+	if [[ ! -s "$FILE" ]]; then
+		echo "File is empty."
+		return 1
+	fi
+
+	local url
+	url=$(cat "$FILE" | tr -d '[:space:]')
+
+	if [[ "$url" =~ ^http://localhost ]]; then
+		echo "Found URL: $url"
+		echo "$url"
+		return 0
+	else
+		echo "File does not contain a valid 'http://localhost' URL."
+		return 1
+	fi
+}
+
+is_url_reachable() {
+	local url="$1"
+
+	if curl -k --silent --fail "$url" > /dev/null; then
+		echo "URL is reachable."
+		return 0
+	else
+		echo "URL is not reachable."
+		return 1
+	fi
+}
+
+is_apache_installed() {
+	if command -v apache2ctl >/dev/null 2>&1 || command -v httpd >/dev/null 2>&1; then
+		return 0
+	else
+		echo "Apache is not installed."
+		return 1
+	fi
+}
+
+restart_apache() {
+	if is_apache_installed; then
+		echo "Restarting Apache..."
+		sudo service apache2 restart
+	else
+		echo "Skipping restart: Apache is not installed."
+	fi
+}
+
+if check_file_exists; then
+	url=$(get_url_from_file)
+	if [[ $? -eq 0 && -n "$url" ]]; then
+		if ! is_url_reachable "$url"; then
+			restart_apache
+		fi
+	fi
+fi

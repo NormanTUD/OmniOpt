@@ -423,3 +423,18 @@ input:checked + .slider {
 input:checked + .slider:before {
 	transform: translateX(24px);
 }
+
+.mode-text {
+	position: absolute;
+	top: 5px;
+	left: 65px;
+	font-size: 14px;
+	color: black;
+	transition: .4s;
+	width: 100px;
+}
+
+input:checked + .slider .mode-text {
+	content: "Dark Mode";
+	color: white;
+}

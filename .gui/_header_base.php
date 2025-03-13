@@ -217,7 +217,9 @@
 						<span style="display: inline-grid;">
 							<label class="switch">
 								<input type="checkbox" id="themeSelect">
-								<span class="slider"></span>
+								<span class="slider">
+									<span class="invert_in_dark_mode mode-text">Light Mode</span>
+								</span>
 							</label>
 						</span>
 					</td>

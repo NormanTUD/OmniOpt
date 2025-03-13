@@ -616,13 +616,15 @@ function plotScatter3d() {
 
 					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
 
+					var text_color = theme == "dark" ? 'white' : 'black';;
+
 					let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
 					let layout = {
 						title: layoutTitle,
 						scene: {
-							xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
-							yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
-							zaxis: { title: { text: zCol, font: { size: 14, color: 'black' } } }
+							xaxis: { title: { text: xCol, font: { size: 14, color: text_color } } },
+							yaxis: { title: { text: yCol, font: { size: 14, color: text_color } } },
+							zaxis: { title: { text: zCol, font: { size: 14, color: text_color } } }
 						},
 						showlegend: false,
 						width: get_graph_width(),

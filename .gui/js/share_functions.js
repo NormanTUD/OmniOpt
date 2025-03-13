@@ -1,5 +1,22 @@
 "use strict";
 
+function invert_xyz_titles() {
+	$('.xtitle').each(function() {
+		$(this).addClass('invert_in_dark_mode');
+	});
+
+	$('.ytitle').each(function() {
+		$(this).addClass('invert_in_dark_mode');
+	});
+
+	$('.ztitle').each(function() {
+		$(this).addClass('invert_in_dark_mode');
+	});
+
+	apply_theme_based_on_system_preferences();
+}
+
+
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	return Math.floor(width * 0.9);
@@ -483,6 +500,8 @@ function plotScatter2d() {
 				Plotly.newPlot(subDiv, [trace], layout);
 			}
 		}
+
+		invert_xyz_titles();
 	}
 
 	$("#plotScatter2d").data("loaded", "true");
@@ -680,6 +699,8 @@ function plotScatter3d() {
 				}
 			}
 		}
+
+		invert_xyz_titles();
 	}
 
 	$("#plotScatter3d").data("loaded", "true");

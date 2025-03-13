@@ -1,6 +1,20 @@
 "use strict";
 var theme = "light";
 
+document.addEventListener("DOMContentLoaded", function() {
+	var themeSelect = document.getElementById("themeSelect");
+
+	themeSelect.checked = (theme === "dark");
+
+	themeSelect.addEventListener("change", function() {
+		if (themeSelect.checked) {
+			enable_dark_mode();
+		} else {
+			enable_light_mode();
+		}
+	});
+});
+
 function set_cookie(name, value, days = 365) {
 	var expires = "";
 	if (days) {
@@ -9,7 +23,6 @@ function set_cookie(name, value, days = 365) {
 		expires = "; expires=" + date.toUTCString();
 	}
 
-	// Set SameSite and secure attributes
 	var cookieOptions = "; SameSite=None; secure";
 
 	document.cookie = name + "=" + (value || "") + expires + "; path=/" + cookieOptions;

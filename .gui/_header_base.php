@@ -75,7 +75,6 @@
 			<?php js("plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>
 
-
 			<?php js("js/share_functions.js"); ?>
 
 			<link href="<?php print get_main_script_dir(); ?>/css/mermaid.min.css" rel="stylesheet" />
@@ -216,10 +215,10 @@
 ?>
 					<td class="header_table">
 						<span style="display: inline-grid;">
-							<select id="themeSelect" name="theme">
-								<option value="light">Light Mode</option>
-								<option value="dark">Dark Mode</option>
-							</select>
+							<label class="switch">
+								<input type="checkbox" id="themeSelect">
+								<span class="slider"></span>
+							</label>
 						</span>
 					</td>
 				</tr>

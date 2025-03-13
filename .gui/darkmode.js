@@ -15,6 +15,31 @@ document.addEventListener("DOMContentLoaded", function() {
 	});
 });
 
+function invertColor(color) {
+	var rgb = color.match(/\d+/g);
+	if (rgb) {
+		var r = 255 - parseInt(rgb[0]);
+		var g = 255 - parseInt(rgb[1]);
+		var b = 255 - parseInt(rgb[2]);
+		return 'rgb(' + r + ',' + g + ',' + b + ')';
+	}
+	return color;
+}
+
+function set_table_headers_to_dark_mode () {
+	$('th').each(function() {
+		var currentColor = $(this).css('background-color');
+		var invertedColor = invertColor(currentColor);
+		$(this)[0].style.setProperty('background-color', invertedColor, 'important');
+	});
+}
+
+function set_table_headers_to_light_mode () {
+	$('th').each(function() {
+		$(this)[0].style.setProperty('background-color', '#00015a', 'important');
+	});
+}
+
 function set_cookie(name, value, days = 365) {
 	var expires = "";
 	if (days) {

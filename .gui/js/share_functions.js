@@ -543,7 +543,7 @@ function plotScatter3d() {
 	}
 
 	var select3d = document.getElementById("select3dScatter");
-	if (result_names.length > 1 && !resultSelect) {
+	if (result_names.length > 1 && !select3d) {
 		if (!select3d) {
 			select3d = document.createElement("select");
 			select3d.id = "select3dScatter";

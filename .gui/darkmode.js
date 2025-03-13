@@ -66,6 +66,8 @@ function enable_dark_mode() {
 	$(".window").css("background", "unset");
 
 	$(".mode-text").text("Light-Mode");
+
+	$('button[aria-selected="true"]').css("background-color", "red");
 }
 
 function enable_light_mode() {
@@ -91,6 +93,8 @@ function enable_light_mode() {
 	$(".window").css("background", "#ece9d8");
 
 	$(".mode-text").text("Dark-Mode");
+
+	$('button[aria-selected="true"]').css("background-color", "red");
 }
 
 function apply_theme_based_on_system_preferences() {

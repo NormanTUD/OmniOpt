@@ -9,136 +9,138 @@ cd "$SCRIPT_DIR"
 
 # Help message
 help_message() {
-    echo "Usage: docker [OPTIONS]"
-    echo "Options:"
-    echo "  --help             This help"
+	echo "Usage: docker [OPTIONS]"
+	echo "Options:"
+	echo "  --help             This help"
 }
 
 function _mkdir {
-    mkdir -p $* || {
-        echo "mkdir -p $* failed. Exiting."
-        exit 12
-    }
-}
+	mkdir -p $* || {
+		echo "mkdir -p $* failed. Exiting."
+			exit 12
+		}
+	}
 
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --help)
-            help_message
-            exit 0
-            ;;
-    esac
-    shift
-done
+	while [[ "$#" -gt 0 ]]; do
+		case $1 in
+			--help)
+				help_message
+				exit 0
+				;;
+		esac
+		shift
+	done
 
-UPDATED_PACKAGES=0
+	UPDATED_PACKAGES=0
 
-function apt_get_update () {
-    if command -v apt >/dev/null; then
-        if [[ $UPDATED_PACKAGES == 0 ]]; then
-            sudo apt update || {
-                echo "apt-get update failed. Are you online?"
-                exit 2
-            }
+	function apt_get_update () {
+		if command -v apt >/dev/null; then
+			if [[ $UPDATED_PACKAGES == 0 ]]; then
+				sudo apt update || {
+					echo "apt-get update failed. Are you online?"
+				exit 2
+			}
 
-            UPDATED_PACKAGES=1
-        fi
-    else
-        echo "apt is not installed. You need to be on debian for auto-installing packages. Please install it manually."
-        exit 10
-    fi
-}
+			UPDATED_PACKAGES=1
+			fi
+		else
+			echo "apt is not installed. You need to be on debian for auto-installing packages. Please install it manually."
+			exit 10
+		fi
+	}
 
-install_if_missing() {
-    if ! command -v "$1" &>/dev/null; then
-        apt_get_update
+	install_if_missing() {
+		if ! command -v "$1" &>/dev/null; then
+			apt_get_update
 
-        [[ "$2" == "docker" ]] && curl -fsSL "https://get.docker.com" | bash || sudo apt-get install -y "$1" || {
-            echo "Failed to install $1"
-            exit $3
-        }
-    fi
-}
+			[[ "$2" == "docker" ]] && curl -fsSL "https://get.docker.com" | bash || sudo apt-get install -y "$1" || {
+				echo "Failed to install $1"
+				exit $3
+			}
+		fi
+	}
 
-install_if_missing docker docker 2
-install_if_missing docker-compose "" 2
-install_if_missing wget "" 2
-install_if_missing git "" 2
-install_if_missing docker "" 2
+	install_if_missing docker docker 2
+	install_if_missing docker-compose "" 2
+	install_if_missing wget "" 2
+	install_if_missing git "" 2
+	install_if_missing docker "" 2
 
-if ! groups | grep -q '\bdocker\b'; then
-    install_if_missing sudo "" 2
-fi
-[[ -n $DISPLAY ]] && install_if_missing xhost "" 2
+	if ! groups | grep -q '\bdocker\b'; then
+		install_if_missing sudo "" 2
+	fi
+	[[ -n $DISPLAY ]] && install_if_missing xhost "" 2
 
-echo "=== Current git hash before auto-pulling ==="
-git rev-parse HEAD
-echo "=== Current git hash before auto-pulling ==="
+	echo "=== Current git hash before auto-pulling ==="
+	git rev-parse HEAD
+	echo "=== Current git hash before auto-pulling ==="
 
-git pull
+	git pull
 
-_mkdir runs
-_mkdir logs
+	_mkdir runs
+	_mkdir logs
 
-git rev-parse HEAD > git_hash
+	git rev-parse HEAD > git_hash
 
-if groups | grep -q '\bdocker\b'; then
-    DOCKER_COMPOSE_CMD="docker-compose"
-    DOCKER_CMD="docker"
-else
-    DOCKER_COMPOSE_CMD="sudo docker-compose"
-    DOCKER_CMD="sudo docker"
-fi
+	if groups | grep -q '\bdocker\b'; then
+		DOCKER_COMPOSE_CMD="docker-compose"
+		DOCKER_CMD="docker"
+	else
+		DOCKER_COMPOSE_CMD="sudo docker-compose"
+		DOCKER_CMD="sudo docker"
+	fi
 
 $DOCKER_COMPOSE_CMD build --build-arg GetMyUsername=$(whoami) || {
-    echo "Failed composing container"
-    exit 1
+	echo "Failed composing container"
+	exit 1
 }
 
 $DOCKER_COMPOSE_CMD up -d || {
-    echo "Failed to build container"
-    exit 1
+	echo "Failed to build container"
+	exit 1
 }
 
 rm git_hash
 
 if [ -z "$ORIGINAL_ARGS" ]; then
-    exit 0
+	exit 0
 fi
+
+docker_name="omniopt_omniopt2_1"
 
 _mkdir $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
-    ./omniopt*|omniopt*|./.tests/*|.tests/*)
-        if [[ -z $DISPLAY ]]; then
-            $DOCKER_CMD run \
-                -v $(pwd)/logs:/var/opt/omniopt/logs:rw \
-                -v $(pwd)/runs:/var/opt/omniopt/runs:rw \
-                -v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
-                -v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
-                --mount type=tmpfs,destination=/tmp \
-                -t --rm \
-                omniopt2 bash /var/opt/omniopt/$ORIGINAL_ARGS
-        else
-            $DOCKER_CMD run \
-                -v $(pwd)/logs:/var/opt/omniopt/logs:rw \
-                -v $(pwd)/runs:/var/opt/omniopt/runs:rw \
-                -v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
-                -v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \
-                --mount type=tmpfs,destination=/tmp \
-                --user=$(id -u) \
-                --env="DISPLAY" \
-                --volume="/etc/group:/etc/group:ro" \
-                --volume="/etc/passwd:/etc/passwd:ro" \
-                --volume="/etc/shadow:/etc/shadow:ro" \
-                --volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
-                --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-                -t --rm omniopt2 \
-                bash /var/opt/omniopt/$ORIGINAL_ARGS
-        fi
-        ;;
-    *)
-        echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*', '.tests/' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
-        exit 1
-        ;;
+	./omniopt*|omniopt*|./.tests/*|.tests/*)
+		if [[ -z $DISPLAY ]]; then
+			$DOCKER_CMD run \
+				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
+				-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+				-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
+				-v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
+				--mount type=tmpfs,destination=/tmp \
+				-t --rm $docker_name \
+				bash /var/opt/omniopt/$ORIGINAL_ARGS
+						else
+							$DOCKER_CMD run \
+								-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
+								-v $(pwd)/runs:/var/opt/omniopt/runs:rw \
+								-v $(pwd)/:/var/opt/omniopt/docker_user_dir:rw \
+								-v $HOME/.config/matplotlib_docker_omniopt:/$HOME/.config/matplotlib:rw \
+								--mount type=tmpfs,destination=/tmp \
+								--user=$(id -u) \
+								--env="DISPLAY" \
+								--volume="/etc/group:/etc/group:ro" \
+								--volume="/etc/passwd:/etc/passwd:ro" \
+								--volume="/etc/shadow:/etc/shadow:ro" \
+								--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
+								--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+								-t --rm $docker_name \
+								bash /var/opt/omniopt/$ORIGINAL_ARGS
+		fi
+		;;
+	*)
+		echo "Error: The argument does not start with one of the valid prefixes, i.e. 'omniopt*', '.tests/' or './.tests/*'. Argument was: $ORIGINAL_ARGS"
+		exit 1
+		;;
 esac

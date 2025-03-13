@@ -211,8 +211,6 @@
 
 
 		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
-
-		$tabs = get_share_debug_tab($tabs, $warnings);
 	}
 
 	if(!count($tabs) && $run_dir != "" && count($errors)) {
@@ -241,6 +239,19 @@
 		if($("#spinner").length) {
 			document.getElementById('spinner').style.display = 'block';
 		}
+
+<?php
+		if(count($warnings)) {
+			$warnings = array_unique($warnings);
+			sort($warnings);
+
+			$warnings = array_map(fn($w) => str_starts_with($w, 'shares//') ? substr($w, 8) : $w, $warnings);
+
+			foreach ($warnings as $warning) {
+				echo 'console.debug("' . addslashes($warning) . '");';
+			}
+		}
+?>
 	</script>
 	<div class="page" style='font-family: sans-serif'>
 		<div class="invert_in_dark_mode" style="height: fit-content;">

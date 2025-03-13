@@ -1584,33 +1584,6 @@
 		return [$tabs, $warnings];
 	}
 
-	function get_share_debug_tab($tabs, $warnings) {
-		if(count($warnings)) {
-			$warnings = array_unique($warnings);
-			sort($warnings);
-
-			$warnings = array_map(fn($w) => str_starts_with($w, 'shares//') ? substr($w, 8) : $w, $warnings);
-
-			$html = "";
-			if(count($warnings) == 1) {
-				$html = $warnings[0];
-			} else {
-				$html .= "<ul>";
-				foreach ($warnings as $warning) {
-					$html .= "<li>" . htmlspecialchars($warning) . "</li>";
-				}
-				$html .= "</ul>";
-			}
-
-			$tabs['Share-Debug'] = [
-				'id' => 'tab_warnings',
-				'content' => $html
-			];
-		}
-
-		return $tabs;
-	}
-
 	function get_result_names_and_min_max ($run_dir, $warnings) {
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max";

@@ -16,7 +16,6 @@ function invert_xyz_titles() {
 	apply_theme_based_on_system_preferences();
 }
 
-
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	return Math.floor(width * 0.9);
@@ -48,7 +47,6 @@ function download_as_file(id, filename) {
 	link.click();
 	document.body.removeChild(link);
 }
-
 
 function copy_to_clipboard_from_id (id) {
 	var text = $("#" + id).text();

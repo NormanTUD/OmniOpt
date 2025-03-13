@@ -293,6 +293,7 @@ function plotScatter2d() {
 
 	var plotDiv = document.getElementById("plotScatter2d");
 
+	// Min/Max Inputfelder erstellen (wenn nicht vorhanden)
 	var minInput = document.getElementById("minValue");
 	var maxInput = document.getElementById("maxValue");
 
@@ -316,74 +317,298 @@ function plotScatter2d() {
 		plotDiv.appendChild(inputContainer);
 	}
 
+	// Select-Feld für Result Names erstellen (wenn mehr als ein Ergebnis vorhanden ist)
+	var resultSelect = document.getElementById("resultSelect");
+	if (result_names.length > 1 && !resultSelect) {
+		resultSelect = document.createElement("select");
+		resultSelect.id = "resultSelect";
+		resultSelect.style.marginBottom = "10px";
+
+		// Ergebnisse alphabetisch sortieren und in das Dropdown einfügen
+		var sortedResults = [...result_names].sort();
+		sortedResults.forEach(result => {
+			var option = document.createElement("option");
+			option.value = result;
+			option.textContent = result;
+			resultSelect.appendChild(option);
+		});
+
+		// Erster Eintrag ist standardmäßig ausgewählt
+		var selectContainer = document.createElement("div");
+		selectContainer.style.marginBottom = "10px";
+		selectContainer.appendChild(resultSelect);
+		plotDiv.appendChild(selectContainer);
+	}
+
+	// Event Listener hinzufügen
 	minInput.addEventListener("input", updatePlots);
 	maxInput.addEventListener("input", updatePlots);
+	if (resultSelect) {
+		resultSelect.addEventListener("change", updatePlots);
+	}
 
+	// Initiales Zeichnen
 	updatePlots();
 
 	async function updatePlots() {
 		var minValue = parseFloat(minInput.value);
 		var maxValue = parseFloat(maxInput.value);
-
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
-		while (plotDiv.children.length > 1) {
+		while (plotDiv.children.length > 2) { // Alles außer Min/Max Felder und Select-Feld entfernen
 			plotDiv.removeChild(plotDiv.lastChild);
 		}
 
-		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
-			var numericColumns = tab_results_headers_json.filter(col =>
-				!special_col_names.includes(col) && !result_names.includes(col) &&
-				tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-			);
+		// Ausgewähltes Ergebnis aus dem Select-Feld holen (oder erstes Ergebnis, falls kein Select existiert)
+		var selectedResult = resultSelect ? resultSelect.value : result_names[0];
 
-			if (numericColumns.length < 2) {
-				console.error("Not enough columns for Scatter-Plots");
-				return;
+		// Index des ausgewählten Ergebnisses suchen
+		var resultIndex = tab_results_headers_json.findIndex(header =>
+			header.toLowerCase() === selectedResult.toLowerCase()
+		);
+		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+
+		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+
+		if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+		if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+
+		var invertColor = result_min_max[result_names.indexOf(selectedResult)] === "max";
+
+		// Numerische Spalten finden
+		var numericColumns = tab_results_headers_json.filter(col =>
+			!special_col_names.includes(col) && !result_names.includes(col) &&
+			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+		);
+
+		if (numericColumns.length < 2) {
+			console.error("Not enough columns for Scatter-Plots");
+			return;
+		}
+
+		for (let i = 0; i < numericColumns.length; i++) {
+			for (let j = i + 1; j < numericColumns.length; j++) {
+				let xCol = numericColumns[i];
+				let yCol = numericColumns[j];
+
+				let xIndex = tab_results_headers_json.indexOf(xCol);
+				let yIndex = tab_results_headers_json.indexOf(yCol);
+
+				let data = tab_results_csv_json.map(row => ({
+					x: parseFloat(row[xIndex]),
+					y: parseFloat(row[yIndex]),
+					result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+				}));
+
+				data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+
+				let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+				let layout = {
+					title: layoutTitle,
+					xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
+					yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
+					showlegend: false,
+					width: get_graph_width(),
+					height: 800,
+					paper_bgcolor: 'rgba(0,0,0,0)',
+					plot_bgcolor: 'rgba(0,0,0,0)'
+				};
+				let subDiv = document.createElement("div");
+
+				let spinnerContainer = document.createElement("div");
+				spinnerContainer.style.display = "flex";
+				spinnerContainer.style.alignItems = "center";
+				spinnerContainer.style.justifyContent = "center";
+				spinnerContainer.style.width = layout.width + "px";
+				spinnerContainer.style.height = layout.height + "px";
+				spinnerContainer.style.position = "relative";
+
+				let spinner = document.createElement("div");
+				spinner.className = "spinner";
+				spinner.style.width = "40px";
+				spinner.style.height = "40px";
+
+				let loadingText = document.createElement("span");
+				loadingText.innerText = `Loading ${layoutTitle}`;
+				loadingText.style.marginLeft = "10px";
+
+				spinnerContainer.appendChild(spinner);
+				spinnerContainer.appendChild(loadingText);
+
+				plotDiv.appendChild(spinnerContainer);
+
+				await new Promise(resolve => setTimeout(resolve, 50));
+
+				let colors = data.map(d => {
+					if (d.result === null) {
+						return 'rgb(0, 0, 0)';
+					} else {
+						let norm = (d.result - minResult) / (maxResult - minResult);
+						if (invertColor) {
+							norm = 1 - norm;
+						}
+						return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+					}
+				});
+
+				let trace = {
+					x: data.map(d => d.x),
+					y: data.map(d => d.y),
+					mode: 'markers',
+					marker: {
+						size: 10,
+						color: data.map(d => d.result !== null ? d.result : null),
+						colorscale: invertColor ? [
+							[0, 'red'],
+							[1, 'green']
+						] : [
+							[0, 'green'],
+							[1, 'red']
+						],
+						colorbar: {
+							title: 'Result',
+							tickvals: [minResult, maxResult],
+							ticktext: [`${minResult}`, `${maxResult}`]
+						},
+						symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+					},
+					text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+					type: 'scatter',
+					showlegend: false
+				};
+
+				plotDiv.replaceChild(subDiv, spinnerContainer);
+				Plotly.newPlot(subDiv, [trace], layout);
 			}
+		}
+	}
 
-			var resultIndex = tab_results_headers_json.findIndex(header =>
-				header.toLowerCase() === result_names[result_nr].toLowerCase()
-			);
-			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+	$("#plotScatter2d").data("loaded", "true");
+}
 
-			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+function plotScatter3d() {
+	if ($("#plotScatter3d").data("loaded") == "true") {
+		return;
+	}
 
-			if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
-			if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+	var plotDiv = document.getElementById("plotScatter3d");
+	if (!plotDiv) {
+		console.error("Div element with id 'plotScatter3d' not found");
+		return;
+	}
+	plotDiv.innerHTML = "";
 
-			var invertColor = result_min_max[result_nr] === "max";
+	// Neues Select-Element für 3D-Scatter
+	var select3d = document.getElementById("select3dScatter");
+	if (!select3d) {
+		select3d = document.createElement("select");
+		select3d.id = "select3dScatter";
+		select3d.style.marginBottom = "10px";
+		select3d.innerHTML = result_names.map(name => `<option value="${name}">${name}</option>`).join("");
 
-			for (let i = 0; i < numericColumns.length; i++) {
-				for (let j = i + 1; j < numericColumns.length; j++) {
+		plotDiv.appendChild(select3d);
+	}
+
+	var minInput3d = document.getElementById("minValue3d");
+	var maxInput3d = document.getElementById("maxValue3d");
+
+	if (!minInput3d || !maxInput3d) {
+		minInput3d = document.createElement("input");
+		minInput3d.id = "minValue3d";
+		minInput3d.type = "number";
+		minInput3d.placeholder = "Min Value";
+		minInput3d.step = "any";
+
+		maxInput3d = document.createElement("input");
+		maxInput3d.id = "maxValue3d";
+		maxInput3d.type = "number";
+		maxInput3d.placeholder = "Max Value";
+		maxInput3d.step = "any";
+
+		var inputContainer3d = document.createElement("div");
+		inputContainer3d.style.marginBottom = "10px";
+		inputContainer3d.appendChild(minInput3d);
+		inputContainer3d.appendChild(maxInput3d);
+		plotDiv.appendChild(inputContainer3d);
+	}
+
+	select3d.addEventListener("change", updatePlots3d);
+	minInput3d.addEventListener("input", updatePlots3d);
+	maxInput3d.addEventListener("input", updatePlots3d);
+
+	updatePlots3d();
+
+	async function updatePlots3d() {
+		var selectedResult = select3d.value;
+		var minValue3d = parseFloat(minInput3d.value);
+		var maxValue3d = parseFloat(maxInput3d.value);
+
+		if (isNaN(minValue3d)) minValue3d = -Infinity;
+		if (isNaN(maxValue3d)) maxValue3d = Infinity;
+
+		while (plotDiv.children.length > 2) { // Mindestens das Select und die Inputs bleiben
+			plotDiv.removeChild(plotDiv.lastChild);
+		}
+
+		var resultIndex = tab_results_headers_json.findIndex(header =>
+			header.toLowerCase() === selectedResult.toLowerCase()
+		);
+		var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+
+		var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+		var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+
+		if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+		if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+
+		var invertColor = result_min_max[result_names.indexOf(selectedResult)] === "max";
+
+		var numericColumns = tab_results_headers_json.filter(col =>
+			!special_col_names.includes(col) && !result_names.includes(col) &&
+			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+		);
+
+		if (numericColumns.length < 3) {
+			console.error("Not enough columns for 3D scatter plots");
+			return;
+		}
+
+		for (let i = 0; i < numericColumns.length; i++) {
+			for (let j = i + 1; j < numericColumns.length; j++) {
+				for (let k = j + 1; k < numericColumns.length; k++) {
 					let xCol = numericColumns[i];
 					let yCol = numericColumns[j];
+					let zCol = numericColumns[k];
 
 					let xIndex = tab_results_headers_json.indexOf(xCol);
 					let yIndex = tab_results_headers_json.indexOf(yCol);
+					let zIndex = tab_results_headers_json.indexOf(zCol);
 
 					let data = tab_results_csv_json.map(row => ({
 						x: parseFloat(row[xIndex]),
 						y: parseFloat(row[yIndex]),
+						z: parseFloat(row[zIndex]),
 						result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
 					}));
 
 					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
 
-					let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${result_names[result_nr]}`;
+					let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
 					let layout = {
 						title: layoutTitle,
-						xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
-						yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
+						scene: {
+							xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
+							yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
+							zaxis: { title: { text: zCol, font: { size: 14, color: 'black' } } }
+						},
 						showlegend: false,
 						width: get_graph_width(),
 						height: 800,
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
-					let subDiv = document.createElement("div");
 
 					let spinnerContainer = document.createElement("div");
 					spinnerContainer.style.display = "flex";
@@ -424,9 +649,10 @@ function plotScatter2d() {
 					let trace = {
 						x: data.map(d => d.x),
 						y: data.map(d => d.y),
+						z: data.map(d => d.z),
 						mode: 'markers',
 						marker: {
-							size: 10,
+							size: 5,
 							color: data.map(d => d.result !== null ? d.result : null),
 							colorscale: invertColor ? [
 								[0, 'red'],
@@ -440,200 +666,15 @@ function plotScatter2d() {
 								tickvals: [minResult, maxResult],
 								ticktext: [`${minResult}`, `${maxResult}`]
 							},
-							symbol: data.map(d => d.result === null ? 'x' : 'circle'),
 						},
 						text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-						type: 'scatter',
+						type: 'scatter3d',
 						showlegend: false
 					};
 
+					let subDiv = document.createElement("div");
 					plotDiv.replaceChild(subDiv, spinnerContainer);
 					Plotly.newPlot(subDiv, [trace], layout);
-				}
-			}
-		}
-	}
-
-	$("#plotScatter2d").data("loaded", "true");
-}
-
-function plotScatter3d() {
-	if ($("#plotScatter3d").data("loaded") == "true") {
-		return;
-	}
-
-	var plotDiv = document.getElementById("plotScatter3d");
-	if (!plotDiv) {
-		console.error("Div element with id 'plotScatter3d' not found");
-		return;
-	}
-	plotDiv.innerHTML = "";
-
-	var minInput3d = document.getElementById("minValue3d");
-	var maxInput3d = document.getElementById("maxValue3d");
-
-	if (!minInput3d || !maxInput3d) {
-		minInput3d = document.createElement("input");
-		minInput3d.id = "minValue3d";
-		minInput3d.type = "number";
-		minInput3d.placeholder = "Min Value";
-		minInput3d.step = "any";
-
-		maxInput3d = document.createElement("input");
-		maxInput3d.id = "maxValue3d";
-		maxInput3d.type = "number";
-		maxInput3d.placeholder = "Max Value";
-		maxInput3d.step = "any";
-
-		var inputContainer3d = document.createElement("div");
-		inputContainer3d.style.marginBottom = "10px";
-		inputContainer3d.appendChild(minInput3d);
-		inputContainer3d.appendChild(maxInput3d);
-		plotDiv.appendChild(inputContainer3d);
-	}
-
-	minInput3d.addEventListener("input", updatePlots3d);
-	maxInput3d.addEventListener("input", updatePlots3d);
-
-	updatePlots3d();
-
-	async function updatePlots3d() {
-		var minValue3d = parseFloat(minInput3d.value);
-		var maxValue3d = parseFloat(maxInput3d.value);
-
-		if (isNaN(minValue3d)) minValue3d = -Infinity;
-		if (isNaN(maxValue3d)) maxValue3d = Infinity;
-
-		while (plotDiv.children.length > 1) {
-			plotDiv.removeChild(plotDiv.lastChild);
-		}
-
-		for (var result_nr = 0; result_nr < result_names.length; result_nr++) {
-			var numericColumns = tab_results_headers_json.filter(col =>
-				!special_col_names.includes(col) && !result_names.includes(col) &&
-				tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-			);
-
-			if (numericColumns.length < 3) {
-				console.error("Not enough columns for 3D scatter plots");
-				return;
-			}
-
-			var resultIndex = tab_results_headers_json.findIndex(header =>
-				header.toLowerCase() === result_names[result_nr].toLowerCase()
-			);
-			var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
-
-			var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
-			var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
-
-			if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
-			if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
-
-			var invertColor = result_min_max[result_nr] === "max";
-
-			for (let i = 0; i < numericColumns.length; i++) {
-				for (let j = i + 1; j < numericColumns.length; j++) {
-					for (let k = j + 1; k < numericColumns.length; k++) {
-						let xCol = numericColumns[i];
-						let yCol = numericColumns[j];
-						let zCol = numericColumns[k];
-
-						let xIndex = tab_results_headers_json.indexOf(xCol);
-						let yIndex = tab_results_headers_json.indexOf(yCol);
-						let zIndex = tab_results_headers_json.indexOf(zCol);
-
-						let data = tab_results_csv_json.map(row => ({
-							x: parseFloat(row[xIndex]),
-							y: parseFloat(row[yIndex]),
-							z: parseFloat(row[zIndex]),
-							result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-						}));
-
-						data = data.filter(d => d.result >= minResult && d.result <= maxResult);
-
-						let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${result_names[result_nr]}`;
-						let layout = {
-							title: layoutTitle,
-							scene: {
-								xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
-								yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
-								zaxis: { title: { text: zCol, font: { size: 14, color: 'black' } } }
-							},
-							showlegend: false,
-							width: get_graph_width(),
-							height: 800,
-							paper_bgcolor: 'rgba(0,0,0,0)',
-							plot_bgcolor: 'rgba(0,0,0,0)'
-						};
-
-						let spinnerContainer = document.createElement("div");
-						spinnerContainer.style.display = "flex";
-						spinnerContainer.style.alignItems = "center";
-						spinnerContainer.style.justifyContent = "center";
-						spinnerContainer.style.width = layout.width + "px";
-						spinnerContainer.style.height = layout.height + "px";
-						spinnerContainer.style.position = "relative";
-
-						let spinner = document.createElement("div");
-						spinner.className = "spinner";
-						spinner.style.width = "40px";
-						spinner.style.height = "40px";
-
-						let loadingText = document.createElement("span");
-						loadingText.innerText = `Loading ${layoutTitle}`;
-						loadingText.style.marginLeft = "10px";
-
-						spinnerContainer.appendChild(spinner);
-						spinnerContainer.appendChild(loadingText);
-
-						plotDiv.appendChild(spinnerContainer);
-
-						await new Promise(resolve => setTimeout(resolve, 50));
-
-						let colors = data.map(d => {
-							if (d.result === null) {
-								return 'rgb(0, 0, 0)';
-							} else {
-								let norm = (d.result - minResult) / (maxResult - minResult);
-								if (invertColor) {
-									norm = 1 - norm;
-								}
-								return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
-							}
-						});
-
-						let trace = {
-							x: data.map(d => d.x),
-							y: data.map(d => d.y),
-							z: data.map(d => d.z),
-							mode: 'markers',
-							marker: {
-								size: 5,
-								color: data.map(d => d.result !== null ? d.result : null),
-								colorscale: invertColor ? [
-									[0, 'red'],
-									[1, 'green']
-								] : [
-									[0, 'green'],
-									[1, 'red']
-								],
-								colorbar: {
-									title: 'Result',
-									tickvals: [minResult, maxResult],
-									ticktext: [`${minResult}`, `${maxResult}`]
-								},
-								symbol: data.map(d => d.result === null ? 'x' : 'circle'),
-							},
-							text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
-							type: 'scatter3d',
-							showlegend: false
-						};
-
-						let subDiv = document.createElement("div");
-						plotDiv.replaceChild(subDiv, spinnerContainer);
-						Plotly.newPlot(subDiv, [trace], layout);
-					}
 				}
 			}
 		}

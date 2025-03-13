@@ -28,10 +28,40 @@
 # and the program looks basically the same on every device.
 # This logic is defined in .shellscript_functions
 
-#SBATCH --signal=B:USR1@200
+#SBATCH --signal=B:USR1@600
 
 {
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
+
+	send_usr1_before_job_end() {
+		if ! command -v sbatch >/dev/null 2>&1; then
+			return
+		fi
+
+		local job_end_time
+		local current_time
+		local sleep_time
+
+		job_end_time=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/EndTime/ {print $2}' | cut -d' ' -f1)
+
+		if [ -z "$job_end_time" ]; then
+			return
+		fi
+
+		job_end_time=$(date -d "$job_end_time" +%s)
+		current_time=$(date +%s)
+		sleep_time=$((job_end_time - current_time - 600))
+
+		if (( sleep_time > 0 )); then
+			sleep "$sleep_time"
+		fi
+
+		pkill -USR1 -f "python3"
+	}
+
+	if [ -n "$SLURM_JOB_ID" ]; then
+		send_usr1_before_job_end &
+	fi
 
 	export TQDM_MININTERVAL=10
 

@@ -721,10 +721,12 @@
 						$url .= '&sort=' . urlencode($sort);
 					}
 
-					$lastModified = date("F d Y H:i:s", getLatestModificationTime($folderPathWithFile));
+					$timestamp = getLatestModificationTime($folderPathWithFile);
+					$lastModified = date("F d Y H:i:s", $timestamp);
+					$timeSince = timeSince($timestamp);
 
 					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
-					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ')</button>';
+					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ' | ' . $timeSince . ')</button>';
 					echo '</a><br>';
 				}
 			} else {
@@ -733,6 +735,28 @@
 		} else {
 			echo "The specified folder does not exist.";
 		}
+	}
+
+	function timeSince($timestamp) {
+		$diff = time() - $timestamp;
+
+		$units = [
+			31536000 => 'year',
+			2592000  => 'month',
+			86400    => 'day',
+			3600     => 'hour',
+			60       => 'minute',
+			1        => 'second'
+		];
+
+		foreach ($units as $unitSeconds => $unitName) {
+			if ($diff >= $unitSeconds) {
+				$count = floor($diff / $unitSeconds);
+				return "$count $unitName" . ($count > 1 ? 's' : '') . " ago";
+			}
+		}
+
+		return "just now";
 	}
 
 	function getSortOptions() {

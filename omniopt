@@ -56,7 +56,7 @@
 			sleep "$sleep_time"
 		fi
 
-		pkill -INT -f "python3"
+		pkill -INT -f "python3" 2>/dev/null >/dev/null
 	}
 
 	if [ -n "$SLURM_JOB_ID" ]; then

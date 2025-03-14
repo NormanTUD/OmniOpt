@@ -5287,6 +5287,7 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
 def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
+            # TODO: Implement ExcludeNodeAndRestartAll fully
             print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
             count_defective_nodes(None, hostname_from_out_file)
         else:

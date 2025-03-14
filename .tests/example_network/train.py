@@ -45,7 +45,7 @@ try:
 
     from termcolor import colored
     from tensorflow.keras.preprocessing.image import ImageDataGenerator
-    from tensorflow.keras.callbacks import TerminateOnNaN
+    from tensorflow.keras.callbacks import TerminateOnNaN, EarlyStopping
     from tensorflow.keras.optimizers import Adam
 
     model = tf.keras.Sequential()
@@ -138,7 +138,7 @@ try:
     )
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-    history = model.fit(train_generator, validation_data=validation_generator, epochs=args.epochs, callbacks=[TerminateOnNaN()])
+    history = model.fit(train_generator, validation_data=validation_generator, epochs=args.epochs, callbacks=[TerminateOnNaN(), EarlyStopping()])
 
     loss_obj = history.history["loss"]
     last_loss = loss_obj[len(loss_obj) - 1]

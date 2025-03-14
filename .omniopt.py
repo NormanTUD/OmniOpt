@@ -5052,8 +5052,11 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
         if result is not None and all(r not in possible_val_not_found_values for r in values_to_check):
             print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
-            ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
-            print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
+            try:
+                ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+                print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
+            except ax.exceptions.core.UnsupportedError as e:
+                print_red(f"Error completing trial: {e}")
 
             #count_done_jobs(1)
             try:

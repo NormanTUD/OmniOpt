@@ -615,7 +615,7 @@ if [[ -d "runs/$TESTNAME" ]]; then
 	rm -rf "runs/$TESTNAME" 2>/dev/null >/dev/null || true
 fi
 
-_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus=$NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb" 0
+_test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus=$NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb --generate_all_jobs_at_once" 0
 _test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
 if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
@@ -640,7 +640,7 @@ _test "Find wrong order definitions" ".tests/find_wrong_order_definitions" 0
 _test "find_functions_with_missing_types" ".tests/find_functions_with_missing_types" 0
 
 if command -v sbatch 2>/dev/null >/dev/null; then
-	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3" 0
+	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once" 0
 fi
 
 if [[ -z $CI ]]; then
@@ -654,11 +654,11 @@ if [[ -z $CI ]]; then
 	fi
 fi
 
-_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share" 0
+_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share --generate_all_jobs_at_once" 0
 _test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
 if [[ $superquick -eq 0 ]]; then
-	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --live_share" 0
+	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --live_share --generate_all_jobs_at_once" 0
 	_test_nr_jobs "$TESTNAME" 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
 
 	_test "Single job fixed param" "./omniopt --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --live_share --follow" 0
@@ -748,18 +748,18 @@ if [[ $superquick -eq 0 ]]; then
 
 		#_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 9170345a89bf6d4a76c8c2c29109124d" 0
 
-		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
-		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
+		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
 
-		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb" 0 87
+		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
 
 		_test "log scale test" "./omniopt --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
 
 		if [[ "$quick" -eq "0" ]]; then
 			for model_name in SOBOL SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED; do
-				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0 87
+				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
 			done
 		fi
 
@@ -795,25 +795,25 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 89
 
-		_test "Testing real MOO" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4" 0 87
+		_test "Testing real MOO" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once" 0 87
 
 		if [[ -d runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/ ]]; then
 			rm -rf runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/
 		fi
 
-		_test "Testing real MOO with alternating results with one_param" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param" 0 87
+		_test "Testing real MOO with alternating results with one_param" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once" 0 87
 
-		_test "Testing continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/0" 0 87
+		_test "Testing continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/0 --generate_all_jobs_at_once" 0 87
 
-		_test "Testing continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1" 0 87
+		_test "Testing continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --generate_all_jobs_at_once" 0 87
 
 		_test "Testing continued continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1" 0 87
 
-		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params" 0 87
+		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once" 0 87
 
-		_test "Testing real MOO with alternating results with all_float" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float" 0
+		_test "Testing real MOO with alternating results with all_float" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once" 0
 
-		_test "Testing real MOO with alternating results default" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max" 0 87
+		_test "Testing real MOO with alternating results default" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once" 0 87
 
 		_test "Wrong Result-Name" "./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_4 --mem_gb=4 --time=60 --worker_timeout=5 --max_eval 2 --num_parallel_jobs 20 --gpus=$NUM_GPUS --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz00 --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --result_names RESULT1=min RESULT2=min RESULT3=min RESULT4äää=min" 50
 
@@ -844,7 +844,7 @@ if [[ $superquick -eq 0 ]]; then
 		if [[ "$quick" -eq "0" ]]; then
 			#_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0
 			#_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87
-			_test "Simple all float run" "bash .tests/start_simple_optimization_run --all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb" 0
+			_test "Simple all float run" "bash .tests/start_simple_optimization_run --all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb --generate_all_jobs_at_once" 0
 
 			_test "Testing multiple results with different models" "bash .tests/multi_results_different_models" 0
 

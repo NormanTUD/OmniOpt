@@ -34,6 +34,10 @@
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 	send_usr1_before_job_end() {
+		if ! command -v pkill >/dev/null 2>&1; then
+			return
+		fi
+
 		if ! command -v sbatch >/dev/null 2>&1; then
 			return
 		fi

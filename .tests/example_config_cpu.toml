@@ -1,4 +1,5 @@
 live_share = true
+generate_all_jobs_at_once = true
 partition = "alpha"
 experiment_name = "__main__tests__"
 mem_gb = 4

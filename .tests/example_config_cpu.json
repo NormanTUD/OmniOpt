@@ -3,6 +3,7 @@
   "gpus": 0,
   "follow": true,
   "live_share": true,
+  "generate_all_jobs_at_once": true
   "max_eval": 2,
   "mem_gb": 4,
   "num_parallel_jobs": 20,

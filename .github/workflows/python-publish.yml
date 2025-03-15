@@ -29,13 +29,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        cd ax
         sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring
         pip install build
         pip install setuptools
     - name: Build package
       run: |
-        cd ax
         python -m build
         cp -r dist ..
     - name: Publish package

@@ -84,6 +84,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	if ($("#parallel-plot").data("loaded") == "true") {
 		return;
 	}
+
 	dataArray = filterNonEmptyRows(dataArray);
 	const ignoreSet = new Set(ignoreColumns);
 	const numericalCols = [];

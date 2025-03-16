@@ -153,7 +153,12 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 				let minResult = Math.min(...colorValues);
 				let maxResult = Math.max(...colorValues);
 
-				let invertColor = result_min_max[result_names.indexOf(selectedResult)] === "max";
+				var _result_min_max_idx = result_names.indexOf(selectedResult);
+
+				let invertColor = false;
+				if (Object.keys(result_min_max).includes(_result_min_max_idx)) {
+					invertColor = result_min_max[_result_min_max_idx] === "max";
+				}
 
 				colorScale = invertColor
 					? [[0, 'red'], [1, 'green']]

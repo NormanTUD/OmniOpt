@@ -129,49 +129,70 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	let colorScale = null;
 	let colorValues = null;
 
-	if (resultNames.length === 1 && numericalCols.some(col => col.name.toLowerCase() === resultNames[0].toLowerCase())) {
-		const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
-		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+	if (resultNames.length > 1) {
+		let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+		selectBox += '<option value="none">No color</option>';
+		resultNames.forEach(resultName => {
+			selectBox += `<option value="${resultName}">${resultName}</option>`;
+		});
+		selectBox += '</select>';
+		$("#parallel-plot").before(selectBox);
 
-		let minResult = Math.min(...colorValues);
-		let maxResult = Math.max(...colorValues);
+		$("#result-select").change(function() {
+			const selectedResult = $(this).val();
+			if (selectedResult === "none") {
+				colorValues = null;
+				colorScale = null;
+			} else {
+				const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+				colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
 
-		let invertColor = result_min_max[0] === "max";
+				let minResult = Math.min(...colorValues);
+				let maxResult = Math.max(...colorValues);
 
-		colorScale = invertColor
-			? [[0, 'red'], [1, 'green']]
-			: [[0, 'green'], [1, 'red']];
-	}
+				let invertColor = result_min_max[0] === "max";
 
-	const trace = {
-		type: 'parcoords',
-		dimensions: dimensions,
-		line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
-		unselected: {
-			line: {
-				color: (theme == "light" ? "white" : "black"),
-				opacity: 0
+				colorScale = invertColor
+					? [[0, 'red'], [1, 'green']]
+					: [[0, 'green'], [1, 'red']];
 			}
-		},
-	};
-
-	dimensions.forEach(dim => {
-		if (!dim.line) {
-			dim.line = {};
-		}
-		if (!dim.line.color) {
-			dim.line.color = 'rgba(169,169,169, 0.01)';
-		}
-	});
-
-	let layout = {
-		width: get_graph_width(),
-		height: 800,
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+			updatePlot();
+		});
 	}
 
-	Plotly.newPlot('parallel-plot', [trace], layout);
+	function updatePlot() {
+		const trace = {
+			type: 'parcoords',
+			dimensions: dimensions,
+			line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+			unselected: {
+				line: {
+					color: (theme == "light" ? "white" : "black"),
+					opacity: 0
+				}
+			},
+		};
+
+		dimensions.forEach(dim => {
+			if (!dim.line) {
+				dim.line = {};
+			}
+			if (!dim.line.color) {
+				dim.line.color = 'rgba(169,169,169, 0.01)';
+			}
+		});
+
+		let layout = {
+			width: get_graph_width(),
+			height: 800,
+			paper_bgcolor: 'rgba(0,0,0,0)',
+			plot_bgcolor: 'rgba(0,0,0,0)'
+		}
+
+		Plotly.newPlot('parallel-plot', [trace], layout);
+	}
+
+	updatePlot();
 
 	$("#parallel-plot").data("loaded", "true");
 }
@@ -310,7 +331,6 @@ function plotScatter2d() {
 
 	var plotDiv = document.getElementById("plotScatter2d");
 
-	// Min/Max Inputfelder erstellen (wenn nicht vorhanden)
 	var minInput = document.getElementById("minValue");
 	var maxInput = document.getElementById("maxValue");
 
@@ -334,14 +354,12 @@ function plotScatter2d() {
 		plotDiv.appendChild(inputContainer);
 	}
 
-	// Select-Feld für Result Names erstellen (wenn mehr als ein Ergebnis vorhanden ist)
 	var resultSelect = document.getElementById("resultSelect");
 	if (result_names.length > 1 && !resultSelect) {
 		resultSelect = document.createElement("select");
 		resultSelect.id = "resultSelect";
 		resultSelect.style.marginBottom = "10px";
 
-		// Ergebnisse alphabetisch sortieren und in das Dropdown einfügen
 		var sortedResults = [...result_names].sort();
 		sortedResults.forEach(result => {
 			var option = document.createElement("option");
@@ -350,21 +368,18 @@ function plotScatter2d() {
 			resultSelect.appendChild(option);
 		});
 
-		// Erster Eintrag ist standardmäßig ausgewählt
 		var selectContainer = document.createElement("div");
 		selectContainer.style.marginBottom = "10px";
 		selectContainer.appendChild(resultSelect);
 		plotDiv.appendChild(selectContainer);
 	}
 
-	// Event Listener hinzufügen
 	minInput.addEventListener("input", updatePlots);
 	maxInput.addEventListener("input", updatePlots);
 	if (resultSelect) {
 		resultSelect.addEventListener("change", updatePlots);
 	}
 
-	// Initiales Zeichnen
 	updatePlots();
 
 	async function updatePlots() {
@@ -373,14 +388,12 @@ function plotScatter2d() {
 		if (isNaN(minValue)) minValue = -Infinity;
 		if (isNaN(maxValue)) maxValue = Infinity;
 
-		while (plotDiv.children.length > 2) { // Alles außer Min/Max Felder und Select-Feld entfernen
+		while (plotDiv.children.length > 2) {
 			plotDiv.removeChild(plotDiv.lastChild);
 		}
 
-		// Ausgewähltes Ergebnis aus dem Select-Feld holen (oder erstes Ergebnis, falls kein Select existiert)
 		var selectedResult = resultSelect ? resultSelect.value : result_names[0];
 
-		// Index des ausgewählten Ergebnisses suchen
 		var resultIndex = tab_results_headers_json.findIndex(header =>
 			header.toLowerCase() === selectedResult.toLowerCase()
 		);
@@ -394,7 +407,6 @@ function plotScatter2d() {
 
 		var invertColor = result_min_max[result_names.indexOf(selectedResult)] === "max";
 
-		// Numerische Spalten finden
 		var numericColumns = tab_results_headers_json.filter(col =>
 			!special_col_names.includes(col) && !result_names.includes(col) &&
 			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
@@ -569,7 +581,7 @@ function plotScatter3d() {
 		if (isNaN(minValue3d)) minValue3d = -Infinity;
 		if (isNaN(maxValue3d)) maxValue3d = Infinity;
 
-		while (plotDiv.children.length > 2) { // Mindestens das Select und die Inputs bleiben
+		while (plotDiv.children.length > 2) {
 			plotDiv.removeChild(plotDiv.lastChild);
 		}
 

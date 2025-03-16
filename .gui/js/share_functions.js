@@ -132,8 +132,11 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	if (resultNames.length > 1) {
 		let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
 		selectBox += '<option value="none">No color</option>';
+		var k = 0;
 		resultNames.forEach(resultName => {
-			selectBox += `<option value="${resultName}">${resultName}</option>`;
+			var minMax = result_min_max[k];
+			selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+			k = k + 1;
 		});
 		selectBox += '</select>';
 		$("#parallel-plot").before(selectBox);
@@ -150,7 +153,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 				let minResult = Math.min(...colorValues);
 				let maxResult = Math.max(...colorValues);
 
-				let invertColor = result_min_max[0] === "max";
+				let invertColor = result_min_max[result_names.indexOf(selectedResult)] === "max";
 
 				colorScale = invertColor
 					? [[0, 'red'], [1, 'green']]

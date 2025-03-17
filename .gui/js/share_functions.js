@@ -594,8 +594,6 @@ function plotScatter2d() {
 				Plotly.newPlot(subDiv, [trace], layout);
 			}
 		}
-
-		invert_xyz_titles();
 	}
 
 	$("#plotScatter2d").data("loaded", "true");
@@ -817,8 +815,6 @@ function plotScatter3d() {
 				}
 			}
 		}
-
-		invert_xyz_titles();
 	}
 
 	$("#plotScatter3d").data("loaded", "true");
@@ -1184,7 +1180,7 @@ function plotBoxplot() {
 		title: 'Boxplot of Numerical Columns',
 		xaxis: {
 			title: {
-				text: "Value",
+				text: "Columns",
 				font: {
 					size: 14,
 					color: get_text_color()
@@ -1193,7 +1189,7 @@ function plotBoxplot() {
 		},
 		yaxis: {
 			title: {
-				text: "Columns",
+				text: "Value",
 				font: {
 					size: 14,
 					color: get_text_color()
@@ -1587,8 +1583,6 @@ function plotResultPairs() {
 			Plotly.newPlot(subDiv, [trace], layout);
 		}
 	}
-
-	invert_xyz_titles();
 
 	$("#plotResultPairs").data("loaded", "true");
 }

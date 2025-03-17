@@ -442,3 +442,16 @@ input:checked + .slider .mode-text {
 #mainContent {
 	min-width: 1100px;
 }
+
+#share_path {
+	margin-bottom: 20px;
+}
+
+#sortForm {
+	margin-bottom: 20px;
+}
+
+.share_folder_buttons {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}

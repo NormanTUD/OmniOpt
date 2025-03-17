@@ -860,6 +860,7 @@ async function load_pareto_graph() {
 	}
 
 	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
 	graphContainer.innerHTML = "";
 
 	var already_plotted = [];
@@ -933,6 +934,8 @@ async function load_pareto_graph() {
 			}
 		}
 	}
+
+	apply_theme_based_on_system_preferences();
 
 	$("#tab_pareto_fronts").data("loaded", "true");
 }

@@ -4,6 +4,17 @@ function get_text_color() {
 	return theme == "dark" ? "white" : "black";
 }
 
+function get_font_size() {
+	return 14;
+}
+
+function get_font_data() {
+	return {
+		size: get_font_size(),
+			color: get_text_color()
+	}
+}
+
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	return Math.max(800, Math.floor(width * 0.9));
@@ -268,10 +279,7 @@ function plotWorkerUsage() {
 			title: {
 				text: "Time",
 				type: 'date',
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 			type: 'date'
 		},
@@ -279,10 +287,7 @@ function plotWorkerUsage() {
 			title: {
 				text: "Number of Workers",
 				type: 'date',
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		legend: { x: 0, y: 1 },
@@ -327,10 +332,7 @@ function plotCPUAndRAMUsage() {
 		xaxis: {
 			title: {
 				text: "Timestamp",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 			tickmode: 'array',
 			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
@@ -340,20 +342,14 @@ function plotCPUAndRAMUsage() {
 		yaxis: {
 			title: {
 				text: "CPU Usage (%)",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 			rangemode: 'tozero'
 		},
 		yaxis2: {
 			title: {
 				text: 'RAM Usage (MB)',
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 			overlaying: 'y',
 			side: 'right',
@@ -489,19 +485,13 @@ function plotScatter2d() {
 					xaxis: {
 						title: {
 							text: xCol,
-							font: {
-								size: 14,
-								color: get_text_color()
-							}
+							font: get_font_data()
 						}
 					},
 					yaxis: {
 						title: {
 							text: yCol,
-							font: {
-								size: 14,
-								color: get_text_color()
-							}
+							font: get_font_data()
 						}
 					},
 					showlegend: false,
@@ -553,7 +543,7 @@ function plotScatter2d() {
 					y: data.map(d => d.y),
 					mode: 'markers',
 					marker: {
-						size: 10,
+						size: get_font_size(),
 						color: data.map(d => d.result !== null ? d.result : null),
 						colorscale: invertColor ? [
 							[0, 'red'],
@@ -699,28 +689,19 @@ function plotScatter3d() {
 							xaxis: {
 								title: {
 									text: xCol,
-									font: {
-										size: 14,
-										color: get_text_color()
-									}
+									font: get_font_data()
 								}
 							},
 							yaxis: {
 								title: {
 									text: yCol,
-									font: {
-										size: 14,
-										color: get_text_color()
-									}
+									font: get_font_data()
 								}
 							},
 							zaxis: {
 								title: {
 									text: zCol,
-									font: {
-										size: 14,
-										color: get_text_color()
-									}
+									font: get_font_data()
 								}
 							}
 						},
@@ -898,19 +879,13 @@ async function load_pareto_graph() {
 					xaxis: {
 						title: {
 							text: cleanXMetric,
-							font: {
-								size: 14,
-								color: get_text_color()
-							}
+							font: get_font_data()
 						}
 					},
 					yaxis: {
 						title: {
 							text: cleanYMetric,
-							font: {
-								size: 14,
-								color: get_text_color()
-							}
+							font: get_font_data()
 						}
 					},
 					hovermode: "closest",
@@ -1010,10 +985,7 @@ async function plot_worker_cpu_ram() {
 				title: {
 					text: `Timestamp`,
 					type: 'date',
-					font: {
-						size: 14,
-						color: get_text_color()
-					}
+					font: get_font_data()
 				}
 			},
 
@@ -1021,10 +993,7 @@ async function plot_worker_cpu_ram() {
 				title: {
 					text: "CPU Usage (%)",
 					type: 'date',
-					font: {
-						size: 14,
-						color: get_text_color()
-					}
+					font: get_font_data()
 				},
 				side: "left",
 				color: "red"
@@ -1033,10 +1002,7 @@ async function plot_worker_cpu_ram() {
 				title: {
 					text: "RAM Usage (MB)",
 					type: 'date',
-					font: {
-						size: 14,
-						color: get_text_color()
-					}
+					font: get_font_data()
 				},
 				side: "right",
 				overlaying: "y",
@@ -1168,19 +1134,13 @@ function plotBoxplot() {
 		xaxis: {
 			title: {
 				text: "Columns",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		yaxis: {
 			title: {
 				text: "Value",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		showlegend: false,
@@ -1225,19 +1185,13 @@ function plotHeatmap() {
 		xaxis: {
 			title: {
 				text: "Columns",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		yaxis: {
 			title: {
 				text: "Columns",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		showlegend: false,
@@ -1292,19 +1246,13 @@ function plotHistogram() {
 		xaxis: {
 			title: {
 				text: "Value",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		yaxis: {
 			title: {
 				text: "Frequency",
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 		showlegend: true,
@@ -1357,10 +1305,7 @@ function plotViolin() {
 			title: {
 				text: "Value",
 				type: 'date',
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 
@@ -1368,10 +1313,7 @@ function plotViolin() {
 			title: {
 				text: "Columns",
 				type: 'date',
-				font: {
-					size: 14,
-					color: get_text_color()
-				}
+				font: get_font_data()
 			},
 		},
 
@@ -1466,20 +1408,14 @@ function plotResultEvolution() {
 				title: {
 					text: "Time",
 					type: 'date',
-					font: {
-						size: 14,
-						color: get_text_color()
-					}
+					font: get_font_data()
 				}
 			},
 			yaxis: {
 				title: {
 					text: `${resultName}`,
 					type: 'date',
-					font: {
-						size: 14,
-						color: get_text_color()
-					}
+					font: get_font_data()
 				}
 			},
 
@@ -1530,7 +1466,7 @@ function plotResultPairs() {
 				y: data.map(d => d.y),
 				mode: 'markers',
 				marker: {
-					size: 10,
+					size: get_font_size(),
 					color: colors
 				},
 				text: data.map(d => `Status: ${d.status}`),
@@ -1542,19 +1478,13 @@ function plotResultPairs() {
 				xaxis: {
 					title: {
 						text: xName,
-						font: {
-							size: 14,
-							color: get_text_color()
-						}
+						font: get_font_data()
 					}
 				},
 				yaxis: {
 					title: {
 						text: yName,
-						font: {
-							size: 14,
-							color: get_text_color()
-						}
+						font: get_font_data()
 					}
 				},
 				showlegend: false,

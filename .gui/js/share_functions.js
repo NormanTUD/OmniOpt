@@ -4,22 +4,6 @@ function get_text_color() {
 	return theme == "dark" ? "white" : "black";
 }
 
-function invert_xyz_titles() {
-	$('.xtitle').each(function() {
-		$(this).addClass('invert_in_dark_mode');
-	});
-
-	$('.ytitle').each(function() {
-		$(this).addClass('invert_in_dark_mode');
-	});
-
-	$('.ztitle').each(function() {
-		$(this).addClass('invert_in_dark_mode');
-	});
-
-	apply_theme_based_on_system_preferences();
-}
-
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	return Math.floor(width * 0.9);

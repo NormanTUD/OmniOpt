@@ -1471,7 +1471,7 @@ function plotResultEvolution() {
 			},
 			yaxis: {
 				title: {
-					text: `Value of ${resultName}`,
+					text: `${resultName}`,
 					type: 'date',
 					font: {
 						size: 14,

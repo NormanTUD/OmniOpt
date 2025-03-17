@@ -12,6 +12,10 @@ function get_font_size() {
 	return 14;
 }
 
+function get_graph_height() {
+	return 800;
+}
+
 function get_font_data() {
 	return {
 		size: get_font_size(),
@@ -227,7 +231,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 
 		let layout = {
 			width: get_graph_width(),
-			height: 800,
+			height: get_graph_height(),
 			paper_bgcolor: 'rgba(0,0,0,0)',
 			plot_bgcolor: 'rgba(0,0,0,0)'
 		}
@@ -311,7 +315,7 @@ function plotWorkerUsage() {
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 	};
 
 	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);
@@ -376,7 +380,7 @@ function plotCPUAndRAMUsage() {
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 		width: get_graph_width(),
-		height: 800
+		height: get_graph_height()
 	};
 
 	var data = [trace1, trace2];
@@ -504,7 +508,7 @@ function plotScatter2d() {
 					},
 					showlegend: false,
 					width: get_graph_width(),
-					height: 800,
+					height: get_graph_height(),
 					paper_bgcolor: 'rgba(0,0,0,0)',
 					plot_bgcolor: 'rgba(0,0,0,0)'
 				};
@@ -706,7 +710,7 @@ function plotScatter3d() {
 						},
 						showlegend: false,
 						width: get_graph_width(),
-						height: 800,
+						height: get_graph_height(),
 						paper_bgcolor: 'rgba(0,0,0,0)',
 						plot_bgcolor: 'rgba(0,0,0,0)'
 					};
@@ -885,7 +889,7 @@ async function load_pareto_graph() {
 					paper_bgcolor: 'rgba(0,0,0,0)',
 					plot_bgcolor: 'rgba(0,0,0,0)',
 					width: get_graph_width(),
-					height: 800
+					height: get_graph_height()
 				};
 
 				let trace = {
@@ -1000,7 +1004,7 @@ async function plot_worker_cpu_ram() {
 			paper_bgcolor: 'rgba(0,0,0,0)',
 			plot_bgcolor: 'rgba(0,0,0,0)',
 			width: get_graph_width(),
-			height: 800
+			height: get_graph_height()
 		};
 
 		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
@@ -1129,7 +1133,7 @@ function plotBoxplot() {
 		},
 		showlegend: false,
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
@@ -1174,7 +1178,7 @@ function plotHeatmap() {
 		},
 		showlegend: false,
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
@@ -1232,7 +1236,7 @@ function plotHistogram() {
 		showlegend: true,
 		barmode: 'overlay',
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
@@ -1293,7 +1297,7 @@ function plotViolin() {
 
 		showlegend: false,
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
@@ -1335,7 +1339,7 @@ function plotExitCodesPieChart() {
 		title: 'Exit Code Distribution',
 		showlegend: true,
 		width: get_graph_width(),
-		height: 800,
+		height: get_graph_height(),
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)'
 	};
@@ -1391,7 +1395,7 @@ function plotResultEvolution() {
 
 			showlegend: true,
 			width: get_graph_width(),
-			height: 800,
+			height: get_graph_height(),
 			paper_bgcolor: 'rgba(0,0,0,0)',
 			plot_bgcolor: 'rgba(0,0,0,0)'
 		};
@@ -1453,7 +1457,7 @@ function plotResultPairs() {
 				},
 				showlegend: false,
 				width: get_graph_width(),
-				height: 800,
+				height: get_graph_height(),
 				paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)'
 			};

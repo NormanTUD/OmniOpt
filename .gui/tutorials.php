@@ -11,7 +11,7 @@
 
 		if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
 			$load_file = "_tutorials/$tutorial_file";
-			include $load_file;
+			include($load_file);
 		} else {
 			echo "Invalid file: $tutorial_file";
 		}

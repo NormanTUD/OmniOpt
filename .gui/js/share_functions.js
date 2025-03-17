@@ -321,18 +321,36 @@ function plotCPUAndRAMUsage() {
 	var layout = {
 		title: 'CPU and RAM Usage Over Time',
 		xaxis: {
-			title: 'Timestamp',
+			title: {
+				text: "Timestamp",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 			tickmode: 'array',
 			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
 			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
 			tickangle: -45
 		},
 		yaxis: {
-			title: 'CPU Usage (%)',
+			title: {
+				text: "CPU Usage (%)",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 			rangemode: 'tozero'
 		},
 		yaxis2: {
-			title: 'RAM Usage (MB)',
+			title: {
+				text: 'RAM Usage (MB)',
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 			overlaying: 'y',
 			side: 'right',
 			rangemode: 'tozero'
@@ -1292,71 +1310,6 @@ function plotViolin() {
 	$("#plotViolin").data("loaded", "true");
 }
 
-function plotBubbleChart() {
-	if ($("#plotBubbleChart").data("loaded") == "true") {
-		return;
-	}
-	var numericColumns = tab_results_headers_json.filter(col =>
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
-
-	if (numericColumns.length < 2) {
-		console.error("Not enough columns for Bubble Chart");
-		return;
-	}
-
-	var resultIndex = tab_results_headers_json.findIndex(function(header) {
-		return result_names.includes(header.toLowerCase());
-	});
-
-	var plotDiv = document.getElementById("plotBubbleChart");
-	plotDiv.innerHTML = "";
-
-	let xCol = numericColumns[0];
-	let yCol = numericColumns[1];
-	let sizeCol = "run_time";
-
-	let xIndex = tab_results_headers_json.indexOf(xCol);
-	let yIndex = tab_results_headers_json.indexOf(yCol);
-	let sizeIndex = tab_results_headers_json.indexOf(sizeCol);
-
-	let data = tab_results_csv_json.map(row => ({
-		x: parseFloat(row[xIndex]),
-		y: parseFloat(row[yIndex]),
-		size: parseFloat(row[sizeIndex]),
-		result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
-	}));
-
-	let trace = {
-		x: data.map(d => d.x),
-		y: data.map(d => d.y),
-		mode: 'markers',
-		marker: {
-			size: data.map(d => d.size),
-			color: data.map(d => d.result),
-			colorscale: 'Viridis',
-			showscale: true
-		},
-		type: 'scatter',
-		showlegend: false
-	};
-
-	let layout = {
-		title: `${xCol} vs ${yCol}`,
-		xaxis: { title: xCol },
-		yaxis: { title: yCol },
-		showlegend: false,
-		width: get_graph_width(),
-		height: 800,
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
-	};
-
-	Plotly.newPlot(plotDiv, [trace], layout);
-	$("#plotBubbleChart").data("loaded", "true");
-}
-
 function plotExitCodesPieChart() {
 	if ($("#plotExitCodesPieChart").data("loaded") == "true") {
 		return;
@@ -1434,12 +1387,26 @@ function plotResultEvolution() {
 		let layout = {
 			title: `Evolution of ${resultName} over time`,
 			xaxis: {
-				title: 'Time',
-				type: 'date'
+				title: {
+					text: "Time",
+					type: 'date',
+					font: {
+						size: 14,
+						color: 'black'
+					}
+				}
 			},
 			yaxis: {
-				title: `Value of ${resultName}`
+				title: {
+					text: `Value of ${resultName}`,
+					type: 'date',
+					font: {
+						size: 14,
+						color: 'black'
+					}
+				}
 			},
+
 			showlegend: true,
 			width: get_graph_width(),
 			height: 800,

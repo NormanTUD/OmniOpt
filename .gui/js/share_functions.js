@@ -41,7 +41,7 @@ function download_as_file(id, filename) {
 	var text = $("#" + id).text();
 	var blob = new Blob([text], { type: "text/plain" });
 	var link = document.createElement("a");
-	link.href = URL.createObjectURL(blob); 
+	link.href = URL.createObjectURL(blob);
 	link.download = filename;
 	document.body.appendChild(link);
 	link.click();
@@ -1419,10 +1419,22 @@ function plotResultPairs() {
 			let layout = {
 				title: '',
 				xaxis: {
-					title: { text: xName, font: { size: 14, color: 'black' } }
+					title: {
+						text: xName,
+						font: {
+							size: 14,
+							color: 'black'
+						}
+					}
 				},
 				yaxis: {
-					title: { text: yName, font: { size: 14, color: 'black' } }
+					title: {
+						text: yName,
+						font: {
+							size: 14,
+							color: 'black'
+						}
+					}
 				},
 				showlegend: false,
 				width: get_graph_width(),

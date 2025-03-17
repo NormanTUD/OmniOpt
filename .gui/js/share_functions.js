@@ -1182,11 +1182,23 @@ function plotBoxplot() {
 
 	let layout = {
 		title: 'Boxplot of Numerical Columns',
-		yaxis: {
-			title: 'Value'
-		},
 		xaxis: {
-			title: 'Columns'
+			title: {
+				text: "Value",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
+		},
+		yaxis: {
+			title: {
+				text: "Columns",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		showlegend: false,
 		width: get_graph_width(),
@@ -1227,12 +1239,23 @@ function plotHeatmap() {
 	};
 
 	var layout = {
-		title: 'Correlation Heatmap',
 		xaxis: {
-			title: 'Columns'
+			title: {
+				text: "Columns",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		yaxis: {
-			title: 'Columns'
+			title: {
+				text: "Columns",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		showlegend: false,
 		width: get_graph_width(),
@@ -1284,10 +1307,22 @@ function plotHistogram() {
 	let layout = {
 		title: 'Histogram of Numerical Columns',
 		xaxis: {
-			title: 'Value'
+			title: {
+				text: "Value",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		yaxis: {
-			title: 'Frequency'
+			title: {
+				text: "Frequency",
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		showlegend: true,
 		barmode: 'overlay',
@@ -1335,8 +1370,28 @@ function plotViolin() {
 
 	let layout = {
 		title: 'Violin Plot of Numerical Columns',
-		yaxis: { title: 'Value' },
-		xaxis: { title: 'Columns' },
+		yaxis: {
+			title: {
+				text: "Value",
+				type: 'date',
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
+		},
+
+		xaxis: {
+			title: {
+				text: "Columns",
+				type: 'date',
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
+		},
+
 		showlegend: false,
 		width: get_graph_width(),
 		height: 800,
@@ -1501,7 +1556,6 @@ function plotResultPairs() {
 			};
 
 			let layout = {
-				title: '',
 				xaxis: {
 					title: {
 						text: xName,

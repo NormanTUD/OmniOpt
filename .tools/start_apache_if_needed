@@ -21,7 +21,7 @@ get_url_from_file() {
 	url=$(cat "$FILE" | tr -d '[:space:]')
 
 	if [[ "$url" =~ ^http://localhost ]]; then
-		echo "Found URL: $url" >&2
+		echo "start_apache_if_needed: Found $url" >&2
 		echo "$url"
 		return 0
 	else
@@ -34,10 +34,8 @@ is_url_reachable() {
 	local url="$1"
 
 	if curl -k --silent --fail "$url" > /dev/null; then
-		echo "URL is reachable."
 		return 0
 	else
-		echo "URL is not reachable."
 		return 1
 	fi
 }

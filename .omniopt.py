@@ -1082,19 +1082,20 @@ def log_system_usage() -> None:
     with open(csv_file_path, mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
-        if not file_exists:
-            writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent"])
-
         current_time = int(time.time())
 
         if process is not None:
             mem_proc = process.memory_info()
 
             if mem_proc is not None:
-                ram_usage_mb = mem_proc.rss / (1024 * 1024)  # RSS in MB
-                cpu_usage_percent = psutil.cpu_percent(percpu=False)  # Gesamt-CPU-Auslastung in Prozent
+                ram_usage_mb = mem_proc.rss / (1024 * 1024)
+                cpu_usage_percent = psutil.cpu_percent(percpu=False)
 
-                writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
+                if ram_usage_mb > 0 and cpu_usage_percent > 0:
+                    if not file_exists:
+                        writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent"])
+
+                    writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
 @beartype
 def write_process_info() -> None:

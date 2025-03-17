@@ -2510,7 +2510,7 @@ def print_evaluate_times() -> None:
             headers = ["Number of values", "Min time", "Max time", "Average time", "Median time"]
             cols = [str(len(time_values)), f"{min_time:.2f} sec", f"{max_time:.2f} sec", f"{avg_time:.2f} sec", f"{median_time:.2f} sec"]
 
-            table = Table(title="Runtimes of single evaluation")
+            table = Table(title="Runtime Infos:")
             for h in headers:
                 table.add_column(h, justify="center")
 

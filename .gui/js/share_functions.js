@@ -178,7 +178,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		colorScale = invertColor
 			? [[0, 'red'], [1, 'green']]
 			: [[0, 'green'], [1, 'red']];
-			
+
 		const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
 		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
 	}

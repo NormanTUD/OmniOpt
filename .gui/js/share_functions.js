@@ -11,8 +11,23 @@ function get_font_size() {
 function get_font_data() {
 	return {
 		size: get_font_size(),
-			color: get_text_color()
+		color: get_text_color()
 	}
+}
+
+function get_title_data(name, axis_type = "") {
+	if(axis_type) {
+		return {
+			text: name,
+			type: axis_type,
+			font: get_font_data()
+		};
+	}
+
+	return {
+		text: name,
+		font: get_font_data()
+	};
 }
 
 function get_graph_width() {
@@ -276,19 +291,10 @@ function plotWorkerUsage() {
 	let layout = {
 		title: "Worker Usage Over Time",
 		xaxis: {
-			title: {
-				text: "Time",
-				type: 'date',
-				font: get_font_data()
-			},
-			type: 'date'
+			title: get_title_data("Time", "date")
 		},
 		yaxis: {
-			title: {
-				text: "Number of Workers",
-				type: 'date',
-				font: get_font_data()
-			},
+			title: get_title_data("Number of Workers")
 		},
 		legend: { x: 0, y: 1 },
 		paper_bgcolor: 'rgba(0,0,0,0)',
@@ -330,27 +336,18 @@ function plotCPUAndRAMUsage() {
 	var layout = {
 		title: 'CPU and RAM Usage Over Time',
 		xaxis: {
-			title: {
-				text: "Timestamp",
-				font: get_font_data()
-			},
+			title: get_title_data("Timestamp", "date"),
 			tickmode: 'array',
 			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
 			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
 			tickangle: -45
 		},
 		yaxis: {
-			title: {
-				text: "CPU Usage (%)",
-				font: get_font_data()
-			},
+			title: get_title_data("CPU Usage (%)"),
 			rangemode: 'tozero'
 		},
 		yaxis2: {
-			title: {
-				text: 'RAM Usage (MB)',
-				font: get_font_data()
-			},
+			title: get_title_data("RAM Usage (MB)"),
 			overlaying: 'y',
 			side: 'right',
 			rangemode: 'tozero'
@@ -483,16 +480,10 @@ function plotScatter2d() {
 				let layout = {
 					title: layoutTitle,
 					xaxis: {
-						title: {
-							text: xCol,
-							font: get_font_data()
-						}
+						title: get_title_data(xCol)
 					},
 					yaxis: {
-						title: {
-							text: yCol,
-							font: get_font_data()
-						}
+						title: get_title_data(yCol)
 					},
 					showlegend: false,
 					width: get_graph_width(),
@@ -687,22 +678,13 @@ function plotScatter3d() {
 						title: layoutTitle,
 						scene: {
 							xaxis: {
-								title: {
-									text: xCol,
-									font: get_font_data()
-								}
+								title: get_title_data(xCol)
 							},
 							yaxis: {
-								title: {
-									text: yCol,
-									font: get_font_data()
-								}
+								title: get_title_data(yCol)
 							},
 							zaxis: {
-								title: {
-									text: zCol,
-									font: get_font_data()
-								}
+								title: get_title_data(zCol)
 							}
 						},
 						showlegend: false,
@@ -877,16 +859,10 @@ async function load_pareto_graph() {
 				let layout = {
 					title: `${cleanXMetric} vs ${cleanYMetric}`,
 					xaxis: {
-						title: {
-							text: cleanXMetric,
-							font: get_font_data()
-						}
+						title: get_title_data(cleanXMetric)
 					},
 					yaxis: {
-						title: {
-							text: cleanYMetric,
-							font: get_font_data()
-						}
+						title: get_title_data(cleanYMetric)
 					},
 					hovermode: "closest",
 					paper_bgcolor: 'rgba(0,0,0,0)',
@@ -982,28 +958,16 @@ async function plot_worker_cpu_ram() {
 		const layout = {
 			title: `Worker CPU and RAM Usage - ${hostname}`,
 			xaxis: {
-				title: {
-					text: `Timestamp`,
-					type: 'date',
-					font: get_font_data()
-				}
+				title: get_title_data("Timestamp", "date")
 			},
 
 			yaxis: {
-				title: {
-					text: "CPU Usage (%)",
-					type: 'date',
-					font: get_font_data()
-				},
+				title: get_title_data("CPU Usage (%)"),
 				side: "left",
 				color: "red"
 			},
 			yaxis2: {
-				title: {
-					text: "RAM Usage (MB)",
-					type: 'date',
-					font: get_font_data()
-				},
+				title: get_title_data("RAM Usage (MB)"),
 				side: "right",
 				overlaying: "y",
 				color: "blue"
@@ -1132,16 +1096,10 @@ function plotBoxplot() {
 	let layout = {
 		title: 'Boxplot of Numerical Columns',
 		xaxis: {
-			title: {
-				text: "Columns",
-				font: get_font_data()
-			},
+			title: get_title_data("Columns")
 		},
 		yaxis: {
-			title: {
-				text: "Value",
-				font: get_font_data()
-			},
+			title: get_title_data("Value")
 		},
 		showlegend: false,
 		width: get_graph_width(),
@@ -1183,16 +1141,10 @@ function plotHeatmap() {
 
 	var layout = {
 		xaxis: {
-			title: {
-				text: "Columns",
-				font: get_font_data()
-			},
+			title: get_title_data("Columns")
 		},
 		yaxis: {
-			title: {
-				text: "Columns",
-				font: get_font_data()
-			},
+			title: get_title_data("Columns")
 		},
 		showlegend: false,
 		width: get_graph_width(),
@@ -1244,16 +1196,10 @@ function plotHistogram() {
 	let layout = {
 		title: 'Histogram of Numerical Columns',
 		xaxis: {
-			title: {
-				text: "Value",
-				font: get_font_data()
-			},
+			title: get_title_data("Value")
 		},
 		yaxis: {
-			title: {
-				text: "Frequency",
-				font: get_font_data()
-			},
+			title: get_title_data("Frequency")
 		},
 		showlegend: true,
 		barmode: 'overlay',
@@ -1302,19 +1248,11 @@ function plotViolin() {
 	let layout = {
 		title: 'Violin Plot of Numerical Columns',
 		yaxis: {
-			title: {
-				text: "Value",
-				type: 'date',
-				font: get_font_data()
-			},
+			title: get_title_data("Value")
 		},
 
 		xaxis: {
-			title: {
-				text: "Columns",
-				type: 'date',
-				font: get_font_data()
-			},
+			title: get_title_data("Columns")
 		},
 
 		showlegend: false,
@@ -1405,18 +1343,10 @@ function plotResultEvolution() {
 		let layout = {
 			title: `Evolution of ${resultName} over time`,
 			xaxis: {
-				title: {
-					text: "Time",
-					type: 'date',
-					font: get_font_data()
-				}
+				title: get_title_data("Time", "date")
 			},
 			yaxis: {
-				title: {
-					text: `${resultName}`,
-					type: 'date',
-					font: get_font_data()
-				}
+				title: get_title_data(resultName)
 			},
 
 			showlegend: true,
@@ -1476,16 +1406,10 @@ function plotResultPairs() {
 
 			let layout = {
 				xaxis: {
-					title: {
-						text: xName,
-						font: get_font_data()
-					}
+					title: get_title_data(xName)
 				},
 				yaxis: {
-					title: {
-						text: yName,
-						font: get_font_data()
-					}
+					title: get_title_data(yName)
 				},
 				showlegend: false,
 				width: get_graph_width(),

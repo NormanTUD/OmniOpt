@@ -6,7 +6,7 @@ function get_text_color() {
 
 function get_graph_width() {
 	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	return Math.floor(width * 0.9);
+	return Math.max(800, Math.floor(width * 0.9));
 }
 
 function createTable(data, headers, table_name) {

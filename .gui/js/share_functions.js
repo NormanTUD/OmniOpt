@@ -1,5 +1,9 @@
 "use strict";
 
+function get_text_color() {
+	return theme == "light" ? "white" : "black";
+}
+
 function invert_xyz_titles() {
 	$('.xtitle').each(function() {
 		$(this).addClass('invert_in_dark_mode');
@@ -192,7 +196,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 			line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
 			unselected: {
 				line: {
-					color: (theme == "light" ? "white" : "black"),
+					color: get_text_color(),
 					opacity: 0
 				}
 			},
@@ -282,7 +286,7 @@ function plotWorkerUsage() {
 				type: 'date',
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 			type: 'date'
@@ -293,7 +297,7 @@ function plotWorkerUsage() {
 				type: 'date',
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -341,7 +345,7 @@ function plotCPUAndRAMUsage() {
 				text: "Timestamp",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 			tickmode: 'array',
@@ -354,7 +358,7 @@ function plotCPUAndRAMUsage() {
 				text: "CPU Usage (%)",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 			rangemode: 'tozero'
@@ -364,7 +368,7 @@ function plotCPUAndRAMUsage() {
 				text: 'RAM Usage (MB)',
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 			overlaying: 'y',
@@ -503,7 +507,7 @@ function plotScatter2d() {
 							text: xCol,
 							font: {
 								size: 14,
-								color: 'black'
+								color: get_text_color()
 							}
 						}
 					},
@@ -512,7 +516,7 @@ function plotScatter2d() {
 							text: yCol,
 							font: {
 								size: 14,
-								color: 'black'
+								color: get_text_color()
 							}
 						}
 					},
@@ -706,8 +710,6 @@ function plotScatter3d() {
 
 					data = data.filter(d => d.result >= minResult && d.result <= maxResult);
 
-					var text_color = theme == "dark" ? 'white' : 'black';;
-
 					let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
 					let layout = {
 						title: layoutTitle,
@@ -717,7 +719,7 @@ function plotScatter3d() {
 									text: xCol,
 									font: {
 										size: 14,
-										color: text_color
+										color: get_text_color()
 									}
 								}
 							},
@@ -726,7 +728,7 @@ function plotScatter3d() {
 									text: yCol,
 									font: {
 										size: 14,
-										color: text_color
+										color: get_text_color()
 									}
 								}
 							},
@@ -735,7 +737,7 @@ function plotScatter3d() {
 									text: zCol,
 									font: {
 										size: 14,
-										color: text_color
+										color: get_text_color()
 									}
 								}
 							}
@@ -910,8 +912,6 @@ async function load_pareto_graph() {
 				div.style.marginBottom = "20px";
 				graphContainer.appendChild(div);
 
-				var text_color = theme == "dark" ? 'white' : 'black';;
-
 				let layout = {
 					title: `${cleanXMetric} vs ${cleanYMetric}`,
 					xaxis: {
@@ -919,7 +919,7 @@ async function load_pareto_graph() {
 							text: cleanXMetric,
 							font: {
 								size: 14,
-								color: text_color
+								color: get_text_color()
 							}
 						}
 					},
@@ -928,7 +928,7 @@ async function load_pareto_graph() {
 							text: cleanYMetric,
 							font: {
 								size: 14,
-								color: text_color
+								color: get_text_color()
 							}
 						}
 					},
@@ -1029,7 +1029,7 @@ async function plot_worker_cpu_ram() {
 					type: 'date',
 					font: {
 						size: 14,
-						color: 'black'
+						color: get_text_color()
 					}
 				}
 			},
@@ -1040,7 +1040,7 @@ async function plot_worker_cpu_ram() {
 					type: 'date',
 					font: {
 						size: 14,
-						color: 'black'
+						color: get_text_color()
 					}
 				},
 				side: "left",
@@ -1052,7 +1052,7 @@ async function plot_worker_cpu_ram() {
 					type: 'date',
 					font: {
 						size: 14,
-						color: 'black'
+						color: get_text_color()
 					}
 				},
 				side: "right",
@@ -1187,7 +1187,7 @@ function plotBoxplot() {
 				text: "Value",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1196,7 +1196,7 @@ function plotBoxplot() {
 				text: "Columns",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1244,7 +1244,7 @@ function plotHeatmap() {
 				text: "Columns",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1253,7 +1253,7 @@ function plotHeatmap() {
 				text: "Columns",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1311,7 +1311,7 @@ function plotHistogram() {
 				text: "Value",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1320,7 +1320,7 @@ function plotHistogram() {
 				text: "Frequency",
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1376,7 +1376,7 @@ function plotViolin() {
 				type: 'date',
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1387,7 +1387,7 @@ function plotViolin() {
 				type: 'date',
 				font: {
 					size: 14,
-					color: 'black'
+					color: get_text_color()
 				}
 			},
 		},
@@ -1485,7 +1485,7 @@ function plotResultEvolution() {
 					type: 'date',
 					font: {
 						size: 14,
-						color: 'black'
+						color: get_text_color()
 					}
 				}
 			},
@@ -1495,7 +1495,7 @@ function plotResultEvolution() {
 					type: 'date',
 					font: {
 						size: 14,
-						color: 'black'
+						color: get_text_color()
 					}
 				}
 			},
@@ -1561,7 +1561,7 @@ function plotResultPairs() {
 						text: xName,
 						font: {
 							size: 14,
-							color: 'black'
+							color: get_text_color()
 						}
 					}
 				},
@@ -1570,7 +1570,7 @@ function plotResultPairs() {
 						text: yName,
 						font: {
 							size: 14,
-							color: 'black'
+							color: get_text_color()
 						}
 					}
 				},

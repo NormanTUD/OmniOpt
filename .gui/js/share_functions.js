@@ -169,6 +169,18 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 			}
 			updatePlot();
 		});
+	} else {
+		let invertColor = false;
+		if (Object.keys(result_min_max).length == 1) {
+			invertColor = result_min_max[0] === "max";
+		}
+
+		colorScale = invertColor
+			? [[0, 'red'], [1, 'green']]
+			: [[0, 'green'], [1, 'red']];
+			
+		const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
 	}
 
 	function updatePlot() {

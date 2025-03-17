@@ -1,7 +1,7 @@
 "use strict";
 
 function get_text_color() {
-	return theme == "light" ? "white" : "black";
+	return theme == "dark" ? "white" : "black";
 }
 
 function invert_xyz_titles() {

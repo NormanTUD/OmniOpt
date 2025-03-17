@@ -135,6 +135,9 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		var k = 0;
 		resultNames.forEach(resultName => {
 			var minMax = result_min_max[k];
+			if(minMax === undefined) {
+				minMax = "min [automatically chosen]"
+			}
 			selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
 			k = k + 1;
 		});

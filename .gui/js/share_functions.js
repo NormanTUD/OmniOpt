@@ -274,8 +274,13 @@ function plotWorkerUsage() {
 
 	let layout = {
 		title: "Worker Usage Over Time",
-		xaxis: { title: "Time", type: 'date' },
-		yaxis: { title: "Number of Workers" },
+		xaxis: {
+			title: "Time",
+			type: 'date'
+		},
+		yaxis: {
+			title: "Number of Workers"
+		},
 		legend: { x: 0, y: 1 },
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
@@ -459,8 +464,24 @@ function plotScatter2d() {
 				let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
 				let layout = {
 					title: layoutTitle,
-					xaxis: { title: { text: xCol, font: { size: 14, color: 'black' } } },
-					yaxis: { title: { text: yCol, font: { size: 14, color: 'black' } } },
+					xaxis: {
+						title: {
+							text: xCol,
+							font: {
+								size: 14,
+								color: 'black'
+							}
+						}
+					},
+					yaxis: {
+						title: {
+							text: yCol,
+							font: {
+								size: 14,
+								color: 'black'
+							}
+						}
+					},
 					showlegend: false,
 					width: get_graph_width(),
 					height: 800,
@@ -657,9 +678,33 @@ function plotScatter3d() {
 					let layout = {
 						title: layoutTitle,
 						scene: {
-							xaxis: { title: { text: xCol, font: { size: 14, color: text_color } } },
-							yaxis: { title: { text: yCol, font: { size: 14, color: text_color } } },
-							zaxis: { title: { text: zCol, font: { size: 14, color: text_color } } }
+							xaxis: {
+								title: {
+									text: xCol,
+									font: {
+										size: 14,
+										color: text_color
+									}
+								}
+							},
+							yaxis: {
+								title: {
+									text: yCol,
+									font: {
+										size: 14,
+										color: text_color
+									}
+								}
+							},
+							zaxis: {
+								title: {
+									text: zCol,
+									font: {
+										size: 14,
+										color: text_color
+									}
+								}
+							}
 						},
 						showlegend: false,
 						width: get_graph_width(),
@@ -831,13 +876,33 @@ async function load_pareto_graph() {
 				div.style.marginBottom = "20px";
 				graphContainer.appendChild(div);
 
+				var text_color = theme == "dark" ? 'white' : 'black';;
+
 				let layout = {
 					title: `${cleanXMetric} vs ${cleanYMetric}`,
-					xaxis: { title: cleanXMetric },
-					yaxis: { title: cleanYMetric },
+					xaxis: {
+						title: {
+							text: cleanXMetric,
+							font: {
+								size: 14,
+								color: text_color
+							}
+						}
+					},
+					yaxis: {
+						title: {
+							text: cleanYMetric,
+							font: {
+								size: 14,
+								color: text_color
+							}
+						}
+					},
 					hovermode: "closest",
 					paper_bgcolor: 'rgba(0,0,0,0)',
-					plot_bgcolor: 'rgba(0,0,0,0)'
+					plot_bgcolor: 'rgba(0,0,0,0)',
+					width: get_graph_width(),
+					height: 800
 				};
 
 				let trace = {
@@ -924,7 +989,9 @@ async function plot_worker_cpu_ram() {
 
 		const layout = {
 			title: `Worker CPU and RAM Usage - ${hostname}`,
-			xaxis: { title: "Timestamp" },
+			xaxis: {
+				title: "Timestamp"
+			},
 			yaxis: {
 				title: "CPU Usage (%)",
 				side: "left",
@@ -1059,8 +1126,12 @@ function plotBoxplot() {
 
 	let layout = {
 		title: 'Boxplot of Numerical Columns',
-		yaxis: { title: 'Value' },
-		xaxis: { title: 'Columns' },
+		yaxis: {
+			title: 'Value'
+		},
+		xaxis: {
+			title: 'Columns'
+		},
 		showlegend: false,
 		width: get_graph_width(),
 		height: 800,
@@ -1101,8 +1172,12 @@ function plotHeatmap() {
 
 	var layout = {
 		title: 'Correlation Heatmap',
-		xaxis: { title: 'Columns' },
-		yaxis: { title: 'Columns' },
+		xaxis: {
+			title: 'Columns'
+		},
+		yaxis: {
+			title: 'Columns'
+		},
 		showlegend: false,
 		width: get_graph_width(),
 		height: 800,
@@ -1152,8 +1227,12 @@ function plotHistogram() {
 
 	let layout = {
 		title: 'Histogram of Numerical Columns',
-		xaxis: { title: 'Value' },
-		yaxis: { title: 'Frequency' },
+		xaxis: {
+			title: 'Value'
+		},
+		yaxis: {
+			title: 'Frequency'
+		},
 		showlegend: true,
 		barmode: 'overlay',
 		width: get_graph_width(),

@@ -39,7 +39,9 @@ function createTable(data, headers, table_name) {
 
 function download_as_file(id, filename) {
 	var text = $("#" + id).text();
-	var blob = new Blob([text], { type: "text/plain" });
+	var blob = new Blob([text], {
+		type: "text/plain"
+	});
 	var link = document.createElement("a");
 	link.href = URL.createObjectURL(blob);
 	link.download = filename;
@@ -275,11 +277,25 @@ function plotWorkerUsage() {
 	let layout = {
 		title: "Worker Usage Over Time",
 		xaxis: {
-			title: "Time",
+			title: {
+				text: "Time",
+				type: 'date',
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 			type: 'date'
 		},
 		yaxis: {
-			title: "Number of Workers"
+			title: {
+				text: "Number of Workers",
+				type: 'date',
+				font: {
+					size: 14,
+					color: 'black'
+				}
+			},
 		},
 		legend: { x: 0, y: 1 },
 		paper_bgcolor: 'rgba(0,0,0,0)',
@@ -1008,15 +1024,37 @@ async function plot_worker_cpu_ram() {
 		const layout = {
 			title: `Worker CPU and RAM Usage - ${hostname}`,
 			xaxis: {
-				title: "Timestamp"
+				title: {
+					text: `Timestamp`,
+					type: 'date',
+					font: {
+						size: 14,
+						color: 'black'
+					}
+				}
 			},
+
 			yaxis: {
-				title: "CPU Usage (%)",
+				title: {
+					text: "CPU Usage (%)",
+					type: 'date',
+					font: {
+						size: 14,
+						color: 'black'
+					}
+				},
 				side: "left",
 				color: "red"
 			},
 			yaxis2: {
-				title: "RAM Usage (MB)",
+				title: {
+					text: "RAM Usage (MB)",
+					type: 'date',
+					font: {
+						size: 14,
+						color: 'black'
+					}
+				},
 				side: "right",
 				overlaying: "y",
 				color: "blue"

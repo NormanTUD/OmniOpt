@@ -1,5 +1,9 @@
 "use strict";
 
+function get_marker_size() {
+	return 16;
+}
+
 function get_text_color() {
 	return theme == "dark" ? "white" : "black";
 }
@@ -277,7 +281,9 @@ function plotWorkerUsage() {
 		y: desiredWorkers,
 		mode: 'lines+markers',
 		name: 'Desired Workers',
-		line: { color: 'blue' }
+		line: {
+			color: 'blue'
+		}
 	};
 
 	let trace2 = {
@@ -285,7 +291,9 @@ function plotWorkerUsage() {
 		y: realWorkers,
 		mode: 'lines+markers',
 		name: 'Real Workers',
-		line: { color: 'red' }
+		line: {
+			color: 'red'
+		}
 	};
 
 	let layout = {
@@ -296,7 +304,10 @@ function plotWorkerUsage() {
 		yaxis: {
 			title: get_title_data("Number of Workers")
 		},
-		legend: { x: 0, y: 1 },
+		legend: {
+			x: 0,
+			y: 1
+		},
 		paper_bgcolor: 'rgba(0,0,0,0)',
 		plot_bgcolor: 'rgba(0,0,0,0)',
 		width: get_graph_width(),
@@ -319,6 +330,9 @@ function plotCPUAndRAMUsage() {
 		x: timestamps,
 		y: cpuUsage,
 		mode: 'lines+markers',
+		marker: {
+			size: get_marker_size(),
+		},
 		name: 'CPU Usage (%)',
 		type: 'scatter',
 		yaxis: 'y1'
@@ -328,6 +342,9 @@ function plotCPUAndRAMUsage() {
 		x: timestamps,
 		y: ramUsage,
 		mode: 'lines+markers',
+		marker: {
+			size: get_marker_size(),
+		},
 		name: 'RAM Usage (MB)',
 		type: 'scatter',
 		yaxis: 'y2'
@@ -534,7 +551,7 @@ function plotScatter2d() {
 					y: data.map(d => d.y),
 					mode: 'markers',
 					marker: {
-						size: get_font_size(),
+						size: get_marker_size(),
 						color: data.map(d => d.result !== null ? d.result : null),
 						colorscale: invertColor ? [
 							[0, 'red'],
@@ -736,7 +753,7 @@ function plotScatter3d() {
 						z: data.map(d => d.z),
 						mode: 'markers',
 						marker: {
-							size: 5,
+							size: get_marker_size(),
 							color: data.map(d => d.result !== null ? d.result : null),
 							colorscale: invertColor ? [
 								[0, 'red'],
@@ -875,6 +892,9 @@ async function load_pareto_graph() {
 					x: xValues,
 					y: yValues,
 					mode: "markers",
+					marker: {
+						size: get_marker_size(),
+					},
 					type: "scatter",
 					name: `${cleanXMetric} vs ${cleanYMetric}`
 				};
@@ -943,7 +963,9 @@ async function plot_worker_cpu_ram() {
 			mode: "lines+markers",
 			name: "CPU Usage (%)",
 			yaxis: "y1",
-			line: { color: "red" }
+			line: {
+				color: "red"
+			}
 		};
 
 		const ramTrace = {
@@ -952,7 +974,9 @@ async function plot_worker_cpu_ram() {
 			mode: "lines+markers",
 			name: "RAM Usage (MB)",
 			yaxis: "y2",
-			line: { color: "blue" }
+			line: {
+				color: "blue"
+			}
 		};
 
 		const layout = {
@@ -1089,7 +1113,9 @@ function plotBoxplot() {
 			type: 'box',
 			name: col,
 			boxmean: 'sd',
-			marker: { color: 'rgb(0, 255, 0)' },
+			marker: {
+				color: 'rgb(0, 255, 0)'
+			},
 		};
 	});
 
@@ -1188,7 +1214,9 @@ function plotHistogram() {
 			type: 'histogram',
 			name: col,
 			opacity: 0.7,
-			marker: { color: colorPalette[index % colorPalette.length] },
+			marker: {
+				color: colorPalette[index % colorPalette.length]
+			},
 			autobinx: true
 		};
 	});
@@ -1238,10 +1266,18 @@ function plotViolin() {
 			y: data,
 			type: 'violin',
 			name: col,
-			box: { visible: true },
-			line: { color: 'rgb(0, 255, 0)' },
-			marker: { color: 'rgb(0, 255, 0)' },
-			meanline: { visible: true },
+			box: {
+				visible: true
+			},
+			line: {
+				color: 'rgb(0, 255, 0)'
+			},
+			marker: {
+				color: 'rgb(0, 255, 0)'
+			},
+			meanline: {
+				visible: true
+			},
 		};
 	});
 
@@ -1336,8 +1372,12 @@ function plotResultEvolution() {
 			y: yData,
 			mode: 'lines+markers',
 			name: resultName,
-			line: { shape: 'linear' },
-			marker: { size: 8 }
+			line: {
+				shape: 'linear'
+			},
+			marker: {
+				size: get_marker_size()
+			}
 		};
 
 		let layout = {
@@ -1396,7 +1436,7 @@ function plotResultPairs() {
 				y: data.map(d => d.y),
 				mode: 'markers',
 				marker: {
-					size: get_font_size(),
+					size: get_marker_size(),
 					color: colors
 				},
 				text: data.map(d => `Status: ${d.status}`),

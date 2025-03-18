@@ -296,7 +296,7 @@
 			if (!empty($data["args"])) {
 				$desc = "";
 				if (isset($data["desc"])) {
-					$desc =  "- {$data['desc']}";
+					$desc =  " - {$data['desc']}";
 				}
 				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong>$desc</td>\n</tr>\n";
 				foreach ($data["args"] as [$name, $desc, $default]) {

@@ -370,7 +370,8 @@ def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int,
     return axs
 
 def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
-    res_col_name = "result"
+    res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
+    "result"
 
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
@@ -392,7 +393,8 @@ def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.Da
         if res_col_name not in _l:
             key = _l[0]
             value = to_int_when_possible(_l[1])
-            title_values.append(f"{key} = {value}")
+            if key not in ["generation_node", res_col_name]:
+                title_values.append(f"{key} = {value}")
 
     title += " of f("
     title += ', '.join(title_values)

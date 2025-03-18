@@ -663,7 +663,7 @@ def get_result_name_or_default_from_csv_file_path(csv_file_path: str) -> str:
 
 def get_data(
     NO_RESULT: Any,
-    csv_file_path: Optional[str],
+    csv_file_path: str,
     _min: Optional[Union[int, float]],
     _max: Optional[Union[int, float]],
     old_headers_string: Optional[str] = None,

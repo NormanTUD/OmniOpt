@@ -58,7 +58,7 @@
 
 	function convertFileToHtml($filePath) {
 		if (!file_exists($filePath)) {
-			echo "Die Datei wurde nicht gefunden: " . $filePath;
+			echo "File not found: " . $filePath;
 			return;
 		}
 

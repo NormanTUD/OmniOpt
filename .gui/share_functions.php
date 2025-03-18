@@ -544,8 +544,12 @@
 		return $tabs;
 	}
 
+	function has_real_char($filename) {
+		return file_exists($filename) && preg_match('/\S/', file_get_contents($filename));
+	}
+
 	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
-		if(is_file($filename) && filesize($filename)) {
+		if(is_file($filename) && filesize($filename) && has_real_char($filename)) {
 			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;

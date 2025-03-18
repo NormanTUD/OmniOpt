@@ -30,7 +30,9 @@ h2 {
 body {
 	font-family: sans-serif;
 	margin-bottom: 100px;
-	font-size: 1.2em;
+	transform: scale(1.2);
+	transform-origin: top left;
+	width: 83.33%;
 }
 
 .dark_code_bg {
@@ -440,12 +442,4 @@ input:checked + .slider .mode-text {
 
 .header_table {
 	margin: 10px;
-}
-
-input, textarea, select {
-	font-size: 1.2em; /* Schriftgröße auf 125% setzen */
-}
-
-input::placeholder, textarea::placeholder {
-	font-size: 1.2em; /* Platzhalter-Schriftgröße auf 125% setzen */
 }

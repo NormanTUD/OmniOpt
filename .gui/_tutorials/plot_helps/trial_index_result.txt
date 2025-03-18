@@ -1,4 +1,0 @@
---min
---max
---save_to_file
---no_plt_show

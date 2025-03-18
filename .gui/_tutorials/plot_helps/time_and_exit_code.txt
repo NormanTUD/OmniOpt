@@ -1,4 +1,0 @@
---run_dir
---save_to_file
---bins
---no_plt_show

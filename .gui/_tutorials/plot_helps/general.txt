@@ -1,6 +1,0 @@
---min
---max
---save_to_file
---bins
---alpha
---no_plt_show

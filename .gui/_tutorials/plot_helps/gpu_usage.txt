@@ -1,4 +1,0 @@
---run_dir
---no_legend
---save_to_file
---no_plt_show

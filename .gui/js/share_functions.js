@@ -1,7 +1,16 @@
 "use strict";
 
+function add_default_layout_data (layout) {
+	layout["width"] = get_graph_width();
+	layout["height"] = get_graph_height();
+	layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+	layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+
+	return layout;
+}
+
 function get_marker_size() {
-	return 16;
+	return 12;
 }
 
 function get_text_color() {
@@ -23,7 +32,7 @@ function get_font_data() {
 	}
 }
 
-function get_title_data(name, axis_type = "") {
+function get_axis_title_data(name, axis_type = "") {
 	if(axis_type) {
 		return {
 			text: name,
@@ -229,14 +238,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 			}
 		});
 
-		let layout = {
-			width: get_graph_width(),
-			height: get_graph_height(),
-			paper_bgcolor: 'rgba(0,0,0,0)',
-			plot_bgcolor: 'rgba(0,0,0,0)'
-		}
-
-		Plotly.newPlot('parallel-plot', [trace], layout);
+		Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
 	}
 
 	updatePlot();
@@ -303,10 +305,10 @@ function plotWorkerUsage() {
 	let layout = {
 		title: "Worker Usage Over Time",
 		xaxis: {
-			title: get_title_data("Time", "date")
+			title: get_axis_title_data("Time", "date")
 		},
 		yaxis: {
-			title: get_title_data("Number of Workers")
+			title: get_axis_title_data("Number of Workers")
 		},
 		legend: {
 			x: 0,
@@ -357,18 +359,18 @@ function plotCPUAndRAMUsage() {
 	var layout = {
 		title: 'CPU and RAM Usage Over Time',
 		xaxis: {
-			title: get_title_data("Timestamp", "date"),
+			title: get_axis_title_data("Timestamp", "date"),
 			tickmode: 'array',
 			tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
 			ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
 			tickangle: -45
 		},
 		yaxis: {
-			title: get_title_data("CPU Usage (%)"),
+			title: get_axis_title_data("CPU Usage (%)"),
 			rangemode: 'tozero'
 		},
 		yaxis2: {
-			title: get_title_data("RAM Usage (MB)"),
+			title: get_axis_title_data("RAM Usage (MB)"),
 			overlaying: 'y',
 			side: 'right',
 			rangemode: 'tozero'
@@ -376,15 +378,11 @@ function plotCPUAndRAMUsage() {
 		legend: {
 			x: 0.1,
 			y: 0.9
-		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
-		width: get_graph_width(),
-		height: get_graph_height()
+		}
 	};
 
 	var data = [trace1, trace2];
-	Plotly.newPlot('mainWorkerCPURAM', data, layout);
+	Plotly.newPlot('mainWorkerCPURAM', data, add_default_layout_data(layout));
 	$("#mainWorkerCPURAM").data("loaded", "true");
 }
 
@@ -501,10 +499,10 @@ function plotScatter2d() {
 				let layout = {
 					title: layoutTitle,
 					xaxis: {
-						title: get_title_data(xCol)
+						title: get_axis_title_data(xCol)
 					},
 					yaxis: {
-						title: get_title_data(yCol)
+						title: get_axis_title_data(yCol)
 					},
 					showlegend: false,
 					width: get_graph_width(),
@@ -699,20 +697,16 @@ function plotScatter3d() {
 						title: layoutTitle,
 						scene: {
 							xaxis: {
-								title: get_title_data(xCol)
+								title: get_axis_title_data(xCol)
 							},
 							yaxis: {
-								title: get_title_data(yCol)
+								title: get_axis_title_data(yCol)
 							},
 							zaxis: {
-								title: get_title_data(zCol)
+								title: get_axis_title_data(zCol)
 							}
 						},
-						showlegend: false,
-						width: get_graph_width(),
-						height: get_graph_height(),
-						paper_bgcolor: 'rgba(0,0,0,0)',
-						plot_bgcolor: 'rgba(0,0,0,0)'
+						showlegend: false
 					};
 
 					let spinnerContainer = document.createElement("div");
@@ -779,7 +773,7 @@ function plotScatter3d() {
 
 					let subDiv = document.createElement("div");
 					plotDiv.replaceChild(subDiv, spinnerContainer);
-					Plotly.newPlot(subDiv, [trace], layout);
+					Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
 				}
 			}
 		}
@@ -880,10 +874,10 @@ async function load_pareto_graph() {
 				let layout = {
 					title: `${cleanXMetric} vs ${cleanYMetric}`,
 					xaxis: {
-						title: get_title_data(cleanXMetric)
+						title: get_axis_title_data(cleanXMetric)
 					},
 					yaxis: {
-						title: get_title_data(cleanYMetric)
+						title: get_axis_title_data(cleanYMetric)
 					},
 					hovermode: "closest",
 					paper_bgcolor: 'rgba(0,0,0,0)',
@@ -986,28 +980,24 @@ async function plot_worker_cpu_ram() {
 		const layout = {
 			title: `Worker CPU and RAM Usage - ${hostname}`,
 			xaxis: {
-				title: get_title_data("Timestamp", "date")
+				title: get_axis_title_data("Timestamp", "date")
 			},
 
 			yaxis: {
-				title: get_title_data("CPU Usage (%)"),
+				title: get_axis_title_data("CPU Usage (%)"),
 				side: "left",
 				color: "red"
 			},
 			yaxis2: {
-				title: get_title_data("RAM Usage (MB)"),
+				title: get_axis_title_data("RAM Usage (MB)"),
 				side: "right",
 				overlaying: "y",
 				color: "blue"
 			},
-			showlegend: true,
-			paper_bgcolor: 'rgba(0,0,0,0)',
-			plot_bgcolor: 'rgba(0,0,0,0)',
-			width: get_graph_width(),
-			height: get_graph_height()
+			showlegend: true
 		};
 
-		Plotly.newPlot(chartId, [cpuTrace, ramTrace], layout);
+		Plotly.newPlot(chartId, [cpuTrace, ramTrace], add_default_layout_data(layout));
 		i++;
 	});
 
@@ -1126,19 +1116,15 @@ function plotBoxplot() {
 	let layout = {
 		title: 'Boxplot of Numerical Columns',
 		xaxis: {
-			title: get_title_data("Columns")
+			title: get_axis_title_data("Columns")
 		},
 		yaxis: {
-			title: get_title_data("Value")
+			title: get_axis_title_data("Value")
 		},
-		showlegend: false,
-		width: get_graph_width(),
-		height: get_graph_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		showlegend: false
 	};
 
-	Plotly.newPlot(plotDiv, traces, layout);
+	Plotly.newPlot(plotDiv, traces, add_default_layout_data(layout));
 	$("#plotBoxplot").data("loaded", "true");
 }
 
@@ -1171,22 +1157,18 @@ function plotHeatmap() {
 
 	var layout = {
 		xaxis: {
-			title: get_title_data("Columns")
+			title: get_axis_title_data("Columns")
 		},
 		yaxis: {
-			title: get_title_data("Columns")
+			title: get_axis_title_data("Columns")
 		},
-		showlegend: false,
-		width: get_graph_width(),
-		height: get_graph_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		showlegend: false
 	};
 
 	var plotDiv = document.getElementById("plotHeatmap");
 	plotDiv.innerHTML = "";
 
-	Plotly.newPlot(plotDiv, [trace], layout);
+	Plotly.newPlot(plotDiv, [trace], add_default_layout_data(layout));
 	$("#plotHeatmap").data("loaded", "true");
 }
 
@@ -1228,20 +1210,16 @@ function plotHistogram() {
 	let layout = {
 		title: 'Histogram of Numerical Columns',
 		xaxis: {
-			title: get_title_data("Value")
+			title: get_axis_title_data("Value")
 		},
 		yaxis: {
-			title: get_title_data("Frequency")
+			title: get_axis_title_data("Frequency")
 		},
 		showlegend: true,
-		barmode: 'overlay',
-		width: get_graph_width(),
-		height: get_graph_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		barmode: 'overlay'
 	};
 
-	Plotly.newPlot(plotDiv, traces, layout);
+	Plotly.newPlot(plotDiv, traces, add_default_layout_data(layout));
 	$("#plotHistogram").data("loaded", "true");
 }
 
@@ -1288,21 +1266,17 @@ function plotViolin() {
 	let layout = {
 		title: 'Violin Plot of Numerical Columns',
 		yaxis: {
-			title: get_title_data("Value")
+			title: get_axis_title_data("Value")
 		},
 
 		xaxis: {
-			title: get_title_data("Columns")
+			title: get_axis_title_data("Columns")
 		},
 
-		showlegend: false,
-		width: get_graph_width(),
-		height: get_graph_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		showlegend: false
 	};
 
-	Plotly.newPlot(plotDiv, traces, layout);
+	Plotly.newPlot(plotDiv, traces, add_default_layout_data(layout));
 	$("#plotViolin").data("loaded", "true");
 }
 
@@ -1337,14 +1311,10 @@ function plotExitCodesPieChart() {
 
 	var layout = {
 		title: 'Exit Code Distribution',
-		showlegend: true,
-		width: get_graph_width(),
-		height: get_graph_height(),
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)'
+		showlegend: true
 	};
 
-	Plotly.newPlot(plotDiv, [trace], layout);
+	Plotly.newPlot(plotDiv, [trace], add_default_layout_data(layout));
 	$("#plotExitCodesPieChart").data("loaded", "true");
 }
 
@@ -1387,23 +1357,19 @@ function plotResultEvolution() {
 		let layout = {
 			title: `Evolution of ${resultName} over time`,
 			xaxis: {
-				title: get_title_data("Time", "date")
+				title: get_axis_title_data("Time", "date")
 			},
 			yaxis: {
-				title: get_title_data(resultName)
+				title: get_axis_title_data(resultName)
 			},
 
-			showlegend: true,
-			width: get_graph_width(),
-			height: get_graph_height(),
-			paper_bgcolor: 'rgba(0,0,0,0)',
-			plot_bgcolor: 'rgba(0,0,0,0)'
+			showlegend: true
 		};
 
 		let subDiv = document.createElement("div");
 		document.getElementById("plotResultEvolution").appendChild(subDiv);
 
-		Plotly.newPlot(subDiv, [trace], layout);
+		Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
 	});
 
 	$("#plotResultEvolution").data("loaded", "true");
@@ -1450,22 +1416,18 @@ function plotResultPairs() {
 
 			let layout = {
 				xaxis: {
-					title: get_title_data(xName)
+					title: get_axis_title_data(xName)
 				},
 				yaxis: {
-					title: get_title_data(yName)
+					title: get_axis_title_data(yName)
 				},
-				showlegend: false,
-				width: get_graph_width(),
-				height: get_graph_height(),
-				paper_bgcolor: 'rgba(0,0,0,0)',
-				plot_bgcolor: 'rgba(0,0,0,0)'
+				showlegend: false
 			};
 
 			let subDiv = document.createElement("div");
 			plotDiv.appendChild(subDiv);
 
-			Plotly.newPlot(subDiv, [trace], layout);
+			Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
 		}
 	}
 

@@ -47,28 +47,31 @@ args = parser.parse_args()
 
 @beartype
 def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, str] = None) -> None:
-    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+    if args is not None:
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
 
-    if dataframe is None or res_col_name not in dataframe:
-        if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
-        sys.exit(169)
+        if dataframe is None or res_col_name not in dataframe:
+            if not os.environ.get("NO_NO_RESULT_ERROR"):
+                print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
+            sys.exit(169)
 
-    plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 8))
 
-    # Lineplot der Ergebnisse über trial_index
-    sns.lineplot(x='trial_index', y='result', data=dataframe)
-    plt.title('Results over Trial Index')
-    plt.xlabel('Trial Index')
-    plt.ylabel('Result')
+        # Lineplot der Ergebnisse über trial_index
+        sns.lineplot(x='trial_index', y='result', data=dataframe)
+        plt.title('Results over Trial Index')
+        plt.xlabel('Trial Index')
+        plt.ylabel('Result')
 
-    if save_to_file:
-        fig = plt.figure(1)
-        if fig is not None and args is not None and plt is not None:
-            helpers.save_to_file(fig, args, plt)
+        if save_to_file:
+            fig = plt.figure(1)
+            if fig is not None and args is not None and plt is not None:
+                helpers.save_to_file(fig, args, plt)
+        else:
+            if args is not None and not args.no_plt_show:
+                plt.show()
     else:
-        if args is not None and not args.no_plt_show:
-            plt.show()
+        print("args was none!")
 
 def update_graph() -> None:
     if args is not None:

@@ -1,4 +1,6 @@
 # DESCRIPTION: Plot number of workers over time
+# TITLE: Plot number of workers over time
+# FULL_DESCRIPTION: Shows the amount of requested workers, and the amount of real workers over time.
 # EXPECTED FILES: worker_usage.csv
 # TEST_OUTPUT_MUST_CONTAIN: Requested Number of Workers
 # TEST_OUTPUT_MUST_CONTAIN: Number of Current Workers

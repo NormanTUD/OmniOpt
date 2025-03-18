@@ -1,4 +1,6 @@
 # DESCRIPTION: Plot CPU and RAM Usage
+# TITLE: CPU/RAM Usage
+# FULL_DESCRIPTION: Plot CPU and RAM Usage over time for the main worker
 # EXPECTED FILES: cpu_ram_usage.csv
 
 import importlib.util

@@ -1,4 +1,6 @@
 # DESCRIPTION: Kernel-Density estimation plot
+# TITLE: Kernel-Density-Estimation-Plots (KDE)
+# FULL_DESCRIPTION: <p>Kernel-Density-Estimation-Plots, short <i>KDE</i>-Plots, group different runs into so-called bins by their result range and parameter range.</p><p>Each grouped result gets a color, green means lower, red means higher, and is plotted as overlaying bar charts.</p><p>These graphs thus show you, which parameter range yields which results, and how many of them have been tried, and how 'good' they were, i.e. closer to the minimum (green).</p>
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Histogram for
 # TEST_OUTPUT_MUST_CONTAIN: Count

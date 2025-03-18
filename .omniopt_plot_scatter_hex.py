@@ -1,4 +1,6 @@
 # DESCRIPTION: Hex-Scatter plot
+# TITLE: Hex-Scatter plot
+# FULL_DESCRIPTION: <p>Similar to scatter plot, but here many runs are grouped into hexagonal subspaces of the parameter combinations, and the groups are coloured by their average result, and as such you can see an approximation of the function space. This allows you to quickly grasp 'good' areas of your hyperparameter space.</p>
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Number of evaluations shown
 # TEST_OUTPUT_MUST_CONTAIN: mean result

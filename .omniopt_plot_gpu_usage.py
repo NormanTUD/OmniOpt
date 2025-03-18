@@ -1,4 +1,6 @@
 # DESCRIPTION: Plot GPU usage over time on different hosts
+# TITLE: Plot GPU usage over time on different hosts
+# FULL_DESCRIPTION: <p>Shows the workload of different GPUs on all nodes that jobs of an evaluation has run on over time.</p>
 # EXPECTED FILES: gpu_usage_
 # TEST_OUTPUT_MUST_CONTAIN: GPU Usage Over Time
 # TEST_OUTPUT_MUST_CONTAIN: pci.bus_id

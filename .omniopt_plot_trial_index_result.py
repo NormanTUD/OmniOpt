@@ -1,4 +1,6 @@
 # DESCRIPTION: Plot trial index/result
+# TITLE: Plot trial index/result
+# FULL_DESCRIPTION: <p>The trial-index is a continuous number that, for each run that is completed, is increased. Using it as <i>x</i>-axis allows you to trace how the results developed over time. Usually, the result should go down (at minimization runs) over time, though it may spike out a bit.</p>
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Results over Trial Index
 # TEST_OUTPUT_MUST_CONTAIN: Trial Index

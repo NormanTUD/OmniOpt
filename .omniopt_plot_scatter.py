@@ -1,4 +1,6 @@
 # DESCRIPTION: Scatter plot
+# TITLE: Scatter-2d
+# FULL_DESCRIPTION: <p>The scatter plot shows you all 2d combinations of the hyperparameter space and, for each evaluation, a dot is printed. The color of the dot depends on the result value of this specific run. The lower, the greener, and the higher, the more red they are. Thus, you can see how many results were attained and how they were, and where they have been searched.</p>
 # EXPECTED FILES: results.csv
 # TEST_OUTPUT_MUST_CONTAIN: Number of evaluations shown
 # TEST_OUTPUT_MUST_CONTAIN: mean result

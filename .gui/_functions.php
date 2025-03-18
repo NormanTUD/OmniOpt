@@ -294,7 +294,8 @@
 
 		foreach ($arguments as $group => $data) {
 			if (!empty($data["args"])) {
-				if ($data["desc"]) {
+				$desc = "";
+				if (isset($data["desc"])) {
 					$desc =  "- {$data['desc']}";
 				}
 				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong>$desc</td>\n</tr>\n";
@@ -317,5 +318,21 @@
 	function parse_arguments_and_print_html_table ($file_path) {
 		$arguments = parse_arguments($file_path);
 		echo generate_argparse_html_table($arguments);
+	}
+
+	function extract_magic_comment($file_path, $descriptionKey) {
+		if (!file_exists($file_path)) {
+			return null;
+		}
+
+		$pattern = "/#\s*" . preg_quote($descriptionKey, "/") . ":\s*(.*)/";
+
+		foreach (file($file_path) as $line) {
+			if (preg_match($pattern, $line, $matches)) {
+				return trim($matches[1]);
+			}
+		}
+
+		return null;
 	}
 ?>

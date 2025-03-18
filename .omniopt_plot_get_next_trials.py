@@ -1,4 +1,6 @@
 # DESCRIPTION: Plot the number of wanted and expected trials
+# FULL_DESCRIPTION: <p>Each time the <samp>ax_client.get_next_trials()</samp>-function is called, it is logged how many new evaluations should be retrieved, and how many actually are retrieved. This graph is probably not useful for anyone except for the developer of OmniOpt2 for debugging, but still, I included it here.</p>
+# TITLE: Plot Get Next Trials
 # EXPECTED FILES: get_next_trials.csv
 # TEST_OUTPUT_MUST_CONTAIN: Got
 # TEST_OUTPUT_MUST_CONTAIN: Requested

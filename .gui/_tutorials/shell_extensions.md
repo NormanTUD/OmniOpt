@@ -1,6 +1,6 @@
 # Shell-Extensions (`bash`, `zsh`)
 
-<!-- Extensions for tab-completetion for ZSH and Bash-Shells -->
+<!-- Extensions for tab-completion for ZSH and Bash-Shells -->
 
 <div id="toc"></div>
 

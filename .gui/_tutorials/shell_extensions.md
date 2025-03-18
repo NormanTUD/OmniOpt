@@ -1,4 +1,4 @@
-# Shell-Extensions (bash, zsh)
+# Shell-Extensions (`bash`, `zsh`)
 
 <!-- Extensions for tab-completetion for ZSH and Bash-Shells -->
 

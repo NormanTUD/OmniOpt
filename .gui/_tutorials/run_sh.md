@@ -1,4 +1,4 @@
-# Create <samp>run.sh</samp>-file &amp; modify your program
+# Create `run.sh`-file & modify your program
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 
@@ -12,7 +12,7 @@ There are basically three steps you need to do to optimize your program with Omn
 
 ## Script Example
 
-To make your script robust enough for the environment of OmniOpt2 on HPC-Systems, it is recommended that you do not run your script directly in the objective program string. Rather, it is recommended that you create a <samp>run.sh</samp>-file from which your program gets run.
+To make your script robust enough for the environment of OmniOpt2 on HPC-Systems, it is recommended that you do not run your script directly in the objective program string. Rather, it is recommended that you create a `run.sh`-file from which your program gets run.
 
 It may look like this:
 
@@ -37,15 +37,15 @@ python3 /absolute/path/to_script.py $@
 exit $? # Exit with exit code of python
 ```
 
-Even though <samp>sbatch</samp> may inherit shell variables like loaded modules, it is not recommended to rely on that heavily, because, especially when copying the <samp>curl</samp>-command from this website, you may forget loading the correct modules. This makes your script much more robust to changes.
+Even though `sbatch` may inherit shell variables like loaded modules, it is not recommended to rely on that heavily, because, especially when copying the `curl`-command from this website, you may forget loading the correct modules. This makes your script much more robust to changes.
 
-Also, always load specific module-versions and never let <samp>lmod</samp> guess the versions you want. Once these change, you'll almost certainly have problems otherwise.
+Also, always load specific module-versions and never let `lmod` guess the versions you want. Once these change, you'll almost certainly have problems otherwise.
 
 ## Parse Arguments from the Command Line
 
 ### Using sys.argv
 
-The following Python program demonstrates how to parse command line arguments using <samp>sys.argv</samp>:
+The following Python program demonstrates how to parse command line arguments using `sys.argv`:
 
 ```python
 import sys
@@ -84,7 +84,7 @@ python3 script.py %(epochs) %(learning_rate) %(model_name)
 
 ### Using argparse
 
-The following Python program demonstrates how to parse command line arguments using <samp>argparse</samp>:
+The following Python program demonstrates how to parse command line arguments using `argparse`:
 
 ```python
 import argparse
@@ -127,9 +127,9 @@ Example OmniOpt2-call:
 python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_name %(model_name)
 ```
 
-#### Advantages of using <samp>argparse</samp>
+#### Advantages of using `argparse`
 
 - Order of arguments does not matter; they are matched by name.
-- Type checking is automatically handled based on the type specified in <samp>add_argument</samp>.
+- Type checking is automatically handled based on the type specified in `add_argument`.
 - Generates helpful usage messages if the arguments are incorrect or missing.
 - Supports optional arguments and more complex argument parsing needs.

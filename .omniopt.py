@@ -5696,6 +5696,12 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     try:
         for k in range(0, nr_of_jobs_to_get):
+            if not ax_client.experiment:
+                print_red("ax_client.experiment was not defined.")
+                my_exit(101)
+
+                sys.exit(101)
+
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()

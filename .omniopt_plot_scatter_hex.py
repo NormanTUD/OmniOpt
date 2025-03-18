@@ -245,7 +245,7 @@ def main() -> None:
             update_graph(csv_file_path, args.min, args.max)
 
 # Define update function for the button
-def update_graph(csv_file_path, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
+def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event:

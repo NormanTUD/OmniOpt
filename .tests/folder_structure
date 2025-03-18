@@ -38,12 +38,12 @@ for state_file in $(ls runs/*/*/state_files 2>/dev/null | grep -v "^runs" | sort
 done
 
 for state_file in "${state_files[@]}"; do
-	if ! grep "$state_file" .gui/_tutorials/folder_structure.php 2>&1 >/dev/null; then
-		errmsg="State file $state_file does not appear in .gui/_tutorials/folder_structure.php"
+	if ! grep "$state_file" .gui/_tutorials/folder_structure.md 2>&1 >/dev/null; then
+		errmsg="State file >>$state_file<< does not appear in .gui/_tutorials/folder_structure.md"
 		red_text "$errmsg"
 		errors+=("$errmsg")
 	#else
-	#	green_text "$state_file does appear in .gui/_tutorials/folder_structure.php"
+	#	green_text "$state_file does appear in .gui/_tutorials/folder_structure.md"
 	fi
 done
 

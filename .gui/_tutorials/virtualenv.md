@@ -21,7 +21,7 @@ while `uname -m` yields to your CPU architecture (usually `x86_64`),
 
 If you cannot write in your home, for example, because it is too full, you can set the path where the virtual environment will be installed and used to. Simply set the variable:
 
-```
+```bash
 export root_venv_dir=/path/where/it/should/be/installed/to
 ```
 

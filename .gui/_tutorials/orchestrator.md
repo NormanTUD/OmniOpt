@@ -11,7 +11,7 @@ restarting on a different node, restarting in general, and just excluding the no
 
 ## Example <samp>orchestrator.yaml</samp>-file
 
-```
+```yaml
 errors:
   - name: GPUDisconnected
     match_strings:

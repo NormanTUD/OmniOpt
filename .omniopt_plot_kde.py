@@ -66,72 +66,73 @@ def check_rows_cols_or_die(num_rows: int, num_cols: int) -> None:
 def plot_histograms(dataframe: pd.DataFrame) -> None:
     global fig
 
-    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+    if args is not None:
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
 
-    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', res_col_name]
-    numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
+        exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', res_col_name]
+        numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
 
-    num_plots = len(numeric_columns)
-    num_rows = 1
-    num_cols = num_plots
+        num_plots = len(numeric_columns)
+        num_rows = 1
+        num_cols = num_plots
 
-    num_rows, num_cols = get_num_rows_cols(num_plots, num_rows, num_cols)
+        num_rows, num_cols = get_num_rows_cols(num_plots, num_rows, num_cols)
 
-    check_rows_cols_or_die(num_rows, num_cols)
+        check_rows_cols_or_die(num_rows, num_cols)
 
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
-    try:
-        axes = axes.flatten()
-    except Exception as e:
-        if "'Axes' object has no attribute 'flatten'" not in str(e):
-            print(e)
-            tb = traceback.format_exc()
-            print(tb)
-
-            sys.exit(145)
-
-    for i, col in enumerate(numeric_columns):
+        fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 10))
         try:
-            ax = axes[i]
-        except TypeError:
-            ax = axes
+            axes = axes.flatten()
+        except Exception as e:
+            if "'Axes' object has no attribute 'flatten'" not in str(e):
+                print(e)
+                tb = traceback.format_exc()
+                print(tb)
 
-        values = dataframe[col]
-        if res_col_name not in dataframe:
-            if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"KDE: {res_col_name} column not found in dataframe. That may mean that the job had no valid runs")
-            sys.exit(169)
-        result_values = dataframe[res_col_name]
-        if args is not None:
-            bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
-            colormap = plt.get_cmap('RdYlGn_r')
+                sys.exit(145)
 
-            for j in range(args.bins):
-                color = colormap(j / 9)  # Calculate color based on colormap
-                bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
-                bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}'
-                ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
+        for i, col in enumerate(numeric_columns):
+            try:
+                ax = axes[i]
+            except TypeError:
+                ax = axes
 
-            ax.set_title(f'Histogram for {col}')
-            ax.set_xlabel(col)
-            ax.set_ylabel('Count')
-            if not args.no_legend:
-                ax.legend(loc='upper right')
+            values = dataframe[col]
+            if res_col_name not in dataframe:
+                if not os.environ.get("NO_NO_RESULT_ERROR"):
+                    print(f"KDE: {res_col_name} column not found in dataframe. That may mean that the job had no valid runs")
+                sys.exit(169)
+            result_values = dataframe[res_col_name]
+            if args is not None:
+                bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
+                colormap = plt.get_cmap('RdYlGn_r')
 
-    # Hide any unused subplots
+                for j in range(args.bins):
+                    color = colormap(j / 9)  # Calculate color based on colormap
+                    bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
+                    bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}'
+                    ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
 
-    nr_axes = 1
+                ax.set_title(f'Histogram for {col}')
+                ax.set_xlabel(col)
+                ax.set_ylabel('Count')
+                if not args.no_legend:
+                    ax.legend(loc='upper right')
 
-    try:
-        nr_axes = len(axes)
-    except Exception:
-        pass
+        # Hide any unused subplots
 
-    for j in range(num_plots, nr_axes):
-        axes[j].axis('off')
+        nr_axes = 1
 
-    plt.tight_layout()
-    save_to_file_or_show_canvas()
+        try:
+            nr_axes = len(axes)
+        except Exception:
+            pass
+
+        for j in range(num_plots, nr_axes):
+            axes[j].axis('off')
+
+        plt.tight_layout()
+        save_to_file_or_show_canvas()
 
 @beartype
 def save_to_file_or_show_canvas() -> None:

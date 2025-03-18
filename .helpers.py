@@ -783,7 +783,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: Union[None, str]) -> Union[pd.DataFrame, None]:
+def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]:
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
     if df:

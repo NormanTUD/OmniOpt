@@ -235,7 +235,7 @@
 		$current_group = "Ungrouped"; // Default group if no add_argument_group is found
 
 		// Regex patterns
-		$pattern_group = "/(\w+)\s*=\s*self\.parser\.add_argument_group\(\s*['\"](.+?)['\"],\s*['\"](.+?)['\"]/";
+		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*['\"](.+?)['\"],\s*['\"](.+?)['\"]/";
 		$pattern_argument = "/\.add_argument\(\s*['\"]([^'\"]+)['\"](?:,\s*[^)]*help=['\"]([^'\"]+)['\"])?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
 
 		// Check if file exists
@@ -269,11 +269,15 @@
 				$default = isset($matches[4]) ? trim($matches[4], "\"'") : "-";
 
 				// Try to detect the last known group (by variable name reference)
-				foreach (array_reverse($group_vars) as $var => $group) {
-					if (strpos($line, $var . ".add_argument") !== false) {
-						$groups[$group]["args"][] = [$arg_name, htmlentities($description), $default];
-						break;
+				if(count($group_vars)) {
+					foreach (array_reverse($group_vars) as $var => $group) {
+						if (strpos($line, $var . ".add_argument") !== false) {
+							$groups[$group]["args"][] = [$arg_name, htmlentities($description), $default];
+							break;
+						}
 					}
+				} else {
+					$groups["Ungrouped"]["args"][] = [$arg_name, htmlentities($description), $default];
 				}
 			}
 		}
@@ -290,7 +294,10 @@
 
 		foreach ($arguments as $group => $data) {
 			if (!empty($data["args"])) {
-				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong> - {$data['desc']}</td>\n</tr>\n";
+				if ($data["desc"]) {
+					$desc =  "- {$data['desc']}";
+				}
+				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong>$desc</td>\n</tr>\n";
 				foreach ($data["args"] as [$name, $desc, $default]) {
 					$html .= "<tr>\n<td>\n";
 					$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$name</code></pre>\n";

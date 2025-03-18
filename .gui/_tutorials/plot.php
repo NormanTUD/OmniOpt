@@ -147,6 +147,9 @@ All plot scripts support to export your plot to a file.
 <pre class="invert_in_dark_mode"><code class="language-bash">./omniopt_plot runs/my_experiment/0 worker</code></pre>
 <img alt="Worker" src="imgs/worker_usage.png" /><br>
 <h4 id="worker_options"><samp>worker</samp> Options</h4>
-<pre><?php require "plot_helps/worker.txt"; ?></pre>
+
+<?php
+	parse_arguments_and_print_html_table("../.omniopt_plot_worker.py");
+?>
 
 Shows the amount of requested workers, and the amount of real workers over time.

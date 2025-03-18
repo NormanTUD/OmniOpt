@@ -656,6 +656,17 @@ def get_data(
 ) -> Optional[pd.DataFrame]:
     res_col_name = "result"
 
+    dir_path = '/'.join(csv_file_path.split('/')[:-1]) + '/'
+
+    result_names_txt = f"{dir_path}/result_names.txt"
+
+    if os.path.exists(result_names_txt):
+        with open(result_names_txt, 'r') as file:
+            lines = file.readlines()
+            if len(lines) > 1:
+                raise ValueError(f"The file >{result_names_txt} contains more than one line<")
+            res_col_name = lines[0].strip()
+
     if not isinstance(csv_file_path, str):
         return None
 

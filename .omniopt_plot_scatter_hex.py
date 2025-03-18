@@ -176,9 +176,9 @@ def plot_single_graph(_params: list) -> None:
 @beartype
 def plot_graphs(_params: list) -> None:
     global fig
-    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values = _params
+    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path = _params
 
-    cmap, norm, colors = helpers.get_color_list(df, args, plt)
+    cmap, norm, colors = helpers.get_color_list(df, args, plt, csv_file_path)
 
     if colors is not None:
         pass # for fooling linter
@@ -212,7 +212,7 @@ def main() -> None:
 
         helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
 
-        parameter_combinations = helpers.get_parameter_combinations(df_filtered)
+        parameter_combinations = helpers.get_parameter_combinations(df_filtered, csv_file_path)
 
         non_empty_graphs = helpers.get_non_empty_graphs(parameter_combinations, df_filtered, True)
 
@@ -223,7 +223,7 @@ def main() -> None:
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
 
         if not args.no_legend:
             set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
@@ -242,10 +242,10 @@ def main() -> None:
             if not args.no_plt_show:
                 plt.show()
 
-            update_graph(args.min, args.max)
+            update_graph(csv_file_path, args.min, args.max)
 
 # Define update function for the button
-def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
+def update_graph(csv_file_path, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
     global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
 
     if event:
@@ -253,7 +253,7 @@ def update_graph(event: Any = None, _min: Union[int, float, None] = None, _max: 
         pass
 
     filter_out_strings = True
-    helpers._update_graph([plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button])
+    helpers._update_graph([csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button])
 
 if __name__ == "__main__":
     try:

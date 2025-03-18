@@ -233,7 +233,7 @@ def check_if_results_are_empty(result_column_values: Any, csv_file_path: str) ->
         sys.exit(11)
 
 def get_result_column_values(df: pd.DataFrame, csv_file_path: str) -> Any:
-    res_col_name = "result"
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     result_column_values = df[res_col_name]
 
@@ -706,8 +706,8 @@ def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
     except Exception as e:
         print_color("red", f"ERROR: show_legend failed with error: {e}")
 
-def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
-    res_col_name = "result"
+def get_parameter_combinations(df_filtered: pd.DataFrame, csv_file_path: str) -> list:
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     r = get_r(df_filtered)
 
@@ -722,8 +722,8 @@ def get_parameter_combinations(df_filtered: pd.DataFrame) -> list:
 
     return parameter_combinations
 
-def get_colors(df: pd.DataFrame) -> Any:
-    res_col_name = "result"
+def get_colors(df: pd.DataFrame, csv_file_path: str) -> Any:
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     colors = None
 
@@ -731,7 +731,7 @@ def get_colors(df: pd.DataFrame) -> Any:
         colors = df[res_col_name]
     except KeyError as e:
         if str(e) == f"'{res_col_name}'":
-            print("Could not find any results")
+            print(f"get_colors: Could not find any results for column {res_col_name}")
             sys.exit(3)
         else:
             print(f"Key-Error: {e}")
@@ -739,8 +739,8 @@ def get_colors(df: pd.DataFrame) -> Any:
 
     return colors
 
-def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any) -> Any:
-    colors = get_colors(df)
+def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any, csv_file_path: str) -> Any:
+    colors = get_colors(df, csv_file_path)
 
     if colors is None:
         print_color("yellow", "colors is None. Cannot plot.")
@@ -802,7 +802,7 @@ def _update_graph(_params: list) -> None:
             df_filtered = get_df_filtered(_args, df)
 
             check_filtering(df, df_filtered, csv_file_path, _min, _max)
-            plot_parameters([df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
+            plot_parameters([csv_file_path, df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max])
 
             plt.draw()
         else:
@@ -816,8 +816,8 @@ def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: 
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
 def plot_parameters(_params: list) -> None:
-    df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
-    parameter_combinations = get_parameter_combinations(df_filtered)
+    csv_file_path, df, df_filtered, _args, fig, button, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, plot_graphs, set_title, filter_out_strings, _min, _max = _params
+    parameter_combinations = get_parameter_combinations(df_filtered, csv_file_path)
     non_empty_graphs = get_non_empty_graphs(parameter_combinations, df_filtered, filter_out_strings)
 
     num_subplots, num_cols, num_rows = get_num_subplots_rows_and_cols(non_empty_graphs)

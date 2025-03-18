@@ -187,6 +187,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - *pareto_front_table.txt*: If multiple RESULT names are specified, this is the table of the calculated pareto-front
 - *run_uuid*: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run
 - *uuid_of_continued_run*: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
+- *ax_client.experiment.json*: A JSON file containing the whole ax-client
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

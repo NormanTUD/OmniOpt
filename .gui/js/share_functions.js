@@ -313,14 +313,10 @@ function plotWorkerUsage() {
 		legend: {
 			x: 0,
 			y: 1
-		},
-		paper_bgcolor: 'rgba(0,0,0,0)',
-		plot_bgcolor: 'rgba(0,0,0,0)',
-		width: get_graph_width(),
-		height: get_graph_height(),
+		}
 	};
 
-	Plotly.newPlot('workerUsagePlot', [trace1, trace2], layout);
+	Plotly.newPlot('workerUsagePlot', [trace1, trace2], add_default_layout_data(layout));
 	$("#workerUsagePlot").data("loaded", "true");
 }
 
@@ -504,11 +500,7 @@ function plotScatter2d() {
 					yaxis: {
 						title: get_axis_title_data(yCol)
 					},
-					showlegend: false,
-					width: get_graph_width(),
-					height: get_graph_height(),
-					paper_bgcolor: 'rgba(0,0,0,0)',
-					plot_bgcolor: 'rgba(0,0,0,0)'
+					showlegend: false
 				};
 				let subDiv = document.createElement("div");
 
@@ -575,7 +567,7 @@ function plotScatter2d() {
 				};
 
 				plotDiv.replaceChild(subDiv, spinnerContainer);
-				Plotly.newPlot(subDiv, [trace], layout);
+				Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
 			}
 		}
 	}
@@ -879,11 +871,7 @@ async function load_pareto_graph() {
 					yaxis: {
 						title: get_axis_title_data(cleanYMetric)
 					},
-					hovermode: "closest",
-					paper_bgcolor: 'rgba(0,0,0,0)',
-					plot_bgcolor: 'rgba(0,0,0,0)',
-					width: get_graph_width(),
-					height: get_graph_height()
+					hovermode: "closest"
 				};
 
 				let trace = {
@@ -897,7 +885,7 @@ async function load_pareto_graph() {
 					name: `${cleanXMetric} vs ${cleanYMetric}`
 				};
 
-				Plotly.newPlot(div.id, [trace], layout);
+				Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
 
 				already_plotted.push(plot_key);
 			}

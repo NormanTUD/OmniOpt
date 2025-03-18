@@ -13,6 +13,10 @@
 			return "<ul>\n$items\n</ul>";
 		}, $markdown);
 
+		$markdown = preg_replace_callback('/```csv\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_CSV>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_CSV>>>';
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```json\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK_JSON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_JSON>>>';
 		}, $markdown);
@@ -63,6 +67,10 @@
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_YAML>>>(.*?)<<<CODEBLOCK_YAML>>>/s', function($matches) {
 			return "<pre class='invert_in_dark_mode'><code class='language-yaml'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_CSV>>>(.*?)<<<CODEBLOCK_CSV>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-csv'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_JSON>>>(.*?)<<<CODEBLOCK_JSON>>>/s', function($matches) {

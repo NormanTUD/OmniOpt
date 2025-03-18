@@ -352,9 +352,7 @@ def get_csv_file_path(_args: Any) -> str:
 
     return csv_file_path
 
-def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame) -> pd.DataFrame:
-    res_col_name = "result"
-
+def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame, res_col_name: str) -> pd.DataFrame:
     negative_rows_to_remove = df[df[res_col_name].astype(str) == '-' + NO_RESULT].index
     positive_rows_to_remove = df[df[res_col_name].astype(str) == NO_RESULT].index
 
@@ -646,14 +644,7 @@ def handle_csv_exceptions(csv_file_path: str, error: Exception) -> None:
         print(error_messages.get(type(error), "Unknown error."))
     sys.exit({pd.errors.EmptyDataError: 19, pd.errors.ParserError: 12, UnicodeDecodeError: 7}.get(type(error), 1))
 
-def get_data(
-    NO_RESULT: Any,
-    csv_file_path: Optional[str],
-    _min: Optional[Union[int, float]],
-    _max: Optional[Union[int, float]],
-    old_headers_string: Optional[str] = None,
-    drop_columns_with_strings: Union[str, bool] = False
-) -> Optional[pd.DataFrame]:
+def get_result_name_or_default_from_csv_file_path(csv_file_path: str) -> str:
     res_col_name = "result"
 
     dir_path = '/'.join(csv_file_path.split('/')[:-1]) + '/'
@@ -666,6 +657,18 @@ def get_data(
             if len(lines) > 1:
                 raise ValueError(f"The file >{result_names_txt} contains more than one line<")
             res_col_name = lines[0].strip()
+
+    return res_col_name
+
+def get_data(
+    NO_RESULT: Any,
+    csv_file_path: Optional[str],
+    _min: Optional[Union[int, float]],
+    _max: Optional[Union[int, float]],
+    old_headers_string: Optional[str] = None,
+    drop_columns_with_strings: Union[str, bool] = False
+) -> Optional[pd.DataFrame]:
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     if not isinstance(csv_file_path, str):
         return None
@@ -681,11 +684,11 @@ def get_data(
         df = filter_by_result_range(df, res_col_name, _min, _max)
         if drop_columns_with_strings:
             df = drop_string_columns(df)
-        return drop_empty_results(NO_RESULT, df)
+        return drop_empty_results(NO_RESULT, df, res_col_name)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
         handle_csv_exceptions(csv_file_path, e)
-    except KeyError:
-        print(f"Column '{res_col_name}' could not be found in {csv_file_path}.")
+    except KeyError as e:
+        print(f"Column '{res_col_name}' could not be found in {csv_file_path}: {e}.")
         sys.exit(6)
 
     return None

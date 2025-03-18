@@ -10,19 +10,19 @@ Sometimes, you have several goals in mind when optimizing your neural network. F
 
 It's very similar to using [single-optimization](tutorials.php?tutorial=run_sh), the only differences being that, instead of using
 ```python
-print("RESULT: {loss}")
+print(f"RESULT: {loss}")
 ```
 
 you now need two lines: 
 
 ```python
-print("LOSS: {loss}")
+print(f"LOSS: {loss}")
 ```
 
 and
 
 ```python
-print("PREDICTION_TIME: {prediction_time}")
+print(f"PREDICTION_TIME: {prediction_time}")
 ```
 
 and you need the option

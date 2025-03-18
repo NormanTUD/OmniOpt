@@ -1,3 +1,10 @@
+<?php
+	if(file_exists("_functions.php")) {
+		include_once("_functions.php");
+	} else {
+		include_once("../_functions.php");
+	}
+?>
 <h1>Plot your results</h1>
 
 <!-- What kinds of plots are available and how to use them -->

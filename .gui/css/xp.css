@@ -710,14 +710,12 @@ ul.tree-view{
 
 @keyframes sliding{
 	0%{
-	transform: translateX(-30px)
-}
+		transform: translateX(-30px)
+	}
 
-to{
-	transform: translateX(100%)
-}
-
-
+	to{
+		transform: translateX(100%)
+	}
 }
 
 progress{

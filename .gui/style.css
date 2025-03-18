@@ -196,8 +196,8 @@ select {
 /* Allgemeine Stile für alle Tabs */
 .tab {
 	display: inline-block;
-	padding: 10px 20px;
-	margin: 5px;
+	padding: 0px;
+	margin: 0px;
 	font-size: 16px;
 	font-weight: bold;
 	text-align: center;
@@ -205,29 +205,6 @@ select {
 	text-decoration: none !important;
 	transition: background-color 0.3s, color 0.3s;
 	color: unset !important;
-}
-
-/* Inaktiver Tab */
-.inactive_tab {
-	background-color: #f0f0f0;
-	color: #555;
-	border: 2px solid #ddd;
-}
-
-.inactive_tab:hover {
-	background-color: #e0e0e0;
-	color: #444;
-}
-
-/* Aktiver Tab */
-.active_tab {
-	background-color: #4CAF50;
-	color: white;
-	border: 2px solid #4CAF50;
-}
-
-.active_tab:hover {
-	background-color: #45a049;
 }
 
 .tooltipster-base {
@@ -454,4 +431,12 @@ input:checked + .slider .mode-text {
 .share_folder_buttons {
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.nav_tab_button {
+	margin: 10px;
+}
+
+.header_table {
+	margin: 10px;
 }

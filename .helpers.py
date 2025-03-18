@@ -794,7 +794,7 @@ def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None
     return None
 
 def _update_graph(_params: list) -> None:
-    plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
+    csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:
         csv_file_path = get_csv_file_path(_args)

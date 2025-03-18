@@ -31,7 +31,7 @@ fi
 
 described_params=()
 
-for _described_param in $(cat $file | grep "<td><samp" | sed -e 's#\s.*<td><samp>##' -e 's#<.*##' -e 's#^export ##' | sed -e 's#=.*##'); do
+for _described_param in $(cat $file | egrep "<td><pre class=.invert_in_dark_mode" | sed -e 's#\s.*<td><pre class="invert_in_dark_mode"><code class="language-bash">##' -e 's#<.*##' -e 's#^export ##' | sed -e 's#=.*##'); do
 	described_params+=("$_described_param")
 done
 

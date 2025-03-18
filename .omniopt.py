@@ -817,6 +817,18 @@ def run_live_share_command() -> Tuple[str, str]:
     return "", ""
 
 @beartype
+def extract_and_print_qr(text: str) -> None:
+    match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
+    if match:
+        data = match.group(0)
+        import qrcode
+
+        qr = qrcode.QRCode(box_size=1, error_correction=qrcode.constants.ERROR_CORRECT_L, border=0)
+        qr.add_data(data)
+        qr.make()
+        qr.print_ascii(out=sys.stdout)
+
+@beartype
 def live_share() -> bool:
     global SHOWN_LIVE_SHARE_COUNTER
 
@@ -830,6 +842,8 @@ def live_share() -> bool:
 
     if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
         print_green(stderr)
+
+        extract_and_print_qr(stderr)
 
         time.sleep(1)
 

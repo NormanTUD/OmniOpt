@@ -32,3 +32,4 @@ pyspellchecker
 pyfiglet
 setuptools
 pyright
+qrcode

@@ -546,7 +546,7 @@ def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame
     return non_empty_graphs
 
 def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
-    res_col_name = "result"
+    res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
 
     all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
@@ -695,7 +695,7 @@ def get_data(
     return None
 
 def show_legend(_args: Any, _fig: Any, _scatter: Any, axs: Any) -> None:
-    res_col_name = "result"
+    res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
 
     try:
         if not _args.no_legend:
@@ -852,8 +852,8 @@ def use_matplotlib(_args: Any) -> None:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None) -> pd.DataFrame:
-    res_col_name = "result"
+def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None, csv_file_path: str = "") -> pd.DataFrame:
+    res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     try:
         if min_value is not None:

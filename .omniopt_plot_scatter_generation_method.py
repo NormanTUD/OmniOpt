@@ -81,7 +81,7 @@ def update_graph() -> None:
         dataframe = pd.read_csv(csv_path)
 
         if args.min is not None or args.max is not None:
-            dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
+            dataframe = helpers.filter_data(args, dataframe, args.min, args.max, csv_path)
 
         if dataframe.empty:
             if not os.environ.get("NO_NO_RESULT_ERROR"):

@@ -86,7 +86,7 @@ def update_graph() -> None:
 
             if args.min is not None or args.max is not None:
                 try:
-                    dataframe = helpers.filter_data(args, dataframe, args.min, args.max)
+                    dataframe = helpers.filter_data(args, dataframe, args.min, args.max, args.run_dir + "/results.csv")
                 except KeyError:
                     if not os.environ.get("PLOT_TESTS"):
                         print(f"{args.run_dir}/results.csv seems have no result column.")

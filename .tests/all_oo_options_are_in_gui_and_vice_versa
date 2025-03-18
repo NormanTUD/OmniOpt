@@ -26,7 +26,7 @@ if command -v php 2>/dev/null >/dev/null; then
 	gui_options="$(cat .gui/gui_data.js | grep "id:" | sed -e 's#.*:##' -e 's#",##' -e 's#"##' -e 's#^\s*##')"
 
 	cd .gui
-	help_options="$(php _tutorials/help.php | grep '<pre>--' | sed -e 's#.*<pre>--##' -e 's#</pre>.*##')"
+	help_options="$(php _tutorials/help.php | grep "<pre class='invert_in_dark_mode'><code class='language-bash'>--" | sed -e 's#.*>--##' -e 's#</.*##')"
 	cd ..
 
 	errors=0

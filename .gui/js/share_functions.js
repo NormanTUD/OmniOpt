@@ -982,7 +982,6 @@ async function plot_worker_cpu_ram() {
 			xaxis: {
 				title: get_axis_title_data("Timestamp", "date")
 			},
-
 			yaxis: {
 				title: get_axis_title_data("CPU Usage (%)"),
 				side: "left",
@@ -1268,11 +1267,9 @@ function plotViolin() {
 		yaxis: {
 			title: get_axis_title_data("Value")
 		},
-
 		xaxis: {
 			title: get_axis_title_data("Columns")
 		},
-
 		showlegend: false
 	};
 
@@ -1362,7 +1359,6 @@ function plotResultEvolution() {
 			yaxis: {
 				title: get_axis_title_data(resultName)
 			},
-
 			showlegend: true
 		};
 

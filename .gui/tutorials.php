@@ -22,8 +22,6 @@
 		}
 	} else {
 ?>
-		<h1>Tutorials</h1>
-
 		<ul>
 <?php
 			$files = scandir('_tutorials/');

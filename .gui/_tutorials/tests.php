@@ -28,43 +28,43 @@
 		<th>Meaning</th>
 	</tr>
 	<tr>
-		<td><samp>--max_eval=(INT)</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--max_eval=(INT)</code></pre></td>
 		<td>How many evaluations should be tried for each test (the lower, the faster)</td>
 	</tr>
 	<tr>
-		<td><samp>--num_random_steps=(INT)</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--num_random_steps=(INT)</code></pre></td>
 		<td>Number of random steps that should be tried (the lower, the faster)</td>
 	</tr>
 	<tr>
-		<td><samp>--num_parallel_jobs=(INT)</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--num_parallel_jobs=(INT)</code></pre></td>
 		<td>How many parallel jobs should be started (ignored on non-sbatch-systems)</td>
 	</tr>
 	<tr>
-		<td><samp>--run_with_coverage</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--run_with_coverage</code></pre></td>
 		<td>Allows to use coverage instead of python3 for coverage testing unit test coverage</td>
 	</tr>
 	<tr>
-		<td><samp>--exit_on_first_error</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--exit_on_first_error</code></pre></td>
 		<td>Exit on first error</td>
 	</tr>
 	<tr>
-		<td><samp>--gpus=(INT)</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--gpus=(INT)</code></pre></td>
 		<td>How many GPUs you want for each worker/need to allocate an sbatch job</td>
 	</tr>
 	<tr>
-		<td><samp>--debug</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--debug</code></pre></td>
 		<td>Enables debug mode</td>
 	</tr>
 	<tr>
-		<td><samp>--no_plots</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--no_plots</code></pre></td>
 		<td>Disables plot tests</td>
 	</tr>
 	<tr>
-		<td><samp>--quick</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--quick</code></pre></td>
 		<td>Only runs quick tests (faster)</td>
 	</tr>
 	<tr>
-		<td><samp>--reallyquick</samp></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">--reallyquick</code></pre></td>
 		<td>Only runs really quick tests (fastest)</td>
 	</tr>
 </table>

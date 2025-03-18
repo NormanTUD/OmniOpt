@@ -70,7 +70,6 @@
 		if (isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER['SCRIPT_FILENAME'], 'share.php') !== false) {
 ?>
 			<link rel="stylesheet" href="css/share.css">
-			<link rel="stylesheet" href="css/xp.css">
 			<meta name="robots" content="noindex, nofollow">
 			<?php js("plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>
@@ -83,7 +82,7 @@
 		}
 ?>
 
-
+		<link rel="stylesheet" href="css/xp.css">
 		<script>
 			apply_theme_based_on_system_preferences();
 		</script>
@@ -189,7 +188,6 @@
 						}
 
 						$tab_is_active = preg_match("/^$fn.php/", $current_file);
-						$tab_class = $tab_is_active ? 'active_tab' : 'inactive_tab';
 						$_link = "$fn.php";
 
 						if (!file_exists($_link)) {
@@ -200,8 +198,12 @@
 
 						$link_no_php = preg_replace("/\.php$/", "", $link_no_php);
 
+						if($tab_is_active) {
+							$n = "<i><b>$n</b></i>";
+						}
+
 						echo "<td class='header_table invert_in_dark_mode' style='border: 0'>";
-						echo "\t<a href='".get_main_script_dir()."/$link_no_php' class='tab $tab_class'>$n</a>\n";
+						echo "\t<a href='".get_main_script_dir()."/$link_no_php' class='tab'><button class='nav_tab_button'>$n</button></a>\n";
 						echo "</td>";
 					}
 

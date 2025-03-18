@@ -90,7 +90,7 @@
 						$name = $heading_content;
 					}
 
-					$file = preg_replace("/\.php$/", "", $file);
+					$file = preg_replace("/\.(md|php)$/", "", $file);
 
 					$comment = "";
 					$_comment = get_html_comment($file_path);

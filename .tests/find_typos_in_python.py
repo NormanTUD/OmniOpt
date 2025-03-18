@@ -46,18 +46,22 @@ def is_valid_word(word):
 
 def extract_strings_from_ast(node):
     """Extract all string literals from the AST."""
-    if isinstance(node, ast.Str):
+    # Check for string constants
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return [node.value]
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):  # For Python 3.8+
-        return [node.value]
+
+    # Handle lists and tuples of string literals
     if isinstance(node, (ast.List, ast.Tuple)):
         strings = []
         for element in node.elts:
             strings.extend(extract_strings_from_ast(element))
         return strings
+
+    # Handle binary operations with string concatenation
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
         return extract_strings_from_ast(node.left) + extract_strings_from_ast(node.right)
-    return []
+
+    return []  # Return empty list if no string literals are found
 
 def clean_word(word):
     # Entfernt alle nicht-alphabetischen Zeichen und behält nur "a-zA-Z"

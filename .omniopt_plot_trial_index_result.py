@@ -47,9 +47,11 @@ args = parser.parse_args()
 
 @beartype
 def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, str] = None) -> None:
-    if dataframe is None or "result" not in dataframe:
+    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+
+    if dataframe is None or res_col_name not in dataframe:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print("General: Result column not found in dataframe. That may mean that the job had no valid runs")
+            print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
         sys.exit(169)
 
     plt.figure(figsize=(12, 8))

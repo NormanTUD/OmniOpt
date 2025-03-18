@@ -66,7 +66,7 @@ def check_rows_cols_or_die(num_rows: int, num_cols: int) -> None:
 def plot_histograms(dataframe: pd.DataFrame) -> None:
     global fig
 
-    res_col_name = "result"
+    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
 
     exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', res_col_name]
     numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]

@@ -1,4 +1,4 @@
-# <tt>config.toml</tt>, <tt>config.yaml</tt>, <tt>config.json</tt>
+# `config.toml`, `config.yaml`, `config.json`
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 
@@ -6,11 +6,11 @@
 
 ## What are TOML, JSON and YAML files? What are they good for?
 
-[TOML](https://en.wikipedia.org/wiki/TOML), [JSON](https://en.wikipedia.org/wiki/JSON) and [YAML](https://en.wikipedia.org/wiki/YAML) are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via <tt>--config_toml path/to/your/configuration.toml</tt>, <tt>--config_json path/to/your/configuration.json</tt> or <tt>--config_yaml path/to/your/configuration.yaml</tt>.
+[TOML](https://en.wikipedia.org/wiki/TOML), [JSON](https://en.wikipedia.org/wiki/JSON) and [YAML](https://en.wikipedia.org/wiki/YAML) are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via `--config_toml path/to/your/configuration.toml`, `--config_json path/to/your/configuration.json` or `--config_yaml path/to/your/configuration.yaml`.
 
 Basically, any parameter that can be given to the CLI can also be given over one of those two options. You can also merge CLI parameters with config-files, while CLI parameters take precedence.
 
-Only one of these can be used. You cannot, for example, use <tt>--config_toml</tt> and <tt>--config_json</tt> together.
+Only one of these can be used. You cannot, for example, use `--config_toml` and `--config_json` together.
 
 ## Example files
 

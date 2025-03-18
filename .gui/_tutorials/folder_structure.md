@@ -185,8 +185,8 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - *cpu_ram_usage.csv*: Logs CPU and RAM usage
 - *result_names.txt*: A list of RESULT names
 - *pareto_front_table.txt*: If multiple RESULT names are specified, this is the table of the calculated pareto-front
-- *run_uuid*: A file containing a <a href='https://de.wikipedia.org/wiki/Universally_Unique_Identifier'>UUID</a> for each run
-- *uuid_of_continued_run*: A file containing a <a href='https://de.wikipedia.org/wiki/Universally_Unique_Identifier'>UUID</a> from the job it has been continued from
+- *run_uuid*: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run
+- *uuid_of_continued_run*: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

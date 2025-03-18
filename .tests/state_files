@@ -33,13 +33,21 @@ cd $SCRIPT_DIR
 
 cd ..
 
-for existing_state_file in $(ls runs/*/*/state_files 2>/dev/null | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
-	if ! grep "\`$existing_state_file\`" .gui/_tutorials/folder_structure.md 2>&1 >/dev/null; then
-		errmsg="State file type $existing_state_file does not appear in .gui/_tutorials/folder_structure.md"
-		red_text "$errmsg"
-		errors+=("$errmsg")
-	fi
-done
+md_file=".gui/_tutorials/folder_structure.md"
+
+if [[ -e $md_file ]]; then
+	for existing_state_file in $(ls runs/*/*/state_files 2>/dev/null | grep -v "^runs" | sort | uniq | grep -v '^\s*$'); do
+		if ! grep "\`$existing_state_file\`" $md_file 2>&1 >/dev/null; then
+			errmsg="State file type $existing_state_file does not appear in $md_file"
+			red_text "$errmsg"
+			errors+=("$errmsg")
+		fi
+	done
+else
+	errmsg="$md_file not found"
+	red_text $errmsg
+	errors+=("$errmsg")
+fi
 
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))

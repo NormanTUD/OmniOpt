@@ -29,16 +29,16 @@ gpus = 0
 run_program = "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'"
 
 [[parameter]]
-param = ["int_param", "range", "-100", "10", "int"]
+param = ["int_param", "range", -100, 10, "int"]
 
 [[parameter]]
-param = ["float_param", "range", "-100", "10", "float"]
+param = ["float_param", "range", -100, 10, "float"]
 
 [[parameter]]
 param = ["choice_param", "choice", "1,2,4,8,16,hallo"]
 
 [[parameter]]
-param = ["int_param_two", "range", "-100", "10", "int"]
+param = ["int_param_two", "range", -100, 10, "int"]
 
 num_random_steps = 1
 model = "BOTORCH_MODULAR"
@@ -57,22 +57,19 @@ worker_timeout: 5
 max_eval: 2
 num_parallel_jobs: 20
 gpus: 0
-run_program: >-
-  ./.tests/optimization_example --int_param='%(int_param)'
-  --float_param='%(float_param)' --choice_param='%(choice_param)'
-  --int_param_two='%(int_param_two)'
+run_program: ./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'
 parameter:
   - param:
       - int_param
       - range
-      - '-100'
-      - '10'
+      - -100
+      - 10
       - int
   - param:
       - float_param
       - range
-      - '-100'
-      - '10'
+      - -100
+      - 10
       - float
   - param:
       - choice_param
@@ -81,8 +78,8 @@ parameter:
   - param:
       - int_param_two
       - range
-      - '-100'
-      - '10'
+      - -100
+      - 10
       - int
     num_random_steps: 1
     model: BOTORCH_MODULAR
@@ -108,8 +105,8 @@ parameter:
       "param": [
         "int_param",
         "range",
-        "-100",
-        "10",
+        -100,
+        10,
         "int"
       ]
     },
@@ -117,8 +114,8 @@ parameter:
       "param": [
         "float_param",
         "range",
-        "-100",
-        "10",
+        -100,
+        10,
         "float"
       ]
     },
@@ -136,8 +133,8 @@ parameter:
       "param": [
         "int_param_two",
         "range",
-        "-100",
-        "10",
+        -100,
+        10,
         "int"
       ]
     }

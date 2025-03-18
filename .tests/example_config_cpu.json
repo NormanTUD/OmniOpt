@@ -44,8 +44,8 @@
       "param": [
         "int_param_two",
         "range",
-        "-100",
-        "10",
+        -100,
+        10,
         "int"
       ]
     }

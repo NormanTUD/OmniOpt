@@ -121,7 +121,7 @@
 			$output = ob_get_clean();
 
 			if ($return_var !== 0) {
-				throw new Exception('Fehler beim Ausführen des PHP-Skripts.');
+				throw new Exception('Error at executing PHP-Script.');
 			}
 
 			$html_content = preg_replace("/<head>.*<\/head>/is", "", $output);
@@ -174,7 +174,7 @@
 		exit;
 	}
 
-	$php_files = []; // Liste der zu durchsuchenden Dateien
+	$php_files = [];
 
 	require "searchable_php_files.php";
 

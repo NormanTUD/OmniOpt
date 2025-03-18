@@ -5696,33 +5696,29 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     try:
         for k in range(0, nr_of_jobs_to_get):
-            if not ax_client.experiment:
-                print_red("ax_client.experiment was not defined.")
-                my_exit(101)
-            else:
-                progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
+            progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
-                start_time = time.time()
-                #params, trial_index = ax_client.get_next_trial(force=True)
+            start_time = time.time()
+            #params, trial_index = ax_client.get_next_trial(force=True)
 
-                ####################################
-                print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
-                generator_run = global_gs.gen(
-                    experiment=ax_client.experiment,
-                    n=1,
-                    pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-                )
-                trial = ax_client.experiment.new_trial(generator_run)
-                params = generator_run.arms[0].parameters
-                trial_index = submitted_jobs() + NR_INSERTED_JOBS + k
-                trial.mark_running(no_runner_required=True)
-                ####################################
+            ####################################
+            print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
+            generator_run = global_gs.gen(
+                experiment=ax_client.experiment,
+                n=1,
+                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+            )
+            trial = ax_client.experiment.new_trial(generator_run)
+            params = generator_run.arms[0].parameters
+            trial_index = submitted_jobs() + NR_INSERTED_JOBS + k
+            trial.mark_running(no_runner_required=True)
+            ####################################
 
-                trials_dict[trial_index] = params
-                print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
-                end_time = time.time()
+            trials_dict[trial_index] = params
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
+            end_time = time.time()
 
-                trial_durations.append(end_time - start_time)
+            trial_durations.append(end_time - start_time)
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)

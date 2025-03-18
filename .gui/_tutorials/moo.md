@@ -27,7 +27,7 @@ print("PREDICTION_TIME: {prediction_time}")
 
 and you need the option
 
-```python
+```bash
 --result_names LOSS PREDICTION_TIME
 ```
 
@@ -37,7 +37,7 @@ The Extra-option can be set in the GUI in the *Show additional parameters*-table
 
 By default, OmniOpt2 minimizes all parameters. Minimizing one and maximizing another parameter can easily be done though, by specifying it in the RESULT-Names-Parameter:
 
-```python
+```bash
 --result_names LOSS=min PREDICTION_TIME=max
 ```
 

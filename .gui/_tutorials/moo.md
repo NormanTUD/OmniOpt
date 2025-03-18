@@ -9,25 +9,25 @@ Sometimes, you have several goals in mind when optimizing your neural network. F
 ## How to use Multi-Objective-Optimization with OmniOpt2?
 
 It's very similar to using [single-optimization](tutorials.php?tutorial=run_sh), the only differences being that, instead of using
-```
+```python
 print("RESULT: {loss}")
 ```
 
 you now need two lines: 
 
-```
+```python
 print("LOSS: {loss}")
 ```
 
 and
 
-```
+```python
 print("PREDICTION_TIME: {prediction_time}")
 ```
 
 and you need the option
 
-```
+```python
 --result_names LOSS PREDICTION_TIME
 ```
 
@@ -37,7 +37,7 @@ The Extra-option can be set in the GUI in the *Show additional parameters*-table
 
 By default, OmniOpt2 minimizes all parameters. Minimizing one and maximizing another parameter can easily be done though, by specifying it in the RESULT-Names-Parameter:
 
-```
+```python
 --result_names LOSS=min PREDICTION_TIME=max
 ```
 

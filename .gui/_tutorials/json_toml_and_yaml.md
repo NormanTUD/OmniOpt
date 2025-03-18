@@ -16,7 +16,7 @@ Only one of these can be used. You cannot, for example, use `--config_toml` and 
 
 ### TOML
 
-```
+```toml
 live_share = true
 partition = "alpha"
 experiment_name = "__main__tests__"
@@ -47,7 +47,7 @@ auto_exclude_defective_hosts = true
 
 ### YAML
 
-```
+```yaml
 live_share: true
 partition: alpha
 experiment_name: __main__tests__
@@ -91,7 +91,7 @@ parameter:
 
 ### JSON
 
-```
+```json
 {
   "experiment_name": "__main__tests__",
   "gpus": 0,

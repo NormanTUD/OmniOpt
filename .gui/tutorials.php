@@ -7,6 +7,18 @@
 			return "<ul>\n$items\n</ul>";
 		}, $markdown);
 
+		$markdown = preg_replace_callback('/```json\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_JSON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_JSON>>>';
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/```yaml\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_YAML>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_YAML>>>';
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/```toml\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_TOML>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_TOML>>>';
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```python\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_PYTHON>>>';
 		}, $markdown);
@@ -41,6 +53,18 @@
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK>>>(.*?)<<<CODEBLOCK>>>/s', function($matches) {
 			return "<pre class='invert_in_dark_mode'><code>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_YAML>>>(.*?)<<<CODEBLOCK_YAML>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-yaml'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_JSON>>>(.*?)<<<CODEBLOCK_JSON>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-json'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_TOML>>>(.*?)<<<CODEBLOCK_TOML>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-toml'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_PYTHON>>>(.*?)<<<CODEBLOCK_PYTHON>>>/s', function($matches) {

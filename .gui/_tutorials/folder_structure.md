@@ -152,7 +152,6 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `checkpoint.json`: A JSON file containing all data needed to restore the experiment
 - `checkpoint.json.parameters.json`: A list of parameters for this run
 - `result_errors.log`: A list of errors for the run regarding the results
-- `env`: A dump of the environment, OmniOpt2 works in (useful for debugging)
 - `experiment_name`: The name of this experiment
 - `time_overview.txt`: A table of the runtimes (min, max, avg, median)
 - `failed_jobs`: The number of failed jobs

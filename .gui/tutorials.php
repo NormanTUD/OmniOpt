@@ -2,34 +2,38 @@
 	require "_header_base.php";
 
 	function convertMarkdownToHtml($markdown) {
-		$markdown = preg_replace('/^###### (.*)$/m', '<h6>$1</h6>', $markdown);
-		$markdown = preg_replace('/^##### (.*)$/m', '<h5>$1</h5>', $markdown);
-		$markdown = preg_replace('/^#### (.*)$/m', '<h4>$1</h4>', $markdown);
-		$markdown = preg_replace('/^### (.*)$/m', '<h3>$1</h3>', $markdown);
-		$markdown = preg_replace('/^## (.*)$/m', '<h2>$1</h2>', $markdown);
-		$markdown = preg_replace('/^# (.*)$/m', '<h1>$1</h1>', $markdown);
+		$markdown = preg_replace_callback('/```\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK>>>';
+		}, $markdown);
+
+		$markdown = preg_replace('/^###### (.*)$/m', "<h6>$1</h6>\n", $markdown);
+		$markdown = preg_replace('/^##### (.*)$/m', "<h5>$1</h5>\n", $markdown);
+		$markdown = preg_replace('/^#### (.*)$/m', "<h4>$1</h4>\n", $markdown);
+		$markdown = preg_replace('/^### (.*)$/m', "<h3>$1</h3>\n", $markdown);
+		$markdown = preg_replace('/^## (.*)$/m', "<h2>$1</h2>\n", $markdown);
+		$markdown = preg_replace('/^# (.*)$/m', "<h1>$1</h1>\n", $markdown);
 
 		$markdown = preg_replace('/\n\n/', '</p><p>', $markdown);
-		$markdown = preg_replace('/^(?!<h[1-6]>)(.*)$/m', '<p>$1</p>', $markdown);
+
+		$markdown = preg_replace('/^(?!<h[1-6]>)(?!<pre>)(?!<code>)(.*)$/m', '<p>$1</p>', $markdown);
 
 		$markdown = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $markdown);
 		$markdown = preg_replace('/__(.*?)__/', '<strong>$1</strong>', $markdown);
-
-		$markdown = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $markdown);
-		$markdown = preg_replace('/_(.*?)_/', '<em>$1</em>', $markdown);
+		$markdown = preg_replace('/\*(.*?)\*/', "<em>$1</em>\n", $markdown);
 
 		$markdown = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $markdown);
-
 		$markdown = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $markdown);
 
-		$markdown = preg_replace('/`(.*?)`/', '<code>$1</code>', $markdown);
+		$markdown = preg_replace('/`(.*?)`/', "<span class='invert_in_dark_mode'><code class='language-bash'>$1</code></span>\n", $markdown);
 
-		$markdown = preg_replace('/```(.*?)```/s', '<pre><code>$1</code></pre>', $markdown);
+		$markdown = preg_replace_callback('/<<<CODEBLOCK>>>(.*?)<<<CODEBLOCK>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
 
-		$markdown = preg_replace('/^\* (.*)$/m', '<ul><li>$1</li></ul>', $markdown);
-		$markdown = preg_replace('/^- (.*)$/m', '<ul><li>$1</li></ul>', $markdown);
+		$markdown = preg_replace('/^\* (.*)$/m', "<ul><li>$1</li></ul>\n", $markdown);
+		$markdown = preg_replace('/^- (.*)$/m', "<ul><li>$1</li></ul>\n", $markdown);
 
-		$markdown = preg_replace('/^\d+\. (.*)$/m', '<ol><li>$1</li></ol>', $markdown);
+		$markdown = preg_replace('/^\d+\. (.*)$/m', "<ol><li>$1</li></ol>\n", $markdown);
 
 		$markdown = preg_replace('/  \n/', '<br>', $markdown);
 
@@ -51,18 +55,19 @@
 	if (isset($_GET["tutorial"])) {
 		$tutorial_file = $_GET["tutorial"];
 		if (preg_match("/^[a-z_]+$/", $tutorial_file)) {
-			if (file_exists("_tutorials/$tutorial_file.php")) {
-				$tutorial_file = "$tutorial_file.php";
-			} else if (file_exists("_tutorials/$tutorial_file.md")) {
+			if (file_exists("_tutorials/$tutorial_file.md")) {
 				$tutorial_file = "$tutorial_file.md";
+			} else if (file_exists("_tutorials/$tutorial_file.php")) {
+				$tutorial_file = "$tutorial_file.php";
 			}
 		}
 
-		if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
+		if (preg_match("/^[a-z_]+\.md$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
+			convertFileToHtml("_tutorials/$tutorial_file");
+		} else if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
 			$load_file = "_tutorials/$tutorial_file";
 			include($load_file);
-		} else if (preg_match("/^[a-z_]+\.md$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
-			convertFileToHtml($tutorial_file);
+
 		} else {
 			echo "Invalid file: $tutorial_file";
 		}

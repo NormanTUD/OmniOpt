@@ -306,4 +306,9 @@
 		$html .= "</tbody>\n</table>";
 		return $html;
 	}
+
+	function parse_arguments_and_print_html_table ($file_path) {
+		$arguments = parse_arguments($file_path);
+		echo generate_argparse_html_table($arguments);
+	}
 ?>

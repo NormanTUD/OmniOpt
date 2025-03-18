@@ -9,6 +9,5 @@
 <?php
 	include("../_functions.php");
 	$file_path = "../.omniopt.py";
-	$arguments = parse_arguments($file_path);
-	echo generate_argparse_html_table($arguments);
+	parse_arguments_and_print_html_table($file_path);
 ?>

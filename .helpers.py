@@ -371,7 +371,6 @@ def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int,
 
 def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
     res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
-    "result"
 
     extreme_index = None
     if os.path.exists(_args.run_dir + "/state_files/maximize"):
@@ -654,7 +653,7 @@ def get_result_name_or_default_from_csv_file_path(csv_file_path: str) -> str:
     result_names_txt = f"{dir_path}/result_names.txt"
 
     if os.path.exists(result_names_txt):
-        with open(result_names_txt, 'r') as file:
+        with open(result_names_txt, mode='r', encoding="utf-8") as file:
             lines = file.readlines()
             if len(lines) > 1:
                 raise ValueError(f"The file >{result_names_txt} contains more than one line<")

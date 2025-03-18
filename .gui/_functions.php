@@ -117,5 +117,11 @@
 			return $matches[1];
 		}
 
+		$markdown_heading_pattern = '/^#{1,6}\s*(.*?)\s*$/m';
+
+		if (preg_match($markdown_heading_pattern, $file_content, $matches)) {
+			return $matches[1];
+		}
+
 		return null;
 	}

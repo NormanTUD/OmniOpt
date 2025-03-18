@@ -14,7 +14,7 @@
 	$_files = scandir('_tutorials/');
 
 	foreach ($_files as $file) {
-		if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
+		if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.(md|php)$/", $file)) {
 			$name = $file;
 
 			$heading_content = get_first_heading_content("_tutorials/$file");
@@ -23,7 +23,7 @@
 				$name = $heading_content;
 			}
 
-			$file = preg_replace("/\.php$/", "", $file);
+			$file = preg_replace("/\.(md|php)$/", "", $file);
 
 			$GLOBALS["files"]["tutorials"]["entries"][$file] = $name;
 		}

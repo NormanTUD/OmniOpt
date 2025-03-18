@@ -129,7 +129,7 @@
 			return $html_content;
 		} catch (Throwable $e) {
 			ob_end_clean();
-			return 'Fehler: ' . $e->getMessage();
+			return 'Error: ' . $e->getMessage();
 		}
 	}
 
@@ -181,7 +181,12 @@
 	foreach ($files as $fn => $n) {
 		if (is_array($n)) {
 			foreach ($n["entries"] as $sub_fn => $sub_n) {
-				$php_files[] = "_tutorials/$sub_fn.php";
+				$file_base = "_tutorials/$sub_fn";
+				if(file_exists("$file_base.php")) {
+					$php_files[] = "$file_base.php";
+				} else if(file_exists("$file_base.md")) {
+					$php_files[] = "$file_base.md";
+				}
 			}
 		} else {
 			$php_files[] = "$fn.php";
@@ -213,7 +218,7 @@
 		if ($file_path != "share.php" && $file_path != "usage_stats.php") {
 			$file_content = read_file_content($file_path);
 			if ($file_content !== false) {
-				$html_content = extract_html_from_php($file_path);
+				$html_content = preg_match("/\.md$/", $file_path) ? convertMarkdownToHtml(file_get_contents($file_path)) : extract_html_from_php($file_path);
 				$text_lines = explode("\n", $html_content); // Hier HTML-Inhalt in Zeilen aufteilen
 
 				$search_results = search_text_with_context($text_lines, $regex);
@@ -223,12 +228,14 @@
 							$entry = [
 								'content' => $result['line']
 							];
-							if ($result['context']) {
-								$tutorial_file = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.php$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
-								$entry['link'] = "tutorials?tutorial=" . $tutorial_file . '#' . $result['context']['id'];
-								$output[] = $entry;
-								$GLOBALS["cnt"] += 1;
+
+							$tutorial_file = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.(md|php)$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
+							$entry['link'] = "tutorials?tutorial=" . $tutorial_file;
+							if($result["context"]) {
+								$entry['link'] .= '#' . $result['context']['id'];
 							}
+							$output[] = $entry;
+							$GLOBALS["cnt"] += 1;
 						}
 					}
 				}

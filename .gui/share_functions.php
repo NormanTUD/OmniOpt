@@ -666,7 +666,7 @@
 			$folders = [];
 
 			while (($folder = readdir($dir)) !== false) {
-				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder)) {
+				if ($folder != "." && $folder != ".." && is_dir($folderPath . '/' . $folder) && preg_match("/^[a-zA-Z0-9-_]+$/", $folder)) {
 					$folders[] = $folder;
 				}
 			}

@@ -79,7 +79,7 @@
 <?php
 			$files = scandir('_tutorials/');
 			foreach ($files as $file) {
-				if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.php/", $file)) {
+				if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.(?:md|php)/", $file)) {
 					$name = $file;
 
 					$file_path = "_tutorials/$file";

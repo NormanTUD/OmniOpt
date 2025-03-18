@@ -1,21 +1,23 @@
-<h1><tt>config.toml</tt>, <tt>config.yaml</tt>, <tt>config.json</tt></h1>
+# <tt>config.toml</tt>, <tt>config.yaml</tt>, <tt>config.json</tt>
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 
 <div id="toc"></div>
 
-<h2 id="what_is_omniopt">What are TOML, JSON and YAML files? What are they good for?</h2>
+## What are TOML, JSON and YAML files? What are they good for?
 
-<p><a href="https://en.wikipedia.org/wiki/TOML" target="_blank">TOML</a>, <a href="https://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a> and <a href="https://en.wikipedia.org/wiki/YAML" target="_blank">YAML</a> are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via <tt>--config_toml path/to/your/configuration.toml</tt>, <tt>--config_json path/to/your/configuration.json</tt> or <tt>--config_yaml path/to/your/configuration.yaml</tt>.</p>
+[TOML](https://en.wikipedia.org/wiki/TOML), [JSON](https://en.wikipedia.org/wiki/JSON) and [YAML](https://en.wikipedia.org/wiki/YAML) are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via <tt>--config_toml path/to/your/configuration.toml</tt>, <tt>--config_json path/to/your/configuration.json</tt> or <tt>--config_yaml path/to/your/configuration.yaml</tt>.
 
-<p>Basically, any parameter that can be given to the CLI can also be given over one of those two options. You can also merge CLI parameters with config-files, while CLI parameters take precedence.</p>
+Basically, any parameter that can be given to the CLI can also be given over one of those two options. You can also merge CLI parameters with config-files, while CLI parameters take precedence.
 
-<p>Only one of these can be used. You cannot, for example, use <tt>--config_toml</tt> and <tt>--config_json</tt> together.</p>
+Only one of these can be used. You cannot, for example, use <tt>--config_toml</tt> and <tt>--config_json</tt> together.
 
-<h2 id="example_files">Example files</h2>
-<h3 id="toml">TOML</h3>
+## Example files
 
-<pre class="invert_in_dark_mode"><code class="language-bash">live_share = true
+### TOML
+
+```
+live_share = true
 partition = "alpha"
 experiment_name = "__main__tests__"
 mem_gb = 4
@@ -41,9 +43,12 @@ param = ["int_param_two", "range", "-100", "10", "int"]
 num_random_steps = 1
 model = "BOTORCH_MODULAR"
 auto_exclude_defective_hosts = true
-</code></pre>
-<h3 id="yaml">YAML</h3>
-<pre class="invert_in_dark_mode"><code class="language-bash">live_share: true
+```
+
+### YAML
+
+```
+live_share: true
 partition: alpha
 experiment_name: __main__tests__
 mem_gb: 4
@@ -82,10 +87,12 @@ parameter:
     num_random_steps: 1
     model: BOTORCH_MODULAR
     auto_exclude_defective_hosts: true
-</code></pre>
+```
 
-<h3 id="json">JSON</h3>
-<pre class="invert_in_dark_mode"><code class="language-bash">{
+### JSON
+
+```
+{
   "experiment_name": "__main__tests__",
   "gpus": 0,
   "live_share": true,
@@ -136,4 +143,4 @@ parameter:
     }
   ]
 }
-</code></pre>
+```

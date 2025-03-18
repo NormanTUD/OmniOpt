@@ -52,7 +52,7 @@ This command includes all necessary options to run a hyperparameter optimization
 
 The `--run_program` parameter needs the program to be executed as a base64-string because parsing spaces and newline in bash, where it is partially evaluated, [is very difficult](https://en.wikipedia.org/wiki/Delimiter#Delimiter_collision). However, it is possible to use a human-readable string, though it has to be converted to base64 by your shell:
 
-```
+```bash
 --run_program=$(echo -n "bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)" | base64 -w 0)
 ```
 
@@ -86,7 +86,7 @@ To build a docker container, simply run `./omniopt_docker` in the main folder. D
 
 The `./omniopt_docker` command will build the container. You can also run several commands directly from the `./omniopt_docker` command like this:
 
-```
+```bash
 ./omniopt_docker omniopt --tests
 ```
 

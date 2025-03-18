@@ -1116,30 +1116,44 @@ function plotBoxplot() {
 }
 
 function plotHeatmap() {
-	if ($("#plotHeatmap").data("loaded") == "true") {
+	if ($("#plotHeatmap").data("loaded") === "true") {
 		return;
 	}
-	var numericColumns = tab_results_headers_json.filter(col =>
-		!special_col_names.includes(col) && !result_names.includes(col) &&
-		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
-	);
+
+	var numericColumns = tab_results_headers_json.filter(col => {
+		if (special_col_names.includes(col) || result_names.includes(col)) {
+			return false;
+		}
+		let index = tab_results_headers_json.indexOf(col);
+		return tab_results_csv_json.every(row => {
+			let value = parseFloat(row[index]);
+			return !isNaN(value) && isFinite(value);
+		});
+	});
 
 	if (numericColumns.length < 2) {
-		console.error("Not enough columns for Heatmap");
+		console.error("Not enough valid numeric columns for Heatmap");
 		return;
 	}
 
-	var dataMatrix = numericColumns.map(col => {
+	var columnData = numericColumns.map(col => {
 		let index = tab_results_headers_json.indexOf(col);
 		return tab_results_csv_json.map(row => parseFloat(row[index]));
 	});
+
+	var dataMatrix = numericColumns.map((_, i) =>
+		numericColumns.map((_, j) => {
+			let values = columnData[i].map((val, index) => (val + columnData[j][index]) / 2);
+			return values.reduce((a, b) => a + b, 0) / values.length;
+		})
+	);
 
 	var trace = {
 		z: dataMatrix,
 		x: numericColumns,
 		y: numericColumns,
 		colorscale: 'Viridis',
-		type: 'heatmap',
+		type: 'heatmap'
 	};
 
 	var layout = {

@@ -202,7 +202,7 @@
 							$n = "<i><b>$n</b></i>";
 						}
 
-						echo "<td class='header_table invert_in_dark_mode' style='border: 0'>";
+						echo "<td class='header_table' style='border: 0'>";
 						echo "\t<a href='".get_main_script_dir()."/$link_no_php' class='tab'><button class='nav_tab_button'>$n</button></a>\n";
 						echo "</td>";
 					}

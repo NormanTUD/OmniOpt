@@ -170,7 +170,7 @@ select {
 
 .remove_parameter {
 	background-color: #f1807e !important;
-	background-image: linear-gradient(#db4a44, #f24f49);
+	background: linear-gradient(rgba(219, 74, 68, 0.5), rgba(242, 79, 73, 0.5));
 	border: 1px solid #db4a44;
 }
 

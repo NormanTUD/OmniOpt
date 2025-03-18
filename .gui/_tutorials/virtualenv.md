@@ -1,5 +1,7 @@
 # VirtualEnv
 
+<!-- What are Virtual Environments and how OmniOpt2 uses them -->
+
 ## What is a virtual environment?
 
 Most software depends on other software to work. This software usually needs to be there in a very specific version, and may conflict with other programs that need other versions of the same program. To solve this, *virtual environments* have been invented. They are a single folder containing all the dependencies your program needs.

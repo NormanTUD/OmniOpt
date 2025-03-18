@@ -787,6 +787,3 @@ progress: not([value]): :-moz-progress-bar{
 progress: not([value]): :-moz-progress-bar: not([value]){
 	animation: sliding 2s linear 0s infinite;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }
-
-
-/*# sourceMappingURL=XP.css.map */

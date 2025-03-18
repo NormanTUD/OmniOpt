@@ -2,6 +2,14 @@
 	require "_header_base.php";
 
 	function convertMarkdownToHtml($markdown) {
+		$markdown = preg_replace_callback('/```python\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_PYTHON>>>';
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/```bash\R*(.*?)```/s', function($matches) {
+			return '<<<CODEBLOCK_BASH>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_BASH>>>';
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK>>>';
 		}, $markdown);
@@ -27,6 +35,14 @@
 		$markdown = preg_replace('/`(.*?)`/', "<span class='invert_in_dark_mode'><code class='language-bash'>$1</code></span>\n", $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK>>>(.*?)<<<CODEBLOCK>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_PYTHON>>>(.*?)<<<CODEBLOCK_PYTHON>>>/s', function($matches) {
+			return "<pre class='invert_in_dark_mode'><code class='language-python'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<CODEBLOCK_BASH>>>(.*?)<<<CODEBLOCK_BASH>>>/s', function($matches) {
 			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
 		}, $markdown);
 

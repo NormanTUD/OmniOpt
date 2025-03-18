@@ -38,6 +38,9 @@ if command -v php 2>/dev/null >/dev/null; then
 
 	declare -a help_exceptions=(
 		raise_in_eval
+		config_yaml
+		config_json
+		config_toml
 		run_tests_that_fail_on_taurus
 		tests
 		parameter

@@ -199,9 +199,9 @@ This contains one folder for each subjob (i.e. single evaluation) that ran. Loca
 
 Inside each folder there are 4 files:
 
-- 2728975_0_log.err: This contains the stderr of the job.
-- 2728975_0_log.out: This contains the stdout of the job. Usually, this is where you need to look if you want to search for why something has gone wrong.
-- 2728975_0_result.pkl: Contains the result in a pickle-file
-- 2728975_submitted.pkl: Contains job infos in a pickle file
+- `2728975_0_log.err`: This contains the stderr of the job.
+- `2728975_0_log.out`: This contains the stdout of the job. Usually, this is where you need to look if you want to search for why something has gone wrong.
+- `2728975_0_result.pkl`: Contains the result in a pickle-file
+- `2728975_submitted.pkl`: Contains job infos in a pickle file
 
 (Replace '2728975' with the SLURM-Job-ID).

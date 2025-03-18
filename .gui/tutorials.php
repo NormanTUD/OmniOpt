@@ -2,6 +2,11 @@
 	require "_header_base.php";
 
 	function convertMarkdownToHtml($markdown) {
+		$markdown = preg_replace_callback('/(?:^[-*] .*(?:\n(?!\n)[-*] .*)*)/m', function ($matches) {
+			$items = preg_replace('/^[-*] (.*)$/m', '<li>$1</li>', $matches[0]);
+			return "<ul>\n$items\n</ul>";
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```python\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_PYTHON>>>';
 		}, $markdown);
@@ -21,9 +26,9 @@
 		$markdown = preg_replace('/^## (.*)$/m', "<h2>$1</h2>\n", $markdown);
 		$markdown = preg_replace('/^# (.*)$/m', "<h1>$1</h1>\n", $markdown);
 
-		$markdown = preg_replace('/\n\n/', '</p><p>', $markdown);
+		$markdown = preg_replace('/\n\n/', "<br>\n", $markdown);
 
-		$markdown = preg_replace('/^(?!<h[1-6]>)(?!<pre>)(?!<code>)(.*)$/m', '<p>$1</p>', $markdown);
+		#$markdown = preg_replace('/^(?!<h[1-6]>)(?!<pre>)(?!<code>)(.*)$/m', '<p>$1</p>', $markdown);
 
 		$markdown = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $markdown);
 		$markdown = preg_replace('/__(.*?)__/', '<strong>$1</strong>', $markdown);
@@ -45,9 +50,6 @@
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_BASH>>>(.*?)<<<CODEBLOCK_BASH>>>/s', function($matches) {
 			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
 		}, $markdown);
-
-		$markdown = preg_replace('/^\* (.*)$/m', "<ul><li>$1</li></ul>\n", $markdown);
-		$markdown = preg_replace('/^- (.*)$/m', "<ul><li>$1</li></ul>\n", $markdown);
 
 		$markdown = preg_replace('/^\d+\. (.*)$/m', "<ol><li>$1</li></ol>\n", $markdown);
 

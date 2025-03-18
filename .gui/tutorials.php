@@ -1,6 +1,12 @@
 <?php
 	require "_header_base.php";
 
+	function highlightBackticks($text) {
+		return preg_replace_callback('/`([^`]+)`/', function ($matches) {
+			return '<tt>' . htmlspecialchars($matches[1]) . '</tt>';
+		}, $text);
+	}
+
 	function convertMarkdownToHtml($markdown) {
 		$markdown = preg_replace_callback('/(?:^[-*] .*(?:\n(?!\n)[-*] .*)*)/m', function ($matches) {
 			$items = preg_replace('/^[-*] (.*)$/m', '<li>$1</li>', $matches[0]);
@@ -142,7 +148,7 @@
 					}
 
 
-					print "<li class='li_list'><a href='tutorials?tutorial=$file'>$name</a>$comment</li>\n";
+					print "<li class='li_list'><a href='tutorials?tutorial=$file'>".highlightBackticks($name)."</a>$comment</li>\n";
 				}
 			}
 ?>

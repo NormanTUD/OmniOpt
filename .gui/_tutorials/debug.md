@@ -1,19 +1,19 @@
-<h1>Debugging</h1>
+# Debugging
 
 <!-- How to find and solve bugs -->
 
 <div id="toc"></div>
 
-<h2 id="debug">How to find errors in my runs?</h2>
+## How to find errors in my runs?
 
-<p>OmniOpt2 saves many logs in the <a target="_blank" href="tutorials.php?tutorial=folder_structure"><samp>run</samp>-folder</a>. First, check the <samp>.stdout</samp>-file of
-the run. OmniOpt2 will tell you many things when it detects errors there.</p>
+OmniOpt2 saves many logs in the <a target="_blank" href="tutorials.php?tutorial=folder_structure">`run`-folder</a>. First, check the `.stdout`-file of
+the run. OmniOpt2 will tell you many things when it detects errors there.
 
-<p>If you don't find anything useful in the <samp>.stdout</samp>-file, look into the
-<samp>runs/my_experiment/0/single_runs/</samp>-folder. It contains the outputs of each
-worker in separate directories. It looks something like this:</p>
+If you don't find anything useful in the `.stdout`-file, look into the
+`runs/my_experiment/0/single_runs/`-folder. It contains the outputs of each
+worker in separate directories. It looks something like this:
 
-<pre>
+```
 submitit INFO (2024-07-08 17:34:57,444) - Starting with JobEnvironment(job_id=2387026, hostname=thinkpad44020211128, local_rank=0(1), node=0(1), global_rank=0(1))
 submitit INFO (2024-07-08 17:34:57,445) - Loading pickle: /home/norman/repos/OmniOpt/runs/__main__tests__/1/single_runs/2387026/2387026_submitted.pkl
 parameters: {'int_param': -100, 'float_param': -100.0, 'choice_param': 1, 'int_param_two': -5}
@@ -40,17 +40,17 @@ Result: -222001.32
 EXIT_CODE: 0
 submitit INFO (2024-07-08 17:34:57,477) - Job completed successfully
 submitit INFO (2024-07-08 17:34:57,477) - Exiting after successful completion
-</pre>
+```
 
-<p>The output (stdout and stderr) of your job is after the <samp>stdout:</samp> and before the <samp>EXIT_CODE: 0</samp>. Check
-this output for errors. Here, you'd see Slurm Errors for your job.</p>
+The output (stdout and stderr) of your job is after the `stdout:` and before the `EXIT_CODE: 0`. Check
+this output for errors. Here, you'd see Slurm Errors for your job.
 
-<p>Also check the exit-code. Some exit codes have special meanings, like 137, have special meaning. See this table for special exit codes:</p>
+Also check the exit-code. Some exit codes have special meanings, like 137, have special meaning. See this table for special exit codes:
 
-<p>The code between <samp>DEBUG INFOS START:</samp> and <samp>DEBUG INFOS END</samp> contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the <samp>x</samp>-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.</p>
+The code between `DEBUG INFOS START:` and `DEBUG INFOS END` contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the `x`-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.
 
 
-<p>If, for example, you have error code 137, that means you likely ran out of RAM and need to increase the amount of RAM for your workers.</p>
+If, for example, you have error code 137, that means you likely ran out of RAM and need to increase the amount of RAM for your workers.
 
 <table>
 	<thead>

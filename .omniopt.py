@@ -19,7 +19,6 @@ shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
 overwritten_to_random: bool = False
-global_gs = None
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
@@ -756,6 +755,7 @@ with console.status("[bold green]Loading ax logger...") as status:
 disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
 NVIDIA_SMI_LOGS_BASE = None
+global_gs: GenerationStrategy = None
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
@@ -5654,7 +5654,7 @@ def remove_extra_spaces(text: str) -> str:
     return re.sub(r'\s+', ' ', text).strip()
 
 @beartype
-def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: list) -> str:
+def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: List[float]) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     ret = ""
     if full_nr_of_jobs_to_get > 1:
@@ -5692,7 +5692,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trials_dict: dict = {}
 
-    trial_durations = []
+    trial_durations: List[float] = []
 
     try:
         for k in range(0, nr_of_jobs_to_get):
@@ -5718,7 +5718,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
             end_time = time.time()
 
-            trial_durations.append(end_time - start_time)
+            trial_durations.append(float(end_time - start_time))
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
@@ -6563,7 +6563,7 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
         metrics = [col for col in all_columns if col in arg_result_names]
 
         param_dicts = []
-        means = {metric: [] for metric in metrics}
+        means: dict = {metric: [] for metric in metrics}
 
         for row in reader:
             param_dict = {}
@@ -6582,12 +6582,12 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
         table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
-        row: list = []
-        row.extend(str(params[k]) for k in params.keys())
+        this_table_row: list = []
+        this_table_row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
             mean = means[metric][i]
-            row.append(f"{mean:.3f}")
-        table.add_row(*row, style="bold green")
+            this_table_row.append(f"{mean:.3f}")
+        table.add_row(*this_table_row, style="bold green")
 
     return table
 

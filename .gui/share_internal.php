@@ -82,18 +82,22 @@
 	$i = $offered_files_i[1];
 
 	foreach ($_FILES as $_file) {
-		if (preg_match("/log.(zip|err|out)$/", $_file["name"])) {
-			$_file_without_ending = pathinfo($_file["name"], PATHINFO_FILENAME);
-			if (!isset($offered_files[$_file_without_ending])) {
-				if (isset($_file["name"])) {
-					if ($_file["error"] != 0) {
-						print("File " . htmlentities($_file["name"]) . " could not be uploaded. Error-Code: " . $_file["error"]);
+		$file_name = $_file["name"];
+		$file_error = $_file["error"];
+		$file_size = $_file["size"];
+		$file_without_ending = pathinfo($file_name, PATHINFO_FILENAME);
+
+		if (preg_match("/log.(zip|err|out)$/", $file_name)) {
+			if (!isset($offered_files[$file_without_ending])) {
+				if (isset($file_name)) {
+					if ($file_error != 0) {
+						print("File " . htmlentities($file_name) . " could not be uploaded. Error-Code: " . $file_error);
 					} else {
-						if ($_file["size"] > 0 || isset($_GET["update"])) {
+						if ($file_size > 0 || isset($_GET["update"])) {
 							$num_offered_files++;
-							$offered_files[$_file_without_ending] = array(
+							$offered_files[$file_without_ending] = array(
 								"file" => $_file["tmp_name"] ?? null,
-								"filename" => $_file["name"]
+								"filename" => $file_name
 							);
 						}
 					}
@@ -101,7 +105,18 @@
 					print("Could not determine filename for at least one uploaded file");
 				}
 			} else {
-				print("$_file_without_ending couldn't be found in \$offered_files\n");
+				print("$file_without_ending couldn't be found in \$offered_files\n");
+			}
+		} else {
+			if(preg_match("/^gpu_usage__.*.csv$/", $file_name)) {
+				if($file_size > 0) {
+					if ($file_error == 0) {
+						$offered_files[$file_without_ending] = array(
+							"file" => $_file["tmp_name"] ?? null,
+							"filename" => $file_name
+						);
+					}
+				}
 			}
 		}
 	}

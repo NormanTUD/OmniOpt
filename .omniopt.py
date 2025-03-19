@@ -4619,7 +4619,6 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @beartype
-    #def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, List[Any]]]:
     def generate_hashed_params(parameters: dict, path: str) -> Any:
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
@@ -4643,7 +4642,6 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return False
 
     @beartype
-    #def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
     def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> bool:
         try:
             #print(f"hashed_params_result: {hashed_params_result}")

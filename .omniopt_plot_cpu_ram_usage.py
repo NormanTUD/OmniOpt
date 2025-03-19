@@ -69,6 +69,8 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
     """Generates and optionally saves/plots the graph."""
     plt.figure(figsize=(12, 8))
 
+    dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], unit='s')
+
     # Plot RAM usage over time
     sns.lineplot(x='timestamp', y='ram_usage_mb', data=dataframe, label='RAM Usage (MB)')
     # Plot CPU usage over time

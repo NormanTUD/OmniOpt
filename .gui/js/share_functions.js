@@ -1519,13 +1519,11 @@ function plotGPUUsage() {
 			if (!acc[pciBusId]) {
 				acc[pciBusId] = {
 					timestamps: [],
-					memoryUsed: [],
 					gpuUtilizations: [],
 					temperatures: []
 				};
 			}
 			acc[pciBusId].timestamps.push(new Date(entry.timestamp_unix * 1000));
-			acc[pciBusId].memoryUsed.push(parseFloat(entry["memory.used"]));
 			acc[pciBusId].gpuUtilizations.push(parseFloat(entry["utilization.gpu"]));
 			acc[pciBusId].temperatures.push(parseFloat(entry["temperature.gpu"]));
 			return acc;
@@ -1543,7 +1541,7 @@ function plotGPUUsage() {
 				},
 				name: 'GPU Utilization (%) - PCI Bus ID: ' + pciBusId,
 				type: 'scatter',
-				yaxis: 'y2'
+				yaxis: 'y1'
 			};
 
 			var trace2 = {
@@ -1555,7 +1553,7 @@ function plotGPUUsage() {
 				},
 				name: 'GPU Temperature (°C) - PCI Bus ID: ' + pciBusId,
 				type: 'scatter',
-				yaxis: 'y3'
+				yaxis: 'y2'
 			};
 
 			var layout = {
@@ -1568,16 +1566,11 @@ function plotGPUUsage() {
 					tickangle: -45
 				},
 				yaxis: {
-					title: get_axis_title_data("Memory Used (MB)"),
+					title: get_axis_title_data("GPU Utilization (%)"),
+					overlaying: 'y',
 					rangemode: 'tozero'
 				},
 				yaxis2: {
-					title: get_axis_title_data("GPU Utilization (%)"),
-					overlaying: 'y',
-					side: 'right',
-					rangemode: 'tozero'
-				},
-				yaxis3: {
 					title: get_axis_title_data("GPU Temperature (°C)"),
 					overlaying: 'y',
 					side: 'right',

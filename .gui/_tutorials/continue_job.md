@@ -46,16 +46,6 @@ It will create a new folder. Imagine there are already the subfolders `0`, `1` a
 experiment. If you continue the job `0`, it's job data will be in the subfolder `3` then, since it is the first
 non-existing folder for that project..
 
-## How to continue shared run
-
-You can also continue runs from an OmniOpt-Share-URL, like:
-
-```bash
-./omniopt --continue https://imageseg.scads.de/omniax/share.php?user_id=s3811141&experiment_name=__main__tests__&run_nr=14 --time=360
-```
-
-You can set the variables as if this was a normal continued run.
-
 ## Caveat
 
 It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the

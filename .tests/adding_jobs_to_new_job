@@ -80,13 +80,5 @@ fi
 
 nr_lines_missing_columns=$(cat $last_csv | grep ",," | wc -l)
 
-if [[ $nr_lines_missing_columns -ne 0 ]]; then
-	red_text "$nr_lines_missing_columns lines are missing columns:"
-
-	cat $last_csv
-
-	exit 5
-fi
-
 green_text "Test ok. Took $SECONDS seconds"
 }

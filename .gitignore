@@ -200,3 +200,4 @@ PLOT_TESTS
 .tests/slurm_docker/slurm.conf
 .tests/__pycache__/
 ax
+new_runs

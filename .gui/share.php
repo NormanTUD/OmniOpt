@@ -85,13 +85,6 @@
 
 		$gpu_usage_files = find_gpu_usage_files($run_dir);
 
-		if(count($gpu_usage_files)) {
-			$GLOBALS["json_data"]["gpu_usage"] = parse_gpu_usage_files($gpu_usage_files);
-			dier($GLOBALS["json_data"]["gpu_usage"]);
-		} else {
-			$warnings[] = "No GPU usage files found";
-		}
-
 		$tab_definitions = [
 			'add_pareto_from_from_file' => [["$run_dir"]],
 			'add_simple_csv_tab_from_file' => [
@@ -127,6 +120,17 @@
 			foreach ($args_list as $args) {
 				[$tabs, $warnings] = $function($tabs, $warnings, ...$args);
 			}
+		}
+
+		if(count($gpu_usage_files)) {
+			$parsed_gpu_files = parse_gpu_usage_files($gpu_usage_files);
+			if(count($parsed_gpu_files)) {
+				$GLOBALS["json_data"]["gpu_usage"] = $parsed_gpu_files;
+
+				$tabs = add_gpu_plots($tabs);
+			}
+		} else {
+			$warnings[] = "No GPU usage files found";
 		}
 
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {

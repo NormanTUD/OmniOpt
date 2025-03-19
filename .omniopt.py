@@ -4644,21 +4644,23 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
     err_msgs = []
 
-    for arm_params, result in zip(arm_params_list, results_list):
-        arm_params = validate_and_convert_params(experiment_parameters, arm_params)
+    with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
+        for arm_params, result in zip(arm_params_list, results_list):
+            __status.update(f"[bold green]Loading existing jobs from {csv_file_path} into ax_client")
+            arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
-        try:
-            if insert_job_into_ax_client(arm_params, result):
-                cnt += 1
+            try:
+                if insert_job_into_ax_client(arm_params, result):
+                    cnt += 1
 
-                print_debug(f"Inserted one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
-            else:
-                print_red(f"Failed to insert one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
-        except ValueError as e:
-            err_msg = f"Failed to insert job(s) from {csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
-            if err_msg not in err_msgs:
-                print_red(err_msg)
-                err_msgs.append(err_msg)
+                    print_debug(f"Inserted one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+                else:
+                    print_red(f"Failed to insert one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+            except ValueError as e:
+                err_msg = f"Failed to insert job(s) from {csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
+                if err_msg not in err_msgs:
+                    print_red(err_msg)
+                    err_msgs.append(err_msg)
 
     if cnt:
         if cnt == 1:
@@ -4713,122 +4715,6 @@ def insert_job_into_ax_client(arm_params: dict, result: dict) -> bool:
                 print_red("Could not parse error while trying to insert_job_into_ax_client")
 
     return False
-
-@beartype
-def load_data_from_existing_run_folders(_paths: List[str]) -> None:
-    global already_inserted_param_hashes
-    global already_inserted_param_data
-    global double_hashes
-    global missing_results
-
-    @beartype
-    def update_status(message: str, path_idx: Union[int, None] = None, trial_idx: Union[int, None] = None, total_trials: Union[int, None] = None) -> str:
-        if len(_paths) > 1:
-            folder_msg = f"(folder {path_idx + 1}/{len(_paths)})" if path_idx is not None else ""
-            trial_msg = f", trial {trial_idx + 1}/{total_trials}" if trial_idx is not None else ""
-            return f"{message} {folder_msg}{trial_msg}{get_list_import_as_string(False, True)}..."
-        return f"{message}{get_list_import_as_string()}..."
-
-    @beartype
-    def generate_hashed_params(parameters: dict, path: str) -> Any:
-        result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
-        try:
-            for resname in arg_result_names:
-                if isinstance(result, list):
-                    #result.append(get_old_result_simple(path, parameters, resname))
-                    result = get_old_result_simple(path, parameters, resname)
-                else:
-                    print_debug(f"Wrong type for generate_hashed_params: result-type: {type(result)}")
-        except Exception:
-            result = None
-        return pformat(parameters) + "====" + pformat(result), result
-
-    @beartype
-    def should_insert(hashed_params_result: Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> bool:
-        result = hashed_params_result[1]
-        res = result and helpers.looks_like_number(result) and str(result) != "nan" and hashed_params_result[0] not in already_inserted_param_hashes
-
-        if res:
-            return True
-        return False
-
-    @beartype
-    def insert_or_log_result(parameters: Any, hashed_params_result: Any, this_path: str) -> bool:
-        hashed_param = hashed_params_result[0]
-        result = hashed_params_result[1]
-
-        try:
-            # TODO: Fix for multiple results
-            if insert_job_into_ax_client(parameters, {arg_result_names[0]: result}):
-                already_inserted_param_hashes[hashed_param] = 1
-            print_debug(f"ADDED: result: {result} (from {this_path})")
-
-            return True
-        except ValueError as e:
-            print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
-            already_inserted_param_hashes[hashed_param] += 1
-            double_hashes[hashed_param] = 1
-
-        return False
-
-    @beartype
-    def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
-        print_debug("Prevent inserting a parameter set without result")
-        missing_results.append(hashed_params_result[0])
-        for i in range(0, len(arg_result_names)):
-            parameters[arg_result_names[i]] = hashed_params_result[1]
-        already_inserted_param_data.append(parameters)
-
-    @beartype
-    def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
-        newly_inserted_jobs = 0
-        trial_idx = 0
-
-        for old_trial_index, old_trial in old_trials.items():
-            _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
-
-            trial_idx += 1
-            if "COMPLETED".lower() not in str(old_trial.status).lower():
-                continue
-
-            old_arm_parameter = old_trial.arm.parameters
-            hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
-
-            if should_insert(hashed_params_result):
-                if insert_or_log_result(old_arm_parameter, hashed_params_result, this_path):
-                    newly_inserted_jobs += 1
-                else:
-                    print_debug("load_and_insert_trials: Failed")
-            else:
-                log_missing_result(old_arm_parameter, hashed_params_result)
-
-        set_nr_inserted_jobs(NR_INSERTED_JOBS + newly_inserted_jobs)
-        set_max_eval(max_eval + newly_inserted_jobs)
-
-    @beartype
-    def display_table() -> None:
-        headers, rows = extract_headers_and_rows(already_inserted_param_data)
-        if headers and rows:
-            table = Table(show_header=True, header_style="bold", title="Duplicate parameters only inserted once or without result:")
-            for header in headers:
-                table.add_column(header)
-            for row in rows:
-                table.add_row(*row)
-            console.print(table)
-
-    with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
-        for path_idx, this_path in enumerate(_paths):
-            __status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx))
-            this_path_json = f"{this_path}/state_files/ax_client.experiment.json"
-
-            if not os.path.exists(this_path_json):
-                print_red(f"{this_path_json} does not exist, cannot load data from it")
-                return
-
-            old_experiments = load_experiment(this_path_json)
-            load_and_insert_trials(__status, old_experiments.trials, this_path, path_idx)
-
-    display_table()
 
 @beartype
 def get_first_line_of_file(file_paths: List[str]) -> str:
@@ -7387,10 +7273,6 @@ Exit-Code: 159
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
-
-    nr_errors += is_equal('load_data_from_existing_run_folders(["/dev/i/dont/exist/0"])', load_data_from_existing_run_folders(["/dev/i/dont/exist/0"]), None)
-
-    nr_errors += is_equal('load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"])', load_data_from_existing_run_folders(["/dev/i/dont/exist/0", "/dev/i/dont/exist/1"]), None)
 
     nr_errors += is_equal('get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO")', get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO"), "")
 

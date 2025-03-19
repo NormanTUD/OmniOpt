@@ -912,8 +912,6 @@ executor: Union[LocalExecutor, AutoExecutor, None] = None
 NR_OF_0_RESULTS: int = 0
 
 orchestrator = None
-double_hashes: dict = {}
-missing_results: list = []
 
 @beartype
 def print_logo() -> None:

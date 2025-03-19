@@ -169,6 +169,8 @@
 			if($status_data["succeeded"] > 1) {
 				if($nr_numerical_cols >= 1) {
 					$tabs = add_box_plot_tab($tabs);
+					$tabs = add_violin_plot($tabs);
+					$tabs = add_histogram_plot($tabs);
 				}
 
 				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
@@ -176,8 +178,6 @@
 				if(count($non_special_columns_without_result_columns) > 2) {
 					$tabs = add_heatmap_plot_tab($tabs);
 				}
-				$tabs = add_violin_plot($tabs);
-				$tabs = add_histogram_plot($tabs);
 				if (count($result_names) > 1) {
 					$tabs = add_plot_result_pairs($tabs);
 				}

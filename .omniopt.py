@@ -65,8 +65,6 @@ try:
         import signal
         import base64
 
-        from pprint import pformat
-
         import json
         import yaml
         import toml

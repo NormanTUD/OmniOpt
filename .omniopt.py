@@ -4647,6 +4647,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> bool:
         try:
             #print(f"hashed_params_result: {hashed_params_result}")
+            # TODO: Fix for multiple results
             insert_job_into_ax_client(parameters, {arg_result_names[0]: hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
 
@@ -4662,7 +4663,8 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
-        parameters[arg_result_names[0]] = hashed_params_result[1]
+        for i in range(0, len(arg_result_names)):
+            parameters[arg_result_names[i]] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
     @beartype
@@ -6964,6 +6966,7 @@ def main() -> None:
 
     if len(args.load_data_from_existing_jobs):
         if len(arg_result_names) != 1:
+            # TODO: Implement for MOO
             print_red("You used --load_data_from_existing_run_folders together with more than 1 --result_names parameter. This, although technically possible, is currently not supported. Try later again.")
             my_exit(251)
         else:

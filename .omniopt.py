@@ -4643,17 +4643,20 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
     @beartype
     def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> bool:
+        hashed_param = hashed_params_result[0]
+        result = hashed_params_result[1]
+
         try:
             #print(f"hashed_params_result: {hashed_params_result}")
             # TODO: Fix for multiple results
-            insert_job_into_ax_client(parameters, {arg_result_names[0]: hashed_params_result[1]}, hashed_params_result[0])
-            print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
+            insert_job_into_ax_client(parameters, {arg_result_names[0]: result}, hashed_param)
+            print_debug(f"ADDED: old_result_simple: {result}, type: {type(result)}")
 
             return True
         except ValueError as e:
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
-            already_inserted_param_hashes[hashed_params_result[0]] += 1
-            double_hashes[hashed_params_result[0]] = 1
+            already_inserted_param_hashes[hashed_param] += 1
+            double_hashes[hashed_param] = 1
 
         return False
 
@@ -4669,6 +4672,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
     def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
         newly_inserted_jobs = 0
         trial_idx = 0
+
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
 

@@ -4574,6 +4574,87 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @beartype
+def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> None:
+    if not os.path.exists(csv_file_path):
+        print_red(f"--load_data_from_existing_jobs: Cannot find {csv_file_path}")
+
+        return
+
+    def validate_and_convert_params(experiment_parameters, arm_params):
+        corrected_params = {}
+
+        for param in experiment_parameters:
+            name = param["name"]
+            expected_type = param.get("value_type", "str")
+
+            if name not in arm_params:
+                continue
+
+            value = arm_params[name]
+
+            try:
+                if param["type"] == "range":
+                    if expected_type == "int":
+                        corrected_params[name] = int(value)
+                    elif expected_type == "float":
+                        corrected_params[name] = float(value)
+                elif param["type"] == "choice":
+                    corrected_params[name] = str(value)
+            except (ValueError, TypeError):
+                corrected_params[name] = None
+
+        return corrected_params
+
+    def parse_csv(csv_path):
+        ignored_columns = {"trial_index", "arm_name", "trial_status", "generation_method", "generation_node"}
+        arm_params_list = []
+        results_list = []
+
+        with open(csv_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                arm_params = {}
+                results = {}
+                
+                for col, value in row.items():
+                    if col in ignored_columns:
+                        continue
+                    elif col in arg_result_names:
+                        results[col] = try_convert(value)
+                    else:
+                        arm_params[col] = try_convert(value)
+
+                arm_params_list.append(arm_params)
+                results_list.append(results)
+
+        return arm_params_list, results_list
+
+    def try_convert(value):
+        """Versucht, den Wert in einen passenden Typ zu konvertieren."""
+        try:
+            if '.' in value or 'e' in value.lower():
+                return float(value)
+            return int(value)
+        except ValueError:
+            return value
+
+    arm_params_list, results_list = parse_csv(csv_file_path)
+
+    cnt = 0
+
+    for arm_params, result in zip(arm_params_list, results_list):
+        arm_params = validate_and_convert_params(experiment_parameters, arm_params)
+
+        if insert_job_into_ax_client(arm_params, result):
+            cnt += 1
+
+            print_debug(f"Inserted 1 job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+        else:
+            print_debug(f"FAILED to insert 1 job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+    set_max_eval(max_eval + cnt)
+    set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
+
+@beartype
 def insert_job_into_ax_client(arm_params: dict, result: dict) -> bool:
     done_converting = False
 
@@ -5738,9 +5819,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()
-            #params, trial_index = ax_client.get_next_trial(force=True)
 
-            ####################################
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
             generator_run = global_gs.gen(
                 experiment=ax_client.experiment,
@@ -5751,7 +5830,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             params = generator_run.arms[0].parameters
             trial_index = submitted_jobs() + NR_INSERTED_JOBS + k
             trial.mark_running(no_runner_required=True)
-            ####################################
 
             trials_dict[trial_index] = params
             print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
@@ -6462,18 +6540,21 @@ def finalize_jobs() -> None:
         finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
         handle_slurm_execution()
 
+@beartype
+def go_through_jobs_that_are_not_completed_yet() -> None:
+    print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
+    progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
+    if is_slurm_job() and not args.force_local_execution:
+        _sleep(5)
+
+    finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
+    clean_completed_jobs()
 
 @beartype
 def wait_for_jobs_to_complete() -> None:
     while len(global_vars["jobs"]):
-        print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
-        progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
-        if is_slurm_job() and not args.force_local_execution:
-            _sleep(5)
-
-        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
-
-        clean_completed_jobs()
+        go_through_jobs_that_are_not_completed_yet()
 
 @beartype
 def human_readable_generation_strategy() -> Optional[str]:
@@ -6981,13 +7062,9 @@ def main() -> None:
 
     write_files_and_show_overviews()
 
-    if len(args.load_data_from_existing_jobs):
-        if len(arg_result_names) != 1:
-            # TODO: Implement for MOO
-            print_red("You used --load_data_from_existing_run_folders together with more than 1 --result_names parameter. This, although technically possible, is currently not supported. Try later again.")
-            my_exit(251)
-        else:
-            load_data_from_existing_run_folders(args.load_data_from_existing_jobs)
+    for existing_run in args.load_data_from_existing_jobs:
+        csv_path = f"{existing_run}/results.csv"
+        insert_jobs_from_csv(csv_path, experiment_parameters)
 
     try:
         run_search_with_progress_bar()

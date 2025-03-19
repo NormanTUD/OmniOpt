@@ -59,10 +59,10 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
         plt.figure(figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
-        sns.boxplot(x='generation_method', y='result', data=dataframe)
+        sns.boxplot(x='generation_method', y=res_col_name, data=dataframe)
         plt.title('Results by Generation Method')
         plt.xlabel('Generation Method')
-        plt.ylabel('Result')
+        plt.ylabel(res_col_name)
 
         plt.subplot(2, 2, 2)
         sns.countplot(x='trial_status', data=dataframe)
@@ -79,11 +79,11 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
         plt.title('Correlation Matrix')
 
         plt.subplot(2, 2, 4)
-        histogram = sns.histplot(data=dataframe, x='result', hue='generation_method', multiple="stack", kde=False, bins=args.bins)
+        histogram = sns.histplot(data=dataframe, x=res_col_name, hue='generation_method', multiple="stack", kde=False, bins=args.bins)
         for patch in histogram.patches:
             patch.set_alpha(args.alpha)
         plt.title('Distribution of Results by Generation Method')
-        plt.xlabel('Result')
+        plt.xlabel(res_col_name)
         plt.ylabel('Nr. of jobs')
 
         plt.tight_layout()

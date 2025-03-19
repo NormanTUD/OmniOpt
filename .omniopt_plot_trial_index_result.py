@@ -58,7 +58,7 @@ def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, s
         plt.figure(figsize=(12, 8))
 
         # Lineplot der Ergebnisse über trial_index
-        sns.lineplot(x='trial_index', y='result', data=dataframe)
+        sns.lineplot(x='trial_index', y=res_col_name, data=dataframe)
         plt.title('Results over Trial Index')
         plt.xlabel('Trial Index')
         plt.ylabel('Result')

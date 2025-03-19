@@ -4580,7 +4580,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
         return
 
-    def validate_and_convert_params(experiment_parameters, arm_params):
+    def validate_and_convert_params(experiment_parameters: List, arm_params: dict) -> dict:
         corrected_params = {}
 
         for param in experiment_parameters:
@@ -4605,7 +4605,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
         return corrected_params
 
-    def parse_csv(csv_path):
+    def parse_csv(csv_path: str) -> Tuple[List, List]:
         ignored_columns = {"trial_index", "arm_name", "trial_status", "generation_method", "generation_node"}
         arm_params_list = []
         results_list = []
@@ -4630,7 +4630,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
         return arm_params_list, results_list
 
-    def try_convert(value):
+    def try_convert(value: Any) -> Any:
         try:
             if '.' in value or 'e' in value.lower():
                 return float(value)

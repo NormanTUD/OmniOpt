@@ -4574,7 +4574,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @beartype
-def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_params_result: Union[None, int, str, float]) -> None:
+def insert_job_into_ax_client(arm_params: dict, result: dict) -> None:
     done_converting = False
 
     if ax_client is None or not ax_client:
@@ -4584,29 +4584,39 @@ def insert_job_into_ax_client(old_arm_parameter: dict, old_result: dict, hashed_
     while not done_converting:
         try:
             if ax_client:
-                new_old_trial = ax_client.attach_trial(old_arm_parameter)
+                new_trial = ax_client.attach_trial(arm_params)
 
-                ax_client.complete_trial(trial_index=new_old_trial[1], raw_data=old_result)
+                new_trial_idx = new_trial[1]
 
-                already_inserted_param_hashes[hashed_params_result] = 1
+                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=old_result)
 
                 done_converting = True
                 save_pd_csv()
+
+                return True
             else:
                 print_red("Error getting ax_client")
                 my_exit(9)
+
+                return False
         except ax.exceptions.core.UnsupportedError as e:
             parsed_error = parse_parameter_type_error(e)
 
             if parsed_error is not None:
-                if parsed_error["expected_type"] == "int" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "int":
-                    print_yellow(f"converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                    old_arm_parameter[parsed_error["parameter_name"]] = int(old_arm_parameter[parsed_error["parameter_name"]])
-                elif parsed_error["expected_type"] == "float" and type(old_arm_parameter[parsed_error["parameter_name"]]).__name__ != "float":
-                    print_yellow(f"converted parameter {parsed_error['parameter_name']} type {parsed_error['current_type']} to {parsed_error['expected_type']}")
-                    old_arm_parameter[parsed_error["parameter_name"]] = float(old_arm_parameter[parsed_error["parameter_name"]])
+                error_expected_type = parsed_error["expected_type"]
+                error_current_type = parsed_error["current_type"]
+                error_param_name = parsed_error["parameter_name"]
+
+                if error_expected_type == "int" and type(arm_params[error_param_name]).__name__ != "int":
+                    print_yellow(f"converted parameter {error_param_name} type {error_current_type} to {error_expected_type}")
+                    arm_params[error_param_name] = int(arm_params[error_param_name])
+                elif error_expected_type == "float" and type(arm_params[error_param_name]).__name__ != "float":
+                    print_yellow(f"converted parameter {error_param_name} type {error_current_type} to {error_expected_type}")
+                    arm_params[error_param_name] = float(arm_params[error_param_name])
             else:
                 print_red("Could not parse error while trying to insert_job_into_ax_client")
+
+    return False
 
 @beartype
 def load_data_from_existing_run_folders(_paths: List[str]) -> None:
@@ -4653,7 +4663,8 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
         try:
             # TODO: Fix for multiple results
-            insert_job_into_ax_client(parameters, {arg_result_names[0]: result}, hashed_param)
+            if insert_job_into_ax_client(parameters, {arg_result_names[0]: result}):
+                already_inserted_param_hashes[hashed_param] = 1
             print_debug(f"ADDED: result: {result} (from {this_path})")
 
             return True

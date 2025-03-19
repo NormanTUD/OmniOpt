@@ -1063,8 +1063,18 @@ global_vars["parameter_names"] = []
 main_pid = os.getpid()
 
 @beartype
+def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
+    global NR_INSERTED_JOBS
+
+    print_debug(f"set_nr_inserted_jobs({new_nr_inserted_jobs})")
+
+    NR_INSERTED_JOBS = new_nr_inserted_jobs
+
+@beartype
 def set_max_eval(new_max_eval: int) -> None:
     global max_eval
+
+    print_debug(f"set_max_eval({new_max_eval})")
 
     max_eval = new_max_eval
 
@@ -4465,23 +4475,19 @@ def get_nr_of_imported_jobs() -> int:
 
 @beartype
 def load_existing_job_data_into_ax_client() -> None:
-    global NR_INSERTED_JOBS
-
     if len(already_inserted_param_hashes.keys()):
         if len(missing_results):
             print(f"Missing results: {len(missing_results)}")
-            #NR_INSERTED_JOBS += len(double_hashes)
 
         if len(double_hashes):
             print(f"Double parameters not inserted: {len(double_hashes)}")
-            #NR_INSERTED_JOBS += len(double_hashes)
 
         if len(double_hashes) - len(already_inserted_param_hashes.keys()):
             print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
-            NR_INSERTED_JOBS += len(already_inserted_param_hashes.keys())
+            set_nr_inserted_jobs(NR_INSERTED_JOBS + len(already_inserted_param_hashes.keys()))
     else:
         nr_of_imported_jobs = get_nr_of_imported_jobs()
-        NR_INSERTED_JOBS += nr_of_imported_jobs
+        set_nr_inserted_jobs(NR_INSERTED_JOBS + nr_of_imported_jobs)
 
 @beartype
 def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:
@@ -4656,6 +4662,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
     @beartype
     def load_and_insert_trials(_status: Any, old_trials: Any, this_path: str, path_idx: int) -> None:
+        newly_inserted_jobs = 0
         trial_idx = 0
         for old_trial_index, old_trial in old_trials.items():
             _status.update(update_status(f"[bold green]Loading existing jobs from {this_path} into ax_client", path_idx, trial_idx, len(old_trials)))
@@ -4669,14 +4676,13 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
             if should_insert(hashed_params_result):
                 insert_or_log_result(old_arm_parameter, hashed_params_result)
-                global NR_INSERTED_JOBS
 
-                NR_INSERTED_JOBS = NR_INSERTED_JOBS + 1
-
+                newly_inserted_jobs += 1
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
-        set_max_eval(max_eval + NR_INSERTED_JOBS)
+        set_nr_inserted_jobs(NR_INSERTED_JOBS + newly_inserted_jobs)
+        set_max_eval(max_eval + newly_inserted_jobs)
 
     @beartype
     def display_table() -> None:

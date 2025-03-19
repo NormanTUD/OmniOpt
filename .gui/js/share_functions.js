@@ -48,7 +48,7 @@ function get_axis_title_data(name, axis_type = "") {
 }
 
 function get_graph_width() {
-	var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
 	return Math.max(800, Math.floor(width * 0.9));
 }
 

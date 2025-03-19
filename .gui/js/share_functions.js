@@ -110,7 +110,28 @@ function copy_to_clipboard(text) {
 }
 
 function filterNonEmptyRows(data) {
-	return data.filter(row => !row.includes(""));
+	var new_data = [];
+	for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+		var line = data[row_idx];
+
+		var line_has_empty_data = false;
+
+		for (var col_idx = 0; col_idx < line.length; col_idx++) {
+			var col_header_name = tab_results_headers_json[col_idx];
+			var single_data_point = line[col_idx];
+
+			if(single_data_point == "" && !special_col_names.includes(col_header_name)) {
+				line_has_empty_data = true;
+				continue;
+			}
+		}
+
+		if(!line_has_empty_data) {
+			new_data.push(line);
+		}
+	}
+
+	return new_data;
 }
 
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {

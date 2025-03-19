@@ -111,8 +111,9 @@ def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
 
 @beartype
 def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
-    sns.scatterplot(data=df, x='start_time', y='result', marker='o', label='Start Time', ax=axes)
-    sns.scatterplot(data=df, x='end_time', y='result', marker='x', label='End Time', ax=axes)
+    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+    sns.scatterplot(data=df, x='start_time', y=res_col_name, marker='o', label='Start Time', ax=axes)
+    sns.scatterplot(data=df, x='end_time', y=res_col_name, marker='x', label='End Time', ax=axes)
     axes.set_title('Result over Time')
 
 @beartype

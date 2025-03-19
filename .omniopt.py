@@ -4619,7 +4619,8 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
                 for col, value in row.items():
                     if col in ignored_columns:
                         continue
-                    elif col in arg_result_names:
+
+                    if col in arg_result_names:
                         results[col] = try_convert(value)
                     else:
                         arm_params[col] = try_convert(value)
@@ -4675,11 +4676,11 @@ def insert_job_into_ax_client(arm_params: dict, result: dict) -> bool:
                 save_pd_csv()
 
                 return True
-            else:
-                print_red("Error getting ax_client")
-                my_exit(9)
 
-                return False
+            print_red("Error getting ax_client")
+            my_exit(9)
+
+            return False
         except ax.exceptions.core.UnsupportedError as e:
             parsed_error = parse_parameter_type_error(e)
 

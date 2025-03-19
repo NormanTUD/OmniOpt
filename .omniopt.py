@@ -915,7 +915,6 @@ orchestrator = None
 double_hashes: dict = {}
 missing_results: list = []
 already_inserted_param_hashes: dict = {}
-already_inserted_param_data: list = []
 
 @beartype
 def print_logo() -> None:
@@ -4412,10 +4411,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
 
             old_trials = old_experiments.trials
 
-            trial_idx = 0
             for old_trial_index in old_trials:
-                trial_idx += 1
-
                 old_trial = old_trials[old_trial_index]
                 trial_status = old_trial.status
                 trial_status_str = trial_status.__repr__
@@ -4423,10 +4419,6 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
                 if "COMPLETED".lower() not in str(trial_status_str).lower():
                     # or "MANUAL".lower() in str(trial_status_str).lower()):
                     continue
-
-                old_arm_parameter = old_trial.arm.parameters
-
-                old_result_simple = None
 
                 _counter += 1
         except ValueError as e:
@@ -4492,51 +4484,6 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
     except AssertionError as e:
         print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
-
-@beartype
-def extract_headers_and_rows(data_list: list) -> Union[Tuple[None, None], Tuple[list, list]]:
-    try:
-        if not data_list:
-            return None, None
-
-        # Extract headers from the first dictionary
-        first_entry = data_list[0]
-        headers = list(first_entry.keys())
-
-        # Initialize rows list
-        rows: list = []
-
-        # Extract rows based on headers order
-        for entry in data_list:
-            row: list = [str(entry.get(header, None)) for header in headers]
-            rows.append(row)
-
-        return headers, rows
-    except Exception as e:
-        print(f"extract_headers_and_rows: An error occurred: {e}")
-        return None, None
-
-@beartype
-def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> str:
-    _str: list = []
-
-    if len(double_hashes):
-        _str.append(f"double hashes: {len(double_hashes)}")
-
-    if len(missing_results):
-        _str.append(f"missing_results: {len(missing_results)}")
-
-    if len(_str):
-        if _brackets:
-            if _comma:
-                return ", (" + (", ".join(_str)) + ")"
-            return " (" + (", ".join(_str)) + ")"
-
-        if _comma:
-            return ", " + (", ".join(_str))
-        return ", ".join(_str)
-
-    return ""
 
 @beartype
 def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> None:

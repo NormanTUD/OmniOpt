@@ -1479,7 +1479,7 @@
 			return !preg_match('/^[\s]*[┏━┡┩└─]+/u', $line);
 		});
 
-		if (empty($lines)) return '<p>Fehler: Keine gültige Tabelle erkannt.</p>';
+		if (empty($lines)) return '<p>Error: No valid table found.</p>';
 
 		$headerLine = array_shift($lines);
 		$headerCells = preg_split('/\s*[┃│]\s*/u', trim($headerLine, "┃│"));

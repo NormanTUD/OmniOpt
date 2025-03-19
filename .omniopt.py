@@ -4642,15 +4642,30 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
     cnt = 0
 
+    err_msgs = []
+
     for arm_params, result in zip(arm_params_list, results_list):
         arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
-        if insert_job_into_ax_client(arm_params, result):
-            cnt += 1
+        try:
+            if insert_job_into_ax_client(arm_params, result):
+                cnt += 1
 
-            print_debug(f"Inserted 1 job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+                print_debug(f"Inserted one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+            else:
+                print_red(f"Failed to insert one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+        except ValueError as e:
+            err_msg = f"Failed to insert job(s) from {csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
+            if err_msg not in err_msgs:
+                print_red(err_msg)
+                err_msgs.append(err_msg)
+
+    if cnt:
+        if cnt == 1:
+            print_yellow("Inserted one job")
         else:
-            print_debug(f"FAILED to insert 1 job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+            print_yellow(f"Inserted {cnt} jobs")
+
     set_max_eval(max_eval + cnt)
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 

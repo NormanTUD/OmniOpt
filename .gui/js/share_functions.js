@@ -1348,11 +1348,11 @@ function plotResultEvolution() {
 			!special_col_names.includes(col) && !col.startsWith("OO_Info") && col.toLowerCase() !== resultName.toLowerCase()
 		);
 
-		var timeColumnIndex = tab_results_headers_json.indexOf("trial_index");
+		var xColumnIndex = tab_results_headers_json.indexOf("trial_index");
 		var resultIndex = tab_results_headers_json.indexOf(resultName);
 
 		let data = tab_results_csv_json.map(row => ({
-			x: new Date(row[timeColumnIndex] * 1000),
+			x: row[xColumnIndex],
 			y: parseFloat(row[resultIndex])
 		}));
 
@@ -1377,7 +1377,7 @@ function plotResultEvolution() {
 		let layout = {
 			title: `Evolution of ${resultName} over time`,
 			xaxis: {
-				title: get_axis_title_data("Time", "date")
+				title: get_axis_title_data("Trial-Index")
 			},
 			yaxis: {
 				title: get_axis_title_data(resultName)

@@ -4615,7 +4615,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
             for row in reader:
                 arm_params = {}
                 results = {}
-                
+
                 for col, value in row.items():
                     if col in ignored_columns:
                         continue

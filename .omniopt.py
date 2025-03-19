@@ -4631,7 +4631,6 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
         return arm_params_list, results_list
 
     def try_convert(value):
-        """Versucht, den Wert in einen passenden Typ zu konvertieren."""
         try:
             if '.' in value or 'e' in value.lower():
                 return float(value)

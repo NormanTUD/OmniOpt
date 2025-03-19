@@ -1,0 +1,5 @@
+Number of values: 500 sec
+Min Time: 49.00 sec
+Max Time: 929.00 sec
+Average Time: 173.77 sec
+Median Time: 148.00 sec

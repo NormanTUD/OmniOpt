@@ -2981,7 +2981,6 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
         return 0
 
     assert df is not None, "DataFrame should not be None after reading CSV file"
-    assert "generation_method" in df.columns, "'generation_method' column must be present in the DataFrame"
 
     if _type == "Sobol":
         rows = df[df["generation_method"] == _type]
@@ -4614,12 +4613,14 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return f"{message}{get_list_import_as_string()}..."
 
     @beartype
-    def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, List[Any]]]:
+    #def generate_hashed_params(parameters: dict, path: str) -> Union[Tuple[str, Union[List[Any], None]], Tuple[str, str], Tuple[str, float], Tuple[str, int], Tuple[str, None], Tuple[str, List[Any]]]:
+    def generate_hashed_params(parameters: dict, path: str) -> Any:
         result: Union[list[Any], None] = []  # result ist jetzt entweder eine Liste oder None
         try:
             for resname in arg_result_names:
                 if isinstance(result, list):
-                    result.append(get_old_result_simple(path, parameters, resname))
+                    #result.append(get_old_result_simple(path, parameters, resname))
+                    result = get_old_result_simple(path, parameters, resname)
                 else:
                     print_debug(f"Wrong type for generate_hashed_params: result-type: {type(result)}")
         except Exception:
@@ -4636,7 +4637,8 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
+    #def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
+    def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> None:
         try:
             insert_job_into_ax_client(parameters, {"RESULT": hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
@@ -4668,6 +4670,9 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
             if should_insert(hashed_params_result):
                 insert_or_log_result(old_arm_parameter, hashed_params_result)
+                global NR_INSERTED_JOBS
+
+                NR_INSERTED_JOBS = NR_INSERTED_JOBS + 1
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
@@ -6944,7 +6949,11 @@ def main() -> None:
     write_files_and_show_overviews()
 
     if len(args.load_data_from_existing_jobs):
-        load_data_from_existing_run_folders(args.load_data_from_existing_jobs)
+        if len(arg_result_names) != 1:
+            print_red("You used --load_data_from_existing_run_folders together with more than 1 --result_names parameter. This, although technically possible, is currently not supported. Try later again.")
+            my_exit(251)
+        else:
+            load_data_from_existing_run_folders(args.load_data_from_existing_jobs)
 
     try:
         run_search_with_progress_bar()

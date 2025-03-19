@@ -4574,7 +4574,7 @@ def get_list_import_as_string(_brackets: bool = True, _comma: bool = False) -> s
     return ""
 
 @beartype
-def insert_job_into_ax_client(arm_params: dict, result: dict) -> None:
+def insert_job_into_ax_client(arm_params: dict, result: dict) -> bool:
     done_converting = False
 
     if ax_client is None or not ax_client:

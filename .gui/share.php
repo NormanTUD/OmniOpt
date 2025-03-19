@@ -136,14 +136,14 @@
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 
+			$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
+
+			list($nr_numerical_cols, $nr_string_cols) = count_column_types($nr_of_numerical_and_non_numerical_columns);
+
 			if (count($result_names) >= 1) {
 				/* Calculating the difference of the sets of columns to find how many parameters have been used, except the special column names and result column names. */
 				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
 				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
-
-				$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
-
-				list($nr_numerical_cols, $nr_string_cols) = count_column_types($nr_of_numerical_and_non_numerical_columns);
 
 				if(count($non_special_columns_without_result_columns) >= 2) {
 					if($nr_numerical_cols >= 2) {
@@ -167,7 +167,10 @@
 			}
 
 			if($status_data["succeeded"] > 1) {
-				$tabs = add_box_plot_tab($tabs);
+				if($nr_numerical_cols >= 1) {
+					$tabs = add_box_plot_tab($tabs);
+				}
+
 				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
 				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
 				if(count($non_special_columns_without_result_columns) > 2) {

@@ -4644,7 +4644,6 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
         except ValueError as e:
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
-        else:
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
@@ -4673,6 +4672,8 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
                 global NR_INSERTED_JOBS
 
                 NR_INSERTED_JOBS = NR_INSERTED_JOBS + 1
+
+                set_max_eval(max_eval + 1)
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 
@@ -5619,8 +5620,8 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
 def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
     _ret = False
 
-    _counted_done_jobs = count_done_jobs()
-    _submitted_jobs = submitted_jobs()
+    _counted_done_jobs = count_done_jobs() - NR_INSERTED_JOBS
+    _submitted_jobs = submitted_jobs() - NR_INSERTED_JOBS
     _failed_jobs = failed_jobs()
 
     conditions = [

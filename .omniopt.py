@@ -4662,9 +4662,9 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
 
     if cnt:
         if cnt == 1:
-            print_yellow("Inserted one job")
+            print_yellow(f"Inserted one job from {csv_file_path}")
         else:
-            print_yellow(f"Inserted {cnt} jobs")
+            print_yellow(f"Inserted {cnt} jobs from {csv_file_path}")
 
     set_max_eval(max_eval + cnt)
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)

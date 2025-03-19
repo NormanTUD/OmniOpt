@@ -4397,32 +4397,6 @@ def get_old_result_by_params(file_path: str, params: dict, float_tolerance: floa
     return None
 
 @beartype
-def get_old_result_simple(this_path: str, old_arm_parameter: dict, resname: str = "RESULT") -> Union[float, None, int]:
-    tmp_old_res = get_old_result_by_params(f"{this_path}/{PD_CSV_FILENAME}", old_arm_parameter, 1e-6, resname)
-    old_result_simple: Union[float, None, int] = None
-
-    if isinstance(tmp_old_res, pd.DataFrame) and resname in tmp_old_res:
-        tmp_old_res = tmp_old_res[resname]
-        tmp_old_res_list = list(set(list(tmp_old_res)))
-
-        if len(tmp_old_res_list) == 1:
-            print_debug(f"Got a list of length {len(tmp_old_res_list)}. This means the result was found properly and will be added.")
-
-            old_res: str = str(tmp_old_res_list[0])
-
-            if helpers.looks_like_int(old_res):
-                old_result_simple = int(old_res)
-            elif helpers.looks_like_float(old_res):
-                old_result_simple = float(old_res)
-            else:
-                print_debug(f"old_res is not a string that looks like an int or a float, but it looks like this: {old_res}. Will return None.")
-                #old_result_simple = old_res
-        else:
-            print_debug(f"Got a list of length {len(tmp_old_res_list)}. Cannot add this to previous jobs.")
-
-    return old_result_simple
-
-@beartype
 def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 
@@ -4454,14 +4428,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
 
                 old_result_simple = None
 
-                try:
-                    for resname in arg_result_names:
-                        old_result_simple = get_old_result_simple(this_path, old_arm_parameter, resname)
-                except Exception as e:
-                    print_red(f"Error while trying to simulate_load_data_from_existing_run_folders: {e}. Path: {this_path}/{PD_CSV_FILENAME}")
-
-                if old_result_simple and helpers.looks_like_number(old_result_simple) and str(old_result_simple) != "nan":
-                    _counter += 1
+                _counter += 1
         except ValueError as e:
             print_red(f"Error while simulating loading data: {e}")
 

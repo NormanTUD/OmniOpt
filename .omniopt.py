@@ -4649,7 +4649,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         try:
             # TODO: Fix for multiple results
             insert_job_into_ax_client(parameters, {arg_result_names[0]: result}, hashed_param)
-            print_debug(f"ADDED: result: {result}, type(result): {type(result)}")
+            print_debug(f"ADDED: result: {result}")
 
             return True
         except ValueError as e:

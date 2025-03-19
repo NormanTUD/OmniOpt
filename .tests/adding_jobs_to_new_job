@@ -44,7 +44,7 @@ function run_first_job {
 
 	if [[ $exit_code -ne 0 ]]; then
 		red_text "run_first_job(s) failed with exit_code $exit_code, wanted 0"
-		exit $exit_code
+		exit 1
 	fi
 }
 
@@ -55,7 +55,7 @@ function run_second_job {
 
 	if [[ $exit_code -ne 0 ]]; then
 		red_text "run_first_job(s) failed with exit_code $exit_code, wanted 0"
-		exit $exit_code
+		exit 2
 	fi
 }
 
@@ -63,4 +63,20 @@ run_first_job
 run_first_job
 
 run_second_job
+
+last_csv="$old_runs_dir/2/results.csv"
+
+if [[ ! -e $last_csv ]]; then
+	red_text "$last_csv not found"
+	exit 3
+fi
+
+nr_lines_last_csv=$(cat $last_csv | wc -l)
+
+if [[ $nr_lines_last_csv -ne 4 ]]; then
+	red_text "$last_csv must have 4 lines, but has $nr_lines_last_csv"
+	exit 4
+fi
+
+green_text "Test ok. Took $SECONDS seconds"
 }

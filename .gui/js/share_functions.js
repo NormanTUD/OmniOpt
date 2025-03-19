@@ -1616,7 +1616,6 @@ function plotGPUUsage() {
 	$("#tab_gpu_usage").data("loaded", "true");
 }
 
-
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
 $( document ).ready(function() {

@@ -533,7 +533,7 @@
 	}
 
 	function add_gpu_plots ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
+		$html = '<div class="invert_in_dark_mode" id="gpu-plot"></div>';
 
 		$tabs['GPU Usage'] = [
 			'id' => 'tab_gpu_usage',

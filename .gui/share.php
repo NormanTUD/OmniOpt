@@ -83,6 +83,15 @@
 		$status_data = null;
 		[$tabs, $warnings, $status_data] = add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max);
 
+		$gpu_usage_files = find_gpu_usage_files($run_dir);
+
+		if(count($gpu_usage_files)) {
+			$GLOBALS["json_data"]["gpu_usage"] = parse_gpu_usage_files($gpu_usage_files);
+			dier($GLOBALS["json_data"]["gpu_usage"]);
+		} else {
+			$warnings[] = "No GPU usage files found";
+		}
+
 		$tab_definitions = [
 			'add_pareto_from_from_file' => [["$run_dir"]],
 			'add_simple_csv_tab_from_file' => [

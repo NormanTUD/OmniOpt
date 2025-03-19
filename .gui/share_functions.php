@@ -1831,4 +1831,45 @@
 
 		return [$tabs, $warnings, $status_data];
 	}
+
+	function find_gpu_usage_files($run_dir) {
+		if (!is_dir($run_dir)) {
+			error_log("Error: Directory '$run_dir' does not exist or is not accessible.");
+			return [];
+		}
+
+		$pattern = $run_dir . DIRECTORY_SEPARATOR . 'gpu_usage__*.csv';
+		$files = glob($pattern);
+
+		if ($files === false) {
+			return [];
+		}
+
+		return $files;
+	}
+
+	function parse_gpu_usage_files($files) {
+		$gpu_usage_data = [];
+
+		foreach ($files as $file) {
+			$basename = basename($file);
+			if (preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
+				$index = $matches[1];
+				$gpu_usage_data[$index] = [];
+
+				$handle = fopen($file, "r");
+				if ($handle !== false) {
+					while (($line = fgets($handle)) !== false) {
+						$data = str_getcsv($line, ",", "\"", "\\");
+						$gpu_usage_data[$index][] = $data;
+					}
+					fclose($handle);
+				} else {
+					error_log("Error: Could not open file '$file'.");
+				}
+			}
+		}
+
+		return $gpu_usage_data;
+	}
 ?>

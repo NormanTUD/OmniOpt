@@ -1276,7 +1276,7 @@
 								move_uploaded_file($file, "$userFolder/$filename");
 								$added_files++;
 							} catch (Exception $e) {
-								echo "An exception occured trying to move $file to $userFolder/$filename\n";
+								echo "\nAn exception occured trying to move $file to $userFolder/$filename: $e\n";
 							}
 						} else {
 							$empty_files[] = $filename;

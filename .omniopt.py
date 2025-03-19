@@ -4644,20 +4644,25 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
     @beartype
     #def insert_or_log_result(parameters: Union[Tuple[str, str], Tuple[str, float, Tuple[str, int], Tuple[str, None]]], hashed_params_result: Tuple[str, Union[List[Any], None], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
-    def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> None:
+    def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> bool:
         try:
-            insert_job_into_ax_client(parameters, {"RESULT": hashed_params_result[1]}, hashed_params_result[0])
+            #print(f"hashed_params_result: {hashed_params_result}")
+            insert_job_into_ax_client(parameters, {arg_result_names[0]: hashed_params_result[1]}, hashed_params_result[0])
             print_debug(f"ADDED: old_result_simple: {hashed_params_result[1]}, type: {type(hashed_params_result[1])}")
+
+            return True
         except ValueError as e:
             print_red(f"Error while trying to insert parameter: {e}. Do you have parameters in your old run that are not in the new one?")
             already_inserted_param_hashes[hashed_params_result[0]] += 1
             double_hashes[hashed_params_result[0]] = 1
 
+        return False
+
     @beartype
     def log_missing_result(parameters: dict, hashed_params_result: Union[Tuple[str, Optional[List[Any]]], Tuple[str, str], Tuple[str, float], Tuple[str, int]]) -> None:
         print_debug("Prevent inserting a parameter set without result")
         missing_results.append(hashed_params_result[0])
-        parameters["RESULT"] = hashed_params_result[1]
+        parameters[arg_result_names[0]] = hashed_params_result[1]
         already_inserted_param_data.append(parameters)
 
     @beartype
@@ -4675,9 +4680,10 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
             hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
 
             if should_insert(hashed_params_result):
-                insert_or_log_result(old_arm_parameter, hashed_params_result)
-
-                newly_inserted_jobs += 1
+                if insert_or_log_result(old_arm_parameter, hashed_params_result):
+                    newly_inserted_jobs += 1
+                else:
+                    print_debug("load_and_insert_trials: Failed")
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
 

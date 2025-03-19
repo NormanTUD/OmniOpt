@@ -4647,10 +4647,9 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         result = hashed_params_result[1]
 
         try:
-            #print(f"hashed_params_result: {hashed_params_result}")
             # TODO: Fix for multiple results
             insert_job_into_ax_client(parameters, {arg_result_names[0]: result}, hashed_param)
-            print_debug(f"ADDED: old_result_simple: {result}, type: {type(result)}")
+            print_debug(f"ADDED: result: {result}, type(result): {type(result)}")
 
             return True
         except ValueError as e:

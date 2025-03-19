@@ -5620,8 +5620,8 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
 def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
     _ret = False
 
-    _counted_done_jobs = count_done_jobs() - NR_INSERTED_JOBS
-    _submitted_jobs = submitted_jobs() - NR_INSERTED_JOBS
+    _counted_done_jobs = count_done_jobs()
+    _submitted_jobs = submitted_jobs()
     _failed_jobs = failed_jobs()
 
     conditions = [

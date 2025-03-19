@@ -4673,9 +4673,10 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
 
                 NR_INSERTED_JOBS = NR_INSERTED_JOBS + 1
 
-                set_max_eval(max_eval + 1)
             else:
                 log_missing_result(old_arm_parameter, hashed_params_result)
+
+        set_max_eval(max_eval + NR_INSERTED_JOBS)
 
     @beartype
     def display_table() -> None:

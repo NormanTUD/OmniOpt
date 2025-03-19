@@ -4642,14 +4642,14 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
         return False
 
     @beartype
-    def insert_or_log_result(parameters: Any, hashed_params_result: Any) -> bool:
+    def insert_or_log_result(parameters: Any, hashed_params_result: Any, this_path: str) -> bool:
         hashed_param = hashed_params_result[0]
         result = hashed_params_result[1]
 
         try:
             # TODO: Fix for multiple results
             insert_job_into_ax_client(parameters, {arg_result_names[0]: result}, hashed_param)
-            print_debug(f"ADDED: result: {result}")
+            print_debug(f"ADDED: result: {result} (from {this_path})")
 
             return True
         except ValueError as e:
@@ -4683,7 +4683,7 @@ def load_data_from_existing_run_folders(_paths: List[str]) -> None:
             hashed_params_result = generate_hashed_params(old_arm_parameter, this_path)
 
             if should_insert(hashed_params_result):
-                if insert_or_log_result(old_arm_parameter, hashed_params_result):
+                if insert_or_log_result(old_arm_parameter, hashed_params_result, this_path):
                     newly_inserted_jobs += 1
                 else:
                     print_debug("load_and_insert_trials: Failed")

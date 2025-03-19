@@ -532,6 +532,18 @@
 		return $tabs;
 	}
 
+	function add_gpu_plots ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
+
+		$tabs['GPU Usage'] = [
+			'id' => 'tab_gpu_usage',
+			'content' => $html,
+			"onclick" => "plotGPUUsage();"
+		];
+
+		return $tabs;
+	}
+
 	function add_parallel_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
 
@@ -1027,7 +1039,6 @@
 			return "";
 		}
 
-		// Hilfsfunktionen für Durchschnitt und Median
 		function calculate_average($values) {
 			return array_sum($values) / count($values);
 		}
@@ -1043,7 +1054,6 @@
 			}
 		}
 
-		// Werte berechnen
 		$min_cpu = min($cpu_values);
 		$max_cpu = max($cpu_values);
 		$avg_cpu = calculate_average($cpu_values);
@@ -1082,21 +1092,18 @@
 			return true;
 		}
 
-		// Get stat information
 		$stat = stat($directory);
 		if ($stat === false) {
 			echo "<i>Error: Unable to retrieve information for '$directory'</i><br>\n";
 			return;
 		}
 
-		// Get current ownership and permissions
 		$currentUser = posix_getpwuid($stat['uid'])['name'] ?? 'unknown';
 		$currentGroup = posix_getgrgid($stat['gid'])['name'] ?? 'unknown';
 		$currentPermissions = substr(sprintf('%o', $stat['mode']), -4);
 
 		$issues = false;
 
-		// Check user
 		if ($currentUser !== $expectedUser) {
 			if ($currentUser !== $alternativeUser) {
 				$issues = true;
@@ -1105,7 +1112,6 @@
 			}
 		}
 
-		// Check group
 		if ($currentGroup !== $expectedGroup) {
 			if ($currentGroup !== $alternativeGroup) {
 				$issues = true;
@@ -1114,7 +1120,6 @@
 			}
 		}
 
-		// Check permissions
 		if (intval($currentPermissions, 8) !== $expectedPermissions) {
 			$issues = true;
 			echo "<i>Permissions issue: Current permissions are '$currentPermissions'. Expected permissions are '" . sprintf('%o', $expectedPermissions) . "'</i><br>\n";
@@ -1419,7 +1424,6 @@
 		$oldDirectories = [];
 		$currentTime = time();
 
-		// Helper function to check if a directory is empty
 		function is_dir_empty($dir) {
 			return (is_readable($dir) && count(scandir($dir)) == 2);
 		}
@@ -1428,14 +1432,12 @@
 			$pathParts = explode('/', $subdir);
 			$secondDir = $pathParts[1] ?? '';
 
-			// Skip Elias's project directory
 			if ($secondDir != "s4122485") {
 				$threshold = ($secondDir === 'runner') ? 86400 : (30 * 24 * 3600);
 
 				if(is_dir($subdir)) {
 					$dir_date = filemtime($subdir);
 
-					// Check if the directory is older than the threshold and is either empty or meets the original condition
 					if (is_dir($subdir) && ($dir_date < ($currentTime - $threshold))) {
 						$oldDirectories[] = $subdir;
 						rrmdir($subdir);
@@ -1851,6 +1853,13 @@
 	function parse_gpu_usage_files($files) {
 		$gpu_usage_data = [];
 
+		$headers = [
+			"timestamp", "name", "pci.bus_id", "driver_version", "pstate", 
+			"pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu", 
+			"utilization.gpu", "utilization.memory", "memory.total", 
+			"memory.free", "memory.used"
+		];
+
 		foreach ($files as $file) {
 			$basename = basename($file);
 			if (preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
@@ -1861,7 +1870,28 @@
 				if ($handle !== false) {
 					while (($line = fgets($handle)) !== false) {
 						$data = str_getcsv($line, ",", "\"", "\\");
-						$gpu_usage_data[$index][] = $data;
+
+						if (count($data) !== count($headers)) {
+							error_log("Warning: Skipping malformed line in '$file'.");
+							continue;
+						}
+
+						$data = array_map(function ($item) {
+							$item = trim(str_replace(["MiB", "%"], "", $item));
+							return trim($item);
+						}, $data);
+
+						$entry = array_combine($headers, $data);
+						if ($entry === false) {
+							error_log("Error: array_combine failed for '$file'.");
+							continue;
+						}
+
+						$entry['timestamp_unix'] = strtotime($entry['timestamp']);
+
+						if(count($entry)) {
+							$gpu_usage_data[$index][] = $entry;
+						}
 					}
 					fclose($handle);
 				} else {

@@ -1525,20 +1525,7 @@ function plotGPUUsage() {
 			temperatures.push(parseFloat(entry["temperature.gpu"]));
 		});
 
-		// Traces für jeden Node erstellen
 		var trace1 = {
-			x: timestamps,
-			y: memoryUsed,
-			mode: 'lines+markers',
-			marker: {
-				size: get_marker_size(),
-			},
-			name: 'Memory Used (MB)',
-			type: 'scatter',
-			yaxis: 'y1'
-		};
-
-		var trace2 = {
 			x: timestamps,
 			y: gpuUtilizations,
 			mode: 'lines+markers',
@@ -1550,7 +1537,7 @@ function plotGPUUsage() {
 			yaxis: 'y2'
 		};
 
-		var trace3 = {
+		var trace2 = {
 			x: timestamps,
 			y: temperatures,
 			mode: 'lines+markers',
@@ -1607,7 +1594,7 @@ function plotGPUUsage() {
 		}
 
 		// Alle Traces in ein Array packen
-		var data = [trace1, trace2, trace3];
+		var data = [trace1, trace2, trace2];
 
 		// Plotly-Plots für jeden Node erstellen
 		Plotly.newPlot(divId, data, add_default_layout_data(layout));

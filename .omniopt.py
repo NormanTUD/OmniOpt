@@ -914,7 +914,6 @@ NR_OF_0_RESULTS: int = 0
 orchestrator = None
 double_hashes: dict = {}
 missing_results: list = []
-already_inserted_param_hashes: dict = {}
 
 @beartype
 def print_logo() -> None:
@@ -4437,19 +4436,8 @@ def get_nr_of_imported_jobs() -> int:
 
 @beartype
 def load_existing_job_data_into_ax_client() -> None:
-    if len(already_inserted_param_hashes.keys()):
-        if len(missing_results):
-            print(f"Missing results: {len(missing_results)}")
-
-        if len(double_hashes):
-            print(f"Double parameters not inserted: {len(double_hashes)}")
-
-        if len(double_hashes) - len(already_inserted_param_hashes.keys()):
-            print(f"Restored trials: {len(already_inserted_param_hashes.keys())}")
-            set_nr_inserted_jobs(NR_INSERTED_JOBS + len(already_inserted_param_hashes.keys()))
-    else:
-        nr_of_imported_jobs = get_nr_of_imported_jobs()
-        set_nr_inserted_jobs(NR_INSERTED_JOBS + nr_of_imported_jobs)
+    nr_of_imported_jobs = get_nr_of_imported_jobs()
+    set_nr_inserted_jobs(NR_INSERTED_JOBS + nr_of_imported_jobs)
 
 @beartype
 def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:

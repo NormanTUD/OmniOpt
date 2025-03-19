@@ -4588,7 +4588,7 @@ def insert_job_into_ax_client(arm_params: dict, result: dict) -> None:
 
                 new_trial_idx = new_trial[1]
 
-                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=old_result)
+                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
 
                 done_converting = True
                 save_pd_csv()

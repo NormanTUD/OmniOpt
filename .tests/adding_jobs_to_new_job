@@ -1,0 +1,66 @@
+#!/bin/bash
+
+{
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+function _green_text_bold_underline {
+	echoerr -e "\033[1;4;32m$1\033[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+this_test_name="adding_old_jobs_to_new_jobs"
+
+old_runs_dir=runs/$this_test_name/
+
+if [[ -d $old_runs_dir ]]; then
+	yellow_text "Deleting $old_runs_dir..."
+	rm -rf $old_runs_dir
+	yellow_text "Deleted $old_runs_dir"
+fi
+
+function run_first_job {
+	./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name=$this_test_name --mem_gb=4 --time=60 --worker_timeout=5 --max_eval 1 --num_parallel_jobs 1 --gpus=0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model BOTORCH_MODULAR --auto_exclude_defective_hosts
+
+	exit_code=$?
+
+	if [[ $exit_code -ne 0 ]]; then
+		red_text "run_first_job(s) failed with exit_code $exit_code, wanted 0"
+		exit $exit_code
+	fi
+}
+
+function run_second_job {
+	./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name=$this_test_name --mem_gb=4 --time=60 --worker_timeout=5 --max_eval 1 --num_parallel_jobs 1 --gpus=0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --load_data_from_existing_jobs $old_runs_dir/0 $old_runs_dir/1
+
+	exit_code=$?
+
+	if [[ $exit_code -ne 0 ]]; then
+		red_text "run_first_job(s) failed with exit_code $exit_code, wanted 0"
+		exit $exit_code
+	fi
+}
+
+run_first_job
+run_first_job
+
+run_second_job
+}

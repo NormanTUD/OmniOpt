@@ -47,6 +47,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		continue_previous_job
 		orchestrator_file
 		ui_url
+		load_data_from_existing_jobs
 		run_dir
 		maximize
 		signed_weighted_euclidean_weights

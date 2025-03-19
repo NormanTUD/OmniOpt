@@ -490,6 +490,7 @@ class ConfigLoader:
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
+        optional.add_argument("--load_data_from_existing_jobs", type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6941,6 +6942,9 @@ def main() -> None:
     print_overview_tables(experiment_parameters, experiment_args)
 
     write_files_and_show_overviews()
+
+    if len(args.load_data_from_existing_jobs):
+        load_data_from_existing_run_folders(args.load_data_from_existing_jobs)
 
     try:
         run_search_with_progress_bar()

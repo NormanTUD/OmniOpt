@@ -1344,14 +1344,14 @@ function plotResultEvolution() {
 	}
 
 	result_names.forEach(resultName => {
-		var relevantColumns = tab_job_infos_headers_json.filter(col =>
+		var relevantColumns = tab_results_headers_json.filter(col =>
 			!special_col_names.includes(col) && !col.startsWith("OO_Info") && col.toLowerCase() !== resultName.toLowerCase()
 		);
 
-		var timeColumnIndex = tab_job_infos_headers_json.indexOf("start_time");
-		var resultIndex = tab_job_infos_headers_json.indexOf(resultName);
+		var timeColumnIndex = tab_results_headers_json.indexOf("trial_index");
+		var resultIndex = tab_results_headers_json.indexOf(resultName);
 
-		let data = tab_job_infos_csv_json.map(row => ({
+		let data = tab_results_csv_json.map(row => ({
 			x: new Date(row[timeColumnIndex] * 1000),
 			y: parseFloat(row[resultIndex])
 		}));

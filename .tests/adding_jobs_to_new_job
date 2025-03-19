@@ -78,5 +78,13 @@ if [[ $nr_lines_last_csv -ne 4 ]]; then
 	exit 4
 fi
 
+nr_lines_missing_columns=$(cat $last_csv | grep ",," | wc -l)
+
+if [[ $nr_lines_missing_columns -ne 0 ]]; then
+	red_text "$nr_lines_missing_columns lines are missing columns:"
+
+	cat $last_csv
+fi
+
 green_text "Test ok. Took $SECONDS seconds"
 }

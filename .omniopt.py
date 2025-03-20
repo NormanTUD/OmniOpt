@@ -6612,12 +6612,12 @@ def write_git_version() -> None:
     file_path = os.path.join(folder, "git_version")
 
     try:
-        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
 
         git_tag = ""
 
         try:
-            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True).strip()
+            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
             git_tag = f" ({git_tag})"
         except subprocess.CalledProcessError:
             pass

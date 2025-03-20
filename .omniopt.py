@@ -2655,16 +2655,6 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
     return return_in_case_of_error
 
-class NpEncoder(json.JSONEncoder):
-    def default(self: Any, obj: Any) -> Union[int, float, list, str]:
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
-
 @beartype
 def custom_warning_handler(
     message: Union[Warning, str],
@@ -6820,6 +6810,16 @@ def get_generation_strategy_string() -> str:
         return f"Generation strategy: {gs_hr}."
 
     return ""
+
+class NpEncoder(json.JSONEncoder):
+    def default(self: Any, obj: Any) -> Union[int, float, list, str]:
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 @beartype
 def save_experiment_parameters(filepath: str, experiment_parameters: Union[list, dict]) -> None:

@@ -134,7 +134,7 @@ jobs:
 
     - name: main test script
       run: |
-        ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --run_with_coverage --no_plots
+        ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots
     - name: plot tests
       run: |
         bash ./.tests/plots

@@ -109,6 +109,10 @@
 		bash_logname="logs/$RUN_UUID"
 
 		export bash_logname
+
+
+		exec 1> >(tee -ia $bash_logname)
+		exec 2> >(tee -ia $bash_logname >& 2)
 	else
 		echo "uuidgen is not installed. It's recommended you install it." >&2
 	fi
@@ -1453,31 +1457,15 @@ EOF
 	function help_and_test_py {
 		if command -v stdbuf 2>/dev/null >/dev/null; then
 			if [[ -z $RUN_WITH_COVERAGE ]]; then
-				if [[ -n $bash_logname ]]; then
-					stdbuf -e 0 -o 0 python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				else
-					stdbuf -e 0 -o 0 python3 "$@"
-				fi
+				stdbuf -e 0 -o 0 python3 "$@"
 			else
-				if [[ -n $bash_logname ]]; then
-					stdbuf -e 0 -o 0 coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				else
-					stdbuf -e 0 -o 0 coverage run -p "$@" --help
-				fi
+				stdbuf -e 0 -o 0 coverage run -p "$@" --help
 			fi
 		else
 			if [[ -z $RUN_WITH_COVERAGE ]]; then
-				if [[ -n $bash_logname ]]; then
-					python3 "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				else
-					python3 "$@"
-				fi
+				python3 "$@"
 			else
-				if [[ -n $bash_logname ]]; then
-					coverage run -p "$@" 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				else
-					coverage run -p "$@" --help
-				fi
+				coverage run -p "$@" --help
 			fi
 		fi
 	}
@@ -1547,13 +1535,8 @@ EOF
 		trap - ERR
 
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -n $bash_logname ]]; then
-				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string 2> >(tee -a "$bash_logname" >&2) | tee -a "$bash_logname"
-				EXIT_CODE=$?
-			else
-				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
-				EXIT_CODE=$?
-			fi
+			stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
+			EXIT_CODE=$?
 		else
 			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 			coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string

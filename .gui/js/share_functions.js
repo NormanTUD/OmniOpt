@@ -120,7 +120,7 @@ function filterNonEmptyRows(data) {
 			var col_header_name = tab_results_headers_json[col_idx];
 			var single_data_point = line[col_idx];
 
-			if(single_data_point == "" && !special_col_names.includes(col_header_name)) {
+			if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
 				line_has_empty_data = true;
 				continue;
 			}

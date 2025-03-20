@@ -5228,68 +5228,38 @@ def write_run_uuid_to_file() -> bool:
     return False
 
 @beartype
+def write_to_state_file(path: str, content: str) -> None:
+    try:
+        with open(path, mode='w', encoding='utf-8') as f:
+            original_print(content, file=f)
+    except Exception as e:
+        print_red(f"Error trying to write file {path}: {e}")
+
+@beartype
 def save_state_files() -> None:
     global global_vars
 
-    state_files_folder: str = f"{get_current_run_folder()}/state_files/"
-
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
 
-    try:
-        with open(f'{state_files_folder}/joined_run_program', mode='w', encoding="utf-8") as f:
-            original_print(global_vars["joined_run_program"], file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
+    file_mappings = {
+        "joined_run_program": global_vars["joined_run_program"],
+        "experiment_name": global_vars["experiment_name"],
+        "mem_gb": global_vars["mem_gb"],
+        "max_eval": max_eval,
+        "gpus": args.gpus,
+        "time": global_vars["_time"],
+        "run.sh": "omniopt '" + " ".join(sys.argv[1:]) + "'",
+    }
 
-    try:
-        with open(f'{state_files_folder}/experiment_name', mode='w', encoding="utf-8") as f:
-            original_print(global_vars["experiment_name"], file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
+    for filename, content in file_mappings.items():
+        write_to_state_file(f"{state_files_folder}/{filename}", str(content))
 
-    try:
-        with open(f'{state_files_folder}/mem_gb', mode='w', encoding='utf-8') as f:
-            original_print(global_vars["mem_gb"], file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
+    if args.follow:
+        write_to_state_file(f"{state_files_folder}/follow", "True")
 
-    try:
-        with open(f'{state_files_folder}/max_eval', mode='w', encoding='utf-8') as f:
-            original_print(max_eval, file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
-        with open(f'{state_files_folder}/gpus', mode='w', encoding='utf-8') as f:
-            original_print(args.gpus, file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
-        with open(f'{state_files_folder}/time', mode='w', encoding='utf-8') as f:
-            original_print(global_vars["_time"], file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
-        with open(f'{state_files_folder}/run.sh', mode='w', encoding='utf-8') as f:
-            original_print("omniopt '" + " ".join(sys.argv[1:]), file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
-        if args.follow:
-            with open(f"{state_files_folder}/follow", mode="w", encoding="utf-8") as myfile:
-                original_print("True", file=myfile)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
-
-    try:
-        if args.main_process_gb:
-            with open(f"{state_files_folder}/main_process_gb", mode="w", encoding="utf-8") as myfile:
-                original_print(str(args.main_process_gb), file=myfile)
-    except Exception as e:
-        print_red(f"Error trying to write file: {e}")
+    if args.main_process_gb:
+        write_to_state_file(f"{state_files_folder}/main_process_gb", str(args.main_process_gb))
 
 @beartype
 def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict[str, Optional[float]], List[float]]]]]:

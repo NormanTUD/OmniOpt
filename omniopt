@@ -425,7 +425,6 @@
 		fi
 		yellow_text "Done running last share"
 
-		echo "exit $code"
 		exit $CODE
 	}
 

@@ -4325,74 +4325,6 @@ def value_to_true_or_false(value: str) -> Union[str, bool]:
     return value
 
 @beartype
-def get_old_result_by_params(file_path: str, params: dict, float_tolerance: float = 1e-6, resname: str = "RESULT") -> Optional[Union[pd.DataFrame, str]]:
-    """
-    Open the CSV file and find the row where the subset of columns matching the keys in params have the same values.
-    Return the value of the 'result' column from that row.
-
-    :param file_path: The path to the CSV file.
-    :param params: A dictionary of parameters with column names as keys and values to match.
-    :param float_tolerance: The tolerance for comparing float values.
-    :return: The value of the 'result' column from the matched row.
-    """
-
-    if not os.path.exists(file_path):
-        print_red(f"'{file_path}' for getting old CSV results cannot be found")
-        return None
-
-    try:
-        df = pd.read_csv(file_path, float_precision='round_trip')
-    except Exception as e:
-        print_red(f"Failed to read the CSV file: {str(e)}")
-        return None
-
-    if resname not in df.columns:
-        print_red(f"Error: Could not get RESULT-NAME '{resname}' old result for {params} in {file_path}")
-        return None
-
-    try:
-        matching_rows = df
-
-        for param, value in params.items():
-            if param in df.columns:
-                if isinstance(value, float):
-                    is_close_array = np.isclose(matching_rows[param], value, atol=float_tolerance)
-
-                    matching_rows = matching_rows[is_close_array]
-
-                    assert not matching_rows.empty, f"No matching rows found for float parameter '{param}' with value '{value}'"
-                else:
-                    if isinstance(value, str):
-                        if matching_rows[param].dtype == np.int64:
-                            value = int(value)
-                        elif matching_rows[param].dtype == np.float64:
-                            value = float(value)
-
-                    new_matching_rows = matching_rows[matching_rows[param] == value]
-
-                    if new_matching_rows.empty:
-                        value = value_to_true_or_false(value)
-
-                        new_matching_rows = matching_rows[matching_rows[param] == value]
-
-                    matching_rows = new_matching_rows
-
-                    assert not matching_rows.empty, f"No matching rows found for parameter '{param}' with value '{value}'"
-
-        if matching_rows.empty:
-            return None
-
-        return matching_rows
-    except AssertionError as ae:
-        print_red(f"Assertion error: {str(ae)}")
-        raise
-    except Exception as e:
-        print_red(f"Error during filtering or extracting result: {str(e)}")
-        raise
-
-    return None
-
-@beartype
 def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 
@@ -7164,9 +7096,6 @@ Exit-Code: 159
     """
 
     nr_errors += is_equal('check_for_basic_string_errors("_check_for_basic_string_errors_example_str", "", [], "")', check_for_basic_string_errors(_check_for_basic_string_errors_example_str, "", [], ""), [f"Was the program compiled for the wrong platform? Current system is {platform.machine()}", "No files could be found in your program string: "])
-
-    nr_errors += is_equal("get_old_result_by_params('', {})", get_old_result_by_params('', {}), None)
-    nr_errors += is_equal("get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {})", get_old_result_by_params('.tests/_plot_example_runs/empty_resultsfile/0/results.csv', {}), None)
 
     nr_errors += is_equal('state_from_job("state=\"FINISHED\")', state_from_job('state="FINISHED"'), "finished")
 

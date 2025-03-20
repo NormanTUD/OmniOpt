@@ -1802,9 +1802,7 @@ def validate_value_type(value_type: str) -> None:
 
 @beartype
 def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
-    if len(this_args) != 3:
-        print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
-        my_exit(181)
+    error_181_with_message(len(this_args) != 3, "⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
 
     value = this_args[j + 2]
 
@@ -1826,9 +1824,7 @@ def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: U
 
 @beartype
 def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
-    if len(this_args) != 3:
-        print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
-        my_exit(181)
+    error_181_with_message(len(this_args) != 3, "⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
 
     values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
@@ -1850,6 +1846,12 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
     j += 3
 
     return j, params, search_space_reduction_warning
+
+@beartype
+def error_181_with_message(condition: bool, msg: str) -> None:
+    if condition:
+        print_red(msg)
+        my_exit(181)
 
 @beartype
 def parse_experiment_parameters() -> list:
@@ -1875,13 +1877,7 @@ def parse_experiment_parameters() -> list:
         while j < len(this_args) - 1:
             name = this_args[j]
 
-            if name in invalid_names:
-                print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
-                my_exit(181)
-
-            if name in param_names:
-                print_red(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!")
-                my_exit(181)
+            error_181_with_message(name in invalid_names, f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
 
             param_names.append(name)
 
@@ -1914,9 +1910,7 @@ def parse_experiment_parameters() -> list:
 
 @beartype
 def check_factorial_range() -> None:
-    if args.model and args.model == "FACTORIAL":
-        print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
-        my_exit(181)
+    error_181_with_message(args.model and args.model == "FACTORIAL", "\n⚠ --model FACTORIAL cannot be used with range parameter")
 
 @beartype
 def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:
@@ -1927,9 +1921,10 @@ def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -
 
 @beartype
 def check_range_params_length(this_args: Union[str, list]) -> None:
-    if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
-        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
-        my_exit(181)
+    error_181_with_message(
+        len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6,
+        "\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)"
+    )
 
 @beartype
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
@@ -1937,9 +1932,7 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
         print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
         my_exit(91)
     if upper_bound == lower_bound:
-        if lower_bound == 0:
-            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-            my_exit(181)
+        error_181_with_message(lower_bound == 0, f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
         if upper_bound is not None:
             lower_bound = -upper_bound

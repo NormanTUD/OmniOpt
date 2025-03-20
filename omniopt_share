@@ -321,8 +321,52 @@
 				fi
 			fi
 
-			if [ ${#curl_options[@]} -eq 0 ]; then
-				red_text "Could not find any files in $RUN_DIR\n"
+			nr_curl_options_before="${#curl_options[@]}"
+
+			new_curl_options=("-F")
+
+			OLDIFS=$IFS
+
+			share_upload_state_file="$RUN_DIR/state_files/last_share_md5"
+
+			IFS=$'\n'
+			for curl_option in "${curl_options[@]}"; do
+				if echo "$curl_option" | grep -q "@"; then
+					curl_path=$(echo "$curl_option" | sed -e "s/.*\@//")
+
+					curl_path_md5=$(echo "$curl_path" | md5sum | sed -e "s#\s.*##")
+					curl_path_content_md5=$(md5sum "$curl_path" | sed -e "s#\s.*##")
+
+					this_file_cache_line="$curl_path_md5,$curl_path_content_md5"
+
+					if [[ ! -e "$share_upload_state_file" ]]; then
+						echo "$this_file_cache_line" >> $share_upload_state_file
+						#yellow_text "Adding $this_file_cache_line because the $share_upload_state_file did not exist"
+						new_curl_options+=("$curl_option")
+					elif [[ -e "$share_upload_state_file" ]]; then
+						if ! grep -q "$curl_path_md5" "$share_upload_state_file"; then
+							echo "$this_file_cache_line" >> $share_upload_state_file
+							#yellow_text "Adding $this_file_cache_line because the $curl_path_md5 did exist in $share_upload_state_file"
+							new_curl_options+=("$curl_option")
+						elif ! grep -q "$this_file_cache_line" "$share_upload_state_file"; then
+							#yellow_text "$share_upload_state_file exists, but $this_file_cache_line is not in it"
+							sed -i "s#^$curl_path_md5.*#$this_file_cache_line#" $share_upload_state_file
+							new_curl_options+=("$curl_option")
+						fi
+					fi
+				fi
+			done
+
+			curl_options=("${new_curl_options[@]}")
+
+			IFS=$OLDIFS
+
+			if [[ ${#curl_options[@]} -eq 1 ]]; then
+				if [[ $nr_curl_options_before -eq 0 ]]; then
+					red_text "Could not find any files in $RUN_DIR\n"
+				else
+					green_text "No update needed"
+				fi
 			else
 				if [[ $DEBUG -eq 1 ]]; then
 					echo "curl -s ${curl_options[@]} $url"

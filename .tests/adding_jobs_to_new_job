@@ -81,6 +81,9 @@ wanted_nr_lines=7
 
 if [[ $nr_lines_last_csv -ne $wanted_nr_lines ]]; then
 	red_text "$last_csv must have $wanted_nr_lines lines, but has $nr_lines_last_csv"
+	echo "===================="
+	cat "$last_csv"
+	echo "===================="
 	exit 4
 fi
 

@@ -577,6 +577,7 @@ _test "Find double defined js functions" ".tests/find_double_function_names" 0
 _test "php_search" ".tests/php_search" 0 255
 _test "share_tests" ".tests/share_tests" 0 255
 _test "js_syntax" ".tests/js_syntax" 0 255
+_test "Find unused OmniOpt functions" ".tests/find_unused_functions_in_omniopt" 0
 if [[ -n $CI ]]; then
 	_test "share" ".tests/share" 0 255
 fi

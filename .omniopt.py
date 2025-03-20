@@ -4293,13 +4293,6 @@ def clean_completed_jobs() -> None:
             print_red(f"Job {job}, state not in ['{job_states_to_be_removed_string}'], which would be removed from the job list, or ['{job_states_to_be_ignored_string}'], which would be ignored: {_state}")
 
 @beartype
-def value_to_true_or_false(value: str) -> Union[str, bool]:
-    if isinstance(value, str) and value.lower() in ["true", "false"]:
-        return value.lower() == "true"
-
-    return value
-
-@beartype
 def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 

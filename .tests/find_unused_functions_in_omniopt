@@ -1,0 +1,34 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+exceptions=(
+	"receive_signal_cont"
+	"convert_to_serializable"
+	"custom_warning_handler"
+	"receive_usr_signal"
+	"live_share_background"
+	"receive_usr_signal_int_or_term"
+	"execute_nvidia_smi"
+)
+
+unused_count=0
+
+for funcname in $(grep "^def " .omniopt.py | sort | sed -e 's#^def\s*##' -e 's#(.*##'); do
+	if [[ " ${exceptions[@]} " =~ " $funcname " ]]; then
+		continue
+	fi
+
+	cnt=$(grep -v "^def\s" .omniopt.py | grep "$funcname(" | grep -v is_equal | wc -l)
+
+	if [[ $cnt -eq 0 ]]; then
+		echo "$funcname: $cnt"
+		((unused_count++))
+	fi
+done
+
+exit $unused_count

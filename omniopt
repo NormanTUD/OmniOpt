@@ -411,7 +411,7 @@
 						bash $SCRIPT_DIR/omniopt_share --username="$USER" "$run_folder" 2>/dev/null >/dev/null
 					fi
 				else
-					red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization"
+					red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization.\n"
 				fi
 			fi
 		fi

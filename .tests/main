@@ -889,7 +889,11 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 		fi
 
 		if [[ -z $CI ]] && [[ -n $DISPLAY ]] && command -v firefox 2>/dev/null >/dev/null; then
-			firefox htmlcov/index.html || true
+			if [[ -e htmlcov/index.html ]]; then
+				firefox htmlcov/index.html || true
+			else
+				red_text "htmlcov/index.html not found"
+			fi
 		fi
 	else
 		red_text "--run_with_coverage was defined, but coverage could not be found"

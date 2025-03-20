@@ -171,13 +171,20 @@
 					$tabs = add_box_plot_tab($tabs);
 					$tabs = add_violin_plot($tabs);
 					$tabs = add_histogram_plot($tabs);
+				} else {
+					$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
 				}
 
 				if(count($non_special_columns_without_result_columns) > 2) {
 					$tabs = add_heatmap_plot_tab($tabs);
+				} else {
+					$warnings[] = "Not enough columns for heatmap.";
 				}
+
 				if (count($result_names) > 1) {
 					$tabs = add_plot_result_pairs($tabs);
+				} else {
+					$warnings[] = "Not enough result-names for result-pairs";
 				}
 
 				[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);

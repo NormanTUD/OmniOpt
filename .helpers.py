@@ -63,71 +63,6 @@ def write_loaded_modules_versions_to_json(output_file: str) -> None:
     except (FileNotFoundError, PermissionError) as e:
         print_color("red", f"Error while trying to write file '{output_file}': {e}")
 
-def warn_versions() -> None:
-    if import_metadata_not_found:
-        return
-
-    wrns = []
-
-    supported_versions = {
-        "ax": ["0.36.0", "0.3.7", "0.3.8.dev133", "0.52.0"],
-        "botorch": ["0.10.0", "0.10.1.dev46+g7a844b9e", "0.11.0", "0.8.5", "0.9.5", "0.11.3", "0.12.0", "0.13.0"],
-        "torch": ["2.3.0", "2.3.1", "2.4.0", "2.4.1", "2.5.0", "2.5.1", "2.6.0"],
-        "seaborn": ["0.12.2", "0.13.2"],
-        "pandas": ["1.5.3", "2.0.3", "2.2.2", "2.2.3"],
-        "psutil": ["5.8.0", "5.9.4", "5.9.8", "6.0.0", "6.1.0", "6.1.1", "7.0.0"],
-        "numpy": ["2.0.2", "1.24.4", "1.26.4", "2.1.1", "2.1.2", "2.1.3", "2.2.1", "2.2.2", "2.2.3", "2.2.4"],
-        "matplotlib": ["3.9.4", "3.6.3", "3.7.5", "3.9.0", "3.9.1", "3.9.1.post1", "3.9.2", "3.9.3", "3.10.0", "3.10.1"],
-        "submitit": ["1.5.1", "1.5.2"],
-        "tqdm": ["4.64.1", "4.66.4", "4.66.5", "4.66.6", "4.67.0", "4.67.1"],
-        "dill": ["0.3.6", "0.3.8", "0.3.9"],
-        "typeguard": ["2.13.3", "2.13.3", "4.3.0", "4.4.0", "4.4.1"],
-        "mypy_extensions": ["1.0.0"],
-        "typing_inspect": ["0.9.0"],
-        "typing_extensions": ["4.12.2"],
-        "sqlalchemy": ["1.3.13", "1.4.54"],
-        "typing": ["3.7.4.3"],
-        "rich": ["13.8.1", "13.9.3", "13.9.2", "13.9.1", "13.9.4"],
-        "toml": ["0.10.2"],
-        "cowsay": ["6.1"],
-        "pyre_extensions": ["0.0.31", "0.0.32"],
-        "scipy": ["1.13.1", "1.14.1", "1.10.1", "1.15.1", "1.15.2"],
-        "jaxtyping": ["0.2.36", "0.2.34", "0.2.19", "0.2.37", "0.2.38", "0.3.0"],
-        "linear_operator": ["0.5.1", "0.5.2", "0.5.3", "0.4.0", "0.6"],
-        "opt_einsum": ["3.3.0", "3.4.0"],
-        "gpytorch": ["1.11", "1.12", "1.13", "1.10", "1.14"],
-        "multipledispatch": ["1.0.0"],
-        "joblib": ["1.4.2"],
-        "triton": ["3.0.0", "3.1.0", "3.2.0"],
-        "plotly": ["5.24.1", "6.0.0", "6.0.1"],
-        "rich_argparse": ["1.5.2", "1.6.0", "1.7.0"],
-        "pytz": ["2024.2", "2025.1"],
-        "cloudpickle": ["3.0.0", "3.1.0", "3.1.1"],
-        "six": ["1.16.0", "1.17.0"],
-        "sixel": ["0.2.0"],
-        "packaging": ["24.1", "20.1", "24.2"],
-        "pyparsing": ["3.1.4", "3.2.0", "3.2.1"],
-        "cycler": ["0.12.1"],
-        "kiwisolver": ["1.4.7", "1.4.8"],
-        "threadpoolctl": ["3.5.0", "3.6.0"],
-        "mpmath": ["1.3.0"],
-        "sympy": ["1.13.3", "1.13.1"],
-        "setuptools": ["44.0.0", "56.0.0", "66.1.1", "75.2.0", "58.1.0", "59.6.0", "75.3.0", "75.5.0", "75.6.0", "75.8.0", "70.2.0", "65.5.0", "75.8.2", "76.0.0", "76.1.0", "77.0.1", "77.0.3"],
-        "torchvision": ["0.19.0", "0.19.1", "0.20.1"]
-    }
-
-    for key in supported_versions.keys():
-        _supported_versions = supported_versions[key]
-        try:
-            _real_version = version(key)
-            if _real_version not in _supported_versions:
-                wrns.append(f"Possibly unsupported {key}-version: {_real_version} not in supported version(s): {', '.join(_supported_versions)}")
-        except Exception:
-            pass
-
-    if len(wrns):
-        print("- " + ("\n- ".join(wrns)))
-
 def looks_like_float(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
@@ -902,5 +837,3 @@ def die_if_cannot_be_plotted(run_dir: str) -> None:
         sys.exit(2)
 
 check_python_version()
-
-warn_versions()

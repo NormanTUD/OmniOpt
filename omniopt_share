@@ -323,7 +323,7 @@
 
 			nr_curl_options_before="${#curl_options[@]}"
 
-			new_curl_options=("-F")
+			new_curl_options=()
 
 			OLDIFS=$IFS
 
@@ -342,16 +342,16 @@
 					if [[ ! -e "$share_upload_state_file" ]]; then
 						echo "$this_file_cache_line" >> $share_upload_state_file
 						#yellow_text "Adding $this_file_cache_line because the $share_upload_state_file did not exist"
-						new_curl_options+=("$curl_option")
+						new_curl_options+=("-F $curl_option")
 					elif [[ -e "$share_upload_state_file" ]]; then
 						if ! grep -q "$curl_path_md5" "$share_upload_state_file"; then
 							echo "$this_file_cache_line" >> $share_upload_state_file
 							#yellow_text "Adding $this_file_cache_line because the $curl_path_md5 did exist in $share_upload_state_file"
-							new_curl_options+=("$curl_option")
+							new_curl_options+=("-F $curl_option")
 						elif ! grep -q "$this_file_cache_line" "$share_upload_state_file"; then
 							#yellow_text "$share_upload_state_file exists, but $this_file_cache_line is not in it"
 							sed -i "s#^$curl_path_md5.*#$this_file_cache_line#" $share_upload_state_file
-							new_curl_options+=("$curl_option")
+							new_curl_options+=("-F $curl_option")
 						fi
 					fi
 				fi

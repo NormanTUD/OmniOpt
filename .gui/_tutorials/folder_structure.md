@@ -188,6 +188,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
 - `ax_client.experiment.json`: A JSON file containing the whole ax-client
 - `generation_strategy`: A file containing the given generation strategy
+- `last_share_md5`: A file containing paths and MD5 hashes of shared files, so they can be updated instead of re-uploaded every time you can OmniOpt2-Share
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

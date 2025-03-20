@@ -1290,7 +1290,7 @@
 						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
 				} else {
-					print("$file does not exist");
+					print("$file for $filename does not exist\n");
 				}
 			}
 		}

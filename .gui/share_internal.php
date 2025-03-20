@@ -87,7 +87,7 @@
 		$file_size = $_file["size"];
 		$file_without_ending = pathinfo($file_name, PATHINFO_FILENAME);
 
-		if (preg_match("/log.(zip|err|out)$/", $file_name)) {
+		if (preg_match("/log.(zip|err|out)$/", $file_name) || preg_match("/\.(txt)$/", $file_name)) {
 			if (!isset($offered_files[$file_without_ending])) {
 				if (isset($file_name)) {
 					if ($file_error != 0) {
@@ -105,7 +105,11 @@
 					print("Could not determine filename for at least one uploaded file");
 				}
 			} else {
-				print("$file_without_ending couldn't be found in \$offered_files\n");
+				$num_offered_files++;
+				$offered_files[$file_without_ending] = array(
+					"file" => $_file["tmp_name"] ?? null,
+					"filename" => $file_name
+				);
 			}
 		} else {
 			if(preg_match("/^gpu_usage__.*.csv$/", $file_name)) {
@@ -116,6 +120,14 @@
 							"filename" => $file_name
 						);
 					}
+				}
+			} else {
+				if($file_size > 0) {
+					$num_offered_files++;
+					$offered_files[$file_without_ending] = array(
+						"file" => $_file["tmp_name"] ?? null,
+						"filename" => $file_name
+					);
 				}
 			}
 		}

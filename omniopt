@@ -113,6 +113,8 @@
 		echo "uuidgen is not installed. It's recommended you install it." >&2
 	fi
 
+	live_share=0
+
 	function show_ram {
 		ram_self=$(grep VmRSS /proc/$$/status | awk '{print $2 / 1024}')
 		ram_children=0
@@ -396,6 +398,22 @@
 
 			echo ""
 			set -e
+		fi
+
+		if [[ $live_share -eq 1 ]]; then
+			if [[ $RUN_UUID != "" ]]; then
+				full_log_file="$ORIGINAL_PWD/logs/$RUN_UUID"
+				if [[ -e "$full_log_file" ]]; then
+					run_folder=$(cat "$full_log_file" | grep "Run-folder:" | sed -e 's#Run-folder: ##')
+					if [[ -z $run_folder ]]; then
+						red_text "Run-folder could not be determined from $full_log_file"
+					else
+						bash $SCRIPT_DIR/omniopt_share --username="$USER" "$run_folder" 2>/dev/null >/dev/null
+					fi
+				else
+					red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization"
+				fi
+			fi
 		fi
 
 		exit $CODE
@@ -936,6 +954,13 @@ $complex_options_str
 		-d|--debug)
 			debug=1
 			set_debug
+			;;
+
+		--live_share)
+			live_share=1
+
+			args_string+=" --live_share "
+
 			;;
 
 		--root_venv_dir=*)
@@ -1743,6 +1768,7 @@ EOF
 		else
 			echo "No exit-code could be found. Exiting with exit-code 3."
 		fi
+
 		myexit 3
 	fi
 }

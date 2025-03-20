@@ -376,8 +376,6 @@
 	function myexit {
 		CODE=$1
 
-		echo "myexit $CODE"
-
 		end_all_bg_processes
 
 		if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then

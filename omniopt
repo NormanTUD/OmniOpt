@@ -421,7 +421,6 @@
 				fi
 			fi
 		fi
-		yellow_text "Done running last share"
 
 		exit $CODE
 	}

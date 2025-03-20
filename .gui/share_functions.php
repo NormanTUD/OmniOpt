@@ -1278,6 +1278,7 @@
 					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
 							try {
+								#dier(file_get_contents($offered_files["6749a9f3-c2de-4d60-8c31-d8458877e291_log"]["file"]));
 								move_uploaded_file($file, "$userFolder/$filename");
 								$added_files++;
 							} catch (Exception $e) {
@@ -1289,8 +1290,6 @@
 					} else {
 						dier("$filename: \$content was not ASCII, but $content_encoding");
 					}
-				} else {
-					print("$file for $filename does not exist\n");
 				}
 			}
 		}

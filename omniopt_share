@@ -361,7 +361,7 @@
 
 			IFS=$OLDIFS
 
-			if [[ ${#curl_options[@]} -eq 1 ]]; then
+			if [[ ${#curl_options[@]} -eq 0 ]]; then
 				if [[ $nr_curl_options_before -eq 0 ]]; then
 					red_text "Could not find any files in $RUN_DIR\n"
 				else

@@ -6622,8 +6622,9 @@ def write_git_version() -> None:
         except subprocess.CalledProcessError:
             pass
 
-        with open(file_path, mode="w", encoding="utf-8") as f:
-            f.write(f"Commit: {commit_hash}{git_tag}\n")
+        if commit_hash:
+            with open(file_path, mode="w", encoding="utf-8") as f:
+                f.write(f"Commit: {commit_hash}{git_tag}\n")
 
     except subprocess.CalledProcessError:
         pass

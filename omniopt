@@ -376,6 +376,8 @@
 	function myexit {
 		CODE=$1
 
+		echo "myexit $CODE"
+
 		end_all_bg_processes
 
 		if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
@@ -408,18 +410,22 @@
 			if [[ $RUN_UUID != "" ]]; then
 				full_log_file="$ORIGINAL_PWD/logs/$RUN_UUID"
 				if [[ -e "$full_log_file" ]]; then
+					set +e
 					run_folder=$(cat "$full_log_file" | grep "Run-folder:" | sed -e 's#Run-folder: ##')
 					if [[ -z $run_folder ]]; then
-						red_text "Run-folder could not be determined from $full_log_file"
+						true
 					else
 						bash $SCRIPT_DIR/omniopt_share --username="$USER" "$run_folder" 2>/dev/null >/dev/null
 					fi
+					set -e
 				else
 					red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization.\n"
 				fi
 			fi
 		fi
+		yellow_text "Done running last share"
 
+		echo "exit $code"
 		exit $CODE
 	}
 

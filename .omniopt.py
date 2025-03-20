@@ -6269,6 +6269,11 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
                 valid_behaviours: list = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
                 for x in data["errors"]:
+                    expected_types = {
+                        "name": str,
+                        "match_strings": list
+                    }
+
                     if not isinstance(x, dict):
                         print_red(f"Entry is not of type dict but {type(x)}")
                         die_orchestrator_exit_code_206(_test)
@@ -6281,13 +6286,10 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
                         print_red(f"behavior-entry {x['behavior']} is not in valid_behaviours: {', '.join(valid_behaviours)}")
                         die_orchestrator_exit_code_206(_test)
 
-                    if not isinstance(x["name"], str):
-                        print_red(f"name-entry is not string but {type(x['name'])}")
-                        die_orchestrator_exit_code_206(_test)
-
-                    if not isinstance(x["match_strings"], list):
-                        print_red(f"name-entry is not list but {type(x['match_strings'])}")
-                        die_orchestrator_exit_code_206(_test)
+                    for key, expected_type in expected_types.items():
+                        if not isinstance(x[key], expected_type):
+                            print_red(f"{key}-entry is not {expected_type.__name__} but {type(x[key])}")
+                            die_orchestrator_exit_code_206(_test)
 
                     for y in x["match_strings"]:
                         if not isinstance(y, str):

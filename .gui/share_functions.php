@@ -1620,6 +1620,10 @@
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max";
 
+		if (!file_exists($result_min_max_file)) {
+			$result_min_max_file = "$run_dir/result_min_max.txt";
+		}
+
 		$result_names = [];
 		$result_min_max = [];
 

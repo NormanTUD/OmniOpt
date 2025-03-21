@@ -19,7 +19,7 @@ job to our server, and allow give you a link to it which is valid for 30 days.
 You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload
 is publically available for 30 days.
 
-## Help
+## `--help`
 
 ```run_php
 	$file_path = "../omniopt_share";

@@ -838,7 +838,7 @@
 		$file_content = file_get_contents($filename);
 
 		foreach ($names as $name) {
-			$pattern = '/(^|\s)\s*' . preg_quote($name, '/') . ':\s*[-+]?\d+(?:\.\d+)?\s*$/mi';
+			$pattern = '/(^|\s)\s*' . preg_quote($name, '/') . ':\s*[-+]?\d+(?:\.\d+)?\s*/mi';
 
 			if (!preg_match($pattern, $file_content)) {
 				return false;

@@ -6834,9 +6834,7 @@ def save_experiment_parameters(filepath: str, experiment_parameters: Union[list,
 def run_search_with_progress_bar() -> None:
     disable_tqdm = args.disable_tqdm or ci_env
 
-    total_jobs = max_eval + NR_INSERTED_JOBS
-
-    print_debug(f"total_jobs: {total_jobs} (max_eval: {max_eval} + NR_INSERTED_JOBS {NR_INSERTED_JOBS})")
+    total_jobs = max_eval
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()

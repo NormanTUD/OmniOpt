@@ -741,9 +741,11 @@
 					$lastModified = date("F d Y H:i:s", $timestamp);
 					$timeSince = timeSince($timestamp);
 
-					echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
-					echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ' | ' . $timeSince . ')</button>';
-					echo '</a><br>';
+					if(hasNonEmptyFolder($folderPathWithFile)) {
+						echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
+						echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ' | ' . $timeSince . ')</button>';
+						echo '</a><br>';
+					}
 				}
 			} else {
 				print "<h2>Sorry, no jobs have been uploaded yet.</h2>";
@@ -1900,5 +1902,25 @@
 		}
 
 		return $gpu_usage_data;
+	}
+
+	function hasNonEmptyFolder($dir) {
+		// Check if the directory exists and is a directory
+		if (!is_dir($dir)) {
+			return false;
+		}
+
+		// Open the directory
+		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir), RecursiveIteratorIterator::LEAVES_ONLY);
+
+		// Loop through each file/folder in the directory
+		foreach ($files as $file) {
+			// Skip directories
+			if (!$file->isDir()) {
+				return true; // Found a file, return true
+			}
+		}
+
+		return false; // No files found
 	}
 ?>

@@ -3361,7 +3361,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
         try:
             show_pareto_frontier_data()
         except Exception as e:
-            print("show_pareto_frontier_data() failed with exception {e}")
+            print_red(f"show_pareto_frontier_data() failed with exception {e}")
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 

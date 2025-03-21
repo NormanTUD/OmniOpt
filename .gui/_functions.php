@@ -335,4 +335,52 @@
 
 		return null;
 	}
+
+	function extract_help_params_from_bash($file_path) {
+		if (!file_exists($file_path)) {
+			return "File not found: " . htmlspecialchars($file_path);
+		}
+
+		$file = fopen($file_path, "r");
+		if (!$file) {
+			return "Error when trying to open the file $file.";
+		}
+
+		$inside_help = false;
+		$help_lines = [];
+
+		while (($line = fgets($file)) !== false) {
+			$trimmed = trim($line);
+
+			if (preg_match('/^function\s+help\s*{/', $trimmed)) {
+				$inside_help = true;
+				continue;
+			}
+
+			if ($inside_help) {
+				if (preg_match('/^\s*exit\s+/', $trimmed)) {
+					break;
+				}
+				if (preg_match('/^\s*echo\s+"(.*?)";?$/', $trimmed, $matches)) {
+					$help_lines[] = $matches[1];
+				}
+			}
+		}
+
+		fclose($file);
+
+		$html = "<table border='1'><tr><th>Option</th><th>Description</th></tr>";
+
+		foreach ($help_lines as $line) {
+			if (preg_match('/^(--[^\s=]+)(?:=([^ ]+))?\s+(.*)$/', trim($line), $parts)) {
+				$option = htmlspecialchars($parts[1]);
+				$value = isset($parts[2]) ? htmlspecialchars($parts[2]) : "";
+				$description = htmlspecialchars($parts[3]);
+				$html .= "<tr><td>{$option}</td><td>{$description}</td></tr>";
+			}
+		}
+
+		$html .= "</table>";
+		return $html;
+	}
 ?>

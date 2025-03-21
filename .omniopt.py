@@ -15,6 +15,8 @@ import time
 import random
 import statistics
 
+special_col_names = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
+
 shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -24,7 +26,7 @@ valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minko
 
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
-IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "generation_node"]
+IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 figlet_loaded = False
 
 try:
@@ -4401,7 +4403,6 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
         return corrected_params
 
     def parse_csv(csv_path: str) -> Tuple[List, List]:
-        ignored_columns = {"trial_index", "arm_name", "trial_status", "generation_method", "generation_node"}
         arm_params_list = []
         results_list = []
 
@@ -4412,7 +4413,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> Non
                 results = {}
 
                 for col, value in row.items():
-                    if col in ignored_columns:
+                    if col in special_col_names:
                         continue
 
                     if col in arg_result_names:
@@ -6361,6 +6362,9 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
             for metric in metrics:
                 means[metric].append(float(row[metric]))
 
+            for to_del in special_col_names:
+                if to_del in param_dict:
+                    del param_dict[to_del]
             param_dicts.append(param_dict)
 
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)

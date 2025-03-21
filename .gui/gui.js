@@ -1,4 +1,4 @@
-var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"];
+var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "arm_name", "trial_index", "generation_method", "trial_status"];
 
 function get_invalid_names () {
 	var gin = JSON.parse(JSON.stringify(invalid_names));

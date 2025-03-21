@@ -6638,6 +6638,17 @@ def write_git_version() -> None:
         pass
 
 @beartype
+def write_live_share_file_if_needed() -> None:
+    if args.live_share:
+        live_share_file = f"{get_current_run_folder()}/state_files/live_share"
+
+        try:
+            with open(live_share_file, mode="w", encoding="utf-8") as f:
+                f.write("1\n")
+        except Exception as e:
+            print_red(f"Error trying to write {live_share_file}: {e}")
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, global_vars, max_eval
     global NVIDIA_SMI_LOGS_BASE
@@ -6694,6 +6705,8 @@ def main() -> None:
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
     experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
+    write_live_share_file_if_needed()
+    
     fn = f'{get_current_run_folder()}/job_start_time.txt'
     try:
         with open(fn, mode='w', encoding="utf-8") as f:

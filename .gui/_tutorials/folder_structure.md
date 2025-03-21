@@ -171,14 +171,14 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `submitted_jobs`: The number of submitted jobs
 - `result_names_overview.txt`: The rich overview-table of all result names
 - `time`: The time this job-sbatch has allocated
-- `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set.
-- `succeeded_jobs`: Contains one line for each succeeded job.
-- `args_overview.txt`: A table that shows all arg-parameters given to OO.
+- `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
+- `succeeded_jobs`: Contains one line for each succeeded job
+- `args_overview.txt`: A table that shows all arg-parameters given to OO
 - `ui_url.txt`: Contains the URL that this run was started by
 - `pareto_front_data.json`: Data about the pareto-front (exists only for multi-objective-optimizations)
-- `follow`: Exists if the job was started with --follow. Only used for continued jobs.
-- `generation_strategy.txt`: Infos about the generation strategy used internally.
-- `main_process_gb`: Saves the amount of memory in the main process (if applicable). Only used for continued jobs.
+- `follow`: Exists if the job was started with --follow. Only used for continued jobs
+- `generation_strategy.txt`: Infos about the generation strategy used internally
+- `main_process_gb`: Saves the amount of memory in the main process (if applicable). Only used for continued jobs
 - `original_ax_client_before_loading_tmp_one.json`: Required to re-load generation strategy in continued jobs
 - `loaded_modules.json`: A list of all loaded modules with module information where available
 - `cpu_ram_usage.csv`: Logs CPU and RAM usage
@@ -190,6 +190,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `generation_strategy`: A file containing the given generation strategy
 - `last_share_md5`: A file containing paths and MD5 hashes of shared files, so they can be updated instead of re-uploaded every time you can OmniOpt2-Share
 - `last_share_md5_tmp`: Same as `last_share_md5`, but only temporary
+- `live_share`: If this file exists, the job has been run with live share enabled. This is useful for continued jobs, so they also have live-share enabled
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

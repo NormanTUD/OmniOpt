@@ -1404,6 +1404,10 @@ EOF
 				myexit 105
 			fi
 		fi
+
+		if [[ -e "$continue_previous_job/state_files/live_share" ]]; then
+			live_share=1
+		fi
 	fi
 
 	if [[ -z $main_process_gb ]]; then

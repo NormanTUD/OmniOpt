@@ -17,6 +17,8 @@ import statistics
 
 special_col_names = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 
+gotten_jobs: int = 0
+
 shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -472,7 +474,7 @@ class ConfigLoader:
         optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
         optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=int, default=8)
         optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
-        optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by the ax_clients get_next_trial() before the search space is seen as exhausted', type=int, default=10)
+        optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by the generator before the search space is seen as exhausted', type=int, default=10)
         optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
         optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
@@ -5471,7 +5473,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 
-    global global_gs, error_8_saved, overwritten_to_random
+    global global_gs, error_8_saved, overwritten_to_random, gotten_jobs
 
     if not ax_client:
         print_red("ax_client was not defined")
@@ -5495,12 +5497,14 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             )
             trial = ax_client.experiment.new_trial(generator_run)
             params = generator_run.arms[0].parameters
-            trial_index = submitted_jobs() + NR_INSERTED_JOBS + k
+            trial_index = gotten_jobs + NR_INSERTED_JOBS + k
             trial.mark_running(no_runner_required=True)
 
             trials_dict[trial_index] = params
             print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
             end_time = time.time()
+
+            gotten_jobs = gotten_jobs + 1
 
             trial_durations.append(float(end_time - start_time))
         return trials_dict, False

@@ -3352,11 +3352,7 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
-    global global_vars, END_PROGRAM_RAN
-
-    wait_for_jobs_to_complete()
-
+def show_pareto_or_error_msg() -> None:
     if len(arg_result_names) > 1:
         try:
             show_pareto_frontier_data()
@@ -3364,6 +3360,14 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
             print_red(f"show_pareto_frontier_data() failed with exception {e}")
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
+
+@beartype
+def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
+    global global_vars, END_PROGRAM_RAN
+
+    wait_for_jobs_to_complete()
+
+    show_pareto_or_error_msg()
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")

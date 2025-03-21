@@ -1407,6 +1407,7 @@ EOF
 
 		if [[ -e "$continue_previous_job/state_files/live_share" ]]; then
 			live_share=1
+			args_string+=" --live_share "
 		fi
 	fi
 

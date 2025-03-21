@@ -6338,52 +6338,56 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-@beartype
-def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Table:
-    csv_path: str = f"{get_current_run_folder()}/results.csv"
-
-    with open(csv_path, encoding="utf-8", mode='r') as file:
+def get_csv_data(csv_path: str):
+    with open(csv_path, encoding="utf-8", mode="r") as file:
         reader = csv.DictReader(file)
-
         all_columns = reader.fieldnames
+        rows = list(reader)
+    return all_columns, rows
 
-        param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
+def extract_parameters_and_metrics(rows, all_columns, metrics):
+    param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
+    metrics = [col for col in all_columns if col in arg_result_names]
 
-        metrics = [col for col in all_columns if col in arg_result_names]
+    param_dicts = []
+    means = {metric: [] for metric in metrics}
 
-        param_dicts = []
-        means: dict = {metric: [] for metric in metrics}
+    for row in rows:
+        param_dict = {param: row[param] for param in param_names}
+        for metric in metrics:
+            if row[metric] != "":
+                means[metric].append(float(row[metric]))
+        param_dicts.append(param_dict)
 
-        for row in reader:
-            param_dict = {}
-            for param in param_names:
-                param_dict[param] = row[param]
+    return param_dicts, means, metrics
 
-            for metric in metrics:
-                if row[metric] != "":
-                    means[metric].append(float(row[metric]))
-
-            param_dicts.append(param_dict)
-
+def create_table(param_dicts, means, metrics, metric_i, metric_j):
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
-
+    
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
-        this_table_row: list = []
-        this_table_row.extend(str(params[k]) for k in params.keys())
+        this_table_row = [str(params[k]) for k in params.keys()]
         for metric in metrics:
             try:
                 mean = means[metric][i]
                 this_table_row.append(f"{mean:.3f}")
             except IndexError:
-                print_debug("")
+                this_table_row.append("")
 
         table.add_row(*this_table_row, style="bold green")
 
     return table
+
+@beartype
+def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Table:
+    csv_path = f"{get_current_run_folder()}/results.csv"
+    
+    all_columns, rows = get_csv_data(csv_path)
+    param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
+    return create_table(param_dicts, means, metrics, metric_i, metric_j)
 
 @beartype
 def supports_sixel() -> bool:

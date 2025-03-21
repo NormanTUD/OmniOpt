@@ -1972,7 +1972,7 @@ def get_memory_usage() -> float:
     return memory_usage
 
 class MonitorProcess:
-    def __init__(self: Any, pid: int, interval: float = 1.0):
+    def __init__(self: Any, pid: int, interval: float = 1.0) -> None:
         self.pid = pid
         self.interval = interval
         self.running = True

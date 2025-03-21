@@ -6363,7 +6363,7 @@ def extract_parameters_and_metrics(rows, all_columns, metrics):
 
 def create_table(param_dicts, means, metrics, metric_i, metric_j):
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
-    
+
     headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
@@ -6384,7 +6384,7 @@ def create_table(param_dicts, means, metrics, metric_i, metric_j):
 @beartype
 def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Table:
     csv_path = f"{get_current_run_folder()}/results.csv"
-    
+
     all_columns, rows = get_csv_data(csv_path)
     param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
     return create_table(param_dicts, means, metrics, metric_i, metric_j)
@@ -6710,7 +6710,7 @@ def main() -> None:
     experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
     write_live_share_file_if_needed()
-    
+
     fn = f'{get_current_run_folder()}/job_start_time.txt'
     try:
         with open(fn, mode='w', encoding="utf-8") as f:

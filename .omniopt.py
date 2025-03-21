@@ -6464,24 +6464,29 @@ def show_pareto_frontier_data() -> None:
     ) as progress:
         task = progress.add_task("Calculating Pareto-Front...", total=len(all_combinations))
 
+        skip = False
+
         for i, j in all_combinations:
-            metric_i = objectives[i].metric
-            metric_j = objectives[j].metric
+            if not skip:
+                metric_i = objectives[i].metric
+                metric_j = objectives[j].metric
 
-            try:
-                calculated_frontier = compute_posterior_pareto_frontier(
-                    experiment=ax_client.experiment,
-                    data=ax_client.experiment.fetch_data(),
-                    primary_objective=metric_i,
-                    secondary_objective=metric_j,
-                    absolute_metrics=arg_result_names,
-                    num_points=count_done_jobs()
-                )
+                try:
+                    calculated_frontier = compute_posterior_pareto_frontier(
+                        experiment=ax_client.experiment,
+                        data=ax_client.experiment.fetch_data(),
+                        primary_objective=metric_i,
+                        secondary_objective=metric_j,
+                        absolute_metrics=arg_result_names,
+                        num_points=count_done_jobs()
+                    )
 
-                collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
-
-            except ax.exceptions.core.DataRequiredError as e:
-                print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
+                    collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
+                except ax.exceptions.core.DataRequiredError as e:
+                    print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
+                except SignalINT:
+                    print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
+                    skip = True
 
             progress.update(task, advance=1)
 

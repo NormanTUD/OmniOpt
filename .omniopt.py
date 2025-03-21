@@ -6338,14 +6338,16 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
         cli_params_experiment_parameters = experiment_parameters
     return experiment_parameters, cli_params_experiment_parameters
 
-def get_csv_data(csv_path: str):
+@beartype
+def get_csv_data(csv_path: str) -> Tuple[List, List]:
     with open(csv_path, encoding="utf-8", mode="r") as file:
         reader = csv.DictReader(file)
         all_columns = reader.fieldnames
         rows = list(reader)
     return all_columns, rows
 
-def extract_parameters_and_metrics(rows, all_columns, metrics):
+@beartype
+def extract_parameters_and_metrics(rows: List, all_columns: List, metrics: List) -> Tuple[List, dict, List]:
     param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
     metrics = [col for col in all_columns if col in arg_result_names]
 
@@ -6361,7 +6363,8 @@ def extract_parameters_and_metrics(rows, all_columns, metrics):
 
     return param_dicts, means, metrics
 
-def create_table(param_dicts, means, metrics, metric_i, metric_j):
+@beartype
+def create_table(param_dicts: List, means: dict, metrics: List, metric_i: str, metric_j: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics
@@ -7332,4 +7335,8 @@ def main_outside() -> None:
                     end_program(RESULT_CSV_FILE, True)
 
 if __name__ == "__main__":
-    main_outside()
+    try:
+        main_outside()
+    except Exception as e:
+        print_red(f"main_outside failed with exception {e}")
+        end_program(RESULT_CSV_FILE, True)

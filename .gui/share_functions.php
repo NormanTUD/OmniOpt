@@ -1432,7 +1432,7 @@
 			$secondDir = $pathParts[1] ?? '';
 
 			if ($secondDir != "s4122485") {
-				$threshold = ($secondDir === 'runner') ? 86400 : (30 * 24 * 3600);
+				$threshold = ($secondDir === 'runner') ? 3600 : (30 * 24 * 3600);
 
 				if(is_dir($subdir)) {
 					$dir_date = filemtime($subdir);

@@ -5789,7 +5789,7 @@ def get_generation_strategy() -> GenerationStrategy:
     generation_strategy = args.generation_strategy
 
     if args.continue_previous_job:
-        generation_strategy_file = f"{args.continue_previous_job}/state_files/generation_strategy"
+        generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
 
         if os.path.exists(generation_strategy_file):
             print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
@@ -5850,7 +5850,7 @@ def get_generation_strategy() -> GenerationStrategy:
 
         start_index = start_index + 1
 
-    generation_strategy_file = f"{get_current_run_folder()}/state_files/generation_strategy"
+    generation_strategy_file = f"{get_current_run_folder()}/state_files/custom_generation_strategy"
 
     try:
         with open(generation_strategy_file, mode="w", encoding="utf-8") as f:

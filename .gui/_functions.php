@@ -155,6 +155,10 @@
 			return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_PYTHON>>>';
 		}, $markdown);
 
+		$markdown = preg_replace_callback('/```run_php\R*(.*?)```/s', function($matches) {
+			return '<<<PHP_RUN_BLOCK>>>'. base64_encode($matches[1]) .'<<<PHP_RUN_BLOCK>>>';
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```bash\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK_BASH>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_BASH>>>';
 		}, $markdown);
@@ -210,6 +214,17 @@
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_BASH>>>(.*?)<<<CODEBLOCK_BASH>>>/s', function($matches) {
 			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
 		}, $markdown);
+
+		$markdown = preg_replace_callback('/<<<PHP_RUN_BLOCK>>>(.*?)<<<PHP_RUN_BLOCK>>>/s', function($matches) {
+			ob_start();
+
+			eval(base64_decode($matches[1]));
+
+			$output = ob_get_clean();
+
+			return $output;
+		}, $markdown);
+
 
 		$markdown = preg_replace('/^\d+\. (.*)$/m', "<ol><li>$1</li></ol>\n", $markdown);
 
@@ -336,7 +351,7 @@
 		return null;
 	}
 
-	function extract_help_params_from_bash($file_path) {
+	function extract_help_params_from_bash($file_path, $show_help = 0) {
 		if (!file_exists($file_path)) {
 			return "File not found: " . htmlspecialchars($file_path);
 		}
@@ -376,7 +391,9 @@
 				$option = htmlspecialchars($parts[1]);
 				$value = isset($parts[2]) ? htmlspecialchars($parts[2]) : "";
 				$description = htmlspecialchars($parts[3]);
-				$html .= "<tr><td>{$option}</td><td>{$description}</td></tr>";
+				if($show_help == 1 && $option == "--help" || $option != "--help") {
+					$html .= "<tr><td>{$option}</td><td>{$description}</td></tr>";
+				}
 			}
 		}
 

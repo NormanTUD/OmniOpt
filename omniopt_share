@@ -91,6 +91,7 @@
 	}
 
 	no_color=0
+	force=0
 	DEBUG=0
 	update=0
 	#keep_tmp_dir=0
@@ -121,6 +122,7 @@
 		echo "  --update                                           Update a job that had this run-UUID previously"
 		echo "  --debug                                            Enable debug options"
 		echo "  --no_color                                         Disables color output"
+		echo "  --force                                            Ignores cache"
 		echo "  --username=s3811141                                Specify username (with or without = sign)"
 		#echo "  --keep_tmp_dir                                     Keeps the tmp dir, prints it as well"
 		echo "  --outfile=slurm-12345.out                          Path to the outfile"
@@ -134,6 +136,8 @@
 			set_debug
 		elif [ "$arg" == "--help" ]; then
 			help 0
+		elif [ "$arg" == "--force" ]; then
+			force=1
 		elif [ "$arg" == "--update" ]; then
 			update=1
 		#elif [ "$arg" == "--keep_tmp_dir" ]; then
@@ -321,45 +325,48 @@
 				fi
 			fi
 
-			nr_curl_options_before="${#curl_options[@]}"
+			if [[ $force -eq 0 ]]; then
+				nr_curl_options_before="${#curl_options[@]}"
 
-			new_curl_options=()
+				new_curl_options=()
 
-			OLDIFS=$IFS
+				OLDIFS=$IFS
 
-			share_upload_state_file="$RUN_DIR/state_files/last_share_md5"
+				share_upload_state_file="$RUN_DIR/state_files/last_share_md5"
 
-			IFS=$'\n'
-			for curl_option in "${curl_options[@]}"; do
-				if echo "$curl_option" | grep -q "@"; then
-					curl_path=$(echo "$curl_option" | sed -e "s/.*\@//")
+				IFS=$'\n'
 
-					curl_path_md5=$(echo "$curl_path" | md5sum | sed -e "s#\s.*##")
-					curl_path_content_md5=$(md5sum "$curl_path" | sed -e "s#\s.*##")
+				for curl_option in "${curl_options[@]}"; do
+					if echo "$curl_option" | grep -q "@"; then
+						curl_path=$(echo "$curl_option" | sed -e "s/.*\@//")
 
-					this_file_cache_line="$curl_path_md5,$curl_path_content_md5"
+						curl_path_md5=$(echo "$curl_path" | md5sum | sed -e "s#\s.*##")
+						curl_path_content_md5=$(md5sum "$curl_path" | sed -e "s#\s.*##")
 
-					if [[ ! -e "$share_upload_state_file" ]]; then
-						echo "$this_file_cache_line" >> $share_upload_state_file
-						#yellow_text "Adding $this_file_cache_line because the $share_upload_state_file did not exist"
-						new_curl_options+=("-F $curl_option")
-					elif [[ -e "$share_upload_state_file" ]]; then
-						if ! grep -q "$curl_path_md5" "$share_upload_state_file"; then
+						this_file_cache_line="$curl_path_md5,$curl_path_content_md5"
+
+						if [[ ! -e "$share_upload_state_file" ]]; then
 							echo "$this_file_cache_line" >> $share_upload_state_file
-							#yellow_text "Adding $this_file_cache_line because the $curl_path_md5 did exist in $share_upload_state_file"
+							#yellow_text "Adding $this_file_cache_line because the $share_upload_state_file did not exist"
 							new_curl_options+=("-F $curl_option")
-						elif ! grep -q "$this_file_cache_line" "$share_upload_state_file"; then
-							#yellow_text "$share_upload_state_file exists, but $this_file_cache_line is not in it"
-							sed -i "s#^$curl_path_md5.*#$this_file_cache_line#" $share_upload_state_file
-							new_curl_options+=("-F $curl_option")
+						elif [[ -e "$share_upload_state_file" ]]; then
+							if ! grep -q "$curl_path_md5" "$share_upload_state_file"; then
+								echo "$this_file_cache_line" >> $share_upload_state_file
+								#yellow_text "Adding $this_file_cache_line because the $curl_path_md5 did exist in $share_upload_state_file"
+								new_curl_options+=("-F $curl_option")
+							elif ! grep -q "$this_file_cache_line" "$share_upload_state_file"; then
+								#yellow_text "$share_upload_state_file exists, but $this_file_cache_line is not in it"
+								sed -i "s#^$curl_path_md5.*#$this_file_cache_line#" $share_upload_state_file
+								new_curl_options+=("-F $curl_option")
+							fi
 						fi
 					fi
-				fi
-			done
+				done
 
-			curl_options=("${new_curl_options[@]}")
+				curl_options=("${new_curl_options[@]}")
 
-			IFS=$OLDIFS
+				IFS=$OLDIFS
+			fi
 
 			if [[ ${#curl_options[@]} -eq 0 ]]; then
 				if [[ $nr_curl_options_before -eq 0 ]]; then

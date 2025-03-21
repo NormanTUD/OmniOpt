@@ -22,7 +22,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "ST_MTGP"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
 IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "generation_node"]
 figlet_loaded = False

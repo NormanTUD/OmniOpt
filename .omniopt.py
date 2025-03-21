@@ -5839,7 +5839,7 @@ def get_generation_strategy() -> GenerationStrategy:
 
         try:
             with open(model_file, mode="w", encoding="utf-8") as f:
-                f.write(generation_strategy)
+                f.write(chosen_model)
         except Exception as e:
             print_red(f"Failed writing '{model_file}': {e}")
 

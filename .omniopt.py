@@ -5823,7 +5823,7 @@ def get_generation_strategy() -> GenerationStrategy:
             continue_model_file = f"{args.continue_previous_job}/state_files/model"
 
             if os.path.exists(continue_model_file):
-                chosen_model = open(continue_model_file).readline().strip()
+                chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
 
                 if chosen_model not in SUPPORTED_MODELS:
                     print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")

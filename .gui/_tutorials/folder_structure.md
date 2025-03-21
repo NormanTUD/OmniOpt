@@ -189,6 +189,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `ax_client.experiment.json`: A JSON file containing the whole ax-client
 - `generation_strategy`: A file containing the given generation strategy
 - `last_share_md5`: A file containing paths and MD5 hashes of shared files, so they can be updated instead of re-uploaded every time you can OmniOpt2-Share
+- `last_share_md5_tmp`: Same as `last_share_md5`, but only temporary
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

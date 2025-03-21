@@ -1905,22 +1905,18 @@
 	}
 
 	function hasNonEmptyFolder($dir) {
-		// Check if the directory exists and is a directory
 		if (!is_dir($dir)) {
 			return false;
 		}
 
-		// Open the directory
 		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir), RecursiveIteratorIterator::LEAVES_ONLY);
 
-		// Loop through each file/folder in the directory
 		foreach ($files as $file) {
-			// Skip directories
 			if (!$file->isDir()) {
-				return true; // Found a file, return true
+				return true;
 			}
 		}
 
-		return false; // No files found
+		return false;
 	}
 ?>

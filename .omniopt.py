@@ -3992,6 +3992,20 @@ def print_result_names_overview_table() -> None:
         text_file.write(table_str)
 
 @beartype
+def write_num_random_steps() -> None:
+    open_this: str = f"{get_current_run_folder()}/state_files/num_random_steps"
+
+    if os.path.isdir(open_this):
+        print_red(f"{open_this} is a dir. Must be a file.")
+        my_exit(246)
+    else:
+        try:
+            with open(open_this, mode='w', encoding="utf-8") as f:
+                print(str(args.num_random_steps), file=f)
+        except Exception as e:
+            print_red(f"Error trying to write {open_this}: {e}")
+
+@beartype
 def write_min_max_file() -> None:
     min_or_max = "minimize"
 
@@ -6641,6 +6655,7 @@ def show_experiment_overview_table() -> None:
 @beartype
 def write_files_and_show_overviews() -> None:
     write_min_max_file()
+    write_num_random_steps()
     set_global_executor()
     load_existing_job_data_into_ax_client()
     write_args_overview_table()
@@ -6687,15 +6702,22 @@ def write_live_share_file_if_needed() -> None:
 
 @beartype
 def main() -> None:
-    global RESULT_CSV_FILE, ax_client, global_vars, max_eval
-    global NVIDIA_SMI_LOGS_BASE
-    global LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
+    global RESULT_CSV_FILE, ax_client, global_vars, max_eval, NVIDIA_SMI_LOGS_BASE, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps, global_gs
+
     check_if_has_random_steps()
 
     log_worker_creation()
 
     original_print("./omniopt " + " ".join(sys.argv[1:]))
     check_slurm_job_id()
+
+    if args.continue_previous_job and not args.num_random_steps:
+        num_random_steps_file = f"{args.continue_previous_job}/state_files/num_random_steps"
+
+        if os.path.exists(num_random_steps_file):
+            args.num_random_steps = int(open(num_random_steps_file, mode="r", encoding="utf-8").readline().strip())
+        else:
+            print_red(f"Cannot find >{num_random_steps_file}<. Will use default, it being >{args.num_random_steps}<.")
 
     set_run_folder()
 
@@ -6761,8 +6783,6 @@ def main() -> None:
     handle_random_steps()
 
     gs = get_generation_strategy()
-
-    global global_gs
 
     global_gs = gs
 

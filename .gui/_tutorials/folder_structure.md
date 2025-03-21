@@ -160,6 +160,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `gpus`: The number of GPUs this run has allocated per worker
 - `joined_run_program`: The program string including parameters
 - `get_next_nr_steps_tables.txt`: A debug table for get_next_nr_steps (only on SLURM-systems)
+- `num_random_steps`: Number of random steps, used for continued jobs
 - `max_eval`: The max evals of this run
 - `mem_gb`: The amount of Memory allocated per worker (in GB)
 - `minimize`: If it exists, it means, the job was about to minimize

@@ -6360,11 +6360,9 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
                 param_dict[param] = row[param]
 
             for metric in metrics:
-                means[metric].append(float(row[metric]))
+                if row[metric] != "":
+                    means[metric].append(float(row[metric]))
 
-            for to_del in special_col_names:
-                if to_del in param_dict:
-                    del param_dict[to_del]
             param_dicts.append(param_dict)
 
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
@@ -6377,8 +6375,12 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
         this_table_row: list = []
         this_table_row.extend(str(params[k]) for k in params.keys())
         for metric in metrics:
-            mean = means[metric][i]
-            this_table_row.append(f"{mean:.3f}")
+            try:
+                mean = means[metric][i]
+                this_table_row.append(f"{mean:.3f}")
+            except IndexError:
+                print_debug("")
+
         table.add_row(*this_table_row, style="bold green")
 
     return table

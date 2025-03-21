@@ -115,7 +115,6 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
-
     try:
         from pyfiglet import Figlet
         figlet_loaded = True

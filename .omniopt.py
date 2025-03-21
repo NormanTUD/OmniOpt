@@ -25,6 +25,7 @@ valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minko
 SUPPORTED_MODELS: list = ["SOBOL", "GPEI", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
 IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "generation_node"]
+figlet_loaded = False
 
 try:
     from rich.console import Console
@@ -114,6 +115,12 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
+
+    try:
+        from pyfiglet import Figlet
+        figlet_loaded = True
+    except ModuleNotFoundError:
+        figlet_loaded = False
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
@@ -127,15 +134,6 @@ with console.status("[bold green]Loading rich_argparse...") as status:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
         RichHelpFormatter: Any = argparse.HelpFormatter
-
-figlet_loaded = False
-
-with console.status("[bold green]Loading rich_argparse...") as status:
-    try:
-        from pyfiglet import Figlet
-        figlet_loaded = True
-    except ModuleNotFoundError:
-        figlet_loaded = False
 
 @beartype
 def makedirs(p: str) -> bool:

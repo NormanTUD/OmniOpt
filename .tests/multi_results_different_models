@@ -70,13 +70,39 @@ for model in "${models[@]}"; do
 
 			if [[ $exit_code -ne 0 ]]; then
 				failed=1
-			fi
+			else
+				first_results_csv="$run_dir/0/results.csv"
 
-			echo "./omniopt --continue $run_dir/0"
-			./omniopt --continue $run_dir/0
-			exit_code=$?
-			if [[ $exit_code -ne 0 ]]; then
-				failed=1
+				if [[ -e $first_results_csv ]]; then
+					first_results_csv_nr_total=$(cat "$first_results_csv" | wc -l)
+
+					if [[ $first_results_csv_nr_total -eq 3 ]]; then
+						echo "./omniopt --continue $run_dir/0"
+						./omniopt --continue $run_dir/0
+						exit_code=$?
+						if [[ $exit_code -ne 0 ]]; then
+							failed=1
+						fi
+
+						second_results_csv="$run_dir/1/results.csv"
+						if [[ -e $second_results_csv ]]; then
+							second_results_csv_nr_total=$(cat "$second_results_csv" | wc -l)
+							if [[ $first_results_csv_nr_total -ne 5 ]]; then
+								red_text "$second_results_csv contains $second_results_csv_nr_total lines, but should be 5"
+								failed=1
+							fi
+						else
+							red_text "$second_results_csv not found"
+							failed=1
+						fi
+					else
+						red_text "$first_results_csv contains $first_results_csv_nr_total lines, but should be 3"
+						failed=1
+					fi
+				else
+					red_text "$first_results_csv does not exist. Something is wrong."
+					failed=1
+				fi
 			fi
 		else
 			yellow_text "Skipping model FACTORIAL. Incompatible with range"

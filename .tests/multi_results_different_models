@@ -87,7 +87,7 @@ for model in "${models[@]}"; do
 						second_results_csv="$run_dir/1/results.csv"
 						if [[ -e $second_results_csv ]]; then
 							second_results_csv_nr_total=$(cat "$second_results_csv" | wc -l)
-							if [[ $first_results_csv_nr_total -ne 5 ]]; then
+							if [[ $first_results_csv_nr_total -eq 5 ]]; then
 								red_text "$second_results_csv contains $second_results_csv_nr_total lines, but should be 5"
 								failed=1
 							fi

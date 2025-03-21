@@ -12,7 +12,6 @@
 ![Forks](https://img.shields.io/github/forks/NormanTUD/OmniOpt)
 ![Contributors](https://img.shields.io/github/contributors/NormanTUD/OmniOpt)
 ![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
-[![Coverage Status](https://coveralls.io/repos/github/NormanTUD/OmniOpt/badge.svg?branch=main)](https://coveralls.io/github/NormanTUD/OmniOpt?branch=main)
 
 OmniOpt2 is a tool designed to assist researchers, engineers, and data
 scientists with hyperparameter optimization on SLURM-based clusters, even

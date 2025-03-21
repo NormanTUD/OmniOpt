@@ -5817,8 +5817,31 @@ def get_generation_strategy() -> GenerationStrategy:
             this_step = create_random_generation_step()
             steps.append(this_step)
 
+        chosen_model = args.model
+
+        if args.continue_previous_job:
+            continue_model_file = f"{args.continue_previous_job}/state_files/model"
+
+            if os.path.exists(continue_model_file):
+                chosen_model = open(continue_model_file).readline().strip()
+
+                if chosen_model not in SUPPORTED_MODELS:
+                    print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")
+                    my_exit(248)
+            else:
+                print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
+                my_exit(248)
+
         # Choose a model for the non-random step
-        chosen_non_random_model = select_model(args.model)
+        chosen_non_random_model = select_model(chosen_model)
+
+        model_file = f"{get_current_run_folder()}/state_files/model"
+
+        try:
+            with open(model_file, mode="w", encoding="utf-8") as f:
+                f.write(generation_strategy)
+        except Exception as e:
+            print_red(f"Failed writing '{model_file}': {e}")
 
         # Append the Bayesian optimization step
         sys_step = create_systematic_step(chosen_non_random_model)
@@ -7337,6 +7360,6 @@ def main_outside() -> None:
 if __name__ == "__main__":
     try:
         main_outside()
-    except Exception as e:
+    except (SignalUSR, SignalINT, SignalCONT) as e:
         print_red(f"main_outside failed with exception {e}")
         end_program(RESULT_CSV_FILE, True)

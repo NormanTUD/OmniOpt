@@ -68,6 +68,7 @@
 			245 => "python3 is not installed",
 			246 => "A path that should have been a file is actually a folder. Check output for more details.",
 			247 => "Trying to continue a job which was started with --generation_strategy. This is currently not possible.",
+			248 => "Wrong or missing model in continued job",
 			251 => "Currently unsupported feature used. Please check stdout for more details",
 			255 => "sbatch error"
 		];

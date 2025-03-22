@@ -90,6 +90,21 @@ for model in "${models[@]}"; do
 							if [[ $first_results_csv_nr_total -eq 5 ]]; then
 								red_text "$second_results_csv contains $second_results_csv_nr_total lines, but should be 5"
 								failed=1
+							else
+								sobol_jobs=$(cat $second_results_csv| tail -n4 | head -n1 | grep -i SOBOL | wc -l)
+
+								if [[ $sobol_jobs -eq 1 ]]; then
+									model_without_whats_after_underscore=$(echo "$model" | sed -e 's#_.*##')
+									systematic_jobs=$(cat $second_results_csv| tail -n3 | grep -i $model_without_whats_after_underscore | wc -l)
+
+									if [[ $sobol_jobs -eq 3 ]]; then
+										red_text "$second_results_csv does not contain the proper amount of non-SOBOL (model: $model, model_without_whats_after_underscore: $model_without_whats_after_underscore) jobs (3), has $systematic_jobs"
+										failed=1
+									fi
+								else
+									red_text "$second_results_csv does not contain the proper amount of SOBOL jobs (1), has $sobol_jobs"
+									failed=1
+								fi
 							fi
 						else
 							red_text "$second_results_csv not found"

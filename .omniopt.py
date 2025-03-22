@@ -3981,20 +3981,6 @@ def print_result_names_overview_table() -> None:
         text_file.write(table_str)
 
 @beartype
-def write_num_random_steps() -> None:
-    open_this: str = f"{get_current_run_folder()}/state_files/num_random_steps"
-
-    if os.path.isdir(open_this):
-        print_red(f"{open_this} is a dir. Must be a file.")
-        my_exit(246)
-    else:
-        try:
-            with open(open_this, mode='w', encoding="utf-8") as f:
-                print(str(args.num_random_steps), file=f)
-        except Exception as e:
-            print_red(f"Error trying to write {open_this}: {e}")
-
-@beartype
 def write_min_max_file() -> None:
     min_or_max = "minimize"
 
@@ -5161,57 +5147,18 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None:
             my_exit(210)
 
 @beartype
-def write_continue_run_uuid_to_file() -> bool:
+def write_continue_run_uuid_to_file() -> None:
     if args.continue_previous_job:
         continue_dir = args.continue_previous_job
 
-        try:
-            with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
-                continue_from_uuid = f.readline()
+        with open(f'{continue_dir}/state_files/run_uuid', mode='r', encoding='utf-8') as f:
+            continue_from_uuid = f.readline()
 
-                file_path: str = f"{get_current_run_folder()}/state_files/uuid_of_continued_run"
-
-                makedirs(os.path.dirname(file_path))
-
-                with open(file_path, 'w', encoding="utf-8") as file:
-                    file.write(continue_from_uuid)
-
-                return True
-        except Exception as e:
-            print(f"write_continue_run_uuid_to_file: An error occurred: {e}")
-
-    return False
-
-@beartype
-def write_run_uuid_to_file() -> bool:
-    try:
-        file_path: str = f"{get_current_run_folder()}/state_files/run_uuid"
-
-        makedirs(os.path.dirname(file_path))
-
-        with open(file_path, 'w', encoding="utf-8") as file:
-            file.write(run_uuid)
-
-        return True
-    except Exception as e:
-        print(f"write_run_uuid_to_file: An error occurred: {e}")
-
-    return False
-
-@beartype
-def write_to_state_file(path: str, content: str) -> None:
-    try:
-        with open(path, mode='w', encoding='utf-8') as f:
-            original_print(content, file=f)
-    except Exception as e:
-        print_red(f"Error trying to write file {path}: {e}")
+            write_state_file("uuid_of_continued_run", str(continue_from_uuid))
 
 @beartype
 def save_state_files() -> None:
     global global_vars
-
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
-    makedirs(state_files_folder)
 
     file_mappings = {
         "joined_run_program": global_vars["joined_run_program"],
@@ -5224,13 +5171,13 @@ def save_state_files() -> None:
     }
 
     for filename, content in file_mappings.items():
-        write_to_state_file(f"{state_files_folder}/{filename}", str(content))
+        write_state_file(filename, str(content))
 
     if args.follow:
-        write_to_state_file(f"{state_files_folder}/follow", "True")
+        write_state_file("follow", "True")
 
     if args.main_process_gb:
-        write_to_state_file(f"{state_files_folder}/main_process_gb", str(args.main_process_gb))
+        write_state_file("main_process_gb", str(args.main_process_gb))
 
 @beartype
 def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict[str, Optional[float]], List[float]]]]]:
@@ -5795,6 +5742,12 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
 def write_state_file(name: str, var: str) -> None:
     file_path = f"{get_current_run_folder()}/state_files/{name}"
 
+    if os.path.isdir(file_path):
+        print_red(f"{file_path} is a dir. Must be a file.")
+        my_exit(246)
+
+    makedirs(os.path.dirname(file_path))
+
     try:
         with open(file_path, mode="w", encoding="utf-8") as f:
             f.write(str(var))
@@ -5884,13 +5837,7 @@ def get_generation_strategy() -> GenerationStrategy:
 
         start_index = start_index + 1
 
-    generation_strategy_file = f"{get_current_run_folder()}/state_files/custom_generation_strategy"
-
-    try:
-        with open(generation_strategy_file, mode="w", encoding="utf-8") as f:
-            f.write(generation_strategy)
-    except Exception as e:
-        print_red(f"Failed writing '{generation_strategy_file}': {e}")
+    write_state_file("custom_generation_strategy", generation_strategy)
 
     return GenerationStrategy(steps=steps)
 
@@ -6645,7 +6592,7 @@ def show_experiment_overview_table() -> None:
 @beartype
 def write_files_and_show_overviews() -> None:
     write_min_max_file()
-    write_num_random_steps()
+    write_state_file("num_random_steps", str(args.num_random_steps))
     set_global_executor()
     load_existing_job_data_into_ax_client()
     write_args_overview_table()
@@ -6682,13 +6629,7 @@ def write_git_version() -> None:
 @beartype
 def write_live_share_file_if_needed() -> None:
     if args.live_share:
-        live_share_file = f"{get_current_run_folder()}/state_files/live_share"
-
-        try:
-            with open(live_share_file, mode="w", encoding="utf-8") as f:
-                f.write("1\n")
-        except Exception as e:
-            print_red(f"Error trying to write {live_share_file}: {e}")
+        write_state_file("live_share", "1\n")
 
 @beartype
 def main() -> None:
@@ -6744,7 +6685,7 @@ def main() -> None:
 
     helpers.write_loaded_modules_versions_to_json(f"{get_current_run_folder()}/loaded_modules.json")
 
-    write_run_uuid_to_file()
+    write_state_file("run_uuid", str(run_uuid))
 
     print_run_info()
 

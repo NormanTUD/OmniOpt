@@ -5160,18 +5160,13 @@ def write_continue_run_uuid_to_file() -> None:
 def save_state_files() -> None:
     global global_vars
 
-    file_mappings = {
-        "joined_run_program": global_vars["joined_run_program"],
-        "experiment_name": global_vars["experiment_name"],
-        "mem_gb": global_vars["mem_gb"],
-        "max_eval": max_eval,
-        "gpus": args.gpus,
-        "time": global_vars["_time"],
-        "run.sh": "omniopt '" + " ".join(sys.argv[1:]) + "'",
-    }
-
-    for filename, content in file_mappings.items():
-        write_state_file(filename, str(content))
+    write_state_file("joined_run_program", global_vars["joined_run_program"])
+    write_state_file("experiment_name", global_vars["experiment_name"])
+    write_state_file("mem_gb", str(global_vars["mem_gb"]))
+    write_state_file("max_eval", str(max_eval))
+    write_state_file("gpus", str(args.gpus))
+    write_state_file("time", str(global_vars["_time"]))
+    write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
 
     if args.follow:
         write_state_file("follow", "True")

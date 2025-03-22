@@ -201,3 +201,4 @@ PLOT_TESTS
 .tests/__pycache__/
 ax
 new_runs
+.redundantdupskip

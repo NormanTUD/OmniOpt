@@ -453,7 +453,6 @@ class ConfigLoader:
         required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
         required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
-        optional.add_argument('--maximize', help='Maximize instead of minimize (which is default)', action='store_true', default=False)
         optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
         optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
@@ -483,7 +482,7 @@ class ConfigLoader:
         optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
         optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
-        optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min, or RESULT=max when --maximize is set. Default is min.")
+        optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
@@ -626,19 +625,13 @@ arg_result_names = []
 arg_result_min_or_max = []
 
 if len(args.result_names) == 0:
-    if args.maximize:
-        args.result_names = ["RESULT=max"]
-    else:
-        args.result_names = ["RESULT=min"]
+    args.result_names = ["RESULT=min"]
 
 for _rn in args.result_names:
     _key = ""
     _min_or_max = ""
 
     __default_min_max = "min"
-
-    if args.maximize:
-        __default_min_max = "max"
 
     if "=" in _rn:
         _key, _min_or_max = _rn.split('=', 1)
@@ -688,8 +681,6 @@ if args.continue_previous_job is not None:
 
     found_result_min_max = []
     default_min_max = "min"
-    if args.maximize:
-        default_min_max = "max"
 
     for _n in range(0, len(found_result_names)):
         min_max = get_min_max_from_file(args.continue_previous_job, _n, default_min_max)
@@ -2349,21 +2340,18 @@ def calculate_signed_euclidean_distance(_args: Union[dict, List[float]]) -> floa
     for a in _args:
         _sum += a ** 2
 
-    # Behalte das Vorzeichen des ersten Werts (oder ein beliebiges anderes Kriterium)
     sign: int = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
 @beartype
 def calculate_signed_geometric_distance(_args: Union[dict, List[float]]) -> float:
-    product: float = 1  # Startwert für Multiplikation
+    product: float = 1
     for a in _args:
-        product *= abs(a)  # Absolutwerte für das Produkt verwenden
+        product *= abs(a)
 
-    # Behalte das Vorzeichen basierend auf der Anzahl negativer Werte
     num_negatives: float = sum(1 for a in _args if a < 0)
     sign: int = -1 if num_negatives % 2 != 0 else 1
 
-    # Geometrisches Mittel: n-te Wurzel des Produkts
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
@@ -3704,9 +3692,6 @@ def set_objectives() -> dict:
 
             value = "min"
 
-            if args.maximize:
-                value = "max"
-
         _min = True
 
         if value == "max":
@@ -4012,9 +3997,6 @@ def write_num_random_steps() -> None:
 @beartype
 def write_min_max_file() -> None:
     min_or_max = "minimize"
-
-    if args.maximize:
-        min_or_max = "maximize"
 
     open_this: str = f"{get_current_run_folder()}/state_files/{min_or_max}"
 

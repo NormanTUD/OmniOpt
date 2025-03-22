@@ -5792,6 +5792,16 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
     console.print(table)
 
 @beartype
+def write_state_file(name: str, var: str) -> None:
+    file_path = f"{get_current_run_folder()}/state_files/{name}"
+
+    try:
+        with open(file_path, mode="w", encoding="utf-8") as f:
+            f.write(str(var))
+    except Exception as e:
+        print_red(f"Failed writing '{file_path}': {e}")
+
+@beartype
 def get_generation_strategy() -> GenerationStrategy:
     generation_strategy = args.generation_strategy
 
@@ -5842,13 +5852,7 @@ def get_generation_strategy() -> GenerationStrategy:
         # Choose a model for the non-random step
         chosen_non_random_model = select_model(chosen_model)
 
-        model_file = f"{get_current_run_folder()}/state_files/model"
-
-        try:
-            with open(model_file, mode="w", encoding="utf-8") as f:
-                f.write(str(chosen_model))
-        except Exception as e:
-            print_red(f"Failed writing '{model_file}': {e}")
+        write_state_file("model", str(chosen_model))
 
         # Append the Bayesian optimization step
         sys_step = create_systematic_step(chosen_non_random_model)

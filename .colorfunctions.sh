@@ -60,4 +60,6 @@ function red_reset_line {
 	red_text "$1"
 }
 
-
+function _green_text_bold_underline {
+	echoerr -e "\033[1;4;32m$1\033[0m"
+}

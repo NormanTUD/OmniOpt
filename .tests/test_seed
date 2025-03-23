@@ -5,17 +5,7 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 cd $SCRIPT_DIR
 cd ..
 
-function echoerr {
-	echo "$@" 1>&2
-}
-
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
+source .colorfunctions.sh
 
 seed=""
 gpus=""

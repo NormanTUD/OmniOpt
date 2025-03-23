@@ -3,28 +3,23 @@
 export install_tests=1
 
 {
+
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+source .colorfunctions.sh
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
-
-function echoerr() {
-        echo "$@" 1>&2
-}
-
-function yellow_text {
-        echoerr -ne "\e\033[0;33m$1\e[0m"
-}
-
-function red_text {
-        echoerr -ne "\e[31m$1\e[0m"
-}
-
-function green_text {
-        echoerr -ne "\e\033[0;32m$1\e[0m"
-}
 
 function set_debug {
 	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
@@ -155,14 +150,6 @@ errors=()
 #		fi
 #	fi
 #done
-
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-cd $SCRIPT_DIR
-
-cd ..
-
-source .shellscript_functions
 
 function join_by {
 	local d=${1-} f=${2-}

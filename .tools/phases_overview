@@ -1,20 +1,12 @@
 #!/bin/bash
 
-function echoerr() {
-        echo "$@" 1>&2
-}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
-}
+cd $SCRIPT_DIR
 
-function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-}
+cd ..
 
-function green_text {
-        echoerr -e "\e\033[0;32m$1\e[0m"
-}
+source .colorfunctions.sh
 
 run_dir=$1
 random_phase=$2

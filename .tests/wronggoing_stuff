@@ -26,15 +26,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR
 
+cd ..
+
+source .colorfunctions.sh
+
+cd $SCRIPT_DIR
+
 cd test_wronggoing_stuff.bin
-
-function echoerr() {
-        echo "$@" 1>&2
-}
-
-function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-}
 
 set -e
 set -o pipefail

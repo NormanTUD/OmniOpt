@@ -2,22 +2,6 @@
 
 export install_tests=1
 
-function echoerr() {
-        echo "$@" 1>&2
-}
-
-function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
-}
-
-function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-}
-
-function green_text {
-        echoerr -e "\e\033[0;32m$1\e[0m"
-}
-
 current_python_version=$(python3 --version | sed -e 's#Python ##')
 if [[ "$current_python_version" == "3.8.10" ]]; then
 	red_text "deadcode cannot be run with $current_python_version"

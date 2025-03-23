@@ -3563,10 +3563,6 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
             shutil.copy(old_state_file, new_state_file)
 
 @beartype
-def die_something_went_wrong_with_parameters() -> None:
-    my_exit(49)
-
-@beartype
 def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list, list]:
     return_totally = False
 
@@ -3853,13 +3849,13 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
                 sys.exit(9)
         except ValueError as error:
             print_red(f"An error has occurred while creating the experiment (1): {error}")
-            die_something_went_wrong_with_parameters()
+            my_exit(49)
         except TypeError as error:
             print_red(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.")
-            die_something_went_wrong_with_parameters()
+            my_exit(49)
         except ax.exceptions.core.UserInputError as error:
             print_red(f"An error occured while creating the experiment (3): {error}")
-            die_something_went_wrong_with_parameters()
+            my_exit(49)
 
     return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color
 
@@ -5880,7 +5876,7 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     elif isinstance(e, ax.exceptions.core.DataRequiredError):
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
             print_red(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.")
-            die_no_random_steps()
+            my_exit(233)
         else:
             print_debug(f"Error 4: {e}")
     elif isinstance(e, RuntimeError):
@@ -6277,14 +6273,10 @@ def set_orchestrator() -> None:
             print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
 @beartype
-def die_no_random_steps() -> None:
-    my_exit(233)
-
-@beartype
 def check_if_has_random_steps() -> None:
     if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
         print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
-        die_no_random_steps()
+        my_exit(233)
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:

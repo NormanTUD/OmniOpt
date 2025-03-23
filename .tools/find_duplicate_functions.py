@@ -9,6 +9,7 @@ from rich.progress import Progress
 from rich.table import Table
 
 max_compare_these_length = 0
+console = Console()
 
 class FunctionCollector(ast.NodeVisitor):
     def __init__(self, min_lines):
@@ -98,7 +99,6 @@ def find_similar_functions(filename, threshold, min_lines):
 
 # Function to handle safe program termination on Ctrl+C
 def handle_interrupt(_signal, _frame):
-    console = Console()
     console.print("\n[red]Program was interrupted by the user.[/red]", end="")
     sys.exit(0)
 

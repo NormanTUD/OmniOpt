@@ -3441,14 +3441,10 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
         old_param = json.loads(old_param_json)
         new_param = json.loads(new_param_json)
 
-        differences = []
-        for key in old_param:
-            if old_param[key] != new_param[key]:
-                differences.append(f"{key} from {old_param[key]} to {new_param[key]}")
+        differences = [f"{key} from {old_param[key]} to {new_param[key]}" for key in old_param if old_param[key] != new_param[key]]
 
         if differences:
-            differences_message = f"Changed parameter {old_param['name']} " + ", ".join(differences)
-            return differences_message
+            return f"Changed parameter {old_param['name']} " + ", ".join(differences)
 
         return "No differences found between the old and new parameters."
 

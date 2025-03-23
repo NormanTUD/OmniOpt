@@ -3,6 +3,7 @@ import sys
 import ast
 import difflib
 import argparse
+import glob
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
@@ -105,10 +106,23 @@ if __name__ == "__main__":
     # Handle Ctrl+C signal (KeyboardInterrupt)
     signal.signal(signal.SIGINT, handle_interrupt)
 
-    parser = argparse.ArgumentParser(description="Finds similar functions in a Python file.")
-    parser.add_argument("file", help="Path to the Python file")
+    parser = argparse.ArgumentParser(description="Finds similar functions in Python files.")
+    parser.add_argument("files", nargs='+', help="Paths to the Python files or patterns like *.py")
     parser.add_argument("--threshold", type=float, default=0.8, help="Similarity threshold (0.0 - 1.0)")
     parser.add_argument("--min-lines", type=int, default=3, help="Minimum number of lines for functions to be analyzed (default: 3)")
 
     args = parser.parse_args()
-    find_similar_functions(args.file, args.threshold, args.min_lines)
+
+    # Expand the file patterns
+    all_files = []
+    for pattern in args.files:
+        all_files.extend(glob.glob(pattern))
+
+    if not all_files:
+        print("No files matched the pattern.")
+        sys.exit(1)
+
+    # Process each file
+    for filename in all_files:
+        print(f"\n[cyan]Processing file: {filename}[/cyan]")
+        find_similar_functions(filename, args.threshold, args.min_lines)

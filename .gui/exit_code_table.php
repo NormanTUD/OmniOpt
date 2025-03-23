@@ -62,6 +62,7 @@
 			210 => "Unknown orchestrator mode",
 			211 => "Git checkout failed (--checkout_to_latest_tested_version)",
 			233 => "No random steps set",
+			234 => "Error at completing a trial, this is probably a bug with the trial-index-generation.",
 			242 => "Error at fetching new trials",
 			243 => "Job was not found in squeue anymore, it may got cancelled before it ran",
 			244 => "get_executor() failed. See logs for more details.",

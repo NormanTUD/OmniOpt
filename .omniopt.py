@@ -4861,6 +4861,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
             except ax.exceptions.core.UnsupportedError as e:
                 print_red(f"Error completing trial: {e}")
+                my_exit(234)
 
             #count_done_jobs(1)
             try:

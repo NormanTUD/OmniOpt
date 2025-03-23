@@ -104,9 +104,9 @@ def find_python_files(root_dir):
     """Recursively find all Python files (including hidden ones)."""
     py_files = []
     for dirpath, _, filenames in os.walk(root_dir):
-        for filename in filenames:
-            if filename.endswith(".py"):
-                py_files.append(os.path.join(dirpath, filename))
+        for _filename in filenames:
+            if _filename.endswith(".py"):
+                py_files.append(os.path.join(dirpath, _filename))
     return py_files
 
 if __name__ == "__main__":

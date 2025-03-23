@@ -4128,9 +4128,7 @@ def get_workers_string() -> str:
 @beartype
 def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
-
     makedirs(state_files_folder)
-
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @beartype
@@ -5298,9 +5296,7 @@ def handle_generic_error(e: Union[Exception, str]) -> None:
 @beartype
 def succeeded_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
-
     makedirs(state_files_folder)
-
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
 @beartype

@@ -1,47 +1,7 @@
 #!/bin/bash
 
 {
-	function echoerr {
-		echo "$@" 1>&2
-	}
-
-	function yellow_text {
-		echoerr -e "\e\033[0;33m$1\e[0m"
-	}
-
-	function green_text {
-		echoerr -e "\033[0;32m$1\e[0m"
-	}
-
-	function red_text {
-		echoerr -e "\e[31m$1\e[0m"
-	}
-
-	function _tput {
-		set +e
-		CHAR=$1
-
-		if ! command -v tput 2>/dev/null >/dev/null; then
-			red_text "tput not installed" >&2
-			set +e
-			return 0
-		fi
-
-		if [[ -z $CHAR ]]; then
-			red_text "No character given" >&2
-			set +e
-			return 0
-		fi
-
-		if ! tty 2>/dev/null >/dev/null; then
-			echo ""
-			set +e
-			return 0
-		fi
-
-		tput "$CHAR"
-		set +e
-	}
+	source .colorfunctions.sh
 
 	function displaytime {
 		local T=$1
@@ -144,17 +104,6 @@
 		#	keep_tmp_dir=1
 		elif [ "$arg" == "--no_color" ]; then
 			no_color=1
-			function yellow_text {
-				echoerr -e "$1"
-			}
-
-			function green_text {
-				echoerr -e "$1"
-			}
-
-			function red_text {
-				echoerr -e "$1"
-			}
 		elif [[ "$arg" == --outfile=* ]]; then
 			outfile="${arg#--username=}"
 		elif [[ "$arg" == --username=* ]]; then

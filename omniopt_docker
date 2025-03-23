@@ -1,17 +1,11 @@
 #!/bin/bash
 
+source .colorfunctions.sh
+
 ORIGINAL_ARGS=$*
 SCRIPT_DIR=$(dirname $(realpath $0))
 
 cd "$SCRIPT_DIR"
-
-function echoerr {
-	echo "$@" 1>&2
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
 
 help_message() {
 	echo "Usage: docker [OPTIONS]"

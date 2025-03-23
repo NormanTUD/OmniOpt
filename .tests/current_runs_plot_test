@@ -1,26 +1,16 @@
 #!/bin/bash
 
-function echoerr() {
-        echo "$@" 1>&2
-}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-function yellow_text {
-        echoerr -e "\e\033[0;33m$1\e[0m"
-}
+cd $SCRIPT_DIR
 
-function red_text {
-        echoerr -e "\e[31m$1\e[0m"
-}
-
-function green_text {
-        echoerr -e "\e\033[0;32m$1\e[0m"
-}
+source ../.colorfunctions.sh
 
 export NO_WHIPTAIL=1
 export NO_RUNTIME=1
 
 if [[ ! -d "runs/" ]]; then
-	echo "runs is not a directory. Cannot continue"
+	red_text "runs is not a directory. Cannot continue"
 	exit 1
 fi
 

@@ -1,3 +1,7 @@
+Green='\033[0;32m'
+Color_Off='\033[0m'
+Red='\033[0;31m'
+
 function echoerr {
 	echo "$@" 1>&2
 }

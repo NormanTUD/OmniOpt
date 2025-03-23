@@ -66,7 +66,7 @@ function _tput {
 function green_reset_line {
 	_tput cr
 	_tput el
-	green_text "$1"
+	green_text_no_newline "$1"
 }
 
 

@@ -14,6 +14,11 @@ function yellow_text {
 	echoerr -e "\e\033[0;33m$1\e[0m"
 }
 
+function green_text_no_newline {
+	echoerr -ne "\033[0;32m$1\e[0m"
+}
+
+
 function green_text {
 	echoerr -e "\033[0;32m$1\e[0m"
 }

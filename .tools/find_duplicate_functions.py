@@ -19,7 +19,7 @@ class FunctionCollector(ast.NodeVisitor):
         func_code = ast.unparse(node)
         if len(func_code.splitlines()) >= self.min_lines:
             func_code_structure = ast.dump(node, annotate_fields=False)
-            self.functions[node.name] = func_code_structure
+            self.functions[node.name] = (func_code_structure, len(func_code.splitlines()))
         self.generic_visit(node)
 
 def find_similar_functions(filename, threshold, min_lines):
@@ -48,9 +48,9 @@ def find_similar_functions(filename, threshold, min_lines):
 
         # Compare the functions
         for i in range(len(funcs)):
-            name1, code1 = funcs[i]
+            name1, (code1, _) = funcs[i]
             for j in range(i + 1, len(funcs)):
-                name2, code2 = funcs[j]
+                name2, (code2, _) = funcs[j]
 
                 # Update progress bar for current comparison
                 global max_compare_these_length
@@ -66,7 +66,7 @@ def find_similar_functions(filename, threshold, min_lines):
 
                 similarity = difflib.SequenceMatcher(None, code1, code2).ratio()
                 if similarity >= threshold:
-                    similar_functions.append([name1, name2, f"{similarity*100:.2f}%"])
+                    similar_functions.append([name1, name2, f"{similarity*100:.2f}%", len(code1.splitlines()), len(code2.splitlines())])
 
                 current_comparisons += 1
                 progress.update(task, completed=current_comparisons)
@@ -79,11 +79,13 @@ def find_similar_functions(filename, threshold, min_lines):
             console.print("\n[green]Similar functions found:[/green]")
             table = Table(title="Function Similarities")
             table.add_column("Function 1", justify="left")
+            table.add_column("Lines 1", justify="right")
             table.add_column("Function 2", justify="left")
+            table.add_column("Lines 2", justify="right")
             table.add_column("Similarity", justify="right")
 
             for row in similar_functions:
-                table.add_row(row[0], row[1], row[2])
+                table.add_row(row[0], str(row[3]), row[1], str(row[4]), row[2])
 
             console.print(table)
         else:

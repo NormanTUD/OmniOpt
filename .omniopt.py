@@ -129,6 +129,7 @@ except ModuleNotFoundError as e:
     print("Exit-Code: 2")
     sys.exit(2)
 
+@beartype
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args
 
@@ -4189,14 +4190,17 @@ def get_desc_progress_text(new_msgs: List[str] = []) -> str:
 
     return capitalized_string(desc)
 
+@beartype
 def _get_desc_progress_text_failed_jobs() -> List[str]:
     if failed_jobs():
         return [f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
     return []
 
+@beartype
 def _get_desc_progress_text_current_model() -> str:
     return get_current_model()
 
+@beartype
 def _get_desc_progress_text_best_params() -> List[str]:
     best_params_res = [
         get_best_params_str(res_name) for res_name in arg_result_names if get_best_params_str(res_name)
@@ -4207,6 +4211,7 @@ def _get_desc_progress_text_best_params() -> List[str]:
 
     return []
 
+@beartype
 def _get_desc_progress_text_submitted_jobs() -> List[str]:
     result = []
     if submitted_jobs():
@@ -4215,6 +4220,7 @@ def _get_desc_progress_text_submitted_jobs() -> List[str]:
             result.append(f"max_eval: {max_eval}")
     return result
 
+@beartype
 def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
     return [msg for msg in new_msgs if msg]
 
@@ -5345,6 +5351,7 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
         num_parallel_jobs - currently_running_jobs
     )
 
+@beartype
 def remove_extra_spaces(text: str) -> str:
     if not isinstance(text, str):
         raise ValueError("Input must be a string")

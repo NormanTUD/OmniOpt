@@ -5430,7 +5430,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             trial.mark_running(no_runner_required=True)
 
             trials_dict[trial_index] = params
-            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, NR_INSERTED_JOBS: {NR_INSERTED_JOBS}, k: {k}])")
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
             end_time = time.time()
 
             gotten_jobs = gotten_jobs + 1

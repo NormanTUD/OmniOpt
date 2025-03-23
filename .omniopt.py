@@ -1581,21 +1581,13 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
     return None
 
 @beartype
-def get_max_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
-    return get_min_or_max_column_value(pd_csv, column, _default, "max")
-
-@beartype
-def get_min_column_value(pd_csv: str, column: str, _default: Union[None, float, int]) -> Optional[Union[np.int64, float]]:
-    return get_min_or_max_column_value(pd_csv, column, _default, "min")
-
-@beartype
 def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Optional[Union[int, float]], bool]:
     found_in_file = False
     ret_val = None
 
     if os.path.exists(pd_csv):
         if _type == "lower":
-            _old_min_col = get_min_column_value(pd_csv, _column, _default)
+            _old_min_col = get_min_or_max_column_value(pd_csv, _column, _default, "min")
             if _old_min_col:
                 found_in_file = True
 
@@ -1604,7 +1596,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
             else:
                 ret_val = _default
         else:
-            _old_max_col = get_max_column_value(pd_csv, _column, _default)
+            _old_max_col = get_min_or_max_column_value(pd_csv, _column, _default, "max")
             if _old_max_col:
                 found_in_file = True
 
@@ -6929,14 +6921,14 @@ def run_tests() -> None:
     nr_errors: int = 0
 
     try:
-        ie = is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", 'result', -123)), '-123')
+        ie = is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123, "min")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", 'result', -123, "min")), '-123')
 
         if not ie:
             nr_errors += 1
     except FileNotFoundError:
         pass
     except Exception as e:
-        print(f"get_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
+        print(f"get_min_or_max_column_value on a non-existing file path excepted with another exception than FileNotFoundError (only acceptable one!). Error: {e}")
         nr_errors += 1
 
     non_rounded_lower, non_rounded_upper = round_lower_and_upper_if_type_is_int("float", -123.4, 123.4)
@@ -6947,8 +6939,8 @@ def run_tests() -> None:
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)
     nr_errors += is_equal("rounded_upper", rounded_upper, 124)
 
-    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_min_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123)), '17143005390319.627')
-    nr_errors += is_equal('get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123)', str(get_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123)), '9.865416064838896e+29')
+    nr_errors += is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123, "min")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123, "min")), '17143005390319.627')
+    nr_errors += is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123, "max")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123, "max")), '9.865416064838896e+29')
 
     nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
 

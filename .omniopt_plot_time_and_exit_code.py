@@ -54,23 +54,17 @@ def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
     try:
         return pd.read_csv(filepath)
     except pd.errors.EmptyDataError:
-        handle_empty_data(filepath)
+        handle_error(filepath, f"Could not find values in file {filepath}", 19)
     except UnicodeDecodeError:
-        handle_unicode_error(filepath)
+        handle_error(filepath, f"{filepath} seems to be invalid utf8.", 7)
 
     return None
 
 @beartype
-def handle_empty_data(filepath: str) -> None:
+def handle_error(filepath: str, errmsg: str, exit_code: int) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
-        print(f"Could not find values in file {filepath}")
-    sys.exit(19)
-
-@beartype
-def handle_unicode_error(filepath: str) -> None:
-    if not os.environ.get("PLOT_TESTS"):
-        print(f"{filepath} seems to be invalid utf8.")
-    sys.exit(7)
+        print(errmsg)
+    sys.exit(exit_code)
 
 @beartype
 def validate_dataframe(df: pd.DataFrame) -> None:

@@ -4165,62 +4165,58 @@ def get_types_of_errors_string() -> str:
     return types_of_errors_str
 
 @beartype
+def capitalized_string(s: str) -> str:
+    return s[0].upper() + s[1:] if s else ""
+
+@beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
-    global global_vars
-    global random_steps
     global max_eval
 
-    desc: str = ""
-
-    in_brackets: List[str] = []
-
-    if failed_jobs():
-        in_brackets.append(f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}")
-
-    current_model = get_current_model()
-
-    in_brackets.append(f"{current_model}")
-
-    best_params_res = []
-
-    for res_name in arg_result_names:
-        best_params_str: str = get_best_params_str(res_name)
-        if best_params_str:
-            best_params_res.append(best_params_str)
-
-    if len(best_params_res):
-        if len(arg_result_names) == 1:
-            in_brackets.append("best " + ", ".join(best_params_res))
-        else:
-            in_brackets.append(f"{count_done_jobs()} jobs done")
-
+    in_brackets = []
+    in_brackets.extend(_get_desc_progress_text_failed_jobs())
+    in_brackets.append(_get_desc_progress_text_current_model())
+    in_brackets.extend(_get_desc_progress_text_best_params())
     in_brackets = get_slurm_in_brackets(in_brackets)
 
     if args.verbose_tqdm:
-        if submitted_jobs():
-            in_brackets.append(f"total submitted: {submitted_jobs()}")
+        in_brackets.extend(_get_desc_progress_text_submitted_jobs())
 
-            if max_eval:
-                in_brackets.append(f"max_eval: {max_eval}")
+    if new_msgs:
+        in_brackets.extend(_get_desc_progress_text_new_msgs(new_msgs))
 
-    if len(new_msgs):
-        for new_msg in new_msgs:
-            if new_msg:
-                in_brackets.append(new_msg)
+    in_brackets_clean = [item for item in in_brackets if item]
+    desc = ", ".join(in_brackets_clean) if in_brackets_clean else ""
 
-    if len(in_brackets):
-        in_brackets_clean = [item for item in in_brackets if item] if in_brackets else []
+    return capitalized_string(desc)
 
-        if in_brackets_clean:
-            desc += f"{', '.join(in_brackets_clean)}"
+def _get_desc_progress_text_failed_jobs() -> List[str]:
+    if failed_jobs():
+        return [f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
+    return []
 
-    @beartype
-    def capitalized_string(s: str) -> str:
-        return s[0].upper() + s[1:] if s else ""
+def _get_desc_progress_text_current_model() -> str:
+    return get_current_model()
 
-    desc = capitalized_string(desc)
+def _get_desc_progress_text_best_params() -> List[str]:
+    best_params_res = [
+        get_best_params_str(res_name) for res_name in arg_result_names if get_best_params_str(res_name)
+    ]
 
-    return desc
+    if best_params_res:
+        return ["best " + ", ".join(best_params_res)] if len(arg_result_names) == 1 else [f"{count_done_jobs()} jobs done"]
+
+    return []
+
+def _get_desc_progress_text_submitted_jobs() -> List[str]:
+    result = []
+    if submitted_jobs():
+        result.append(f"total submitted: {submitted_jobs()}")
+        if max_eval:
+            result.append(f"max_eval: {max_eval}")
+    return result
+
+def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
+    return [msg for msg in new_msgs if msg]
 
 @beartype
 def progressbar_description(new_msgs: List[str] = []) -> None:

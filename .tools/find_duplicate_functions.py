@@ -24,14 +24,13 @@ class FunctionCollector(ast.NodeVisitor):
             self.functions[node.name] = (func_code_structure, len(func_code.splitlines()))
         self.generic_visit(node)
 
-def find_similar_functions(filename, threshold, min_lines):
+def find_similar_functions(_filename, threshold, min_lines):
     # Create the console and progress bar
-    console = Console()
     with Progress(transient=True) as progress:
         task = progress.add_task("[cyan]Processing file...", total=1)
 
         # Load the source code
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(_filename, "r", encoding="utf-8") as f:
             source_code = f.read()
 
         # Update progress bar

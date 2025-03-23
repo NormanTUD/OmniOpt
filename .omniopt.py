@@ -5405,7 +5405,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
 
-            nr_trials = ax_client.experiment.num_trials
+            trial_index = ax_client.experiment.num_trials
 
             generator_run = global_gs.gen(
                 experiment=ax_client.experiment,
@@ -5414,8 +5414,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             )
             trial = ax_client.experiment.new_trial(generator_run)
             params = generator_run.arms[0].parameters
-
-            trial_index = nr_trials
 
             trial.mark_running(no_runner_required=True)
 

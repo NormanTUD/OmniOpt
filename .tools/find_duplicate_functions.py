@@ -1,3 +1,4 @@
+import os
 import signal
 import sys
 import ast
@@ -99,21 +100,42 @@ def handle_interrupt(_signal, _frame):
     console.print("\n[red]Program was interrupted by the user.[/red]", end="")
     sys.exit(0)
 
+def find_python_files(root_dir):
+    """Recursively find all Python files (including hidden ones)."""
+    py_files = []
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            if filename.endswith(".py"):
+                py_files.append(os.path.join(dirpath, filename))
+    return py_files
+
 if __name__ == "__main__":
     # Handle Ctrl+C signal (KeyboardInterrupt)
     signal.signal(signal.SIGINT, handle_interrupt)
 
     parser = argparse.ArgumentParser(description="Finds similar functions in Python files.")
-    parser.add_argument("files", nargs='+', help="Paths to the Python files or patterns like *.py")
+    parser.add_argument("files", nargs='*', help="Paths to the Python files or patterns like *.py")
     parser.add_argument("--threshold", type=float, default=0.8, help="Similarity threshold (0.0 - 1.0)")
     parser.add_argument("--min-lines", type=int, default=3, help="Minimum number of lines for functions to be analyzed (default: 3)")
 
     args = parser.parse_args()
 
-    # Expand the file patterns
-    all_files = []
-    for pattern in args.files:
-        all_files.extend(glob.glob(pattern))
+    # If no files are given, search for all .py files recursively (even those starting with a dot)
+    if not args.files:
+        all_files = find_python_files('.')
+    else:
+        # Expand the file patterns
+        all_files = []
+        for pattern in args.files:
+            all_files.extend(glob.glob(pattern))
+
+        # If a directory is given, search for all .py files in that directory recursively
+        for file_or_dir in args.files:
+            if os.path.isdir(file_or_dir):
+                all_files.extend(find_python_files(file_or_dir))
+
+    # Filter out directories if any are accidentally added
+    all_files = [f for f in all_files if os.path.isfile(f)]
 
     if not all_files:
         print("No files matched the pattern.")
@@ -121,5 +143,5 @@ if __name__ == "__main__":
 
     # Process each file
     for filename in all_files:
-        console.print(f"[cyan]Processing file: {filename}[/cyan]")
+        print(f"Processing file: {filename}")
         find_similar_functions(filename, args.threshold, args.min_lines)

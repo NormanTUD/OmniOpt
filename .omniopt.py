@@ -682,7 +682,7 @@ if args.continue_previous_job is not None:
     found_result_min_max = []
     default_min_max = "min"
 
-    for _n in range(0, len(found_result_names)):
+    for _n in range(len(found_result_names)):
         min_max = get_min_max_from_file(args.continue_previous_job, _n, default_min_max)
 
         found_result_min_max.append(min_max)
@@ -2819,7 +2819,7 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
     best_line: Optional[str] = None
     best_result: Optional[str] = None
 
-    for i in range(0, len(nparray)):
+    for i in range(len(nparray)):
         this_line = nparray[i]
         this_line_result = this_line[result_idx]
 
@@ -2894,7 +2894,7 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
         print_debug(f"Could not determine best {res_name}")
         return results
 
-    for i in range(0, len(cols)):
+    for i in range(len(cols)):
         col = cols[i]
         if col not in IGNORABLE_COLUMNS:
             if col == res_name:
@@ -3119,7 +3119,7 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
         if "iterate_through" in plot.keys():
             iterate_through = plot["iterate_through"]
             if len(iterate_through):
-                for j in range(0, len(iterate_through)):
+                for j in range(len(iterate_through)):
                     this_iteration = iterate_through[j]
                     _iterated_command: str = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
 
@@ -3700,7 +3700,7 @@ def set_objectives() -> dict:
 def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: list) -> dict:
     if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
-        for _l in range(0, len(experiment_constraints)):
+        for _l in range(len(experiment_constraints)):
             constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
 
             variables = [item['name'] for item in experiment_parameters]
@@ -3720,7 +3720,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
-            for _item_id_to_overwrite in range(0, len(experiment_parameters["experiment"]["search_space"]["parameters"])):
+            for _item_id_to_overwrite in range(len(experiment_parameters["experiment"]["search_space"]["parameters"])):
                 if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
                     old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
 
@@ -4522,7 +4522,7 @@ def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[st
         file_output = ""
 
         if len(file_paths):
-            file_result = execute_bash_code("file " + file_paths[0])
+            file_result = execute_bash_code(f"file {file_paths[0]}")
             if len(file_result) and isinstance(file_result[0], str):
                 file_output = ", " + file_result[0].strip()
 
@@ -4535,7 +4535,7 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
     errors: List[str] = []
 
     if first_line and isinstance(first_line, str) and first_line.isprintable() and not first_line.startswith("#!"):
-        errors.append("First line does not seem to be a shebang line: " + first_line)
+        errors.append(f"First line does not seem to be a shebang line: {first_line}")
 
     if "Permission denied" in file_as_string and "/bin/sh" in file_as_string:
         errors.append("Log file contains 'Permission denied'. Did you try to run the script without chmod +x?")
@@ -5424,7 +5424,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     trial_durations: List[float] = []
 
     try:
-        for k in range(0, nr_of_jobs_to_get):
+        for k in range(nr_of_jobs_to_get):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()
@@ -6893,7 +6893,7 @@ def get_files_in_dir(mypath: str) -> list:
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
-    return [mypath + "/" + s for s in onlyfiles]
+    return [f"{mypath}/{s}" for s in onlyfiles]
 
 @beartype
 def test_find_paths(program_code: str) -> int:

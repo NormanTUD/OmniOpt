@@ -60,7 +60,7 @@ def find_similar_functions(filename, threshold, min_lines):
                     if len(similar_functions) == 1:
                         compare_these = f"{compare_these} ({len(similar_functions)} similar function)"
                     else:
-                        compare_these = f"{compare_these} ({len(similar_functions)} similar functions)"
+                        compare_these = f"{len(similar_functions)} similar functions, {compare_these}"
                 compare_these_length = len(compare_these)
                 max_compare_these_length = max(max_compare_these_length, compare_these_length)
 

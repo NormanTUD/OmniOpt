@@ -94,8 +94,6 @@ def find_similar_functions(filename, threshold, min_lines):
                 table.add_row(row[0], str(row[3]), row[1], str(row[4]), row[2])
 
             console.print(table)
-        else:
-            console.print("[yellow]No similar functions found above the threshold.[/yellow]")
 
 # Function to handle safe program termination on Ctrl+C
 def handle_interrupt(_signal, _frame):

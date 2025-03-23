@@ -3,6 +3,7 @@ import difflib
 import argparse
 from rich.console import Console
 from rich.progress import Progress
+from rich.table import Table
 import signal
 import sys
 
@@ -12,7 +13,7 @@ class FunctionCollector(ast.NodeVisitor):
         self.min_lines = min_lines
 
     def visit_FunctionDef(self, node):
-        # Funktion überspringen, wenn sie weniger als die Mindestanzahl an Zeilen hat
+        # Skip the function if it has fewer than the minimum number of lines
         func_code = ast.unparse(node)
         if len(func_code.splitlines()) >= self.min_lines:
             func_code_structure = ast.dump(node, annotate_fields=False)
@@ -20,59 +21,77 @@ class FunctionCollector(ast.NodeVisitor):
         self.generic_visit(node)
 
 def find_similar_functions(filename, threshold, min_lines):
-    # Erstellen der Konsole und der Progress-Bar
+    # Create the console and progress bar
     console = Console()
     with Progress(transient=True) as progress:
-        task = progress.add_task("[cyan]Verarbeite Datei...", total=1)
-        
-        # Laden des Quellcodes
+        task = progress.add_task("[cyan]Processing file...", total=1)
+
+        # Load the source code
         with open(filename, "r", encoding="utf-8") as f:
             source_code = f.read()
 
-        # Fortschrittsbalken aktualisieren
-        progress.update(task, description="Parsen des Quellcodes...")
+        # Update progress bar
+        progress.update(task, description="Parsing the source code...")
         tree = ast.parse(source_code)
         collector = FunctionCollector(min_lines)
         collector.visit(tree)
 
         funcs = list(collector.functions.items())
-        total_comparisons = len(funcs) * (len(funcs) - 1) // 2  # Kombinierte Vergleiche
+        total_comparisons = len(funcs) * (len(funcs) - 1) // 2  # Total comparisons
         current_comparisons = 0
 
-        progress.update(task, description="Vergleiche Funktionen...", total=total_comparisons)
-        
-        # Vergleichen der Funktionen
+        progress.update(task, description="Comparing functions...", total=total_comparisons)
+
+        similar_functions = []  # List to hold similar function pairs
+
+        # Compare the functions
         for i in range(len(funcs)):
             name1, code1 = funcs[i]
             for j in range(i + 1, len(funcs)):
                 name2, code2 = funcs[j]
-                
-                # Zeige die aktuelle Funktion im Fortschrittsbalken an
-                progress.update(task, description=f"[yellow]Vergleiche:[/yellow] {name1} <-> {name2}")
-                
+
+                # Update progress bar for current comparison
+                progress.update(task, description=f"[yellow]Comparing:[/yellow] {name1} <-> {name2}")
+
                 similarity = difflib.SequenceMatcher(None, code1, code2).ratio()
                 if similarity >= threshold:
-                    console.print(f"[green]Ähnliche Funktionen:[/green] {name1} <-> {name2} ({similarity*100:.2f}%)")
+                    similar_functions.append([name1, name2, f"{similarity*100:.2f}%"])
 
                 current_comparisons += 1
                 progress.update(task, completed=current_comparisons)
 
+        # Update progress bar completion
         progress.update(task, completed=total_comparisons)
 
-# Funktion zum sicheren Beenden des Programms bei Ctrl+C
+        # Display the results as a rich table
+        if similar_functions:
+            console.print("\n[green]Similar functions found:[/green]")
+            table = Table(title="Function Similarities")
+            table.add_column("Function 1", justify="left")
+            table.add_column("Function 2", justify="left")
+            table.add_column("Similarity", justify="right")
+
+            for row in similar_functions:
+                table.add_row(row[0], row[1], row[2])
+
+            console.print(table)
+        else:
+            console.print("[yellow]No similar functions found above the threshold.[/yellow]")
+
+# Function to handle safe program termination on Ctrl+C
 def handle_interrupt(signal, frame):
     console = Console()
-    console.print("\n[red]Programm wurde durch den Benutzer gestoppt.[/red]", end="")
+    console.print("\n[red]Program was interrupted by the user.[/red]", end="")
     sys.exit(0)
 
 if __name__ == "__main__":
-    # Signal für Ctrl+C (KeyboardInterrupt) abfangen
+    # Handle Ctrl+C signal (KeyboardInterrupt)
     signal.signal(signal.SIGINT, handle_interrupt)
 
-    parser = argparse.ArgumentParser(description="Findet ähnliche Funktionen in einer Python-Datei.")
-    parser.add_argument("file", help="Pfad zur Python-Datei")
-    parser.add_argument("--threshold", type=float, default=0.8, help="Ähnlichkeitsschwelle (0.0 - 1.0)")
-    parser.add_argument("--min-lines", type=int, default=3, help="Mindestanzahl an Zeilen für Funktionen, die untersucht werden (Standard: 3)")
+    parser = argparse.ArgumentParser(description="Finds similar functions in a Python file.")
+    parser.add_argument("file", help="Path to the Python file")
+    parser.add_argument("--threshold", type=float, default=0.8, help="Similarity threshold (0.0 - 1.0)")
+    parser.add_argument("--min-lines", type=int, default=3, help="Minimum number of lines for functions to be analyzed (default: 3)")
 
     args = parser.parse_args()
     find_similar_functions(args.file, args.threshold, args.min_lines)

@@ -54,14 +54,14 @@ def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
     try:
         return pd.read_csv(filepath)
     except pd.errors.EmptyDataError:
-        handle_error(filepath, f"Could not find values in file {filepath}", 19)
+        handle_error(f"Could not find values in file {filepath}", 19)
     except UnicodeDecodeError:
-        handle_error(filepath, f"{filepath} seems to be invalid utf8.", 7)
+        handle_error(f"{filepath} seems to be invalid utf8.", 7)
 
     return None
 
 @beartype
-def handle_error(filepath: str, errmsg: str, exit_code: int) -> None:
+def handle_error(errmsg: str, exit_code: int) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(errmsg)
     sys.exit(exit_code)

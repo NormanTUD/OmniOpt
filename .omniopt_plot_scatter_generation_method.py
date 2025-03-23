@@ -59,7 +59,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
                 plt.show()
 
 @beartype
-def handle_error(filepath: str, errmsg: str, exit_code: int) -> None:
+def handle_error(errmsg: str, exit_code: int) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(errmsg)
     sys.exit(exit_code)
@@ -90,9 +90,9 @@ def update_graph() -> None:
     except FileNotFoundError:
         print(f"File not found: {csv_path}")
     except pd.errors.EmptyDataError:
-        handle_error(filepath, f"Could not find values in file {csv_path}", 19)
+        handle_error(f"Could not find values in file {csv_path}", 19)
     except UnicodeDecodeError:
-        handle_error(filepath, f"{csv_path} seems to be invalid utf8.", 7)
+        handle_error(f"{csv_path} seems to be invalid utf8.", 7)
     except KeyError:
         if not os.environ.get("PLOT_TESTS"):
             print(f"{csv_path} seems to have no 'result' column.")

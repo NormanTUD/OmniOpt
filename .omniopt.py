@@ -2832,14 +2832,9 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
                     best_line = this_line
                     best_result = this_line_result
 
-            if maximize:
-                if this_line_result >= best_result:
-                    best_line = this_line
-                    best_result = this_line_result
-            else:
-                if this_line_result <= best_result:
-                    best_line = this_line
-                    best_result = this_line_result
+            if (maximize and this_line_result >= best_result) or (not maximize and this_line_result <= best_result):
+                best_line = this_line
+                best_result = this_line_result
 
     return best_line, best_result
 

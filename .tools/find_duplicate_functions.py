@@ -7,6 +7,8 @@ from rich.table import Table
 import signal
 import sys
 
+max_compare_these_length = 0
+
 class FunctionCollector(ast.NodeVisitor):
     def __init__(self, min_lines):
         self.functions = {}
@@ -51,7 +53,16 @@ def find_similar_functions(filename, threshold, min_lines):
                 name2, code2 = funcs[j]
 
                 # Update progress bar for current comparison
-                progress.update(task, description=f"[yellow]Comparing:[/yellow] {name1} <-> {name2}")
+                global max_compare_these_length
+
+                compare_these = f"{name1} <-> {name2}"
+                compare_these_length = len(compare_these)
+                if compare_these_length > max_compare_these_length:
+                    max_compare_these_length = compare_these_length
+
+                compare_these = compare_these.ljust(max_compare_these_length)
+
+                progress.update(task, description=f"[yellow]Comparing:[/yellow] {compare_these}")
 
                 similarity = difflib.SequenceMatcher(None, code1, code2).ratio()
                 if similarity >= threshold:

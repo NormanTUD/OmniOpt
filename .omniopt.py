@@ -5399,7 +5399,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     """Attempts to fetch the next trials using the ax_client."""
 
     global global_gs, error_8_saved, overwritten_to_random, gotten_jobs
-
     if not ax_client:
         print_red("ax_client was not defined")
         my_exit(9)
@@ -5415,6 +5414,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             start_time = time.time()
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
+
+            nr_trials = ax_client.experiment.num_trials
+
             generator_run = global_gs.gen(
                 experiment=ax_client.experiment,
                 n=1,
@@ -5422,11 +5424,13 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             )
             trial = ax_client.experiment.new_trial(generator_run)
             params = generator_run.arms[0].parameters
-            trial_index = gotten_jobs + NR_INSERTED_JOBS + k
+
+            trial_index = nr_trials
+
             trial.mark_running(no_runner_required=True)
 
             trials_dict[trial_index] = params
-            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index})")
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, NR_INSERTED_JOBS: {NR_INSERTED_JOBS}, k: {k}])")
             end_time = time.time()
 
             gotten_jobs = gotten_jobs + 1

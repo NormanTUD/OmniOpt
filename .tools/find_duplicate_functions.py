@@ -1,11 +1,11 @@
+import signal
+import sys
 import ast
 import difflib
 import argparse
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
-import signal
-import sys
 
 max_compare_these_length = 0
 
@@ -62,8 +62,7 @@ def find_similar_functions(filename, threshold, min_lines):
                     else:
                         compare_these = f"{compare_these} ({len(similar_functions)} similar functions)"
                 compare_these_length = len(compare_these)
-                if compare_these_length > max_compare_these_length:
-                    max_compare_these_length = compare_these_length
+                max_compare_these_length = max(max_compare_these_length, compare_these_length)
 
                 compare_these = compare_these.ljust(max_compare_these_length)
 
@@ -97,7 +96,7 @@ def find_similar_functions(filename, threshold, min_lines):
             console.print("[yellow]No similar functions found above the threshold.[/yellow]")
 
 # Function to handle safe program termination on Ctrl+C
-def handle_interrupt(signal, frame):
+def handle_interrupt(_signal, _frame):
     console = Console()
     console.print("\n[red]Program was interrupted by the user.[/red]", end="")
     sys.exit(0)

@@ -262,9 +262,9 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
             original_print(msg, file=f)
     except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
-        sys.exit(99) # generalized code for run folder deleted during run
+        sys.exit(99)
     except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
+        original_print(f"_debug: Error trying to write log file: {e}")
 
         _debug(msg, _lvl + 1, e)
 
@@ -305,7 +305,7 @@ def print_debug(msg: str) -> None:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99) # generalized code for run folder deleted during run
     except Exception as e:
-        original_print("_debug: Error trying to write log file: " + str(e))
+        original_print(f"_debug: Error trying to write log file: {e}")
 
 @beartype
 def print_debug_once(msg: str) -> None:
@@ -331,8 +331,10 @@ def my_exit(_code: int = 0) -> None:
     except KeyboardInterrupt:
         pass
 
-    print("Exit-Code: " + str(_code))
-    print_debug("Exit-Code: " + str(_code))
+    exit_code_string = f"Exit-Code: {_code}"
+
+    print(exit_code_string)
+    print_debug(exit_code_string)
     sys.exit(_code)
 
 @beartype
@@ -1276,7 +1278,7 @@ if not args.continue_previous_job:
         global_vars["joined_run_program"] = decode_if_base64(global_vars["joined_run_program"])
 else:
     prev_job_folder = args.continue_previous_job
-    prev_job_file = prev_job_folder + "/state_files/joined_run_program"
+    prev_job_file = f"{prev_job_folder}/state_files/joined_run_program"
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
     else:
@@ -1299,7 +1301,7 @@ def load_global_vars(_file: str) -> None:
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
     except Exception as e:
-        print_red("Error while loading old global_vars: " + str(e) + ", trying to load " + str(_file))
+        print_red(f"Error while loading old global_vars: {e}, trying to load {_file}")
         my_exit(44)
 
 @beartype
@@ -2189,7 +2191,7 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
 
     string = "\n========\nDEBUG INFOS START:\n"
 
-    string += "Program-Code: " + program_code
+    string += f"Program-Code: {program_code}"
     if file_paths:
         for file_path in file_paths:
             string += "\n"
@@ -2299,7 +2301,7 @@ def extract_info(data: Optional[str]) -> Tuple[List[str], List[str]]:
     for line in data.splitlines():
         match = _pattern.search(line)
         if match:
-            names.append("OO_Info_" + match.group(1))
+            names.append(f"OO_Info_{match.group(1)}")
             values.append(match.group(2))
 
     return names, values
@@ -2971,7 +2973,7 @@ def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
 
-    prev_step_file: str = args.continue_previous_job + "/state_files/phase_random_steps"
+    prev_step_file: str = f"{args.continue_previous_job}/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
         return count_sobol_steps()
@@ -3113,7 +3115,8 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
             if len(iterate_through):
                 for j in range(len(iterate_through)):
                     this_iteration = iterate_through[j]
-                    _iterated_command: str = _command + " " + replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+                    replaced_str = replace_string_with_params(plot["params"], [this_iteration[0], this_iteration[1]])
+                    _iterated_command: str = f"{_command} {replaced_str}"
 
                     j = 0
                     tmp_file = f"{_tmp}/{plot_type}.png"
@@ -3399,7 +3402,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3:
         if eee:
-            print("Error during saving checkpoint: " + str(eee))
+            print(f"Error during saving checkpoint: {eee}")
         else:
             print("Error during saving checkpoint")
         return
@@ -3756,8 +3759,8 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
     if continue_previous_job:
         print_debug(f"Load from checkpoint: {continue_previous_job}")
 
-        checkpoint_file: str = continue_previous_job + "/state_files/checkpoint.json"
-        checkpoint_parameters_filepath: str = continue_previous_job + "/state_files/checkpoint.json.parameters.json"
+        checkpoint_file: str = f"{continue_previous_job}/state_files/checkpoint.json"
+        checkpoint_parameters_filepath: str = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
 
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
@@ -4268,7 +4271,7 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 
     for this_path in _paths:
-        this_path_json = str(this_path) + "/state_files/ax_client.experiment.json"
+        this_path_json = f"{this_path}/state_files/ax_client.experiment.json"
 
         if not os.path.exists(this_path_json):
             print_red(f"{this_path_json} does not exist, cannot load data from it")
@@ -4510,7 +4513,8 @@ def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[st
         if len(file_paths):
             file_result = execute_bash_code(f"file {file_paths[0]}")
             if len(file_result) and isinstance(file_result[0], str):
-                file_output = ", " + file_result[0].strip()
+                stripped_file_result = file_result[0].strip()
+                file_output = f", {stripped_file_result}"
 
         errors.append(f"Was the program compiled for the wrong platform? Current system is {current_platform}{file_output}")
 
@@ -4612,11 +4616,11 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
     errors: List[str] = []
     for r in range(1, 255):
         special_exit_codes = get_exit_codes()
-        search_for_exit_code = "Exit-Code: " + str(r) + ","
+        search_for_exit_code = f"Exit-Code: {r},"
         if search_for_exit_code in file_as_string:
-            _error: str = "Non-zero exit-code detected: " + str(r)
+            _error: str = f"Non-zero exit-code detected: {r}"
             if str(r) in special_exit_codes:
-                _error += " (May mean " + special_exit_codes[str(r)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"
+                _error += f" (May mean {special_exit_codes[str(r)]}, unless you used that exit code yourself or it was part of any of your used libraries or programs)"
             errors.append(_error)
     return errors
 
@@ -6038,7 +6042,7 @@ def execute_nvidia_smi() -> None:
             host = socket.gethostname()
 
             if NVIDIA_SMI_LOGS_BASE and host:
-                _file = NVIDIA_SMI_LOGS_BASE + "_" + host + ".csv"
+                _file = f"{NVIDIA_SMI_LOGS_BASE}_{host}.csv"
                 noheader = ",noheader"
 
                 result = subprocess.run([
@@ -7014,7 +7018,7 @@ def run_tests() -> None:
 Exit-Code: 159
     """
 
-    nr_errors += is_equal(f'check_for_non_zero_exit_codes("{nonzerodebug}")', check_for_non_zero_exit_codes(nonzerodebug), ["Non-zero exit-code detected: 159.  (May mean " + get_exit_codes()[str(159)] + ", unless you used that exit code yourself or it was part of any of your used libraries or programs)"])
+    nr_errors += is_equal(f'check_for_non_zero_exit_codes("{nonzerodebug}")', check_for_non_zero_exit_codes(nonzerodebug), [f"Non-zero exit-code detected: 159.  (May mean {get_exit_codes()[str(159)]}, unless you used that exit code yourself or it was part of any of your used libraries or programs)"])
 
     nr_errors += is_equal('state_from_job("")', state_from_job(''), "None")
 

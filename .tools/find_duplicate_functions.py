@@ -124,5 +124,5 @@ if __name__ == "__main__":
 
     # Process each file
     for filename in all_files:
-        print(f"\n[cyan]Processing file: {filename}[/cyan]")
+        console.print(f"\n[cyan]Processing file: {filename}[/cyan]")
         find_similar_functions(filename, args.threshold, args.min_lines)

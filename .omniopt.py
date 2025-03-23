@@ -2330,8 +2330,8 @@ def calculate_signed_harmonic_distance(_args: Union[dict, List[Union[int, float]
 
 @beartype
 def calculate_signed_euclidean_distance(_args: Union[dict, List[float]]) -> float:
-    _sum = sum(a ** 2 for a in _args)  
-    sign = -1 if any(a < 0 for a in _args) else 1  
+    _sum = sum(a ** 2 for a in _args)
+    sign = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
 @beartype

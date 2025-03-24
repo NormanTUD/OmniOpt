@@ -5053,10 +5053,10 @@ def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
-            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}")
+            print_yellow(f"\nExcludeNode was triggered for node {hostname_from_out_file}")
             count_defective_nodes(None, hostname_from_out_file)
         else:
-            print_yellow(f"ExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
+            print_yellow(f"\nExcludeNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again")
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
@@ -5072,10 +5072,10 @@ def handle_restart(stdout_path: str, trial_index: int) -> None:
 def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
-            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
+            print_yellow(f"\nRestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")
             count_defective_nodes(None, hostname_from_out_file)
         else:
-            print_yellow(f"RestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes. Job will only be resubmitted.")
+            print_yellow(f"\nRestartOnDifferentNode was triggered for node {hostname_from_out_file}, but it was already in defective nodes. Job will only be resubmitted.")
         handle_restart(stdout_path, trial_index)
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")

@@ -137,7 +137,7 @@ with console.status("[bold green]Loading rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
-        RichHelpFormatter: Any = argparse.HelpFormatter
+        RichHelpFormatter: Any = argparse.HelpFormatter # type: ignore
 
 @beartype
 def makedirs(p: str) -> bool:

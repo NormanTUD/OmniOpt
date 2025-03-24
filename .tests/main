@@ -87,7 +87,7 @@ function calltracer () {
 	if [[ $EXPECTED_TO_FAIL -ne "1" ]]; then
 		yellow_text "Git status hash:"
 		git rev-parse HEAD
-		red_text 'Error occurred in file/line:'
+		red_text 'Error occurred in file/line:\n'
 		caller
 	fi
 }
@@ -156,7 +156,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--num_random_steps=*)
 			num_random_steps="${i#*=}"
 			if ! [[ $num_random_steps =~ $int_re ]] ; then
-				red_text "error: --num_random_steps not a INT: $i" >&2
+				red_text "error: --num_random_steps not a INT: $i\n" >&2
 				exit 100
 			fi
 
@@ -165,7 +165,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--mem_gb=*)
 			mem_gb="${i#*=}"
 			if ! [[ $mem_gb =~ $int_re ]] ; then
-				red_text "error: --mem_gb not a INT: $i" >&2
+				red_text "error: --mem_gb not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -176,7 +176,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			mem_gb="${args[k]}"
 			if ! [[ $mem_gb =~ $int_re ]] ; then
-				red_text "error: --mem_gb not a INT: $i" >&2
+				red_text "error: --mem_gb not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -187,7 +187,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			num_random_steps="${args[k]}"
 			if ! [[ $num_random_steps =~ $int_re ]] ; then
-				red_text "error: --num_random_steps not a INT: $i" >&2
+				red_text "error: --num_random_steps not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -195,7 +195,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--max_eval=*)
 			max_eval="${i#*=}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
-				red_text "error: --max_eval not a INT: $i" >&2
+				red_text "error: --max_eval not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -207,7 +207,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			max_eval="${args[k]}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
-				red_text "error: --max_eval not a INT: $i" >&2
+				red_text "error: --max_eval not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -215,7 +215,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--gpus=*)
 			NUM_GPUS="${i#*=}"
 			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
+				red_text "error: --gpus not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -226,7 +226,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			NUM_GPUS="${args[k]}"
 			if ! [[ $NUM_GPUS =~ $int_re ]] ; then
-				red_text "error: --gpus not a INT: $i" >&2
+				red_text "error: --gpus not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -234,7 +234,7 @@ while [ $k -lt ${#args[@]} ]; do
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${i#*=}"
 			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
-				red_text "error: --num_parallel_jobs not a INT: $i" >&2
+				red_text "error: --num_parallel_jobs not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -245,7 +245,7 @@ while [ $k -lt ${#args[@]} ]; do
 
 			num_parallel_jobs="${args[k]}"
 			if ! [[ $num_parallel_jobs =~ $int_re ]] ; then
-				red_text "error: --num_parallel_jobs not a INT: $i" >&2
+				red_text "error: --num_parallel_jobs not a INT: $i\n" >&2
 				exit 100
 			fi
 
@@ -298,7 +298,7 @@ while [ $k -lt ${#args[@]} ]; do
 			;;
 
 		*)
-			red_text "Unknown parameter $i"
+			red_text "Unknown parameter $i\n"
 			exit 2
 			;;
 	esac
@@ -314,12 +314,12 @@ if [[ "$num_random_steps" -gt "$max_eval" ]]; then
 fi
 
 if [[ "$num_parallel_jobs" -lt "1" ]]; then
-	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs"
+	red_text "num_parallel_jobs must be 1 or more, is $num_parallel_jobs\n"
 	exit 1
 fi
 
 if [[ "$max_eval" -lt "1" ]]; then
-	red_text "Max_eval must be 1 or more, is $max_eval"
+	red_text "Max_eval must be 1 or more, is $max_eval\n"
 	exit 1
 fi
 
@@ -402,7 +402,7 @@ function _test_internal {
 	ALTERNATIVE_OK_EXIT_CODE=$4
 
 	if echo "$NAME" | grep -q "," 2>/dev/null >/dev/null; then
-		red_text "The name '$NAME' contains a comma, which, later on, will confuse the table generation tool. Please remove the comma from the name."
+		red_text "The name '$NAME' contains a comma, which, later on, will confuse the table generation tool. Please remove the comma from the name.\n"
 		exit 255
 	fi
 
@@ -460,7 +460,7 @@ function _test_internal {
 		fi
 
 		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
-			red_text "$ERRORMSG"
+			red_text "$ERRORMSG\n"
 			errors+=($(echo "$ERRORMSG" | base64))
 			failed_true_false="❌"
 			failed=1
@@ -473,7 +473,7 @@ function _test_internal {
 		fi
 
 		if [[ $(echo $ERRORMSG | wc -c) -gt 2 ]]; then
-			red_text "$ERRORMSG"
+			red_text "$ERRORMSG\n"
 			errors+=($(echo "$ERRORMSG" | base64))
 			failed_true_false="❌"
 			failed=1
@@ -506,7 +506,7 @@ calculate_average_and_check() {
 
 		if (( $(echo "$avg < 80" | bc -l) )); then
 			errmsg="Error: average worker usage was less than 80% (actual: $avg%)"
-			red_text "$errmsg"
+			red_text "$errmsg\n"
 			errors+=($(echo "$errmsg" | base64))
 			failed=1
 		fi
@@ -764,7 +764,7 @@ if [[ $superquick -eq 0 ]]; then
 
 		#if (( $(echo "$first_res > $last_res" |bc -l) )); then
 		#	ERRORMSG="maximize_test failed. Expected the last result to be larger than the first one, but is last result = $last_res, first_res = $first_res"
-		#	red_text "$ERRORMSG"
+		#	red_text "$ERRORMSG\n"
 		#	errors+=($(echo "$ERRORMSG" | base64))
 		#fi
 
@@ -869,11 +869,11 @@ if [[ -n $RUN_WITH_COVERAGE ]]; then
 			if [[ -e htmlcov/index.html ]]; then
 				firefox htmlcov/index.html || true
 			else
-				red_text "htmlcov/index.html not found"
+				red_text "htmlcov/index.html not found\n"
 			fi
 		fi
 	else
-		red_text "--run_with_coverage was defined, but coverage could not be found"
+		red_text "--run_with_coverage was defined, but coverage could not be found\n"
 	fi
 fi
 

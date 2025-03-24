@@ -703,6 +703,7 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any, csv_file_path: str) 
         sys.exit(3)
 
     maximize = check_first_line_max(_args.run_dir)
+    if maximize:
         colors = -1 * colors  # Negate colors for maximum result
 
     norm = None

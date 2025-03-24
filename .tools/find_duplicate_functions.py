@@ -13,19 +13,17 @@ max_compare_these_length = 0
 console = Console()
 
 class FunctionCollector(ast.NodeVisitor):
-    def __init__(self, min_lines):
+    def __init__(self):
         self.functions = {}
-        self.min_lines = min_lines
 
     def visit_FunctionDef(self, node):
         # Skip the function if it has fewer than the minimum number of lines
         func_code = ast.unparse(node)
-        if len(func_code.splitlines()) >= self.min_lines:
-            func_code_structure = ast.dump(node, annotate_fields=False)
-            self.functions[node.name] = (func_code_structure, len(func_code.splitlines()))
+        func_code_structure = ast.dump(node, annotate_fields=False)
+        self.functions[node.name] = (func_code_structure, len(func_code.splitlines()))
         self.generic_visit(node)
 
-def find_similar_functions(_filename, threshold, min_lines):
+def find_similar_functions(_filename, threshold):
     # Create the console and progress bar
     with Progress(transient=True) as progress:
         task = progress.add_task("[cyan]Processing file...", total=1)
@@ -37,7 +35,7 @@ def find_similar_functions(_filename, threshold, min_lines):
         # Update progress bar
         progress.update(task, description="Parsing the source code...")
         tree = ast.parse(source_code)
-        collector = FunctionCollector(min_lines)
+        collector = FunctionCollector()
         collector.visit(tree)
 
         funcs = list(collector.functions.items())
@@ -72,7 +70,7 @@ def find_similar_functions(_filename, threshold, min_lines):
 
                 similarity = difflib.SequenceMatcher(None, code1, code2).ratio()
                 if similarity >= threshold:
-                    similar_functions.append([name1, name2, f"{similarity*100:.2f}%", len(code1.splitlines()), len(code2.splitlines())])
+                    similar_functions.append([name1, name2, f"{similarity*100:.2f}%"])
 
                 current_comparisons += 1
                 progress.update(task, completed=current_comparisons)
@@ -85,13 +83,11 @@ def find_similar_functions(_filename, threshold, min_lines):
             console.print("\n[green]Similar functions found:[/green]")
             table = Table(title="Function Similarities")
             table.add_column("Function 1", justify="left")
-            table.add_column("Lines 1", justify="right")
             table.add_column("Function 2", justify="left")
-            table.add_column("Lines 2", justify="right")
             table.add_column("Similarity", justify="right")
 
             for row in similar_functions:
-                table.add_row(row[0], str(row[3]), row[1], str(row[4]), row[2])
+                table.add_row(row[0], row[1], row[2])
 
             console.print(table)
 
@@ -116,7 +112,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Finds similar functions in Python files.")
     parser.add_argument("files", nargs='*', help="Paths to the Python files or patterns like *.py")
     parser.add_argument("--threshold", type=float, default=0.8, help="Similarity threshold (0.0 - 1.0)")
-    parser.add_argument("--min-lines", type=int, default=3, help="Minimum number of lines for functions to be analyzed (default: 3)")
 
     args = parser.parse_args()
 
@@ -144,4 +139,4 @@ if __name__ == "__main__":
     # Process each file
     for filename in all_files:
         print(f"Processing file: {filename}")
-        find_similar_functions(filename, args.threshold, args.min_lines)
+        find_similar_functions(filename, args.threshold)

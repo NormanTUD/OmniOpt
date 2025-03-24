@@ -81,7 +81,7 @@ try:
         from rich.pretty import pprint
 
         from types import FunctionType
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type, Sequence
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
@@ -6287,7 +6287,7 @@ def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple
     return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
-def get_csv_data(csv_path: str) -> Tuple[List, List]:
+def get_csv_data(csv_path: str) -> Tuple[Sequence[str] | None, List[dict[str | Any, str | Any]]]:
     with open(csv_path, encoding="utf-8", mode="r") as file:
         reader = csv.DictReader(file)
         all_columns = reader.fieldnames

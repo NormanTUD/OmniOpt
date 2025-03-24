@@ -308,7 +308,7 @@
 		if [[ -d $old_dir ]]; then
 			underline_red_text "Moving $old_dir to current folder. This is an artifact of the old way of running OmniOpt."
 			mv $old_dir $SCRIPT_DIR || {
-				red_text "Failed to move $old_dir $SCRIPT_DIR"
+				red_text "Failed to move $old_dir $SCRIPT_DIR\n"
 			}
 		fi
 	done
@@ -318,13 +318,13 @@
 		CHAR=$1
 
 		if ! command -v tput 2>/dev/null >/dev/null; then
-			red_text "tput not installed" >&2
+			red_text "tput not installed\n" >&2
 			set +e
 			return 0
 		fi
 
 		if [[ -z $CHAR ]]; then
-			red_text "No character given" >&2
+			red_text "No character given\n" >&2
 			set +e
 			return 0
 		fi
@@ -565,7 +565,7 @@
 	export ORIGINAL_PWD
 
 	mkdir -p "$ORIGINAL_PWD/logs" || {
-		red_text "Failed: mkdir -p $ORIGINAL_PWD/logs"
+		red_text "Failed: mkdir -p $ORIGINAL_PWD/logs\n"
 			myexit 45
 		}
 
@@ -595,7 +595,7 @@
 			if ! [[ " ${values[@]} " =~ " $exit_code" ]]; then
 				LINE_AND_FUNCTION="$(caller)"
 				if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-					red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
+					red_text "Error occurred in file/line: $LINE_AND_FUNCTION\n"
 				fi
 
 				echo ""
@@ -655,12 +655,12 @@
 						[[ "$i" != "WINCH" ]] &&
 						[[ "$i" != "INT" ]] &&
 						[[ "$i" != "SIGINT" ]];
-										then
-											trap 'kill_python_if_started $i' "$i"
+				then
+					trap 'kill_python_if_started $i' "$i"
 				fi
 			done
 		else
-			red_text "kill cannot be found. Cannot register traps for existing signals."
+			red_text "kill cannot be found. Cannot register traps for existing signals.\n"
 		fi
 
 		minutes_to_hh_mm_ss() {
@@ -739,7 +739,7 @@ EOF
 		if [[ $check_type == "int" ]]; then
 			check_code=$(cat <<EOF
 				if ! [[ \$$current_var =~ \$int_re ]] ; then
-					red_text "error: --$current_var not a INT: \$i" >&2
+					red_text "error: --$current_var not a INT: \$i\\n" >&2
 					myexit 100
 				fi
 EOF
@@ -747,7 +747,7 @@ EOF
 		elif [[ $check_type == "file" ]]; then
 			check_code=$(cat <<EOF
 				if ! [[ -e "\$$current_var" ]] ; then
-					red_text "error: --$current_var specified the path to a file that doesn't exist: \$current_var" >&2
+					red_text "error: --$current_var specified the path to a file that doesn't exist: \$current_var\\n" >&2
 					myexit 100
 				fi
 EOF
@@ -765,7 +765,7 @@ EOF
 			${current_var}_previous="\${i#*=}"
 
 			if [[ -n \${${previous_job_var}} ]]; then
-			    red_text "$option_name was specified more than once. Using the last one."
+			    red_text "$option_name was specified more than once. Using the last one.\\n"
 			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
@@ -785,7 +785,7 @@ $check_code
 			${current_var}_previous="\${args[k]}"
 
 			if [[ -n \${${previous_job_var}} ]]; then
-			    red_text "$option_name was specified more than once. Using the last one."
+			    red_text "$option_name was specified more than once. Using the last one.\\n"
 			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
 			fi
 
@@ -858,7 +858,7 @@ $complex_options_str
 			continue_previous_job="\${i#*=}"
 
 			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one."
+				red_text "--continue was specified more than once. Using the last one.\\n"
 				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
@@ -877,7 +877,7 @@ $complex_options_str
 			continue_previous_job="\${args[k]}"
 
 			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one."
+				red_text "--continue was specified more than once. Using the last one.\\n"
 				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
@@ -892,7 +892,7 @@ $complex_options_str
 			continue_previous_job="\${i#*=}"
 
 			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one."
+				red_text "--continue was specified more than once. Using the last one.\\n"
 				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
@@ -911,7 +911,7 @@ $complex_options_str
 			continue_previous_job="\${args[k]}"
 
 			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one."
+				red_text "--continue was specified more than once. Using the last one.\\n"
 				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue.*[[:space:]][[:space:]]*# #')
 			fi
 
@@ -999,7 +999,7 @@ EOF
 		if [[ "$config_toml" != "" ]]; then
 			parse_toml "$config_toml" "$key" || {
 				if [[ $warn_and_exit == 1 ]]; then
-					red_text "Error parsing $config_toml"
+					red_text "Error parsing $config_toml\n"
 					myexit 133
 				else
 					return 133
@@ -1008,7 +1008,7 @@ EOF
 		elif [[ "$config_yaml" != "" ]]; then
 			parse_yaml "$config_yaml" "$key" || {
 				if [[ $warn_and_exit == 1 ]]; then
-					red_text "Error parsing $config_yaml"
+					red_text "Error parsing $config_yaml\n"
 					myexit 133
 				else
 					return 133
@@ -1017,7 +1017,7 @@ EOF
 		elif [[ "$config_json" != "" ]]; then
 			parse_json "$config_json" "$key" || {
 				if [[ $warn_and_exit == 1 ]]; then
-					red_text "Error parsing $config_json"
+					red_text "Error parsing $config_json\n"
 					myexit 133
 				else
 					return 133
@@ -1025,7 +1025,7 @@ EOF
 			}
 		else
 			if [[ $warn_and_exit == 1 ]]; then
-				red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing." >&2
+				red_text "No --config_toml, --config_yaml or --config_json found. Cannot continue, key $key is missing.\n" >&2
 				myexit 133
 			else
 				return 133
@@ -1036,7 +1036,7 @@ EOF
 	git_hash="NOT_DETERMININABLE"
 
 	if ! command -v git 2>/dev/null >/dev/null; then
-		red_text "git not found. Cannot continue."
+		red_text "git not found. Cannot continue.\n"
 		myexit 11
 	fi
 
@@ -1090,7 +1090,7 @@ EOF
 					if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
 						yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
 						git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
-							red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version."
+							red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
 							myexit 211
 						}
 
@@ -1128,14 +1128,14 @@ EOF
 			if [[ $continue_previous_job =~ user_id=([^&]+) ]]; then
 				user_id="${BASH_REMATCH[1]}"
 			else
-				red_text "Error: user_id parameter is missing in the URL."
+				red_text "Error: user_id parameter is missing in the URL.\n"
 				exit 1
 			fi
 
 			if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
 				experiment_name="${BASH_REMATCH[1]}"
 			else
-				red_text "Error: experiment_name parameter is missing in the URL."
+				red_text "Error: experiment_name parameter is missing in the URL.\n"
 				exit 1
 			fi
 
@@ -1143,7 +1143,7 @@ EOF
 				#run_nr="${BASH_REMATCH[1]}"
 				true
 			else
-				red_text "Error: run_nr parameter is missing in the URL."
+				red_text "Error: run_nr parameter is missing in the URL.\n"
 				exit 1
 			fi
 
@@ -1183,7 +1183,7 @@ EOF
 
 			exit 19
 		else
-			red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr"
+			red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr\n"
 			myexit 19
 		fi
 	fi
@@ -1204,7 +1204,7 @@ EOF
 	elif [ -z "$config_toml" ] && [ -z "$config_json" ] && [ -z "$config_yaml" ]; then
 		true
 	else
-		red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml."
+		red_text "Error: Of these settings, maximally one can be set: --config_toml, --config_json, --config_yaml.\n"
 		myexit 5
 	fi
 
@@ -1222,7 +1222,7 @@ EOF
 			trap 'calltracer' ERR
 
 			if [[ $retcode -ne 0 ]] && [[ -z "$mem_gb" ]]; then
-				red_text "Parameter --mem_gb is missing or empty" >&2
+				red_text "Parameter --mem_gb is missing or empty\n" >&2
 				myexit 104
 			fi
 		fi
@@ -1238,7 +1238,7 @@ EOF
 			trap 'calltracer' ERR
 
 			if [[ $retcode -ne 0 ]] && [[ -z "$time" ]]; then
-				red_text "Parameter --time is missing or empty" >&2
+				red_text "Parameter --time is missing or empty\n" >&2
 				myexit 104
 			fi
 		fi
@@ -1254,7 +1254,7 @@ EOF
 			trap 'calltracer' ERR
 
 			if [[ $retcode -ne 0 ]] && [[ -z $experiment_name ]]; then
-				red_text "Parameter --experiment_name is missing or empty" >&2
+				red_text "Parameter --experiment_name is missing or empty\n" >&2
 				myexit 104
 			fi
 		fi
@@ -1416,7 +1416,7 @@ EOF
 				echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
 			fi
 		else
-			red_text "scontrol not found. Unsetting SLURM_JOB_ID"
+			red_text "scontrol not found. Unsetting SLURM_JOB_ID\n"
 			unset SLURM_JOB_ID
 		fi
 		set -e
@@ -1426,7 +1426,7 @@ EOF
 		#echo "source $SCRIPT_DIR/.shellscript_functions"
 		source "$SCRIPT_DIR/.shellscript_functions"
 	else
-		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue."
+		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"
 		myexit 23
 	fi
 
@@ -1435,9 +1435,9 @@ EOF
 	if [[ "$workdir" != "" ]]; then
 		if [[ ! -d "$workdir" ]]; then
 			mkdir -p "$workdir" || {
-				red_text "$workdir could not be created. Cannot continue."
-							myexit 191
-						}
+				red_text "$workdir could not be created. Cannot continue.\n"
+				myexit 191
+			}
 		fi
 
 		mycd "$workdir"
@@ -1636,18 +1636,18 @@ EOF
 								job_still_in_squeue=$(echo "$squeue_me_output" | grep -c "$started_job_nr")
 
 								if [[ "$job_still_in_squeue" -eq "0" ]]; then
-									red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled."
+									red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled.\n"
 
 									SCONTROL_STATUS=$(scontrol show job "$started_job_nr" | grep JobState | sed -e 's#^\s*[^=]*=#SLURM-Job-State: #')
 
 									if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
-										red_text "$SCONTROL_STATUS"
+										red_text "$SCONTROL_STATUS\n"
 										if [[ "$SCONTROL_STATUS" == *"RaisedSignal:53"* ]]; then
-											red_text "This may indicate a file system error"
+											red_text "This may indicate a file system error\n"
 										fi
 
 										if command -v findmnt 2>/dev/null >/dev/null; then
-											red_text "Mount-Info:"
+											red_text "Mount-Info:\n"
 											findmnt -T "$SCRIPT_DIR"
 										fi
 									fi
@@ -1692,7 +1692,7 @@ EOF
 
 		    exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
 	    else
-		    red_text "$LOG_PATH could not be found"
+		    red_text "$LOG_PATH could not be found\n"
 	    fi
 				fi
 			elif [[ "$wait_until_ended" -eq "1" ]]; then
@@ -1710,10 +1710,10 @@ EOF
 					if [[ -e "$LOG_PATH" ]]; then
 						cat "$LOG_PATH"
 					else
-						red_text "$LOG_PATH could not be found"
+						red_text "$LOG_PATH could not be found\n"
 					fi
 				else
-					red_text "squeue not found. Cannot wait for job to end."
+					red_text "squeue not found. Cannot wait for job to end.\n"
 				fi
 			fi
 		else

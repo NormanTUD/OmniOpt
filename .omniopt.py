@@ -5405,25 +5405,29 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
 
-            trial_index = ax_client.experiment.num_trials
+            if ax_client is not None and ax_client.experiment is not None:
+                trial_index = ax_client.experiment.num_trials
 
-            generator_run = global_gs.gen(
-                experiment=ax_client.experiment,
-                n=1,
-                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-            )
-            trial = ax_client.experiment.new_trial(generator_run)
-            params = generator_run.arms[0].parameters
+                generator_run = global_gs.gen(
+                    experiment=ax_client.experiment,
+                    n=1,
+                    pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+                )
+                trial = ax_client.experiment.new_trial(generator_run)
+                params = generator_run.arms[0].parameters
 
-            trial.mark_running(no_runner_required=True)
+                trial.mark_running(no_runner_required=True)
 
-            trials_dict[trial_index] = params
-            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
-            end_time = time.time()
+                trials_dict[trial_index] = params
+                print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
+                end_time = time.time()
 
-            gotten_jobs = gotten_jobs + 1
+                gotten_jobs = gotten_jobs + 1
 
-            trial_durations.append(float(end_time - start_time))
+                trial_durations.append(float(end_time - start_time))
+            else:
+                print_red("ax_client or ax_client.experiment is not defined")
+                my_exit(101)
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)

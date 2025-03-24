@@ -4338,7 +4338,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Uni
         return
 
     def validate_and_convert_params(experiment_parameters: Optional[Union[List[Any], dict[Any, Any]]], arm_params: dict) -> dict:
-        corrected_params = {}
+        corrected_params: Dict[Any, Any] = {}
 
         if experiment_parameters is not None:
             for param in experiment_parameters:

@@ -309,7 +309,7 @@ def check_first_line_max(run_dir):
 
     try:
         # Open the file and read the first line
-        with open(file_path, 'r') as file:
+        with open(file_path, mode='r', encoding="utf-8") as file:
             first_line = file.readline().strip()  # Removes leading and trailing whitespace
 
         # Check if the first line is "max"

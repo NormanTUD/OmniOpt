@@ -6295,7 +6295,10 @@ def get_csv_data(csv_path: str) -> Tuple[Sequence[str] | None, List[dict[str | A
     return all_columns, rows
 
 @beartype
-def extract_parameters_and_metrics(rows: List, all_columns: List, metrics: List) -> Tuple[List, dict, List]:
+def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[str]], metrics: List) -> Tuple[List, dict, List]:
+    if all_columns is None:
+        return [], {}, []
+
     param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
     metrics = [col for col in all_columns if col in arg_result_names]
 

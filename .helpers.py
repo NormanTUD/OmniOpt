@@ -304,11 +304,31 @@ def hide_empty_plots(parameter_combinations: list, num_rows: int, num_cols: int,
 
     return axs
 
+def check_first_line_max(run_dir):
+    file_path = f"{run_dir}/result_min_max.txt"
+
+    try:
+        # Open the file and read the first line
+        with open(file_path, 'r') as file:
+            first_line = file.readline().strip()  # Removes leading and trailing whitespace
+
+        # Check if the first line is "max"
+        return first_line.lower() == "max"
+
+    except FileNotFoundError:
+        print(f"Error: The file {file_path} was not found.")
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
+
 def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
     res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
 
+    maximize = check_first_line_max(_args.run_dir)
+
     extreme_index = None
-    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+    if maximize:
         extreme_index = result_column_values.idxmax()
     else:
         extreme_index = result_column_values.idxmin()
@@ -316,7 +336,7 @@ def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.Da
     extreme_values = df_filtered.loc[extreme_index].to_dict()
 
     title = "Minimum"
-    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+    if maximize:
         title = "Maximum"
 
     extreme_values_items = extreme_values.items()
@@ -682,7 +702,7 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any, csv_file_path: str) 
         print_color("yellow", "colors is None. Cannot plot.")
         sys.exit(3)
 
-    if os.path.exists(_args.run_dir + "/state_files/maximize"):
+    maximize = check_first_line_max(_args.run_dir)
         colors = -1 * colors  # Negate colors for maximum result
 
     norm = None

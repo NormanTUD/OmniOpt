@@ -4331,7 +4331,7 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         return None
 
 @beartype
-def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict[Any, Any]]]) -> None:
+def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
     if not os.path.exists(csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {csv_file_path}")
 

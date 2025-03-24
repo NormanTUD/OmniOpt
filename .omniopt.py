@@ -6300,7 +6300,7 @@ def extract_parameters_and_metrics(rows: List, all_columns: List, metrics: List)
     metrics = [col for col in all_columns if col in arg_result_names]
 
     param_dicts = []
-    means = {metric: [] for metric in metrics}
+    means: dict = {metric: [] for metric in metrics}
 
     for row in rows:
         param_dict = {param: row[param] for param in param_names}

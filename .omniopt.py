@@ -4331,34 +4331,35 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         return None
 
 @beartype
-def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: List) -> None:
+def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict[Any, Any]]]) -> None:
     if not os.path.exists(csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {csv_file_path}")
 
         return
 
-    def validate_and_convert_params(experiment_parameters: List, arm_params: dict) -> dict:
+    def validate_and_convert_params(experiment_parameters: Optional[Union[List[Any], dict[Any, Any]]], arm_params: dict) -> dict:
         corrected_params = {}
 
-        for param in experiment_parameters:
-            name = param["name"]
-            expected_type = param.get("value_type", "str")
+        if experiment_parameters is not None:
+            for param in experiment_parameters:
+                name = param["name"]
+                expected_type = param.get("value_type", "str")
 
-            if name not in arm_params:
-                continue
+                if name not in arm_params:
+                    continue
 
-            value = arm_params[name]
+                value = arm_params[name]
 
-            try:
-                if param["type"] == "range":
-                    if expected_type == "int":
-                        corrected_params[name] = int(value)
-                    elif expected_type == "float":
-                        corrected_params[name] = float(value)
-                elif param["type"] == "choice":
-                    corrected_params[name] = str(value)
-            except (ValueError, TypeError):
-                corrected_params[name] = None
+                try:
+                    if param["type"] == "range":
+                        if expected_type == "int":
+                            corrected_params[name] = int(value)
+                        elif expected_type == "float":
+                            corrected_params[name] = float(value)
+                    elif param["type"] == "choice":
+                        corrected_params[name] = str(value)
+                except (ValueError, TypeError):
+                    corrected_params[name] = None
 
         return corrected_params
 

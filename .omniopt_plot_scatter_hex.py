@@ -28,6 +28,8 @@ MINIMUM_TEXTBOX = None
 
 bins = None
 
+res_col_name = None
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -156,6 +158,9 @@ def plot_multiple_graphs(_params: list) -> None:
 def plot_single_graph(_params: list) -> None:
     if args is not None:
         axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
+
+        df_filtered = df_filtered.drop(res_col_name, axis=1)
+
         _data = df_filtered
 
         _data = _data[:].values
@@ -167,13 +172,13 @@ def plot_single_graph(_params: list) -> None:
             _x.append(_l[0])
             _y.append(_l[1])
 
-        global bins
         if bins:
             axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
         else:
             axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
+
         axs.set_xlabel(non_empty_graphs[0][0])
-        axs.set_ylabel("result")
+        axs.set_ylabel(non_empty_graphs[0][1])
 
 @beartype
 def plot_graphs(_params: list) -> None:
@@ -194,7 +199,7 @@ def plot_graphs(_params: list) -> None:
 
 @beartype
 def main() -> None:
-    global args, fig
+    global args, fig, res_col_name
 
     if args is not None:
         helpers.die_if_cannot_be_plotted(args.run_dir)
@@ -204,6 +209,8 @@ def main() -> None:
         csv_file_path = helpers.get_csv_file_path(args)
 
         df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max, None, True)
+
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
 
         old_headers_string = ','.join(sorted(df.columns))
 

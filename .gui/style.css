@@ -171,12 +171,6 @@ select {
 	width: 98%;
 }
 
-.remove_parameter {
-	background-color: #f1807e !important;
-	background: linear-gradient(rgba(219, 74, 68, 0.5), rgba(242, 79, 73, 0.5));
-	border: 1px solid #db4a44;
-}
-
 .half_width_td {
 	vertical-align: baseline;
 	width: 50%;

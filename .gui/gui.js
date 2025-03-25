@@ -806,7 +806,7 @@ function addRow(button) {
 	optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='removeRow(this)'>Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='removeRow(this)'>&#10060; Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 

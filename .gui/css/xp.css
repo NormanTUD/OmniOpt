@@ -37,7 +37,12 @@ code,code *{
 }
 
 pre{
-	display: block;padding: 12px 8px;background-color: #000;color: silver;font-size: 1rem;margin: 0;
+	display: block;
+	padding: 12px 8px;
+	background-color: #000;
+	color: silver;
+	font-size: 1rem;
+	margin: 0;
 	overflow: scroll;
 }
 
@@ -222,7 +227,11 @@ input[type=range].has-box-indicator: :-moz-range-thumb{
 }
 
 .title-bar{
-	font-size: 11px;background: #000;padding: 3px 2px 3px 3px;display: flex;justify-content: space-between;align-items: center
+	background: #000;
+	padding: 3px 2px 3px 3px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center
 }
 
 .title-bar-text{
@@ -254,7 +263,10 @@ input[type=range].has-box-indicator: :-moz-range-thumb{
 }
 
 ul.tree-view{
-	font-size: 11px;display: block;background: #fff;padding: 6px;margin: 0
+	display: block;
+	background: #fff;
+	padding: 6px;
+	margin: 0
 }
 
 ul.tree-view li{
@@ -482,7 +494,12 @@ menu[role=tablist].justified button{
 }
 
 button{
-	-webkit-font-smoothing: antialiased;font-size: 20px;box-sizing: border-box;border: 1px solid #003c74;background: linear-gradient(180deg,#fff,#ecebe5 86%,#d8d0c4);box-shadow: none;border-radius: 3px
+	-webkit-font-smoothing: antialiased;
+	box-sizing: border-box;
+	border: 1px solid #003c74;
+	background: linear-gradient(180deg,#fff,#ecebe5 86%,#d8d0c4);
+	box-shadow: none;
+	border-radius: 3px
 }
 
 button: not(: disabled).active,button: not(: disabled): active{

@@ -96,7 +96,7 @@ def update_graph() -> None:
         handle_error(f"{csv_path} seems to be invalid utf8.", 7)
     except KeyError:
         if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_path} seems to have no 'result' column.")
+            print(f"{csv_path} seems to have no '{helpers.get_result_name_or_default_from_csv_file_path(csv_file_path)}' column.")
     except Exception as exception:
         print(f"An unexpected error occurred: {exception}")
 

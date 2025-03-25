@@ -40,6 +40,8 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
+dier = helpers.dier
+
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 

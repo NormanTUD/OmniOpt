@@ -3445,17 +3445,28 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
         old_param = json.loads(old_param_json)
         new_param = json.loads(new_param_json)
 
-        differences = [f"{key} from {old_param[key]} to {new_param[key]}" for key in old_param if old_param[key] != new_param[key]]
+        differences = []
+        for key in old_param:
+            if key in new_param and old_param[key] != new_param[key]:
+                old_value, new_value = old_param[key], new_param[key]
+
+                if isinstance(old_value, dict) and isinstance(new_value, dict):
+                    if "name" in old_value and "name" in new_value and set(old_value.keys()) == {"__type", "name"}:
+                        differences.append(f"{key} from {old_value['name']} to {new_value['name']}")
+                    else:
+                        for subkey in old_value:
+                            if subkey in new_value and old_value[subkey] != new_value[subkey]:
+                                differences.append(f"{key}.{subkey} from {old_value[subkey]} to {new_value[subkey]}")
+                else:
+                    differences.append(f"{key} from {old_value} to {new_value}")
 
         if differences:
-            return f"Changed parameter '{old_param['name']}' " + ", ".join(differences)
+            return f"Changed parameter '{old_param.get('name', '?')}' " + ", ".join(differences)
 
         return "No differences found between the old and new parameters."
 
-    except AssertionError as e:
-        print(f"Assertion error: {e}")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        return f"Error: {e}"
 
     return ""
 

@@ -757,7 +757,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]:
     df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
 
-    if df:
+    if not df.empty:
         old_headers_string = ','.join(sorted(df.columns))
         return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
 
@@ -770,7 +770,7 @@ def _update_graph(_params: list) -> None:
         csv_file_path = get_csv_file_path(_args)
         _min, _max = set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
         df = load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path)
-        if df:
+        if not df.empty:
             df_filtered = get_df_filtered(_args, df)
 
             check_filtering(df, df_filtered, csv_file_path, _min, _max)

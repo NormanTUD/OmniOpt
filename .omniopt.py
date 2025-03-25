@@ -516,6 +516,7 @@ class ConfigLoader:
         installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
 
         debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
+        debug.add_argument('--verbose_break_run_search_table', help='Verbose logging for break_run_search', action='store_true', default=False)
         debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
         debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
         debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
@@ -5306,6 +5307,59 @@ def succeeded_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
 @beartype
+def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None:
+    table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
+
+    headers = ["Variable", "Value"]
+    table.add_column(headers[0])
+    table.add_column(headers[1])
+
+    rows = [
+        ("succeeded_jobs()", succeeded_jobs()),
+        ("submitted_jobs()", submitted_jobs()),
+        ("count_done_jobs()", count_done_jobs()),
+        ("_max_eval", _max_eval),
+        ("_progress_bar.total", _progress_bar.total),
+        ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
+        ("_ret", _ret)
+    ]
+
+    for row in rows:
+        table.add_row(str(row[0]), str(row[1]))
+
+    console.print(table)
+
+@beartype
+def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
+    _ret = False
+
+    _counted_done_jobs = count_done_jobs()
+    _submitted_jobs = submitted_jobs()
+    _failed_jobs = failed_jobs()
+
+    conditions = [
+        (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
+        (lambda: (_submitted_jobs - _failed_jobs) >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
+        (lambda: (_submitted_jobs - _failed_jobs) >= max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > max_eval {max_eval} + 1"),
+    ]
+
+    if _max_eval:
+        conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
+        conditions.append((lambda: (_submitted_jobs - _failed_jobs) >= _max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
+
+    for condition_func, debug_msg in conditions:
+        if condition_func():
+            print_debug(f"breaking {_name}: {debug_msg}")
+            _ret = True
+
+    if args.verbose_break_run_search_table:
+        show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
+
+    return _ret
+
+@beartype
 def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
@@ -5431,6 +5485,9 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
 @beartype
 def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
+
+    if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
+        return {}, True
 
     try:
         trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
@@ -5777,8 +5834,14 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
     while len(global_vars["jobs"]) > num_parallel_jobs:
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
+        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+            return True
+
         if is_slurm_job() and not args.force_local_execution:
             _sleep(5)
+
+    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+        return True
 
     if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval:
         return True
@@ -5797,6 +5860,8 @@ def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Option
     i = 1
     for trial_index, parameters in trial_index_to_param.items():
         if wait_for_jobs_or_break(_max_eval, _progress_bar):
+            break
+        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
             break
         progressbar_description(["starting parameter set"])
         _args = [trial_index, parameters, i, next_nr_steps, phase]
@@ -6030,6 +6095,9 @@ def run_search(_progress_bar: Any) -> bool:
         wait_for_jobs_to_complete()
         finish_previous_jobs([])
 
+        if should_break_search(_progress_bar):
+            break
+
         next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)
 
         nr_of_items = execute_next_steps(next_nr_steps, _progress_bar)
@@ -6050,6 +6118,10 @@ def run_search(_progress_bar: Any) -> bool:
     log_what_needs_to_be_logged()
 
     return False
+
+@beartype
+def should_break_search(_progress_bar: Any) -> bool:
+    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
 
 @beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:

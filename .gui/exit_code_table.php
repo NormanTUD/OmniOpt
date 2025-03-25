@@ -17,6 +17,7 @@
 			14 => "Error installing OmniOpt2 via install_omniax.sh",
 			15 => "Unimplemented error",
 			16 => "Wrongly called .py files: Probably you tried to call them directly instead of over the bash file",
+			17 => "Cancelled loading modules",
 			18 => "test_wronggoing_stuff program not found (only --tests)",
 			19 => "Something was wrong with your parameters. See output for details",
 			20 => "Something went wrong installing the required modules",

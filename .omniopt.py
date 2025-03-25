@@ -128,6 +128,9 @@ except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
+except KeyboardInterrupt:
+    print(f"You pressed CTRL-C while modules were loading.")
+    sys.exit(17)
 
 @beartype
 def fool_linter(*fool_linter_args: Any) -> Any:

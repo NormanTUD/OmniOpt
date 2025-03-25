@@ -129,7 +129,7 @@ except ModuleNotFoundError as e:
     print("Exit-Code: 2")
     sys.exit(2)
 except KeyboardInterrupt:
-    print(f"You pressed CTRL-C while modules were loading.")
+    print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
 @beartype

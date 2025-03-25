@@ -1108,6 +1108,22 @@ EOF
 			else
 				echo "Current git-hash: $git_hash (version: $current_tag)"
 			fi
+
+			latest_remote_tag=$(git tag --sort=-v:refname | head -n 1)
+
+			if [[ -z "$current_tag" ]]; then
+				true
+			elif [[ "$latest_remote_tag" != "$current_tag" ]]; then
+				echo "A newer version is available!"
+				echo "Current version: $current_tag"
+				echo "Latest version:  $latest_remote_tag"
+				echo
+				echo "To update, run:"
+				echo "  git checkout $latest_remote_tag"
+				echo "  git pull origin $latest_remote_tag"
+			else
+				echo "You are already on the latest tagged version ($current_tag)."
+			fi
 		else
 			if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
 				echo "Current git-hash: $git_hash"

@@ -161,6 +161,12 @@ def plot_single_graph(_params: list) -> None:
 
         df_filtered = df_filtered.drop(res_col_name, axis=1)
 
+        col_names = list(df_filtered.columns)
+
+        if len(col_names) <= 1:
+            print(f"Error: Cannot plot run folder with 1 or less column names. Has {len(col_names)}.")
+            sys.exit(17)
+
         _data = df_filtered
 
         _data = _data[:].values

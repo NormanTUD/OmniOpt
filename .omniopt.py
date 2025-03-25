@@ -284,7 +284,7 @@ def _get_debug_json(time_str: str, msg: str) -> str:
                         "line_number": frame_info.lineno
                     })
     except (SignalUSR, SignalINT, SignalCONT):
-        print_red(f"\n⚠ You pressed CTRL-C. This is ignored in finish_previous_jobs.")
+        print_red("\n⚠ You pressed CTRL-C. This is ignored in _get_debug_json.")
     return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
 
 @beartype

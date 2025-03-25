@@ -18,10 +18,13 @@ from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 
 import_metadata_not_found = False
+
 try:
     from importlib.metadata import version, PackageNotFoundError
 except ModuleNotFoundError:
     import_metadata_not_found = True
+
+all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
 
 def check_environment_variable(variable_name: str) -> bool:
     try:
@@ -503,7 +506,6 @@ def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame
 def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
     res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
 
-    all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
     columns_to_remove = []
     existing_columns = df.columns.values.tolist()
 
@@ -616,6 +618,18 @@ def get_result_name_or_default_from_csv_file_path(csv_file_path: str) -> str:
 
     return res_col_name
 
+def get_df_without_special_columns(df: pd.DataFrame) -> pd.DataFrame:
+    columns_to_remove = []
+    existing_columns = df.columns.values.tolist()
+
+    for col in existing_columns:
+        if col in all_columns_to_remove:
+            columns_to_remove.append(col)
+
+    df_filtered = df.drop(columns=columns_to_remove)
+
+    return df_filtered
+
 def get_data(
     NO_RESULT: Any,
     csv_file_path: str,
@@ -634,6 +648,7 @@ def get_data(
 
     try:
         df = load_csv(csv_file_path)
+        df = get_df_without_special_columns(df)
         if not headers_match(df, old_headers_string):
             print(f"Cannot merge {csv_file_path}. Old headers: {old_headers_string}, new headers: {','.join(sorted(df.columns))}")
             return None

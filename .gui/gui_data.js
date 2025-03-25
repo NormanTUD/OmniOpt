@@ -140,7 +140,7 @@ var tableData = [
 		id: "constraints",
 		type: "text",
 		value: "",
-		placeholder: "Constraints in the form of 'a + b >= 10', seperated by Semicolon (;)",
+		placeholder: "Constraints like 'a + b >= 10', seperated by Semicolon (;)",
 		info: "Use linear constraints in the form of <code>a*x + b*y - cz <= d</code>, where <code>a</code>, <code>b</code>, <code>c</code>, and <code>d</code> are float constants, and <code>x</code>, <code>y</code>, <code>z</code> are parameter names.There should be no space in each term around the operator <code></code> while there should be a single space around each operator <code>+</code>, <code>-</code>, <code><=</code>, and <code>>=</code>.",
 		help: "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
 	},

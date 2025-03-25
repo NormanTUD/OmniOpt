@@ -97,10 +97,6 @@ label{
 	display: inline-flex;align-items: center
 }
 
-input,label,textarea{
-	font-family: "Pixelated MS Sans Serif",Arial;font-size: 11px
-}
-
 textarea{
 	padding: 3px 4px;border: none;background-color: #fff;box-sizing: border-box;-webkit-appearance: none;-moz-appearance: none;appearance: none;border-radius: 0
 }
@@ -111,10 +107,6 @@ textarea: focus{
 
 select: focus option{
 	color: #000;background-color: #fff
-}
-
-option{
-	font-family: "Pixelated MS Sans Serif",Arial;font-size: 11px
 }
 
 .vertical-bar{
@@ -262,7 +254,7 @@ input[type=range].has-box-indicator: :-moz-range-thumb{
 }
 
 ul.tree-view{
-	font-family: "Pixelated MS Sans Serif",Arial;font-size: 11px;display: block;background: #fff;padding: 6px;margin: 0
+	font-size: 11px;display: block;background: #fff;padding: 6px;margin: 0
 }
 
 ul.tree-view li{

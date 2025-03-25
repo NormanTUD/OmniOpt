@@ -396,13 +396,6 @@ var hiddenTableData = [
 		help: "How to merge multiple results into one."
 	},
 	{
-		label: "Stderr to Stdout?",
-		id: "stderr_to_stdout",
-		type: "checkbox",
-		value: 0,
-		info: "Redirect stderr to stdout for subjobs."
-	},
-	{
 		label: "No sleep?",
 		id: "no_sleep",
 		type: "checkbox",

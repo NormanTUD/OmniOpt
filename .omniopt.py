@@ -413,7 +413,6 @@ class ConfigLoader:
     parameter: str
     experiment_constraints: Optional[List[str]]
     main_process_gb: int
-    stderr_to_stdout: bool
     worker_timeout: int
     slurm_signal_delay_s: int
     gridsearch: bool
@@ -463,7 +462,6 @@ class ConfigLoader:
         required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
 
         optional.add_argument('--experiment_constraints', action="append", nargs="+", help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-        optional.add_argument('--stderr_to_stdout', help='Redirect stderr to stdout for subjobs', action='store_true', default=False)
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
@@ -5997,7 +5995,7 @@ def _set_global_executor() -> None:
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,
             nodes=args.nodes_per_job,
-            stderr_to_stdout=args.stderr_to_stdout,
+            stderr_to_stdout=True,
             mem_gb=args.mem_gb,
             slurm_signal_delay_s=args.slurm_signal_delay_s,
             slurm_use_srun=args.slurm_use_srun,
@@ -6011,7 +6009,7 @@ executor.update_parameters(
     "slurm_gres"={f"gpu:{args.gpus}"},
     "cpus_per_task"={args.cpus_per_task},
     "nodes"={args.nodes_per_job},
-    "stderr_to_stdout"={args.stderr_to_stdout},
+    "stderr_to_stdout"=True,
     "mem_gb"={args.mem_gb},
     "slurm_signal_delay_s"={args.slurm_signal_delay_s},
     "slurm_use_srun"={args.slurm_use_srun},

@@ -56,7 +56,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
                 print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
 
-        plt.figure(figsize=(12, 8))
+        plt.figure("General Info", figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
         sns.boxplot(x='generation_method', y=res_col_name, data=dataframe)

@@ -939,7 +939,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td><td colspan='2'></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");

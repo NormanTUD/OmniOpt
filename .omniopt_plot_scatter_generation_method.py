@@ -50,6 +50,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
 
     pair_plot = sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
     pair_plot.fig.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
+    pair_plot.fig.canvas.manager.set_window_title("Scatter Generation Method")
 
     if save_to_file:
         helpers.save_to_file(pair_plot.fig, args, plt)

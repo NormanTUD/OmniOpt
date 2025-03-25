@@ -166,7 +166,7 @@
 							<tr class="header_table">
 								<td class='header_table'>
 									<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
-										<img class="img_auto_width" style="width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
+										<img class="img_auto_width" style="min-width: 100px; width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
 									</a>
 								</td>
 							</tr>

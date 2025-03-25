@@ -1116,7 +1116,7 @@ EOF
 			fi
 		fi
 
-		if [[ $latest_remote_tag != $current_tag ]]; then
+		if [[ "$latest_remote_tag" != "$current_tag" ]]; then
 			yellow_text "A newer version is available!"
 			yellow_text "Current version: $current_tag"
 			yellow_text "Latest version:  $latest_remote_tag"

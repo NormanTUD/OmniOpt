@@ -192,7 +192,7 @@ def plot_graphs(_params: list) -> None:
 
 @beartype
 def main() -> None:
-    global args
+    global args, fig
 
     if args is not None:
         helpers.die_if_cannot_be_plotted(args.run_dir)
@@ -218,7 +218,6 @@ def main() -> None:
 
         num_subplots, num_cols, num_rows = helpers.get_num_subplots_rows_and_cols(non_empty_graphs)
 
-        global fig
         fig, axs = plt.subplots(num_rows, num_cols, figsize=(15 * num_cols, 7 * num_rows))
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)

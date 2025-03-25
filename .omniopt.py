@@ -2100,7 +2100,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                 insensitive_matches = re.findall(_pattern, input_string, re.IGNORECASE)
 
                 if insensitive_matches:
-                    add_to_global_error_list(f"'{column_name}: <number>' not found in output, but it was found using case-insensitive search. Did you specify the --result_names properly? You must use the same case sensitivity (e.g. 'RESULT=min' does not detect 'print(\"result: ...\")')")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found in output, but it was found using case-insensitive search. Did you specify the --result_names properly? You must use the same caving (e.g. 'RESULT=min' vs. 'print(\"result: ...\")')")
                 else:
                     add_to_global_error_list(f"'{column_name}: <number>' not found in output")
 

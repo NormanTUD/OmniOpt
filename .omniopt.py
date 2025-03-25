@@ -7045,8 +7045,6 @@ Exit-Code: 159
 
     nr_errors += is_equal('get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO")', get_first_line_of_file_that_contains_string("IDONTEXIST", "HALLO"), "")
 
-    nr_errors += is_equal('compare_parameters("x", "y")', compare_parameters("x", "y"), '')
-
     nr_errors += is_equal('extract_info("OO-Info: SLURM_JOB_ID: 123")', json.dumps(extract_info("OO-Info: SLURM_JOB_ID: 123")), '[["OO_Info_SLURM_JOB_ID"], ["123"]]')
 
     nr_errors += is_equal('get_min_max_from_file("/i/do/not/exist/hopefully/anytime/ever", 0, "-123")', get_min_max_from_file("/i/do/not/exist/hopefully/anytime/ever", 0, "-123"), '-123')

@@ -67,7 +67,7 @@ def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
 @beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     """Generates and optionally saves/plots the graph."""
-    plt.figure(figsize=(12, 8))
+    plt.figure("Plot CPU and RAM Usage", figsize=(12, 8))
 
     dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], unit='s')
 

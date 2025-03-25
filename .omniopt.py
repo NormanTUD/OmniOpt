@@ -3448,7 +3448,7 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
         differences = [f"{key} from {old_param[key]} to {new_param[key]}" for key in old_param if old_param[key] != new_param[key]]
 
         if differences:
-            return f"Changed parameter {old_param['name']} " + ", ".join(differences)
+            return f"Changed parameter '{old_param['name']}' " + ", ".join(differences)
 
         return "No differences found between the old and new parameters."
 

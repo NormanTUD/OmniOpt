@@ -191,8 +191,8 @@ for projectname in "${test_projects[@]}"; do
 	run_dir="$projectdir/$projectname/$projectnumber"
 
 	if [[ ! -d "$run_dir" ]]; then
-		red_text "$run_dir could not be found"
-		errors+=("$run_dir could not be found")
+		red_text "$run_dir could not be found\n"
+		errors+=("$run_dir could not be found\n")
 	else
 		for possible_plot_type in "${expected_plot_types[@]}"; do
 			if grep add_argument .omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then

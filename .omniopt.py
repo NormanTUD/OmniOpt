@@ -4936,7 +4936,6 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
 
-
             save_checkpoint()
         else:
             if not isinstance(job, SlurmJob):

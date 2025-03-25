@@ -781,7 +781,7 @@ def _update_graph(_params: list) -> None:
             print("Failed to get df")
 
     except Exception as e:
-        _handle_exception(e)
+        _handle_update_graph_exception(e)
 
 def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
     nr_of_items_before_filtering = len(df)
@@ -801,7 +801,7 @@ def plot_parameters(_params: list) -> None:
     plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
-def _handle_exception(e: Union[str, Exception]) -> None:
+def _handle_update_graph_exception(e: Union[str, Exception]) -> None:
     if "invalid command name" not in str(e):
         print(f"Failed to update graph: {e}")
 

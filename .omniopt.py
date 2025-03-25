@@ -4906,38 +4906,41 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
 
         #print_debug(f"finish_previous_jobs: single job {job}")
 
-        if job.done() or type(job) in [LocalJob, DebugJob]:
-            try:
-                this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
-                if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
-                else:
-                    print_red(f"\n⚠ {error}")
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        if ax_client:
-                            _trial = ax_client.get_trial(trial_index)
-                            ax_client.log_trial_failure(trial_index=trial_index)
-                            mark_trial_as_failed(_trial)
-                        else:
-                            print_red("ax_client failed")
-                            my_exit(9)
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-                failed_jobs(1)
-                this_jobs_finished += 1
-                print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
-                global_vars["jobs"].remove((job, trial_index))
+        try:
+            if job.done() or type(job) in [LocalJob, DebugJob]:
+                try:
+                    this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
+                except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+                    if "None for metric" in str(error):
+                        print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
+                    else:
+                        print_red(f"\n⚠ {error}")
+                    if job:
+                        try:
+                            progressbar_description(["job_failed"])
+                            if ax_client:
+                                _trial = ax_client.get_trial(trial_index)
+                                ax_client.log_trial_failure(trial_index=trial_index)
+                                mark_trial_as_failed(_trial)
+                            else:
+                                print_red("ax_client failed")
+                                my_exit(9)
+                        except Exception as e:
+                            print(f"ERROR in line {get_line_info()}: {e}")
+                        job.cancel()
+                        orchestrate_job(job, trial_index)
+                    failed_jobs(1)
+                    this_jobs_finished += 1
+                    print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
+                    global_vars["jobs"].remove((job, trial_index))
 
-            save_checkpoint()
-        else:
-            if not isinstance(job, SlurmJob):
-                print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
+                save_checkpoint()
+            else:
+                if not isinstance(job, SlurmJob):
+                    print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
+        except (SignalUSR, SignalINT, SignalCONT):
+            print_red(f"\n⚠ You pressed CTRL-C. This is ignored in finish_previous_jobs.")
     save_pd_csv()
 
     if this_jobs_finished == 1:

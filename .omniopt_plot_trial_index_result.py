@@ -55,7 +55,7 @@ def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, s
                 print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
             sys.exit(169)
 
-        plt.figure(figsize=(12, 8))
+        plt.figure("Results over Trial index", figsize=(12, 8))
 
         # Lineplot der Ergebnisse über trial_index
         sns.lineplot(x='trial_index', y=res_col_name, data=dataframe)

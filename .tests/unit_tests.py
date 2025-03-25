@@ -53,7 +53,7 @@ to_test = {
         "_is_equal('test', 1, 1)": False,
         "_is_not_equal('test', 1, 1)": True,
         "print_if_not_plot_tests_and_exit('x', None)": 'x',
-        "_handle_exception('invalid command name')": None,
+        "_handle_update_graph_exception('invalid command name')": None,
         "print_traceback()": None,
         "flatten_extend([[1,2],[3,4]])": [1, 2, 3, 4]
     }

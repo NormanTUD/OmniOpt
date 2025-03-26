@@ -532,7 +532,7 @@
 	function add_results_distribution_by_generation_method ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotResultsDistributionByGenerationMethod"></div>';
 
-		$tabs['Results by Generation Method'] = [
+		$tabs['Result Distribution by Generation Method'] = [
 			'id' => 'tab_plot_results_distribution_by_generation_method',
 			'content' => $html,
 			"onclick" => "plotResultsDistributionByGenerationMethod();"

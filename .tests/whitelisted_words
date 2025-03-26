@@ -1673,10 +1673,12 @@ plotCanvas
 plotExitCodesPieChart
 plotHeatmap
 plotHistogram
+plotJobStatusDistribution
 Plotly
 plotpy
 plotResultEvolution
 plotResultPairs
+plotResultsDistributionByGenerationMethod
 plotViolin
 plusequals
 Pmatches

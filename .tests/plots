@@ -362,6 +362,8 @@ for _command in "${_commands[@]}"; do
 					fi
 					IFS=$saved_IFS
 				fi
+
+				rm "$this_img"
 			else
 				if [[ "$projectname" == "no_result" ]] || [[ "$projectname" == "defective_files" ]] || [[ "$projectname" == "empty_resultsfile" ]] ; then
 					green_reset_line "$PROGRESSBAR $i/${#_commands[@]} OK Plot-Tests $possible_plot_type/$this_img"

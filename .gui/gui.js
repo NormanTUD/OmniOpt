@@ -793,7 +793,7 @@ function updateOptions(select) {
 	apply_theme_based_on_system_preferences();
 }
 
-function addRow(button) {
+function add_parameter_row(button) {
 	var table = document.getElementById("config_table");
 	var rowIndex = button.parentNode.parentNode.rowIndex;
 	var numberOfParams = $(".parameterRow").length;
@@ -806,7 +806,7 @@ function addRow(button) {
 	optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='removeRow(this)'>&#10060; Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060; Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 
@@ -815,9 +815,11 @@ function addRow(button) {
 	//valueCell.firstChild.classList.add('valueInput');
 
 	update_command();
+
+	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
-function removeRow(button) {
+function remove_parameter_row(button) {
 	var table = document.getElementById("config_table");
 	var rowIndex = button.parentNode.parentNode.rowIndex;
 	var rowCount = table.rows.length;
@@ -825,6 +827,8 @@ function removeRow(button) {
 		table.deleteRow(rowIndex);
 		update_command();
 	}
+
+	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
 function string_or_array_to_list (input) {
@@ -939,7 +943,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='addRow(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");
@@ -1469,4 +1473,16 @@ function equation_validation_test () {
 	internal_equation_checker("hallo 𝙥𝙡𝙪𝙨 welt <= 10", false);
 
 	console.log(`Ran ${test_counter} tests (${failed} failed)`);
+}
+
+function toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one() {
+	var current_setting = $(".remove_parameter").css("visibility");
+
+	var nr_params = $(".parameterName").length;
+	
+	if(nr_params <= 1) {
+		$(".remove_parameter").css("visibility", "hidden")
+	} else {
+		$(".remove_parameter").css("visibility", "unset")
+	}
 }

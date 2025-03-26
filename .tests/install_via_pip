@@ -16,6 +16,10 @@ if [[ -e $activate_file ]]; then
 
 	pip install omniopt2
 
+	echo "===================================="
+	env
+	echo "===================================="
+
 	omniopt --help
 	exit_code=$?
 

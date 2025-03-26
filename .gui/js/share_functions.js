@@ -1668,22 +1668,40 @@ function plotResultsDistributionByGenerationMethod() {
 	$("#plotResultsDistributionByGenerationMethod").data("loaded", "true");
 }
 
+function plotJobStatusDistribution() {
+	if ("true" === $("#plotJobStatusDistribution").data("loaded")) {
+		return;
+	}
+
+	var status_col = "trial_status";
+	var status_counts = {};
+
+	tab_results_csv_json.forEach(row => {
+		var status = row[tab_results_headers_json.indexOf(status_col)];
+		status_counts[status] = (status_counts[status] || 0) + 1;
+	});
+
+	var trace = {
+		x: Object.keys(status_counts),
+		y: Object.values(status_counts),
+		type: 'bar'
+	};
+
+	var layout = {
+		title: 'Distribution of Job Status',
+		xaxis: { title: 'Trial Status' },
+		yaxis: { title: 'Nr. of jobs' }
+	};
+
+	Plotly.newPlot("plotJobStatusDistribution", [trace], add_default_layout_data(layout));
+	$("#plotJobStatusDistribution").data("loaded", "true");
+}
+
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
 $( document ).ready(function() {
 	add_up_down_arrows_for_scrolling();
 });
-
-
-
-
-
-
-
-
-
-
-
 
 function plotResultsByGenerationMethod() {
     if ("true" === $("#plotResultsByGenerationMethod").data("loaded")) {
@@ -1721,33 +1739,4 @@ function plotResultsByGenerationMethod() {
     
     Plotly.newPlot("plotResultsByGenerationMethod", traces, add_default_layout_data(layout));
     $("#plotResultsByGenerationMethod").data("loaded", "true");
-}
-
-function plotJobStatusDistribution() {
-    if ("true" === $("#plotJobStatusDistribution").data("loaded")) {
-        return;
-    }
-    
-    var status_col = "trial_status";
-    var status_counts = {};
-    
-    tab_job_infos_csv_json.forEach(row => {
-        var status = row[tab_job_infos_headers_json.indexOf(status_col)];
-        status_counts[status] = (status_counts[status] || 0) + 1;
-    });
-    
-    var trace = {
-        x: Object.keys(status_counts),
-        y: Object.values(status_counts),
-        type: 'bar'
-    };
-    
-    var layout = {
-        title: 'Distribution of Job Status',
-        xaxis: { title: 'Trial Status' },
-        yaxis: { title: 'Nr. of jobs' }
-    };
-    
-    Plotly.newPlot("plotJobStatusDistribution", [trace], add_default_layout_data(layout));
-    $("#plotJobStatusDistribution").data("loaded", "true");
 }

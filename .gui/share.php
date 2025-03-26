@@ -170,6 +170,8 @@
 				}
 			}
 
+			$tabs = add_job_status_distribution($tabs);
+
 			if($status_data["succeeded"] > 1) {
 				if($nr_numerical_cols >= 1) {
 					$tabs = add_box_plot_tab($tabs);

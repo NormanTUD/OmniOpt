@@ -72,7 +72,6 @@
 		exit(0);
 	}
 
-
 	function build_run_folder_path($user_id, $experiment_name, $run_nr) {
 		return "$user_id/$experiment_name/$run_nr/";
 	}
@@ -355,7 +354,6 @@
 			$html_table = asciiTableToHtml($contents);
 			$html = $html_table;
 
-
 			$tabs[$name] = [
 				'id' => $id,
 				'content' => $html
@@ -417,7 +415,6 @@
 
 		return $tabs;
 	}
-
 
 	function add_violin_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotViolin"></div>';
@@ -520,6 +517,18 @@
 		return $tabs;
 	}
 
+	function add_job_status_distribution($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotJobStatusDistribution"></div>';
+
+		$tabs['Job Status Distribution'] = [
+			'id' => 'tab_plot_job_status_distribution',
+			'content' => $html,
+			"onclick" => "plotJobStatusDistribution();"
+		];
+
+		return $tabs;
+	}
+
 	function add_results_distribution_by_generation_method ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotResultsDistributionByGenerationMethod"></div>';
 
@@ -531,7 +540,6 @@
 
 		return $tabs;
 	}
-
 
 	function add_box_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotBoxplot"></div>';
@@ -822,9 +830,6 @@
 		';
 	}
 
-
-
-
 	function is_valid_user_or_experiment_name ($name) {
 		if(preg_match("/^[a-zA-Z0-9_-]+$/", $name)) {
 			return true;
@@ -891,7 +896,6 @@
 					$checkmark = $gear;
 				}
 			}
-
 
 			$runtime_string = get_runtime_from_outfile(file_get_contents("$run_dir/$file"));
 
@@ -968,7 +972,6 @@
 		$log = preg_replace('/(WARNING:.*?)(?=\n|$)/', '<span style="color:orange;">$1</span>', $log);
 
 		$log = preg_replace('/(INFO.*?)(?=\n|$)/', '<span style="color:green;">$1</span>', $log);
-
 
 		$log = preg_replace_callback('/(DEBUG INFOS START.*?DEBUG INFOS END)/s', function($matches) {
 			$debugInfo = $matches[0];
@@ -1143,9 +1146,6 @@
 
 		return $issues;
 	}
-
-
-
 
 	function warn($message) {
 		echo "Warning: " . $message . "\n";
@@ -1578,7 +1578,6 @@
 
 		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
-
 
 			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
 

@@ -645,7 +645,11 @@ menu[role=tablist].justified button{
 }
 
 .status-bar-field{
-	font-family: "Pixelated MS Sans Serif",Arial;-webkit-font-smoothing: antialiased;box-shadow: none;padding: 1px 2px;border-right: 1px solid rgba(208,206,191,.75);border-left: 1px solid hsla(0,0%,100%,.75)
+	font-family: "Pixelated MS Sans Serif",Arial;-webkit-font-smoothing: antialiased;
+	box-shadow: none;
+	padding: 1px 2px;
+	border-right: 1px solid rgba(208,206,191,.75);
+	border-left: 1px solid hsla(0,0%,100%,.75)
 }
 
 .status-bar-field: first-of-type{
@@ -666,7 +670,8 @@ button{
 }
 
 button: not(: disabled).active,button: not(: disabled): active{
-	box-shadow: none;background: linear-gradient(180deg,#cdcac3,#e3e3db 8%,#e5e5de 94%,#f2f2f1)
+	box-shadow: none;
+	background: linear-gradient(180deg,#cdcac3,#e3e3db 8%,#e5e5de 94%,#f2f2f1)
 }
 
 button: not(: disabled): hover{
@@ -686,7 +691,12 @@ input,label,option,select,textarea{
 }
 
 input[type=radio]{
-	appearance: none;-webkit-appearance: none;-moz-appearance: none;margin: 0;background: 0;position: fixed;opacity: 0;border: none
+	appearance: none;-webkit-appearance: none;-moz-appearance: none;
+	margin: 0;
+	background: 0;
+	position: fixed;
+	opacity: 0;
+	border: none
 }
 
 input[type=radio]+label{
@@ -694,7 +704,9 @@ input[type=radio]+label{
 }
 
 input[type=radio]+label: before{
-	background: linear-gradient(135deg,#dcdcd7,#fff);border-radius: 50%;border: 1px solid #1d5281
+	background: linear-gradient(135deg,#dcdcd7,#fff);
+	border-radius: 50%;
+	border: 1px solid #1d5281
 }
 
 input[type=radio]: not([disabled]): not(: active)+label: hover: before{
@@ -714,7 +726,8 @@ input[type=radio]: focus+label{
 }
 
 input[type=radio][disabled]+label: before{
-	border: 1px solid #cac8bb;background: #fff
+	border: 1px solid #cac8bb;
+	background: #fff
 }
 
 input[type=radio][disabled]: checked+label: after{
@@ -722,23 +735,46 @@ input[type=radio][disabled]: checked+label: after{
 }
 
 input[type=email],input[type=password],textarea: :selection{
-	background: #2267cb;color: #fff
+	background: #2267cb;
+	color: #fff
 }
 
 input[type=range]: :-webkit-slider-thumb{
-	height: 21px;width: 11px;background: url("data: image/svg+xml;charset=utf-8,%3Csvg xmlns='http: //www.w3.org/2000/svg' viewBox='0 -0.5 11 21' shape-rendering='crispEdges'%3E%3Cpath stroke='%23becbd3' d='M1 0h1M0 1h1'/%3E%3Cpath stroke='%23b6c5cd' d='M2 0h1M0 2h1'/%3E%3Cpath stroke='%23b5c4cd' d='M3 0h5M0 3h1M0 4h1M0 5h1M0 6h1M0 7h1M0 8h1M0 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23afbfc8' d='M8 0h1M0 14h1'/%3E%3Cpath stroke='%239fb2be' d='M9 0h1M0 15h1'/%3E%3Cpath stroke='%23a6d1b1' d='M1 1h1'/%3E%3Cpath stroke='%236fd16e' d='M2 1h1M1 2h1'/%3E%3Cpath stroke='%2367ce65' d='M3 1h1M1 3h1'/%3E%3Cpath stroke='%2366ce64' d='M4 1h3'/%3E%3Cpath stroke='%2362cd61' d='M7 1h1'/%3E%3Cpath stroke='%2345c343' d='M8 1h1M7 2h1'/%3E%3Cpath stroke='%2363ac76' d='M9 1h1M2 16h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%23879aa6' d='M10 1h1'/%3E%3Cpath stroke='%2363cd62' d='M2 2h1'/%3E%3Cpath stroke='%2349c547' d='M3 2h1M2 3h1'/%3E%3Cpath stroke='%2347c446' d='M4 2h3'/%3E%3Cpath stroke='%2321b71f' d='M8 2h1'/%3E%3Cpath stroke='%231da41c' d='M9 2h1'/%3E%3Cpath stroke='%237d8e99' d='M10 2h1'/%3E%3Cpath stroke='%2325b923' d='M3 3h1'/%3E%3Cpath stroke='%2321b81f' d='M4 3h4M2 15h1'/%3E%3Cpath stroke='%231ea71c' d='M8 3h1'/%3E%3Cpath stroke='%231b9619' d='M9 3h1'/%3E%3Cpath stroke='%23778892' d='M10 3h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f7f7f4' d='M1 4h1M1 5h1M1 6h1M1 7h1M1 8h1M1 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f5f5f2' d='M2 4h1M2 5h1M2 6h1M2 7h1M2 8h1M2 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f3f3ef' d='M3 4h5M3 5h5M3 6h5M3 7h5M3 8h5M3 9h5m-5 1h5m-5 1h5m-5 1h5m-5 1h4m-4 1h3m-2 1h1'/%3E%3Cpath stroke='%23dcdcd9' d='M8 4h1M8 5h1M8 6h1M8 7h1M8 8h1M8 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23c3c3c0' d='M9 4h1M9 5h1M9 6h1M9 7h1M9 8h1M9 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f1f1ed' d='M7 13h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23dbdbd8' d='M8 13h1'/%3E%3Cpath stroke='%23c4c4c1' d='M9 13h1'/%3E%3Cpath stroke='%234bc549' d='M1 14h1'/%3E%3Cpath stroke='%23f4f4f1' d='M2 14h1'/%3E%3Cpath stroke='%23e6e6e2' d='M7 14h1m-2 1h1'/%3E%3Cpath stroke='%23cececa' d='M8 14h1'/%3E%3Cpath stroke='%231a9319' d='M9 14h1'/%3E%3Cpath stroke='%23788993' d='M10 14h1'/%3E%3Cpath stroke='%2369b17b' d='M1 15h1'/%3E%3Cpath stroke='%23f2f2ee' d='M3 15h1m0 1h1'/%3E%3Cpath stroke='%23d0d0cc' d='M7 15h1m-2 1h1'/%3E%3Cpath stroke='%231a9118' d='M8 15h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%234c845a' d='M9 15h1'/%3E%3Cpath stroke='%2372838d' d='M10 15h1'/%3E%3Cpath stroke='%2391a6b2' d='M1 16h1m0 1h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%2321b61f' d='M3 16h1m0 1h1'/%3E%3Cpath stroke='%23e7e7e3' d='M5 16h1'/%3E%3Cpath stroke='%234b8259' d='M8 16h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%236e7e88' d='M9 16h1m-2 1h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23d7d7d4' d='M5 17h1'/%3E%3Cpath stroke='%231da21b' d='M5 18h1'/%3E%3Cpath stroke='%23589868' d='M5 19h1'/%3E%3Cpath stroke='%2380929e' d='M5 20h1'/%3E%3C/svg%3E");transform: translateY(-8px)
+	height: 21px;
+	width: 11px;
+	background: url("data: image/svg+xml;charset=utf-8,%3Csvg xmlns='http: //www.w3.org/2000/svg' viewBox='0 -0.5 11 21' shape-rendering='crispEdges'%3E%3Cpath stroke='%23becbd3' d='M1 0h1M0 1h1'/%3E%3Cpath stroke='%23b6c5cd' d='M2 0h1M0 2h1'/%3E%3Cpath stroke='%23b5c4cd' d='M3 0h5M0 3h1M0 4h1M0 5h1M0 6h1M0 7h1M0 8h1M0 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23afbfc8' d='M8 0h1M0 14h1'/%3E%3Cpath stroke='%239fb2be' d='M9 0h1M0 15h1'/%3E%3Cpath stroke='%23a6d1b1' d='M1 1h1'/%3E%3Cpath stroke='%236fd16e' d='M2 1h1M1 2h1'/%3E%3Cpath stroke='%2367ce65' d='M3 1h1M1 3h1'/%3E%3Cpath stroke='%2366ce64' d='M4 1h3'/%3E%3Cpath stroke='%2362cd61' d='M7 1h1'/%3E%3Cpath stroke='%2345c343' d='M8 1h1M7 2h1'/%3E%3Cpath stroke='%2363ac76' d='M9 1h1M2 16h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%23879aa6' d='M10 1h1'/%3E%3Cpath stroke='%2363cd62' d='M2 2h1'/%3E%3Cpath stroke='%2349c547' d='M3 2h1M2 3h1'/%3E%3Cpath stroke='%2347c446' d='M4 2h3'/%3E%3Cpath stroke='%2321b71f' d='M8 2h1'/%3E%3Cpath stroke='%231da41c' d='M9 2h1'/%3E%3Cpath stroke='%237d8e99' d='M10 2h1'/%3E%3Cpath stroke='%2325b923' d='M3 3h1'/%3E%3Cpath stroke='%2321b81f' d='M4 3h4M2 15h1'/%3E%3Cpath stroke='%231ea71c' d='M8 3h1'/%3E%3Cpath stroke='%231b9619' d='M9 3h1'/%3E%3Cpath stroke='%23778892' d='M10 3h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f7f7f4' d='M1 4h1M1 5h1M1 6h1M1 7h1M1 8h1M1 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f5f5f2' d='M2 4h1M2 5h1M2 6h1M2 7h1M2 8h1M2 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f3f3ef' d='M3 4h5M3 5h5M3 6h5M3 7h5M3 8h5M3 9h5m-5 1h5m-5 1h5m-5 1h5m-5 1h4m-4 1h3m-2 1h1'/%3E%3Cpath stroke='%23dcdcd9' d='M8 4h1M8 5h1M8 6h1M8 7h1M8 8h1M8 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23c3c3c0' d='M9 4h1M9 5h1M9 6h1M9 7h1M9 8h1M9 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f1f1ed' d='M7 13h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23dbdbd8' d='M8 13h1'/%3E%3Cpath stroke='%23c4c4c1' d='M9 13h1'/%3E%3Cpath stroke='%234bc549' d='M1 14h1'/%3E%3Cpath stroke='%23f4f4f1' d='M2 14h1'/%3E%3Cpath stroke='%23e6e6e2' d='M7 14h1m-2 1h1'/%3E%3Cpath stroke='%23cececa' d='M8 14h1'/%3E%3Cpath stroke='%231a9319' d='M9 14h1'/%3E%3Cpath stroke='%23788993' d='M10 14h1'/%3E%3Cpath stroke='%2369b17b' d='M1 15h1'/%3E%3Cpath stroke='%23f2f2ee' d='M3 15h1m0 1h1'/%3E%3Cpath stroke='%23d0d0cc' d='M7 15h1m-2 1h1'/%3E%3Cpath stroke='%231a9118' d='M8 15h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%234c845a' d='M9 15h1'/%3E%3Cpath stroke='%2372838d' d='M10 15h1'/%3E%3Cpath stroke='%2391a6b2' d='M1 16h1m0 1h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%2321b61f' d='M3 16h1m0 1h1'/%3E%3Cpath stroke='%23e7e7e3' d='M5 16h1'/%3E%3Cpath stroke='%234b8259' d='M8 16h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%236e7e88' d='M9 16h1m-2 1h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23d7d7d4' d='M5 17h1'/%3E%3Cpath stroke='%231da21b' d='M5 18h1'/%3E%3Cpath stroke='%23589868' d='M5 19h1'/%3E%3Cpath stroke='%2380929e' d='M5 20h1'/%3E%3C/svg%3E");
+	transform: translateY(-8px)
 }
 
 input[type=range]: :-moz-range-thumb{
-	height: 21px;width: 11px;border: 0;border-radius: 0;background: url("data: image/svg+xml;charset=utf-8,%3Csvg xmlns='http: //www.w3.org/2000/svg' viewBox='0 -0.5 11 21' shape-rendering='crispEdges'%3E%3Cpath stroke='%23becbd3' d='M1 0h1M0 1h1'/%3E%3Cpath stroke='%23b6c5cd' d='M2 0h1M0 2h1'/%3E%3Cpath stroke='%23b5c4cd' d='M3 0h5M0 3h1M0 4h1M0 5h1M0 6h1M0 7h1M0 8h1M0 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23afbfc8' d='M8 0h1M0 14h1'/%3E%3Cpath stroke='%239fb2be' d='M9 0h1M0 15h1'/%3E%3Cpath stroke='%23a6d1b1' d='M1 1h1'/%3E%3Cpath stroke='%236fd16e' d='M2 1h1M1 2h1'/%3E%3Cpath stroke='%2367ce65' d='M3 1h1M1 3h1'/%3E%3Cpath stroke='%2366ce64' d='M4 1h3'/%3E%3Cpath stroke='%2362cd61' d='M7 1h1'/%3E%3Cpath stroke='%2345c343' d='M8 1h1M7 2h1'/%3E%3Cpath stroke='%2363ac76' d='M9 1h1M2 16h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%23879aa6' d='M10 1h1'/%3E%3Cpath stroke='%2363cd62' d='M2 2h1'/%3E%3Cpath stroke='%2349c547' d='M3 2h1M2 3h1'/%3E%3Cpath stroke='%2347c446' d='M4 2h3'/%3E%3Cpath stroke='%2321b71f' d='M8 2h1'/%3E%3Cpath stroke='%231da41c' d='M9 2h1'/%3E%3Cpath stroke='%237d8e99' d='M10 2h1'/%3E%3Cpath stroke='%2325b923' d='M3 3h1'/%3E%3Cpath stroke='%2321b81f' d='M4 3h4M2 15h1'/%3E%3Cpath stroke='%231ea71c' d='M8 3h1'/%3E%3Cpath stroke='%231b9619' d='M9 3h1'/%3E%3Cpath stroke='%23778892' d='M10 3h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f7f7f4' d='M1 4h1M1 5h1M1 6h1M1 7h1M1 8h1M1 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f5f5f2' d='M2 4h1M2 5h1M2 6h1M2 7h1M2 8h1M2 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f3f3ef' d='M3 4h5M3 5h5M3 6h5M3 7h5M3 8h5M3 9h5m-5 1h5m-5 1h5m-5 1h5m-5 1h4m-4 1h3m-2 1h1'/%3E%3Cpath stroke='%23dcdcd9' d='M8 4h1M8 5h1M8 6h1M8 7h1M8 8h1M8 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23c3c3c0' d='M9 4h1M9 5h1M9 6h1M9 7h1M9 8h1M9 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f1f1ed' d='M7 13h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23dbdbd8' d='M8 13h1'/%3E%3Cpath stroke='%23c4c4c1' d='M9 13h1'/%3E%3Cpath stroke='%234bc549' d='M1 14h1'/%3E%3Cpath stroke='%23f4f4f1' d='M2 14h1'/%3E%3Cpath stroke='%23e6e6e2' d='M7 14h1m-2 1h1'/%3E%3Cpath stroke='%23cececa' d='M8 14h1'/%3E%3Cpath stroke='%231a9319' d='M9 14h1'/%3E%3Cpath stroke='%23788993' d='M10 14h1'/%3E%3Cpath stroke='%2369b17b' d='M1 15h1'/%3E%3Cpath stroke='%23f2f2ee' d='M3 15h1m0 1h1'/%3E%3Cpath stroke='%23d0d0cc' d='M7 15h1m-2 1h1'/%3E%3Cpath stroke='%231a9118' d='M8 15h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%234c845a' d='M9 15h1'/%3E%3Cpath stroke='%2372838d' d='M10 15h1'/%3E%3Cpath stroke='%2391a6b2' d='M1 16h1m0 1h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%2321b61f' d='M3 16h1m0 1h1'/%3E%3Cpath stroke='%23e7e7e3' d='M5 16h1'/%3E%3Cpath stroke='%234b8259' d='M8 16h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%236e7e88' d='M9 16h1m-2 1h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23d7d7d4' d='M5 17h1'/%3E%3Cpath stroke='%231da21b' d='M5 18h1'/%3E%3Cpath stroke='%23589868' d='M5 19h1'/%3E%3Cpath stroke='%2380929e' d='M5 20h1'/%3E%3C/svg%3E");transform: translateY(2px)
+	height: 21px;
+	width: 11px;
+	border: 0;
+	border-radius: 0;
+	background: url("data: image/svg+xml;charset=utf-8,%3Csvg xmlns='http: //www.w3.org/2000/svg' viewBox='0 -0.5 11 21' shape-rendering='crispEdges'%3E%3Cpath stroke='%23becbd3' d='M1 0h1M0 1h1'/%3E%3Cpath stroke='%23b6c5cd' d='M2 0h1M0 2h1'/%3E%3Cpath stroke='%23b5c4cd' d='M3 0h5M0 3h1M0 4h1M0 5h1M0 6h1M0 7h1M0 8h1M0 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23afbfc8' d='M8 0h1M0 14h1'/%3E%3Cpath stroke='%239fb2be' d='M9 0h1M0 15h1'/%3E%3Cpath stroke='%23a6d1b1' d='M1 1h1'/%3E%3Cpath stroke='%236fd16e' d='M2 1h1M1 2h1'/%3E%3Cpath stroke='%2367ce65' d='M3 1h1M1 3h1'/%3E%3Cpath stroke='%2366ce64' d='M4 1h3'/%3E%3Cpath stroke='%2362cd61' d='M7 1h1'/%3E%3Cpath stroke='%2345c343' d='M8 1h1M7 2h1'/%3E%3Cpath stroke='%2363ac76' d='M9 1h1M2 16h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%23879aa6' d='M10 1h1'/%3E%3Cpath stroke='%2363cd62' d='M2 2h1'/%3E%3Cpath stroke='%2349c547' d='M3 2h1M2 3h1'/%3E%3Cpath stroke='%2347c446' d='M4 2h3'/%3E%3Cpath stroke='%2321b71f' d='M8 2h1'/%3E%3Cpath stroke='%231da41c' d='M9 2h1'/%3E%3Cpath stroke='%237d8e99' d='M10 2h1'/%3E%3Cpath stroke='%2325b923' d='M3 3h1'/%3E%3Cpath stroke='%2321b81f' d='M4 3h4M2 15h1'/%3E%3Cpath stroke='%231ea71c' d='M8 3h1'/%3E%3Cpath stroke='%231b9619' d='M9 3h1'/%3E%3Cpath stroke='%23778892' d='M10 3h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f7f7f4' d='M1 4h1M1 5h1M1 6h1M1 7h1M1 8h1M1 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f5f5f2' d='M2 4h1M2 5h1M2 6h1M2 7h1M2 8h1M2 9h1m-1 1h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f3f3ef' d='M3 4h5M3 5h5M3 6h5M3 7h5M3 8h5M3 9h5m-5 1h5m-5 1h5m-5 1h5m-5 1h4m-4 1h3m-2 1h1'/%3E%3Cpath stroke='%23dcdcd9' d='M8 4h1M8 5h1M8 6h1M8 7h1M8 8h1M8 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23c3c3c0' d='M9 4h1M9 5h1M9 6h1M9 7h1M9 8h1M9 9h1m-1 1h1m-1 1h1m-1 1h1'/%3E%3Cpath stroke='%23f1f1ed' d='M7 13h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23dbdbd8' d='M8 13h1'/%3E%3Cpath stroke='%23c4c4c1' d='M9 13h1'/%3E%3Cpath stroke='%234bc549' d='M1 14h1'/%3E%3Cpath stroke='%23f4f4f1' d='M2 14h1'/%3E%3Cpath stroke='%23e6e6e2' d='M7 14h1m-2 1h1'/%3E%3Cpath stroke='%23cececa' d='M8 14h1'/%3E%3Cpath stroke='%231a9319' d='M9 14h1'/%3E%3Cpath stroke='%23788993' d='M10 14h1'/%3E%3Cpath stroke='%2369b17b' d='M1 15h1'/%3E%3Cpath stroke='%23f2f2ee' d='M3 15h1m0 1h1'/%3E%3Cpath stroke='%23d0d0cc' d='M7 15h1m-2 1h1'/%3E%3Cpath stroke='%231a9118' d='M8 15h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%234c845a' d='M9 15h1'/%3E%3Cpath stroke='%2372838d' d='M10 15h1'/%3E%3Cpath stroke='%2391a6b2' d='M1 16h1m0 1h1m0 1h1m0 1h1'/%3E%3Cpath stroke='%2321b61f' d='M3 16h1m0 1h1'/%3E%3Cpath stroke='%23e7e7e3' d='M5 16h1'/%3E%3Cpath stroke='%234b8259' d='M8 16h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%236e7e88' d='M9 16h1m-2 1h1m-2 1h1m-2 1h1'/%3E%3Cpath stroke='%23d7d7d4' d='M5 17h1'/%3E%3Cpath stroke='%231da21b' d='M5 18h1'/%3E%3Cpath stroke='%23589868' d='M5 19h1'/%3E%3Cpath stroke='%2380929e' d='M5 20h1'/%3E%3C/svg%3E");
+	transform: translateY(2px)
 }
 
 input[type=range]: :-webkit-slider-runnable-track{
-	width: 100%;height: 2px;box-sizing: border-box;background: #ecebe4;border-right: 1px solid #f3f2ea;border-bottom: 1px solid #f3f2ea;border-radius: 2px;box-shadow: 1px 0 0 #fff,1px 1px 0 #fff,0 1px 0 #fff,-1px 0 0 #9d9c99,-1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,-1px 1px 0 #fff,1px -1px #9d9c99
+	width: 100%;
+	height: 2px;
+	box-sizing: border-box;
+	background: #ecebe4;
+	border-right: 1px solid #f3f2ea;
+	border-bottom: 1px solid #f3f2ea;
+	border-radius: 2px;
+	box-shadow: 1px 0 0 #fff,1px 1px 0 #fff,0 1px 0 #fff,-1px 0 0 #9d9c99,-1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,-1px 1px 0 #fff,1px -1px #9d9c99
 }
 
 input[type=range]: :-moz-range-track{
-	width: 100%;height: 2px;box-sizing: border-box;background: #ecebe4;border-right: 1px solid #f3f2ea;border-bottom: 1px solid #f3f2ea;border-radius: 2px;box-shadow: 1px 0 0 #fff,1px 1px 0 #fff,0 1px 0 #fff,-1px 0 0 #9d9c99,-1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,-1px 1px 0 #fff,1px -1px #9d9c99
+	width: 100%;
+	height: 2px;
+	box-sizing: border-box;
+	background: #ecebe4;
+	border-right: 1px solid #f3f2ea;
+	border-bottom: 1px solid #f3f2ea;
+	border-radius: 2px;
+	box-shadow: 1px 0 0 #fff,1px 1px 0 #fff,0 1px 0 #fff,-1px 0 0 #9d9c99,-1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,-1px 1px 0 #fff,1px -1px #9d9c99
 }
 
 input[type=range].has-box-indicator: :-webkit-slider-thumb{
@@ -750,23 +786,35 @@ input[type=range].has-box-indicator: :-moz-range-thumb{
 }
 
 .is-vertical>input[type=range]: :-webkit-slider-runnable-track{
-	border-left: 1px solid #f3f2ea;border-right: 0;border-bottom: 1px solid #f3f2ea;box-shadow: -1px 0 0 #fff,-1px 1px 0 #fff,0 1px 0 #fff,1px 0 0 #9d9c99,1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,1px 1px 0 #fff,-1px -1px #9d9c99
+	border-left: 1px solid #f3f2ea;
+	border-right: 0;
+	border-bottom: 1px solid #f3f2ea;
+	box-shadow: -1px 0 0 #fff,-1px 1px 0 #fff,0 1px 0 #fff,1px 0 0 #9d9c99,1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,1px 1px 0 #fff,-1px -1px #9d9c99
 }
 
 .is-vertical>input[type=range]: :-moz-range-track{
-	border-left: 1px solid #f3f2ea;border-right: 0;border-bottom: 1px solid #f3f2ea;box-shadow: -1px 0 0 #fff,-1px 1px 0 #fff,0 1px 0 #fff,1px 0 0 #9d9c99,1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,1px 1px 0 #fff,-1px -1px #9d9c99
+	border-left: 1px solid #f3f2ea;
+	border-right: 0;
+	border-bottom: 1px solid #f3f2ea;
+	box-shadow: -1px 0 0 #fff,-1px 1px 0 #fff,0 1px 0 #fff,1px 0 0 #9d9c99,1px -1px 0 #9d9c99,0 -1px 0 #9d9c99,1px 1px 0 #fff,-1px -1px #9d9c99
 }
 
 fieldset{
-	box-shadow: none;background: #fff;border: 1px solid #d0d0bf;border-radius: 4px;padding-top: 10px
+	box-shadow: none;
+	background: #fff;
+	border: 1px solid #d0d0bf;
+	border-radius: 4px;
+	padding-top: 10px
 }
 
 legend{
-	background: transparent;color: #0046d5
+	background: transparent;
+	color: #0046d5
 }
 
 .field-row{
-	display: flex;align-items: center
+	display: flex;
+	align-items: center
 }
 
 .field-row>*+*{
@@ -778,7 +826,8 @@ legend{
 }
 
 .field-row-stacked{
-	display: flex;flex-direction: column
+	display: flex;
+	flex-direction: column
 }
 
 .field-row-stacked *+*{
@@ -786,19 +835,40 @@ legend{
 }
 
 menu[role=tablist] button{
-	background: linear-gradient(180deg,#fff,#fafaf9 26%,#f0f0ea 95%,#ecebe5);margin-left: -1px;margin-right: 2px;border-radius: 0;border-color: #91a7b4;border-top-right-radius: 3px;border-top-left-radius: 3px;padding: 0 12px 3px
+	background: linear-gradient(180deg,#fff,#fafaf9 26%,#f0f0ea 95%,#ecebe5);
+	margin-left: -1px;
+	margin-right: 2px;
+	border-radius: 0;
+	border-color: #91a7b4;
+	border-top-right-radius: 3px;
+	border-top-left-radius: 3px;
+	padding: 0 12px 3px
 }
 
 menu[role=tablist] button: hover{
-	box-shadow: unset;border-top: 1px solid #e68b2c;box-shadow: inset 0 2px #ffc73c
+	box-shadow: unset;
+	border-top: 1px solid #e68b2c;
+	box-shadow: inset 0 2px #ffc73c
 }
 
 menu[role=tablist] button[aria-selected=true]{
-	border-color: #919b9c;margin-right: -1px;border-bottom: 1px solid transparent;border-top: 1px solid #e68b2c;box-shadow: inset 0 2px #ffc73c
+	border-color: #919b9c;
+	margin-right: -1px;
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid #e68b2c;
+	box-shadow: inset 0 2px #ffc73c
 }
 
 menu[role=tablist] button[aria-selected=true]: first-of-type: before{
-	content: "";display: block;position: absolute;z-index: -1;top: 100%;left: -1px;height: 2px;width: 0;border-left: 1px solid #919b9c
+	content: "";
+	display: block;
+	position: absolute;
+	z-index: -1;
+	top: 100%;
+	left: -1px;
+	height: 2px;
+	width: 0;
+	border-left: 1px solid #919b9c
 }
 
 [role=tabpanel]{
@@ -806,7 +876,9 @@ menu[role=tablist] button[aria-selected=true]: first-of-type: before{
 }
 
 ul.tree-view{
-	-webkit-font-smoothing: auto;border: 1px solid #7f9db9;padding: 2px 5px
+	-webkit-font-smoothing: auto;
+	border: 1px solid #7f9db9;
+	padding: 2px 5px
 }
 
 @keyframes sliding{
@@ -820,7 +892,16 @@ ul.tree-view{
 }
 
 progress{
-	box-sizing: border-box;appearance: none;-webkit-appearance: none;-moz-appearance: none;height: 14px;border: 1px solid #686868;border-radius: 4px;padding: 1px 2px 1px 0;overflow: hidden;background-color: #fff;-webkit-box-shadow: inset 0 0 1px 0 #686868;-moz-box-shadow: inset 0 0 1px 0 #686868
+	box-sizing: border-box;
+	appearance: none;-webkit-appearance: none;-moz-appearance: none;
+	height: 14px;
+	border: 1px solid #686868;
+	border-radius: 4px;
+	padding: 1px 2px 1px 0;
+	overflow: hidden;
+	background-color: #fff;
+	-webkit-box-shadow: inset 0 0 1px 0 #686868;
+	-moz-box-shadow: inset 0 0 1px 0 #686868
 }
 
 progress,progress: not([value]){
@@ -828,7 +909,9 @@ progress,progress: not([value]){
 }
 
 progress: not([value]){
-	-moz-box-shadow: inset 0 0 1px 0 #686868;-webkit-box-shadow: inset 0 0 1px 0 #686868;height: 14px
+	-moz-box-shadow: inset 0 0 1px 0 #686868;
+	-webkit-box-shadow: inset 0 0 1px 0 #686868;
+	height: 14px
 }
 
 progress[value]: :-webkit-progress-bar{
@@ -836,19 +919,24 @@ progress[value]: :-webkit-progress-bar{
 }
 
 progress[value]: :-webkit-progress-value{
-	border-radius: 2px;background: repeating-linear-gradient(90deg,#fff 0,#fff 2px,transparent 0,transparent 10px),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
+	border-radius: 2px;
+	background: repeating-linear-gradient(90deg,#fff 0,#fff 2px,transparent 0,transparent 10px),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }
 
 progress[value]: :-moz-progress-bar{
-	border-radius: 2px;background: repeating-linear-gradient(90deg,#fff 0,#fff 2px,transparent 0,transparent 10px),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
+	border-radius: 2px;
+	background: repeating-linear-gradient(90deg,#fff 0,#fff 2px,transparent 0,transparent 10px),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }
 
 progress: not([value]): :-webkit-progress-bar{
-	width: 100%;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff);animation: sliding 2s linear 0s infinite
+	width: 100%;
+	background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff);
+	animation: sliding 2s linear 0s infinite
 }
 
 progress: not([value]): :-webkit-progress-bar: not([value]){
-	animation: sliding 2s linear 0s infinite;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
+	animation: sliding 2s linear 0s infinite;
+	background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }
 
 progress: not([value]){
@@ -856,7 +944,16 @@ progress: not([value]){
 }
 
 progress: not([value]): before{
-	box-sizing: border-box;content: "";position: absolute;top: 0;left: 0;width: 100%;height: 100%;background-color: #fff;-webkit-box-shadow: inset 0 0 1px 0 #686868;-moz-box-shadow: inset 0 0 1px 0 #686868
+	box-sizing: border-box;
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	-webkit-box-shadow: inset 0 0 1px 0 #686868;
+	-moz-box-shadow: inset 0 0 1px 0 #686868
 }
 
 progress: not([value]): before,progress: not([value]): before: not([value]){
@@ -864,11 +961,21 @@ progress: not([value]): before,progress: not([value]): before: not([value]){
 }
 
 progress: not([value]): before: not([value]){
-	-moz-box-shadow: inset 0 0 1px 0 #686868;-webkit-box-shadow: inset 0 0 1px 0 #686868
+	-moz-box-shadow: inset 0 0 1px 0 #686868;
+	-webkit-box-shadow: inset 0 0 1px 0 #686868
 }
 
 progress: not([value]): after{
-	box-sizing: border-box;content: "";position: absolute;top: 1px;left: 2px;width: 100%;height: calc(100% - 2px);padding: 1px 2px;border-radius: 2px;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
+	box-sizing: border-box;
+	content: "";
+	position: absolute;
+	top: 1px;
+	left: 2px;
+	width: 100%;
+	height: calc(100% - 2px);
+	padding: 1px 2px;
+	border-radius: 2px;
+	background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }
 
 progress: not([value]): after,progress: not([value]): after: not([value]){
@@ -880,9 +987,12 @@ progress: not([value]): after: not([value]){
 }
 
 progress: not([value]): :-moz-progress-bar{
-	width: 100%;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff);animation: sliding 2s linear 0s infinite
+	width: 100%;
+	background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff);
+	animation: sliding 2s linear 0s infinite
 }
 
 progress: not([value]): :-moz-progress-bar: not([value]){
-	animation: sliding 2s linear 0s infinite;background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
+	animation: sliding 2s linear 0s infinite;
+	background: repeating-linear-gradient(90deg,transparent 0,transparent 8px,#fff 0,#fff 10px,transparent 0,transparent 18px,#fff 0,#fff 20px,transparent 0,transparent 28px,#fff 0,#fff),linear-gradient(180deg,#acedad 0,#7be47d 14%,#4cda50 28%,#2ed330 42%,#42d845 57%,#76e275 71%,#8fe791 85%,#fff)
 }

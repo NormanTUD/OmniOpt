@@ -81,7 +81,6 @@
 		done
 
 		if [[ ${#exact_matches[@]} -eq 1 ]]; then
-			echo "Found exact substring match: ${exact_matches[0]}" >&2
 			echo "${exact_matches[0]}"
 			return
 		fi

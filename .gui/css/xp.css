@@ -6,7 +6,6 @@
 }
 
 @font-face{
-	font-family: "Pixelated MS Sans Serif";
 	font-weight: 700;
 	font-style: normal;
 }
@@ -123,7 +122,8 @@ textarea{
 	border: none;
 	background-color: #fff;
 	box-sizing: border-box;
-	-webkit-appearance: none;-moz-appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
 	appearance: none;
 	border-radius: 0
 }
@@ -195,7 +195,8 @@ input[type=email],input[type=password]{
 	border: 1px solid #7f9db9;
 	background-color: #fff;
 	box-sizing: border-box;
-	-webkit-appearance: none;-moz-appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
 	appearance: none;
 	border-radius: 0;
 	height: 21px;
@@ -645,7 +646,7 @@ menu[role=tablist].justified button{
 }
 
 .status-bar-field{
-	font-family: "Pixelated MS Sans Serif",Arial;-webkit-font-smoothing: antialiased;
+	-webkit-font-smoothing: antialiased;
 	box-shadow: none;
 	padding: 1px 2px;
 	border-right: 1px solid rgba(208,206,191,.75);
@@ -691,7 +692,9 @@ input,label,option,select,textarea{
 }
 
 input[type=radio]{
-	appearance: none;-webkit-appearance: none;-moz-appearance: none;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
 	margin: 0;
 	background: 0;
 	position: fixed;
@@ -893,7 +896,9 @@ ul.tree-view{
 
 progress{
 	box-sizing: border-box;
-	appearance: none;-webkit-appearance: none;-moz-appearance: none;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
 	height: 14px;
 	border: 1px solid #686868;
 	border-radius: 4px;

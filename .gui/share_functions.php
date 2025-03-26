@@ -520,6 +520,19 @@
 		return $tabs;
 	}
 
+	function add_results_distribution_by_generation_method ($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotResultsDistributionByGenerationMethod"></div>';
+
+		$tabs['Results by Generation Method'] = [
+			'id' => 'tab_plot_results_distribution_by_generation_method',
+			'content' => $html,
+			"onclick" => "plotResultsDistributionByGenerationMethod();"
+		];
+
+		return $tabs;
+	}
+
+
 	function add_box_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotBoxplot"></div>';
 

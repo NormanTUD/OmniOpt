@@ -164,6 +164,10 @@
 				} else {
 					$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 3d scatter plot: " . count($non_special_columns_without_result_columns);
 				}
+
+				if (count($result_names) == 1) {
+					$tabs = add_results_distribution_by_generation_method($tabs);
+				}
 			}
 
 			if($status_data["succeeded"] > 1) {

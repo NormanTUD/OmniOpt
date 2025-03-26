@@ -1622,8 +1622,132 @@ function plotGPUUsage() {
 	$("#tab_gpu_usage").data("loaded", "true");
 }
 
+function plotResultsDistributionByGenerationMethod() {
+	if ("true" === $("#plotResultsDistributionByGenerationMethod").data("loaded")) {
+		return;
+	}
+
+	var res_col = result_names[0];
+	var gen_method_col = "generation_method";
+
+	var data = {};
+
+	tab_results_csv_json.forEach(row => {
+		var gen_method = row[tab_results_headers_json.indexOf(gen_method_col)];
+		var result = row[tab_results_headers_json.indexOf(res_col)];
+
+		if (!data[gen_method]) {
+			data[gen_method] = [];
+		}
+		data[gen_method].push(result);
+	});
+
+	var traces = Object.keys(data).map(method => {
+		return {
+			y: data[method],
+			type: 'box',
+			name: method,
+			boxpoints: 'outliers',  // Zeigt nur Ausreißer außerhalb der Whiskers
+			jitter: 0.5,  // Erhöht die Streuung der Punkte für bessere Sichtbarkeit
+			pointpos: 0   // Position der Punkte innerhalb der Box
+		};
+	});
+
+	var layout = {
+		title: 'Distribution of Results by Generation Method',
+		yaxis: {
+			title: get_axis_title_data(res_col)
+		},
+		xaxis: {
+			title: "Generation Method"
+		},
+		boxmode: 'group'  // Gruppiert die Boxplots nach Generation Method
+	};
+
+	Plotly.newPlot("plotResultsDistributionByGenerationMethod", traces, add_default_layout_data(layout));
+	$("#plotResultsDistributionByGenerationMethod").data("loaded", "true");
+}
+
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
 $( document ).ready(function() {
 	add_up_down_arrows_for_scrolling();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+function plotResultsByGenerationMethod() {
+    if ("true" === $("#plotResultsByGenerationMethod").data("loaded")) {
+        return;
+    }
+    
+    var res_col = result_names[0];
+    var gen_method_col = "OO_Info_choice_param";
+    
+    var data = {};
+    
+    tab_job_infos_csv_json.forEach(row => {
+        var gen_method = row[tab_job_infos_headers_json.indexOf(gen_method_col)];
+        var result = row[tab_job_infos_headers_json.indexOf(res_col)];
+        
+        if (!data[gen_method]) {
+            data[gen_method] = [];
+        }
+        data[gen_method].push(result);
+    });
+    
+    var traces = Object.keys(data).map(method => {
+        return {
+            y: data[method],
+            type: 'box',
+            name: method
+        };
+    });
+    
+    var layout = {
+        title: 'Results by Generation Method',
+        yaxis: { title: res_col },
+        boxmode: 'group'
+    };
+    
+    Plotly.newPlot("plotResultsByGenerationMethod", traces, add_default_layout_data(layout));
+    $("#plotResultsByGenerationMethod").data("loaded", "true");
+}
+
+function plotJobStatusDistribution() {
+    if ("true" === $("#plotJobStatusDistribution").data("loaded")) {
+        return;
+    }
+    
+    var status_col = "trial_status";
+    var status_counts = {};
+    
+    tab_job_infos_csv_json.forEach(row => {
+        var status = row[tab_job_infos_headers_json.indexOf(status_col)];
+        status_counts[status] = (status_counts[status] || 0) + 1;
+    });
+    
+    var trace = {
+        x: Object.keys(status_counts),
+        y: Object.values(status_counts),
+        type: 'bar'
+    };
+    
+    var layout = {
+        title: 'Distribution of Job Status',
+        xaxis: { title: 'Trial Status' },
+        yaxis: { title: 'Nr. of jobs' }
+    };
+    
+    Plotly.newPlot("plotJobStatusDistribution", [trace], add_default_layout_data(layout));
+    $("#plotJobStatusDistribution").data("loaded", "true");
+}

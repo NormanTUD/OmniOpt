@@ -1117,12 +1117,14 @@ EOF
 		fi
 
 		if [[ "$latest_remote_tag" != "$current_tag" ]]; then
-			yellow_text "A newer version is available!"
-			yellow_text "Current version: $current_tag"
-			yellow_text "Latest version:  $latest_remote_tag"
-			yellow_text "To update, run:"
-			yellow_text "  git checkout $latest_remote_tag"
-			yellow_text "  git pull origin $latest_remote_tag"
+			if [[ -n $current_tag ]]; then
+				yellow_text "A newer version is available!"
+				yellow_text "Current version: $current_tag"
+				yellow_text "Latest version:  $latest_remote_tag"
+				yellow_text "To update, run:"
+				yellow_text "  git checkout $latest_remote_tag"
+				yellow_text "  git pull origin $latest_remote_tag"
+			fi
 		fi
 	fi
 

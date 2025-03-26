@@ -110,6 +110,8 @@ all_needed_files.append("LICENSE")
 all_needed_files.append("requirements.txt")
 all_needed_files.append("test_requirements.txt")
 all_needed_files.append("apt-dependencies.txt")
+all_needed_files.append(".colorfunctions.sh")
+all_needed_files.append(".shellscript_functions")
 
 print("Copying the following files:")
 print("=====================")

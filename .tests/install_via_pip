@@ -1,0 +1,64 @@
+#!/bin/bash
+
+VENV_DIR=$HOME/omniopt_via_pip/
+
+if [[ -d "$VENV_DIR" ]]; then
+	rm -rf "$VENV_DIR"
+fi
+
+python3 -mvenv "$VENV_DIR"
+
+activate_file="$VENV_DIR/bin/activate"
+if [[ -e $activate_file ]]; then
+	ok=1
+
+	source $activate_file
+
+	pip install omniopt2
+
+	omniopt --help
+	exit_code=$?
+
+	if [[ $exit_code -eq 0 ]]; then
+		omniopt \
+			--partition=alpha \
+			--experiment_name=pip_test_experiment \
+			--mem_gb=1 \
+			--time=60 \
+			--worker_timeout=60 \
+			--max_eval=5 \
+			--num_parallel_jobs=5 \
+			--gpus=1 \
+			--num_random_steps=2 \
+			--follow \
+			--send_anonymized_usage_stats \
+			--result_names RESULT=min \
+			--run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI=' \
+			--cpus_per_task=1 \
+			--nodes_per_job=1 \
+			--generate_all_jobs_at_once \
+			--model=BOTORCH_MODULAR \
+			--run_mode=local \
+			--decimalrounding=4 \
+			--occ_type=euclid \
+			--main_process_gb=8 \
+			--max_nr_of_zero_results=50 \
+			--pareto_front_confidence=1 \
+			--slurm_signal_delay_s=0 \
+			--parameter x range 123 100000000 int false \
+			--parameter y range 5431 1234 float false
+		omniopt --help
+		exit_code=$?
+
+		if [[ $exit_code -ne 0 ]]; then
+			ok=0
+		fi
+	else
+		ok=0
+	fi
+
+	if [[ $ok -eq 1 ]]; then
+		exit 0
+	fi
+fi
+exit 1

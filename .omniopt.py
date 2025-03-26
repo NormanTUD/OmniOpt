@@ -3755,6 +3755,20 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
     return experiment_parameters
 
 @beartype
+def copy_continue_uuid() -> None:
+    source_file = os.path.join(args.continue_previous_job, "state_files", "run_uuid")
+    destination_file = os.path.join(get_current_run_folder(), "state_files", "continue_from_run_uuid")
+
+    if os.path.exists(source_file):
+        try:
+            shutil.copy(source_file, destination_file)
+            print_debug(f"copy_continue_uuid: Copied '{source_file}' to '{destination_file}'")
+        except Exception as e:
+            print_debug(f"copy_continue_uuid: Error copying file: {e}")
+    else:
+        print_debug(f"copy_continue_uuid: Source file does not exist: {source_file}")
+
+@beartype
 def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
     continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters = _params
 
@@ -3816,6 +3830,8 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
             with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
                 print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+
+            copy_continue_uuid()
         else:
             print_red("Something went wrong with the ax_client")
             my_exit(9)

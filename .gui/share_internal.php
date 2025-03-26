@@ -42,6 +42,7 @@
 		"outfile.txt",
 		"oo_errors.txt",
 		"evaluation_errors.log",
+		"continue_from_run_uuid",
 		"outfile",
 		"log",
 		"install_errors",

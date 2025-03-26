@@ -184,6 +184,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `loaded_modules.json`: A list of all loaded modules with module information where available
 - `cpu_ram_usage.csv`: Logs CPU and RAM usage
 - `checkpoint_load_source`: Info for continued jobs where they are continued from
+- `continue_from_run_uuid`: UUID of a run that was continued
 - `result_names.txt`: A list of RESULT names
 - `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated pareto-front
 - `run_uuid`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run

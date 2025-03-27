@@ -19,7 +19,7 @@
         <div id="site" style="display: none">
             <table>
                 <tr>
-                    <td class='no_border half_width_td'>
+                    <td class='half_width_td'>
                         <table id="config_table">
                             <thead class="invert_in_dark_mode">
                                 <tr>
@@ -29,7 +29,7 @@
                             </thead>
                             <tbody></tbody>
                         </table>
-                        <button onclick='smoothToggle($("#hidden_config_table"))' class='add_parameter' id='main_add_row_button'>&#9881;&nbsp;Show additional parameters</button>
+                        <button onclick='smoothToggle($("#hidden_config_table"))' class='add_parameter' id='main_add_row_button'>Show additional parameters</button>
                         <table id="hidden_config_table" style="display: none">
                             <thead class="invert_in_dark_mode">
                                 <tr>
@@ -40,7 +40,7 @@
                             <tbody></tbody>
                         </table>
                     </td>
-                    <td class='no_border half_width_td'>
+                    <td class='half_width_td'>
                         <div id="commands">
                             <h2>Install and run</h2>
 
@@ -48,7 +48,7 @@
 
                             <div class="dark_code_bg invert_in_dark_mode">
                                 <code id="curl_command_highlighted"></code>
-                                <code style="display: none" class="highlight_me" id="curl_command"></code>
+                                <code style="display: none" id="curl_command"></code>
                             </div>
                             <div class="invert_in_dark_mode" id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
                             <div class="invert_in_dark_mode" id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
@@ -62,7 +62,7 @@
 
                             <div class="dark_code_bg invert_in_dark_mode">
                                 <code id="command_element_highlighted"></code>
-                                <code style="display: none" class="highlight_me" id="command_element"></code>
+                                <code style="display: none" id="command_element"></code>
                             </div>
                             <div class="invert_in_dark_mode" id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
                             <div class="invert_in_dark_mode" id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>

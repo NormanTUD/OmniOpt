@@ -744,14 +744,14 @@ function update_command() {
 		toggleElementVisibility("#command_element_highlighted", command, true);
 		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
 
-		smoothShow($("#command_element").text(command));
-		smoothShow($("#curl_command").text(curl_command));
+		$("#command_element").text(command);
+		$("#curl_command").text(curl_command);
 	} else {
 		toggleElementVisibility("#command_element_highlighted", "", false);
 		toggleElementVisibility("#curl_command_highlighted", "", false);
 
-		smoothHide($("#command_element").text(""));
-		smoothHide($("#curl_command").text(""));
+		$("#command_element").text("");
+		$("#curl_command").text("");
 	}
 
 	show_warnings_and_errors(warnings, errors);
@@ -759,8 +759,6 @@ function update_command() {
 	update_url();
 
 	toggleHiddenConfigTableIfError();
-
-	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
 async function toggleElementVisibility(selector, content, show) {
@@ -782,94 +780,78 @@ async function toggleElementVisibility(selector, content, show) {
 
 function updateOptions(select) {
 	var selectedOption = select.value;
-	var valueCell = $(select).parent().next();
+	var valueCell = select.parentNode.nextSibling;
 	var paramName = $(select).parent().parent().find(".parameterName").val();
 
-	if (paramName === undefined) {
+	if(paramName === undefined) {
 		paramName = "";
 	}
 
-	var newContent = "";
 	if (selectedOption === "range") {
-		newContent = get_range_html_table(paramName);
+		valueCell.innerHTML = `
+			<table>
+			    <tr>
+				<td>Name:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+			    </tr>
+			    <tr>
+				<td>Min:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
+			    </tr>
+			    <tr>
+				<td>Max:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
+			    </tr>
+			    <tr>
+				<td>Type:</td>
+				<td>
+				    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
+					<option value="float">Float</option>
+					<option value="int">Integer</option>
+				    </select>
+				</td>
+			    </tr>
+			   <tr>
+				<td>Log-Scale:</td>
+				<td>
+				    <input onchange="update_command()" type="checkbox" class="log_scale" />
+				</td>
+			    </tr>
+			</table>
+		    `;
 	} else if (selectedOption === "choice") {
-		newContent = get_choice_html_table(paramName);
+		valueCell.innerHTML = `
+			<table>
+			    <tr>
+				<td>Name:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+			    </tr>
+			    <tr>
+				<td>Values (comma separated):</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
+			    </tr>
+			</table>
+		    `;
 	} else if (selectedOption === "fixed") {
-		newContent = get_fixed_html_table(paramName);
+		valueCell.innerHTML = `
+			<table>
+			    <tr>
+				<td>Name:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+			    </tr>
+			    <tr>
+				<td>Value:</td>
+				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
+			    </tr>
+			</table>
+		    `;
 	}
 
-	newContent += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
+	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
 
-	valueCell.fadeOut(fadeTime, function() {
-		$(this).html(newContent).fadeIn(fadeTime);
-		update_command();
-	});
+	update_command();
 
 	apply_theme_based_on_system_preferences();
-}
-
-function get_range_html_table (paramName) {
-	return `
-		<table class='gui_param_table'>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Name:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-		    </tr>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Min:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
-		    </tr>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Max:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
-		    </tr>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Type:</td>
-			<td class='gui_parameter_row_cell'>
-			    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
-				<option value="float">Float</option>
-				<option value="int">Integer</option>
-			    </select>
-			</td>
-		    </tr>
-		   <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Log-Scale:</td>
-			<td class='gui_parameter_row_cell'>
-			    <input onchange="update_command()" type="checkbox" class="log_scale" />
-			</td>
-		    </tr>
-		</table>
-	`;
-}
-
-function get_choice_html_table (paramName) {
-	return `
-		<table class='gui_param_table'>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Name:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-		    </tr>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Values (comma separated):</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
-		    </tr>
-		</table>
-	    `;
-}
-
-function get_fixed_html_table (paramName) {
-	return `
-		<table class='gui_param_table'>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Name:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-		    </tr>
-		    <tr class='gui_parameter_row'>
-			<td class='gui_parameter_row_cell'>Value:</td>
-			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
-		    </tr>
-		</table>
-	`
 }
 
 function add_parameter_row(button) {
@@ -887,7 +869,7 @@ function add_parameter_row(button) {
 	optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060;&nbsp;Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060; Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 
@@ -941,8 +923,8 @@ function create_table_row (table, tbody, item) {
 		left_side_content += `<a class='tooltip invert_in_dark_mode' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
 	}
 
-	var labelCell = $("<td class='gui_table left_side'>").html(left_side_content);
-	var valueCell = $("<td class='gui_table right_side'>").attr("colspan", "2");
+	var labelCell = $("<td class='left_side'>").html(left_side_content);
+	var valueCell = $("<td class='right_side'>").attr("colspan", "2");
 
 	if (item.type === "select") {
 		var $select = $("<select>").attr("id", item.id);
@@ -1025,7 +1007,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>&#10133;&nbsp;Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");
@@ -1273,8 +1255,6 @@ function run_when_document_ready () {
 	initialized = true;
 
 	fadeTime = fadeTimeAfterLoading;
-
-	highlight_all_bash();
 }
 
 function test_if_equation_is_valid(str, names) {
@@ -1565,13 +1545,11 @@ function toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_th
 	var current_setting = $(".remove_parameter").css("visibility");
 
 	var nr_params = $(".parameterName").length;
-
-	if (nr_params <= 1) {
-		$(".remove_parameter").prop("disabled", true).animate({ opacity: 0 }, fadeTime);
+	
+	if(nr_params <= 1) {
+		$(".remove_parameter").css("visibility", "hidden")
 	} else {
-		$(".remove_parameter").animate({ opacity: 1 }, fadeTime, function() {
-			$(this).prop("disabled", false);
-		});
+		$(".remove_parameter").css("visibility", "unset")
 	}
 }
 

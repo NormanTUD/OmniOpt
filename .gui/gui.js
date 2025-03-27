@@ -1,5 +1,7 @@
 var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "arm_name", "trial_index", "generation_method", "trial_status"];
 
+var fadeTime = 300;
+
 function get_invalid_names () {
 	var gin = JSON.parse(JSON.stringify(invalid_names));
 
@@ -22,6 +24,15 @@ var initialized = false;
 var shown_operation_insecure_without_server = false;
 
 var l = typeof log === "function" ? log : console.log;
+
+function smoothShow($elem) {
+	$elem.fadeIn(fadeTime);
+}
+
+function smoothHide($elem) {
+	$elem.fadeOut(fadeTime);
+}
+
 
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
@@ -249,9 +260,9 @@ function update_table_row (item, errors, warnings, command) {
 				this_error = item.regex_does_not_match_text;
 			}
 			errors.push(this_error);
-			$("#" + item.id + "_error").html(this_error).show();
+			smoothShow($("#" + item.id + "_error").html(this_error));
 		} else {
-			$("#" + item.id + "_error").html("").hide();
+			smoothHide($("#" + item.id + "_error").html(""));
 		}
 	}
 
@@ -263,7 +274,7 @@ function update_table_row (item, errors, warnings, command) {
 	} else if ((item.type === "textarea" || item.type === "text") && value === "") {
 		if(item.required) {
 			var this_error = "Field '" + item.label + "' is required.";
-			$("#" + item.id + "_error").html(this_error).show();
+			smoothShow($("#" + item.id + "_error").html(this_error));
 			$("#" + item.id).css("background-color", "#FFCCCC !important");
 
 			errors.push(this_error);
@@ -286,10 +297,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			$("#time_error").html(string_or_array_to_list(new_errors)).show();
+			smoothShow($("#time_error").html(string_or_array_to_list(new_errors)));
 			errors.push(...new_errors);
 		} else {
-			$("#time_error").html("").hide();
+			smoothHide($("#time_error").html(""));
 			command += " --" + item.id + "=" + value;
 		}
 	} else if (item.id == "max_eval") {
@@ -332,10 +343,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			$("#worker_timeout_error").html(string_or_array_to_list(new_errors)).show();
+			smoothShow($("#worker_timeout_error").html(string_or_array_to_list(new_errors)));
 			errors.push(...new_errors);
 		} else {
-			$("#worker_timeout_error").html("").hide();
+			smoothHide($("#worker_timeout_error").html(""));
 			command += " --" + item.id + "=" + value;
 		}
 	} else if (item.type === "number") {
@@ -393,10 +404,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			$("#run_program_error").html(string_or_array_to_list(new_errors)).show();
+			smoothShow($("#run_program_error").html(string_or_array_to_list(new_errors)));
 			errors.push(...new_errors);
 		} else {
-			$("#run_program_error").html("").hide();
+			smoothHide($("#run_program_error").html(""));
 		}
 
 		value = btoa(value);
@@ -411,7 +422,7 @@ function update_table_row (item, errors, warnings, command) {
 				} else {
 					command += " --" + item.id + "=" + value;
 				}
-				$("#" + item.id + "_error").html("").hide();
+				smoothHide($("#" + item.id + "_error").html(""));
 				$("#" + item.id).css("background-color", "");
 			}
 		}
@@ -638,7 +649,7 @@ function update_command() {
 		}
 
 		if(warn_msg.length) {
-			$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show();
+			smoothShow($($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)));
 			//set_row_background_color_red_color($($(".parameterRow")[i]));
 		} else {
 			$($(".parameterError")[i]).html("").hide();
@@ -756,15 +767,14 @@ async function toggleElementVisibility(selector, content, show) {
 	let element = $(selector);
 
 	if (show) {
-		element.html(highlight_bash(content))
-			.fadeIn(300);
-		element.parent().fadeIn(300);
-		element.parent().parent().fadeIn(300);
+		smoothShow(element.html(highlight_bash(content)));
+		smoothShow(element.parent());
+		smoothShow(element.parent().parent());
 	} else {
 		await Promise.all([
-			new Promise(resolve => element.fadeOut(300, resolve)),
-			new Promise(resolve => element.parent().fadeOut(300, resolve)),
-			new Promise(resolve => element.parent().parent().fadeOut(300, resolve))
+			new Promise(resolve => element.fadeOut(fadeTime, resolve)),
+			new Promise(resolve => element.parent().fadeOut(fadeTime, resolve)),
+			new Promise(resolve => element.parent().parent().fadeOut(fadeTime, resolve))
 		]);
 		element.html("");
 	}

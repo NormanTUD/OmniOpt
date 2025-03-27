@@ -789,7 +789,7 @@ function updateOptions(select) {
 
 	if (selectedOption === "range") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='gui_param_table'>
 			    <tr class='gui_parameter_row'>
 				<td class='gui_parameter_row_cell'>Name:</td>
 				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
@@ -821,7 +821,7 @@ function updateOptions(select) {
 		    `;
 	} else if (selectedOption === "choice") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='gui_param_table'>
 			    <tr class='gui_parameter_row'>
 				<td class='gui_parameter_row_cell'>Name:</td>
 				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
@@ -834,14 +834,14 @@ function updateOptions(select) {
 		    `;
 	} else if (selectedOption === "fixed") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='gui_param_table'>
 			    <tr class='gui_parameter_row'>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+				<td class='gui_parameter_row_cell'>Name:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
 			    <tr class='gui_parameter_row'>
-				<td>Value:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
+				<td class='gui_parameter_row_cell'>Value:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
 			    </tr>
 			</table>
 		    `;

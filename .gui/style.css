@@ -166,10 +166,6 @@ button:disabled:hover {
 	box-shadow: none;
 }
 
-select {
-	width: 98%;
-}
-
 .half_width_td {
 	vertical-align: baseline;
 	width: 50%;
@@ -461,4 +457,9 @@ input:checked + .slider .mode-text {
 
 .gui_parameter_row_cell {
         border: unset !important;
+}
+
+.gui_param_table {
+        width: 95%;
+        margin: unset !important;
 }

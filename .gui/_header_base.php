@@ -202,8 +202,12 @@
 							$n = "<i><b>$n</b></i>";
 						}
 
+						$script_link = get_main_script_dir() . "/$link_no_php";
+
+						$script_link = preg_replace("/\/\/*/", "/", $script_link);
+
 						echo "<td class='header_table' style='border: 0'>";
-						echo "\t<a href='".get_main_script_dir()."/$link_no_php' class='tab'><button class='nav_tab_button'>$n</button></a>\n";
+						echo "\t<a href='$script_link' class='tab'><button class='nav_tab_button'>$n</button></a>\n";
 						echo "</td>";
 					}
 

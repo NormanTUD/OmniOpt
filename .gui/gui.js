@@ -759,6 +759,8 @@ function update_command() {
 	update_url();
 
 	toggleHiddenConfigTableIfError();
+
+	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
 async function toggleElementVisibility(selector, content, show) {

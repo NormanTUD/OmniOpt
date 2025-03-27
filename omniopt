@@ -306,11 +306,61 @@
 		old_dir="$SCRIPT_DIR/ax/$old_folder_name"
 
 		if [[ -d $old_dir ]]; then
-			mv $old_dir $SCRIPT_DIR || {
-				red_text "Failed to move $old_dir $SCRIPT_DIR\n"
+			move_and_rename() {
+				local src="$1"
+				local dest="$2"
+
+				if [ -e "$dest" ]; then
+					local base="${dest%.*}"
+					local ext="${dest##*.}"
+					local counter=1
+					local new_dest="${base}.${counter}"
+
+					if [ "$base" == "$dest" ]; then
+						new_dest="${dest}.${counter}"
+					else
+						new_dest="${base}.${counter}.${ext}"
+					fi
+
+					while [ -e "$new_dest" ]; do
+						counter=$((counter + 1))
+						new_dest="${base}.${counter}"
+						if [ "$base" != "$dest" ]; then
+							new_dest="${base}.${counter}.${ext}"
+						fi
+					done
+
+					mv "$src" "$new_dest"
+				else
+					mv "$src" "$dest"
+				fi
 			}
+
+			move_directory_contents() {
+				local old_dir="$1"
+				local new_dir="$2"
+
+				mkdir -p "$new_dir"
+
+				find "$old_dir" -mindepth 1 -print0 | while IFS= read -r -d '' file; do
+					rel_path="${file#$old_dir/}" # Relativen Pfad extrahieren
+					target="$new_dir/$rel_path"
+
+					if [ -d "$file" ]; then
+						mkdir -p "$target" # Verzeichnis anlegen
+					else
+						move_and_rename "$file" "$target" # Datei verschieben und ggf. umbenennen
+					fi
+				done
+
+				#rmdir "$old_dir" 2>/dev/null
+			}
+
+			move_directory_contents "$old_dir" "$SCRIPT_DIR/logs"
 		fi
 	done
+
+exit 255
 
 	function _tput {
 		set +e

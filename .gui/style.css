@@ -421,7 +421,6 @@ input:checked + .slider .mode-text {
 	min-width: 1100px;
 	height: fit-content;
 	min-height: 100%;
-	max-width: min-content;
 }
 
 #share_path {

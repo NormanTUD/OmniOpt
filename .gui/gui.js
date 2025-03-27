@@ -32,6 +32,8 @@ function smoothShow($elem) {
 
 function smoothHide($elem) {
 	$elem.fadeOut(fadeTime);
+
+	Prism.highlightAll();
 }
 
 function smoothToggle($elem) {
@@ -744,14 +746,14 @@ function update_command() {
 		toggleElementVisibility("#command_element_highlighted", command, true);
 		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
 
-		$("#command_element").text(command);
-		$("#curl_command").text(curl_command);
+		smoothShow($("#command_element").text(command));
+		smoothShow($("#curl_command").text(curl_command));
 	} else {
 		toggleElementVisibility("#command_element_highlighted", "", false);
 		toggleElementVisibility("#curl_command_highlighted", "", false);
 
-		$("#command_element").text("");
-		$("#curl_command").text("");
+		smoothHide($("#command_element").text(""));
+		smoothHide($("#curl_command").text(""));
 	}
 
 	show_warnings_and_errors(warnings, errors);

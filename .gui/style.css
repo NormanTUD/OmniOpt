@@ -465,6 +465,12 @@ input:checked + .slider .mode-text {
 }
 
 #config_table td, #config_table tr,
-#hidden_config_table td, #hidden_config_table tr {
+#hidden_config_table td, #hidden_config_table tr,
+.parameterRow table {
 	padding: 10px !important;
+}
+
+.parameterRow table {
+	margin: 0px;
+	border: unset;
 }

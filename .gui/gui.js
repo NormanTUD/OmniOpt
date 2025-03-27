@@ -870,6 +870,8 @@ function add_parameter_row(button) {
 	var numberOfParams = $(".parameterRow").length;
 	var newRow = table.insertRow(rowIndex + numberOfParams + 1);
 
+	$(newRow).css("display", "none");
+
 	var optionCell = newRow.insertCell(0);
 	var valueCell = newRow.insertCell(1);
 	var buttonCell = newRow.insertCell(2);
@@ -883,7 +885,8 @@ function add_parameter_row(button) {
 
 	newRow.classList.add("parameterRow");
 	optionCell.firstChild.classList.add("optionSelect");
-	//valueCell.firstChild.classList.add('valueInput');
+
+	smoothShow($(newRow));
 
 	update_command();
 

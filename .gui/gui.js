@@ -869,7 +869,7 @@ function add_parameter_row(button) {
 	optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060; Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060;&nbsp;Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 
@@ -1007,7 +1007,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>&#10133;&nbsp;Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");

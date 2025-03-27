@@ -19,7 +19,7 @@
         <div id="site" style="display: none">
             <table>
                 <tr>
-                    <td class='half_width_td'>
+                    <td class='half_width_td' style="border: unset">
                         <table id="config_table">
                             <thead class="invert_in_dark_mode">
                                 <tr>
@@ -29,7 +29,7 @@
                             </thead>
                             <tbody></tbody>
                         </table>
-                        <button onclick='smoothToggle($("#hidden_config_table"))' class='add_parameter' id='main_add_row_button'>Show additional parameters</button>
+                        <button onclick='smoothToggle($("#hidden_config_table"))' class='add_parameter' id='main_add_row_button'>&#9881;&nbsp;Show additional parameters</button>
                         <table id="hidden_config_table" style="display: none">
                             <thead class="invert_in_dark_mode">
                                 <tr>
@@ -40,7 +40,7 @@
                             <tbody></tbody>
                         </table>
                     </td>
-                    <td class='half_width_td'>
+                    <td class='half_width_td' style="border: unset">
                         <div id="commands">
                             <h2>Install and run</h2>
 

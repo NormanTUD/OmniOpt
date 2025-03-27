@@ -5807,9 +5807,11 @@ def get_generation_strategy() -> GenerationStrategy:
                 print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
 
             if not found_model:
-                print_red("Could not find model in previous job. Will use the default model 'BOTORCH_MODULAR'")
-
-                chosen_model = "BOTORCH_MODULAR"
+                if args.model is not None:
+                    chosen_model = args.model
+                else:
+                    chosen_model = "BOTORCH_MODULAR"
+                print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
 
         # Choose a model for the non-random step
         chosen_non_random_model = select_model(chosen_model)

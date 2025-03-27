@@ -732,14 +732,14 @@ function update_command() {
 			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"${curl_options}`;
 		}
 
-		$("#command_element_highlighted").html(highlight_bash(command)).show().parent().show().parent().show();
-		$("#curl_command_highlighted").html(highlight_bash(curl_command)).show().parent().show().parent().show();
+		toggleElementVisibility("#command_element_highlighted", command, true);
+		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
 
 		$("#command_element").text(command);
 		$("#curl_command").text(curl_command);
 	} else {
-		$("#command_element_highlighted").html("").hide().parent().hide().parent().hide();
-		$("#curl_command_highlighted").html("").hide().parent().hide().parent().hide();
+		toggleElementVisibility("#command_element_highlighted", "", false);
+		toggleElementVisibility("#curl_command_highlighted", "", false);
 
 		$("#command_element").text("");
 		$("#curl_command").text("");
@@ -750,6 +750,24 @@ function update_command() {
 	update_url();
 
 	toggleHiddenConfigTableIfError();
+}
+
+async function toggleElementVisibility(selector, content, show) {
+	let element = $(selector);
+
+	if (show) {
+		element.html(highlight_bash(content))
+			.fadeIn(300);
+		element.parent().fadeIn(300);
+		element.parent().parent().fadeIn(300);
+	} else {
+		await Promise.all([
+			new Promise(resolve => element.fadeOut(300, resolve)),
+			new Promise(resolve => element.parent().fadeOut(300, resolve)),
+			new Promise(resolve => element.parent().parent().fadeOut(300, resolve))
+		]);
+		element.html("");
+	}
 }
 
 function updateOptions(select) {

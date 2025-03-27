@@ -1,6 +1,7 @@
 "use strict";
 
 var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
+var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
 var tableData = [
 	{
@@ -486,7 +487,7 @@ var hiddenTableData = [
 		value: "",
 		info: "An absolute path where the virtual env should be installed to",
 		required: false,
-		regex: "^(/([a-zA-Z0-9_-]+/?)*)?$",
+		regex: regex_path,
 		help: "Path where the virtual env should be installed to",
 	},
 	{
@@ -496,6 +497,6 @@ var hiddenTableData = [
 		value: "",
 		info: "An absolute path what the working directory of jobs should be",
 		required: false,
-		regex: "^(/([a-zA-Z0-9_-]+/?)*)?$"
+		regex: regex_path
 	},
 ];

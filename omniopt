@@ -306,7 +306,6 @@
 		old_dir="$SCRIPT_DIR/ax/$old_folder_name"
 
 		if [[ -d $old_dir ]]; then
-			underline_red_text "Moving $old_dir to current folder. This is an artifact of the old way of running OmniOpt."
 			mv $old_dir $SCRIPT_DIR || {
 				red_text "Failed to move $old_dir $SCRIPT_DIR\n"
 			}

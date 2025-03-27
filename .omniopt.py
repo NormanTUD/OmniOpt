@@ -5794,15 +5794,22 @@ def get_generation_strategy() -> GenerationStrategy:
         if args.continue_previous_job:
             continue_model_file = f"{args.continue_previous_job}/state_files/model"
 
+            found_model = False
+
             if os.path.exists(continue_model_file):
                 chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
 
                 if chosen_model not in SUPPORTED_MODELS:
                     print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")
-                    my_exit(248)
+                else:
+                    found_model = True
             else:
                 print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
-                my_exit(248)
+
+            if not found_model:
+                print_red("Could not find model in previous job. Will use the default model 'BOTORCH_MODULAR'")
+
+                chosen_model = "BOTORCH_MODULAR"
 
         # Choose a model for the non-random step
         chosen_non_random_model = select_model(chosen_model)

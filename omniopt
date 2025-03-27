@@ -347,13 +347,13 @@
 					target="$new_dir/$rel_path"
 
 					if [ -d "$file" ]; then
-						mkdir -p "$target" # Verzeichnis anlegen
+						mkdir -p "$target"
 					else
-						move_and_rename "$file" "$target" # Datei verschieben und ggf. umbenennen
+						move_and_rename "$file" "$target"
 					fi
 				done
 
-				#rmdir "$old_dir" 2>/dev/null
+				rmdir "$old_dir" 2>/dev/null
 			}
 
 			move_directory_contents "$old_dir" "$SCRIPT_DIR/logs"

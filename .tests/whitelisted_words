@@ -714,6 +714,7 @@ expt
 extractCategoryFromURL
 facingMode
 fadeIn
+fadeTime
 fakeEvent
 falsetriggerchange
 fanAvg

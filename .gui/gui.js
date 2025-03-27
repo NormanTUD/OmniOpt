@@ -1545,11 +1545,13 @@ function toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_th
 	var current_setting = $(".remove_parameter").css("visibility");
 
 	var nr_params = $(".parameterName").length;
-	
-	if(nr_params <= 1) {
-		$(".remove_parameter").css("visibility", "hidden")
+
+	if (nr_params <= 1) {
+		$(".remove_parameter").prop("disabled", true).animate({ opacity: 0 }, fadeTime);
 	} else {
-		$(".remove_parameter").css("visibility", "unset")
+		$(".remove_parameter").animate({ opacity: 1 }, fadeTime, function() {
+			$(this).prop("disabled", false);
+		});
 	}
 }
 

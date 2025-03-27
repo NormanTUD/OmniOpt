@@ -19,7 +19,7 @@
         <div id="site" style="display: none">
             <table>
                 <tr>
-                    <td class='half_width_td'>
+                    <td class='no_border half_width_td'>
                         <table id="config_table">
                             <thead class="invert_in_dark_mode">
                                 <tr>
@@ -40,7 +40,7 @@
                             <tbody></tbody>
                         </table>
                     </td>
-                    <td class='half_width_td'>
+                    <td class='no_border half_width_td'>
                         <div id="commands">
                             <h2>Install and run</h2>
 

@@ -447,3 +447,18 @@ input:checked + .slider .mode-text {
 .header_table {
 	margin: 10px;
 }
+
+.no_border {
+        border: unset !important;
+}
+
+.gui_table {
+        padding: 5px !important;
+}
+
+.gui_parameter_row {
+}
+
+.gui_parameter_row_cell {
+        border: unset !important;
+}

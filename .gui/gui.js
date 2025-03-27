@@ -790,30 +790,30 @@ function updateOptions(select) {
 	if (selectedOption === "range") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Name:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
-			    <tr>
-				<td>Min:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Min:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
 			    </tr>
-			    <tr>
-				<td>Max:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Max:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
 			    </tr>
-			    <tr>
-				<td>Type:</td>
-				<td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Type:</td>
+				<td class='gui_parameter_row_cell'>
 				    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
 					<option value="float">Float</option>
 					<option value="int">Integer</option>
 				    </select>
 				</td>
 			    </tr>
-			   <tr>
-				<td>Log-Scale:</td>
-				<td>
+			   <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Log-Scale:</td>
+				<td class='gui_parameter_row_cell'>
 				    <input onchange="update_command()" type="checkbox" class="log_scale" />
 				</td>
 			    </tr>
@@ -822,24 +822,24 @@ function updateOptions(select) {
 	} else if (selectedOption === "choice") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Name:</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
-			    <tr>
-				<td>Values (comma separated):</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
+			    <tr class='gui_parameter_row'>
+				<td class='gui_parameter_row_cell'>Values (comma separated):</td>
+				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
 			    </tr>
 			</table>
 		    `;
 	} else if (selectedOption === "fixed") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
+			    <tr class='gui_parameter_row'>
 				<td>Name:</td>
 				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
 			    </tr>
-			    <tr>
+			    <tr class='gui_parameter_row'>
 				<td>Value:</td>
 				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
 			    </tr>
@@ -869,7 +869,7 @@ function add_parameter_row(button) {
 	optionCell.innerHTML = "<select onchange='updateOptions(this)' class='optionSelect'><option value='range'>Range</option><option value='choice'>Choice</option><option value='fixed'>Fixed</option></select>";
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060; Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter invert_in_dark_mode' onclick='remove_parameter_row(this)'>&#10060;&nbsp;Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 
@@ -923,8 +923,8 @@ function create_table_row (table, tbody, item) {
 		left_side_content += `<a class='tooltip invert_in_dark_mode' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
 	}
 
-	var labelCell = $("<td class='left_side'>").html(left_side_content);
-	var valueCell = $("<td class='right_side'>").attr("colspan", "2");
+	var labelCell = $("<td class='gui_table left_side'>").html(left_side_content);
+	var valueCell = $("<td class='gui_table right_side'>").attr("colspan", "2");
 
 	if (item.type === "select") {
 		var $select = $("<select>").attr("id", item.id);
@@ -1007,7 +1007,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'>&#10133;&nbsp;Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");

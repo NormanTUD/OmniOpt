@@ -87,13 +87,7 @@
 		</script>
 
 		<link href="<?php print get_main_script_dir(); ?>/style.css" rel="stylesheet">
-<?php
-		if (!preg_match("/gui\.php$/", $_SERVER["SCRIPT_FILENAME"])) {
-?>
-			    <link href="<?php print get_main_script_dir(); ?>/_tutorial.css" rel="stylesheet">
-<?php
-		}
-?>
+		<link href="<?php print get_main_script_dir(); ?>/_tutorial.css" rel="stylesheet">
 		<link href="<?php print get_main_script_dir(); ?>/jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {

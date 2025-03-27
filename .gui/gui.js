@@ -780,24 +780,28 @@ async function toggleElementVisibility(selector, content, show) {
 
 function updateOptions(select) {
 	var selectedOption = select.value;
-	var valueCell = select.parentNode.nextSibling;
+	var valueCell = $(select).parent().next();
 	var paramName = $(select).parent().parent().find(".parameterName").val();
 
-	if(paramName === undefined) {
+	if (paramName === undefined) {
 		paramName = "";
 	}
 
+	var newContent = "";
 	if (selectedOption === "range") {
-		valueCell.innerHTML = get_range_html_table(paramName);
+		newContent = get_range_html_table(paramName);
 	} else if (selectedOption === "choice") {
-		valueCell.innerHTML = get_choice_html_table(paramName);
+		newContent = get_choice_html_table(paramName);
 	} else if (selectedOption === "fixed") {
-		valueCell.innerHTML = get_fixed_html_table(paramName);
+		newContent = get_fixed_html_table(paramName);
 	}
 
-	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
+	newContent += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
 
-	update_command();
+	valueCell.fadeOut(fadeTime, function() {
+		$(this).html(newContent).fadeIn(fadeTime);
+		update_command();
+	});
 
 	apply_theme_based_on_system_preferences();
 }

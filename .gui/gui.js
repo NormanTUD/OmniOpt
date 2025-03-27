@@ -34,6 +34,14 @@ function smoothHide($elem) {
 	$elem.fadeOut(fadeTime);
 }
 
+function smoothToggle($elem) {
+	if($elem.is(":visible")) {
+		smoothHide($elem);
+	} else {
+		smoothShow($elem);
+	}
+}
+
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent();

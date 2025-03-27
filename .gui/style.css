@@ -463,3 +463,8 @@ input:checked + .slider .mode-text {
         width: 95%;
         margin: unset !important;
 }
+
+#config_table td, #config_table tr,
+#hidden_config_table td, #hidden_config_table tr {
+	padding: 10px !important;
+}

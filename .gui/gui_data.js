@@ -20,7 +20,8 @@ var tableData = [
 		placeholder: "Name of your experiment (only letters and numbers)",
 		required: true,
 		regex: "^[a-zA-Z0-9_]+$",
-		help: "Name of your experiment. Will be used for example for the foldername it's results will be saved in."
+		help: "Name of your experiment. Will be used for example for the foldername it's results will be saved in.",
+		regex_does_not_match_text: "The experiment name must consist of alphanumeric characters and underscores only."
 	},
 	{
 		label: "Reservation",

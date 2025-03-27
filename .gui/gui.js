@@ -245,6 +245,9 @@ function update_table_row (item, errors, warnings, command) {
 
 		if(!text.match(re)) {
 			var this_error = `The element "${item.id}" does not match regex /${item.regex}/.`;
+			if(Object.keys(item).includes("regex_does_not_match_text")) {
+				this_error = item.regex_does_not_match_text;
+			}
 			errors.push(this_error);
 			$("#" + item.id + "_error").html(this_error).show();
 		} else {

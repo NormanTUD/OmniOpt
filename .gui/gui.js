@@ -502,41 +502,27 @@ function update_command() {
 		command = "bash omniopt_docker omniopt";
 	}
 
-	tableData.forEach(function(item) {
-		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
-			var cew = update_table_row(item, errors, warnings, command);
-			command = cew[0];
-			errors = cew[1];
-			warnings = cew[2];
-		} else {
-			if(item["type"] == "select") {
-				var val = $(`#${item["id"]}`).val();
-				curl_options = ` --${item["id"]}=${val} `;
-			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
-				curl_options = ` --${item["id"]} `;
+	function processTableData(_tableData) {
+		_tableData.forEach(function(item) {
+			if (!item.use_in_curl_bash) {
+				var cew = update_table_row(item, errors, warnings, command);
+				command = cew[0];
+				errors = cew[1];
+				warnings = cew[2];
 			} else {
-				error("use_in_curl_bash currently only supports select and checkbox");
+				if (item.type == "select") {
+					curl_options = ` --${item.id}=${$(`#${item.id}`).val()} `;
+				} else if (item.type == "checkbox" && $(`#${item.id}`).is(":checked")) {
+					curl_options = ` --${item.id} `;
+				} else {
+					error("use_in_curl_bash currently only supports select and checkbox");
+				}
 			}
-		}
-	});
+		});
+	}
 
-	hiddenTableData.forEach(function(item) {
-		if(!Object.keys(item).includes("use_in_curl_bash") || item["use_in_curl_bash"] === false) {
-			var cew = update_table_row(item, errors, warnings, command);
-			command = cew[0];
-			errors = cew[1];
-			warnings = cew[2];
-		} else {
-			if(item["type"] == "select") {
-				var val = $(`#${item["id"]}`).val();
-				curl_options = ` --${item["id"]}=${val} `;
-			} else if(item["type"] == "checkbox" && $(`#${item["id"]}`).is(":checked")) {
-				curl_options = ` --${item["id"]} `;
-			} else {
-				error("use_in_curl_bash currently only supports select and checkbox");
-			}
-		}
-	});
+	processTableData(tableData);
+	processTableData(hiddenTableData);
 
 	var parameters = [];
 

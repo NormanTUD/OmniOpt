@@ -5791,7 +5791,7 @@ def get_generation_strategy() -> GenerationStrategy:
 
         chosen_model = args.model
 
-        if args.continue_previous_job:
+        if args.continue_previous_job and chosen_model is None:
             continue_model_file = f"{args.continue_previous_job}/state_files/model"
 
             found_model = False

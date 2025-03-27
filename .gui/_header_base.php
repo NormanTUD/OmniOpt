@@ -77,7 +77,6 @@
 			<?php js("js/share_functions.js"); ?>
 
 			<link href="<?php print get_main_script_dir(); ?>/css/mermaid.min.css" rel="stylesheet" />
-			<link href="<?php print get_main_script_dir(); ?>/css/tabler.min.css" rel="stylesheet">
 <?php
 		}
 ?>

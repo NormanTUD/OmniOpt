@@ -466,11 +466,11 @@ function show_warnings_and_errors(warnings, errors) {
 	var img_warning = "<img src='warning.svg' width=16 />";
 
 	if (Array.isArray(warnings) && warnings.length > 0) {
-		warnings_html = '<h2 class="invert_in_dark_mode" style="color: orange;">Warnings:</h2><ul>' + warnings.map(w => '<li class="invert_in_dark_mode" style="color: orange;">' + img_warning + ' ' + w + '</li>').join('') + '</ul>';
+		warnings_html = '<h2 class="invert_in_dark_mode" style="color: orange;">Warnings:</h2><ul>' + warnings.map(w => '<li style="color: orange;">' + img_warning + ' <span class="invert_in_dark_mode">' + w + '</span></li>').join('') + '</ul>';
 	}
 
 	if (Array.isArray(errors) && errors.length > 0) {
-		errors_html = '<h2 class="invert_in_dark_mode" style="color: red;">Errors:</h2><ul>' + errors.map(e => '<li class="invert_in_dark_mode" style="color: red;">' + img_warning + ' ' + e + '</li>').join('') + '</ul>';
+		errors_html = '<h2 class="invert_in_dark_mode" style="color: red;">Errors:</h2><ul>' + errors.map(e => '<li style="color: red;">' + img_warning + ' <span class="invert_in_dark_mode">' + e + '</span></li>').join('') + '</ul>';
 	}
 
 	var content = warnings_html + errors_html;

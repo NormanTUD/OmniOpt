@@ -1,6 +1,7 @@
 var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "arm_name", "trial_index", "generation_method", "trial_status"];
 
-var fadeTime = 300;
+var fadeTime = 0;
+var fadeTimeAfterLoading = 300;
 
 function get_invalid_names () {
 	var gin = JSON.parse(JSON.stringify(invalid_names));
@@ -1251,6 +1252,8 @@ function run_when_document_ready () {
 	apply_theme_based_on_system_preferences();
 
 	initialized = true;
+
+	fadeTime = fadeTimeAfterLoading;
 }
 
 function test_if_equation_is_valid(str, names) {

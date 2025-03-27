@@ -53,6 +53,12 @@ if [[ -e $activate_file ]]; then
 		if [[ $exit_code -ne 0 ]]; then
 			ok=0
 		fi
+
+		for to_check in omniopt_plot omniopt_docker omniopt_share omniopt_evaluate; do
+		if ! which $to_check 2>/dev/null >/dev/null; then
+			echo "$to_check not found"
+			ok=0
+		fi
 	else
 		ok=0
 	fi

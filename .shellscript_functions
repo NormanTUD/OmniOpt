@@ -1,6 +1,9 @@
 #!/bin/bash
 
 {
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+	cd "$SCRIPT_DIR"
+
 	source .colorfunctions.sh
 
 	os_name=$(uname -s)
@@ -15,9 +18,6 @@
 	function unset_debug {
 		trap - DEBUG
 	}
-
-	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-	cd "$SCRIPT_DIR"
 
 	install_those=()
 
@@ -138,6 +138,13 @@
 	fi
 
 	VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+	INSTALL_STUFF=1
+
+	if [[ -n $VIRTUAL_ENV ]]; then
+		VENV_DIR=$VIRTUAL_ENV
+		INSTALL_STUFF=0
+	fi
 
 	export VENV_DIR
 
@@ -504,49 +511,51 @@
 
 	fi
 
-	if [[ -z $DONT_INSTALL_MODULES ]]; then
-		if [[ -z $SLURM_JOB_ID ]]; then
-			REQUIREMENTS_HASH_MAIN=$(md5sum requirements.txt | awk '{print $1}')
-			REQUIREMENTS_HASH_TEST=$(md5sum test_requirements.txt | awk '{print $1}')
+	if [[ $INSTALL_STUFF -eq 1 ]]; then
+		if [[ -z $DONT_INSTALL_MODULES ]]; then
+			if [[ -z $SLURM_JOB_ID ]]; then
+				REQUIREMENTS_HASH_MAIN=$(md5sum requirements.txt | awk '{print $1}')
+				REQUIREMENTS_HASH_TEST=$(md5sum test_requirements.txt | awk '{print $1}')
 
-			hash_is_different() {
-				hash_file=$1
-				required_hash=$2
+				hash_is_different() {
+					hash_file=$1
+					required_hash=$2
 
-				if [[ -f "$hash_file" ]]; then
-					stored_hash=$(cat "$hash_file")
-					if [[ "$stored_hash" == "$required_hash" ]]; then
-						return 0
+					if [[ -f "$hash_file" ]]; then
+						stored_hash=$(cat "$hash_file")
+						if [[ "$stored_hash" == "$required_hash" ]]; then
+							return 0
+						else
+							return 1
+						fi
 					else
-						return 1
+						return 2
 					fi
-				else
-					return 2
+				}
+
+
+				if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN" || ! hash_is_different "$VENV_DIR/hash_test" "$REQUIREMENTS_HASH_TEST"; then
+					set +e
+					FROZEN=$(pip --disable-pip-version-check list --format=freeze)
+					exit_code_pip=$?
+					set -e
+
+					if [[ "$exit_code_pip" -ne "0" ]]; then
+						printf "pip list --format=freeze exited with exit code %s\n" $exit_code_pip
+						exit 12
+					fi
+
+					install_required_modules
+
+					echo "$REQUIREMENTS_HASH_MAIN" > "$VENV_DIR/hash"
+					echo "$REQUIREMENTS_HASH_TEST" > "$VENV_DIR/hash_test"
 				fi
-			}
 
-
-			if ! hash_is_different "$VENV_DIR/hash" "$REQUIREMENTS_HASH_MAIN" || ! hash_is_different "$VENV_DIR/hash_test" "$REQUIREMENTS_HASH_TEST"; then
-				set +e
-				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
-				exit_code_pip=$?
-				set -e
-
-				if [[ "$exit_code_pip" -ne "0" ]]; then
-					printf "pip list --format=freeze exited with exit code %s\n" $exit_code_pip
-					exit 12
-				fi
-
-				install_required_modules
-
-				echo "$REQUIREMENTS_HASH_MAIN" > "$VENV_DIR/hash"
-				echo "$REQUIREMENTS_HASH_TEST" > "$VENV_DIR/hash_test"
 			fi
-
-		fi
-	else
-		if [[ -z $DONT_SHOW_DONT_INSTALL_MESSAGE ]]; then
-			red_text "\$DONT_INSTALL_MODULES is set. Don't install modules.\n"
+		else
+			if [[ -z $DONT_SHOW_DONT_INSTALL_MESSAGE ]]; then
+				red_text "\$DONT_INSTALL_MODULES is set. Don't install modules.\n"
+			fi
 		fi
 	fi
 

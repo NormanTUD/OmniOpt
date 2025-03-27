@@ -1444,10 +1444,10 @@
 
 		foreach (glob("$dir/*/*/*", GLOB_ONLYDIR) as $subdir) {
 			$pathParts = explode('/', $subdir);
-			$secondDir = $pathParts[1] ?? '';
+			$username_dir = $pathParts[1] ?? '';
 
-			if ($secondDir != "s4122485") {
-				$threshold = ($secondDir === 'runner' || $secondDir === "defaultuser" || $secondDir === "admin") ? 3600 : (30 * 24 * 3600);
+			if ($username_dir != "s4122485" && $username_dir != "pwinkler") {
+				$threshold = ($username_dir === 'runner' || $username_dir === "defaultuser" || $username_dir === "admin") ? 3600 : (30 * 24 * 3600);
 
 				if(is_dir($subdir)) {
 					$dir_date = filemtime($subdir);

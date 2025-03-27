@@ -343,7 +343,7 @@
 				mkdir -p "$new_dir"
 
 				find "$old_dir" -mindepth 1 -print0 | while IFS= read -r -d '' file; do
-					rel_path="${file#$old_dir/}" # Relativen Pfad extrahieren
+					rel_path="${file#"$old_dir"/}"
 					target="$new_dir/$rel_path"
 
 					if [ -d "$file" ]; then

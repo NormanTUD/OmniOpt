@@ -31,7 +31,8 @@ var tableData = [
 		placeholder: "Name of your reservation (optional)",
 		required: false,
 		regex: "^[a-zA-Z0-9_]*$",
-		help: "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically."
+		help: "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically.",
+		regex_does_not_match_text: "The reservation name must consist of alphanumeric characters and underscores only."
 	},
 	{
 		label: "Account",

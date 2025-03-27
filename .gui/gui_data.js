@@ -31,8 +31,8 @@ var tableData = [
 		value: "",
 		placeholder: "Name of your reservation (optional)",
 		required: false,
-		regex: "^[a-zA-Z0-9_]*$",
 		help: "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically.",
+		regex: "^[a-zA-Z0-9_]*$",
 		regex_does_not_match_text: "The reservation name must consist of alphanumeric characters and underscores only."
 	},
 	{
@@ -41,7 +41,9 @@ var tableData = [
 		type: "text",
 		value: "",
 		placeholder: "Account the job should run on",
-		help: "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account."
+		help: "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account.",
+		regex: "^[a-zA-Z0-9_]*$",
+		regex_does_not_match_text: "The account name must consist of alphanumeric characters and underscores only."
 	},
 	{
 		label: "Memory (in GB)",

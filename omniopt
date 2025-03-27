@@ -360,8 +360,6 @@
 		fi
 	done
 
-exit 255
-
 	function _tput {
 		set +e
 		CHAR=$1

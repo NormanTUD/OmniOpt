@@ -5757,6 +5757,34 @@ def write_state_file(name: str, var: str) -> None:
         print_red(f"Failed writing '{file_path}': {e}")
 
 @beartype
+def get_chosen_model() -> Optional[str]:
+    chosen_model = args.model
+
+    if args.continue_previous_job and chosen_model is None:
+        continue_model_file = f"{args.continue_previous_job}/state_files/model"
+
+        found_model = False
+
+        if os.path.exists(continue_model_file):
+            chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
+
+            if chosen_model not in SUPPORTED_MODELS:
+                print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")
+            else:
+                found_model = True
+        else:
+            print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
+
+        if not found_model:
+            if args.model is not None:
+                chosen_model = args.model
+            else:
+                chosen_model = "BOTORCH_MODULAR"
+            print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
+
+    return chosen_model
+
+@beartype
 def get_generation_strategy() -> GenerationStrategy:
     generation_strategy = args.generation_strategy
 
@@ -5789,29 +5817,7 @@ def get_generation_strategy() -> GenerationStrategy:
             this_step = create_random_generation_step()
             steps.append(this_step)
 
-        chosen_model = args.model
-
-        if args.continue_previous_job and chosen_model is None:
-            continue_model_file = f"{args.continue_previous_job}/state_files/model"
-
-            found_model = False
-
-            if os.path.exists(continue_model_file):
-                chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
-
-                if chosen_model not in SUPPORTED_MODELS:
-                    print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")
-                else:
-                    found_model = True
-            else:
-                print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
-
-            if not found_model:
-                if args.model is not None:
-                    chosen_model = args.model
-                else:
-                    chosen_model = "BOTORCH_MODULAR"
-                print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
+        chosen_model = get_chosen_model()
 
         # Choose a model for the non-random step
         chosen_non_random_model = select_model(chosen_model)

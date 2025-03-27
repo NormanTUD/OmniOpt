@@ -629,7 +629,7 @@ function update_command() {
 				}
 			}
 		} else {
-			warn_msg.push("<i>Name</i> is missing.");
+			warn_msg.push("Parameter option <i>Name</i> is missing.");
 		}
 
 		if(warn_msg.length) {
@@ -638,6 +638,8 @@ function update_command() {
 		} else {
 			$($(".parameterError")[i]).html("").hide();
 		}
+
+		errors.push(...warn_msg);
 
 		i++;
 	});

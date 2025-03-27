@@ -788,63 +788,11 @@ function updateOptions(select) {
 	}
 
 	if (selectedOption === "range") {
-		valueCell.innerHTML = `
-			<table class='gui_param_table'>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Name:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Min:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
-			    </tr>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Max:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
-			    </tr>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Type:</td>
-				<td class='gui_parameter_row_cell'>
-				    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
-					<option value="float">Float</option>
-					<option value="int">Integer</option>
-				    </select>
-				</td>
-			    </tr>
-			   <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Log-Scale:</td>
-				<td class='gui_parameter_row_cell'>
-				    <input onchange="update_command()" type="checkbox" class="log_scale" />
-				</td>
-			    </tr>
-			</table>
-		    `;
+		valueCell.innerHTML = get_range_html_table(paramName);
 	} else if (selectedOption === "choice") {
-		valueCell.innerHTML = `
-			<table class='gui_param_table'>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Name:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Values (comma separated):</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
-			    </tr>
-			</table>
-		    `;
+		valueCell.innerHTML = get_choice_html_table(paramName);
 	} else if (selectedOption === "fixed") {
-		valueCell.innerHTML = `
-			<table class='gui_param_table'>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Name:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr class='gui_parameter_row'>
-				<td class='gui_parameter_row_cell'>Value:</td>
-				<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
-			    </tr>
-			</table>
-		    `;
+		valueCell.innerHTML = get_fixed_html_table(paramName);
 	}
 
 	valueCell.innerHTML += "<div style='display: none' class='error_element parameterError invert_in_dark_mode'></div>";
@@ -852,6 +800,70 @@ function updateOptions(select) {
 	update_command();
 
 	apply_theme_based_on_system_preferences();
+}
+
+function get_range_html_table (paramName) {
+	return `
+		<table class='gui_param_table'>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Name:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+		    </tr>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Min:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
+		    </tr>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Max:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
+		    </tr>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Type:</td>
+			<td class='gui_parameter_row_cell'>
+			    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
+				<option value="float">Float</option>
+				<option value="int">Integer</option>
+			    </select>
+			</td>
+		    </tr>
+		   <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Log-Scale:</td>
+			<td class='gui_parameter_row_cell'>
+			    <input onchange="update_command()" type="checkbox" class="log_scale" />
+			</td>
+		    </tr>
+		</table>
+	`;
+}
+
+function get_choice_html_table (paramName) {
+	return `
+		<table class='gui_param_table'>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Name:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+		    </tr>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Values (comma separated):</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
+		    </tr>
+		</table>
+	    `;
+}
+
+function get_fixed_html_table (paramName) {
+	return `
+		<table class='gui_param_table'>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Name:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+		    </tr>
+		    <tr class='gui_parameter_row'>
+			<td class='gui_parameter_row_cell'>Value:</td>
+			<td class='gui_parameter_row_cell'><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
+		    </tr>
+		</table>
+	`
 }
 
 function add_parameter_row(button) {

@@ -33,7 +33,6 @@ function smoothHide($elem) {
 	$elem.fadeOut(fadeTime);
 }
 
-
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent();

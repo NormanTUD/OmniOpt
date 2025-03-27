@@ -69,7 +69,7 @@ All plot scripts support to export your plot to a file.
 			$plot_type_img_path = "imgs/$plot_type.png";
 
 			if(file_exists($plot_type_img_path)) {
-				echo "<img alt='$plot_type plot example' src='$plot_type_img_path' /><br>\n";
+				echo "<img style='max-width: 80%' alt='$plot_type plot example' src='$plot_type_img_path' /><br>\n";
 			} else {
 				dier("Error: $plot_type_img_path cannot be found!");
 			}

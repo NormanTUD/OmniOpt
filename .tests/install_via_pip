@@ -55,10 +55,11 @@ if [[ -e $activate_file ]]; then
 		fi
 
 		for to_check in omniopt_plot omniopt_docker omniopt_share omniopt_evaluate; do
-		if ! which $to_check 2>/dev/null >/dev/null; then
-			echo "$to_check not found"
-			ok=0
-		fi
+			if ! which $to_check 2>/dev/null >/dev/null; then
+				echo "$to_check not found"
+				ok=0
+			fi
+		done
 	else
 		ok=0
 	fi

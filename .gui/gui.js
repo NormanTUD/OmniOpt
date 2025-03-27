@@ -748,6 +748,8 @@ function update_command() {
 	show_warnings_and_errors(warnings, errors);
 
 	update_url();
+
+	toggleHiddenConfigTableIfError();
 }
 
 function updateOptions(select) {
@@ -1517,5 +1519,16 @@ function toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_th
 		$(".remove_parameter").css("visibility", "hidden")
 	} else {
 		$(".remove_parameter").css("visibility", "unset")
+	}
+}
+
+function toggleHiddenConfigTableIfError() {
+	let table = $("#hidden_config_table");
+
+	if (!table.is(":visible") && table.find(".error_element").filter(function() {
+		var this_display = $(this).css("display");
+		return this_display !== "none" && $(this).text() !== "";
+	}).length > 0) {
+		table.toggle();
 	}
 }

@@ -48,7 +48,7 @@
 
                             <div class="dark_code_bg invert_in_dark_mode">
                                 <code id="curl_command_highlighted"></code>
-                                <code style="display: none" id="curl_command"></code>
+                                <code style="display: none" class="highlight_me" id="curl_command"></code>
                             </div>
                             <div class="invert_in_dark_mode" id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
                             <div class="invert_in_dark_mode" id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
@@ -62,7 +62,7 @@
 
                             <div class="dark_code_bg invert_in_dark_mode">
                                 <code id="command_element_highlighted"></code>
-                                <code style="display: none" id="command_element"></code>
+                                <code style="display: none" class="highlight_me" id="command_element"></code>
                             </div>
                             <div class="invert_in_dark_mode" id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
                             <div class="invert_in_dark_mode" id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>

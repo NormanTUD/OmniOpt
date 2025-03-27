@@ -32,8 +32,6 @@ function smoothShow($elem) {
 
 function smoothHide($elem) {
 	$elem.fadeOut(fadeTime);
-
-	Prism.highlightAll();
 }
 
 function smoothToggle($elem) {
@@ -1275,6 +1273,8 @@ function run_when_document_ready () {
 	initialized = true;
 
 	fadeTime = fadeTimeAfterLoading;
+
+	highlight_all_bash();
 }
 
 function test_if_equation_is_valid(str, names) {

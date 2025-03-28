@@ -1,0 +1,39 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd "$SCRIPT_DIR"
+
+cd ..
+
+git_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+
+if [ -z "$git_tag" ]; then
+	echo "No git-tag found"
+
+	exit 1
+else
+	echo "Current git-tag: $git_tag"
+fi
+
+current_date=$(date +"%Y.%m.%d")
+
+echo "[project]
+name = \"omniopt2\"
+description = \"Automatic hyperparameter optimizer based on Ax/Botorch\"
+authors = [
+  {email = \"norman.koch@tu-dresden.de\"},
+  {name = \"Norman Koch\"}
+]
+version = \"${current_date}-${git_tag}\"
+
+readme = \"README.md\"
+dynamic = [\"dependencies\"]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools.dynamic]
+dependencies = {file = [\"requirements.txt\", \"test_requirements.txt\"]}" > pyproject.toml
+
+exit 0

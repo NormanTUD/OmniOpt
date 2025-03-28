@@ -5769,11 +5769,11 @@ def get_chosen_model() -> Optional[str]:
             chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
 
             if chosen_model not in SUPPORTED_MODELS:
-                print_red(f"Wrong model >{chosen_model}< in {continue_model_file}. Cannot continue.")
+                print_red(f"Wrong model >{chosen_model}< in {continue_model_file}.")
             else:
                 found_model = True
         else:
-            print_red(f"Cannot find model under >{continue_model_file}<. Cannot continue.")
+            print_red(f"Cannot find model under >{continue_model_file}<.")
 
         if not found_model:
             if args.model is not None:

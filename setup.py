@@ -29,6 +29,7 @@ do_nothing(site.ENABLE_USER_SITE) # to trick linters...
 
 required_programs = [
     "whiptail",
+    "xterm",
     "git",
     "base64",
     "curl",
@@ -36,6 +37,14 @@ required_programs = [
     "uuidgen",
     "python3",
     "gcc",
+    "jq",
+    "zip",
+    "tail",
+    "cat",
+    "sed",
+    "grep",
+    "ls",
+    "bc",
     "resize"
 ]
 
@@ -112,11 +121,6 @@ all_needed_files.append("test_requirements.txt")
 all_needed_files.append("apt-dependencies.txt")
 all_needed_files.append(".colorfunctions.sh")
 all_needed_files.append(".shellscript_functions")
-
-print("Copying the following files:")
-print("=====================")
-print("\n".join(all_needed_files))
-print("=====================")
 
 setup(
     long_description=open('README.md', encoding="utf-8").read(),

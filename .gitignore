@@ -202,3 +202,4 @@ PLOT_TESTS
 ax
 new_runs
 .redundantdupskip
+pyproject.toml

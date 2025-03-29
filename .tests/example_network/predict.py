@@ -4,8 +4,6 @@ import sys
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, Flatten, Dense
 from tensorflow.keras.preprocessing import image
 from termcolor import colored
 

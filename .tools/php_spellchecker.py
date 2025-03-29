@@ -81,7 +81,7 @@ def check_spelling(text):
                 word = word.rstrip()
 
                 if word and is_valid_word(word):
-                    if not word.lower() in whitelisted:
+                    if word.lower() not in whitelisted:
                         filtered_words.append(word)
 
         # Find words that are misspelled

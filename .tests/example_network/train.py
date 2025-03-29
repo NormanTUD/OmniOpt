@@ -36,14 +36,12 @@ try:
         print(f"--data {args.data}: cannot be found")
         sys.exit(95)
 
-    import keras
     import resource
     import json
 
     import tensorflow as tf
     from keras import layers
 
-    from termcolor import colored
     from tensorflow.keras.preprocessing.image import ImageDataGenerator
     from tensorflow.keras.callbacks import TerminateOnNaN, EarlyStopping
     from tensorflow.keras.optimizers import Adam
@@ -156,5 +154,5 @@ try:
     print(f"VAL_ACCURACY: {val_accuracy:.4f}")
     print(f"VAL_LOSS: {val_loss:.4f}")
     print(f"RAM_USAGE: {max_ram_mb:.2f}")
-except (KeyboardInterrupt) as e:
+except (KeyboardInterrupt):
     pass

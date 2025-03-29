@@ -4990,14 +4990,29 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
         except FileNotFoundError:
-            orchestrate_todo_copy = ORCHESTRATE_TODO
-            if stdout_path not in orchestrate_todo_copy.keys():
-                ORCHESTRATE_TODO[stdout_path] = trial_index
-                print_red(f"File not found: {stdout_path}, will try again later")
-            else:
-                print_red(f"File not found: {stdout_path}, not trying again")
+            alt_path = None
+            if stdout_path.endswith(".err"):
+                alt_path = stdout_path[:-4] + ".out"
+            elif stdout_path.endswith(".out"):
+                alt_path = stdout_path[:-4] + ".err"
 
-            return None
+            if alt_path and Path(alt_path).exists():
+                stdout_path = alt_path
+                try:
+                    stdout = Path(stdout_path).read_text("UTF-8")
+                except FileNotFoundError:
+                    stdout = None
+            else:
+                stdout = None
+
+            if stdout is None:
+                orchestrate_todo_copy = ORCHESTRATE_TODO
+                if stdout_path not in orchestrate_todo_copy.keys():
+                    ORCHESTRATE_TODO[stdout_path] = trial_index
+                    print_red(f"File not found: {stdout_path}, will try again later")
+                else:
+                    print_red(f"File not found: {stdout_path}, not trying again")
+                return None
 
         for oc in orchestrator["errors"]:
             name = oc["name"]

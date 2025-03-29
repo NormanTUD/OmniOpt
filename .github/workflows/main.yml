@@ -191,7 +191,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [main-test]
+    needs: [main-test, auto-merge-to-main]
     permissions:
       contents: read
     environment: Production
@@ -228,7 +228,7 @@ jobs:
         password: ${{ secrets.PYPI_API_TOKEN }}
         packages-dir: dist/
   auto-merge-to-main:
-    needs: [main-test, deploy-to-pypi]
+    needs: [main-test]
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/main'
     steps:

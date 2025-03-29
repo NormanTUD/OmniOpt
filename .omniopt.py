@@ -4878,10 +4878,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
             except ax.exceptions.core.UnsupportedError as e:
                 if  f"{e}":
-                    print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. First, trying to mark it as completed.")
-                    _trial.mark_completed(unsafe=True)
-                    print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Second, trying to complete trial.")
-                    ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+                    print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
+                    ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
                     print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
                 else:
                     print_red(f"Error completing trial: {e}")
@@ -4904,6 +4902,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             if job:
                 try:
                     progressbar_description(["job_failed"])
+                    _trial.mark_running(no_runner_required=True)
                     ax_client.log_trial_failure(trial_index=trial_index)
                 except Exception as e:
                     print(f"ERROR while trying to mark job as failure in line {get_line_info()}: {e}")

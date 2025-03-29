@@ -4877,7 +4877,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
                 print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
             except ax.exceptions.core.UnsupportedError as e:
-                if  f"{e}":
+                if f"{e}":
                     print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
                     ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
                     print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")

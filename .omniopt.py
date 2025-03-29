@@ -5000,13 +5000,14 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
             return None
 
         for oc in orchestrator["errors"]:
-            #name = oc["name"]
+            name = oc["name"]
             match_strings = oc["match_strings"]
             behavior = oc["behavior"]
 
             for match_string in match_strings:
                 if match_string.lower() in stdout.lower():
                     if behavior not in behavs:
+                        print_debug(f"Appending behavior {behavior}, orchestrator-error-name: {name}")
                         behavs.append(behavior)
 
     return behavs

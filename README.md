@@ -1,7 +1,6 @@
 # OmniOpt2 - Hyperparameter Optimizer for SLURM-based Systems
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
-![Latest Release](https://img.shields.io/github/v/release/NormanTUD/OmniOpt)
 ![Open Issues](https://img.shields.io/github/issues/NormanTUD/OmniOpt)
 ![Open Pull Requests](https://img.shields.io/github/issues-pr/NormanTUD/OmniOpt)
 ![License](https://img.shields.io/badge/license-GNU-blue.svg)

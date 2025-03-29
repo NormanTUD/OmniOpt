@@ -2207,9 +2207,6 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
 
 @beartype
 def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
-    assert isinstance(data_dict, dict), "The parameter must be a dictionary."
-    assert isinstance(error_description, str), "The error_description must be a string."
-
     headers = list(data_dict.keys())
     data = [list(data_dict.values())]
 
@@ -2722,7 +2719,6 @@ def display_failed_jobs_table() -> None:
     header_file = os.path.join(failed_jobs_file, "headers.csv")
     parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
-    # Assert the existence of the folder and files
     if not os.path.exists(failed_jobs_file):
         print_debug(f"Failed jobs {failed_jobs_file} file does not exist.")
         return
@@ -2795,7 +2791,6 @@ def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None:
 @beartype
 def replace_string_with_params(input_string: str, params: list) -> str:
     try:
-        assert isinstance(input_string, str), "Input string must be a string"
         replaced_string = input_string
         i = 0
         for param in params:

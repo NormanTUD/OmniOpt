@@ -253,8 +253,18 @@ jobs:
           
           for branch in $(git branch -r | grep -vE 'main$|HEAD' | sed 's/origin\///'); do
             echo "Merging main into $branch..."
+            
+            # Ensure the branch is fetched and checked out
             git checkout $branch || continue
-            git merge --no-ff --no-edit main && git push origin $branch || echo "Skipping $branch due to conflicts"
+            git fetch origin $branch || continue
+
+            # Check if there are new changes before merging
+            if git diff --exit-code; then
+              echo "No changes to merge into $branch."
+            else
+              git merge --no-ff --no-edit main && git push origin $branch || echo "Skipping $branch due to conflicts"
+            fi
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

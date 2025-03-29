@@ -15,7 +15,7 @@ fi
 
 current_date=$(date +"%Y.%m.%d")
 
-version="${current_date}+${git_tag}"
+version="${git_tag}"
 
 cat > pyproject.toml <<EOF
 [project]

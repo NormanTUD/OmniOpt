@@ -15,8 +15,6 @@ import time
 import random
 import statistics
 
-special_col_names = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
-
 gotten_jobs: int = 0
 
 shown_run_live_share_command: bool = False
@@ -28,8 +26,10 @@ valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minko
 
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "LEGACY_BOTORCH", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
-IGNORABLE_COLUMNS = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
-figlet_loaded = False
+special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
+IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
+
+figlet_loaded: bool = False
 
 try:
     from rich.console import Console

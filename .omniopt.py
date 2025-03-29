@@ -5127,7 +5127,7 @@ def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
     behavs = check_orchestrator(stdout_path, trial_index)
 
-    if not behavs or behavas is None:
+    if not behavs or behavs is None:
         return
 
     hostname_from_out_file = get_hostname_from_outfile(stdout_path)

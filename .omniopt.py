@@ -4980,7 +4980,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     clean_completed_jobs()
 
 @beartype
-def check_orchestrator(stdout_path: str, trial_index: int) -> list:
+def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
     behavs: list = []
 
     if orchestrator and "errors" in orchestrator:
@@ -5127,7 +5127,7 @@ def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
     behavs = check_orchestrator(stdout_path, trial_index)
 
-    if not behavs:
+    if not behavs or behavas is None:
         return
 
     hostname_from_out_file = get_hostname_from_outfile(stdout_path)

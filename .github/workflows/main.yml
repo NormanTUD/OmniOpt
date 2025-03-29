@@ -191,7 +191,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [main-test, auto-merge-to-main]
+    needs: [main-test]
     permissions:
       contents: read
     environment: Production
@@ -223,48 +223,3 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
         packages-dir: dist/
-  auto-merge-to-main:
-    needs: [main-test]
-    runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
-    steps:
-      - name: Checkout main branch
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Merge tested branch into main
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin $GITHUB_REF --depth=1
-          git merge --no-ff --no-edit $GITHUB_REF || (echo "Merge-Conflict!" && exit 1)
-
-      - name: Push merge result
-        run: git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Merge main into all other branches
-        run: |
-          git fetch origin
-          
-          for branch in $(git branch -r | grep -vE 'main$|HEAD' | sed 's/origin\///'); do
-            echo "Merging main into $branch..."
-            
-            # Ensure the branch is fetched and checked out
-            git checkout $branch || continue
-            git fetch origin $branch || continue
-
-            # Check if there are new changes before merging
-            if git diff --exit-code; then
-              echo "No changes to merge into $branch."
-            else
-              git merge --no-ff --no-edit main && git push origin $branch || echo "Skipping $branch due to conflicts"
-            fi
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

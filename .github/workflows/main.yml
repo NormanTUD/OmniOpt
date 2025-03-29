@@ -227,3 +227,27 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
         packages-dir: dist/
+  auto-merge-to-main:
+    needs: [main-test, deploy-to-pypi]
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge tested branch into main
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git fetch origin $GITHUB_REF --depth=1
+          git merge --no-ff --no-edit $GITHUB_REF || (echo "Merge-Conflict!" && exit 1)
+
+      - name: Push merge result
+        run: git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

@@ -238,7 +238,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git fetch origin $GITHUB_REF --depth=1
           git merge --no-ff --no-edit $GITHUB_REF || (echo "Merge-Conflict!" && exit 1)
 
@@ -247,3 +247,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Merge main into all other branches
+        run: |
+          git fetch origin
+          
+          for branch in $(git branch -r | grep -vE 'main$|HEAD' | sed 's/origin\///'); do
+            echo "Merging main into $branch..."
+            git checkout $branch || continue
+            git merge --no-ff --no-edit main && git push origin $branch || echo "Skipping $branch due to conflicts"
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

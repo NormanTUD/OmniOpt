@@ -1647,7 +1647,9 @@
 		$out_files = get_log_files($run_dir);
 
 		if(count($out_files)) {
-			$tabs['Single Logs'] = [
+			$svg_icon = get_icon_html("csv.svg");
+
+			$tabs["{$svg_icon}Single Logs"] = [
 				'id' => 'tab_logs',
 				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
 			];
@@ -1967,6 +1969,6 @@
 	}
 
 	function get_icon_html ($name) {
-		return "<img class='invert_in_dark_mode' src='$name' style='height: 1em' />";
+		return "<img class='invert_in_dark_mode' src='$name' style='height: 1em' />&nbsp;";
 	}
 ?>

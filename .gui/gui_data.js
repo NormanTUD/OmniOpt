@@ -1,6 +1,6 @@
 "use strict";
 
-var valid_models = ["BOTORCH_MODULAR", "SOBOL", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
+var valid_models = ["BOTORCH_MODULAR", "SOBOL", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED", "GPEI"];
 var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
 var tableData = [

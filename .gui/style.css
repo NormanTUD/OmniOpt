@@ -478,3 +478,7 @@ input:checked + .slider .mode-text {
 .parameterRow > td {
 	border: 0px !important;
 }
+
+.parameter_config_table td, .parameter_config_table tr {
+	border: 0px !important;
+}

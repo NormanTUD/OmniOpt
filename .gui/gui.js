@@ -789,7 +789,7 @@ function updateOptions(select) {
 
 	if (selectedOption === "range") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
 					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
@@ -821,7 +821,7 @@ function updateOptions(select) {
 		    `;
 	} else if (selectedOption === "choice") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
 					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
@@ -834,7 +834,7 @@ function updateOptions(select) {
 		    `;
 	} else if (selectedOption === "fixed") {
 		valueCell.innerHTML = `
-			<table>
+			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
 					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>

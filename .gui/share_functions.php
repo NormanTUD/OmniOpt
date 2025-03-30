@@ -1874,7 +1874,9 @@
 		[$overview_html, $warnings] = add_git_version_to_overview($run_dir, $overview_html, $warnings);
 
 		if($overview_html != "") {
-			$tabs['Overview'] = [
+			$svg_icon = get_icon_html("overview.svg");
+
+			$tabs["{$svg_icon}Overview"] = [
 				'id' => 'tab_overview',
 				'content' => $overview_html
 			];

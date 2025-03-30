@@ -188,7 +188,7 @@
 	function copy_id_to_clipboard_string($id, $filename) {
 		$filename = basename($filename);
 
-		$str = "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'><span class='invert_in_dark_mode'>&#128203;</span> Copy raw data to clipboard</button>\n";
+		$str = "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'><img src='clipboard.svg' style='height: 1em'> Copy raw data to clipboard</button>\n";
 		$str .= "<button onclick='download_as_file(\"".$id."\", \"".htmlentities($filename)."\")'>&DoubleDownArrow; Download &raquo;".htmlentities($filename)."&laquo; as file</button>\n";
 
 		return $str;

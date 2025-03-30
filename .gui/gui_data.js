@@ -399,7 +399,7 @@ var hiddenTableData = [
 			},
 		],
 		required: true,
-		info: "How to merge multiple results into one. Doesn't affect single result jobs.",
+		info: "How to merge multiple results into one. Doesn't affect single result jobs or jobs with specified multiple result names.",
 		help: "How to merge multiple results into one."
 	},
 	{

@@ -406,7 +406,7 @@ function update_table_row (item, errors, warnings, command) {
 			var test_this_var_name = existing_parameter_names[k];
 
 			if(!variables_in_run_program.includes(test_this_var_name)) {
-				var err_msg = `<code>%(${test_this_var_name})</code> is defined but not used.`;
+				var err_msg = `<img src='warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> is defined but not used.`;
 				new_errors.push(err_msg);
 			}
 		}
@@ -467,8 +467,13 @@ function show_warnings_and_errors(warnings, errors) {
 
 	function formatMessages(messages, title, color) {
 		if (!Array.isArray(messages) || messages.length === 0) return '';
-		return `<h2 class="invert_in_dark_mode" style="color: ${color};">${title}:</h2><ul>` +
-			messages.map(msg => `<li style="color: ${color};">${img_warning} <span class="invert_in_dark_mode">${msg}</span></li>`).join('') +
+		return `<h2 class="invert_in_dark_mode" style="color: ${color};">${title}:</h2><ul>` + 
+			messages.map(msg => {
+				if (msg.startsWith('<img')) {
+					msg = msg.replace(/<img[^>]*>/, ''); // Entfernt das <img> Tag
+				}
+				return `<li style="color: ${color};">${img_warning} <span class="invert_in_dark_mode">${msg}</span></li>`;
+			}).join('') +
 			'</ul>';
 	}
 
@@ -563,12 +568,12 @@ function update_command() {
 				//log("minValue:", minValue);
 
 				if(isNaN(minValue)) {
-					warn_msg.push("<i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
+					warn_msg.push("<img src='warning.svg' style='height: 1em' /><i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 					is_ok = false;
 				}
 
 				if(isNaN(maxValue)) {
-					warn_msg.push("<i>maxValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
+					warn_msg.push("<img src='warning.svg' style='height: 1em' /><i>maxValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 					is_ok = false;
 				}
 
@@ -643,7 +648,7 @@ function update_command() {
 				}
 			}
 		} else {
-			warn_msg.push("Parameter option <i>Name</i> is missing.");
+			warn_msg.push("<img src='warning.svg' style='height: 1em' /> Parameter option <i>Name</i> is missing.");
 		}
 
 		if(warn_msg.length) {

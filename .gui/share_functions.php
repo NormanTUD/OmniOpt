@@ -403,7 +403,7 @@
 
 			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 
-			$svg_icon = get_icon_html("text.svg");
+			$svg_icon = get_icon_html("terminal.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,

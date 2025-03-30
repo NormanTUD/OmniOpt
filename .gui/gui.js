@@ -470,7 +470,7 @@ function show_warnings_and_errors(warnings, errors) {
 		return `<h2 class="invert_in_dark_mode" style="color: ${color};">${title}:</h2><ul>` + 
 			messages.map(msg => {
 				if (msg.startsWith('<img')) {
-					msg = msg.replace(/<img[^>]*>/, ''); // Entfernt das <img> Tag
+					msg = msg.replace(/<img[^>]*>/, '');
 				}
 				return `<li style="color: ${color};">${img_warning} <span class="invert_in_dark_mode">${msg}</span></li>`;
 			}).join('') +

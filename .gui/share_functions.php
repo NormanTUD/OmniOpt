@@ -423,7 +423,9 @@
 	function add_exit_codes_pie_plot($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotExitCodesPieChart"></div>';
 
-		$tabs['Exit-Codes'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Exit-Codes"] = [
 			'id' => 'tab_exit_codes_plot',
 			'content' => $html,
 			"onclick" => "plotExitCodesPieChart();"
@@ -588,7 +590,9 @@
 	function add_gpu_plots ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="gpu-plot"></div>';
 
-		$tabs['GPU Usage'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}GPU Usage"] = [
 			'id' => 'tab_gpu_usage',
 			'content' => $html,
 			"onclick" => "plotGPUUsage();"

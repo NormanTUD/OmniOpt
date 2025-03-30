@@ -263,7 +263,7 @@ function update_table_row (item, errors, warnings, command) {
 		var text = $("#" + item.id).val();
 
 		if(!text.match(re)) {
-			var this_error = `The element "${item.id}" does not match regex /${item.regex}/.`;
+			var this_error = `<img src='warning.svg' style='height: 1em' /> The element "${item.id}" does not match regex /${item.regex}/.`;
 			if(Object.keys(item).includes("regex_does_not_match_text")) {
 				this_error = item.regex_does_not_match_text;
 			}
@@ -281,7 +281,7 @@ function update_table_row (item, errors, warnings, command) {
 		}
 	} else if ((item.type === "textarea" || item.type === "text") && value === "") {
 		if(item.required) {
-			var this_error = "Field '" + item.label + "' is required.";
+			var this_error = "<img src='warning.svg' style='height: 1em' /> Field '" + item.label + "' is required.";
 			smoothShow($("#" + item.id + "_error").html(this_error));
 			$("#" + item.id).css("background-color", "#FFCCCC !important");
 

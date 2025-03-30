@@ -2,6 +2,8 @@ body {
 	font-family: sans-serif;
 	background-color: #fafafa;
 	font-variant: oldstyle-nums;
+	text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
+	scroll-behavior: smooth;
 }
 
 .marked_text {

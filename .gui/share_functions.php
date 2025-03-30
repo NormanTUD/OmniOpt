@@ -211,7 +211,9 @@
 			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities($worker_info).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$plot$name"] = [
 				'id' => $id,
 				'content' => $html
 			];
@@ -231,7 +233,9 @@
 			$output = "<div id='debug_log_spinner' class='spinner'></div>";
 			$output .= "<div id='here_debuglogs_go'></div>";
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("debug.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $output,
 				'onclick' => "load_debug_log()"
@@ -265,7 +269,9 @@
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html,
 				"onclick" => "plotCPUAndRAMUsage();"
@@ -360,7 +366,9 @@
 			$html_table = asciiTableToHtml($contents);
 			$html = $html_table;
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("table.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html
 			];
@@ -425,7 +433,9 @@
 	function add_violin_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotViolin"></div>';
 
-		$tabs['Violin'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Violin"] = [
 			'id' => 'tab_violin',
 			'content' => $html,
 			"onclick" => "plotViolin();"
@@ -439,7 +449,9 @@
 			if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
 				$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
 
-				$tabs['Evolution'] = [
+				$svg_icon = get_icon_html("plot.svg");
+
+				$tabs["{$svg_icon}Evolution"] = [
 					'id' => 'tab_hyperparam_evolution',
 					'content' => $html,
 					"onclick" => "plotResultEvolution();"
@@ -469,7 +481,9 @@
 	function add_histogram_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotHistogram"></div>';
 
-		$tabs['Histogram'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Histogram"] = [
 			'id' => 'tab_histogram',
 			'content' => $html,
 			"onclick" => "plotHistogram();"
@@ -526,7 +540,9 @@
 	function add_job_status_distribution($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotJobStatusDistribution"></div>';
 
-		$tabs['Job Status Distribution'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Job Status Distribution"] = [
 			'id' => 'tab_plot_job_status_distribution',
 			'content' => $html,
 			"onclick" => "plotJobStatusDistribution();"
@@ -538,7 +554,9 @@
 	function add_results_distribution_by_generation_method ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotResultsDistributionByGenerationMethod"></div>';
 
-		$tabs['Results by Generation Method'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Results by Generation Method"] = [
 			'id' => 'tab_plot_results_distribution_by_generation_method',
 			'content' => $html,
 			"onclick" => "plotResultsDistributionByGenerationMethod();"
@@ -550,7 +568,9 @@
 	function add_box_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotBoxplot"></div>';
 
-		$tabs['Boxplots'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Boxplots"] = [
 			'id' => 'tab_boxplots',
 			'content' => $html,
 			"onclick" => "plotBoxplot();"
@@ -1947,6 +1967,6 @@
 	}
 
 	function get_icon_html ($name) {
-		return "<img src='$name' style='height: 1em' />";
+		return "<img class='invert_in_dark_mode' src='$name' style='height: 1em' />";
 	}
 ?>

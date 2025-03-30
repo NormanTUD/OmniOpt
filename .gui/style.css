@@ -579,3 +579,7 @@ h1 {
 	text-decoration: none;
 	color: #007bff;
 }
+
+.gridjs-td {
+	white-space: nowrap;
+}

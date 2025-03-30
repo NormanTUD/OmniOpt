@@ -1705,6 +1705,10 @@ function _colorize_table_entries_by_generation_method () {
 	document.querySelectorAll('[data-column-id="generation_method"]').forEach(el => {
 		let color = el.textContent.includes("Manual") ? "green" :
 			el.textContent.includes("Sobol") ? "orange" :
+			el.textContent.includes("SAASBO") ? "pink" :
+			el.textContent.includes("Uniform") ? "lightblue" :
+			el.textContent.includes("Legacy_GPEI") ? "Sienna" :
+			el.textContent.includes("BO_MIXED") ? "Aqua" :
 			el.textContent.includes("BoTorch") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
 		el.classList.add("invert_in_dark_mode");
@@ -1713,7 +1717,7 @@ function _colorize_table_entries_by_generation_method () {
 
 function _colorize_table_entries_by_trial_status () {
 	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
-		let color = el.textContent.includes("COMPLETED") ? "green" :
+		let color = el.textContent.includes("COMPLETED") ? "lightgreen" :
 			el.textContent.includes("RUNNING") ? "orange" :
 			el.textContent.includes("FAILED") ? "red" : "";
 		if (color) el.style.backgroundColor = color;

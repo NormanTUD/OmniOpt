@@ -1977,6 +1977,6 @@
 	}
 
 	function get_icon_html ($name) {
-		return "<img class='invert_in_dark_mode' src='$name' style='height: 1em' />&nbsp;";
+		return "<img class='invert_icon' src='$name' style='height: 1em' />&nbsp;";
 	}
 ?>

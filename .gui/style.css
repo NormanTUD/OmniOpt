@@ -523,3 +523,7 @@ select:focus {
 select::-ms-expand {
 	display: none;
 }
+
+input, textarea {
+	border-radius: 5px;
+}

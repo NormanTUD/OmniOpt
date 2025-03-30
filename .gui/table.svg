@@ -1,7 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-  <title>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="20.00001"
+   height="16.000006"
+   viewBox="0 0 20.00001 16.000006"
+   version="1.1"
+   id="svg936"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs940" />
+  <title
+     id="title932">
     table
   </title>
-  <path d="M19.66 2.88a2 2 0 0 0-.54-.54A2 2 0 0 0 18 2H2a2 2 0 0 0-1.12.34 2 2 0 0 0-.54.54A2 2 0 0 0 0 4v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-.34-1.12zM2 6h7v4H2zm0 10v-4h7v4zm16 0h-7v-4h7zm0-6h-7V6h7z"/>
+  <path
+     d="m 19.660005,0.88000499 a 2,2 0 0 0 -0.54,-0.54 2,2 0 0 0 -1.12,-0.340000004153 h -16 A 2,2 0 0 0 0.88000499,0.34000499 a 2,2 0 0 0 -0.54,0.54 A 2,2 0 0 0 4.985847e-6,2.000005 v 12 a 2,2 0 0 0 2.000000014153,2 h 16 a 2,2 0 0 0 2,-2 v -12 a 2,2 0 0 0 -0.34,-1.12000001 z m -17.66,3.12000001 h 7 v 4 h -7 z m 0,10 v -4 h 7 v 4 z m 16,0 h -7 v -4 h 7 z m 0,-6 h -7 v -4 h 7 z"
+     id="path934" />
 </svg>

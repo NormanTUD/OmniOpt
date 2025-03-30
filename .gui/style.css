@@ -78,6 +78,7 @@ th {
 	background-color: #4eae46;
 	color: #ffffff;
 	text-align: left;
+	border: 0px;
 }
 
 table tbody tr:last-of-type {

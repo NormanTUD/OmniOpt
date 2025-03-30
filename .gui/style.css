@@ -534,3 +534,43 @@ input[type="checkbox"]:hover {
 	border-color: #2980b9;
 	background-color: #3caffc;
 }
+
+h1 {
+	text-align: center;
+}
+
+.toc {
+	margin-bottom: 20px;
+}
+
+.toc li {
+	margin-bottom: 5px;
+}
+
+.toc a {
+	text-decoration: none;
+	color: #007bff;
+}
+
+.toc a:hover {
+	text-decoration: underline;
+}
+
+.table-container {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.section-header {
+	background-color: #1d6f9a !important;
+	color: white;
+}
+
+.warning {
+	color: red;
+}
+
+.li_list a {
+	text-decoration: none;
+	color: #007bff;
+}

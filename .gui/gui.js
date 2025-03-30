@@ -648,7 +648,6 @@ function update_command() {
 
 		if(warn_msg.length) {
 			smoothShow($($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)));
-			//set_row_background_color_red_color($($(".parameterRow")[i]));
 		} else {
 			$($(".parameterError")[i]).html("").hide();
 		}

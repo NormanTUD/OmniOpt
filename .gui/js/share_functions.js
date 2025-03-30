@@ -1741,18 +1741,20 @@ function _colorize_table_entries_by_result() {
 		let cells = [...document.querySelectorAll(selector_query)];
 		if (cells.length === 0) return;
 
-		let values = cells.map(el => parseFloat(el.textContent)).filter(v => !isNaN(v));
+		let values = cells.map(el => parseFloat(el.textContent)).filter(v => v > 0 && !isNaN(v));
 		if (values.length === 0) return;
 
-		let min = Math.min(...values);
-		let max = Math.max(...values);
-		let range = max - min || 1;
+		let logValues = values.map(v => Math.log(v));
+		let logMin = Math.min(...logValues);
+		let logMax = Math.max(...logValues);
+		let logRange = logMax - logMin || 1;
 
 		cells.forEach(el => {
 			let value = parseFloat(el.textContent);
-			if (isNaN(value)) return;
+			if (isNaN(value) || value <= 0) return;
 
-			let ratio = (value - min) / range;
+			let logValue = Math.log(value);
+			let ratio = (logValue - logMin) / logRange;
 			if (minMax === "max") ratio = 1 - ratio;
 
 			let red = Math.round(255 * ratio);

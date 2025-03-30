@@ -1,6 +1,6 @@
 "use strict";
 
-var valid_models = ["BOTORCH_MODULAR", "SOBOL", "GPEI", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
+var valid_models = ["BOTORCH_MODULAR", "SOBOL", "FACTORIAL", "SAASBO", "FULLYBAYESIAN", "LEGACY_BOTORCH", "UNIFORM", "BO_MIXED"];
 var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
 var tableData = [
@@ -250,7 +250,6 @@ var hiddenTableData = [
 			<ul>
 			    <li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
 			    <li><a target="_blank" href="https://en.wikipedia.org/wiki/Sobol_sequence">SOBOL</a>: Random search</li>
-			    <li><i><a href='https://arxiv.org/pdf/1807.02811'>GPEI</a></i>: Uses Expected Improvement based on a Gaussian Process model to choose the next evaluation point.</li>
 			    <li>FACTORIAL: <a target='_blank' href='https://ax.dev/tutorials/factorial.html'>All possible combinations</a></li>
 			    <li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
 			    <li>FULLYBAYESIAN: Considers the full uncertainty of the Bayesian model in the optimization process</li>

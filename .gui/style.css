@@ -1,3 +1,9 @@
+body {
+	font-family: sans-serif;
+	background-color: #fafafa;
+	font-variant: oldstyle-nums;
+}
+
 .marked_text {
 	background-color: yellow;
 }
@@ -25,11 +31,6 @@
 h2 {
 	margin: 0;
 	padding: 0;
-}
-
-body {
-	font-family: sans-serif;
-	background-color: #fafafa;
 }
 
 .dark_code_bg {
@@ -64,11 +65,10 @@ table > tbody > tr:nth-child(even) {
 table {
 	border-collapse: collapse;
 	margin: 25px 0;
-	font-size: 0.9em;
 	min-width: 200px;
 }
 
-table thead tr {
+th {
 	background-color: #4eae46;
 	color: #ffffff;
 	text-align: left;
@@ -245,7 +245,6 @@ a, a:visited, a:active, a:hover, a:link {
 	position: relative;
 	cursor: pointer;
 	margin-left: 10px;
-	font-size: 0.9em;
 	color: blue;
 }
 

@@ -1743,7 +1743,7 @@
 		if(count($result_names)) {
 			$result_names_table = '<h2>Result names and types:</h2>'."\n";
 			$result_names_table .= '<br><table border="1">'."\n";
-			$result_names_table .= '<tr><th style="border: 1px solid black">name</th><th style="border: 1px solid black">min/max</th></tr>'."\n";
+			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>'."\n";
 			for ($i = 0; $i < count($result_names); $i++) {
 				$min_or_max = "min";
 
@@ -1752,8 +1752,8 @@
 				}
 
 				$result_names_table .= '<tr>'."\n";
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($result_names[$i]) . '</td>'."\n";
-				$result_names_table .= '<td style="border: 1px solid black">' . htmlspecialchars($min_or_max) . '</td>'."\n";
+				$result_names_table .= '<td>' . htmlspecialchars($result_names[$i]) . '</td>'."\n";
+				$result_names_table .= '<td>' . htmlspecialchars($min_or_max) . '</td>'."\n";
 				$result_names_table .= '</tr>'."\n";
 			}
 			$result_names_table .= '</table><br>'."\n";
@@ -1798,14 +1798,14 @@
 
 				foreach ($status_data as $key => $value) {
 					$capitalizedKey = ucfirst($key);
-					$overview_table .= '<th style="border: 1px solid black">' . $capitalizedKey . '</th>'."\n";
+					$overview_table .= '<th>' . $capitalizedKey . '</th>'."\n";
 				}
 				$overview_table .= '</tr>'."\n";
 
 				$overview_table .= '<tr>'."\n";
 
 				foreach ($status_data as $value) {
-					$overview_table .= '<td style="border: 1px solid black">' . $value . '</td>'."\n";
+					$overview_table .= '<td>' . $value . '</td>'."\n";
 				}
 				$overview_table .= '</tr>'."\n";
 

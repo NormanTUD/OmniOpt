@@ -263,12 +263,12 @@ function update_table_row (item, errors, warnings, command) {
 		var text = $("#" + item.id).val();
 
 		if(!text.match(re)) {
-			var this_error = `<img src='warning.svg' style='height: 1em' /> The element "${item.id}" does not match regex /${item.regex}/.`;
+			var this_error = `The element "${item.id}" does not match regex /${item.regex}/.`;
 			if(Object.keys(item).includes("regex_does_not_match_text")) {
 				this_error = item.regex_does_not_match_text;
 			}
 			errors.push(this_error);
-			smoothShow($("#" + item.id + "_error").html(this_error));
+			smoothShow($("#" + item.id + "_error").html(`<img src='warning.svg' style='height: 1em' /> ${this_error}`));
 		} else {
 			smoothHide($("#" + item.id + "_error").html(""));
 		}

@@ -1548,7 +1548,7 @@ def sort_numerically_or_alphabetically(arr: list) -> list:
 def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
         print_debug(f"{f} not found")
-        original_print(f"{f} not found")
+        print_red(f"{f} not found")
         return ""
 
     fs = get_file_as_string(f)

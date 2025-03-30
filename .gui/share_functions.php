@@ -604,7 +604,7 @@
 			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
 			$results_html .= "<pre id='{$id}_csv_table_pre'>".$content."</pre>\n";
 			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
-			$results_html .= "<script>\n\tcreateTable({$id}_csv_json, {$id}_headers_json, '{$id}_csv_table')</script>\n";
+			$results_html .= "<script>\n\tcreateTable({$id}_csv_json, {$id}_headers_json, '{$id}_csv_table');</script>\n";
 
 			$tabs[$name] = [
 				'id' => $id,

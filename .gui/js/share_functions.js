@@ -66,6 +66,8 @@ function createTable(data, headers, table_name) {
 	}).render(document.getElementById(table_name));
 
 	apply_theme_based_on_system_preferences();
+
+	colorize_table_entries();
 }
 
 function download_as_file(id, filename) {
@@ -1700,12 +1702,14 @@ function plotJobStatusDistribution() {
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
 function colorize_table_entries () {
-	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
-		let color = el.textContent.includes("COMPLETED") ? "green" :
-			el.textContent.includes("RUNNING") ? "orange" :
-			el.textContent.includes("FAILED") ? "red" : "";
-		if (color) el.style.backgroundColor = color;
-	});
+	setTimeout(() => {
+		document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
+			let color = el.textContent.includes("COMPLETED") ? "green" :
+				el.textContent.includes("RUNNING") ? "orange" :
+				el.textContent.includes("FAILED") ? "red" : "";
+			if (color) el.style.backgroundColor = color;
+		});
+	}, 300);
 }
 
 $( document ).ready(function() {

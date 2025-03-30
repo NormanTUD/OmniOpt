@@ -291,7 +291,7 @@
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter3d'></div>";
 
-			$svg_icon = get_icon_html("plot.svg");
+			$svg_icon = get_icon_html("scatter.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,
@@ -307,7 +307,7 @@
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter2d'></div>";
 
-			$svg_icon = get_icon_html("plot.svg");
+			$svg_icon = get_icon_html("scatter.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,

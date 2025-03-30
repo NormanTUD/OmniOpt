@@ -391,6 +391,7 @@ input:checked + .slider .mode-text {
 
 #share_path {
 	margin-bottom: 20px;
+	margin-top: 20px;
 }
 
 #sortForm {

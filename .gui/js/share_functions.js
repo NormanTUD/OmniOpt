@@ -1778,7 +1778,7 @@ function _colorize_table_entries_by_result() {
 }
 
 function _colorize_table_entries_by_generation_node() {
-	let selector_query = '[data-column-id="generation_node"]';
+	let selector_query = '[data-column-id="generation_node"]:not(.gridjs-th)';
 	let cells = [...document.querySelectorAll(selector_query)];
 	if (cells.length === 0) return;
 

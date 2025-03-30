@@ -527,3 +527,13 @@ select::-ms-expand {
 input, textarea {
 	border-radius: 5px;
 }
+
+#search {
+	background-image: url(images/search.svg);
+	background-repeat: no-repeat;
+	background-size: auto 40px;
+	height: 40px;
+	line-height: 40px;
+	padding-left: 40px;
+	box-sizing: border-box;
+}

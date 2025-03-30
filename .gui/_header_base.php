@@ -226,7 +226,6 @@
 			</table>
 		<br>
 		<span style="display: inline-flex;">
-			<img src="<?php print get_main_script_dir(); ?>/images/search.svg" height=32 alt="Search">
 			<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 600px;" type="text" placeholder="Search help topics and shares (Regex)..." id="search">
 			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()">&#10060;</button>
 		</span>

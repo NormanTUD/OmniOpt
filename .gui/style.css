@@ -540,3 +540,36 @@ input, textarea {
 	padding-left: 40px;
 	box-sizing: border-box;
 }
+
+input[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	width: 25px;
+	height: 25px;
+	border: 2px solid #3498db;
+	border-radius: 5px;
+	background-color: #fff;
+	position: relative;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	width: 25px !important;
+}
+
+input[type="checkbox"]:checked {
+	background-color: #3498db;
+	border-color: #2980b9;
+}
+
+input[type="checkbox"]:checked::before {
+	content: '✔';
+	position: absolute;
+	left: 4px;
+	top: 2px;
+	color: #fff;
+}
+
+input[type="checkbox"]:hover {
+	border-color: #2980b9;
+	background-color: #3caffc;
+}

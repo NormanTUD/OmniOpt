@@ -97,7 +97,7 @@ function enable_light_mode() {
 	unloadCss("jquery-ui.darkmode.css");
 
 	$("body").css("color", "unset");
-	$("body").css("background-color", "unset");
+	$("body").css("background-color", "#fafafa");
 	$(".header_table").css("color", "unset");
 	$(".window").css("background", "#ece9d8");
 

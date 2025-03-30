@@ -59,7 +59,7 @@ function enable_dark_mode() {
 
 	$("html").css("filter", "invert(1)");
 	$(".invert_in_dark_mode").css("filter", "invert(1)");
-	$("img").css("filter", "invert(1)");
+	$("img").not($(".invert_in_dark_mode img")).css("filter", "invert(1)");
 	$(".share_graph").css("filter", "invert(1)");
 	$(".usage_plot").css("filter", "invert(1)");
 

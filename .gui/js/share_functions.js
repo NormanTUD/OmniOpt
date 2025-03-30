@@ -1705,6 +1705,7 @@ function _colorize_table_entries_by_trial_status () {
 	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
 		let color = el.textContent.includes("COMPLETED") ? "green" :
 			el.textContent.includes("RUNNING") ? "orange" :
+			el.textContent.includes("MANUAL") ? "yellow" :
 			el.textContent.includes("FAILED") ? "red" : "";
 		if (color) el.style.backgroundColor = color;
 	});

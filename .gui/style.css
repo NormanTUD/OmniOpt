@@ -30,8 +30,6 @@ h2 {
 body {
 	font-family: sans-serif;
 	margin-bottom: 100px;
-	transform: scale(1.2);
-	transform-origin: top left;
 }
 
 .dark_code_bg {

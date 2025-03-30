@@ -1626,7 +1626,9 @@
 			if($pareto_front_html) {
 				$pareto_front_html = "<div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
 
-				$tabs['Pareto-Fronts'] = [
+				$svg_icon = get_icon_html("plot.svg");
+
+				$tabs["{$svg_icon}Pareto-Fronts"] = [
 					'id' => 'tab_pareto_fronts',
 					'content' => $pareto_front_html,
 					'onclick' => "load_pareto_graph();"

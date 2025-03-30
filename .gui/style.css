@@ -482,3 +482,7 @@ input:checked + .slider .mode-text {
 .parameter_config_table td, .parameter_config_table tr, #hidden_config_table td, #hidden_config_table tr {
 	border: 0px !important;
 }
+
+.green_text {
+	color: green;
+}

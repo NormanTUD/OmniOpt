@@ -1,16 +1,6 @@
 # OmniOpt2 - Hyperparameter Optimizer for SLURM-based Systems
 
 ![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
-![Open Issues](https://img.shields.io/github/issues/NormanTUD/OmniOpt)
-![Open Pull Requests](https://img.shields.io/github/issues-pr/NormanTUD/OmniOpt)
-![License](https://img.shields.io/badge/license-GNU-blue.svg)
-![Bug Issues](https://img.shields.io/github/issues/NormanTUD/OmniOpt/bug)
-![GitHub Repo stars](https://img.shields.io/github/stars/NormanTUD/OmniOpt)
-![Pull Requests](https://img.shields.io/github/issues-pr/NormanTUD/OmniOpt)
-![Stars](https://img.shields.io/github/stars/NormanTUD/OmniOpt)
-![Forks](https://img.shields.io/github/forks/NormanTUD/OmniOpt)
-![Contributors](https://img.shields.io/github/contributors/NormanTUD/OmniOpt)
-![Last Commit](https://img.shields.io/github/last-commit/NormanTUD/OmniOpt)
 
 OmniOpt2 is a tool designed to assist researchers, engineers, and data
 scientists with hyperparameter optimization on SLURM-based clusters, even

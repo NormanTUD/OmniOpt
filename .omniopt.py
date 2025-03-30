@@ -4905,7 +4905,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                     _trial.mark_running(no_runner_required=True)
                     ax_client.log_trial_failure(trial_index=trial_index)
                 except Exception as e:
-                    print(f"\nERROR while trying to mark job as failure in line {get_line_info()}: {e}\n")
+                    print(f"\nERROR while trying to mark job as failure in line {get_line_info()}: {e}")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 
@@ -4942,7 +4942,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+            except (SignalINT, SignalUSR, SignalCONT, FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:

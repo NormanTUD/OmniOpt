@@ -397,7 +397,7 @@ function update_table_row (item, errors, warnings, command) {
 			var test_this_var_name = variables_in_run_program[k];
 
 			if(!existing_parameter_names.includes(test_this_var_name)) {
-				var err_msg = `<code>%(${test_this_var_name})</code> not in existing defined parameters.`;
+				var err_msg = `<img src='warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> not in existing defined parameters.`;
 				new_errors.push(err_msg);
 			}
 		}

@@ -486,3 +486,7 @@ input:checked + .slider .mode-text {
 .green_text {
 	color: green;
 }
+
+.remove_parameter {
+	white-space: pre;
+}

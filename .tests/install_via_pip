@@ -24,6 +24,8 @@ for install_type in omniopt git; do
 		omniopt --help
 		exit_code=$?
 
+		echo "omniopt --help exited with $exit_code"
+
 		if [[ $exit_code -eq 0 ]]; then
 			omniopt \
 				--partition=alpha \
@@ -52,8 +54,9 @@ for install_type in omniopt git; do
 				--slurm_signal_delay_s=0 \
 				--parameter x range 123 100000000 int false \
 				--parameter y range 5431 1234 float false
-			omniopt --help
 			exit_code=$?
+
+			echo "omniopt-main-script exited with $exit_code"
 
 			if [[ $exit_code -ne 0 ]]; then
 				ok=0

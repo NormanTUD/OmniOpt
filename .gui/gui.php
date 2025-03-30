@@ -50,8 +50,8 @@
                                 <code id="curl_command_highlighted"></code>
                                 <code style="display: none" id="curl_command"></code>
                             </div>
-                            <div class="invert_in_dark_mode" id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl">&#128203; Copy to clipboard</button></div>
-                            <div class="invert_in_dark_mode" id="copied_curl" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+                            <div id="copytoclipboard_curl"><button type="button" id="copytoclipboardbutton_curl"><img src='clipboard.svg' style='height: 1em' /> Copy to clipboard</button></div>
+                            <div class="invert_in_dark_mode" id="copied_curl" style="display: none"><img src='clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b></div>
 
                             <br>
                             <br>
@@ -64,8 +64,8 @@
                                 <code id="command_element_highlighted"></code>
                                 <code style="display: none" id="command_element"></code>
                             </div>
-                            <div class="invert_in_dark_mode" id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main">&#128203; Copy to clipboard</button></div>
-                            <div class="invert_in_dark_mode" id="copied_main" style="display: none">&#128203; <b>Copied bash command to the clipboard</b></div>
+                            <div id="copytoclipboard_main"><button type="button" id="copytoclipboardbutton_main"><img src='clipboard.svg' style='height: 1em' /> Copy to clipboard</button></div>
+                            <div class="invert_in_dark_mode" id="copied_main" style="display: none"><img src='clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b></div>
                         </div>
                         <div id="warnings" style="display: none"></div>
                     </td>

@@ -158,7 +158,9 @@ var tableData = [
 		required: true,
 		regex: /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max)(\s\s*|$))?)(\s|$)?)+)$/,
 		help: "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.",
-		info: "This is used for the regex to search through the <tt>STDOUT</tt> of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. Default, if min or max is not specified, is minimizing. Adding values here is the same as doing Multi-Objective-Optimization."
+		info: "This is used for the regex to search through the <tt>STDOUT</tt> of your program to find result-values. You can define multiple result values like this: <tt>result1 result2 result3</tt>. Can also be defined with min and max: <tt>LOSS=min PERFORMANCE=max ...</tt>. Default, if min or max is not specified, is minimizing. Adding values here is the same as doing Multi-Objective-Optimization.",
+		regex_does_not_match_text: "The value must consist of one or more alphanumeric identifiers separated by spaces. Each identifier can optionally have an assignment, which can either be '=min' or '=max', which is optional though. Default is min. The assignment must end with a space or the end of the string. Each identifier must start with a letter and can contain letters, numbers, or underscores."
+
 	},
 	{
 		label: "Run program",

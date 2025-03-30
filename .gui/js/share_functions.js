@@ -1701,15 +1701,21 @@ function plotJobStatusDistribution() {
 
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
-function _colorize_table_entries_by_trial_status() {
+function _colorize_table_entries_by_generation_method () {
+	document.querySelectorAll('[data-column-id="generation_method"]').forEach(el => {
+		let color = el.textContent.includes("Manual") ? "green" :
+			el.textContent.includes("Sobol") ? "orange" :
+			el.textContent.includes("BoTorch") ? "yellow" : "";
+		if (color) el.style.backgroundColor = color;
+	});
+}
+
+function _colorize_table_entries_by_trial_status () {
 	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
 		let color = el.textContent.includes("COMPLETED") ? "green" :
 			el.textContent.includes("RUNNING") ? "orange" :
 			el.textContent.includes("FAILED") ? "red" : "";
-		if (color) {
-			el.style.backgroundColor = color;
-			el.classList.add("invert_in_dark_mode");
-		}
+		if (color) el.style.backgroundColor = color;
 	});
 }
 
@@ -1733,7 +1739,6 @@ function _colorize_table_entries_by_run_time() {
 		let green = Math.round(255 * (1 - ratio));
 
 		el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-		el.classList.add("invert_in_dark_mode");
 	});
 }
 
@@ -1764,7 +1769,6 @@ function _colorize_table_entries_by_result() {
 			let green = Math.round(255 * (1 - ratio));
 
 			el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-			el.classList.add("invert_in_dark_mode");
 		});
 	});
 }
@@ -1774,6 +1778,7 @@ function colorize_table_entries () {
 		_colorize_table_entries_by_trial_status();
 		_colorize_table_entries_by_result();
 		_colorize_table_entries_by_run_time();
+		_colorize_table_entries_by_generation_method();
 	}, 300);
 }
 

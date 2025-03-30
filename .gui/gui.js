@@ -866,13 +866,12 @@ function add_parameter_row(button) {
 	var valueCell = newRow.insertCell(1);
 	var buttonCell = newRow.insertCell(2);
 
-	optionCell.innerHTML = `
-		<select onchange='updateOptions(this)' class='optionSelect'>
-			<option value='range'>Range</option>
-			<option value='choice'>Choice</option>
-			<option value='fixed'>Fixed</option>
-		</select>
-	`;
+	optionCell.innerHTML = `<select onchange='updateOptions(this)' class='optionSelect'>
+		<option value='range'>Range</option>
+		<option value='choice'>Choice</option>
+		<option value='fixed'>Fixed</option>
+		</select>`;
+
 	valueCell.innerHTML = "";
 
 	buttonCell.innerHTML = "<button class='remove_parameter' onclick='remove_parameter_row(this)'><img class='invert_in_dark_mode' style='height: 1em' src='red_x.svg' />&nbsp;Remove</button>";

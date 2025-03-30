@@ -590,7 +590,7 @@
 	function add_gpu_plots ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="gpu-plot"></div>';
 
-		$svg_icon = get_icon_html("plot.svg");
+		$svg_icon = get_icon_html("gpu.svg");
 
 		$tabs["{$svg_icon}GPU Usage"] = [
 			'id' => 'tab_gpu_usage',

@@ -589,7 +589,11 @@ function plotScatter2d() {
 					showlegend: false
 				};
 
-				plotDiv.replaceChild(subDiv, spinnerContainer);
+				try {
+					plotDiv.replaceChild(subDiv, spinnerContainer);
+				} catch (err) {
+					//
+				}
 				Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
 			}
 		}

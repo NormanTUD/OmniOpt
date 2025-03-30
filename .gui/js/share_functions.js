@@ -1781,25 +1781,27 @@ function _colorize_table_entries_by_result() {
 	});
 }
 
-function _colorize_table_entries_by_generation_node() {
-	let selector_query = '[data-column-id="generation_node"]:not(.gridjs-th)';
-	let cells = [...document.querySelectorAll(selector_query)];
-	if (cells.length === 0) return;
+function _colorize_table_entries_by_generation_node_or_hostname() {
+	["hostname", "generation_node"].forEach(element => {
+		let selector_query = '[data-column-id="' + element + '"]:not(.gridjs-th)';
+		let cells = [...document.querySelectorAll(selector_query)];
+		if (cells.length === 0) return;
 
-	let uniqueValues = [...new Set(cells.map(el => el.textContent.trim()))];
-	let colorMap = {};
+		let uniqueValues = [...new Set(cells.map(el => el.textContent.trim()))];
+		let colorMap = {};
 
-	uniqueValues.forEach((value, index) => {
-		let hue = Math.round((360 / uniqueValues.length) * index);
-		colorMap[value] = `hsl(${hue}, 70%, 60%)`;
-	});
+		uniqueValues.forEach((value, index) => {
+			let hue = Math.round((360 / uniqueValues.length) * index);
+			colorMap[value] = `hsl(${hue}, 70%, 60%)`;
+		});
 
-	cells.forEach(el => {
-		let value = el.textContent.trim();
-		if (colorMap[value]) {
-			el.style.backgroundColor = colorMap[value];
-			el.classList.add("invert_in_dark_mode");
-		}
+		cells.forEach(el => {
+			let value = el.textContent.trim();
+			if (colorMap[value]) {
+				el.style.backgroundColor = colorMap[value];
+				el.classList.add("invert_in_dark_mode");
+			}
+		});
 	});
 }
 
@@ -1809,7 +1811,7 @@ function colorize_table_entries () {
 		_colorize_table_entries_by_result();
 		_colorize_table_entries_by_run_time();
 		_colorize_table_entries_by_generation_method();
-		_colorize_table_entries_by_generation_node();
+		_colorize_table_entries_by_generation_node_or_hostname();
 		apply_theme_based_on_system_preferences();
 	}, 300);
 }

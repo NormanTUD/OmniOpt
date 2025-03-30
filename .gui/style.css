@@ -479,6 +479,6 @@ input:checked + .slider .mode-text {
 	border: 0px !important;
 }
 
-.parameter_config_table td, .parameter_config_table tr {
+.parameter_config_table td, .parameter_config_table tr, #hidden_config_table td, #hidden_config_table tr {
 	border: 0px !important;
 }

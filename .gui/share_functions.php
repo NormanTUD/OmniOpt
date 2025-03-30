@@ -471,7 +471,9 @@
 	function add_plot_result_pairs ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotResultPairs"></div>';
 
-		$tabs['Result-Pairs'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Result-Pairs"] = [
 			'id' => 'tab_result_pairs',
 			'content' => $html,
 			"onclick" => "plotResultPairs();"
@@ -530,7 +532,9 @@
 ";
 		$html = '<div class="invert_in_dark_mode" id="plotHeatmap"></div><br>'.$explanation;
 
-		$tabs['Heatmap'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["${svg_icon}Heatmap"] = [
 			'id' => 'tab_heatmap',
 			'content' => $html,
 			"onclick" => "plotHeatmap();"

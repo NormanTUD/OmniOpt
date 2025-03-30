@@ -4905,7 +4905,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                     _trial.mark_running(no_runner_required=True)
                     ax_client.log_trial_failure(trial_index=trial_index)
                 except Exception as e:
-                    print(f"ERROR while trying to mark job as failure in line {get_line_info()}: {e}")
+                    print(f"\nERROR while trying to mark job as failure in line {get_line_info()}: {e}\n")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 

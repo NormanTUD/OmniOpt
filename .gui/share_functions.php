@@ -403,7 +403,9 @@
 
 			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("text.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html
 			];
@@ -1647,7 +1649,7 @@
 		$out_files = get_log_files($run_dir);
 
 		if(count($out_files)) {
-			$svg_icon = get_icon_html("csv.svg");
+			$svg_icon = get_icon_html("tabs.svg");
 
 			$tabs["{$svg_icon}Single Logs"] = [
 				'id' => 'tab_logs',

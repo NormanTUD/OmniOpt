@@ -1777,12 +1777,35 @@ function _colorize_table_entries_by_result() {
 	});
 }
 
+function _colorize_table_entries_by_generation_node() {
+	let selector_query = '[data-column-id="generation_node"]';
+	let cells = [...document.querySelectorAll(selector_query)];
+	if (cells.length === 0) return;
+
+	let uniqueValues = [...new Set(cells.map(el => el.textContent.trim()))];
+	let colorMap = {};
+
+	uniqueValues.forEach((value, index) => {
+		let hue = Math.round((360 / uniqueValues.length) * index);
+		colorMap[value] = `hsl(${hue}, 70%, 60%)`;
+	});
+
+	cells.forEach(el => {
+		let value = el.textContent.trim();
+		if (colorMap[value]) {
+			el.style.backgroundColor = colorMap[value];
+			el.classList.add("invert_in_dark_mode");
+		}
+	});
+}
+
 function colorize_table_entries () {
 	setTimeout(() => {
 		_colorize_table_entries_by_trial_status();
 		_colorize_table_entries_by_result();
 		_colorize_table_entries_by_run_time();
 		_colorize_table_entries_by_generation_method();
+		_colorize_table_entries_by_generation_node();
 		apply_theme_based_on_system_preferences();
 	}, 300);
 }

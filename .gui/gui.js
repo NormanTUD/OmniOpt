@@ -790,59 +790,59 @@ function updateOptions(select) {
 	if (selectedOption === "range") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr>
-				<td>Min:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
-			    </tr>
-			    <tr>
-				<td>Max:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
-			    </tr>
-			    <tr>
-				<td>Type:</td>
-				<td>
-				    <select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
-					<option value="float">Float</option>
-					<option value="int">Integer</option>
-				    </select>
-				</td>
-			    </tr>
-			   <tr>
-				<td>Log-Scale:</td>
-				<td>
-				    <input onchange="update_command()" type="checkbox" class="log_scale" />
-				</td>
-			    </tr>
+				<tr>
+					<td>Name:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+				</tr>
+				<tr>
+					<td>Min:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
+				</tr>
+				<tr>
+					<td>Max:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
+				</tr>
+				<tr>
+					<td>Type:</td>
+					<td>
+						<select onchange="update_command()" onkeyup="update_command()" onclick="update_command()" class="numberTypeSelect">
+							<option value="float">Float</option>
+							<option value="int">Integer</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Log-Scale:</td>
+					<td>
+						<input onchange="update_command()" type="checkbox" class="log_scale" />
+					</td>
+				</tr>
 			</table>
 		    `;
 	} else if (selectedOption === "choice") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr>
-				<td>Values (comma separated):</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
-			    </tr>
+				<tr>
+					<td>Name:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+				</tr>
+				<tr>
+					<td>Values (comma separated):</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
+				</tr>
 			</table>
 		    `;
 	} else if (selectedOption === "fixed") {
 		valueCell.innerHTML = `
 			<table>
-			    <tr>
-				<td>Name:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
-			    </tr>
-			    <tr>
-				<td>Value:</td>
-				<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
-			    </tr>
+				<tr>
+					<td>Name:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+				</tr>
+				<tr>
+					<td>Value:</td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
+				</tr>
 			</table>
 		    `;
 	}

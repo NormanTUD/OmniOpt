@@ -474,3 +474,7 @@ input:checked + .slider .mode-text {
 	margin: 0px;
 	border: unset;
 }
+
+.parameterRow > td {
+	border: 0px !important;
+}

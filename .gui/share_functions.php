@@ -269,7 +269,7 @@
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 
-			$svg_icon = get_icon_html("plot.svg");
+			$svg_icon = get_icon_html("cpu.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,

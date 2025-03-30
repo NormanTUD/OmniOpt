@@ -285,7 +285,9 @@
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter3d'></div>";
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html,
 				"onclick" => "plotScatter3d()"
@@ -299,7 +301,9 @@
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter2d'></div>";
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html,
 				"onclick" => "plotScatter2d();"
@@ -320,7 +324,9 @@
 
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_contents;
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html,
 				"onclick" => "plotWorkerUsage();"
@@ -568,7 +574,9 @@
 	function add_parallel_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
 
-		$tabs['Parallel Plot'] = [
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Parallel Plot"] = [
 			'id' => 'tab_parallel',
 			'content' => $html,
 			"onclick" => "createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names);"

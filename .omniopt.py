@@ -4902,8 +4902,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             if job:
                 try:
                     progressbar_description(["job_failed"])
-                    _trial.mark_running(no_runner_required=True)
-                    ax_client.log_trial_failure(trial_index=trial_index)
+                    ax_client.log_trial_failure(trial_index=trial_index, unsafe=True)
                 except Exception as e:
                     print(f"\nERROR while trying to mark job as failure in line {get_line_info()}: {e}")
                 job.cancel()

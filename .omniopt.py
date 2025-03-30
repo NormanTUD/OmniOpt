@@ -4942,7 +4942,9 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
-            except (SignalINT, SignalUSR, SignalCONT, FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+            except (SignalINT, SignalUSR, SignalCONT) as e:
+                print_red("Cancelled finish_job_core: {e}")
+            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
                 if "None for metric" in str(error):
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:

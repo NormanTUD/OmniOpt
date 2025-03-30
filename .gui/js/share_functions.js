@@ -1699,6 +1699,15 @@ function plotJobStatusDistribution() {
 
 document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
 
+function colorize_table_entries () {
+	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
+		let color = el.textContent.includes("COMPLETED") ? "green" :
+			el.textContent.includes("RUNNING") ? "orange" :
+			el.textContent.includes("FAILED") ? "red" : "";
+		if (color) el.style.backgroundColor = color;
+	});
+}
+
 $( document ).ready(function() {
 	add_up_down_arrows_for_scrolling();
 });

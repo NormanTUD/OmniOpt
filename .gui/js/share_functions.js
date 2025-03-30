@@ -1753,7 +1753,7 @@ function _colorize_table_entries_by_result() {
 			if (isNaN(value)) return;
 
 			let ratio = (value - min) / range;
-			if (minMax === "max") ratio = 1 - ratio; // Umkehren für Maximierung
+			if (minMax === "max") ratio = 1 - ratio;
 
 			let red = Math.round(255 * ratio);
 			let green = Math.round(255 * (1 - ratio));

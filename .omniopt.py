@@ -4260,7 +4260,7 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
 @beartype
 def clean_completed_jobs() -> None:
-    job_states_to_be_removed = ["completed", "early_stopped", "abandoned", "cancelled", "timeout"]
+    job_states_to_be_removed = ["completed", "early_stopped", "abandoned", "cancelled", "timeout", "interrupted"]
     job_states_to_be_ignored = ["unknown", "pending", "running", "completing"]
 
     for job, trial_index in global_vars["jobs"][:]:
@@ -4904,7 +4904,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                     progressbar_description(["job_failed"])
                     ax_client.log_trial_failure(trial_index=trial_index, unsafe=True)
                 except Exception as e:
-                    print(f"\nERROR while trying to mark job as failure in line {get_line_info()}: {e}")
+                    print(f"\nERROR while trying to mark job as failure: {e}")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 

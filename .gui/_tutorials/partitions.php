@@ -20,31 +20,44 @@
 		$html = '<table cellpadding="5" cellspacing="0">';
 		$html .= '<thead>';
 		$html .= '<tr class="invert_in_dark_mode">';
-		$html .= '<th>Partition Name</th>';
-		$html .= '<th>Number of Workers</th>';
-		$html .= '<th>Computation Time (min)</th>';
-		$html .= '<th>Max GPUs</th>';
-		$html .= '<th>Min GPUs</th>';
-		$html .= '<th>Max Memory per Core (MB)</th>';
-		$html .= '<th>Memory per CPU (MB)</th>';
-		$html .= '<th>Warning</th>';
-		$html .= '<th>Link</th>';
+		$html .= '<th>Property</th>';
+
+		// Add a column header for each partition
+		foreach ($partitions as $partition) {
+			$html .= '<th>' . htmlspecialchars($partition['name']) . '</th>';
+		}
+
 		$html .= '</tr>';
 		$html .= '</thead>';
 		$html .= '<tbody>';
 
-		// Populate rows with data from each partition
-		foreach ($partitions as $partitionKey => $partition) {
+		// Define the properties to display
+		$properties = [
+			'Number of Workers' => 'number_of_workers',
+			'Computation Time (min)' => 'computation_time',
+			'Max GPUs' => 'max_number_of_gpus',
+			'Min GPUs' => 'min_number_of_gpus',
+			'Max Memory per Core (MB)' => 'max_mem_per_core',
+			'Memory per CPU (MB)' => 'mem_per_cpu',
+			'Warning' => 'warning',
+			'Link' => 'link'
+		];
+
+		// Loop over each property and create a row for it
+		foreach ($properties as $label => $key) {
 			$html .= '<tr>';
-			$html .= '<td>' . htmlspecialchars($partition['name']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['number_of_workers']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['computation_time']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['max_number_of_gpus']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['min_number_of_gpus']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['max_mem_per_core']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['mem_per_cpu']) . '</td>';
-			$html .= '<td>' . htmlspecialchars($partition['warning']) . '</td>';
-			$html .= '<td><a href="' . htmlspecialchars($partition['link']) . '" target="_blank">Documentation</a></td>';
+			$html .= '<td>' . $label . '</td>';
+
+			// Loop over each partition and display its value for this property
+			foreach ($partitions as $partition) {
+				$value = isset($partition[$key]) ? $partition[$key] : 'N/A';
+				if ($key === 'link') {
+					$html .= '<td><a href="' . htmlspecialchars($value) . '" target="_blank">Documentation</a></td>';
+				} else {
+					$html .= '<td>' . htmlspecialchars($value) . '</td>';
+				}
+			}
+
 			$html .= '</tr>';
 		}
 
@@ -53,9 +66,8 @@
 
 		return $html;
 	}
-
-
 ?>
+
 <h1>Available partitions</h1>
 
 <div id="toc"></div>

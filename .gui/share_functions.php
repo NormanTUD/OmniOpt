@@ -453,7 +453,7 @@
 			if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
 				$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
 
-				$svg_icon = get_icon_html("plot.svg");
+				$svg_icon = get_icon_html("evolution.svg");
 
 				$tabs["{$svg_icon}Evolution"] = [
 					'id' => 'tab_hyperparam_evolution',

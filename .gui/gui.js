@@ -690,9 +690,9 @@ function update_command() {
 
 		if (errors_string != "") {
 			errors.push("Something was wrong in the constraints parameter");
-			$("#constraints_error").html(errors_string);
+			smoothShow($("#constraints_error").html(errors_string));
 		} else {
-			$("#constraints_error").html("");
+			smoothHide($("#constraints_error").html(""));
 		}
 	} else {
 		$("#constraints_error").html("");

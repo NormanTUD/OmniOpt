@@ -484,6 +484,7 @@ var hiddenTableData = [
 		required: false,
 		regex: `^((?:${valid_models.join("|")})+=\\d+,?)*$`,
 		help: "Specify a custom generation strategy",
+		regex_does_not_match_text: `The value must consist of one or more strategies from the list: ${valid_models.join(", ")}. Each strategy must be followed by '=<number>' and can be separated by commas. No trailing commas are allowed.`
 	},
 	{
 		label: "Root venv dir",
@@ -493,6 +494,7 @@ var hiddenTableData = [
 		info: "An absolute path where the virtual env should be installed to",
 		required: false,
 		regex: regex_path,
+		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
 		help: "Path where the virtual env should be installed to",
 	},
 	{
@@ -502,6 +504,7 @@ var hiddenTableData = [
 		value: "",
 		info: "An absolute path what the working directory of jobs should be",
 		required: false,
-		regex: regex_path
+		regex: regex_path,
+		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
 	},
 ];

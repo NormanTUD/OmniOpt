@@ -53,10 +53,6 @@ body {
 	color: orange;
 }
 
-table {
-	width: 100%;
-}
-
 table > tbody > tr:nth-child(odd) {
 	background-color: #fafafa;
 }

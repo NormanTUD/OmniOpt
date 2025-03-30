@@ -1707,6 +1707,7 @@ function _colorize_table_entries_by_generation_method () {
 			el.textContent.includes("Sobol") ? "orange" :
 			el.textContent.includes("BoTorch") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
+		el.classList.add("invert_in_dark_mode");
 	});
 }
 
@@ -1716,6 +1717,7 @@ function _colorize_table_entries_by_trial_status () {
 			el.textContent.includes("RUNNING") ? "orange" :
 			el.textContent.includes("FAILED") ? "red" : "";
 		if (color) el.style.backgroundColor = color;
+		el.classList.add("invert_in_dark_mode");
 	});
 }
 
@@ -1739,6 +1741,7 @@ function _colorize_table_entries_by_run_time() {
 		let green = Math.round(255 * (1 - ratio));
 
 		el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
+		el.classList.add("invert_in_dark_mode");
 	});
 }
 
@@ -1769,6 +1772,7 @@ function _colorize_table_entries_by_result() {
 			let green = Math.round(255 * (1 - ratio));
 
 			el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
+			el.classList.add("invert_in_dark_mode");
 		});
 	});
 }
@@ -1779,6 +1783,7 @@ function colorize_table_entries () {
 		_colorize_table_entries_by_result();
 		_colorize_table_entries_by_run_time();
 		_colorize_table_entries_by_generation_method();
+		apply_theme_based_on_system_preferences();
 	}, 300);
 }
 

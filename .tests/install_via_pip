@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for install_type in omniopt git; do
-	VENV_DIR=$HOME/omniopt_via_pip/
+	VENV_DIR=$HOME/omniopt_via_pip_$install_type/
 
 	if [[ -d "$VENV_DIR" ]]; then
 		rm -rf "$VENV_DIR"
@@ -71,6 +71,10 @@ for install_type in omniopt git; do
 		else
 			ok=0
 		fi
+	fi
+
+	if [[ -d "$VENV_DIR" ]]; then
+		rm -rf "$VENV_DIR"
 	fi
 done
 

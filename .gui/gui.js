@@ -1264,6 +1264,8 @@ function run_when_document_ready () {
 	initialized = true;
 
 	fadeTime = fadeTimeAfterLoading;
+
+	setTimeout(update_command, 200);
 }
 
 function test_if_equation_is_valid(str, names) {

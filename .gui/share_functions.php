@@ -606,7 +606,9 @@
 			$results_html .= copy_id_to_clipboard_string("{$id}_csv_table_pre", $filename);
 			$results_html .= "<script>\n\tcreateTable({$id}_csv_json, {$id}_headers_json, '{$id}_csv_table');</script>\n";
 
-			$tabs[$name] = [
+			$svg_icon = get_icon_html("csv.svg");
+
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $results_html,
 			];
@@ -1934,5 +1936,9 @@
 		}
 
 		return false;
+	}
+
+	function get_icon_html ($name) {
+		return "<img src='$name' style='height: 1em' />";
 	}
 ?>

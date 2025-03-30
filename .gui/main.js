@@ -15,7 +15,7 @@ function generateStackTraceTable(stacktrace) {
 	const lines = stacktrace.split("\n").filter(line => line.trim() !== "");
 
 	let html = `
-		<table border="1" cellpadding="5" cellspacing="0">
+		<table cellpadding="5" cellspacing="0">
 			<thead>
 			    <tr>
 				<th>Function</th>

@@ -1082,7 +1082,7 @@
 		$avg_ram = calculate_average($ram_values);
 		$median_ram = calculate_median($ram_values);
 
-		$html = '<table border="1">';
+		$html = '<table>';
 		$html .= '<tr><th>Min RAM (MB)</th><th>Max RAM (MB)</th><th>Avg RAM (MB)</th><th>Median RAM (MB)</th>';
 		$html .= '<th>Min CPU (%)</th><th>Max CPU (%)</th><th>Avg CPU (%)</th><th>Median CPU (%)</th></tr>';
 		$html .= '<tr>';
@@ -1499,7 +1499,7 @@
 		$headerCells = preg_split('/\s*[┃│]\s*/u', trim($headerLine, "┃│"));
 
 		$html = $headerText ? "<h2>$headerText</h2>" : '';
-		$html .= '<table border="1" cellspacing="0" cellpadding="5"><thead><tr>';
+		$html .= '<table cellspacing="0" cellpadding="5"><thead><tr>';
 		foreach ($headerCells as $cell) {
 			$html .= '<th>' . $cell . '</th>';
 		}
@@ -1742,7 +1742,7 @@
 	function add_result_names_table_to_overview ($result_names, $result_min_max, $overview_html, $warnings) {
 		if(count($result_names)) {
 			$result_names_table = '<h2>Result names and types:</h2>'."\n";
-			$result_names_table .= '<br><table border="1">'."\n";
+			$result_names_table .= '<br><table>'."\n";
 			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>'."\n";
 			for ($i = 0; $i < count($result_names); $i++) {
 				$min_or_max = "min";
@@ -1792,7 +1792,7 @@
 
 			if($status_data["total"]) {
 				$overview_table = '<h2>Number of evaluations:</h2>'."\n";
-				$overview_table .= '<table border="1">'."\n";
+				$overview_table .= '<table>'."\n";
 				$overview_table .= '<tbody>'."\n";
 				$overview_table .= '<tr>'."\n";
 

@@ -32,7 +32,7 @@
 
 		$lines = explode("\n", $fileContent);
 
-		$output = "<table border='1'>";
+		$output = "<table>";
 		$output .= "<thead><tr><th>Time</th><th>Function Stack</th><th>Message</th></tr></thead>";
 		$output .= "<tbody>";
 
@@ -63,9 +63,9 @@
 			}
 
 			$output .= "<tr>\n";
-			$output .= "<td style='border: 1px solid black;'>$time</td>\n";
-			$output .= "<td style='border: 1px solid black;'>$functionStack</td>\n";
-			$output .= "<td style='border: 1px solid black;'><pre class='invert_in_dark_mode debug_log_pre'>$msg</pre></td>\n";
+			$output .= "<td>".preg_replace("/\s+/", "&nbsp;", $time)."</td>\n";
+			$output .= "<td>$functionStack</td>\n";
+			$output .= "<td><pre class='invert_in_dark_mode debug_log_pre'>$msg</pre></td>\n";
 			$output .= "</tr>\n";
 		}
 

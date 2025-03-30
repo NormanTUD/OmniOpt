@@ -536,7 +536,7 @@
 
 		$svg_icon = get_icon_html("plot.svg");
 
-		$tabs["${svg_icon}Heatmap"] = [
+		$tabs["{$svg_icon}Heatmap"] = [
 			'id' => 'tab_heatmap',
 			'content' => $html,
 			"onclick" => "plotHeatmap();"

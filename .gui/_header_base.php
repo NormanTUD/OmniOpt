@@ -163,11 +163,6 @@
 									</a>
 								</td>
 							</tr>
-							<tr class="header_table" style='background-color: revert !important;'>
-								<td class="header_table">
-									<img class="img_auto_width" style="width: 100% !important;" src="https://img.shields.io/github/last-commit/NormanTUD/OmniOpt" alt="Time since last commit">
-								</td>
-							</tr>
 						</table>
 					</td>
 	<?php

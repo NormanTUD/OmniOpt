@@ -53,49 +53,19 @@ body {
 	color: orange;
 }
 
-#hidden_config_table > tbody > tr:nth-child(odd) {
-	background-color: #fafafa;
-}
-
-#hidden_config_table > tbody > tr:nth-child(even) {
-	background-color: #ddd;
-}
-
-#hidden_config_table {
-	border-collapse: collapse;
-	margin: 25px 0;
-	font-size: 0.9em;
-	min-width: 200px;
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-
-#hidden_config_table thead tr {
-	background-color: #4eae46;
-	color: #ffffff;
-	text-align: left;
-}
-
-#hidden_config_table tbody tr:last-of-type {
-	border-bottom: 1px solid #36A9AE;
-}
-
-#hidden_config_table tbody tr {
-	border-bottom: 1px solid #dddddd;
-}
-
-#config_table {
+table {
 	width: 100%;
 }
 
-#config_table > tbody > tr:nth-child(odd) {
+table > tbody > tr:nth-child(odd) {
 	background-color: #fafafa;
 }
 
-#config_table > tbody > tr:nth-child(even) {
+table > tbody > tr:nth-child(even) {
 	background-color: #ddd;
 }
 
-#config_table {
+table {
 	border-collapse: collapse;
 	margin: 25px 0;
 	font-size: 0.9em;
@@ -103,17 +73,17 @@ body {
 	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-#config_table thead tr {
+table thead tr {
 	background-color: #4eae46;
 	color: #ffffff;
 	text-align: left;
 }
 
-#config_table tbody tr:last-of-type {
+table tbody tr:last-of-type {
 	border-bottom: 1px solid #4eae46;
 }
 
-#config_table tbody tr {
+table tbody tr {
 	border-bottom: 1px solid #dddddd;
 }
 
@@ -465,8 +435,7 @@ input:checked + .slider .mode-text {
         margin: unset !important;
 }
 
-#config_table td, #config_table tr,
-#hidden_config_table td, #hidden_config_table tr,
+table td, table tr,
 .parameterRow table {
 	padding: 2px !important;
 }
@@ -480,7 +449,7 @@ input:checked + .slider .mode-text {
 	border: 0px !important;
 }
 
-.parameter_config_table td, .parameter_config_table tr, #hidden_config_table td, #hidden_config_table tr {
+.parameter_config_table td, .parameter_config_table tr, table td, table tr {
 	border: 0px !important;
 }
 

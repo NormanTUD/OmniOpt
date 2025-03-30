@@ -29,7 +29,7 @@ h2 {
 
 body {
 	font-family: sans-serif;
-	margin-bottom: 100px;
+	background-color: #fafafa;
 }
 
 .dark_code_bg {
@@ -70,7 +70,6 @@ table {
 	margin: 25px 0;
 	font-size: 0.9em;
 	min-width: 200px;
-	box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
 table thead tr {

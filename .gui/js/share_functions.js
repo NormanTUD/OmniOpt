@@ -1720,7 +1720,7 @@ function _colorize_table_entries_by_run_time() {
 
 	let min = Math.min(...values);
 	let max = Math.max(...values);
-	let range = max - min || 1; // Verhindert Division durch 0
+	let range = max - min || 1;
 
 	cells.forEach(el => {
 		let value = parseFloat(el.textContent);
@@ -1734,9 +1734,39 @@ function _colorize_table_entries_by_run_time() {
 	});
 }
 
+function _colorize_table_entries_by_result() {
+	result_names.forEach((name, index) => {
+		let minMax = result_min_max[index];
+		let selector_query = `[data-column-id="${name.toLowerCase()}"]`;
+		let cells = [...document.querySelectorAll(selector_query)];
+		if (cells.length === 0) return;
+
+		let values = cells.map(el => parseFloat(el.textContent)).filter(v => !isNaN(v));
+		if (values.length === 0) return;
+
+		let min = Math.min(...values);
+		let max = Math.max(...values);
+		let range = max - min || 1;
+
+		cells.forEach(el => {
+			let value = parseFloat(el.textContent);
+			if (isNaN(value)) return;
+
+			let ratio = (value - min) / range;
+			if (minMax === "max") ratio = 1 - ratio; // Umkehren für Maximierung
+
+			let red = Math.round(255 * ratio);
+			let green = Math.round(255 * (1 - ratio));
+
+			el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
+		});
+	});
+}
+
 function colorize_table_entries () {
 	setTimeout(() => {
 		_colorize_table_entries_by_trial_status();
+		_colorize_table_entries_by_result();
 		_colorize_table_entries_by_run_time();
 	}, 300);
 }

@@ -208,6 +208,7 @@ button:disabled:hover {
 	background-color: #61686f;
 	width: 70%;
 	min-width: 200px;
+	pointer-events: none;
 }
 
 td {

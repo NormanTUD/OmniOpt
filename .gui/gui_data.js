@@ -473,6 +473,7 @@ var hiddenTableData = [
 		required: false,
 		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
 		info: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
+		regex_does_not_match_text: "The value must consist of one or more alphanumeric identifiers (letters, numbers, or underscores), separated by commas. No leading or trailing commas are allowed."
 	},
 	{
 		label: "Generation strategy",

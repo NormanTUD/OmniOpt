@@ -17,7 +17,6 @@ seaborn
 pytz
 psutil
 coverage
-pyflakes
 cowsay
 beautifulsoup4
 emoji

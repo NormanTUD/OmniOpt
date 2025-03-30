@@ -32,7 +32,7 @@ function _help {
 }
 
 # Available linters
-declare -a linters=("pylint" "bandit" "deadcode" "pyflakes" "flake8" "shellcheck")
+declare -a linters=("pylint" "bandit" "deadcode" "flake8" "shellcheck") # "pyflakes"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -110,7 +110,7 @@ else
 		run_linter "deadcode" "${files[@]}"
 	fi
 
-	run_linter "pyflakes" "${files[@]}"
+	#run_linter "pyflakes" "${files[@]}"
 	run_linter "flake8" "${files[@]}"
 	run_linter "shellcheck" "${files[@]}"
 	#run_linter "mypy" "${files[@]}"

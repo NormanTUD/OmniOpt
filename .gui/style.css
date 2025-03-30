@@ -121,6 +121,9 @@ body {
 
 .error_element {
 	background-color: #e57373;
+	border-radius: 10px;
+	padding: 4px;
+	display: none;
 }
 
 button {

@@ -68,6 +68,8 @@ function createTable(data, headers, table_name) {
 	apply_theme_based_on_system_preferences();
 
 	colorize_table_entries();
+
+	add_colorize_to_gridjs_table();
 }
 
 function download_as_file(id, filename) {
@@ -1827,13 +1829,17 @@ function colorize_table_entries () {
 	}, 300);
 }
 
+function add_colorize_to_gridjs_table () {
+	let searchInput = document.querySelector(".gridjs-search-input");
+	if (searchInput) {
+		searchInput.addEventListener("input", colorize_table_entries);
+	}
+}
+
 $( document ).ready(function() {
 	colorize_table_entries();
 
 	add_up_down_arrows_for_scrolling();
 
-	let searchInput = document.querySelector(".gridjs-search-input");
-	if (searchInput) {
-		searchInput.addEventListener("input", colorize_table_entries);
-	}
+	add_colorize_to_gridjs_table();
 });

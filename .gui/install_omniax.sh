@@ -247,7 +247,7 @@ function install_and_run {
 
 		venv_activate_file="$omniopt_venv/bin/activate"
 
-		if [[ ! -d $omniopt_venv ]]; then
+		if [[ ! -d $omniopt_venv ]] || [[ ! -e $venv_activate_file ]]; then
 			dbg "Creating venv $omniopt_venv"
 			python3 -mvenv $omniopt_venv
 		fi

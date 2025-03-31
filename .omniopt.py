@@ -4845,9 +4845,14 @@ def read_errors_from_file() -> list:
     return []
 
 @beartype
-def mark_trial_as_failed(_trial: Any) -> None:
+def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
+        if not ax_client:
+            print_red("mark_trial_as_failed: ax_client is not defined")
+            my_exit(101)
+
+        ax_client.complete_trial(trial_index=trial_index, raw_data=None)
         _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
@@ -4902,13 +4907,14 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             if job:
                 try:
                     progressbar_description(["job_failed"])
+                    ax_client.complete_trial(trial_index=trial_index, raw_data=None)
                     _trial.mark_failed(unsafe=True)
                 except Exception as e:
                     print(f"\nERROR while trying to mark job as failure: {e}")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 
-            mark_trial_as_failed(_trial)
+            mark_trial_as_failed(trial_index, _trial)
             failed_jobs(1)
     else:
         print_red("ax_client could not be found or used")
@@ -4954,7 +4960,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                         if ax_client:
                             _trial = ax_client.get_trial(trial_index)
                             ax_client.log_trial_failure(trial_index=trial_index)
-                            mark_trial_as_failed(_trial)
+                            mark_trial_as_failed(trial_index, _trial)
                         else:
                             print_red("ax_client failed")
                             my_exit(9)
@@ -5303,9 +5309,10 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         try:
             if ax_client:
                 ax_client.log_trial_failure(trial_index=trial_index)
+                ax_client.complete_trial(trial_index=trial_index, raw_data=None)
             else:
                 print_red("ax_client not defined")
-                my_exit(9)
+                my_exit(101)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
@@ -5458,8 +5465,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             if ax_client is not None and ax_client.experiment is not None:
                 trial_index = ax_client.experiment.num_trials
 
-                # TODO: Don't use GenerationStrategy anymore, but do that manually. 
-                # Problem to be solved: 
+                # TODO: Don't use GenerationStrategy anymore, but do that manually.
+                # Problem to be solved:
                 # Error 4: All trials for current model have been generated, but not enough data has been observed to fit next model. Try again when more data are available.
                 # https://imageseg.scads.de/omniax/share?user_id=s3811141&sort=time_desc&experiment_name=example_network&sort=time_desc&run_nr=3&sort=time_desc
                 generator_run = global_gs.gen(

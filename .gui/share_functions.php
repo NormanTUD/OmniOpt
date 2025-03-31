@@ -1771,7 +1771,7 @@
 			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
 
 			$overview_html .= "<h2>Last progressbar status:</h2>\n";
-			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
+			$overview_html .= "<tt>".htmlentities(remove_ansi_colors($lastLine))."</tt>";
 		} else {
 			if(!is_file($progressbar_file)) {
 				$warnings[] = "$progressbar_file not found";

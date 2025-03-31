@@ -449,7 +449,7 @@ table td, table tr,
 	border: 0px !important;
 }
 
-.parameter_config_table td, .parameter_config_table tr, table td, table tr {
+.parameter_config_table td, .parameter_config_table tr, #config_table th, #config_table td, #hidden_config_table th, #hidden_config_table td {
 	border: 0px !important;
 }
 
@@ -582,4 +582,8 @@ h1 {
 
 .gridjs-td {
 	white-space: nowrap;
+}
+
+th, td {
+	border: 1px solid gray !important;
 }

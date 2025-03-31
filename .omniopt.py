@@ -5458,6 +5458,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             if ax_client is not None and ax_client.experiment is not None:
                 trial_index = ax_client.experiment.num_trials
 
+                # TODO: Don't use GenerationStrategy anymore, but do that manually. 
+                # Problem to be solved: 
+                # Error 4: All trials for current model have been generated, but not enough data has been observed to fit next model. Try again when more data are available.
+                # https://imageseg.scads.de/omniax/share?user_id=s3811141&sort=time_desc&experiment_name=example_network&sort=time_desc&run_nr=3&sort=time_desc
                 generator_run = global_gs.gen(
                     experiment=ax_client.experiment,
                     n=1,

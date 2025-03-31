@@ -4852,6 +4852,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
             print_red("mark_trial_as_failed: ax_client is not defined")
             my_exit(101)
 
+        ax_client.log_trial_failure(trial_index=trial_index)
         _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
@@ -4906,6 +4907,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             if job:
                 try:
                     progressbar_description(["job_failed"])
+                    ax_client.log_trial_failure(trial_index=trial_index)
                     _trial.mark_failed(unsafe=True)
                 except Exception as e:
                     print_red(f"\nERROR while trying to mark job as failure: {e}")

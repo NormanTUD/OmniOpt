@@ -588,3 +588,7 @@ h1 {
 th, td {
 	border: 1px solid gray !important;
 }
+
+.no_border {
+	border: 0px !important;
+}

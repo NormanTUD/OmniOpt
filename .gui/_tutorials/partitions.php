@@ -46,7 +46,7 @@
 		// Loop over each property and create a row for it
 		foreach ($properties as $label => $key) {
 			$html .= '<tr>';
-			$html .= '<th class="invert_in_dark_mode">' . $label . '</th>';
+			$html .= '<th class="invert_in_dark_mode no_border">' . $label . '</th>';
 
 			// Loop over each partition and display its value for this property
 			foreach ($partitions as $partition) {

@@ -102,4 +102,8 @@
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export SHOW_COMMAND_BEFORE_EXECUTION=1</code></pre></td>
 		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
 	</tr>
+	<tr>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">export OMNIOPT_CALL="./omniopt"</code></pre></td>
+		<td>How to call OmniOpt2. Is useful to differentiate between pip installs and installs via git.</td>
+	</tr>
 </table>

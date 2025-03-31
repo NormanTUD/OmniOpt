@@ -1831,4 +1831,9 @@ $( document ).ready(function() {
 	colorize_table_entries();
 
 	add_up_down_arrows_for_scrolling();
+
+	let searchInput = document.querySelector(".gridjs-search-input");
+	if (searchInput) {
+		searchInput.addEventListener("input", colorize_table_entries);
+	}
 });

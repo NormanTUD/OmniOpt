@@ -159,7 +159,7 @@ def plot_graphs(_params: list) -> None:
 
 @beartype
 def main() -> None:
-    global args, fig
+    global fig
 
     if args is not None:
         helpers.die_if_cannot_be_plotted(args.run_dir)
@@ -211,8 +211,6 @@ def main() -> None:
 
 # Define update function for the button
 def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
-    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
-
     if event: # only for fooling pylint...
         pass
 

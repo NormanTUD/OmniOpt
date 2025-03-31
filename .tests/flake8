@@ -47,7 +47,7 @@ source .shellscript_functions
 
 errors=()
 
-IGNOREME="E501,E302,E265,E128,E305,E261,E126,E124,F824,F999"
+IGNOREME="E501,E302,E265,E128,E305,E261,E126,E124,F824"
 
 if command -v flake8 2>/dev/null >/dev/null; then
 	for i in $(ls .*.py | grep -v ".helpers.py"); do

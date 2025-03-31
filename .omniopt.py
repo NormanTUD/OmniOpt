@@ -316,7 +316,6 @@ def print_debug(msg: str) -> None:
 
 @beartype
 def print_debug_once(msg: str) -> None:
-    global print_debug_once_list
     if msg not in print_debug_once_list:
         print_debug(msg)
         print_debug_once_list.append(msg)
@@ -1298,11 +1297,12 @@ global_vars["experiment_name"] = args.experiment_name
 
 @beartype
 def load_global_vars(_file: str) -> None:
+    global global_vars
+
     if not os.path.exists(_file):
         print_red(f"You've tried to continue a non-existing job: {_file}")
         my_exit(44)
     try:
-        global global_vars
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
     except Exception as e:
@@ -1328,7 +1328,6 @@ def check_param_or_exit(param: Optional[Union[list, str]], error_msg: str, exit_
 
 @beartype
 def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
-    global global_vars
     if continue_previous_job:
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
 
@@ -1344,8 +1343,6 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
 
 @beartype
 def check_required_parameters(_args: Any) -> None:
-    global global_vars
-
     check_param_or_exit(
         _args.parameter or _args.continue_previous_job,
         "Either --parameter or --continue_previous_job is required. Both were not found.",
@@ -1364,7 +1361,6 @@ def check_required_parameters(_args: Any) -> None:
 
 @beartype
 def load_time_or_exit(_args: Any) -> None:
-    global global_vars
     if _args.time:
         global_vars["_time"] = _args.time
     elif _args.continue_previous_job:
@@ -1844,8 +1840,6 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 
 @beartype
 def parse_experiment_parameters() -> list:
-    global global_vars
-
     params: list = []
     param_names: List[str] = []
 
@@ -3266,7 +3260,6 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
     ignore_signals()
 
     global ALREADY_SHOWN_WORKER_USAGE_OVER_TIME
-    global global_vars
 
     if SHOWN_END_TABLE:
         print("End table already shown, not doing it again")
@@ -3298,8 +3291,6 @@ def show_end_table_and_save_end_files(csv_file_path: str) -> int:
 
 @beartype
 def abandon_job(job: Job, trial_index: int) -> bool:
-    global global_vars
-
     if job:
         try:
             if ax_client:
@@ -3338,7 +3329,7 @@ def show_pareto_or_error_msg() -> None:
 
 @beartype
 def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
-    global global_vars, END_PROGRAM_RAN
+    global END_PROGRAM_RAN
 
     wait_for_jobs_to_complete()
 
@@ -4074,8 +4065,6 @@ def update_progress_bar(_progress_bar: Any, nr: int) -> None:
 
 @beartype
 def get_current_model() -> str:
-    global ax_client
-
     if overwritten_to_random:
         return "Random*"
 
@@ -4156,8 +4145,6 @@ def submitted_jobs(nr: int = 0) -> int:
 
 @beartype
 def get_slurm_in_brackets(in_brackets: list) -> list:
-    global WORKER_PERCENTAGE_USAGE
-
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)
@@ -4197,8 +4184,6 @@ def capitalized_string(s: str) -> str:
 
 @beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
-    global max_eval
-
     in_brackets = []
     in_brackets.extend(_get_desc_progress_text_failed_jobs())
     in_brackets.append(_get_desc_progress_text_current_model())
@@ -4926,8 +4911,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
 @beartype
 def finish_previous_jobs(new_msgs: List[str]) -> None:
-    global random_steps
-    global ax_client
     global JOBS_FINISHED
 
     this_jobs_finished = 0
@@ -5085,8 +5068,6 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
 
 @beartype
 def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None:
-    global global_vars
-
     if executor and ax_client:
         new_job = executor.submit(evaluate, params_from_out_file)
         submitted_jobs(1)
@@ -5185,8 +5166,6 @@ def write_continue_run_uuid_to_file() -> None:
 
 @beartype
 def save_state_files() -> None:
-    global global_vars
-
     write_state_file("joined_run_program", global_vars["joined_run_program"])
     write_state_file("experiment_name", global_vars["experiment_name"])
     write_state_file("mem_gb", str(global_vars["mem_gb"]))
@@ -5219,8 +5198,6 @@ def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict
 
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:
-    global global_vars
-
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
     if ax_client:
@@ -5456,7 +5433,7 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
     """Attempts to fetch the next trials using the ax_client."""
 
-    global global_gs, error_8_saved, overwritten_to_random, gotten_jobs
+    global global_gs, overwritten_to_random, gotten_jobs
     if not ax_client:
         print_red("ax_client was not defined")
         my_exit(9)
@@ -6689,7 +6666,7 @@ def write_live_share_file_if_needed() -> None:
 
 @beartype
 def main() -> None:
-    global RESULT_CSV_FILE, ax_client, global_vars, max_eval, NVIDIA_SMI_LOGS_BASE, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps, global_gs
+    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps, global_gs
 
     check_if_has_random_steps()
 
@@ -6995,8 +6972,6 @@ def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
     print_green("This should be green")
-
-    global global_vars
 
     print(f"Printing test from current line {get_line_info()}")
 

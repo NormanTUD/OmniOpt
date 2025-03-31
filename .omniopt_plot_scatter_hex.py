@@ -107,7 +107,6 @@ def set_title(df_filtered: pd.DataFrame, result_column_values: pd.core.series.Se
 def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
         non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
-        global bins
 
         scatter = None
 
@@ -205,7 +204,7 @@ def plot_graphs(_params: list) -> None:
 
 @beartype
 def main() -> None:
-    global args, fig, res_col_name
+    global fig, res_col_name
 
     if args is not None:
         helpers.die_if_cannot_be_plotted(args.run_dir)
@@ -260,8 +259,6 @@ def main() -> None:
 
 # Define update function for the button
 def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
-    global fig, ax, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args
-
     if event:
         # only for fooling pylint...
         pass

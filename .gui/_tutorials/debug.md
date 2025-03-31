@@ -21,7 +21,7 @@ Debug-Infos:
 ========
 DEBUG INFOS START:
 Program-Code: ./.tests/optimization_example --int_param='-100' --float_param='-100.0' --choice_param='1'  --int_param_two='-5'
-pwd: /home/norman/repos/OmniOpt/ax
+pwd: /home/norman/repos/OmniOpt
 File: ./.tests/optimization_example
 Size: 4065 Bytes
 Permissions: -rwxr-xr-x

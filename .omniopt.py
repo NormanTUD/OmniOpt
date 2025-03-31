@@ -5432,6 +5432,9 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
     if trial_durations and len(trial_durations) > 0 and full_nr_of_jobs_to_get > 1:
         avg_time = sum(trial_durations) / len(trial_durations)
         remaining = full_nr_of_jobs_to_get - nr_of_jobs_to_get + 1
+
+        eta = avg_time * remaining
+
         if eta > 0:
             hours = int(eta // 3600)
             minutes = int((eta % 3600) // 60)
@@ -5445,7 +5448,6 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
                 eta_str = f"{seconds}s"
 
             ret += f" | ETA: {eta_str}"
-
 
     return ret
 

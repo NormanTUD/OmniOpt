@@ -4910,7 +4910,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                     ax_client.complete_trial(trial_index=trial_index, raw_data=None)
                     _trial.mark_failed(unsafe=True)
                 except Exception as e:
-                    print(f"\nERROR while trying to mark job as failure: {e}")
+                    print_red(f"\nERROR while trying to mark job as failure: {e}")
                 job.cancel()
                 orchestrate_job(job, trial_index)
 

@@ -545,7 +545,9 @@ function _test_nr_jobs {
 }
 
 PYTHON_OR_COVERAGE=python3
-OMNIOPT_CALL="./omniopt"
+if [[ -z $OMNIOPT_CALL ]]; then
+	OMNIOPT_CALL="./omniopt"
+fi
 export OMNIOPT_CALL
 
 yellow_text "Python-Version:"

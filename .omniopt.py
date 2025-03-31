@@ -5688,7 +5688,6 @@ def create_random_generation_step() -> GenerationStep:
     return GenerationStep(
         model=Models.SOBOL,
         num_trials=max(num_parallel_jobs, random_steps),
-        min_trials_observed=min(max_eval, random_steps),
         max_parallelism=_get_max_parallelism(),
         model_kwargs={
             "seed": args.seed

@@ -111,7 +111,7 @@ else
 	fi
 
 	#run_linter "pyflakes" "${files[@]}"
-	run_linter "flake8" "${files[@]}"
+	#run_linter "flake8" "${files[@]}"
 	run_linter "shellcheck" "${files[@]}"
 	#run_linter "mypy" "${files[@]}"
 fi

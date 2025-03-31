@@ -501,6 +501,10 @@ function update_command() {
 	var warnings = [];
 	var command = "./omniopt";
 
+	if($("#installation_method").val() == "pip") {
+		command = "omniopt";
+	}
+
 	var curl_options = "";
 
 	if ($("#run_mode").val() == "docker") {

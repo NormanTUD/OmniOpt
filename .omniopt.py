@@ -15,6 +15,11 @@ import time
 import random
 import statistics
 
+oo_call = "./omniopt"
+
+if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
+    oo_call = "omniopt"
+
 gotten_jobs: int = 0
 
 shown_run_live_share_command: bool = False
@@ -430,7 +435,7 @@ class ConfigLoader:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
-            epilog="Example:\n\n./omniopt --partition=alpha --experiment_name=neural_network ...",
+            epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ...",
             formatter_class=RichHelpFormatter
         )
 
@@ -6671,11 +6676,6 @@ def main() -> None:
     check_if_has_random_steps()
 
     log_worker_creation()
-
-    oo_call = "./omniopt"
-
-    if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
-        oo_call = "omniopt"
 
     original_print(oo_call + " " + " ".join(sys.argv[1:]))
     check_slurm_job_id()

@@ -556,7 +556,6 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
 def contains_strings(series: Any) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
-
 def file_exists(csv_file_path: Optional[str]) -> bool:
     return bool(csv_file_path) and isinstance(csv_file_path, str) and os.path.exists(csv_file_path)
 

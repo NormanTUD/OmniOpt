@@ -1589,33 +1589,26 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
     return None
 
 @beartype
-def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Optional[Union[int, float]], bool]:
+def _get_column_value(pd_csv: str, column: str, default: Union[float, int], mode: str) -> Tuple[Optional[Union[int, float]], bool]:
     found_in_file = False
-    ret_val = None
+    column_value = get_min_or_max_column_value(pd_csv, column, default, mode)
 
-    if os.path.exists(pd_csv):
-        if _type == "lower":
-            _old_min_col = get_min_or_max_column_value(pd_csv, _column, _default, "min")
-            if _old_min_col:
-                found_in_file = True
+    if column_value is not None:
+        found_in_file = True
+        if isinstance(column_value, (int, float)) and isinstance(default, (int, float)):
+            if (mode == "min" and default > column_value) or (mode == "max" and default < column_value):
+                return column_value, found_in_file
 
-            if found_in_file and isinstance(_old_min_col, (int, float)) and isinstance(_default, (int, float)) and _default > _old_min_col:
-                ret_val = _old_min_col
-            else:
-                ret_val = _default
-        else:
-            _old_max_col = get_min_or_max_column_value(pd_csv, _column, _default, "max")
-            if _old_max_col:
-                found_in_file = True
+    return default, found_in_file
 
-            if found_in_file and isinstance(_old_max_col, (int, float)) and isinstance(_default, (int, float)) and _default < _old_max_col:
-                ret_val = _old_max_col
-            else:
-                ret_val = _default
-    else:
+@beartype
+def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Optional[Union[int, float]], bool]:
+    if not helpers.file_exists(pd_csv):
         print_red(f"'{pd_csv}' was not found")
+        return _default, False
 
-    return ret_val, found_in_file
+    mode = "min" if _type == "lower" else "max"
+    return _get_column_value(pd_csv, _column, _default, mode)
 
 @beartype
 def get_bound_if_prev_data(_type: str, _column: str, _default: Union[None, float, int]) -> Union[Tuple[Union[float, int], bool], Any]:

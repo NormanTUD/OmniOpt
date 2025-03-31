@@ -8,6 +8,7 @@ body {
 	text-rendering: optimizeLegibility; /* Bessere Schriftqualität */
 	-webkit-font-smoothing: antialiased; /* Glattere Schrift auf macOS */
 	-moz-osx-font-smoothing: grayscale;
+	font-feature-settings: "ss02", "liga", "onum";
 }
 
 .marked_text {

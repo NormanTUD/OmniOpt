@@ -6672,7 +6672,12 @@ def main() -> None:
 
     log_worker_creation()
 
-    original_print("./omniopt " + " ".join(sys.argv[1:]))
+    oo_call = "./omniopt"
+
+    if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
+        oo_call = "omniopt"
+
+    original_print(oo_call + " " + " ".join(sys.argv[1:]))
     check_slurm_job_id()
 
     if args.continue_previous_job and not args.num_random_steps:

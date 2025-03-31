@@ -1497,10 +1497,12 @@ function add_up_down_arrows_for_scrolling () {
 
 	upArrow.id = "up-arrow";
 	upArrow.classList.add("scroll-arrow");
+	upArrow.classList.add("invert_in_dark_mode");
 	upArrow.innerHTML = "&#8593;";
 
 	downArrow.id = "down-arrow";
 	downArrow.classList.add("scroll-arrow");
+	downArrow.classList.add("invert_in_dark_mode");
 	downArrow.innerHTML = "&#8595;";
 
 	document.body.appendChild(upArrow);

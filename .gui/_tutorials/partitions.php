@@ -20,7 +20,7 @@
 		$html = '<table cellpadding="5" cellspacing="0">';
 		$html .= '<thead>';
 		$html .= '<tr class="invert_in_dark_mode">';
-		$html .= '<th>Property</th>';
+		$html .= '<th></th>';
 
 		// Add a column header for each partition
 		foreach ($partitions as $partition) {

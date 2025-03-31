@@ -1474,11 +1474,12 @@ function add_up_down_arrows_for_scrolling () {
 			right: 10px;
 			z-index: 100;
 			cursor: pointer;
-			font-size: 15px;
+			font-size: 25px;
 			display: none;
 			background-color: green;
 			color: white;
-			outline: 4px solid white;
+			padding: 5px;
+			outline: 2px solid white;
 			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 			transition: background-color 0.3s, transform 0.3s;
 		}

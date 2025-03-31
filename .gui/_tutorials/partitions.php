@@ -20,11 +20,11 @@
 		$html = '<table cellpadding="5" cellspacing="0">';
 		$html .= '<thead>';
 		$html .= '<tr class="invert_in_dark_mode">';
-		$html .= '<th></th>';
+		$html .= '<th class="no_border"></th>';
 
 		// Add a column header for each partition
 		foreach ($partitions as $partition) {
-			$html .= '<th>' . htmlspecialchars($partition['name']) . '</th>';
+			$html .= '<th class="no_border">' . htmlspecialchars($partition['name']) . '</th>';
 		}
 
 		$html .= '</tr>';

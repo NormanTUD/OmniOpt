@@ -82,14 +82,6 @@ th {
 	border: 0px;
 }
 
-table tbody tr:last-of-type {
-	border-bottom: 1px solid #4eae46;
-}
-
-table tbody tr {
-	border-bottom: 1px solid #dddddd;
-}
-
 .error_element {
 	background-color: #e57373;
 	border-radius: 10px;

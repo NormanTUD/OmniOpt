@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -z $OMNIOPT_CALL ]]; then
+	OMNIOPT_CALL="./omniopt"
+fi
+export OMNIOPT_CALL
+
 params=(
 	"--experiment_name=small_test_experiment"
 	"--max_eval=2"
@@ -17,7 +22,7 @@ echo "total_combinations: $total_combinations" >&2
 for ((i = 1; i <= total_combinations; i++)); do
 	echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	echo "<><><><><><><><> $i of $total_combinations"
-	cmd="./omniopt --run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI=' --parameter x range 123 100000000 int false --time=60"
+	cmd="$OMNIOPT_CALL --run_program='ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI=' --parameter x range 123 100000000 int false --time=60"
 
 	for ((j = 0; j < num_params; j++)); do
 		if (( (i >> j) & 1 )); then

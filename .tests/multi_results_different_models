@@ -16,6 +16,11 @@ function red_text {
 	echoerr -e "\e[31m$1\e[0m"
 }
 
+if [[ -z $OMNIOPT_CALL ]]; then
+	OMNIOPT_CALL="./omniopt"
+fi
+export OMNIOPT_CALL
+
 {
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -45,7 +50,7 @@ for model in "${models[@]}"; do
 				rm -rf $run_dir
 			fi
 
-			./omniopt --live_share --send_anonymized_usage_stats --partition alpha \
+			$OMNIOPT_CALL --live_share --send_anonymized_usage_stats --partition alpha \
 				--experiment_name $run_name \
 				--mem_gb=4 \
 				--time 60 \
@@ -77,8 +82,8 @@ for model in "${models[@]}"; do
 					first_results_csv_nr_total=$(cat "$first_results_csv" | wc -l)
 
 					if [[ $first_results_csv_nr_total -eq 3 ]]; then
-						echo "./omniopt --continue $run_dir/0"
-						./omniopt --continue $run_dir/0
+						echo "$OMNIOPT_CALL --continue $run_dir/0"
+						$OMNIOPT_CALL --continue $run_dir/0
 						exit_code=$?
 						if [[ $exit_code -ne 0 ]]; then
 							failed=1

@@ -7,6 +7,11 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
 
+if [[ -z $OMNIOPT_CALL ]]; then
+	OMNIOPT_CALL="./omniopt"
+fi
+export OMNIOPT_CALL
+
 function set_debug {
 	trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
 }
@@ -185,7 +190,7 @@ if [[ $nosuccess -eq 1 ]]; then
 	experiment_name="${experiment_name}_nosuccess"
 fi
 
-./omniopt \
+$OMNIOPT_CALL \
 	--max_nr_of_zero_results 3 \
 	--live_share \
 	--send_anonymized_usage_stats \

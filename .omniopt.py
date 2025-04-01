@@ -3442,7 +3442,7 @@ def extract_differences(old: Dict[str, Any], new: Dict[str, Any], prefix: str = 
                 if "name" in old_value and "name" in new_value and set(old_value.keys()) == {"__type", "name"}:
                     differences.append(f"{prefix}{key} from {old_value['name']} to {new_value['name']}")
                 else:
-                    differences.extend(extract_differences(old_value, new_value, prefix=f"{prefix}{key}.") )
+                    differences.extend(extract_differences(old_value, new_value, prefix=f"{prefix}{key}."))
             else:
                 differences.append(f"{prefix}{key} from {old_value} to {new_value}")
     return differences

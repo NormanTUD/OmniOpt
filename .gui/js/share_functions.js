@@ -274,6 +274,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 		});
 
 		Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+
+		make_text_in_parallel_plot_nicer();
 	}
 
 	updatePlot();

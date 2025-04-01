@@ -1879,15 +1879,18 @@ def parse_experiment_parameters() -> list:
                 print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
                 my_exit(181)
 
-            if param_type == "range":
-                j, params, search_space_reduction_warning = parse_range_param(params, j, this_args, name, search_space_reduction_warning)
-            elif param_type == "fixed":
-                j, params, search_space_reduction_warning = parse_fixed_param(params, j, this_args, name, search_space_reduction_warning)
-            elif param_type == "choice":
-                j, params, search_space_reduction_warning = parse_choice_param(params, j, this_args, name, search_space_reduction_warning)
+            param_parsers = {
+                "range": parse_range_param,
+                "fixed": parse_fixed_param,
+                "choice": parse_choice_param
+            }
+
+            if param_type in param_parsers:
+                j, params, search_space_reduction_warning = param_parsers[param_type](params, j, this_args, name, search_space_reduction_warning)
             else:
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
+
         i += 1
 
     if search_space_reduction_warning:

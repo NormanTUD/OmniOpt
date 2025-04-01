@@ -4966,10 +4966,8 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
     save_pd_csv()
 
-    if this_jobs_finished == 1:
-        progressbar_description([*new_msgs, f"finished {this_jobs_finished} job"])
-    elif this_jobs_finished > 0:
-        progressbar_description([*new_msgs, f"finished {this_jobs_finished} jobs"])
+
+    progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])
 
     JOBS_FINISHED += this_jobs_finished
 

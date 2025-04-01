@@ -143,8 +143,8 @@ function make_text_in_parallel_plot_nicer() {
 		$(this)
 			.css("text-shadow", "unset")
 			.css("font-size", "0.9em")
-			.css("fill", "white")  // Immer weiße Schrift
-			.css("stroke", "black") // Immer schwarze Outline
+			.css("fill", "white")
+			.css("stroke", "black")
 			.css("stroke-width", "2px")
 			.css("paint-order", "stroke fill");
 	});

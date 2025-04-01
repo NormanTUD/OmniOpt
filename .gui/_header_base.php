@@ -142,14 +142,14 @@
 			<table border=0 class="header_table" style='display: inline !important;'>
 				<tr class="header_table">
 					<td class='header_table'>
-						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
-							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
+						<a style="text-decoration: none;" href="index">
+							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
 						</a>
 					</td>
 
 					<td class='header_table'>
-						<a style="text-decoration: none;" href="index">
-							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
+						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
+							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
 						</a>
 					</td>
 

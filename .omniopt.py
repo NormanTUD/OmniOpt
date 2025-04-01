@@ -3353,17 +3353,16 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
     _exit: int = 0
 
     try:
-        if get_current_run_folder() is None:
-            print_debug("[end_program] get_current_run_folder() was empty. Not running end-algorithm.")
-            return
+        check_conditions = {
+            get_current_run_folder: "[end_program] get_current_run_folder() was empty. Not running end-algorithm.",
+            ax_client: "[end_program] ax_client was empty. Not running end-algorithm.",
+            console: "[end_program] console was empty. Not running end-algorithm."
+        }
 
-        if ax_client is None:
-            print_debug("[end_program] ax_client was empty. Not running end-algorithm.")
-            return
-
-        if console is None:
-            print_debug("[end_program] console was empty. Not running end-algorithm.")
-            return
+        for condition, message in check_conditions.items():
+            if condition() is None:
+                print_debug(message)
+                return
 
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:

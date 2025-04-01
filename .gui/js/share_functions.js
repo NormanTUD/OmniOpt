@@ -138,6 +138,16 @@ function filterNonEmptyRows(data) {
 	return new_data;
 }
 
+function make_text_in_parallel_plot_nicer() {
+	$(".parcoords g > g > text").each(function() {
+		var color = "black";
+		if(theme == "dark") {
+			color = "white";
+		}
+		$(this).css("text-shadow", "unset").css("fill", color);
+	});
+}
+
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
 	if ($("#parallel-plot").data("loaded") == "true") {
 		return;
@@ -269,6 +279,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	updatePlot();
 
 	$("#parallel-plot").data("loaded", "true");
+
+	make_text_in_parallel_plot_nicer();
 }
 
 function plotWorkerUsage() {

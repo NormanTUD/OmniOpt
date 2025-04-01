@@ -140,11 +140,13 @@ function filterNonEmptyRows(data) {
 
 function make_text_in_parallel_plot_nicer() {
 	$(".parcoords g > g > text").each(function() {
-		var color = "black";
-		if(theme == "dark") {
-			color = "white";
-		}
-		$(this).css("text-shadow", "unset").css("fill", color);
+		$(this)
+			.css("text-shadow", "unset")
+			.css("font-size", "0.9em")
+			.css("fill", "white")  // Immer weiße Schrift
+			.css("stroke", "black") // Immer schwarze Outline
+			.css("stroke-width", "2px")
+			.css("paint-order", "stroke fill");
 	});
 }
 

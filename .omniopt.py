@@ -4964,6 +4964,9 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         else:
             if not isinstance(job, SlurmJob):
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
+
+        save_pd_csv()
+
     save_pd_csv()
 
     progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])

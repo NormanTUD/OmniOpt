@@ -14,6 +14,9 @@ exceptions=(
 	"live_share_background"
 	"receive_usr_signal_int_or_term"
 	"execute_nvidia_smi"
+	"parse_choice_param"
+	"parse_range_param"
+	"parse_fixed_param"
 )
 
 unused_count=0

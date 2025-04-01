@@ -4915,6 +4915,10 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 def finish_previous_jobs(new_msgs: List[str]) -> None:
     global JOBS_FINISHED
 
+    if not ax_client:
+        print_red("ax_client failed")
+        my_exit(9)
+
     this_jobs_finished = 0
 
     if len(global_vars["jobs"]) > 0:
@@ -4939,20 +4943,18 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                     print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:
                     print_red(f"\n⚠ {error}")
+
                 if job:
                     try:
                         progressbar_description(["job_failed"])
-                        if ax_client:
-                            _trial = ax_client.get_trial(trial_index)
-                            ax_client.log_trial_failure(trial_index=trial_index)
-                            mark_trial_as_failed(trial_index, _trial)
-                        else:
-                            print_red("ax_client failed")
-                            my_exit(9)
+                        _trial = ax_client.get_trial(trial_index)
+                        ax_client.log_trial_failure(trial_index=trial_index)
+                        mark_trial_as_failed(trial_index, _trial)
                     except Exception as e:
                         print(f"ERROR in line {get_line_info()}: {e}")
                     job.cancel()
                     orchestrate_job(job, trial_index)
+
                 failed_jobs(1)
                 this_jobs_finished += 1
                 print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")

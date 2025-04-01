@@ -3060,17 +3060,16 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
     data: list = []
 
-    if not os.path.exists(_pd_csv):
-        print_debug(f"Cannot find path {_pd_csv}")
-        return data
+    conditions = [
+        (not os.path.exists(_pd_csv), f"Cannot find path {_pd_csv}"),
+        (not _show_sixel_graphics, "_show_sixel_graphics was false. Will not plot."),
+        (len(global_vars["parameter_names"]) == 0, "Cannot handle empty data in global_vars -> parameter_names"),
+    ]
 
-    if not _show_sixel_graphics:
-        print_debug("_show_sixel_graphics was false. Will not plot.")
-        return data
-
-    if len(global_vars["parameter_names"]) == 0:
-        print_debug("Cannot handle empty data in global_vars -> parameter_names")
-        return data
+    for condition, message in conditions:
+        if condition:
+            print_debug(message)
+            return data
 
     x_y_combinations = get_x_y_combinations_parameter_names()
     plot_types = get_plot_types(x_y_combinations, _force)

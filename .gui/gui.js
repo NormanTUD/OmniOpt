@@ -738,8 +738,8 @@ function update_command() {
 			base_url = base_url.replace(/^\/\//, "/");
 		}
 
-		base_url = base_url.replace(/\/index.php/, "");
-		base_url = base_url.replace(/\/gui.php/, "");
+		base_url = base_url.replace(/\/index(?:.php)?/, "");
+		base_url = base_url.replace(/\/gui(?:.php)?/, "");
 
 		var curl_command = "";
 

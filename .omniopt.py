@@ -4844,7 +4844,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     result = job.result()
 
-    print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}")
+    print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}, state: {state_from_job(job)}")
 
     raw_result = result
     result_keys = list(result.keys())

@@ -1832,12 +1832,14 @@ function _colorize_table_entries_by_generation_node_or_hostname() {
 
 function colorize_table_entries () {
 	setTimeout(() => {
-		_colorize_table_entries_by_trial_status();
-		_colorize_table_entries_by_result();
-		_colorize_table_entries_by_run_time();
-		_colorize_table_entries_by_generation_method();
-		_colorize_table_entries_by_generation_node_or_hostname();
-		apply_theme_based_on_system_preferences();
+		if (typeof result_names !== "undefined" && Array.isArray(result_names) && result_names.length > 0) {
+			_colorize_table_entries_by_trial_status();
+			_colorize_table_entries_by_result();
+			_colorize_table_entries_by_run_time();
+			_colorize_table_entries_by_generation_method();
+			_colorize_table_entries_by_generation_node_or_hostname();
+			apply_theme_based_on_system_preferences();
+		}
 	}, 300);
 }
 

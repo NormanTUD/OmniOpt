@@ -4250,7 +4250,7 @@ def clean_completed_jobs() -> None:
         _state = state_from_job(job)
         #print_debug(f'clean_completed_jobs: Job {job} (trial_index: {trial_index}) has state {_state}')
         if _state in job_states_to_be_removed:
-            print_debug(f"clean_completed_jobs: removing job {job}, trial_index: {trial_index}")
+            print_debug(f"clean_completed_jobs: removing job {job}, trial_index: {trial_index}, state: {_state}")
             global_vars["jobs"].remove((job, trial_index))
         elif _state in job_states_to_be_ignored:
             pass
@@ -4844,7 +4844,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     result = job.result()
 
-    print_debug(f"job.result(): {result}")
+    print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}")
 
     raw_result = result
     result_keys = list(result.keys())
@@ -4902,6 +4902,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     else:
         print_red("ax_client could not be found or used")
         my_exit(9)
+
     print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
 

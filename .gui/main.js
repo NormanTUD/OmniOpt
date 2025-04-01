@@ -135,7 +135,6 @@ function inject_status_bar_css () {
 			background-color: #333;
 			color: white;
 			padding: 10px;
-			font-family: Arial, sans-serif;
 			z-index: 1000;
 			box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.5);
 		}

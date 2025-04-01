@@ -279,7 +279,7 @@
 		}
 ?>
 	</script>
-	<div class="page" style='font-family: sans-serif'>
+	<div class="page">
 		<div class="invert_in_dark_mode" style="height: fit-content;">
 			<div id="share_path" class="invert_in_dark_mode title-bar-text">
 <?php

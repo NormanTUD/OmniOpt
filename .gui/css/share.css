@@ -74,14 +74,6 @@ td.gridjs-td {
 	overflow: clip;
 }
 
-.gridjs-input {
-	font-family: unset;
-}
-
-.gridjs-pages>button {
-	font-family: unset;
-}
-
 .title-bar-text {
 	font-size: 22px;
 	display: block ruby;
@@ -122,7 +114,6 @@ td.gridjs-td {
 
 button {
 	color: black;
-	font-family: -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif
 }
 
 .share_folder_buttons {

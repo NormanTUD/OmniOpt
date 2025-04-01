@@ -4917,7 +4917,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
 
     if not ax_client:
         print_red("ax_client failed")
-        my_exit(9)
+        my_exit(101)
 
     this_jobs_finished = 0
 

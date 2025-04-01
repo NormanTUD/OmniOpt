@@ -1714,10 +1714,16 @@ function plotJobStatusDistribution() {
 		status_counts[status] = (status_counts[status] || 0) + 1;
 	});
 
+	var statuses = Object.keys(status_counts);
+	var counts = Object.values(status_counts);
+
+	var colors = statuses.map((status, i) => status === "FAILED" ? "red" : `hsl(${(i * 137) % 360}, 70%, 50%)`);
+
 	var trace = {
-		x: Object.keys(status_counts),
-		y: Object.values(status_counts),
-		type: 'bar'
+		x: statuses,
+		y: counts,
+		type: 'bar',
+		marker: { color: colors }
 	};
 
 	var layout = {

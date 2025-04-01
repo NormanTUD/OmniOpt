@@ -649,6 +649,7 @@
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $results_html,
+				'onclick' => 'colorize_table_entries();'
 			];
 		} else {
 			if(!is_file($filename)) {

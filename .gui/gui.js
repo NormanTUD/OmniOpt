@@ -1270,6 +1270,10 @@ function run_when_document_ready () {
 	fadeTime = fadeTimeAfterLoading;
 
 	setTimeout(update_command, 200);
+
+	update_url();
+
+	update_command();
 }
 
 function test_if_equation_is_valid(str, names) {

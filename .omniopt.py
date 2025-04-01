@@ -4974,6 +4974,16 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     clean_completed_jobs()
 
 @beartype
+def get_alt_path(stdout_path: str) -> str:
+    alt_path = None
+    if stdout_path.endswith(".err"):
+        alt_path = stdout_path[:-4] + ".out"
+    elif stdout_path.endswith(".out"):
+        alt_path = stdout_path[:-4] + ".err"
+
+    return alt_path
+
+@beartype
 def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
     behavs: list = []
 
@@ -4981,11 +4991,7 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
         try:
             stdout = Path(stdout_path).read_text("UTF-8")
         except FileNotFoundError:
-            alt_path = None
-            if stdout_path.endswith(".err"):
-                alt_path = stdout_path[:-4] + ".out"
-            elif stdout_path.endswith(".out"):
-                alt_path = stdout_path[:-4] + ".err"
+            alt_path = get_alt_path(stdout_path)
 
             if alt_path and Path(alt_path).exists():
                 stdout_path = alt_path

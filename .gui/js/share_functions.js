@@ -1556,6 +1556,8 @@ function add_up_down_arrows_for_scrolling () {
 	});
 
 	checkScrollPosition();
+
+	apply_theme_based_on_system_preferences();
 }
 
 function plotGPUUsage() {

@@ -7403,9 +7403,7 @@ def start_live_share_background_job() -> None:
     if not args.live_share:
         return
 
-    live_share()
-
-    interval: int = 60
+    interval: int = 120
     thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
     thread.start()
 

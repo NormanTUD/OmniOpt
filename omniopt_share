@@ -251,26 +251,38 @@
 					fi
 				fi
 
+				log_dir="logs"
+
+
+				log_dir="logs"
+				current_dir="$(pwd)"
+
+				while [[ ! -d "$current_dir/$log_dir" && "$current_dir" != "/" ]]; do
+					current_dir=$(dirname "$current_dir")
+				done
+
+				log_dir="$current_dir/$log_dir"
+
 				if [[ -z $outfile ]]; then
-					if [[ -e "logs/$run_uuid" ]]; then
-						curl_options+=("-F" "outfile=@logs/$run_uuid")
+					if [[ -e "$log_dir/$run_uuid" ]]; then
+						curl_options+=("-F" "outfile=@$log_dir/$run_uuid")
 					fi
 				fi
 
-				if [[ -e "logs/${run_uuid}_progressbar" ]]; then
-					curl_options+=("-F" "progressbar=@logs/${run_uuid}_progressbar")
+				if [[ -e "$log_dir/${run_uuid}_progressbar" ]]; then
+					curl_options+=("-F" "progressbar=@$log_dir/${run_uuid}_progressbar")
 				fi
 
-				if [[ -e "logs/${run_uuid}_install_errors" ]]; then
-					curl_options+=("-F" "install_errors=@logs/${run_uuid}_install_errors")
+				if [[ -e "$log_dir/${run_uuid}_install_errors" ]]; then
+					curl_options+=("-F" "install_errors=@$log_dir/${run_uuid}_install_errors")
 				fi
 
-				if [[ -e "logs/${run_uuid}_trial_index_to_param_logs" ]]; then
-					curl_options+=("-F" "trial_index_to_params=@logs/${run_uuid}_trial_index_to_param_logs")
+				if [[ -e "$log_dir/${run_uuid}_trial_index_to_param_logs" ]]; then
+					curl_options+=("-F" "trial_index_to_params=@$log_dir/${run_uuid}_trial_index_to_param_logs")
 				fi
 
-				if [[ -e "logs/${run_uuid}_log" ]]; then
-					curl_options+=("-F" "log=@logs/${run_uuid}_log")
+				if [[ -e "$log_dir/${run_uuid}_log" ]]; then
+					curl_options+=("-F" "log=@$log_dir/${run_uuid}_log")
 				fi
 			fi
 

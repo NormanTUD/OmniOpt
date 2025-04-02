@@ -221,7 +221,7 @@
 		<br>
 		<span style="display: inline-flex;">
 			<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 600px;" type="text" placeholder="Search help topics and shares (Regex)..." id="search">
-			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='red_x.svg' style='height: 1em' /></button>
+			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
 		</span>
 	</div>
 

@@ -268,7 +268,7 @@ function update_table_row (item, errors, warnings, command) {
 				this_error = item.regex_does_not_match_text;
 			}
 			errors.push(this_error);
-			smoothShow($("#" + item.id + "_error").html(`<img src='warning.svg' style='height: 1em' /> ${this_error}`));
+			smoothShow($("#" + item.id + "_error").html(`<img src='i/warning.svg' style='height: 1em' /> ${this_error}`));
 		} else {
 			smoothHide($("#" + item.id + "_error").html(""));
 		}
@@ -281,7 +281,7 @@ function update_table_row (item, errors, warnings, command) {
 		}
 	} else if ((item.type === "textarea" || item.type === "text") && value === "") {
 		if(item.required) {
-			var this_error = "<img src='warning.svg' style='height: 1em' /> Field '" + item.label + "' is required.";
+			var this_error = "<img src='i/warning.svg' style='height: 1em' /> Field '" + item.label + "' is required.";
 			smoothShow($("#" + item.id + "_error").html(this_error));
 			$("#" + item.id).css("background-color", "#FFCCCC !important");
 
@@ -397,7 +397,7 @@ function update_table_row (item, errors, warnings, command) {
 			var test_this_var_name = variables_in_run_program[k];
 
 			if(!existing_parameter_names.includes(test_this_var_name)) {
-				var err_msg = `<img src='warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> not in existing defined parameters.`;
+				var err_msg = `<img src='i/warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> not in existing defined parameters.`;
 				new_errors.push(err_msg);
 			}
 		}
@@ -406,7 +406,7 @@ function update_table_row (item, errors, warnings, command) {
 			var test_this_var_name = existing_parameter_names[k];
 
 			if(!variables_in_run_program.includes(test_this_var_name)) {
-				var err_msg = `<img src='warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> is defined but not used.`;
+				var err_msg = `<img src='i/warning.svg' style='height: 1em' /> <code>%(${test_this_var_name})</code> is defined but not used.`;
 				new_errors.push(err_msg);
 			}
 		}
@@ -463,7 +463,7 @@ function show_warnings_and_errors(warnings, errors) {
 	var warnings_html = "";
 	var errors_html = "";
 
-	var img_warning = "<img src='warning.svg' width=16 />";
+	var img_warning = "<img src='i/warning.svg' width=16 />";
 
 	function formatMessages(messages, title, color) {
 		if (!Array.isArray(messages) || messages.length === 0) return '';
@@ -572,12 +572,12 @@ function update_command() {
 				//log("minValue:", minValue);
 
 				if(isNaN(minValue)) {
-					warn_msg.push("<img src='warning.svg' style='height: 1em' /><i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /><i>minValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 					is_ok = false;
 				}
 
 				if(isNaN(maxValue)) {
-					warn_msg.push("<img src='warning.svg' style='height: 1em' /><i>maxValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /><i>maxValue</i> for parameter <i>" + parameterName + "</i> is not a number.");
 					is_ok = false;
 				}
 
@@ -630,9 +630,9 @@ function update_command() {
 				}
 
 				if(fixedValue === undefined) {
-					warn_msg.push("<img src='warning.svg' style='height: 1em' /> <i>Value</i> is missing.");
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /> <i>Value</i> is missing.");
 				} else if(!fixedValue.match(/./)) {
-					warn_msg.push("<img src='warning.svg' style='height: 1em' /> <i>Value</i> is missing.");
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /> <i>Value</i> is missing.");
 				} else if(!fixedValue.match(/^[a-zA-Z0-9\.,_]+$/)) {
 					warn_msg.push("Invalid values. Must match Regex /[a-zA-Z0-9,_\.]/.");
 
@@ -652,7 +652,7 @@ function update_command() {
 				}
 			}
 		} else {
-			warn_msg.push("<img src='warning.svg' style='height: 1em' /> Parameter option <i>Name</i> is missing.");
+			warn_msg.push("<img src='i/warning.svg' style='height: 1em' /> Parameter option <i>Name</i> is missing.");
 		}
 
 		if(warn_msg.length) {
@@ -882,7 +882,7 @@ function add_parameter_row(button) {
 
 	valueCell.innerHTML = "";
 
-	buttonCell.innerHTML = "<button class='remove_parameter' onclick='remove_parameter_row(this)'><img class='invert_in_dark_mode' style='height: 1em' src='red_x.svg' />&nbsp;Remove</button>";
+	buttonCell.innerHTML = "<button class='remove_parameter' onclick='remove_parameter_row(this)'><img class='invert_in_dark_mode' style='height: 1em' src='i/red_x.svg' />&nbsp;Remove</button>";
 
 	updateOptions(optionCell.firstChild);
 
@@ -1020,7 +1020,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'><img class='invert_in_dark_mode 'src='green_plus.svg' style='height: 1em' />&nbsp;Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'><img class='invert_in_dark_mode 'src='i/green_plus.svg' style='height: 1em' />&nbsp;Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");
@@ -1281,7 +1281,7 @@ function test_if_equation_is_valid(str, names) {
 	var isValid = true;
 
 	if (!str.includes(">=") && !str.includes("<=")) {
-		errors.push("<img src='warning.svg' style='height: 1em' /> Missing '>=' or '<=' operator. The equation should include a comparison operator.");
+		errors.push("<img src='i/warning.svg' style='height: 1em' /> Missing '>=' or '<=' operator. The equation should include a comparison operator.");
 		isValid = false;
 	}
 
@@ -1289,7 +1289,7 @@ function test_if_equation_is_valid(str, names) {
 
 	var left_side = splitted[0].replace(/\s+/g, "");
 	if(!left_side) {
-		errors.push("<img src='warning.svg' style='height: 1em' /> Left side is empty or contains only whitespace. Please provide an expression on the left side.");
+		errors.push("<img src='i/warning.svg' style='height: 1em' /> Left side is empty or contains only whitespace. Please provide an expression on the left side.");
 		isValid = false;
 	}
 
@@ -1297,7 +1297,7 @@ function test_if_equation_is_valid(str, names) {
 		var right_side = splitted[1].trim();
 
 		if (!/^[+-]?\d+(\.\d+)?$/.test(right_side)) {
-			errors.push("<img src='warning.svg' style='height: 1em' /> The right side does not look like a constant. The right side should be a valid number.");
+			errors.push("<img src='i/warning.svg' style='height: 1em' /> The right side does not look like a constant. The right side should be a valid number.");
 			isValid = false;
 		}
 
@@ -1316,28 +1316,28 @@ function test_if_equation_is_valid(str, names) {
 		var regex = new RegExp(fullPattern);
 
 		if (!regex.test(left_side)) {
-			errors.push(`<img src='warning.svg' style='height: 1em' /> Left side does not match expected pattern. Invalid term or parameter format detected in '${left_side}'`);
+			errors.push(`<img src='i/warning.svg' style='height: 1em' /> Left side does not match expected pattern. Invalid term or parameter format detected in '${left_side}'`);
 			isValid = false;
 		}
 
 		// Check for multiple operators in a row
 		var multipleOperatorsRegex = new RegExp("[*+-][*+-]");
 		if(multipleOperatorsRegex.test(left_side)) {
-			errors.push("<img src='warning.svg' style='height: 1em' /> The left side contains multiple operators directly in a row. Ensure that operators are used correctly.");
+			errors.push("<img src='i/warning.svg' style='height: 1em' /> The left side contains multiple operators directly in a row. Ensure that operators are used correctly.");
 			isValid = false;
 		}
 
 		// Number followed by variable without an operator
 		var number_followed_by_varname = new RegExp(`${nr_re}(${namePattern})`);
 		if(number_followed_by_varname.test(left_side)) {
-			errors.push("<img src='warning.svg' style='height: 1em' /> A number is followed directly by a variable name without an operator. Example: '3x' is not valid, use '3*x' instead.");
+			errors.push("<img src='i/warning.svg' style='height: 1em' /> A number is followed directly by a variable name without an operator. Example: '3x' is not valid, use '3*x' instead.");
 			isValid = false;
 		}
 
 		// Left side starting with an operator
 		var starts_with_operator = new RegExp(`^[*+]`);
 		if(starts_with_operator.test(left_side)) {
-			errors.push("<img src='warning.svg' style='height: 1em' /> Left side starts with an operator. The equation cannot start with an operator.");
+			errors.push("<img src='i/warning.svg' style='height: 1em' /> Left side starts with an operator. The equation cannot start with an operator.");
 			isValid = false;
 		}
 	}

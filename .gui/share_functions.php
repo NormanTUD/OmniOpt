@@ -188,8 +188,8 @@
 	function copy_id_to_clipboard_string($id, $filename) {
 		$filename = basename($filename);
 
-		$str = "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'><img src='clipboard.svg' style='height: 1em'> Copy raw data to clipboard</button>\n";
-		$str .= "<button onclick='download_as_file(\"".$id."\", \"".htmlentities($filename)."\")'><img src='download.svg' style='height: 1em'> Download &raquo;".htmlentities($filename)."&laquo; as file</button>\n";
+		$str = "<button onclick='copy_to_clipboard_from_id(\"".$id."\")'><img src='i/clipboard.svg' style='height: 1em'> Copy raw data to clipboard</button>\n";
+		$str .= "<button onclick='download_as_file(\"".$id."\", \"".htmlentities($filename)."\")'><img src='i/download.svg' style='height: 1em'> Download &raquo;".htmlentities($filename)."&laquo; as file</button>\n";
 
 		return $str;
 	}
@@ -1984,6 +1984,6 @@
 	}
 
 	function get_icon_html ($name) {
-		return "<img class='invert_icon' src='$name' style='height: 1em' />&nbsp;";
+		return "<img class='invert_icon' src='i/$name' style='height: 1em' />&nbsp;";
 	}
 ?>

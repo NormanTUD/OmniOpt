@@ -6905,7 +6905,7 @@ def set_run_folder() -> None:
 
 @beartype
 def print_run_info() -> None:
-    original_print(f"Run-folder: [underline]{get_current_run_folder()}[/underline]")
+    original_print(f"Run-folder: {get_current_run_folder()}")
     if args.continue_previous_job:
         original_print(f"Continuation from {args.continue_previous_job}")
 

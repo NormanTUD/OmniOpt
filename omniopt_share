@@ -1,7 +1,9 @@
 #!/bin/bash
 
 {
-	source .colorfunctions.sh
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+	source $SCRIPT_DIR/.colorfunctions.sh
 
 	function displaytime {
 		local T=$1
@@ -58,8 +60,6 @@
 	folders_to_share=()
 	username=$USER
 	outfile=
-
-	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 	function join_by {
 		local d=${1-} f=${2-}

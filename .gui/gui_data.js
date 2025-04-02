@@ -228,7 +228,7 @@ var hiddenTableData = [
 		label: "Revert to random",
 		id: "revert_to_random_when_seemingly_exhausted",
 		type: "checkbox",
-		value: 0,
+		value: 1,
 		help: "Reverts to random model if the systematic model cannot generate new points."
 	},
 	{

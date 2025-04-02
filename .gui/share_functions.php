@@ -1821,6 +1821,7 @@
 		if(file_exists($git_version_file) && filesize($git_version_file)) {
 			$lastLine = htmlentities(file_get_contents($git_version_file));
 
+			$overview_html .= "<br>\n";
 			$overview_html .= "<h2>Git-Version:</h2>\n";
 			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
 		} else {

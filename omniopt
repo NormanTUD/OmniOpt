@@ -35,6 +35,12 @@
 
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
+	is_loaded_in_venv=0
+
+	if [[ "$PWD" == "$VIRTUAL_ENV/bin" ]]; then
+		is_loaded_in_venv=1
+	fi
+
 	send_usr1_before_job_end() {
 		if ! command -v pkill >/dev/null 2>&1; then
 			return
@@ -407,10 +413,12 @@
 
 		end_all_bg_processes
 
-		if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
-			send_status_report -1
-		else
-			send_status_report "$CODE"
+		if [[ $follow -eq 1 ]]; then
+			if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then
+				send_status_report -1
+			else
+				send_status_report "$CODE"
+			fi
 		fi
 
 		if [[ $CODE != 0 ]]; then
@@ -489,8 +497,12 @@
 				anon_user=$(get_anon_user_id)
 			fi
 
-			if [[ -z $git_hash ]]; then
-				git_hash=$(git rev-parse HEAD 2>/dev/null)
+			if [[ $is_loaded_in_venv -eq 0 ]]; then
+				if [[ -z $git_hash ]]; then
+					git_hash=$(git rev-parse HEAD 2>/dev/null)
+				fi
+			else
+				git_hash="pipinstall"
 			fi
 
 			if [[ -z $exit_code ]]; then
@@ -1080,85 +1092,87 @@ EOF
 		fi
 	}
 
-	git_hash="NOT_DETERMININABLE"
+	if [[ $is_loaded_in_venv -eq 0 ]]; then
+		git_hash="NOT_DETERMININABLE"
 
-	if ! command -v git 2>/dev/null >/dev/null; then
-		red_text "git not found. Cannot continue.\n"
-		myexit 11
-	fi
+		if ! command -v git 2>/dev/null >/dev/null; then
+			red_text "git not found. Cannot continue.\n"
+			myexit 11
+		fi
 
-	if [[ -e git_hash ]]; then
-		new_git_hash=$(cat git_hash)
-	else
-		trap - ERR
+		if [[ -e git_hash ]]; then
+			new_git_hash=$(cat git_hash)
+		else
+			trap - ERR
+			set +e
+			new_git_hash=$(git rev-parse HEAD 2>/dev/null)
+			set -e
+			trap 'calltracer' ERR
+		fi
+
+		if [[ -n $new_git_hash ]]; then
+			git_hash=$new_git_hash
+		fi
+
 		set +e
-		new_git_hash=$(git rev-parse HEAD 2>/dev/null)
+		trap - ERR
+		git fetch --tags 2>/dev/null >/dev/null
+		current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+		tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
+		commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
 		set -e
 		trap 'calltracer' ERR
-	fi
 
-	if [[ -n $new_git_hash ]]; then
-		git_hash=$new_git_hash
-	fi
+		if [[ -z "$SLURM_JOB_ID" ]]; then
+			if [[ -n $current_tag ]]; then
+				if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
+					echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+				elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
+					if [[ $commits_since_tag -eq 1 ]]; then
+						echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commit ago)"
+					else
+						if [[ "$git_hash" == "$tag_commit_hash" ]]; then
+							if [[ $commits_since_tag -eq 0 ]]; then
+								echo "Current git-hash: $git_hash (version: $current_tag)"
+							else
+								echo "Current git-hash: $git_hash (version: $current_tag, $commits_since_tag commits ago)"
+							fi
+						else
+							if [[ $commits_since_tag -eq 0 ]]; then
+								echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
+							else
+								echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
+							fi
+						fi
+					fi
 
-	set +e
-	trap - ERR
-	git fetch --tags 2>/dev/null >/dev/null
-	current_tag=$(git describe --tags --abbrev=0 2>/dev/null)
-	tag_commit_hash=$(git rev-list -n 1 "$current_tag" 2>/dev/null)
-	commits_since_tag=$(git rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
-	set -e
-	trap 'calltracer' ERR
+					if [[ "$commits_since_tag" -gt 0 ]]; then
+						if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
+							yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
+							git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
+								red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
+								myexit 211
+							}
 
-	if [[ -z "$SLURM_JOB_ID" ]]; then
-		if [[ -n $current_tag ]]; then
-			if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
-				echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
-			elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
-				if [[ $commits_since_tag -eq 1 ]]; then
-					echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commit ago)"
+							bash omniopt $*
+							exit_code=$?
+
+							myexit $exit_code
+						else
+							if [[ -z $OO_MAIN_TESTS ]]; then
+								yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
+								yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
+							fi
+						fi
+					fi
 				else
-					if [[ "$git_hash" == "$tag_commit_hash" ]]; then
-						if [[ $commits_since_tag -eq 0 ]]; then
-							echo "Current git-hash: $git_hash (version: $current_tag)"
-						else
-							echo "Current git-hash: $git_hash (version: $current_tag, $commits_since_tag commits ago)"
-						fi
-					else
-						if [[ $commits_since_tag -eq 0 ]]; then
-							echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
-						else
-							echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash, $commits_since_tag commits ago)"
-						fi
-					fi
+					echo "Current git-hash: $git_hash (version: $current_tag)"
 				fi
 
-				if [[ "$commits_since_tag" -gt 0 ]]; then
-					if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
-						yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
-						git checkout $tag_commit_hash >/dev/null 2>/dev/null || {
-							red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
-							myexit 211
-						}
-
-						bash omniopt $*
-						exit_code=$?
-
-						myexit $exit_code
-					else
-						if [[ -z $OO_MAIN_TESTS ]]; then
-							yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash to get the latest tested version."
-							yellow_text "Use --checkout_to_latest_tested_version to automatically use the latest tested version."
-						fi
-					fi
-				fi
 			else
-				echo "Current git-hash: $git_hash (version: $current_tag)"
-			fi
-
-		else
-			if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
-				echo "Current git-hash: $git_hash"
+				if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
+					echo "Current git-hash: $git_hash"
+				fi
 			fi
 		fi
 	fi

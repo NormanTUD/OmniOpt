@@ -1470,15 +1470,55 @@ def print_debug_progressbar(msg: str) -> None:
     _debug_progressbar(msg)
 
 @beartype
+def get_process_info(pid: Any) -> str:
+    """Collects detailed information about a process and its hierarchy."""
+    try:
+        proc = psutil.Process(pid)
+        hierarchy = []
+        
+        # Build process hierarchy
+        while proc:
+            hierarchy.append(f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}")
+            proc = proc.parent()  # Get the next parent process
+            
+        return "\n  → ".join(hierarchy[::-1])  # Sort hierarchy from root to sender
+    except psutil.NoSuchProcess:
+        return f"Process with PID {pid} no longer exists."
+
+@beartype
 def receive_usr_signal(signum: int, stack: Any) -> None:
+    """Handle SIGUSR1 signal."""
+    siginfo = signal.sigwaitinfo({signum})
+    print(f"\npy: Received SIGUSR1 ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    
+    # Show process and hierarchy information
+    process_info = get_process_info(siginfo.si_pid)
+    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+    
     raise SignalUSR(f"USR1-signal received ({signum})")
 
 @beartype
 def receive_usr_signal_int_or_term(signum: int, stack: Any) -> None:
+    """Handle SIGINT or SIGTERM signal."""
+    siginfo = signal.sigwaitinfo({signum})
+    print(f"\npy: Received SIGINT/SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    
+    # Show process and hierarchy information
+    process_info = get_process_info(siginfo.si_pid)
+    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+    
     raise SignalINT(f"INT-signal received ({signum})")
 
 @beartype
 def receive_signal_cont(signum: int, stack: Any) -> None:
+    """Handle SIGCONT signal."""
+    siginfo = signal.sigwaitinfo({signum})
+    print(f"\npy: Received SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    
+    # Show process and hierarchy information
+    process_info = get_process_info(siginfo.si_pid)
+    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+    
     raise SignalCONT(f"CONT-signal received ({signum})")
 
 signal.signal(signal.SIGUSR1, receive_usr_signal)

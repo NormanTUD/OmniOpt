@@ -219,6 +219,9 @@ class SignalUSR (Exception):
 class SignalINT (Exception):
     pass
 
+class SignalTERM (Exception):
+    pass
+
 class SignalCONT (Exception):
     pass
 
@@ -1489,7 +1492,8 @@ def get_process_info(pid: Any) -> str:
 def receive_usr_signal(signum: int, stack: Any) -> None:
     """Handle SIGUSR1 signal."""
     siginfo = signal.sigwaitinfo({signum})
-    print_yellow(f"\nReceived SIGUSR1 ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
+    fool_linter(stack)
+    print_yellow(f"\nReceived SIGUSR1 ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
@@ -1501,7 +1505,8 @@ def receive_usr_signal(signum: int, stack: Any) -> None:
 def receive_usr_signal_int(signum: int, stack: Any) -> None:
     """Handle SIGINT signal (Ctrl+C)."""
     siginfo = signal.sigwaitinfo({signum})
-    print_yellow(f"\nReceived SIGINT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
+    fool_linter(stack)
+    print_yellow(f"\nReceived SIGINT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
@@ -1514,7 +1519,8 @@ def receive_usr_signal_int(signum: int, stack: Any) -> None:
 def receive_usr_signal_term(signum: int, stack: Any) -> None:
     """Handle SIGTERM signal (termination)."""
     siginfo = signal.sigwaitinfo({signum})
-    print_yellow(f"\nReceived SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
+    fool_linter(stack)
+    print_yellow(f"\nReceived SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
@@ -1527,6 +1533,7 @@ def receive_usr_signal_term(signum: int, stack: Any) -> None:
 def receive_signal_cont(signum: int, stack: Any) -> None:
     """Handle SIGCONT signal (continue)."""
     siginfo = signal.sigwaitinfo({signum})
+    fool_linter(stack)
     print_yellow(f"\nReceived SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
 
     # Show process and hierarchy information
@@ -6744,7 +6751,7 @@ def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
 
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as f:
+        with open(file_path, mode="w", encoding="utf-8") as f:
             f.write("1\n")
     except Exception as e:
         print_red(f"Error writing to file: {e}")

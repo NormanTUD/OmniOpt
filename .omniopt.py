@@ -745,7 +745,7 @@ except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(146)
 except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted.")
+    print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
     my_exit(0)
 except AttributeError:
     print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
@@ -3453,7 +3453,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
         if new_exit > 0:
             _exit = new_exit
     except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
-        print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted.")
+        print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         new_exit = show_end_table_and_save_end_files(csv_file_path)
         if new_exit > 0:

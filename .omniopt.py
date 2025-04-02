@@ -6713,7 +6713,6 @@ def write_files_and_show_overviews() -> None:
     show_experiment_overview_table()
     save_global_vars()
     write_process_info()
-    start_live_share_background_job()
     write_continue_run_uuid_to_file()
 
 @beartype
@@ -6784,6 +6783,8 @@ def main() -> None:
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
     write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
+
+    start_live_share_background_job()
 
     try:
         fn = f"{get_current_run_folder()}/result_names.txt"
@@ -7404,7 +7405,7 @@ def start_live_share_background_job() -> None:
 
     live_share()
 
-    interval: int = 10
+    interval: int = 60
     thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
     thread.start()
 

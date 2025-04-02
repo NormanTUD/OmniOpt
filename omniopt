@@ -28,7 +28,7 @@
 # and the program looks basically the same on every device.
 # This logic is defined in .shellscript_functions
 
-#SBATCH --signal=B:INT@600
+#SBATCH --signal=B:USR1@600
 
 {
 	source .colorfunctions.sh

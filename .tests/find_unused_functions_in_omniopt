@@ -13,6 +13,8 @@ exceptions=(
 	"receive_usr_signal"
 	"live_share_background"
 	"receive_usr_signal_int_or_term"
+	"receive_usr_signal_int"
+	"receive_usr_signal_term"
 	"execute_nvidia_smi"
 	"parse_choice_param"
 	"parse_range_param"

@@ -1339,7 +1339,7 @@
 								move_uploaded_file($file, "$userFolder/$filename");
 								$added_files++;
 							} catch (Exception $e) {
-								echo "\nAn exception occured trying to move $file to $userFolder/$filename: $e\n";
+								error_log("\nAn exception occured trying to move $file to $userFolder/$filename: $e\n");
 							}
 						} else {
 							$empty_files[] = $filename;
@@ -1439,7 +1439,11 @@
 						rrmdir($object_path);
 					} else {
 						if (file_exists($object_path)) {
-							unlink($object_path);
+							try {
+								unlink($object_path);
+							} catch (Exception $e) {
+								error_log("\nAn exception occured trying to move $file to $userFolder/$filename: $e\n");
+							}
 						}
 					}
 				}

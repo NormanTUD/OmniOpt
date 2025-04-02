@@ -1475,12 +1475,12 @@ def get_process_info(pid: Any) -> str:
     try:
         proc = psutil.Process(pid)
         hierarchy = []
-        
+
         # Build process hierarchy
         while proc:
             hierarchy.append(f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}")
             proc = proc.parent()  # Get the next parent process
-            
+
         return "\n  → ".join(hierarchy[::-1])  # Sort hierarchy from root to sender
     except psutil.NoSuchProcess:
         return f"Process with PID {pid} no longer exists."
@@ -1489,23 +1489,23 @@ def get_process_info(pid: Any) -> str:
 def receive_usr_signal(signum: int, stack: Any) -> None:
     """Handle SIGUSR1 signal."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGUSR1 ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
-    
+    print_red(f"\nReceived SIGUSR1 ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
+
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
-    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
-    
+    print_red(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+
     raise SignalUSR(f"USR1-signal received ({signum})")
 
 @beartype
 def receive_usr_signal_int(signum: int, stack: Any) -> None:
     """Handle SIGINT signal (Ctrl+C)."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGINT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    print_red(f"\nReceived SIGINT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
-    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+    print_red(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
 
     # Additional specific handling for SIGINT
     raise SignalINT(f"INT-signal received ({signum})")
@@ -1514,11 +1514,11 @@ def receive_usr_signal_int(signum: int, stack: Any) -> None:
 def receive_usr_signal_term(signum: int, stack: Any) -> None:
     """Handle SIGTERM signal (termination)."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    print_red(f"\nReceived SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}, stack: {stack}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
-    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+    print_red(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
 
     # Additional specific handling for SIGTERM
     raise SignalTERM(f"TERM-signal received ({signum})")
@@ -1527,7 +1527,7 @@ def receive_usr_signal_term(signum: int, stack: Any) -> None:
 def receive_signal_cont(signum: int, stack: Any) -> None:
     """Handle SIGCONT signal (continue)."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+    print(f"\nReceived SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
 
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
@@ -6746,9 +6746,8 @@ def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "w") as f:
             f.write("1\n")
-        print(f"Successfully wrote '1' to {file_path}")
     except Exception as e:
-        print(f"Error writing to file: {e}")
+        print_red(f"Error writing to file: {e}")
 
 @beartype
 def main() -> None:

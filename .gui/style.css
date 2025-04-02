@@ -720,3 +720,8 @@ th, td {
 .no_break {
 
 }
+
+img {
+	user-select: none;
+	pointer-events: none;
+}

@@ -998,6 +998,18 @@ function create_table_row (table, tbody, item) {
 		if (Object.keys(item).includes("onchange")) {
 			$(input).change(item.onchange);
 		}
+
+		if (Object.keys(item).includes("onkeypress")) {
+			$(input).keypress(item.onkeypress);
+		}
+
+		if (Object.keys(item).includes("onblur")) {
+			$(input).blur(item.onblur);
+		}
+
+		if (Object.keys(item).includes("onfocus")) {
+			$(input).focus(item.onchange);
+		}
 	}
 
 	if (item.id !== "partition") {

@@ -512,6 +512,18 @@ var hiddenTableData = [
 	{
 		label: "Generation strategy",
 		id: "generation_strategy",
+		onblur: function() { 
+			toggle_model_warning_for_custom_generation_strategy();
+		},
+		onfocus: function() { 
+			toggle_model_warning_for_custom_generation_strategy();
+		},
+		onkeypress: function() { 
+			toggle_model_warning_for_custom_generation_strategy();
+		},
+		onchange: function() { 
+			toggle_model_warning_for_custom_generation_strategy();
+		},
 		type: "text",
 		value: "",
 		info: `A comma-seperated list of strings of the form 'MODELNAME=count', for example, <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10</code>. This will override the number of random steps and the --model option. Valid models are: ${model_list_html}`,

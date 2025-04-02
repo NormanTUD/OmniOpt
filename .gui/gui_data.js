@@ -1,17 +1,51 @@
 "use strict";
 
-var valid_models_with_description = {
-	'BOTORCH_MODULAR': '<a href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf" target="_blank">Default model</a>',
-	'SOBOL': '<a target="_blank" href="https://en.wikipedia.org/wiki/Sobol_sequence">SOBOL</a>: Random search',
-	'FACTORIAL': '<a target="_blank" href="https://ax.dev/docs/tutorials/factorial/">All possible combinations</a>',
-	'SAASBO': '<i><a target="_blank" href="https://arxiv.org/pdf/2103.00349">Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions',
-	'UNIFORM': 'Random (uniformly distributed)',
-	'BO_MIXED': 'Optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.'
-};
+var model_data = [
+	{
+		id: 'BOTORCH_MODULAR',
+		name: 'Default model',
+		link: 'https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf'
+	},
+	{
+		id: 'SOBOL',
+		name: 'SOBOL: Random search',
+		link: 'https://en.wikipedia.org/wiki/Sobol_sequence'
+	},
+	{
+		id: 'FACTORIAL',
+		name: 'All possible combinations',
+		link: 'https://ax.dev/docs/tutorials/factorial/'
+	},
+	{
+		id: 'SAASBO',
+		name: 'Sparse Axis-Aligned Subspace Bayesian Optimization',
+		link: 'https://arxiv.org/pdf/2103.00349',
+		italic: true,
+		extra: ' for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions'
+	},
+	{
+		id: 'UNIFORM',
+		name: 'Random (uniformly distributed)'
+	},
+	{
+		id: 'BO_MIXED',
+		name: 'Optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima.',
+		extra: 'The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.'
+	}
+];
 
-var valid_models = Object.keys(valid_models_with_description);
+var valid_models_with_descriptions = Object.fromEntries(
+	model_data.map(model => [
+		model.id, 
+		model.link ? `<a target="_blank" href="${model.link}">${model.italic ? '<i>' + model.name + '</i>' : model.name}</a>${model.extra || ''}` : model.name + (model.extra || '')
+	])
+);
 
-var modelListHTML = "<ul>" + Object.entries(valid_models_with_description).map(([key, desc]) => `<li><strong>${key}</strong>: ${desc}</li>`).join("") + "</ul>";
+var model_list_html = `<ul>${model_data.map(model => `
+	<li><strong>${model.id}</strong>: ${valid_models_with_descriptions[model.id]}</li>
+`).join('')}</ul>`;
+
+var valid_models = model_data.map(model => model.id);
 
 var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
@@ -258,7 +292,7 @@ var hiddenTableData = [
 		value: "",
 		options: valid_models.map(model => ({ text: model, value: model })),
 		required: true,
-		info: modelListHTML,
+		info: model_list_html,
 		help: "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 	},
 	{

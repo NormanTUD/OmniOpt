@@ -19,6 +19,10 @@
 		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt2</th>
 	</tr>
 	<tr>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">export DONT_SEND_SIGNAL_BEFORE_END=1</code></pre></td>
+		<td>Do not send signal before job end</td>
+	</tr>
+	<tr>
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export install_tests=1</code></pre></td>
 		<td>Install test modules</td>
 	</tr>

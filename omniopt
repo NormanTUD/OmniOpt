@@ -72,7 +72,9 @@
 	}
 
 	if [ -n "$SLURM_JOB_ID" ]; then
-		send_usr1_before_job_end &
+		if [[ -z $DONT_SEND_SIGNAL_BEFORE_END ]]; then
+			send_usr1_before_job_end &
+		fi
 	fi
 
 	export TQDM_MININTERVAL=10
@@ -798,7 +800,7 @@ EOF
 		if [[ $check_type == "int" ]]; then
 			check_code=$(cat <<EOF
 				if ! [[ \$$current_var =~ \$int_re ]] ; then
-					red_text "error: --$current_var not a INT: \$i\\n" >&2
+					red_text "error: --$current_var not a integer: \$i\\n" >&2
 					myexit 100
 				fi
 EOF

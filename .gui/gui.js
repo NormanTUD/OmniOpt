@@ -1582,3 +1582,11 @@ function toggleHiddenConfigTableIfError() {
 		table.toggle();
 	}
 }
+
+function show_warning_for_model_when_custom_generation_strategy_is_set() {
+	smoothShow($("#model_error").html("Custom generation strategy is set, so --model is ignored."));
+}
+
+function hide_warning_when_custom_custom_generation_strategy_isnt_set() {
+
+}

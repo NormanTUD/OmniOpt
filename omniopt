@@ -68,6 +68,8 @@
 			sleep "$sleep_time"
 		fi
 
+		echo "Sending Signal INT to all python processes on this system that you own"
+
 		pkill -INT -f "python3" 2>/dev/null >/dev/null
 	}
 

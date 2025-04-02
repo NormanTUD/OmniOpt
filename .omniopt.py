@@ -1527,6 +1527,8 @@ signal.signal(signal.SIGINT, receive_usr_signal_int_or_term)
 signal.signal(signal.SIGTERM, receive_usr_signal_int_or_term)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
+print(f"Current PID: {os.getpid()}")
+
 @beartype
 def is_executable_in_path(executable_name: str) -> bool:
     for path in os.environ.get('PATH', '').split(':'):

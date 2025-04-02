@@ -230,6 +230,7 @@
 
 				cd $RUN_DIR
 
+
 				if false; then
 					if command -v zip 2>/dev/null >/dev/null; then
 						zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
@@ -251,17 +252,23 @@
 					fi
 				fi
 
-				log_dir="logs"
-
 
 				log_dir="logs"
 				current_dir="$(pwd)"
 
+				if [[ ! -d $log_dir ]]; then
+					alternative_log_dir="../../../logs"
+
+					if [[ -d $alternative_log_dir ]]; then
+						log_dir="$alternative_log_dir"
+					fi
+				fi
+
 				while [[ ! -d "$current_dir/$log_dir" && "$current_dir" != "/" ]]; do
 					current_dir=$(dirname "$current_dir")
+					log_dir="$current_dir/$log_dir"
 				done
 
-				log_dir="$current_dir/$log_dir"
 
 				if [[ -z $outfile ]]; then
 					if [[ -e "$log_dir/$run_uuid" ]]; then

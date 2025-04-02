@@ -57,7 +57,11 @@
 					$function = isset($functionData['function']) ? $functionData['function'] : 'Unknown';
 					if($function != "_get_debug_json") {
 						$lineNumber = isset($functionData['line_number']) ? $functionData['line_number'] : 'Unknown';
-						$functionStack .= "<tt>$function</tt> (Line $lineNumber)<br>";
+						$line = "<tt>$function</tt> (Line $lineNumber)<br>";
+
+						$line = str_replace(" ", "&nbsp;", $line);
+
+						$functionStack .= $line;
 					}
 				}
 			}

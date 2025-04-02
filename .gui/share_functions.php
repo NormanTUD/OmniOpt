@@ -42,6 +42,7 @@
 	}
 
 	function respond_with_error($error_message) {
+		header("HTTP/1.1 500 Internal Server Error");
 		header('Content-Type: application/json');
 
 		print json_encode(array("error" => $error_message));

@@ -1498,36 +1498,51 @@ def receive_usr_signal(signum: int, stack: Any) -> None:
     raise SignalUSR(f"USR1-signal received ({signum})")
 
 @beartype
-def receive_usr_signal_int_or_term(signum: int, stack: Any) -> None:
-    """Handle SIGINT or SIGTERM signal."""
+def receive_usr_signal_int(signum: int, stack: Any) -> None:
+    """Handle SIGINT signal (Ctrl+C)."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGINT/SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
-    
+    print(f"\npy: Received SIGINT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
     print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
-    
+
+    # Additional specific handling for SIGINT
     raise SignalINT(f"INT-signal received ({signum})")
 
 @beartype
-def receive_signal_cont(signum: int, stack: Any) -> None:
-    """Handle SIGCONT signal."""
+def receive_usr_signal_term(signum: int, stack: Any) -> None:
+    """Handle SIGTERM signal (termination)."""
     siginfo = signal.sigwaitinfo({signum})
-    print(f"\npy: Received SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
-    
+    print(f"\npy: Received SIGTERM ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+
     # Show process and hierarchy information
     process_info = get_process_info(siginfo.si_pid)
     print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
-    
+
+    # Additional specific handling for SIGTERM
+    raise SignalTERM(f"TERM-signal received ({signum})")
+
+@beartype
+def receive_signal_cont(signum: int, stack: Any) -> None:
+    """Handle SIGCONT signal (continue)."""
+    siginfo = signal.sigwaitinfo({signum})
+    print(f"\npy: Received SIGCONT ({signum}) from PID {siginfo.si_pid}, sent by UID {siginfo.si_uid}\n")
+
+    # Show process and hierarchy information
+    process_info = get_process_info(siginfo.si_pid)
+    print(f"Process info for PID {siginfo.si_pid}:\n  → {process_info}\n")
+
     raise SignalCONT(f"CONT-signal received ({signum})")
 
+# Signal handlers registration
 signal.signal(signal.SIGUSR1, receive_usr_signal)
 signal.signal(signal.SIGUSR2, receive_usr_signal)
-signal.signal(signal.SIGINT, receive_usr_signal_int_or_term)
-signal.signal(signal.SIGTERM, receive_usr_signal_int_or_term)
+signal.signal(signal.SIGINT, receive_usr_signal_int)
+signal.signal(signal.SIGTERM, receive_usr_signal_term)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 
-print(f"Current PID: {os.getpid()}")
+print_debug(f"Current PID: {os.getpid()}")
 
 @beartype
 def is_executable_in_path(executable_name: str) -> bool:

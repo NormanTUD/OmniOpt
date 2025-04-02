@@ -1588,5 +1588,13 @@ function show_warning_for_model_when_custom_generation_strategy_is_set() {
 }
 
 function hide_warning_when_custom_custom_generation_strategy_isnt_set() {
+	smoothHide($("#model_error").html(""));
+}
 
+function toggle_model_warning_for_custom_generation_strategy() {
+	if($("#generation_strategy").val() == "") {
+		hide_warning_when_custom_custom_generation_strategy_isnt_set();
+	} else {
+		show_warning_for_model_when_custom_generation_strategy_is_set();
+	}
 }

@@ -4007,22 +4007,6 @@ def print_result_names_overview_table() -> None:
         text_file.write(table_str)
 
 @beartype
-def write_min_max_file() -> None:
-    min_or_max = "minimize"
-
-    open_this: str = f"{get_current_run_folder()}/state_files/{min_or_max}"
-
-    if os.path.isdir(open_this):
-        print_red(f"{open_this} is a dir. Must be a file.")
-        my_exit(246)
-    else:
-        try:
-            with open(open_this, mode='w', encoding="utf-8") as f:
-                print('The contents of this file do not matter. It is only relevant that it exists.', file=f)
-        except Exception as e:
-            print_red(f"Error trying to write {open_this}: {e}")
-
-@beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
     table = Table(header_style="bold", title="Experiment parameters:")
     for column in filtered_columns:
@@ -6658,7 +6642,6 @@ def show_experiment_overview_table() -> None:
 
 @beartype
 def write_files_and_show_overviews() -> None:
-    write_min_max_file()
     write_state_file("num_random_steps", str(args.num_random_steps))
     set_global_executor()
     load_existing_job_data_into_ax_client()
@@ -6699,6 +6682,18 @@ def write_live_share_file_if_needed() -> None:
         write_state_file("live_share", "1\n")
 
 @beartype
+def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
+    file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
+
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "w") as f:
+            f.write("1\n")
+        print(f"Successfully wrote '1' to {file_path}")
+    except Exception as e:
+        print(f"Error writing to file: {e}")
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps, global_gs
 
@@ -6717,9 +6712,15 @@ def main() -> None:
         else:
             print_red(f"Cannot find >{num_random_steps_file}<. Will use default, it being >{args.num_random_steps}<.")
 
+    if args.continue_previous_job:
+        if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
+            args.revert_to_random_when_seemingly_exhausted = True
+
     set_run_folder()
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
+
+    write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
 
     try:
         fn = f"{get_current_run_folder()}/result_names.txt"

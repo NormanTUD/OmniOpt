@@ -195,6 +195,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `last_share_md5_tmp`: Same as `last_share_md5`, but only temporary
 - `live_share`: If this file exists, the job has been run with live share enabled. This is useful for continued jobs, so they also have live-share enabled
 - `model`: The model chosen for the non-SOBOL-step-phase
+- `revert_to_random_when_seemingly_exhausted`: If it exists, continued jobs will revert to random models when the sweep has converged
 - `custom_generation_strategy`: Custom generation strategy file
 
 ### `eval_nodes_cpu_ram_logs.txt`

@@ -2115,28 +2115,39 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
     return None
 
+
 @beartype
-def add_to_csv(file_path: str, heading: list, data_line: list) -> None:
-    data_line = [helpers.to_int_when_possible(x) for x in data_line]
+def add_to_csv(file_path: str, new_heading: list, new_data: list) -> None:
+    new_data = [helpers.to_int_when_possible(x) for x in new_data]
 
     with open(file_path, 'a+', encoding="utf-8", newline='') as file:
         fcntl.flock(file, fcntl.LOCK_EX)  # Lock file
 
-        file.seek(0)  # Go to beginning of file
-        is_empty = not file.read(1)  # Check if file is empty
+        file.seek(0)
+        rows = list(csv.reader(file))  # Read entire file into memory
+        existing_heading = rows[0] if rows else []
 
-        csv_writer = csv.writer(file)
+        # Merge old and new headers, preserving order
+        all_headings = list(dict.fromkeys(existing_heading + new_heading))
 
-        if is_empty:
-            csv_writer.writerow(heading)
-
-        data_line = [
-            ("{:.20f}".format(x).rstrip('0').rstrip('.'))
-            if isinstance(x, float) else x
-            for x in data_line
+        # Update all rows to match the new header order
+        updated_rows = [all_headings] + [
+            [row[existing_heading.index(h)] if h in existing_heading else "" for h in all_headings]
+            for row in rows[1:]
         ]
 
-        csv_writer.writerow(data_line)
+        # Prepare new data line
+        formatted_data = [
+            ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
+            for x in new_data
+        ]
+        new_row = [formatted_data[new_heading.index(h)] if h in new_heading else "" for h in all_headings]
+        updated_rows.append(new_row)
+
+        # Rewrite the entire file
+        file.seek(0)
+        file.truncate()
+        csv.writer(file).writerows(updated_rows)
 
         fcntl.flock(file, fcntl.LOCK_UN)  # Unlock file
 

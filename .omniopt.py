@@ -6905,9 +6905,9 @@ def set_run_folder() -> None:
 
 @beartype
 def print_run_info() -> None:
-    print(f"[yellow]Run-folder[/yellow]: [underline]{get_current_run_folder()}[/underline]")
+    original_print(f"Run-folder: [underline]{get_current_run_folder()}[/underline]")
     if args.continue_previous_job:
-        print(f"[yellow]Continuation from {args.continue_previous_job}[/yellow]")
+        original_print(f"Continuation from {args.continue_previous_job}")
 
 @beartype
 def initialize_nvidia_logs() -> None:

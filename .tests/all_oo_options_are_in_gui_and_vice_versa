@@ -34,6 +34,12 @@ if command -v php 2>/dev/null >/dev/null; then
 	declare -a gui_exceptions=(
 		constraints
 		installation_method
+		BOTORCH_MODULAR
+		SAASBO
+		UNIFORM
+		SOBOL
+		FACTORIAL
+		BO_MIXED
 	)
 
 	declare -a help_exceptions=(
@@ -57,6 +63,7 @@ if command -v php 2>/dev/null >/dev/null; then
 	)
 
 	for gui_option in $gui_options; do
+		gui_option=$(echo "$gui_option" | sed -e "s#[',]##g")
 		if printf '%s\n' "${help_options[@]}" | grep -qx "$gui_option" || printf '%s\n' "${gui_exceptions[@]}" | grep -qx "$gui_option"; then
 			true
 		else

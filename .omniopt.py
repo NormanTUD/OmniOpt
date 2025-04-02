@@ -2125,8 +2125,8 @@ def add_to_csv(file_path: str, heading: list, data_line: list) -> None:
         if is_empty:
             csv_writer.writerow(heading)
 
-        # desc += " (best loss: " + '{:f}'.format(best_result) + ")"
-        data_line = ["{:.20f}".format(x) if isinstance(x, float) else x for x in data_line]
+        data_line = [("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x for x in data_line]
+
         csv_writer.writerow(data_line)
 
 @beartype

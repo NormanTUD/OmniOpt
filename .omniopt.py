@@ -85,6 +85,8 @@ try:
         from rich import print
         from rich.pretty import pprint
 
+        import fcntl
+
         from types import FunctionType
         from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type, Sequence
 
@@ -2115,19 +2117,28 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
 @beartype
 def add_to_csv(file_path: str, heading: list, data_line: list) -> None:
-    is_empty = os.path.getsize(file_path) == 0 if os.path.exists(file_path) else True
-
     data_line = [helpers.to_int_when_possible(x) for x in data_line]
 
     with open(file_path, 'a+', encoding="utf-8", newline='') as file:
+        fcntl.flock(file, fcntl.LOCK_EX)  # Lock file
+
+        file.seek(0)  # Go to beginning of file
+        is_empty = not file.read(1)  # Check if file is empty
+
         csv_writer = csv.writer(file)
 
         if is_empty:
             csv_writer.writerow(heading)
 
-        data_line = [("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x for x in data_line]
+        data_line = [
+            ("{:.20f}".format(x).rstrip('0').rstrip('.'))
+            if isinstance(x, float) else x
+            for x in data_line
+        ]
 
         csv_writer.writerow(data_line)
+
+        fcntl.flock(file, fcntl.LOCK_UN)  # Unlock file
 
 @beartype
 def find_file_paths(_text: str) -> List[str]:

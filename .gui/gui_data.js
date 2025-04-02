@@ -1,6 +1,18 @@
 "use strict";
 
-var valid_models = ["BOTORCH_MODULAR", "SOBOL", "FACTORIAL", "SAASBO", "UNIFORM", "BO_MIXED"];
+var valid_models_with_description = {
+	'BOTORCH_MODULAR': '<a href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf" target="_blank">Default model</a>',
+	'SOBOL': '<a target="_blank" href="https://en.wikipedia.org/wiki/Sobol_sequence">SOBOL</a>: Random search',
+	'FACTORIAL': '<a target="_blank" href="https://ax.dev/docs/tutorials/factorial/">All possible combinations</a>',
+	'SAASBO': '<i><a target="_blank" href="https://arxiv.org/pdf/2103.00349">Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions',
+	'UNIFORM': 'Random (uniformly distributed)',
+	'BO_MIXED': 'Optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.'
+};
+
+var valid_models = Object.keys(valid_models_with_description);
+
+var modelListHTML = "<ul>" + Object.entries(valid_models_with_description).map(([key, desc]) => `<li><strong>${key}</strong>: ${desc}</li>`).join("") + "</ul>";
+
 var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
 var tableData = [
@@ -246,16 +258,7 @@ var hiddenTableData = [
 		value: "",
 		options: valid_models.map(model => ({ text: model, value: model })),
 		required: true,
-		info: `
-			<ul>
-			    <li>BOTORCH_MODULAR: <a href='https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf' target='_blank'>Default model</a></li>
-			    <li><a target="_blank" href="https://en.wikipedia.org/wiki/Sobol_sequence">SOBOL</a>: Random search</li>
-			    <li>FACTORIAL: <a target='_blank' href='https://ax.dev/docs/tutorials/factorial/'>All possible combinations</a></li>
-			    <li>SAASBO: <i><a target='_blank' href='https://arxiv.org/pdf/2103.00349'>Sparse Axis-Aligned Subspace Bayesian Optimization</a></i> for high-dimensional Bayesian Optimization, recommended for hundreds of dimensions</li>
-			    <li>UNIFORM: Random (uniformly distributed)</li>
-			    <li>BO_MIXED: Optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima. The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.</li>
-			</ul>
-		`,
+		info: modelListHTML,
 		help: "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 	},
 	{

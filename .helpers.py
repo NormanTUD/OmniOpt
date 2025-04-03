@@ -17,13 +17,6 @@ import matplotlib
 from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 
-import_metadata_not_found = False
-
-try:
-    from importlib.metadata import version, PackageNotFoundError
-except ModuleNotFoundError:
-    import_metadata_not_found = True
-
 all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
 
 def check_environment_variable(variable_name: str) -> bool:
@@ -47,24 +40,6 @@ def in_venv() -> bool:
 if not in_venv():
     print("No venv loaded. Cannot continue.")
     sys.exit(19)
-
-def write_loaded_modules_versions_to_json(output_file: str) -> None:
-    if import_metadata_not_found:
-        return
-
-    modules_versions = {}
-
-    for module_name in sys.modules.keys():
-        try:
-            modules_versions[module_name] = version(module_name)
-        except PackageNotFoundError:
-            continue
-
-    try:
-        with open(output_file, mode="w", encoding="utf-8") as f:
-            json.dump(modules_versions, f, indent=4)
-    except (FileNotFoundError, PermissionError) as e:
-        print_color("red", f"Error while trying to write file '{output_file}': {e}")
 
 def looks_like_float(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, (int, float)):

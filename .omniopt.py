@@ -6815,8 +6815,6 @@ def main() -> None:
 
     save_state_files()
 
-    helpers.write_loaded_modules_versions_to_json(f"{get_current_run_folder()}/loaded_modules.json")
-
     write_state_file("run_uuid", str(run_uuid))
 
     print_run_info()

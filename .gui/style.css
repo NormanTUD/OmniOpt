@@ -725,3 +725,7 @@ img {
 	user-select: none;
 	pointer-events: none;
 }
+
+#config_table, #hidden_config_table {
+	user-select: none;
+}

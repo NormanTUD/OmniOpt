@@ -243,7 +243,7 @@
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 
-	if(!count($tabs)) {
+	if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
 		$errors[] = "Could not find plotable files";
 	}
 

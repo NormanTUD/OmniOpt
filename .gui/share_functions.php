@@ -1335,7 +1335,6 @@
 					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
 							try {
-								#dier(file_get_contents($offered_files["6749a9f3-c2de-4d60-8c31-d8458877e291_log"]["file"]));
 								move_uploaded_file($file, "$userFolder/$filename");
 								$added_files++;
 							} catch (Exception $e) {
@@ -1345,7 +1344,7 @@
 							$empty_files[] = $filename;
 						}
 					} else {
-						dier("$filename: \$content was not ASCII, but $content_encoding");
+						dier("$filename: \$content was not ASCII, UTF8-file or zip, but $content_encoding");
 					}
 				}
 			}
@@ -1392,27 +1391,22 @@
 			echo "This project already seems to have been uploaded. See $old_url\n";
 			exit(0);
 		} else {
-			if (!$uuid_folder || !is_dir($uuid_folder)) {
-				$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
+			$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 
-				move_files(
-					$offered_files,
-					$added_files,
-					$userFolder,
-					"See $url for live-results.\n",
-					"Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n"
-				);
-			} else {
-				$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
+			$first_message = "See $url for live-results.\n";
+			$second_message = "Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n";
 
-				move_files(
-					$offered_files,
-					$added_files,
-					$uuid_folder,
-					"See $url for live-results.\n",
-					"See $url for live-results.\n"
-				);
+			if (!(!$uuid_folder || !is_dir($uuid_folder))) {
+				$second_message = $first_message;
 			}
+
+			move_files(
+				$offered_files,
+				$added_files,
+				$userFolder,
+				$first_message,
+				$second_message
+			);
 		}
 	}
 

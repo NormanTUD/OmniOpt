@@ -243,6 +243,10 @@
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
 	}
 
+	if(!count($tabs)) {
+		$errors[] = "Could not find plotable files";
+	}
+
 	if(count($errors)) {
 		http_response_code(400);
 	}

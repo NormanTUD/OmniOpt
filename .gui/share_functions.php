@@ -775,7 +775,7 @@
 				}
 
 				closedir($dir);
-				$modificationCache[$folderPath] = $latestTime; // Speichern des Ergebnisses
+				$modificationCache[$folderPath] = $latestTime;
 
 				return $latestTime;
 			}

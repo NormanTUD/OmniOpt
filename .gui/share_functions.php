@@ -1509,6 +1509,10 @@
 	}
 
 	function delete_old_shares () {
+		if (mt_rand(1, 100) <= 80) {
+			return;
+		}
+
 		$directoryToCheck = 'shares';
 		deleteEmptyDirectories($directoryToCheck, false);
 		$oldDirs = _delete_old_shares($directoryToCheck);

@@ -751,7 +751,15 @@
 			}
 			closedir($dir);
 
+			$modificationCache = [];
+
 			function getLatestModificationTime($folderPath) {
+				global $modificationCache;
+
+				if (isset($modificationCache[$folderPath])) {
+					return $modificationCache[$folderPath];
+				}
+
 				$latestTime = 0;
 				$dir = opendir($folderPath);
 
@@ -765,7 +773,10 @@
 						}
 					}
 				}
+
 				closedir($dir);
+				$modificationCache[$folderPath] = $latestTime; // Speichern des Ergebnisses
+
 				return $latestTime;
 			}
 

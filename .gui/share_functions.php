@@ -1399,7 +1399,7 @@
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$found_hash_file_data = searchForHashFile("$sharesPath/*/*/*/hash.md5", $project_md5, $userFolder);
+		$found_hash_file_data = searchForHashFile("$sharesPath/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];

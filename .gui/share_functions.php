@@ -1193,8 +1193,16 @@
 		echo "Warning: " . $message . "\n";
 	}
 
-	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath): ?string {
-		$glob_str = "$sharesPath/*/*/*/run_uuid";
+	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath, $user_id, $experiment_name): ?string {
+		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id)) {
+			return null;
+		}
+
+		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $experiment_name)) {
+			return null;
+		}
+
+		$glob_str = "$sharesPath/$user_id/$experiment_name/*/run_uuid";
 		$files = glob($glob_str);
 
 		foreach ($files as $file) {

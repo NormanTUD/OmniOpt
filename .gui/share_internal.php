@@ -71,8 +71,9 @@
 
 	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
 	$uuid_folder = null;
+
 	if ($update_uuid) {
-		$uuid_folder = findMatchingUUIDRunFolder($update_uuid, $sharesPath);
+		$uuid_folder = findMatchingUUIDRunFolder($update_uuid, $sharesPath, $user_id, $experiment_name);
 	}
 
 	$num_offered_files = 0;

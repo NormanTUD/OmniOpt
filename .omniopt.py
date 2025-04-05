@@ -2739,64 +2739,65 @@ def disable_logging() -> None:
     if args.verbose:
         return
 
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.getLogger().setLevel(logging.CRITICAL)
-    logging.getLogger().disabled = True
+    with console.status("[bold green]Disabling logging..."):
+        logging.basicConfig(level=logging.CRITICAL)
+        logging.getLogger().setLevel(logging.CRITICAL)
+        logging.getLogger().disabled = True
 
-    fool_linter(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
+        fool_linter(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
 
-    categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
+        categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
 
-    modules = [
-        "ax",
+        modules = [
+            "ax",
 
-        "ax.core.data",
-        "ax.core.parameter",
-        "ax.core.experiment",
+            "ax.core.data",
+            "ax.core.parameter",
+            "ax.core.experiment",
 
-        "ax.models.torch.botorch_modular.acquisition",
+            "ax.models.torch.botorch_modular.acquisition",
 
-        "ax.modelbridge"
-        "ax.modelbridge.base",
-        "ax.modelbridge.standardize_y",
-        "ax.modelbridge.transforms",
-        "ax.modelbridge.transforms.standardize_y",
-        "ax.modelbridge.transforms.int_to_float",
-        "ax.modelbridge.cross_validation",
-        "ax.modelbridge.dispatch_utils",
-        "ax.modelbridge.torch",
-        "ax.modelbridge.generation_node",
-        "ax.modelbridge.best_model_selector",
+            "ax.modelbridge"
+            "ax.modelbridge.base",
+            "ax.modelbridge.standardize_y",
+            "ax.modelbridge.transforms",
+            "ax.modelbridge.transforms.standardize_y",
+            "ax.modelbridge.transforms.int_to_float",
+            "ax.modelbridge.cross_validation",
+            "ax.modelbridge.dispatch_utils",
+            "ax.modelbridge.torch",
+            "ax.modelbridge.generation_node",
+            "ax.modelbridge.best_model_selector",
 
-        "ax.service",
-        "ax.service.utils",
-        "ax.service.utils.instantiation",
-        "ax.service.utils.report_utils",
-        "ax.service.utils.best_point",
+            "ax.service",
+            "ax.service.utils",
+            "ax.service.utils.instantiation",
+            "ax.service.utils.report_utils",
+            "ax.service.utils.best_point",
 
-        "botorch.optim.fit",
-        "botorch.models.utils.assorted",
-        "botorch.optim.optimize",
+            "botorch.optim.fit",
+            "botorch.models.utils.assorted",
+            "botorch.optim.optimize",
 
-        "linear_operator.utils.cholesky",
+            "linear_operator.utils.cholesky",
 
-        "torch.autograd",
-        "torch.autograd.__init__",
-    ]
+            "torch.autograd",
+            "torch.autograd.__init__",
+        ]
 
-    for module in modules:
-        logging.getLogger(module).setLevel(logging.CRITICAL)
-        logging.getLogger(module).disabled = True
-        fool_linter(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
-
-    for cat in categories:
-        warnings.filterwarnings("ignore", category=cat)
         for module in modules:
-            warnings.filterwarnings("ignore", category=cat, module=module)
+            logging.getLogger(module).setLevel(logging.CRITICAL)
+            logging.getLogger(module).disabled = True
+            fool_linter(f"logging.getLogger('{module}.disabled') set to {logging.getLogger(module).disabled}")
 
-    warnings.showwarning = custom_warning_handler
+        for cat in categories:
+            warnings.filterwarnings("ignore", category=cat)
+            for module in modules:
+                warnings.filterwarnings("ignore", category=cat, module=module)
 
-    fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
+        warnings.showwarning = custom_warning_handler
+
+        fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 
 @beartype
 def display_failed_jobs_table() -> None:
@@ -5252,19 +5253,21 @@ def write_continue_run_uuid_to_file() -> None:
 
 @beartype
 def save_state_files() -> None:
-    write_state_file("joined_run_program", global_vars["joined_run_program"])
-    write_state_file("experiment_name", global_vars["experiment_name"])
-    write_state_file("mem_gb", str(global_vars["mem_gb"]))
-    write_state_file("max_eval", str(max_eval))
-    write_state_file("gpus", str(args.gpus))
-    write_state_file("time", str(global_vars["_time"]))
-    write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
+    with console.status("[bold green]Saving state files..."):
+        write_state_file("joined_run_program", global_vars["joined_run_program"])
+        write_state_file("experiment_name", global_vars["experiment_name"])
+        write_state_file("mem_gb", str(global_vars["mem_gb"]))
+        write_state_file("max_eval", str(max_eval))
+        write_state_file("gpus", str(args.gpus))
+        write_state_file("time", str(global_vars["_time"]))
+        write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
+        write_state_file("run_uuid", str(run_uuid))
 
-    if args.follow:
-        write_state_file("follow", "True")
+        if args.follow:
+            write_state_file("follow", "True")
 
-    if args.main_process_gb:
-        write_state_file("main_process_gb", str(args.main_process_gb))
+        if args.main_process_gb:
+            write_state_file("main_process_gb", str(args.main_process_gb))
 
 @beartype
 def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict[str, Optional[float]], List[float]]]]]:
@@ -5885,77 +5888,78 @@ def get_chosen_model() -> Optional[str]:
 
 @beartype
 def get_generation_strategy() -> GenerationStrategy:
-    generation_strategy = args.generation_strategy
+    with console.status("[bold green]Getting generation strategy..."):
+        generation_strategy = args.generation_strategy
 
-    if args.continue_previous_job:
-        generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
+        if args.continue_previous_job:
+            generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
 
-        if os.path.exists(generation_strategy_file):
-            print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
-            my_exit(247)
+            if os.path.exists(generation_strategy_file):
+                print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
+                my_exit(247)
 
-    if generation_strategy is None:
-        global random_steps
+        if generation_strategy is None:
+            global random_steps
 
-        # Initialize steps for the generation strategy
-        steps: list = []
+            # Initialize steps for the generation strategy
+            steps: list = []
 
-        # Get the number of imported jobs and update max evaluations
-        num_imported_jobs: int = get_nr_of_imported_jobs()
-        set_max_eval(max_eval + num_imported_jobs)
+            # Get the number of imported jobs and update max evaluations
+            num_imported_jobs: int = get_nr_of_imported_jobs()
+            set_max_eval(max_eval + num_imported_jobs)
 
-        # Initialize random_steps if None
-        random_steps = random_steps or 0
+            # Initialize random_steps if None
+            random_steps = random_steps or 0
 
-        # Set max_eval if it's None
-        if max_eval is None:
-            set_max_eval(max(1, random_steps))
+            # Set max_eval if it's None
+            if max_eval is None:
+                set_max_eval(max(1, random_steps))
 
-        # Add a random generation step if conditions are met
-        if random_steps >= 1 and num_imported_jobs < random_steps:
-            this_step = create_random_generation_step()
-            steps.append(this_step)
+            # Add a random generation step if conditions are met
+            if random_steps >= 1 and num_imported_jobs < random_steps:
+                this_step = create_random_generation_step()
+                steps.append(this_step)
 
-        chosen_model = get_chosen_model()
+            chosen_model = get_chosen_model()
 
-        # Choose a model for the non-random step
-        chosen_non_random_model = select_model(chosen_model)
+            # Choose a model for the non-random step
+            chosen_non_random_model = select_model(chosen_model)
 
-        write_state_file("model", str(chosen_model))
+            write_state_file("model", str(chosen_model))
 
-        # Append the Bayesian optimization step
-        sys_step = create_systematic_step(chosen_non_random_model)
-        steps.append(sys_step)
+            # Append the Bayesian optimization step
+            sys_step = create_systematic_step(chosen_non_random_model)
+            steps.append(sys_step)
 
-        # Create and return the GenerationStrategy
+            # Create and return the GenerationStrategy
+            return GenerationStrategy(steps=steps)
+
+        generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
+
+        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+
+        if max_eval < new_max_eval_plus_inserted_jobs:
+            print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+
+            set_max_eval(new_max_eval_plus_inserted_jobs)
+
+        print_generation_strategy(generation_strategy_array)
+
+        steps = []
+
+        start_index = int(len(generation_strategy_array) / 2)
+
+        for gs_element in generation_strategy_array:
+            model_name = list(gs_element.keys())[0]
+
+            gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+            steps.append(gs_elem)
+
+            start_index = start_index + 1
+
+        write_state_file("custom_generation_strategy", generation_strategy)
+
         return GenerationStrategy(steps=steps)
-
-    generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
-
-    new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
-
-    if max_eval < new_max_eval_plus_inserted_jobs:
-        print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
-
-        set_max_eval(new_max_eval_plus_inserted_jobs)
-
-    print_generation_strategy(generation_strategy_array)
-
-    steps = []
-
-    start_index = int(len(generation_strategy_array) / 2)
-
-    for gs_element in generation_strategy_array:
-        model_name = list(gs_element.keys())[0]
-
-        gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
-        steps.append(gs_elem)
-
-        start_index = start_index + 1
-
-    write_state_file("custom_generation_strategy", generation_strategy)
-
-    return GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6394,19 +6398,21 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
 
 @beartype
 def set_orchestrator() -> None:
-    global orchestrator
+    with console.status("[bold green]Setting orchestrator..."):
+        global orchestrator
 
-    if args.orchestrator_file:
-        if SYSTEM_HAS_SBATCH:
-            orchestrator = parse_orchestrator_file(args.orchestrator_file, False)
-        else:
-            print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
+        if args.orchestrator_file:
+            if SYSTEM_HAS_SBATCH:
+                orchestrator = parse_orchestrator_file(args.orchestrator_file, False)
+            else:
+                print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
 @beartype
 def check_if_has_random_steps() -> None:
-    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
-        print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
-        my_exit(233)
+    with console.status("[bold green]Checking if has random steps..."):
+        if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
+            print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
+            my_exit(233)
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:
@@ -6424,12 +6430,13 @@ def check_max_eval(_max_eval: int) -> None:
 
 @beartype
 def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple[Union[Any, None], Union[Any, None]]]:
-    experiment_parameters = None
-    cli_params_experiment_parameters = None
-    if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
-        cli_params_experiment_parameters = experiment_parameters
-    return experiment_parameters, cli_params_experiment_parameters
+    with console.status("[bold green]Parsing parameters..."):
+        experiment_parameters = None
+        cli_params_experiment_parameters = None
+        if args.parameter:
+            experiment_parameters = parse_experiment_parameters()
+            cli_params_experiment_parameters = experiment_parameters
+        return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
 def get_csv_data(csv_path: str) -> Tuple[Union[Sequence[str], None], List[Dict[Union[str, Any], Union[str, Any]]]]:
@@ -6815,8 +6822,6 @@ def main() -> None:
 
     save_state_files()
 
-    write_state_file("run_uuid", str(run_uuid))
-
     print_run_info()
 
     initialize_nvidia_logs()
@@ -6851,14 +6856,15 @@ def main() -> None:
 
     initialize_ax_client(gs)
 
-    ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
-        args.continue_previous_job,
-        args.seed,
-        args.experiment_constraints,
-        args.parameter,
-        cli_params_experiment_parameters,
-        experiment_parameters,
-    ])
+    with console.status("[bold green]Getting experiment parameters..."):
+        ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
+            args.continue_previous_job,
+            args.seed,
+            args.experiment_constraints,
+            args.parameter,
+            cli_params_experiment_parameters,
+            experiment_parameters,
+        ])
 
     set_orchestrator()
 
@@ -6890,7 +6896,8 @@ def main() -> None:
 
 @beartype
 def log_worker_creation() -> None:
-    _debug_worker_creation("time, nr_workers, got, requested, phase")
+    with console.status("[bold green]Writing worker creation log..."):
+        _debug_worker_creation("time, nr_workers, got, requested, phase")
 
 @beartype
 def set_run_folder() -> None:
@@ -6930,7 +6937,7 @@ def handle_random_steps() -> None:
 def initialize_ax_client(gs: GenerationStrategy) -> None:
     global ax_client
 
-    with console.status("[bold green]Initializing ax_client...") as status:
+    with console.status("[bold green]Initializing ax_client..."):
         ax_client = AxClient(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=args.enforce_sequential_optimization,

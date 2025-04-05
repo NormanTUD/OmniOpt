@@ -2563,3 +2563,10 @@ zoomstart
 zsh
 ZSH
 pipinstall
+greenGetting
+greenParsing
+greenSaving
+greenChecking
+greenSetting
+greenDisabling
+greenWriting

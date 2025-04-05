@@ -1545,7 +1545,7 @@ def receive_signal_cont(signum: int, stack: Any) -> None:
 # Signal handlers registration
 signal.signal(signal.SIGUSR1, receive_usr_signal)
 signal.signal(signal.SIGUSR2, receive_usr_signal)
-signal.signal(signal.SIGINT, receive_usr_signal_int)
+#signal.signal(signal.SIGINT, receive_usr_signal_int)
 signal.signal(signal.SIGTERM, receive_usr_signal_term)
 signal.signal(signal.SIGCONT, receive_signal_cont)
 

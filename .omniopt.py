@@ -6929,13 +6929,15 @@ def handle_random_steps() -> None:
 @beartype
 def initialize_ax_client(gs: GenerationStrategy) -> None:
     global ax_client
-    ax_client = AxClient(
-        verbose_logging=args.verbose,
-        enforce_sequential_optimization=args.enforce_sequential_optimization,
-        generation_strategy=gs
-    )
 
-    ax_client = cast(AxClient, ax_client)
+    with console.status("[bold green]Initializing ax_client...") as status:
+        ax_client = AxClient(
+            verbose_logging=args.verbose,
+            enforce_sequential_optimization=args.enforce_sequential_optimization,
+            generation_strategy=gs
+        )
+
+        ax_client = cast(AxClient, ax_client)
 
 @beartype
 def get_generation_strategy_string() -> str:

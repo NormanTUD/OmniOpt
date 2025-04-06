@@ -2154,7 +2154,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
         results: Dict[str, Optional[float]] = {}  # Typdefinition angepasst
 
         for column_name in arg_result_names:
-            _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
+            _pattern = rf'^\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
 
             matches = re.findall(_pattern, input_string)
 

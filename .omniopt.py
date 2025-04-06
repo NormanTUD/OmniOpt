@@ -2168,9 +2168,9 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                     lowercase_resname = column_name.lower()
                     uppercase_resname = column_name.upper()
                     spec_error = f"Did you specify the --result_names properly? You must use the same caving (e.g. '{uppercase_resname}=min' vs. 'print(\"{lowercase_resname}: ...\")')"
-                    add_to_global_error_list(f"'{column_name}: <number>' not found in output, but it was found using case-insensitive search. {spec_error}")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found, but it was found using case-insensitive search. {spec_error}")
                 else:
-                    add_to_global_error_list(f"'{column_name}: <number>' not found in output")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found")
 
         if len(results):
             return results

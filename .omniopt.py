@@ -2154,7 +2154,7 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
         results: Dict[str, Optional[float]] = {}  # Typdefinition angepasst
 
         for column_name in arg_result_names:
-            _pattern = rf'^\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
+            _pattern = rf'\s*{re.escape(column_name)}\d*:\s*(-?\d+(?:\.\d+)?)'
 
             matches = re.findall(_pattern, input_string)
 
@@ -2168,9 +2168,9 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                     lowercase_resname = column_name.lower()
                     uppercase_resname = column_name.upper()
                     spec_error = f"Did you specify the --result_names properly? You must use the same caving (e.g. '{uppercase_resname}=min' vs. 'print(\"{lowercase_resname}: ...\")')"
-                    add_to_global_error_list(f"'{column_name}: <number>' not found, but it was found using case-insensitive search. {spec_error}")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found in output, but it was found using case-insensitive search. {spec_error}")
                 else:
-                    add_to_global_error_list(f"'{column_name}: <number>' not found")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found in output")
 
         if len(results):
             return results

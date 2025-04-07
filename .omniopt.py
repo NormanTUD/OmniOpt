@@ -6147,12 +6147,6 @@ def _set_global_executor() -> None:
     else:
         executor = AutoExecutor(folder=log_folder)
 
-    # TODO: The following settings can be in submitit's executor.update_parameters, set but aren't currently utilized because I am not sure of the defaults:
-    # 'nodes': <class 'int'>
-    # 'gpus_per_node': <class 'int'>
-    # 'tasks_per_node': <class 'int'>
-    # Should they just be None by default if not set in the argparser? No, submitit fails if gpu related stuff is None
-
     if executor:
         executor.update_parameters(
             name=f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}',

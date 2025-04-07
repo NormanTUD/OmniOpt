@@ -35,10 +35,14 @@
 
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
-	is_loaded_in_venv=0
+	use_git=1
 
 	if [[ "$PWD" == "$VIRTUAL_ENV/bin" ]]; then
-		is_loaded_in_venv=1
+		use_git=0
+	fi
+
+	if ! command -v git 2>/dev/null >/dev/null; then
+		use_git=0
 	fi
 
 	export TQDM_MININTERVAL=10
@@ -463,7 +467,7 @@
 				anon_user=$(get_anon_user_id)
 			fi
 
-			if [[ $is_loaded_in_venv -eq 0 ]]; then
+			if [[ $use_git -eq 1 ]]; then
 				if [[ -z $git_hash ]]; then
 					git_hash=$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null)
 				fi
@@ -1058,7 +1062,7 @@ EOF
 		fi
 	}
 
-	if [[ $is_loaded_in_venv -eq 0 ]]; then
+	if [[ $use_git -eq 1 ]]; then
 		git_hash="NOT_DETERMININABLE"
 
 		if ! command -v git 2>/dev/null >/dev/null; then

@@ -729,3 +729,7 @@ img {
 #config_table, #hidden_config_table {
 	user-select: none;
 }
+
+.copy_clipboard_button {
+	margin-bottom: 10px;
+}

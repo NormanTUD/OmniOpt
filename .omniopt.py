@@ -4041,6 +4041,9 @@ def print_result_names_overview_table() -> None:
         print_red("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.")
         my_exit(101)
 
+    if args.result_names is not None:
+        print_yellow("--result_names will be ignored in continued jobs. Cannot change them afterwards.")
+
     config_objectives = ax_client.experiment.optimization_config.objective.objectives
 
     res_names = []
@@ -7430,6 +7433,8 @@ def main_outside() -> None:
             try:
                 main()
             except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+                signal.signal(signal.SIGINT, signal.SIG_IGN)
+
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
                 end_program(RESULT_CSV_FILE, False, 1)

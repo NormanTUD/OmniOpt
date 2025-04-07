@@ -868,7 +868,7 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
     if not os.path.exists(filepath):
         return None
     try:
-        hasher = hashlib.md5()
+        hasher = hashlib.new('md5', usedforsecurity=False)
         with open(filepath, 'rb') as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hasher.update(chunk)

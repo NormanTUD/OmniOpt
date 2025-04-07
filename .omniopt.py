@@ -859,8 +859,7 @@ def live_share() -> bool:
     return True
 
 @beartype
-def save_pd_csv() -> Optional[str]:
-    #print_debug("save_pd_csv()")
+def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
 
@@ -3448,7 +3447,7 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
 
     abandon_all_jobs()
 
-    save_pd_csv()
+    save_results_csv()
 
     if exit_code:
         _exit = exit_code
@@ -4037,6 +4036,7 @@ def print_result_names_overview_table() -> None:
         console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
         return
 
+    dier(help(ax_client.experiment))
     __table = Table(title="Result-Names:")
 
     __table.add_column("Result-Name", justify="left", style="cyan")
@@ -4519,7 +4519,7 @@ def insert_job_into_ax_client(arm_params: dict, result: dict) -> bool:
                 ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
 
                 done_converting = True
-                save_pd_csv()
+                save_results_csv()
 
                 return True
 
@@ -5026,9 +5026,9 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
             if not isinstance(job, SlurmJob):
                 print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
-        save_pd_csv()
+        save_results_csv()
 
-    save_pd_csv()
+    save_results_csv()
 
     progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])
 
@@ -5370,7 +5370,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
         save_checkpoint()
-        save_pd_csv()
+        save_results_csv()
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 

@@ -45,6 +45,10 @@
 		use_git=0
 	fi
 
+	if [[ ! -d "$SCRIPT_DIR/.git" ]]; then
+		use_git=0
+	fi
+
 	export TQDM_MININTERVAL=10
 
 	GREEN='\033[0;32m'

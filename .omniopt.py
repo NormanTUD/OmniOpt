@@ -4041,10 +4041,13 @@ def print_result_names_overview_table() -> None:
         print_red("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.")
         my_exit(101)
 
-    if args.result_names is not None:
+    if args.continue_previous_job is not None and args.result_names is not None:
         print_yellow("--result_names will be ignored in continued jobs. Cannot change them afterwards.")
 
-    config_objectives = ax_client.experiment.optimization_config.objective.objectives
+    if ax_client.experiment.optimization_config.is_moo_problem:
+        config_objectives = ax_client.experiment.optimization_config.objective.objectives
+    else:
+        config_objectives = [ax_client.experiment.optimization_config.objective]
 
     res_names = []
     res_min_max = []

@@ -891,6 +891,8 @@ def save_results_csv() -> Optional[str]:
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
+    live_share()
+
     return pd_csv
 
 @beartype

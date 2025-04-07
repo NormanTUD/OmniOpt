@@ -2165,12 +2165,11 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                 insensitive_matches = re.findall(_pattern, input_string, re.IGNORECASE)
 
                 if insensitive_matches:
-                    lowercase_resname = column_name.lower()
-                    uppercase_resname = column_name.upper()
-                    spec_error = f"Did you specify the --result_names properly? You must use the same caving (e.g. '{uppercase_resname}=min' vs. 'print(\"{lowercase_resname}: ...\")')"
-                    add_to_global_error_list(f"'{column_name}: <number>' not found in output, but it was found using case-insensitive search. {spec_error}")
+                    found_name = insensitive_matches[0][0]
+                    spec_error = f"Check --result_names: casing must match ('{column_name}' vs. 'print(\"{found_name}: ...\")')"
+                    add_to_global_error_list(f"'{column_name}: <number>' not found (found ignoring case): {spec_error}")
                 else:
-                    add_to_global_error_list(f"'{column_name}: <number>' not found in output")
+                    add_to_global_error_list(f"'{column_name}: <number>' not found")
 
         if len(results):
             return results

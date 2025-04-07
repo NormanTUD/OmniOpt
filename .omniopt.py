@@ -837,24 +837,27 @@ def extract_and_print_qr(text: str) -> None:
 
 @beartype
 def live_share() -> bool:
-    global SHOWN_LIVE_SHARE_COUNTER
+    try:
+        global SHOWN_LIVE_SHARE_COUNTER
 
-    if not args.live_share:
+        if not args.live_share:
+            return False
+
+        if not get_current_run_folder():
+            return False
+
+        stdout, stderr = run_live_share_command()
+
+        if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
+            print_green(stderr)
+
+            extract_and_print_qr(stderr)
+
+            time.sleep(1)
+
+        SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
+    except KeyboardInterrupt:
         return False
-
-    if not get_current_run_folder():
-        return False
-
-    stdout, stderr = run_live_share_command()
-
-    if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
-        print_green(stderr)
-
-        extract_and_print_qr(stderr)
-
-        time.sleep(1)
-
-    SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
 
     return True
 
@@ -4034,17 +4037,29 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
 
 @beartype
 def print_result_names_overview_table() -> None:
-    if len(arg_result_names) != len(arg_result_min_or_max):
-        console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
-        return
+    if not ax_client:
+        print_red("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.")
+        my_exit(101)
 
-    #dier(help(ax_client.experiment))
+    config_objectives = ax_client.experiment.optimization_config.objective.objectives
+
+    res_names = []
+    res_min_max = []
+
+    for obj in config_objectives:
+        min_or_max = "max"
+        if obj.minimize:
+            min_or_max = "min"
+
+        res_names.append(obj.metric_names[0])
+        res_min_max.append(min_or_max)
+
     __table = Table(title="Result-Names:")
 
     __table.add_column("Result-Name", justify="left", style="cyan")
     __table.add_column("Min or max?", justify="right", style="green")
 
-    for __name, __value in zip(arg_result_names, arg_result_min_or_max):
+    for __name, __value in zip(res_names, res_min_max):
         __table.add_row(str(__name), str(__value))
 
     console.print(__table)

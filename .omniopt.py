@@ -839,8 +839,9 @@ def extract_and_print_qr(text: str) -> None:
 
 @beartype
 def live_share() -> bool:
+    global SHOWN_LIVE_SHARE_COUNTER
+
     try:
-        global SHOWN_LIVE_SHARE_COUNTER
 
         if not args.live_share:
             return False
@@ -6821,8 +6822,6 @@ def main() -> None:
 
     write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
 
-    start_live_share_background_job()
-
     try:
         fn = f"{get_current_run_folder()}/result_names.txt"
         with open(fn, mode="a", encoding="utf-8") as myfile:
@@ -7425,24 +7424,6 @@ Exit-Code: 159
     )
 
     my_exit(nr_errors)
-
-@beartype
-def live_share_background(interval: int) -> None:
-    if not args.live_share:
-        return
-
-    while True:
-        live_share()
-        time.sleep(interval)
-
-@beartype
-def start_live_share_background_job() -> None:
-    if not args.live_share:
-        return
-
-    interval: int = 120
-    thread = threading.Thread(target=live_share_background, args=(interval,), daemon=True)
-    thread.start()
 
 @beartype
 def main_outside() -> None:

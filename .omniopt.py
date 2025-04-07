@@ -69,6 +69,8 @@ try:
         import argparse
         import datetime
 
+        import hashlib
+
         import socket
         import stat
         import pwd
@@ -862,16 +864,31 @@ def live_share() -> bool:
     return True
 
 @beartype
+def compute_md5_hash(filepath: str) -> Optional[str]:
+    if not os.path.exists(filepath):
+        return None
+    try:
+        hasher = hashlib.md5()
+        with open(filepath, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+    except Exception as e:
+        print_red(f"Error computing MD5 for {filepath}: {e}")
+        return None
+
+@beartype
 def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
-
     state_files_folder: str = f"{get_current_run_folder()}/state_files/"
 
     makedirs(state_files_folder)
 
     if ax_client is None:
         return None
+
+    old_hash: Optional[str] = compute_md5_hash(pd_csv)
 
     try:
         ax_client.experiment.fetch_data()
@@ -884,7 +901,10 @@ def save_results_csv() -> Optional[str]:
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
-        save_experiment(ax_client.experiment, f"{get_current_run_folder()}/state_files/ax_client.experiment.json")
+        save_experiment(
+            ax_client.experiment,
+            f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
+        )
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:
@@ -894,7 +914,10 @@ def save_results_csv() -> Optional[str]:
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
-    live_share()
+    new_hash: Optional[str] = compute_md5_hash(pd_csv)
+
+    if old_hash != new_hash:
+        live_share()
 
     return pd_csv
 

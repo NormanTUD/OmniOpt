@@ -4038,7 +4038,7 @@ def print_result_names_overview_table() -> None:
         console.print("[red]The arrays 'arg_result_names' and 'arg_result_min_or_max' must have the same length.[/]")
         return
 
-    dier(help(ax_client.experiment))
+    #dier(help(ax_client.experiment))
     __table = Table(title="Result-Names:")
 
     __table.add_column("Result-Name", justify="left", style="cyan")

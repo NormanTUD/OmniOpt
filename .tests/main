@@ -411,7 +411,7 @@ function _test_internal {
 		return
 	fi
 
-	yellow_text "$NAME..."
+	#yellow_text "$NAME..."
 
 	if [[ -z $NAME ]]; then
 		echo "_test: first parameter (name) not specified"

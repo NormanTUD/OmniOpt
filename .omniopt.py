@@ -5920,7 +5920,7 @@ def set_global_generation_strategy() -> GenerationStrategy:
     global global_gs
 
     with console.status("[bold green]Getting generation strategy..."):
-        generation_strategy = args.generation_strategy
+        args_generation_strategy = args.generation_strategy
 
         if args.continue_previous_job:
             generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
@@ -5931,7 +5931,7 @@ def set_global_generation_strategy() -> GenerationStrategy:
 
         steps: list = []
 
-        if generation_strategy is None:
+        if args_generation_strategy is None:
             global random_steps
 
             # Get the number of imported jobs and update max evaluations
@@ -5961,12 +5961,12 @@ def set_global_generation_strategy() -> GenerationStrategy:
             sys_step = create_systematic_step(chosen_non_random_model)
             steps.append(sys_step)
         else:
-            generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
+            generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
             new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
             if max_eval < new_max_eval_plus_inserted_jobs:
-                print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+                print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
 
                 set_max_eval(new_max_eval_plus_inserted_jobs)
 
@@ -5982,7 +5982,7 @@ def set_global_generation_strategy() -> GenerationStrategy:
 
                 start_index = start_index + 1
 
-            write_state_file("custom_generation_strategy", generation_strategy)
+            write_state_file("custom_generation_strategy", args_generation_strategy)
 
         global_gs = GenerationStrategy(steps=steps)
 

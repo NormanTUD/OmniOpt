@@ -914,7 +914,6 @@ def randomforest_custom_encoder(obj: Any) -> dict:
                         "log_scale": getattr(param, "log_scale", False)
                     }
                 elif parameter_type == "ChoiceParameter":
-                    # ChoiceParameter(name='choice_param', parameter_type=STRING, values=['1', '16', '2', '4', '8', 'hallo'], is_ordered=True, sort_values=False)
                     param_dict = {
                         "type": parameter_name,
                         "values": param.values,
@@ -927,6 +926,7 @@ def randomforest_custom_encoder(obj: Any) -> dict:
                         "value": param.value
                     }
                 else:
+                    print_red(f"Unknown param {param}")
                     dier(param)
 
                 parameter_dict[name] = param_dict

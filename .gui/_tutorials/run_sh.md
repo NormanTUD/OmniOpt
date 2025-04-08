@@ -17,7 +17,7 @@ To make your script robust enough for the environment of OmniOpt2 on HPC-Systems
 It may look like this:
 
 ```bash
-#!/bin/bash -l
+#!/usr/bin/env bash -l
 # ^ Shebang-Line, so that it is known that this is a bash file
 # -l means 'load this as login shell', so that /etc/profile gets loaded and you can use 'module load' or 'ml' as usual
 

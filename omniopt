@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Idea for how this works and is implemented technically:
 # This main script that is supposed to be called is a bash script.

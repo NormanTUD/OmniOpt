@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ -z $OMNIOPT_CALL ]]; then
 	OMNIOPT_CALL="./omniopt"

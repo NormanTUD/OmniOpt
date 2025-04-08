@@ -5772,7 +5772,7 @@ def _get_max_parallelism() -> int:
 @beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     """Creates a generation step for Bayesian optimization."""
-    gs = GenerationStep(
+    step = GenerationStep(
         model=model,
         num_trials=_num_trials,
         max_parallelism=_get_max_parallelism(),
@@ -5783,9 +5783,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         index=index
     )
 
-    #print(gs)
-
-    return gs
+    return step
 
 @beartype
 def create_random_generation_step() -> GenerationStep:
@@ -5918,7 +5916,9 @@ def get_chosen_model() -> Optional[str]:
     return chosen_model
 
 @beartype
-def get_generation_strategy() -> GenerationStrategy:
+def set_global_generation_strategy() -> GenerationStrategy:
+    global global_gs
+
     with console.status("[bold green]Getting generation strategy..."):
         generation_strategy = args.generation_strategy
 
@@ -5929,11 +5929,10 @@ def get_generation_strategy() -> GenerationStrategy:
                 print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
                 my_exit(247)
 
+        steps: list = []
+
         if generation_strategy is None:
             global random_steps
-
-            # Initialize steps for the generation strategy
-            steps: list = []
 
             # Get the number of imported jobs and update max evaluations
             num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5961,40 +5960,31 @@ def get_generation_strategy() -> GenerationStrategy:
             # Append the Bayesian optimization step
             sys_step = create_systematic_step(chosen_non_random_model)
             steps.append(sys_step)
+        else:
+            generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
 
-            # Create and return the GenerationStrategy
-            gs = GenerationStrategy(steps=steps)
+            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
-            return gs
+            if max_eval < new_max_eval_plus_inserted_jobs:
+                print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
 
-        generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
+                set_max_eval(new_max_eval_plus_inserted_jobs)
 
-        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+            print_generation_strategy(generation_strategy_array)
 
-        if max_eval < new_max_eval_plus_inserted_jobs:
-            print_yellow(f"--generation_strategy {generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+            start_index = int(len(generation_strategy_array) / 2)
 
-            set_max_eval(new_max_eval_plus_inserted_jobs)
+            for gs_element in generation_strategy_array:
+                model_name = list(gs_element.keys())[0]
 
-        print_generation_strategy(generation_strategy_array)
+                gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+                steps.append(gs_elem)
 
-        steps = []
+                start_index = start_index + 1
 
-        start_index = int(len(generation_strategy_array) / 2)
+            write_state_file("custom_generation_strategy", generation_strategy)
 
-        for gs_element in generation_strategy_array:
-            model_name = list(gs_element.keys())[0]
-
-            gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
-            steps.append(gs_elem)
-
-            start_index = start_index + 1
-
-        write_state_file("custom_generation_strategy", generation_strategy)
-
-        gs = GenerationStrategy(steps=steps)
-
-        return gs
+        global_gs = GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6875,13 +6865,9 @@ def main() -> None:
     add_exclude_to_defective_nodes()
     handle_random_steps()
 
-    gs = get_generation_strategy()
+    set_global_generation_strategy()
 
-    global_gs = gs
-
-    #dier(help(gs))
-
-    initialize_ax_client(gs)
+    initialize_ax_client()
 
     with console.status("[bold green]Getting experiment parameters..."):
         ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
@@ -6961,14 +6947,14 @@ def handle_random_steps() -> None:
         random_steps = args.num_random_steps
 
 @beartype
-def initialize_ax_client(gs: GenerationStrategy) -> None:
+def initialize_ax_client() -> None:
     global ax_client
 
     with console.status("[bold green]Initializing ax_client..."):
         ax_client = AxClient(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=args.enforce_sequential_optimization,
-            generation_strategy=gs
+            generation_strategy=global_gs
         )
 
         ax_client = cast(AxClient, ax_client)

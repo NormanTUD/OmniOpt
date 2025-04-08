@@ -10,7 +10,7 @@ source .colorfunctions.sh
 
 missing=0
 
-for from_code in $(cat .omniopt.py | grep "^\s*write_state_file" | sed -e 's#,.*##' -e 's#^\s*write_state_file..##' -e 's#"##'); do
+for from_code in $(cat .omniopt.py | grep "^\s*write_state_file" | sed -e 's#,.*##' -e 's#^[[:space:]]*write_state_file..##' -e 's#"##'); do
 	md_file=".gui/_tutorials/folder_structure.md"
 	if [[ $(cat $md_file | grep -- "^\s*-\s\`$from_code\`" | wc -l) -ne 1 ]]; then
 		red_text "'$from_code' missing in $md_file"

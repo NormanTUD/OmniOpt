@@ -16,7 +16,7 @@ for each in $(
 	for arg in $(cat .omniopt.py | grep "add_argument" | grep - "--" | sed -e "s#.*['\"]--##" -e "s#[\"'],.*##" | egrep "^\w*$"); do
 		cnt=$(cat .omniopt.py | grep "args.$arg" | wc -l)
 		echo "$cnt: $arg"
-	done | sort -nr | grep "^0:" | sed -e 's#^0:\s*##'
+	done | sort -nr | grep "^0:" | sed -e 's#^0:[[:space:]]*##'
 ); do
 	if [[ ! " ${allowed[@]} " =~ " ${each} " ]]; then
 		echo "Parameter $each found in .omniopt.py, but never used anywhere nor in the special \$allowed-array" >&2

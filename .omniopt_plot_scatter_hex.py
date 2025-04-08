@@ -255,7 +255,7 @@ def main() -> None:
             if not args.no_plt_show:
                 plt.show()
 
-            update_graph(csv_file_path, args.min, args.max)
+            update_graph(csv_file_path, None, args.min, args.max)
 
 # Define update function for the button
 def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:

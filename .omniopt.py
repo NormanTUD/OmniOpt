@@ -5843,6 +5843,9 @@ def get_chosen_model() -> Optional[str]:
                 chosen_model = "BOTORCH_MODULAR"
             print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
 
+    if chosen_model is None:
+        chosen_model = "BOTORCH_MODULAR"
+
     return chosen_model
 
 @beartype
@@ -5889,8 +5892,6 @@ def set_global_generation_strategy() -> None:
 
                 gs_nodes.append(random_node)
 
-            systematic_node = None
-
             if chosen_model:
                 chosen_model_for_spec = getattr(Models, chosen_model)
 
@@ -5900,8 +5901,8 @@ def set_global_generation_strategy() -> None:
                     transition_criteria=[],
                 )
 
-            gs_nodes.append(systematic_node)
-            gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
+                gs_nodes.append(systematic_node)
+                gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
 
             write_state_file("model", str(chosen_model))
         else:

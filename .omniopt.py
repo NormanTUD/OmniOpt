@@ -6048,8 +6048,6 @@ def set_global_generation_strategy() -> None:
 
                 nr_steps_for_this_node = int(gs_element[model_name])
 
-                gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
-
                 chosen_model_for_spec = getattr(Models, model_name)
 
                 transition_criteria = []
@@ -6067,16 +6065,18 @@ def set_global_generation_strategy() -> None:
 
                 this_node = None
 
-                if chosen_model.upper() == "RANDOMFOREST":
-                    this_node = RandomForestGenerationNode(num_samples=nr_steps_for_this_node, regressor_options={})
-                else:
-                    this_node = GenerationNode(
-                        node_name=model_name,
-                        model_specs=[ModelSpec(chosen_model_for_spec)],
-                        transition_criteria=transition_criteria,
-                    )
+                if chosen_model:
+                    if chosen_model.upper() == "RANDOMFOREST":
+                        this_node = RandomForestGenerationNode(num_samples=nr_steps_for_this_node, regressor_options={})
+                    else:
+                        this_node = GenerationNode(
+                            node_name=model_name,
+                            model_specs=[ModelSpec(chosen_model_for_spec)],
+                            transition_criteria=transition_criteria,
+                        )
 
-                gs_nodes.append(this_node)
+                    gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
+                    gs_nodes.append(this_node)
 
                 start_index = start_index + 1
 

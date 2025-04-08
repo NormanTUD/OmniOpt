@@ -723,6 +723,8 @@ try:
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
+        from ax.modelbridge.generation_node import GenerationNode
+        from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models
         from ax.service.ax_client import AxClient, ObjectiveProperties
@@ -5609,10 +5611,15 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         if recursion is False and args.revert_to_random_when_seemingly_exhausted:
             print_debug("The search space seems exhausted. Generating random points from here on.")
 
-            start_index = submitted_jobs() + NR_INSERTED_JOBS
-
-            steps = [create_systematic_step(select_model("SOBOL"), -1, start_index)]
-            global_gs = GenerationStrategy(steps=steps)
+            global_gs = GenerationStrategy(
+                    name="Random*",
+                    nodes=[
+                        GenerationNode(
+                            node_name="Sobol",
+                            model_specs=[ModelSpec(Models.SOBOL)]
+                        )
+                    ]
+            )
 
             overwritten_to_random = True
 

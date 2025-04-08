@@ -5963,7 +5963,9 @@ def get_generation_strategy() -> GenerationStrategy:
             steps.append(sys_step)
 
             # Create and return the GenerationStrategy
-            return GenerationStrategy(steps=steps)
+            gs = GenerationStrategy(steps=steps)
+
+            return gs
 
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(generation_strategy)
 
@@ -5990,7 +5992,9 @@ def get_generation_strategy() -> GenerationStrategy:
 
         write_state_file("custom_generation_strategy", generation_strategy)
 
-        return GenerationStrategy(steps=steps)
+        gs = GenerationStrategy(steps=steps)
+
+        return gs
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

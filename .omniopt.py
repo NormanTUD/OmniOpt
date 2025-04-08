@@ -5916,7 +5916,6 @@ def set_global_generation_strategy() -> None:
             gs_nodes.append(systematic_node)
             gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
 
-
             write_state_file("model", str(chosen_model))
         else:
             generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
@@ -5940,7 +5939,6 @@ def set_global_generation_strategy() -> None:
 
                 #gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
                 gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
-
 
                 chosen_model_for_spec = getattr(Models, model_name)
 

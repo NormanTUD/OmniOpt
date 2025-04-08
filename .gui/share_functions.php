@@ -816,8 +816,11 @@
 					$timeSince = timeSince($timestamp);
 
 					if(hasNonEmptyFolder($folderPathWithFile)) {
-						echo '<a class="share_folder_buttons" href="' . htmlspecialchars($url) . '">';
-						echo '<button type="button">' . htmlspecialchars($folder) . ' (' . $lastModified . ' | ' . $timeSince . ')</button>';
+						$folder = htmlspecialchars($folder);
+						$url = htmlspecialchars($url);
+
+						echo "<a class='share_folder_buttons' href='$url'>";
+						echo "<button type='button'>$folder ($lastModified | $timeSince )</button>";
 						echo '</a><br>';
 					}
 				}

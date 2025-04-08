@@ -772,7 +772,7 @@ def plot_parameters(_params: list) -> None:
     axs = fig.subplots(num_rows, num_cols)
     result_column_values = get_result_column_values(df, get_csv_file_path(_args))
 
-    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values])
+    plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
 def _handle_update_graph_exception(e: Union[str, Exception]) -> None:

@@ -5934,7 +5934,6 @@ def set_global_generation_strategy() -> GenerationStrategy:
         if args_generation_strategy is None:
             num_imported_jobs: int = get_nr_of_imported_jobs()
             set_max_eval(max_eval + num_imported_jobs)
-
             random_steps = random_steps or 0
 
             if max_eval is None:
@@ -5959,7 +5958,6 @@ def set_global_generation_strategy() -> GenerationStrategy:
 
             if max_eval < new_max_eval_plus_inserted_jobs:
                 print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
-
                 set_max_eval(new_max_eval_plus_inserted_jobs)
 
             print_generation_strategy(generation_strategy_array)

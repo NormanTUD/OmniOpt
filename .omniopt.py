@@ -6783,7 +6783,7 @@ def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
 
 @beartype
 def main() -> None:
-    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps, global_gs
+    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
 
     check_if_has_random_steps()
 

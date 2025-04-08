@@ -398,6 +398,7 @@ class ConfigLoader:
     exclude: Optional[str]
     show_sixel_trial_index_result: bool
     num_parallel_jobs: int
+    max_parallelism: int
     force_local_execution: bool
     occ_type: str
     raise_in_eval: bool
@@ -497,6 +498,7 @@ class ConfigLoader:
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
         optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
+        optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
@@ -723,17 +725,14 @@ try:
         import ax.modelbridge.generation_node
         from ax.modelbridge.generation_node import GenerationNode
         from ax.modelbridge.model_spec import ModelSpec
-        from ax.modelbridge.transition_criterion import MaxTrials
-        from ax.modelbridge.generation_strategy import GenerationStrategy
+        from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
-
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
-
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
@@ -916,7 +915,7 @@ def save_results_csv() -> Optional[str]:
     except SignalINT as e:
         raise SignalINT(str(e)) from e
     except Exception as e:
-        print_red(f"\nWhile saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     new_hash: Optional[str] = compute_md5_hash(pd_csv)
 
@@ -5617,7 +5616,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[ModelSpec(Models.SOBOL, model_kwargs={'seed': args.seed})]
+                            model_specs=[ModelSpec(Models.SOBOL)]
                         )
                     ]
             )
@@ -5748,6 +5747,84 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     return requested
 
 @beartype
+def check_max_parallelism_arg(possible_values: list) -> bool:
+    if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
+        return True
+    return False
+
+@beartype
+def _get_max_parallelism() -> int:
+    possible_values: list = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
+
+    ret: int = 0
+
+    if check_max_parallelism_arg(possible_values):
+        if args.max_parallelism == "max_eval":
+            ret = max_eval
+        if args.max_parallelism == "num_parallel_jobs":
+            ret = args.num_parallel_jobs
+        if args.max_parallelism == "twice_max_eval":
+            ret = 2 * max_eval
+        if args.max_parallelism == "twice_num_parallel_jobs":
+            ret = 2 * args.num_parallel_jobs
+        if args.max_parallelism == "max_eval_times_thousand_plus_thousand":
+            ret = 1000 * max_eval + 1000
+        if helpers.looks_like_int(args.max_parallelism):
+            ret = int(args.max_parallelism)
+    else:
+        print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
+
+    return ret
+
+@beartype
+def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
+    """Creates a generation step for Bayesian optimization."""
+    step = GenerationStep(
+        model=model,
+        num_trials=_num_trials,
+        max_parallelism=_get_max_parallelism(),
+        model_gen_kwargs={
+            'enforce_num_arms': False
+        },
+        should_deduplicate=True,
+        index=index
+    )
+
+    return step
+
+@beartype
+def create_random_generation_step() -> GenerationStep:
+    """Creates a generation step for random models."""
+    return GenerationStep(
+        model=Models.SOBOL,
+        num_trials=max(num_parallel_jobs, random_steps),
+        max_parallelism=_get_max_parallelism(),
+        model_kwargs={
+            "seed": args.seed
+        },
+        model_gen_kwargs={'enforce_num_arms': False},
+        should_deduplicate=True
+    )
+
+@beartype
+def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
+    """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
+    available_models = list(Models.__members__.keys())
+    chosen_model = Models.BOTORCH_MODULAR
+
+    if model_arg:
+        model_upper = str(model_arg).upper()
+        if model_upper in available_models:
+            chosen_model = Models.__members__[model_upper]
+        else:
+            print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
+
+        if model_arg.lower() != "factorial" and args.gridsearch:
+            print_yellow("Gridsearch only really works when you chose the FACTORIAL model.")
+
+    return chosen_model
+
+@beartype
 def get_matching_model_name(model_name: str) -> Optional[str]:
     if not isinstance(model_name, str):
         return None
@@ -5843,9 +5920,6 @@ def get_chosen_model() -> Optional[str]:
                 chosen_model = "BOTORCH_MODULAR"
             print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
 
-    if chosen_model is None:
-        chosen_model = "BOTORCH_MODULAR"
-
     return chosen_model
 
 @beartype
@@ -5862,50 +5936,28 @@ def set_global_generation_strategy() -> None:
                 print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
                 my_exit(247)
 
-        gs_names = []
-        gs_nodes = []
+        steps: list = []
 
         if args_generation_strategy is None:
             num_imported_jobs: int = get_nr_of_imported_jobs()
             set_max_eval(max_eval + num_imported_jobs)
             random_steps = random_steps or 0
 
-            chosen_model = get_chosen_model()
-
             if max_eval is None:
                 set_max_eval(max(1, random_steps))
 
             if random_steps >= 1 and num_imported_jobs < random_steps:
-                gs_names.append(f"Sobol for {random_steps} steps")
+                this_step = create_random_generation_step()
+                steps.append(this_step)
 
-                random_node = GenerationNode(
-                    node_name="SOBOL",
-                    model_specs=[ModelSpec(Models.SOBOL, model_kwargs={'seed': args.seed})],
-                    transition_criteria=[
-                        MaxTrials(
-                            threshold=random_steps,
-                            block_transition_if_unmet=True,
-                            transition_to=chosen_model,
-                            count_only_trials_with_data=True
-                        )
-                    ],
-                )
+            chosen_model = get_chosen_model()
 
-                gs_nodes.append(random_node)
-
-            if chosen_model:
-                chosen_model_for_spec = getattr(Models, chosen_model)
-
-                systematic_node = GenerationNode(
-                    node_name=chosen_model,
-                    model_specs=[ModelSpec(chosen_model_for_spec)],
-                    transition_criteria=[],
-                )
-
-                gs_nodes.append(systematic_node)
-                gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
+            chosen_non_random_model = select_model(chosen_model)
 
             write_state_file("model", str(chosen_model))
+
+            sys_step = create_systematic_step(chosen_non_random_model)
+            steps.append(sys_step)
         else:
             generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
@@ -5919,54 +5971,17 @@ def set_global_generation_strategy() -> None:
 
             start_index = int(len(generation_strategy_array) / 2)
 
-            k = 0
-
             for gs_element in generation_strategy_array:
                 model_name = list(gs_element.keys())[0]
 
-                nr_steps_for_this_node = int(gs_element[model_name])
-
-                gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
-
-                chosen_model_for_spec = getattr(Models, model_name)
-
-                transition_criteria = []
-
-                if k < len(generation_strategy_array):
-                    next_node_model = list(generation_strategy_array[k + 1].keys())[0]
-
-                    transition_criteria = [
-                        MaxTrials(
-                            threshold=nr_steps_for_this_node,
-                            block_transition_if_unmet=True,
-                            transition_to=next_node_model,
-                            count_only_trials_with_data=True
-                        )
-                    ]
-
-                this_node = GenerationNode(
-                    node_name=model_name,
-                    model_specs=[ModelSpec(chosen_model_for_spec, model_kwargs={'seed': args.seed})],
-                    transition_criteria=transition_criteria,
-                )
-
-                gs_nodes.append(this_node)
+                gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+                steps.append(gs_elem)
 
                 start_index = start_index + 1
 
-                k = k + 1
-
             write_state_file("custom_generation_strategy", args_generation_strategy)
 
-        #print("======================")
-        #print(gs_nodes)
-        #print("======================")
-        #my_exit(10)
-
-        global_gs = GenerationStrategy(
-            name=" + ".join(gs_names),
-            nodes=gs_nodes
-        )
+        global_gs = GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6328,9 +6343,15 @@ def wait_for_jobs_to_complete() -> None:
 @beartype
 def human_readable_generation_strategy() -> Optional[str]:
     if ax_client:
-        generation_strategy_str = ax_client.generation_strategy.name
+        generation_strategy_str = str(ax_client.generation_strategy)
 
-        return generation_strategy_str
+        _pattern: str = r'\[(.*?)\]'
+
+        match = re.search(_pattern, generation_strategy_str)
+
+        if match:
+            content = match.group(1)
+            return content
 
     return None
 
@@ -6683,6 +6704,7 @@ def show_experiment_overview_table() -> None:
         table.add_row("Number random steps (from arguments)", str(args.num_random_steps))
 
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
+    #table.add_row("Max. parallelism", str(args.max_parallelism))
 
     if SYSTEM_HAS_SBATCH:
         table.add_row("Main process memory (GB)", str(args.main_process_gb))
@@ -6690,6 +6712,9 @@ def show_experiment_overview_table() -> None:
 
     if NR_INSERTED_JOBS:
         table.add_row("Nr. imported jobs", str(NR_INSERTED_JOBS))
+
+    #if args.max_parallelism != random_step["max_parallelism"]:
+    #    table.add_row("Max. nr. workers (calculated)", str(random_step["max_parallelism"]))
 
     if args.seed is not None:
         table.add_row("Seed", str(args.seed))
@@ -6957,8 +6982,6 @@ def save_experiment_parameters(filepath: str, experiment_parameters: Union[list,
 
 @beartype
 def run_search_with_progress_bar() -> None:
-    live_share()
-
     disable_tqdm = args.disable_tqdm or ci_env
 
     total_jobs = max_eval

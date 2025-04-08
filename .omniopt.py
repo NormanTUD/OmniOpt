@@ -6982,6 +6982,8 @@ def save_experiment_parameters(filepath: str, experiment_parameters: Union[list,
 
 @beartype
 def run_search_with_progress_bar() -> None:
+    live_share()
+
     disable_tqdm = args.disable_tqdm or ci_env
 
     total_jobs = max_eval

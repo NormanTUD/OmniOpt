@@ -942,7 +942,7 @@ def randomforest_custom_encoder(obj: Any) -> dict:
 
         return res
     except Exception as e:
-        raise ValueError(f"Failed to encode RandomForestGenerationNode: {e}")
+        raise ValueError(f"Failed to encode RandomForestGenerationNode: {e}") from e
 
 @beartype
 def save_results_csv() -> Optional[str]:

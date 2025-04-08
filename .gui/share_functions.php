@@ -750,7 +750,8 @@
 
 		$statusCounts = [
 			"COMPLETED" => 0,
-			"FAILED" => 0
+			"FAILED" => 0,
+			"RUNNING" => 0
 		];
 
 		while (($row = fgetcsv($handle)) !== false) {

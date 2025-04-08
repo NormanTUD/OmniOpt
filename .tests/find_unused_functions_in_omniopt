@@ -23,7 +23,7 @@ exceptions=(
 
 unused_count=0
 
-for funcname in $(grep "^def " .omniopt.py | sort | sed -e 's#^def\s*##' -e 's#(.*##'); do
+for funcname in $(grep "^def " .omniopt.py | sort | sed -e 's#^def[[:space:]]*##' -e 's#(.*##'); do
 	if [[ " ${exceptions[@]} " =~ " $funcname " ]]; then
 		continue
 	fi

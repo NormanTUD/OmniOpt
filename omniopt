@@ -59,7 +59,7 @@
 	NC='\033[0m'
 
 	function end_all_bg_processes {
-		for bg_job_id in $(jobs -p | sed -e 's#.*]\s*+\s*##' -e 's#\s.*##'); do
+		for bg_job_id in $(jobs -p | sed -e 's#.*][[:space:]]*+[[:space:]]*##' -e 's#[[:space:]].*##'); do
 			kill $bg_job_id 2>/dev/null >/dev/null
 		done
 	}
@@ -220,7 +220,7 @@
 			return 1
 		fi
 
-		cat "$file" | grep -e "^$key = " | sed -e "s#^\s*$key\s*=\s*##"
+		cat "$file" | grep -e "^$key = " | sed -e "s#^[[:space:]]*$key[[:space:]]*=[[:space:]]*##"
 	}
 
 	function parse_yaml {
@@ -247,7 +247,7 @@
 			return 1
 		fi
 
-		cat "$file" | grep -e "^$key: " | sed -e "s#^\s*$key\s*:\s*##"
+		cat "$file" | grep -e "^$key: " | sed -e "s#^[[:space:]]*$key[[:space:]]*:[[:space:]]*##"
 	}
 
 	function parse_json {
@@ -440,7 +440,7 @@
 		user_groups=$(echo "$(echo $USER | sha512sum)|groups=$(groups | tr ' ' '\n' | sort | sha512sum)")
 		fixed_iv=$(echo -n "$user_groups" | sha512sum | cut -c1-32)
 		encrypted=$(echo -n "$user_groups" | openssl enc -aes-256-cbc -a -pass pass:"$(echo "$(groups | tr ' ' '\n' | sort | sha512sum)-$USER" | sha512sum | rev | sha512sum)" -iv "$fixed_iv" -nosalt -pbkdf2)
-		echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#\s.*##' | cut -c1-32
+		echo "$encrypted" | sha512sum | rev | sha512sum | rev | sha512sum | sha512sum | sed -e 's#[[:space:]].*##' | cut -c1-32
 	}
 
 	if command -v sbatch 2>/dev/null >/dev/null; then
@@ -612,7 +612,7 @@
 
 		slurmlogpath () {
 			if command -v scontrol 2>/dev/null >/dev/null; then
-				scontrol show job "$1" | grep StdOut | sed -e 's/^\s*StdOut=//'
+				scontrol show job "$1" | grep StdOut | sed -e 's/^[[:space:]]*StdOut=//'
 			fi
 		}
 
@@ -799,7 +799,7 @@ EOF
 
 			if [[ -n \${${previous_job_var}} ]]; then
 			    red_text "$option_name was specified more than once. Using the last one.\\n"
-			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
+			    args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*\$option_name=.*[[:space]][[:space:]]*# #')
 			fi
 
 			args_string+=" --$option_name=\${${current_var}_previous} "
@@ -819,7 +819,7 @@ $check_code
 
 			if [[ -n \${${previous_job_var}} ]]; then
 			    red_text "$option_name was specified more than once. Using the last one.\\n"
-			    args_string=\$(echo "\$args_string" | sed -e 's#\\s*\$option_name=.*\\s\\s*# #')
+			    args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*\$option_name=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --$option_name=\${${current_var}_previous} "
@@ -892,7 +892,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -911,7 +911,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -926,7 +926,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue=.*[[:space:]][[:space:]]*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -945,7 +945,7 @@ $complex_options_str
 
 			if [[ -n \$old_continue ]]; then
 				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#\s*--continue.*[[:space:]][[:space:]]*# #')
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue.*[[:space:]][[:space:]]*# #')
 			fi
 
 			args_string+=" --continue \$continue_previous_job "
@@ -1204,7 +1204,7 @@ EOF
 
 				yellow_text "Extracted file to $new_folder"
 
-				new_args_string=$(echo "$args_string" | sed -e "s#--continue\s*[^ ]*#--continue $new_folder#")
+				new_args_string=$(echo "$args_string" | sed -e "s#--continue[[:space:]]*[^ ]*#--continue $new_folder#")
 
 				eval "bash $SCRIPT_DIR/omniopt $new_args_string"
 				exit_code=$?
@@ -1527,7 +1527,7 @@ EOF
 		if command -v pgrep 2>/dev/null >/dev/null; then
 			if command -v ps 2>/dev/null >/dev/null; then
 				for child in $(pgrep -P $$); do
-					for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER\s*##" -e 's#\s.*##'); do
+					for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^$USER[[:space:]*##" -e 's#[[:space:]].*##'); do
 						kill -9 "$tail_process"
 					done
 				done
@@ -1539,7 +1539,7 @@ EOF
 
 	if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 		# To start all subjobs independently from the omniopt job, unset all SLURM variables
-		for i in $(env | grep -e "^SLURM" | sed -e 's#\s*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
+		for i in $(env | grep -e "^SLURM" | sed -e 's#[[:space:]]*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 			unset "$i"
 		done
 
@@ -1611,7 +1611,7 @@ EOF
 
 		set -e
 
-		started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*\s##')
+		started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*[[:space:]]##')
 
 		if [[ $exit_code -eq 0 ]]; then
 			if [[ $follow -eq 1 ]]; then
@@ -1643,7 +1643,7 @@ EOF
 
 						if command -v whypending 2>/dev/null > /dev/null && [[ $time_diff_whypending -gt 10 ]]; then
 							trap - ERR
-							estimated_start_time_original=$(timeout 5 whypending "$started_job_nr" 2>&1 | grep "Estimated" | sed -e 's#.*time:\s*###' -e 's#^\s*##')
+							estimated_start_time_original=$(timeout 5 whypending "$started_job_nr" 2>&1 | grep "Estimated" | sed -e 's#.*time:[[:space:]]*###' -e 's#^[[:space:]]*##')
 							trap 'calltracer' ERR
 
 							current_time=$(date +%s)
@@ -1674,7 +1674,7 @@ EOF
 								if [[ "$job_still_in_squeue" -eq "0" ]]; then
 									red_text "The job $started_job_nr was not found in squeue anymore. It seems like it has been cancelled.\n"
 
-									SCONTROL_STATUS=$(scontrol show job "$started_job_nr" | grep JobState | sed -e 's#^\s*[^=]*=#SLURM-Job-State: #')
+									SCONTROL_STATUS=$(scontrol show job "$started_job_nr" | grep JobState | sed -e 's#^[[:space:]]*[^=]*=#SLURM-Job-State: #')
 
 									if [[ "$SCONTROL_STATUS" == *"FAILED"* ]]; then
 										red_text "$SCONTROL_STATUS\n"
@@ -1726,7 +1726,7 @@ EOF
 		    exec 2>&3          # restore stderr to saved
 		    exec 3>&-          # close saved version
 
-		    exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*\s*##i' -e 's#,.*##' | tail -n1)
+		    exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' | tail -n1)
 	    else
 		    red_text "$LOG_PATH could not be found\n"
 	    fi
@@ -1753,7 +1753,7 @@ EOF
 				fi
 			fi
 		else
-			sbatch_command=$(echo "$sbatch_command" | sed -e 's#^\s*##' -e 's#\s*$##')
+			sbatch_command=$(echo "$sbatch_command" | sed -e 's#^[[:space:]]*##' -e 's#[[:space:]]*$##')
 			red_text "Failed to start sbatch job. Command:\n"
 			red_text "$sbatch_command\n"
 			red_text "Exit-Code: $exit_code\n"

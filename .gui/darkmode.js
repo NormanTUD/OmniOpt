@@ -78,6 +78,10 @@ function enable_dark_mode() {
 	$(".window").css("background", "unset");
 
 	$(".mode-text").text("Switch to Light-Mode");
+
+	if (typeof make_text_in_parallel_plot_nicer === "function") {
+		make_text_in_parallel_plot_nicer();
+	}
 }
 
 function enable_light_mode() {
@@ -104,6 +108,10 @@ function enable_light_mode() {
 	$(".window").css("background", "#ece9d8");
 
 	$(".mode-text").text("Switch to Dark-Mode");
+
+	if (typeof make_text_in_parallel_plot_nicer === "function") {
+		make_text_in_parallel_plot_nicer();
+	}
 }
 
 function apply_theme_based_on_system_preferences() {

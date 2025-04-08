@@ -140,13 +140,23 @@ function filterNonEmptyRows(data) {
 
 function make_text_in_parallel_plot_nicer() {
 	$(".parcoords g > g > text").each(function() {
-		$(this)
-			.css("text-shadow", "unset")
-			.css("font-size", "0.9em")
-			.css("fill", "white")
-			.css("stroke", "black")
-			.css("stroke-width", "2px")
-			.css("paint-order", "stroke fill");
+		if (theme == "dark") {
+			$(this)
+				.css("text-shadow", "unset")
+				.css("font-size", "0.9em")
+				.css("fill", "white")
+				.css("stroke", "black")
+				.css("stroke-width", "2px")
+				.css("paint-order", "stroke fill");
+		} else {
+			$(this)
+				.css("text-shadow", "unset")
+				.css("font-size", "0.9em")
+				.css("fill", "black")
+				.css("stroke", "unset")
+				.css("stroke-width", "unset")
+				.css("paint-order", "stroke fill");
+		}
 	});
 }
 

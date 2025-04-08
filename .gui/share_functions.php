@@ -730,6 +730,65 @@
 		return $contents;
 	}
 
+	function analyze_results_csv($res_csv) {
+		if (!file_exists($res_csv)) {
+			return "";
+		}
+
+		$handle = fopen($res_csv, "r");
+		if (!$handle) {
+			return "";
+		}
+
+		$header = fgetcsv($handle);
+		$statusIndex = array_search("trial_status", $header);
+
+		if ($statusIndex === false) {
+			fclose($handle);
+			return "";
+		}
+
+		$statusCounts = [
+			"COMPLETED" => 0,
+			"FAILED" => 0
+		];
+
+		while (($row = fgetcsv($handle)) !== false) {
+			$status = $row[$statusIndex];
+			if (isset($statusCounts[$status])) {
+				$statusCounts[$status]++;
+			}
+		}
+
+		fclose($handle);
+
+		$parts = [];
+		foreach ($statusCounts as $status => $count) {
+			if ($count > 0) {
+				$parts[] = ucfirst(strtolower($status)) . ": $count";
+			}
+		}
+
+		return implode(", ", $parts);
+	}
+
+	function countSubfolders(string $path): int {
+		$count = 0;
+
+		if (!is_dir($path)) {
+			return 0;
+		}
+
+		foreach (scandir($path) as $item) {
+			if ($item === '.' || $item === '..') continue;
+			if (is_dir($path . DIRECTORY_SEPARATOR . $item)) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
 			return;
@@ -781,26 +840,26 @@
 			}
 
 			switch ($sort) {
-			case 'time_asc':
-				usort($folders, function($a, $b) use ($folderPath) {
-					$timeA = getLatestModificationTime($folderPath . '/' . $a);
-					$timeB = getLatestModificationTime($folderPath . '/' . $b);
-					return $timeA - $timeB;
-				});
-				break;
-			case 'time_desc':
-				usort($folders, function($a, $b) use ($folderPath) {
-					$timeA = getLatestModificationTime($folderPath . '/' . $a);
-					$timeB = getLatestModificationTime($folderPath . '/' . $b);
-					return $timeB - $timeA;
-				});
-				break;
-			case 'nr_asc':
-				sort($folders);
-				break;
-			case 'nr_desc':
-				rsort($folders);
-				break;
+				case 'time_asc':
+					usort($folders, function($a, $b) use ($folderPath) {
+						$timeA = getLatestModificationTime($folderPath . '/' . $a);
+						$timeB = getLatestModificationTime($folderPath . '/' . $b);
+						return $timeA - $timeB;
+					});
+					break;
+				case 'time_desc':
+					usort($folders, function($a, $b) use ($folderPath) {
+						$timeA = getLatestModificationTime($folderPath . '/' . $a);
+						$timeB = getLatestModificationTime($folderPath . '/' . $b);
+						return $timeB - $timeA;
+					});
+					break;
+				case 'nr_asc':
+					sort($folders);
+					break;
+				case 'nr_desc':
+					rsort($folders);
+					break;
 			}
 
 			if (count($folders)) {
@@ -820,6 +879,23 @@
 						$url = htmlspecialchars($url);
 
 						$bracket_string = "$lastModified | $timeSince";
+
+						$res_csv = "$folderPath/$folder/results.csv";
+
+						if(file_exists($res_csv)) {
+							$analyzed = analyze_results_csv($res_csv);
+							if($analyzed) {
+								$bracket_string .= " | ".$analyzed;
+							}
+						} else {
+							$counted_subfolders = countSubfolders($folderPathWithFile);
+
+							if($counted_subfolders == 1) {
+								$bracket_string .= " | ".$counted_subfolders. " subfolder";
+							} else {
+								$bracket_string .= " | ".$counted_subfolders. " subfolders";
+							}
+						}
 
 						echo "<a class='share_folder_buttons' href='$url'>";
 						echo "<button type='button'>$folder ($bracket_string)</button>";

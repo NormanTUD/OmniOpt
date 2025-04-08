@@ -164,7 +164,9 @@
 							</tr>
 							<tr class="header_table badge_table">
 								<td class="header_table badge_table">
-									<img src="https://img.shields.io/pypi/v/omniopt2" />
+									<a target="_blank" href="https://pypi.org/project/omniopt2/">
+										<img src="https://img.shields.io/pypi/v/omniopt2" />
+									</a>
 								</td>
 							</tr>
 						</table>

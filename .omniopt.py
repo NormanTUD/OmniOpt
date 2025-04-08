@@ -29,7 +29,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -718,9 +718,15 @@ try:
 
         from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core import Metric
+        from ax.core.types import TParameterization
+        from ax.core.data import Data
+        from ax.core.experiment import Experiment
+        from ax.modelbridge.external_generation_node import ExternalGenerationNode
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
+        from ax.core.base_trial import TrialStatus
+        from ax.core.parameter import RangeParameter
         from ax.modelbridge.generation_node import GenerationNode
         from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.transition_criterion import MaxTrials
@@ -730,8 +736,13 @@ try:
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
+
+    with console.status("[bold green]Loading sklearn...") as status:
+        from sklearn.ensemble import RandomForestRegressor
+
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
+
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
@@ -2037,6 +2048,132 @@ def get_memory_usage() -> float:
     ) / (1024 * 1024))
 
     return memory_usage
+
+
+class RandomForestGenerationNode(ExternalGenerationNode):
+    """A generation node that uses the RandomForestRegressor
+    from sklearn to predict candidate performance and picks the
+    next point as the random sample that has the best prediction.
+
+    To leverage external methods for candidate generation, the user must
+    create a subclass that implements ``update_generator_state`` and
+    ``get_next_candidate`` methods. This can then be provided
+    as a node into a ``GenerationStrategy``, either as standalone or as
+    part of a larger generation strategy with other generation nodes,
+    e.g., with a Sobol node for initialization.
+    """
+
+    def __init__(self, num_samples: int, regressor_options: Dict[str, Any]) -> None:
+        """Initialize the generation node.
+
+        Args:
+            regressor_options: Options to pass to the random forest regressor.
+            num_samples: Number of random samples from the search space
+                used during candidate generation. The sample with the best
+                prediction is recommended as the next candidate.
+        """
+        t_init_start = time.monotonic()
+        super().__init__(node_name="RandomForest")
+        self.num_samples: int = num_samples
+        self.regressor: RandomForestRegressor = RandomForestRegressor(
+            **regressor_options
+        )
+        # We will set these later when updating the state.
+        # Alternatively, we could have required experiment as an input
+        # and extracted them here.
+        self.parameters: Optional[List[RangeParameter]] = None
+        self.minimize: Optional[bool] = None
+        # Recording time spent in initializing the generator. This is
+        # used to compute the time spent in candidate generation.
+        self.fit_time_since_gen: float = time.monotonic() - t_init_start
+
+        fool_linter(self.fit_time_since_gen)
+
+    def update_generator_state(self, experiment: Experiment, data: Data) -> None: # deadcode: ignore[DC04]
+        """A method used to update the state of the generator. This includes any
+        models, predictors or any other custom state used by the generation node.
+        This method will be called with the up-to-date experiment and data before
+        ``get_next_candidate`` is called to generate the next trial(s). Note
+        that ``get_next_candidate`` may be called multiple times (to generate
+        multiple candidates) after a call to  ``update_generator_state``.
+
+        For this example, we will train the regressor using the latest data from
+        the experiment.
+
+        Args:
+            experiment: The ``Experiment`` object representing the current state of the
+                experiment. The key properties includes ``trials``, ``search_space``,
+                and ``optimization_config``. The data is provided as a separate arg.
+            data: The data / metrics collected on the experiment so far.
+        """
+        search_space = experiment.search_space
+        parameter_names = list(search_space.parameters.keys())
+        metric_names = list(experiment.optimization_config.metrics.keys())
+        if any(
+            not isinstance(p, RangeParameter) for p in search_space.parameters.values()
+        ):
+            raise NotImplementedError(
+                "This example only supports RangeParameters in the search space."
+            )
+        if search_space.parameter_constraints:
+            raise NotImplementedError(
+                "This example does not support parameter constraints."
+            )
+        if len(metric_names) != 1:
+            raise NotImplementedError(
+                "This example only supports single-objective optimization."
+            )
+        # Get the data for the completed trials.
+        num_completed_trials = len(experiment.trials_by_status[TrialStatus.COMPLETED])
+        x = np.zeros([num_completed_trials, len(parameter_names)])
+        y = np.zeros([num_completed_trials, 1])
+        for t_idx, trial in experiment.trials.items():
+            if trial.status == "COMPLETED":
+                trial_parameters = trial.arm.parameters
+                x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
+                trial_df = data.df[data.df["trial_index"] == t_idx]
+                y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]][
+                    "mean"
+                ].item()
+
+        # Train the regressor.
+        self.regressor.fit(x, y)
+        # Update the attributes not set in __init__.
+        self.parameters = search_space.parameters
+        self.minimize = experiment.optimization_config.objective.minimize
+
+    def get_next_candidate(
+        self, pending_parameters: List[TParameterization]
+    ) -> TParameterization:
+        """Get the parameters for the next candidate configuration to evaluate.
+
+        We will draw ``self.num_samples`` random samples from the search space
+        and predict the objective value for each sample. We will then return
+        the sample with the best predicted value.
+
+        Args:
+            pending_parameters: A list of parameters of the candidates pending
+                evaluation. This is often used to avoid generating duplicate candidates.
+                We ignore this here for simplicity.
+
+        Returns:
+            A dictionary mapping parameter names to parameter values for the next
+            candidate suggested by the method.
+        """
+        bounds = np.array([[p.lower, p.upper] for p in self.parameters.values()])
+        unit_samples = np.random.random_sample([self.num_samples, len(bounds)])
+        samples = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * unit_samples
+        # Predict the objective value for each sample.
+        y_pred = self.regressor.predict(samples)
+        # Find the best sample.
+        best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
+        best_sample = samples[best_idx, :]
+        # Convert the sample to a parameterization.
+        candidate = {
+            p_name: best_sample[i].item()
+            for i, p_name in enumerate(self.parameters.keys())
+        }
+        return candidate
 
 class MonitorProcess:
     def __init__(self: Any, pid: int, interval: float = 1.0) -> None:
@@ -5746,24 +5883,6 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     return requested
 
 @beartype
-def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
-    """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
-    available_models = list(Models.__members__.keys())
-    chosen_model = Models.BOTORCH_MODULAR
-
-    if model_arg:
-        model_upper = str(model_arg).upper()
-        if model_upper in available_models:
-            chosen_model = Models.__members__[model_upper]
-        else:
-            print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
-
-        if model_arg.lower() != "factorial" and args.gridsearch:
-            print_yellow("Gridsearch only really works when you chose the FACTORIAL model.")
-
-    return chosen_model
-
-@beartype
 def get_matching_model_name(model_name: str) -> Optional[str]:
     if not isinstance(model_name, str):
         return None
@@ -5905,13 +6024,18 @@ def set_global_generation_strategy() -> None:
 
                 gs_nodes.append(random_node)
 
-            chosen_model_for_spec = getattr(Models, chosen_model)
+            systematic_node = None
 
-            systematic_node = GenerationNode(
-                node_name=chosen_model,
-                model_specs=[ModelSpec(chosen_model_for_spec)],
-                transition_criteria=[],
-            )
+            if chosen_model.upper() == "RANDOMFOREST":
+                systematic_node = RandomForestGenerationNode(num_samples=(max_eval - random_steps), regressor_options={})
+            else:
+                chosen_model_for_spec = getattr(Models, chosen_model)
+
+                systematic_node = GenerationNode(
+                    node_name=chosen_model,
+                    model_specs=[ModelSpec(chosen_model_for_spec)],
+                    transition_criteria=[],
+                )
 
             gs_nodes.append(systematic_node)
             gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
@@ -5937,7 +6061,6 @@ def set_global_generation_strategy() -> None:
 
                 nr_steps_for_this_node = int(gs_element[model_name])
 
-                #gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
                 gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
 
                 chosen_model_for_spec = getattr(Models, model_name)
@@ -5955,11 +6078,16 @@ def set_global_generation_strategy() -> None:
                         )
                     ]
 
-                this_node = GenerationNode(
-                    node_name=model_name,
-                    model_specs=[ModelSpec(chosen_model_for_spec)],
-                    transition_criteria=transition_criteria,
-                )
+                this_node = None
+
+                if chosen_model.upper() == "RANDOMFOREST":
+                    this_node = RandomForestGenerationNode(num_samples=nr_steps_for_this_node, regressor_options={})
+                else:
+                    this_node = GenerationNode(
+                        node_name=model_name,
+                        model_specs=[ModelSpec(chosen_model_for_spec)],
+                        transition_criteria=transition_criteria,
+                    )
 
                 gs_nodes.append(this_node)
 

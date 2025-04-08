@@ -882,6 +882,8 @@
 
 						$res_csv = "$folderPath/$folder/results.csv";
 
+						$show = 1;
+
 						if(file_exists($res_csv)) {
 							$analyzed = analyze_results_csv($res_csv);
 							if($analyzed) {
@@ -890,16 +892,22 @@
 						} else {
 							$counted_subfolders = countSubfolders($folderPathWithFile);
 
-							if($counted_subfolders == 1) {
-								$bracket_string .= " | ".$counted_subfolders. " subfolder";
+							if($counted_subfolders != 0) {
+								if($counted_subfolders == 1) {
+									$bracket_string .= " | ".$counted_subfolders. " subfolder";
+								} else {
+									$bracket_string .= " | ".$counted_subfolders. " subfolders";
+								}
 							} else {
-								$bracket_string .= " | ".$counted_subfolders. " subfolders";
+								$show = 0;
 							}
 						}
 
-						echo "<a class='share_folder_buttons' href='$url'>";
-						echo "<button type='button'>$folder ($bracket_string)</button>";
-						echo '</a><br>';
+						if($show) {
+							echo "<a class='share_folder_buttons' href='$url'>";
+							echo "<button type='button'>$folder ($bracket_string)</button>";
+							echo '</a><br>';
+						}
 					}
 				}
 			} else {

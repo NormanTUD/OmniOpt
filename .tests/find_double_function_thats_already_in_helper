@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 count=0
 for helper_function in $(cat .helpers.py | grep "^def " | sed -e 's#^def ##' -e 's#\s*(.*##'); do

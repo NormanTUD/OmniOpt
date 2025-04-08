@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 send_sigterm() {
     echo "Sending SIGTERM signal to self..."

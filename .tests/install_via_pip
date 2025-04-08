@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 for install_type in omniopt git; do
 	VENV_DIR=$HOME/omniopt_via_pip_$install_type/

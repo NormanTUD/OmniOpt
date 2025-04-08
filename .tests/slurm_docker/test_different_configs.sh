@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 min=1
 max=10

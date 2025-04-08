@@ -5889,7 +5889,7 @@ def set_global_generation_strategy() -> None:
                 set_max_eval(max(1, random_steps))
 
             if random_steps >= 1 and num_imported_jobs < random_steps:
-                gs_names.append("Sobol")
+                gs_names.append(f"Sobol for {random_steps} steps")
 
                 random_node = GenerationNode(
                     node_name="SOBOL",
@@ -5914,7 +5914,8 @@ def set_global_generation_strategy() -> None:
             )
 
             gs_nodes.append(systematic_node)
-            gs_names.append(chosen_model)
+            gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
+
 
             write_state_file("model", str(chosen_model))
         else:
@@ -5935,15 +5936,17 @@ def set_global_generation_strategy() -> None:
             for gs_element in generation_strategy_array:
                 model_name = list(gs_element.keys())[0]
 
+                nr_steps_for_this_node = int(gs_element[model_name])
+
                 #gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
-                gs_names.append(model_name)
+                gs_names.append(f"{model_name} for {nr_steps_for_this_node} {'step' if nr_steps_for_this_node == 1 else 'steps'}")
+
 
                 chosen_model_for_spec = getattr(Models, model_name)
 
                 transition_criteria = []
 
                 if k < len(generation_strategy_array):
-                    nr_steps_for_this_node = int(gs_element[model_name])
                     next_node_model = list(generation_strategy_array[k + 1].keys())[0]
 
                     transition_criteria = [
@@ -5974,7 +5977,7 @@ def set_global_generation_strategy() -> None:
         #my_exit(10)
 
         global_gs = GenerationStrategy(
-            name="+".join(gs_names),
+            name=" + ".join(gs_names),
             nodes=gs_nodes
         )
 

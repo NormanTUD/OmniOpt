@@ -925,7 +925,7 @@ def save_results_csv() -> Optional[str]:
     except SignalINT as e:
         raise SignalINT(str(e)) from e
     except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+        print_red(f"\nWhile saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     new_hash: Optional[str] = compute_md5_hash(pd_csv)
 
@@ -2073,7 +2073,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 prediction is recommended as the next candidate.
         """
         t_init_start = time.monotonic()
-        super().__init__(node_name="RandomForest")
+        super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
         self.regressor: RandomForestRegressor = RandomForestRegressor(
             **regressor_options
@@ -2109,20 +2109,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
         metric_names = list(experiment.optimization_config.metrics.keys())
-        if any(
-            not isinstance(p, RangeParameter) for p in search_space.parameters.values()
-        ):
-            raise NotImplementedError(
-                "This example only supports RangeParameters in the search space."
-            )
-        if search_space.parameter_constraints:
-            raise NotImplementedError(
-                "This example does not support parameter constraints."
-            )
-        if len(metric_names) != 1:
-            raise NotImplementedError(
-                "This example only supports single-objective optimization."
-            )
+
         # Get the data for the completed trials.
         num_completed_trials = len(experiment.trials_by_status[TrialStatus.COMPLETED])
         x = np.zeros([num_completed_trials, len(parameter_names)])

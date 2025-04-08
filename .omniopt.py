@@ -29,7 +29,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -893,58 +893,6 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
         return None
 
 @beartype
-def randomforest_custom_encoder(obj: Any) -> dict:
-    try:
-        parameter_dict = {}
-
-        if obj.parameters is not None:
-            for name, param in obj.parameters.items():
-                parameter_name = param.parameter_type.name
-
-                param_str = f"{param}"
-                parameter_type = re.match(r"([^(]+)", param_str).group(1)
-
-                param_dict = {}
-
-                if parameter_type == "RangeParameter":
-                    param_dict = {
-                        "type": parameter_name,
-                        "lower": param.lower,
-                        "upper": param.upper,
-                        "log_scale": getattr(param, "log_scale", False)
-                    }
-                elif parameter_type == "ChoiceParameter":
-                    param_dict = {
-                        "type": parameter_name,
-                        "values": param.values,
-                        "is_ordered": getattr(param, "is_ordered", False),
-                        "sort_values": getattr(param, "sort_values", False)
-                    }
-                elif parameter_type == "FixedParameter":
-                    param_dict = {
-                        "type": parameter_name,
-                        "value": param.value
-                    }
-                else:
-                    print_red(f"Unknown param {param}")
-                    dier(param)
-
-                parameter_dict[name] = param_dict
-
-        res = {
-            "__type": "RandomForestGenerationNode",
-            "num_samples": obj.num_samples,
-            "regressor_params": obj.regressor.get_params(),
-            "fit_time_since_gen": obj.fit_time_since_gen,
-            "minimize": obj.minimize,
-            "parameters": parameter_dict
-        }
-
-        return res
-    except Exception as e:
-        raise ValueError(f"Failed to encode RandomForestGenerationNode: {e}") from e
-
-@beartype
 def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
@@ -963,11 +911,7 @@ def save_results_csv() -> Optional[str]:
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
-        custom_encoders = CORE_ENCODER_REGISTRY
-
-        custom_encoders[RandomForestGenerationNode] = randomforest_custom_encoder
-
-        json_snapshot = ax_client.to_json_snapshot(encoder_registry=custom_encoders)
+        json_snapshot = ax_client.to_json_snapshot()
 
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
@@ -2106,119 +2050,6 @@ def get_memory_usage() -> float:
     ) / (1024 * 1024))
 
     return memory_usage
-
-
-class RandomForestGenerationNode(ExternalGenerationNode):
-    """A generation node that uses the RandomForestRegressor
-    from sklearn to predict candidate performance and picks the
-    next point as the random sample that has the best prediction.
-
-    To leverage external methods for candidate generation, the user must
-    create a subclass that implements ``update_generator_state`` and
-    ``get_next_candidate`` methods. This can then be provided
-    as a node into a ``GenerationStrategy``, either as standalone or as
-    part of a larger generation strategy with other generation nodes,
-    e.g., with a Sobol node for initialization.
-    """
-
-    def __init__(self, num_samples: int, regressor_options: Dict[str, Any]) -> None:
-        """Initialize the generation node.
-
-        Args:
-            regressor_options: Options to pass to the random forest regressor.
-            num_samples: Number of random samples from the search space
-                used during candidate generation. The sample with the best
-                prediction is recommended as the next candidate.
-        """
-        t_init_start = time.monotonic()
-        super().__init__(node_name="RANDOMFOREST")
-        self.num_samples: int = num_samples
-        self.regressor: RandomForestRegressor = RandomForestRegressor(
-            **regressor_options
-        )
-        # We will set these later when updating the state.
-        # Alternatively, we could have required experiment as an input
-        # and extracted them here.
-        self.parameters: Optional[List[RangeParameter]] = None
-        self.minimize: Optional[bool] = None
-        # Recording time spent in initializing the generator. This is
-        # used to compute the time spent in candidate generation.
-        self.fit_time_since_gen: float = time.monotonic() - t_init_start
-
-        fool_linter(self.fit_time_since_gen)
-
-    def update_generator_state(self, experiment: Experiment, data: Data) -> None: # deadcode: ignore[DC04]
-        """A method used to update the state of the generator. This includes any
-        models, predictors or any other custom state used by the generation node.
-        This method will be called with the up-to-date experiment and data before
-        ``get_next_candidate`` is called to generate the next trial(s). Note
-        that ``get_next_candidate`` may be called multiple times (to generate
-        multiple candidates) after a call to  ``update_generator_state``.
-
-        For this example, we will train the regressor using the latest data from
-        the experiment.
-
-        Args:
-            experiment: The ``Experiment`` object representing the current state of the
-                experiment. The key properties includes ``trials``, ``search_space``,
-                and ``optimization_config``. The data is provided as a separate arg.
-            data: The data / metrics collected on the experiment so far.
-        """
-        search_space = experiment.search_space
-        parameter_names = list(search_space.parameters.keys())
-        metric_names = list(experiment.optimization_config.metrics.keys())
-
-        # Get the data for the completed trials.
-        num_completed_trials = len(experiment.trials_by_status[TrialStatus.COMPLETED])
-        x = np.zeros([num_completed_trials, len(parameter_names)])
-        y = np.zeros([num_completed_trials, 1])
-        for t_idx, trial in experiment.trials.items():
-            if trial.status == "COMPLETED":
-                trial_parameters = trial.arm.parameters
-                x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
-                trial_df = data.df[data.df["trial_index"] == t_idx]
-                y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]][
-                    "mean"
-                ].item()
-
-        # Train the regressor.
-        self.regressor.fit(x, y)
-        # Update the attributes not set in __init__.
-        self.parameters = search_space.parameters
-        self.minimize = experiment.optimization_config.objective.minimize
-
-    def get_next_candidate(
-        self, pending_parameters: List[TParameterization]
-    ) -> TParameterization:
-        """Get the parameters for the next candidate configuration to evaluate.
-
-        We will draw ``self.num_samples`` random samples from the search space
-        and predict the objective value for each sample. We will then return
-        the sample with the best predicted value.
-
-        Args:
-            pending_parameters: A list of parameters of the candidates pending
-                evaluation. This is often used to avoid generating duplicate candidates.
-                We ignore this here for simplicity.
-
-        Returns:
-            A dictionary mapping parameter names to parameter values for the next
-            candidate suggested by the method.
-        """
-        bounds = np.array([[p.lower, p.upper] for p in self.parameters.values()])
-        unit_samples = np.random.random_sample([self.num_samples, len(bounds)])
-        samples = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * unit_samples
-        # Predict the objective value for each sample.
-        y_pred = self.regressor.predict(samples)
-        # Find the best sample.
-        best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
-        best_sample = samples[best_idx, :]
-        # Convert the sample to a parameterization.
-        candidate = {
-            p_name: best_sample[i].item()
-            for i, p_name in enumerate(self.parameters.keys())
-        }
-        return candidate
 
 class MonitorProcess:
     def __init__(self: Any, pid: int, interval: float = 1.0) -> None:
@@ -6072,16 +5903,13 @@ def set_global_generation_strategy() -> None:
             systematic_node = None
 
             if chosen_model:
-                if chosen_model.upper() == "RANDOMFOREST":
-                    systematic_node = RandomForestGenerationNode(num_samples=(max_eval - random_steps), regressor_options={})
-                else:
-                    chosen_model_for_spec = getattr(Models, chosen_model)
+                chosen_model_for_spec = getattr(Models, chosen_model)
 
-                    systematic_node = GenerationNode(
-                        node_name=chosen_model,
-                        model_specs=[ModelSpec(chosen_model_for_spec)],
-                        transition_criteria=[],
-                    )
+                systematic_node = GenerationNode(
+                    node_name=chosen_model,
+                    model_specs=[ModelSpec(chosen_model_for_spec)],
+                    transition_criteria=[],
+                )
 
             gs_nodes.append(systematic_node)
             gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")
@@ -6124,16 +5952,11 @@ def set_global_generation_strategy() -> None:
                         )
                     ]
 
-                this_node = None
-
-                if model_name.upper() == "RANDOMFOREST":
-                    this_node = RandomForestGenerationNode(num_samples=nr_steps_for_this_node, regressor_options={})
-                else:
-                    this_node = GenerationNode(
-                        node_name=model_name,
-                        model_specs=[ModelSpec(chosen_model_for_spec)],
-                        transition_criteria=transition_criteria,
-                    )
+                this_node = GenerationNode(
+                    node_name=model_name,
+                    model_specs=[ModelSpec(chosen_model_for_spec)],
+                    transition_criteria=transition_criteria,
+                )
 
                 gs_nodes.append(this_node)
 

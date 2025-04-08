@@ -716,19 +716,11 @@ try:
     with console.status("[bold green]Loading ax...") as status:
         import ax
 
-        from ax.storage.json_store.registry import CORE_ENCODER_REGISTRY
-
         from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core import Metric
-        from ax.core.types import TParameterization
-        from ax.core.data import Data
-        from ax.core.experiment import Experiment
-        from ax.modelbridge.external_generation_node import ExternalGenerationNode
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
-        from ax.core.base_trial import TrialStatus
-        from ax.core.parameter import RangeParameter
         from ax.modelbridge.generation_node import GenerationNode
         from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.transition_criterion import MaxTrials
@@ -738,9 +730,6 @@ try:
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
-
-    with console.status("[bold green]Loading sklearn...") as status:
-        from sklearn.ensemble import RandomForestRegressor
 
     with console.status("[bold green]Loading botorch...") as status:
         import botorch

@@ -45,7 +45,7 @@ errors=()
 
 cd .gui
 
-for funcname in $(cat share_functions.php | grep "function " | sed -e 's#^.*function ##' | sed -e 's#\s*(.*##'); do
+for funcname in $(cat share_functions.php | grep "function " | sed -e 's#^.*function ##' | sed -e 's#[[:space:]]*(.*##'); do
 	count=$(cat *.php **/*.php | grep -v function | grep "$funcname" | wc -l)
 
 	if [[ $count == 0 ]]; then

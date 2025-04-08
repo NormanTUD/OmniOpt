@@ -31,7 +31,7 @@ fi
 
 described_params=()
 
-for _described_param in $(cat $file | egrep "<td><pre class=.invert_in_dark_mode" | sed -e 's#\s.*<td><pre class="invert_in_dark_mode"><code class="language-bash">##' -e 's#<.*##' -e 's#^export ##' | sed -e 's#=.*##'); do
+for _described_param in $(cat $file | egrep "<td><pre class=.invert_in_dark_mode" | sed -e 's#[[:space:]].*<td><pre class="invert_in_dark_mode"><code class="language-bash">##' -e 's#<.*##' -e 's#^export ##' | sed -e 's#=.*##'); do
 	described_params+=("$_described_param")
 done
 
@@ -39,7 +39,7 @@ errors=0
 
 for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
 	if [[ "$bash_file" != *"test_seed"* ]]; then
-		found_params=($(egrep -ri 'if\s..?\s-[nz]' "$bash_file" | sed -e 's#^\s*##' -e 's#.*if\s*\[\[*\s*##' -e 's#\s\]\]*\s*.*##' -e 's#^-[zn]\s*##' | sed -e 's#"##g' | sort | uniq))
+		found_params=($(egrep -ri 'if\s..?\s-[nz]' "$bash_file" | sed -e 's#^[[:space:]]*##' -e 's#.*if[[:space:]]*\[\[*[[:space:]]*##' -e 's#[[:space:]]\]\]*[[:space:]]*.*##' -e 's#^-[zn][[:space:]]*##' | sed -e 's#"##g' | sort | uniq))
 
 		exclude_vars=(
 			"time" "DISPLAY" "maxvalue" "minvalue" "KSH_VERSION" "SLURM_JOB_ID" "ZSH_EVAL_CONTEXT"

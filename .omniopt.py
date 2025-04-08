@@ -15,6 +15,7 @@ import time
 import random
 import statistics
 
+has_yaml = True
 oo_call = "./omniopt"
 
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
@@ -78,7 +79,10 @@ try:
         import base64
 
         import json
-        import yaml
+        try:
+            import yaml
+        except ModuleNotFoundError:
+            has_yaml = False
         import toml
         import csv
 
@@ -447,7 +451,9 @@ class ConfigLoader:
         )
 
         # Add config arguments
-        self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
+        if has_yaml:
+            self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
+
         self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
         self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
 
@@ -543,8 +549,9 @@ class ConfigLoader:
 
         with open(config_path, mode='r', encoding="utf-8") as file:
             try:
-                if file_format == 'yaml':
-                    return yaml.safe_load(file)
+                if has_yaml:
+                    if file_format == 'yaml':
+                        return yaml.safe_load(file)
 
                 if file_format == 'toml':
                     return toml.load(file)
@@ -606,16 +613,22 @@ class ConfigLoader:
 
         config = {}
 
-        yaml_and_toml = _args.config_yaml and _args.config_toml
-        yaml_and_json = _args.config_yaml and _args.config_json
+        if has_yaml:
+            yaml_and_toml = _args.config_yaml and _args.config_toml
+            yaml_and_json = _args.config_yaml and _args.config_json
+        else:
+            yaml_and_toml = False
+            yaml_and_json = False
+
         json_and_toml = _args.config_json and _args.config_toml
 
         if yaml_and_toml or yaml_and_json or json_and_toml:
             print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
             print("Exit-Code: 5")
 
-        if _args.config_yaml:
-            config = self.load_config(_args.config_yaml, 'yaml')
+        if has_yaml:
+            if _args.config_yaml:
+                config = self.load_config(_args.config_yaml, 'yaml')
 
         elif _args.config_toml:
             config = self.load_config(_args.config_toml, 'toml')
@@ -6364,6 +6377,10 @@ def die_orchestrator_exit_code_206(_test: bool) -> None:
 
 @beartype
 def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
+    if not has_yaml:
+        print_red("Cannot use orchestrator without the YAML module, which could not be loaded")
+        return
+
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
             try:
@@ -7314,14 +7331,15 @@ Exit-Code: 159
 
     nr_errors += is_equal("test_find_paths failed", bool(test_find_paths("ls")), False)
 
-    orchestrator_yaml: str = ".tests/example_orchestrator_config.yaml"
+    if has_yaml:
+        orchestrator_yaml: str = ".tests/example_orchestrator_config.yaml"
 
-    if os.path.exists(orchestrator_yaml):
-        _is: str = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
-        should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
-        nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
-    else:
-        nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
+        if os.path.exists(orchestrator_yaml):
+            _is: str = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
+            should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
+            nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
+        else:
+            nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
     _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
 

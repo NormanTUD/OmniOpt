@@ -5885,7 +5885,8 @@ def set_global_generation_strategy() -> None:
                         MaxTrials(
                             threshold=random_steps,
                             block_transition_if_unmet=True,
-                            transition_to=chosen_model
+                            transition_to=chosen_model,
+                            count_only_trials_with_data=True
                         )
                     ],
                 )

@@ -5617,7 +5617,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[ModelSpec(Models.SOBOL)]
+                            model_specs=[ModelSpec(Models.SOBOL, model_kwargs={'seed': args.seed})]
                         )
                     ]
             )
@@ -5880,7 +5880,7 @@ def set_global_generation_strategy() -> None:
 
                 random_node = GenerationNode(
                     node_name="SOBOL",
-                    model_specs=[ModelSpec(Models.SOBOL)],
+                    model_specs=[ModelSpec(Models.SOBOL, model_kwargs={'seed': args.seed})],
                     transition_criteria=[
                         MaxTrials(
                             threshold=random_steps,
@@ -5946,7 +5946,7 @@ def set_global_generation_strategy() -> None:
 
                 this_node = GenerationNode(
                     node_name=model_name,
-                    model_specs=[ModelSpec(chosen_model_for_spec)],
+                    model_specs=[ModelSpec(chosen_model_for_spec, model_kwargs={'seed': args.seed})],
                     transition_criteria=transition_criteria,
                 )
 

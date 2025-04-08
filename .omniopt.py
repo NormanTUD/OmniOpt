@@ -6379,7 +6379,7 @@ def die_orchestrator_exit_code_206(_test: bool) -> None:
 def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     if not has_yaml:
         print_red("Cannot use orchestrator without the YAML module, which could not be loaded")
-        return
+        return None
 
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:

@@ -5917,7 +5917,7 @@ def get_chosen_model() -> Optional[str]:
 
 @beartype
 def set_global_generation_strategy() -> GenerationStrategy:
-    global global_gs
+    global global_gs, random_steps
 
     with console.status("[bold green]Getting generation strategy..."):
         args_generation_strategy = args.generation_strategy
@@ -5932,32 +5932,24 @@ def set_global_generation_strategy() -> GenerationStrategy:
         steps: list = []
 
         if args_generation_strategy is None:
-            global random_steps
-
-            # Get the number of imported jobs and update max evaluations
             num_imported_jobs: int = get_nr_of_imported_jobs()
             set_max_eval(max_eval + num_imported_jobs)
 
-            # Initialize random_steps if None
             random_steps = random_steps or 0
 
-            # Set max_eval if it's None
             if max_eval is None:
                 set_max_eval(max(1, random_steps))
 
-            # Add a random generation step if conditions are met
             if random_steps >= 1 and num_imported_jobs < random_steps:
                 this_step = create_random_generation_step()
                 steps.append(this_step)
 
             chosen_model = get_chosen_model()
 
-            # Choose a model for the non-random step
             chosen_non_random_model = select_model(chosen_model)
 
             write_state_file("model", str(chosen_model))
 
-            # Append the Bayesian optimization step
             sys_step = create_systematic_step(chosen_non_random_model)
             steps.append(sys_step)
         else:

@@ -354,7 +354,7 @@ function run_tests {
 
 		_running_string="[$count/$total] (${percent}%) Running: $test_case"
 
-		_running_string=$(echo "$_running_string" | sed -e 's#\s*$##')
+		_running_string=$(echo "$_running_string" | sed -e 's#[[:space:]]*$##')
 
                 _green_text_bold_underline $_running_string
 

@@ -716,6 +716,8 @@ try:
     with console.status("[bold green]Loading ax...") as status:
         import ax
 
+        from ax.storage.json_store.registry import CORE_ENCODER_REGISTRY
+
         from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core import Metric
         from ax.core.types import TParameterization
@@ -891,6 +893,58 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
         return None
 
 @beartype
+def randomforest_custom_encoder(obj: Any) -> dict:
+    try:
+        parameter_dict = {}
+
+        if obj.parameters is not None:
+            for name, param in obj.parameters.items():
+                parameter_name = param.parameter_type.name
+
+                param_str = f"{param}"
+                parameter_type = re.match(r"([^(]+)", param_str).group(1)
+
+                param_dict = {}
+
+                if parameter_type == "RangeParameter":
+                    param_dict = {
+                        "type": parameter_name,
+                        "lower": param.lower,
+                        "upper": param.upper,
+                        "log_scale": getattr(param, "log_scale", False)
+                    }
+                elif parameter_type == "ChoiceParameter":
+                    # ChoiceParameter(name='choice_param', parameter_type=STRING, values=['1', '16', '2', '4', '8', 'hallo'], is_ordered=True, sort_values=False)
+                    param_dict = {
+                        "type": parameter_name,
+                        "values": param.values,
+                        "is_ordered": getattr(param, "is_ordered", False),
+                        "sort_values": getattr(param, "sort_values", False)
+                    }
+                elif parameter_type == "FixedParameter":
+                    param_dict = {
+                        "type": parameter_name,
+                        "value": param.value
+                    }
+                else:
+                    dier(param)
+
+                parameter_dict[name] = param_dict
+
+        res = {
+            "__type": "RandomForestGenerationNode",
+            "num_samples": obj.num_samples,
+            "regressor_params": obj.regressor.get_params(),
+            "fit_time_since_gen": obj.fit_time_since_gen,
+            "minimize": obj.minimize,
+            "parameters": parameter_dict
+        }
+
+        return res
+    except Exception as e:
+        raise ValueError(f"Failed to encode RandomForestGenerationNode: {e}")
+
+@beartype
 def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
@@ -909,7 +963,11 @@ def save_results_csv() -> Optional[str]:
         pd_frame = ax_client.get_trials_data_frame()
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
-        json_snapshot = ax_client.to_json_snapshot()
+        custom_encoders = CORE_ENCODER_REGISTRY
+
+        custom_encoders[RandomForestGenerationNode] = randomforest_custom_encoder
+
+        json_snapshot = ax_client.to_json_snapshot(encoder_registry=custom_encoders)
 
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
@@ -6013,16 +6071,17 @@ def set_global_generation_strategy() -> None:
 
             systematic_node = None
 
-            if chosen_model.upper() == "RANDOMFOREST":
-                systematic_node = RandomForestGenerationNode(num_samples=(max_eval - random_steps), regressor_options={})
-            else:
-                chosen_model_for_spec = getattr(Models, chosen_model)
+            if chosen_model:
+                if chosen_model.upper() == "RANDOMFOREST":
+                    systematic_node = RandomForestGenerationNode(num_samples=(max_eval - random_steps), regressor_options={})
+                else:
+                    chosen_model_for_spec = getattr(Models, chosen_model)
 
-                systematic_node = GenerationNode(
-                    node_name=chosen_model,
-                    model_specs=[ModelSpec(chosen_model_for_spec)],
-                    transition_criteria=[],
-                )
+                    systematic_node = GenerationNode(
+                        node_name=chosen_model,
+                        model_specs=[ModelSpec(chosen_model_for_spec)],
+                        transition_criteria=[],
+                    )
 
             gs_nodes.append(systematic_node)
             gs_names.append(f"{chosen_model} for {max_eval - random_steps} {'step' if max_eval - random_steps == 1 else 'steps'}")

@@ -819,8 +819,10 @@
 						$folder = htmlspecialchars($folder);
 						$url = htmlspecialchars($url);
 
+						$bracket_string = "$lastModified | $timeSince";
+
 						echo "<a class='share_folder_buttons' href='$url'>";
-						echo "<button type='button'>$folder ($lastModified | $timeSince )</button>";
+						echo "<button type='button'>$folder ($bracket_string)</button>";
 						echo '</a><br>';
 					}
 				}

@@ -155,11 +155,16 @@
 
 					<td class='header_table'>
 						<table border=0 class="header_table" style='display: inline !important;'>
-							<tr class="header_table">
-								<td class='header_table'>
+							<tr class="header_table badge_table">
+								<td class='header_table badge_table'>
 									<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
 										<img class="img_auto_width" style="min-width: 100px; width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
 									</a>
+								</td>
+							</tr>
+							<tr class="header_table badge_table">
+								<td class="header_table badge_table">
+									<img src="https://img.shields.io/pypi/v/omniopt2" />
 								</td>
 							</tr>
 						</table>

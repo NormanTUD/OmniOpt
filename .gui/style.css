@@ -733,3 +733,7 @@ img {
 .copy_clipboard_button {
 	margin-bottom: 10px;
 }
+
+.badge_table {
+	background-color: unset !important;
+}

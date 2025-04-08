@@ -5916,7 +5916,7 @@ def get_chosen_model() -> Optional[str]:
     return chosen_model
 
 @beartype
-def set_global_generation_strategy() -> GenerationStrategy:
+def set_global_generation_strategy() -> None:
     global global_gs, random_steps
 
     with console.status("[bold green]Getting generation strategy..."):

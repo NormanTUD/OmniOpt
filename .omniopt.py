@@ -2119,17 +2119,17 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 
     values[:] = [x for x in values if x != ""]
 
-    values = sort_numerically_or_alphabetically(values)
+    #values = sort_numerically_or_alphabetically(values)
 
-    values = [
-        str(int(float(x))) if x.replace('.', '', 1).isdigit() and float(x).is_integer() else str(x)
-        for x in values
-    ]
+    #values = [
+    #    str(int(float(x))) if isinstance(x, str) and x.replace('.', '', 1).isdigit() and float(x).is_integer() else str(x)
+    #    for x in values
+    #]
 
     param = {
         "name": name,
         "type": "choice",
-        "is_ordered": True,
+        "is_ordered": False,
         "values": values
     }
 

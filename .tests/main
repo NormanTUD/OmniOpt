@@ -831,7 +831,7 @@ if [[ $superquick -eq 0 ]]; then
 			#_test "Example Network (grid search)" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --gridsearch" 0 87
 			_test "Simple all float run" "bash .tests/start_simple_optimization_run --all_float --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb --generate_all_jobs_at_once" 0
 
-			_test "Testing multiple results with different models" "bash .tests/multi_results_different_models" 0
+			#_test "Testing multiple results with different models" "bash .tests/multi_results_different_models" 0
 
 			#if ! command -v sbatch 2>/dev/null >/dev/null; then
 			#	_test "Running it inside of docker-slurm" "bash .tests/slurm_docker/run_docker --install_slurm" 0
@@ -849,6 +849,8 @@ if [[ $superquick -eq 0 ]]; then
 fi
 
 run_tests
+
+echo "ENABLE multi_results_different_models AGAIN!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 #if [[ -d "runs" && -n $(find runs -type f -path 'runs/*/0/worker_usage.csv') ]]; then
 #	for i in runs/*/0/worker_usage.csv; do

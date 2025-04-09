@@ -96,7 +96,7 @@ for model in "${models[@]}"; do
 								red_text "$second_results_csv contains $second_results_csv_nr_total lines, but should be 5"
 								failed=1
 							else
-								sobol_jobs=$(cat $second_results_csv| tail -n4 | head -n1 | grep -i SOBOL | wc -l)
+								sobol_jobs=$(cat $second_results_csv | tail -n4 | head -n1 | grep -i SOBOL | wc -l)
 
 								if [[ $sobol_jobs -eq 1 ]]; then
 									model_without_whats_after_underscore=$(echo "$model" | sed -e 's#_.*##')

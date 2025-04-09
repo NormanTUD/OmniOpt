@@ -603,6 +603,9 @@ fi
 _test "Simple optimization run" ".tests/start_simple_optimization_run --num_parallel_jobs=$num_parallel_jobs --gpus=$NUM_GPUS --num_random_steps=$num_random_steps --max_eval=$max_eval --mem_gb=$mem_gb --generate_all_jobs_at_once" 0
 _test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 
+_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share --generate_all_jobs_at_once" 0
+_test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
+
 if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
 	if [[ $no_linkchecker -eq 0 ]]; then
 		_test "Linkchecker" ".tests/linkchecker" 0
@@ -638,9 +641,6 @@ if [[ -z $CI ]]; then
 		fi
 	fi
 fi
-
-_test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --live_share --generate_all_jobs_at_once" 0
-_test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
 if [[ $superquick -eq 0 ]]; then
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0

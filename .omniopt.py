@@ -790,6 +790,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             **regressor_options,
             random_state=self.seed if self.seed is not None else None
         )
+
         self.parameters: Optional[Dict[str, Any]] = None
         self.minimize: Optional[bool] = None
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
@@ -831,13 +832,13 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         reverse_choice_map = self._build_reverse_choice_map(choice_parameters)
         ranged_samples = self._generate_ranged_samples(ranged_parameters)
         all_samples = self._build_all_samples(ranged_parameters, ranged_samples, fixed_values, choice_parameters)
-        
+
         x_pred = self._build_prediction_matrix(all_samples)
         y_pred = self.regressor.predict(x_pred)
-        
+
         best_idx = self._get_best_sample_index(y_pred)
         best_sample = all_samples[best_idx]
-        
+
         self._format_best_sample(best_sample, reverse_choice_map)
 
         return best_sample
@@ -846,7 +847,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         ranged_parameters = []
         fixed_values = {}
         choice_parameters = {}
-        
+
         for name, param in self.parameters.items():
             if isinstance(param, RangeParameter):
                 ranged_parameters.append((name, param.lower, param.upper))
@@ -897,16 +898,16 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         for name, param in choice_parameters.items():
             choice_index = np.random.choice(list(param.values()))
             sample[name] = choice_index
-        
+
         return sample
 
     def _cast_value(self, param, name, value):
         if isinstance(param, RangeParameter) and param.parameter_type == "INT":
             return int(round(value))
-        elif isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
+        if isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
             return float(value)
-        else:
-            return self._try_convert_to_float(value, name)
+
+        return self._try_convert_to_float(value, name)
 
     def _try_convert_to_float(self, value, name):
         try:

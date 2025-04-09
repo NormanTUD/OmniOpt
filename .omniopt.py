@@ -6217,7 +6217,7 @@ def set_global_generation_strategy() -> None:
 
         write_state_file("model", str(chosen_model))
 
-        if chosen_model != "SOBOL":
+        if chosen_model != "SOBOL" and max_eval > random_steps:
             this_node = create_node(chosen_model, max_eval - random_steps, None)
 
             gs_names.append(get_step_name(chosen_model, max_eval - random_steps))

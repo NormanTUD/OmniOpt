@@ -1513,8 +1513,7 @@ def get_process_info(pid: Any) -> str:
         # Build process hierarchy
         while proc:
             hierarchy.append(f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}")
-            if proc is not None:
-                proc = proc.parent()  # Get the next parent process
+            proc = proc.parent()  # Get the next parent process
 
         return "\n  → ".join(hierarchy[::-1])  # Sort hierarchy from root to sender
     except psutil.NoSuchProcess:

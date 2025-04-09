@@ -843,7 +843,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return best_sample
 
-    def _separate_parameters(self):
+    @beartype
+    def _separate_parameters(self: Any) -> tuple[list[tuple[str, float, float]], dict[str, str], dict[str, dict[str, int]]]:
         ranged_parameters = []
         fixed_values = {}
         choice_parameters = {}
@@ -928,8 +929,16 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 x_pred[sample_idx, dim] = sample[name]
         return x_pred
 
-    def _get_best_sample_index(self, y_pred):
-        return np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
+    @beartype
+    def _get_best_sample_index(self: Any, y_pred: Union[np.ndarray, Sequence[float]]) -> int:
+        try:
+            if self.minimize:
+                return int(np.argmin(y_pred))
+            else:
+                return int(np.argmax(y_pred))
+        except Exception as e:
+            print_red("Error in _get_best_sample_index:", e)
+            raise
 
     def _format_best_sample(self, best_sample, reverse_choice_map):
         for name in best_sample.keys():

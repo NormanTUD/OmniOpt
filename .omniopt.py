@@ -839,6 +839,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                     choice_value_map[value] = idx
                 choice_parameters[name] = choice_value_map
 
+        reverse_choice_map = {idx: value for value, idx in choice_value_map.items()}
+
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         ranged_samples = ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
@@ -889,7 +891,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
                 best_sample[name] = int(round(best_sample[name]))
             elif isinstance(param, ChoiceParameter):
-                best_sample[name] = str(best_sample[name])
+                best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
 
         return best_sample
 

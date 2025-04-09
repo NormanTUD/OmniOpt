@@ -9,7 +9,7 @@ fi
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
-	echo "Test randomtest failed: OmniOpt2 exited with $exit_code instead of 0"
+	echo "Test randomforest failed: OmniOpt2 exited with $exit_code instead of 0"
 	exit 1
 fi
 

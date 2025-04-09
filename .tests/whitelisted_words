@@ -2592,3 +2592,4 @@ RandomForestRegressor
 sklearn
 GenerationStrategy
 RandomForest
+randomforest

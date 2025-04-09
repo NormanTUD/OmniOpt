@@ -352,7 +352,7 @@ def my_exit(_code: int = 0) -> None:
     except KeyboardInterrupt:
         pass
 
-    exit_code_string = f"Exit-Code: {_code}"
+    exit_code_string = f"\nExit-Code: {_code}"
 
     print(exit_code_string)
     print_debug(exit_code_string)

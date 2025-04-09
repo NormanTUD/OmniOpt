@@ -5945,6 +5945,29 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
             my_exit(247)
 
 @beartype
+def get_step_name(model_name, nr) -> str:
+    this_step_name = f"{model_name} for {nr} step"
+    if nr != 1:
+        this_step_name = f"{this_step_name}s"
+
+    return this_step_name
+
+@beartype
+def join_with_comma_and_then(items: list) -> str:
+    length = len(items)
+
+    if length == 0:
+        return ""
+
+    if length == 1:
+        return items[0]
+
+    if length == 2:
+        return f"{items[0]} and then {items[1]}"
+
+    return ", ".join(items[:-1]) + " and then " + items[-1]
+
+@beartype
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps, generation_strategy_human_readable
 
@@ -5966,11 +5989,7 @@ def set_global_generation_strategy() -> None:
         if random_steps >= 1 and num_imported_jobs < random_steps:
             this_step = create_random_generation_step()
             steps.append(this_step)
-            this_step_name = f"SOBOL for {random_steps} step"
-            if random_steps != 1:
-                this_step_name = f"{this_step_name}s"
-
-            gs_names.append(this_step_name)
+            gs_names.append(get_step_name("SOBOL", random_steps))
 
         chosen_model = get_chosen_model()
 
@@ -5979,11 +5998,7 @@ def set_global_generation_strategy() -> None:
         sys_step = create_systematic_step(select_model(chosen_model))
         steps.append(sys_step)
 
-        this_step_name = f"{chosen_model} for {max_eval - random_steps} step"
-        if (max_eval - random_steps) != 1:
-            this_step_name = f"{this_step_name}s"
-
-        gs_names.append(this_step_name)
+        gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
@@ -6005,11 +6020,7 @@ def set_global_generation_strategy() -> None:
             gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
             steps.append(gs_elem)
 
-            this_step_name = f"{model_name} for {nr} step"
-            if nr != 1:
-                this_step_name = f"{this_step_name}s"
-
-            gs_names.append(this_step_name)
+            gs_names.append(get_step_name(model_name, nr))
 
             start_index = start_index + 1
 
@@ -6017,7 +6028,7 @@ def set_global_generation_strategy() -> None:
 
     global_gs = GenerationStrategy(steps=steps)
 
-    generation_strategy_human_readable = "+".join(gs_names)
+    generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

@@ -70,6 +70,8 @@ try:
         import argparse
         import datetime
 
+        from ax.utils.common.random import set_rng_seed
+
         from dataclasses import dataclass
 
         import hashlib
@@ -631,6 +633,9 @@ class ConfigLoader:
 
 loader = ConfigLoader()
 args = loader.parse_arguments()
+
+if args.seed is not None:
+    set_rng_seed(args.seed)
 
 if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None:
     print_red("Either --max_eval or --generation_strategy must be set.")
@@ -7190,8 +7195,7 @@ def initialize_ax_client() -> None:
         ax_client = AxClient(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=args.enforce_sequential_optimization,
-            generation_strategy=global_gs,
-            random_seed=args.seed
+            generation_strategy=global_gs
         )
 
         ax_client = cast(AxClient, ax_client)

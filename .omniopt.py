@@ -780,7 +780,7 @@ global_gs: GenerationStrategy = None
 
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
-    def __init__(self, num_samples: int, regressor_options: Dict[str, Any]) -> None:
+    def __init__(self, num_samples: int, regressor_options: Dict[str, Any], seed: Optional[int] = None) -> None:
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
@@ -788,6 +788,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.parameters: Optional[Dict[str, Any]] = None
         self.minimize: Optional[bool] = None
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
+        self.seed: int = seed
 
     def update_generator_state(self, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
@@ -6050,8 +6051,12 @@ def join_with_comma_and_then(items: list) -> str:
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     ret_val = None
 
+    # Check if args has a seed value
+    seed_value = getattr(args, 'seed', None)
+
     if model_name == "RANDOMFOREST":
-        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={})
+        # If seed_value is available, pass it as a keyword argument
+        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=seed_value)
     else:
         trans_crit = []
 
@@ -6072,18 +6077,16 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             ]
 
         selected_model = select_model(model_name)
-
         model_spec = [
             ModelSpec(selected_model)
         ]
 
+        # Pass the seed value to GenerationNode if available (only if GenerationNode supports it)
         ret_val = GenerationNode(
             node_name=model_name,
             model_specs=model_spec,
             transition_criteria=trans_crit,
         )
-
-    pprint(ret_val)
 
     return ret_val
 

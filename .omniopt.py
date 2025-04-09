@@ -879,7 +879,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
     @beartype
-    def _build_all_samples(self: Any, ranged_parameters, ranged_samples, fixed_values: dict, choice_parameters: dict) -> list:
+    def _build_all_samples(self: Any, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> list:
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
@@ -887,7 +887,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return all_samples
 
     @beartype
-    def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples, fixed_values: dict, choice_parameters: dict) -> dict:
+    def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> dict:
         sample = {}
 
         # Füge ranged samples hinzu
@@ -948,11 +948,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
             return int(np.argmax(y_pred))
         except Exception as e:
-            print_red("Error in _get_best_sample_index:", e)
+            print_red(f"Error in _get_best_sample_index: {e}")
             raise
 
     @beartype
-    def _format_best_sample(self: Any, best_sample, reverse_choice_map) -> None:
+    def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:
         for name in best_sample.keys():
             param = self.parameters.get(name)
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
@@ -6052,7 +6052,7 @@ def write_state_file(name: str, var: str) -> None:
         print_red(f"Failed writing '{file_path}': {e}")
 
 @beartype
-def get_chosen_model() -> Optional[str]:
+def get_chosen_model() -> str:
     chosen_model = args.model
 
     if args.continue_previous_job and chosen_model is None:

@@ -3479,10 +3479,13 @@ def write_to_file(file_path: str, content: str) -> None:
 
 @beartype
 def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
+    min_or_max = arg_result_min_or_max[arg_result_names.index(res_name)]
+    bracket_string = f"{total_str}{failed_error_str}"
+
     table = Table(
         show_header=True,
         header_style="bold",
-        title=f"Best {res_name}, {arg_result_min_or_max[arg_result_names.index(res_name)]} ({total_str}{failed_error_str}):"
+        title=f"Best {res_name}, {min_or_max} ({bracket_string}):"
     )
 
     if best_params and "parameters" in best_params:

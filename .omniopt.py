@@ -3489,14 +3489,15 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
     )
 
     if best_params and "parameters" in best_params:
-        best_params_keys = best_params["parameters"].keys()
+        row_data = {**best_params['parameters']}
+        result_name = arg_result_names[0]
+        row_data[result_name] = best_params.get(result_name, '?')
 
-        _param_keys: list = list(best_params_keys)
+        table = Table(title="Best Parameters")
+        for col in row_data.keys():
+            table.add_column(col, style="cyan")
 
-        for key in _param_keys[3:]:
-            table.add_column(key)
-
-        table.add_column(res_name)
+        table.add_row(*[str(v) for v in row_data.values()])
 
         return table
 
@@ -3535,8 +3536,6 @@ def process_best_result(csv_file_path: str, res_name: str, print_to_file: bool) 
 
     table = create_result_table(res_name, best_params, total_str, failed_error_str)
     if table is not None:
-        add_table_row(table, best_params, best_result)
-
         if len(arg_result_names) == 1:
             console.print(table)
 

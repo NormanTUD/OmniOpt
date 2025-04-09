@@ -537,7 +537,7 @@ class ConfigLoader:
         debug.add_argument('--show_ram_every_n_seconds', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
 
     @beartype
-    def load_config(self, config_path: str, file_format: str) -> dict:
+    def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
             print("Exit-Code: 5")
             sys.exit(5)
@@ -560,7 +560,7 @@ class ConfigLoader:
         return {}
 
     @beartype
-    def validate_and_convert(self, config: dict, arg_defaults: dict) -> dict:
+    def validate_and_convert(self: Any, config: dict, arg_defaults: dict) -> dict:
         """
         Validates the config data and converts them to the right types based on argparse defaults.
         Warns about unknown or unused parameters.
@@ -780,7 +780,8 @@ global_gs: GenerationStrategy = None
 
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
-    def __init__(self, num_samples: int, regressor_options: Dict[str, Any], seed: Optional[int] = None) -> None:
+    @beartype
+    def __init__(self: Any, num_samples: int, regressor_options: Dict[str, Any], seed: Optional[int] = None) -> None:
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
@@ -795,7 +796,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.minimize: Optional[bool] = None
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
 
-    def update_generator_state(self, experiment: Experiment, data: Data) -> None:
+    @beartype
+    def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
         metric_names = list(experiment.optimization_config.metrics.keys())
@@ -824,7 +826,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.parameters = search_space.parameters
         self.minimize = experiment.optimization_config.objective.minimize
 
-    def get_next_candidate(self, pending_parameters: List[TParameterization]) -> TParameterization:
+    @beartype
+    def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
 
@@ -844,7 +847,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return best_sample
 
     @beartype
-    def _separate_parameters(self: Any) -> tuple[list[tuple[str, float, float]], dict[str, str], dict[str, dict[str, int]]]:
+    def _separate_parameters(self: Any) -> tuple[list, dict, dict]:
         ranged_parameters = []
         fixed_values = {}
         choice_parameters = {}
@@ -861,26 +864,31 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return ranged_parameters, fixed_values, choice_parameters
 
-    def _build_reverse_choice_map(self, choice_parameters):
+    @beartype
+    def _build_reverse_choice_map(self: Any, choice_parameters: dict):
         choice_value_map = {}
         for name, param in choice_parameters.items():
             for value, idx in param.items():
                 choice_value_map[value] = idx
         return {idx: value for value, idx in choice_value_map.items()}
 
-    def _generate_ranged_samples(self, ranged_parameters):
+    @beartype
+    def _generate_ranged_samples(self: Any, ranged_parameters):
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
-    def _build_all_samples(self, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
+    @beartype
+    @beartype
+    def _build_all_samples(self: Any, ranged_parameters, ranged_samples, fixed_values: dict, choice_parameters: dict):
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
             all_samples.append(sample)
         return all_samples
 
-    def _build_single_sample(self, sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
+    @beartype
+    def _build_single_sample(self: Any, sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
         sample = {}
 
         # Füge ranged samples hinzu
@@ -902,7 +910,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return sample
 
-    def _cast_value(self, param, name, value):
+    @beartype
+    def _cast_value(self: Any, param, name, value):
         if isinstance(param, RangeParameter) and param.parameter_type == "INT":
             return int(round(value))
         if isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
@@ -910,19 +919,22 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return self._try_convert_to_float(value, name)
 
-    def _try_convert_to_float(self, value, name):
+    @beartype
+    def _try_convert_to_float(self: Any, value, name):
         try:
             return float(value)
         except ValueError as e:
             raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
 
-    def _convert_to_float(self, val, name):
+    @beartype
+    def _convert_to_float(self: Any, val, name):
         try:
             return float(val)
         except ValueError as e:
             raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
 
-    def _build_prediction_matrix(self, all_samples):
+    @beartype
+    def _build_prediction_matrix(self: Any, all_samples):
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):
@@ -940,7 +952,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             print_red("Error in _get_best_sample_index:", e)
             raise
 
-    def _format_best_sample(self, best_sample, reverse_choice_map):
+    @beartype
+    def _format_best_sample(self: Any, best_sample, reverse_choice_map) -> None:
         for name in best_sample.keys():
             param = self.parameters.get(name)
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:

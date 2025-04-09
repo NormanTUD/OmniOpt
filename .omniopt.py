@@ -2126,7 +2126,6 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
         for x in values
     ]
 
-
     param = {
         "name": name,
         "type": "choice",

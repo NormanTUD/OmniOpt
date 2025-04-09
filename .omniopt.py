@@ -6197,7 +6197,7 @@ def set_global_generation_strategy() -> None:
         if chosen_model == "SOBOL":
             random_steps = max_eval
 
-        if random_steps >= 1 and num_imported_jobs < random_steps:
+        if random_steps >= 1:
             next_node_name = None
             if max_eval - random_steps and chosen_model:
                 next_node_name = chosen_model

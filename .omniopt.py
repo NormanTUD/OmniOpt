@@ -30,7 +30,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -732,6 +732,27 @@ try:
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
+
+        import numpy as np
+        from ax.core.base_trial import TrialStatus
+        from ax.core.data import Data
+        from ax.core.experiment import Experiment
+        from ax.core.parameter import RangeParameter
+        from ax.core.types import TParameterization
+        from ax.modelbridge.external_generation_node import ExternalGenerationNode
+        from ax.modelbridge.generation_node import GenerationNode
+        from ax.modelbridge.generation_strategy import GenerationStrategy
+        from ax.modelbridge.model_spec import ModelSpec
+        from ax.modelbridge.registry import Models
+        from ax.modelbridge.transition_criterion import MaxTrials
+        from ax.plot.trace import plot_objective_value_vs_trial_index
+        from ax.service.ax_client import AxClient, ObjectiveProperties
+        from ax.service.utils.report_utils import exp_to_df
+        from ax.utils.measurement.synthetic_functions import hartmann6
+        from sklearn.ensemble import RandomForestRegressor
+        from pyre_extensions import assert_is_instance
+
+
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
     with console.status("[bold green]Loading submitit...") as status:
@@ -768,6 +789,130 @@ disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRIT
 
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: GenerationStrategy = None
+
+class RandomForestGenerationNode(ExternalGenerationNode):
+    """A generation node that uses the RandomForestRegressor
+    from sklearn to predict candidate performance and picks the
+    next point as the random sample that has the best prediction.
+
+    To leverage external methods for candidate generation, the user must
+    create a subclass that implements ``update_generator_state`` and
+    ``get_next_candidate`` methods. This can then be provided
+    as a node into a ``GenerationStrategy``, either as standalone or as
+    part of a larger generation strategy with other generation nodes,
+    e.g., with a Sobol node for initialization.
+    """
+
+    def __init__(self, num_samples: int, regressor_options: Dict[str, Any]) -> None:
+        """Initialize the generation node.
+
+        Args:
+            regressor_options: Options to pass to the random forest regressor.
+            num_samples: Number of random samples from the search space
+                used during candidate generation. The sample with the best
+                prediction is recommended as the next candidate.
+        """
+        t_init_start = time.monotonic()
+        super().__init__(node_name="RandomForest")
+        self.num_samples: int = num_samples
+        self.regressor: RandomForestRegressor = RandomForestRegressor(
+            **regressor_options
+        )
+        # We will set these later when updating the state.
+        # Alternatively, we could have required experiment as an input
+        # and extracted them here.
+        self.parameters: Optional[List[RangeParameter]] = None
+        self.minimize: Optional[bool] = None
+        # Recording time spent in initializing the generator. This is
+        # used to compute the time spent in candidate generation.
+        self.fit_time_since_gen: float = time.monotonic() - t_init_start
+
+    def update_generator_state(self, experiment: Experiment, data: Data) -> None:
+        """A method used to update the state of the generator. This includes any
+        models, predictors or any other custom state used by the generation node.
+        This method will be called with the up-to-date experiment and data before
+        ``get_next_candidate`` is called to generate the next trial(s). Note
+        that ``get_next_candidate`` may be called multiple times (to generate
+        multiple candidates) after a call to  ``update_generator_state``.
+
+        For this example, we will train the regressor using the latest data from
+        the experiment.
+
+        Args:
+            experiment: The ``Experiment`` object representing the current state of the
+                experiment. The key properties includes ``trials``, ``search_space``,
+                and ``optimization_config``. The data is provided as a separate arg.
+            data: The data / metrics collected on the experiment so far.
+        """
+        search_space = experiment.search_space
+        parameter_names = list(search_space.parameters.keys())
+        metric_names = list(experiment.optimization_config.metrics.keys())
+        if any(
+            not isinstance(p, RangeParameter) for p in search_space.parameters.values()
+        ):
+            raise NotImplementedError(
+                "This example only supports RangeParameters in the search space."
+            )
+        if search_space.parameter_constraints:
+            raise NotImplementedError(
+                "This example does not support parameter constraints."
+            )
+        if len(metric_names) != 1:
+            raise NotImplementedError(
+                "This example only supports single-objective optimization."
+            )
+        # Get the data for the completed trials.
+        num_completed_trials = len(experiment.trials_by_status[TrialStatus.COMPLETED])
+        x = np.zeros([num_completed_trials, len(parameter_names)])
+        y = np.zeros([num_completed_trials, 1])
+        for t_idx, trial in experiment.trials.items():
+            if trial.status == "COMPLETED":
+                trial_parameters = trial.arm.parameters
+                x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
+                trial_df = data.df[data.df["trial_index"] == t_idx]
+                y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]][
+                    "mean"
+                ].item()
+
+        # Train the regressor.
+        self.regressor.fit(x, y)
+        # Update the attributes not set in __init__.
+        self.parameters = search_space.parameters
+        self.minimize = experiment.optimization_config.objective.minimize
+
+    def get_next_candidate(
+        self, pending_parameters: List[TParameterization]
+    ) -> TParameterization:
+        """Get the parameters for the next candidate configuration to evaluate.
+
+        We will draw ``self.num_samples`` random samples from the search space
+        and predict the objective value for each sample. We will then return
+        the sample with the best predicted value.
+
+        Args:
+            pending_parameters: A list of parameters of the candidates pending
+                evaluation. This is often used to avoid generating duplicate candidates.
+                We ignore this here for simplicity.
+
+        Returns:
+            A dictionary mapping parameter names to parameter values for the next
+            candidate suggested by the method.
+        """
+        bounds = np.array([[p.lower, p.upper] for p in self.parameters.values()])
+        unit_samples = np.random.random_sample([self.num_samples, len(bounds)])
+        samples = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * unit_samples
+        # Predict the objective value for each sample.
+        y_pred = self.regressor.predict(samples)
+        # Find the best sample.
+        best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
+        best_sample = samples[best_idx, :]
+        # Convert the sample to a parameterization.
+        candidate = {
+            p_name: best_sample[i].item()
+            for i, p_name in enumerate(self.parameters.keys())
+        }
+        return candidate
+
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
@@ -5981,6 +6126,47 @@ def join_with_comma_and_then(items: list) -> str:
     return ", ".join(items[:-1]) + " and then " + items[-1]
 
 @beartype
+def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
+    ret_val = None
+
+    if model_name == "RANDOMFOREST":
+        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={})
+    else:
+        trans_crit = []
+
+        if next_model_name is not None:
+            trans_crit = [
+                MaxTrials(
+                    threshold=threshold,
+                    block_transition_if_unmet=True,
+                    transition_to=next_model_name
+                )
+            ]
+        else:
+            trans_crit = [
+                MaxTrials(
+                    threshold=threshold,
+                    block_transition_if_unmet=True
+                )
+            ]
+
+        selected_model = select_model(model_name)
+
+        model_spec = [
+            ModelSpec(selected_model)
+        ]
+
+        ret_val = GenerationNode(
+            node_name=model_name,
+            model_specs=model_spec,
+            transition_criteria=trans_crit,
+        )
+
+    pprint(ret_val)
+
+    return ret_val
+
+@beartype
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps, generation_strategy_human_readable
 
@@ -5988,8 +6174,8 @@ def set_global_generation_strategy() -> None:
 
     continue_not_supported_on_custom_generation_strategy()
 
-    steps: list = []
     gs_names: list = []
+    gs_nodes: list = []
 
     if args_generation_strategy is None:
         num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5999,19 +6185,22 @@ def set_global_generation_strategy() -> None:
         if max_eval is None:
             set_max_eval(max(1, random_steps))
 
-        if random_steps >= 1 and num_imported_jobs < random_steps:
-            this_step = create_random_generation_step()
-            steps.append(this_step)
-            gs_names.append(get_step_name("SOBOL", random_steps))
-
         chosen_model = get_chosen_model()
+
+        if random_steps >= 1 and num_imported_jobs < random_steps:
+            next_node_name = None
+            if max_eval - random_steps and chosen_model:
+                next_node_name = chosen_model
+
+            gs_names.append(get_step_name("SOBOL", random_steps))
+            gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
 
         write_state_file("model", str(chosen_model))
 
-        sys_step = create_systematic_step(select_model(chosen_model))
-        steps.append(sys_step)
+        this_node = create_node(chosen_model, max_eval - random_steps, None)
 
         gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
+        gs_nodes.append(this_node)
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
@@ -6023,25 +6212,37 @@ def set_global_generation_strategy() -> None:
 
         print_generation_strategy(generation_strategy_array)
 
-        start_index = int(len(generation_strategy_array) / 2)
+        start_index: int = 0
+
+        i = 0
 
         for gs_element in generation_strategy_array:
             model_name = list(gs_element.keys())[0]
 
             nr = int(gs_element[model_name])
 
-            gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
-            steps.append(gs_elem)
+            next_model_name = None
+
+            if i < len(generation_strategy_array):
+                next_model_name = list(generation_strategy_array[i + 1].keys())[0]
+
+            gs_elem = create_node(model_name, start_index, next_model_name) #create_systematic_step(select_model(model_name), nr, start_index)
 
             gs_names.append(get_step_name(model_name, nr))
+            gs_nodes.append(gs_elem)
 
-            start_index = start_index + 1
+            start_index = start_index + nr
+
+            i = i + 1
 
         write_state_file("custom_generation_strategy", args_generation_strategy)
 
-    global_gs = GenerationStrategy(steps=steps)
-
     generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+
+    global_gs = GenerationStrategy(
+        name="+".join(gs_names),
+        nodes=gs_nodes
+    )
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

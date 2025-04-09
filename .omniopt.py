@@ -828,12 +828,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def get_next_candidate(self, pending_parameters: List[TParameterization]) -> TParameterization:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
-        
-        ranged_parameters = []  
-        fixed_values = {} 
-        choice_parameters = {} 
-        
-        # Mapping für ChoiceParameter-Werte
+
+        ranged_parameters = []
+        fixed_values = {}
+        choice_parameters = {}
+
         choice_value_map = {}
 
         for name, param in self.parameters.items():
@@ -848,21 +847,21 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 choice_parameters[name] = choice_value_map
             else:
                 raise NotImplementedError(f"Unsupported parameter type: {type(param)}")
-        
-        # Berechnung der Bereichsgrenzen
+
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         ranged_samples = ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
-        
+
         print_debug("get_next_candidate()")
         print_debug(f"ranged_bounds: {ranged_bounds}")
         print_debug(f"unit_samples: {unit_samples}")
         print_debug(f"ranged_samples: {ranged_samples}")
-        
+        print_debug(f"choice_parameters: {choice_parameters}")
+
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = {}
-            
+
             # Füge die Bereichsparameter hinzu
             for dim, (name, _, _) in enumerate(ranged_parameters):
                 value = ranged_samples[sample_idx, dim].item()
@@ -879,7 +878,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                     except ValueError:
                         raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}")
                 sample[name] = value
-            
+
             # Füge die fixen Parameter hinzu
             for name, val in fixed_values.items():
                 try:
@@ -887,28 +886,41 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 except ValueError:
                     raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}")
                 sample[name] = val
-            
+
             # Füge die Choice-Parameter hinzu, indem ein zufälliger Index aus den numerischen Werten gewählt wird
             for name, param in choice_parameters.items():
                 # Wähle einen zufälligen Index basierend auf der numerischen Kodierung
                 choice_index = np.random.choice(list(param.values()))
                 # Übertrage den numerischen Wert zurück als Parameterwert
                 sample[name] = choice_index
-            
+
             all_samples.append(sample)
-        
+
         # Vorhersage der besten Probe
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):
                 x_pred[sample_idx, dim] = sample[name]
-        
+
         y_pred = self.regressor.predict(x_pred)
         best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
         best_sample = all_samples[best_idx]
-        
-        return best_sample
 
+        for name in best_sample.keys():
+            print_debug(f"for {name} in best_sample.keys()")
+            param = self.parameters.get(name)
+
+            print_debug(f"{name}-param: {param}, type(param): {type(param)}, type: {param.parameter_type}")
+
+            if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
+                best_sample[name] = int(best_sample[name])
+                print_debug(f"Converted {name} to INT")
+            elif isinstance(param, ChoiceParameter):
+                best_sample[name] = str(best_sample[name])
+
+        print_debug(f"best_sample: {best_sample}")
+
+        return best_sample
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:

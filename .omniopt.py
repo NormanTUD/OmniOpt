@@ -823,78 +823,116 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
 
+        ranged_parameters, fixed_values, choice_parameters = self._separate_parameters()
+        reverse_choice_map = self._build_reverse_choice_map(choice_parameters)
+        ranged_samples = self._generate_ranged_samples(ranged_parameters)
+        all_samples = self._build_all_samples(ranged_parameters, ranged_samples, fixed_values, choice_parameters)
+        
+        x_pred = self._build_prediction_matrix(all_samples)
+        y_pred = self.regressor.predict(x_pred)
+        
+        best_idx = self._get_best_sample_index(y_pred)
+        best_sample = all_samples[best_idx]
+        
+        self._format_best_sample(best_sample, reverse_choice_map)
+
+        return best_sample
+
+    def _separate_parameters(self):
         ranged_parameters = []
         fixed_values = {}
         choice_parameters = {}
-
-        choice_value_map = {}
-
+        
         for name, param in self.parameters.items():
             if isinstance(param, RangeParameter):
                 ranged_parameters.append((name, param.lower, param.upper))
             elif isinstance(param, FixedParameter):
-                fixed_values[name] = str(param.value)  # FixedParameter-Wert als String
+                fixed_values[name] = str(param.value)
             elif isinstance(param, ChoiceParameter):
                 choice_values = param.values
-                for idx, value in enumerate(choice_values):
-                    choice_value_map[value] = idx
+                choice_value_map = {value: idx for idx, value in enumerate(choice_values)}
                 choice_parameters[name] = choice_value_map
 
-        reverse_choice_map = {idx: value for value, idx in choice_value_map.items()}
+        return ranged_parameters, fixed_values, choice_parameters
 
+    def _build_reverse_choice_map(self, choice_parameters):
+        choice_value_map = {}
+        for name, param in choice_parameters.items():
+            for value, idx in param.items():
+                choice_value_map[value] = idx
+        return {idx: value for value, idx in choice_value_map.items()}
+
+    def _generate_ranged_samples(self, ranged_parameters):
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
-        ranged_samples = ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
+        return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
+    def _build_all_samples(self, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
         all_samples = []
         for sample_idx in range(self.num_samples):
-            sample = {}
-
-            for dim, (name, _, _) in enumerate(ranged_parameters):
-                value = ranged_samples[sample_idx, dim].item()
-                param = self.parameters.get(name)
-                if isinstance(param, RangeParameter) and param.parameter_type == "INT":
-                    value = int(round(value))
-                elif isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
-                    value = float(value)
-                else:
-                    try:
-                        value = float(value)
-                    except ValueError as e:
-                        raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
-                sample[name] = value
-
-            for name, val in fixed_values.items():
-                try:
-                    val = float(val)  # Versuche, den Wert in float zu konvertieren, falls er numerisch ist
-                except ValueError as e:
-                    raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
-                sample[name] = val
-
-            for name, param in choice_parameters.items():
-                choice_index = np.random.choice(list(param.values()))
-                sample[name] = choice_index
-
+            sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
             all_samples.append(sample)
+        return all_samples
 
+    def _build_single_sample(self, sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
+        sample = {}
+
+        # Füge ranged samples hinzu
+        for dim, (name, _, _) in enumerate(ranged_parameters):
+            value = ranged_samples[sample_idx, dim].item()
+            param = self.parameters.get(name)
+            value = self._cast_value(param, name, value)
+            sample[name] = value
+
+        # Füge fixed values hinzu
+        for name, val in fixed_values.items():
+            val = self._convert_to_float(val, name)
+            sample[name] = val
+
+        # Füge choice parameters hinzu
+        for name, param in choice_parameters.items():
+            choice_index = np.random.choice(list(param.values()))
+            sample[name] = choice_index
+        
+        return sample
+
+    def _cast_value(self, param, name, value):
+        if isinstance(param, RangeParameter) and param.parameter_type == "INT":
+            return int(round(value))
+        elif isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
+            return float(value)
+        else:
+            return self._try_convert_to_float(value, name)
+
+    def _try_convert_to_float(self, value, name):
+        try:
+            return float(value)
+        except ValueError as e:
+            raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
+
+    def _convert_to_float(self, val, name):
+        try:
+            return float(val)
+        except ValueError as e:
+            raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
+
+    def _build_prediction_matrix(self, all_samples):
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):
                 x_pred[sample_idx, dim] = sample[name]
+        return x_pred
 
-        y_pred = self.regressor.predict(x_pred)
-        best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
-        best_sample = all_samples[best_idx]
+    def _get_best_sample_index(self, y_pred):
+        return np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
 
+    def _format_best_sample(self, best_sample, reverse_choice_map):
         for name in best_sample.keys():
             param = self.parameters.get(name)
-
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
                 best_sample[name] = int(round(best_sample[name]))
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
-
-        return best_sample
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:

@@ -2869,7 +2869,7 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[s
     return result
 
 @beartype
-def get_signal_name(sig: BaseException, signal_messages: Dict[str, Type[BaseException]]) -> str:
+def get_signal_name(sig: BaseException, signal_messages: dict) -> str:
     try:
         signal_name_candidates = [k for k, v in signal_messages.items() if isinstance(sig, v)]
         if signal_name_candidates:

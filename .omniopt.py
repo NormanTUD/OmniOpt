@@ -6253,10 +6253,13 @@ def set_global_generation_strategy() -> None:
 
     generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
-    global_gs = GenerationStrategy(
-        name="+".join(gs_names),
-        nodes=gs_nodes
-    )
+    try:
+        global_gs = GenerationStrategy(
+            name="+".join(gs_names),
+            nodes=gs_nodes
+        )
+    except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
+        print_red("Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

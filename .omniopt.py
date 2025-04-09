@@ -5812,7 +5812,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[ModelSpec(Models.SOBOL)]
+                            model_specs=[ModelSpec(Models.SOBOL, model_kwargs={"seed": args.seed})]
                         )
                     ]
             )
@@ -6117,7 +6117,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
         selected_model = select_model(model_name)
         model_spec = [
-            ModelSpec(selected_model)
+            ModelSpec(selected_model, model_kwargs={"seed": args.seed})
         ]
 
         # Pass the seed value to GenerationNode if available (only if GenerationNode supports it)

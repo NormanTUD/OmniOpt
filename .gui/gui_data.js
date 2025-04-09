@@ -559,4 +559,12 @@ var hiddenTableData = [
 		regex: regex_path,
 		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
 	},
+	{
+		label: "Number of estimators for RANDOMFOREST",
+		id: "n_estimators_randomforest",
+		type: "number",
+		value: 100,
+		info: "The number of trees in the forest for RANDOMFOREST (default: 100)",
+		min: 1
+	}
 ];

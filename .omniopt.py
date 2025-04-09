@@ -4107,6 +4107,8 @@ def print_result_names_overview_table() -> None:
     with open(f"{get_current_run_folder()}/result_names_overview.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
+    return None
+
 @beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
     table = Table(header_style="bold", title="Experiment parameters:")
@@ -5093,6 +5095,8 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     JOBS_FINISHED += this_jobs_finished
 
     clean_completed_jobs()
+
+    return None
 
 @beartype
 def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:

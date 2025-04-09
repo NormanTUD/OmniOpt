@@ -738,7 +738,7 @@ try:
         from ax.core.base_trial import TrialStatus
         from ax.core.data import Data
         from ax.core.experiment import Experiment
-        from ax.core.parameter import RangeParameter
+        from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
         from ax.core.types import TParameterization
         from ax.modelbridge.external_generation_node import ExternalGenerationNode
         from ax.modelbridge.generation_node import GenerationNode
@@ -787,127 +787,127 @@ global_gs: GenerationStrategy = None
 
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
-    """A generation node that uses the RandomForestRegressor
-    from sklearn to predict candidate performance and picks the
-    next point as the random sample that has the best prediction.
-
-    To leverage external methods for candidate generation, the user must
-    create a subclass that implements ``update_generator_state`` and
-    ``get_next_candidate`` methods. This can then be provided
-    as a node into a ``GenerationStrategy``, either as standalone or as
-    part of a larger generation strategy with other generation nodes,
-    e.g., with a Sobol node for initialization.
-    """
-
     def __init__(self, num_samples: int, regressor_options: Dict[str, Any]) -> None:
-        """Initialize the generation node.
-
-        Args:
-            regressor_options: Options to pass to the random forest regressor.
-            num_samples: Number of random samples from the search space
-                used during candidate generation. The sample with the best
-                prediction is recommended as the next candidate.
-        """
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
-        self.regressor: RandomForestRegressor = RandomForestRegressor(
-            **regressor_options
-        )
-        # We will set these later when updating the state.
-        # Alternatively, we could have required experiment as an input
-        # and extracted them here.
-        self.parameters: Optional[List[RangeParameter]] = None
+        self.regressor: RandomForestRegressor = RandomForestRegressor(**regressor_options)
+        self.parameters: Optional[Dict[str, Any]] = None
         self.minimize: Optional[bool] = None
-        # Recording time spent in initializing the generator. This is
-        # used to compute the time spent in candidate generation.
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
 
     def update_generator_state(self, experiment: Experiment, data: Data) -> None:
-        """A method used to update the state of the generator. This includes any
-        models, predictors or any other custom state used by the generation node.
-        This method will be called with the up-to-date experiment and data before
-        ``get_next_candidate`` is called to generate the next trial(s). Note
-        that ``get_next_candidate`` may be called multiple times (to generate
-        multiple candidates) after a call to  ``update_generator_state``.
-
-        For this example, we will train the regressor using the latest data from
-        the experiment.
-
-        Args:
-            experiment: The ``Experiment`` object representing the current state of the
-                experiment. The key properties includes ``trials``, ``search_space``,
-                and ``optimization_config``. The data is provided as a separate arg.
-            data: The data / metrics collected on the experiment so far.
-        """
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
         metric_names = list(experiment.optimization_config.metrics.keys())
-        if any(
-            not isinstance(p, RangeParameter) for p in search_space.parameters.values()
-        ):
-            raise NotImplementedError(
-                f"This example only supports RangeParameters in the search space, but this parameter is {p}."
-            )
+
         if search_space.parameter_constraints:
-            raise NotImplementedError(
-                "This example does not support parameter constraints."
-            )
+            raise NotImplementedError("This example does not support parameter constraints.")
+
         if len(metric_names) != 1:
-            raise NotImplementedError(
-                "This example only supports single-objective optimization."
-            )
-        # Get the data for the completed trials.
-        num_completed_trials = len(experiment.trials_by_status[TrialStatus.COMPLETED])
+            raise NotImplementedError("This example only supports single-objective optimization.")
+
+        completed_trials = [
+            trial for trial in experiment.trials.values() if trial.status == TrialStatus.COMPLETED
+        ]
+        num_completed_trials = len(completed_trials)
+
         x = np.zeros([num_completed_trials, len(parameter_names)])
         y = np.zeros([num_completed_trials, 1])
-        for t_idx, trial in experiment.trials.items():
-            if trial.status == "COMPLETED":
-                trial_parameters = trial.arm.parameters
-                x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
-                trial_df = data.df[data.df["trial_index"] == t_idx]
-                y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]][
-                    "mean"
-                ].item()
 
-        # Train the regressor.
+        for t_idx, trial in enumerate(completed_trials):
+            trial_parameters = trial.arm.parameters
+            x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
+            trial_df = data.df[data.df["trial_index"] == trial.index]
+            y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]]["mean"].item()
+
         self.regressor.fit(x, y)
-        # Update the attributes not set in __init__.
         self.parameters = search_space.parameters
         self.minimize = experiment.optimization_config.objective.minimize
 
-    def get_next_candidate(
-        self, pending_parameters: List[TParameterization]
-    ) -> TParameterization:
-        """Get the parameters for the next candidate configuration to evaluate.
+    def get_next_candidate(self, pending_parameters: List[TParameterization]) -> TParameterization:
+        if self.parameters is None:
+            raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
+        
+        ranged_parameters = []  
+        fixed_values = {} 
+        choice_parameters = {} 
+        
+        # Mapping für ChoiceParameter-Werte
+        choice_value_map = {}
 
-        We will draw ``self.num_samples`` random samples from the search space
-        and predict the objective value for each sample. We will then return
-        the sample with the best predicted value.
-
-        Args:
-            pending_parameters: A list of parameters of the candidates pending
-                evaluation. This is often used to avoid generating duplicate candidates.
-                We ignore this here for simplicity.
-
-        Returns:
-            A dictionary mapping parameter names to parameter values for the next
-            candidate suggested by the method.
-        """
-        bounds = np.array([[p.lower, p.upper] for p in self.parameters.values()])
-        unit_samples = np.random.random_sample([self.num_samples, len(bounds)])
-        samples = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) * unit_samples
-        # Predict the objective value for each sample.
-        y_pred = self.regressor.predict(samples)
-        # Find the best sample.
+        for name, param in self.parameters.items():
+            if isinstance(param, RangeParameter):
+                ranged_parameters.append((name, param.lower, param.upper))
+            elif isinstance(param, FixedParameter):
+                fixed_values[name] = str(param.value)  # FixedParameter-Wert als String
+            elif isinstance(param, ChoiceParameter):
+                choice_values = param.values
+                for idx, value in enumerate(choice_values):
+                    choice_value_map[value] = idx
+                choice_parameters[name] = choice_value_map
+            else:
+                raise NotImplementedError(f"Unsupported parameter type: {type(param)}")
+        
+        # Berechnung der Bereichsgrenzen
+        ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
+        unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
+        ranged_samples = ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
+        
+        print_debug("get_next_candidate()")
+        print_debug(f"ranged_bounds: {ranged_bounds}")
+        print_debug(f"unit_samples: {unit_samples}")
+        print_debug(f"ranged_samples: {ranged_samples}")
+        
+        all_samples = []
+        for sample_idx in range(self.num_samples):
+            sample = {}
+            
+            # Füge die Bereichsparameter hinzu
+            for dim, (name, _, _) in enumerate(ranged_parameters):
+                value = ranged_samples[sample_idx, dim].item()
+                # Überprüfe, ob der Parameter ein Integer ist, und konvertiere ihn, wenn nötig
+                param = self.parameters.get(name)
+                if isinstance(param, RangeParameter) and param.parameter_type == "INT":
+                    value = int(round(value))  # Runde auf den nächsten Integer
+                elif isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
+                    value = float(value)
+                else:
+                    # Stelle sicher, dass der Wert ein numerischer Typ ist
+                    try:
+                        value = float(value)  # Versuch der Konvertierung in einen numerischen Wert
+                    except ValueError:
+                        raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}")
+                sample[name] = value
+            
+            # Füge die fixen Parameter hinzu
+            for name, val in fixed_values.items():
+                try:
+                    val = float(val)  # Versuche, den Wert in float zu konvertieren, falls er numerisch ist
+                except ValueError:
+                    raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}")
+                sample[name] = val
+            
+            # Füge die Choice-Parameter hinzu, indem ein zufälliger Index aus den numerischen Werten gewählt wird
+            for name, param in choice_parameters.items():
+                # Wähle einen zufälligen Index basierend auf der numerischen Kodierung
+                choice_index = np.random.choice(list(param.values()))
+                # Übertrage den numerischen Wert zurück als Parameterwert
+                sample[name] = choice_index
+            
+            all_samples.append(sample)
+        
+        # Vorhersage der besten Probe
+        x_pred = np.zeros([self.num_samples, len(self.parameters)])
+        for sample_idx, sample in enumerate(all_samples):
+            for dim, name in enumerate(self.parameters.keys()):
+                x_pred[sample_idx, dim] = sample[name]
+        
+        y_pred = self.regressor.predict(x_pred)
         best_idx = np.argmin(y_pred) if self.minimize else np.argmax(y_pred)
-        best_sample = samples[best_idx, :]
-        # Convert the sample to a parameterization.
-        candidate = {
-            p_name: best_sample[i].item()
-            for i, p_name in enumerate(self.parameters.keys())
-        }
-        return candidate
+        best_sample = all_samples[best_idx]
+        
+        return best_sample
 
 
 @beartype

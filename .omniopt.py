@@ -847,7 +847,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             not isinstance(p, RangeParameter) for p in search_space.parameters.values()
         ):
             raise NotImplementedError(
-                "This example only supports RangeParameters in the search space, but this parameter is ."
+                f"This example only supports RangeParameters in the search space, but this parameter is , but this parameter is {p}."
             )
         if search_space.parameter_constraints:
             raise NotImplementedError(

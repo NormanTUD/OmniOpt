@@ -728,7 +728,7 @@ try:
         import ax.modelbridge.generation_node
         from ax.modelbridge.generation_node import GenerationNode
         from ax.modelbridge.model_spec import ModelSpec
-        from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
+        from ax.modelbridge.generation_strategy import GenerationStrategy
         from ax.modelbridge.registry import Models
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
@@ -742,7 +742,6 @@ try:
         from ax.core.types import TParameterization
         from ax.modelbridge.external_generation_node import ExternalGenerationNode
         from ax.modelbridge.generation_node import GenerationNode
-        from ax.modelbridge.generation_strategy import GenerationStrategy
         from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.registry import Models
         from ax.modelbridge.transition_criterion import MaxTrials
@@ -845,8 +844,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 for idx, value in enumerate(choice_values):
                     choice_value_map[value] = idx
                 choice_parameters[name] = choice_value_map
-            else:
-                raise NotImplementedError(f"Unsupported parameter type: {type(param)}")
 
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
@@ -856,41 +853,33 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         for sample_idx in range(self.num_samples):
             sample = {}
 
-            # Füge die Bereichsparameter hinzu
             for dim, (name, _, _) in enumerate(ranged_parameters):
                 value = ranged_samples[sample_idx, dim].item()
-                # Überprüfe, ob der Parameter ein Integer ist, und konvertiere ihn, wenn nötig
                 param = self.parameters.get(name)
                 if isinstance(param, RangeParameter) and param.parameter_type == "INT":
-                    value = int(round(value))  # Runde auf den nächsten Integer
+                    value = int(round(value))
                 elif isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
                     value = float(value)
                 else:
-                    # Stelle sicher, dass der Wert ein numerischer Typ ist
                     try:
-                        value = float(value)  # Versuch der Konvertierung in einen numerischen Wert
-                    except ValueError:
-                        raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}")
+                        value = float(value)
+                    except ValueError as e:
+                        raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
                 sample[name] = value
 
-            # Füge die fixen Parameter hinzu
             for name, val in fixed_values.items():
                 try:
                     val = float(val)  # Versuche, den Wert in float zu konvertieren, falls er numerisch ist
-                except ValueError:
-                    raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}")
+                except ValueError as e:
+                    raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
                 sample[name] = val
 
-            # Füge die Choice-Parameter hinzu, indem ein zufälliger Index aus den numerischen Werten gewählt wird
             for name, param in choice_parameters.items():
-                # Wähle einen zufälligen Index basierend auf der numerischen Kodierung
                 choice_index = np.random.choice(list(param.values()))
-                # Übertrage den numerischen Wert zurück als Parameterwert
                 sample[name] = choice_index
 
             all_samples.append(sample)
 
-        # Vorhersage der besten Probe
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):
@@ -904,7 +893,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             param = self.parameters.get(name)
 
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
-                best_sample[name] = int(best_sample[name])
+                best_sample[name] = int(round(best_sample[name]))
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(best_sample[name])
 
@@ -5944,36 +5933,6 @@ def _get_max_parallelism() -> int:
     return ret
 
 @beartype
-def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    """Creates a generation step for Bayesian optimization."""
-    step = GenerationStep(
-        model=model,
-        num_trials=_num_trials,
-        max_parallelism=_get_max_parallelism(),
-        model_gen_kwargs={
-            'enforce_num_arms': False
-        },
-        should_deduplicate=True,
-        index=index
-    )
-
-    return step
-
-@beartype
-def create_random_generation_step() -> GenerationStep:
-    """Creates a generation step for random models."""
-    return GenerationStep(
-        model=Models.SOBOL,
-        num_trials=max(num_parallel_jobs, random_steps),
-        max_parallelism=_get_max_parallelism(),
-        model_kwargs={
-            "seed": args.seed
-        },
-        model_gen_kwargs={'enforce_num_arms': False},
-        should_deduplicate=True
-    )
-
-@beartype
 def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
@@ -6222,7 +6181,7 @@ def set_global_generation_strategy() -> None:
             if i < len(generation_strategy_array):
                 next_model_name = list(generation_strategy_array[i + 1].keys())[0]
 
-            gs_elem = create_node(model_name, start_index, next_model_name) #create_systematic_step(select_model(model_name), nr, start_index)
+            gs_elem = create_node(model_name, start_index, next_model_name)
 
             gs_names.append(get_step_name(model_name, nr))
             gs_nodes.append(gs_elem)

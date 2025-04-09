@@ -907,7 +907,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         # Füge fixed values hinzu
         for name, val in fixed_values.items():
-            val = self._convert_to_float(val, name)
+            val = str(int(val)) if float(val).is_integer() else str(float(val))
             sample[name] = val
 
         # Füge choice parameters hinzu

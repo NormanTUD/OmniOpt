@@ -4,7 +4,8 @@ if [[ -d runs/randomforest ]]; then
 	rm -rf runs/randomforest
 fi
 
-./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name randomforest --mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 --num_parallel_jobs 1 --gpus 0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model RANDOMFOREST --auto_exclude_defective_hosts --max_nr_of_zero_results 1
+./omniopt --partition=alpha --experiment_name=randomforest_experiment_via_gui --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=5 --gpus=1 --num_random_steps=1 --follow --live_share --send_anonymized_usage_stats --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi' --cpus_per_task=1 --nodes_per_job=1 --generate_all_jobs_at_once --revert_to_random_when_seemingly_exhausted --model=RANDOMFOREST --run_mode=local --decimalrounding=4 --occ_type=euclid --main_process_gb=8 --max_nr_of_zero_results=1 --pareto_front_confidence=1 --slurm_signal_delay_s=0 --n_estimators_randomforest=100 --parameter x fixed 123 --parameter y range 5431 1234 int false --parameter z range 0 1 float false --parameter a choice 1,2,3
+
 
 exit_code=$?
 

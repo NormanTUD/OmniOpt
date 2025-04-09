@@ -6051,12 +6051,8 @@ def join_with_comma_and_then(items: list) -> str:
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     ret_val = None
 
-    # Check if args has a seed value
-    seed_value = getattr(args, 'seed', None)
-
     if model_name == "RANDOMFOREST":
-        # If seed_value is available, pass it as a keyword argument
-        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=seed_value)
+        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=args.seed)
     else:
         trans_crit = []
 

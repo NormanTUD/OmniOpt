@@ -47,7 +47,7 @@ var valid_models_with_descriptions = Object.fromEntries(
 	])
 );
 
-var model_list_html = `<ul>${model_data.map(model => `
+var model_list_html = `<ul class="make_markable">${model_data.map(model => `
 	<li><strong>${model.id}</strong>: ${valid_models_with_descriptions[model.id]}</li>
 `).join('')}</ul>`;
 

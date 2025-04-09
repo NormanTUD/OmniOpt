@@ -737,3 +737,7 @@ img {
 .badge_table {
 	background-color: unset !important;
 }
+
+.make_markable {
+	user-select: text;
+}

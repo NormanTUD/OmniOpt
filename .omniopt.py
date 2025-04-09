@@ -1513,7 +1513,8 @@ def get_process_info(pid: Any) -> str:
         # Build process hierarchy
         while proc:
             hierarchy.append(f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}")
-            proc = proc.parent()  # Get the next parent process
+            if proc is not None:
+                proc = proc.parent()  # Get the next parent process
 
         return "\n  → ".join(hierarchy[::-1])  # Sort hierarchy from root to sender
     except psutil.NoSuchProcess:
@@ -1671,7 +1672,7 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
     return None
 
 @beartype
-def _get_column_value(pd_csv: str, column: str, default: Union[float, int], mode: str) -> Tuple[Optional[Union[int, float]], bool]:
+def _get_column_value(pd_csv: str, column: str, default: Union[None, float, int], mode: str) -> Tuple[Optional[Union[int, float]], bool]:
     found_in_file = False
     column_value = get_min_or_max_column_value(pd_csv, column, default, mode)
 
@@ -1689,7 +1690,7 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
         print_red(f"'{pd_csv}' was not found")
         return _default, False
 
-    mode = "min" if _type == "lower" else "max"
+    mode: str = "min" if _type == "lower" else "max"
     return _get_column_value(pd_csv, _column, _default, mode)
 
 @beartype

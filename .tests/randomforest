@@ -6,4 +6,71 @@ fi
 
 ./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name randomforest --mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 --num_parallel_jobs 1 --gpus 0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --follow --num_random_steps 1 --model RANDOMFOREST --auto_exclude_defective_hosts --max_nr_of_zero_results 1
 
-cat runs/randomforest/0/results.csv
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	echo "Test randomtest failed: OmniOpt2 exited with $exit_code instead of 0"
+	exit 1
+fi
+
+csv="runs/randomforest/0/results.csv"
+
+if [[ ! -e $csv ]]; then
+	echo "Test randomforest failed: $csv could not be found"
+	exit 2
+fi
+
+nr_lines_in_csv=$(cat $csv | wc -l)
+
+if [[ $nr_lines_in_csv -ne 3 ]]; then
+	echo "The file $csv does not contain 3, but $nr_lines_in_csv lines:"
+	cat $csv
+	exit 3
+fi
+
+keywords=("trial_index" "SOBOL" "RANDOMFOREST")
+
+if ! mapfile -t lines < "$csv"; then
+	echo "Error while reading the file $csv"
+	exit 1
+fi
+
+if [[ ${#lines[@]} -ne ${#keywords[@]} ]]; then
+	echo "The file '$csv' contains ${#lines[@]} lines, but ${#keywords[@]} were expected."
+	exit 2
+fi
+
+declare -A keyword_found
+
+for keyword in "${keywords[@]}"; do
+	keyword_found["$keyword"]=0
+done
+
+for line in "${lines[@]}"; do
+	found=0
+	for keyword in "${keywords[@]}"; do
+		if grep -qF "$keyword" <<< "$line"; then
+			if [[ ${keyword_found[$keyword]} -ne 0 ]]; then
+				echo "Keyword '$keyword' was found multiple times!"
+				exit 3
+			fi
+			keyword_found["$keyword"]=1
+			found=$((found + 1))
+		fi
+	done
+
+	if [[ $found -ne 1 ]]; then
+		echo "Line misses one of the following keywords: $line"
+		exit 4
+	fi
+done
+
+for keyword in "${keywords[@]}"; do
+	if [[ ${keyword_found[$keyword]} -ne 1 ]]; then
+		echo "Keyword '$keyword' was not found!"
+		exit 5
+	fi
+done
+
+echo "The file '$csv' contains exactly one keyword per line (${keywords[*]}), no duplicates, none missing. Everything seems fine."
+exit 0

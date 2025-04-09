@@ -6135,7 +6135,7 @@ def join_with_comma_and_then(items: list) -> str:
 @beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
-        return RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=args.seed)
+        return RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
 
     if next_model_name is not None:
         trans_crit = [

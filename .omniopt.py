@@ -2694,9 +2694,9 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
     ignore_signals()
 
     signal_messages = {
-        SignalUSR: "USR1-signal",
-        SignalCONT: "CONT-signal",
-        SignalINT: "INT-signal"
+        "USR1-signal": SignalUSR,
+        "CONT-signal": SignalCONT,
+        "INT-signal": SignalINT
     }
 
     try:
@@ -2731,8 +2731,8 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
             return result
 
         write_failed_logs(parameters, "No Result")
-    except tuple(signal_messages.keys()) as sig:
-        signal_name = signal_messages[sig]
+    except tuple(signal_messages.values()) as sig:
+        signal_name = [k for k, v in signal_messages.items() if v == sig][0]
         print(f"\n⚠ {signal_name} was sent. Cancelling evaluation.")
         write_failed_logs(parameters, signal_name)
 

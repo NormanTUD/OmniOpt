@@ -5845,7 +5845,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[ModelSpec(Models.SOBOL, model_kwargs={"seed": args.seed})]
+                            model_specs=[ModelSpec(Models.SOBOL, model_gen_kwargs={"seed": args.seed})]
                         )
                     ]
             )
@@ -6152,13 +6152,13 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     selected_model = select_model(model_name)
     # , model_kwargs={"seed": args.seed}
     model_spec = [
-        ModelSpec(selected_model)
+        ModelSpec(selected_model, model_gen_kwargs={"seed": args.seed})
     ]
 
     return GenerationNode(
         node_name=model_name,
         model_specs=model_spec,
-        transition_criteria=trans_crit,
+        transition_criteria=trans_crit
     )
 
 
@@ -7190,7 +7190,8 @@ def initialize_ax_client() -> None:
         ax_client = AxClient(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=args.enforce_sequential_optimization,
-            generation_strategy=global_gs
+            generation_strategy=global_gs,
+            random_seed=args.seed
         )
 
         ax_client = cast(AxClient, ax_client)

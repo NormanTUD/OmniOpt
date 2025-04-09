@@ -6201,6 +6201,9 @@ def set_global_generation_strategy() -> None:
 
         chosen_model = get_chosen_model()
 
+        if chosen_model == "SOBOL":
+            random_steps = max_eval
+
         if random_steps >= 1 and num_imported_jobs < random_steps:
             next_node_name = None
             if max_eval - random_steps and chosen_model:
@@ -6211,10 +6214,11 @@ def set_global_generation_strategy() -> None:
 
         write_state_file("model", str(chosen_model))
 
-        this_node = create_node(chosen_model, max_eval - random_steps, None)
+        if chosen_model != "SOBOL":
+            this_node = create_node(chosen_model, max_eval - random_steps, None)
 
-        gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
-        gs_nodes.append(this_node)
+            gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
+            gs_nodes.append(this_node)
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 

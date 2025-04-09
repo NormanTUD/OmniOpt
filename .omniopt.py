@@ -5923,18 +5923,22 @@ def get_chosen_model() -> Optional[str]:
     return chosen_model
 
 @beartype
+def continue_not_supported_on_custom_generation_strategy() -> None:
+    if args.continue_previous_job:
+        generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
+
+        if os.path.exists(generation_strategy_file):
+            print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
+            my_exit(247)
+
+@beartype
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps
 
     with console.status("[bold green]Getting generation strategy..."):
         args_generation_strategy = args.generation_strategy
 
-        if args.continue_previous_job:
-            generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
-
-            if os.path.exists(generation_strategy_file):
-                print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
-                my_exit(247)
+        continue_not_supported_on_custom_generation_strategy()
 
         steps: list = []
 

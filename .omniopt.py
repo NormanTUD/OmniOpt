@@ -6157,7 +6157,8 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             MaxTrials(
                 threshold=threshold,
                 block_transition_if_unmet=True,
-                transition_to=next_model_name
+                transition_to=next_model_name,
+                count_only_trials_with_data=True
             )
         ]
     else:
@@ -6166,7 +6167,8 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             MaxTrials(
                 threshold=threshold,
                 block_transition_if_unmet=True,
-                transition_to=model_name  # Self-transition or a designated stopping model
+                transition_to=model_name,
+                count_only_trials_with_data=True
             )
         ]
 

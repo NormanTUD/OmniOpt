@@ -865,7 +865,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return ranged_parameters, fixed_values, choice_parameters
 
     @beartype
-    def _build_reverse_choice_map(self: Any, choice_parameters: dict):
+    def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
         choice_value_map = {}
         for name, param in choice_parameters.items():
             for value, idx in param.items():
@@ -873,14 +873,13 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return {idx: value for value, idx in choice_value_map.items()}
 
     @beartype
-    def _generate_ranged_samples(self: Any, ranged_parameters):
+    def _generate_ranged_samples(self: Any, ranged_parameters: list) -> np.ndarray:
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
     @beartype
-    @beartype
-    def _build_all_samples(self: Any, ranged_parameters, ranged_samples, fixed_values: dict, choice_parameters: dict):
+    def _build_all_samples(self: Any, ranged_parameters, ranged_samples, fixed_values: dict, choice_parameters: dict) -> list:
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
@@ -888,7 +887,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return all_samples
 
     @beartype
-    def _build_single_sample(self: Any, sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters):
+    def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples, fixed_values: dict, choice_parameters: dict) -> dict:
         sample = {}
 
         # Füge ranged samples hinzu
@@ -911,7 +910,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return sample
 
     @beartype
-    def _cast_value(self: Any, param, name, value):
+    def _cast_value(self: Any, param: Any, name: Any, value: Any) -> Union[int, float]:
         if isinstance(param, RangeParameter) and param.parameter_type == "INT":
             return int(round(value))
         if isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
@@ -920,21 +919,21 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         return self._try_convert_to_float(value, name)
 
     @beartype
-    def _try_convert_to_float(self: Any, value, name):
+    def _try_convert_to_float(self: Any, value: Any, name: str) -> float:
         try:
             return float(value)
         except ValueError as e:
             raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
 
     @beartype
-    def _convert_to_float(self: Any, val, name):
+    def _convert_to_float(self: Any, val: Any, name: str) -> float:
         try:
             return float(val)
         except ValueError as e:
             raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
 
     @beartype
-    def _build_prediction_matrix(self: Any, all_samples):
+    def _build_prediction_matrix(self: Any, all_samples: list) -> np.ndarray:
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):

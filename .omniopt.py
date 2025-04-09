@@ -943,13 +943,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
 
     @beartype
-    def _convert_to_float(self: Any, val: Any, name: str) -> float:
-        try:
-            return float(val)
-        except ValueError as e:
-            raise ValueError(f"Fixed parameter '{name}' has a non-numeric value: {val}") from e
-
-    @beartype
     def _build_prediction_matrix(self: Any, all_samples: list) -> np.ndarray:
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
@@ -1835,17 +1828,6 @@ def create_folder_and_file(folder: str) -> str:
     return file_path
 
 @beartype
-def sort_numerically_or_alphabetically(arr: list) -> list:
-    try:
-        new_arr = [float(item) for item in arr]
-        arr = new_arr
-    except ValueError:
-        pass
-
-    sorted_arr = sorted(arr)
-    return sorted_arr
-
-@beartype
 def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
         print_debug(f"{f} not found")
@@ -2118,13 +2100,6 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
     values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
     values[:] = [x for x in values if x != ""]
-
-    #values = sort_numerically_or_alphabetically(values)
-
-    #values = [
-    #    str(int(float(x))) if isinstance(x, str) and x.replace('.', '', 1).isdigit() and float(x).is_integer() else str(x)
-    #    for x in values
-    #]
 
     param = {
         "name": name,

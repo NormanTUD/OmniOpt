@@ -813,7 +813,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 prediction is recommended as the next candidate.
         """
         t_init_start = time.monotonic()
-        super().__init__(node_name="RandomForest")
+        super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
         self.regressor: RandomForestRegressor = RandomForestRegressor(
             **regressor_options

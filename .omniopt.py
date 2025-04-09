@@ -4069,6 +4069,8 @@ def print_result_names_overview_table() -> None:
         print_red("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.")
         my_exit(101)
 
+        return None
+
     if args.continue_previous_job is not None and args.result_names is not None:
         print_yellow("--result_names will be ignored in continued jobs. Cannot change them afterwards.")
 
@@ -4950,10 +4952,14 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
             print_red("mark_trial_as_failed: ax_client is not defined")
             my_exit(101)
 
+            return None
+
         ax_client.log_trial_failure(trial_index=trial_index)
         _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
+
+    return None
 
 @beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
@@ -5030,6 +5036,8 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     if not ax_client:
         print_red("ax_client failed")
         my_exit(101)
+
+        return None
 
     this_jobs_finished = 0
 

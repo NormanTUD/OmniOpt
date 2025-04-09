@@ -731,7 +731,7 @@ try:
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
         from ax.modelbridge.model_spec import ModelSpec
-        from ax.modelbridge.generation_strategy import GenerationStrategy
+        from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
@@ -6190,6 +6190,22 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     return res
 
 @beartype
+def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
+    """Creates a generation step for Bayesian optimization."""
+    step = GenerationStep(
+        model=model,
+        num_trials=_num_trials,
+        max_parallelism=(1000 * max_eval + 1000),
+        model_gen_kwargs={
+            'enforce_num_arms': False
+        },
+        should_deduplicate=True,
+        index=index
+    )
+
+    return step
+
+@beartype
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps, generation_strategy_human_readable
 
@@ -6252,6 +6268,8 @@ def set_global_generation_strategy() -> None:
         print_generation_strategy(generation_strategy_array)
 
         start_index = int(len(generation_strategy_array) / 2)
+
+        steps: list = []
 
         for gs_element in generation_strategy_array:
             model_name = list(gs_element.keys())[0]

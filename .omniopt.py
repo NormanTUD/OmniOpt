@@ -70,6 +70,8 @@ try:
         import argparse
         import datetime
 
+        from dataclasses import dataclass
+
         import hashlib
 
         import socket
@@ -790,6 +792,7 @@ disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRIT
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: GenerationStrategy = None
 
+@dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
     """A generation node that uses the RandomForestRegressor
     from sklearn to predict candidate performance and picks the

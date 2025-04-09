@@ -898,22 +898,34 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> dict:
         sample = {}
 
-        # Füge ranged samples hinzu
         for dim, (name, _, _) in enumerate(ranged_parameters):
             value = ranged_samples[sample_idx, dim].item()
             param = self.parameters.get(name)
             value = self._cast_value(param, name, value)
             sample[name] = value
 
-        # Füge fixed values hinzu
         for name, val in fixed_values.items():
             val = str(int(val)) if float(val).is_integer() else str(float(val))
             sample[name] = val
 
-        # Füge choice parameters hinzu
         for name, param in choice_parameters.items():
-            choice_index = np.random.choice(list(param.values()))
-            sample[name] = choice_index
+            param_values_array = list(param.keys())
+
+
+            print_debug(f"-> param: {param}")
+
+            choice_index = np.random.choice(param_values_array)
+
+            if self.parameters[name].parameter_type == ParameterType.FLOAT:
+                sample[name] = float(param[int(choice_index)])
+            elif self.parameters[name].parameter_type == ParameterType.INT:
+                sample[name] = int(round(param[int(choice_index)]))
+            elif self.parameters[name].parameter_type == ParameterType.STRING:
+                value = param[choice_index]
+                if isinstance(value, str):
+                    sample[name] = value
+                else:
+                    sample[name] = str(int(value)) if float(value).is_integer() else str(float(value))
 
         return sample
 

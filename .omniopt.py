@@ -5088,7 +5088,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     clean_completed_jobs()
 
 @beartype
-def get_alt_path_for_orchestrator(stdout_path: str) -> str:
+def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
     alt_path = None
     if stdout_path.endswith(".err"):
         alt_path = stdout_path[:-4] + ".out"
@@ -5107,7 +5107,7 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
         except FileNotFoundError:
             alt_path = get_alt_path_for_orchestrator(stdout_path)
 
-            if alt_path and Path(alt_path).exists():
+            if alt_path and alt_path is not None and Path(alt_path).exists():
                 stdout_path = alt_path
                 try:
                     stdout = Path(stdout_path).read_text("UTF-8")

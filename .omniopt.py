@@ -6040,6 +6040,10 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
             if s.count("=") == 1:
                 model_name, nr = s.split("=")
                 matching_model = get_matching_model_name(model_name)
+
+                if matching_model in ["RANDOMFOREST"]:
+                    my_exit(56)
+
                 if matching_model:
                     gen_strat_list.append({matching_model: nr})
                     sum_nr += int(nr)

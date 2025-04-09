@@ -32,6 +32,7 @@
 			49 => "Something went wrong while creating the experiment",
 			50 => "Something went wrong with the --result_names option (check output)",
 			55 => "Something went wrong defining the Generation strategy nodes. This is probably a bug in OmniOpt2.",
+			56 => "Trying to use a custom model like RANDOMFOREST in generation strategy. You must use the default models for your custom generation strategy.",
 			87 => "Search space exhausted or search was cancelled",
 			88 => "Search was done according to ax",
 			89 => "All jobs failed",

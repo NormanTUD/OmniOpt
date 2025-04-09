@@ -1760,6 +1760,7 @@ function _colorize_table_entries_by_generation_method () {
 			el.textContent.includes("Uniform") ? "lightblue" :
 			el.textContent.includes("Legacy_GPEI") ? "Sienna" :
 			el.textContent.includes("BO_MIXED") ? "Aqua" :
+			el.textContent.includes("RANDOMFOREST") ? "DarkSeaGreen" :
 			el.textContent.includes("BoTorch") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
 		el.classList.add("invert_in_dark_mode");

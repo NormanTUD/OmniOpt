@@ -15,6 +15,7 @@ import time
 import random
 import statistics
 
+generation_strategy_human_readable = ""
 oo_call = "./omniopt"
 
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
@@ -5933,13 +5934,14 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
 
 @beartype
 def set_global_generation_strategy() -> None:
-    global global_gs, random_steps
+    global global_gs, random_steps, generation_strategy_human_readable
 
     args_generation_strategy = args.generation_strategy
 
     continue_not_supported_on_custom_generation_strategy()
 
     steps: list = []
+    gs_names: list = []
 
     if args_generation_strategy is None:
         num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -5952,15 +5954,24 @@ def set_global_generation_strategy() -> None:
         if random_steps >= 1 and num_imported_jobs < random_steps:
             this_step = create_random_generation_step()
             steps.append(this_step)
+            this_step_name = f"SOBOL for {random_steps} step"
+            if random_steps != 1:
+                this_step_name = f"{this_step_name}s"
+
+            gs_names.append(this_step_name)
 
         chosen_model = get_chosen_model()
 
-        chosen_non_random_model = select_model(chosen_model)
-
         write_state_file("model", str(chosen_model))
 
-        sys_step = create_systematic_step(chosen_non_random_model)
+        sys_step = create_systematic_step(select_model(chosen_model))
         steps.append(sys_step)
+
+        this_step_name = f"{chosen_model} for {max_eval - random_steps} step"
+        if (max_eval - random_steps) != 1:
+            this_step_name = f"{this_step_name}s"
+
+        gs_names.append(this_step_name)
     else:
         generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
@@ -5977,14 +5988,24 @@ def set_global_generation_strategy() -> None:
         for gs_element in generation_strategy_array:
             model_name = list(gs_element.keys())[0]
 
-            gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+            nr = int(gs_element[model_name])
+
+            gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
             steps.append(gs_elem)
+
+            this_step_name = f"{model_name} for {nr} step"
+            if nr != 1:
+                this_step_name = f"{this_step_name}s"
+
+            gs_names.append(this_step_name)
 
             start_index = start_index + 1
 
         write_state_file("custom_generation_strategy", args_generation_strategy)
 
     global_gs = GenerationStrategy(steps=steps)
+
+    generation_strategy_human_readable = "+".join(gs_names)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -6342,21 +6363,6 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
 def wait_for_jobs_to_complete() -> None:
     while len(global_vars["jobs"]):
         go_through_jobs_that_are_not_completed_yet()
-
-@beartype
-def human_readable_generation_strategy() -> Optional[str]:
-    if ax_client:
-        generation_strategy_str = str(ax_client.generation_strategy)
-
-        _pattern: str = r'\[(.*?)\]'
-
-        match = re.search(_pattern, generation_strategy_str)
-
-        if match:
-            content = match.group(1)
-            return content
-
-    return None
 
 @beartype
 def die_orchestrator_exit_code_206(_test: bool) -> None:
@@ -6961,10 +6967,8 @@ def initialize_ax_client() -> None:
 
 @beartype
 def get_generation_strategy_string() -> str:
-    gs_hr = human_readable_generation_strategy()
-
-    if gs_hr:
-        return f"Generation strategy: {gs_hr}."
+    if generation_strategy_human_readable:
+        return f"Generation strategy: {generation_strategy_human_readable}."
 
     return ""
 

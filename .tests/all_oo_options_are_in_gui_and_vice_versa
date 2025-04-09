@@ -39,6 +39,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		UNIFORM
 		SOBOL
 		FACTORIAL
+		RANDOMFOREST
 		BO_MIXED
 	)
 

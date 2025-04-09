@@ -43,7 +43,7 @@ for model in "${models[@]}"; do
 	((current_model++))
 	echo "===== $model ===== (Job $current_model of $total_models)";
 	if [[ $failed -eq 0 ]]; then
-		if [[ "$model" != "FACTORIAL" ]] && [[ "$model" != "RANDOMFOREST" ]]; then
+		if [[ "$model" != "SOBOL" ]] &&[[ "$model" != "FACTORIAL" ]] && [[ "$model" != "RANDOMFOREST" ]]; then
 			run_name="multi_results_2_results_$model"
 			run_dir="runs/$run_name"
 			if [[ -d $run_dir ]]; then
@@ -125,7 +125,7 @@ for model in "${models[@]}"; do
 				fi
 			fi
 		else
-			yellow_text "Skipping model FACTORIAL and RANDOMFOREST. Incompatible with range"
+			yellow_text "Skipping model SOBOL, FACTORIAL and RANDOMFOREST. Incompatible with range"
 		fi
 	else
 		yellow_text "Skipping model $model because previous models have failed already"

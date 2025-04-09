@@ -911,7 +911,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         for name, param in choice_parameters.items():
             param_values_array = list(param.keys())
 
-
             choice_index = np.random.choice(param_values_array)
 
             if self.parameters[name].parameter_type == ParameterType.FLOAT:

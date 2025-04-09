@@ -852,12 +852,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         ranged_samples = ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
-        print_debug("get_next_candidate()")
-        print_debug(f"ranged_bounds: {ranged_bounds}")
-        print_debug(f"unit_samples: {unit_samples}")
-        print_debug(f"ranged_samples: {ranged_samples}")
-        print_debug(f"choice_parameters: {choice_parameters}")
-
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = {}
@@ -907,18 +901,12 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         best_sample = all_samples[best_idx]
 
         for name in best_sample.keys():
-            print_debug(f"for {name} in best_sample.keys()")
             param = self.parameters.get(name)
-
-            print_debug(f"{name}-param: {param}, type(param): {type(param)}, type: {param.parameter_type}")
 
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
                 best_sample[name] = int(best_sample[name])
-                print_debug(f"Converted {name} to INT")
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(best_sample[name])
-
-        print_debug(f"best_sample: {best_sample}")
 
         return best_sample
 

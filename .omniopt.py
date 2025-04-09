@@ -2731,7 +2731,15 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
 
         write_failed_logs(parameters, "No Result")
     except tuple(signal_messages.values()) as sig:
-        signal_name = [k for k, v in signal_messages.items() if v == sig][0]
+        try:
+            signal_name_candidates = [k for k, v in signal_messages.items() if isinstance(sig, v)]
+            if signal_name_candidates:
+                signal_name = signal_name_candidates[0]
+            else:
+                signal_name = f"UNKNOWN_SIGNAL({type(sig).__name__})"
+        except Exception as e:
+            signal_name = f"ERROR_IDENTIFYING_SIGNAL({e})"
+
         print(f"\n⚠ {signal_name} was sent. Cancelling evaluation.")
         write_failed_logs(parameters, signal_name)
 

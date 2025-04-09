@@ -31,6 +31,12 @@ var model_data = [
 		id: 'BO_MIXED',
 		name: 'Optimizes all range parameters once for each combination of choice parameters, then takes the optimum of those optima.',
 		extra: 'The cost associated with this method grows with the number of combinations, and so it is only used when the number of enumerated discrete combinations is below some maximum value.'
+	},
+	{
+		id: 'RANDOMFOREST',
+		name: 'Random Forest',
+		link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
+		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized.'
 	}
 ];
 

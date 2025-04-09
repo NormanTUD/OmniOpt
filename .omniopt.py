@@ -401,7 +401,6 @@ class ConfigLoader:
     exclude: Optional[str]
     show_sixel_trial_index_result: bool
     num_parallel_jobs: int
-    max_parallelism: int
     force_local_execution: bool
     occ_type: str
     raise_in_eval: bool
@@ -501,7 +500,6 @@ class ConfigLoader:
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
         optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
-        optional.add_argument('--max_parallelism', help='Set how the ax max parallelism flag should be set. Possible options: None, max_eval, num_parallel_jobs, twice_max_eval, max_eval_times_thousand_plus_thousand, twice_num_parallel_jobs and any integer.', type=str, default="max_eval_times_thousand_plus_thousand")
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
@@ -726,11 +724,9 @@ try:
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         import ax.modelbridge.generation_node
-        from ax.modelbridge.generation_node import GenerationNode
         from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.generation_strategy import GenerationStrategy
         from ax.modelbridge.registry import Models
-        from ax.service.ax_client import AxClient, ObjectiveProperties
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
@@ -742,8 +738,6 @@ try:
         from ax.core.types import TParameterization
         from ax.modelbridge.external_generation_node import ExternalGenerationNode
         from ax.modelbridge.generation_node import GenerationNode
-        from ax.modelbridge.model_spec import ModelSpec
-        from ax.modelbridge.registry import Models
         from ax.modelbridge.transition_criterion import MaxTrials
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from sklearn.ensemble import RandomForestRegressor
@@ -5903,36 +5897,6 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     return requested
 
 @beartype
-def check_max_parallelism_arg(possible_values: list) -> bool:
-    if args.max_parallelism in possible_values or helpers.looks_like_int(args.max_parallelism):
-        return True
-    return False
-
-@beartype
-def _get_max_parallelism() -> int:
-    possible_values: list = [None, "None", "none", "max_eval", "num_parallel_jobs", "twice_max_eval", "twice_num_parallel_jobs", "max_eval_times_thousand_plus_thousand"]
-
-    ret: int = 0
-
-    if check_max_parallelism_arg(possible_values):
-        if args.max_parallelism == "max_eval":
-            ret = max_eval
-        if args.max_parallelism == "num_parallel_jobs":
-            ret = args.num_parallel_jobs
-        if args.max_parallelism == "twice_max_eval":
-            ret = 2 * max_eval
-        if args.max_parallelism == "twice_num_parallel_jobs":
-            ret = 2 * args.num_parallel_jobs
-        if args.max_parallelism == "max_eval_times_thousand_plus_thousand":
-            ret = 1000 * max_eval + 1000
-        if helpers.looks_like_int(args.max_parallelism):
-            ret = int(args.max_parallelism)
-    else:
-        print_red(f"Invalid --max_parallelism value. Must be one of those: {', '.join(possible_values)}")
-
-    return ret
-
-@beartype
 def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(Models.__members__.keys())
@@ -6905,7 +6869,6 @@ def show_experiment_overview_table() -> None:
         table.add_row("Number random steps (from arguments)", str(args.num_random_steps))
 
     table.add_row("Nr. of workers (parameter)", str(args.num_parallel_jobs))
-    #table.add_row("Max. parallelism", str(args.max_parallelism))
 
     if SYSTEM_HAS_SBATCH:
         table.add_row("Main process memory (GB)", str(args.main_process_gb))
@@ -6913,9 +6876,6 @@ def show_experiment_overview_table() -> None:
 
     if NR_INSERTED_JOBS:
         table.add_row("Nr. imported jobs", str(NR_INSERTED_JOBS))
-
-    #if args.max_parallelism != random_step["max_parallelism"]:
-    #    table.add_row("Max. nr. workers (calculated)", str(random_step["max_parallelism"]))
 
     if args.seed is not None:
         table.add_row("Seed", str(args.seed))

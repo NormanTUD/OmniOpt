@@ -796,6 +796,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.minimize: Optional[bool] = None
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
 
+        fool_linter(self.fit_time_since_gen)
+
     @beartype
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space

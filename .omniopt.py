@@ -3503,15 +3503,6 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
     return None
 
 @beartype
-def add_table_row(table: Table, best_params: Optional[Dict[str, Any]], best_result: Any) -> None:
-    if best_params is not None:
-        row = [
-            str(helpers.to_int_when_possible(best_params["parameters"][key]))
-            for key in best_params["parameters"].keys()
-        ][3:] + [str(helpers.to_int_when_possible(best_result))]
-        table.add_row(*row)
-
-@beartype
 def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> None:
     with console.capture() as capture:
         console.print(table)

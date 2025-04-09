@@ -5935,57 +5935,56 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps
 
-    with console.status("[bold green]Getting generation strategy..."):
-        args_generation_strategy = args.generation_strategy
+    args_generation_strategy = args.generation_strategy
 
-        continue_not_supported_on_custom_generation_strategy()
+    continue_not_supported_on_custom_generation_strategy()
 
-        steps: list = []
+    steps: list = []
 
-        if args_generation_strategy is None:
-            num_imported_jobs: int = get_nr_of_imported_jobs()
-            set_max_eval(max_eval + num_imported_jobs)
-            random_steps = random_steps or 0
+    if args_generation_strategy is None:
+        num_imported_jobs: int = get_nr_of_imported_jobs()
+        set_max_eval(max_eval + num_imported_jobs)
+        random_steps = random_steps or 0
 
-            if max_eval is None:
-                set_max_eval(max(1, random_steps))
+        if max_eval is None:
+            set_max_eval(max(1, random_steps))
 
-            if random_steps >= 1 and num_imported_jobs < random_steps:
-                this_step = create_random_generation_step()
-                steps.append(this_step)
+        if random_steps >= 1 and num_imported_jobs < random_steps:
+            this_step = create_random_generation_step()
+            steps.append(this_step)
 
-            chosen_model = get_chosen_model()
+        chosen_model = get_chosen_model()
 
-            chosen_non_random_model = select_model(chosen_model)
+        chosen_non_random_model = select_model(chosen_model)
 
-            write_state_file("model", str(chosen_model))
+        write_state_file("model", str(chosen_model))
 
-            sys_step = create_systematic_step(chosen_non_random_model)
-            steps.append(sys_step)
-        else:
-            generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
+        sys_step = create_systematic_step(chosen_non_random_model)
+        steps.append(sys_step)
+    else:
+        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
-            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
-            if max_eval < new_max_eval_plus_inserted_jobs:
-                print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
-                set_max_eval(new_max_eval_plus_inserted_jobs)
+        if max_eval < new_max_eval_plus_inserted_jobs:
+            print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+            set_max_eval(new_max_eval_plus_inserted_jobs)
 
-            print_generation_strategy(generation_strategy_array)
+        print_generation_strategy(generation_strategy_array)
 
-            start_index = int(len(generation_strategy_array) / 2)
+        start_index = int(len(generation_strategy_array) / 2)
 
-            for gs_element in generation_strategy_array:
-                model_name = list(gs_element.keys())[0]
+        for gs_element in generation_strategy_array:
+            model_name = list(gs_element.keys())[0]
 
-                gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
-                steps.append(gs_elem)
+            gs_elem = create_systematic_step(select_model(model_name), int(gs_element[model_name]), start_index)
+            steps.append(gs_elem)
 
-                start_index = start_index + 1
+            start_index = start_index + 1
 
-            write_state_file("custom_generation_strategy", args_generation_strategy)
+        write_state_file("custom_generation_strategy", args_generation_strategy)
 
-        global_gs = GenerationStrategy(steps=steps)
+    global_gs = GenerationStrategy(steps=steps)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

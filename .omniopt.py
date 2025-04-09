@@ -6084,7 +6084,7 @@ def join_with_comma_and_then(items: list) -> str:
     return ", ".join(items[:-1]) + " and then " + items[-1]
 
 @beartype
-def create_node(model_name: str, threshold: int, next_model_name: Optional[str], count_only_trials_with_data: bool = True) -> Union[RandomForestGenerationNode, GenerationNode]:
+def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
         return RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
 
@@ -6094,7 +6094,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str],
                 threshold=threshold,
                 block_transition_if_unmet=True,
                 transition_to=next_model_name,
-                count_only_trials_with_data=count_only_trials_with_data
+                count_only_trials_with_data=True
             )
         ]
     else:
@@ -6104,7 +6104,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str],
                 threshold=threshold,
                 block_transition_if_unmet=True,
                 transition_to=model_name,
-                count_only_trials_with_data=count_only_trials_with_data
+                count_only_trials_with_data=True
             )
         ]
 

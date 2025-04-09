@@ -6261,6 +6261,8 @@ def set_global_generation_strategy() -> None:
     except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
         print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
 
+        my_exit(55)
+
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:

@@ -1696,19 +1696,29 @@ def print_debug_progressbar(msg: str) -> None:
 
 @beartype
 def get_process_info(pid: Any) -> str:
-    """Collects detailed information about a process and its hierarchy."""
     try:
-        proc = psutil.Process(pid)
-        hierarchy = []
+        proc: Optional[psutil.Process] = psutil.Process(pid)
+        hierarchy: list[str] = []
 
-        # Build process hierarchy
-        while proc:
-            hierarchy.append(f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}")
-            proc = proc.parent()  # Get the next parent process
+        while proc is not None:
+            try:
+                pid_str = f"[PID {proc.pid}] {proc.name()} - {proc.cmdline()}"
+                hierarchy.append(pid_str)
+                proc = proc.parent()
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+                hierarchy.append(f"[PID ?] <Process info unavailable: {e}>")
+                break
 
-        return "\n  → ".join(hierarchy[::-1])  # Sort hierarchy from root to sender
+        return "\n  → ".join(hierarchy[::-1])
+
     except psutil.NoSuchProcess:
         return f"Process with PID {pid} no longer exists."
+
+    except psutil.AccessDenied:
+        return f"Access denied when trying to retrieve information for PID {pid}."
+
+    except Exception as e:
+        return f"An unexpected error occurred while retrieving process info: {str(e)}"
 
 @beartype
 def receive_usr_signal(signum: int, stack: Any) -> None:

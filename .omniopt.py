@@ -6247,7 +6247,10 @@ def set_global_generation_strategy() -> None:
             next_model_name = None
 
             if i < len(generation_strategy_array):
-                next_model_name = list(generation_strategy_array[i + 1].keys())[0]
+                try:
+                    next_model_name = list(generation_strategy_array[i + 1].keys())[0]
+                except IndexError:
+                    pass
 
             gs_elem = create_node(model_name, start_index, next_model_name)
 

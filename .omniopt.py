@@ -6092,42 +6092,39 @@ def join_with_comma_and_then(items: list) -> str:
 
 @beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
-    ret_val = None
-
     if model_name == "RANDOMFOREST":
-        ret_val = RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=args.seed)
+        return RandomForestGenerationNode(num_samples=threshold, regressor_options={}, seed=args.seed)
+
+    if next_model_name is not None:
+        trans_crit = [
+            MaxTrials(
+                threshold=threshold,
+                block_transition_if_unmet=True,
+                transition_to=next_model_name
+            )
+        ]
     else:
-        trans_crit = []
-
-        if next_model_name is not None:
-            trans_crit = [
-                MaxTrials(
-                    threshold=threshold,
-                    block_transition_if_unmet=True,
-                    transition_to=next_model_name
-                )
-            ]
-        else:
-            trans_crit = [
-                MaxTrials(
-                    threshold=threshold,
-                    block_transition_if_unmet=True
-                )
-            ]
-
-        selected_model = select_model(model_name)
-        model_spec = [
-            ModelSpec(selected_model, model_kwargs={"seed": args.seed})
+        # Handle the case where no transition is intended
+        trans_crit = [
+            MaxTrials(
+                threshold=threshold,
+                block_transition_if_unmet=True,
+                transition_to=model_name  # Self-transition or a designated stopping model
+            )
         ]
 
-        # Pass the seed value to GenerationNode if available (only if GenerationNode supports it)
-        ret_val = GenerationNode(
-            node_name=model_name,
-            model_specs=model_spec,
-            transition_criteria=trans_crit,
-        )
+    selected_model = select_model(model_name)
+    # , model_kwargs={"seed": args.seed}
+    model_spec = [
+        ModelSpec(selected_model)
+    ]
 
-    return ret_val
+    return GenerationNode(
+        node_name=model_name,
+        model_specs=model_spec,
+        transition_criteria=trans_crit,
+    )
+
 
 @beartype
 def set_global_generation_strategy() -> None:

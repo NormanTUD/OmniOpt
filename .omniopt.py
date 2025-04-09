@@ -945,8 +945,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         try:
             if self.minimize:
                 return int(np.argmin(y_pred))
-            else:
-                return int(np.argmax(y_pred))
+
+            return int(np.argmax(y_pred))
         except Exception as e:
             print_red("Error in _get_best_sample_index:", e)
             raise

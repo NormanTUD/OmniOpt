@@ -6087,6 +6087,9 @@ def get_chosen_model() -> str:
                 chosen_model = "BOTORCH_MODULAR"
             print_red(f"Could not find model in previous job. Will use the default model '{chosen_model}'")
 
+    if chosen_model is None:
+        chosen_model = "BOTORCH_MODULAR"
+
     return chosen_model
 
 @beartype

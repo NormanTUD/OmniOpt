@@ -3493,7 +3493,6 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
         result_name = arg_result_names[0]
         row_data[result_name] = best_params.get(result_name, '?')
 
-        table = Table(title="Best Parameters")
         for col in row_data.keys():
             table.add_column(col, style="cyan")
 

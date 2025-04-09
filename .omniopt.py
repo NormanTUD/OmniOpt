@@ -6089,7 +6089,7 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
             my_exit(247)
 
 @beartype
-def get_step_name(model_name, nr) -> str:
+def get_step_name(model_name: str, nr: int) -> str:
     this_step_name = f"{model_name} for {nr} step"
     if nr != 1:
         this_step_name = f"{this_step_name}s"

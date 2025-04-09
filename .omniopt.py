@@ -784,11 +784,15 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
-        self.regressor: RandomForestRegressor = RandomForestRegressor(**regressor_options)
+        self.seed: int = seed
+
+        self.regressor: RandomForestRegressor = RandomForestRegressor(
+            **regressor_options,
+            random_state=self.seed if self.seed is not None else None
+        )
         self.parameters: Optional[Dict[str, Any]] = None
         self.minimize: Optional[bool] = None
         self.fit_time_since_gen: float = time.monotonic() - t_init_start
-        self.seed: int = seed
 
     def update_generator_state(self, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
@@ -6299,7 +6303,8 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         if done_optimizing:
             end_program(RESULT_CSV_FILE, False, 0)
     except Exception as e:
-        print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}")
+        stacktrace = traceback.format_exc()
+        print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}\n{stacktrace}")
         return handle_exceptions_create_and_execute_next_runs(e)
 
     try:

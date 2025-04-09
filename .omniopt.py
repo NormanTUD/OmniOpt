@@ -735,7 +735,6 @@ try:
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
 
-        import numpy as np
         from ax.core.base_trial import TrialStatus
         from ax.core.data import Data
         from ax.core.experiment import Experiment
@@ -747,14 +746,8 @@ try:
         from ax.modelbridge.model_spec import ModelSpec
         from ax.modelbridge.registry import Models
         from ax.modelbridge.transition_criterion import MaxTrials
-        from ax.plot.trace import plot_objective_value_vs_trial_index
         from ax.service.ax_client import AxClient, ObjectiveProperties
-        from ax.service.utils.report_utils import exp_to_df
-        from ax.utils.measurement.synthetic_functions import hartmann6
         from sklearn.ensemble import RandomForestRegressor
-        from pyre_extensions import assert_is_instance
-
-
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
     with console.status("[bold green]Loading submitit...") as status:

@@ -506,6 +506,7 @@ class ConfigLoader:
         optional.add_argument("--result_names", nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
+        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
         optional.add_argument("--load_data_from_existing_jobs", type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
@@ -637,8 +638,8 @@ args = loader.parse_arguments()
 if args.seed is not None:
     set_rng_seed(args.seed)
 
-if args.max_eval is None and args.continue_previous_job is None:
-    print_red("--max_eval must be set.")
+if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None:
+    print_red("Either --max_eval or --generation_strategy must be set.")
     my_exit(104)
 
 if not 0 <= args.pareto_front_confidence <= 1:
@@ -781,7 +782,7 @@ with console.status("[bold green]Loading ax logger...") as status:
 disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
 NVIDIA_SMI_LOGS_BASE = None
-global_gs: GenerationStrategy = None
+global_gs: Optional[GenerationStrategy] = None
 
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
@@ -4306,7 +4307,7 @@ def print_result_names_overview_table() -> None:
 
         return None
 
-    if args.continue_previous_job is not None and len(args.result_names) != 0:
+    if args.continue_previous_job is not None and args.result_names is not None:
         print_yellow("--result_names will be ignored in continued jobs. Cannot change them afterwards.")
 
     if ax_client.experiment.optimization_config.is_moo_problem:
@@ -6014,6 +6015,60 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Models:
     return chosen_model
 
 @beartype
+def get_matching_model_name(model_name: str) -> Optional[str]:
+    if not isinstance(model_name, str):
+        return None
+    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
+        return None
+
+    model_name_lower = model_name.lower()
+    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
+
+    return model_map.get(model_name_lower, None)
+
+@beartype
+def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
+    gen_strat_list = []
+
+    cleaned_string = re.sub(r"\s+", "", gen_strat_str)
+    splitted_by_comma = cleaned_string.split(",")
+
+    sum_nr = 0
+
+    for s in splitted_by_comma:
+        if "=" in s:
+            if s.count("=") == 1:
+                model_name, nr = s.split("=")
+                matching_model = get_matching_model_name(model_name)
+                if matching_model:
+                    gen_strat_list.append({matching_model: nr})
+                    sum_nr += int(nr)
+                else:
+                    print(f"'{model_name}' not found in SUPPORTED_MODELS")
+                    my_exit(123)
+            else:
+                print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
+                my_exit(123)
+        else:
+            print(f"'{s}' does not contain '='")
+            my_exit(123)
+
+    return gen_strat_list, sum_nr
+
+@beartype
+def print_generation_strategy(generation_strategy_array: list) -> None:
+    table = Table(header_style="bold", title="Generation Strategy:")
+
+    table.add_column("Generation Strategy")
+    table.add_column("Number of Generations")
+
+    for gs_element in generation_strategy_array:
+        model_name, num_generations = next(iter(gs_element.items()))
+        table.add_row(model_name, str(num_generations))
+
+    console.print(table)
+
+@beartype
 def write_state_file(name: str, var: str) -> None:
     file_path = f"{get_current_run_folder()}/state_files/{name}"
 
@@ -6059,6 +6114,15 @@ def get_chosen_model() -> str:
         chosen_model = "BOTORCH_MODULAR"
 
     return chosen_model
+
+@beartype
+def continue_not_supported_on_custom_generation_strategy() -> None:
+    if args.continue_previous_job:
+        generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
+
+        if os.path.exists(generation_strategy_file):
+            print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
+            my_exit(247)
 
 @beartype
 def get_step_name(model_name: str, nr: int) -> str:
@@ -6125,48 +6189,83 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 def set_global_generation_strategy() -> None:
     global global_gs, random_steps, generation_strategy_human_readable
 
+    args_generation_strategy = args.generation_strategy
+
+    continue_not_supported_on_custom_generation_strategy()
+
     gs_names: list = []
     gs_nodes: list = []
 
-    num_imported_jobs: int = get_nr_of_imported_jobs()
-    set_max_eval(max_eval + num_imported_jobs)
-    random_steps = random_steps or 0
+    if args_generation_strategy is None:
+        num_imported_jobs: int = get_nr_of_imported_jobs()
+        set_max_eval(max_eval + num_imported_jobs)
+        random_steps = random_steps or 0
 
-    if max_eval is None:
-        set_max_eval(max(1, random_steps))
+        if max_eval is None:
+            set_max_eval(max(1, random_steps))
 
-    chosen_model = get_chosen_model()
+        chosen_model = get_chosen_model()
 
-    if chosen_model == "SOBOL":
-        random_steps = max_eval
+        if chosen_model == "SOBOL":
+            random_steps = max_eval
 
-    if random_steps >= 1 and num_imported_jobs < random_steps:
-        next_node_name = None
-        if max_eval - random_steps and chosen_model:
-            next_node_name = chosen_model
+        if random_steps >= 1 and num_imported_jobs < random_steps:
+            next_node_name = None
+            if max_eval - random_steps and chosen_model:
+                next_node_name = chosen_model
 
-        gs_names.append(get_step_name("SOBOL", random_steps))
-        gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
+            gs_names.append(get_step_name("SOBOL", random_steps))
+            gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
 
-    write_state_file("model", str(chosen_model))
+        write_state_file("model", str(chosen_model))
 
-    if chosen_model != "SOBOL" and max_eval > random_steps:
-        this_node = create_node(chosen_model, max_eval - random_steps, None)
+        if chosen_model != "SOBOL" and max_eval > random_steps:
+            this_node = create_node(chosen_model, max_eval - random_steps, None)
 
-        gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
-        gs_nodes.append(this_node)
+            gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
+            gs_nodes.append(this_node)
 
-    generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
-    try:
-        global_gs = GenerationStrategy(
-            name="+".join(gs_names),
-            nodes=gs_nodes
-        )
-    except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
-        print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
+        try:
+            global_gs = GenerationStrategy(
+                name="+".join(gs_names),
+                nodes=gs_nodes
+            )
+        except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
+            print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
 
-        my_exit(55)
+            my_exit(55)
+    else:
+        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
+
+        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+
+        if max_eval < new_max_eval_plus_inserted_jobs:
+            print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+            set_max_eval(new_max_eval_plus_inserted_jobs)
+
+        print_generation_strategy(generation_strategy_array)
+
+        start_index = int(len(generation_strategy_array) / 2)
+
+        for gs_element in generation_strategy_array:
+            model_name = list(gs_element.keys())[0]
+
+            nr = int(gs_element[model_name])
+
+            gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
+            steps.append(gs_elem)
+
+            gs_names.append(get_step_name(model_name, nr))
+
+            start_index = start_index + 1
+
+        write_state_file("custom_generation_strategy", args_generation_strategy)
+
+        global_gs = GenerationStrategy(steps=steps)
+
+        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:

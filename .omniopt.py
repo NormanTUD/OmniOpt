@@ -2124,6 +2124,8 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 
     values = sort_numerically_or_alphabetically(values)
 
+    values = [str(int(x)) if x.is_integer() else str(x) for x in values]
+
     param = {
         "name": name,
         "type": "choice",
@@ -3820,7 +3822,8 @@ def get_ax_param_representation(data: dict) -> dict:
             "target_value": None
         }
     if data["type"] == "choice":
-        parameter_type = "FLOAT" if all(isinstance(i, float) for i in data["values"]) else ("INT" if all(isinstance(i, int) for i in data["values"]) else "STRING")
+        #parameter_type = "FLOAT" if all(isinstance(i, float) for i in data["values"]) else ("INT" if all(isinstance(i, int) for i in data["values"]) else "STRING")
+        parameter_type = "STRING"
 
         return {
             '__type': 'ChoiceParameter',
@@ -3834,7 +3837,7 @@ def get_ax_param_representation(data: dict) -> dict:
                 "name": parameter_type
             },
             'target_value': None,
-            'values': data["values"]
+            'values': [str(v) for v in data["values"]]
         }
 
     print("data:")

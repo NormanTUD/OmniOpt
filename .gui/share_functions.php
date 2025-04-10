@@ -1819,14 +1819,14 @@
 				if (isset($tab['content'])) {
 					$html_parts[] = $tab["content"];
 
-					print("<script>console.log('".htmlentities($tabname)."')</script>");
+					#print("<script>console.log('".htmlentities($tabname)."')</script>");
 
 					if (isset($tab['onclick'])) {
 						$onclicks[] = $tab['onclick'];
 					}
 				}
-			} else {
-				print("<script>console.warn('".htmlentities($tabname)."')</script>");
+			#} else {
+			#	print("<script>console.warn('".htmlentities($tabname)."')</script>");
 			}
 		}
 
@@ -1843,6 +1843,8 @@
 
 		$js_functions = implode("\n", array_map(fn($line) => "\t\t\t" . $line, explode("\n", $js_functions)));
 
+		$share_css = "<style>" . file_get_contents("css/share.css") . "</style>";
+
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
 	<head>
@@ -1851,6 +1853,7 @@
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js'></script>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css'>
+		$share_css
 	</head>
 	<body>
 		<script>
@@ -1862,7 +1865,9 @@
 $json_data_str
 $js_functions
 
-$onclick_string
+$(document).ready(function() {
+	$onclick_string
+});
 		</script>
 
 		$html_parts_str

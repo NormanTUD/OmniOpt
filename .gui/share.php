@@ -346,6 +346,12 @@
 		</div>
 		<div id="spinner" class="spinner"></div>
 
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+				show_main_window();
+			});
+		</script>
+
 		<div id="main_window" style="display: none; border: 1px solid black;" class="container py-4 has-space">
 <?php
 			if(count($errors)) {
@@ -407,9 +413,6 @@
 ?>
 		</div>
 	</div>
-	<script>
-		show_main_window();
-	</script>
 <?php
 	include("footer.php");
 ?>

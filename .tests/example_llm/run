@@ -4,7 +4,7 @@ set -e
 
 function load_ml_if_possible {
 	if command -v ml &> /dev/null; then
-		ml release/23.04 GCC/11.3.0 OpenMPI/4.1.4 PyTorch/1.12.1-CUDA-11.7.0
+		ml release/23.04 GCC/11.3.0 OpenMPI/4.1.4 PyTorch/1.12.1-CUDA-11.7.0 >/dev/null
 	else
 		echo "ml is not installed. Will install torch via pip"
 	fi

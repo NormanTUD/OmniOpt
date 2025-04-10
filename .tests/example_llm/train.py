@@ -175,6 +175,11 @@ def main():
     parser.add_argument('--optimizer', type=str, default='adam')
     args = parser.parse_args()
 
+    if args.hidden_size % args.n_heads != 0:
+        new_hidden_size = ((args.hidden_size // args.n_heads) + 1) * args.n_heads
+        print(f"{Fore.YELLOW}Adjusted hidden_size from {args.hidden_size} to {new_hidden_size} to match n_heads={args.n_heads}{Style.RESET_ALL}")
+        args.hidden_size = new_hidden_size
+
     if args.download:
         download_datasets()
         sys.exit(0)

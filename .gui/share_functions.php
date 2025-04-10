@@ -1818,13 +1818,25 @@
 		$cssContent = removeExcessiveNewlines(removeFontFaceRules(file_get_contents($filePath)));
 
 		if ($cssContent === false) {
-			error_log("Fehler: Die Datei '$filePath' konnte nicht gelesen werden.");
+			error_log("Error: The file '$filePath' Could not be read.");
 			return '';
 		}
 
 		$cssContentWithTabs = addTabsToString($cssContent, $indentLevel);
 
 		return $cssContentWithTabs."\n";
+	}
+
+	function removeImgTagsFromHtml($html) {
+		$pattern = '/<img\b[^>]*>/i';
+		$cleaned = preg_replace($pattern, '', $html);
+
+		if ($cleaned === null) {
+			error_log("Error removing <img>-tags.");
+			return $html;
+		}
+
+		return $cleaned;
 	}
 
 	function get_export_tab ($tabs, $warnings, $run_dir) {
@@ -1861,14 +1873,10 @@
 
 					$html_parts[] = $this_content;
 
-					#print("<script>console.log('".htmlentities($tabname)."')</script>");
-
 					if (isset($tab['onclick'])) {
 						$onclicks[] = $tab['onclick'];
 					}
 				}
-			#} else {
-			#	print("<script>console.warn('".htmlentities($tabname)."')</script>");
 			}
 		}
 
@@ -1926,6 +1934,8 @@ $onclick_string
 	</body>
 </html>
 ";
+
+		$export_content = removeImgTagsFromHtml($export_content);
 
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 

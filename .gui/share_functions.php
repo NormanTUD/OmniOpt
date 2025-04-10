@@ -1792,9 +1792,25 @@
 	function get_export_tab ($tabs, $warnings) {
 		$svg_icon = get_icon_html("export.svg");
 
+		$export_content = "<!DOCTYPE html>
+<html lang='en'>
+	<head>
+		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
+		<title>Exported from OmniOpt2-Share</title>
+	</head>
+	<body>
+
+	</body>
+</html>
+";
+
+		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
+
+		$tab_content = "$buttons<pre id='export_tab_content'><code class='language-markup'>".htmlentities($export_content)."</code></pre>$buttons";
+
 		$tabs["{$svg_icon}Export"] = [
 			'id' => 'tab_export',
-			'content' => "EXPORT"
+			'content' => $tab_content
 		];
 
 		return [$tabs, $warnings];

@@ -1811,6 +1811,27 @@
 			}
 		}
 
+		$onclicks = [];
+		$html_parts = [];
+
+		foreach ($tabs as $tab) {
+			if (isset($tab['onclick'])) {
+				$onclicks[] = $tab['onclick'];
+			}
+			if (isset($tab['content'])) {
+				$html_parts[] = $tab["content"];
+			}
+		}
+
+		$uniqueOnclicks = array_unique($onclicks);
+
+		$onclick_string = implode(";\n", $uniqueOnclicks);
+		if (substr($onclick_string, -1) !== ';') {
+			$onclick_string .= ';';
+		}
+
+		$html_parts_str = implode("\n", $html_parts);
+
 		$js_functions = file_get_contents("js/share_functions.js");
 
 		$js_functions = implode("\n", array_map(fn($line) => "\t\t\t" . $line, explode("\n", $js_functions)));
@@ -1820,17 +1841,23 @@
 	<head>
 		<title>Exported &raquo;$run_dir&laquo; from OmniOpt2-Share</title>
 		<script src='https://code.jquery.com/jquery-3.7.1.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js'></script>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 	</head>
 	<body>
 		<script>
+			var log = console.log;
+			var theme = 'light';
+
 			$special_col_names
 
 $json_data_str
 $js_functions
 
-			document.addEventListener('DOMContentLoaded', initialize_tabs);
+$onclick_string
 		</script>
+
+		$html_parts_str
 	</body>
 </html>
 ";

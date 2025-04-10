@@ -1789,6 +1789,44 @@
 		return [$tabs, $warnings];
 	}
 
+	function addTabsToString($inputString, $numTabs) {
+		$lines = explode("\n", $inputString);
+
+		$tabs = str_repeat("\t", $numTabs);
+
+		foreach ($lines as &$line) {
+			$line = $tabs . $line;
+		}
+
+		return implode("\n", $lines);
+	}
+
+	function removeFontFaceRules($cssContent) {
+		$pattern = '/@font-face\s*\{[^}]*\}/s';
+		$cleanedCss = preg_replace($pattern, '', $cssContent);
+
+		return $cleanedCss;
+	}
+
+	function removeExcessiveNewlines($string) {
+		$cleanedString = preg_replace('/\n{3,}/', "\n", $string);
+
+		return $cleanedString;
+	}
+
+	function generateCssStyleTag($filePath, $indentLevel = 3) {
+		$cssContent = removeExcessiveNewlines(removeFontFaceRules(file_get_contents($filePath)));
+
+		if ($cssContent === false) {
+			error_log("Fehler: Die Datei '$filePath' konnte nicht gelesen werden.");
+			return '';
+		}
+
+		$cssContentWithTabs = addTabsToString($cssContent, $indentLevel);
+
+		return $cssContentWithTabs."\n";
+	}
+
 	function get_export_tab ($tabs, $warnings, $run_dir) {
 		if(!file_exists("js/share_functions.js")) {
 			$warnings[] = "js/share_functions not found!";
@@ -1805,11 +1843,13 @@
 		$json_data_str = "";
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-				$json_data_str .= "\t\t\tvar $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "\t\t\t$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
+				$json_data_str .= "var $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
 
 
 			}
 		}
+
+		$json_data_str = addTabsToString($json_data_str, 3);
 
 		$onclicks = [];
 		$html_parts = [];
@@ -1817,8 +1857,7 @@
 		foreach ($tabs as $tabname => $tab) {
 			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs)$/", $tabname)) {
 				if (isset($tab['content'])) {
-					$this_content = "<h1>$tabname</h1>".$tab["content"];
-
+					$this_content = "<h1>$tabname</h1>\n".$tab["content"];
 
 					$html_parts[] = $this_content;
 
@@ -1840,15 +1879,17 @@
 			$onclick_string .= ';';
 		}
 
-		$html_parts_str = implode("\n", $html_parts);
+		$onclick_string = addTabsToString($onclick_string, 4);
+
+		$html_parts_str = addTabsToString(implode("\n", $html_parts), 3);
 
 		$js_functions = file_get_contents("js/share_functions.js");
 
-		$js_functions = implode("\n", array_map(fn($line) => "\t\t\t" . $line, explode("\n", $js_functions)));
+		$js_functions = addTabsToString($js_functions, 3);
 
-		$share_css = "<style>" . file_get_contents("css/share.css") . "</style>";
-		$style_css = "<style>" . file_get_contents("style.css") . "</style>";
-		$xp_css = "<style>" . file_get_contents("css/xp.css") . "</style>";
+		$share_css = generateCssStyleTag("css/share.css");
+		$style_css = generateCssStyleTag("style.css");
+		$xp_css = generateCssStyleTag("css/xp.css");
 
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
@@ -1860,9 +1901,11 @@
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js'></script>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css'>
-		$share_css
-		$style_css
-		$xp_css
+		<style>
+$share_css
+$style_css
+$xp_css
+		</style>
 	</head>
 	<body>
 		<script>
@@ -1874,9 +1917,9 @@
 $json_data_str
 $js_functions
 
-$(document).ready(function() {
-	$onclick_string
-});
+			$(document).ready(function() {
+$onclick_string
+			});
 		</script>
 
 		$html_parts_str

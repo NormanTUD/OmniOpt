@@ -1817,7 +1817,10 @@
 		foreach ($tabs as $tabname => $tab) {
 			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs)$/", $tabname)) {
 				if (isset($tab['content'])) {
-					$html_parts[] = $tab["content"];
+					$this_content = "<h1>$tabname</h1>".$tab["content"];
+
+
+					$html_parts[] = $this_content;
 
 					#print("<script>console.log('".htmlentities($tabname)."')</script>");
 
@@ -1844,16 +1847,22 @@
 		$js_functions = implode("\n", array_map(fn($line) => "\t\t\t" . $line, explode("\n", $js_functions)));
 
 		$share_css = "<style>" . file_get_contents("css/share.css") . "</style>";
+		$style_css = "<style>" . file_get_contents("style.css") . "</style>";
+		$xp_css = "<style>" . file_get_contents("css/xp.css") . "</style>";
 
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
 	<head>
+		<meta charset='UTF-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 		<title>Exported &raquo;$run_dir&laquo; from OmniOpt2-Share</title>
 		<script src='https://code.jquery.com/jquery-3.7.1.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js'></script>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css'>
 		$share_css
+		$style_css
+		$xp_css
 	</head>
 	<body>
 		<script>

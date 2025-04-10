@@ -1711,7 +1711,7 @@ EOF
 								2) dots="  ." ;;
 							esac
 
-							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m $estimated_start_time$dots $i"
+							print_line="$i Waiting for \e[4mtail -f $LOG_PATH\e[0m $estimated_start_time$dots"
 
 							_tput cr # Move cursor to beginning of line
 							_tput el # Delete line from start to finish

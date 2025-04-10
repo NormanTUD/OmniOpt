@@ -4520,9 +4520,9 @@ def capitalized_string(s: str) -> str:
 @beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     in_brackets = []
-    in_brackets.extend(_get_desc_progress_text_failed_jobs())
-    in_brackets.append(_get_desc_progress_text_current_model())
-    in_brackets.extend(_get_desc_progress_text_best_params())
+    in_brackets.append(get_current_model())
+    in_brackets.append(_get_desc_progress_text_failed_jobs())
+    in_brackets.append(_get_desc_progress_text_best_params())
     in_brackets = get_slurm_in_brackets(in_brackets)
 
     if args.verbose_tqdm:
@@ -4541,10 +4541,6 @@ def _get_desc_progress_text_failed_jobs() -> List[str]:
     if failed_jobs():
         return [f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
     return []
-
-@beartype
-def _get_desc_progress_text_current_model() -> str:
-    return get_current_model()
 
 @beartype
 def _get_desc_progress_text_best_params() -> List[str]:

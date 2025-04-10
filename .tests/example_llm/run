@@ -11,7 +11,7 @@ if [ ! -d "$VENV_DIR" ]; then
 	source "$VENV_DIR/bin/activate"
 	echo "Installing dependencies..."
 	pip install --upgrade pip
-	pip install torch torchvision transformers datasets
+	pip install torch torchvision transformers datasets tqdm colorama
 fi
 
 source "$VENV_DIR/bin/activate"

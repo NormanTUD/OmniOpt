@@ -10,6 +10,8 @@ from datasets import load_dataset
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 import sys
+from tqdm import tqdm
+from colorama import Fore, Style
 
 
 class TransformerClassifier(nn.Module):
@@ -102,13 +104,15 @@ def load_data(dataset_name, tokenizer, batch_size, max_len):
 
 def train(model, loader, optimizer, criterion, device):
     model.train()
-    for inputs, labels in loader:
+    progress_bar = tqdm(loader, desc=f'{Fore.CYAN}Training{Style.RESET_ALL}', dynamic_ncols=True)
+    for inputs, labels in progress_bar:
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         output = model(inputs)
         loss = criterion(output, labels)
         loss.backward()
         optimizer.step()
+        progress_bar.set_postfix(loss=loss.item())
 
 
 def evaluate(model, loader, criterion, device):
@@ -116,8 +120,9 @@ def evaluate(model, loader, criterion, device):
     total_loss = 0.0
     correct = 0
     total = 0
+    progress_bar = tqdm(loader, desc=f'{Fore.YELLOW}Evaluating{Style.RESET_ALL}', dynamic_ncols=True)
     with torch.no_grad():
-        for inputs, labels in loader:
+        for inputs, labels in progress_bar:
             inputs, labels = inputs.to(device), labels.to(device)
             output = model(inputs)
             loss = criterion(output, labels)
@@ -125,16 +130,17 @@ def evaluate(model, loader, criterion, device):
             preds = output.argmax(dim=1)
             correct += (preds == labels).sum().item()
             total += labels.size(0)
+            progress_bar.set_postfix(loss=total_loss / (total + 1e-8), accuracy=correct / total)
     return total_loss / len(loader), correct / total
 
 
 def download_datasets():
     for key, cfg in get_datasets().items():
-        print(f"Downloading {key} ({cfg['size']}) ...")
+        print(f"{Fore.MAGENTA}Downloading {key} ({cfg['size']}) ...{Style.RESET_ALL}")
         try:
             load_dataset(cfg["hf_id"])
         except Exception as e:
-            print(f"Failed to download {key}: {e}", file=sys.stderr)
+            print(f"{Fore.RED}Failed to download {key}: {e}{Style.RESET_ALL}", file=sys.stderr)
 
 
 def main():
@@ -181,27 +187,30 @@ def main():
     elif args.optimizer.lower() == 'sgd':
         optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
     else:
-        print(f"ERROR: Unsupported optimizer '{args.optimizer}'", file=sys.stderr)
+        print(f"{Fore.RED}ERROR: Unsupported optimizer '{args.optimizer}'{Style.RESET_ALL}", file=sys.stderr)
         sys.exit(1)
 
-    for _ in range(args.epochs):
+    print(f"{Fore.GREEN}Starting training...{Style.RESET_ALL}")
+    for epoch in range(args.epochs):
+        print(f"{Fore.CYAN}Epoch {epoch + 1}/{args.epochs}{Style.RESET_ALL}")
         train(model, train_loader, optimizer, criterion, device)
 
+    print(f"{Fore.GREEN}Training complete, evaluating...{Style.RESET_ALL}")
     loss, acc = evaluate(model, test_loader, criterion, device)
     duration = time.time() - start_time
 
-    print(f"LOSS: {loss}")
-    print(f"ACCURACY: {acc}")
-    print(f"TIME: {duration}")
-    print(f"RESULT_JSON: {{\"loss\": {loss:.6f}, \"accuracy\": {acc:.6f}, \"time\": {duration:.4f}}}")
+    print(f"{Fore.YELLOW}LOSS: {loss:.4f}{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}ACCURACY: {acc:.4f}{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}TIME: {duration:.4f} seconds{Style.RESET_ALL}")
+    print(f"{Fore.MAGENTA}RESULT_JSON: {{\"loss\": {loss:.6f}, \"accuracy\": {acc:.6f}, \"time\": {duration:.4f}}}{Style.RESET_ALL}")
 
 
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print("You pressed CTRL-c")
+        print(f"{Fore.RED}You pressed CTRL-c{Style.RESET_ALL}")
         sys.exit(0)
     except Exception as e:
-        print(f"EXCEPTION: {str(e)}", file=sys.stderr)
+        print(f"{Fore.RED}EXCEPTION: {str(e)}{Style.RESET_ALL}", file=sys.stderr)
         sys.exit(2)

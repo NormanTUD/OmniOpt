@@ -4407,7 +4407,6 @@ def get_current_model() -> str:
     if ax_client:
         gs_model = ax_client.generation_strategy.model
 
-
         if gs_model:
             return str(gs_model.model)
 
@@ -4415,7 +4414,6 @@ def get_current_model() -> str:
 
         if gs_model:
             return str(gs_model)
-
 
     return "initializing model"
 

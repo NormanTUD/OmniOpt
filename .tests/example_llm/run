@@ -11,6 +11,11 @@ if [ ! -d "$VENV_DIR" ]; then
 	source "$VENV_DIR/bin/activate"
 	echo "Installing dependencies..."
 	pip install --upgrade pip
+
+	if command -v ml &> /dev/null; then
+		ml PyTorch/1.12.1-CUDA-11.7.0
+	fi
+
 	pip install torch torchvision transformers datasets tqdm colorama
 fi
 

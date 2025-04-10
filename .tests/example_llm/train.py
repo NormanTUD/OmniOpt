@@ -200,6 +200,9 @@ def main():
 if __name__ == '__main__':
     try:
         main()
+    except KeyboardInterrupt:
+        print("You pressed CTRL-c")
+        sys.exit(0)
     except Exception as e:
         print(f"EXCEPTION: {str(e)}", file=sys.stderr)
         sys.exit(2)

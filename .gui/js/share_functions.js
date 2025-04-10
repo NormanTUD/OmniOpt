@@ -1871,7 +1871,9 @@ function colorize_table_entries () {
 			_colorize_table_entries_by_run_time();
 			_colorize_table_entries_by_generation_method();
 			_colorize_table_entries_by_generation_node_or_hostname();
-			apply_theme_based_on_system_preferences();
+			if (typeof apply_theme_based_on_system_preferences === 'function') {
+				apply_theme_based_on_system_preferences();
+			}
 		}
 	}, 300);
 }
@@ -1884,11 +1886,9 @@ function add_colorize_to_gridjs_table () {
 }
 
 $(document).ready(function() {
-	if (typeof apply_theme_based_on_system_preferences === 'function') {
-		colorize_table_entries();
+	colorize_table_entries();
 
-		add_up_down_arrows_for_scrolling();
+	add_up_down_arrows_for_scrolling();
 
-		add_colorize_to_gridjs_table();
-	}
+	add_colorize_to_gridjs_table();
 });

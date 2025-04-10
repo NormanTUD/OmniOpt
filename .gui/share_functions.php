@@ -1815,11 +1815,15 @@
 		$html_parts = [];
 
 		foreach ($tabs as $tab) {
-			if (isset($tab['onclick'])) {
-				$onclicks[] = $tab['onclick'];
-			}
+
 			if (isset($tab['content'])) {
-				$html_parts[] = $tab["content"];
+				if (strpos($tab["content"], 'aria-label="Single-Runs"') === false) {
+					$html_parts[] = $tab["content"];
+
+					if (isset($tab['onclick'])) {
+						$onclicks[] = $tab['onclick'];
+					}
+				}
 			}
 		}
 
@@ -1843,6 +1847,7 @@
 		<script src='https://code.jquery.com/jquery-3.7.1.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js'></script>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css'>
 	</head>
 	<body>
 		<script>

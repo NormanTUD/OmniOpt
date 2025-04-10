@@ -6411,7 +6411,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
         _random_steps, _max_eval = _max_eval, _random_steps
 
     if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
-        print_yellow("Warning: --num_random_steps is smaller than --num_parallel_jobs. It's recommended that --num_parallel_jobs is the same as or a multiple of --num_random_steps")
+        print_yellow(f"Warning: --num_random_steps {_random_steps} is smaller than --num_parallel_jobs {num_parallel_jobs}. It's recommended that --num_parallel_jobs is the same as or a multiple of --num_random_steps")
 
     if _random_steps > _max_eval:
         set_max_eval(_random_steps)

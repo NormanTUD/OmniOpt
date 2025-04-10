@@ -1791,15 +1791,28 @@
 
 	function addTabsToString($inputString, $numTabs) {
 		$lines = explode("\n", $inputString);
-
 		$tabs = str_repeat("\t", $numTabs);
+		$inPre = false;
 
 		foreach ($lines as &$line) {
-			$line = $tabs . $line;
+			$trimmed = strtolower(trim($line));
+
+			if (strpos($trimmed, '<pre') !== false) {
+				$inPre = true;
+			}
+
+			if (!$inPre) {
+				$line = $tabs . $line;
+			}
+
+			if (strpos($trimmed, '</pre>') !== false) {
+				$inPre = false;
+			}
 		}
 
 		return implode("\n", $lines);
 	}
+
 
 	function removeFontFaceRules($cssContent) {
 		$pattern = '/@font-face\s*\{[^}]*\}/s';

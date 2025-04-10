@@ -1927,6 +1927,8 @@ $js_functions
 
 			$(document).ready(function() {
 $onclick_string
+
+				colorize_table_entries();
 			});
 		</script>
 

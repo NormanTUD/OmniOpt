@@ -75,7 +75,6 @@ def get_datasets():
         }
     }
 
-
 def load_data(dataset_name, tokenizer, batch_size, max_len):
     config = get_datasets()[dataset_name]
     dataset = load_dataset(config["hf_id"])

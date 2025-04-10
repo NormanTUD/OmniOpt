@@ -16,5 +16,4 @@ fi
 
 source "$VENV_DIR/bin/activate"
 
-echo "Running benchmark..."
 python3 train.py "$@"

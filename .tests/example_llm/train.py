@@ -215,10 +215,9 @@ def main():
     loss, acc = evaluate(model, test_loader, criterion, device)
     duration = time.time() - start_time
 
-    print(f"{Fore.YELLOW}LOSS: {loss:.4f}{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}ACCURACY: {acc:.4f}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}TIME: {duration:.4f} seconds{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}RESULT_JSON: {{\"loss\": {loss:.6f}, \"accuracy\": {acc:.6f}, \"time\": {duration:.4f}}}{Style.RESET_ALL}")
+    print(f"LOSS: {loss:.4f}")
+    print(f"ACCURACY: {acc:.4f}")
+    print(f"TIME: {duration:.4f} seconds")
 
 if __name__ == '__main__':
     try:

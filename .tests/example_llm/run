@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 set -e
 
@@ -14,6 +14,8 @@ if [ ! -d "$VENV_DIR" ]; then
 
 	if command -v ml &> /dev/null; then
 		ml PyTorch/1.12.1-CUDA-11.7.0
+	else
+		echo "ml is not installed. Will install torch via pip"
 	fi
 
 	pip install torch torchvision transformers datasets tqdm colorama

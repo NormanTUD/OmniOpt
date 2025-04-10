@@ -1703,17 +1703,25 @@ EOF
 							fi
 						fi
 
+						CNT_FOR_DOTS=0
 						for i in "${spin[@]}"; do
-							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time ..."
+							case $((CNT_FOR_DOTS % 3)) in
+								0) dots=".  " ;;
+								1) dots=" . " ;;
+								2) dots="  ." ;;
+							esac
 
-							print_line="$print_line$i"
+							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m $estimated_start_time $dots"
+
 							_tput cr # Move cursor to beginning of line
 							_tput el # Delete line from start to finish
 
-							#echo -ne "$backspaces"
 							echo -ne "$print_line"
 							sleep 0.2
+
+							CNT_FOR_DOTS=$((CNT_FOR_DOTS + 1))
 						done
+
 					done
 
 					if [[ $debug -eq 1 ]]; then

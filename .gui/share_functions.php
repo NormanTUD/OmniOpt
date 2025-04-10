@@ -1790,9 +1790,13 @@
 	}
 
 	function get_export_tab ($tabs, $warnings) {
+		if(!file_exists("js/share_functions.js")) {
+			$warnings[] = "js/share_functions not found!";
+
+			return [$tabs, $warnings];
+		}
+
 		$svg_icon = get_icon_html("export.svg");
-
-
 
 		$special_col_names = "var special_col_names = ".json_encode($GLOBALS["SPECIAL_COL_NAMES"]);
 
@@ -1805,6 +1809,9 @@
 			}
 		}
 
+		$js_functions = file_get_contents("js/share_functions.js");
+
+		$js_functions = implode("\n", array_map(fn($line) => "\t\t\t" . $line, explode("\n", $js_functions)));
 
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
@@ -1817,6 +1824,7 @@
 			$special_col_names
 
 $json_data_str
+$js_functions
 
 			document.addEventListener('DOMContentLoaded', initialize_tabs);
 		</script>

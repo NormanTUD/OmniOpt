@@ -3,7 +3,7 @@
 
 	$GLOBALS["json_data"] = [];
 
-	$SPECIAL_COL_NAMES = [
+	$GLOBALS["SPECIAL_COL_NAMES"] = [
 		"trial_index",
 		"arm_name",
 		"trial_status",
@@ -136,7 +136,7 @@
 		if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 			$tabs = add_parallel_plot_tab($tabs);
 
-			$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $SPECIAL_COL_NAMES);
+			$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $GLOBALS["SPECIAL_COL_NAMES"]);
 			$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
 			$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
 
@@ -257,7 +257,7 @@
 ?>
 	<?php js("share.js"); ?>
 	<script>
-		var special_col_names = <?php print json_encode($SPECIAL_COL_NAMES); ?>;
+		var special_col_names = <?php print json_encode($GLOBALS["SPECIAL_COL_NAMES"]); ?>;
 <?php
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {

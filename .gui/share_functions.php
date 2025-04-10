@@ -1792,6 +1792,20 @@
 	function get_export_tab ($tabs, $warnings) {
 		$svg_icon = get_icon_html("export.svg");
 
+
+
+		$special_col_names = "var special_col_names = ".json_encode($GLOBALS["SPECIAL_COL_NAMES"]);
+
+		$json_data_str = "";
+		if(count($GLOBALS["json_data"])) {
+			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
+				$json_data_str .= "\t\t\tvar $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "\t\t\t$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
+
+
+			}
+		}
+
+
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
 	<head>
@@ -1799,7 +1813,13 @@
 		<title>Exported from OmniOpt2-Share</title>
 	</head>
 	<body>
+		<script>
+			$special_col_names
 
+$json_data_str
+
+			document.addEventListener('DOMContentLoaded', initialize_tabs);
+		</script>
 	</body>
 </html>
 ";

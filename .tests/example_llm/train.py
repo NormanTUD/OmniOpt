@@ -86,13 +86,6 @@ def get_datasets():
             "label_key": "label",
             "num_labels": 2
         },
-        "ag_news_subset": {
-            "hf_id": "ag_news_subset",
-            "size": "very small (1k train)",
-            "text_key": "text",
-            "label_key": "label",
-            "num_labels": 4
-        },
         "snli": {
             "hf_id": "snli",
             "size": "small (570k train)",
@@ -167,7 +160,7 @@ def download_datasets():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, choices=get_datasets().keys(), default='ag_news',
-        help='Dataset to use. Sizes: ag_news (small), imdb (medium), yelp_review_full (medium), dbpedia_14 (large), civil_comments (very large), bbc_news (small), climate_fever (small), ag_news_subset (very small), snli (small)'
+        help='Dataset to use. Sizes: ag_news (small), imdb (medium), yelp_review_full (medium), dbpedia_14 (large), civil_comments (very large), bbc_news (small), climate_fever (small), snli (small)'
     )
 
     parser.add_argument('--download', action='store_true', help='Only download datasets and exit')

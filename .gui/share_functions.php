@@ -1038,14 +1038,12 @@
 			if (file_contains_results("$run_dir/$file", $result_names)) {
 				$checkmark = $green_checkmark;
 			} else {
-				if(endsWithSubmititInfo("$run_dir/$file")) {
+				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", file_get_contents("$run_dir/$file"))) {
+					$checkmark = $memory;
+				} else if(endsWithSubmititInfo("$run_dir/$file")) {
 					$checkmark = $red_cross;
 				} else {
-					if(preg_match("/((oom_kill\s+event)|(CUDA out of memory))/", file_get_contents("$run_dir/$file"))) {
-						$checkmark = $memory;
-					} else {
-						$checkmark = $gear;
-					}
+					$checkmark = $gear;
 				}
 			}
 

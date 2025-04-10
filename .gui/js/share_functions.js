@@ -1885,6 +1885,17 @@ function add_colorize_to_gridjs_table () {
 	}
 }
 
+function updatePreWidths() {
+	var width = window.innerWidth * 0.95;
+	var pres = document.getElementsByTagName('pre');
+	for (var i = 0; i < pres.length; i++) {
+		pres[i].style.width = width + 'px';
+	}
+}
+
+window.addEventListener('load', updatePreWidths);
+window.addEventListener('resize', updatePreWidths);
+
 $(document).ready(function() {
 	colorize_table_entries();
 

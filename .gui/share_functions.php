@@ -1818,8 +1818,9 @@
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>
 	<head>
-		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 		<title>Exported &raquo;$run_dir&laquo; from OmniOpt2-Share</title>
+		<script src='https://code.jquery.com/jquery-3.7.1.js'></script>
+		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
 	</head>
 	<body>
 		<script>

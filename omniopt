@@ -1539,7 +1539,7 @@ EOF
 		fi
 
 		for child in $(pgrep -P $$); do
-			for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]*##" -e 's#[[:space:]].*##'); do
+			for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
 				kill -9 "$tail_process"
 			done
 		done

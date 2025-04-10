@@ -740,7 +740,11 @@
 			return "";
 		}
 
-		$header = fgetcsv($handle);
+		$delimiter = ",";
+		$enclosure = "\"";
+		$escape = "\\";
+
+		$header = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
 		$statusIndex = array_search("trial_status", $header);
 
 		if ($statusIndex === false) {
@@ -754,7 +758,7 @@
 			"RUNNING" => 0
 		];
 
-		while (($row = fgetcsv($handle)) !== false) {
+		while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 			$status = $row[$statusIndex];
 			if (isset($statusCounts[$status])) {
 				$statusCounts[$status]++;

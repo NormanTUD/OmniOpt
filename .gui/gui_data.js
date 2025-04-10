@@ -36,7 +36,8 @@ var model_data = [
 		id: 'RANDOMFOREST',
 		name: 'Random Forest',
 		link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
-		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized.'
+		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized.',
+		hide_in_custom_generation_strategy: true
 	}
 ];
 
@@ -51,7 +52,15 @@ var model_list_html = `<ul class="make_markable">${model_data.map(model => `
 	<li><strong>${model.id}</strong>: ${valid_models_with_descriptions[model.id]}</li>
 `).join('')}</ul>`;
 
+var model_list_html_custom_generation_strategy = `<ul class="make_markable">${model_data.map(model => Object.keys(model).includes("hide_in_custom_generation_strategy") ? "" : `
+	<li><strong>${model.id}</strong>: ${valid_models_with_descriptions[model.id]}</li>
+`).join('')}</ul>`;
+
 var valid_models = model_data.map(model => model.id);
+
+var valid_models_generation_strategy = model_data
+    .filter(model => !model.hide_in_custom_generation_strategy)
+    .map(model => model.id);
 
 var regex_path = "^(/([a-zA-Z0-9_-]+/?)*)?$";
 
@@ -532,11 +541,11 @@ var hiddenTableData = [
 		},
 		type: "text",
 		value: "",
-		info: `A comma-seperated list of strings of the form 'MODELNAME=count', for example, <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10</code>. This will override the number of random steps and the --model option. Valid models are: ${model_list_html}`,
+		info: `A comma-seperated list of strings of the form 'MODELNAME=count', for example, <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10</code>. This will override the number of random steps and the --model option. Valid models are: ${model_list_html_custom_generation_strategy}`,
 		required: false,
-		regex: `^((?:${valid_models.join("|")})+=\\d+,?)*$`,
+		regex: `^((?:${valid_models_generation_strategy.join("|")})+=\\d+,?)*$`,
 		help: "Specify a custom generation strategy",
-		regex_does_not_match_text: `The value must consist of one or more strategies from the list: ${valid_models.join(", ")}. Each strategy must be followed by '=<number>' and can be separated by commas. No trailing commas are allowed.`
+		regex_does_not_match_text: `The value must consist of one or more strategies from the list: ${valid_models_generation_strategy.join(", ")}. Each strategy must be followed by '=<number>' and can be separated by commas. No trailing commas are allowed.`
 	},
 	{
 		label: "Root venv dir",

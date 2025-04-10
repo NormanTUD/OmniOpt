@@ -1704,7 +1704,7 @@ EOF
 						fi
 
 						for i in "${spin[@]}"; do
-							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time... "
+							print_line="Waiting for \e[4mtail -f $LOG_PATH\e[0m$estimated_start_time ..."
 
 							print_line="$print_line$i"
 							_tput cr # Move cursor to beginning of line

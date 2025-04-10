@@ -65,7 +65,9 @@ function createTable(data, headers, table_name) {
 		sort: true
 	}).render(document.getElementById(table_name));
 
-	apply_theme_based_on_system_preferences();
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
 
 	colorize_table_entries();
 
@@ -951,7 +953,9 @@ async function load_pareto_graph() {
 		}
 	}
 
-	apply_theme_based_on_system_preferences();
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
 
 	$("#tab_pareto_fronts").data("loaded", "true");
 }
@@ -1108,7 +1112,9 @@ function load_debug_log () {
 
 					$("#" + pre_id).data("loaded", true);
 
-					apply_theme_based_on_system_preferences();
+					if (typeof apply_theme_based_on_system_preferences === 'function') {
+						apply_theme_based_on_system_preferences();
+					}
 				} else {
 					log(`No 'data' key found in response.`);
 				}
@@ -1567,7 +1573,9 @@ function add_up_down_arrows_for_scrolling () {
 
 	checkScrollPosition();
 
-	apply_theme_based_on_system_preferences();
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
 }
 
 function plotGPUUsage() {

@@ -167,7 +167,9 @@ def download_datasets():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, choices=get_datasets().keys(), default='ag_news',
-                        help='Dataset to use. Sizes: ag_news (small), imdb (medium), yelp_review_full (medium), dbpedia_14 (large), civil_comments (very large)')
+        help='Dataset to use. Sizes: ag_news (small), imdb (medium), yelp_review_full (medium), dbpedia_14 (large), civil_comments (very large), bbc_news (small), climate_fever (small), ag_news_subset (very small), snli (small)'
+    )
+
     parser.add_argument('--download', action='store_true', help='Only download datasets and exit')
     parser.add_argument('--epochs', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=32)

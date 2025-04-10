@@ -1028,7 +1028,7 @@
 		$red_cross = "<span class='invert_in_dark_mode'>&#10060;</span>";
 		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
 		$gear = "<span class='invert_in_dark_mode'>&#9881;</span>";
-		$memory = "<span class='invert_in_dark_mode'><img src='i/memory.svg' /></span>";
+		$memory = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/memory.svg' /></span>";
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
@@ -1041,7 +1041,7 @@
 				if(endsWithSubmititInfo("$run_dir/$file")) {
 					$checkmark = $red_cross;
 				} else {
-					if(preg_match("/oom_kill event/", file_get_contents("$run_dir/$file"))) {
+					if(preg_match("/oom_kill\s+event/", file_get_contents("$run_dir/$file"))) {
 						$checkmark = $memory;
 					} else {
 						$checkmark = $gear;

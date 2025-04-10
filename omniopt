@@ -1518,13 +1518,13 @@ EOF
 
 		unset_debug
 
-		sleep 10
+		sleep 5
 
 		while squeue -u "$USER" | grep "$JOB_ID" 2>/dev/null >/dev/null; do
-			sleep 5
+			sleep 10
 		done
 
-		sleep 10
+		sleep 5
 
 		if [[ $debug -eq 1 ]]; then
 			set_debug

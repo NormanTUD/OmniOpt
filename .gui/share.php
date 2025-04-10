@@ -239,7 +239,7 @@
 		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
 	}
 
-	[$tabs, $warnings] = get_export_tab($tabs, $warnings);
+	[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
 
 	if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
 		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";

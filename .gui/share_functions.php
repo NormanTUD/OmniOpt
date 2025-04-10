@@ -1789,12 +1789,14 @@
 		return [$tabs, $warnings];
 	}
 
-	function get_export_tab ($tabs, $warnings) {
+	function get_export_tab ($tabs, $warnings, $run_dir) {
 		if(!file_exists("js/share_functions.js")) {
 			$warnings[] = "js/share_functions not found!";
 
 			return [$tabs, $warnings];
 		}
+
+		$run_dir = preg_replace('/^shares\/*/', "", $run_dir);
 
 		$svg_icon = get_icon_html("export.svg");
 
@@ -1817,7 +1819,7 @@
 <html lang='en'>
 	<head>
 		<script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
-		<title>Exported from OmniOpt2-Share</title>
+		<title>Exported &raquo;$run_dir&laquo; from OmniOpt2-Share</title>
 	</head>
 	<body>
 		<script>

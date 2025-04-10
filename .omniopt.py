@@ -17,6 +17,7 @@ import statistics
 
 generation_strategy_human_readable = ""
 oo_call = "./omniopt"
+progress_bar_length: int = 0
 
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
     oo_call = "omniopt"
@@ -4526,6 +4527,7 @@ def capitalized_string(s: str) -> str:
 
 @beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
+    global progress_bar_length
     in_brackets = []
     in_brackets.append(get_current_model())
     in_brackets.extend(_get_desc_progress_text_failed_jobs())
@@ -4541,7 +4543,14 @@ def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     in_brackets_clean = [item for item in in_brackets if item]
     desc = ", ".join(in_brackets_clean) if in_brackets_clean else ""
 
-    return capitalized_string(desc)
+    capitalized = capitalized_string(desc)
+
+    if len(capitalized) > progress_bar_length:
+        progress_bar_length = len(capitalized)
+    else:
+        capitalized = capitalized.ljust(progress_bar_length) if isinstance(capitalized, str) and isinstance(progress_bar_length, int) else capitalized
+
+    return capitalized
 
 @beartype
 def _get_desc_progress_text_failed_jobs() -> List[str]:
@@ -4577,6 +4586,7 @@ def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
 def progressbar_description(new_msgs: List[str] = []) -> None:
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
+
     if progress_bar is not None:
         progress_bar.set_description(desc)
         progress_bar.refresh()

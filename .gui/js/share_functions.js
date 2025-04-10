@@ -1750,8 +1750,6 @@ function plotJobStatusDistribution() {
 	$("#plotJobStatusDistribution").data("loaded", "true");
 }
 
-document.addEventListener("DOMContentLoaded", add_up_down_arrows_for_scrolling);
-
 function _colorize_table_entries_by_generation_method () {
 	document.querySelectorAll('[data-column-id="generation_method"]').forEach(el => {
 		let color = el.textContent.includes("Manual") ? "green" :
@@ -1877,10 +1875,12 @@ function add_colorize_to_gridjs_table () {
 	}
 }
 
-$( document ).ready(function() {
-	colorize_table_entries();
+$(document).ready(function() {
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		colorize_table_entries();
 
-	add_up_down_arrows_for_scrolling();
+		add_up_down_arrows_for_scrolling();
 
-	add_colorize_to_gridjs_table();
+		add_colorize_to_gridjs_table();
+	}
 });

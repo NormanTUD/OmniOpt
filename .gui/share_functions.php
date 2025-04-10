@@ -1789,6 +1789,17 @@
 		return [$tabs, $warnings];
 	}
 
+	function get_export_tab ($tabs, $warnings) {
+		$svg_icon = get_icon_html("export.svg");
+
+		$tabs["{$svg_icon}Export"] = [
+			'id' => 'tab_export',
+			'content' => "EXPORT"
+		];
+
+		return [$tabs, $warnings];
+	}
+
 	function get_result_names_and_min_max ($run_dir, $warnings) {
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max";

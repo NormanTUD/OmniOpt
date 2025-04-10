@@ -1041,7 +1041,7 @@
 				if(endsWithSubmititInfo("$run_dir/$file")) {
 					$checkmark = $red_cross;
 				} else {
-					if(preg_match("/oom_kill\s+event/", file_get_contents("$run_dir/$file"))) {
+					if(preg_match("/((oom_kill\s+event)|(CUDA out of memory))/", file_get_contents("$run_dir/$file"))) {
 						$checkmark = $memory;
 					} else {
 						$checkmark = $gear;

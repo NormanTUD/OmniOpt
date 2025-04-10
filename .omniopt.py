@@ -788,6 +788,7 @@ global_gs: Optional[GenerationStrategy] = None
 class RandomForestGenerationNode(ExternalGenerationNode):
     @beartype
     def __init__(self: Any, num_samples: int, regressor_options: Dict[str, Any], seed: Optional[int] = None) -> None:
+        print_debug("Initializing RandomForestGenerationNode...")
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
         self.num_samples: int = num_samples
@@ -804,8 +805,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         fool_linter(self.fit_time_since_gen)
 
+        print_debug("Initialized RandomForestGenerationNode")
+
     @beartype
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
+        print_debug("RandomForestGenerationNode.update_generator_state")
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
         metric_names = list(experiment.optimization_config.metrics.keys())
@@ -836,6 +840,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:
+        print_debug("RandomForestGenerationNode.get_next_candidate")
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
 
@@ -856,6 +861,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:
+        print_debug("RandomForestGenerationNode._separate_parameters")
         ranged_parameters = []
         fixed_values = {}
         choice_parameters = {}
@@ -874,6 +880,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
+        print_debug("RandomForestGenerationNode._build_reverse_choice_map")
         choice_value_map = {}
         for name, param in choice_parameters.items():
             for value, idx in param.items():
@@ -882,12 +889,14 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _generate_ranged_samples(self: Any, ranged_parameters: list) -> np.ndarray:
+        print_debug("RandomForestGenerationNode._generate_ranged_samples")
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
     @beartype
     def _build_all_samples(self: Any, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> list:
+        print_debug("RandomForestGenerationNode._build_all_samples")
         all_samples = []
         for sample_idx in range(self.num_samples):
             sample = self._build_single_sample(sample_idx, ranged_parameters, ranged_samples, fixed_values, choice_parameters)
@@ -896,6 +905,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> dict:
+        print_debug("RandomForestGenerationNode._build_single_sample")
         sample = {}
 
         for dim, (name, _, _) in enumerate(ranged_parameters):
@@ -928,6 +938,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _cast_value(self: Any, param: Any, name: Any, value: Any) -> Union[int, float]:
+        print_debug("RandomForestGenerationNode._cast_value")
         if isinstance(param, RangeParameter) and param.parameter_type == "INT":
             return int(round(value))
         if isinstance(param, RangeParameter) and param.parameter_type == "FLOAT":
@@ -937,6 +948,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _try_convert_to_float(self: Any, value: Any, name: str) -> float:
+        print_debug("RandomForestGenerationNode._try_convert_to_float")
         try:
             return float(value)
         except ValueError as e:
@@ -944,6 +956,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _build_prediction_matrix(self: Any, all_samples: list) -> np.ndarray:
+        print_debug("RandomForestGenerationNode._build_prediction_matrix")
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
             for dim, name in enumerate(self.parameters.keys()):
@@ -952,6 +965,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _get_best_sample_index(self: Any, y_pred: Union[np.ndarray, Sequence[float]]) -> int:
+        print_debug("RandomForestGenerationNode._get_best_sample_index")
         try:
             if self.minimize:
                 return int(np.argmin(y_pred))
@@ -963,6 +977,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:
+        print_debug("RandomForestGenerationNode._format_best_sample")
         for name in best_sample.keys():
             param = self.parameters.get(name)
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
@@ -6122,7 +6137,9 @@ def join_with_comma_and_then(items: list) -> str:
 @beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
-        return RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
+        node = RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
+
+        return node
 
     if next_model_name is not None:
         trans_crit = [

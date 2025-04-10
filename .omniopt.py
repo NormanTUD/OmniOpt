@@ -4406,6 +4406,12 @@ def get_current_model() -> str:
     if ax_client:
         gs_model = ax_client.generation_strategy.model
 
+        #print("===========================")
+        #print("===========================")
+        #pprint(ax_client.experiment)
+        #print("===========================")
+        #print("===========================")
+
         if gs_model:
             return str(gs_model.model)
 
@@ -4521,8 +4527,8 @@ def capitalized_string(s: str) -> str:
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     in_brackets = []
     in_brackets.append(get_current_model())
-    in_brackets.append(_get_desc_progress_text_failed_jobs())
-    in_brackets.append(_get_desc_progress_text_best_params())
+    in_brackets.extend(_get_desc_progress_text_failed_jobs())
+    in_brackets.extend(_get_desc_progress_text_best_params())
     in_brackets = get_slurm_in_brackets(in_brackets)
 
     if args.verbose_tqdm:

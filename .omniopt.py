@@ -4579,8 +4579,8 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
 @beartype
 def clean_completed_jobs() -> None:
-    job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "out_of_memory"]
-    job_states_to_be_ignored = ["completed", "unknown", "pending", "running", "completing"]
+    job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted"]
+    job_states_to_be_ignored = ["completed", "unknown", "pending", "running", "completing", "out_of_memory"]
 
     for job, trial_index in global_vars["jobs"][:]:
         _state = state_from_job(job)

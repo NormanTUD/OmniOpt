@@ -13,7 +13,6 @@ import sys
 from tqdm import tqdm
 from colorama import Fore, Style
 
-
 class TransformerClassifier(nn.Module):
     def __init__(self, vocab_size, hidden_size, n_layers, n_heads, n_classes, dropout):
         super().__init__()
@@ -30,13 +29,11 @@ class TransformerClassifier(nn.Module):
         x = self.pool(x).squeeze(-1)
         return self.fc(x)
 
-
 def collate_fn(batch, tokenizer, max_len):
     texts = [item['text'] for item in batch]
     labels = [item['label'] for item in batch]
     encodings = tokenizer(texts, padding='max_length', truncation=True, max_length=max_len, return_tensors='pt')
     return encodings['input_ids'], torch.tensor(labels)
-
 
 def get_datasets():
     return {
@@ -74,6 +71,34 @@ def get_datasets():
             "text_key": "text",
             "label_key": "toxicity",
             "num_labels": 2
+        },
+        "bbc_news": {
+            "hf_id": "bbc_news",
+            "size": "small (2.2k train)",
+            "text_key": "text",
+            "label_key": "category",
+            "num_labels": 5
+        },
+        "climate_fever": {
+            "hf_id": "climate_fever",
+            "size": "small (13k train)",
+            "text_key": "claim",
+            "label_key": "label",
+            "num_labels": 2
+        },
+        "ag_news_subset": {
+            "hf_id": "ag_news_subset",
+            "size": "very small (1k train)",
+            "text_key": "text",
+            "label_key": "label",
+            "num_labels": 4
+        },
+        "snli": {
+            "hf_id": "snli",
+            "size": "small (570k train)",
+            "text_key": "sentence1",
+            "label_key": "label",
+            "num_labels": 3
         }
     }
 
@@ -101,7 +126,6 @@ def load_data(dataset_name, tokenizer, batch_size, max_len):
 
     return train_loader, test_loader, config["num_labels"]
 
-
 def train(model, loader, optimizer, criterion, device):
     model.train()
     progress_bar = tqdm(loader, desc=f'{Fore.CYAN}Training{Style.RESET_ALL}', dynamic_ncols=True)
@@ -113,7 +137,6 @@ def train(model, loader, optimizer, criterion, device):
         loss.backward()
         optimizer.step()
         progress_bar.set_postfix(loss=loss.item())
-
 
 def evaluate(model, loader, criterion, device):
     model.eval()
@@ -133,7 +156,6 @@ def evaluate(model, loader, criterion, device):
             progress_bar.set_postfix(loss=total_loss / (total + 1e-8), accuracy=correct / total)
     return total_loss / len(loader), correct / total
 
-
 def download_datasets():
     for key, cfg in get_datasets().items():
         print(f"{Fore.MAGENTA}Downloading {key} ({cfg['size']}) ...{Style.RESET_ALL}")
@@ -141,7 +163,6 @@ def download_datasets():
             load_dataset(cfg["hf_id"])
         except Exception as e:
             print(f"{Fore.RED}Failed to download {key}: {e}{Style.RESET_ALL}", file=sys.stderr)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -203,7 +224,6 @@ def main():
     print(f"{Fore.YELLOW}ACCURACY: {acc:.4f}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}TIME: {duration:.4f} seconds{Style.RESET_ALL}")
     print(f"{Fore.MAGENTA}RESULT_JSON: {{\"loss\": {loss:.6f}, \"accuracy\": {acc:.6f}, \"time\": {duration:.4f}}}{Style.RESET_ALL}")
-
 
 if __name__ == '__main__':
     try:

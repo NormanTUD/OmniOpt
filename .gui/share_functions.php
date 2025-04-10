@@ -1814,16 +1814,19 @@
 		$onclicks = [];
 		$html_parts = [];
 
-		foreach ($tabs as $tab) {
-
-			if (isset($tab['content'])) {
-				if (strpos($tab["content"], 'aria-label="Single-Runs"') === false) {
+		foreach ($tabs as $tabname => $tab) {
+			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs)$/", $tabname)) {
+				if (isset($tab['content'])) {
 					$html_parts[] = $tab["content"];
+
+					print("<script>console.log('".htmlentities($tabname)."')</script>");
 
 					if (isset($tab['onclick'])) {
 						$onclicks[] = $tab['onclick'];
 					}
 				}
+			} else {
+				print("<script>console.warn('".htmlentities($tabname)."')</script>");
 			}
 		}
 

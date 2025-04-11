@@ -34,13 +34,9 @@ def generate_random_point(parameters):
     for param_data in parameters.items():
         p = param_data[1]
 
-        if p:
-            if not isinstance(p, list):
-                p_keys = list(p.keys())
-
-                for param_name in p_keys:
-                    this_param = param_data[1][param_name]
-                    point[param_name] = generate_random_value(this_param)
+        if p and not isinstance(p, list):
+            for param_name in list(p.keys()):
+                point[param_name] = generate_random_value(param_data[1][param_name])
     return point
 
 def main():
@@ -49,6 +45,11 @@ def main():
         sys.exit(1)
 
     path = sys.argv[1]
+
+    if not os.path.isdir(path):
+        print(f"Error: The path '{path}' is not a valid folder.")
+        sys.exit(2)
+
     json_file_path = os.path.join(path, 'input.json')
     results_file_path = os.path.join(path, 'results.json')
 
@@ -57,10 +58,10 @@ def main():
             data = json.load(f)
     except FileNotFoundError:
         print(f"Error: {json_file_path} not found.")
-        sys.exit(2)
+        sys.exit(3)
     except json.JSONDecodeError:
         print(f"Error: Failed to decode JSON in {json_file_path}.")
-        sys.exit(3)
+        sys.exit(4)
 
     random_point = generate_random_point(data)
 

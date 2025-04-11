@@ -817,7 +817,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             params = dict(zip(param_names, params_list))
 
             for constraint in self.experiment.search_space.parameter_constraints:
-                if not constraints.check(params):
+                if not constraint.check(params):
                     return False
 
                 return True
@@ -829,9 +829,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
         metric_names = list(experiment.optimization_config.metrics.keys())
-
-        if search_space.parameter_constraints:
-            raise NotImplementedError("This example does not support parameter constraints.")
 
         completed_trials = [
             trial for trial in experiment.trials.values() if trial.status == TrialStatus.COMPLETED
@@ -865,16 +862,20 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         reverse_choice_map = self._build_reverse_choice_map(choice_parameters)
         ranged_samples = self._generate_ranged_samples(ranged_parameters)
         all_samples = self._build_all_samples(ranged_parameters, ranged_samples, fixed_values, choice_parameters)
-
+        
         x_pred = self._build_prediction_matrix(all_samples)
         y_pred = self.regressor.predict(x_pred)
 
-        best_idx = self._get_best_sample_index(y_pred)
-        best_sample = all_samples[best_idx]
+        # Alle Samples nach Vorhersage sortieren (beste zuerst)
+        sorted_indices = np.argsort(y_pred)  # falls Minimierung, sonst -y_pred bei Maximierung
 
-        self._format_best_sample(best_sample, reverse_choice_map)
+        for idx in sorted_indices:
+            candidate = all_samples[idx]
+            if self.is_within_constraints(list(candidate.values())):
+                self._format_best_sample(candidate, reverse_choice_map)
+                return candidate
 
-        return best_sample
+        raise RuntimeError("No valid candidate found within constraints.")
 
     @beartype
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:

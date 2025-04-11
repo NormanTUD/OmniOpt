@@ -27,8 +27,7 @@ You can specify your program with the `--external_generator` parameter, though i
 	--follow \
 	--live_share \
 	--send_anonymized_usage_stats \
-	--result_names \
-	RESULT=max \
+	--result_names RESULT=max \
 	--run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSIgJiYgZWNobyAiUkVTVUxUMjogJXoi \
 	--cpus_per_task=1 \
 	--nodes_per_job=1 \

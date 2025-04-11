@@ -1033,16 +1033,19 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             param_name = param.name
             if isinstance(param, FixedParameter):
                 serialized[param_name] = {
+                        "parameter_type": "FIXED",
                         "type": self._parameter_type_to_string(param.parameter_type),
                         "value": param.value
                 }
             elif isinstance(param, RangeParameter):
                 serialized[param_name] = {
+                        "parameter_type": "RANGE",
                         "type": self._parameter_type_to_string(param.parameter_type),
                         "range": [param.lower, param.upper]
                 }
             elif isinstance(param, ChoiceParameter):
                 serialized[param_name] = {
+                        "parameter_type": "CHOICE",
                         "type": self._parameter_type_to_string(param.parameter_type),
                         "values": param.values
                 }

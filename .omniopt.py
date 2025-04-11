@@ -15,6 +15,7 @@ import time
 import random
 import statistics
 import tempfile
+from io import StringIO
 
 last_progress_bar_desc: str = ""
 generation_strategy_human_readable: str = ""
@@ -1053,6 +1054,15 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return serialized
 
     @beartype
+    def _serialize_results(self: Any, res: Any) -> list:
+        data = f"{res}"
+        df = pd.read_csv(StringIO(data), sep="|").iloc[:, 1:-1]  # Entfernen von leeren Spalten
+
+        json_data = df.to_dict(orient='records')
+
+        return json_data
+
+    @beartype
     def _get_trial_arms_serialized(self: Any, trials: dict) -> dict:
         trial_data = {}
         for k in trials.keys():
@@ -1065,12 +1075,11 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
                 results = trial.fetch_data()
 
-                print(help(results))
-                dier(results)
+                results_serialized = self._serialize_results(results)
 
                 trial_data[k] = {
                     "parameters": parameters,
-                    "results": results.to_json(orient='records', date_format='iso')
+                    "results": results_serialized
                 }
 
         dier(trial_data)

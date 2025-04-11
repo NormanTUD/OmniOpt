@@ -992,7 +992,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         t_init_start = time.monotonic()
         super().__init__(node_name="EXTERNAL_GENERATOR")
         self.seed: int = args.seed
-        self.external_generator: str = args.external_generator
+        self.external_generator: str = decode_if_base64(args.external_generator)
         self.constraints = None
         self.data = None
 

@@ -97,7 +97,7 @@ The `results.json` file your program must write in the folder given as parameter
 }
 ```
 
-This file is then read, parsed and used to run a new hyperparameter set. `x`, `y` and `z` are the hyperparameter names.
+This file is then read, parsed and used to run a new hyperparameter set. `x`, `y` and `z` are the hyperparameter names; of course, those are also dependent on your OmniOpt2 run.
 
 For each new hyperparameter (after the SOBOL-phase), the program will be invoked newly.
 

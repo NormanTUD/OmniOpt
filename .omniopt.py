@@ -1014,7 +1014,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         print_debug("Generator state updated successfully.")
 
     @beartype
-    def _parameter_type_to_string (self: Any, param_type: Any) -> str:
+    def _parameter_type_to_string(self: Any, param_type: Any) -> str:
         if param_type == ParameterType.INT:
             return "INT"
 
@@ -1077,7 +1077,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "parameters": self._serialize_parameters(self.parameters),
                 "constraints": self.constraints,
                 "seed": self.seed,
-                "trials":  parse_csv(f"{get_current_run_folder()}/results.csv")
+                "trials": parse_csv(f"{get_current_run_folder()}/results.csv")
             }
 
             inputs_path = os.path.join(temp_dir, "input.json")

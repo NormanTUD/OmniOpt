@@ -4,12 +4,14 @@
 
 <div id="toc"></div>
 
+## Basic idea
+
 It is possible to use external generators in OmniOpt2, which means that you use external programs to generate new points that should be examined. That means you can use any algorithm you like in any programming language you
 want, as long as you follow the standards required by OmniOpt2. 
 
 The external generator works by putting a JSON file that contains all previously generated data, the seed, the constraints, all parameters and their types in a JSON file. 
 
-You can specify your program with the `--external_generator` parameter, though it must be in base64. See the last parameter here:
+You can specify your program with the `--external_generator` parameter, though it must be in base64. To take effect, the `--model` must be set to `EXTERNAL_GENERATOR`. See the last parameter here:
 
 ```bash
 ./omniopt \

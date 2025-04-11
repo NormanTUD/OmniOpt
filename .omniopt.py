@@ -6572,7 +6572,7 @@ def should_break_search(_progress_bar: Any) -> bool:
 @beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
     if next_nr_steps:
-        progressbar_description([f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})"])
+        print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
         nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
         log_execution_result(nr_of_items, next_nr_steps)
         return nr_of_items

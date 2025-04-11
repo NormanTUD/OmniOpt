@@ -990,7 +990,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
     def __init__(self: Any) -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(node_name="EXTERNAL_PROGRAM_GENERATOR")
+        super().__init__(node_name="EXTERNAL_GENERATOR")
         self.seed: int = args.seed
         self.external_generator: str = args.external_generator
         self.constraints = None

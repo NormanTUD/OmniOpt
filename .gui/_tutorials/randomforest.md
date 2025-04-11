@@ -1,6 +1,6 @@
-<div id="toc"></div>
-
 # Random Forest
+
+<div id="toc"></div>
 
 <!-- What are random forests and how do they work? -->
 

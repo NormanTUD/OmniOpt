@@ -6647,7 +6647,7 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
     if jobs_left == 1:
         finish_previous_jobs([f"waiting for {jobs_left} job)"])
     else:
-        finish_previous_jobs([f"waiting for {jobs_left} jobs)"])
+        finish_previous_jobs([f"waiting for {jobs_left} jobs"])
 
     clean_completed_jobs()
 

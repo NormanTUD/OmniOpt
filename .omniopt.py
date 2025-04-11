@@ -862,7 +862,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         reverse_choice_map = self._build_reverse_choice_map(choice_parameters)
         ranged_samples = self._generate_ranged_samples(ranged_parameters)
         all_samples = self._build_all_samples(ranged_parameters, ranged_samples, fixed_values, choice_parameters)
-        
+
         x_pred = self._build_prediction_matrix(all_samples)
         y_pred = self.regressor.predict(x_pred)
 

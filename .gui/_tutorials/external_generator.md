@@ -11,7 +11,7 @@ want, as long as you follow the standards required by OmniOpt2.
 
 The external generator works by putting a JSON file that contains all previously generated data, the seed, the constraints, all parameters and their types in a JSON file. 
 
-You can specify your program with the `--external_generator` parameter, though it must be in base64. To take effect, the `--model` must be set to `EXTERNAL_GENERATOR`. See the last parameter here:
+You can specify your program with the `--external_generator` parameter, though it must be in base64. To take effect, the `--model` must be set to `EXTERNAL_GENERATOR`. See the last parameters here:
 
 ```bash
 ./omniopt \
@@ -33,7 +33,6 @@ You can specify your program with the `--external_generator` parameter, though i
     --nodes_per_job=1 \
     --generate_all_jobs_at_once \
     --revert_to_random_when_seemingly_exhausted \
-    --model=EXTERNAL_GENERATOR \
     --run_mode=local \
     --decimalrounding=4 \
     --occ_type=euclid \
@@ -45,6 +44,7 @@ You can specify your program with the `--external_generator` parameter, though i
     --parameter x range 123 100000000 int false \
     --parameter y choice 5431,1234 \
     --parameter z fixed 111 \
+    --model=EXTERNAL_GENERATOR \
     --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0) 
 ```
 
@@ -82,7 +82,10 @@ This then gets called with a temporary directory as first parameter, in which a 
 }
 ```
 
-Your program must take this JSON file and create new hyperparameters, and put them in the same folder as `results.json`. It may look like this:
+Your program must take this JSON file and create new hyperparameters, and put them in the same folder as `results.json`. The parameters, constraints and so on are, of course, dependent on the way you run OmniOpt2 and
+it's parameters.
+
+The `results.json` file your program must write in the folder given as parameter may look like this:
 
 ```json
 {
@@ -94,7 +97,7 @@ Your program must take this JSON file and create new hyperparameters, and put th
 }
 ```
 
-This file is then read, parsed and used to run a new hyperparameter set.
+This file is then read, parsed and used to run a new hyperparameter set. `x`, `y` and `z` are the hyperparameter names.
 
 For each new hyperparameter (after the SOBOL-phase), the program will be invoked newly.
 

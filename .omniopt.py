@@ -6616,7 +6616,13 @@ def finalize_jobs() -> None:
 @beartype
 def go_through_jobs_that_are_not_completed_yet() -> None:
     print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
-    progressbar_description([f"waiting for old jobs to finish ({len(global_vars['jobs'])} left)"])
+
+    nr_jobs_left = len(global_vars['jobs'])
+    if nr_jobs_left == 1:
+        progressbar_description([f"finishing {nr_jobs_left} old job)"])
+    else:
+        progressbar_description([f"finishing {nr_jobs_left} old jobs)"])
+
     if is_slurm_job() and not args.force_local_execution:
         _sleep(5)
 

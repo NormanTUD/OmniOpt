@@ -6619,9 +6619,9 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
 
     nr_jobs_left = len(global_vars['jobs'])
     if nr_jobs_left == 1:
-        progressbar_description([f"finishing {nr_jobs_left} old job)"])
+        progressbar_description([f"waiting for {nr_jobs_left} job)"])
     else:
-        progressbar_description([f"finishing {nr_jobs_left} old jobs)"])
+        progressbar_description([f"waiting for {nr_jobs_left} jobs)"])
 
     if is_slurm_job() and not args.force_local_execution:
         _sleep(5)

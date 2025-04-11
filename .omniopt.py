@@ -2384,10 +2384,9 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
                 if insensitive_matches:
                     found_name = insensitive_matches[0][0]
-                    spec_error = f"Check --result_names: casing must match ('{column_name}' vs. 'print(\"{found_name}: ...\")')"
-                    add_to_global_error_list(f"'{column_name}: <number>' not found (found ignoring case): {spec_error}")
+                    add_to_global_error_list(f"'{column_name}: <FLOAT>' not found (found ignoring case)")
                 else:
-                    add_to_global_error_list(f"'{column_name}: <number>' not found")
+                    add_to_global_error_list(f"'{column_name}: <FLOAT>' not found")
 
         if len(results):
             return results
@@ -5279,7 +5278,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 print_red(f"Cancelled finish_job_core: {e}")
             except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
                 if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <NUMBER>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
+                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
                 else:
                     print_red(f"\n⚠ {error}")
 

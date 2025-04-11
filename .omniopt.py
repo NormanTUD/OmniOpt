@@ -866,8 +866,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         x_pred = self._build_prediction_matrix(all_samples)
         y_pred = self.regressor.predict(x_pred)
 
-        # Alle Samples nach Vorhersage sortieren (beste zuerst)
-        sorted_indices = np.argsort(y_pred)  # falls Minimierung, sonst -y_pred bei Maximierung
+        sorted_indices = np.argsort(y_pred)
 
         for idx in sorted_indices:
             candidate = all_samples[idx]

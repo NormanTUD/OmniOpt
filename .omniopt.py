@@ -2383,7 +2383,6 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
                 insensitive_matches = re.findall(_pattern, input_string, re.IGNORECASE)
 
                 if insensitive_matches:
-                    found_name = insensitive_matches[0][0]
                     add_to_global_error_list(f"'{column_name}: <FLOAT>' not found (found ignoring case)")
                 else:
                     add_to_global_error_list(f"'{column_name}: <FLOAT>' not found")

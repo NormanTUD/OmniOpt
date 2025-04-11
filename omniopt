@@ -1725,7 +1725,7 @@ EOF
 							CNT_FOR_DOTS=$((CNT_FOR_DOTS + 1))
 						done
 
-						tput cnorm # Enable cursor
+						_tput cnorm # Enable cursor
 
 					done
 

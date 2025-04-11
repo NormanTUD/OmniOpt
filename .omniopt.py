@@ -1070,7 +1070,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "parameters": self._serialize_parameters(self.parameters),
                 "constraints": self.constraints,
                 "seed": self.seed,
-                "data": self.data,
                 "trials":  parse_csv(f"{get_current_run_folder()}/results.csv")
             }
 

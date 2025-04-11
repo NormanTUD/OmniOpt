@@ -15,7 +15,6 @@ import time
 import random
 import statistics
 import tempfile
-from io import StringIO
 
 last_progress_bar_desc: str = ""
 generation_strategy_human_readable: str = ""
@@ -1054,38 +1053,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return serialized
 
     @beartype
-    def _serialize_results(self: Any, res: Any) -> list:
-        data = f"{res}"
-        df = pd.read_csv(StringIO(data), sep="|").iloc[:, 1:-1]  # Entfernen von leeren Spalten
-
-        json_data = df.to_dict(orient='records')
-
-        return json_data
-
-    @beartype
-    def _get_trial_arms_serialized(self: Any, trials: dict) -> dict:
-        trial_data = {}
-        for k in trials.keys():
-            trial = trials[k]
-            
-            if trial.completed_successfully:
-                arm = trial.arm
-
-                parameters = arm.parameters
-
-                results = trial.fetch_data()
-
-                results_serialized = self._serialize_results(results)
-
-                trial_data[k] = {
-                    "parameters": parameters,
-                    "results": results_serialized
-                }
-
-        dier(trial_data)
-        return trial_data
-
-    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1104,8 +1071,10 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "constraints": self.constraints,
                 "seed": self.seed,
                 "data": self.data,
-                "trials": self._get_trial_arms_serialized(self.experiment.trials)
+                "trials":  parse_csv(f"{get_current_run_folder()}/results.csv")
             }
+
+            dier(inputs_json)
 
             inputs_path = os.path.join(temp_dir, "inputs.json")
             with open(inputs_path, mode="w", encoding="utf-8") as f:
@@ -4859,6 +4828,38 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
 
+def try_convert(value: Any) -> Any:
+    try:
+        if '.' in value or 'e' in value.lower():
+            return float(value)
+        return int(value)
+    except ValueError:
+        return value
+
+def parse_csv(csv_path: str) -> Tuple[List, List]:
+    arm_params_list = []
+    results_list = []
+
+    with open(csv_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            arm_params = {}
+            results = {}
+
+            for col, value in row.items():
+                if col in special_col_names:
+                    continue
+
+                if col in arg_result_names:
+                    results[col] = try_convert(value)
+                else:
+                    arm_params[col] = try_convert(value)
+
+            arm_params_list.append(arm_params)
+            results_list.append(results)
+
+    return arm_params_list, results_list
+
 @beartype
 def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
     if not os.path.exists(csv_file_path):
@@ -4891,38 +4892,6 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Uni
                     corrected_params[name] = None
 
         return corrected_params
-
-    def parse_csv(csv_path: str) -> Tuple[List, List]:
-        arm_params_list = []
-        results_list = []
-
-        with open(csv_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                arm_params = {}
-                results = {}
-
-                for col, value in row.items():
-                    if col in special_col_names:
-                        continue
-
-                    if col in arg_result_names:
-                        results[col] = try_convert(value)
-                    else:
-                        arm_params[col] = try_convert(value)
-
-                arm_params_list.append(arm_params)
-                results_list.append(results)
-
-        return arm_params_list, results_list
-
-    def try_convert(value: Any) -> Any:
-        try:
-            if '.' in value or 'e' in value.lower():
-                return float(value)
-            return int(value)
-        except ValueError:
-            return value
 
     arm_params_list, results_list = parse_csv(csv_file_path)
 

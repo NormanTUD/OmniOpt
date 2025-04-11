@@ -1704,6 +1704,9 @@ EOF
 						fi
 
 						CNT_FOR_DOTS=0
+
+						_tput civis # Disable cursor
+
 						for i in "${spin[@]}"; do
 							case $((CNT_FOR_DOTS % 3)) in
 								0) dots=".  " ;;
@@ -1721,6 +1724,8 @@ EOF
 
 							CNT_FOR_DOTS=$((CNT_FOR_DOTS + 1))
 						done
+
+						tput cnorm # Enable cursor
 
 					done
 

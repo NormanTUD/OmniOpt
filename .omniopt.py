@@ -6388,7 +6388,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
             if trial_index_to_param:
                 results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
 
-        finish_previous_jobs(["finishing jobs after starting them"])
+        finish_previous_jobs(["finishing jobs"])
 
         if done_optimizing:
             end_program(RESULT_CSV_FILE, False, 0)
@@ -6624,7 +6624,7 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         NR_OF_0_RESULTS = 0
 
     if NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
-        _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
+        _wrn = f"{NR_OF_0_RESULTS} empty jobs (>= {args.max_nr_of_zero_results})"
         print_debug(_wrn)
         progressbar_description([_wrn])
 

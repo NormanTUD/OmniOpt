@@ -31,6 +31,19 @@
 #SBATCH --signal=B:USR1@600
 
 {
+	if command -v tput >/dev/null 2>&1; then
+		cleanup() {
+			tput cnorm
+		}
+		tput civis
+	else
+		cleanup() {
+			:
+		}
+	fi
+
+	trap cleanup EXIT INT TERM
+
 	source .colorfunctions.sh
 
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
@@ -63,8 +76,6 @@
 			kill $bg_job_id 2>/dev/null >/dev/null
 		done
 	}
-
-	#trap end_all_bg_processes EXIT
 
 	show_ram_every_n_seconds=0
 

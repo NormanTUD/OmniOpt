@@ -4539,7 +4539,7 @@ def get_desc_progress_text(new_msgs: List[str] = []) -> str:
 @beartype
 def _get_desc_progress_text_failed_jobs() -> List[str]:
     if failed_jobs():
-        return [f"{helpers.bcolors.red}Failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
+        return [f"{helpers.bcolors.red}failed jobs: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
     return []
 
 @beartype

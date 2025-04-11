@@ -1013,7 +1013,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         print_debug("Generator state updated successfully.")
 
-    @bearytpe
+    @beartype
     def _parameter_type_to_string (self: Any, param_type: Any) -> str:
         if isinstance(param_type, ParameterType.INT):
             return "INT"

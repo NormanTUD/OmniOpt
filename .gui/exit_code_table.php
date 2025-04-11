@@ -62,6 +62,7 @@
 			193 => "Error in printing logs. You may be on a read only file system or your hard disk is full",
 			199 => "This happens on unstable file systems when trying to write a file",
 			203 => "Unsupported --model",
+			204 => "External Generator: Missing --external_generator path.",
 			206 => "Invalid orchestrator file",
 			210 => "Unknown orchestrator mode",
 			211 => "Git checkout failed (--checkout_to_latest_tested_version)",

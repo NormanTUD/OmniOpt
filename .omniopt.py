@@ -1014,6 +1014,33 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         print_debug("Generator state updated successfully.")
 
     @beartype
+    def _serialize_parameters(self: Any, params: dict) -> dict:
+        serialized = {}
+        for key in params.keys():
+            param = params[key]
+            param_name = param.name
+            if isinstance(param, FixedParameter):
+                serialized[param_name] = {
+                        "type": param.parameter_type,
+                        "value": param.value
+                }
+            elif isinstance(param, RangeParameter):
+                serialized[param_name] = {
+                        "type": param.parameter_type,
+                        "range": param.range
+                }
+            elif isinstance(param, ChoiceParameter):
+                serialized[param_name] = {
+                        "type": param.parameter_type,
+                        "values": param.values
+                }
+            else:
+                print_red(f"Unknown parameter type: {param}")
+                my_exit(15)
+
+        return serialized
+
+    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1028,7 +1055,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 self.constraints = self.experiment.search_space.parameter_constraints
 
             inputs_json = {
-                "parameters": self.parameters,
+                "parameters": self._serialize_parameters(self.parameters),
                 "constraints": self.constraints,
                 "seed": self.seed,
                 "data": self.data,

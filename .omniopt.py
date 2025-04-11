@@ -811,6 +811,17 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         print_debug("Initialized RandomForestGenerationNode")
 
     @beartype
+    def is_within_constraints(self, params):
+        if self.experiment.search_space.parameter_constraints:
+            for constraint in self.experiment.search_space.parameter_constraints:
+                if not constraints.check(params):
+                    return False
+
+                return True
+        else:
+            return True
+
+    @beartype
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
@@ -837,7 +848,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.parameters = search_space.parameters
 
         if isinstance(experiment.optimization_config.objective, MultiObjective):
-
             for moo in experiment.optimization_config.objective.objectives:
                 self.minimize.append(moo.minimize)
         else:

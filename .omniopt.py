@@ -6315,7 +6315,7 @@ def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Option
             break
         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
             break
-        progressbar_description(["starting parameter set"])
+        progressbar_description(["eval start"])
         _args = [trial_index, parameters, i, next_nr_steps, phase]
         results.append(execute_evaluation(_args))
         i += 1

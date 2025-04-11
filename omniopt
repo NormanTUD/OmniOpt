@@ -31,9 +31,9 @@
 #SBATCH --signal=B:USR1@600
 
 {
-	source .colorfunctions.sh
-
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
+
+	source $SCRIPT_DIR/.colorfunctions.sh
 
 	use_git=1
 

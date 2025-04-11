@@ -1057,12 +1057,21 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         trial_data = {}
         for k in trials.keys():
             trial = trials[k]
+            
+            if trial.completed_successfully:
+                arm = trial.arm
 
-            arm = trial.arm
+                parameters = arm.parameters
 
-            parameters = arm.parameters
+                results = trial.fetch_data()
 
-            trial_data[k] = parameters
+                print(help(results))
+                dier(results)
+
+                trial_data[k] = {
+                    "parameters": parameters,
+                    "results": results.to_json(orient='records', date_format='iso')
+                }
 
         dier(trial_data)
         return trial_data

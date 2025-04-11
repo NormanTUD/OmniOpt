@@ -46,7 +46,7 @@ You can specify your program with the `--external_generator` parameter, though i
 	--parameter x range 123 100000000 int false \
     --parameter y choice 5431,1234 \
 	--parameter z fixed 111 \
-    --external_generator $(echo	"python3 $(pwd)/.tests/example_external.py" | base64 	-w0) 
+    --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0) 
 ```
 
 This then gets called with a temporary directory as first parameter, in which a JSON file called `input.json` like this resides:

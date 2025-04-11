@@ -4447,12 +4447,16 @@ def get_workers_string() -> str:
             stats[state] = 0
         stats[state] += 1
 
+    _sum = 0
+
     for key in stats.keys():
         if args.abbreviate_job_names:
             string_keys.append(key.lower()[0])
         else:
             string_keys.append(key.lower())
         string_values.append(str(stats[key]))
+
+        _sum = _sum + int(stats[key])
 
     if len(string_keys) and len(string_values):
         _keys = "/".join(string_keys)
@@ -4461,10 +4465,10 @@ def get_workers_string() -> str:
         if len(_keys):
             nr_current_workers = len(global_vars["jobs"])
             if args.generate_all_jobs_at_once:
-                string = f"{_keys} {_values} of {num_parallel_jobs}"
+                string = f"{_keys} {_values} = ∑{_sum} of {num_parallel_jobs}"
             else:
                 percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-                string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
+                string = f"{_keys} {_values} = ∑{_sum} ({percentage}%/{num_parallel_jobs})"
 
     return string
 

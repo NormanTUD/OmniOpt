@@ -1006,8 +1006,10 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
     def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
         print_debug("Updating generator state...")
 
-        self.experiment = experiment
         self.data = data
+
+        search_space = experiment.search_space
+        self.parameters = search_space.parameters
 
         print_debug("Generator state updated successfully.")
 
@@ -6268,8 +6270,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         node = ExternalProgramGenerationNode()
 
         return node
-    elif args.external_generator:
-        print_yellow("--external_generator is ignored when model is not set to EXTERNAL_GENERATOR")
 
     if next_model_name is not None:
         trans_crit = [

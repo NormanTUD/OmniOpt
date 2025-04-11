@@ -1035,6 +1035,8 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "experiment": self.experiment
             }
 
+            dier(inputs_json)
+
             inputs_path = os.path.join(temp_dir, "inputs.json")
             with open(inputs_path, mode="w", encoding="utf-8") as f:
                 json.dump(inputs_json, f, indent=4)

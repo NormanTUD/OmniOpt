@@ -4582,7 +4582,7 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
     print_debug_progressbar(desc)
 
     if progress_bar is not None:
-        progress_bar.set_description(desc)
+        progress_bar.set_description_str(desc)
         progress_bar.refresh()
 
 @beartype

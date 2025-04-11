@@ -69,8 +69,8 @@ This then gets called with a temporary directory as first parameter, in which a 
             "value": "111"
         }
     },
-    "constraints": None,
-    "seed": None,
+    "constraints": null,
+    "seed": null,
     "trials": [
         [
             {"x": 2848395, "y": 1234, "z": 111}

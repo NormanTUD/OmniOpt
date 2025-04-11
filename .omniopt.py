@@ -4512,8 +4512,14 @@ def capitalized_string(s: str) -> str:
 @beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     global progress_bar_length
+
+    current_model = get_current_model()
+
+    if current_model == "SobolGenerator":
+        current_model = "Sobol"
+
     in_brackets = []
-    in_brackets.append(get_current_model())
+    in_brackets.append(current_model)
     in_brackets.extend(_get_desc_progress_text_failed_jobs())
     in_brackets.extend(_get_desc_progress_text_best_params())
     in_brackets = get_slurm_in_brackets(in_brackets)

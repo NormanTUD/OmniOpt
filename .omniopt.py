@@ -5766,9 +5766,9 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
     """Generates the appropriate message for the number of trials being retrieved."""
     ret = ""
     if full_nr_of_jobs_to_get > 1:
-        base_msg = f"getting new hyperparameter set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
+        base_msg = f"getting new HP set #{nr_of_jobs_to_get}/{full_nr_of_jobs_to_get}"
     else:
-        base_msg = "getting new hyperparameter set"
+        base_msg = "getting new HP set"
 
     if SYSTEM_HAS_SBATCH and not args.force_local_execution:
         ret = base_msg

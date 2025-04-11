@@ -5223,14 +5223,13 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
             #count_done_jobs(1)
             try:
-                progressbar_description([f"new result: {result}"])
-
                 print_debug(f"Marking trial {_trial} as completed")
                 _trial.mark_completed(unsafe=True)
 
                 succeeded_jobs(1)
+
+                progressbar_description([f"new result: {result}"])
                 update_progress_bar(progress_bar, 1)
-                progressbar_description([f"new result: {result} (entered)"])
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:

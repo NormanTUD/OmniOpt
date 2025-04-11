@@ -1053,6 +1053,21 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return serialized
 
     @beartype
+    def _get_trial_arms_serialized(self: Any, trials: dict) -> dict:
+        trial_data = {}
+        for k in trials.keys():
+            trial = trials[k]
+
+            arm = trial.arm
+
+            parameters = arm.parameters
+
+            trial_data[k] = parameters
+
+        dier(trial_data)
+        return trial_data
+
+    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1071,10 +1086,8 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "constraints": self.constraints,
                 "seed": self.seed,
                 "data": self.data,
-                "experiment": self.experiment
+                "trials": self._get_trial_arms_serialized(self.experiment.trials)
             }
-
-            dier(inputs_json)
 
             inputs_path = os.path.join(temp_dir, "inputs.json")
             with open(inputs_path, mode="w", encoding="utf-8") as f:

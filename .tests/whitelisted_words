@@ -2598,3 +2598,8 @@ RandomForestGenerationNode
 HP
 SobolGenerator
 EXTERNAL_GENERATOR
+ExternalProgramGenerationNode
+inputjson
+resultsjson
+Programm
+inputsjson

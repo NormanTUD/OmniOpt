@@ -1013,6 +1013,18 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         print_debug("Generator state updated successfully.")
 
+    @bearytpe
+    def _parameter_type_to_string (self: Any, param_type: Any) -> str:
+        if isinstance(param_type, ParameterType.INT):
+            return "INT"
+        elif isinstance(param_type, ParameterType.FLOAT):
+            return "FLOAT"
+        elif isinstance(param_type, ParameterType.FLOAT):
+            return "STRING"
+        else:
+            print_red(f"Unknown data type {param_type}")
+            my_exit(33)
+
     @beartype
     def _serialize_parameters(self: Any, params: dict) -> dict:
         serialized = {}
@@ -1021,17 +1033,17 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             param_name = param.name
             if isinstance(param, FixedParameter):
                 serialized[param_name] = {
-                        "type": param.parameter_type,
+                        "type": self._parameter_type_to_string(param.parameter_type),
                         "value": param.value
                 }
             elif isinstance(param, RangeParameter):
                 serialized[param_name] = {
-                        "type": param.parameter_type,
-                        "range": param.range
+                        "type": self._parameter_type_to_string(param.parameter_type),
+                        "range": [param.lower, param.upper]
                 }
             elif isinstance(param, ChoiceParameter):
                 serialized[param_name] = {
-                        "type": param.parameter_type,
+                        "type": self._parameter_type_to_string(param.parameter_type),
                         "values": param.values
                 }
             else:

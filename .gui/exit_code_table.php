@@ -26,6 +26,7 @@
 			23 => "Loading of Environment failed",
 			31 => "Basic modules could not be loaded or you cancelled loading them",
 			32 => "Error regarding the --signed_weighted_euclidean_weights parameter. Check output for details",
+			33 => "Unknown data type for EXTERNAL_GENERATOR",
 			44 => "Continuation of previous job failed",
 			45 => "Could not create log dir",
 			47 => "Missing checkpoint or defective file or state files (check output)",

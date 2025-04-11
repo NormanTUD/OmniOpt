@@ -4459,8 +4459,11 @@ def get_workers_string() -> str:
 
         if len(_keys):
             nr_current_workers = len(global_vars["jobs"])
-            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-            string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
+            if args.generate_all_jobs_at_once:
+                string = f"{_keys} {_values} of {num_parallel_jobs}"
+            else:
+                percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+                string = f"{_keys} {_values} ({percentage}%/{num_parallel_jobs})"
 
     return string
 

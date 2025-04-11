@@ -811,20 +811,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         print_debug("Initialized RandomForestGenerationNode")
 
     @beartype
-    def is_within_constraints(self: Any, params_list: list) -> bool:
-        if self.experiment.search_space.parameter_constraints:
-            param_names = list(self.parameters.keys())
-            params = dict(zip(param_names, params_list))
-
-            for constraint in self.experiment.search_space.parameter_constraints:
-                if not constraint.check(params):
-                    return False
-
-                return True
-        else:
-            return True
-
-    @beartype
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
@@ -870,11 +856,25 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         for idx in sorted_indices:
             candidate = all_samples[idx]
-            if self.is_within_constraints(list(candidate.values())):
+            if self._is_within_constraints(list(candidate.values())):
                 self._format_best_sample(candidate, reverse_choice_map)
                 return candidate
 
         raise RuntimeError("No valid candidate found within constraints.")
+
+    @beartype
+    def _is_within_constraints(self: Any, params_list: list) -> bool:
+        if self.experiment.search_space.parameter_constraints:
+            param_names = list(self.parameters.keys())
+            params = dict(zip(param_names, params_list))
+
+            for constraint in self.experiment.search_space.parameter_constraints:
+                if not constraint.check(params):
+                    return False
+
+                return True
+        else:
+            return True
 
     @beartype
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:

@@ -1015,11 +1015,11 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _parameter_type_to_string (self: Any, param_type: Any) -> str:
-        if isinstance(param_type, ParameterType.INT):
+        if param_type == ParameterType.INT:
             return "INT"
-        elif isinstance(param_type, ParameterType.FLOAT):
+        elif param_type == ParameterType.FLOAT:
             return "FLOAT"
-        elif isinstance(param_type, ParameterType.FLOAT):
+        elif param_type == ParameterType.FLOAT:
             return "STRING"
         else:
             print_red(f"Unknown data type {param_type}")

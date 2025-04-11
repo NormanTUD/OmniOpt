@@ -36,7 +36,7 @@ var model_data = [
 		id: 'RANDOMFOREST',
 		name: 'Random Forest',
 		link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
-		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized.',
+		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized. Does not support Multi-Objective-Optimization yet.',
 		hide_in_custom_generation_strategy: true
 	}
 ];

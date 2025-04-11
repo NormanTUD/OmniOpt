@@ -728,6 +728,7 @@ try:
         import ax
 
         from ax.plot.pareto_utils import compute_posterior_pareto_frontier
+        from ax.core.objective import MultiObjective
         from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
@@ -818,9 +819,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         if search_space.parameter_constraints:
             raise NotImplementedError("This example does not support parameter constraints.")
 
-        if len(metric_names) != 1:
-            raise NotImplementedError("This example only supports single-objective optimization.")
-
         completed_trials = [
             trial for trial in experiment.trials.values() if trial.status == TrialStatus.COMPLETED
         ]
@@ -837,7 +835,15 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         self.regressor.fit(x, y)
         self.parameters = search_space.parameters
-        self.minimize = experiment.optimization_config.objective.minimize
+
+        self.minimize = []
+
+        if isinstance(experiment.optimization_config.objective, MultiObjective):
+
+            for moo in experiment.optimization_config.objective.objectives:
+                self.minimize.append(moo.minimize)
+        else:
+            self.minimize = [experiment.optimization_config.objective.minimize]
 
     @beartype
     def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:
@@ -6153,10 +6159,6 @@ def join_with_comma_and_then(items: list) -> str:
 @beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
-        if len(arg_result_names) > 1:
-            print_red("Cannot use RANDOMFOREST with Multiple objectives, yet!")
-            my_exit(251)
-
         node = RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
 
         return node
@@ -6625,6 +6627,9 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         _wrn = f"NR_OF_0_RESULTS {NR_OF_0_RESULTS} >= {args.max_nr_of_zero_results}"
         print_debug(_wrn)
         progressbar_description([_wrn])
+
+        live_share()
+
         return True
 
     return False

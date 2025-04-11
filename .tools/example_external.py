@@ -1,12 +1,7 @@
-from pprint import pprint
 import sys
 import os
 import json
 import random
-
-def dier(msg):
-    pprint(msg)
-    sys.exit(10)
 
 def generate_random_value(parameter):
     try:
@@ -25,12 +20,12 @@ def generate_random_value(parameter):
             if parameter['type'] == 'STRING':
                 return random.choice(values)
 
-            return random.choice(values)  # Für FLOAT oder andere Typen
+            return random.choice(values)
         elif parameter['parameter_type'] == 'FIXED':
             return parameter['value']
     except KeyError as e:
         print(f"KeyError: Missing {e} in parameter")
-        sys.exit(4)  # Beende das Skript mit einem Fehlercode
+        sys.exit(4)
 
     return None
 
@@ -67,10 +62,8 @@ def main():
         print(f"Error: Failed to decode JSON in {json_file_path}.")
         sys.exit(3)
 
-    # Generate random point within parameter bounds
     random_point = generate_random_point(data)
 
-    # Write results to results.json
     with open(results_file_path, mode='w', encoding="utf-8") as f:
         json.dump({"parameters": random_point}, f, indent=4)
 

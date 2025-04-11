@@ -1078,8 +1078,10 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 json.dump(inputs_json, f, indent=4)
             print_debug(f"Saved inputs.json to {inputs_path}")
 
-            subprocess.run([self.external_generator, temp_dir], check=True)
-            print_debug(f"Executed external program: {self.external_generator}")
+            run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
+
+            subprocess.run(run_this_program, check=True)
+            print_debug(f"Executed external program: {' '.join(run_this_program)}")
 
             results_path = os.path.join(temp_dir, "results.json")
             if not os.path.exists(results_path):

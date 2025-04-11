@@ -1,6 +1,6 @@
 # Using external generators
 
-<!-- What are external generators and how to use them -->
+<!-- How to use your own programs to generate new points and include them easily in OmniOpt2 -->
 
 <div id="toc"></div>
 

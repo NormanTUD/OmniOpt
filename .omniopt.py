@@ -15,8 +15,9 @@ import time
 import random
 import statistics
 
-generation_strategy_human_readable = ""
-oo_call = "./omniopt"
+last_progress_bar_desc: str = ""
+generation_strategy_human_readable: str = ""
+oo_call: str = "./omniopt"
 progress_bar_length: int = 0
 
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
@@ -4578,12 +4579,17 @@ def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
 
 @beartype
 def progressbar_description(new_msgs: List[str] = []) -> None:
+    global last_progress_bar_desc
+
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
 
     if progress_bar is not None:
-        progress_bar.set_description_str(desc)
-        progress_bar.refresh()
+        if last_progress_bar_desc != desc:
+            progress_bar.set_description_str(desc)
+            progress_bar.refresh()
+
+            last_progress_bar_desc = desc
 
 @beartype
 def clean_completed_jobs() -> None:

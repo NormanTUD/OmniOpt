@@ -16,7 +16,7 @@ You can specify your program with the `--external_generator` parameter, though i
 ```bash
 ./omniopt \
     --partition=alpha \
-    --experiment_name=small_test_experiment \
+    --experiment_name=external_generator_test \
     --mem_gb=1 \
     --time=60 \
     --worker_timeout=60 \

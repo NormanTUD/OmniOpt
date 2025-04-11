@@ -1645,6 +1645,8 @@ EOF
 						trap - DEBUG
 					fi
 
+					_tput civis # Disable cursor
+
 					while ! [[ -e $LOG_PATH ]]; do
 						current_time=$(date +%s)
 
@@ -1705,8 +1707,6 @@ EOF
 
 						CNT_FOR_DOTS=0
 
-						_tput civis # Disable cursor
-
 						for i in "${spin[@]}"; do
 							case $((CNT_FOR_DOTS % 3)) in
 								0) dots=".  " ;;
@@ -1725,9 +1725,9 @@ EOF
 							CNT_FOR_DOTS=$((CNT_FOR_DOTS + 1))
 						done
 
-						tput cnorm # Enable cursor
-
 					done
+
+					_tput cnorm # Enable cursor
 
 					if [[ $debug -eq 1 ]]; then
 						set_debug

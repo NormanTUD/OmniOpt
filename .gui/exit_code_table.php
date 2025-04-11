@@ -43,6 +43,7 @@
 			99 => "It seems like the run folder was deleted during the run",
 			100 => "--mem_gb or --gpus, which must be int, has received a value that is not int",
 			101 => "Error using ax_client: it was not defined where it should have been",
+			102 => "Invalid parameter constraints",
 			103 => "--time is not in minutes or HH:MM format",
 			104 => "One of the parameters --mem_gb, --time, --run_program, --max_eval, --generation_strategy, --continue_previous_job or --experiment_name is missing",
 			105 => "Continued job error: previous job has missing state files",

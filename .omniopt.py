@@ -4173,6 +4173,9 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             else:
                 print_red("ax_client could not be found!")
                 sys.exit(9)
+        except AssertionError as error:
+            print_red(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.")
+            my_exit(102)
         except ValueError as error:
             print_red(f"An error has occurred while creating the experiment (1): {error}")
             my_exit(49)
@@ -4180,7 +4183,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             print_red(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.")
             my_exit(49)
         except ax.exceptions.core.UserInputError as error:
-            print_red(f"An error occured while creating the experiment (3): {error}")
+            print_red(f"An error occurred while creating the experiment (3): {error}")
             my_exit(49)
 
     return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color

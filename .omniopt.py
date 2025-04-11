@@ -811,8 +811,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         print_debug("Initialized RandomForestGenerationNode")
 
     @beartype
-    def is_within_constraints(self: Any, params: dict) -> bool:
+    def is_within_constraints(self: Any, params_list: list) -> bool:
         if self.experiment.search_space.parameter_constraints:
+            param_names = list(self.parameters.keys())
+            params = dict(zip(param_names, params_list))
+
             for constraint in self.experiment.search_space.parameter_constraints:
                 if not constraints.check(params):
                     return False

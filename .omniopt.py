@@ -4549,7 +4549,8 @@ def _get_desc_progress_text_best_params() -> List[str]:
     ]
 
     if best_params_res:
-        return ["best " + ", ".join(best_params_res)] if len(arg_result_names) == 1 else [f"{count_done_jobs()} jobs done"]
+        done_jobs = count_done_jobs()
+        return ["best " + ", ".join(best_params_res)] if len(arg_result_names) == 1 else [f"{done_jobs} job{'s' if done_jobs != 1 else ''} done"]
 
     return []
 

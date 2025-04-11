@@ -836,14 +836,12 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.regressor.fit(x, y)
         self.parameters = search_space.parameters
 
-        self.minimize = []
-
         if isinstance(experiment.optimization_config.objective, MultiObjective):
 
             for moo in experiment.optimization_config.objective.objectives:
                 self.minimize.append(moo.minimize)
         else:
-            self.minimize = [experiment.optimization_config.objective.minimize]
+            self.minimize = experiment.optimization_config.objective.minimize
 
     @beartype
     def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:

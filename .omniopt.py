@@ -6153,6 +6153,10 @@ def join_with_comma_and_then(items: list) -> str:
 @beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
+        if len(arg_result_names) > 1:
+            print_red("Cannot use RANDOMFOREST with Multiple objectives, yet!")
+            my_exit(251)
+
         node = RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
 
         return node

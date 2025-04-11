@@ -82,7 +82,7 @@ This then gets called with a temporary directory as first parameter, in which a 
 }
 ```
 
-Your program must take this JSON file and create new hyperameters, and put them in the same folder as `results.json`. It may look like this:
+Your program must take this JSON file and create new hyperparameters, and put them in the same folder as `results.json`. It may look like this:
 
 ```json
 {

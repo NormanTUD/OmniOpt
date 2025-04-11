@@ -866,7 +866,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         x_pred = self._build_prediction_matrix(all_samples)
         y_pred = self.regressor.predict(x_pred)
 
-        sorted_indices = np.argsort(y_pred)
+        sorted_indices = np.argsort(y_pred) if self.minimize else np.argsort(-np.array(y_pred))
 
         for idx in sorted_indices:
             candidate = all_samples[idx]
@@ -971,17 +971,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             for dim, name in enumerate(self.parameters.keys()):
                 x_pred[sample_idx, dim] = sample[name]
         return x_pred
-
-    @beartype
-    def _get_best_sample_index(self: Any, y_pred: Union[np.ndarray, Sequence[float]]) -> int:
-        try:
-            if self.minimize:
-                return int(np.argmin(y_pred))
-
-            return int(np.argmax(y_pred))
-        except Exception as e:
-            print_red(f"Error in _get_best_sample_index: {e}")
-            raise
 
     @beartype
     def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:

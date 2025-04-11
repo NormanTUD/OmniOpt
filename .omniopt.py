@@ -1073,8 +1073,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 "trials":  parse_csv(f"{get_current_run_folder()}/results.csv")
             }
 
-            dier(inputs_json)
-
             inputs_path = os.path.join(temp_dir, "inputs.json")
             with open(inputs_path, mode="w", encoding="utf-8") as f:
                 json.dump(inputs_json, f, indent=4)

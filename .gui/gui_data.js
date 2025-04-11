@@ -38,6 +38,13 @@ var model_data = [
 		link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
 		extra: ' Tree-based ensemble method often used as a baseline or benchmark. It is robust to overfitting and works well with default settings. Hyperparameters like number of trees, depth, and max features can be optimized.',
 		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'EXTERNAL_GENERATOR',
+		name: 'External Generator',
+		//link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
+		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements.',
+		hide_in_custom_generation_strategy: true
 	}
 ];
 
@@ -557,6 +564,14 @@ var hiddenTableData = [
 		regex: regex_path,
 		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
 		help: "Path where the virtual env should be installed to",
+	},
+	{
+		label: "External program for EXTERNAL_GENERATOR",
+		id: "external_generator",
+		type: "text",
+		value: "",
+		info: "A call to a program to calculate hyperparameters",
+		required: false
 	},
 	{
 		label: "Workdir",

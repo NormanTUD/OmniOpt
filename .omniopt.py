@@ -14,6 +14,7 @@ import math
 import time
 import random
 import statistics
+import tempfile
 
 last_progress_bar_desc: str = ""
 generation_strategy_human_readable: str = ""
@@ -32,7 +33,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -442,6 +443,7 @@ class ConfigLoader:
     minkowski_p: float
     decimalrounding: int
     signed_weighted_euclidean_weights: str
+    external_generator: str
 
     @beartype
     def __init__(self) -> None:
@@ -513,6 +515,7 @@ class ConfigLoader:
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
         optional.add_argument("--load_data_from_existing_jobs", type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
+        optional.add_argument('--external_generator', help='Programm call for an external generato4', type=str, default=None)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -980,6 +983,135 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 best_sample[name] = int(round(best_sample[name]))
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
+
+@dataclass(init=False)
+class ExternalProgramGenerationNode(ExternalGenerationNode):
+    @beartype
+    def __init__(self: Any) -> None:
+        print_debug("Initializing ExternalProgramGenerationNode...")
+        t_init_start = time.monotonic()
+        super().__init__(node_name="EXTERNAL_GENERATOR")
+        self.seed: int = args.seed
+        self.external_generator: str = decode_if_base64(args.external_generator)
+        self.constraints = None
+        self.data = None
+
+        self.parameters: Optional[Dict[str, Any]] = None
+        self.minimize: Optional[bool] = None
+        self.fit_time_since_gen: float = time.monotonic() - t_init_start
+
+        print_debug(f"Initialized ExternalProgramGenerationNode in {self.fit_time_since_gen:.4f} seconds")
+
+    @beartype
+    def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
+        print_debug("Updating generator state...")
+
+        self.data = data
+
+        search_space = experiment.search_space
+        self.parameters = search_space.parameters
+
+        print_debug("Generator state updated successfully.")
+
+    @beartype
+    def _parameter_type_to_string(self: Any, param_type: Any) -> str:
+        if param_type == ParameterType.INT:
+            return "INT"
+
+        if param_type == ParameterType.FLOAT:
+            return "FLOAT"
+
+        if param_type == ParameterType.STRING:
+            return "STRING"
+
+        print_red(f"Unknown data type {param_type}")
+        my_exit(33)
+
+        return ""
+
+    @beartype
+    def _serialize_parameters(self: Any, params: dict) -> dict:
+        serialized = {}
+        for key in params.keys():
+            param = params[key]
+            param_name = param.name
+            if isinstance(param, FixedParameter):
+                serialized[param_name] = {
+                        "parameter_type": "FIXED",
+                        "type": self._parameter_type_to_string(param.parameter_type),
+                        "value": param.value
+                }
+            elif isinstance(param, RangeParameter):
+                serialized[param_name] = {
+                        "parameter_type": "RANGE",
+                        "type": self._parameter_type_to_string(param.parameter_type),
+                        "range": [param.lower, param.upper]
+                }
+            elif isinstance(param, ChoiceParameter):
+                serialized[param_name] = {
+                        "parameter_type": "CHOICE",
+                        "type": self._parameter_type_to_string(param.parameter_type),
+                        "values": param.values
+                }
+            else:
+                print_red(f"Unknown parameter type: {param}")
+                my_exit(15)
+
+        return serialized
+
+    @beartype
+    def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
+        if self.parameters is None:
+            raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
+
+        print_debug("Getting next candidate...")
+
+        try:
+            temp_dir = tempfile.mkdtemp()
+            print_debug(f"Created temporary directory: {temp_dir}")
+
+            if self.experiment.search_space.parameter_constraints:
+                self.constraints = self.experiment.search_space.parameter_constraints
+
+            inputs_json = {
+                "parameters": self._serialize_parameters(self.parameters),
+                "constraints": self.constraints,
+                "seed": self.seed,
+                "trials": parse_csv(f"{get_current_run_folder()}/results.csv")
+            }
+
+            inputs_path = os.path.join(temp_dir, "input.json")
+            with open(inputs_path, mode="w", encoding="utf-8") as f:
+                json.dump(inputs_json, f, indent=4)
+            print_debug(f"Saved inputs.json to {inputs_path}")
+
+            run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
+
+            subprocess.run(run_this_program, check=True)
+            print_debug(f"Executed external program: {' '.join(run_this_program)}")
+
+            results_path = os.path.join(temp_dir, "results.json")
+            if not os.path.exists(results_path):
+                raise FileNotFoundError(f"Missing results.json in {results_path}")
+
+            with open(results_path, mode="r", encoding="utf-8") as f:
+                results = json.load(f)
+            print_debug(f"Loaded results.json from {results_path}")
+
+            if "parameters" not in results:
+                raise ValueError(f"Invalid results format in {results_path}")
+
+            candidate = results["parameters"]
+            print_debug(f"Found new candidate: {candidate}")
+            return candidate
+
+        except Exception as e:
+            raise RuntimeError(f"Error getting next candidate: {e}") from e
+
+        finally:
+            if os.path.isdir(temp_dir):
+                shutil.rmtree(temp_dir)
+                print_debug(f"Removed temporary directory: {temp_dir}")
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
@@ -4702,6 +4834,38 @@ def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dic
         print_debug(f"Assertion Error in parse_parameter_type_error: {e}")
         return None
 
+def try_convert(value: Any) -> Any:
+    try:
+        if '.' in value or 'e' in value.lower():
+            return float(value)
+        return int(value)
+    except ValueError:
+        return value
+
+def parse_csv(csv_path: str) -> Tuple[List, List]:
+    arm_params_list = []
+    results_list = []
+
+    with open(csv_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            arm_params = {}
+            results = {}
+
+            for col, value in row.items():
+                if col in special_col_names:
+                    continue
+
+                if col in arg_result_names:
+                    results[col] = try_convert(value)
+                else:
+                    arm_params[col] = try_convert(value)
+
+            arm_params_list.append(arm_params)
+            results_list.append(results)
+
+    return arm_params_list, results_list
+
 @beartype
 def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
     if not os.path.exists(csv_file_path):
@@ -4734,38 +4898,6 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Uni
                     corrected_params[name] = None
 
         return corrected_params
-
-    def parse_csv(csv_path: str) -> Tuple[List, List]:
-        arm_params_list = []
-        results_list = []
-
-        with open(csv_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                arm_params = {}
-                results = {}
-
-                for col, value in row.items():
-                    if col in special_col_names:
-                        continue
-
-                    if col in arg_result_names:
-                        results[col] = try_convert(value)
-                    else:
-                        arm_params[col] = try_convert(value)
-
-                arm_params_list.append(arm_params)
-                results_list.append(results)
-
-        return arm_params_list, results_list
-
-    def try_convert(value: Any) -> Any:
-        try:
-            if '.' in value or 'e' in value.lower():
-                return float(value)
-            return int(value)
-        except ValueError:
-            return value
 
     arm_params_list, results_list = parse_csv(csv_file_path)
 
@@ -6049,7 +6181,8 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
                 model_name, nr = s.split("=")
                 matching_model = get_matching_model_name(model_name)
 
-                if matching_model in ["RANDOMFOREST"]:
+                if matching_model in ["RANDOMFOREST", "EXTERNAL_GENERATOR"]:
+                    print_red(f"Model {matching_model} is not valid for custom generation strategy.")
                     my_exit(56)
 
                 if matching_model:
@@ -6166,7 +6299,22 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             print_red("Currently, RANDOMFOREST does not support Multi-Objective-Optimization")
             my_exit(251)
 
-        node = RandomForestGenerationNode(num_samples=threshold, regressor_options={"n_estimators": args.n_estimators_randomforest}, seed=args.seed)
+        node = RandomForestGenerationNode(
+            num_samples=threshold,
+            regressor_options={
+                "n_estimators": args.n_estimators_randomforest
+            },
+            seed=args.seed
+        )
+
+        return node
+
+    if model_name == "EXTERNAL_GENERATOR":
+        if args.external_generator is None:
+            print_red("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.")
+            my_exit(204)
+
+        node = ExternalProgramGenerationNode()
 
         return node
 
@@ -6865,7 +7013,6 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
         return
 
     import matplotlib.pyplot as plt
-    import tempfile
 
     means = data.means
 

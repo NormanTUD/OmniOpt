@@ -6619,7 +6619,14 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
 def finalize_jobs() -> None:
     while len(global_vars["jobs"]):
         wait_for_jobs_to_complete()
-        finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+
+        jobs_left = len(global_vars['jobs'])
+
+        if jobs_left == 1:
+            finish_previous_jobs([f"waiting for {jobs_left} job)"])
+        else:
+            finish_previous_jobs([f"waiting for {jobs_left} jobs)"])
+
         handle_slurm_execution()
 
 @beartype
@@ -6635,7 +6642,12 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
     if is_slurm_job() and not args.force_local_execution:
         _sleep(5)
 
-    finish_previous_jobs([f"waiting for jobs ({len(global_vars['jobs'])} left)"])
+    jobs_left = len(global_vars['jobs'])
+
+    if jobs_left == 1:
+        finish_previous_jobs([f"waiting for {jobs_left} job)"])
+    else:
+        finish_previous_jobs([f"waiting for {jobs_left} jobs)"])
 
     clean_completed_jobs()
 

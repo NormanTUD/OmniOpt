@@ -14,28 +14,32 @@ def generate_random_value(parameter):
             range_min, range_max = parameter['range']
             if parameter['type'] == 'INT':
                 return random.randint(range_min, range_max)
-            elif parameter['type'] == 'FLOAT':
+
+            if parameter['type'] == 'FLOAT':
                 return random.uniform(range_min, range_max)
         elif parameter['parameter_type'] == 'CHOICE':
             values = parameter['values']
             if parameter['type'] == 'INT':
                 return random.choice(values)
-            elif parameter['type'] == 'STRING':
+
+            if parameter['type'] == 'STRING':
                 return random.choice(values)
-            else:
-                return random.choice(values)  # Für FLOAT oder andere Typen
+
+            return random.choice(values)  # Für FLOAT oder andere Typen
         elif parameter['parameter_type'] == 'FIXED':
             return parameter['value']
     except KeyError as e:
         print(f"KeyError: Missing {e} in parameter")
         sys.exit(4)  # Beende das Skript mit einem Fehlercode
 
+    return None
+
 def generate_random_point(parameters):
     point = {}
     for param_data in parameters.items():
         p = param_data[1]
 
-        if(p):
+        if p:
             if not isinstance(p, list):
                 p_keys = list(p.keys())
 
@@ -54,7 +58,7 @@ def main():
     results_file_path = os.path.join(path, 'results.json')
 
     try:
-        with open(json_file_path, 'r') as f:
+        with open(json_file_path, mode='r', encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
         print(f"Error: {json_file_path} not found.")
@@ -67,7 +71,7 @@ def main():
     random_point = generate_random_point(data)
 
     # Write results to results.json
-    with open(results_file_path, 'w') as f:
+    with open(results_file_path, mode='w', encoding="utf-8") as f:
         json.dump({"parameters": random_point}, f, indent=4)
 
 if __name__ == "__main__":

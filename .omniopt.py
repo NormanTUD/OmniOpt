@@ -1019,7 +1019,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             return "INT"
         elif param_type == ParameterType.FLOAT:
             return "FLOAT"
-        elif param_type == ParameterType.FLOAT:
+        elif param_type == ParameterType.STRING:
             return "STRING"
         else:
             print_red(f"Unknown data type {param_type}")

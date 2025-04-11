@@ -1017,13 +1017,17 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
     def _parameter_type_to_string (self: Any, param_type: Any) -> str:
         if param_type == ParameterType.INT:
             return "INT"
-        elif param_type == ParameterType.FLOAT:
+
+        if param_type == ParameterType.FLOAT:
             return "FLOAT"
-        elif param_type == ParameterType.STRING:
+
+        if param_type == ParameterType.STRING:
             return "STRING"
-        else:
-            print_red(f"Unknown data type {param_type}")
-            my_exit(33)
+
+        print_red(f"Unknown data type {param_type}")
+        my_exit(33)
+
+        return ""
 
     @beartype
     def _serialize_parameters(self: Any, params: dict) -> dict:

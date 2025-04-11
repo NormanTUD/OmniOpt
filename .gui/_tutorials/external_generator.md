@@ -52,31 +52,31 @@ This then gets called with a temporary directory as first parameter, in which a 
 
 ```json
 {
-    'parameters': {
-        'x': {
-            'parameter_type': 'RANGE',
-            'type': 'INT',
-            'range': [123, 100000000]
+    "parameters": {
+        "x": {
+            "parameter_type": "RANGE",
+            "type": "INT",
+            "range": [123, 100000000]
         },
-        'y': {'
-            parameter_type': 'CHOICE',
-            'type': 'STRING',
-            'values': ['5431', '1234']
+        "y": {
+            "parameter_type": "CHOICE",
+            "type": "STRING",
+            "values": ["5431", "1234"]
         },
-        'z': {
-            'parameter_type': 'FIXED',
-            'type': 'STRING',
-            'value': '111'
+        "z": {
+            "parameter_type": "FIXED",
+            "type": "STRING",
+            "value": "111"
         }
     },
-    'constraints': None,
-    'seed': None,
-    'trials': [
+    "constraints": None,
+    "seed": None,
+    "trials": [
         [
-            {'x': 2848395, 'y': 1234, 'z': 111}
+            {"x": 2848395, "y": 1234, "z": 111}
         ],
         [
-            {'RESULT': 28483951234.0}
+            {"RESULT": 28483951234.0}
         ]
     ]
 }

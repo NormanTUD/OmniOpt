@@ -68,7 +68,7 @@ def main():
 
     # Write results to results.json
     with open(results_file_path, 'w') as f:
-        json.dump(random_point, f, indent=4)
+        json.dump({"parameters": random_point}, f, indent=4)
 
 if __name__ == "__main__":
     main()

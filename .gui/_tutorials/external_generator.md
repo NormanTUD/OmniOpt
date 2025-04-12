@@ -122,7 +122,7 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 
 ## Another example `input.json`-file
 
-```
+```bash
 ./omniopt \
 	--partition=alpha  \
 	--experiment_name=EXTERNAL_GENERATOR_test  \

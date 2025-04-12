@@ -1079,7 +1079,14 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         print_debug("Getting next candidate...")
 
         try:
-            temp_dir = tempfile.mkdtemp()
+            temp_dir_counter = 0
+            temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
+            while os.path.isdir(temp_dir):
+                temp_dir_counter = temp_dir_counter + 1
+                temp_dir = os.path.join(get_current_run_folder(), str(temp_dir_counter))
+
+            os.makedirs(temp_dir, exist_ok=True)
+
             print_debug(f"Created temporary directory: {temp_dir}")
 
             if self.experiment.search_space.parameter_constraints:
@@ -1139,11 +1146,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         except Exception as e:
             raise RuntimeError(f"Error getting next candidate: {e}") from e
-
-        finally:
-            if os.path.isdir(temp_dir):
-                shutil.rmtree(temp_dir)
-                print_debug(f"Removed temporary directory: {temp_dir}")
 
 @beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:

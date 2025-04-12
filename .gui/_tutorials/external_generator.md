@@ -154,7 +154,7 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 	--parameter y choice 5431,1234 \
 	--parameter z fixed 111 \
 	--model=EXTERNAL_GENERATOR \
-	--external_generator cHl0aG9uMyAvaG9tZS9ub3JtYW4vcmVwb3MvT21uaU9wdC8udGVzdHMvZXhhbXBsZV9leHRlcm5hbC5weQo=
+	--external_generator $(python3 $(pwd)/.tests/example_external.py | base64 -w0)
 ```
 
 ```json

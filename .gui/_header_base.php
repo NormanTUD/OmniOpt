@@ -136,91 +136,61 @@
 ?>
 	</head>
 	<body>
-		<div id="scads_bar">
-			<table border=0 class="header_table" style='display: inline !important;'>
-				<tr class="header_table">
-					<td class='header_table'>
-						<a style="text-decoration: none;" href="index">
-							<img style="margin-left: 10px; margin-right: 10px" class="img_auto_width invert_in_dark_mode" height=73 src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
-						</a>
-					</td>
+		<div id="scads_bar" class="header-container">
+			<div class="header-logo-group">
+				<a href="index">
+					<img class="logo-img" src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
+				</a>
+				<a href="https://scads.ai/" target="_blank">
+					<img class="logo-img" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
+				</a>
+			</div>
 
-					<td class='header_table'>
-						<a style="text-decoration: none; margin-right: 20px;" target="_blank" href="https://scads.ai/">
-							<img height=90 class="img_auto_width invert_in_dark_mode" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
-						</a>
-					</td>
+			<div class="header-badges">
+				<a href="https://github.com/NormanTUD/OmniOpt/actions" target="_blank">
+					<img class="badge-img" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="CI Badge">
+				</a>
+				<a href="https://pypi.org/project/omniopt2/" target="_blank">
+					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
+					</a>
+				</div>
 
-					<td class='header_table'>
-						<table border=0 class="header_table" style='display: inline !important;'>
-							<tr class="header_table badge_table">
-								<td class='header_table badge_table'>
-									<a target="_blank" href="https://github.com/NormanTUD/OmniOpt/actions">
-										<img class="img_auto_width" style="min-width: 100px; width: 100% !important;" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="Current CI-Pipeline Badge">
-									</a>
-								</td>
-							</tr>
-							<tr class="header_table badge_table">
-								<td class="header_table badge_table">
-									<a target="_blank" href="https://pypi.org/project/omniopt2/">
-										<img src="https://img.shields.io/pypi/v/omniopt2" />
-									</a>
-								</td>
-							</tr>
-						</table>
-					</td>
-	<?php
-					$current_file = basename($_SERVER["PHP_SELF"]);
-
-					foreach ($GLOBALS["files"] as $fn => $n) {
-						if (is_array($n)) {
-							$n = $n["name"];
-						}
-
-						$tab_is_active = preg_match("/^$fn.php/", $current_file);
-						$_link = "$fn.php";
-
-						if (!file_exists($_link)) {
-							dier("Could not find $_link");
-						}
-
-						$link_no_php = $_link;
-
-						$link_no_php = preg_replace("/\.php$/", "", $link_no_php);
-
-						if($tab_is_active) {
-							$n = "<i><b>$n</b></i>";
-						}
-
-						$script_link = get_main_script_dir() . "/$link_no_php";
-
-						$script_link = preg_replace("/\/\/*/", "/", $script_link);
-
-						echo "<td class='header_table' style='border: 0'>";
-						echo "\t<a href='$script_link' class='tab'><button class='nav_tab_button'>$n</button></a>\n";
-						echo "</td>";
+			<div class="header-tabs">
+<?php
+				$current_file = basename($_SERVER["PHP_SELF"]);
+				foreach ($GLOBALS["files"] as $fn => $n) {
+					if (is_array($n)) {
+						$n = $n["name"];
 					}
 
-					$current_tag = get_current_tag();
+					$tab_is_active = preg_match("/^$fn.php/", $current_file);
+					$_link = "$fn.php";
 
-					if ($current_tag) {
-						echo "<td class='header_table'>";
-						echo " $current_tag";
-						echo "</td>";
+					if (!file_exists($_link)) {
+						dier("Could not find $_link");
 					}
+
+					$link_no_php = preg_replace("/\.php$/", "", $_link);
+					if ($tab_is_active) {
+						$n = "<i><b>$n</b></i>";
+					}
+
+					$script_link = preg_replace("/\/\/*/", "/", get_main_script_dir() . "/$link_no_php");
+					echo "<a href='$script_link'><button>$n</button></a>";
+				}
+				$current_tag = get_current_tag();
+				if ($current_tag) echo "<div class='current-tag'>$current_tag</div>";
 ?>
-					<td class="header_table">
-						<span style="display: inline-grid;">
-							<label class="switch">
-								<input type="checkbox" id="themeSelect">
-								<span class="slider">
-									<span class="invert_in_dark_mode mode-text">Switch to Light Mode</span>
-								</span>
-							</label>
-						</span>
-					</td>
-				</tr>
-			</table>
+			</div>
+			<div class="header-theme-toggle">
+				<label class="switch"> 
+					<input type="checkbox" id="themeSelect">
+						<span class="slider">
+						<span class="mode-text"></span>
+					</span>
+				</label>
+			</div>
+		</div>
 		<br>
 		<span style="display: inline-flex;">
 			<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' style="width: 600px;" type="text" placeholder="Search help topics and shares (Regex)..." id="search">

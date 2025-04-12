@@ -82,6 +82,8 @@ function enable_dark_mode() {
 	if (typeof make_text_in_parallel_plot_nicer === "function") {
 		make_text_in_parallel_plot_nicer();
 	}
+
+	$(".mode-text").css("color", "black")
 }
 
 function enable_light_mode() {
@@ -112,6 +114,8 @@ function enable_light_mode() {
 	if (typeof make_text_in_parallel_plot_nicer === "function") {
 		make_text_in_parallel_plot_nicer();
 	}
+
+	$(".mode-text").css("color", "black")
 }
 
 function apply_theme_based_on_system_preferences() {

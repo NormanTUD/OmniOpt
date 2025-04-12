@@ -822,9 +822,8 @@ img {
 /* --- Theme Toggle --- */
 .header-theme-toggle {
 	flex: 1 1 auto;
-	display: flex;
-	justify-content: flex-end;
 	align-items: center;
+	margin-top: 20px;
 	min-width: 180px;
 }
 

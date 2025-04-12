@@ -120,6 +120,52 @@ This file is then read, parsed and used to run a new hyperparameter set. `x`, `y
 
 For each new hyperparameter (after the SOBOL-phase), the program will be invoked newly.
 
+## Another example `input.json`-file
+
+```json
+{
+    "parameters": {
+        "x": {
+            "parameter_type": "RANGE",
+            "type": "INT",
+            "range": [
+                123,
+                100000000
+            ]
+        },
+        "y": {
+            "parameter_type": "CHOICE",
+            "type": "STRING",
+            "values": [
+                "5431",
+                "1234"
+            ]
+        },
+        "z": {
+            "parameter_type": "FIXED",
+            "type": "STRING",
+            "value": "111"
+        }
+    },
+    "constraints": [],
+    "seed": null,
+    "trials": [
+        [
+            {
+                "x": 55988092,
+                "y": 1234,
+                "z": 111
+            }
+        ],
+        [
+            {
+                "RESULT": 559880921234.0
+            }
+        ]
+    ]
+}
+```
+
 ## Example program
 
 This is an example python-program that generated random points that lie within the ranges and parameter boundaries of your experiment:

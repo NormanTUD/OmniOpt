@@ -17,7 +17,7 @@ OmniOpt2 is a highly parallelized hyperparameter optimizer based on Ax/Botorch. 
 
 ## Installation
 
-OmniOpt2 is self-installing and does not require any additional manual setup. Simply run the `curl` command provided by the [GUI](index.php) and it will install itself into a virtual environment.
+OmniOpt2 is self-installing and does not require any additional manual setup. Simply run the `curl` command provided by the [GUI](index) and it will install itself into a virtual environment.
 
 ## Usage
 

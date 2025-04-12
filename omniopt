@@ -1667,7 +1667,7 @@ EOF
 							current_time=$(date +%s)
 							last_why_pending_time=$current_time
 							if [[ -n $estimated_start_time_original ]] && [[ "$estimated_start_time_original" != *"Unknown"* ]]; then
-								estimated_start_time=". Estimated start:$estimated_start_time_original"
+								estimated_start_time="- Estimated start:$estimated_start_time_original "
 								if [[ -n $estimated_start_time_original ]]; then
 									_remaining_time=""
 									_remaining_time=$(remaining_time "$estimated_start_time_original" | sed -e 's#[[:space:]][[:space:]]*# #g')

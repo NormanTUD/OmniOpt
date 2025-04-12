@@ -876,6 +876,10 @@ input:checked + .slider::before {
 
 /* --- Responsive Anpassungen --- */
 @media (max-width: 768px) {
+	.header-logo-group {
+		max-width: 40%;
+	}
+
 	.header-logo-group,
 	.header-badges,
 	.header-theme-toggle {

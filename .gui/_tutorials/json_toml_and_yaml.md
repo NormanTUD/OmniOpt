@@ -1,4 +1,4 @@
-# `config.toml`, `config.yaml`, `config.json`
+# `config.{json,yaml,toml}`
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 

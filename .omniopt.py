@@ -1083,7 +1083,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
             while os.path.isdir(temp_dir):
                 temp_dir_counter = temp_dir_counter + 1
-                temp_dir = os.path.join(get_current_run_folder(), str(temp_dir_counter))
+                temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
 
             os.makedirs(temp_dir, exist_ok=True)
 

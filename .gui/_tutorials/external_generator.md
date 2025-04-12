@@ -56,27 +56,44 @@ This then gets called with a temporary directory as first parameter, in which a 
         "x": {
             "parameter_type": "RANGE",
             "type": "INT",
-            "range": [123, 100000000]
+            "range": [
+                123,
+                100000000
+            ]
         },
         "y": {
-            "parameter_type": "CHOICE",
-            "type": "STRING",
-            "values": ["5431", "1234"]
+            "parameter_type": "RANGE",
+            "type": "FLOAT",
+            "range": [
+                1234.0,
+                4321.0
+            ]
         },
         "z": {
-            "parameter_type": "FIXED",
-            "type": "STRING",
-            "value": "111"
+            "parameter_type": "RANGE",
+            "type": "INT",
+            "range": [
+                111,
+                222
+            ]
         }
     },
-    "constraints": null,
-    "seed": null,
+    "constraints": [
+        "y <= x"
+    ],
+    "seed": 1234,
     "trials": [
         [
-            {"x": 2848395, "y": 1234, "z": 111}
+            {
+                "x": 46164761,
+                "y": 2179.7038996219635,
+                "z": 221
+            }
         ],
         [
-            {"RESULT": 28483951234.0}
+            {
+                "RESULT": 461647612179.7039
+            }
         ]
     ]
 }

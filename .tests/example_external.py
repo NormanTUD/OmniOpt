@@ -6,11 +6,8 @@ import random
 def check_constraint(constraint, params):
     return eval(constraint, {}, params)
 
-def constraints_ok(constraints, point):
+def constraints_not_ok(constraints, point):
     if not constraints or constraints is None or len(constraints) == 0:
-        return True
-
-    if point is None or point == {}: # Only for first evaluation
         return True
 
     for constraint in constraints:
@@ -54,7 +51,7 @@ def generate_random_point(parameters):
     i = 0
 
     if len(constraints):
-        while constraints_ok(constraints, point):
+        while point == {} or constraints_not_ok(constraints, point):
             for param_name in list(param_data.keys()):
                 point[param_name] = generate_random_value(param_data[param_name])
 

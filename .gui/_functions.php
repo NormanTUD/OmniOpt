@@ -151,6 +151,19 @@
 			return '<<<CODEBLOCK_TOML>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_TOML>>>';
 		}, $markdown);
 
+		$markdown = preg_replace_callback('/```python\[(.*?)\]?\R*(.*?)```/s', function($matches) {
+			$filePath = $matches[2];
+
+			$filePath = preg_replace("/\]/", "", trim($filePath));
+
+			if (file_exists($filePath)) {
+				$fileContent = file_get_contents($filePath);
+				return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($fileContent) .'<<<CODEBLOCK_PYTHON>>>';
+			} else {
+				return $matches[0];
+			}
+		}, $markdown);
+
 		$markdown = preg_replace_callback('/```python\R*(.*?)```/s', function($matches) {
 			return '<<<CODEBLOCK_PYTHON>>>'. base64_encode($matches[1]) .'<<<CODEBLOCK_PYTHON>>>';
 		}, $markdown);

@@ -3168,11 +3168,13 @@ def disable_logging() -> None:
             "ax.modelbridge.generation_node",
             "ax.modelbridge.best_model_selector",
 
+
             "ax.service",
             "ax.service.utils",
             "ax.service.utils.instantiation",
             "ax.service.utils.report_utils",
             "ax.service.utils.best_point",
+            "ax.service.utils.with_db_settings_base",
 
             "botorch.optim.fit",
             "botorch.models.utils.assorted",

@@ -15,10 +15,10 @@ fi
 
 source .shellscript_functions
 
-mkdocs build --strict -f .tests/mkdocs.yml
+res=$(pymarkdown scan .gui/_tutorials/*.md | grep -iv "Line length" | grep -v "Hard tabs" | grep -v "Inline HTML")
 
-exit_code=$?
+echo "$res"
 
-rm -rf .tests/site
+nr_lines=$(echo "$res" | wc -l)
 
-exit $exit_code
+exit $nr_lines

@@ -51,3 +51,4 @@ setuptools
 pyright
 qrcode
 mkdocs-code-validator
+pymarkdownlnt

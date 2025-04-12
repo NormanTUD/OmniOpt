@@ -179,7 +179,9 @@
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
 				}
 				$current_tag = get_current_tag();
-				if ($current_tag) echo "<div class='current-tag'>$current_tag</div>";
+				if ($current_tag) {
+					echo "<div class='current-tag'>$current_tag</div>";
+				}
 ?>
 			</div>
 			<div class="header-theme-toggle">
@@ -200,6 +202,20 @@
 
 	<script>
 		apply_theme_based_on_system_preferences();
+		window.addEventListener('load', function () {
+			var buttons = document.querySelectorAll('.header_button');
+			var maxWidth = 0;
+
+			buttons.forEach(function (btn) {
+				btn.style.width = 'auto';
+				var width = btn.offsetWidth;
+				if (width > maxWidth) maxWidth = width;
+			});
+
+			buttons.forEach(function (btn) {
+				btn.style.width = maxWidth + 'px';
+			});
+		});
 	</script>
 
 	<div id="searchResults"></div>

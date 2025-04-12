@@ -1751,36 +1751,29 @@ EOF
 						ask_cancel() {
 							echo ""
 							echo ""
-							red_text "Do you want to cancel just the tail (t) or the entire job (j)?"
-
-							PS3="Please choose (use arrow keys and press Enter): "
-							select option in "Cancel tail (t)" "Cancel entire job (j)" "Cancel operation (Exit)"; do
-								case $REPLY in
-									1|[Tt]*)
-										kill "$tail_pid"
-										cancelled_manually=1
-										break
-										;;
-									2|[Jj]*)
-										cancel_job
-										# Kill all tail processes related to the current script
-										for child in $(pgrep -P $$); do
-											for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
-												kill -9 "$tail_process"  # force kill the tail process
-											done
+							red_text "Do you want to cancel just the tail (t) or the entire job (j), or cancel the cancelling (c)? "
+							read -r answer
+							case $answer in
+								[Tt]*)
+									kill "$tail_pid"
+									cancelled_manually=1
+									;;
+								[Jj]*)
+									cancel_job
+									# Kill all tail processes related to the current script
+									for child in $(pgrep -P $$); do
+										for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
+											kill -9 "$tail_process"  # force kill the tail process
 										done
-										cancelled_manually=1
-										break
-										;;
-									3)
-										echo "Operation canceled. Program will continue."
-										break
-										;;
-									*)
-										echo "Invalid input. Please select a valid option."
-										;;
-								esac
-							done
+									done
+									cancelled_manually=1
+									;;
+								[Cc]*)
+									;;
+								*)
+									echo "Invalid input. The program will continue."
+									;;
+							esac
 						}
 
 						trap 'ask_cancel' SIGINT

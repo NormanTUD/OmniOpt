@@ -1116,22 +1116,22 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             if "parameters" not in results:
                 raise ValueError(f"Invalid results format in {results_path}")
-            else:
-                for keyname in serialized_params.keys():
-                    if keyname not in results["parameters"]:
-                        raise ValueError(f"Missing {keyname} from JSON file {results_path}")
-                    to_type = serialized_params[keyname]["type"]
 
-                    try:
-                        if to_type == "STRING":
-                            results["parameters"][keyname] = str(results["parameters"][keyname])
-                        elif to_type == "FLOAT":
-                                results["parameters"][keyname] = float(results["parameters"][keyname])
-                        elif to_type == "INT":
-                                results["parameters"][keyname] = int(results["parameters"][keyname])
-                    except ValueError:
-                        failed_res = results["parameters"][keyname]
-                        print_red(f"Failed to convert {keyname} to {to_type}. Value: {failed_res}")
+            for keyname in serialized_params.keys():
+                if keyname not in results["parameters"]:
+                    raise ValueError(f"Missing {keyname} from JSON file {results_path}")
+                to_type = serialized_params[keyname]["type"]
+
+                try:
+                    if to_type == "STRING":
+                        results["parameters"][keyname] = str(results["parameters"][keyname])
+                    elif to_type == "FLOAT":
+                        results["parameters"][keyname] = float(results["parameters"][keyname])
+                    elif to_type == "INT":
+                        results["parameters"][keyname] = int(results["parameters"][keyname])
+                except ValueError:
+                    failed_res = results["parameters"][keyname]
+                    print_red(f"Failed to convert {keyname} to {to_type}. Value: {failed_res}")
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

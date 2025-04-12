@@ -202,6 +202,10 @@ These files store some states used mainly to continue jobs. Not all of these fil
 
 Run once a second on every host that runs the evaluate function to log CPU and memory usage.
 
+### `external_generator_tmp`
+
+This contains a subfolder for each execution of an [external run generator](tutorials?tutorial=external_generator).
+
 ### `single_runs`
 
 This contains one folder for each subjob (i.e. single evaluation) that ran. Locally, it starts at a random number. On systems with SLURM, the folder names are the SLURM IDs.

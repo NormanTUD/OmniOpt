@@ -23,7 +23,8 @@ omniopt --partition=alpha --experiment_name=example --mem_gb=1 --time=60 \
 This command initiates OmniOpt2 and installs dependencies if not already
 installed. The parameter `--run_program` uses a
 [Base64](https://de.wikipedia.org/wiki/Base64)-encoded string to
-specify commands.
+specify commands. It is recommended to use the
+[GUI](https://imageseg.scads.de/omniax/gui), though.
 
 ## Plot Results
 

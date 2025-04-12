@@ -32,8 +32,8 @@ You have to specify the way your different results are outputted yourself in you
 The \( \text{sign} \)-variable-detection method is the same for all signed functions, while \( \_\text{args} \) being the set of all given parameters:
 
 \[
-\text{sign} = 
-\begin{cases} 
+\text{sign} =
+\begin{cases}
         -1 & \text{if } \exists x \in \_\text{args} \text{ such that } x < 0, \\
         1 & \text{otherwise}
 \end{cases}

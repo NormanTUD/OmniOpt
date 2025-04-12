@@ -10,10 +10,12 @@ Most software depends on other software to work. This software usually needs to 
 
 By default, OmniOpt2 tries to install the dependencies in a folder in your home folder, so that you only need to install OmniOpt2 once, and all other installations can access this virtualenv.
 
-The default folder will be created like this: 
+The default folder will be created like this:
+
 ```bash
 .omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster
 ```
+
 while `uname -m` yields to your CPU architecture (usually `x86_64`),
 `python --version | sed -e 's# #_#g'` will yield to your python version (e.g. `3.11.2`), and `$_cluster` contains the cluster name, taken from the environment variable `CLUSTERHOST`.
 

@@ -9,11 +9,12 @@ Sometimes, you have several goals in mind when optimizing your neural network. F
 ## How to use Multi-Objective-Optimization with OmniOpt2?
 
 It's very similar to using [single-optimization](tutorials?tutorial=run_sh), the only differences being that, instead of using
+
 ```python
 print(f"RESULT: {loss}")
 ```
 
-you now need two lines: 
+you now need two lines:
 
 ```python
 print(f"LOSS: {loss}")

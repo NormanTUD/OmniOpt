@@ -49,7 +49,6 @@ Also check the exit-code. Some exit codes have special meanings, like 137, have 
 
 The code between `DEBUG INFOS START:` and `DEBUG INFOS END` contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the `x`-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.
 
-
 If, for example, you have error code 137, that means you likely ran out of RAM and need to increase the amount of RAM for your workers.
 
 <table>

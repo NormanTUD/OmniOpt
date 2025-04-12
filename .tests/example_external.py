@@ -2,19 +2,24 @@ import sys
 import os
 import json
 import random
+from pprint import pprint
 
-def check_formula(expr, values):
-    return eval(expr, {}, values)
+def dier(msg):
+    pprint(msg)
+    sys.exit(10)
 
-def constraints_dont_match(constraints, point):
+def check_constraint(constraint, params):
+    return eval(constraint, {}, params)
+
+def constraints_ok(constraints, point):
     if not constraints or constraints is None:
-        return False
+        return True
 
-    if point is None: # Only for first evaluation
-        return False
+    if point is None or point == {}: # Only for first evaluation
+        return True
 
     for constraint in constraints:
-        if not check_formula(expr, point):
+        if not check_constraint(constraint, point):
             return True
 
     return False
@@ -51,21 +56,16 @@ def generate_random_point(parameters):
 
     param_data = parameters["parameters"]
 
-    for param_name in list(param_data.keys()):
-        potential_point = None
+    i = 0
 
-        i = 0
-
-        while constraints_dont_match(constraints, potential_point):
-            potential_point = generate_random_value(param_data[1][param_name])
+    while constraints_ok(constraints, point):
+        for param_name in list(param_data.keys()):
+            point[param_name] = generate_random_value(param_data[param_name])
 
             if i > 100: # if after 100 trials nothing was found, stop trying
                 break
 
-            i = i + 1
-
-        if potential_point:
-            point = potential_point
+        i = i + 1
 
     return point
 
@@ -92,16 +92,6 @@ def main():
     except json.JSONDecodeError:
         print(f"Error: Failed to decode JSON in {json_file_path}.")
         sys.exit(4)
-
-    print("=" * 10)
-    print("=" * 10)
-
-    with open(json_file_path, "r", encoding="utf-8") as f:
-        content = f.read()
-        print(content)
-
-    print("=" * 10)
-    print("=" * 10)
 
     random_point = generate_random_point(data)
 

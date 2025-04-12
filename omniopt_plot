@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 {
-	source .colorfunctions.sh
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+	source $SCRIPT_DIR/.colorfunctions.sh
 
 	GREEN='\033[0;32m'
 	YELLOW='\033[0;33m'
@@ -175,8 +177,6 @@
 		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
 		printf '%d seconds\n' $S
 	}
-
-	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 	expected_plot_types=("menu")
 	whiptail_args=()

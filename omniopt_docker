@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-source .colorfunctions.sh
-
 ORIGINAL_ARGS=$*
 SCRIPT_DIR=$(dirname $(realpath $0))
 
 cd "$SCRIPT_DIR"
+
+source $SCRIPT_DIR/.colorfunctions.sh
 
 help_message() {
 	echo "Usage: docker [OPTIONS]"

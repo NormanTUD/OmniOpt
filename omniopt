@@ -1748,7 +1748,9 @@ EOF
 						}
 
 						ask_cancel() {
-							echo "Do you want to cancel just the tail (t) or the entire job (j)?"
+							echo ""
+							echo ""
+							red_text "Do you want to cancel just the tail (t) or the entire job (j)?"
 							read -r answer
 							case $answer in
 								[Tt]*)

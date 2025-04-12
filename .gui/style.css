@@ -766,7 +766,7 @@ img {
 .logo-img {
 	max-height: 70px;
 	height: auto;
-	max-width: 100%;
+	max-width: 40%;
 	width: auto;
 	object-fit: contain;
 	pointer-events: unset;

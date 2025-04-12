@@ -22,7 +22,25 @@ OmniOpt2 is self-installing and does not require any additional manual setup. Si
 ## Usage
 
 ```bash
-./omniopt --partition=alpha --experiment_name=my_experiment --mem_gb=1 --time=60 --worker_timeout=30 --max_eval=500 --num_parallel_jobs=20 --gpus=0 --num_random_steps=20 --follow --show_sixel_graphics --run_program=YmFzaCAvcGF0aC90by9teV9leHBlcmltZW50L3J1bi5zaCAtLWVwb2Nocz0lKGVwb2NocykgLS1sZWFybmluZ19yYXRlPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp --cpus_per_task=1 --send_anonymized_usage_stats --model=BOTORCH_MODULAR --parameter learning_rate range 0 0.5 float --parameter epochs choice 1,10,20,30,100 --parameter layers fixed 10
+./omniopt \
+	--partition=alpha \
+	--experiment_name=my_experiment \
+	--mem_gb=1 \
+	--time=60 \
+	--worker_timeout=30 \
+	--max_eval=500 \
+	--num_parallel_jobs=20 \
+	--gpus=0 \
+	--num_random_steps=20 \
+	--follow \
+	--show_sixel_graphics \
+	--run_program=YmFzaCAvL215X2V4cGVyaW1lbnQvcnVuLnNoIC0tZXBvY2hzPSUoZXBvY2hzKSAtLWxyPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp \
+	--cpus_per_task=1 \
+	--send_anonymized_usage_stats \
+	--model=BOTORCH_MODULAR \
+	--parameter learning_rate range 0 0.5 float \
+	--parameter epochs choice 1,10,20,30,100 \
+	--parameter layers fixed 10
 ```
 
 This command includes all necessary options to run a hyperparameter optimization with OmniOpt2.
@@ -40,7 +58,7 @@ This command includes all necessary options to run a hyperparameter optimization
 - `--num_random_steps=20`: Sets the number of random steps to 20.
 - `--follow`: Follows the job's progress.
 - `--show_sixel_graphics`: Displays sixel graphics.
-- `--run_program=YmFzaCAvcGF0aC90by9teV9leHBlcmltZW50L3J1bi5zaCAtLWVwb2Nocz0lKGVwb2NocykgLS1sZWFybmluZ19yYXRlPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp`: Specifies the base64-encoded command to run the program. In this case, it resolves to `bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)`.
+- `--run_program=YmFzaCAvL215X2V4cGVyaW1lbnQvcnVuLnNoIC0tZXBvY2hzPSUoZXBvY2hzKSAtLWxyPSUobGVhcm5pbmdfcmF0ZSkgLS1sYXllcnM9JShsYXllcnMp`: Specifies the base64-encoded command to run the program. In this case, it resolves to `bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)`.
 - `--cpus_per_task=1`: Allocates 1 CPU per task.
 - `--send_anonymized_usage_stats`: Sends anonymized usage statistics.
 - `--model=BOTORCH_MODULAR`: Specifies the optimization model to use.

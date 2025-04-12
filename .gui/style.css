@@ -909,3 +909,7 @@ input:checked + .slider::before {
 .header_button {
 	margin: 5px;
 }
+
+.line_break_anywhere {
+	line-break: anywhere;
+}

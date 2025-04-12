@@ -184,7 +184,6 @@ def check_constraint(constraint, params):
     return eval(constraint, {}, params)
 
 def constraints_ok(constraints, point):
-    print(f"constraints_ok({constraints}, {point})")
     if not constraints or constraints is None or len(constraints) == 0:
         return True
 

@@ -766,7 +766,6 @@ img {
 .logo-img {
 	max-height: 70px;
 	height: auto;
-	max-width: 40%;
 	width: auto;
 	object-fit: contain;
 	pointer-events: unset;
@@ -874,10 +873,6 @@ input:checked + .slider::before {
 	text-align: center;
 }
 
-.header-logo-group {
-	max-width: 250px;
-}
-
 /* --- Responsive Anpassungen --- */
 @media (max-width: 768px) {
 	.header-logo-group,
@@ -889,7 +884,7 @@ input:checked + .slider::before {
 	}
 
 	.logo-img {
-		max-height: min(50px, 30%);
+		max-height: 50px;
 		pointer-events: unset;
 	}
 

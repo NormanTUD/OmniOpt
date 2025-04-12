@@ -2194,9 +2194,9 @@ $onclick_string
 
 		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
-		[$overview_html, $warnings] = add_constraints_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_constraints_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings, $status_data] = add_overview_table_to_overview_and_get_status_data($run_dir, $status_data, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_result_names_table_to_overview($result_names, $result_min_max, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_progressbar_to_overview($run_dir, $overview_html, $warnings);

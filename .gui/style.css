@@ -874,12 +874,12 @@ input:checked + .slider::before {
 	margin-top: 35px;
 }
 
+.header-logo-group {
+	max-width: 40%;
+}
+
 /* --- Responsive Anpassungen --- */
 @media (max-width: 768px) {
-	.header-logo-group {
-		max-width: 40%;
-	}
-
 	.header-logo-group,
 	.header-badges,
 	.header-theme-toggle {

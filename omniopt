@@ -1741,6 +1741,37 @@ EOF
 
 					if [[ -e "$LOG_PATH" ]]; then
 						kill_tail_when_squeue_job_empty "$started_job_nr" &
+
+						cancel_job() {
+							scancel "$started_job_nr"
+							echo "The entire job has been canceled."
+						}
+
+						ask_cancel() {
+							echo "Do you want to cancel just the tail (t) or the entire job (j)?"
+							read -r answer
+							case $answer in
+								[Tt]*)
+									echo "Only the tail will be canceled."
+									kill "$tail_pid"  # kill only the tail process
+									;;
+								[Jj]*)
+									cancel_job
+									# Kill all tail processes related to the current script
+									for child in $(pgrep -P $$); do
+										for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
+											kill -9 "$tail_process"  # force kill the tail process
+										done
+									done
+									;;
+								*)
+									echo "Invalid input. The program will continue."
+									;;
+							esac
+						}
+
+						trap 'ask_cancel' SIGINT
+
 						# weird exec stuff for disabling the "Terminated" message coming from kill
 						exec 3>&2          # 3 is now a copy of 2
 						exec 2> /dev/null  # 2 now points to /dev/null

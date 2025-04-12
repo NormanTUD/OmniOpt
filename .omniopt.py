@@ -1065,7 +1065,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         if constraints and len(constraints):
             for constraint in constraints:
                 representation = str(constraint)
-                equation = representation[representation.find('(')+1:representation.rfind(')')]
+                equation = representation[representation.find('(') + 1:representation.rfind(')')]
 
                 parsed_constraints.append(equation)
 

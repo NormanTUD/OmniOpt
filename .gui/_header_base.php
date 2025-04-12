@@ -1,6 +1,4 @@
 <?php
-
-
 	if (function_exists('apache_get_modules')) {
 		$modules = apache_get_modules();
 		if (!in_array('mod_rewrite', $modules)) {
@@ -9,9 +7,9 @@
 		}
 	}
 
-
 	require_once "power_on_self_test.php";
 	require_once "_functions.php";
+	require "searchable_php_files.php";
 
 	function get_main_script_dir() {
 		$script_name = $_SERVER["SCRIPT_NAME"];
@@ -172,8 +170,6 @@
 						</table>
 					</td>
 	<?php
-					require "searchable_php_files.php";
-
 					$current_file = basename($_SERVER["PHP_SELF"]);
 
 					foreach ($GLOBALS["files"] as $fn => $n) {

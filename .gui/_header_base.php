@@ -202,7 +202,8 @@
 
 	<script>
 		apply_theme_based_on_system_preferences();
-		window.addEventListener('load', function () {
+
+		function adapt_header_button_width () {
 			var buttons = document.querySelectorAll('.header_button');
 			var maxWidth = 0;
 
@@ -215,7 +216,10 @@
 			buttons.forEach(function (btn) {
 				btn.style.width = maxWidth + 'px';
 			});
-		});
+		}
+
+		window.addEventListener('load', adapt_header_button_width);
+		window.addEventListener('resize', adapt_header_button_width);
 	</script>
 
 	<div id="searchResults"></div>

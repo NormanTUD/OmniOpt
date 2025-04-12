@@ -873,7 +873,6 @@ input:checked + .slider::before {
 	text-align: center;
 }
 
-/* --- Responsive Anpassungen --- */
 @media (max-width: 768px) {
 	.header-logo-group,
 	.header-badges,
@@ -895,6 +894,10 @@ input:checked + .slider::before {
 	.nav-tab {
 		font-size: 0.9rem;
 		padding: 6px 12px;
+	}
+
+	.header_button {
+		font-size: 2em;
 	}
 }
 

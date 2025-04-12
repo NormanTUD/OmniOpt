@@ -1123,9 +1123,17 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                     if to_type == "STRING":
                         results["parameters"][keyname] = str(results["parameters"][keyname])
                     elif to_type == "FLOAT":
-                        results["parameters"][keyname] = float(results["parameters"][keyname])
+                        try:
+                            results["parameters"][keyname] = float(results["parameters"][keyname])
+                        except ValueError:
+                            failed_res = results["parameters"][keyname]
+                            print_red(f"Failed to convert {keyname} to int. Value: {failed_res}")
                     elif to_type == "INT":
-                        results["parameters"][keyname] = int(results["parameters"][keyname])
+                        try:
+                            results["parameters"][keyname] = int(results["parameters"][keyname])
+                        except ValueError:
+                            failed_res = results["parameters"][keyname]
+                            print_red(f"Failed to convert {keyname} to int. Value: {failed_res}")
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

@@ -152,8 +152,8 @@
 				</a>
 				<a href="https://pypi.org/project/omniopt2/" target="_blank">
 					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
-					</a>
-				</div>
+				</a>
+			</div>
 
 			<div class="header-tabs">
 <?php

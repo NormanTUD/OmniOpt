@@ -43,7 +43,7 @@ var model_data = [
 		id: 'EXTERNAL_GENERATOR',
 		name: 'External Generator',
 		//link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
-		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements.',
+		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements. <a href="tutorials?tutorial=external_generator" target="_blank">See this tutorial on how to use external generators</a>.',
 		hide_in_custom_generation_strategy: true
 	}
 ];
@@ -581,7 +581,7 @@ var hiddenTableData = [
 		info: "An absolute path what the working directory of jobs should be",
 		required: false,
 		regex: regex_path,
-		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
+		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end. <a href='tutorials?tutorial=external_generator' target='_blank'>See this tutorial on how to use external generators</a>.",
 	},
 	{
 		label: "Number of estimators for RANDOMFOREST",

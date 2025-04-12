@@ -16,4 +16,3 @@ plugins:
           command: 'python -m py_compile'
         json:
           command: 'python -m json.tool'
-

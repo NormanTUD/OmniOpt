@@ -1,14 +1,12 @@
-<h1>Environment Variables</h1>
+# Environment Variables
 
 <!-- List of all environment variables that change how OmniOpt2 works -->
 
-<div id="toc"></div>
+## What are environment variables?
 
-<h2 id="what_are_environment_variables">What are environment variables?</h2>
+Every program on Linux has an environment, like a bash- or zsh-shell, that it runs in. These shells can contain variables that can change how OmniOpt2 works. Here is a list of all shell variables that change how OmniOpt2 works.
 
-<p>Every program on Linux has an environment, like a bash- or zsh-shell, that it runs in. These shells can contain variables that can change how OmniOpt2 works. Here is a list of all shell variables that change how OmniOpt2 works.</p>
-
-<p>It is important that you run these commands before you run OmniOpt2, and also that you write <samp>export</samp> in front of them. Unexported variables are not passed to programs started by the shell.</p>
+It is important that you run these commands before you run OmniOpt2, and also that you write <samp>export</samp> in front of them. Unexported variables are not passed to programs started by the shell.
 
 <table>
 	<tr class="invert_in_dark_mode">
@@ -38,7 +36,6 @@
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export ITWORKSONMYMACHINE=1</code></pre></td>
 		<td>Sets the user-id to <samp>affeaffeaffeaffeaffeaffeaffeaffe</samp>, so the statistics can determine whether you are a real user or a the main developer (only I should set this variable)</td>
 	</tr>
-
 	<tr>
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export root_venv_dir=/path/to/venv</code></pre></td>
 		<td>Path to where virtualenv should be installed. Default is <samp>$HOME</code></pre></td>
@@ -78,7 +75,6 @@
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export BUBBLESIZEINPX=1</code></pre></td>
 		<td>Size of bubbles in plot scripts in px</td>
 	</tr>
-
 	<tr>
 		<th class="section-header invert_in_dark_mode" colspan=2>Test-Scripts</th>
 	</tr>

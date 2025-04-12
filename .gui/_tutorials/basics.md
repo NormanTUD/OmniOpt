@@ -11,7 +11,7 @@ OmniOpt2 is a highly parallelized hyperparameter optimizer based on Ax/Botorch. 
 ## Key Features
 
 - **Simple Hyperparameter Optimization**: OmniOpt2 allows for easy hyperparameter optimization within defined ranges.
-- **Tool Agnostic**: It is completely agnostic regarding the code it runs. OmniOpt2 only requires command-line arguments with the hyperparameters and expects the program to output results, e.g., `print(f"RESULT: {loss}")`. [See here how to prepare your program for the use with OmniOpt2](tutorials.php?tutorial=run_sh)
+- **Tool Agnostic**: It is completely agnostic regarding the code it runs. OmniOpt2 only requires command-line arguments with the hyperparameters and expects the program to output results, e.g., `print(f"RESULT: {loss}")`. [See here how to prepare your program for the use with OmniOpt2](tutorials?tutorial=run_sh)
 - **Self-Installation**: OmniOpt2 installs itself into a virtual environment.
 - **No Configuration Files**: All configuration is handled through the command line interface (CLI).
 

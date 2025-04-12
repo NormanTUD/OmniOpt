@@ -184,7 +184,8 @@ def check_constraint(constraint, params):
     return eval(constraint, {}, params)
 
 def constraints_ok(constraints, point):
-    if not constraints or constraints is None:
+    print(f"constraints_ok({constraints}, {point})")
+    if not constraints or constraints is None or len(constraints) == 0:
         return True
 
     if point is None or point == {}: # Only for first evaluation
@@ -230,14 +231,18 @@ def generate_random_point(parameters):
 
     i = 0
 
-    while constraints_ok(constraints, point):
-        for param_name in list(param_data.keys()):
-            point[param_name] = generate_random_value(param_data[param_name])
+    if len(constraints):
+        while constraints_ok(constraints, point):
+            for param_name in list(param_data.keys()):
+                point[param_name] = generate_random_value(param_data[param_name])
 
             if i > 100: # if after 100 trials nothing was found, stop trying
                 break
 
-        i = i + 1
+            i = i + 1
+    else:
+        for param_name in list(param_data.keys()):
+            point[param_name] = generate_random_value(param_data[param_name])
 
     return point
 

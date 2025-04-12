@@ -51,7 +51,7 @@ def generate_random_point(parameters):
     i = 0
 
     if len(constraints):
-        while point == {} or constraints_not_ok(constraints, point):
+        while not point or constraints_not_ok(constraints, point):
             for param_name in list(param_data.keys()):
                 point[param_name] = generate_random_value(param_data[param_name])
 

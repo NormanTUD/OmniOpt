@@ -1081,8 +1081,10 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             }
 
             inputs_path = os.path.join(temp_dir, "input.json")
+
             with open(inputs_path, mode="w", encoding="utf-8") as f:
                 json.dump(inputs_json, f, indent=4)
+
             print_debug(f"Saved inputs.json to {inputs_path}")
 
             run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]

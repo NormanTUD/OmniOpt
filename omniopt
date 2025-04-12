@@ -35,6 +35,8 @@
 
 	source $SCRIPT_DIR/.colorfunctions.sh
 
+	cancelled_manually=0
+
 	use_git=1
 
 	if [[ "$PWD" == "$VIRTUAL_ENV/bin" ]]; then
@@ -395,7 +397,7 @@
 			fi
 		fi
 
-		if [[ $CODE != 0 ]]; then
+		if [[ $CODE != 0 ]] && [[ $cancelled_manually -eq 0 ]]; then
 			BASEURL="https://imageseg.scads.de/omniax"
 
 			if [[ -e "$HOME/.oo_base_url" ]]; then
@@ -1755,7 +1757,8 @@ EOF
 							case $answer in
 								[Tt]*)
 									echo "Only the tail will be canceled."
-									kill "$tail_pid"  # kill only the tail process
+									kill "$tail_pid"
+									cancelled_manually=1
 									;;
 								[Jj]*)
 									cancel_job
@@ -1765,6 +1768,7 @@ EOF
 											kill -9 "$tail_process"  # force kill the tail process
 										done
 									done
+									cancelled_manually=1
 									;;
 								*)
 									echo "Invalid input. The program will continue."
@@ -1817,7 +1821,9 @@ EOF
 		fi
 	fi
 
-	echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
+	if [[ $cancelled_manually -eq 0 ]]; then
+		echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
+	fi
 
 	if [[ -n $RUN_WITH_COVERAGE ]]; then
 		echo "Run *coverage combine*, *coverage xml* and *coverage html*"

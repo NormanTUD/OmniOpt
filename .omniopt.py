@@ -1060,7 +1060,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return serialized
 
     @beartype
-    def _serialize_constraints(self: Any, constraints: list) -> Optional[list]:
+    def _serialize_constraints(self: Any, constraints: Optional[list]) -> Optional[list]:
         parsed_constraints = []
         if constraints and len(constraints):
             for constraint in constraints:

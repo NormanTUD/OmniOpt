@@ -1758,6 +1758,7 @@ EOF
 						}
 
 						ask_cancel() {
+							trap 'tail_log_file' SIGINT
 							echo ""
 							echo ""
 							red_text "Do you want to cancel just the tail (t) or the entire job (j), or cancel the cancelling (c)? "
@@ -1784,6 +1785,8 @@ EOF
 									echo "Invalid input. The program will continue."
 									;;
 							esac
+
+							trap 'ask_cancel' SIGINT
 						}
 
 						trap 'ask_cancel' SIGINT

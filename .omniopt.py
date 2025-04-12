@@ -1118,6 +1118,8 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                 raise ValueError(f"Invalid results format in {results_path}")
             else:
                 for keyname in serialized_params.keys():
+                    if keyname not in results["parameters"]:
+                        raise ValueError(f"Missing {keyname} from JSON file {results_path}")
                     to_type = serialized_params[keyname]["type"]
 
                     try:

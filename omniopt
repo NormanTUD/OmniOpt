@@ -1775,10 +1775,12 @@ EOF
 									scancel "$started_job_nr"
 									;;
 								[Cc]*)
+									kill_all_tail_child_processes
 									tail_log_file
 									;;
 								*)
-									echo "Invalid input. The program will continue."
+									kill_all_tail_child_processes
+									tail_log_file
 									;;
 							esac
 						}

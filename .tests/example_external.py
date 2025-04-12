@@ -2,11 +2,6 @@ import sys
 import os
 import json
 import random
-from pprint import pprint
-
-def dier(msg):
-    pprint(msg)
-    sys.exit(10)
 
 def check_constraint(constraint, params):
     return eval(constraint, {}, params)

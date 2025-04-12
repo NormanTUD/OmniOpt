@@ -1085,8 +1085,10 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             if self.experiment.search_space.parameter_constraints:
                 self.constraints = self.experiment.search_space.parameter_constraints
 
+            serialized_params = self._serialize_parameters(self.parameters)
+
             inputs_json = {
-                "parameters": self._serialize_parameters(self.parameters),
+                "parameters": serialized_params,
                 "constraints": self._serialize_constraints(self.constraints),
                 "seed": self.seed,
                 "trials": parse_csv(f"{get_current_run_folder()}/results.csv")
@@ -1114,6 +1116,16 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             if "parameters" not in results:
                 raise ValueError(f"Invalid results format in {results_path}")
+            else:
+                for keyname in serialized_params.keys():
+                    to_type = serialized_params[keyname]["type"]
+
+                    if to_type == "STRING":
+                        results["parameters"][keyname] = str(results["parameters"][keyname])
+                    elif to_type == "FLOAT":
+                        results["parameters"][keyname] = float(results["parameters"][keyname])
+                    elif to_type == "INT":
+                        results["parameters"][keyname] = int(results["parameters"][keyname])
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

@@ -769,6 +769,7 @@ img {
 	max-width: 100%;
 	width: auto;
 	object-fit: contain;
+	pointer-events: unset;
 }
 
 /* --- Badges --- */
@@ -889,6 +890,7 @@ input:checked + .slider::before {
 
 	.logo-img {
 		max-height: 50px;
+		pointer-events: unset;
 	}
 
 	.badge-img {

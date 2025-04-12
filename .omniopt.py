@@ -1060,6 +1060,18 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return serialized
 
     @beartype
+    def _serialize_constraints(self: Any, constraints: list) -> list:
+        parsed_constraints = []
+        if constraints and len(constraints):
+            for constraint in constraints:
+                representation = str(constraint)
+                equation = representation[representation.find('(')+1:representation.rfind(')')]
+
+                parsed_constraints.append(equation)
+
+        return parsed_constraints
+
+    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1075,7 +1087,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             inputs_json = {
                 "parameters": self._serialize_parameters(self.parameters),
-                "constraints": self.constraints,
+                "constraints": self._serialize_constraints(self.constraints),
                 "seed": self.seed,
                 "trials": parse_csv(f"{get_current_run_folder()}/results.csv")
             }

@@ -1,7 +1,7 @@
-site_name: OmniOpt
+site_name: OmniOpt2
 docs_dir: "../.gui/_tutorials"
 theme:
-  name: 'mkdocs'
+  name: "mkdocs"
 markdown_extensions:
   - codehilite
   - toc:

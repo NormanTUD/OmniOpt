@@ -871,11 +871,10 @@ input:checked + .slider::before {
 	display: block;
 	font-size: 0.7rem;
 	text-align: center;
-	margin-top: 35px;
 }
 
 .header-logo-group {
-	max-width: 180px;
+	max-width: 250px;
 }
 
 /* --- Responsive Anpassungen --- */
@@ -904,4 +903,8 @@ input:checked + .slider::before {
 
 .header-tabs {
 	margin-top: 10px;
+}
+
+.header_button {
+	margin: 5px;
 }

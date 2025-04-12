@@ -33,6 +33,25 @@
 {
 	SCRIPT_DIR=$(dirname $(realpath "$0"))
 
+	if [ -n "${SLURM_JOB_ID:-}" ] ; then
+		set +e
+		if command -v scontrol 2>/dev/null >/dev/null; then
+			SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+			#echo "scontrol show job $SLURM_JOB_ID: exited with $?"
+			SLURM_FILE_SCRIPT_DIR=$(dirname "$SLURM_FILE_SCRIPT_DIR")
+
+			if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
+				SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
+			else
+				echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
+			fi
+		else
+			red_text "scontrol not found. Unsetting SLURM_JOB_ID\n"
+			unset SLURM_JOB_ID
+		fi
+		set -e
+	fi
+
 	source $SCRIPT_DIR/.colorfunctions.sh
 
 	cancelled_manually=0
@@ -1440,25 +1459,6 @@ EOF
 	fi
 
 	python_pid=""
-
-	if [ -n "${SLURM_JOB_ID:-}" ] ; then
-		set +e
-		if command -v scontrol 2>/dev/null >/dev/null; then
-			SLURM_FILE_SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-			#echo "scontrol show job $SLURM_JOB_ID: exited with $?"
-			SLURM_FILE_SCRIPT_DIR=$(dirname "$SLURM_FILE_SCRIPT_DIR")
-
-			if [[ -d $SLURM_FILE_SCRIPT_DIR ]] && [[ -e "$SLURM_FILE_SCRIPT_DIR/.shellscript_functions" ]]; then
-				SCRIPT_DIR="$SLURM_FILE_SCRIPT_DIR"
-			else
-				echo "SLURM_FILE_SCRIPT_DIR $SLURM_FILE_SCRIPT_DIR not found, even though SLURM_JOB_ID exists ($SLURM_JOB_ID). Using SCRIPT_DIR=$SCRIPT_DIR"
-			fi
-		else
-			red_text "scontrol not found. Unsetting SLURM_JOB_ID\n"
-			unset SLURM_JOB_ID
-		fi
-		set -e
-	fi
 
 	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
 		#echo "source $SCRIPT_DIR/.shellscript_functions"

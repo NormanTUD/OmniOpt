@@ -682,6 +682,8 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "External generator" ".tests/external_generator" 0
 
+	_test "External generator with constraint" ".tests/external_generator_with_constraint" 0
+
 	_test "Invalid range type (wrong type)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 123 123123 123" 181 104
 
 	_test "Invalid range type (upper = lower)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 0" 181 104

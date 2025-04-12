@@ -42,11 +42,11 @@ def generate_random_value(parameter):
 
     return None
 
-def generate_random_point(parameters):
-    constraints = parameters["constraints"]
+def generate_random_point(data):
+    constraints = data["constraints"]
     point = {}
 
-    param_data = parameters["parameters"]
+    param_data = data["parameters"]
 
     i = 0
 

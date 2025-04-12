@@ -1515,6 +1515,14 @@ EOF
 		myexit $exit_code
 	fi
 
+	kill_all_tail_child_processes() {
+		for child in $(pgrep -P $$); do
+			for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
+				kill -9 "$tail_process"
+			done
+		done
+	}
+
 	kill_tail_when_squeue_job_empty () {
 		JOB_ID=$1
 
@@ -1540,11 +1548,7 @@ EOF
 			set_debug
 		fi
 
-		for child in $(pgrep -P $$); do
-			for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
-				kill -9 "$tail_process"
-			done
-		done
+		kill_all_tail_child_processes
 
 		return 0
 	}
@@ -1745,6 +1749,7 @@ EOF
 						kill_tail_when_squeue_job_empty "$started_job_nr" &
 
 						tail_log_file() {
+							trap 'ask_cancel' SIGINT
 							# weird exec stuff for disabling the "Terminated" message coming from kill
 							exec 3>&2          # 3 is now a copy of 2
 							exec 2> /dev/null  # 2 now points to /dev/null
@@ -1765,22 +1770,12 @@ EOF
 							read -r answer
 							case $answer in
 								[Tt]*)
-									for child in $(pgrep -P $$); do
-										for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
-											kill -9 "$tail_process"
-										done
-									done
-
+									kill_all_tail_child_processes
 									cancelled_manually=1
 									;;
 								[Jj]*)
+									kill_all_tail_child_processes
 									cancel_job
-									# Kill all tail processes related to the current script
-									for child in $(pgrep -P $$); do
-										for tail_process in $(ps auxf | grep "$child" | grep tail | sed -e "s#^${USER}[[:space:]]*##" -e 's#[[:space:]].*##'); do
-											kill -9 "$tail_process"  # force kill the tail process
-										done
-									done
 									cancelled_manually=1
 									;;
 								[Cc]*)
@@ -1790,11 +1785,7 @@ EOF
 									echo "Invalid input. The program will continue."
 									;;
 							esac
-
-							trap 'ask_cancel' SIGINT
 						}
-
-						trap 'ask_cancel' SIGINT
 
 						tail_log_file
 

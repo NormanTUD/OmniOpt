@@ -120,7 +120,7 @@ This file is then read, parsed and used to run a new hyperparameter set. `x`, `y
 
 For each new hyperparameter (after the SOBOL-phase), the program will be invoked newly.
 
-## Another example `input.json`-file
+## Another example run code and `input.json`-file
 
 ```bash
 ./omniopt \
@@ -154,7 +154,7 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 	--parameter y choice 5431,1234 \
 	--parameter z fixed 111 \
 	--model=EXTERNAL_GENERATOR \
-	--external_generator $(python3 $(pwd)/.tests/example_external.py | base64 -w0)
+    --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
 ```
 
 ```json

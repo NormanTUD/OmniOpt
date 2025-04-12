@@ -1758,10 +1758,6 @@ EOF
 							exec 3>&-          # close saved version
 						}
 
-						cancel_job() {
-							scancel "$started_job_nr"
-						}
-
 						ask_cancel() {
 							trap 'tail_log_file' SIGINT
 							echo ""
@@ -1770,13 +1766,13 @@ EOF
 							read -r answer
 							case $answer in
 								[Tt]*)
-									kill_all_tail_child_processes
 									cancelled_manually=1
+									kill_all_tail_child_processes
 									;;
 								[Jj]*)
-									kill_all_tail_child_processes
-									cancel_job
 									cancelled_manually=1
+									kill_all_tail_child_processes
+									scancel "$started_job_nr"
 									;;
 								[Cc]*)
 									tail_log_file

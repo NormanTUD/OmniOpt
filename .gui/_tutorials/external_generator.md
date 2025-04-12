@@ -7,9 +7,9 @@
 ## Basic idea
 
 It is possible to use external generators in OmniOpt2, which means that you use external programs to generate new points that should be examined. That means you can use any algorithm you like in any programming language you
-want, as long as you follow the standards required by OmniOpt2. 
+want, as long as you follow the standards required by OmniOpt2.
 
-The external generator works by putting a JSON file that contains all previously generated data, the seed, the constraints, all parameters and their types in a JSON file. 
+The external generator works by putting a JSON file that contains all previously generated data, the seed, the constraints, all parameters and their types in a JSON file.
 
 You can specify your program with the `--external_generator` parameter, though it must be in base64. To take effect, the `--model` must be set to `EXTERNAL_GENERATOR`. See the last parameters here:
 
@@ -124,37 +124,37 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 
 ```bash
 ./omniopt \
-	--partition=alpha  \
-	--experiment_name=EXTERNAL_GENERATOR_test  \
-	--mem_gb=1  \
-	--time=60  \
-	--worker_timeout=60  \
-	--max_eval=2  \
-	--num_parallel_jobs=5  \
-	--gpus=1  \
-	--num_random_steps=1  \
-	--follow  \
-	--live_share  \
-	--send_anonymized_usage_stats  \
-	--result_names RESULT=max  \
-	--run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSIgJiYgZWNobyAiUkVTVUxUMjogJXoi  \
-	--cpus_per_task=1  \
-	--nodes_per_job=1  \
-	--generate_all_jobs_at_once  \
-	--revert_to_random_when_seemingly_exhausted  \
-	--run_mode=local  \
-	--decimalrounding=4  \
-	--occ_type=euclid  \
-	--main_process_gb=8  \
-	--max_nr_of_zero_results=1  \
-	--pareto_front_confidence=1  \
-	--slurm_signal_delay_s=0  \
-	--n_estimators_randomforest=100  \
-	--parameter x range 123 100000000 int false  \
-	--parameter y choice 5431,1234  \
-	--parameter z fixed 111  \
-	--model=EXTERNAL_GENERATOR  \
-	--external_generator cHl0aG9uMyAvaG9tZS9ub3JtYW4vcmVwb3MvT21uaU9wdC8udGVzdHMvZXhhbXBsZV9leHRlcm5hbC5weQo= \
+	--partition=alpha \
+	--experiment_name=EXTERNAL_GENERATOR_test \
+	--mem_gb=1 \
+	--time=60 \
+	--worker_timeout=60 \
+	--max_eval=2 \
+	--num_parallel_jobs=5 \
+	--gpus=1 \
+	--num_random_steps=1 \
+	--follow \
+	--live_share \
+	--send_anonymized_usage_stats \
+	--result_names RESULT=max \
+	--run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSIgJiYgZWNobyAiUkVTVUxUMjogJXoi \
+	--cpus_per_task=1 \
+	--nodes_per_job=1 \
+	--generate_all_jobs_at_once \
+	--revert_to_random_when_seemingly_exhausted \
+	--run_mode=local \
+	--decimalrounding=4 \
+	--occ_type=euclid \
+	--main_process_gb=8 \
+	--max_nr_of_zero_results=1 \
+	--pareto_front_confidence=1 \
+	--slurm_signal_delay_s=0 \
+	--n_estimators_randomforest=100 \
+	--parameter x range 123 100000000 int false \
+	--parameter y choice 5431,1234 \
+	--parameter z fixed 111 \
+	--model=EXTERNAL_GENERATOR \
+	--external_generator cHl0aG9uMyAvaG9tZS9ub3JtYW4vcmVwb3MvT21uaU9wdC8udGVzdHMvZXhhbXBsZV9leHRlcm5hbC5weQo=
 ```
 
 ```json
@@ -307,7 +307,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-``` 
+```
 
 ## Caveat
 

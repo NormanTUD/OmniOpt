@@ -1,0 +1,19 @@
+site_name: OmniOpt
+docs_dir: "../.gui/_tutorials"
+theme:
+  name: 'mkdocs'
+markdown_extensions:
+  - codehilite
+  - toc:
+      permalink: true
+plugins:
+  - code-validator:
+      enabled: true
+      identifiers:
+        bash:
+          command: 'bash -n'
+        python:
+          command: 'python -m py_compile'
+        json:
+          command: 'python -m json.tool'
+

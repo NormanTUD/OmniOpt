@@ -4641,7 +4641,10 @@ def get_workers_string() -> str:
                 string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
             else:
                 percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-                string = f"{_keys} {_values} = ∑{_sum} ({percentage}%/{num_parallel_jobs})"
+                _sum_and_percentage = ""
+                if num_parallel_jobs > 1:
+                    _sum_and_percentage =  = "∑{_sum} ({percentage}%/{num_parallel_jobs})"
+                string = f"{_keys} {_values}{_sum_and_percentage}"
 
     return string
 

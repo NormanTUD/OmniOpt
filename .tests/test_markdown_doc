@@ -16,3 +16,9 @@ fi
 source .shellscript_functions
 
 mkdocs build --strict -f .tests/mkdocs.yml
+
+exit_code=$?
+
+rm -rf .tests/site
+
+exit $exit_code

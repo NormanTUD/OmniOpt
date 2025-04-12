@@ -889,7 +889,7 @@ input:checked + .slider::before {
 	}
 
 	.logo-img {
-		max-height: 50px;
+		max-height: min(50px, 30%);
 		pointer-events: unset;
 	}
 

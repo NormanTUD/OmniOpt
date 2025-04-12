@@ -128,6 +128,22 @@ import os
 import json
 import random
 
+def check_constraint(constraint, params):
+    return eval(constraint, {}, params)
+
+def constraints_ok(constraints, point):
+    if not constraints or constraints is None:
+        return True
+
+    if point is None or point == {}: # Only for first evaluation
+        return True
+
+    for constraint in constraints:
+        if not check_constraint(constraint, point):
+            return True
+
+    return False
+
 def generate_random_value(parameter):
     try:
         if parameter['parameter_type'] == 'RANGE':
@@ -155,13 +171,22 @@ def generate_random_value(parameter):
     return None
 
 def generate_random_point(parameters):
+    constraints = parameters["constraints"]
     point = {}
-    for param_data in parameters.items():
-        p = param_data[1]
 
-        if p and not isinstance(p, list):
-            for param_name in list(p.keys()):
-                point[param_name] = generate_random_value(param_data[1][param_name])
+    param_data = parameters["parameters"]
+
+    i = 0
+
+    while constraints_ok(constraints, point):
+        for param_name in list(param_data.keys()):
+            point[param_name] = generate_random_value(param_data[param_name])
+
+            if i > 100: # if after 100 trials nothing was found, stop trying
+                break
+
+        i = i + 1
+
     return point
 
 def main():

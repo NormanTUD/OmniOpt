@@ -35,6 +35,7 @@
 		"parameters.txt",
 		"results.csv",
 		"ui_url.txt",
+		"Constraints.txt",
 		"cpu_ram_usage.csv",
 		"get_next_trials.csv",
 		"global_vars.json",

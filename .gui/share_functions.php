@@ -2008,6 +2008,28 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
+	function add_constraints_to_overview ($run_dir, $overview_html, $warnings) {
+		$constraints = "$run_dir/constraints.txt";
+		if(file_exists($constraints) && filesize($constraints)) {
+			$constraints_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
+			if($constraints_table) {
+				$constraints .= $constraints_table;
+
+				$overview_html .= $constraints_table;
+			} else {
+				$warnings[] = "Could not create \$constraints_table";
+			}
+		} else {
+			if(!file_exists($constraints)) {
+				$warnings[] = "$constraints not found";
+			} else if(!filesize($constraints)) {
+				$warnings[] = "$constraints is empty";
+			}
+		}
+
+		return [$overview_html, $warnings];
+	}
+
 	function add_experiment_overview_to_overview ($run_dir, $overview_html, $warnings) {
 		$experiment_overview = "$run_dir/experiment_overview.txt";
 		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
@@ -2172,6 +2194,7 @@ $onclick_string
 
 		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_constraints_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings, $status_data] = add_overview_table_to_overview_and_get_status_data($run_dir, $status_data, $overview_html, $warnings);

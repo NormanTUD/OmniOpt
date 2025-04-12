@@ -4403,7 +4403,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: Union[list, d
 def print_parameter_constraints_table(experiment_args: dict) -> None:
     if experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"]):
         constraints = experiment_args["parameter_constraints"]
-        table = Table(header_style="bold", title="Constraints:")
+        table = Table(header_style="bold")
         columns = ["Constraints"]
         for column in columns:
             table.add_column(column)

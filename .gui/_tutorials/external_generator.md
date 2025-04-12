@@ -16,7 +16,7 @@ You can specify your program with the `--external_generator` parameter, though i
 ```bash
 ./omniopt \
     --partition=alpha \
-    --experiment_name=external_generator_test \
+    --experiment_name=EXTERNAL_GENERATOR_test \
     --mem_gb=1 \
     --time=60 \
     --worker_timeout=60 \
@@ -42,10 +42,12 @@ You can specify your program with the `--external_generator` parameter, though i
     --slurm_signal_delay_s=0 \
     --n_estimators_randomforest=100 \
     --parameter x range 123 100000000 int false \
-    --parameter y choice 5431,1234 \
-    --parameter z fixed 111 \
+    --parameter y range 1234 4321 \
+    --parameter z range 111 222 int \
+    --experiment_constraint "x >= y" \
+    --seed 1234 \
     --model=EXTERNAL_GENERATOR \
-    --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0) 
+    --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
 ```
 
 This then gets called with a temporary directory as first parameter, in which a JSON file called `input.json` like this resides:

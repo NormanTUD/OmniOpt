@@ -46,27 +46,27 @@ def generate_random_value(parameter):
     return None
 
 def generate_random_point(parameters):
-    constraints = data["constraints"]
+    constraints = parameters["constraints"]
     point = {}
-    for param_data in parameters.items():
-        p = param_data[1]
 
-        if p and not isinstance(p, list):
-            for param_name in list(p.keys()):
-                potential_point = None
+    param_data = parameters["parameters"]
 
-                i = 0
+    for param_name in list(param_data.keys()):
+        potential_point = None
 
-                while constraints_dont_match(constraints, potential_point):
-                    potential_point = generate_random_value(param_data[1][param_name])
+        i = 0
 
-                    if i > 100: # if after 100 trials nothing was found, stop trying
-                        break
+        while constraints_dont_match(constraints, potential_point):
+            potential_point = generate_random_value(param_data[1][param_name])
 
-                    i = i + 1
+            if i > 100: # if after 100 trials nothing was found, stop trying
+                break
 
-                if potential_point:
-                    point = potential_point
+            i = i + 1
+
+        if potential_point:
+            point = potential_point
+
     return point
 
 def main():
@@ -92,6 +92,16 @@ def main():
     except json.JSONDecodeError:
         print(f"Error: Failed to decode JSON in {json_file_path}.")
         sys.exit(4)
+
+    print("=" * 10)
+    print("=" * 10)
+
+    with open(json_file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+        print(content)
+
+    print("=" * 10)
+    print("=" * 10)
 
     random_point = generate_random_point(data)
 

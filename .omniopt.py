@@ -1337,6 +1337,11 @@ def print_logo() -> None:
 
     if random.choice([True, False]):
         sprueche = [
+            "Tuning hyperparameters like a caffeinated monk with a Rubik's Cube.",
+            "Finds minima faster than a squirrel on espresso.",
+            "More focused than a cat watching a laser pointer.",
+            "Exploring parameter space like a ninja in a maze.",
+            "Makes grid search look like it's still on dial-up.",
             "Fine-tuning like a boss!",
             "Finding the needle in the hyper haystack!",
             "Hyperparameters? Nailed it!",

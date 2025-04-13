@@ -84,8 +84,6 @@ function enable_dark_mode() {
 	}
 
 	$(".mode-text").css("color", "black")
-
-	setTheme("dark");
 }
 
 function enable_light_mode() {
@@ -118,7 +116,6 @@ function enable_light_mode() {
 	}
 
 	$(".mode-text").css("color", "black")
-	setTheme("light");
 }
 
 function apply_theme_based_on_system_preferences() {
@@ -134,17 +131,6 @@ function apply_theme_based_on_system_preferences() {
 		} else {
 			enable_light_mode();
 		}
-	}
-}
-
-function setTheme(mode) {
-	const html = document.documentElement;
-	if (mode === 'dark') {
-		html.classList.add('dark');
-	} else if (mode === 'light') {
-		html.classList.remove('dark');
-	} else {
-		warn(`Warning: Set-Theme: Unknown mode = ${mode}`);
 	}
 }
 

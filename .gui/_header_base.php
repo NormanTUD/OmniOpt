@@ -48,7 +48,6 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="color-scheme" content="light dark">
 		<title>OmniOpt2</title>
 		<link href="<?php print get_main_script_dir(); ?>/prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="<?php print get_main_script_dir(); ?>/favicon.ico">
@@ -178,6 +177,10 @@
 
 					$script_link = preg_replace("/\/\/*/", "/", get_main_script_dir() . "/$link_no_php");
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
+				}
+				$current_tag = get_current_tag();
+				if ($current_tag) {
+					echo "<div class='current-tag'>$current_tag</div>";
 				}
 ?>
 			</div>

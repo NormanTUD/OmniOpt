@@ -143,6 +143,8 @@ function setTheme(mode) {
 		html.classList.add('dark');
 	} else if (mode === 'light') {
 		html.classList.remove('dark');
+	} else {
+		warn(`Warning: Set-Theme: Unknown mode = ${mode}`);
 	}
 }
 

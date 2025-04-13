@@ -48,6 +48,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="color-scheme" content="light dark">
 		<title>OmniOpt2</title>
 		<link href="<?php print get_main_script_dir(); ?>/prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="<?php print get_main_script_dir(); ?>/favicon.ico">

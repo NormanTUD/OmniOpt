@@ -400,6 +400,8 @@
 				$contents = remove_sixel($contents);
 			}
 
+			$contents = remove_rich_progress_lines($contents);
+
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
 
 			$html .= copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
@@ -2303,5 +2305,10 @@ $onclick_string
 
 	function get_icon_html ($name) {
 		return "<img class='invert_icon' src='i/$name' style='height: 1em' />&nbsp;";
+	}
+
+	function remove_rich_progress_lines($input) {
+		$pattern = '/[⠇⠋⠏⠙⠦⠧⠴⠸⠹⠼].*$/mu';
+		return preg_replace($pattern, '', $input);
 	}
 ?>

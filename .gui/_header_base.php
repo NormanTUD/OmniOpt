@@ -178,10 +178,6 @@
 					$script_link = preg_replace("/\/\/*/", "/", get_main_script_dir() . "/$link_no_php");
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
 				}
-				$current_tag = get_current_tag();
-				if ($current_tag) {
-					echo "<div class='current-tag'>$current_tag</div>";
-				}
 ?>
 			</div>
 			<div class="header-theme-toggle">

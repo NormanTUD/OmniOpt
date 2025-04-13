@@ -32,49 +32,6 @@
 		}
 	}
 
-	function _isCurl(){
-		return function_exists('curl_version');
-	}
-
-	function getFirstTagName($url) {
-		if(!_isCurl()) {
-			return "";
-		}
-
-		$ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_USERAGENT, 'PHP'); // GitHub API benötigt einen User-Agent
-
-		$response = curl_exec($ch);
-
-		if (curl_errno($ch)) {
-			curl_close($ch);
-			return null; // cURL-Fehler
-		}
-
-		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
-
-		if ($http_code == 200) {
-			$data = json_decode($response, true);
-
-			if (isset($data[0]['name'])) {
-				return $data[0]['name'];
-			}
-		}
-
-		return null;
-	}
-
-	function get_current_tag() {
-		$url = "https://api.github.com/repos/NormanTUD/OmniOpt/tags";
-		$tagName = getFirstTagName($url);
-
-		return $tagName;
-	}
-
 	function get_or_env ($name) {
 		$var = isset($_GET[$name]) ? $_GET[$name] : null;
 

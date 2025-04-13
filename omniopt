@@ -92,7 +92,10 @@
 	prev_self=0
 	prev_children=0
 
+	already_logging_this_command=0
+
 	bash_logname=
+
 	if command -v uuidgen 2>/dev/null >/dev/null; then
 		if [[ -z $RUN_UUID ]]; then
 			RUN_UUID=$(uuidgen)
@@ -106,6 +109,7 @@
 		export bash_logname
 
 		if (command -v sbatch >/dev/null && [[ -n "$SLURM_JOB_ID" ]]) || ! command -v sbatch >/dev/null; then
+			already_logging_this_command=1
 			exec 1> >(tee -ia $bash_logname)
 			exec 2> >(tee -ia $bash_logname >& 2)
 		fi
@@ -1787,6 +1791,11 @@ EOF
 						}
 
 						tail_log_file
+
+						if [[ $already_logging_this_command -eq 0 ]]; then
+							exec 1> >(tee -ia $bash_logname)
+							exec 2> >(tee -ia $bash_logname >& 2)
+						fi
 
 						exit_code=$(cat "$LOG_PATH" | grep -i "exit-code:*" | sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' | tail -n1)
 					else

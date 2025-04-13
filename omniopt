@@ -105,7 +105,6 @@
 
 		export bash_logname
 
-
 		exec 1> >(tee -ia $bash_logname)
 		exec 2> >(tee -ia $bash_logname >& 2)
 	else

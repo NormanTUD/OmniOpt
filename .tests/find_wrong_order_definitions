@@ -15,7 +15,7 @@ exit_code=0
 if [[ $# -gt 0 ]]; then
 	TARGET_PATH="$1"
 	if [[ -d $TARGET_PATH ]]; then
-		files=$(find "$TARGET_PATH" -type f -name "*.py")
+		files=$(find "$TARGET_PATH" -type f -name "*.py" | grep -v "./.venv/")
 	elif [[ -e $TARGET_PATH ]]; then
 		files=($TARGET_PATH)
 	else

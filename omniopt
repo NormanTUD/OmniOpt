@@ -105,8 +105,10 @@
 
 		export bash_logname
 
-		exec 1> >(tee -ia $bash_logname)
-		exec 2> >(tee -ia $bash_logname >& 2)
+		if (command -v sbatch >/dev/null && [[ -n "$SLURM_JOB_ID" ]]) || ! command -v sbatch >/dev/null; then
+			exec 1> >(tee -ia $bash_logname)
+			exec 2> >(tee -ia $bash_logname >& 2)
+		fi
 	else
 		echo "uuidgen is not installed. It's recommended you install it." >&2
 	fi

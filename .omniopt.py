@@ -1407,9 +1407,11 @@ def print_logo() -> None:
             "Fine-tuning on the frequency of reality.",
             "Hyperparameters: Where science and magic shake hands.",
             "Open the third eye of optimization – the truth is in the numbers.",
+            "Walking the fine line between overfit and underfit like a tightrope artist.",
+            "This is not madness... this is hyperparameter tuning!",
             "Hyperparameter tuning: The philosopher’s stone of deep learning.",
             "Dancing on the edge of chaos – welcome to the tuning dimension.",
-            "Like Borges’ infinite library, but every book is a different model configuration."
+            "Like Borges' infinite library, but every book is a different model configuration."
         ]
 
         spruch = random.choice(sprueche)

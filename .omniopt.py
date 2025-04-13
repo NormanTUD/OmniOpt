@@ -987,12 +987,12 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any) -> None:
+    def __init__(self: Any, external_generator: str) -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
         super().__init__(node_name="EXTERNAL_GENERATOR")
         self.seed: int = args.seed
-        self.external_generator: str = decode_if_base64(args.external_generator)
+        self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
         self.data = None
 
@@ -6349,11 +6349,11 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         return node
 
     if model_name == "EXTERNAL_GENERATOR":
-        if args.external_generator is None:
+        if args.external_generator is None or args.external_generator == "":
             print_red("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.")
             my_exit(204)
 
-        node = ExternalProgramGenerationNode()
+        node = ExternalProgramGenerationNode(args.external_generator)
 
         return node
 

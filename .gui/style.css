@@ -933,7 +933,6 @@ input:checked + .slider::before {
 }
 
 .dark_code_bg {
-	padding: 10px;
 	background-color: #222;
 	color: #eee;
 	overflow-x: auto;

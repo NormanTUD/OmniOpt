@@ -91,7 +91,7 @@
 	function ansi_to_html($string) {
 		$ret = (new \SensioLabs\AnsiConverter\AnsiToHtmlConverter)->convert($string);
 
-		return $ret;
+		return html_entity_decode($ret);
 	}
 
 	function remove_sixel ($output) {

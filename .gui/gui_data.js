@@ -319,6 +319,22 @@ var hiddenTableData = [
 		help: "The model chosen here tries to make an informed choice (except SOBOL, which means random search) about where to look for new hyperparameters. Different models are useful for different optimization problems, though which is best for what is something that I still need to search exactly (TODO!)"
 	},
 	{
+		label: "External program for EXTERNAL_GENERATOR",
+		id: "external_generator",
+		type: "text",
+		value: "",
+		info: "A call to a program to calculate hyperparameters. <a href='tutorials?tutorial=external_generator' target='_blank'>See this tutorial on how to use external generators</a>. For this option to take effect, the '--model' must be set to 'EXTERNAL_GENERATOR'.",
+		required: false
+	},
+	{
+		label: "Number of estimators for RANDOMFOREST",
+		id: "n_estimators_randomforest",
+		type: "number",
+		value: 100,
+		info: "The number of trees in the forest for RANDOMFOREST (default: 100). This is ignored when you don't have the --model set to RANDOMFOREST",
+		min: 1
+	},
+	{
 		label: "Installation-Method",
 		id: "installation_method",
 		type: "select",
@@ -567,14 +583,6 @@ var hiddenTableData = [
 		help: "Path where the virtual env should be installed to",
 	},
 	{
-		label: "External program for EXTERNAL_GENERATOR",
-		id: "external_generator",
-		type: "text",
-		value: "",
-		info: "A call to a program to calculate hyperparameters. <a href='tutorials?tutorial=external_generator' target='_blank'>See this tutorial on how to use external generators</a>. For this option to take effect, the '--model' must be set to 'EXTERNAL_GENERATOR'.",
-		required: false
-	},
-	{
 		label: "Workdir",
 		id: "workdir",
 		type: "text",
@@ -583,13 +591,5 @@ var hiddenTableData = [
 		required: false,
 		regex: regex_path,
 		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
-	},
-	{
-		label: "Number of estimators for RANDOMFOREST",
-		id: "n_estimators_randomforest",
-		type: "number",
-		value: 100,
-		info: "The number of trees in the forest for RANDOMFOREST (default: 100). This is ignored when you don't have the --model set to RANDOMFOREST",
-		min: 1
 	}
 ];

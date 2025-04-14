@@ -913,3 +913,39 @@ input:checked + .slider::before {
 .line_break_anywhere {
 	line-break: anywhere;
 }
+
+.responsive-container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.responsive-container .half {
+	flex: 1 1 48%;
+	box-sizing: border-box;
+	min-width: 300px;
+}
+
+.config-section table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.dark_code_bg {
+	padding: 10px;
+	background-color: #222;
+	color: #eee;
+	overflow-x: auto;
+	border-radius: 5px;
+}
+
+button.add_parameter {
+	margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+	.responsive-container .half {
+		flex: 1 1 100%;
+	}
+}

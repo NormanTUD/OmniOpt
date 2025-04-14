@@ -1,13 +1,87 @@
 #!/bin/bash
 
+# Defaultwerte
+MEM_GB=1
+TIME=60
+WORKER_TIMEOUT=60
+MAX_EVAL=2
+NUM_PARALLEL_JOBS=1
+GPUS=1
+NUM_RANDOM_STEPS=1
+EXTERNAL_GENERATOR=$(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
+
+print_help() {
+cat <<EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Optional arguments:
+  --mem_gb=INT                   Memory in GB (default: $MEM_GB)
+  --time=INT                     Time in minutes (default: $TIME)
+  --worker_timeout=INT           Timeout for worker (default: $WORKER_TIMEOUT)
+  --max_eval=INT                 Maximum evaluations (default: $MAX_EVAL)
+  --num_parallel_jobs=INT        Number of parallel jobs (default: $NUM_PARALLEL_JOBS)
+  --gpus=INT                     Number of GPUs (default: $GPUS)
+  --num_random_steps=INT         Number of random steps (default: $NUM_RANDOM_STEPS)
+  --external_generator=CMD       External generator command (Base64 encoded)
+  --help                         Show this help message and exit
+EOF
+}
+
+# Argumente parsen
+for arg in "$@"; do
+  case $arg in
+    --mem_gb=*) MEM_GB="${arg#*=}" ;;
+    --time=*) TIME="${arg#*=}" ;;
+    --worker_timeout=*) WORKER_TIMEOUT="${arg#*=}" ;;
+    --max_eval=*) MAX_EVAL="${arg#*=}" ;;
+    --num_parallel_jobs=*) NUM_PARALLEL_JOBS="${arg#*=}" ;;
+    --gpus=*) GPUS="${arg#*=}" ;;
+    --num_random_steps=*) NUM_RANDOM_STEPS="${arg#*=}" ;;
+    --external_generator=*)
+      RAW_GEN="${arg#*=}"
+      EXTERNAL_GENERATOR=$(echo "$RAW_GEN" | base64 -w0)
+      ;;
+    --help) print_help; exit 0 ;;
+    *) echo "Unknown option: $arg"; print_help; exit 1 ;;
+  esac
+done
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 cd "$SCRIPT_DIR"
-
 cd ..
 
-./omniopt --partition=alpha --experiment_name=EXTERNAL_GENERATOR_test --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=1 --num_random_steps=1 --follow --live_share --send_anonymized_usage_stats --result_names RESULT=max --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSIgJiYgZWNobyAiUkVTVUxUMjogJXoi --cpus_per_task=1 --nodes_per_job=1 --generate_all_jobs_at_once --revert_to_random_when_seemingly_exhausted --model=EXTERNAL_GENERATOR --run_mode=local --decimalrounding=4 --occ_type=euclid --main_process_gb=8 --max_nr_of_zero_results=1 --pareto_front_confidence=1 --slurm_signal_delay_s=0 --n_estimators_randomforest=100 --parameter x range 123 100000000 int false --parameter y choice 5431,1234 --parameter z fixed 111 --external_generator $(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
+# Aufruf
+./omniopt \
+  --partition=alpha \
+  --experiment_name=EXTERNAL_GENERATOR_test \
+  --mem_gb="$MEM_GB" \
+  --time="$TIME" \
+  --worker_timeout="$WORKER_TIMEOUT" \
+  --max_eval="$MAX_EVAL" \
+  --num_parallel_jobs="$NUM_PARALLEL_JOBS" \
+  --gpus="$GPUS" \
+  --num_random_steps="$NUM_RANDOM_STEPS" \
+  --follow \
+  --live_share \
+  --send_anonymized_usage_stats \
+  --result_names RESULT=max \
+  --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSIgJiYgZWNobyAiUkVTVUxUMjogJXoi \
+  --cpus_per_task=1 \
+  --nodes_per_job=1 \
+  --generate_all_jobs_at_once \
+  --revert_to_random_when_seemingly_exhausted \
+  --model=EXTERNAL_GENERATOR \
+  --run_mode=local \
+  --decimalrounding=4 \
+  --occ_type=euclid \
+  --main_process_gb=8 \
+  --max_nr_of_zero_results=1 \
+  --pareto_front_confidence=1 \
+  --slurm_signal_delay_s=0 \
+  --n_estimators_randomforest=100 \
+  --parameter x range 123 100000000 int false \
+  --parameter y choice 5431,1234 \
+  --parameter z fixed 111 \
+  --external_generator="$EXTERNAL_GENERATOR"
 
-exit_code=$?
-
-exit $exit_code
+exit $?

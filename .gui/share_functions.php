@@ -1929,7 +1929,7 @@ $onclick_string
 
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 
-		$tab_content = "$buttons<pre id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+		$tab_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
 
 		$tabs["{$svg_icon}Export"] = [
 			'id' => 'tab_export',

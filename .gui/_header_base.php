@@ -78,7 +78,6 @@
 <?php
 		}
 ?>
-
 		<link rel="stylesheet" href="css/xp.css">
 		<script>
 			apply_theme_based_on_system_preferences();
@@ -217,7 +216,8 @@
 			});
 		}
 
-		window.addEventListener('load', adapt_header_button_width);
+		adapt_header_button_width();
+
 		window.addEventListener('resize', adapt_header_button_width);
 	</script>
 

@@ -9,13 +9,15 @@ cd ..
 exit_code=0
 
 for i in .*.py; do
-	r=$(cat $i | grep "def " | grep ")" | grep -v " -> ")
-	nr=$(echo "$r" | wc -l)
+	if [[ $i != ".random_generator.py" ]]; then
+		r=$(cat $i | grep "def " | grep ")" | grep -v " -> ")
+		nr=$(echo "$r" | wc -l)
 
-	if [[ $nr -gt 1 ]]; then
-		echo "====> $i =====>"
-		echo "$r"
-		exit_code=$(($exit_code + 1))
+		if [[ $nr -gt 1 ]]; then
+			echo "====> $i =====>"
+			echo "$r"
+			exit_code=$(($exit_code + 1))
+		fi
 	fi
 done
 

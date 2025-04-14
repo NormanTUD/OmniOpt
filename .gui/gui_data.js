@@ -8,7 +8,7 @@ var model_data = [
 	},
 	{
 		id: 'SOBOL',
-		name: 'SOBOL: Random search',
+		name: 'SOBOL: Quasi-random sequence',
 		link: 'https://en.wikipedia.org/wiki/Sobol_sequence'
 	},
 	{

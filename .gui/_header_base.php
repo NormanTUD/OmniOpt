@@ -153,9 +153,6 @@
 				<a href="https://pypi.org/project/omniopt2/" target="_blank">
 					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
 				</a>
-				<a href="https://scads.ai/imprint/" target="_blank">
-					<button>Imprint/Impressum</button>
-				</a>
 			</div>
 
 			<div class="header-tabs">
@@ -182,6 +179,9 @@
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
 				}
 ?>
+				<a href="https://scads.ai/imprint/" target="_blank">
+					<button class="header_button">Imprint/Impressum</button>
+				</a>
 			</div>
 			<div class="header-theme-toggle">
 				<label class="switch"> 

@@ -12,6 +12,12 @@ var model_data = [
 		link: 'https://en.wikipedia.org/wiki/Sobol_sequence'
 	},
 	{
+		id: 'PSEUDORANDOM',
+		name: 'PSEUDORANDOM: Uniformly random sequence',
+		link: 'https://en.wikipedia.org/wiki/Pseudorandomness',
+		hide_in_custom_generation_strategy: true
+	},
+	{
 		id: 'FACTORIAL',
 		name: 'All possible combinations',
 		link: 'https://ax.dev/docs/tutorials/factorial/'

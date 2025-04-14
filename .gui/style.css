@@ -623,7 +623,7 @@ input, textarea {
 }
 
 #search {
-	width: 600px;
+	width: 300px;
 	max-width: 70%;
 	background-image: url(images/search.svg);
 	background-repeat: no-repeat;

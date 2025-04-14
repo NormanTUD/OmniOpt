@@ -2,11 +2,15 @@ import sys
 import os
 import json
 import random
+from typing import Union, Optional
+import beartype
 
-def check_constraint(constraint, params):
+@beartype
+def check_constraint(constraint: str, params: dict) -> bool:
     return eval(constraint, {}, params)
 
-def constraints_not_ok(constraints, point):
+@beartype
+def constraints_not_ok(constraints: list, point: dict) -> bool:
     if not constraints or constraints is None or len(constraints) == 0:
         return True
 
@@ -16,7 +20,7 @@ def constraints_not_ok(constraints, point):
 
     return False
 
-def generate_random_value(parameter):
+def generate_random_value(parameter: dict) -> Optional[Union[int, float, str]]:
     try:
         if parameter['parameter_type'] == 'RANGE':
             range_min, range_max = parameter['range']
@@ -42,7 +46,8 @@ def generate_random_value(parameter):
 
     return None
 
-def generate_random_point(data):
+@beartype
+def generate_random_point(data: dict) -> dict:
     constraints = data["constraints"]
     point = {}
 
@@ -65,7 +70,8 @@ def generate_random_point(data):
 
     return point
 
-def main():
+@beartype
+def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python script.py <path>")
         sys.exit(1)

@@ -184,7 +184,8 @@ var tableData = [
 		id: "follow",
 		type: "checkbox",
 		value: 1,
-		help: "tail -f the .out-file automatically, so you can see the output as soon as it appears. This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f internally, you can simply CTRL-c out of it without cancelling the job."
+		help: "tail -f the .out-file automatically, so you can see the output as soon as it appears. This does not change the results of OmniOpt2, but only the user-experience. This way, you see results as soon as they are available without needing to manually look for the outfile. Due to it using tail -f internally, you can simply CTRL-c out of it without cancelling the job.",
+		info: `With <i>Follow</i>, the job's .out file will automatically be <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">tail -f</code>'d on Slurm-systems. Having this set or not does not change the output of your calculations.`
 	},
 	{
 		label: "Live-Share",

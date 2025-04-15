@@ -281,7 +281,6 @@ button:disabled:hover {
 	display: -webkit-box;
 }
 
-/* Allgemeine Stile für alle Tabs */
 .tab {
 	display: inline-block;
 	padding: 0px;

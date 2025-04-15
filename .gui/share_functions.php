@@ -1931,7 +1931,9 @@ $onclick_string
 
 		ini_set('memory_limit', '1024M');
 
-		$tab_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+		$export_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+
+		$tab_content = $export_content;
 
 		$tabs["{$svg_icon}Export"] = [
 			'id' => 'tab_export',

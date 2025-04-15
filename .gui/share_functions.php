@@ -2229,7 +2229,11 @@ $onclick_string
 			"memory.free", "memory.used"
 		];
 
-		$ignore_cols = ["pci.bus_id", "name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate", "driver_version"];
+		$ignore_cols = [
+			"name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate",
+			"driver_version", "memory.total", "memory.free", "memory.used",
+			"utilization.memory", "memory.free", "memory.used"
+		];
 
 		foreach ($files as $file) {
 			$basename = basename($file);

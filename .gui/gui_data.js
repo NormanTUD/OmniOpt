@@ -13,7 +13,7 @@ var model_data = [
 	},
 	{
 		id: 'PSEUDORANDOM',
-		name: 'PSEUDORANDOM: Uniformly random sequence',
+		name: 'PSEUDORANDOM: Uniformly random sequence. PSEUDORANDOM runs cannot be continued (yet).',
 		link: 'https://en.wikipedia.org/wiki/Pseudorandomness',
 		hide_in_custom_generation_strategy: true
 	},
@@ -49,7 +49,7 @@ var model_data = [
 		id: 'EXTERNAL_GENERATOR',
 		name: 'External Generator',
 		//link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
-		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements. <a href="tutorials?tutorial=external_generator" target="_blank">See this tutorial on how to use external generators</a>.',
+		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements. <a href="tutorials?tutorial=external_generator" target="_blank">See this tutorial on how to use external generators</a>. EXTERNAL_GENERATOR-runs cannot be continued (yet).',
 		hide_in_custom_generation_strategy: true
 	}
 ];

@@ -2229,6 +2229,8 @@ $onclick_string
 			"memory.free", "memory.used"
 		];
 
+		$ignore_cols = ["pci.bus_id", "name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate", "driver_version"];
+
 		foreach ($files as $file) {
 			$basename = basename($file);
 			if (preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
@@ -2259,6 +2261,9 @@ $onclick_string
 						$entry['timestamp_unix'] = strtotime($entry['timestamp']);
 
 						if(count($entry)) {
+							foreach ($ignore_cols as $ignore_colname) {
+								unset($entry[$ignore_colname]);
+							}
 							$gpu_usage_data[$index][] = $entry;
 						}
 					}

@@ -1855,7 +1855,7 @@
 		$html_parts = [];
 
 		foreach ($tabs as $tabname => $tab) {
-			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs)$/", $tabname)) {
+			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs|Job-Infos)$/", $tabname)) {
 				if (isset($tab['content'])) {
 					$this_content = "<h1>$tabname</h1>\n".$tab["content"];
 

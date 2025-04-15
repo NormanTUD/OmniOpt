@@ -35,6 +35,8 @@ valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minko
 
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
 
+uncontinueable_models: list = ["PSEUDORANDOM", "EXTERNAL_GENERATOR"]
+
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
@@ -6290,6 +6292,10 @@ def get_chosen_model() -> str:
 
         if os.path.exists(continue_model_file):
             chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
+
+            if chosen_model in uncontinueable_models:
+                print_red(f"Models in {', '.join(uncontinueable_models)} cannot be continued.")
+                my_exit(94)
 
             if chosen_model not in SUPPORTED_MODELS:
                 print_red(f"Wrong model >{chosen_model}< in {continue_model_file}.")

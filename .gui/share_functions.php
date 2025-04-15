@@ -1854,8 +1854,10 @@
 		$onclicks = [];
 		$html_parts = [];
 
+		$skipped_tab_names = [];
+
 		foreach ($tabs as $tabname => $tab) {
-			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs|Job-Infos)$/", $tabname)) {
+			if(!preg_match("/(?:Single Logs|Main-Log|Debug-Logs|Job-Infos|GPU)/", $tabname)) {
 				if (isset($tab['content'])) {
 					$this_content = "<h1>$tabname</h1>\n".$tab["content"];
 
@@ -1865,6 +1867,8 @@
 						$onclicks[] = $tab['onclick'];
 					}
 				}
+			} else {
+				$skipped_tab_names[] = $tabname;
 			}
 		}
 
@@ -1931,7 +1935,12 @@ $onclick_string
 
 		ini_set('memory_limit', '1024M');
 
-		$export_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+		$skipped_tab_names_string = "";
+		if(count($skipped_tab_names)) {
+			$skipped_tab_names_string = "Skipped tabs: <ul>\n\t<li>".implode("</li>\n\t<li>", $skipped_tab_names)."</li>\n</ul>";
+		}
+
+		$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
 
 		$tab_content = $export_content;
 

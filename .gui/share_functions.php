@@ -2233,7 +2233,7 @@ $onclick_string
 			"name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate",
 			"driver_version", "memory.total", "memory.free", "memory.used",
 			"utilization.memory", "memory.free", "memory.used", "timestamp",
-			"pci.bus_id"
+			"pci.bus_id", "utilization.gpu", "temperature.gpu"
 		];
 
 		foreach ($files as $file) {
@@ -2263,15 +2263,17 @@ $onclick_string
 							continue;
 						}
 
-						$entry['timestamp_unix'] = strtotime($entry['timestamp']);
+						$entry['ts'] = strtotime($entry['timestamp']);
 
 						if(count($entry)) {
+							$entry["gpu"] = intval($entry["utilization.gpu"]);
+							$entry["gputemp"] = intval($entry["temperature.gpu"]);
+
 							foreach ($ignore_cols as $ignore_colname) {
 								unset($entry[$ignore_colname]);
 							}
 
-							$entry["utilization.gpu"] = intval($entry["utilization.gpu"]);
-							$entry["temperature.gpu"] = intval($entry["temperature.gpu"]);
+
 
 							$gpu_usage_data[$index][] = $entry;
 						}

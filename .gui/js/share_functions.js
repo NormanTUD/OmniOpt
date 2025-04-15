@@ -1586,88 +1586,91 @@ function plotGPUUsage() {
 	Object.keys(gpu_usage).forEach(node => {
 		const nodeData = gpu_usage[node];
 
-		const groupedByPCI = nodeData.reduce((acc, entry) => {
-			const pciBusId = entry["pci.bus_id"];
-			if (!acc[pciBusId]) {
-				acc[pciBusId] = {
-					timestamps: [],
-					gpuUtilizations: [],
-					temperatures: []
-				};
-			}
-			acc[pciBusId].timestamps.push(new Date(entry.timestamp_unix * 1000));
-			acc[pciBusId].gpuUtilizations.push(parseFloat(entry["utilization.gpu"]));
-			acc[pciBusId].temperatures.push(parseFloat(entry["temperature.gpu"]));
-			return acc;
-		}, {});
+		var timestamps = [];
+		var gpuUtilizations = [];
+		var temperatures = [];
 
-		Object.keys(groupedByPCI).forEach(pciBusId => {
-			const data = groupedByPCI[pciBusId];
+		nodeData.forEach(entry => {
+			try {
+				var timestamp = new Date(entry.timestamp_unix * 1000);
+				var utilization = parseFloat(entry["utilization.gpu"]);
+				var temperature = parseFloat(entry["temperature.gpu"]);
 
-			var trace1 = {
-				x: data.timestamps,
-				y: data.gpuUtilizations,
-				mode: 'lines+markers',
-				marker: {
-					size: get_marker_size(),
-				},
-				name: 'GPU Utilization (%) - PCI Bus ID: ' + pciBusId,
-				type: 'scatter',
-				yaxis: 'y1'
-			};
-
-			var trace2 = {
-				x: data.timestamps,
-				y: data.temperatures,
-				mode: 'lines+markers',
-				marker: {
-					size: get_marker_size(),
-				},
-				name: 'GPU Temperature (°C) - PCI Bus ID: ' + pciBusId,
-				type: 'scatter',
-				yaxis: 'y2'
-			};
-
-			var layout = {
-				title: 'GPU Usage Over Time - ' + node + ' (PCI Bus ID: ' + pciBusId + ')',
-				xaxis: {
-					title: get_axis_title_data("Timestamp", "date"),
-					tickmode: 'array',
-					tickvals: data.timestamps.filter((_, index) => index % Math.max(Math.floor(data.timestamps.length / 10), 1) === 0),
-					ticktext: data.timestamps.filter((_, index) => index % Math.max(Math.floor(data.timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
-					tickangle: -45
-				},
-				yaxis: {
-					title: get_axis_title_data("GPU Utilization (%)"),
-					overlaying: 'y',
-					rangemode: 'tozero'
-				},
-				yaxis2: {
-					title: get_axis_title_data("GPU Temperature (°C)"),
-					overlaying: 'y',
-					side: 'right',
-					position: 0.85,
-					rangemode: 'tozero'
-				},
-				legend: {
-					x: 0.1,
-					y: 0.9
+				if (!isNaN(timestamp) && !isNaN(utilization) && !isNaN(temperature)) {
+					timestamps.push(timestamp);
+					gpuUtilizations.push(utilization);
+					temperatures.push(temperature);
+				} else {
+					console.warn("Invalid data point:", entry);
 				}
-			};
-
-			var divId = 'gpu_usage_plot_' + node + '_' + pciBusId;
-
-			if (!document.getElementById(divId)) {
-				var div = document.createElement('div');
-				div.id = divId;
-				div.className = 'gpu-usage-plot';
-				document.getElementById('tab_gpu_usage').appendChild(div);
+			} catch (error) {
+				console.error("Error processing GPU data entry:", error, entry);
 			}
-
-			var plotData = [trace1, trace2];
-
-			Plotly.newPlot(divId, plotData, add_default_layout_data(layout));
 		});
+
+		var trace1 = {
+			x: timestamps,
+			y: gpuUtilizations,
+			mode: 'lines+markers',
+			marker: {
+				size: get_marker_size(),
+			},
+			name: 'GPU Utilization (%)',
+			type: 'scatter',
+			yaxis: 'y1'
+		};
+
+		var trace2 = {
+			x: timestamps,
+			y: temperatures,
+			mode: 'lines+markers',
+			marker: {
+				size: get_marker_size(),
+			},
+			name: 'GPU Temperature (°C)',
+			type: 'scatter',
+			yaxis: 'y2'
+		};
+
+		var layout = {
+			title: 'GPU Usage Over Time - ' + node,
+			xaxis: {
+				title: get_axis_title_data("Timestamp", "date"),
+				tickmode: 'array',
+				tickvals: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0),
+				ticktext: timestamps.filter((_, index) => index % Math.max(Math.floor(timestamps.length / 10), 1) === 0).map(t => t.toLocaleString()),
+				tickangle: -45
+			},
+			yaxis: {
+				title: get_axis_title_data("GPU Utilization (%)"),
+				overlaying: 'y',
+				rangemode: 'tozero'
+			},
+			yaxis2: {
+				title: get_axis_title_data("GPU Temperature (°C)"),
+				overlaying: 'y',
+				side: 'right',
+				position: 0.85,
+				rangemode: 'tozero'
+			},
+			legend: {
+				x: 0.1,
+				y: 0.9
+			}
+		};
+
+		var divId = 'gpu_usage_plot_' + node;
+
+		if (!document.getElementById(divId)) {
+			var div = document.createElement('div');
+			div.id = divId;
+			div.className = 'gpu-usage-plot';
+			document.getElementById('tab_gpu_usage').appendChild(div);
+		}
+
+		var plotData = [trace1, trace2];
+
+		Plotly.newPlot(divId, plotData, add_default_layout_data(layout));
 	});
 
 	$("#tab_gpu_usage").data("loaded", "true");

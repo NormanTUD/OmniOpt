@@ -2232,7 +2232,8 @@ $onclick_string
 		$ignore_cols = [
 			"name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate",
 			"driver_version", "memory.total", "memory.free", "memory.used",
-			"utilization.memory", "memory.free", "memory.used"
+			"utilization.memory", "memory.free", "memory.used", "timestamp",
+			"pci.bus_id"
 		];
 
 		foreach ($files as $file) {
@@ -2268,6 +2269,10 @@ $onclick_string
 							foreach ($ignore_cols as $ignore_colname) {
 								unset($entry[$ignore_colname]);
 							}
+
+							$entry["utilization.gpu"] = intval($entry["utilization.gpu"]);
+							$entry["temperature.gpu"] = intval($entry["temperature.gpu"]);
+
 							$gpu_usage_data[$index][] = $entry;
 						}
 					}

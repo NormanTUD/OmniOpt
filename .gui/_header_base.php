@@ -181,18 +181,17 @@
 					</span>
 				</label>
 			</div>
-
 			<div class="header-badges">
-				<span>
-					<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">
-					<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
-				</span>
 				<a href="https://github.com/NormanTUD/OmniOpt/actions" target="_blank">
 					<img class="badge-img" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="CI Badge">
 				</a>
 				<a href="https://pypi.org/project/omniopt2/" target="_blank">
 					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
 				</a>
+				<span>
+					<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">
+					<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
+				</span>
 			</div>
 		</div>
 	</div>

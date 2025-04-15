@@ -505,7 +505,10 @@ input:checked + .slider:before {
 	font-size: 14px;
 	color: black;
 	transition: .4s;
-	width: 150px;
+	width: 60px;
+	display: block;
+	font-size: 0.7rem;
+	text-align: center;
 }
 
 input:checked + .slider .mode-text {
@@ -827,7 +830,7 @@ img {
 	flex: 1 1 auto;
 	align-items: center;
 	margin-top: 20px;
-	min-width: 180px;
+	min-width: 120px;
 }
 
 .switch {
@@ -867,12 +870,6 @@ input:checked + .slider {
 
 input:checked + .slider::before {
 	transform: translateX(30px);
-}
-
-.mode-text {
-	display: block;
-	font-size: 0.7rem;
-	text-align: center;
 }
 
 @media (max-width: 768px) {

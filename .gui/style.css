@@ -623,7 +623,7 @@ input, textarea {
 }
 
 #search {
-	width: 300px;
+	width: 200px;
 	max-width: 70%;
 	background-image: url(images/search.svg);
 	background-repeat: no-repeat;
@@ -775,11 +775,11 @@ img {
 
 /* --- Badges --- */
 .header-badges {
-	display: flex;
 	flex-direction: column;
 	gap: 5px;
 	align-items: flex-start;
 	flex: 0 1 auto;
+	margin-top: 15px;
 }
 
 .badge-img {

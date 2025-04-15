@@ -78,7 +78,6 @@
 <?php
 		}
 ?>
-
 		<link rel="stylesheet" href="css/xp.css">
 		<script>
 			apply_theme_based_on_system_preferences();
@@ -146,18 +145,6 @@
 				</a>
 			</div>
 
-			<div class="header-badges">
-				<a href="https://github.com/NormanTUD/OmniOpt/actions" target="_blank">
-					<img class="badge-img" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="CI Badge">
-				</a>
-				<a href="https://pypi.org/project/omniopt2/" target="_blank">
-					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
-				</a>
-				<a href="https://scads.ai/imprint/" target="_blank">
-					<button>Imprint/Impressum</button>
-				</a>
-			</div>
-
 			<div class="header-tabs">
 <?php
 				$current_file = basename($_SERVER["PHP_SELF"]);
@@ -182,6 +169,9 @@
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
 				}
 ?>
+				<a href="https://scads.ai/imprint/" target="_blank">
+					<button class="header_button">Imprint/Impressum</button>
+				</a>
 			</div>
 			<div class="header-theme-toggle">
 				<label class="switch"> 
@@ -191,12 +181,19 @@
 					</span>
 				</label>
 			</div>
+			<div class="header-badges">
+				<a href="https://github.com/NormanTUD/OmniOpt/actions" target="_blank">
+					<img class="badge-img" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="CI Badge">
+				</a>
+				<a href="https://pypi.org/project/omniopt2/" target="_blank">
+					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
+				</a>
+				<span>
+					<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">
+					<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
+				</span>
+			</div>
 		</div>
-		<br>
-		<span style="display: inline-flex;">
-			<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">
-			<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
-		</span>
 	</div>
 
 	<script>
@@ -217,7 +214,8 @@
 			});
 		}
 
-		window.addEventListener('load', adapt_header_button_width);
+		adapt_header_button_width();
+
 		window.addEventListener('resize', adapt_header_button_width);
 	</script>
 

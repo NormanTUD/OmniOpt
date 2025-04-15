@@ -34,6 +34,7 @@ if command -v php 2>/dev/null >/dev/null; then
 	declare -a gui_exceptions=(
 		constraints
 		installation_method
+		PSEUDORANDOM
 		BOTORCH_MODULAR
 		SAASBO
 		UNIFORM

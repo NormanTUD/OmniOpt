@@ -77,7 +77,7 @@ function enable_dark_mode() {
 	$(".header_table").css("color", "green");
 	$(".window").css("background", "unset");
 
-	$(".mode-text").text("Switch to Light-Mode");
+	$(".mode-text").text("Dark-Mode");
 
 	if (typeof make_text_in_parallel_plot_nicer === "function") {
 		make_text_in_parallel_plot_nicer();
@@ -109,7 +109,7 @@ function enable_light_mode() {
 	$(".header_table").css("color", "unset");
 	$(".window").css("background", "#ece9d8");
 
-	$(".mode-text").text("Switch to Dark-Mode");
+	$(".mode-text").text("Light-Mode");
 
 	if (typeof make_text_in_parallel_plot_nicer === "function") {
 		make_text_in_parallel_plot_nicer();

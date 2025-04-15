@@ -6,6 +6,9 @@
 		}
 	);
 
+	require_once 'libs/AnsiConverter/Theme/Theme.php';
+	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
+
 	ini_set('display_errors', 1);
 
 	$GLOBALS["sharesPath"] = "shares/";
@@ -86,42 +89,9 @@
 	}
 
 	function ansi_to_html($string) {
-		$ansi_colors = [
-			'30' => 'black', '31' => 'red', '32' => 'green', '33' => 'yellow',
-			'34' => 'blue', '35' => 'magenta', '36' => 'cyan', '37' => 'white',
-			'90' => 'brightblack', '91' => 'brightred', '92' => 'brightgreen',
-			'93' => 'brightyellow', '94' => 'brightblue', '95' => 'brightmagenta',
-			'96' => 'brightcyan', '97' => 'brightwhite'
-		];
+		$ret = (new \SensioLabs\AnsiConverter\AnsiToHtmlConverter)->convert($string);
 
-		$pattern = '/\x1b\[(\d+)(;\d+)*m/';
-
-		$current_style = '';
-
-		return preg_replace_callback($pattern, function($matches) use ($ansi_colors, &$current_style) {
-			$codes = explode(';', $matches[1]);
-			$style = '';
-
-			foreach ($codes as $code) {
-				if (isset($ansi_colors[$code])) {
-					$style = 'color:' . $ansi_colors[$code] . ';';
-					break;
-				}
-			}
-
-			$output = '';
-			if ($style !== $current_style) {
-				if ($current_style) {
-					$output .= '</span>';
-				}
-				if ($style) {
-					$output .= '<span style="' . $style . '">';
-				}
-				$current_style = $style;
-			}
-
-			return $output;
-		}, $string) . ($current_style ? '</span>' : '');
+		return html_entity_decode($ret);
 	}
 
 	function remove_sixel ($output) {
@@ -1959,7 +1929,7 @@ $onclick_string
 
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 
-		$tab_content = "$buttons<pre id='export_tab_content'><code class='language-markup'>".htmlentities($export_content)."</code></pre>$buttons";
+		$tab_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
 
 		$tabs["{$svg_icon}Export"] = [
 			'id' => 'tab_export',

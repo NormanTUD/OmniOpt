@@ -205,7 +205,7 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 
 This is an example python-program that generated random points that lie within the ranges and parameter boundaries of your experiment:
 
-```python[../.tests/example_external.py]
+```python[../.random_generator.py]
 ```
 
 ## Caveat

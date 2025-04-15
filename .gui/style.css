@@ -505,7 +505,10 @@ input:checked + .slider:before {
 	font-size: 14px;
 	color: black;
 	transition: .4s;
-	width: 150px;
+	width: 60px;
+	display: block;
+	font-size: 0.7rem;
+	text-align: center;
 }
 
 input:checked + .slider .mode-text {
@@ -623,7 +626,7 @@ input, textarea {
 }
 
 #search {
-	width: 600px;
+	width: 200px;
 	max-width: 70%;
 	background-image: url(images/search.svg);
 	background-repeat: no-repeat;
@@ -766,7 +769,7 @@ img {
 }
 
 .logo-img {
-	max-height: 70px;
+	max-height: 45px;
 	height: auto;
 	width: auto;
 	object-fit: contain;
@@ -775,11 +778,11 @@ img {
 
 /* --- Badges --- */
 .header-badges {
-	display: flex;
 	flex-direction: column;
 	gap: 5px;
 	align-items: flex-start;
 	flex: 0 1 auto;
+	margin-top: 15px;
 }
 
 .badge-img {
@@ -789,6 +792,7 @@ img {
 
 /* --- Tabs --- */
 .header-tabs {
+	margin-top: 10px;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
@@ -826,7 +830,7 @@ img {
 	flex: 1 1 auto;
 	align-items: center;
 	margin-top: 20px;
-	min-width: 180px;
+	min-width: 120px;
 }
 
 .switch {
@@ -868,12 +872,6 @@ input:checked + .slider::before {
 	transform: translateX(30px);
 }
 
-.mode-text {
-	display: block;
-	font-size: 0.7rem;
-	text-align: center;
-}
-
 @media (max-width: 768px) {
 	.header-logo-group,
 	.header-badges,
@@ -902,11 +900,8 @@ input:checked + .slider::before {
 	}
 }
 
-.header-tabs {
-	margin-top: 10px;
-}
-
 .header_button {
+	margin-top: 20px;
 	margin: 5px;
 }
 
@@ -924,7 +919,7 @@ input:checked + .slider::before {
 .responsive-container .half {
 	flex: 1 1 48%;
 	box-sizing: border-box;
-	min-width: 200px;
+	min-width: 500px;
 }
 
 .config-section table {

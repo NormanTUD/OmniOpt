@@ -33,7 +33,7 @@ overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -987,10 +987,10 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any, external_generator: str) -> None:
+    def __init__(self: Any, external_generator: str, node_name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(node_name="EXTERNAL_GENERATOR")
+        super().__init__(node_name=node_name)
         self.seed: int = args.seed
         self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
@@ -6355,6 +6355,11 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
         return node
 
+    if model_name == "PSEUDORANDOM":
+        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.random_generator.py", "PSEUDORANDOM")
+
+        return node
+
     if model_name == "EXTERNAL_GENERATOR":
         if args.external_generator is None or args.external_generator == "":
             print_red("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.")
@@ -6947,7 +6952,7 @@ def set_orchestrator() -> None:
 @beartype
 def check_if_has_random_steps() -> None:
     with console.status("[bold green]Checking if has random steps..."):
-        if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps):
+        if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
             print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
             my_exit(233)
 

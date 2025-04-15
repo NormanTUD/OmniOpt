@@ -987,7 +987,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any, external_generator: str, node_name: str ="EXTERNAL_GENERATOR") -> None:
+    def __init__(self: Any, external_generator: str, node_name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
         super().__init__(node_name=node_name)

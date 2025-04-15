@@ -1843,7 +1843,9 @@
 		$json_data_str = "";
 		if(count($GLOBALS["json_data"])) {
 			foreach ($GLOBALS["json_data"] as $json_name => $json_data) {
-				$json_data_str .= "var $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
+				if(!preg_match("/gpu/", $json_name)) {
+					$json_data_str .= "var $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
+				}
 
 
 			}

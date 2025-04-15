@@ -6752,7 +6752,7 @@ def execute_nvidia_smi() -> None:
         except Exception as e:
             print(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:
-            _sleep(10)
+            _sleep(30)
 
 @beartype
 def start_nvidia_smi_thread() -> None:

@@ -1855,24 +1855,28 @@ def load_max_eval_or_exit(_args: Any) -> None:
     else:
         print_yellow("--max_eval needs to be set")
 
-if not args.tests:
-    global_vars = check_continue_previous_job(args.continue_previous_job)
-    check_required_parameters(args)
-    load_time_or_exit(args)
+try:
+    if not args.tests:
+        global_vars = check_continue_previous_job(args.continue_previous_job)
+        check_required_parameters(args)
+        load_time_or_exit(args)
 
-    loaded_mem_gb = load_mem_gb_or_exit(args)
+        loaded_mem_gb = load_mem_gb_or_exit(args)
 
-    if loaded_mem_gb:
-        args.mem_gb = loaded_mem_gb
-        global_vars["mem_gb"] = args.mem_gb
+        if loaded_mem_gb:
+            args.mem_gb = loaded_mem_gb
+            global_vars["mem_gb"] = args.mem_gb
 
-    loaded_gpus = load_gpus_or_exit(args)
+        loaded_gpus = load_gpus_or_exit(args)
 
-    if loaded_gpus:
-        args.gpus = loaded_gpus
-        global_vars["gpus"] = args.gpus
+        if loaded_gpus:
+            args.gpus = loaded_gpus
+            global_vars["gpus"] = args.gpus
 
-    load_max_eval_or_exit(args)
+        load_max_eval_or_exit(args)
+except KeyboardInterrupt:
+    print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
+    my_exit(0)
 
 @beartype
 def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:

@@ -789,6 +789,7 @@ img {
 
 /* --- Tabs --- */
 .header-tabs {
+	margin-top: 10px;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
@@ -900,10 +901,6 @@ input:checked + .slider::before {
 	.header_button {
 		font-size: 2em;
 	}
-}
-
-.header-tabs {
-	margin-top: 10px;
 }
 
 .header_button {

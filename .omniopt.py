@@ -987,10 +987,10 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any, external_generator: str) -> None:
+    def __init__(self: Any, external_generator: str, node_name: str ="EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(node_name="EXTERNAL_GENERATOR")
+        super().__init__(node_name=node_name)
         self.seed: int = args.seed
         self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
@@ -6356,7 +6356,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         return node
 
     if model_name == "PSEUDORANDOM":
-        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.random_generator.py")
+        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.random_generator.py", "PSEUDORANDOM")
 
         return node
 

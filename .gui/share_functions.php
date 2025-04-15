@@ -2275,7 +2275,7 @@ $onclick_string
 
 
 
-							$gpu_usage_data[$index][] = $entry;
+							$gpu_usage_data[$index][] = array($entry["ts"], $entry["gpu"], $entry["gputemp"]);
 						}
 					}
 					fclose($handle);

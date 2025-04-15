@@ -1592,9 +1592,9 @@ function plotGPUUsage() {
 
 		nodeData.forEach(entry => {
 			try {
-				var timestamp = new Date(entry.ts* 1000);
-				var utilization = parseFloat(entry["gpu"]);
-				var temperature = parseFloat(entry["gputemp"]);
+				var timestamp = new Date(entry[0]* 1000);
+				var utilization = parseFloat(entry[1]);
+				var temperature = parseFloat(entry[2]);
 
 				if (!isNaN(timestamp) && !isNaN(utilization) && !isNaN(temperature)) {
 					timestamps.push(timestamp);

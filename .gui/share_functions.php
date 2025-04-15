@@ -1929,6 +1929,8 @@ $onclick_string
 
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 
+		ini_set('memory_limit', '1024M');
+
 		$tab_content = "$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
 
 		$tabs["{$svg_icon}Export"] = [

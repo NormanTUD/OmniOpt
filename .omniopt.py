@@ -3043,7 +3043,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         original_print("stderr was empty")
 
 @beartype
-def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int]) -> None:
+def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict) -> None:
     original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
@@ -3053,6 +3053,8 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
     print_stdout_and_stderr(stdout, stderr)
 
     original_print(f"Result: {result}")
+
+    original_print(f"Final-results: {final_result}")
 
     write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
 
@@ -3155,19 +3157,6 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[
 
             result = get_results_with_occ(stdout)
 
-            evaluate_print_stuff(
-                parameters,
-                program_string_with_params,
-                stdout,
-                stderr,
-                exit_code,
-                _signal,
-                result,
-                start_time,
-                end_time,
-                end_time - start_time
-            )
-
             final_result = {}
 
             if isinstance(result, (int, float)):
@@ -3185,6 +3174,20 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[
 
             else:
                 write_failed_logs(parameters, "No Result")
+
+            evaluate_print_stuff(
+                parameters,
+                program_string_with_params,
+                stdout,
+                stderr,
+                exit_code,
+                _signal,
+                result,
+                start_time,
+                end_time,
+                end_time - start_time,
+                final_result
+            )
 
         except tuple(signal_messages.values()) as sig:
             signal_name = get_signal_name(sig, signal_messages)

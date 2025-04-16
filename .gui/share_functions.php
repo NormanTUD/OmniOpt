@@ -985,7 +985,7 @@
 		return true;
 	}
 
-	function endsWithSubmititInfo($file) {
+	function endsWithSubmititInfo($string) {
 		$ret = preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
 
 		return $ret;

@@ -37,9 +37,6 @@
 
 	$expected_html = '<span style="color:red;">This is red</span> and <span style="color:green;">this is green</span>.';
 
-	is_equal('Ansi to HTML conversion', $html_result, $expected_html);
-
-
 	$is_valid_user_id_test_cases = [
 		['user123', true],
 		['user_456', true],

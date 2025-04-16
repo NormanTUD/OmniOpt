@@ -147,6 +147,9 @@ except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")
     sys.exit(2)
+except ImportError as e:
+    print(f"Error loading modules: {e}. This may be caused by forgetting to 'module load' the right python version.")
+    sys.exit(2)
 except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)

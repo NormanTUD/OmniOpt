@@ -3083,6 +3083,35 @@ def get_signal_name(sig: BaseException, signal_messages: dict) -> str:
     return signal_name
 
 @beartype
+def get_result_sem(stdout: Optional[str], name: str) -> Optional[float]:
+    if stdout is None:
+        print_red("get_result_sem: stdout is None")
+        return None
+
+    if not isinstance(stdout, str):
+        print_red(f"get_result_sem: Type of stdout is not string, but {type(stdout)}")
+        return None
+
+    try:
+        # Regex für exakte Zeile mit SEM-name: <float>
+        pattern = rf'^SEM-{re.escape(name)}:\s*(-?\d+(?:\.\d+)?)$'
+
+        for line in stdout.splitlines():
+            match = re.match(pattern, line.strip())
+            if match:
+                return float(match.group(1))
+
+    except Exception as e:
+        print_red(f"get_result_sem: Error while parsing: {e}")
+
+    return None
+
+@beartype
+def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None]) -> Optional[Union[tuple, int, float]]:
+    sem = get_result_sem(stdout, name)
+    return (value, sem) if sem is not None else value
+
+@beartype
 def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int, float, None]], List[float]]]:
     start_nvidia_smi_thread()
 
@@ -3137,18 +3166,20 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
                 end_time - start_time
             )
 
+            final_result = {}
+
             if isinstance(result, (int, float)):
-                final_result = {
-                    name: float(result) for name in arg_result_names
-                }
+                for name in arg_result_names:
+                    final_result[name] = attach_sem_to_result(stdout, name, float(result))
 
             elif isinstance(result, list):
-                final_result = {
-                    name: cast(float | None, [float(r) for r in result]) for name in arg_result_names
-                }
+                float_values = [float(r) for r in result]
+                for name in arg_result_names:
+                    final_result[name] = attach_sem_to_result(stdout, name, float_values)
 
             elif isinstance(result, dict):
-                final_result = result
+                for name in arg_result_names:
+                    final_result[name] = attach_sem_to_result(stdout, name, result.get(name))
 
             else:
                 write_failed_logs(parameters, "No Result")

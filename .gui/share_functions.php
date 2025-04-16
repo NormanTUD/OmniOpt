@@ -986,14 +986,26 @@
 	}
 
 	function endsWithSubmititInfo($file) {
-		if (file_exists($file)) {
-			$string = file_get_contents($file);
-			$ret = preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
+		$ret = preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
 
-			return $ret;
+		return $ret;
+	}
+
+	function contains_slurm_time_limit_error($input) {
+		if (!is_string($input)) {
+			return false;
 		}
 
-		return true;
+		$pattern = '/slurmstepd:\s+error:\s+\*\*\*\s+JOB\s+\d+\s+ON\s+\S+\s+CANCELLED\s+AT\s+\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\s+DUE\s+TO\s+TIME\s+LIMIT\s+\*\*\*/';
+
+		$match_found = preg_match($pattern, $input, $matches);
+
+		if ($match_found === false) {
+			error_log("Regex evaluation failed.");
+			return false;
+		}
+
+		return $match_found === 1;
 	}
 
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
@@ -1001,6 +1013,7 @@
 		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
 		$gear = "<span class='invert_in_dark_mode'>&#9881;</span>";
 		$memory = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/memory.svg' /></span>";
+		$memory = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/timeout.svg' /></span>";
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
@@ -1010,10 +1023,14 @@
 			if (file_contains_results("$run_dir/$file", $result_names)) {
 				$checkmark = $green_checkmark;
 			} else {
-				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", file_get_contents("$run_dir/$file"))) {
+				$file_as_string = file_get_contents($file);
+
+				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
 					$checkmark = $memory;
-				} else if(endsWithSubmititInfo("$run_dir/$file")) {
+				} else if(endsWithSubmititInfo($file_as_string)) {
 					$checkmark = $red_cross;
+				} else if(contains_slurm_time_limit_error($file_as_string)) {
+					$checkmark = $time_warning;
 				} else {
 					$checkmark = $gear;
 				}

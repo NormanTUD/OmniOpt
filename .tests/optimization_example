@@ -40,6 +40,7 @@ function help () {
         echo "  --choice_param=(STRING)                            Must be 1, 2, 4, 8, 16 or hallo"
         echo "  --fixed_param                                      Will be ignored"
         echo "  --fail_or_not=0|1                                  Whether to fail or not"
+        echo "  --random_sem=0|1                                   Enable random SEM"
 	echo "  --nr_results=1                                     Number of results the example program should have (default: 1)"
         echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode"
@@ -52,9 +53,15 @@ export float_param=
 export choice_param=
 export fixed_param=
 export fail_or_not=0
+export random_sem=0
 
 for i in "$@"; do
         case $i in
+		--random_sem)
+			random_sem=1
+                        shift
+                        ;;
+
                 --fixed_param=*)
 			fixed_param="${i#*=}"
                         shift
@@ -187,6 +194,9 @@ if ($nr_results == 1) {
 } else {
 	foreach my $r (1 .. $nr_results) {
 		print "RESULT$r: ".($r + rand())."\n";
+		if ($ENV{"random_sem"}) {
+			print "SEM-RESULT$r: ".($r + rand())."\n";
+		}
 	}
 }
 ' -- $nr_results $int_param $choice_param $float_param $int_param_two

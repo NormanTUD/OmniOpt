@@ -3093,7 +3093,6 @@ def get_result_sem(stdout: Optional[str], name: str) -> Optional[float]:
         return None
 
     try:
-        # Regex für exakte Zeile mit SEM-name: <float>
         pattern = rf'^SEM-{re.escape(name)}:\s*(-?\d+(?:\.\d+)?)$'
 
         for line in stdout.splitlines():

@@ -94,8 +94,38 @@
 		return html_entity_decode($ret);
 	}
 
-	function remove_sixel ($output) {
-		$output = preg_replace("/(P[0-9;]+q.*?)(?=(P|$|\s))/", "<br>", $output);
+	function remove_sixel($output) {
+		$has_sixel2png = trim(shell_exec('command -v sixel2png')) !== '';
+
+		$output = preg_replace_callback("/\x1bP([0-9;]*q.*?\x1b\\\\)/s", function ($matches) use ($has_sixel2png) {
+			$sixel = $matches[1];
+			$sixel = "\x1bP" . $matches[1]; // wieder komplett machn
+
+			if (!$has_sixel2png) {
+				return "<br>";
+			}
+
+			$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
+			$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
+
+			// Optional Debug: echo $tmp_sixel;
+			file_put_contents($tmp_sixel, $sixel);
+
+			$cmd = escapeshellcmd("sixel2png -i $tmp_sixel -o $tmp_png");
+			shell_exec($cmd);
+
+			if (!file_exists($tmp_png)) {
+				return "<br>";
+			}
+
+			$data = base64_encode(file_get_contents($tmp_png));
+			$img = '<img src="data:image/png;base64,' . $data . '" alt="SIXEL Image"/>';
+
+			unlink($tmp_sixel);
+			unlink($tmp_png);
+
+			return $img;
+		}, $output);
 
 		return $output;
 	}

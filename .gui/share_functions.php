@@ -94,7 +94,7 @@
 		return html_entity_decode($ret);
 	}
 
-	function remove_sixel($output) {
+	function convert_sixel($output) {
 		$has_sixel2png = trim(shell_exec('command -v sixel2png')) !== '';
 
 		$output = preg_replace_callback("/\x1bP([0-9;]*q.*?\x1b\\\\)/s", function ($matches) use ($has_sixel2png) {
@@ -361,7 +361,7 @@
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
-				$contents = remove_sixel($contents);
+				$contents = convert_sixel($contents);
 			}
 
 			$html_table = asciiTableToHtml($contents);
@@ -397,7 +397,7 @@
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
-				$contents = remove_sixel($contents);
+				$contents = convert_sixel($contents);
 			}
 
 			$contents = remove_rich_progress_lines($contents);

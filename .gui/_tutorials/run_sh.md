@@ -133,3 +133,25 @@ python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_na
 - Type checking is automatically handled based on the type specified in `add_argument`.
 - Generates helpful usage messages if the arguments are incorrect or missing.
 - Supports optional arguments and more complex argument parsing needs.
+
+## `mean` and `sem` in Ax
+
+- `mean`: average of repeated measurements
+- `sem`: standard error of the mean (uncertainty of `mean`)
+
+
+Use `sem` when results are noisy — it helps Ax handle uncertainty.
+
+One way of calculating this would be this:
+
+$$ \text{SEM} = \frac{s}{\sqrt{n}} s = \text{std deviation}, n = \text{number of trials} $$
+
+But it's totally up to you and your program to calculcate these results.
+
+To do that, you need to print out the result and also the SEM. This can be used with multi-objective-optimization as well,
+and has to be done for each parameter, like `RESULT`, where you want that kind of data.
+
+```bash
+print(f"RESULT: {result}")
+print(f"SEM-RESULT: {sem_result}")
+```

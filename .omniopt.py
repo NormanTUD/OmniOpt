@@ -3108,7 +3108,10 @@ def get_result_sem(stdout: Optional[str], name: str) -> Optional[float]:
 @beartype
 def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None]) -> Optional[Union[tuple, int, float]]:
     sem = get_result_sem(stdout, name)
-    return (value, sem) if sem is not None else value
+    if sem:
+        return (value, sem)
+
+    return value
 
 @beartype
 def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:

@@ -148,7 +148,7 @@ except ModuleNotFoundError as e:
     print("Exit-Code: 2")
     sys.exit(2)
 except ImportError as e:
-    print(f"Error loading modules: {e}\nThis may be caused by forgetting to 'module load' the right python version.")
+    print(f"Error loading modules: {e}\nThis may be caused by forgetting to 'module load' the right python version or missing the python version.")
     sys.exit(2)
 except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")

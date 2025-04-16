@@ -1011,7 +1011,7 @@
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span class='invert_in_dark_mode'>&#10060;</span>";
 		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
-		$gear = "<span class='invert_in_dark_mode'>&#9881;</span>";
+		$gear = "<span class='rotate invert_in_dark_mode'>&#9881;</span>";
 		$memory = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/memory.svg' /></span>";
 		$time_warning = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/timeout.svg' /></span>";
 

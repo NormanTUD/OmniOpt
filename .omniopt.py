@@ -3111,7 +3111,7 @@ def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None])
     return (value, sem) if sem is not None else value
 
 @beartype
-def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int, float, None]], List[float]]]:
+def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     start_nvidia_smi_thread()
 
     return_in_case_of_error: dict = get_return_in_case_of_errors()

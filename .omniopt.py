@@ -522,6 +522,7 @@ class ConfigLoader:
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--external_generator', help='Programm call for an external generato4', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
+        optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=str)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -5924,10 +5925,15 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
     _submitted_jobs = submitted_jobs()
     _failed_jobs = failed_jobs()
 
+    max_failed_jobs = max_eval
+
+    if args.max_failed_jobs:
+        max_failed_jobs = args.max_failed_jobs
+
     conditions = [
         (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
         (lambda: (_submitted_jobs - _failed_jobs) >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: (_submitted_jobs - _failed_jobs) >= max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > max_eval {max_eval} + 1"),
+        (lambda: max_failed_jobs <= _failed_jobs + 1, f"4. max_failed_jobs {max_failed_jobs} <= failed_jobs {_failed_jobs} + 1"),
     ]
 
     if _max_eval:

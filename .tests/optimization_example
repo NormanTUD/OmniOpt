@@ -53,7 +53,7 @@ export float_param=
 export choice_param=
 export fixed_param=
 export fail_or_not=0
-export random_sem=0
+export random_sem=""
 
 for i in "$@"; do
         case $i in

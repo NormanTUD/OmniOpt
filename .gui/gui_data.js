@@ -554,6 +554,17 @@ var hiddenTableData = [
 		info: "A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)",
 		regex_does_not_match_text: "The value must consist of one or more alphanumeric identifiers (letters, numbers, or underscores), separated by commas. No leading or trailing commas are allowed."
 	},
+
+	{
+		label: "Username",
+		id: "username",
+		type: "text",
+		value: "",
+		placeholder: "The username that will be used for OmniOpt2 share, if used at all",
+		required: false,
+		regex: "^([a-zA-Z0-9_]+,?)*([a-zA-Z0-9_]+)*$",
+		regex_does_not_match_text: "The value must consist of one or more alphanumeric identifiers (letters, numbers, or underscores), separated by commas. No leading or trailing commas are allowed."
+	},
 	{
 		label: "Generation strategy",
 		id: "generation_strategy",

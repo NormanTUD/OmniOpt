@@ -191,7 +191,9 @@ sub shekel {
 
 if ($nr_results == 1) {
 	print qq#RESULT: #.shekel(@ARGV).qq#\n#;
-	print "SEM-RESULT: ".(rand())."\n";
+	if ($ENV{"random_sem"}) {
+		print "SEM-RESULT: ".(rand())."\n";
+	}
 } else {
 	foreach my $r (1 .. $nr_results) {
 		print "RESULT$r: ".($r + rand())."\n";

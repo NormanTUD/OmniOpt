@@ -1023,7 +1023,7 @@
 			if (file_contains_results("$run_dir/$file", $result_names)) {
 				$checkmark = $green_checkmark;
 			} else {
-				$file_as_string = file_get_contents($file);
+				$file_as_string = file_get_contents("$run_dir/$file");
 
 				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
 					$checkmark = $memory;

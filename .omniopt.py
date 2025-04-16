@@ -5919,6 +5919,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
     table.add_column(headers[1])
 
     rows = [
+        ("args.max_failed_jobs", args.max_failed_jobs),
         ("succeeded_jobs()", succeeded_jobs()),
         ("submitted_jobs()", submitted_jobs()),
         ("count_done_jobs()", count_done_jobs()),
@@ -5947,16 +5948,16 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
         max_failed_jobs = args.max_failed_jobs
 
     conditions = [
-        (lambda: _counted_done_jobs >= max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= max_eval {max_eval}"),
+        (lambda: (_counted_done_jobs - _failed_jobs) >= max_eval, f"1. _counted_done_jobs {_counted_done_jobs} - (_failed_jobs {_failed_jobs}) >= max_eval {max_eval}"),
         (lambda: (_submitted_jobs - _failed_jobs) >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
-        (lambda: max_failed_jobs <= _failed_jobs + 1, f"4. max_failed_jobs {max_failed_jobs} <= failed_jobs {_failed_jobs} + 1"),
+        (lambda: max_failed_jobs < _failed_jobs, f"3. max_failed_jobs {max_failed_jobs} < failed_jobs {_failed_jobs}"),
     ]
 
     if _max_eval:
-        conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"1. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
-        conditions.append((lambda: _counted_done_jobs >= _max_eval, f"3. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
-        conditions.append((lambda: (_submitted_jobs - _failed_jobs) >= _max_eval + 1, f"4. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > _max_eval {_max_eval} + 1"),)
-        conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"5. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
+        conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"4. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: _counted_done_jobs >= _max_eval, f"5. _counted_done_jobs {_counted_done_jobs} >= _max_eval {_max_eval}"),)
+        conditions.append((lambda: (_submitted_jobs - _failed_jobs) >= _max_eval + 1, f"6. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} > _max_eval {_max_eval} + 1"),)
+        conditions.append((lambda: 0 >= abs(_counted_done_jobs - _max_eval - NR_INSERTED_JOBS), f"7. 0 >= abs(_counted_done_jobs {_counted_done_jobs} - _max_eval {_max_eval} - NR_INSERTED_JOBS {NR_INSERTED_JOBS})"))
 
     for condition_func, debug_msg in conditions:
         if condition_func():

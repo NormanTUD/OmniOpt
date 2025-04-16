@@ -275,7 +275,7 @@ var hiddenTableData = [
 		type: "number",
 		value: "",
 		placeholder: "Seed for reproducibility",
-		info: "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically.",
+		info: "When set, this will make OmniOpt2 runs reproducible, given your program also acts deterministically. If on Sbatch-Systems, you need to have --generate_all_jobs_at_once enabled, otherwise, runs will not be deterministic!",
 		required: false
 	},
 	{

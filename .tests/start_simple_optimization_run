@@ -11,7 +11,7 @@ if [[ -z $OMNIOPT_CALL ]]; then
 	OMNIOPT_CALL="./omniopt"
 fi
 
-export random_sem=0
+export random_sem=""
 export OMNIOPT_CALL
 
 function set_debug {

@@ -518,6 +518,7 @@ class ConfigLoader:
         optional.add_argument("--load_data_from_existing_jobs", type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--external_generator', help='Programm call for an external generato4', type=str, default=None)
+        optional.add_argument('--username', help='A username for live share', default=None, type=str)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -1186,6 +1187,9 @@ def run_live_share_command() -> Tuple[str, str]:
             _user = os.getenv('USER')
             if _user is None:
                 _user = 'defaultuser'
+
+            if args.username:
+                _user = args.username
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 

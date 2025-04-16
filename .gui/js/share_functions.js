@@ -1811,10 +1811,10 @@ function _colorize_table_entries_by_run_time() {
 	});
 }
 
-function _colorize_table_entries_by_result() {
+function _colorize_table_entries_by_results() {
 	result_names.forEach((name, index) => {
 		let minMax = result_min_max[index];
-		let selector_query = `[data-column-id="${name.toLowerCase()}"]`;
+		let selector_query = `[data-column-id="${name}"]`;
 		let cells = [...document.querySelectorAll(selector_query)];
 		if (cells.length === 0) return;
 
@@ -1871,7 +1871,7 @@ function colorize_table_entries () {
 	setTimeout(() => {
 		if (typeof result_names !== "undefined" && Array.isArray(result_names) && result_names.length > 0) {
 			_colorize_table_entries_by_trial_status();
-			_colorize_table_entries_by_result();
+			_colorize_table_entries_by_results();
 			_colorize_table_entries_by_run_time();
 			_colorize_table_entries_by_generation_method();
 			_colorize_table_entries_by_generation_node_or_hostname();

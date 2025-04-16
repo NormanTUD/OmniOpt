@@ -3090,59 +3090,76 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Union[int
     return_in_case_of_error: dict = get_return_in_case_of_errors()
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
+    final_result = return_in_case_of_error
 
-    if _test_gpu is not None:
-        return _test_gpu
+    if _test_gpu is None:
+        parameters = {
+            k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
+            for k, v in parameters.items()
+        }
 
-    parameters = {k: (int(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v) for k, v in parameters.items()}
+        ignore_signals()
 
-    ignore_signals()
+        signal_messages = {
+            "USR1-signal": SignalUSR,
+            "CONT-signal": SignalCONT,
+            "INT-signal": SignalINT
+        }
 
-    signal_messages = {
-        "USR1-signal": SignalUSR,
-        "CONT-signal": SignalCONT,
-        "INT-signal": SignalINT
-    }
+        try:
+            if args.raise_in_eval:
+                raise SignalUSR("Raised in eval")
 
-    try:
-        if args.raise_in_eval:
-            raise SignalUSR("Raised in eval")
+            program_string_with_params: str = replace_parameters_in_string(
+                parameters,
+                global_vars["joined_run_program"]
+            )
 
-        program_string_with_params: str = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
+            start_time: int = int(time.time())
 
-        start_time: int = int(time.time())
+            stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string_with_params)
 
-        stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string_with_params)
+            original_print(stderr)
 
-        original_print(stderr)
+            end_time: int = int(time.time())
 
-        end_time: int = int(time.time())
+            result = get_results_with_occ(stdout)
 
-        result = get_results_with_occ(stdout)
+            evaluate_print_stuff(
+                parameters,
+                program_string_with_params,
+                stdout,
+                stderr,
+                exit_code,
+                _signal,
+                result,
+                start_time,
+                end_time,
+                end_time - start_time
+            )
 
-        evaluate_print_stuff(parameters, program_string_with_params, stdout, stderr, exit_code, _signal, result, start_time, end_time, end_time - start_time)
+            if isinstance(result, (int, float)):
+                final_result = {
+                    name: float(result) for name in arg_result_names
+                }
 
-        if isinstance(result, (int, float)):
-            return {
-                name: float(result) for name in arg_result_names
-            }
+            elif isinstance(result, list):
+                final_result = {
+                    name: cast(float | None, [float(r) for r in result]) for name in arg_result_names
+                }
 
-        if isinstance(result, list):
-            return {
-                name: cast(float | None, [float(r) for r in result]) for name in arg_result_names
-            }
+            elif isinstance(result, dict):
+                final_result = result
 
-        if isinstance(result, (dict)):
-            return result
+            else:
+                write_failed_logs(parameters, "No Result")
 
-        write_failed_logs(parameters, "No Result")
-    except tuple(signal_messages.values()) as sig:
-        signal_name = get_signal_name(sig, signal_messages)
+        except tuple(signal_messages.values()) as sig:
+            signal_name = get_signal_name(sig, signal_messages)
+            print(f"\n⚠ {signal_name} was sent. Cancelling evaluation.")
+            write_failed_logs(parameters, signal_name)
 
-        print(f"\n⚠ {signal_name} was sent. Cancelling evaluation.")
-        write_failed_logs(parameters, signal_name)
-
-    return return_in_case_of_error
+    return final_result
 
 @beartype
 def custom_warning_handler(
@@ -5927,7 +5944,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
 
     max_failed_jobs = max_eval
 
-    if args.max_failed_jobs:
+    if args.max_failed_jobs is not None and args.max_failed_jobs > 0:
         max_failed_jobs = args.max_failed_jobs
 
     conditions = [

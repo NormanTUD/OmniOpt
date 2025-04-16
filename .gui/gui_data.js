@@ -543,6 +543,15 @@ var hiddenTableData = [
 		info: "When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.",
 		min: 0
 	},
+
+	{
+		label: "Max nr. failed jobs",
+		id: "max_failed_jobs",
+		type: "number",
+		value: 0,
+		info: "How many failed jobs should suffice to cancel the whole job. If set to 0 or not at all, it will be --max_eval.",
+		min: 0
+	},
 	{
 		label: "Exclude",
 		id: "exclude",

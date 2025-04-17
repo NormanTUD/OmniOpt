@@ -11,11 +11,30 @@
 	require_once "_functions.php";
 	require "searchable_php_files.php";
 
+	function remove_php_script_from_path($path) {
+		if (!is_string($path)) {
+			return '';
+		}
+
+		$pattern = '/\/[^\/]+\.php(\/|$)/i';
+
+		$cleaned = preg_replace($pattern, '/', $path);
+
+		$cleaned = preg_replace('/\/+/', '/', $cleaned);
+
+		if ($cleaned === '' || $cleaned[0] !== '/') {
+			$cleaned = '/' . $cleaned;
+		}
+
+		return $cleaned;
+	}
+
+
 	function get_main_script_dir() {
 		$script_name = $_SERVER["SCRIPT_NAME"];
 		$main_script_dir = preg_replace("/(\/.*)\/.*/", "\\1/", $script_name);
 		$main_script_dir = preg_replace("/\/+/", "/", $main_script_dir);
-		return $main_script_dir;
+		return remove_php_script_from_path($main_script_dir);
 	}
 
 	function get_dir_path () {

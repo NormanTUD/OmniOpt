@@ -17,7 +17,7 @@ FILTER_USER=""
 FILTER_EXPERIMENT=""
 EXPORT_DIR=""
 
-print_help() {
+function help {
 	echo "Usage: $0 --export_dir <path> [--user <username>] [--experiment <experiment>]"
 	echo ""
 	echo "Options:"
@@ -46,11 +46,11 @@ while [[ $# -gt 0 ]]; do
 			shift 2
 			;;
                 -h|--help)
-                        print_help
+                        help
                         ;;
                 *)
                         echo "Unknown argument: $1"
-                        print_help
+                        help
                         ;;
 	esac
 done

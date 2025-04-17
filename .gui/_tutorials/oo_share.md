@@ -38,3 +38,22 @@ echo "http://localhost:8080/" > ~/.oo_base_url
 ```
 
 From there on, you will push OmniOpt2-Share to your local machine, reachable under `localhost:8080`.
+
+### Download all exports
+
+If you want to download a lot of exports, you can first run the local docker installation. Submit every job you want to the local OmniOpt2 installation (see the previous point).
+
+You can then download all exports as single HTML files by simply doing this:
+
+
+```bash
+cd .gui
+bash download_local_exports --export_dir /home/s3811141/test/randomtest_98580
+```
+
+The `download_local_exports` script has some options to filter which jobs you want to export:
+
+```run_php
+	$file_path = "download_local_exports";
+	echo extract_help_params_from_bash($file_path);
+```

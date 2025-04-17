@@ -193,7 +193,7 @@
 				}
 ?>
 				<a href="https://scads.ai/imprint/" target="_blank">
-					<button class="header_button">Imprint/Impressum</button>
+					<button class="header_button">Impressum</button>
 				</a>
 			</div>
 			<div class="header-theme-toggle">

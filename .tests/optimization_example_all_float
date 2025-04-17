@@ -34,6 +34,7 @@ trap 'calltracer' ERR
 
 function help () {
         echo "Possible options:"
+        echo "  --random_sem=0|1                                   Enable random SEM"
         echo "  --x=(FLOAT)                                        Any float"
         echo "  --y=(FLOAT)                                        Any float"
         echo "  --z=(FLOAT)                                        Any float"
@@ -46,8 +47,14 @@ export x=
 export y=
 export z=
 export a=
+export random_sem=""
+
 for i in "$@"; do
         case $i in
+		--random_sem)
+			random_sem=1
+                        shift
+                        ;;
                 --y=*)
                         y="${i#*=}"
                         shift
@@ -135,4 +142,8 @@ sub shekel {
 }
 
 print qq#RESULT: #.shekel(@ARGV).qq#\n#;
+
+if ($ENV{"random_sem"}) {
+	print "SEM-RESULT: ".(rand())."\n";
+}
 ' -- $x $y $z $a

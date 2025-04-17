@@ -26,3 +26,15 @@ is publically available for 30 days.
 	$file_path = "../omniopt_share";
 	echo extract_help_params_from_bash($file_path);
 ```
+
+## Run locally
+
+It is possible to run OmniOpt-Share locally, via Docker.
+
+```
+cd .gui
+docker-compose up --build
+echo "http://localhost:8080/" > ~/.oo_base_url
+```
+
+From there on, you will push OmniOpt2-Share to your local machine, reachable under `localhost:8080`.

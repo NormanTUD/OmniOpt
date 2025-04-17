@@ -57,3 +57,9 @@ The `download_local_exports` script has some options to filter which jobs you wa
 	$file_path = "download_local_exports";
 	echo extract_help_params_from_bash($file_path);
 ```
+
+Run Parameters *without* equal signs, like this:
+
+```bash
+bash download_local_exports --export_dir /home/s3811141/test/randomtest_98580 --user s3811141 --experiment MY_EXPERIMENT_NAME
+```

@@ -69,6 +69,11 @@ find "$SHARES_DIR" -mindepth 3 -maxdepth 3 -type d | while read -r RUN_DIR; do
 
 	export_to="$EXPORT_DIR/${USER}_${EXPERIMENT}_${RUN_NR}.html"
 
+	mkdir -p $EXPORT_DIR || {
+		echo "Error creating $EXPORT_DIR"
+		exit 3
+	}
+
 	html=$(curl -fsSL "$URL" || echo "Request failed for: $URL")
 	exit_code=$?
 

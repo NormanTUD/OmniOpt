@@ -3744,7 +3744,7 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
         row_data[result_name] = best_params.get(result_name, '?')
 
         for col in row_data.keys():
-            table.add_column(col, style="cyan")
+            table.add_column(col, style="bold")
 
         table.add_row(*[str(v) for v in row_data.values()])
 
@@ -4548,8 +4548,8 @@ def print_result_names_overview_table() -> None:
 
     __table = Table(title="Result-Names:")
 
-    __table.add_column("Result-Name", justify="left", style="cyan")
-    __table.add_column("Min or max?", justify="right", style="green")
+    __table.add_column("Result-Name", justify="left", style="bold")
+    __table.add_column("Min or max?", justify="right", style="bold")
 
     for __name, __value in zip(res_names, res_min_max):
         __table.add_row(str(__name), str(__value))

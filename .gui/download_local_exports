@@ -15,6 +15,7 @@ SHARES_DIR="shares"
 
 FILTER_USER=""
 FILTER_EXPERIMENT=""
+EXPORT_DIR=""
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -26,6 +27,10 @@ while [[ $# -gt 0 ]]; do
 			FILTER_EXPERIMENT="$2"
 			shift 2
 			;;
+		--export_dir)
+			EXPORT_DIR="$2"
+			shift 2
+			;;
 		*)
 			echo "Unknown argument: $1"
 			exit 1
@@ -33,9 +38,14 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
+if [[ "$EXPORT_DIR" == "" ]]; then
+	echo "--export_dir must be set"
+	exit 1
+fi
+
 if [ ! -d "$SHARES_DIR" ]; then
 	echo "Directory '$SHARES_DIR' does not exist."
-	exit 1
+	exit 2
 fi
 
 find "$SHARES_DIR" -mindepth 3 -maxdepth 3 -type d | while read -r RUN_DIR; do
@@ -55,9 +65,17 @@ find "$SHARES_DIR" -mindepth 3 -maxdepth 3 -type d | while read -r RUN_DIR; do
 		continue
 	fi
 
-	URL="${BASE_URL%/}/share?&user_id=${USER}&experiment_name=${EXPERIMENT}&sort=time_desc&run_nr=${RUN_NR}"
+	URL="${BASE_URL%/}/share?&user_id=${USER}&experiment_name=${EXPERIMENT}&sort=time_desc&run_nr=${RUN_NR}&export_and_exit=1"
 
-	echo "Generated URL: $URL"
-	echo "Calling with curl..."
-	curl -fsSL "$URL" || echo "Request failed for: $URL"
+	export_to="$EXPORT_DIR/${USER}_${EXPERIMENT}_${RUN_NR}.html"
+
+	html=$(curl -fsSL "$URL" || echo "Request failed for: $URL")
+	exit_code=$?
+
+	if [[ $exit_code -eq 0 ]]; then
+		echo "$html" > $export_to
+		echo "Exported to $export_to"
+	else
+		echo "$html"
+	fi
 done

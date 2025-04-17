@@ -1995,14 +1995,19 @@ $onclick_string
 			$skipped_tab_names_string = "Skipped tabs: <ul>\n\t<li>".implode("</li>\n\t<li>", $skipped_tab_names)."</li>\n</ul>";
 		}
 
-		$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
-
-		$tab_content = $export_content;
+		if(!isset($_GET["export_and_exit"])) {
+			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+		}
 
 		$tabs["{$svg_icon}Export"] = [
 			'id' => 'tab_export',
-			'content' => $tab_content
+			'content' => $export_content
 		];
+
+		if(isset($_GET["export_and_exit"])) {
+			print $export_content;
+			exit(0);
+		}
 
 		return [$tabs, $warnings];
 	}

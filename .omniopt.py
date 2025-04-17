@@ -4848,6 +4848,8 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
             last_progress_bar_desc = desc
 
+    live_share()
+
 @beartype
 def clean_completed_jobs() -> None:
     job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted"]

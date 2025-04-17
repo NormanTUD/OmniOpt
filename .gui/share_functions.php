@@ -95,7 +95,13 @@
 	}
 
 	function convert_sixel($output) {
-		$has_sixel2png = trim(shell_exec('command -v sixel2png')) !== '';
+		$command_v_sixel2png = shell_exec('command -v sixel2png');
+
+		if ($command_v_sixel2png) {
+			$has_sixel2png = trim($command_v_sixel2png) !== '';
+		} else {
+			$has_sixel2png = false;
+		}
 
 		$output = preg_replace_callback("/\x1bP([0-9;]*q.*?\x1b\\\\)/s", function ($matches) use ($has_sixel2png) {
 			$sixel = $matches[1];

@@ -31,7 +31,7 @@ is publically available for 30 days.
 
 It is possible to run OmniOpt-Share locally, via Docker.
 
-```
+```bash
 cd .gui
 docker-compose up --build
 echo "http://localhost:8080/" > ~/.oo_base_url

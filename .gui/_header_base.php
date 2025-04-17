@@ -72,8 +72,8 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>OmniOpt2</title>
-		<link href="<?php print get_main_script_dir(); ?>/prism.css" rel="stylesheet">
-		<link rel="icon" type="image/x-icon" href="<?php print get_main_script_dir(); ?>/favicon.ico">
+		<link href="prism.css" rel="stylesheet">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("jquery-3.7.1.js"); ?>
 		<?php js("jquery-ui.min.js"); ?>
 		<?php js("prism.js"); ?>
@@ -97,7 +97,7 @@
 
 			<?php js("js/share_functions.js"); ?>
 
-			<link href="<?php print get_main_script_dir(); ?>/css/mermaid.min.css" rel="stylesheet" />
+			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php
 		}
 ?>
@@ -106,8 +106,8 @@
 			apply_theme_based_on_system_preferences();
 		</script>
 
-		<link href="<?php print get_main_script_dir(); ?>/style.css" rel="stylesheet">
-		<link href="<?php print get_main_script_dir(); ?>/jquery-ui.css" rel="stylesheet">
+		<link href="style.css" rel="stylesheet">
+		<link href="jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
@@ -161,10 +161,10 @@
 		<div id="scads_bar" class="header-container">
 			<div class="header-logo-group">
 				<a href="index">
-					<img class="logo-img" src="<?php print get_main_script_dir(); ?>/logo.png" alt="OmniOpt2-Logo">
+					<img class="logo-img" src="logo.png" alt="OmniOpt2-Logo">
 				</a>
 				<a href="https://scads.ai/" target="_blank">
-					<img class="logo-img" src="<?php print get_main_script_dir(); ?>/scads_logo.svg" alt="ScaDS.ai-Logo">
+					<img class="logo-img" src="scads_logo.svg" alt="ScaDS.ai-Logo">
 				</a>
 			</div>
 

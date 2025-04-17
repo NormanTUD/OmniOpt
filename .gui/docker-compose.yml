@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  php-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./shares:/var/www/html/shares:rw
+    restart: unless-stopped
+    environment:
+      APACHE_RUN_USER: www-data
+      APACHE_RUN_GROUP: www-data

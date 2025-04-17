@@ -12,6 +12,8 @@ else
 fi
 
 SHARES_DIR="shares"
+SHARE_BEFORE=0
+USERNAME="$USER"
 
 FILTER_USER=""
 FILTER_EXPERIMENT=""
@@ -24,21 +26,31 @@ function help {
 	echo "  --user           Optional: Filter by user"
 	echo "  --experiment     Optional: Filter by experiment"
 	echo "  --export_dir     Required: Directory to save exported HTML files"
+	echo "  --autosubmit     Auto submit each job in runs before trying to export"
+	echo "  --username       Name of the user if it should be submitted, defaults to $USER"
 	echo "  -h, --help       Show this help message"
 	echo ""
 	echo "Example:"
-	echo "  $0 --user alice --experiment test_exp --export_dir ./exports"
+	echo "  $0 --username alice --experiment test_exp --export_dir ./exports"
 	exit 0
 }
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
+		--autosubmit)
+			SHARE_BEFORE=1
+			shift 1
+			;;
 		--user)
 			FILTER_USER="$2"
 			shift 2
 			;;
 		--experiment)
 			FILTER_EXPERIMENT="$2"
+			shift 2
+			;;
+		--username)
+			USERNAME="$2"
 			shift 2
 			;;
 		--export_dir)
@@ -54,6 +66,18 @@ while [[ $# -gt 0 ]]; do
                         ;;
 	esac
 done
+
+
+if [[ $SHARE_BEFORE -eq 1 ]]; then
+	cd ..
+	BASE_DIR="runs"
+	find "$BASE_DIR" -type f -name "results.csv" | while read -r csv_path; do
+		dir_path="$(dirname "$csv_path")"
+
+		bash omniopt_share --username="$USERNAME" "$dir_path"
+	done
+	cd -
+fi
 
 if [[ "$EXPORT_DIR" == "" ]]; then
 	echo "--export_dir must be set"

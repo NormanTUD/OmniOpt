@@ -17,6 +17,20 @@ FILTER_USER=""
 FILTER_EXPERIMENT=""
 EXPORT_DIR=""
 
+print_help() {
+	echo "Usage: $0 --export_dir <path> [--user <username>] [--experiment <experiment>]"
+	echo ""
+	echo "Options:"
+	echo "  --user           Optional: Filter by user"
+	echo "  --experiment     Optional: Filter by experiment"
+	echo "  --export_dir     Required: Directory to save exported HTML files"
+	echo "  -h, --help       Show this help message"
+	echo ""
+	echo "Example:"
+	echo "  $0 --user alice --experiment test_exp --export_dir ./exports"
+	exit 0
+}
+
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--user)
@@ -31,10 +45,13 @@ while [[ $# -gt 0 ]]; do
 			EXPORT_DIR="$2"
 			shift 2
 			;;
-		*)
-			echo "Unknown argument: $1"
-			exit 1
-			;;
+                -h|--help)
+                        print_help
+                        ;;
+                *)
+                        echo "Unknown argument: $1"
+                        print_help
+                        ;;
 	esac
 done
 

@@ -56,8 +56,12 @@
 			if (!file_exists($_p)) {
 				dier("$_p not found");
 			}
+
+			$link = get_main_script_dir()."/$_p";
+
+			$link = preg_replace("/^\/\/*/", "/", $link);
 ?>
-			<script src="<?php print get_main_script_dir()."/$_p"; ?>"></script>
+			<script src="<?php print $link; ?>"></script>
 <?php
 		}
 	}

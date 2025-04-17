@@ -27,7 +27,7 @@ is publically available for 30 days.
 	echo extract_help_params_from_bash($file_path);
 ```
 
-## Run locally
+## Run locally in Docker
 
 It is possible to run OmniOpt-Share locally, via Docker.
 

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -euo pipefail
+
+DEFAULT_BASE_URL="https://imageseg.scads.de/omniax/"
+BASE_URL_FILE="$HOME/.oo_base_url"
+
+if [ -f "$BASE_URL_FILE" ]; then
+	BASE_URL=$(cat "$BASE_URL_FILE")
+else
+	BASE_URL="$DEFAULT_BASE_URL"
+fi
+
+SHARES_DIR="shares"
+
+FILTER_USER=""
+FILTER_EXPERIMENT=""
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--user)
+			FILTER_USER="$2"
+			shift 2
+			;;
+		--experiment)
+			FILTER_EXPERIMENT="$2"
+			shift 2
+			;;
+		*)
+			echo "Unknown argument: $1"
+			exit 1
+			;;
+	esac
+done
+
+if [ ! -d "$SHARES_DIR" ]; then
+	echo "Directory '$SHARES_DIR' does not exist."
+	exit 1
+fi
+
+find "$SHARES_DIR" -mindepth 3 -maxdepth 3 -type d | while read -r RUN_DIR; do
+	USER=$(echo "$RUN_DIR" | cut -d'/' -f2)
+	EXPERIMENT=$(echo "$RUN_DIR" | cut -d'/' -f3)
+	RUN_NR=$(basename "$RUN_DIR")
+
+	if ! [[ "$RUN_NR" =~ ^[0-9]+$ ]]; then
+		continue
+	fi
+
+	if [ -n "$FILTER_USER" ] && [ "$USER" != "$FILTER_USER" ]; then
+		continue
+	fi
+
+	if [ -n "$FILTER_EXPERIMENT" ] && [ "$EXPERIMENT" != "$FILTER_EXPERIMENT" ]; then
+		continue
+	fi
+
+	URL="${BASE_URL%/}/share?&user_id=${USER}&experiment_name=${EXPERIMENT}&sort=time_desc&run_nr=${RUN_NR}"
+
+	echo "Generated URL: $URL"
+	echo "Calling with curl..."
+	curl -fsSL "$URL" || echo "Request failed for: $URL"
+done

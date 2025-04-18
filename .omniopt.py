@@ -5807,7 +5807,7 @@ def save_state_files() -> None:
             write_state_file("main_process_gb", str(args.main_process_gb))
 
 @beartype
-def submit_job(parameters: dict) -> Optional[Job[Optional[Union[int, float, Dict[str, Optional[float]], List[float]]]]]:
+def submit_job(parameters: dict) -> Optional[Job]:
     try:
         if executor:
             new_job = executor.submit(evaluate, parameters)

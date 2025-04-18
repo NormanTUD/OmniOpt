@@ -45,7 +45,7 @@ def generate_random_value(parameter: dict) -> Optional[Union[int, float, str]]:
 
 def generate_random_point(data: dict) -> dict:
     constraints = data["constraints"]
-    point = {}
+    point: dict = {}
 
     param_data = data["parameters"]
 

@@ -6082,7 +6082,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
 
-            if ax_client is not None and ax_client.experiment is not None:
+            if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
                 trial_index = ax_client.experiment.num_trials
 
                 generator_run = global_gs.gen(
@@ -6103,7 +6103,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
                 trial_durations.append(float(end_time - start_time))
             else:
-                print_red("ax_client or ax_client.experiment is not defined")
+                print_red("ax_client, ax_client.experiment or global_gs is not defined")
                 my_exit(101)
         return trials_dict, False
     except np.linalg.LinAlgError as e:

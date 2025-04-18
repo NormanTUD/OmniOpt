@@ -883,8 +883,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                     return False
 
                 return True
-        else:
-            return True
+
+        return True
 
     @beartype
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:

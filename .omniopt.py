@@ -461,7 +461,7 @@ class ConfigLoader:
     load_data_from_existing_jobs: list
     time: str
     generate_all_jobs_at_once: bool
-    result_names: Optional[List[str]] 
+    result_names: Optional[List[str]]
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
     max_failed_jobs: Optional[int]

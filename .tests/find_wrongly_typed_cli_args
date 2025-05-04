@@ -71,15 +71,15 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 	if ! grep -Eq "^\s*$_name: $type_regex$" .omniopt.py; then
 		if [[ "$_nargs" != "" ]]; then
 			if [[ $_action != "" ]]; then
-				red_text "Wrongly typed: $_name: $_type (nargs: $_nargs, action: $_action)"
+				red_text "Wrongly typed: $_name: expected: $_type (nargs: $_nargs, action: $_action)"
 			else
-				red_text "Wrongly typed: $_name: $_type (nargs: $_nargs)"
+				red_text "Wrongly typed: $_name: expected: $_type (nargs: $_nargs)"
 			fi
 		else
 			if [[ $_action != "" ]]; then
-				red_text "Wrongly typed: $_name: $_type (action: $_action)"
+				red_text "Wrongly typed: $_name: expected: $_type (action: $_action)"
 			else
-				red_text "Wrongly typed: $_name: $_type"
+				red_text "Wrongly typed: $_name: expected: $_type"
 			fi
 		fi
 

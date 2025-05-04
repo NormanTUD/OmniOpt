@@ -7495,8 +7495,7 @@ def main() -> None:
     write_files_and_show_overviews()
 
     for existing_run in args.load_data_from_existing_jobs:
-        csv_path = f"{existing_run}/results.csv"
-        insert_jobs_from_csv(csv_path, experiment_parameters)
+        insert_jobs_from_csv(f"{existing_run}/results.csv", experiment_parameters)
 
     try:
         run_search_with_progress_bar()

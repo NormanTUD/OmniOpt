@@ -518,7 +518,7 @@ class ConfigLoader:
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
-        optional.add_argument("--load_data_from_existing_jobs", type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
+        optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--external_generator', help='Programm call for an external generato4', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+IFS=$'\n'
+
+for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add_argument.##'); do
+	_name=$(echo "$cli_arg_line" | sed -e "s#^'--##" -e "s#'.*##")
+	_type=$(echo "$cli_arg_line" | sed -e 's#.*type=##' -e "s#\W.*##")
+
+	_default=""
+
+	if echo "$cli_arg_line" | grep -q "default="; then
+		_default=$(echo "$cli_arg_line" | sed -e 's#.*default=##' -e "s#[,\W\)].*##")
+		if [[ $_default == "True" ]] || [[ $_default == "False" ]]; then
+			_type="bool"
+		fi
+
+		if [[ $_default == "None" ]]; then
+			_type="Optional[$_type]"
+		fi
+	fi
+	echo "$_name: $_type, default: $_default"
+done

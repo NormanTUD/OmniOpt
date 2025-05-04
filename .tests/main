@@ -582,6 +582,7 @@ _test "Find typos in js" ".tests/find_typos_in_js" 0
 _test "Find typos in php" ".tests/find_typos_in_php" 0
 _test "Lizard" ".tests/lizard" 0
 _test "Find double quoted add_arguments" ".tests/find_add_arguments_with_double_quotes" 0
+_test "Find untyped CLI args" ".tests/find_untyped_cli_args" 0
 
 if [[ -z $CI ]]; then
 	_test "Find typos in python" "bash .tests/find_typos_in_python" 0

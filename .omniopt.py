@@ -449,6 +449,7 @@ class ConfigLoader:
     decimalrounding: int
     signed_weighted_euclidean_weights: str
     external_generator: str
+    verbose_break_run_search_table: bool
 
     @beartype
     def __init__(self) -> None:

@@ -1101,11 +1101,13 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             serialized_params = self._serialize_parameters(self.parameters)
 
+            current_trials = parse_csv(RESULT_CSV_FILE)
+
             inputs_json = {
                 "parameters": serialized_params,
                 "constraints": self._serialize_constraints(self.constraints),
                 "seed": self.seed,
-                "trials": parse_csv(f"{get_current_run_folder()}/results.csv")
+                "trials": current_trials
             }
 
             inputs_path = os.path.join(temp_dir, "input.json")
@@ -4960,23 +4962,24 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
     arm_params_list = []
     results_list = []
 
-    with open(csv_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            arm_params = {}
-            results = {}
+    if os.path.exists(csv_path):
+        with open(csv_path, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                arm_params = {}
+                results = {}
 
-            for col, value in row.items():
-                if col in special_col_names:
-                    continue
+                for col, value in row.items():
+                    if col in special_col_names:
+                        continue
 
-                if col in arg_result_names:
-                    results[col] = try_convert(value)
-                else:
-                    arm_params[col] = try_convert(value)
+                    if col in arg_result_names:
+                        results[col] = try_convert(value)
+                    else:
+                        arm_params[col] = try_convert(value)
 
-            arm_params_list.append(arm_params)
-            results_list.append(results)
+                arm_params_list.append(arm_params)
+                results_list.append(results)
 
     return arm_params_list, results_list
 
@@ -7108,10 +7111,12 @@ def create_table(param_dicts: List, means: dict, metrics: List, metric_i: str, m
     return table
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Table:
-    csv_path = f"{get_current_run_folder()}/results.csv"
+def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Optional[Table]:
+    if not os.path.exists(RESULT_CSV_FILE):
+        print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
+        return None
 
-    all_columns, rows = get_csv_data(csv_path)
+    all_columns, rows = get_csv_data(RESULT_CSV_FILE)
     param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
     return create_table(param_dicts, means, metrics, metric_i, metric_j)
 
@@ -7241,12 +7246,13 @@ def show_pareto_frontier_data() -> None:
             metric_i.name
         )
 
-        console.print(rich_table)
+        if rich_table is not None:
+            console.print(rich_table)
 
-        with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
-            with console.capture() as capture:
-                console.print(rich_table)
-            text_file.write(capture.get())
+            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
+                with console.capture() as capture:
+                    console.print(rich_table)
+                text_file.write(capture.get())
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)

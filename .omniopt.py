@@ -451,7 +451,7 @@ class ConfigLoader:
     decimalrounding: int
     partition: str
     signed_weighted_euclidean_weights: str
-    external_generator: str
+    external_generator: Optional[str]
     generation_strategy: Optional[str]
     root_venv_dir: str
     pareto_front_confidence: float

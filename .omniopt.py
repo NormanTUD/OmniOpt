@@ -418,7 +418,7 @@ class ConfigLoader:
     show_sixel_general: bool
     show_sixel_scatter: bool
     gpus: int
-    model: str
+    model: Optional[str]
     live_share: bool
     experiment_name: str
     show_worker_percentage_table_at_end: bool
@@ -426,7 +426,7 @@ class ConfigLoader:
     verbose_tqdm: bool
     tests: bool
     max_eval: int
-    run_program: str
+    run_program: Optional[List[str]]
     orchestrator_file: Optional[str]
     run_dir: str
     ui_url: Optional[str]

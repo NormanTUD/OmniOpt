@@ -24,7 +24,7 @@ cd ..
 
 double_quotes=$(cat .omniopt.py | grep "\.add_argument(\"")
 
-double_quotes_nr=$(echo "$double_quotes" | wc -l)
+double_quotes_nr=$(echo -ne "$double_quotes" | wc -l)
 
 if [[ $double_quotes_nr -eq 0 ]]; then
 	green_text "find_add_arguments_with_double_quotes OK"

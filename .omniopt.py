@@ -533,7 +533,7 @@ class ConfigLoader:
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-        optional.add_argument('--workdir', help='Work dir', , default="", type=str)
+        optional.add_argument('--workdir', help='Work dir', default="", type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument('--result_names', nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)

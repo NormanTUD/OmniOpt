@@ -3465,15 +3465,15 @@ def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
     return None
 
 @beartype
-def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
+def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED"]:
         print_red(f"_type is not in Sobol or COMPLETED, but is '{_type}'")
         return 0
 
     count = 0
 
-    if not os.path.exists(csv_file_path):
-        print_debug(f"_count_sobol_or_completed: path '{csv_file_path}' not found")
+    if not os.path.exists(this_csv_file_path):
+        print_debug(f"_count_sobol_or_completed: path '{this_csv_file_path}' not found")
         return count
 
     df = None
@@ -3481,7 +3481,7 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     _err = False
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df = pd.read_csv(this_csv_file_path, index_col=0, float_precision='round_trip')
         df.dropna(subset=arg_result_names, inplace=True)
     except KeyError:
         _err = True

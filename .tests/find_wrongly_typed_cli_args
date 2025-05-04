@@ -58,7 +58,7 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 		fi
 	fi
 
-	if [[ "$_nargs" == "+" ]]; then
+	if [[ "$_nargs" == "+" ]] || [[ "$_args" == "*" ]]; then
 		if [[ $_type == "Optional[]" ]] || [[ $_type -eq "str" ]]; then
 			_type="Optional[List[str]]"
 		fi
@@ -86,7 +86,6 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 		correctly_typed=0
 
 		errors=$(($errors + 1))
-		exit 1
 	fi
 
 	if [[ $correctly_typed != 1 ]]; then

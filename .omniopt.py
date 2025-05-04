@@ -461,11 +461,11 @@ class ConfigLoader:
     load_data_from_existing_jobs: list
     time: str
     generate_all_jobs_at_once: bool
-    result_names: list
+    result_names: Optional[List[str]] 
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
     max_failed_jobs: int
-    show_ram_every_n_seconds: Optional[int]
+    show_ram_every_n_seconds: int
     config_toml: Optional[str]
     config_json: Optional[str]
     config_yaml: Optional[str]

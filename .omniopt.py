@@ -4981,9 +4981,9 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
     return arm_params_list, results_list
 
 @beartype
-def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
-    if not os.path.exists(csv_file_path):
-        print_red(f"--load_data_from_existing_jobs: Cannot find {csv_file_path}")
+def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
+    if not os.path.exists(this_csv_file_path):
+        print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
 
         return
 
@@ -5013,7 +5013,7 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Uni
 
         return corrected_params
 
-    arm_params_list, results_list = parse_csv(csv_file_path)
+    arm_params_list, results_list = parse_csv(this_csv_file_path)
 
     cnt = 0
 
@@ -5021,27 +5021,27 @@ def insert_jobs_from_csv(csv_file_path: str, experiment_parameters: Optional[Uni
 
     with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
         for arm_params, result in zip(arm_params_list, results_list):
-            __status.update(f"[bold green]Loading existing jobs from {csv_file_path} into ax_client")
+            __status.update(f"[bold green]Loading existing jobs from {this_csv_file_path} into ax_client")
             arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
             try:
                 if insert_job_into_ax_client(arm_params, result):
                     cnt += 1
 
-                    print_debug(f"Inserted one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+                    print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
                 else:
-                    print_red(f"Failed to insert one job from {csv_file_path}, arm_params: {arm_params}, results: {result}")
+                    print_red(f"Failed to insert one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
             except ValueError as e:
-                err_msg = f"Failed to insert job(s) from {csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
+                err_msg = f"Failed to insert job(s) from {this_csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
                 if err_msg not in err_msgs:
                     print_red(err_msg)
                     err_msgs.append(err_msg)
 
     if cnt:
         if cnt == 1:
-            print_yellow(f"Inserted one job from {csv_file_path}")
+            print_yellow(f"Inserted one job from {this_csv_file_path}")
         else:
-            print_yellow(f"Inserted {cnt} jobs from {csv_file_path}")
+            print_yellow(f"Inserted {cnt} jobs from {this_csv_file_path}")
 
     set_max_eval(max_eval + cnt)
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)

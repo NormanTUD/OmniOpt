@@ -442,6 +442,7 @@ class ConfigLoader:
     auto_exclude_defective_hosts: bool
     debug: bool
     no_sleep: bool
+    username: Optional[str]
     max_nr_of_zero_results: int
     mem_gb: int
     continue_previous_job: Optional[str]
@@ -449,7 +450,12 @@ class ConfigLoader:
     decimalrounding: int
     signed_weighted_euclidean_weights: str
     external_generator: str
+    generation_strategy: Optional[str]
+    pareto_front_confidence: float
+    follow: bool
+    generate_all_jobs_at_once: bool
     verbose_break_run_search_table: bool
+    send_anonymized_usage_stats: bool
 
     @beartype
     def __init__(self) -> None:

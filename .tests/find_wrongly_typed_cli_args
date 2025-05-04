@@ -43,10 +43,21 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 		fi
 	fi
 
-	if [[ $_default != "" ]]; then
-		echo "$_name: $_type, default: $_default"
-	else
-		echo "$_name: $_type"
+	correctly_typed=1
+
+	if ! grep -Eq "^\s*$_name: $_type$" .omniopt.py; then
+		red_text "Wrongly typed: $_name: $_type"
+		correctly_typed=0
+
+		errors=$(($errors + 1))
+	fi
+
+	if [[ $correctly_typed != 1 ]]; then
+		if [[ $_default != "" ]]; then
+			echo "$_name: $_type, default: $_default"
+		else
+			echo "$_name: $_type"
+		fi
 	fi
 done
 

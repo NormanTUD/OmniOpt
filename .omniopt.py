@@ -444,7 +444,7 @@ class ConfigLoader:
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
-    mem_gb: int
+    mem_gb: float
     continue_previous_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float

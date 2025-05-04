@@ -3413,7 +3413,7 @@ def get_res_name_is_maximized(res_name: str) -> bool:
     return maximize
 
 @beartype
-def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Optional[dict]:
+def get_best_params_from_csv(res_name: str = "RESULT") -> Optional[dict]:
     maximize = get_res_name_is_maximized(res_name)
 
     results: dict = {
@@ -3421,13 +3421,13 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
         "parameters": {}
     }
 
-    if not os.path.exists(csv_file_path):
+    if not os.path.exists(RESULT_CSV_FILE):
         return results
 
     df = None
 
     try:
-        df = pd.read_csv(csv_file_path, index_col=0, float_precision='round_trip')
+        df = pd.read_csv(RESULT_CSV_FILE, index_col=0, float_precision='round_trip')
         df.dropna(subset=arg_result_names, inplace=True)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError, KeyError):
         return results
@@ -3459,9 +3459,8 @@ def get_best_params_from_csv(csv_file_path: str, res_name: str = "RESULT") -> Op
 
 @beartype
 def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
-    csv_file_path = f"{get_current_run_folder()}/results.csv"
-    if os.path.exists(csv_file_path):
-        return get_best_params_from_csv(csv_file_path, res_name)
+    if os.path.exists(RESULT_CSV_FILE):
+        return get_best_params_from_csv(res_name)
 
     return None
 
@@ -3512,18 +3511,17 @@ def _count_sobol_or_completed(csv_file_path: str, _type: str) -> int:
     return count
 
 @beartype
-def _count_sobol_steps(csv_file_path: str) -> int:
-    return _count_sobol_or_completed(csv_file_path, "Sobol")
+def _count_sobol_steps(this_csv_file_path: str) -> int:
+    return _count_sobol_or_completed(this_csv_file_path, "Sobol")
 
 @beartype
-def _count_done_jobs(csv_file_path: str) -> int:
-    return _count_sobol_or_completed(csv_file_path, "COMPLETED")
+def _count_done_jobs(this_csv_file_path: str) -> int:
+    return _count_sobol_or_completed(this_csv_file_path, "COMPLETED")
 
 @beartype
 def count_sobol_steps() -> int:
-    csv_file_path = f"{get_current_run_folder()}/results.csv"
-    if os.path.exists(csv_file_path):
-        return _count_sobol_steps(csv_file_path)
+    if os.path.exists(RESULT_CSV_FILE):
+        return _count_sobol_steps(RESULT_CSV_FILE)
 
     return 0
 
@@ -3549,9 +3547,8 @@ def failed_jobs(nr: int = 0) -> int:
 
 @beartype
 def count_done_jobs() -> int:
-    csv_file_path = f"{get_current_run_folder()}/results.csv"
-    if os.path.exists(csv_file_path):
-        return _count_done_jobs(csv_file_path)
+    if os.path.exists(RESULT_CSV_FILE):
+        return _count_done_jobs(RESULT_CSV_FILE)
 
     return 0
 
@@ -3701,12 +3698,16 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
     return plot_commands
 
 @beartype
-def plot_sixel_imgs(csv_file_path: str) -> None:
+def plot_sixel_imgs() -> None:
     if ci_env:
         print("Not printing sixel graphics in CI")
         return
 
-    sixel_graphic_commands = get_sixel_graphics_data(csv_file_path)
+    if not os.path.exists(RESULT_CSV_FILE):
+        print_debug(f"File '{RESULT_CSV_FILE}' not found")
+        return
+
+    sixel_graphic_commands = get_sixel_graphics_data(RESULT_CSV_FILE)
 
     for c in sixel_graphic_commands:
         commands = get_plot_commands(*c)
@@ -3760,15 +3761,15 @@ def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> 
         write_to_file(file_path, capture.get())
 
 @beartype
-def process_best_result(csv_file_path: str, res_name: str, print_to_file: bool) -> int:
-    best_params = get_best_params_from_csv(csv_file_path, res_name)
+def process_best_result(res_name: str, print_to_file: bool) -> int:
+    best_params = get_best_params_from_csv(res_name)
     best_result = best_params.get(res_name, NO_RESULT) if best_params else NO_RESULT
 
     if str(best_result) in [NO_RESULT, None, "None"]:
         print_red(f"Best {res_name} could not be determined")
         return 87
 
-    total_str = f"total: {_count_done_jobs(csv_file_path) - NR_INSERTED_JOBS}"
+    total_str = f"total: {_count_done_jobs(RESULT_CSV_FILE) - NR_INSERTED_JOBS}"
     if NR_INSERTED_JOBS:
         total_str += f" + inserted jobs: {NR_INSERTED_JOBS}"
 
@@ -3780,12 +3781,12 @@ def process_best_result(csv_file_path: str, res_name: str, print_to_file: bool) 
             console.print(table)
 
         print_and_write_table(table, print_to_file, f"{get_crf()}/best_result.txt")
-        plot_sixel_imgs(csv_file_path)
+        plot_sixel_imgs()
 
     return 0
 
 @beartype
-def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
+def _print_best_result(print_to_file: bool = True) -> int:
     global SHOWN_END_TABLE
 
     crf = get_crf()
@@ -3794,7 +3795,7 @@ def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
 
     try:
         for res_name in arg_result_names:
-            result_code = process_best_result(csv_file_path, res_name, print_to_file)
+            result_code = process_best_result(res_name, print_to_file)
             if result_code != 0:
                 return result_code
         SHOWN_END_TABLE = True
@@ -3806,15 +3807,14 @@ def _print_best_result(csv_file_path: str, print_to_file: bool = True) -> int:
 
 @beartype
 def print_best_result() -> int:
-    csv_file_path = f"{get_current_run_folder()}/results.csv"
-    if os.path.exists(csv_file_path):
-        return _print_best_result(csv_file_path, True)
+    if os.path.exists(RESULT_CSV_FILE):
+        return _print_best_result(True)
 
     return 0
 
 @beartype
 def show_end_table_and_save_end_files() -> int:
-    print_debug(f"show_end_table_and_save_end_files()")
+    print_debug("show_end_table_and_save_end_files()")
 
     ignore_signals()
 
@@ -3887,7 +3887,7 @@ def show_pareto_or_error_msg() -> None:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
 @beartype
-def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
+def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
 
     wait_for_jobs_to_complete()
@@ -5934,7 +5934,7 @@ def update_progress() -> None:
 @beartype
 def handle_exit_signal() -> None:
     print_red("\n⚠ Detected signal. Will exit.")
-    end_program(RESULT_CSV_FILE, False, 1)
+    end_program(False, 1)
 
 @beartype
 def handle_generic_error(e: Union[Exception, str]) -> None:
@@ -6636,10 +6636,10 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
         print_red(f"\n⚠ Error 5: {e}")
     elif isinstance(e, botorch.exceptions.errors.ModelFittingError):
         print_red(f"\n⚠ Error 6: {e}")
-        end_program(RESULT_CSV_FILE, False, 1)
+        end_program(False, 1)
     elif isinstance(e, (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints)):
         print_red(f"\n⚠ Error 7 {e}")
-        end_program(RESULT_CSV_FILE, False, 87)
+        end_program(False, 87)
     return 0
 
 @beartype
@@ -6675,7 +6675,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         finish_previous_jobs(["finishing jobs"])
 
         if done_optimizing:
-            end_program(RESULT_CSV_FILE, False, 0)
+            end_program(False, 0)
     except Exception as e:
         stacktrace = traceback.format_exc()
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}\n{stacktrace}")
@@ -7501,7 +7501,7 @@ def main() -> None:
     except ax.exceptions.core.UnsupportedError:
         pass
 
-    end_program(RESULT_CSV_FILE)
+    end_program()
 
 @beartype
 def log_worker_creation() -> None:
@@ -7920,19 +7920,7 @@ Exit-Code: 159
     else:
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)
 
-    _example_csv_file: str = ".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv"
-
-    #_expected_best_result_minimize: str = json.dumps(json.loads('{"RESULT": "0.6951756801409847", "parameters": {"arm_name": "392_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples":  "905", "confidence": "0.1", "feature_proportion": "0.049534662817342145",  "n_clusters": "3"}}'))
-    #_best_results_from_example_file_minimize: str = json.dumps(get_best_params_from_csv(_example_csv_file, False))
-
-    #nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', False)", _best_results_from_example_file_minimize, _expected_best_result_minimize)
-
-    #_expected_best_result_maximize: str = json.dumps(json.loads('{"RESULT": "0.7404449829276352", "parameters": {"arm_name": "132_0", "trial_status": "COMPLETED", "generation_method": "BoTorch", "n_samples": "391", "confidence": "0.001", "feature_proportion": "0.022059224931466673", "n_clusters": "4"}}'))
-    #_best_results_from_example_file_maximize: str = json.dumps(get_best_params_from_csv(_example_csv_file, True))
-
-    #nr_errors += is_equal(f"Testing get_best_params_from_csv('{_example_csv_file}', True)", _best_results_from_example_file_maximize, _expected_best_result_maximize)
-
-    _print_best_result(_example_csv_file, False)
+    _print_best_result(False)
 
     nr_errors += is_equal("get_workers_string()", get_workers_string(), "")
 
@@ -8024,7 +8012,7 @@ def main_outside() -> None:
 
                 print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
-                end_program(RESULT_CSV_FILE, False, 1)
+                end_program(False, 1)
             except SearchSpaceExhausted:
                 _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
@@ -8037,13 +8025,13 @@ def main_outside() -> None:
                     )
 
                 if _get_perc != 100:
-                    end_program(RESULT_CSV_FILE, True, 87)
+                    end_program(True, 87)
                 else:
-                    end_program(RESULT_CSV_FILE, True)
+                    end_program(True)
 
 if __name__ == "__main__":
     try:
         main_outside()
     except (SignalUSR, SignalINT, SignalCONT) as e:
         print_red(f"main_outside failed with exception {e}")
-        end_program(RESULT_CSV_FILE, True)
+        end_program(True)

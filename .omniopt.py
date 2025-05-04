@@ -3813,8 +3813,8 @@ def print_best_result() -> int:
     return 0
 
 @beartype
-def show_end_table_and_save_end_files(csv_file_path: str) -> int:
-    print_debug(f"show_end_table_and_save_end_files({csv_file_path})")
+def show_end_table_and_save_end_files() -> int:
+    print_debug(f"show_end_table_and_save_end_files()")
 
     ignore_signals()
 
@@ -3918,13 +3918,13 @@ def end_program(csv_file_path: str, _force: Optional[bool] = False, exit_code: O
                 print_debug(message)
                 return
 
-        new_exit = show_end_table_and_save_end_files(csv_file_path)
+        new_exit = show_end_table_and_save_end_files()
         if new_exit > 0:
             _exit = new_exit
     except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
         print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
-        new_exit = show_end_table_and_save_end_files(csv_file_path)
+        new_exit = show_end_table_and_save_end_files()
         if new_exit > 0:
             _exit = new_exit
     except TypeError as e:

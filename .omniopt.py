@@ -464,7 +464,7 @@ class ConfigLoader:
     result_names: Optional[List[str]] 
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
-    max_failed_jobs: int
+    max_failed_jobs: Optional[int]
     show_ram_every_n_seconds: int
     config_toml: Optional[str]
     config_json: Optional[str]

@@ -466,9 +466,9 @@ class ConfigLoader:
     send_anonymized_usage_stats: bool
     max_failed_jobs: int
     show_ram_every_n_seconds: Optional[int]
-    config_toml: str
-    config_json: str
-    config_yaml: str
+    config_toml: Optional[str]
+    config_json: Optional[str]
+    config_yaml: Optional[str]
     workdir: str
     occ: bool
     run_mode: str
@@ -483,9 +483,9 @@ class ConfigLoader:
         )
 
         # Add config arguments
-        self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str)
-        self.parser.add_argument('--config_toml', help='TOML configuration file', type=str)
-        self.parser.add_argument('--config_json', help='JSON configuration file', type=str)
+        self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str, default=None)
+        self.parser.add_argument('--config_toml', help='TOML configuration file', type=str, default=None)
+        self.parser.add_argument('--config_json', help='JSON configuration file', type=str, default=None)
 
         # Initialize the remaining arguments
         self.add_arguments()

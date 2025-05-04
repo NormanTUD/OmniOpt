@@ -24,6 +24,8 @@ cd ..
 
 IFS=$'\n'
 
+errors=0
+
 for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add_argument.##'); do
 	_name=$(echo "$cli_arg_line" | sed -e "s#^'--##" -e "s#'.*##")
 	_type=$(echo "$cli_arg_line" | sed -e 's#.*type=##' -e "s#\W.*##")
@@ -40,5 +42,18 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 			_type="Optional[$_type]"
 		fi
 	fi
-	echo "$_name: $_type, default: $_default"
+
+	if [[ $_default != "" ]]; then
+		echo "$_name: $_type, default: $_default"
+	else
+		echo "$_name: $_type"
+	fi
 done
+
+if [[ $errors -eq 0 ]]; then
+	green_text "find_wrongly_typed_cli_args: No errors found"
+	exit 0
+fi
+
+red_text "find_wrongly_typed_cli_args: Found $errors errors"
+exit 1

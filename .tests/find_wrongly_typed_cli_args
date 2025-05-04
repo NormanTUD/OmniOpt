@@ -44,6 +44,10 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 		fi
 	fi
 
+	if [[ "$_default" == "[]" ]]; then
+		_type="List[str]"
+	fi
+
 	if echo "$cli_arg_line" | grep -q "nargs='"; then
 		_nargs=$(echo "$cli_arg_line" | sed -e 's#.*nargs=##' -e "s#^'##" -e "s#'.*##")
 	fi

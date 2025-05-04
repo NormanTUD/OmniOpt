@@ -25,8 +25,6 @@ Adhoc
 admin
 affeaffeaffeaffeaffeaffeaffeaffe
 AISTATS
-Impressum
-impressum
 ajax
 Ajax
 alertError
@@ -328,6 +326,7 @@ clearImmediate
 clearInterval
 clearTimeout
 cli
+CLI
 clickedChildren
 clickedIsActive
 clipboardData
@@ -369,6 +368,7 @@ CommonJS
 Concat
 concatted
 config
+ConfigLoader
 connectToSortable
 connectWith
 const
@@ -428,6 +428,7 @@ cssText
 csv
 CSV
 CTF
+ctrl
 CTRL
 CTRLC
 ctx
@@ -745,6 +746,7 @@ FileReaderDONE
 filetypes
 fillend
 fillstart
+find_double_add_arguments_help
 findDuplicates
 findIndexByKey
 findInitializerElement
@@ -862,6 +864,7 @@ GPU
 gpudisconnected
 gpus
 GPUs
+gputemp
 gpuusagefiles
 gpytorch
 gradCAM
@@ -1001,6 +1004,8 @@ imgDiv
 imgs
 iMissing
 ImportError
+impressum
+Impressum
 IndentationError
 IndexError
 inferredMrow
@@ -1781,6 +1786,7 @@ PROJECTDIR
 propertyName
 protobuf
 ProxiedPrototype
+PSEUDORANDOM
 pstate
 psutil
 pt
@@ -2436,6 +2442,7 @@ unselectable
 unselecting
 UNSELECTING
 Unsetting
+untyped
 upAnim
 uparrow
 updateAxes
@@ -2608,9 +2615,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-PSEUDORANDOM
-gputemp
-ConfigLoader
-untyped
-CLI
-find_double_add_arguments_help

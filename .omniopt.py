@@ -458,7 +458,7 @@ class ConfigLoader:
     follow: bool
     n_estimators_randomforest: int
     checkout_to_latest_tested_version: bool
-    load_data_from_existing_jobs: list
+    load_data_from_existing_jobs: List[str]
     time: str
     generate_all_jobs_at_once: bool
     result_names: Optional[List[str]]

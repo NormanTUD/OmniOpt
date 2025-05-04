@@ -449,16 +449,26 @@ class ConfigLoader:
     revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float
     decimalrounding: int
+    partition: str
     signed_weighted_euclidean_weights: str
     external_generator: str
     generation_strategy: Optional[str]
     root_venv_dir: str
     pareto_front_confidence: float
     follow: bool
+    n_estimators_randomforest: int
+    checkout_to_latest_tested_version: bool
+    load_data_from_existing_jobs: list
     generate_all_jobs_at_once: bool
+    result_names: list
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
     max_failed_jobs: int
+    show_ram_every_n_seconds: Optional[int]
+    config_toml: str
+    config_json: str
+    config_yaml: str
+    workdir: str
 
     @beartype
     def __init__(self) -> None:
@@ -520,7 +530,7 @@ class ConfigLoader:
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-        optional.add_argument('--workdir', help='Work dir', action='store_true', default=False)
+        optional.add_argument('--workdir', help='Work dir', , default="", type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
         optional.add_argument('--result_names', nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
@@ -559,7 +569,7 @@ class ConfigLoader:
         debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
-        debug.add_argument('--show_ram_every_n_seconds', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
+        debug.add_argument('--show_ram_every_n_seconds', help='Show ram every n seconds.', , type=int, default=0)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:

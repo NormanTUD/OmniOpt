@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+errs=0
+
+for double_help in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add_argument.##' | sed -e 's#.*help=##' | sed -e "s#',.*##" | sort | uniq -d); do
+	red_text "Found double help: $double_help"
+	errs=$(($errs + 1))
+done
+
+if [[ $errs -eq 0 ]]; then
+	green_text "find_double_add_arguments_help: OK"
+	exit 0
+fi
+
+echo "Failed find_double_add_arguments_help: Found $errs errors"
+exit 1

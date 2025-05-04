@@ -469,6 +469,7 @@ class ConfigLoader:
     config_json: str
     config_yaml: str
     workdir: str
+    occ: bool
 
     @beartype
     def __init__(self) -> None:

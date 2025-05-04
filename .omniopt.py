@@ -458,6 +458,7 @@ class ConfigLoader:
     generate_all_jobs_at_once: bool
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
+    max_failed_jobs: int
 
     @beartype
     def __init__(self) -> None:

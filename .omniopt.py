@@ -459,6 +459,7 @@ class ConfigLoader:
     n_estimators_randomforest: int
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: list
+    time: str
     generate_all_jobs_at_once: bool
     result_names: list
     verbose_break_run_search_table: bool
@@ -470,6 +471,7 @@ class ConfigLoader:
     config_yaml: str
     workdir: str
     occ: bool
+    run_mode: str
 
     @beartype
     def __init__(self) -> None:

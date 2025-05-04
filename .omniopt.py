@@ -572,7 +572,7 @@ class ConfigLoader:
         debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow.', action='store_true', default=False)
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail.', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing).', action='store_true', default=False)
-        debug.add_argument('--show_ram_every_n_seconds', help='Show ram every n seconds.', , type=int, default=0)
+        debug.add_argument('--show_ram_every_n_seconds', help='Show ram every n seconds.', type=int, default=0)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:

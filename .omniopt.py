@@ -5290,12 +5290,12 @@ def get_python_errors() -> List[List[str]]:
     ]
 
 @beartype
-def get_first_line_of_file_that_contains_string(i: str, s: str) -> str:
-    if not os.path.exists(i):
-        print_debug(f"File {i} not found")
+def get_first_line_of_file_that_contains_string(stdout_path: str, s: str) -> str:
+    if not os.path.exists(stdout_path):
+        print_debug(f"File {stdout_path} not found")
         return ""
 
-    f: str = get_file_as_string(i)
+    f: str = get_file_as_string(stdout_path)
 
     lines: str = ""
     get_lines_until_end: bool = False
@@ -5317,7 +5317,7 @@ def get_first_line_of_file_that_contains_string(i: str, s: str) -> str:
     return ""
 
 @beartype
-def check_for_python_errors(i: str, file_as_string: str) -> List[str]:
+def check_for_python_errors(stdout_path: str, file_as_string: str) -> List[str]:
     errors: List[str] = []
 
     for search_array in get_python_errors():
@@ -5325,7 +5325,7 @@ def check_for_python_errors(i: str, file_as_string: str) -> List[str]:
         search_for_error = search_array[1]
 
         if search_for_string in file_as_string:
-            error_line = get_first_line_of_file_that_contains_string(i, search_for_string)
+            error_line = get_first_line_of_file_that_contains_string(stdout_path, search_for_string)
             if error_line:
                 errors.append(error_line)
             else:
@@ -5334,10 +5334,10 @@ def check_for_python_errors(i: str, file_as_string: str) -> List[str]:
     return errors
 
 @beartype
-def get_errors_from_outfile(i: str) -> List[str]:
-    file_as_string = get_file_as_string(i)
+def get_errors_from_outfile(stdout_path: str) -> List[str]:
+    file_as_string = get_file_as_string(stdout_path)
 
-    program_code = get_program_code_from_out_file(i)
+    program_code = get_program_code_from_out_file(stdout_path)
     file_paths = find_file_paths(program_code)
 
     first_line: str = get_first_line_of_file(file_paths)
@@ -5360,7 +5360,7 @@ def get_errors_from_outfile(i: str) -> List[str]:
             for n in new_errors:
                 errors.append(n)
 
-            new_errors = check_for_python_errors(i, file_as_string)
+            new_errors = check_for_python_errors(stdout_path, file_as_string)
             for n in new_errors:
                 errors.append(n)
 

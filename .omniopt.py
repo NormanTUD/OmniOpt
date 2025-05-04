@@ -446,11 +446,13 @@ class ConfigLoader:
     max_nr_of_zero_results: int
     mem_gb: int
     continue_previous_job: Optional[str]
+    revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float
     decimalrounding: int
     signed_weighted_euclidean_weights: str
     external_generator: str
     generation_strategy: Optional[str]
+    root_venv_dir: str
     pareto_front_confidence: float
     follow: bool
     generate_all_jobs_at_once: bool

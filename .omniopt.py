@@ -519,7 +519,7 @@ class ConfigLoader:
         optional.add_argument('--occ', help='Use optimization with combined criteria (OCC)', action='store_true', default=False)
         optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
         optional.add_argument('--show_sixel_general', help='Show sixel graphics of general plots in the end', action='store_true', default=False)
-        optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
+        optional.add_argument('--show_sixel_trial_index_result', help='Show sixel graphics of trial index in the end', action='store_true', default=False)
         optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
         optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
         optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)

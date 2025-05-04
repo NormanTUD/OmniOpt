@@ -1526,13 +1526,13 @@ def log_system_usage() -> None:
     if not get_current_run_folder():
         return
 
-    csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
+    ram_cpu_csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
 
-    makedirs(os.path.dirname(csv_file_path))
+    makedirs(os.path.dirname(ram_cpu_csv_file_path))
 
-    file_exists = os.path.isfile(csv_file_path)
+    file_exists = os.path.isfile(ram_cpu_csv_file_path)
 
-    with open(csv_file_path, mode='a', newline='', encoding="utf-8") as file:
+    with open(ram_cpu_csv_file_path, mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
 
         current_time = int(time.time())

@@ -7407,6 +7407,18 @@ def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
         print_red(f"Error writing to file: {e}")
 
 @beartype
+def debug_vars_unused_by_python_for_linter() -> None:
+    print_debug(
+        f"partition: {args.partition}, "
+        f"root_venv_dir: {args.root_venv_dir}, "
+        f"checkout_to_latest_tested_version: {args.checkout_to_latest_tested_version}, "
+        f"send_anonymized_usage_stats: {args.send_anonymized_usage_stats}, "
+        f"show_ram_every_n_seconds: {args.show_ram_every_n_seconds}, "
+        f"workdir: {args.workdir}, "
+        f"run_mode: {args.run_mode}"
+    )
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
 
@@ -7416,6 +7428,8 @@ def main() -> None:
 
     original_print(oo_call + " " + " ".join(sys.argv[1:]))
     check_slurm_job_id()
+
+    debug_vars_unused_by_python_for_linter()
 
     if args.continue_previous_job and not args.num_random_steps:
         num_random_steps_file = f"{args.continue_previous_job}/state_files/num_random_steps"

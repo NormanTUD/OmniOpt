@@ -47,7 +47,7 @@ for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add
 		_action=$(echo "$cli_arg_line" | sed -e 's#.*action=##' -e "s#^'##" -e "s#'.*##")
 
 		if [[ "$_action" == "append" ]]; then
-			if [[ $_type == "Optional[]" ]]; then
+			if [[ $_type == "Optional[]" ]] || [[ $_type -eq "str" ]]; then
 				_type="Optional[List[str]]"
 			fi
 		fi

@@ -3,7 +3,7 @@ wheel
 multidict
 numpy
 python-dateutil
-ax-platform
+ax-platform[mysql]
 art
 tzlocal
 Rich

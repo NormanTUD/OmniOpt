@@ -287,7 +287,7 @@
 		$current_group = "Ungrouped";
 
 		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*'(.+?)',\s*'(.+?)'/";
-		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(?:,\s*[^)]*help=(f?)'([^']+)')?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
+		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(.*)\)/";
 
 		if (!file_exists($file_path)) {
 			echo "<p><strong>ERROR:</strong> File not found: $file_path</p>";
@@ -309,41 +309,66 @@
 		$group_vars = [];
 
 		foreach ($file as $line) {
-			// Detect argument groups
 			if (preg_match($pattern_group, $line, $matches)) {
-				$group_var = trim($matches[1]);  // The variable name used for the group
-				$group_name = trim($matches[2]); // Short name (e.g., "Required")
-				$group_desc = trim($matches[3]); // Full description
+				$group_var = trim($matches[1]);
+				$group_name = trim($matches[2]);
+				$group_desc = trim($matches[3]);
 
-				$group_vars[$group_var] = $group_name; // Map variable to group name
+				$group_vars[$group_var] = $group_name;
 				$groups[$group_name] = ["desc" => $group_desc, "args" => []];
 
 			} elseif (preg_match($pattern_argument, $line, $matches)) {
 				$arg_name = trim($matches[1]);
-				$f = $matches[2];
-				$description = isset($matches[3]) ? htmlentities(trim($matches[3])) : "<i style='color: red;'>No description available.</i>";
-				$default = isset($matches[5]) ? trim($matches[5], "\"'") : "";
+				$raw_params = trim($matches[2]);
 
-				if($default == "Path.home(") {
-					$default = "\$HOME";
-				} else if ($default == "None") {
-					$default = "";
+				$description = "<i style='color: red;'>No description available.</i>";
+				$default = "";
+				$type = "";
+				$action = "";
+
+				// Match key=value pairs safely (handles quotes, floats, identifiers, etc.)
+				preg_match_all("/(\w+)\s*=\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\"|[^\s,]+)/", $raw_params, $param_matches, PREG_SET_ORDER);
+
+				foreach ($param_matches as $pm) {
+					$key = $pm[1];
+					$value = trim($pm[2], "\"'");
+
+					if ($key === "help") {
+						$description = htmlentities($value);
+						if (strpos($raw_params, "f'") !== false) {
+							$description = replace_python_placeholders($description, $replacements);
+						}
+					} elseif ($key === "default") {
+						$default = $value;
+						if ($default === "Path.home(") {
+							$default = "\$HOME";
+						} elseif ($default === "None") {
+							$default = "";
+						}
+					} elseif ($key === "type") {
+						$type = $value;
+					} elseif ($key === "action") {
+						$action = $value;
+					}
 				}
 
-				if($f == "f") {
-					$description = replace_python_placeholders($description, $replacements);
+				$arg_entry = [$arg_name, $description, $default];
+				if ($type !== "") {
+					$arg_entry[] = "type: $type";
+				}
+				if ($action !== "") {
+					$arg_entry[] = "action: $action";
 				}
 
-				// Try to detect the last known group (by variable name reference)
-				if(count($group_vars)) {
+				if (count($group_vars)) {
 					foreach (array_reverse($group_vars) as $var => $group) {
 						if (strpos($line, $var . ".add_argument") !== false) {
-							$groups[$group]["args"][] = [$arg_name, $description, $default];
+							$groups[$group]["args"][] = $arg_entry;
 							break;
 						}
 					}
 				} else {
-					$groups["Ungrouped"]["args"][] = [$arg_name, $description, $default];
+					$groups["Ungrouped"]["args"][] = $arg_entry;
 				}
 			}
 		}
@@ -356,7 +381,9 @@
 			return "<p><strong>No arguments found.</strong></p>";
 		}
 
-		$html = "<table>\n<thead>\n<tr class='invert_in_dark_mode'>\n<th>Parameter</th>\n<th>Description</th>\n<th>Default Value</th>\n</tr>\n</thead>\n<tbody>\n";
+		$html = "<table>\n<thead>\n<tr class='invert_in_dark_mode'>\n";
+		$html .= "<th>Parameter</th>\n<th>Description</th>\n<th>Type</th>\n<th>Action</th>\n<th>Default Value</th>\n";
+		$html .= "</tr>\n</thead>\n<tbody>\n";
 
 		foreach ($arguments as $group => $data) {
 			if (!empty($data["args"])) {
@@ -364,17 +391,51 @@
 				if (isset($data["desc"])) {
 					$desc =  " - {$data['desc']}";
 				}
-				$html .= "<tr class='section-header invert_in_dark_mode'>\n<td colspan='3'><strong>$group</strong>$desc</td>\n</tr>\n";
-				foreach ($data["args"] as [$name, $desc, $default]) {
+
+				$html .= "<tr class='section-header invert_in_dark_mode'>\n";
+				$html .= "<td colspan='5'><strong>$group</strong>$desc</td>\n</tr>\n";
+
+				foreach ($data["args"] as $arg_entry) {
+					$name = $arg_entry[0];
+					$description = $arg_entry[1];
+					$default = $arg_entry[2];
+
+					$type = "";
+					$action = "";
+
+					for ($i = 3; $i < count($arg_entry); $i++) {
+						if (strpos($arg_entry[$i], "type:") === 0) {
+							$type = trim(substr($arg_entry[$i], strlen("type:")));
+						} elseif (strpos($arg_entry[$i], "action:") === 0) {
+							$action = trim(substr($arg_entry[$i], strlen("action:")));
+						}
+					}
+
 					$html .= "<tr>\n<td>\n";
 					$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$name</code></pre>\n";
-					$html .= "</td>\n<td>";
-					$html .= "$desc";
-					$html .= "</td>\n<td>";
-					if($default) {
-						$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$default</code></pre>\n";
+					$html .= "</td>\n";
+
+					$html .= "<td>$description</td>\n";
+
+					$html .= "<td>";
+					if ($type !== "") {
+						$html .= "<pre class='invert_in_dark_mode'><code class='language-python'>$type</code></pre>";
 					}
-					$html .= "</td>\n</tr>\n";
+					$html .= "</td>\n";
+
+					$html .= "<td>";
+					if ($action !== "") {
+						$html .= "<pre class='invert_in_dark_mode'>$action</pre>";
+					}
+					$html .= "</td>\n";
+
+					$html .= "<td>";
+					if ($default !== "") {
+						$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$default</code></pre>";
+					}
+					$html .= "</td>\n";
+
+					$html .= "</tr>\n";
 				}
 			}
 		}

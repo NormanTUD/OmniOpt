@@ -446,7 +446,7 @@ class ConfigLoader:
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
-    mem_gb: float
+    mem_gb: int
     continue_previous_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float
@@ -505,7 +505,7 @@ class ConfigLoader:
         required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
         required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x', type=str)
         required.add_argument('--experiment_name', help='Name of the experiment', type=str)
-        required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
+        required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=int, default=1)
 
         required_but_choice.add_argument('--parameter', action='append', nargs='+', help='Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>', default=None)
         required_but_choice.add_argument('--continue_previous_job', help='Continue from a previous checkpoint, use run-dir as argument', type=str, default=None)

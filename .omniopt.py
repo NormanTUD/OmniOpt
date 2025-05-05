@@ -1178,7 +1178,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                         results["parameters"][keyname] = int(results["parameters"][keyname])
                 except ValueError:
                     failed_res = results["parameters"][keyname]
-                    print_red(f"Failed to convert {keyname} to {to_type}. Value: {failed_res}")
+                    print_red(f"Failed to convert '{keyname}' to {to_type}. Value: {failed_res}")
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

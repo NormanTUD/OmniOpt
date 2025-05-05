@@ -549,8 +549,8 @@ class ConfigLoader:
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
 
-        slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
-        slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
+        slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
+        slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
         slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
         slurm.add_argument('--time', help='Time for the main job', default='', type=str)
         slurm.add_argument('--partition', help='Partition to be run on', default='', type=str)
@@ -559,8 +559,8 @@ class ConfigLoader:
         slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1', type=int, default=0)
         slurm.add_argument('--nodes_per_job', help='Number of nodes per job due to the new alpha restriction', type=int, default=1)
         slurm.add_argument('--cpus_per_task', help='CPUs per task', type=int, default=1)
-        slurm.add_argument('--account', help='Account to be used', type=str, default=None)
-        slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
+        slurm.add_argument('--account', help='Account to be used for SLURM', type=str, default=None)
+        slurm.add_argument('--gpus', help='Number of GPUs per worker', type=int, default=0)
         #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
         installing.add_argument('--run_mode', help='Either local or docker', default='local', type=str)
@@ -574,7 +574,7 @@ class ConfigLoader:
         debug.add_argument('--auto_exclude_defective_hosts', help='Run a Test if you can allocate a GPU on each node and if not, exclude it since the GPU driver seems to be broken somehow', action='store_true', default=False)
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing)', action='store_true', default=False)
-        debug.add_argument('--show_ram_every_n_seconds', help='Show RAM usage every n seconds', type=int, default=0)
+        debug.add_argument('--show_ram_every_n_seconds', help='Show RAM usage every n seconds (0 = disabled)', type=int, default=0)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:

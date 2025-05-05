@@ -32,8 +32,10 @@ original_print = print
 overwritten_to_random: bool = False
 
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
+joined_valid_occ_types: str = ", ".join(valid_occ_types)
 
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
+joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
 uncontinueable_models: list = ["PSEUDORANDOM", "EXTERNAL_GENERATOR"]
 
@@ -492,12 +494,12 @@ class ConfigLoader:
 
     @beartype
     def add_arguments(self) -> None:
-        required = self.parser.add_argument_group('Required arguments', "These options have to be set")
-        required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', "Of these arguments, one has to be set to continue.")
-        optional = self.parser.add_argument_group('Optional', "These options are optional")
-        slurm = self.parser.add_argument_group('SLURM', "Parameters related to SLURM")
-        installing = self.parser.add_argument_group('Installing', "Parameters related to installing")
-        debug = self.parser.add_argument_group('Debug', "These options are mainly useful for debugging")
+        required = self.parser.add_argument_group('Required arguments', 'These options have to be set')
+        required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', 'Of these arguments, one has to be set to continue.')
+        optional = self.parser.add_argument_group('Optional', 'These options are optional')
+        slurm = self.parser.add_argument_group('SLURM', 'Parameters related to SLURM')
+        installing = self.parser.add_argument_group('Installing', 'Parameters related to installing')
+        debug = self.parser.add_argument_group('Debug', 'These options are mainly useful for debugging')
 
         required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
         required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
@@ -505,16 +507,16 @@ class ConfigLoader:
         required.add_argument('--experiment_name', help='Name of the experiment.', type=str)
         required.add_argument('--mem_gb', help='Amount of RAM for each worker in GB (default: 1GB)', type=float, default=1)
 
-        required_but_choice.add_argument('--parameter', action='append', nargs='+', help="Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>", default=None)
-        required_but_choice.add_argument('--continue_previous_job', help="Continue from a previous checkpoint, use run-dir as argument", type=str, default=None)
+        required_but_choice.add_argument('--parameter', action='append', nargs='+', help='Experiment parameters in the formats (options in round brackets are optional): <NAME> range <LOWER BOUND> <UPPER BOUND> (<INT, FLOAT>, log_scale: True/False, default: false>) -- OR -- <NAME> fixed <VALUE> -- OR -- <NAME> choice <Comma-separated list of values>', default=None)
+        required_but_choice.add_argument('--continue_previous_job', help='Continue from a previous checkpoint, use run-dir as argument', type=str, default=None)
 
         optional.add_argument('--experiment_constraints', action='append', nargs='+', help='Constraints for parameters. Example: x + y <= 2.0', type=str)
-        optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default="runs", type=str)
+        optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default='runs', type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
         optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
         optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
-        optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {", ".join(SUPPORTED_MODELS)}', type=str, default=None)
+        optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {joined_supported_models}', type=str, default=None)
         optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
         optional.add_argument('--occ', help='Use optimization with combined criteria (OCC)', action='store_true', default=False)
         optional.add_argument('--show_sixel_scatter', help='Show sixel graphics of scatter plots in the end', action='store_true', default=False)
@@ -523,7 +525,7 @@ class ConfigLoader:
         optional.add_argument('--follow', help='Automatically follow log file of sbatch', action='store_true', default=False)
         optional.add_argument('--send_anonymized_usage_stats', help='Send anonymized usage stats', action='store_true', default=False)
         optional.add_argument('--ui_url', help='Site from which the OO-run was called', default=None, type=str)
-        optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {os.getenv("HOME")})', default=os.getenv("HOME"), type=str)
+        optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {Path.home()})', default=Path.home(), type=str)
         optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
         optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=int, default=8)
         optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
@@ -533,15 +535,15 @@ class ConfigLoader:
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
-        optional.add_argument('--workdir', help='Work dir', default="", type=str)
-        optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {", ".join(valid_occ_types)})', type=str, default="euclid")
-        optional.add_argument('--result_names', nargs='+', default=[], help="Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.")
+        optional.add_argument('--workdir', help='Work dir', default='', type=str)
+        optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')
+        optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min. Default is min.')
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
-        optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default="", type=str)
+        optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1.', default='', type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
-        optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help="List of job data to load from existing jobs")
+        optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help='List of job data to load from existing jobs')
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--external_generator', help='Programm call for an external generato4', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
@@ -550,8 +552,8 @@ class ConfigLoader:
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel slurm jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for slurm jobs (i.e. for each single point to be optimized)', type=int, default=30)
         slurm.add_argument('--slurm_use_srun', help='Using srun instead of sbatch', action='store_true', default=False)
-        slurm.add_argument('--time', help='Time for the main job', default="", type=str)
-        slurm.add_argument('--partition', help='Partition to be run on', default="", type=str)
+        slurm.add_argument('--time', help='Time for the main job', default='', type=str)
+        slurm.add_argument('--partition', help='Partition to be run on', default='', type=str)
         slurm.add_argument('--reservation', help='Reservation', default=None, type=str)
         slurm.add_argument('--force_local_execution', help='Forces local execution even when SLURM is available', action='store_true', default=False)
         slurm.add_argument('--slurm_signal_delay_s', help='When the workers end, they get a signal so your program can react to it. Default is 0, but set it to any number of seconds you wish your program to be able to react to USR1.', type=int, default=0)
@@ -561,7 +563,7 @@ class ConfigLoader:
         slurm.add_argument('--gpus', help='Number of GPUs', type=int, default=0)
         #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
 
-        installing.add_argument('--run_mode', help='Either local or docker', default="local", type=str)
+        installing.add_argument('--run_mode', help='Either local or docker', default='local', type=str)
 
         debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
         debug.add_argument('--verbose_break_run_search_table', help='Verbose logging for break_run_search', action='store_true', default=False)
@@ -1345,7 +1347,7 @@ def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
-    print(f"Unsupported model {args.model}. Cannot continue. Valid models are {', '.join(SUPPORTED_MODELS)}")
+    print(f"Unsupported model {args.model}. Cannot continue. Valid models are {joined_supported_models}")
     my_exit(203)
 
 if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_parallel_jobs):
@@ -2918,7 +2920,7 @@ def calculate_occ(_args: Optional[Union[dict, List[Union[int, float]]]]) -> Unio
     if args.occ_type == "weighted_euclidean":
         return calculate_signed_weighted_euclidean_distance(_args, args.signed_weighted_euclidean_weights)
 
-    raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {', '.join(valid_occ_types)}")
+    raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {joined_valid_occ_types}")
 
 @beartype
 def get_return_in_case_of_errors() -> dict:

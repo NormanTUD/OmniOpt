@@ -27,12 +27,17 @@ IFS=$'\n'
 errors=0
 
 for n in $(cat .omniopt.py | grep 'action="'); do
-	red_text "Found $n"
+	red_text "Found double quotes action $n"
 	errors=$(($errors+1))
 done
 
 for n in $(cat .omniopt.py | grep 'nargs="'); do
-	red_text "Found $n"
+	red_text "Found double quoted nargs $n"
+	errors=$(($errors+1))
+done
+
+for n in $(cat .omniopt.py | grep 'add_argument' | grep '"'); do
+	red_text "Found double quote $n"
 	errors=$(($errors+1))
 done
 

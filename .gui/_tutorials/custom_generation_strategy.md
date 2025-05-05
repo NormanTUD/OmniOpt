@@ -12,4 +12,22 @@ OmniOpt2, and the way to do it is to use a *custom generation strategy*.
 
 # How to enter them in the GUI
 
+Click the *Show additional parameters* button, then scroll down to *Generation Strategy*. Enter the list of models with an equal-sign
+and the number of jobs that should be executed with them, like given in the example.
 
+<img alt="Plot-Overview" src="imgs/custom_generation_strategy.png" /><br>
+
+# How to add it manually to an OmniOpt2-job
+
+It's simple: just add this command line argument to your OmniOpt2-call:
+
+```bash
+--generation_strategy SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10
+```
+
+Of cource, change it according to your needs.
+
+# Caveats
+
+- Currently, the custom Generation Strategy does not work with `PSEUDORANDOM`, `RANDOMFOREST` and `EXTERNAL_GENERATOR`
+- Jobs with custom generation strategies cannot be continued

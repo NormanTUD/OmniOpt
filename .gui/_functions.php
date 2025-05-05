@@ -215,28 +215,98 @@
 		echo $htmlContent;
 	}
 
+	function replace_python_placeholders($input, $replacements) {
+		if (!is_string($input)) {
+			throw new InvalidArgumentException("Input must be a string.");
+		}
+
+		if (!is_array($replacements)) {
+			throw new InvalidArgumentException("Replacements must be an associative array.");
+		}
+
+		// Nutze preg_replace_callback um alle Platzhalter zu ersetzen
+		$result = preg_replace_callback('/\{([^\{\}]+)\}/', function ($matches) use ($replacements) {
+			$key = $matches[1];
+
+			if (array_key_exists($key, $replacements)) {
+				return $replacements[$key];
+			}
+
+			// Wenn kein Ersatz gefunden wurde, gib den Original-Platzhalter zurück
+			return $matches[0];
+		}, $input);
+
+		if ($result === null) {
+			throw new RuntimeException("Regex replacement failed.");
+		}
+
+		return $result;
+	}
+
+	function extract_and_join_python_list($file_path, $variable_name) {
+		if (!is_readable($file_path)) {
+			return null;
+		}
+
+		$lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+		if ($lines === false) {
+			return null;
+		}
+
+		foreach ($lines as $line) {
+			$trimmed = trim($line);
+
+			$pattern = '/^' . preg_quote($variable_name, '/') . '\s*:\s*list\s*=\s*(\[.*\])\s*$/';
+
+			if (preg_match($pattern, $trimmed, $matches)) {
+				$list_literal = $matches[1];
+
+				// Optional: basic validation on list syntax
+				$elements = eval("return $list_literal;");
+
+				if (!is_array($elements)) {
+					return null;
+				}
+
+				$escaped_elements = array_map(function ($item) {
+					return '"' . addslashes($item) . '"';
+				}, $elements);
+
+				$joined = implode(', ', $escaped_elements);
+				$new_variable = "joined_" . $variable_name;
+
+				return $joined;
+			}
+		}
+
+		return null;
+	}
+
 	function parse_arguments($file_path) {
 		$groups = [];
-		$current_group = "Ungrouped"; // Default group if no add_argument_group is found
+		$current_group = "Ungrouped";
 
-		// Regex patterns
 		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*'(.+?)',\s*'(.+?)'/";
-		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(?:,\s*[^)]*help='([^']+)')?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
+		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(?:,\s*[^)]*help=(f?)'([^']+)')?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
 
-		// Check if file exists
 		if (!file_exists($file_path)) {
 			echo "<p><strong>ERROR:</strong> File not found: $file_path</p>";
 			return [];
 		}
 
-		// Read the file
 		$file = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		if (!$file) {
 			echo "<p><strong>ERROR:</strong> Unable to read file.</p>";
 			return [];
 		}
 
-		$group_vars = []; // Stores variable names linked to group names
+		$replacements = array(
+			"Path.home()" => "\$HOME",
+			"joined_valid_occ_types" => extract_and_join_python_list($file_path, "valid_occ_types"),
+			"joined_supported_models" => extract_and_join_python_list($file_path, "SUPPORTED_MODELS")
+		);
+
+		$group_vars = [];
 
 		foreach ($file as $line) {
 			// Detect argument groups
@@ -250,8 +320,13 @@
 
 			} elseif (preg_match($pattern_argument, $line, $matches)) {
 				$arg_name = trim($matches[1]);
-				$description = isset($matches[2]) ? htmlentities(trim($matches[2])) : "<i style='color: red;'>No description available.</i>";
-				$default = isset($matches[4]) ? trim($matches[4], "\"'") : "-";
+				$f = $matches[2];
+				$description = isset($matches[3]) ? htmlentities(trim($matches[3])) : "<i style='color: red;'>No description available.</i>";
+				$default = isset($matches[5]) ? trim($matches[5], "\"'") : "-";
+
+				if($f == "f") {
+					$description = replace_python_placeholders($description, $replacements);
+				}
 
 				// Try to detect the last known group (by variable name reference)
 				if(count($group_vars)) {

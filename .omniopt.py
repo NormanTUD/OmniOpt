@@ -1167,18 +1167,30 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             for keyname in serialized_params.keys():
                 if keyname not in results["parameters"]:
                     raise ValueError(f"Missing {keyname} from JSON file {results_path}")
+
                 to_type = serialized_params[keyname]["type"]
+
+                _res = results["parameters"][keyname]
 
                 try:
                     if to_type == "STRING":
-                        results["parameters"][keyname] = str(results["parameters"][keyname])
+                        results["parameters"][keyname] = str(_res)
                     elif to_type == "FLOAT":
-                        results["parameters"][keyname] = float(results["parameters"][keyname])
+                        results["parameters"][keyname] = float(_res)
                     elif to_type == "INT":
-                        results["parameters"][keyname] = int(results["parameters"][keyname])
+                        results["parameters"][keyname] = int(_res)
                 except ValueError:
                     failed_res = results["parameters"][keyname]
                     print_red(f"Failed to convert '{keyname}' to {to_type}. Value: {failed_res}")
+
+                param = serialized_params[keyname]
+
+                if param["parameter_type"] == "RANGE":
+                    _min = param["range"][0]
+                    _max = param["range"][1]
+
+                    if not (_min <= _res <= _max):
+                        print_yellow(f"The result by the external generator for the axis '{keyname}' is outside of the range of min {_min}/max {_max}: {_res}")
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

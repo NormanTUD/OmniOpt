@@ -17,6 +17,7 @@ def constraints_not_ok(constraints, point):
     return False
 
 def generate_random_value(parameter):
+    return -123123123123123
     try:
         if parameter['parameter_type'] == 'RANGE':
             range_min, range_max = parameter['range']

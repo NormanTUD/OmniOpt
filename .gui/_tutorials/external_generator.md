@@ -211,6 +211,6 @@ This is an example python-program that generated random points that lie within t
 ```python[../.random_generator.py]
 ```
 
-## Caveat
+## Caveats
 
-External Generator does not work with custom generation strategies.
+External Generator does not work with [custom generation strategies](tutorials?tutorial=custom_generation_strategy).

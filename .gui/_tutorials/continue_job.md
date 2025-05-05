@@ -46,7 +46,7 @@ It will create a new folder. Imagine there are already the subfolders `0`, `1` a
 experiment. If you continue the job `0`, it's job data will be in the subfolder `3` then, since it is the first
 non-existing folder for that project..
 
-## Caveat
+## Caveats
 
 It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the
 original limits will automatically be restored.

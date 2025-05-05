@@ -6930,17 +6930,8 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
         nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
-        log_execution_result(nr_of_items, next_nr_steps)
         return nr_of_items
     return 0
-
-@beartype
-def log_execution_result(nr_of_items: int, next_nr_steps: int) -> None:
-    msg = f"got {nr_of_items}, requested {next_nr_steps}"
-    if nr_of_items > 0:
-        progressbar_description([msg])
-    else:
-        print_debug(msg)
 
 @beartype
 def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:

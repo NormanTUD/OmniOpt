@@ -515,7 +515,7 @@ class ConfigLoader:
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
         optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
-        optional.add_argument('--verbose_tqdm', help='Show verbose tqdm messages', action='store_true', default=False)
+        optional.add_argument('--verbose_tqdm', help='Show verbose TQDM messages', action='store_true', default=False)
         optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {joined_supported_models}', type=str, default=None)
         optional.add_argument('--gridsearch', help='Enable gridsearch.', action='store_true', default=False)
         optional.add_argument('--occ', help='Use optimization with combined criteria (OCC)', action='store_true', default=False)

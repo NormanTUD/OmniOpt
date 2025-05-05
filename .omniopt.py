@@ -1128,19 +1128,19 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             current_trials = parse_csv(RESULT_CSV_FILE)
 
-            inputs_json = {
+            input_json = {
                 "parameters": serialized_params,
                 "constraints": self._serialize_constraints(self.constraints),
                 "seed": self.seed,
                 "trials": current_trials
             }
 
-            inputs_path = os.path.join(temp_dir, "input.json")
+            input_path = os.path.join(temp_dir, "input.json")
 
-            with open(inputs_path, mode="w", encoding="utf-8") as f:
-                json.dump(inputs_json, f, indent=4)
+            with open(input_path, mode="w", encoding="utf-8") as f:
+                json.dump(input_json, f, indent=4)
 
-            print_debug(f"Saved inputs.json to {inputs_path}")
+            print_debug(f"Saved inputs.json to {input_path}")
 
             run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
 

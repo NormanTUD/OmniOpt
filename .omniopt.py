@@ -1167,6 +1167,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             run_this_program = self.external_generator.replace('\n', '').split() + [temp_dir]
 
             subprocess.run(run_this_program, check=True)
+
             print_debug(f"Executed external program: {' '.join(run_this_program)}")
 
             results_path = os.path.join(temp_dir, "results.json")

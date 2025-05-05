@@ -360,10 +360,12 @@
 				if ($action !== "") {
 					if ($action == "store_false") {
 						$default = "True";
+						$type = "bool";
 					}
 
 					if ($action == "store_true") {
 						$default = "False";
+						$type = "bool";
 					}
 				}
 

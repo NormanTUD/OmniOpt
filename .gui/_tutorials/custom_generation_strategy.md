@@ -15,7 +15,7 @@ OmniOpt2, and the way to do it is to use a *custom generation strategy*.
 Click the *Show additional parameters* button, then scroll down to *Generation Strategy*. Enter the list of models with an equal-sign
 and the number of jobs that should be executed with them, like given in the example.
 
-<img alt="Plot-Overview" src="imgs/custom_generation_strategy.png" /><br>
+<img alt="Custom Generation Strategy in GUI" data-lightsrc="imgs/custom_generation_strategy_light.png" data-darksrc="imgs/custom_generation_strategy_dark.png" /><br>
 
 # How to add it manually to an OmniOpt2-job
 

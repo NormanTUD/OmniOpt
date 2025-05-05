@@ -84,6 +84,8 @@ function enable_dark_mode() {
 	}
 
 	$(".mode-text").css("color", "black")
+
+	updateImagesForTheme();
 }
 
 function enable_light_mode() {
@@ -116,6 +118,8 @@ function enable_light_mode() {
 	}
 
 	$(".mode-text").css("color", "black")
+
+	updateImagesForTheme();
 }
 
 function apply_theme_based_on_system_preferences() {
@@ -132,6 +136,14 @@ function apply_theme_based_on_system_preferences() {
 			enable_light_mode();
 		}
 	}
+}
+
+function updateImagesForTheme() {
+	var imgs = document.querySelectorAll('img[data-lightsrc][data-darksrc]');
+	imgs.forEach(function(img) {
+		var src = theme === 'dark' ? img.getAttribute('data-darksrc') : img.getAttribute('data-lightsrc');
+		if (img.src !== src) img.src = src;
+	});
 }
 
 document.addEventListener("DOMContentLoaded", function() {

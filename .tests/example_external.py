@@ -27,6 +27,7 @@ def generate_random_value(parameter):
                 return random.uniform(range_min, range_max)
         elif parameter['parameter_type'] == 'CHOICE':
             values = parameter['values']
+
             if parameter['type'] == 'INT':
                 return random.choice(values)
 

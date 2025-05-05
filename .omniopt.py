@@ -1189,8 +1189,15 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                     _min = param["range"][0]
                     _max = param["range"][1]
 
-                    if not (_min <= _res <= _max):
-                        print_yellow(f"The result by the external generator for the axis '{keyname}' is outside of the range of min {_min}/max {_max}: {_res}")
+                    if not _min <= _res <= _max:
+                        print_yellow(f"The result by the external generator for the axis '{keyname}' (RANGE) is outside of the range of min {_min}/max {_max}: {_res}")
+                elif param["parameter_type"] == "CHOICE":
+                    if _res not in param["values"]:
+                        joined_res = ', '.join(param["values"])
+                        print_yellow(f"The result by the external generator for the axis '{keyname}' (CHOICE) is not in the valid results {joined_res}: {_res}")
+                elif param["parameter_type"] == "FIXED":
+                    if _res != param["value"]:
+                        print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

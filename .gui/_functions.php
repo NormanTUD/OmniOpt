@@ -326,6 +326,8 @@
 
 				if($default == "Path.home(") {
 					$default = "\$HOME";
+				} else if ($default == "None") {
+					$default = "";
 				}
 
 				if($f == "f") {

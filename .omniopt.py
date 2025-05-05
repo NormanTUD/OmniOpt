@@ -1128,11 +1128,17 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
             current_trials = parse_csv(RESULT_CSV_FILE)
 
+            this_objectives = {}
+
+            for i in range(len(arg_result_names)):
+                this_objectives[arg_result_names[i]] = arg_result_min_or_max[i]
+
             input_json = {
                 "parameters": serialized_params,
                 "constraints": self._serialize_constraints(self.constraints),
                 "seed": self.seed,
-                "trials": current_trials
+                "trials": current_trials,
+                "objectives": this_objectives
             }
 
             input_path = os.path.join(temp_dir, "input.json")

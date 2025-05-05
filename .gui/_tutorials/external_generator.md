@@ -97,7 +97,10 @@ This then gets called with a temporary directory as first parameter, in which a 
                 "RESULT": 461647612179.7039
             }
         ]
-    ]
+    ],
+    "objectives": {
+        "RESULT": "max"
+    }
 }
 ```
 

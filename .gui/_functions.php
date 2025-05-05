@@ -316,7 +316,6 @@
 
 				$group_vars[$group_var] = $group_name;
 				$groups[$group_name] = ["desc" => $group_desc, "args" => []];
-
 			} elseif (preg_match($pattern_argument, $line, $matches)) {
 				$arg_name = trim($matches[1]);
 				$raw_params = trim($matches[2]);
@@ -326,12 +325,12 @@
 				$type = "";
 				$action = "";
 
-				// Match key=value pairs safely (handles quotes, floats, identifiers, etc.)
-				preg_match_all("/(\w+)\s*=\s*('(?:[^'\\\\]|\\\\.)*'|\"(?:[^\"\\\\]|\\\\.)*\"|[^\s,]+)/", $raw_params, $param_matches, PREG_SET_ORDER);
+				// Robust parsing von key=value Paaren mit Unterstützung für f-Strings
+				preg_match_all("/(\w+)\s*=\s*f?(['\"])(.*?)\\2/s", $raw_params, $param_matches, PREG_SET_ORDER);
 
 				foreach ($param_matches as $pm) {
 					$key = $pm[1];
-					$value = trim($pm[2], "\"'");
+					$value = trim($pm[3]);  // Der Wert ist jetzt der gesamte f-String-Inhalt.
 
 					if ($key === "help") {
 						$description = htmlentities($value);
@@ -340,7 +339,10 @@
 						}
 					} elseif ($key === "default") {
 						$default = $value;
-						if ($default === "Path.home(") {
+						// Wenn der Defaultwert eine Zahl ist, umwandeln
+						if (is_numeric($default)) {
+							$default = (int)$default;  // Falls es eine Zahl ist, umwandeln
+						} elseif ($default === "Path.home(") {
 							$default = "\$HOME";
 						} elseif ($default === "None") {
 							$default = "";
@@ -352,6 +354,28 @@
 					}
 				}
 
+				// Zusätzliche Regex um numerische Defaultwerte direkt zu erkennen
+				if (preg_match("/default\s*=\s*(\d+)/", $raw_params, $default_match)) {
+					$default = (int)$default_match[1];  // Hier wird der Defaultwert als Zahl extrahiert
+				}
+
+				// Sicherstellen, dass der type korrekt verarbeitet wird
+				if (preg_match("/type\s*=\s*([\w\.]+)/", $raw_params, $type_match)) {
+					$type = $type_match[1];  // Hier wird der Typ explizit extrahiert
+				}
+
+				// action-bezogene Anpassungen
+				if ($action !== "") {
+					if ($action == "store_false") {
+						$default = "True";
+					}
+
+					if ($action == "store_true") {
+						$default = "False";
+					}
+				}
+
+				// Argument eintragen
 				$arg_entry = [$arg_name, $description, $default];
 				if ($type !== "") {
 					$arg_entry[] = "type: $type";
@@ -360,6 +384,7 @@
 					$arg_entry[] = "action: $action";
 				}
 
+				// Argument der entsprechenden Gruppe zuweisen
 				if (count($group_vars)) {
 					foreach (array_reverse($group_vars) as $var => $group) {
 						if (strpos($line, $var . ".add_argument") !== false) {

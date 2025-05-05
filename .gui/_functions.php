@@ -442,7 +442,7 @@
 
 					$html .= "<td>";
 					if ($action !== "") {
-						$html .= "<pre class='invert_in_dark_mode'>$action</pre>";
+						$html .= "<pre class='invert_in_dark_mode'><code class='language-python'>$action</code></pre>";
 					}
 					$html .= "</td>\n";
 

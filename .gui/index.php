@@ -23,7 +23,7 @@
 
 	require "_header_base.php";
 ?>
-			<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a></p>
+			<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, but allows any method of generation of new hyperparameter points by using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
 
 			<p>You can run <i>OmniOpt2</i> on any linux that has <samp>python3</samp> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it.</p>
 

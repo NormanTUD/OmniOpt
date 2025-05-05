@@ -220,8 +220,8 @@
 		$current_group = "Ungrouped"; // Default group if no add_argument_group is found
 
 		// Regex patterns
-		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*['\"](.+?)['\"],\s*['\"](.+?)['\"]/";
-		$pattern_argument = "/\.add_argument\(\s*['\"]([^'\"]+)['\"](?:,\s*[^)]*help=['\"]([^'\"]+)['\"])?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
+		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*'(.+?)',\s*'(.+?)'/";
+		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(?:,\s*[^)]*help='([^']+)')?(?:,\s*type=([\w]+))?(?:,\s*default=([^,\)]+))?/";
 
 		// Check if file exists
 		if (!file_exists($file_path)) {

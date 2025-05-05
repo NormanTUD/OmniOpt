@@ -7526,6 +7526,9 @@ def main() -> None:
 
     original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
+    if args.external_generator:
+        original_print(f"External-Generator: {decode_if_base64(args.external_generator)}")
+
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
 

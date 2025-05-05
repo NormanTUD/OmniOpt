@@ -1016,6 +1016,22 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
 
+@beartype
+def warn_if_param_outside_of_valid_params(param: dict, _res: Any) -> None:
+    if param["parameter_type"] == "RANGE":
+        _min = param["range"][0]
+        _max = param["range"][1]
+
+        if not _min <= _res <= _max:
+            print_yellow(f"The result by the external generator for the axis '{keyname}' (RANGE) is outside of the range of min {_min}/max {_max}: {_res}")
+    elif param["parameter_type"] == "CHOICE":
+        if _res not in param["values"]:
+            joined_res = ', '.join(param["values"])
+            print_yellow(f"The result by the external generator for the axis '{keyname}' (CHOICE) is not in the valid results {joined_res}: {_res}")
+    elif param["parameter_type"] == "FIXED":
+        if _res != param["value"]:
+            print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
+
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
@@ -1183,21 +1199,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                     failed_res = results["parameters"][keyname]
                     print_red(f"Failed to convert '{keyname}' to {to_type}. Value: {failed_res}")
 
-                param = serialized_params[keyname]
-
-                if param["parameter_type"] == "RANGE":
-                    _min = param["range"][0]
-                    _max = param["range"][1]
-
-                    if not _min <= _res <= _max:
-                        print_yellow(f"The result by the external generator for the axis '{keyname}' (RANGE) is outside of the range of min {_min}/max {_max}: {_res}")
-                elif param["parameter_type"] == "CHOICE":
-                    if _res not in param["values"]:
-                        joined_res = ', '.join(param["values"])
-                        print_yellow(f"The result by the external generator for the axis '{keyname}' (CHOICE) is not in the valid results {joined_res}: {_res}")
-                elif param["parameter_type"] == "FIXED":
-                    if _res != param["value"]:
-                        print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
+                warn_if_param_outside_of_valid_params(serialized_params[keyname], _res)
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

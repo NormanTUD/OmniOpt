@@ -322,7 +322,11 @@
 				$arg_name = trim($matches[1]);
 				$f = $matches[2];
 				$description = isset($matches[3]) ? htmlentities(trim($matches[3])) : "<i style='color: red;'>No description available.</i>";
-				$default = isset($matches[5]) ? trim($matches[5], "\"'") : "-";
+				$default = isset($matches[5]) ? trim($matches[5], "\"'") : "";
+
+				if($default == "Path.home(") {
+					$default = "\$HOME";
+				}
 
 				if($f == "f") {
 					$description = replace_python_placeholders($description, $replacements);
@@ -365,7 +369,9 @@
 					$html .= "</td>\n<td>";
 					$html .= "$desc";
 					$html .= "</td>\n<td>";
-					$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$default</code></pre>\n";
+					if($default) {
+						$html .= "<pre class='invert_in_dark_mode'><code class='language-bash'>$default</code></pre>\n";
+					}
 					$html .= "</td>\n</tr>\n";
 				}
 			}

@@ -1017,7 +1017,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
 
 @beartype
-def warn_if_param_outside_of_valid_params(param: dict, _res: Any) -> None:
+def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) -> None:
     if param["parameter_type"] == "RANGE":
         _min = param["range"][0]
         _max = param["range"][1]
@@ -1199,7 +1199,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                     failed_res = results["parameters"][keyname]
                     print_red(f"Failed to convert '{keyname}' to {to_type}. Value: {failed_res}")
 
-                warn_if_param_outside_of_valid_params(serialized_params[keyname], _res)
+                warn_if_param_outside_of_valid_params(serialized_params[keyname], _res, keyname)
 
             candidate = results["parameters"]
             print_debug(f"Found new candidate: {candidate}")

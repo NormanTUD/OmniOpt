@@ -250,19 +250,19 @@
 
 			} elseif (preg_match($pattern_argument, $line, $matches)) {
 				$arg_name = trim($matches[1]);
-				$description = isset($matches[2]) ? trim($matches[2]) : "No description available.";
+				$description = isset($matches[2]) ? htmlentities(trim($matches[2])) : "<i style='color: red;'>No description available.</i>";
 				$default = isset($matches[4]) ? trim($matches[4], "\"'") : "-";
 
 				// Try to detect the last known group (by variable name reference)
 				if(count($group_vars)) {
 					foreach (array_reverse($group_vars) as $var => $group) {
 						if (strpos($line, $var . ".add_argument") !== false) {
-							$groups[$group]["args"][] = [$arg_name, htmlentities($description), $default];
+							$groups[$group]["args"][] = [$arg_name, $description, $default];
 							break;
 						}
 					}
 				} else {
-					$groups["Ungrouped"]["args"][] = [$arg_name, htmlentities($description), $default];
+					$groups["Ungrouped"]["args"][] = [$arg_name, $description, $default];
 				}
 			}
 		}

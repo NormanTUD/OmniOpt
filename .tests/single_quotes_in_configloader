@@ -37,9 +37,9 @@ for n in $(cat .omniopt.py | grep 'nargs="'); do
 done
 
 if [[ $errors -eq 0 ]]; then
-	echo "single_quotes_in_config_loader OK"
+	echo "single_quotes_in_configloader OK"
 	exit 0
 fi
 
-red_text "single_quotes_in_config_loader failed: $errors double quotes found"
+red_text "single_quotes_in_configloader failed: $errors double quotes found"
 exit 1

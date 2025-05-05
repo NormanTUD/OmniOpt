@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+IFS=$'\n'
+
+errors=0
+
+for n in $(cat .omniopt.py | grep 'action="'); do
+	red_text "Found $n"
+	errors=$(($errors+1))
+done
+
+for n in $(cat .omniopt.py | grep 'nargs="'); do
+	red_text "Found $n"
+	errors=$(($errors+1))
+done
+
+if [[ $errors -eq 0 ]]; then
+	echo "single_quotes_in_config_loader OK"
+	exit 0
+fi
+
+red_text "single_quotes_in_config_loader failed: $errors double quotes found"
+exit 1

@@ -224,7 +224,6 @@
 			throw new InvalidArgumentException("Replacements must be an associative array.");
 		}
 
-		// Nutze preg_replace_callback um alle Platzhalter zu ersetzen
 		$result = preg_replace_callback('/\{([^\{\}]+)\}/', function ($matches) use ($replacements) {
 			$key = $matches[1];
 
@@ -232,7 +231,6 @@
 				return $replacements[$key];
 			}
 
-			// Wenn kein Ersatz gefunden wurde, gib den Original-Platzhalter zurück
 			return $matches[0];
 		}, $input);
 
@@ -261,7 +259,6 @@
 			if (preg_match($pattern, $trimmed, $matches)) {
 				$list_literal = $matches[1];
 
-				// Optional: basic validation on list syntax
 				$elements = eval("return $list_literal;");
 
 				if (!is_array($elements)) {
@@ -325,12 +322,11 @@
 				$type = "";
 				$action = "";
 
-				// Robust parsing von key=value Paaren mit Unterstützung für f-Strings
 				preg_match_all("/(\w+)\s*=\s*f?(['\"])(.*?)\\2/s", $raw_params, $param_matches, PREG_SET_ORDER);
 
 				foreach ($param_matches as $pm) {
 					$key = $pm[1];
-					$value = trim($pm[3]);  // Der Wert ist jetzt der gesamte f-String-Inhalt.
+					$value = trim($pm[3]);
 
 					if ($key === "help") {
 						$description = htmlentities($value);
@@ -339,9 +335,8 @@
 						}
 					} elseif ($key === "default") {
 						$default = $value;
-						// Wenn der Defaultwert eine Zahl ist, umwandeln
 						if (is_numeric($default)) {
-							$default = (int)$default;  // Falls es eine Zahl ist, umwandeln
+							$default = (int)$default;
 						} elseif ($default === "Path.home(") {
 							$default = "\$HOME";
 						} elseif ($default === "None") {
@@ -354,17 +349,14 @@
 					}
 				}
 
-				// Zusätzliche Regex um numerische Defaultwerte direkt zu erkennen
 				if (preg_match("/default\s*=\s*(\d+)/", $raw_params, $default_match)) {
-					$default = (int)$default_match[1];  // Hier wird der Defaultwert als Zahl extrahiert
+					$default = (int)$default_match[1];
 				}
 
-				// Sicherstellen, dass der type korrekt verarbeitet wird
 				if (preg_match("/type\s*=\s*([\w\.]+)/", $raw_params, $type_match)) {
-					$type = $type_match[1];  // Hier wird der Typ explizit extrahiert
+					$type = $type_match[1];
 				}
 
-				// action-bezogene Anpassungen
 				if ($action !== "") {
 					if ($action == "store_false") {
 						$default = "True";
@@ -375,7 +367,6 @@
 					}
 				}
 
-				// Argument eintragen
 				$arg_entry = [$arg_name, $description, $default];
 				if ($type !== "") {
 					$arg_entry[] = "type: $type";
@@ -384,7 +375,6 @@
 					$arg_entry[] = "action: $action";
 				}
 
-				// Argument der entsprechenden Gruppe zuweisen
 				if (count($group_vars)) {
 					foreach (array_reverse($group_vars) as $var => $group) {
 						if (strpos($line, $var . ".add_argument") !== false) {

@@ -145,46 +145,58 @@
 
 	list($developer_ids, $test_ids, $regular_data) = get_group_data($db_path);
 
-	$data = array(
-		"developer_ids" => $developer_ids,
-		"test_ids" => $test_ids,
-		"regular_data" => $regular_data
+	$groups = array(
+		'regular_data' => array(
+			'label' => 'Usage overview',
+			'data'  => $regular_data
+		),
+		'test_ids' => array(
+			'label' => 'Test Users',
+			'data'  => $test_ids
+		),
+		'developer_ids' => array(
+			'label' => 'Developer Users',
+			'data'  => $developer_ids
+		)
 	);
 
-	if (!empty($developer_ids) || !empty($test_ids) || !empty($regular_data)) {
-		$sections = ['regular_data' => 'Usage overview', 'test_ids' => 'Test Users', 'developer_ids' => 'Developer Users'];
-?>
-		<br>
-		<div id="tabs">
-			<ul>
-<?php
-				foreach ($sections as $key => $label) {
-					if (count($data[$key])) {
-						echo '<li class="invert_in_dark_mode"><a href="#' . $key . '">' . $label . '</a></li>';
-					}
-				}
-?>
-				<li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>
-			</ul>
-<?php
-		foreach ($sections as $key => $title) {
-			if (count(${$key})) {
+	$has_data = false;
+	foreach ($groups as $group) {
+		if (!empty($group['data'])) {
+			$has_data = true;
+			break;
+		}
+	}
+
+	if ($has_data) {
+		echo '<br>';
+		echo '<div id="tabs">';
+		echo '    <ul>';
+
+		foreach ($groups as $key => $group) {
+			if (!empty($group['data'])) {
+				echo '        <li class="invert_in_dark_mode"><a href="#' . $key . '">' . $group['label'] . '</a></li>';
+			}
+		}
+
+		echo '        <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>';
+		echo '    </ul>';
+
+		foreach ($groups as $key => $group) {
+			if (!empty($group['data'])) {
 				echo '<div id="' . $key . '">';
-				echo "<h2>$title</h2>";
-				display_plots(${$key}, explode('_', $key)[0], $db_path);
+				echo '<h2>' . htmlspecialchars($group['label']) . '</h2>';
+				display_plots($group['data'], explode('_', $key)[0], $db_path);
 				echo '</div>';
 			}
 		}
-?>
-		<div id="exit_codes">
-<?php
-			include "exit_code_table.php";
-?>
-		</div>
-<?php
+
+		echo '<div id="exit_codes">';
+		include "exit_code_table.php";
+		echo '</div>';
+		echo '</div>';
 	} else {
 		echo "No valid data found in the database";
-
 		importCsvToDatabase($db_path);
 	}
 	include("footer.php");

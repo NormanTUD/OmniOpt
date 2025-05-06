@@ -177,7 +177,6 @@
 
 				$tab_buttons .= '<button role="tab"' . $selected_attr . ' aria-controls="' . $key . '">' . htmlspecialchars($group['label']) . '</button>' . "\n";
 				$tab_panels .= '<article role="tabpanel" id="' . $key . '"' . $hidden_attr . '>' . "\n";
-				$tab_panels .= '<h3>' . htmlspecialchars($group['label']) . '</h3>' . "\n";
 				ob_start();
 				display_plots($group['data'], explode('_', $key)[0], $db_path);
 				$tab_panels .= ob_get_clean();

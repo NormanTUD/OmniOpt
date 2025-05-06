@@ -1,4 +1,4 @@
-		<div style="height: 100px;"></div>
+		<div style="height: 30px;"></div>
 		<div class="status-bar" id="footer_element">
 			<p class="status-bar-field">
 				&copy; 2024-<?php echo date('Y'); ?> OmniOpt2 /

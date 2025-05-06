@@ -4309,27 +4309,28 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
 
         experiment_args["parameter_constraints"] = []
 
-        for _l in range(len(experiment_constraints)):
-            constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
+        if experiment_constraints:
+            for _l in range(len(experiment_constraints)):
+                constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
 
-            constraints_string = constraints_string.rstrip("\n\r")
+                constraints_string = constraints_string.rstrip("\n\r")
 
-            variables = [item['name'] for item in experiment_parameters]
+                variables = [item['name'] for item in experiment_parameters]
 
-            equation = check_equation(variables, constraints_string)
+                equation = check_equation(variables, constraints_string)
 
-            if equation:
-                experiment_args["parameter_constraints"].append(constraints_string)
-            else:
-                print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
-                my_exit(19)
+                if equation:
+                    experiment_args["parameter_constraints"].append(constraints_string)
+                else:
+                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
+                    my_exit(19)
 
-            file_path = os.path.join(get_current_run_folder(), "state_files", "constraints")
+                file_path = os.path.join(get_current_run_folder(), "state_files", "constraints")
 
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-            with open(file_path, "a", encoding="utf-8") as f:
-                f.write(constraints_string + "\n")
+                with open(file_path, "a", encoding="utf-8") as f:
+                    f.write(constraints_string + "\n")
 
     return experiment_args
 

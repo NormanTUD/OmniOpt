@@ -10,13 +10,7 @@ When performing hyperparameter optimization or running large-scale simulations, 
 
 ### What Are Constraints?
 
-In the context of hyperparameter optimization, constraints are mathematical conditions that must be satisfied by the parameter values during the search. A common form of constraint is a linear inequality such as:
-
-$$
-a * x + b * y = c
-$$
-
-where `x` and `y` are tunable parameters (e.g., learning rate, number of layers), and `a`, `b`, and `c` are fixed constants. These expressions define a subspace in which the optimizer is allowed to operate.
+In the context of hyperparameter optimization, constraints are mathematical conditions that must be satisfied by the parameter values during the search. A common form of constraint is a linear inequality such as \( a \cdot x + b \cdot y = c \), where \(x\) and \(y\) are tunable parameters (e.g., learning rate, number of layers), and \(a\), \(b\), and \(c\) are fixed constants. These expressions define a subspace in which the optimizer is allowed to operate.
 
 ### Why Use Constraints?
 
@@ -28,23 +22,18 @@ Constraints are useful for several reasons:
 
 - **Safety**: Especially in simulations of real-world systems (like robotics, medicine, or finance), running configurations outside known-safe bounds can be dangerous or misleading.
 
-- **Efficiency**: By reducing the size of the search space, constraints help optimizers converge faster and require fewer evaluations — which is especially important when each run is expensive or slow.
+- **Efficiency**: By reducing the size of the search space, constraints help optimizers converge faster and require fewer evaluations - which is especially important when each run is expensive or slow.
 
-- **Logical conditions**: Sometimes constraints reflect logical rules, such as “if parameter A is high, parameter B must be low,” which can be enforced with inequalities.
+- **Logical conditions**: Sometimes constraints reflect logical rules, such as "if parameter A is high, parameter B must be low, which can be enforced with inequalities.
 
 ### Machine Learning Examples
 
-- Limiting the total number of model parameters due to memory constraints:  
-  `hidden_units_layer1 + hidden_units_layer2 ≤ 1024`
-
-- Ensuring a balance between training epochs and learning rate to prevent overfitting:  
-  ´0.1 * epochs + 50 * learning_rate ≤ 10`
+- Limiting the total number of model parameters due to memory constraints: \(\text{hidden_units_layer}_1 + \text{hidden_units_layer}_2 <= 1024\)
+- Ensuring a balance between training epochs and learning rate to prevent overfitting: \(0.1 * \text{epochs} + 50 * \text{learning_rate} <= 10\)
 
 ### Simulation Examples
 
-- Respecting physical conservation laws or budget limits:  
-  `power_alloc_A + power_alloc_B ≤ max_total_power`
-
+- Respecting physical conservation laws or budget limits: \(\text{power_alloc}_A + \text{power_alloc}_B <= \text{max_total_power}\)
 - Enforcing time-step stability conditions in numerical models.
 
 ### Mathematical Form
@@ -52,7 +41,7 @@ Constraints are useful for several reasons:
 In general, constraints can be written as:
 
 $$
-a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c
+a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c,
 $$
 
-where $$x_1, x_2, \dots, x_n$$ are parameters and $$a_i, c$$ are constants.
+where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants.

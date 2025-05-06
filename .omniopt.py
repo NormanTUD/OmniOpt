@@ -402,6 +402,7 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     return _default_min_max
 
 class ConfigLoader:
+    disable_previous_job_constraint: bool
     run_tests_that_fail_on_taurus: bool
     enforce_sequential_optimization: bool
     num_random_steps: int

@@ -25,9 +25,7 @@
 ?>
 			<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations in situations where gradient information is not available or too complex. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, but allows any method of generation of new hyperparameter points by using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
 
-			<p>You can run <i>OmniOpt2</i> on any linux that has <samp>python3</samp> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it.</p>
-
-			<p>If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
+			<p>You can run <i>OmniOpt2</i> on any linux that has <samp>python3</samp> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it. If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
 
 			<p><i>OmniOpt2</i> installs all of it's python-dependencies automatically in a virtual environment once at first run. This may take up to 20 minutes, but has to be done once. This is done to isolate it from other dependencies and to make you focus on your task of hyperparameter-minimization.</p>
 

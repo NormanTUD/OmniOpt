@@ -41,8 +41,6 @@
 			background-color: #f2f2f2;
 		}
 	</style>
-	<link rel="stylesheet" href="jquery-ui.css">
-	<script src="jquery-ui.js"></script>
 	<script>
 		$(function() {
 			$("#tabs").tabs();

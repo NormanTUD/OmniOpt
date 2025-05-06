@@ -59,6 +59,10 @@
 	}
 
 	function get_first_heading_content($file_path) {
+		if (!file_exists($file_path)) {
+			return null;
+		}
+
 		$file_content = file_get_contents($file_path);
 
 		if ($file_content === false) {

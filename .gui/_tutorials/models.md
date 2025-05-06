@@ -97,4 +97,4 @@ Sources: [Hyperparameters and Tuning Strategies for Random Forest](https://arxiv
 
 ## EXTERNAL_GENERATOR
 
-External 
+External generators allow you to use *any* external program to generate new points. See [External Generators](tutorials?tutorial=external_generator) for more details.

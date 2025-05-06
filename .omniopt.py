@@ -4301,11 +4301,13 @@ def set_objectives() -> dict:
     return objectives
 
 @beartype
-def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: list) -> dict:
+def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
         for _l in range(len(experiment_constraints)):
             constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
+
+            constraints_string = constraints_string.rstrip("\n\r")
 
             variables = [item['name'] for item in experiment_parameters]
 
@@ -4439,6 +4441,9 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
         else:
             print_red("Something went wrong with the ax_client")
             my_exit(9)
+
+        if experiment_constraints:
+            experiment_args = set_parameter_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
     else:
         objectives = set_objectives()
 

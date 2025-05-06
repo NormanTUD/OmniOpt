@@ -81,7 +81,7 @@ Uses a Random Forest surrogate model for prediction (no candidate generation). S
 **Best suited for:** Regression-only tasks; modeling complex, discrete-heavy datasets.
 **Use case:** Model diagnostics; cross-validation predictions; analysis of parameter importance.
 - **Pros:** Handles categorical features natively; nonlinear modeling; scalable to many observations.
-- **Cons:** **Cannot generate new candidates (`gen()` not implemented)**; not usable as a BO acquisition-driven generator; predictive uncertainty is rougher than GP.
+- **Cons:** Predictive uncertainty is rough and less calibrated than GP; poor extrapolation behavior; slower training/prediction on large search spaces.
 
 Sources: [Hyperparameters and Tuning Strategies for Random Forest](https://arxiv.org/abs/1804.03515);
 [Hyperparameters, Tuning, and Meta-Learning for Random Forest](https://edoc.ub.uni-muenchen.de/24557/1/Probst_Philipp.pdf);

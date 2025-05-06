@@ -18,3 +18,62 @@ Surrogate models are particularly useful in scenarios where the function being o
 
 In summary, surrogate models in Ax help optimize complex, expensive, or uncertain functions by approximating the objective function and guiding the optimization process in a more resource-efficient manner.
 
+## BOTORCH_MODULAR
+`Models.BOTORCH_MODULAR` is the default Gaussian Process model using BoTorch under the hood. It fits a GP to observed data and proposes new candidates via acquisition function optimization (typically qEI/qNEI or qEHVI for multi-objective).
+**Best suited for:** *Continuous* or low-cardinality *categorical* search spaces with *low to medium* dimensionality (typically <20 after one-hot encoding). Ideal when function evaluations are *expensive*.
+**Use case:** Hyperparameter tuning of ML models with few parameters; optimization of quantum circuits, materials, or simulation parameters.
+- **Pros:** Strong uncertainty modeling via GP; acquisition-driven sampling; supports multi-objective; checkpointable/resumable.
+- **Cons:** Struggles with high-dimensional or high-cardinality categorical variables (dimensionality explosion via OHE); doesn't scale well to thousands of evaluations (GP training cost).
+
+## SOBOL
+Sobol sampling generates *quasi-random low-discrepancy sequences* over the search space. Typically used for initialization.
+**Best suited for:** Any search space where *initial uniform exploration* is needed.
+**Use case:** Initial design in BO pipelines; sensitivity analysis; uniform space exploration.
+- **Pros:** Deterministic, reproducible, better space coverage than random sampling; works with mixed or constrained spaces.
+- **Cons:** No learning or adaptive behavior; does not propose candidates based on past observations.
+
+## PSEUDORANDOM
+Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but purely random.
+**Best suited for:** Baseline methods, quick-and-dirty optimization, very cheap evaluations.
+**Use case:** Random search for ML hyperparameters; brute-force sampling; baseline comparisons.
+- **Pros:** Simple; cheap; easily parallelizable; often competitive with grid search.
+- **Cons:** No learning or adaptive feedback; inefficient in high-dimensional spaces.
+
+## FACTORIAL
+`get_factorial()` generates a full factorial design over categorical variables. It enumerates all possible discrete combinations.
+**Best suited for:** Low-cardinality, fully discrete search spaces (categorical/integer).
+**Use case:** Grid search; controlled A/B testing; combinatorial experiments with small parameter spaces.
+- **Pros:** Exhaustive; interpretable; no randomness.
+- **Cons:** Grows exponentially with variable count/cardinality; not suitable for continuous parameters.
+
+## SAASBO
+
+
+"**Sparse Axis-Aligned Subspace BO**" uses a sparse GP prior (hierarchical Half-Cauchy on lengthscales) and Hamiltonian Monte Carlo (NUTS) for inference.
+**Best suited for:** *High-dimensional* problems (hundreds of parameters) with *very limited evaluation budgets* (e.g., ≤100 trials).
+**Use case:** Deep learning HP tuning with large config spaces; material design; scientific problems with few effective parameters.
+- **Pros:** Automatically identifies relevant subspaces; excellent performance in sparse high-D regimes.
+- **Cons:** Very slow per iteration (HMC is expensive); doesn’t scale beyond ~100–200 observations; impractical with many categorical variables.
+
+Source: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492)
+
+## UNIFORM
+`get_uniform()` generates uniformly random samples. Equivalent to PseudoRandom, just explicitly uniform.
+**Best suited for:** Very cheap-to-evaluate functions; embarrassingly parallel sampling.
+**Use case:** Random stress testing; large-scale exploration; fallback search method.
+- **Pros:** Simple; unbiased; robust; cheap.
+- **Cons:** No adaptivity; inefficient in high-dimensional or expensive settings.
+
+## BO_MIXED
+`BO_MIXED` is a BoTorch-powered model designed for *mixed spaces* (categorical + continuous). It encodes categories numerically (ordinal/integer) and uses a combined kernel.
+**Best suited for:** Optimization with both continuous and categorical variables.
+**Use case:** Neural architecture + HP tuning (e.g., architecture type + learning rate); mixed material design problems.
+- **Pros:** Explicit handling of categorical parameters; avoids crude one-hot scaling; uses acquisition functions for adaptive proposals.
+- **Cons:** Categorical optimization is harder than continuous; combinatoric explosion if too many categories; slower candidate generation.
+
+## RANDOMFOREST
+Uses a Random Forest surrogate model for prediction (no candidate generation). Suitable for modeling nonlinear effects in categorical/mixed spaces.
+**Best suited for:** Regression-only tasks; modeling complex, discrete-heavy datasets.
+**Use case:** Model diagnostics; cross-validation predictions; analysis of parameter importance.
+- **Pros:** Handles categorical features natively; nonlinear modeling; scalable to many observations.
+- **Cons:** **Cannot generate new candidates (`gen()` not implemented)**; not usable as a BO acquisition-driven generator; predictive uncertainty is rougher than GP.

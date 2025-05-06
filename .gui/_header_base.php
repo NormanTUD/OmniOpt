@@ -9,7 +9,7 @@
 
 	require_once "power_on_self_test.php";
 	require_once "_functions.php";
-	require "searchable_php_files.php";
+	require_once "searchable_php_files.php";
 
 	function remove_php_script_from_path($path) {
 		if (!is_string($path)) {

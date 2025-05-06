@@ -63,5 +63,14 @@ if [[ $exit_code -ne 0 ]]; then
 	exit 1
 fi
 
+./omniopt --continue runs/test_continued_constraint/0
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "Second call failed with exit-code $exit_code. Exiting."
+	exit 1
+fi
+
 green_text "continued_constraints test OK"
 exit 0

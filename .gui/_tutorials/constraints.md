@@ -72,3 +72,7 @@ In the CLI, constraints can be added using the `--experiment_constraints` argume
 ### Possible comparison operators
 
 There are two possible comparison operators: `<=` and `>=`. No other ones are possible in Ax.
+
+### Constraints in Continued Jobs
+
+Given the option `--disable_previous_job_constraint` is not set, the constraints specified will be taken over to continued jobs as well. They can be overridden, though, by adding another `--experiment_constraints`. This will delete all old constraints and only work on the new ones.

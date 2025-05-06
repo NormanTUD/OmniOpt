@@ -109,7 +109,6 @@
 		</script>
 
 		<link href="style.css" rel="stylesheet">
-		<link href="jquery-ui.css" rel="stylesheet">
 		<script>
 			document.onkeypress = function (e) {
 				e = e || window.event;
@@ -194,9 +193,11 @@
 					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
 				}
 ?>
+				<!--
 				<a href="https://scads.ai/imprint/" target="_blank">
 					<button class="header_button">Impressum</button>
 				</a>
+				-->
 			</div>
 			<div class="header-theme-toggle">
 				<label class="switch"> 

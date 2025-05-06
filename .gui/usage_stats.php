@@ -12,32 +12,26 @@
 
 	function check_database_path($db_path) {
 		$dir = dirname($db_path);
-		$user = posix_getpwuid(posix_geteuid())['name']; // Aktueller Benutzer
+		$user = posix_getpwuid(posix_geteuid())['name'];
 
-		// Prüfen, ob das Verzeichnis existiert
 		if (!is_dir($dir)) {
 			die("Error: The directory '$dir' does not exist. \nSolution: Create it with:\n  mkdir -p '$dir' && chown $user '$dir' && chmod 755 '$dir'\n");
 		}
 
-		// Prüfen, ob das Verzeichnis beschreibbar ist
 		if (!is_writable($dir)) {
 			die("Error: The directory '$dir' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 775 '$dir'\nOr change the owner with:\n  chown $user '$dir'\n");
 		}
 
-		// Prüfen, ob die Datei existiert
 		if (file_exists($db_path)) {
-			// Prüfen, ob die Datei beschreibbar ist
 			if (!is_writable($db_path)) {
 				die("Error: The database file '$db_path' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 664 '$db_path'\nOr change the owner with:\n  chown $user '$db_path'\n");
 			}
 		} else {
-			// Falls die Datei nicht existiert, prüfen, ob sie erstellt werden kann
 			if (!is_writable($dir)) {
 				die("Error: The database file '$db_path' does not exist and cannot be created in '$dir'. \nSolution: Ensure the directory is writable using:\n  chmod 775 '$dir'\n");
 			}
 		}
 
-		// Prüfen, ob SQLite3 verfügbar ist
 		if (!class_exists('SQLite3')) {
 			die("Error: SQLite3 is not available in PHP. \nSolution: Install SQLite3 with:\n  sudo apt install php-sqlite3\nOr enable the extension in 'php.ini'.\n");
 		}
@@ -82,8 +76,8 @@
 			$successful_inserts = 0;
 			$failed_inserts = 0;
 
-			$stmt = $pdo->prepare("INSERT INTO usage_statistics 
-				(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time) 
+			$stmt = $pdo->prepare("INSERT INTO usage_statistics
+				(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time)
 				VALUES (?, ?, ?, ?, ?, ?, ?)");
 
 			while (($data = wrapped_fgetcsv($handle)) !== FALSE) {
@@ -169,35 +163,69 @@
 	}
 
 	if ($has_data) {
-		echo '<br>';
-		echo '<div id="tabs">';
-		echo '    <ul>';
+		echo '<section class="tabs">';
+		echo '  <menu role="tablist" aria-label="Data Sections">';
+
+		$tab_buttons = '';
+		$tab_panels  = '';
+		$first = true;
 
 		foreach ($groups as $key => $group) {
 			if (!empty($group['data'])) {
-				echo '        <li class="invert_in_dark_mode"><a href="#' . $key . '">' . $group['label'] . '</a></li>';
-			}
-		}
+				$selected_attr = $first ? ' aria-selected="true"' : '';
+				$hidden_attr = $first ? '' : ' hidden';
 
-		echo '        <li class="invert_in_dark_mode"><a href="#exit_codes">Exit-Codes</a></li>';
-		echo '    </ul>';
-
-		foreach ($groups as $key => $group) {
-			if (!empty($group['data'])) {
-				echo '<div id="' . $key . '">';
-				echo '<h2>' . htmlspecialchars($group['label']) . '</h2>';
+				$tab_buttons .= '<button role="tab"' . $selected_attr . ' aria-controls="' . $key . '">' . htmlspecialchars($group['label']) . '</button>' . "\n";
+				$tab_panels .= '<article role="tabpanel" id="' . $key . '"' . $hidden_attr . '>' . "\n";
+				$tab_panels .= '<h3>' . htmlspecialchars($group['label']) . '</h3>' . "\n";
+				ob_start();
 				display_plots($group['data'], explode('_', $key)[0], $db_path);
-				echo '</div>';
+				$tab_panels .= ob_get_clean();
+				$tab_panels .= '</article>' . "\n";
+
+				$first = false;
 			}
 		}
 
-		echo '<div id="exit_codes">';
+		$tab_buttons .= '<button role="tab" aria-controls="exit_codes">Exit-Codes</button>' . "\n";
+		$tab_panels .= '<article role="tabpanel" hidden id="exit_codes">' . "\n";
+		$tab_panels .= '<h3>Exit-Codes</h3>' . "\n";
+		ob_start();
 		include "exit_code_table.php";
-		echo '</div>';
-		echo '</div>';
+		$tab_panels .= ob_get_clean();
+		$tab_panels .= '</article>' . "\n";
+
+		echo $tab_buttons;
+		echo '  </menu>';
+		echo $tab_panels;
+		echo '</section>';
+
+		echo <<<EOT
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const panels = document.querySelectorAll('[role="tabpanel"]');
+
+    tabs.forEach(tab => {
+	tab.addEventListener('click', function () {
+	    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+	    panels.forEach(p => p.hidden = true);
+
+	    tab.setAttribute('aria-selected', 'true');
+	    const target = document.getElementById(tab.getAttribute('aria-controls'));
+	    if (target) {
+		target.hidden = false;
+	    }
+	});
+    });
+});
+</script>
+EOT;
+
 	} else {
 		echo "No valid data found in the database";
 		importCsvToDatabase($db_path);
 	}
+
 	include("footer.php");
 ?>

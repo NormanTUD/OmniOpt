@@ -317,7 +317,8 @@ a, a:visited, a:active, a:hover, a:link {
 	box-sizing: border-box;
 	position: fixed;
 	bottom: 0;
-	z-index: 2
+	z-index: 2;
+	margin-left: -9px;
 }
 
 .switch {

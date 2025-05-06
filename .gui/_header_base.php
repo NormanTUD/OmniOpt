@@ -251,14 +251,17 @@
 			"maindir": "./",
 				"patterndir": "./patterns/"
 			},
-				"require": {
-				"de": "Silbentrennungsalgorithmus",
-					"en-us": "Supercalifragilisticexpialidocious",
-					"la": "honorificabilitudinitas"
+			"require": {
+				"en-us": "Supercalifragilisticexpialidocious",
 			},
 			"setup": {
 				"selectors": {
-					"#mainContent": {}
+					"#mainContent": {
+						compound: "all",
+						leftmin: 0,
+						rightmin: 0,
+						minWordLength: 4
+					}
 				}
 			}
 		});

@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
 EOT;
 
 	} else {
-		echo "No valid data found in the database";
+		echo "No valid data found in the database. Trying to import existing CSV data into the database, if possible.";
 		importCsvToDatabase($db_path);
 	}
 

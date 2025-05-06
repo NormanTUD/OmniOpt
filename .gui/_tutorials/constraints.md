@@ -14,13 +14,9 @@ In the context of hyperparameter optimization, constraints are mathematical cond
 Constraints are useful for several reasons:
 
 - **Feasibility**: Some combinations of parameters are invalid due to physical, computational, or algorithmic limits. For example, in a simulation model, the sum of resource allocations may not exceed a total budget.
-  
 - **Domain knowledge**: You might know from experience or theory that certain parameter combinations don’t make sense or always lead to failure. Instead of learning this through wasted trials, you can encode this knowledge directly.
-
 - **Safety**: Especially in simulations of real-world systems (like robotics, medicine, or finance), running configurations outside known-safe bounds can be dangerous or misleading.
-
 - **Efficiency**: By reducing the size of the search space, constraints help optimizers converge faster and require fewer evaluations - which is especially important when each run is expensive or slow.
-
 - **Logical conditions**: Sometimes constraints reflect logical rules, such as "if parameter A is high, parameter B must be low", which can be enforced with inequalities.
 
 ### Machine Learning Examples

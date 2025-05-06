@@ -1044,7 +1044,6 @@ EOF
 
 	eval "$PARAM_EVAL"
 
-
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
 		_show_ram_every_n_seconds $show_ram_every_n_seconds &
 	fi
@@ -1619,6 +1618,10 @@ EOF
 
 		if [[ -n $reservation ]]; then
 			sbatch_command+=" --reservation=$reservation"
+		fi
+
+		if [[ -n $mem_gb ]]; then
+			sbatch_command+=" --mem_gb=$mem_gb"
 		fi
 
 		sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"

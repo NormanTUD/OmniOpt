@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+NUM_GPUS=0
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
+fi
+
+name="test_continued_constraint"
+
+if [[ -d "runs/$name" ]]; then
+	rm -rf "runs/$name"
+fi
+
+./omniopt \
+	--live_share \
+	--send_anonymized_usage_stats \
+	--partition alpha \
+	--experiment_name $name \
+	--mem_gb=4 \
+	--time 60 \
+	--worker_timeout=5 \
+	--max_eval 1 \
+	--num_parallel_jobs 1 \
+	--gpus $NUM_GPUS \
+	--run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1yYW5kb21fc2VtIC0taW50X3BhcmFtPSclKGludF9wYXJhbSknIC0tZmxvYXRfcGFyYW09JyUoZmxvYXRfcGFyYW0pJyAtLWNob2ljZV9wYXJhbT0nJShjaG9pY2VfcGFyYW0pJyAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x \
+	--parameter int_param range -100 10 int \
+	--parameter float_param range -100 10 float \
+	--parameter choice_param choice 1,2,4,8,16,hallo \
+	--parameter int_param_two range -100 10 int \
+	--follow \
+	--num_random_steps 1 \
+	--model BOTORCH_MODULAR \
+	--auto_exclude_defective_hosts \
+	--generate_all_jobs_at_once \
+	--experiment_constraints $(echo "int_param + 2*int_param_two >= 0" | base64 -w 0)
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "First call failed with exit-code $exit_code. Exiting."
+	exit 1
+fi

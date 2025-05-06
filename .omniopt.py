@@ -4319,6 +4319,13 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
                 print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
                 my_exit(19)
 
+            file_path = os.path.join(get_current_run_folder(), "state_files", "constraints")
+
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(constraints_string + "\n")
+
     return experiment_args
 
 @beartype

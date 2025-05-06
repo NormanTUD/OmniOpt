@@ -208,6 +208,12 @@
 
 		$markdown = preg_replace('/  \n/', '<br>', $markdown);
 
+		$markdown = preg_replace('/<!--.*?-->/s', '', $markdown);
+
+		$markdown = preg_replace('/\n\s*\n/', "\n", $markdown);
+
+		$markdown = preg_replace('/(<br\s*\/?>\s*)+/', '<br />', $markdown);;
+
 		return $markdown;
 	}
 

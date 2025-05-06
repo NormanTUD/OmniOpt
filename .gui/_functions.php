@@ -214,6 +214,8 @@
 
 		$markdown = preg_replace('/(<br\s*\/?>\s*)+/', '<br />', $markdown);;
 
+		$markdown = preg_replace('/(<h[1-6][^>]*>.*?<\/h[1-6]>)(\s*<br\s*\/?>)+/is', '$1', $markdown);
+
 		return $markdown;
 	}
 

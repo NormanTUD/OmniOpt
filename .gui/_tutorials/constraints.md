@@ -1,9 +1,6 @@
 # Constraints
-
 <!-- What are Constraints and how to use them? -->
-
 <div id="toc"></div>
-
 ## Why Constraints Matter in Hyperparameter Optimization and Simulations
 
 When performing hyperparameter optimization or running large-scale simulations, constraints allow you to embed domain knowledge directly into the search space. Instead of blindly exploring all possible combinations of parameters, constraints restrict the optimization process to *feasible* or *meaningful* regions — which improves efficiency, avoids invalid configurations, and reflects real-world limitations.
@@ -24,7 +21,7 @@ Constraints are useful for several reasons:
 
 - **Efficiency**: By reducing the size of the search space, constraints help optimizers converge faster and require fewer evaluations - which is especially important when each run is expensive or slow.
 
-- **Logical conditions**: Sometimes constraints reflect logical rules, such as "if parameter A is high, parameter B must be low, which can be enforced with inequalities.
+- **Logical conditions**: Sometimes constraints reflect logical rules, such as "if parameter A is high, parameter B must be low", which can be enforced with inequalities.
 
 ### Machine Learning Examples
 

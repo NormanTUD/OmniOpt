@@ -2281,9 +2281,9 @@ $onclick_string
 		$gpu_usage_data = [];
 
 		$headers = [
-			"timestamp", "name", "pci.bus_id", "driver_version", "pstate", 
-			"pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu", 
-			"utilization.gpu", "utilization.memory", "memory.total", 
+			"timestamp", "name", "pci.bus_id", "driver_version", "pstate",
+			"pcie.link.gen.max", "pcie.link.gen.current", "temperature.gpu",
+			"utilization.gpu", "utilization.memory", "memory.total",
 			"memory.free", "memory.used"
 		];
 

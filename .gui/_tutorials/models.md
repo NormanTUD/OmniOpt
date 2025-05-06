@@ -64,7 +64,7 @@ The `FACTORIAL`-model generates a full factorial design over categorical variabl
 Sources: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492), [SAASBO in the BoTorch-Documentation](https://botorch.org/docs/tutorials/saasbo)
 
 ### UNIFORM
-`get_uniform()` generates uniformly random samples. Equivalent to PseudoRandom, just explicitly uniform.
+`UNIFORM` generates uniformly random samples. Equivalent to PseudoRandom, just explicitly uniform.
 **Best suited for:** Very cheap-to-evaluate functions; embarrassingly parallel sampling.
 **Use case:** Random stress testing; large-scale exploration; fallback search method.
 - **Pros:** Simple; unbiased; robust; cheap.

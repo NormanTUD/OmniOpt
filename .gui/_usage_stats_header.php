@@ -192,6 +192,8 @@
 								Plotly.newPlot('$element_id-sbatch', [sbatchPlot], {title: 'Runs with and without sbatch', paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)'});
 							}
 							removeSpinnerOverlay();
+
+							updateTextColorIfUsageStatsInURL();	
 						}
 					});
 				});

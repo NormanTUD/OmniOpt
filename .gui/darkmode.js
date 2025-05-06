@@ -50,6 +50,20 @@ function get_cookie(name) {
 	return null;
 }
 
+function updateTextColorIfUsageStatsInURL() {
+	var color = "black";
+
+	if (theme == "dark") {
+		color = "white";
+	}
+
+	var url = window.location.href;
+
+	if (typeof url === "string" && url.indexOf("usage_stats") !== -1) {
+		$("text").css("fill", color);
+	}
+}
+
 function enable_dark_mode() {
 	$("#themeSelect").val("dark");
 
@@ -82,6 +96,10 @@ function enable_dark_mode() {
 	$(".mode-text").css("color", "black")
 
 	updateImagesForTheme();
+
+	$("text").css("fill", "white")
+
+	updateTextColorIfUsageStatsInURL();
 }
 
 function enable_light_mode() {
@@ -112,6 +130,8 @@ function enable_light_mode() {
 	$(".mode-text").css("color", "black")
 
 	updateImagesForTheme();
+
+	updateTextColorIfUsageStatsInURL();
 }
 
 function apply_theme_based_on_system_preferences() {

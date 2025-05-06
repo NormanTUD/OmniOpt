@@ -4560,7 +4560,7 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
             table.add_column(column)
 
         for constraint in constraints:
-            constraint.rstrip('\r\n')
+            constraint = constraint.rstrip('\r\n')
             table.add_row(constraint)
 
         with console.capture() as capture:

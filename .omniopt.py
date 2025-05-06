@@ -535,6 +535,7 @@ class ConfigLoader:
         optional.add_argument('--checkout_to_latest_tested_version', help='Automatically checkout to latest version that was tested in the CI pipeline', action='store_true', default=False)
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
+        optional.add_argument('--disable_previous_job_constraint', help='For continued jobs: Disable getting the constraint of the previous job that is about to be continued', action='store_true', default=False)
         optional.add_argument('--workdir', help='Working directory', default='', type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
@@ -7461,6 +7462,28 @@ def debug_vars_unused_by_python_for_linter() -> None:
     )
 
 @beartype
+def get_constraints() -> list:
+    constraints_list = []
+
+    if args.experiment_constraints:
+        constraints_list = args.experiment_constraints
+    elif args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints)):
+        prev_job_constraint_file = os.path.join(args.continue_previous_job, "state_files", "constraints")
+        if os.path.exists(prev_job_constraint_file):
+            if os.path.exists(prev_job_constraint_file):
+                with open(prev_job_constraint_file, "r", encoding="utf-8") as f:
+                    constraints_list = [line.strip() for line in f if line.strip()]
+
+                    constraints_list = [
+                        base64.b64encode(constraint.encode("utf-8")).decode("utf-8")
+                        for constraint in constraints_list
+                    ]
+                    
+                    constraints_list = [constraints_list]
+
+    return constraints_list
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
 
@@ -7554,7 +7577,7 @@ def main() -> None:
         ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
             args.continue_previous_job,
             args.seed,
-            args.experiment_constraints,
+            get_constraints(),
             args.parameter,
             cli_params_experiment_parameters,
             experiment_parameters,

@@ -380,6 +380,15 @@ input:checked + .slider .mode-text {
 #mainContent {
 	height: fit-content;
 	min-height: 100%;
+	text-align: justify;
+	hyphens: auto;
+	-ms-hyphens: auto;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+}
+
+li {
+	text-align: left;
 }
 
 #share_path {

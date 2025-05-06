@@ -222,6 +222,8 @@
 		</div>
 	</div>
 
+	<script src="./Hyphenopoly_Loader.js"></script>
+
 	<script>
 		apply_theme_based_on_system_preferences();
 
@@ -243,6 +245,23 @@
 		adapt_header_button_width();
 
 		window.addEventListener('resize', adapt_header_button_width);
+
+		Hyphenopoly.config({
+			"paths": {
+			"maindir": "./",
+				"patterndir": "./patterns/"
+			},
+				"require": {
+				"de": "Silbentrennungsalgorithmus",
+					"en-us": "Supercalifragilisticexpialidocious",
+					"la": "honorificabilitudinitas"
+			},
+			"setup": {
+				"selectors": {
+					"#mainContent": {}
+				}
+			}
+		});
 	</script>
 
 	<div id="searchResults"></div>

@@ -4578,6 +4578,8 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
     except Exception as e:
         print_red(f"Error writing {fn}: {e}")
 
+    return None
+
 @beartype
 def print_result_names_overview_table() -> None:
     if not ax_client:

@@ -63,24 +63,28 @@
 			return null;
 		}
 
-		$file_content = file_get_contents($file_path);
+		$file_handle = fopen($file_path, 'r');
 
-		if ($file_content === false) {
+		if ($file_handle === false) {
 			return null;
 		}
 
 		$heading_pattern = '/<h[1-6][^>]*>(.*?)<\/h[1-6]>/i';
-
-		if (preg_match($heading_pattern, $file_content, $matches)) {
-			return $matches[1];
-		}
-
 		$markdown_heading_pattern = '/^#{1,6}\s*(.*?)\s*$/m';
 
-		if (preg_match($markdown_heading_pattern, $file_content, $matches)) {
-			return $matches[1];
+		while (($line = fgets($file_handle)) !== false) {
+			if (preg_match($heading_pattern, $line, $matches)) {
+				fclose($file_handle);
+				return $matches[1];
+			}
+
+			if (preg_match($markdown_heading_pattern, $line, $matches)) {
+				fclose($file_handle);
+				return $matches[1];
+			}
 		}
 
+		fclose($file_handle);
 		return null;
 	}
 

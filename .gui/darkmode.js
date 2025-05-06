@@ -68,10 +68,6 @@ function enable_dark_mode() {
 
 	theme = "dark";
 
-	loadCss("jquery-ui.structure.css");
-	loadCss("jquery-ui.theme.css");
-	loadCss("jquery-ui.darkmode.css");
-
 	$("body").css("color", "#6F116F");
 	$("body").css("background-color", "white");
 	$(".header_table").css("color", "green");
@@ -101,10 +97,6 @@ function enable_light_mode() {
 	set_cookie("theme", "light");
 
 	theme = "light";
-
-	unloadCss("jquery-ui.structure.css");
-	unloadCss("jquery-ui.theme.css");
-	unloadCss("jquery-ui.darkmode.css");
 
 	$("body").css("color", "unset");
 	$("body").css("background-color", "#fafafa");

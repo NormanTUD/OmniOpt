@@ -7478,7 +7478,7 @@ def get_constraints() -> list:
                         base64.b64encode(constraint.encode("utf-8")).decode("utf-8")
                         for constraint in constraints_list
                     ]
-                    
+
                     constraints_list = [constraints_list]
 
     return constraints_list

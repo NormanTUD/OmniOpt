@@ -25,12 +25,16 @@ In summary, surrogate models in Ax help optimize complex, expensive, or uncertai
 - **Pros:** Strong uncertainty modeling via GP; acquisition-driven sampling; supports multi-objective; checkpointable/resumable.
 - **Cons:** Struggles with high-dimensional or high-cardinality categorical variables (dimensionality explosion via OHE); doesn't scale well to thousands of evaluations (GP training cost).
 
+Sources: [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization](https://arxiv.org/abs/1910.06403)
+
 ## SOBOL
 Sobol sampling generates *quasi-random low-discrepancy sequences* over the search space. Typically used for initialization.
 **Best suited for:** Any search space where *initial uniform exploration* is needed.
 **Use case:** Initial design in BO pipelines; sensitivity analysis; uniform space exploration.
 - **Pros:** Deterministic, reproducible, better space coverage than random sampling; works with mixed or constrained spaces.
 - **Cons:** No learning or adaptive behavior; does not propose candidates based on past observations.
+
+Sources: [Sampling based on Sobol' sequences for Monte Carlo techniques applied to building simulations](https://publica.fraunhofer.de/handle/publica/375074)
 
 ## PSEUDORANDOM
 Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but purely random.
@@ -39,8 +43,10 @@ Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but 
 - **Pros:** Simple; cheap; easily parallelizable; often competitive with grid search.
 - **Cons:** No learning or adaptive feedback; inefficient in high-dimensional spaces.
 
+Sources: [Bayesian Optimization using Pseudo-Points](https://arxiv.org/abs/1910.05484)
+
 ## FACTORIAL
-`get_factorial()` generates a full factorial design over categorical variables. It enumerates all possible discrete combinations.
+The `FACTORIAL`-model generates a full factorial design over categorical variables. It enumerates all possible discrete combinations.
 **Best suited for:** Low-cardinality, fully discrete search spaces (categorical/integer).
 **Use case:** Grid search; controlled A/B testing; combinatorial experiments with small parameter spaces.
 - **Pros:** Exhaustive; interpretable; no randomness.
@@ -55,7 +61,7 @@ Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but 
 - **Pros:** Automatically identifies relevant subspaces; excellent performance in sparse high-D regimes.
 - **Cons:** Very slow per iteration (HMC is expensive); doesn’t scale beyond ~100–200 observations; impractical with many categorical variables.
 
-Source: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492)
+Sources: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492), [SAASBO in the BoTorch-Documentation](https://botorch.org/docs/tutorials/saasbo)
 
 ## UNIFORM
 `get_uniform()` generates uniformly random samples. Equivalent to PseudoRandom, just explicitly uniform.
@@ -71,9 +77,16 @@ Source: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492)
 - **Pros:** Explicit handling of categorical parameters; avoids crude one-hot scaling; uses acquisition functions for adaptive proposals.
 - **Cons:** Categorical optimization is harder than continuous; combinatoric explosion if too many categories; slower candidate generation.
 
+Sources: [Mixed-Variable Bayesian Optimization](https://arxiv.org/abs/1907.01329)
+
 ## RANDOMFOREST
 Uses a Random Forest surrogate model for prediction (no candidate generation). Suitable for modeling nonlinear effects in categorical/mixed spaces.
 **Best suited for:** Regression-only tasks; modeling complex, discrete-heavy datasets.
 **Use case:** Model diagnostics; cross-validation predictions; analysis of parameter importance.
 - **Pros:** Handles categorical features natively; nonlinear modeling; scalable to many observations.
 - **Cons:** **Cannot generate new candidates (`gen()` not implemented)**; not usable as a BO acquisition-driven generator; predictive uncertainty is rougher than GP.
+
+Sources: [Hyperparameters and Tuning Strategies for Random Forest](https://arxiv.org/abs/1804.03515);
+[Hyperparameters, Tuning, and Meta-Learning for Random Forest](https://edoc.ub.uni-muenchen.de/24557/1/Probst_Philipp.pdf);
+[Better Trees: An Empirical Study on Hyperparameter Tuning of Classification Decision Tree Induction Algorithms](https://arxiv.org/abs/1812.02207);
+[Generalising Random Forest Parameter Optimisation to Include Stability and Cost](https://arxiv.org/abs/1706.09865)

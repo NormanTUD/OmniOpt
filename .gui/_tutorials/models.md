@@ -38,15 +38,6 @@ Sobol sampling generates *quasi-random low-discrepancy sequences* over the searc
 
 Sources: [Sampling based on Sobol' sequences for Monte Carlo techniques applied to building simulations](https://publica.fraunhofer.de/handle/publica/375074)
 
-### PSEUDORANDOM
-Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but purely random.
-**Best suited for:** Baseline methods, quick-and-dirty optimization, very cheap evaluations.
-**Use case:** Random search for ML hyperparameters; brute-force sampling; baseline comparisons.
-- **Pros:** Simple; cheap; easily parallelizable; often competitive with grid search.
-- **Cons:** No learning or adaptive feedback; inefficient in high-dimensional spaces.
-
-Sources: [Bayesian Optimization using Pseudo-Points](https://arxiv.org/abs/1910.05484)
-
 ### FACTORIAL
 The `FACTORIAL`-model generates a full factorial design over categorical variables. It enumerates all possible discrete combinations.
 **Best suited for:** Low-cardinality, fully discrete search spaces (categorical/integer).
@@ -95,6 +86,15 @@ Sources: [Hyperparameters and Tuning Strategies for Random Forest](https://arxiv
 [Better Trees: An Empirical Study on Hyperparameter Tuning of Classification Decision Tree Induction Algorithms](https://arxiv.org/abs/1812.02207);
 [Generalising Random Forest Parameter Optimisation to Include Stability and Cost](https://arxiv.org/abs/1706.09865)
 
-## EXTERNAL_GENERATOR
+### PSEUDORANDOM
+Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but purely random.
+**Best suited for:** Baseline methods, quick-and-dirty optimization, very cheap evaluations.
+**Use case:** Random search for ML hyperparameters; brute-force sampling; baseline comparisons.
+- **Pros:** Simple; cheap; easily parallelizable; often competitive with grid search.
+- **Cons:** No learning or adaptive feedback; inefficient in high-dimensional spaces.
+
+Sources: [Bayesian Optimization using Pseudo-Points](https://arxiv.org/abs/1910.05484)
+
+### EXTERNAL_GENERATOR
 
 External generators allow you to use *any* external program to generate new points. See [External Generators](tutorials?tutorial=external_generator) for more details.

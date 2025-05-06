@@ -1621,7 +1621,7 @@ EOF
 		fi
 
 		if [[ -n $mem_gb ]]; then
-			sbatch_command+=" --mem_gb=$mem_gb"
+			args_string+=" --mem_gb=$mem_gb"
 		fi
 
 		sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"

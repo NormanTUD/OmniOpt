@@ -5,8 +5,8 @@ body {
 	text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
 	scroll-behavior: smooth;
 	text-wrap: balance;
-	text-rendering: optimizeLegibility; /* Bessere Schriftqualität */
-	-webkit-font-smoothing: antialiased; /* Glattere Schrift auf macOS */
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-feature-settings: "ss02", "liga", "onum";
 }
@@ -189,9 +189,7 @@ td {
 
 .spinner {
 	border: 8px solid rgba(0, 0, 0, 0.1);
-	/* Light mode spinner color */
 	border-left: 8px solid #3498db;
-	/* Spinner color */
 	border-radius: 50%;
 	width: 50px;
 	height: 50px;
@@ -470,8 +468,8 @@ select {
 	outline: none;
 	transition: all 0.3s ease;
 	background:
-	url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23888' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E") 
-	no-repeat right 10px center,
+		url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23888' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E")
+		no-repeat right 10px center,
 	linear-gradient(180deg, #fff, #ecebe5 86%, #d8d0c4);
 	background-size: 12px, auto;
 }
@@ -611,7 +609,6 @@ img {
 	user-select: text;
 }
 
-/* --- Layout --- */
 .header-container {
 	display: flex;
 	flex-wrap: wrap;
@@ -623,7 +620,6 @@ img {
 	border-bottom: 1px solid #ccc;
 }
 
-/* --- Logo-Gruppe --- */
 .header-logo-group {
 	display: flex;
 	gap: 1rem;
@@ -640,13 +636,13 @@ img {
 	pointer-events: unset;
 }
 
-/* --- Badges --- */
 .header-badges {
 	flex-direction: column;
 	gap: 5px;
 	align-items: flex-start;
 	flex: 0 1 auto;
-	margin-top: 15px;
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .badge-img {
@@ -654,7 +650,6 @@ img {
 	max-width: 130px;
 }
 
-/* --- Tabs --- */
 .header-tabs {
 	margin-top: 10px;
 	display: flex;
@@ -682,14 +677,12 @@ img {
 	transform: translateY(-2px);
 }
 
-/* --- Tag --- */
 .current-tag {
 	padding-left: 10px;
 	font-size: 0.9rem;
 	color: #666;
 }
 
-/* --- Theme Toggle --- */
 .header-theme-toggle {
 	flex: 1 1 auto;
 	align-items: center;

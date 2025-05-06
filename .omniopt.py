@@ -4589,7 +4589,7 @@ def print_result_names_overview_table() -> None:
         return None
 
     if args.continue_previous_job is not None and args.result_names is not None:
-        print_yellow("--result_names will be ignored in continued jobs. Cannot change them afterwards.")
+        print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
     if ax_client.experiment.optimization_config.is_moo_problem:
         config_objectives = ax_client.experiment.optimization_config.objective.objectives

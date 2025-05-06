@@ -200,7 +200,7 @@
 				-->
 			</div>
 			<div class="header-theme-toggle">
-				<label class="switch"> 
+				<label class="switch">
 					<input type="checkbox" id="themeSelect">
 						<span class="slider">
 						<span class="mode-text"></span>
@@ -255,6 +255,30 @@
 				"en-us": "Supercalifragilisticexpialidocious",
 			},
 			"setup": {
+				dontHyphenate: {
+					video: true,
+					audio: true,
+					script: true,
+					code: true,
+					pre: true,
+					img: true,
+					br: true,
+					samp: true,
+					kbd: true,
+					var: true,
+					abbr: true,
+					acronym: true,
+					sub: true,
+					sup: true,
+					button: true,
+					option: true,
+					label: true,
+					textarea: true,
+					input: true,
+					math: true,
+					svg: true,
+					style: true
+				},
 				"selectors": {
 					"#mainContent": {
 						compound: "all",

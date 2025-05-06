@@ -4555,10 +4555,13 @@ def print_parameter_constraints_table(experiment_args: dict) -> None:
         constraints = experiment_args["parameter_constraints"]
         table = Table(header_style="bold")
         columns = ["Constraints"]
+
         for column in columns:
             table.add_column(column)
-        for column in constraints:
-            table.add_row(column)
+
+        for constraint in constraints:
+            constraint.rstrip('\r\n')
+            table.add_row(constraint)
 
         with console.capture() as capture:
             console.print(table)

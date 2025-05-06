@@ -72,3 +72,7 @@ In the CLI, constraints can be added using the `--experiment_constraints` argume
 ```bash
 --experiment_constraints $(echo "50 * learning_rate + 20 * batch_size >= 1000" | base64 -w0) $(echo "100 * learning_rate + 200 * num_layers >= 500" | base64 -w0)
 ```
+
+### Possible comparison operators
+
+There are two possible comparison operators: `<=` and `>=`. No other ones are possible in Ax.

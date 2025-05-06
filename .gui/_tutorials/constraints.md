@@ -70,5 +70,5 @@ This constraint would limit the combination of the learning rate and batch size 
 In the CLI, constraints can be added using the `--experiment_constraints` argument. You need to encode each constraint in base64 format. Here’s an example:
 
 ```bash
---experiment_constraints $(echo "123 * x + 234 * y >= z" | base64 -w0) $(echo "323 * x + 314 * q >= a" | base64 -w0)
+--experiment_constraints $(echo "50 * learning_rate + 20 * batch_size >= 1000" | base64 -w0) $(echo "100 * learning_rate + 200 * num_layers >= 500" | base64 -w0)
 ```

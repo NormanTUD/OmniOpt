@@ -55,6 +55,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		parameter
 		continue_previous_job
 		orchestrator_file
+		disable_previous_job_constraint
 		ui_url
 		load_data_from_existing_jobs
 		run_dir

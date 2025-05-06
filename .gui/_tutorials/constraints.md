@@ -42,3 +42,33 @@ a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c,
 $$
 
 where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants.
+
+## Using Constraints in OmniOpt2
+
+OmniOpt2 allows you to specify constraints in two ways: through the graphical user interface (GUI) or via the command-line interface (CLI).
+
+### 1. Using the GUI
+
+In the GUI, you can enter a list of constraints directly. This is done through an input field where you can specify each constraint in the following form:
+
+$$
+a \cdot x + b \cdot y + \dots \leq c
+$$
+
+For example, you might specify a constraint like:
+
+$$
+3 \cdot \text{learning_rate} + 2 \cdot \text{batch_size} \leq 100
+$$
+
+This constraint would limit the combination of the learning rate and batch size to ensure that they don't exceed a total of 100. To enter constraints in the GUI, see the screenshot below for guidance:
+
+<img alt="Constraints GUI" data-lightsrc="imgs/constraints_light.png" data-darksrc="imgs/constraints_dark.png" /><br>
+
+### 2. Using the CLI
+
+In the CLI, constraints can be added using the `--experiment_constraints` argument. You need to encode each constraint in base64 format. Here’s an example:
+
+```bash
+--experiment_constraints $(echo "123 * x + 234 * y >= z" | base64 -w0) $(echo "323 * x + 314 * q >= a" | base64 -w0)
+```

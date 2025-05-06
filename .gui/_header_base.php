@@ -222,8 +222,6 @@
 		</div>
 	</div>
 
-	<script src="./Hyphenopoly_Loader.js"></script>
-
 	<script>
 		apply_theme_based_on_system_preferences();
 
@@ -245,50 +243,6 @@
 		adapt_header_button_width();
 
 		window.addEventListener('resize', adapt_header_button_width);
-
-		Hyphenopoly.config({
-			"paths": {
-			"maindir": "./",
-				"patterndir": "./patterns/"
-			},
-			"require": {
-				"en-us": "Supercalifragilisticexpialidocious",
-			},
-			"setup": {
-				dontHyphenate: {
-					video: true,
-					audio: true,
-					script: true,
-					code: true,
-					pre: true,
-					img: true,
-					br: true,
-					samp: true,
-					kbd: true,
-					var: true,
-					abbr: true,
-					acronym: true,
-					sub: true,
-					sup: true,
-					button: true,
-					option: true,
-					label: true,
-					textarea: true,
-					input: true,
-					math: true,
-					svg: true,
-					style: true
-				},
-				"selectors": {
-					"#mainContent": {
-						compound: "all",
-						leftmin: 0,
-						rightmin: 0,
-						minWordLength: 4
-					}
-				}
-			}
-		});
 	</script>
 
 	<div id="searchResults"></div>

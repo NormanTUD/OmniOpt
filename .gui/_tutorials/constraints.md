@@ -10,7 +10,7 @@ When performing hyperparameter optimization or running large-scale simulations, 
 
 ### What Are Constraints?
 
-In the context of hyperparameter optimization, constraints are mathematical conditions that must be satisfied by the parameter values during the search. A common form of constraint is a linear inequality such as \( a \cdot x + b \cdot y = c \), where \(x\) and \(y\) are tunable parameters (e.g., learning rate, number of layers), and \(a\), \(b\), and \(c\) are fixed constants. These expressions define a subspace in which the optimizer is allowed to operate.
+In the context of hyperparameter optimization, constraints are mathematical conditions that must be satisfied by the parameter values during the search. A common form of constraint is a linear inequality such as \( a \cdot x + b \cdot y \leq c \), where \(x\) and \(y\) are tunable parameters (e.g., learning rate, number of layers), and \(a\), \(b\), and \(c\) are fixed constants. These expressions define a subspace in which the optimizer is allowed to operate.
 
 ### Why Use Constraints?
 
@@ -28,8 +28,8 @@ Constraints are useful for several reasons:
 
 ### Machine Learning Examples
 
-- Limiting the total number of model parameters due to memory constraints: \(\text{hidden_units_layer}_1 + \text{hidden_units_layer}_2 <= 1024\)
-- Ensuring a balance between training epochs and learning rate to prevent overfitting: \(0.1 * \text{epochs} + 50 * \text{learning_rate} <= 10\)
+- Limiting the total number of model parameters due to memory constraints: \(\text{hidden_units_layer}_1 + \text{hidden_units_layer}_2 \leq 1024 \)
+- Ensuring a balance between training epochs and learning rate to prevent overfitting: \(0.1 \cdot \text{epochs} + 50 \cdot \text{learning_rate} \leq 10\)
 
 ### Simulation Examples
 

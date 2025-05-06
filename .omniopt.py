@@ -4303,7 +4303,10 @@ def set_objectives() -> dict:
 @beartype
 def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
+        experiment_constraints = experiment_constraints[0]
+
         experiment_args["parameter_constraints"] = []
+
         for _l in range(len(experiment_constraints)):
             constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
 

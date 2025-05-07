@@ -5961,8 +5961,6 @@ def execute_evaluation(_params: list) -> Optional[int]:
     add_to_phase_counter(phase, 1)
     return trial_counter
 
-    return None
-
 @beartype
 def initialize_job_environment() -> None:
     progressbar_description(["starting new job"])

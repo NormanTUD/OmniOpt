@@ -4838,7 +4838,6 @@ def count_jobs_in_squeue() -> int:
 
 @beartype
 def log_worker_numbers() -> None:
-    global WORKER_PERCENTAGE_USAGE
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)

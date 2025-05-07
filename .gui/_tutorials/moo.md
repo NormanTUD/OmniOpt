@@ -16,7 +16,7 @@ It's very similar to using [single-optimization](tutorials?tutorial=run_sh), the
 print(f"RESULT: {loss}")
 ```
 
-you now need two lines:
+you now need two (or as many as you have Objectives) lines:
 
 ```python
 print(f"LOSS: {loss}")

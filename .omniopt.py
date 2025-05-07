@@ -1645,6 +1645,11 @@ def log_nr_of_workers() -> None:
 
 @beartype
 def log_what_needs_to_be_logged() -> None:
+    try:
+        log_worker_numbers()
+    except Exception as e:
+        print_debug(f"Error in log_worker_numbers: {e}")
+
     if "write_worker_usage" in globals():
         try:
             write_worker_usage()

@@ -2,6 +2,8 @@
 
 <!-- How to run custom generation strategies -->
 
+<div id="toc"></div>
+
 ## What are Custom Generation Strategies?
 
 The default generation strategy is *generate n points randomly, then, m points with a systematic model*.

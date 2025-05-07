@@ -2,6 +2,8 @@
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 
+<div id="toc"></div>
+
 ## Overview: what needs to be done
 
 There are basically three steps you need to do to optimize your program with OmniOpt2:

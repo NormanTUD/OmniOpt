@@ -586,6 +586,7 @@ _test "Find untyped CLI args" ".tests/find_untyped_cli_args" 0
 _test "Find double add_arguments help" ".tests/find_double_add_arguments_help" 0
 _test "Find wrongly typed CLI args" ".tests/find_wrongly_typed_cli_args" 0
 _test "Find double quotes in ConfigLoader" ".tests/single_quotes_in_configloader" 0
+_test "Find missing TOC in md files" ".tests/find_missing_toc_in_md_files" 0
 
 if [[ -z $CI ]]; then
 	_test "Find typos in python" "bash .tests/find_typos_in_python" 0

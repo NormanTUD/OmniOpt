@@ -751,6 +751,7 @@ findDuplicates
 findIndexByKey
 findInitializerElement
 findInitializerElementarr
+find_missing_toc_in_md_files
 findmnt
 firefox
 firstDay

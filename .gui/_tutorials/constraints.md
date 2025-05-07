@@ -31,13 +31,7 @@ Constraints are useful for several reasons:
 
 ### Mathematical Form
 
-In general, constraints can be written as:
-
-$$
-a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c,
-$$
-
-where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants, ie. `int` or `float`.
+In general, constraints can be written as \(a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c \), or \( x_1 \leq x_2 \), where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants, ie. `int` or `float`.
 
 ## Using Constraints in OmniOpt2
 

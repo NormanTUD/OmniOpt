@@ -5887,66 +5887,56 @@ def save_state_files() -> None:
             write_state_file("main_process_gb", str(args.main_process_gb))
 
 @beartype
-def submit_job(parameters: dict) -> Optional[Job]:
-    try:
-        if executor:
-            new_job = executor.submit(evaluate, parameters)
-            submitted_jobs(1)
-            return new_job
-
-        print_red("executor could not be found")
-        my_exit(9)
-    except Exception as e:
-        print_debug(f"Error while trying to submit job: {e}")
-        raise
-
-    return None
-
-@beartype
 def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
-    if ax_client:
-        _trial = ax_client.get_trial(trial_index)
+    if not ax_client:
+        print_red("Failed to get ax_client")
+        my_exit(9)
 
-        # Helper function for trial stage marking with exception handling
-        def mark_trial_stage(stage: str, error_msg: str) -> None:
-            try:
-                getattr(_trial, stage)()
-            except Exception as e:
-                print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
+    if not executor:
+        print_red("executor could not be found")
+        my_exit(9)
 
-        mark_trial_stage("mark_staged", "Marking the trial as staged failed")
+        return None
+    _trial = ax_client.get_trial(trial_index)
 
-        new_job = None
-
+    # Helper function for trial stage marking with exception handling
+    def mark_trial_stage(stage: str, error_msg: str) -> None:
         try:
-            initialize_job_environment()
-            new_job = submit_job(parameters)
-
-            print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
-            global_vars["jobs"].append((new_job, trial_index))
-
-            if is_slurm_job() and not args.force_local_execution:
-                _sleep(1)
-
-            mark_trial_stage("mark_running", "Marking the trial as running failed")
-            trial_counter += 1
-
-            update_progress()
-        except submitit.core.utils.FailedJobError as error:
-            handle_failed_job(error, trial_index, new_job)
-            trial_counter += 1
-        except (SignalUSR, SignalINT, SignalCONT):
-            handle_exit_signal()
+            getattr(_trial, stage)()
         except Exception as e:
-            handle_generic_error(e)
+            print_debug(f"execute_evaluation({_params}): {error_msg} with error: {e}")
 
-        add_to_phase_counter(phase, 1)
-        return trial_counter
+    mark_trial_stage("mark_staged", "Marking the trial as staged failed")
 
-    print_red("Failed to get ax_client")
-    my_exit(9)
+    new_job = None
+
+    try:
+        initialize_job_environment()
+        new_job = executor.submit(evaluate, parameters)
+        submitted_jobs(1)
+
+        print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
+        global_vars["jobs"].append((new_job, trial_index))
+
+        if is_slurm_job() and not args.force_local_execution:
+            _sleep(1)
+
+        mark_trial_stage("mark_running", "Marking the trial as running failed")
+        trial_counter += 1
+
+        update_progress()
+    except submitit.core.utils.FailedJobError as error:
+        handle_failed_job(error, trial_index, new_job)
+        trial_counter += 1
+    except (SignalUSR, SignalINT, SignalCONT):
+        handle_exit_signal()
+    except Exception as e:
+        handle_generic_error(e)
+
+    add_to_phase_counter(phase, 1)
+    return trial_counter
 
     return None
 

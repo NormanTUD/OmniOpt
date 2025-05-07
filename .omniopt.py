@@ -4849,7 +4849,7 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
         if shutil.which('squeue') is not None:
             this_values["real_squeue_count"] = count_jobs_in_squeue()
 
-        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
+        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1]["time"] != this_values["time"]:
             WORKER_PERCENTAGE_USAGE.append(this_values)
 
         workers_strings = get_workers_string()

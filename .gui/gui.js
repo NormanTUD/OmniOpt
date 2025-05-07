@@ -1310,7 +1310,7 @@ function test_if_equation_is_valid(str, names) {
 	if (isValid) {
 		var right_side = splitted[1].trim();
 
-		if (names.includes(right_side)) {
+		if (names.includes(left_side) && names.includes(right_side)) {
 			return "";
 		}
 

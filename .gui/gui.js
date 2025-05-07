@@ -1310,6 +1310,10 @@ function test_if_equation_is_valid(str, names) {
 	if (isValid) {
 		var right_side = splitted[1].trim();
 
+		if (names.includes(right_side)) {
+			return "";
+		}
+
 		if (!/^[+-]?\d+(\.\d+)?$/.test(right_side)) {
 			errors.push("<img src='i/warning.svg' style='height: 1em' /> The right side does not look like a constant. The right side should be a valid number.");
 			isValid = false;
@@ -1394,6 +1398,7 @@ function equation_validation_test () {
 		test_counter++;
 	}
 
+	internal_equation_checker("x >= y", true);
 	internal_equation_checker("x + y >= 5", true);
 	internal_equation_checker("x + y <= 5", true);
 	internal_equation_checker("2*x + 231*y <= 5", true);

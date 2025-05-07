@@ -4811,6 +4811,27 @@ def submitted_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @beartype
+def count_jobs_in_squeue() -> None:
+    experiment_name = global_vars["experiment_name"]
+
+    job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
+
+    try:
+        result = subprocess.run(['squeue', '-o', '%j'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
+
+        jobs = result.stdout.splitlines()
+
+        job_count = sum(1 for job in jobs if job_pattern.match(job))
+
+        return job_count
+    except subprocess.CalledProcessError:
+        print_debug("Error at executing squeue.")
+    except FileNotFoundError:
+        print_debug("squeue is not available on this host.")
+
+    return -1
+
+@beartype
 def get_slurm_in_brackets(in_brackets: list) -> list:
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])
@@ -4824,6 +4845,9 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
             "percentage": percentage,
             "time": this_time
         }
+
+        if shutil.which('squeue') is not None:
+            this_values["real_squeue_count"] = count_jobs_in_squeue()
 
         if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
             WORKER_PERCENTAGE_USAGE.append(this_values)
@@ -6799,6 +6823,7 @@ def _set_global_executor() -> None:
     global executor
 
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
+    subjob_uuid = str(uuid.uuid4())
 
     if args.force_local_execution:
         executor = LocalExecutor(folder=log_folder)
@@ -6807,7 +6832,7 @@ def _set_global_executor() -> None:
 
     if executor:
         executor.update_parameters(
-            name=f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}',
+            name=f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
             timeout_min=args.worker_timeout,
             slurm_gres=f"gpu:{args.gpus}",
             cpus_per_task=args.cpus_per_task,
@@ -6821,7 +6846,7 @@ def _set_global_executor() -> None:
 
         print_debug(f"""
 executor.update_parameters(
-    "name"="{f'{global_vars["experiment_name"]}_{run_uuid}_{str(uuid.uuid4())}'}",
+    "name"="{f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}'}",
     "timeout_min"={args.worker_timeout},
     "slurm_gres"={f"gpu:{args.gpus}"},
     "cpus_per_task"={args.cpus_per_task},

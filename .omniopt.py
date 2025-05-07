@@ -1628,7 +1628,7 @@ def log_nr_of_workers() -> None:
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return None
 
-    nr_of_workers: int = len(global_vars["jobs"])
+    nr_of_workers: int = count_jobs_in_squeue()
 
     if not nr_of_workers:
         return None
@@ -4799,7 +4799,7 @@ def get_workers_string() -> str:
         _values = "/".join(string_values)
 
         if len(_keys):
-            nr_current_workers = len(global_vars["jobs"])
+            nr_current_workers = count_jobs_in_squeue()
             if args.generate_all_jobs_at_once:
                 string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
             else:
@@ -4819,6 +4819,9 @@ def submitted_jobs(nr: int = 0) -> int:
 
 @beartype
 def count_jobs_in_squeue() -> int:
+    if not shutil.which('squeue') is not None:
+        return len(global_vars["jobs"])
+
     experiment_name = global_vars["experiment_name"]
 
     job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
@@ -4841,7 +4844,7 @@ def count_jobs_in_squeue() -> int:
 @beartype
 def log_worker_numbers() -> None:
     if is_slurm_job():
-        nr_current_workers = len(global_vars["jobs"])
+        nr_current_workers = count_jobs_in_squeue()
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
         this_time: float = time.time()
@@ -4852,9 +4855,6 @@ def log_worker_numbers() -> None:
             "percentage": percentage,
             "time": this_time
         }
-
-        if shutil.which('squeue') is not None:
-            this_values["real_squeue_count"] = count_jobs_in_squeue()
 
         if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1]["time"] != this_values["time"]:
             WORKER_PERCENTAGE_USAGE.append(this_values)
@@ -7007,7 +7007,8 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
 
 @beartype
 def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
-    _debug_worker_creation(f"{int(time.time())}, {len(global_vars['jobs'])}, {nr_of_items}, {next_nr_steps}")
+    nr_of_workers: int = count_jobs_in_squeue()
+    _debug_worker_creation(f"{int(time.time())}, {nr_of_workers}, {nr_of_items}, {next_nr_steps}")
 
 @beartype
 def handle_slurm_execution() -> None:

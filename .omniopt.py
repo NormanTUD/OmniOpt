@@ -104,6 +104,8 @@ try:
         from types import FunctionType
         from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type, Sequence
 
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
 
@@ -6710,18 +6712,39 @@ def handle_optimization_completion(optimization_complete: bool) -> bool:
     return False
 
 @beartype
-def execute_trials(trial_index_to_param: dict, next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> list:
-    results = []
-    i = 1
+def execute_trials(
+    trial_index_to_param: dict,
+    next_nr_steps: int,
+    phase: Optional[str],
+    _max_eval: Optional[int],
+    _progress_bar: Any
+) -> List[Optional[int]]:
+    results: List[Optional[int]] = []
+    index_param_list: List[List[Any]] = []
+    i: int = 1
+
     for trial_index, parameters in trial_index_to_param.items():
         if wait_for_jobs_or_break(_max_eval, _progress_bar):
             break
         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
             break
+
         progressbar_description(["eval start"])
         _args = [trial_index, parameters, i, next_nr_steps, phase]
-        results.append(execute_evaluation(_args))
+        index_param_list.append(_args)
         i += 1
+
+    with ThreadPoolExecutor(max_workers=min(len(index_param_list), 16)) as tp_executor:
+        future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
+
+        for future in as_completed(future_to_args):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as exc:
+                print_red(f"execute_trials: Error at executing a trial: {exc}")
+                results.append(None)
+
     return results
 
 @beartype

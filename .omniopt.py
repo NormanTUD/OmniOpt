@@ -4830,9 +4830,9 @@ def count_jobs_in_squeue() -> Tuple[int, bool]: # Returnt die Anzahl von Jobs bz
         return _len, True
 
     experiment_name = global_vars["experiment_name"]
-    run_uuid = global_vars["run_uuid"]
+    this_run_uuid = global_vars["run_uuid"]
 
-    job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
+    job_pattern = re.compile(rf"{experiment_name}_{this_run_uuid}_[a-f0-9-]+")
 
     try:
         result = subprocess.run(

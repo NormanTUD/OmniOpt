@@ -69,6 +69,7 @@ usage() {
 	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
 	echo "  --live_share                  Enable live share"
 	echo "  --should_deduplicate          Deduplicate jobs"
+	echo "  --debug                       Enable debug mode"
 	echo "  --run_tests                   Run tests"
 	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
 	echo "  --max_nr_of_zero=NUM          The max. nr. of zero-jobs (default: 3)"
@@ -261,6 +262,9 @@ for arg in "$@"; do
 		--run_tests)
 			run_tests=1
 			;;
+		--debug)
+			debug=1
+			;;
 		--should_deduplicate)
 			should_deduplicate=1
 			;;
@@ -361,6 +365,10 @@ fi
 
 if [[ "$seed" != "" ]]; then
 	cmd+=("--seed $seed")
+fi
+
+if [[ $debug == 1 ]]; then
+	cmd+=("--debug")
 fi
 
 if [[ $should_deduplicate == 1 ]]; then

@@ -5901,7 +5901,6 @@ def execute_evaluation(_params: list) -> Optional[int]:
         return None
     _trial = ax_client.get_trial(trial_index)
 
-    # Helper function for trial stage marking with exception handling
     def mark_trial_stage(stage: str, error_msg: str) -> None:
         try:
             getattr(_trial, stage)()

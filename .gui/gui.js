@@ -688,7 +688,7 @@ function update_command() {
 		}
 
 		var constraints_string = $("#constraints").val();
-		var errors_string = isValidEquationString(constraints_string);
+		var errors_string = is_valid_constraints_string(constraints_string);
 
 		if(isAnyLogScaleSet()) {
 			errors_string += "Cannot set constraints if one or more log-scale parameters are there."
@@ -1176,7 +1176,7 @@ function get_parameter_names(only_these_types = []) {
 	return values;
 }
 
-function isValidEquationString(input) {
+function is_valid_constraints_string(input) {
 	const parameter_names = get_parameter_names(["range"]);
 
 	input = input.replaceAll(/;;*/g, ";");

@@ -4811,7 +4811,7 @@ def submitted_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @beartype
-def count_jobs_in_squeue() -> None:
+def count_jobs_in_squeue() -> int:
     experiment_name = global_vars["experiment_name"]
 
     job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
@@ -4832,7 +4832,8 @@ def count_jobs_in_squeue() -> None:
     return -1
 
 @beartype
-def get_slurm_in_brackets(in_brackets: list) -> list:
+def log_worker_numbers() -> None:
+    global WORKER_PERCENTAGE_USAGE
     if is_slurm_job():
         nr_current_workers = len(global_vars["jobs"])
         percentage = round((nr_current_workers / num_parallel_jobs) * 100)
@@ -4851,6 +4852,11 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
 
         if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1]["time"] != this_values["time"]:
             WORKER_PERCENTAGE_USAGE.append(this_values)
+
+@beartype
+def get_slurm_in_brackets(in_brackets: list) -> list:
+    if is_slurm_job():
+        log_worker_numbers()
 
         workers_strings = get_workers_string()
         if workers_strings:
@@ -5918,11 +5924,14 @@ def execute_evaluation(_params: list) -> Optional[int]:
         print_red("Failed to get ax_client")
         my_exit(9)
 
+        return None
+
     if not executor:
         print_red("executor could not be found")
         my_exit(9)
 
         return None
+
     _trial = ax_client.get_trial(trial_index)
 
     def mark_trial_stage(stage: str, error_msg: str) -> None:

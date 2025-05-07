@@ -48,4 +48,4 @@ This way, LOSS is minimized, while PREDICTION_TIME is maximized.
 
 ## Caveats
 
-Using MOO prohibits most of the graphs you can usually plot with OmniOpt2, since the result-value is not unambiguous anymore and cannot be used for plotting easily. We'd recommend using OmniOpt2-Share to plot Parallel plots of your data in the browser.
+Using MOO prohibits most of the graphs you can usually plot with OmniOpt2, since the result-value is not unambiguous anymore and cannot be used for plotting easily. We'd recommend using [OmniOpt2-Share](tutorials?tutorial=oo_share) to plot Parallel plots of your data in the browser.

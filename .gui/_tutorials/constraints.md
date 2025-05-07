@@ -39,7 +39,7 @@ OmniOpt2 allows you to specify constraints in two ways: through the graphical us
 
 ### 1. Using the GUI
 
-In the GUI, you can enter a list of constraints directly. This is done through an input field where you can specify each constraint in the following forms:
+In the GUI, you can enter a list of constraints directly. This is done through an input field where you can specify each constraint in the following forms (given, again that, \( x \) and \( y \) are parameters, and \( a, b, c \) are `int` or `float`):
 
 $$
 a \cdot x + b \cdot y + \dots \leq c,

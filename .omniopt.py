@@ -1628,7 +1628,7 @@ def log_nr_of_workers() -> None:
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return None
 
-    nr_current_workers, nr_current_workers = count_jobs_in_squeue()
+    nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
 
     if not nr_current_workers or nr_current_workers_errmsg:
         print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
@@ -4845,7 +4845,6 @@ def count_jobs_in_squeue() -> Tuple[int, str]:
         )
 
         if "slurm_load_jobs error" in result.stderr:
-            print_debug()
             return _len, "Detected slurm_load_jobs error in stderr."
 
         jobs = result.stdout.splitlines()

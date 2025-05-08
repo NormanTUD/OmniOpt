@@ -5633,6 +5633,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 update_progress_bar(progress_bar, 1)
 
                 log_what_needs_to_be_logged()
+
+                live_share()
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:

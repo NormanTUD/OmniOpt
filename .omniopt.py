@@ -4823,16 +4823,14 @@ def submitted_jobs(nr: int = 0) -> int:
 @beartype
 def count_jobs_in_squeue() -> Tuple[int, bool]: # Returnt die Anzahl von Jobs bzw, wenn gar nix ermittelt werden kann, -1, und ein bool: True wenn OK, False wenn Fehler
     _len = len(global_vars["jobs"])
-    if "run_uuid" not in global_vars:
-        return _len, False
 
     if shutil.which('squeue') is None:
+        print("count_jobs_in_squeue: squeue not found")
         return _len, True
 
     experiment_name = global_vars["experiment_name"]
-    this_run_uuid = global_vars["run_uuid"]
 
-    job_pattern = re.compile(rf"{experiment_name}_{this_run_uuid}_[a-f0-9-]+")
+    job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
 
     try:
         result = subprocess.run(

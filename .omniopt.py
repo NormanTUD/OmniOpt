@@ -1628,14 +1628,15 @@ def log_nr_of_workers() -> None:
         print_debug("log_nr_of_workers: Could not find jobs in global_vars")
         return None
 
-    nr_of_workers, nr_of_workers_ok = count_jobs_in_squeue()
+    nr_current_workers, nr_current_workers = count_jobs_in_squeue()
 
-    if not nr_of_workers or not nr_of_workers_ok:
+    if not nr_current_workers or nr_current_workers_errmsg:
+        print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
         return None
 
     try:
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
-            f.write(str(nr_of_workers) + "\n")
+            f.write(str(nr_current_workers) + "\n")
     except FileNotFoundError:
         print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
         my_exit(99)
@@ -4799,17 +4800,18 @@ def get_workers_string() -> str:
         _values = "/".join(string_values)
 
         if len(_keys):
-            nr_current_workers, nr_current_workers_ok = count_jobs_in_squeue()
+            nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
             if args.generate_all_jobs_at_once:
                 string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
             else:
-                if nr_current_workers_ok:
+                if nr_current_workers_errmsg == "":
                     percentage = round((nr_current_workers / num_parallel_jobs) * 100)
                     _sum_and_percentage = ""
                     if num_parallel_jobs > 1:
                         _sum_and_percentage = f"∑{_sum} ({percentage}%/{num_parallel_jobs})"
                     string = f"{_keys} {_values}{_sum_and_percentage}"
                 else:
+                    print_debug(f"get_workers_string: {nr_current_workers_errmsg}")
                     string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
 
     return string
@@ -4821,16 +4823,17 @@ def submitted_jobs(nr: int = 0) -> int:
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
 @beartype
-def count_jobs_in_squeue() -> Tuple[int, bool]: # Returnt die Anzahl von Jobs bzw, wenn gar nix ermittelt werden kann, -1, und ein bool: True wenn OK, False wenn Fehler
+def count_jobs_in_squeue() -> Tuple[int, str]:
     _len = len(global_vars["jobs"])
 
     if shutil.which('squeue') is None:
-        print("count_jobs_in_squeue: squeue not found")
-        return _len, True
+        return _len, "count_jobs_in_squeue: squeue not found"
 
     experiment_name = global_vars["experiment_name"]
 
     job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
+
+    err_msg = ""
 
     try:
         result = subprocess.run(
@@ -4842,40 +4845,40 @@ def count_jobs_in_squeue() -> Tuple[int, bool]: # Returnt die Anzahl von Jobs bz
         )
 
         if "slurm_load_jobs error" in result.stderr:
-            print_debug("Detected slurm_load_jobs error in stderr.")
-            return _len, False
+            print_debug()
+            return _len, "Detected slurm_load_jobs error in stderr."
 
         jobs = result.stdout.splitlines()
         job_count = sum(1 for job in jobs if job_pattern.match(job))
-        return job_count, True
+        return job_count, ""
 
     except subprocess.CalledProcessError:
-        print_debug("Error while executing squeue.")
+        err_msg = "count_jobs_in_squeue: Error while executing squeue."
     except FileNotFoundError:
-        print_debug("squeue is not available on this host.")
+        err_msg = "count_jobs_in_squeue: squeue is not available on this host."
 
-    return -1, False
+    return -1, err_msg
 
 @beartype
 def log_worker_numbers() -> None:
     if is_slurm_job():
-        nr_current_workers, nr_current_workers_ok = count_jobs_in_squeue()
-        if nr_current_workers_ok:
-            percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+        nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
+        if nr_current_workers_errmsg:
+            print_debug(f"Failed to get count_jobs_in_squeue: {nr_current_workers_errmsg}")
 
-            this_time: float = time.time()
+        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
 
-            this_values = {
-                "nr_current_workers": nr_current_workers,
-                "num_parallel_jobs": num_parallel_jobs,
-                "percentage": percentage,
-                "time": this_time
-            }
+        this_time: float = time.time()
 
-            if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
-                WORKER_PERCENTAGE_USAGE.append(this_values)
-        else:
-            print_debug("Failed to get count_jobs_in_squeue()")
+        this_values = {
+            "nr_current_workers": nr_current_workers,
+            "num_parallel_jobs": num_parallel_jobs,
+            "percentage": percentage,
+            "time": this_time
+        }
+
+        if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
+            WORKER_PERCENTAGE_USAGE.append(this_values)
 
 @beartype
 def get_slurm_in_brackets(in_brackets: list) -> list:
@@ -7025,8 +7028,10 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
 
 @beartype
 def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
-    nr_of_workers, nr_of_workers_ok = count_jobs_in_squeue()
-    _debug_worker_creation(f"{int(time.time())}, {nr_of_workers}, {nr_of_items}, {next_nr_steps}")
+    nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
+    if nr_current_workers_errmsg:
+        print_debug(f"log_worker_status: {nr_current_workers_errmsg}")
+    _debug_worker_creation(f"{int(time.time())}, {nr_current_workers}, {nr_of_items}, {next_nr_steps}")
 
 @beartype
 def handle_slurm_execution() -> None:

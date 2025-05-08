@@ -4874,7 +4874,7 @@ def log_worker_numbers() -> None:
                 "time": this_time
             }
 
-            if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1]["time"] != this_values["time"]:
+            if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
                 WORKER_PERCENTAGE_USAGE.append(this_values)
         else:
             print_debug("Failed to get count_jobs_in_squeue()")

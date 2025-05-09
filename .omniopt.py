@@ -1631,7 +1631,10 @@ def log_nr_of_workers() -> None:
     nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
 
     if not nr_current_workers or nr_current_workers_errmsg:
-        print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
+        if nr_current_workers_errmsg:
+            print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
+        else:
+            print_debug(f"log_nr_of_workers: nr_current_workers is False")
         return None
 
     try:

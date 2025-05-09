@@ -1628,7 +1628,7 @@ def log_nr_of_workers() -> None:
         if nr_current_workers_errmsg:
             print_debug(f"log_nr_of_workers: {nr_current_workers_errmsg}")
         else:
-            print_debug(f"log_nr_of_workers: nr_current_workers is False")
+            print_debug("log_nr_of_workers: nr_current_workers is False")
         return None
 
     try:

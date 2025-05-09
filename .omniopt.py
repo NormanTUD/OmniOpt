@@ -37,7 +37,7 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-uncontinueable_models: list = ["PSEUDORANDOM", "EXTERNAL_GENERATOR"]
+uncontinueable_models: list = ["PSEUDORANDOM", "EXTERNAL_GENERATOR", "RANDOMFOREST"]
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
@@ -763,7 +763,10 @@ try:
         from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
-        import ax.modelbridge.generation_node
+        try:
+            import ax.modelbridge.generation_node
+        except:
+            import ax.generation_strategy.generation_node
         try:
             from ax.generation_strategy.model_spec import ModelSpec
         except Exception:
@@ -780,7 +783,10 @@ try:
         from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
         from ax.core.types import TParameterization
         from ax.modelbridge.external_generation_node import ExternalGenerationNode
-        from ax.modelbridge.generation_node import GenerationNode
+        try:
+            from ax.modelbridge.generation_node import GenerationNode
+        except:
+            from ax.generation_strategy.generation_node import GenerationNode
         from ax.modelbridge.transition_criterion import MaxTrials
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from sklearn.ensemble import RandomForestRegressor
@@ -2141,7 +2147,6 @@ def _get_column_value(pd_csv: str, column: str, default: Union[None, float, int]
         if isinstance(column_value, (int, float)) and isinstance(default, (int, float)):
             if (mode == "min" and default > column_value) or (mode == "max" and default < column_value):
                 return column_value, found_in_file
-
     return default, found_in_file
 
 @beartype

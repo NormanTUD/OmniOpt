@@ -802,7 +802,7 @@ except SignalINT:
 except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(138)
-except SignalCONT
+except SignalCONT:
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(146)
 except KeyboardInterrupt:

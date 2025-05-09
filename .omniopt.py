@@ -1694,6 +1694,9 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
         sixel_converter = sixel.converter.SixelConverter(image_path, w=width, h=height)
 
         sixel_converter.write(sys.stdout)
+
+        print("")
+
         _sleep(2)
 
         return True

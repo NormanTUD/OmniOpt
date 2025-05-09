@@ -773,6 +773,8 @@ try:
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
 
+        from ax.generation_strategy.model_spec import GeneratorSpec
+
         from ax.core.base_trial import TrialStatus
         from ax.core.data import Data
         from ax.core.experiment import Experiment
@@ -800,7 +802,7 @@ except SignalINT:
 except SignalUSR:
     print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
     my_exit(138)
-except SignalCONT:
+except SignalCONT
     print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
     my_exit(146)
 except KeyboardInterrupt:
@@ -6255,7 +6257,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[ModelSpec(Models.SOBOL, model_gen_kwargs={"random_seed": args.seed})]
+                            model_specs=[GeneratorSpec(Models.SOBOL, model_gen_kwargs={"random_seed": args.seed})]
                         )
                     ]
             )
@@ -6598,7 +6600,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     selected_model = select_model(model_name)
     model_spec = [
-        ModelSpec(selected_model, model_gen_kwargs={"random_seed": args.seed})
+        GeneratorSpec(selected_model, model_gen_kwargs={"random_seed": args.seed})
     ]
 
     res = GenerationNode(

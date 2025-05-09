@@ -2256,6 +2256,7 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
         "name": name,
         "type": "choice",
         "is_ordered": True,
+        "value_type": "str",
         "values": values_str
     }
 
@@ -2376,6 +2377,7 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
         "name": name,
         "type": "choice",
         "is_ordered": False,
+        "value_type": "str",
         "values": values
     }
 
@@ -4120,6 +4122,7 @@ def get_ax_param_representation(data: dict) -> dict:
             'dependents': None,
             'is_fidelity': False,
             'is_ordered': data["is_ordered"],
+            "value_type": "str",
             'is_task': False,
             'name': data["name"],
             'parameter_type': {

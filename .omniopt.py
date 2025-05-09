@@ -763,29 +763,33 @@ try:
         from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
+
         try:
-            import ax.modelbridge.generation_node
-        except Exception:
             import ax.generation_strategy.generation_node
-        from ax.generation_strategy.generation_strategy import (GenerationStep, GenerationStrategy)
+            from ax.generation_strategy.generation_strategy import (GenerationStep, GenerationStrategy)
+            from ax.generation_strategy.generation_node import GenerationNode
+            from ax.generation_strategy.external_generation_node import ExternalGenerationNode
+            from ax.generation_strategy.transition_criterion import MaxTrials
+            from ax.generation_strategy.model_spec import GeneratorSpec
+        except Exception:
+            import ax.modelbridge.generation_node
+            from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
+            from ax.modelbridge.generation_node import GenerationNode
+            from ax.modelbridge.external_generation_node import ExternalGenerationNode
+            from ax.modelbridge.transition_criterion import MaxTrials
+            from ax.modelbridge.model_spec import GeneratorSpec
+
         from ax.modelbridge.registry import Models
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
         from ax.storage.json_store.load import load_experiment
         from ax.storage.json_store.save import save_experiment
-
-        from ax.generation_strategy.model_spec import GeneratorSpec
 
         from ax.core.base_trial import TrialStatus
         from ax.core.data import Data
         from ax.core.experiment import Experiment
         from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
         from ax.core.types import TParameterization
-        from ax.generation_strategy.external_generation_node import ExternalGenerationNode
-        try:
-            from ax.modelbridge.generation_node import GenerationNode
-        except Exception:
-            from ax.generation_strategy.generation_node import GenerationNode
-        from ax.generation_strategy.transition_criterion import MaxTrials
+
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from sklearn.ensemble import RandomForestRegressor
     with console.status("[bold green]Loading botorch...") as status:

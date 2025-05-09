@@ -344,12 +344,6 @@ def print_debug(msg: str) -> None:
         original_print(f"_debug: Error trying to write log file: {e}")
 
 @beartype
-def print_debug_once(msg: str) -> None:
-    if msg not in print_debug_once_list:
-        print_debug(msg)
-        print_debug_once_list.append(msg)
-
-@beartype
 def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()
 
@@ -2512,7 +2506,7 @@ class MonitorProcess:
         self.thread = threading.Thread(target=self._monitor)
         self.thread.daemon = True
 
-        print_debug_once(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
+        fool_linter(f"self.thread.daemon was set to {self.thread.daemon}") # only for deadcode to not complain
 
     def _monitor(self: Any) -> None:
         try:

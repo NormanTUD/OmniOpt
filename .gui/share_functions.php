@@ -78,7 +78,7 @@
 	}
 
 	function respond_with_json($data) {
-		#header('Content-Type: application/json');
+		header('Content-Type: application/json');
 
 		$hash = hash("md5", json_encode($data));
 

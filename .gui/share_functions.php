@@ -66,13 +66,32 @@
 		}
 	}
 
-	function respond_with_json($data) {
-		header('Content-Type: application/json');
+	function utf8ize($d) {
+		if (is_array($d)) {
+			foreach ($d as $k => $v) {
+				$d[$k] = utf8ize($v);
+			}
+		} else if (is_string($d)) {
+			return mb_convert_encoding($d, 'UTF-8', 'auto');
+		}
+		return $d;
+	}
 
-		print json_encode(array(
+	function respond_with_json($data) {
+		#header('Content-Type: application/json');
+
+		$hash = hash("md5", json_encode($data));
+
+		$json_data = array(
 			"data" => $data,
-			"hash" => hash("md5", json_encode($data))
-		));
+			"hash" => $hash
+		);
+
+
+		$json_encoded_data = json_encode(utf8ize($json_data));
+
+		print $json_encoded_data;
+
 		exit(0);
 	}
 

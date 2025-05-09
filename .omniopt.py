@@ -3318,6 +3318,11 @@ def disable_logging() -> None:
             "ax.modelbridge.generation_node",
             "ax.modelbridge.best_model_selector",
 
+            "ax.generation_strategy.generation_strategy",
+            "ax.generation_strategy.generation_node",
+            "ax.generation_strategy.external_generation_node",
+            "ax.generation_strategy.transition_criterion",
+            "ax.generation_strategy.model_spec",
 
             "ax.service",
             "ax.service.utils",

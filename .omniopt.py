@@ -181,8 +181,6 @@ def makedirs(p: str) -> bool:
 
     return False
 
-print_debug_once_list: List = []
-
 YELLOW: str = "\033[93m"
 RESET: str = "\033[0m"
 

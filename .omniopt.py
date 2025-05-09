@@ -785,7 +785,7 @@ try:
             from ax.modelbridge.generation_node import GenerationNode
         except Exception:
             from ax.generation_strategy.generation_node import GenerationNode
-        from ax.modelbridge.transition_criterion import MaxTrials
+        from ax.generation_strategy.transition_criterion import MaxTrials
         from ax.service.ax_client import AxClient, ObjectiveProperties
         from sklearn.ensemble import RandomForestRegressor
     with console.status("[bold green]Loading botorch...") as status:

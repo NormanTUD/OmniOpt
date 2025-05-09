@@ -6396,7 +6396,7 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
     if model_arg:
         model_upper = str(model_arg).upper()
         if model_upper in available_models:
-            chosen_model = Models.__members__[model_upper]
+            chosen_model = ax.modelbridge.registry.Generators.__members__[model_upper]
         else:
             print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 

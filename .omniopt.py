@@ -764,9 +764,9 @@ try:
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
         try:
-            import ax.modelbridge.generation_node
-        except Exception:
             import ax.generation_strategy.generation_node
+        except Exception:
+            import ax.modelbridge.generation_node
         from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features

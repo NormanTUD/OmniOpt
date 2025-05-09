@@ -766,7 +766,7 @@ try:
         import ax.modelbridge.generation_node
         try:
             from ax.modelbridge.model_spec import ModelSpec
-        except Exception as e:
+        except Exception:
             from ax.generation_strategy.model_spec import ModelSpec
         from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
         from ax.modelbridge.registry import Models

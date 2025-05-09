@@ -6390,8 +6390,8 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 @beartype
 def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
-    available_models = list(Models.__members__.keys())
-    chosen_model = Models.BOTORCH_MODULAR
+    available_models = list(ax.modelbridge.registry.Generators.__members__.keys())
+    chosen_model = ax.modelbridge.registry.Generators.BOTORCH_MODULAR
 
     if model_arg:
         model_upper = str(model_arg).upper()

@@ -1682,7 +1682,7 @@ function plotResultsDistributionByGenerationMethod() {
 	}
 
 	var res_col = result_names[0];
-	var gen_method_col = "generation_method";
+	var gen_method_col = "generation_node";
 
 	var data = {};
 
@@ -1762,7 +1762,7 @@ function plotJobStatusDistribution() {
 }
 
 function _colorize_table_entries_by_generation_method () {
-	document.querySelectorAll('[data-column-id="generation_method"]').forEach(el => {
+	document.querySelectorAll('[data-column-id="generation_node"]').forEach(el => {
 		let color = el.textContent.includes("Manual") ? "green" :
 			el.textContent.includes("Sobol") ? "orange" :
 			el.textContent.includes("SAASBO") ? "pink" :

@@ -166,7 +166,14 @@
 				}
 
 				if (count($result_names) == 1) {
-					$tabs = add_results_distribution_by_generation_method($tabs);
+					if (in_array("generation_method", $GLOBALS["json_data"]["tab_results_headers_json"])) {
+						$tabs = add_results_distribution_by_generation_method($tabs);
+					} else {
+						$warnings[] = "Cannot find 'generation_method' in JSON-data: Cannot plot add_results_distribution_by_generation_method.";
+					}
+				} else {
+
+					$warnings[] = "Cannot plot add_results_distribution_by_generation_method when there's more than one result value.";
 				}
 			}
 

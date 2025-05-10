@@ -51,3 +51,20 @@ function initialize_tabs () {
 
 	document.querySelectorAll(".tabs").forEach(setupTabs);
 }
+
+$(function() {
+	$('.share_nav_button').on('click', function() {
+		const tabId = $(this).attr('aria-controls');
+		if (tabId) {
+			history.replaceState(null, '', '#' + tabId);
+		}
+	});
+
+	const hash = window.location.hash.substring(1);
+	if (hash) {
+		const $button = $('.share_nav_button[aria-controls="' + hash + '"]');
+		if ($button.length) {
+			$button.trigger('click');
+		}
+	}
+});

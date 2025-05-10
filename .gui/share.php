@@ -284,6 +284,23 @@
 			}
 		}
 ?>
+
+		$(function() {
+			$('.share_nav_button').on('click', function() {
+				const tabId = $(this).attr('aria-controls');
+				if (tabId) {
+					history.replaceState(null, '', '#' + tabId);
+				}
+			});
+
+			const hash = window.location.hash.substring(1);
+			if (hash) {
+				const $button = $('.share_nav_button[aria-controls="' + hash + '"]');
+				if ($button.length) {
+					$button.trigger('click');
+				}
+			}
+		});
 	</script>
 	<div class="page">
 		<div class="invert_in_dark_mode" style="height: fit-content;">

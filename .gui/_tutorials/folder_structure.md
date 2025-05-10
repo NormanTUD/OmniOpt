@@ -197,6 +197,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `model`: The model chosen for the non-SOBOL-step-phase
 - `revert_to_random_when_seemingly_exhausted`: If it exists, continued jobs will revert to random models when the sweep has converged
 - `custom_generation_strategy`: Custom generation strategy file
+- `constraints`: This file contains the constraints for the run and are used for continued jobs
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

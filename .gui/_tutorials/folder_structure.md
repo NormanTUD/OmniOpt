@@ -149,55 +149,55 @@ This file contains the parameter search space definition in a simple table. Exam
 
 These files store some states used mainly to continue jobs. Not all of these files may be present.
 
+- `args_overview.txt`: A table that shows all arg-parameters given to OO
+- `ax_client.experiment.json`: A JSON file containing the whole ax-client
 - `checkpoint.json`: A JSON file containing all data needed to restore the experiment
 - `checkpoint.json.parameters.json`: A list of parameters for this run
-- `result_errors.log`: A list of errors for the run regarding the results
+- `checkpoint_load_source`: Info for continued jobs where they are continued from
+- `constraints`: This file contains the constraints for the run and are used for continued jobs
+- `continue_from_run_uuid`: UUID of a run that was continued
+- `cpu_ram_usage.csv`: Logs CPU and RAM usage
+- `custom_generation_strategy`: Custom generation strategy file
+- `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
 - `experiment_name`: The name of this experiment
-- `time_overview.txt`: A table of the runtimes (min, max, avg, median)
-- `failed_jobs`: The number of failed jobs
-- `global_vars.json`: A variable that contains several global states that continued runs need to continue
 - `experiment_overview.txt`: A table showing different parameters relating to the current experiment
+- `failed_jobs`: The number of failed jobs
+- `follow`: Exists if the job was started with --follow. Only used for continued jobs
+- `generation_strategy`: A file containing the given generation strategy
+- `generation_strategy.txt`: Infos about the generation strategy used internally
+- `get_next_nr_steps_tables.txt`: A debug table for get_next_nr_steps (only on SLURM-systems)
+- `global_vars.json`: A variable that contains several global states that continued runs need to continue
 - `gpus`: The number of GPUs this run has allocated per worker
 - `joined_run_program`: The program string including parameters
-- `get_next_nr_steps_tables.txt`: A debug table for get_next_nr_steps (only on SLURM-systems)
-- `num_random_steps`: Number of random steps, used for continued jobs
-- `max_eval`: The max evals of this run
-- `mem_gb`: The amount of Memory allocated per worker (in GB)
-- `minimize`: If it exists, it means, the job was about to minimize
-- `maximize`: If it exists, it means, the job was about to maximize
-- `pd.json`: Contains data to restore the `ax_client`
-- `phase_random_steps`: How many random steps have been generated
-- `phase_systematic_steps`: How many non-random steps have been generated
-- `run.sh`: A bash-file that allows you to re-run this program
-- `submitted_jobs`: The number of submitted jobs
-- `result_names_overview.txt`: The rich overview-table of all result names
-- `time`: The time this job-sbatch has allocated
-- `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
-- `succeeded_jobs`: Contains one line for each succeeded job
-- `args_overview.txt`: A table that shows all arg-parameters given to OO
-- `ui_url.txt`: Contains the URL that this run was started by
-- `pareto_front_data.json`: Data about the pareto-front (exists only for multi-objective-optimizations)
-- `follow`: Exists if the job was started with --follow. Only used for continued jobs
-- `generation_strategy.txt`: Infos about the generation strategy used internally
-- `main_process_gb`: Saves the amount of memory in the main process (if applicable). Only used for continued jobs
-- `original_ax_client_before_loading_tmp_one.json`: Required to re-load generation strategy in continued jobs
-- `loaded_modules.json`: A list of all loaded modules with module information where available
-- `cpu_ram_usage.csv`: Logs CPU and RAM usage
-- `checkpoint_load_source`: Info for continued jobs where they are continued from
-- `continue_from_run_uuid`: UUID of a run that was continued
-- `result_names.txt`: A list of RESULT names
-- `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated pareto-front
-- `run_uuid`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run
-- `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
-- `ax_client.experiment.json`: A JSON file containing the whole ax-client
-- `generation_strategy`: A file containing the given generation strategy
 - `last_share_md5`: A file containing paths and MD5 hashes of shared files, so they can be updated instead of re-uploaded every time you can OmniOpt2-Share
 - `last_share_md5_tmp`: Same as `last_share_md5`, but only temporary
 - `live_share`: If this file exists, the job has been run with live share enabled. This is useful for continued jobs, so they also have live-share enabled
+- `loaded_modules.json`: A list of all loaded modules with module information where available
+- `main_process_gb`: Saves the amount of memory in the main process (if applicable). Only used for continued jobs
+- `max_eval`: The max evals of this run
+- `maximize`: If it exists, it means, the job was about to maximize
+- `mem_gb`: The amount of Memory allocated per worker (in GB)
+- `minimize`: If it exists, it means, the job was about to minimize
 - `model`: The model chosen for the non-SOBOL-step-phase
+- `num_random_steps`: Number of random steps, used for continued jobs
+- `original_ax_client_before_loading_tmp_one.json`: Required to re-load generation strategy in continued jobs
+- `pareto_front_data.json`: Data about the pareto-front (exists only for multi-objective-optimizations)
+- `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated pareto-front
+- `pd.json`: Contains data to restore the `ax_client`
+- `phase_random_steps`: How many random steps have been generated
+- `phase_systematic_steps`: How many non-random steps have been generated
+- `result_errors.log`: A list of errors for the run regarding the results
+- `result_names_overview.txt`: The rich overview-table of all result names
+- `result_names.txt`: A list of RESULT names
 - `revert_to_random_when_seemingly_exhausted`: If it exists, continued jobs will revert to random models when the sweep has converged
-- `custom_generation_strategy`: Custom generation strategy file
-- `constraints`: This file contains the constraints for the run and are used for continued jobs
+- `run.sh`: A bash-file that allows you to re-run this program
+- `run_uuid`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run
+- `submitted_jobs`: The number of submitted jobs
+- `succeeded_jobs`: Contains one line for each succeeded job
+- `time_overview.txt`: A table of the runtimes (min, max, avg, median)
+- `time`: The time this job-sbatch has allocated
+- `ui_url.txt`: Contains the URL that this run was started by
+- `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

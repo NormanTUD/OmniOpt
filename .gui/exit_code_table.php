@@ -1,7 +1,7 @@
 <?php
 		$exit_code_info = [
 			0 => "Seems to have worked properly",
-			1 => "There was an error regarding the python-syntax. Is your python-version too old? If you are on a slurm-system, this may mean that the job cannot be started, this can happen when you need a GPU but have not set one, or your home is full. Check stdout. May also happen when the job was cancelled due to CTRL-c, or when your virtual environment is outdated. Try deleting it, especially when you are running on a tested version. It usually is in ~/.omniax_...",
+			1 => "There was an error regarding the python-syntax. Is your python-version too old? If you are on a slurm-system, this may mean that the job cannot be started, this can happen when you need a GPU but have not set one, or your home is full. Or you are on a cluster that needs jobs to allocate GPUs, but you have not allocated a GPU. Check stdout. May also happen when the job was cancelled due to CTRL-c, or when your virtual environment is outdated. Try deleting it, especially when you are running on a tested version. It usually is in ~/.omniax_...",
 			2 => "Wrong CLI arguments",
 			3 => "Invalid exit code detected",
 			4 => "Failed loading modules",

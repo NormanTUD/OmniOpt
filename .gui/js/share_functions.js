@@ -1897,16 +1897,24 @@ function updatePreWidths() {
 	}
 }
 
-window.addEventListener('load', updatePreWidths);
-window.addEventListener('resize', updatePreWidths);
+function demo_mode(nr_sec = 3) {
+	let i = 0;
+	let tabs = $('menu[role="tablist"] > button');
 
-$(document).ready(function() {
-	colorize_table_entries();
+	setInterval(() => {
+		// Deaktiviere alle Tabs
+		tabs.attr('aria-selected', 'false').removeClass('active');
 
-	add_up_down_arrows_for_scrolling();
+		// Aktiviere aktuellen Tab
+		let tab = tabs.eq(i % tabs.length);
+		tab.attr('aria-selected', 'true').addClass('active');
 
-	add_colorize_to_gridjs_table();
-});
+		// Trigger Klick (damit onclick z. B. Plot-Funktionen aufruft)
+		tab.trigger('click');
+
+		i++;
+	}, nr_sec * 1000);
+}
 
 function resizePlotlyCharts() {
 	const plotlyElements = document.querySelectorAll('.js-plotly-plot');
@@ -1932,6 +1940,17 @@ function resizePlotlyCharts() {
 
 	make_text_in_parallel_plot_nicer();
 }
+
+window.addEventListener('load', updatePreWidths);
+window.addEventListener('resize', updatePreWidths);
+
+$(document).ready(function() {
+	colorize_table_entries();
+
+	add_up_down_arrows_for_scrolling();
+
+	add_colorize_to_gridjs_table();
+});
 
 window.addEventListener('resize', function() {
 	resizePlotlyCharts();

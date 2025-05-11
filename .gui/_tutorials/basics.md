@@ -2,6 +2,8 @@
 
 <!-- How to use OmniOpt locally, on HPC-Systems or in Docker -->
 
+<!-- Category: Preparations and setup -->
+
 <div id="toc"></div>
 
 ## What is OmniOpt2 and what does it do?

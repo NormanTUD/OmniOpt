@@ -2,6 +2,8 @@
 
 <!-- How to run custom generation strategies -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## What are Custom Generation Strategies?

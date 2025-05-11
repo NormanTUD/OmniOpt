@@ -2,6 +2,8 @@
 
 <!-- How to script OmniOpt2 -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_exit_codes">What are exit-codes?</h2>

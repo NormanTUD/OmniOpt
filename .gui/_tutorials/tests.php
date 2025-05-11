@@ -2,6 +2,8 @@
 
 <!-- How to run automated tests and what options are available -->
 
+<!-- Category: Developing -->
+
 <div id="toc"></div>
 
 <h2 id="what_are_automated_tests">What are automated tests?</h2>

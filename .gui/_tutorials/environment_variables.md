@@ -2,6 +2,8 @@
 
 <!-- List of all environment variables that change how OmniOpt2 works -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## What are environment variables?

@@ -2,6 +2,8 @@
 
 <!-- How to find and solve bugs -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## How to find errors in my runs?

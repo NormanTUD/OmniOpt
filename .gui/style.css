@@ -737,6 +737,7 @@ input:checked + .slider::before {
 		justify-content: center;
 		flex: 1 1 100%;
 		text-align: center;
+		width: inherit;
 	}
 
 	.logo-img {

@@ -77,5 +77,12 @@ else
 	for miss in "${missing[@]}"; do
 		red_text "Missing column: $miss"
 	done
+
+	echo "CSV-file: $CSV_FILE"
+
+	echo "================================================="
+	cat "$CSV_FILE"
+	echo "================================================="
+
 	exit 1
 fi

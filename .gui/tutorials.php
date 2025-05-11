@@ -79,7 +79,11 @@ function list_tutorials() {
 		echo "<h3>" . htmlspecialchars($cat) . "</h3>\n";
 		if (count($entries) === 1) {
 			$e = $entries[0];
-			echo "<p><a href='{$e['link']}'>{$e['label']}</a></p>\n";
+			$comment = "";
+			if ($entry["comment"]) {
+				$comment = " &mdash; ".$entry["comment"];
+			}
+			echo "<p><a href='{$e['link']}'>{$e['label']}</a>$comment</p>\n";
 		} else {
 			echo "<ul>\n";
 			foreach ($entries as $e) {
@@ -97,7 +101,11 @@ function list_tutorials() {
 		echo "<h3>No category</h3>\n";
 		echo "<ul>\n";
 		foreach ($uncategorized as $e) {
-			echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a></li>\n";
+			$comment = "";
+			if ($entry["comment"]) {
+				$comment = " &mdash; ".$entry["comment"];
+			}
+			echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a>$comment</li>\n";
 		}
 		echo "</ul>\n";
 	}

@@ -2,6 +2,8 @@
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 
+<!-- Category: Preparations and setup -->
+
 <div id="toc"></div>
 
 ## Overview: what needs to be done

@@ -9,7 +9,7 @@ function get_valid_tutorial_file($base_name) {
 	$paths = ["_tutorials/$base_name.md", "_tutorials/$base_name.php"];
 	foreach ($paths as $path) {
 		if (file_exists($path)) {
-			return basename($path); // return filename with extension
+			return basename($path);
 		}
 	}
 	return null;
@@ -32,7 +32,10 @@ function render_tutorial($file) {
 
 function list_tutorials() {
 	$files = scandir('_tutorials/');
-	echo "<ul>\n";
+	$categories = [];
+	$uncategorized = [];
+	$has_any_category = false;
+
 	foreach ($files as $file) {
 		if (!preg_match("/\.(md|php)$/", $file)) continue;
 
@@ -41,15 +44,65 @@ function list_tutorials() {
 		$label = highlightBackticks(preg_replace("/\.(md|php)$/", "", $name));
 		$file_link = preg_replace("/\.(md|php)$/", "", $file);
 
+		$category = get_html_category_comment($path);
 		$comment = get_html_comment($path);
-		$comment_display = $comment ? " &mdash; $comment" : "";
+		$entry = [
+			'label' => $label,
+			'link' => "tutorials?tutorial=$file_link",
+			'comment' => $comment
+		];
 
-		echo "<li class='li_list'><a href='tutorials?tutorial=$file_link'>$label</a>$comment_display</li>\n";
+		if ($category !== null) {
+			$has_any_category = true;
+			$categories[$category][] = $entry;
+		} else {
+			$uncategorized[] = $entry;
+		}
 	}
-	echo "</ul>\n";
+
+	if (!$has_any_category) {
+		echo "<ul>\n";
+		$all_lists = array_values($categories);
+		$all_lists[] = $uncategorized;
+		foreach (array_merge(...$all_lists) as $entry) {
+			$comment = "";
+			if ($entry["comment"]) {
+				$comment = " &mdash; ".$entry["comment"];
+			}
+			echo "<li class='li_list'><a href='{$entry['link']}'>{$entry['label']}</a>$comment</li>\n";
+		}
+		echo "</ul>\n";
+		return;
+	}
+
+	foreach ($categories as $cat => $entries) {
+		echo "<h3>" . htmlspecialchars($cat) . "</h3>\n";
+		if (count($entries) === 1) {
+			$e = $entries[0];
+			echo "<p><a href='{$e['link']}'>{$e['label']}</a></p>\n";
+		} else {
+			echo "<ul>\n";
+			foreach ($entries as $e) {
+				$comment = "";
+				if ($entry["comment"]) {
+					$comment = " &mdash; ".$entry["comment"];
+				}
+				echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a>$comment</li>\n";
+			}
+			echo "</ul>\n";
+		}
+	}
+
+	if (!empty($uncategorized)) {
+		echo "<h3>No category</h3>\n";
+		echo "<ul>\n";
+		foreach ($uncategorized as $e) {
+			echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a></li>\n";
+		}
+		echo "</ul>\n";
+	}
 }
 
-// Main logic
 if (isset($_GET["tutorial"])) {
 	$tutorial_base = $_GET["tutorial"];
 	if (is_valid_tutorial_name($tutorial_base)) {

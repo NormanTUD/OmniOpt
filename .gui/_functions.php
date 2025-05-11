@@ -42,6 +42,22 @@
 		return $var;
 	}
 
+	function get_html_category_comment($file_path) {
+		$file_content = file_get_contents($file_path);
+
+		if ($file_content === false) {
+			return null;
+		}
+
+		$heading_pattern = '/<!-- Category: \s*(.*?)\s*-->/i';
+
+		if (preg_match($heading_pattern, $file_content, $matches)) {
+			return $matches[1];
+		}
+
+		return null;
+	}
+
 	function get_html_comment($file_path) {
 		$file_content = file_get_contents($file_path);
 

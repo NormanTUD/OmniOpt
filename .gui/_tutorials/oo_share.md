@@ -2,6 +2,8 @@
 
 <!-- What is OmniOpt2-Share and how to use it? -->
 
+<!-- Category: Plotting and sharing results -->
+
 <div id="toc"></div>
 
 ## What is OmniOpt2-Share?

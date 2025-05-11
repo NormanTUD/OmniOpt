@@ -9,6 +9,8 @@
 
 <!-- What kinds of plots are available and how to use them -->
 
+<!-- Category: Plotting and sharing results -->
+
 <div id="toc"></div>
 
 <h2 id="plot-over-x11">Plot over X11</h2>

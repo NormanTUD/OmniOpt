@@ -2,6 +2,8 @@
 
 <!-- What are Virtual Environments and how OmniOpt2 uses them -->
 
+<!-- Category: Preparations and setup -->
+
 <div id="toc"></div>
 
 ## What is a virtual environment?

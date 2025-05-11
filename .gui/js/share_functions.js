@@ -1701,9 +1701,9 @@ function plotResultsDistributionByGenerationMethod() {
 			y: data[method],
 			type: 'box',
 			name: method,
-			boxpoints: 'outliers',  // Zeigt nur Ausreißer außerhalb der Whiskers
-			jitter: 0.5,  // Erhöht die Streuung der Punkte für bessere Sichtbarkeit
-			pointpos: 0   // Position der Punkte innerhalb der Box
+			boxpoints: 'outliers',
+			jitter: 0.5,
+			pointpos: 0
 		};
 	});
 
@@ -1715,7 +1715,7 @@ function plotResultsDistributionByGenerationMethod() {
 		xaxis: {
 			title: "Generation Method"
 		},
-		boxmode: 'group'  // Gruppiert die Boxplots nach Generation Method
+		boxmode: 'group'
 	};
 
 	Plotly.newPlot("plotResultsDistributionByGenerationMethod", traces, add_default_layout_data(layout));
@@ -1906,4 +1906,33 @@ $(document).ready(function() {
 	add_up_down_arrows_for_scrolling();
 
 	add_colorize_to_gridjs_table();
+});
+
+function resizePlotlyCharts() {
+	const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+
+	if (plotlyElements.length) {
+		const windowWidth = window.innerWidth;
+		const windowHeight = window.innerHeight;
+
+		const newWidth = windowWidth * 0.9;
+		const newHeight = windowHeight * 0.9;
+
+		plotlyElements.forEach(function(element, index) {
+			const layout = {
+				width: newWidth,
+				height: newHeight,
+				plot_bgcolor: 'rgba(0, 0, 0, 0)',
+				paper_bgcolor: 'rgba(0, 0, 0, 0)',
+			};
+
+			Plotly.relayout(element, layout)
+		});
+	}
+}
+
+resizePlotlyCharts();
+
+window.addEventListener('resize', function() {
+	resizePlotlyCharts();
 });

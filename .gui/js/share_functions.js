@@ -1937,6 +1937,7 @@ function resizePlotlyCharts() {
 	}
 
 	make_text_in_parallel_plot_nicer();
+	apply_theme_based_on_system_preferences();
 }
 
 window.addEventListener('load', updatePreWidths);

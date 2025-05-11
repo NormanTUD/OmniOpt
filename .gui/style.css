@@ -368,7 +368,7 @@ input:checked + .slider:before {
 	font-size: 14px;
 	color: black;
 	transition: .4s;
-	width: 60px;
+	width: 65px;
 	display: block;
 	font-size: 0.7rem;
 	text-align: center;
@@ -804,4 +804,8 @@ input:checked + .slider::before {
 .rotate {
 	animation: spin 2s linear infinite;
 	display: inline-block;
+}
+
+input::placeholder {
+	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 }

@@ -1,61 +1,72 @@
 <?php
-	require "_header_base.php";
+require "_header_base.php";
 
-	if (isset($_GET["tutorial"])) {
-		$tutorial_file = $_GET["tutorial"];
-		if (preg_match("/^[a-z_]+$/", $tutorial_file)) {
-			if (file_exists("_tutorials/$tutorial_file.md")) {
-				$tutorial_file = "$tutorial_file.md";
-			} else if (file_exists("_tutorials/$tutorial_file.php")) {
-				$tutorial_file = "$tutorial_file.php";
-			}
+function is_valid_tutorial_name($name) {
+	return preg_match("/^[a-z_]+$/", $name);
+}
+
+function get_valid_tutorial_file($base_name) {
+	$paths = ["_tutorials/$base_name.md", "_tutorials/$base_name.php"];
+	foreach ($paths as $path) {
+		if (file_exists($path)) {
+			return basename($path); // return filename with extension
 		}
+	}
+	return null;
+}
 
-		if (preg_match("/^[a-z_]+\.md$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
-			convertFileToHtml("_tutorials/$tutorial_file");
-		} else if (preg_match("/^[a-z_]+\.php$/", $tutorial_file) && file_exists("_tutorials/$tutorial_file")) {
-			$load_file = "_tutorials/$tutorial_file";
-			include($load_file);
+function is_valid_file($file, $ext) {
+	return preg_match("/^[a-z_]+\.$ext$/", $file) && file_exists("_tutorials/$file");
+}
 
+function render_tutorial($file) {
+	$path = "_tutorials/$file";
+	if (str_ends_with($file, '.md')) {
+		convertFileToHtml($path);
+	} elseif (str_ends_with($file, '.php')) {
+		include($path);
+	} else {
+		echo "Invalid file format.";
+	}
+}
+
+function list_tutorials() {
+	$files = scandir('_tutorials/');
+	echo "<ul>\n";
+	foreach ($files as $file) {
+		if (!preg_match("/\.(md|php)$/", $file)) continue;
+
+		$path = "_tutorials/$file";
+		$name = get_first_heading_content($path) ?? $file;
+		$label = highlightBackticks(preg_replace("/\.(md|php)$/", "", $name));
+		$file_link = preg_replace("/\.(md|php)$/", "", $file);
+
+		$comment = get_html_comment($path);
+		$comment_display = $comment ? " &mdash; $comment" : "";
+
+		echo "<li class='li_list'><a href='tutorials?tutorial=$file_link'>$label</a>$comment_display</li>\n";
+	}
+	echo "</ul>\n";
+}
+
+// Main logic
+if (isset($_GET["tutorial"])) {
+	$tutorial_base = $_GET["tutorial"];
+	if (is_valid_tutorial_name($tutorial_base)) {
+		$valid_file = get_valid_tutorial_file($tutorial_base);
+		if ($valid_file !== null && (is_valid_file($valid_file, "md") || is_valid_file($valid_file, "php"))) {
+			render_tutorial($valid_file);
 		} else {
-			echo "Invalid file: $tutorial_file";
+			echo "Invalid file: $tutorial_base";
 		}
 	} else {
-?>
-		<ul>
-<?php
-			$files = scandir('_tutorials/');
-			foreach ($files as $file) {
-				if ($file != ".." && $file != "." && $file != "favicon.ico" and preg_match("/\.(?:md|php)/", $file)) {
-					$name = $file;
-
-					$file_path = "_tutorials/$file";
-
-					$heading_content = get_first_heading_content($file_path);
-
-					if ($heading_content !== null) {
-						$name = $heading_content;
-					}
-
-					$file = preg_replace("/\.(md|php)$/", "", $file);
-
-					$comment = "";
-					$_comment = get_html_comment($file_path);
-
-					if($_comment) {
-						$comment = " &mdash; $_comment";
-					}
-
-
-					print "<li class='li_list'><a href='tutorials?tutorial=$file'>".highlightBackticks($name)."</a>$comment</li>\n";
-				}
-			}
-?>
-		</ul>
-<?php
+		echo "Invalid tutorial name.";
 	}
+} else {
+	list_tutorials();
+}
 ?>
-	</div>
-<?php
-	include("footer.php");
-?>
+
+</div>
+
+<?php include("footer.php"); ?>

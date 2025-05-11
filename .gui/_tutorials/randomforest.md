@@ -4,6 +4,8 @@
 
 <!-- What are random forests and how do they work? -->
 
+<!-- Category: Models -->
+
 ## What is a Random Forest?
 
 A [**Random Forest**](https://en.wikipedia.org/wiki/Random_forest) is a meta-algorithm that builds a collective of decision structures (trees) and aggregates their outcomes to form a more stable, generalized response. It leverages randomness both in data selection and feature consideration, aiming to reduce bias and variance simultaneously.

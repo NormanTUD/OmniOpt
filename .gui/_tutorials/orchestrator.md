@@ -2,6 +2,8 @@
 
 <!-- How to orchestrate how failing jobs should restart or be treated in general -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## What is the Orchestrator?

@@ -2,6 +2,8 @@
 
 <!-- What files are created for each run? -->
 
+<!-- Category: Developing -->
+
 <div id="toc"></div>
 
 ## `runs`-folder

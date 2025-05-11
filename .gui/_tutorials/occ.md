@@ -2,6 +2,8 @@
 
 <!-- How to use OmniOpt2 with multiple results (OCC) -->
 
+<!-- Category: Multiple Objectives -->
+
 <div id="toc"></div>
 
 ## What is OCC?

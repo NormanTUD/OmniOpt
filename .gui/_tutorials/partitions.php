@@ -1,5 +1,7 @@
 <!-- List of partitions and Memory, GPUs and so on on the HPC-Systems of TU-Dresden -->
 
+<!-- Category: Preparations and setup -->
+
 <?php
 	function createPartitionOverviewTable($jsonFilePath) {
 		// Check if file exists and is readable

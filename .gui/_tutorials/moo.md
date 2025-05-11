@@ -2,6 +2,8 @@
 
 <!-- How to use OmniOpt2 with Multi-Objective-Optimization (MOO)? -->
 
+<!-- Category: Multiple Objectives -->
+
 <div id="toc"></div>
 
 ## What is MOO?

@@ -2,6 +2,8 @@
 
 <!-- How to use your own programs to generate new points and include them easily in OmniOpt2 -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## Basic idea

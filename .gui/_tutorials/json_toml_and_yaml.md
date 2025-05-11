@@ -2,6 +2,8 @@
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## What are TOML, JSON and YAML files? What are they good for?

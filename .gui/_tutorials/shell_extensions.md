@@ -2,6 +2,8 @@
 
 <!-- Extensions for tab-completion for ZSH and Bash-Shells -->
 
+<!-- Category: Advanced usage -->
+
 <div id="toc"></div>
 
 ## What is Tab Completion?

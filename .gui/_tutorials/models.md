@@ -2,6 +2,8 @@
 
 <!-- What are Surrogate Models and when to use which one? -->
 
+<!-- Category: Models -->
+
 <div id="toc"></div>
 
 In the context of the [Ax](https://ax.dev/) (Adaptive Experimentation) platform, **surrogate models** are statistical models that are used to approximate expensive-to-evaluate functions. These models serve as a proxy for the actual function being optimized in Bayesian optimization.

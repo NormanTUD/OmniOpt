@@ -2,6 +2,8 @@
 
 <!-- How to continue jobs after they have been run already -->
 
+<!-- Category: Preparations and setup -->
+
 <div id="toc"></div>
 
 ## Continue an old job with the same options

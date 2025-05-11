@@ -748,7 +748,7 @@ if args.continue_previous_job is not None:
 
     path_to_external_generator_file = os.path.join(args.continue_previous_job, "state_files", "external_generator")
     if os.path.exists(path_to_external_generator_file) and args.external_generator is None:
-        with open(path_to_external_generator_file, "r") as ext_gen_f:
+        with open(path_to_external_generator_file, encoding="utf-8", mode="r") as ext_gen_f:
             args.external_generator = ext_gen_f.readline().strip()
 
 disable_logs = None

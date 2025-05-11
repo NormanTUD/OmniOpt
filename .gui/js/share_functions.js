@@ -1929,6 +1929,8 @@ function resizePlotlyCharts() {
 			Plotly.relayout(element, layout)
 		});
 	}
+
+	make_text_in_parallel_plot_nicer();
 }
 
 window.addEventListener('resize', function() {

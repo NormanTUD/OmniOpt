@@ -132,7 +132,6 @@ button:disabled:hover {
 
 #scads_bar {
 	width: 100%;
-	min-height: 80px;
 	margin: 0;
 	padding: 0;
 	user-select: none;

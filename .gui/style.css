@@ -814,3 +814,7 @@ input:checked + .slider::before {
 input::placeholder {
 	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 }
+
+.gridjs-th-content {
+	overflow: visible !important;
+}

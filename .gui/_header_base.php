@@ -208,12 +208,7 @@
 				</label>
 			</div>
 			<div class="header-badges">
-				<a href="https://github.com/NormanTUD/OmniOpt/actions" target="_blank">
-					<img class="badge-img" src="https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push" alt="CI Badge">
-				</a>
-				<a href="https://pypi.org/project/omniopt2/" target="_blank">
-					<img class="badge-img" src="https://img.shields.io/pypi/v/omniopt2" alt="PyPI Version">
-				</a>
+
 			</div>
 			<span style="display: block; margin-bottom: auto; margin-top: auto;">
 				<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">

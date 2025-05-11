@@ -649,6 +649,7 @@ img {
 .badge-img {
 	height: auto;
 	max-width: 130px;
+	margin-top: 3px;
 }
 
 .header-tabs {
@@ -747,6 +748,10 @@ input:checked + .slider::before {
 
 	.badge-img {
 		max-width: 100px;
+	}
+
+	.hide_on_mobile {
+		display: none;
 	}
 
 	.nav-tab {

@@ -80,16 +80,16 @@ function list_tutorials() {
 		if (count($entries) === 1) {
 			$e = $entries[0];
 			$comment = "";
-			if ($entry["comment"]) {
-				$comment = " &mdash; ".$entry["comment"];
+			if ($e["comment"]) {
+				$comment = " &mdash; ".$e["comment"];
 			}
 			echo "<p><a href='{$e['link']}'>{$e['label']}</a>$comment</p>\n";
 		} else {
 			echo "<ul>\n";
 			foreach ($entries as $e) {
 				$comment = "";
-				if ($entry["comment"]) {
-					$comment = " &mdash; ".$entry["comment"];
+				if ($e["comment"]) {
+					$comment = " &mdash; ".$e["comment"];
 				}
 				echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a>$comment</li>\n";
 			}
@@ -102,8 +102,8 @@ function list_tutorials() {
 		echo "<ul>\n";
 		foreach ($uncategorized as $e) {
 			$comment = "";
-			if ($entry["comment"]) {
-				$comment = " &mdash; ".$entry["comment"];
+			if ($e["comment"]) {
+				$comment = " &mdash; ".$e["comment"];
 			}
 			echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a>$comment</li>\n";
 		}

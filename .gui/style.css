@@ -99,6 +99,7 @@ button {
 	user-select: none;
 	-webkit-user-select: none;
 	touch-action: manipulation;
+	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 }
 
 button:hover {

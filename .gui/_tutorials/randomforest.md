@@ -16,6 +16,16 @@ A [**Random Forest**](https://en.wikipedia.org/wiki/Random_forest) is a meta-alg
 
 This creates a robust, noise-resistant estimator that thrives in high-dimensional, non-linear spaces.
 
+## How do Random Forests work?
+
+A Random Forest works by building many simple decision trees and combining their results. Each tree is trained on a random subset of the data and uses a random selection of features. This randomness ensures that the trees are diverse. When it's time to make a prediction, each tree gives an answer, and the forest combines them—by majority vote for classification or averaging for regression. This collective decision-making helps reduce overfitting and makes the model more stable.
+
+The parameter `--n_estimators_randomforest` controls **how many decision trees** are built in the forest. More trees can lead to better accuracy because the model has more opinions to average—but it also increases training time and memory usage.
+
+### What is a Decision Tree?
+
+A Decision Tree is a simple, flowchart-like model that makes predictions by splitting the data into branches based on feature values. At each node, the tree chooses a feature and a threshold that best separates the data according to some criterion (like [Gini impurity](https://en.wikipedia.org/wiki/Gini_coefficient) or [information gain](https://en.wikipedia.org/wiki/Information_gain_ratio)). This process continues until the data is fully split or a stopping condition is reached. In the end, each path through the tree leads to a leaf node that contains the predicted value or class. Decision Trees are easy to interpret but can easily overfit if used alone—this is why Random Forests combine many of them.
+
 ## How does it guide parameter selection?
 
 In optimization contexts:

@@ -161,6 +161,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
 - `experiment_name`: The name of this experiment
 - `experiment_overview.txt`: A table showing different parameters relating to the current experiment
+- `external_generator`: A file containing the path for the external generator
 - `failed_jobs`: The number of failed jobs
 - `follow`: Exists if the job was started with --follow. Only used for continued jobs
 - `generation_strategy`: A file containing the given generation strategy
@@ -195,7 +196,6 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `submitted_jobs`: The number of submitted jobs
 - `succeeded_jobs`: Contains one line for each succeeded job
 - `time_overview.txt`: A table of the runtimes (min, max, avg, median)
-- `external_generator`: A file containing the path for the external generator
 - `time`: The time this job-sbatch has allocated
 - `ui_url.txt`: Contains the URL that this run was started by
 - `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from

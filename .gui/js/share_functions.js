@@ -1903,14 +1903,11 @@ function demo_mode(nr_sec = 3) {
 	let tabs = $('menu[role="tablist"] > button');
 
 	setInterval(() => {
-		// Deaktiviere alle Tabs
 		tabs.attr('aria-selected', 'false').removeClass('active');
 
-		// Aktiviere aktuellen Tab
 		let tab = tabs.eq(i % tabs.length);
 		tab.attr('aria-selected', 'true').addClass('active');
 
-		// Trigger Klick (damit onclick z. B. Plot-Funktionen aufruft)
 		tab.trigger('click');
 
 		i++;

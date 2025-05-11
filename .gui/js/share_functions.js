@@ -1713,7 +1713,7 @@ function plotResultsDistributionByGenerationMethod() {
 			title: get_axis_title_data(res_col)
 		},
 		xaxis: {
-			title: "Generation Method"
+			title: get_axis_title_data("Generation Method")
 		},
 		boxmode: 'group'
 	};

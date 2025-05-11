@@ -2,7 +2,7 @@
 
 <!-- What are Virtual Environments and how OmniOpt2 uses them -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <div id="toc"></div>
 

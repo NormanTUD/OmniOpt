@@ -2,7 +2,7 @@
 
 <!-- How to run custom generation strategies -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

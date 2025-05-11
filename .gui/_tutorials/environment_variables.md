@@ -2,7 +2,7 @@
 
 <!-- List of all environment variables that change how OmniOpt2 works -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

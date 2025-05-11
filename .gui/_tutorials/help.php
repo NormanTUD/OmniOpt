@@ -9,7 +9,7 @@
 
 <!-- The <tt>--help</tt> of the main script of OmniOpt2 -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <h2 id="available_parameters_help">Available Parameters (--help)</h2>
 

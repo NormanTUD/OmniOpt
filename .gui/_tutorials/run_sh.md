@@ -2,7 +2,7 @@
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <div id="toc"></div>
 

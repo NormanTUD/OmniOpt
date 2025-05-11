@@ -1,6 +1,6 @@
 <!-- List of partitions and Memory, GPUs and so on on the HPC-Systems of TU-Dresden -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <?php
 	function createPartitionOverviewTable($jsonFilePath) {

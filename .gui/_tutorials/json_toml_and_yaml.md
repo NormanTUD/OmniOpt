@@ -2,7 +2,7 @@
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

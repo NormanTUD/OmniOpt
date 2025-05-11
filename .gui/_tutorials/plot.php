@@ -9,7 +9,7 @@
 
 <!-- What kinds of plots are available and how to use them -->
 
-<!-- Category: Plotting and sharing results -->
+<!-- Category: Plotting and Sharing Results -->
 
 <div id="toc"></div>
 

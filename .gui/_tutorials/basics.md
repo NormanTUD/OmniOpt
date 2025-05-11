@@ -2,7 +2,7 @@
 
 <!-- How to use OmniOpt locally, on HPC-Systems or in Docker -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <div id="toc"></div>
 

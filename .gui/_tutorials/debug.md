@@ -2,7 +2,7 @@
 
 <!-- How to find and solve bugs -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

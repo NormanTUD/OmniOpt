@@ -2,7 +2,7 @@
 
 <!-- How to orchestrate how failing jobs should restart or be treated in general -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

@@ -2,7 +2,7 @@
 
 <!-- What are Constraints and how to use them? -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 ## Why Constraints Matter in Hyperparameter Optimization and Simulations

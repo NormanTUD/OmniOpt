@@ -2,7 +2,7 @@
 
 <!-- Extensions for tab-completion for ZSH and Bash-Shells -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

@@ -2,7 +2,7 @@
 
 <!-- How to script OmniOpt2 -->
 
-<!-- Category: Advanced usage -->
+<!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
 

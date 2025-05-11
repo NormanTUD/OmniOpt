@@ -2,7 +2,7 @@
 
 <!-- How to continue jobs after they have been run already -->
 
-<!-- Category: Preparations and setup -->
+<!-- Category: Preparations, Basics and Setup -->
 
 <div id="toc"></div>
 

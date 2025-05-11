@@ -74,7 +74,7 @@ Sources: [Mixed-Variable Bayesian Optimization](https://arxiv.org/abs/1907.01329
 
 ## Special Generators
 
-These generators cannot be [continued](tutorials?tutorial=continue_job) or used in [Custom Generation Strategies](tutorials?tutorial=custom_generation_strategy).
+These generators cannot be used in [Custom Generation Strategies](tutorials?tutorial=custom_generation_strategy).
 
 ### RANDOMFOREST
 Uses a Random Forest surrogate model for prediction (no candidate generation). Suitable for modeling nonlinear effects in categorical/mixed spaces.

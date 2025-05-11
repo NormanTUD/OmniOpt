@@ -37,8 +37,6 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-uncontinueable_models: list = ["PSEUDORANDOM", "EXTERNAL_GENERATOR", "RANDOMFOREST"]
-
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
@@ -748,6 +746,11 @@ if args.continue_previous_job is not None:
     arg_result_names = found_result_names
     arg_result_min_or_max = found_result_min_max
 
+    path_to_external_generator_file = os.path.join(args.continue_previous_job, "state_files", "external_generator")
+    if os.path.exists(path_to_external_generator_file) and args.external_generator is None:
+        with open(path_to_external_generator_file, "r") as f:
+            args.external_generator = f.readline().strip()
+
 disable_logs = None
 
 try:
@@ -763,6 +766,8 @@ try:
         from ax.core import Metric
         import ax.exceptions.core
         import ax.exceptions.generation_strategy
+
+        from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
 
         try:
             import ax.generation_strategy.generation_node
@@ -832,7 +837,7 @@ global_gs: Optional[GenerationStrategy] = None
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any, num_samples: int, regressor_options: Dict[str, Any], seed: Optional[int] = None) -> None:
+    def __init__(self: Any, regressor_options: Dict[str, Any] = {}, seed: Optional[int] = None, num_samples: int = 1) -> None:
         print_debug("Initializing RandomForestGenerationNode...")
         t_init_start = time.monotonic()
         super().__init__(node_name="RANDOMFOREST")
@@ -1042,7 +1047,7 @@ def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) 
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
     @beartype
-    def __init__(self: Any, external_generator: str, node_name: str = "EXTERNAL_GENERATOR") -> None:
+    def __init__(self: Any, external_generator: str = args.external_generator, node_name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
         super().__init__(node_name=node_name)
@@ -5031,8 +5036,13 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
             print_red(f"{this_path_json} does not exist, cannot load data from it")
             return 0
 
+        decoder_registry = CORE_DECODER_REGISTRY
+
+        decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
+        decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
+
         try:
-            old_experiments = load_experiment(this_path_json)
+            old_experiments = load_experiment(this_path_json, CORE_DECODER_REGISTRY)
 
             old_trials = old_experiments.trials
 
@@ -5955,6 +5965,8 @@ def save_state_files() -> None:
         write_state_file("time", str(global_vars["_time"]))
         write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
         write_state_file("run_uuid", str(run_uuid))
+        if args.external_generator:
+            write_state_file("external_generator", str(args.external_generator))
 
         if args.follow:
             write_state_file("follow", "True")
@@ -6506,10 +6518,6 @@ def get_chosen_model() -> str:
 
         if os.path.exists(continue_model_file):
             chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
-
-            if chosen_model in uncontinueable_models:
-                print_red(f"Models in {', '.join(uncontinueable_models)} cannot be continued.")
-                my_exit(94)
 
             if chosen_model not in SUPPORTED_MODELS:
                 print_red(f"Wrong model >{chosen_model}< in {continue_model_file}.")

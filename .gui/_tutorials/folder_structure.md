@@ -195,6 +195,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `submitted_jobs`: The number of submitted jobs
 - `succeeded_jobs`: Contains one line for each succeeded job
 - `time_overview.txt`: A table of the runtimes (min, max, avg, median)
+- `external_generator`: A file containing the path for the external generator
 - `time`: The time this job-sbatch has allocated
 - `ui_url.txt`: Contains the URL that this run was started by
 - `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from

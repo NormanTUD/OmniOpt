@@ -1931,8 +1931,6 @@ function resizePlotlyCharts() {
 	}
 }
 
-resizePlotlyCharts();
-
 window.addEventListener('resize', function() {
 	resizePlotlyCharts();
 });

@@ -62,7 +62,8 @@ function createTable(data, headers, table_name) {
 		columns: headers,
 		data: data,
 		search: true,
-		sort: true
+		sort: true,
+		ellipsis: false
 	}).render(document.getElementById(table_name));
 
 	if (typeof apply_theme_based_on_system_preferences === 'function') {

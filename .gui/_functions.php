@@ -160,6 +160,7 @@
 		$markdown = preg_replace('/__(.*?)__/', '<strong>$1</strong>', $markdown);
 		$markdown = preg_replace('/\*(.*?)\*/', "<em>$1</em>\n", $markdown);
 
+		$markdown = preg_replace('/\[(.*?)\]\((https?:\/\/.*?)\)/', '<a href="$2" target="_blank">$1</a>', $markdown);
 		$markdown = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $markdown);
 		$markdown = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $markdown);
 

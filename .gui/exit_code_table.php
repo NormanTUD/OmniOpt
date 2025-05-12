@@ -6,7 +6,7 @@
 			3 => "Invalid exit code detected",
 			4 => "Failed loading modules",
 			5 => "Errors regarding json-, toml- or yaml-config files",
-			6 => "Error creating .logs dir",
+			6 => "Error creating logs dir",
 			7 => "Probably versioning error. Try removing virtualenv and try again",
 			8 => "Probably something went wrong trying to plot sixel graphics",
 			9 => "Probably something went wrong trying to use or define the ax_client or executor",

@@ -74,7 +74,6 @@
 		<title>OmniOpt2</title>
 		<link href="prism.css" rel="stylesheet">
 		<link href="css/source_sans_pro.css" rel="stylesheet">
-		<link href="css/neo_euler.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("jquery-3.7.1.js"); ?>
 		<?php js("jquery-ui.min.js"); ?>

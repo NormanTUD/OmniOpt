@@ -6627,7 +6627,12 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     selected_model = select_model(model_name)
     model_spec = [
-        GeneratorSpec(selected_model, model_gen_kwargs={"random_seed": args.seed})
+        GeneratorSpec(
+            selected_model,
+            model_gen_kwargs={
+                "random_seed": args.seed
+            }
+        )
     ]
 
     res = GenerationNode(

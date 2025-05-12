@@ -4360,6 +4360,10 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
 
                 with open(file_path, "a", encoding="utf-8") as f:
                     f.write(constraints_string + "\n")
+        else:
+            print_debug(f"set_parameter_constraints: not set, content: {experiment_constraints}")
+    else:
+        print_debug("set_parameter_constraints: no constraints set")
 
     return experiment_args
 

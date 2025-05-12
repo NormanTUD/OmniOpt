@@ -1,0 +1,9 @@
+@font-face {
+	font-family: "Neo Euler";
+	src: url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.eot");
+	src: url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.eot?#iefix")format("embedded-opentype"),
+	url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.woff2")format("woff2"),
+	url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.woff")format("woff"),
+	url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.ttf")format("truetype"),
+	url("fonts/neo_euler/f648a9e410063146c924304f8f9101ce.svg#Neo Euler")format("svg");
+}

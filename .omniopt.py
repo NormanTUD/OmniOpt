@@ -7688,6 +7688,8 @@ def main() -> None:
             experiment_parameters,
         ])
 
+        print_debug(f"experiment_parameters: {experiment_parameters}")
+
     set_orchestrator()
 
     show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)

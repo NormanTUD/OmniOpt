@@ -684,7 +684,7 @@ function update_command() {
 			return el.trim();
 		});
 		for (var r = 0; r < _constraints.length; r++) {
-			command += " --experiment_constraints '" + btoa(_constraints[r]) + "'";
+			command += " --experiment_constraints '" + btoa(add_equation_spaces(_constraints[r])) + "'";
 		}
 
 		var constraints_string = $("#constraints").val();
@@ -1616,4 +1616,26 @@ function toggle_model_warning_for_custom_generation_strategy() {
 	} else {
 		show_warning_for_model_when_custom_generation_strategy_is_set();
 	}
+}
+
+function add_equation_spaces(expression) {
+	const operators = {
+		'>=': '__GE__',
+		'<=': '__LE__',
+		'==': '__EQ__',
+		'!=': '__NE__',
+		'=>': '__AR__',
+	};
+
+	for (const [op, placeholder] of Object.entries(operators)) {
+		expression = expression.replaceAll(op, placeholder);
+	}
+
+	expression = expression.replace(/([+\-*/()=<>])/g, ' $1 ');
+
+	for (const [op, placeholder] of Object.entries(operators)) {
+		expression = expression.replaceAll(placeholder, ` ${op} `);
+	}
+
+	return expression.replace(/\s+/g, ' ').trim();
 }

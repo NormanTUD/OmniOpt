@@ -1,5 +1,5 @@
 body {
-	font-family: 'Neo Euler', 'Source Sans Pro', sans-serif;
+	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 	background-color: #fafafa;
 	font-variant: oldstyle-nums;
 	text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
@@ -99,7 +99,7 @@ button {
 	user-select: none;
 	-webkit-user-select: none;
 	touch-action: manipulation;
-	font-family: 'Neo Euler', 'Source Sans Pro', sans-serif;
+	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 }
 
 button:hover {
@@ -812,7 +812,7 @@ input:checked + .slider::before {
 }
 
 input::placeholder {
-	font-family: 'Neo Euler', 'Source Sans Pro', sans-serif;
+	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
 }
 
 .gridjs-th-content {

@@ -85,7 +85,7 @@ In the CLI, constraints can be added using the `--experiment_constraints` argume
 
 ### Possible comparison operators
 
-There are two possible comparison operators: `<=` and `>=`. No other ones are possible in Ax.
+There are two possible comparison operators: `<=` and `>=`. No other ones are possible in Ax. For non-ax-constraints,  \( == \), \( != \), \( <= \) and \( >= \) are also possible
 
 ### Constraints in Continued Jobs
 

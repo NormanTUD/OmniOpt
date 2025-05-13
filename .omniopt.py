@@ -8205,12 +8205,12 @@ def run_tests() -> None:
 
     nr_errors += is_equal('is_ax_compatible_constraint("abc", ["abc"])', is_ax_compatible_constraint("abc", ["abc"]), False)
     nr_errors += is_equal('is_ax_compatible_constraint("abc >= 1", ["abc"])', is_ax_compatible_constraint("abc >= 1", ["abc"]), True)
-    nr_errors += is_equal('is_ax_compatible_constraint("abc * def >= 1", ["abc", "def"])', is_ax_compatible_constraint("abc * def >= 1", ["abc", "def"]), False)
-    nr_errors += is_equal('is_ax_compatible_constraint("abc <= def", ["abc", "def"])', is_ax_compatible_constraint("abc <= def", ["abc", "def"]), True)
-    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "def"])', is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "def"]), True)
-    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5*def", ["abc"])', is_ax_compatible_constraint("2*abc <= 3.5*def", ["abc"]), False)
-    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"]), False)
-    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("abc * xyz >= 1", ["abc", "xyz"])', is_ax_compatible_constraint("abc * xyz >= 1", ["abc", "xyz"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("abc <= xyz", ["abc", "xyz"])', is_ax_compatible_constraint("abc <= xyz", ["abc", "xyz"]), True)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "xyz"])', is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "xyz"]), True)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5*xyz", ["abc"])', is_ax_compatible_constraint("2*abc <= 3.5*xyz", ["abc"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc"])', is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc", "xyz"])', is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc", "xyz"]), False)
 
     nr_errors += is_equal(
         "has_no_non_ax_constraints_or_matches_constraints([], {})",
@@ -8258,18 +8258,18 @@ def run_tests() -> None:
                           is_valid_equation("abc", ["abc"]), False)
     nr_errors += is_equal('is_valid_equation("abc >= 1", ["abc"])',
                           is_valid_equation("abc >= 1", ["abc"]), True)
-    nr_errors += is_equal('is_valid_equation("abc * def >= 1", ["abc", "def"])',
-                          is_valid_equation("abc * def >= 1", ["abc", "def"]), False)
-    nr_errors += is_equal('is_valid_equation("abc <= def", ["abc", "def"])',
-                          is_valid_equation("abc <= def", ["abc", "def"]), False)
-    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5", ["abc", "def"])',
-                          is_valid_equation("2*abc <= 3.5", ["abc", "def"]), True)
-    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5*def", ["abc"])',
-                          is_valid_equation("2*abc <= 3.5*def", ["abc"]), False)
-    nr_errors += is_equal('is_valid_equation("2*abc * def <= 3.5", ["abc"])',
-                          is_valid_equation("2*abc * def <= 3.5", ["abc"]), False)
-    nr_errors += is_equal('is_valid_equation("2*abc * def <= 3.5", ["abc", "def"])',
-                          is_valid_equation("2*abc * def <= 3.5", ["abc", "def"]), False)
+    nr_errors += is_equal('is_valid_equation("abc * xyz >= 1", ["abc", "xyz"])',
+                          is_valid_equation("abc * xyz >= 1", ["abc", "xyz"]), True)
+    nr_errors += is_equal('is_valid_equation("abc <= xyz", ["abc", "xyz"])',
+                          is_valid_equation("abc <= xyz", ["abc", "xyz"]), True)
+    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5", ["abc", "xyz"])',
+                          is_valid_equation("2*abc <= 3.5", ["abc", "xyz"]), True)
+    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5*xyz", ["abc"])',
+                          is_valid_equation("2*abc <= 3.5*xyz", ["abc"]), False)
+    nr_errors += is_equal('is_valid_equation("2*abc * xyz <= 3.5", ["abc"])',
+                          is_valid_equation("2*abc * xyz <= 3.5", ["abc"]), False)
+    nr_errors += is_equal('is_valid_equation("2*abc * xyz <= 3.5", ["abc", "xyz"])',
+                          is_valid_equation("2*abc * xyz <= 3.5", ["abc", "xyz"]), True)
     nr_errors += is_equal('is_valid_equation("a * b >= 10", ["a", "b"])',
                           is_valid_equation("a * b >= 10", ["a", "b"]), True)
     nr_errors += is_equal('is_valid_equation("1*sample_period >= 1/window_size", ["sample_period", "window_size"])',

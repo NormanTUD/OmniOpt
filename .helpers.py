@@ -354,11 +354,11 @@ def _unidiff_output(expected: str, actual: str) -> str:
 
     return ''.join(diff)
 
-def print_diff(i: str, o: str) -> None:
+def print_diff(n: str, i: str, o: str) -> None:
     if isinstance(i, str):
-        print("Should be:", i.strip())
+        print(f"{n} Should be:", i.strip())
     else:
-        print("Should be:", i)
+        print(f"{n} Should be:", i)
 
     if isinstance(o, str):
         print("Is:", o.strip())
@@ -398,7 +398,7 @@ def is_equal(n: str, o: Any, i: Any) -> bool:
     r = _is_equal(n, i, o)
 
     if r:
-        print_diff(i, o)
+        print_diff(n, i, o)
 
     if os.path.exists("None"):
         print("Folder 'None' exists! Exiting.")
@@ -430,7 +430,7 @@ def is_not_equal(n: str, i: Any, o: Any) -> bool:
     r = _is_not_equal(n, i, o)
 
     if r:
-        print_diff(i, o)
+        print_diff(n, i, o)
 
     return r
 

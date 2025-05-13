@@ -85,7 +85,7 @@
 		echo "  --no_color                                         Disables color output"
 		echo "  --force                                            Ignores cache"
 		echo "  --username=s3811141                                Specify username (with or without = sign)"
-		echo "  --dont_send_singleruns                             Dont sen't single runs"
+		echo "  --dont_send_singleruns                             Don't send single runs"
 		#echo "  --keep_tmp_dir                                    Keeps the tmp dir, prints it as well"
 		echo "  --outfile=slurm-12345.out                          Path to the outfile"
 

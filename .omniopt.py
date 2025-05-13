@@ -7779,8 +7779,6 @@ def debug_vars_unused_by_python_for_linter() -> None:
 
 @beartype
 def get_constraints(cli_params_experiment_parameters: list) -> list:
-    global non_ax_constraints
-
     constraints_list = []
 
     if args.experiment_constraints:

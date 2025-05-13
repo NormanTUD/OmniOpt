@@ -4339,11 +4339,9 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
 
         if experiment_constraints:
             for _l in range(len(experiment_constraints)):
-                constraints_string = decode_if_base64(" ".join(experiment_constraints[_l]))
-
-                constraints_string = constraints_string.rstrip("\n\r")
-
                 variables = [item['name'] for item in experiment_parameters]
+
+                constraints_string = experiment_constraints[_l]
 
                 equation = check_equation(variables, constraints_string)
 
@@ -7600,7 +7598,15 @@ def get_constraints() -> list:
                     constraints_list = [constraints_list]
 
     if len(constraints_list):
-        return constraints_list[0]
+        constraints_list = constraints_list[0]
+
+        for r in range(0, len(constraints_list)):
+            constraints_string = decode_if_base64(" ".join(constraints_list[r]))
+            constraints_string = constraints_string.rstrip("\n\r")
+
+            constraints_list[r] = constraints_string
+
+        return constraints_list
     else:
         return constraints_list
 

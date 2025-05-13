@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+ignored_exit_codes=(255 245 143)
+
+function is_ignored {
+	local code="$1"
+	for ignored in "${ignored_exit_codes[@]}"; do
+		if [ "$code" -eq "$ignored" ]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+errors=0
+
+for exit_code in $(cat .gui/exit_code_table.php | grep '=> "' | sed -e 's#\s=>.*##' | sed -e 's#^\s*##'); do
+	if is_ignored "$exit_code"; then
+		continue
+	fi
+
+	if ! cat .omniopt.py omniopt | grep -q "exit.*$exit_code"; then
+		echo "Exit code $exit_code not found in .omniopt.py"
+		errors=$(($errors+1))
+	fi
+done
+
+if [[ $errors -eq 0 ]]; then
+	green_text "No unused exit-codes found"
+	exit 0
+fi
+
+red_text "Found $errors unused exit codes"
+exit 1

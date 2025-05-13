@@ -4334,7 +4334,6 @@ def set_objectives() -> dict:
 @beartype
 def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
-        experiment_constraints = experiment_constraints[0]
 
         experiment_args["parameter_constraints"] = []
 
@@ -7600,7 +7599,10 @@ def get_constraints() -> list:
 
                     constraints_list = [constraints_list]
 
-    return constraints_list
+    if len(constraints_list):
+        return constraints_list[0]
+    else:
+        return constraints_list
 
 @beartype
 def main() -> None:

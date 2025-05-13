@@ -3122,7 +3122,6 @@ def print_evaluate_times() -> None:
                 f"{median_time:.2f} sec {human_time_when_larger_than_a_min(median_time)}"
             ]
 
-
             table = Table(title="Runtime Infos:")
             for h in headers:
                 table.add_column(h, justify="center")

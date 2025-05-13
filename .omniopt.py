@@ -419,6 +419,7 @@ class ConfigLoader:
     show_sixel_general: bool
     show_sixel_scatter: bool
     gpus: int
+    num_cpus_main_job: int
     model: Optional[str]
     live_share: bool
     experiment_name: str
@@ -548,6 +549,7 @@ class ConfigLoader:
         optional.add_argument('--external_generator', help='Programm call for an external generator', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
+        optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)

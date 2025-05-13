@@ -759,6 +759,7 @@
 		wait_until_ended=0
 		tests=0
 		workdir=""
+		num_cpus_main_job=""
 
 		continue_was_set=0
 
@@ -879,6 +880,7 @@ EOF
 		"mem_gb"
 		"gpus"
 		"main_process_gb"
+		"num_cpus_main_job"
 	)
 
 	complex_options=(
@@ -1623,6 +1625,14 @@ EOF
 		if [[ -n $mem_gb ]]; then
 			if [[ "$args_string" != *--mem_gb* ]]; then
 				args_string+=" --mem_gb=$mem_gb"
+			fi
+		fi
+
+		if [[ $num_cpus_main_job != "" ]]; then
+			if [[ "$args_string" == *--cpus-per-task=* ]]; then
+				args_string="$(echo "$args_string" | sed -E "s/--cpus-per-task=[^ ]+/--cpus-per-task=$num_cpus_main_job/")"
+			else
+				args_string+=" --cpus-per-task=$num_cpus_main_job"
 			fi
 		fi
 

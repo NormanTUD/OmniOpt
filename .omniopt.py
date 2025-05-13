@@ -4110,7 +4110,6 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
     except Exception as e:
         return f"Error: {str(e)}"
 
-
 @beartype
 def get_ax_param_representation(data: dict) -> dict:
     if data["type"] == "range":
@@ -7792,11 +7791,9 @@ def get_constraints() -> list:
 
     return constraints_list
 
-
 @beartype
 def _has_explicit_constraints() -> bool:
     return bool(args.experiment_constraints)
-
 
 @beartype
 def _should_load_previous_constraints() -> bool:
@@ -7856,7 +7853,6 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
             global_param_names = [param["name"] for param in params]
         else:
             print_red("_filter_valid_constraints: No parameters found, and not a continued job. Constraints will stay empty.")
-
 
     for raw_constraint in constraints:
         decoded = decode_if_base64(" ".join(raw_constraint))

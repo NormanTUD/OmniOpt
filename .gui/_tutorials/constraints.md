@@ -5,6 +5,7 @@
 <!-- Category: Advanced Usage -->
 
 <div id="toc"></div>
+
 ## Why Constraints Matter in Hyperparameter Optimization and Simulations
 
 When performing hyperparameter optimization or running large-scale simulations, constraints allow you to embed domain knowledge directly into the search space. Instead of blindly exploring all possible combinations of parameters, constraints restrict the optimization process to *feasible* or *meaningful* regions — which improves efficiency, avoids invalid configurations, and reflects real-world limitations.
@@ -30,22 +31,75 @@ Constraints are useful for several reasons:
 
 ### Simulation Examples
 
-- Respecting physical conservation laws or budget limits: \(\text{power_alloc}_A + \text{power_alloc}_B <= \text{max_total_power}\)
+- Respecting physical conservation laws or budget limits: \(\text{power_alloc}_A + \text{power_alloc}_B \leq \text{max_total_power}\)
 - Enforcing time-step stability conditions in numerical models.
 
-### Ax-Constraints
+---
 
-#### Mathematical Form
+## Ax-Constraints
 
-Ax constraints are taken into account already at the creation of new points, meaning parameter-arms that don't suffice the conditions will not be created in the first place.
+### Mathematical Form
 
-In general, ax-constraints can be written as \(a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c \), or \( x_1 \leq x_2 \), where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants, ie. `int` or `float`. This is because the creation of new points with constraints is by calculating the [linear span](https://en.wikipedia.org/wiki/Linear_span).
+Ax-constraints are taken into account already at the creation of new points, meaning parameter-arms that don't suffice the conditions will not be created in the first place.
 
-### Non-Ax-Constraints
+In general, ax-constraints can be written as:
 
-For more complex constraints, non-ax-constraints will be used. These can also take the form \( a \cdot x \cdot b\cdot y >= c \cdot z \). They are tested for *after* creation of points, and if the points don't suffice, they will not be executed, and be marked as abandoned. Valid Operators here are \( == \), \( != \), \( <= \), \( >= \). Valid calculation types are sums (with (`+`) and (`-`), products (`*`), and quotients (`/`)).
+- \(a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c\)
+- or \(x_1 \leq x_2\)
 
-It will automatically be decided whether to use ax or non-ax-constraints, depending on their form.
+where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants (i.e., `int` or `float`). This is because the creation of new points with constraints is based on calculating the [linear span](https://en.wikipedia.org/wiki/Linear_span).
+
+For a constraint to be treated as an ax-constraint:
+
+- It must be mathematically valid (parsable and type-correct)
+- It must follow the linear form rules described above
+
+#### Examples of valid ax-constraints:
+
+- \(3 \cdot \text{learning_rate} + 2 \cdot \text{dropout} <= 1.0 \)
+- \( \text{batch_size} <= 512 \)
+- \( \text{layers} <= \text{depth} \)
+
+#### Examples **not** valid as ax-constraints:
+
+- \( \text{sample_period} \cdot \text{window_size} >= 1 \)
+- \( 1 \cdot \text{sample_period} >= 1 / \text{window_size} \)
+
+These are valid constraints but will be evaluated *after* point creation, as non-ax-constraints.
+
+---
+
+## Non-Ax-Constraints
+
+For more complex constraints, non-ax-constraints will be used. These are evaluated *after* point creation. If a point does not satisfy a non-ax constraint, the job will be immediately marked as *abandoned* and will not be executed.
+
+### Valid operators for non-ax-constraints include:
+
+- `==`, `!=`, `<=`, `>=`
+
+### Valid calculation types:
+
+- Arithmetic sums and differences: `+`, `-`
+- Scalar multiplications: `*`
+- Divisions: `/`
+- Unary operations: `+x`, `-x`
+- Constants (e.g., `5`, `1.2`, etc.)
+
+### Non-ax-constraints must:
+
+- Be valid equations (syntax-checked and structurally correct)
+- Include at least one comparison operator
+- Reference only allowed parameter names and numeric constants
+- Not be ax-compatible — otherwise, they will be treated as ax-constraints instead
+
+#### Examples of valid non-ax-constraints:
+
+- \( \text{sample_period} \cdot \text{window_size} >= 1 \)
+- \( 1 * \text{sample_period} >= 1 / \text{window_size} \)
+- \( \text{training_steps} + \text{warmup_steps} <= 10000 \)
+- \( \text{dropout_rate } != 0.5 \)
+
+Multiple constraints can be defined. Each will automatically be interpreted as ax or non-ax depending on its structure.
 
 ## Using Constraints in OmniOpt2
 
@@ -65,27 +119,25 @@ $$
 x \leq y.
 $$
 
-For example, you might specify a constraint like:
+For example:
 
 $$
 3 \cdot \text{learning_rate} + 2 \cdot \text{batch_size} \leq 100
 $$
 
-This constraint would limit the combination of the learning rate and batch size to ensure that they don't exceed a total of 100. To enter constraints in the GUI, see the screenshot below for guidance:
+This constraint limits the combination of learning rate and batch size to ensure they don't exceed a total of 100. See the screenshot below for input guidance:
 
 <img alt="Constraints GUI" data-lightsrc="imgs/constraints_light.png" data-darksrc="imgs/constraints_dark.png" /><br>
 
 ### 2. Using the CLI
 
-In the CLI, constraints can be added using the `--experiment_constraints` argument. You need to encode each constraint in base64 format. Here’s an example:
+In the CLI, constraints can be added using the `--experiment_constraints` argument. Each constraint must be encoded in base64 format.
+
+#### Example:
 
 ```bash
 --experiment_constraints $(echo "50 * learning_rate + 20 * batch_size >= 1000" | base64 -w0) $(echo "100 * learning_rate + 200 * num_layers >= 500" | base64 -w0)
 ```
-
-### Possible comparison operators
-
-There are two possible comparison operators: `<=` and `>=`. No other ones are possible in Ax. For non-ax-constraints, \( == \) and \( != \) are also possible
 
 ### Constraints in Continued Jobs
 

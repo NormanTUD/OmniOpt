@@ -4311,7 +4311,6 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
 
     return True
 
-
 @beartype
 def is_ax_compatible_constraint(equation: str, variables: List[str]) -> Union[str, bool]:
     equation = equation.replace("\\*", "*")

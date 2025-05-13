@@ -6631,7 +6631,9 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             selected_model,
             model_gen_kwargs={
                 "random_seed": args.seed,
-                "fallback_to_sample_polytope": True
+                "fallback_to_sample_polytope": True,
+                "check_duplicates": True,
+                "deduplicate_strict": True,
             }
         )
     ]

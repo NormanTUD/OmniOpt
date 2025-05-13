@@ -3059,6 +3059,24 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
 @beartype
+def human_time_when_larger_than_a_min(seconds: int) -> str:
+    total_seconds = int(seconds)
+
+    if total_seconds < 60:
+        return ""
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    if secs or not parts:  # Zeige Sekunden immer, wenn sonst nichts da ist
+        parts.append(f"{secs}s")
+    return f"({''.join(parts)})"
+
+@beartype
 def print_evaluate_times() -> None:
     file_path = f"{get_current_run_folder()}/job_infos.csv"
 
@@ -3095,7 +3113,15 @@ def print_evaluate_times() -> None:
 
         if min_time != max_time or max_time != 0:
             headers = ["Number of values", "Min time", "Max time", "Average time", "Median time"]
-            cols = [str(len(time_values)), f"{min_time:.2f} sec", f"{max_time:.2f} sec", f"{avg_time:.2f} sec", f"{median_time:.2f} sec"]
+
+            cols = [
+                str(len(time_values)),
+                f"{min_time:.2f} sec {human_time_when_larger_than_a_min(min_time)}",
+                f"{max_time:.2f} sec {human_time_when_larger_than_a_min(max_time)}",
+                f"{avg_time:.2f} sec {human_time_when_larger_than_a_min(avg_time)}",
+                f"{median_time:.2f} sec {human_time_when_larger_than_a_min(median_time)}"
+            ]
+
 
             table = Table(title="Runtime Infos:")
             for h in headers:

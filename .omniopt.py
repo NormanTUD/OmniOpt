@@ -3059,7 +3059,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 
 @beartype
-def human_time_when_larger_than_a_min(seconds: int) -> str:
+def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
     total_seconds = int(seconds)
 
     if total_seconds < 60:

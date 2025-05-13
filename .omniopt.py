@@ -7869,7 +7869,9 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
             print_debug(f"Added non-ax-constraint '{decoded}'")
             non_ax_constraints.append(decoded)
         else:
-            print_red(f"Invalid constraint found: '{decoded}' (is valid ax? {is_ax}, is valid equation? {is_equation}). Ignoring it.")
+            print_red(f"Invalid constraint found: '{decoded}' (is valid ax? {is_ax}, is valid equation? {is_equation}).")
+
+            my_exit(19)
 
     return final_constraints_list
 

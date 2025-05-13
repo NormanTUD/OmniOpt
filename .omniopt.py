@@ -7824,10 +7824,39 @@ def _normalize_constraints_list(constraints_list: list) -> List[str]:
         return constraints_list[0]
     return constraints_list
 
+@beartype
+def _load_experiment_json(continue_previous_job_path):
+    experiment_json_data = {}
+
+    json_file_path = os.path.join(continue_previous_job_path, "state_files", "ax_client.experiment.json")
+
+    if os.path.isfile(json_file_path):
+        try:
+            with open(json_file_path, "r", encoding="utf-8") as f:
+                experiment_json_data = json.load(f)
+        except Exception as e:
+            print_yellow(f"Fehler beim Laden der Datei: {json_file_path}\n{str(e)}")
+    else:
+        print_yellow(f"Warnung: Datei nicht gefunden: {json_file_path}")
+
+    return experiment_json_data
 
 @beartype
 def _filter_valid_constraints(constraints: List[str]) -> List[str]:
+    global global_param_names
+
     final_constraints_list: List[str] = []
+
+    if len(global_param_names) == 0:
+        if args.continue_previous_job:
+            experiment_json_data = _load_experiment_json(args.continue_previous_job)
+
+            params = experiment_json_data["search_space"]["parameters"]
+
+            global_param_names = [param["name"] for param in params]
+        else:
+            print_red("_filter_valid_constraints: No parameters found, and not a continued job. Constraints will stay empty.")
+
 
     for raw_constraint in constraints:
         decoded = decode_if_base64(" ".join(raw_constraint))

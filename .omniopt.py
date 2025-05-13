@@ -41,6 +41,7 @@ special_col_names: list = ["arm_name", "generation_method", "trial_index", "tria
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
 non_ax_constraints: list = []
+abandoned_trial_indices: list = []
 
 figlet_loaded: bool = False
 
@@ -95,7 +96,6 @@ try:
         import csv
 
         import ast
-        import operator
 
         from rich.progress import Progress, TimeRemainingColumn
         from rich.table import Table
@@ -4264,29 +4264,29 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
     def is_only_allowed_vars(node):
         if isinstance(node, ast.Name):
             return node.id in allowed_vars
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             return is_valid_op(node.op) and \
                    is_only_allowed_vars(node.left) and \
                    is_only_allowed_vars(node.right)
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             return isinstance(node.op, (ast.UAdd, ast.USub)) and \
                    is_only_allowed_vars(node.operand)
-        elif isinstance(node, ast.Constant):
+        if isinstance(node, ast.Constant):
             return isinstance(node.value, (int, float))
-        elif isinstance(node, ast.Num):  # für Python < 3.8
+        if isinstance(node, ast.Num):  # für Python < 3.8
             return isinstance(node.n, (int, float))
         return False
 
     def is_constant_expr(node):
         if isinstance(node, ast.Constant):
             return isinstance(node.value, (int, float))
-        elif isinstance(node, ast.Num):  # für Python < 3.8
+        if isinstance(node, ast.Num):  # für Python < 3.8
             return isinstance(node.n, (int, float))
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             return is_valid_op(node.op) and \
                    is_constant_expr(node.left) and \
                    is_constant_expr(node.right)
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             return isinstance(node.op, (ast.UAdd, ast.USub)) and \
                    is_constant_expr(node.operand)
         return False
@@ -4761,7 +4761,6 @@ def print_non_ax_parameter_constraints_table() -> None:
         print_red(f"Error writing {fn}: {e}")
 
     return None
-
 
 @beartype
 def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
@@ -6386,6 +6385,29 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
 
     return ret
 
+@beartype
+def has_no_non_ax_constraints_or_matches_constraints(params: dict) -> bool:
+    if not non_ax_constraints or len(non_ax_constraints) == 0:
+        return True
+
+    for constraint in non_ax_constraints:
+        try:
+            expression = constraint
+
+            for var in params:
+                expression = expression.replace(var, f"({repr(params[var])})")
+
+            result = eval(expression, {"__builtins__": {}}, {})
+
+            if not result:
+                return False
+
+        except Exception as e:
+            print_debug(f"Error checking constraint '{constraint}': {e}")
+            return False
+
+    return True
+
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
@@ -6416,18 +6438,25 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     n=1,
                     pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
                 )
+
+
                 trial = ax_client.experiment.new_trial(generator_run)
                 params = generator_run.arms[0].parameters
 
-                trial.mark_running(no_runner_required=True)
-
                 trials_dict[trial_index] = params
+                gotten_jobs = gotten_jobs + 1
+
                 print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
                 end_time = time.time()
 
-                gotten_jobs = gotten_jobs + 1
-
                 trial_durations.append(float(end_time - start_time))
+
+                if not has_no_non_ax_constraints_or_matches_constraints(params):
+                    print_debug(f"Marking trial as abandoned since it doesn't fit a non-ax-constraint: {params}")
+                    trial.mark_abandoned()
+                    abandoned_trial_indices.append(trial_index)
+                else:
+                    trial.mark_running(no_runner_required=True)
             else:
                 print_red("ax_client, ax_client.experiment or global_gs is not defined")
                 my_exit(101)
@@ -7021,7 +7050,17 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
             if done_optimizing:
                 continue
             if trial_index_to_param:
-                results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+                nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
+
+                trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
+
+                if len(list(trial_index_to_param.keys())):
+                    results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+                else:
+                    if nr_jobs_before_removing_abandoned > 0:
+                        print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
+                    else:
+                        print_debug("Could not generate any jobs")
 
         finish_previous_jobs(["finishing jobs"])
 

@@ -3,6 +3,7 @@
 unused_params=0
 
 allowed=(
+	num_cpus_main_job
 	workdir
 	show_ram_every_n_seconds
 	send_anonymized_usage_stats

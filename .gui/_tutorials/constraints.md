@@ -33,9 +33,17 @@ Constraints are useful for several reasons:
 - Respecting physical conservation laws or budget limits: \(\text{power_alloc}_A + \text{power_alloc}_B <= \text{max_total_power}\)
 - Enforcing time-step stability conditions in numerical models.
 
-### Mathematical Form
+### Ax-Constraints
 
-In general, constraints can be written as \(a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c \), or \( x_1 \leq x_2 \), where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants, ie. `int` or `float`.
+#### Mathematical Form
+
+Ax constraints are taken into account already at the creation of new points, meaning parameter-arms that don't suffice the conditions will not be created in the first place.
+
+In general, ax-constraints can be written as \(a_1 \cdot x_1 + a_2 \cdot x_2 + \dots + a_n \cdot x_n \leq c \), or \( x_1 \leq x_2 \), where \(x_1, x_2, \dots, x_n\) are parameters and \(a_i, c\) are constants, ie. `int` or `float`. This is because the creation of new points with constraints is by calculating the [linear span](https://en.wikipedia.org/wiki/Linear_span).
+
+### Non-Ax-Constraints
+
+For more complex constraints, non-ax-constraints will be used. These can also take the form \( a \cdot x \cdot b\cdot y >= c \cdot z \). They are tested for *after* creation of points, and if the points don't suffice, they will not be executed, and be marked as abandoned. Valid Operators here are \( == \), \( != \), \( <= \), \( >= \). Valid calculation types are sums (with (`+`) and (`-`), products (`*`), and quotients (`/`)).
 
 ## Using Constraints in OmniOpt2
 

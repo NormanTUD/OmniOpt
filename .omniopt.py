@@ -6439,7 +6439,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
                 )
 
-
                 trial = ax_client.experiment.new_trial(generator_run)
                 params = generator_run.arms[0].parameters
 

@@ -4554,7 +4554,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
     seed = args.seed
     parameter = args.parameter
 
-    experiment_constraints = get_constraints()
+    experiment_constraints = get_constraints(cli_params_experiment_parameters)
 
     global ax_client
 
@@ -4733,7 +4733,38 @@ def parse_single_experiment_parameter_table(experiment_parameters: Union[list, d
     return rows
 
 @beartype
-def print_parameter_constraints_table(experiment_args: dict) -> None:
+def print_non_ax_parameter_constraints_table() -> None:
+    if not non_ax_constraints:
+        return None
+
+    table = Table(header_style="bold")
+    columns = ["Non-Ax-Constraints"]
+
+    for column in columns:
+        table.add_column(column)
+
+    for constraint in non_ax_constraints:
+        table.add_row(constraint)
+
+    with console.capture() as capture:
+        console.print(table)
+
+    table_str = capture.get()
+
+    console.print(table)
+
+    fn = f"{get_current_run_folder()}/non_ax_constraints.txt"
+    try:
+        with open(fn, mode="w", encoding="utf-8") as text_file:
+            text_file.write(table_str)
+    except Exception as e:
+        print_red(f"Error writing {fn}: {e}")
+
+    return None
+
+
+@beartype
+def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
     if not (experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"])):
         return None
 
@@ -4869,7 +4900,8 @@ def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) 
 def print_overview_tables(experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
     print_experiment_parameters_table(experiment_parameters)
 
-    print_parameter_constraints_table(experiment_args)
+    print_ax_parameter_constraints_table(experiment_args)
+    print_non_ax_parameter_constraints_table()
 
     print_result_names_overview_table()
 
@@ -7707,7 +7739,7 @@ def debug_vars_unused_by_python_for_linter() -> None:
     )
 
 @beartype
-def get_constraints() -> list:
+def get_constraints(cli_params_experiment_parameters: list) -> list:
     global non_ax_constraints
 
     constraints_list = []
@@ -7737,13 +7769,18 @@ def get_constraints() -> list:
             constraints_string = decode_if_base64(" ".join(constraints_list[r]))
             constraints_string = constraints_string.rstrip("\n\r")
 
-            if is_ax_compatible_constraint(constraints_string, arg_result_names):
+            param_names = [param['name'] for param in cli_params_experiment_parameters]
+
+            constraint_is_ax_valid = is_ax_compatible_constraint(constraints_string, param_names)
+            constraint_is_valid_equation = is_valid_equation(constraints_string, param_names)
+
+            if constraint_is_ax_valid:
                 final_constraints_list.append(constraints_string)
-            elif is_valid_equation(constraints_string, arg_result_names):
+            elif constraint_is_valid_equation:
                 print_debug(f"Added non-ax-constraint '{constraints_string}'")
                 non_ax_constraints.append(constraints_string)
             else:
-                print_red(f"Invalid constraint found: '{constraints_string}'. Ignoring it.")
+                print_red(f"Invalid constraint found: '{constraints_string}' (is valid ax? {constraint_is_ax_valid}, is valid equation? {constraint_is_valid_equation}). Ignoring it.")
 
         constraints_list = final_constraints_list
 

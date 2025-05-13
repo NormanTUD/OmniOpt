@@ -7832,9 +7832,9 @@ def _load_experiment_json(continue_previous_job_path):
             with open(json_file_path, "r", encoding="utf-8") as f:
                 experiment_json_data = json.load(f)
         except Exception as e:
-            print_yellow(f"Fehler beim Laden der Datei: {json_file_path}\n{str(e)}")
+            print_yellow(f"Error while reading the file: {json_file_path}\n{str(e)}")
     else:
-        print_yellow(f"Warnung: Datei nicht gefunden: {json_file_path}")
+        print_yellow(f"Warning: File not found: {json_file_path}")
 
     return experiment_json_data
 

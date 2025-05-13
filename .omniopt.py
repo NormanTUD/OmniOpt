@@ -7606,9 +7606,7 @@ def get_constraints() -> list:
 
             constraints_list[r] = constraints_string
 
-        return constraints_list
-    else:
-        return constraints_list
+    return constraints_list
 
 @beartype
 def main() -> None:

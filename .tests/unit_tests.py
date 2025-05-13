@@ -41,7 +41,7 @@ to_test = {
         "check_environment_variable('I_DO_NOT_EXIST')": False,
         "looks_like_int(1)": True,
         "to_int_when_possible('hallo')": "hallo",
-        "print_diff('hallo', 'hallo')": None,
+        "print_diff('hallo', 'hallo', 'hallo')": None,
         "looks_like_int('hallo')": False,
         "looks_like_int(4.2)": False,
         "looks_like_int(42)": True,

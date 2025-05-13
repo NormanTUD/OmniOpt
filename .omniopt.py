@@ -40,6 +40,8 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
+non_ax_constraints: list = []
+
 figlet_loaded: bool = False
 
 try:
@@ -7706,6 +7708,8 @@ def debug_vars_unused_by_python_for_linter() -> None:
 
 @beartype
 def get_constraints() -> list:
+    global non_ax_constraints
+
     constraints_list = []
 
     if args.experiment_constraints:
@@ -7727,11 +7731,21 @@ def get_constraints() -> list:
     if len(constraints_list):
         constraints_list = constraints_list[0]
 
+        final_constraints_list = []
+
         for r in range(0, len(constraints_list)):
             constraints_string = decode_if_base64(" ".join(constraints_list[r]))
             constraints_string = constraints_string.rstrip("\n\r")
 
-            constraints_list[r] = constraints_string
+            if is_ax_compatible_constraint(constraints_string, arg_result_names):
+                final_constraints_list.append(constraints_string)
+            elif is_valid_equation(constraints_string, arg_result_names):
+                print_debug(f"Added non-ax-constraint '{constraints_string}'")
+                non_ax_constraints.append(constraints_string)
+            else:
+                print_red(f"Invalid constraint found: '{constraints_string}'. Ignoring it.")
+
+        constraints_list = final_constraints_list
 
     return constraints_list
 
@@ -8092,6 +8106,8 @@ def run_tests() -> None:
                           is_valid_equation("2*abc * def <= 3.5", ["abc"]), False)
     nr_errors += is_equal('is_valid_equation("2*abc * def <= 3.5", ["abc", "def"])',
                           is_valid_equation("2*abc * def <= 3.5", ["abc", "def"]), False)
+    nr_errors += is_equal('is_valid_equation("a * b >= 10", ["a", "b"])',
+                          is_valid_equation("a * b >= 10", ["a", "b"]), True)
 
     rounded_lower, rounded_upper = round_lower_and_upper_if_type_is_int("int", -123.4, 123.4)
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)

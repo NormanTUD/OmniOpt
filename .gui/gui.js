@@ -1300,9 +1300,13 @@ function test_if_equation_is_valid(str, names) {
 	}
 
 	var splitted = str.includes(">=") ? str.split(">=") : str.split("<=");
+	if (splitted.length !== 2) {
+		errors.push("<img src='i/warning.svg' style='height: 1em' /> Equation format is incorrect. There should be exactly one comparison operator.");
+		isValid = false;
+	}
 
 	var left_side = splitted[0].replace(/\s+/g, "");
-	if(!left_side) {
+	if (!left_side) {
 		errors.push("<img src='i/warning.svg' style='height: 1em' /> Left side is empty or contains only whitespace. Please provide an expression on the left side.");
 		isValid = false;
 	}
@@ -1319,42 +1323,38 @@ function test_if_equation_is_valid(str, names) {
 			isValid = false;
 		}
 
-		var nr_re = "([+-]?\\d+(\.\d+)?)";
-
-		var namePattern = names.join("|");
+		// Escape variable names for regex usage
+		var escapedNames = names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+		var namePattern = `(?:${escapedNames.join("|")})`;
 
 		var numberPattern = "\\d+(?:\\.\\d+)?";
-
-		var allowedVar = `(?:${namePattern})`;
-
-		var termPattern = `[+-]?(?:(?:${numberPattern})(?:\\*${allowedVar})*|${allowedVar}(?:\\*${allowedVar})*)`;
-
-		var fullPattern = `^(?:${termPattern})(?:[+-](?:${termPattern}))*$`;
+		var factorPattern = `(?:${numberPattern}|${namePattern})`;
+		var productPattern = `${factorPattern}(?:\\*${factorPattern})*`;
+		var termPattern = `[+-]?${productPattern}`;
+		var fullPattern = `^${termPattern}(?:[+-]${termPattern})*$`;
 
 		var regex = new RegExp(fullPattern);
-
 		if (!regex.test(left_side)) {
 			errors.push(`<img src='i/warning.svg' style='height: 1em' /> Left side does not match expected pattern. Invalid term or parameter format detected in '${left_side}'`);
 			isValid = false;
 		}
 
-		// Check for multiple operators in a row
-		var multipleOperatorsRegex = new RegExp("[*+-][*+-]");
-		if(multipleOperatorsRegex.test(left_side)) {
+		// Check for multiple operators in a row (e.g., ++, --, **)
+		if (/[*+-]{2,}/.test(left_side)) {
 			errors.push("<img src='i/warning.svg' style='height: 1em' /> The left side contains multiple operators directly in a row. Ensure that operators are used correctly.");
 			isValid = false;
 		}
 
-		// Number followed by variable without an operator
+		// Check for number directly followed by variable without *
+		var nr_re = "([+-]?\\d+(\\.\\d+)?)";
 		var number_followed_by_varname = new RegExp(`${nr_re}(${namePattern})`);
-		if(number_followed_by_varname.test(left_side)) {
+		if (number_followed_by_varname.test(left_side)) {
 			errors.push("<img src='i/warning.svg' style='height: 1em' /> A number is followed directly by a variable name without an operator. Example: '3x' is not valid, use '3*x' instead.");
 			isValid = false;
 		}
 
-		// Left side starting with an operator
-		var starts_with_operator = new RegExp(`^[*+]`);
-		if(starts_with_operator.test(left_side)) {
+		// Check for starting with invalid operator
+		if (/^[*+]/.test(left_side)) {
 			errors.push("<img src='i/warning.svg' style='height: 1em' /> Left side starts with an operator. The equation cannot start with an operator.");
 			isValid = false;
 		}
@@ -1362,15 +1362,13 @@ function test_if_equation_is_valid(str, names) {
 
 	function errorsToHtml(_errors) {
 		if (_errors.length) {
-			_errors.unshift(`<b>Equation: ${str}</b>`)
+			_errors.unshift(`<b>Equation: ${str}</b>`);
 			return "<ul>" + _errors.map(error => `<li>${error}</li>`).join('') + "</ul>";
 		}
-
 		return "";
 	}
 
 	var ret_str = errorsToHtml(errors);
-
 	return ret_str;
 }
 
@@ -1480,7 +1478,7 @@ function equation_validation_test () {
 	internal_equation_checker("x + y >= ", false);
 	internal_equation_checker("10*x + y >= abc", false);
 	internal_equation_checker("x + y ==> 10", false);
-	internal_equation_checker("x * 2 >= 10", false);
+	internal_equation_checker("x * 2 >= 10", true);
 	internal_equation_checker("3*x + y => 10", false);
 	internal_equation_checker("2*x + y >= ", false);
 	internal_equation_checker("x+y > 10", false);
@@ -1502,7 +1500,7 @@ function equation_validation_test () {
 	internal_equation_checker("3*x + + 5*y >= 10", false);
 	internal_equation_checker("2*x / 3*y >= 10", false);
 	internal_equation_checker("2*x + 5..y >= 10", false);
-	internal_equation_checker("x + y + hallo*4 >= 20", false);
+	internal_equation_checker("x + y + hallo*4 >= 20", true);
 	internal_equation_checker("x + = y >= 5", false);
 	internal_equation_checker("x + 2* + y >= 10", false);
 	internal_equation_checker("x + 2*5*y >= ", false);

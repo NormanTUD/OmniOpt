@@ -7800,7 +7800,7 @@ def _has_explicit_constraints() -> bool:
 
 @beartype
 def _should_load_previous_constraints() -> bool:
-    return args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints))
+    return bool(args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints)))
 
 @beartype
 def _load_previous_constraints(job_path: str) -> list:

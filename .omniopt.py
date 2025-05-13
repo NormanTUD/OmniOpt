@@ -6386,11 +6386,11 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
     return ret
 
 @beartype
-def has_no_non_ax_constraints_or_matches_constraints(params: dict) -> bool:
-    if not non_ax_constraints or len(non_ax_constraints) == 0:
+def has_no_non_ax_constraints_or_matches_constraints(_non_ax_constraints: list, params: dict) -> bool:
+    if not _non_ax_constraints or len(_non_ax_constraints) == 0:
         return True
 
-    for constraint in non_ax_constraints:
+    for constraint in _non_ax_constraints:
         try:
             expression = constraint
 
@@ -6451,7 +6451,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
                 trial_durations.append(float(end_time - start_time))
 
-                if not has_no_non_ax_constraints_or_matches_constraints(params):
+                if not has_no_non_ax_constraints_or_matches_constraints(non_ax_constraints, params):
                     print_debug(f"Marking trial as abandoned since it doesn't fit a non-ax-constraint: {params}")
                     trial.mark_abandoned()
                     abandoned_trial_indices.append(trial_index)
@@ -8166,6 +8166,48 @@ def run_tests() -> None:
     nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"]), False)
     nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"]), False)
 
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints([], {})",
+        has_no_non_ax_constraints_or_matches_constraints([], {}),
+        True
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': 5})",
+        has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': 5}),
+        True
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': -1})",
+        has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': -1}),
+        False
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2})",
+        has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2}),
+        True
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1})",
+        has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1}),
+        False
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['unknown > 0'], {'a': 1})",
+        has_no_non_ax_constraints_or_matches_constraints(['unknown > 0'], {'a': 1}),
+        False  # unknown bleibt unersetzt → eval Error
+    )
+
+    nr_errors += is_equal(
+        "has_no_non_ax_constraints_or_matches_constraints(['a + '], {'a': 1})",
+        has_no_non_ax_constraints_or_matches_constraints(['a + '], {'a': 1}),
+        False  # Syntaxfehler
+    )
+
     nr_errors += is_equal('is_valid_equation("abc", ["abc"])',
                           is_valid_equation("abc", ["abc"]), False)
     nr_errors += is_equal('is_valid_equation("abc >= 1", ["abc"])',
@@ -8184,6 +8226,8 @@ def run_tests() -> None:
                           is_valid_equation("2*abc * def <= 3.5", ["abc", "def"]), False)
     nr_errors += is_equal('is_valid_equation("a * b >= 10", ["a", "b"])',
                           is_valid_equation("a * b >= 10", ["a", "b"]), True)
+    nr_errors += is_equal('is_valid_equation("1*sample_period >= 1/window_size", ["sample_period", "window_size"])',
+                          is_valid_equation("1*sample_period >= 1/window_size", ["sample_period", "window_size"]), True)
 
     rounded_lower, rounded_upper = round_lower_and_upper_if_type_is_int("int", -123.4, 123.4)
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)

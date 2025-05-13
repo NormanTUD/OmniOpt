@@ -419,7 +419,7 @@ class ConfigLoader:
     show_sixel_general: bool
     show_sixel_scatter: bool
     gpus: int
-    num_cpus_main_job: int
+    num_cpus_main_job: Optional[int]
     model: Optional[str]
     live_share: bool
     experiment_name: str

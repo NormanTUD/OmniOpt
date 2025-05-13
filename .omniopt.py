@@ -42,6 +42,7 @@ IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit
 
 non_ax_constraints: list = []
 abandoned_trial_indices: list = []
+global_param_names: list = []
 
 figlet_loaded: bool = False
 
@@ -2430,6 +2431,7 @@ def parse_experiment_parameters() -> list:
                 my_exit(181)
 
             param_names.append(name)
+            global_param_names.append(name)
 
             try:
                 param_type = this_args[j + 1]
@@ -4553,7 +4555,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
     seed = args.seed
     parameter = args.parameter
 
-    experiment_constraints = get_constraints(cli_params_experiment_parameters)
+    experiment_constraints = get_constraints()
 
     global ax_client
 
@@ -7776,50 +7778,73 @@ def debug_vars_unused_by_python_for_linter() -> None:
     )
 
 @beartype
-def get_constraints(cli_params_experiment_parameters: list) -> list:
-    constraints_list = []
+def get_constraints() -> list:
+    constraints_list: List[str] = []
 
-    if args.experiment_constraints:
+    if _has_explicit_constraints():
         constraints_list = args.experiment_constraints
-    elif args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints)):
-        prev_job_constraint_file = os.path.join(args.continue_previous_job, "state_files", "constraints")
-        if os.path.exists(prev_job_constraint_file):
-            if os.path.exists(prev_job_constraint_file):
-                with open(prev_job_constraint_file, "r", encoding="utf-8") as f:
-                    constraints_list = [line.strip() for line in f if line.strip()]
-
-                    constraints_list = [
-                        base64.b64encode(constraint.encode("utf-8")).decode("utf-8")
-                        for constraint in constraints_list
-                    ]
-
-                    constraints_list = [constraints_list]
+    elif _should_load_previous_constraints():
+        constraints_list = _load_previous_constraints(args.continue_previous_job)
 
     if len(constraints_list):
-        constraints_list = constraints_list[0]
-
-        final_constraints_list = []
-
-        for r in range(0, len(constraints_list)):
-            constraints_string = decode_if_base64(" ".join(constraints_list[r]))
-            constraints_string = constraints_string.rstrip("\n\r")
-
-            param_names = [param['name'] for param in cli_params_experiment_parameters]
-
-            constraint_is_ax_valid = is_ax_compatible_constraint(constraints_string, param_names)
-            constraint_is_valid_equation = is_valid_equation(constraints_string, param_names)
-
-            if constraint_is_ax_valid:
-                final_constraints_list.append(constraints_string)
-            elif constraint_is_valid_equation:
-                print_debug(f"Added non-ax-constraint '{constraints_string}'")
-                non_ax_constraints.append(constraints_string)
-            else:
-                print_red(f"Invalid constraint found: '{constraints_string}' (is valid ax? {constraint_is_ax_valid}, is valid equation? {constraint_is_valid_equation}). Ignoring it.")
-
-        constraints_list = final_constraints_list
+        constraints_list = _normalize_constraints_list(constraints_list)
+        constraints_list = _filter_valid_constraints(constraints_list)
 
     return constraints_list
+
+
+@beartype
+def _has_explicit_constraints() -> bool:
+    return bool(args.experiment_constraints)
+
+
+@beartype
+def _should_load_previous_constraints() -> bool:
+    return args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints))
+
+@beartype
+def _load_previous_constraints(job_path: str) -> list:
+    constraint_file = os.path.join(job_path, "state_files", "constraints")
+
+    if not os.path.exists(constraint_file):
+        return []
+
+    with open(constraint_file, "r", encoding="utf-8") as f:
+        raw_constraints = [line.strip() for line in f if line.strip()]
+
+    encoded_constraints = [
+        base64.b64encode(c.encode("utf-8")).decode("utf-8") for c in raw_constraints
+    ]
+
+    return [encoded_constraints]  # for historical compatibility
+
+@beartype
+def _normalize_constraints_list(constraints_list: list) -> List[str]:
+    if isinstance(constraints_list, list) and len(constraints_list) == 1 and isinstance(constraints_list[0], list):
+        return constraints_list[0]
+    return constraints_list
+
+
+@beartype
+def _filter_valid_constraints(constraints: List[str]) -> List[str]:
+    final_constraints_list: List[str] = []
+
+    for raw_constraint in constraints:
+        decoded = decode_if_base64(" ".join(raw_constraint))
+        decoded = decoded.rstrip("\n\r")
+
+        is_ax = is_ax_compatible_constraint(decoded, global_param_names)
+        is_equation = is_valid_equation(decoded, global_param_names)
+
+        if is_ax:
+            final_constraints_list.append(decoded)
+        elif is_equation:
+            print_debug(f"Added non-ax-constraint '{decoded}'")
+            non_ax_constraints.append(decoded)
+        else:
+            print_red(f"Invalid constraint found: '{decoded}' (is valid ax? {is_ax}, is valid equation? {is_equation}). Ignoring it.")
+
+    return final_constraints_list
 
 @beartype
 def main() -> None:

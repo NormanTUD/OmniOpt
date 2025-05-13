@@ -4459,7 +4459,7 @@ def set_objectives() -> dict:
     return objectives
 
 @beartype
-def set_parameter_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
+def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
 
         experiment_args["parameter_constraints"] = []
@@ -4485,9 +4485,9 @@ def set_parameter_constraints(experiment_constraints: Optional[list], experiment
                 with open(file_path, "a", encoding="utf-8") as f:
                     f.write(constraints_string + "\n")
         else:
-            print_debug(f"set_parameter_constraints: not set, content: {experiment_constraints}")
+            print_debug(f"set_experiment_constraints: not set, content: {experiment_constraints}")
     else:
-        print_debug("set_parameter_constraints: no constraints set")
+        print_debug("set_experiment_constraints: no constraints set")
 
     return experiment_args
 
@@ -4619,7 +4619,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             my_exit(9)
 
         if experiment_constraints:
-            experiment_args = set_parameter_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
+            experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
     else:
         objectives = set_objectives()
 
@@ -4641,7 +4641,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
 
-        experiment_args = set_parameter_constraints(experiment_constraints, experiment_args, experiment_parameters)
+        experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters)
 
         try:
             if ax_client:

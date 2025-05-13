@@ -4256,13 +4256,13 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
     if not isinstance(node, ast.Expression):
         return False
 
-    def is_valid_op(op):
+    def is_valid_op(op: Any) -> bool:
         return isinstance(op, (
             ast.LtE, ast.GtE, ast.Eq, ast.NotEq,
             ast.Add, ast.Sub, ast.Mult, ast.Div
         ))
 
-    def is_only_allowed_vars(node):
+    def is_only_allowed_vars(node: Any) -> bool:
         if isinstance(node, ast.Name):
             return node.id in allowed_vars
         if isinstance(node, ast.BinOp):
@@ -4278,7 +4278,7 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
             return isinstance(node.n, (int, float))
         return False
 
-    def is_constant_expr(node):
+    def is_constant_expr(node: Any) -> bool:
         if isinstance(node, ast.Constant):
             return isinstance(node.value, (int, float))
         if isinstance(node, ast.Num):  # für Python < 3.8
@@ -7822,7 +7822,7 @@ def _normalize_constraints_list(constraints_list: list) -> List[str]:
     return constraints_list
 
 @beartype
-def _load_experiment_json(continue_previous_job_path):
+def _load_experiment_json(continue_previous_job_path: str) -> dict:
     experiment_json_data = {}
 
     json_file_path = os.path.join(continue_previous_job_path, "state_files", "ax_client.experiment.json")

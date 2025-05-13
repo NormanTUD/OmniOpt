@@ -4422,7 +4422,13 @@ def copy_continue_uuid() -> None:
 
 @beartype
 def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
-    continue_previous_job, seed, experiment_constraints, parameter, cli_params_experiment_parameters, experiment_parameters = _params
+    cli_params_experiment_parameters, experiment_parameters = _params
+
+    continue_previous_job = args.continue_previous_job
+    seed = args.seed
+    parameter = args.parameter
+
+    experiment_constraints = get_constraints()
 
     global ax_client
 
@@ -7688,10 +7694,6 @@ def main() -> None:
 
     with console.status("[bold green]Getting experiment parameters..."):
         ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
-            args.continue_previous_job,
-            args.seed,
-            get_constraints(),
-            args.parameter,
             cli_params_experiment_parameters,
             experiment_parameters,
         ])

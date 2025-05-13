@@ -45,6 +45,8 @@ In general, ax-constraints can be written as \(a_1 \cdot x_1 + a_2 \cdot x_2 + \
 
 For more complex constraints, non-ax-constraints will be used. These can also take the form \( a \cdot x \cdot b\cdot y >= c \cdot z \). They are tested for *after* creation of points, and if the points don't suffice, they will not be executed, and be marked as abandoned. Valid Operators here are \( == \), \( != \), \( <= \), \( >= \). Valid calculation types are sums (with (`+`) and (`-`), products (`*`), and quotients (`/`)).
 
+It will automatically be decided whether to use ax or non-ax-constraints, depending on their form.
+
 ## Using Constraints in OmniOpt2
 
 OmniOpt2 allows you to specify constraints in two ways: through the graphical user interface (GUI) or via the command-line interface (CLI).

@@ -229,7 +229,7 @@
 
 		$markdown = preg_replace('/\n\s*\n/', "\n", $markdown);
 
-		$markdown = preg_replace('/(<br\s*\/?>\s*)+/', '<br />', $markdown);;
+		$markdown = preg_replace('/(<br\s*\/?>\s*)+/', "<br />\n", $markdown);;
 
 		$markdown = preg_replace('/(<(?:h[1-6]|ul|ol|li)[^>]*>.*?<\/(?:h[1-6]|ul|ol|li)>)(\s*<br\s*\/?>)+/is', '$1', $markdown);
 

@@ -416,13 +416,11 @@ function initialize_autotables() {
 
 function generateTOC() {
 	try {
-		// Check if the TOC div exists
 		var $tocDiv = $('#toc');
 		if ($tocDiv.length === 0) {
 			return;
 		}
 
-		// Create the TOC structure
 		var $tocContainer = $('<div class="toc"></div>');
 		var $tocHeader = $('<h2>Table of Contents</h2>');
 		var $tocList = $('<ul></ul>');
@@ -430,57 +428,66 @@ function generateTOC() {
 		$tocContainer.append($tocHeader);
 		$tocContainer.append($tocList);
 
-		// Get all h2, h3, h4, h5, h6 elements
 		var headers = $('h2, h3, h4, h5, h6');
 		var tocItems = [];
 
-		if (headers.length === 1) {
+		if (headers.length <= 1) {
 			return;
 		}
 
 		headers.each(function() {
 			var $header = $(this);
-			var headerTag = $header.prop('tagName').toLowerCase();
-			var headerText = $header.text();
-			var headerId = $header.attr('id');
+			var tag = $header.prop('tagName').toLowerCase();
+			var text = $header.text();
+			var id = $header.attr('id');
 
-			if (!headerId) {
-				headerId = headerText.toLowerCase().replace(/\s+/g, '-');
-				$header.attr('id', headerId);
+			if (!id) {
+				id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+				$header.attr('id', id);
 			}
 
 			tocItems.push({
-				tag: headerTag,
-				text: headerText,
-				id: headerId
+				level: parseInt(tag.slice(1), 10),
+				text: text,
+				id: id
 			});
 		});
 
-		// Generate the nested list for TOC
-		var currentLevel = 2; // Since we start with h2
+		var baseLevel = Math.min.apply(null, tocItems.map(function(i) { return i.level; }));
 		var listStack = [$tocList];
+		var currentLevel = baseLevel;
 
 		tocItems.forEach(function(item) {
-			var level = parseInt(item.tag.replace('h', ''), 10);
+			var targetLevel = item.level;
+
+			while (currentLevel < targetLevel) {
+				var $newList = $('<ul></ul>');
+				var $lastItem = listStack[listStack.length - 1].children('li').last();
+
+				if ($lastItem.length === 0) {
+					$lastItem = $('<li></li>').appendTo(listStack[listStack.length - 1]);
+				}
+
+				$lastItem.append($newList);
+				listStack.push($newList);
+				currentLevel++;
+			}
+
+			while (currentLevel > targetLevel) {
+				listStack.pop();
+				currentLevel--;
+			}
+
 			var $li = $('<li></li>');
 			var $a = $('<a></a>').attr('href', '#' + item.id).text(item.text);
 			$li.append($a);
-
-			if (level > currentLevel) {
-				var $newList = $('<ul></ul>');
-				listStack[listStack.length - 1].append($newList);
-				listStack.push($newList);
-			} else if (level < currentLevel) {
-				listStack.pop();
-			}
-
 			listStack[listStack.length - 1].append($li);
-			currentLevel = level;
 		});
 
 		$tocDiv.html($tocContainer);
-	} catch (error) {
-		error('Error generating TOC:', error);
+	} catch (err) {
+		console.error('Error generating TOC:', err);
+		console.trace();
 	}
 }
 

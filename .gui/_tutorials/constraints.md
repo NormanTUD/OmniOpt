@@ -34,13 +34,11 @@ Constraints are useful for several reasons:
 - Respecting physical conservation laws or budget limits: \(\text{power_alloc}_A + \text{power_alloc}_B \leq \text{max_total_power}\)
 - Enforcing time-step stability conditions in numerical models.
 
----
-
 ## Ax-Constraints
 
-### Mathematical Form
-
 Ax-constraints are taken into account already at the creation of new points, meaning parameter-arms that don't suffice the conditions will not be created in the first place.
+
+### Mathematical Form
 
 In general, ax-constraints can be written as:
 
@@ -66,8 +64,6 @@ For a constraint to be treated as an ax-constraint:
 - \( 1 \cdot \text{sample_period} >= 1 / \text{window_size} \)
 
 These are valid constraints but will be evaluated *after* point creation, as non-ax-constraints.
-
----
 
 ## Non-Ax-Constraints
 

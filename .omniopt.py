@@ -92,6 +92,9 @@ try:
         import toml
         import csv
 
+        import ast
+        import operator
+
         from rich.progress import Progress, TimeRemainingColumn
         from rich.table import Table
         from rich import print
@@ -4241,6 +4244,130 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
     return return_totally, comparer_found, parsed, parsed_order
 
 @beartype
+def is_valid_equation(expr: str, allowed_vars: list) -> bool:
+    try:
+        node = ast.parse(expr, mode='eval')
+    except SyntaxError:
+        return False
+
+    if not isinstance(node, ast.Expression):
+        return False
+
+    def is_valid_op(op):
+        return isinstance(op, (
+            ast.LtE, ast.GtE, ast.Eq, ast.NotEq,
+            ast.Add, ast.Sub, ast.Mult, ast.Div
+        ))
+
+    def is_only_allowed_vars(node):
+        if isinstance(node, ast.Name):
+            return node.id in allowed_vars
+        elif isinstance(node, ast.BinOp):
+            return is_valid_op(node.op) and \
+                   is_only_allowed_vars(node.left) and \
+                   is_only_allowed_vars(node.right)
+        elif isinstance(node, ast.UnaryOp):
+            return isinstance(node.op, (ast.UAdd, ast.USub)) and \
+                   is_only_allowed_vars(node.operand)
+        elif isinstance(node, ast.Constant):
+            return isinstance(node.value, (int, float))
+        elif isinstance(node, ast.Num):  # für Python < 3.8
+            return isinstance(node.n, (int, float))
+        return False
+
+    def is_constant_expr(node):
+        if isinstance(node, ast.Constant):
+            return isinstance(node.value, (int, float))
+        elif isinstance(node, ast.Num):  # für Python < 3.8
+            return isinstance(node.n, (int, float))
+        elif isinstance(node, ast.BinOp):
+            return is_valid_op(node.op) and \
+                   is_constant_expr(node.left) and \
+                   is_constant_expr(node.right)
+        elif isinstance(node, ast.UnaryOp):
+            return isinstance(node.op, (ast.UAdd, ast.USub)) and \
+                   is_constant_expr(node.operand)
+        return False
+
+    body = node.body
+    if not isinstance(body, ast.Compare):
+        return False
+    if len(body.ops) != 1 or len(body.comparators) != 1:
+        return False
+
+    left = body.left
+    right = body.comparators[0]
+    op = body.ops[0]
+
+    if not isinstance(op, (ast.LtE, ast.GtE, ast.Eq, ast.NotEq)):
+        return False
+
+    if not is_only_allowed_vars(left):
+        return False
+    if not (is_constant_expr(right) or is_only_allowed_vars(right)):
+        return False
+
+    return True
+
+
+@beartype
+def is_ax_compatible_constraint(equation: str, variables: List[str]) -> Union[str, bool]:
+    equation = equation.replace("\\*", "*")
+    equation = equation.replace(" * ", "*")
+    equation = equation.replace(" + ", "+")
+    equation = equation.replace(" - ", "-")
+    equation = re.sub(r"\s+", "", equation)
+
+    if ">=" not in equation and "<=" not in equation:
+        return False
+
+    if "==" in equation or re.search(r"(?<![<>])=(?!=)", equation):
+        return False
+
+    comparisons = re.findall(r"(<=|>=)", equation)
+    if len(comparisons) != 1:
+        return False
+
+    operator = comparisons[0]
+    lhs, rhs = equation.split(operator)
+
+    def analyze_expression(expr: str) -> bool:
+        # Zerlege in Terme durch '+' und '-'. Behalte das Vorzeichen.
+        terms = re.findall(r"[+-]?[^+-]+", expr)
+        for term in terms:
+            term = term.strip()
+            if not term:
+                continue
+
+            if "*" in term:
+                parts = term.split("*")
+                if len(parts) != 2:
+                    return False
+
+                factor, var = parts
+                if not re.fullmatch(r"[+-]?[0-9.]+(?:[eE][-+]?[0-9]+)?", factor):
+                    return False
+                if var not in variables:
+                    return False
+            else:
+                # Entweder nur Variable (z. B. "abc") oder nur Konstante
+                if term not in variables:
+                    if not re.fullmatch(r"[+-]?[0-9.]+(?:[eE][-+]?[0-9]+)?", term):
+                        return False
+        return True
+
+    if lhs in variables and rhs in variables:
+        return True
+
+    if not analyze_expression(lhs):
+        return False
+
+    if not re.fullmatch(r"[+-]?[0-9.]+(?:[eE][-+]?[0-9]+)?", rhs):
+        return False
+
+    return True
+
+@beartype
 def check_equation(variables: list, equation: str) -> Union[str, bool]:
     print_debug(f"check_equation({variables}, {equation})")
 
@@ -7939,6 +8066,32 @@ def run_tests() -> None:
     non_rounded_lower, non_rounded_upper = round_lower_and_upper_if_type_is_int("float", -123.4, 123.4)
     nr_errors += is_equal("non_rounded_lower", non_rounded_lower, -123.4)
     nr_errors += is_equal("non_rounded_upper", non_rounded_upper, 123.4)
+
+    nr_errors += is_equal('is_ax_compatible_constraint("abc", ["abc"])', is_ax_compatible_constraint("abc", ["abc"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("abc >= 1", ["abc"])', is_ax_compatible_constraint("abc >= 1", ["abc"]), True)
+    nr_errors += is_equal('is_ax_compatible_constraint("abc * def >= 1", ["abc", "def"])', is_ax_compatible_constraint("abc * def >= 1", ["abc", "def"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("abc <= def", ["abc", "def"])', is_ax_compatible_constraint("abc <= def", ["abc", "def"]), True)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "def"])', is_ax_compatible_constraint("2*abc <= 3.5", ["abc", "def"]), True)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc <= 3.5*def", ["abc"])', is_ax_compatible_constraint("2*abc <= 3.5*def", ["abc"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc"]), False)
+    nr_errors += is_equal('is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"])', is_ax_compatible_constraint("2*abc * def <= 3.5", ["abc", "def"]), False)
+
+    nr_errors += is_equal('is_valid_equation("abc", ["abc"])',
+                          is_valid_equation("abc", ["abc"]), False)
+    nr_errors += is_equal('is_valid_equation("abc >= 1", ["abc"])',
+                          is_valid_equation("abc >= 1", ["abc"]), True)
+    nr_errors += is_equal('is_valid_equation("abc * def >= 1", ["abc", "def"])',
+                          is_valid_equation("abc * def >= 1", ["abc", "def"]), False)
+    nr_errors += is_equal('is_valid_equation("abc <= def", ["abc", "def"])',
+                          is_valid_equation("abc <= def", ["abc", "def"]), False)
+    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5", ["abc", "def"])',
+                          is_valid_equation("2*abc <= 3.5", ["abc", "def"]), True)
+    nr_errors += is_equal('is_valid_equation("2*abc <= 3.5*def", ["abc"])',
+                          is_valid_equation("2*abc <= 3.5*def", ["abc"]), False)
+    nr_errors += is_equal('is_valid_equation("2*abc * def <= 3.5", ["abc"])',
+                          is_valid_equation("2*abc * def <= 3.5", ["abc"]), False)
+    nr_errors += is_equal('is_valid_equation("2*abc * def <= 3.5", ["abc", "def"])',
+                          is_valid_equation("2*abc * def <= 3.5", ["abc", "def"]), False)
 
     rounded_lower, rounded_upper = round_lower_and_upper_if_type_is_int("int", -123.4, 123.4)
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)

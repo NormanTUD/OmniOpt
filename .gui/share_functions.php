@@ -894,6 +894,8 @@
 					break;
 			}
 
+			$shown_folders = 0;
+
 			if (count($folders)) {
 				foreach ($folders as $folder) {
 					$folderPathWithFile = $folderPath . '/' . $folder;
@@ -939,10 +941,13 @@
 							echo "<a class='share_folder_buttons' href='$url'>";
 							echo "<button type='button'>$folder ($bracket_string)</button>";
 							echo '</a><br>';
+							$shown_folders++;
 						}
 					}
 				}
-			} else {
+			}
+			
+			if($shown_folders == 0) {
 				print "<h2>Sorry, no jobs have been uploaded yet.</h2>";
 			}
 		} else {

@@ -61,10 +61,21 @@ if ! command -v docker &>/dev/null; then
 	curl -fsSL https://get.docker.com | sudo bash
 fi
 
-export LOCAL_PORT
-
-echo "#!/bin/bash" > .env
-echo "LOCAL_PORT=$LOCAL_PORT" >> .env
+echo "services:
+  php-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - \"$LOCAL_PORT:80\"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./shares:/var/www/html/shares:rw
+    restart: unless-stopped
+    environment:
+      APACHE_RUN_USER: www-data
+      APACHE_RUN_GROUP: www-data
+" > docker-compose.yml
 
 function docker_compose {
 	if id -nG "$USER" | grep -qw docker; then
@@ -81,11 +92,15 @@ function docker_compose {
 }
 
 docker_compose build || {
+	rm docker-compose.yml
 	echo "Failed to build container"
 	exit 254
 }
 
 docker_compose up -d || {
+	rm docker-compose.yml
 	echo "Failed to build container"
 	exit 255
 }
+
+rm docker-compose.yml

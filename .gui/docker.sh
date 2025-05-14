@@ -97,6 +97,19 @@ services:
       - LOCAL_GID=${GID}
 EOF
 
+USER_NAME="$(whoami)"
+
+if ! id -nG "$USER_NAME" | grep -qw docker; then
+	if sudo usermod -aG docker "$USER_NAME"; then
+		echo "User '$USER_NAME' added to 'docker' group."
+		echo "restart for docker"
+		exit 0
+	else
+		echo "Failed to add user '$USER_NAME' to 'docker' group." >&2
+		exit 1
+	fi
+fi
+
 function docker_compose {
 	if id -nG "$USER" | grep -qw docker; then
 		DOCKER_CMD=""

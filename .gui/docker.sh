@@ -141,11 +141,6 @@ docker_compose exec php-web chown -R www-data:www-data /var/www/html || {
 	exit 256
 }
 
-docker_compose exec php-web find /var/www/html -type d -exec chmod 755 {} \; || {
-	echo "Failed to chmod directories inside container"
-	exit 257
-}
-
 docker_compose exec php-web find /var/www/html -type f -exec chmod 644 {} \; || {
 	echo "Failed to chmod files inside container"
 	exit 258

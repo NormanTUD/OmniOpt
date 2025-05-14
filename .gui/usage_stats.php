@@ -74,6 +74,7 @@
 		$csvFile = __DIR__ . "/stats/usage_statistics.csv";
 
 		if(file_exists($csvFile)) {
+			echo "No valid data found in the database. Trying to import existing CSV data into the database, if possible.";
 			$pdo = new PDO("sqlite:" . $db_path);
 			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -230,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
 EOT;
 
 	} else {
-		echo "No valid data found in the database. Trying to import existing CSV data into the database, if possible.";
 		importCsvToDatabase($db_path);
 	}
 

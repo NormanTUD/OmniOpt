@@ -1611,7 +1611,7 @@ EOF
 		sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
 
 		if [[ $num_cpus_main_job != "" ]]; then
-			sbatch_command+=" --cpus-per-task=$num_cpus_main_job $args_string"
+			sbatch_command+=" --cpus-per-task=$num_cpus_main_job "
 		fi
 
 		if [[ $gpus -ne 0 ]]; then

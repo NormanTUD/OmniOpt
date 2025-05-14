@@ -18,4 +18,8 @@ RUN echo '<Directory /var/www/html>\n\
 WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
 
+RUN chown -R www-data:www-data /var/www/html && \
+    find /var/www/html -type d -exec chmod 755 {} \; && \
+    find /var/www/html -type f -exec chmod 644 {} \;
+
 COPY php.ini /usr/local/etc/php/conf.d/custom-uploads.ini

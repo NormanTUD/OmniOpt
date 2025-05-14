@@ -3622,7 +3622,7 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
     assert df is not None, "DataFrame should not be None after reading CSV file"
 
     if _type == "Sobol":
-        rows = df[df["generation_method"] == _type]
+        rows = df[df["generation_node"] == _type]
     else:
         rows = df[df["trial_status"] == _type]
     count = len(rows)
@@ -3631,7 +3631,7 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
 
 @beartype
 def _count_sobol_steps(this_csv_file_path: str) -> int:
-    return _count_sobol_or_completed(this_csv_file_path, "Sobol")
+    return _count_sobol_or_completed(this_csv_file_path, "SOBOL")
 
 @beartype
 def _count_done_jobs(this_csv_file_path: str) -> int:
@@ -3649,7 +3649,7 @@ def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
 
-    prev_step_file: str = f"{args.continue_previous_job}/state_files/phase_random_steps"
+    prev_step_file: str = f"{args.continue_previous_job}/results.csv"
 
     if not os.path.exists(prev_step_file):
         return _count_sobol_steps(prev_step_file)

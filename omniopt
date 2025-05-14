@@ -1628,10 +1628,10 @@ EOF
 			fi
 		fi
 
-		sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
-
 		if [[ $num_cpus_main_job != "" ]]; then
-			sbatch_command=" --cpus-per-task=$num_cpus_main_job $sbatch_command"
+			sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
+		else
+		iii	sbatch_command+=" $SCRIPT_DIR/omniopt --cpus-per-task=$num_cpus_main_job $args_string"
 		fi
 
 		if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then

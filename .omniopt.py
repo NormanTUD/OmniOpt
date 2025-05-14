@@ -6883,7 +6883,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
 
 @beartype
 def set_global_generation_strategy() -> None:
-    global global_gs, random_steps, generation_strategy_human_readable
+    global global_gs, generation_strategy_human_readable
 
     args_generation_strategy = args.generation_strategy
 
@@ -7902,7 +7902,7 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
 
 @beartype
 def main() -> None:
-    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS, random_steps
+    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
     check_if_has_random_steps()
 
@@ -8070,7 +8070,6 @@ def set_random_steps(new_steps: int) -> None:
 
 @beartype
 def handle_random_steps() -> None:
-    global random_steps
     if args.parameter and args.continue_previous_job and random_steps <= 0:
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
         set_random_steps(args.num_random_steps)

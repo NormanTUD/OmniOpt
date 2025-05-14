@@ -88,6 +88,7 @@ services:
       - "$LOCAL_PORT:80"
     volumes:
       - ${SHARES_PATH}:/var/www/html/shares:rw
+      - /var/www/html/stats
     restart: unless-stopped
     environment:
       - APACHE_RUN_USER=www-data

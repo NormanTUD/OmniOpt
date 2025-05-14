@@ -110,7 +110,11 @@
 			}
 
 			echo "<br>Import done! Reload the page.";
+
+			return true;
 		}
+
+		return false;
 	}
 
 	function append_to_db($params, $db_path) {
@@ -231,7 +235,11 @@ document.addEventListener('DOMContentLoaded', function () {
 EOT;
 
 	} else {
-		importCsvToDatabase($db_path);
+		if(importCsvToDatabase($db_path)) {
+			echo "Please reload the page to see the imported statistics";
+		} else {
+			echo "No statistics data found";
+		}
 	}
 
 	include("footer.php");

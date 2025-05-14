@@ -1,11 +1,13 @@
 #!/bin/bash
 
 LOCAL_PORT=""
+SHARES_PATH=""
 
 help_message() {
 	echo "Usage: docker.sh [OPTIONS]"
 	echo "Options:"
-	echo "  --local-port       Local port to bind for the GUI"
+	echo "  --local-port       Local port to bind for the GUI (required)"
+	echo "  --shares-path      Path to local directory for /var/www/html/shares (required)"
 	echo "  --help             Show this help message"
 }
 
@@ -13,6 +15,10 @@ while [[ "$#" -gt 0 ]]; do
 	case $1 in
 		--local-port)
 			LOCAL_PORT="$2"
+			shift
+			;;
+		--shares-path)
+			SHARES_PATH="$2"
 			shift
 			;;
 		--help)
@@ -32,6 +38,18 @@ if [[ -z $LOCAL_PORT ]]; then
 	exit 1
 fi
 
+if [[ -z $SHARES_PATH ]]; then
+	echo "Error: Missing required parameter --shares-path. Use --help for usage."
+	exit 1
+fi
+
+if [[ ! -d "$SHARES_PATH" ]]; then
+	echo "Info: Directory '$SHARES_PATH' does not exist. Creating it..."
+	mkdir -p "$SHARES_PATH" || {
+		echo "Failed to create directory '$SHARES_PATH'"
+			exit 2
+		}
+fi
 
 is_package_installed() {
 	dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "ok installed"
@@ -43,39 +61,41 @@ if ! command -v curl &>/dev/null; then
 	if [[ $UPDATED_PACKAGES == 0 ]]; then
 		sudo apt update || {
 			echo "apt-get update failed. Are you online?"
-			exit 3
-		}
+					exit 3
+				}
 
-		UPDATED_PACKAGES=1
+				UPDATED_PACKAGES=1
 	fi
 
 	sudo apt-get install -y curl || {
 		echo "sudo apt install -y curl failed"
-		exit 3
-	}
+			exit 3
+		}
 fi
 
 if ! command -v docker &>/dev/null; then
 	echo "Docker not found. Installing Docker..."
-
 	curl -fsSL https://get.docker.com | sudo bash
 fi
 
-echo "services:
+cat > docker-compose.yml <<EOF
+services:
   php-web:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - \"$LOCAL_PORT:80\"
+      - "$LOCAL_PORT:80"
     volumes:
       - ./:/var/www/html:ro
-      - ./shares:/var/www/html/shares:rw
+      - ${SHARES_PATH}:/var/www/html/shares:rw
     restart: unless-stopped
     environment:
-      APACHE_RUN_USER: www-data
-      APACHE_RUN_GROUP: www-data
-" > docker-compose.yml
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - LOCAL_UID=${UID}
+      - LOCAL_GID=${GID}
+EOF
 
 function docker_compose {
 	if id -nG "$USER" | grep -qw docker; then
@@ -99,7 +119,7 @@ docker_compose build || {
 
 docker_compose up -d || {
 	rm docker-compose.yml
-	echo "Failed to build container"
+	echo "Failed to start container"
 	exit 255
 }
 

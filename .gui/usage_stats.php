@@ -8,6 +8,8 @@
 
 	function die_with_error_text ($msg) {
 		echo '<span class="error_text invert_in_dark_mode">' . $msg . '</span>';
+
+		exit(1);
 	}
 
 	if (!class_exists('SQLite3')) {

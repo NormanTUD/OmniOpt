@@ -501,7 +501,7 @@ class ConfigLoader:
         installing = self.parser.add_argument_group('Installing', 'Parameters related to installing')
         debug = self.parser.add_argument_group('Debug', 'These options are mainly useful for debugging')
 
-        required.add_argument('--num_random_steps', help='Number of random steps to start with', type=int, default=20)
+        required.add_argument('--num_random_steps', help='Number of random (SOBOL) steps to start with', type=int, default=20)
         required.add_argument('--max_eval', help='Maximum number of evaluations', type=int)
         required.add_argument('--run_program', action='append', nargs='+', help='A program that should be run. Use, for example, $x for the parameter named x', type=str)
         required.add_argument('--experiment_name', help='Name of the experiment', type=str)

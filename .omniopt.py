@@ -7982,7 +7982,10 @@ def main() -> None:
     disable_logging()
     check_max_eval(max_eval)
 
-    random_steps, second_step_steps = get_number_of_steps(max_eval)
+    _random_steps, second_step_steps = get_number_of_steps(max_eval)
+
+    set_random_steps(_random_steps)
+
     add_exclude_to_defective_nodes()
     handle_random_steps()
 

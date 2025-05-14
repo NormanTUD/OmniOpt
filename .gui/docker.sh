@@ -51,6 +51,9 @@ if [[ ! -d "$SHARES_PATH" ]]; then
 		}
 fi
 
+# Set proper permissions to ensure the shares directory has correct access
+sudo chown -R $(id -u):$(id -g) "$SHARES_PATH"
+
 is_package_installed() {
 	dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "ok installed"
 }
@@ -64,7 +67,7 @@ if ! command -v curl &>/dev/null; then
 					exit 3
 				}
 
-				UPDATED_PACKAGES=1
+			UPDATED_PACKAGES=1
 	fi
 
 	sudo apt-get install -y curl || {

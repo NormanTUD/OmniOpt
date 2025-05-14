@@ -123,4 +123,6 @@ docker_compose up -d || {
 	exit 255
 }
 
+docker_compose exec php-web chown -R www-data:www-data /var/www/html/shares
+
 rm docker-compose.yml

@@ -382,15 +382,15 @@
 <?php
 			if(count($errors)) {
 				if (count($errors) > 1) {
-					print "<h2 class='error_text'>Errors:</h2>\n";
-					print "<ul class='error_text'>\n";
+					print "<h2 class='error_text invert_in_dark_mode'>Errors:</h2>\n";
+					print "<ul class='error_text invert_in_dark_mode'>\n";
 					foreach ($errors as $error) {
 						print "<li>$error</li>";
 					}
 					print "</ul>\n";
 				} else {
-					print "<h2 class='error_text'>Error:</h2>\n";
-					print "<span class='error_text'>".$errors[0]."</span>";
+					print "<h2 class='error_text invert_in_dark_mode'>Error:</h2>\n";
+					print "<span class='error_text invert_in_dark_mode'>".$errors[0]."</span>";
 				}
 
 			} else {

@@ -22,4 +22,6 @@ RUN chown -R www-data:www-data /var/www/html && \
     find /var/www/html -type d -exec chmod 755 {} \; && \
     find /var/www/html -type f -exec chmod 644 {} \;
 
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 COPY php.ini /usr/local/etc/php/conf.d/custom-uploads.ini

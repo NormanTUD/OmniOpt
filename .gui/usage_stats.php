@@ -6,8 +6,12 @@
 
 	$db_path = "stats/usage_statistics.db";
 
+	function die_with_error_text ($msg) {
+		echo '<span class="error_text invert_in_dark_mode">' . $msg . '</span>';
+	}
+
 	if (!class_exists('SQLite3')) {
-		die("Fatal error: SQLite3 extension is not installed. Try <tt>sudo apt-get install php-sqlite3</tt> on your host system.\n");
+		die_with_error_text("Fatal error: SQLite3 extension is not installed. Try <tt>sudo apt-get install php-sqlite3</tt> on your host system.\n");
 	}
 
 	function check_database_path($db_path) {
@@ -15,25 +19,25 @@
 		$user = posix_getpwuid(posix_geteuid())['name'];
 
 		if (!is_dir($dir)) {
-			die("Error: The directory '$dir' does not exist. \nSolution: Create it with:\n  mkdir -p '$dir' && chown $user '$dir' && chmod 755 '$dir'\n");
+			die_with_error_text("Error: The directory '$dir' does not exist. \nSolution: Create it with:\n  mkdir -p '$dir' && chown $user '$dir' && chmod 755 '$dir'\n");
 		}
 
 		if (!is_writable($dir)) {
-			die("Error: The directory '$dir' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 775 '$dir'\nOr change the owner with:\n  chown $user '$dir'\n");
+			die_with_error_text("Error: The directory '$dir' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 775 '$dir'\nOr change the owner with:\n  chown $user '$dir'\n");
 		}
 
 		if (file_exists($db_path)) {
 			if (!is_writable($db_path)) {
-				die("Error: The database file '$db_path' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 664 '$db_path'\nOr change the owner with:\n  chown $user '$db_path'\n");
+				die_with_error_text("Error: The database file '$db_path' is not writable by user '$user'. \nSolution: Change permissions with:\n  chmod 664 '$db_path'\nOr change the owner with:\n  chown $user '$db_path'\n");
 			}
 		} else {
 			if (!is_writable($dir)) {
-				die("Error: The database file '$db_path' does not exist and cannot be created in '$dir'. \nSolution: Ensure the directory is writable using:\n  chmod 775 '$dir'\n");
+				die_with_error_text("Error: The database file '$db_path' does not exist and cannot be created in '$dir'. \nSolution: Ensure the directory is writable using:\n  chmod 775 '$dir'\n");
 			}
 		}
 
 		if (!class_exists('SQLite3')) {
-			die("Error: SQLite3 is not available in PHP. \nSolution: Install SQLite3 with:\n  sudo apt install php-sqlite3\nOr enable the extension in 'php.ini'.\n");
+			die_with_error_text("Error: SQLite3 is not available in PHP. \nSolution: Install SQLite3 with:\n  sudo apt install php-sqlite3\nOr enable the extension in 'php.ini'.\n");
 		}
 	}
 
@@ -56,7 +60,7 @@
 			$db->exec("CREATE INDEX IF NOT EXISTS idx_time ON usage_statistics(time);");
 			$db->close();
 		} catch (Exception $e) {
-			die("Failed to initialize database '$db_path': " . $e->getMessage());
+			die_with_error_text("Failed to initialize database '$db_path': " . $e->getMessage());
 		}
 	}
 

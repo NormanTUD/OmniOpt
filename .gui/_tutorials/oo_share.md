@@ -35,11 +35,11 @@ It is possible to run OmniOpt-Share locally, via Docker.
 
 ```bash
 cd .gui
-docker-compose up --build
-echo "http://localhost:8080/" > ~/.oo_base_url
+bash docker.sh --local-port 1234
+echo "http://localhost:1234/" > ~/.oo_base_url
 ```
 
-From there on, you will push OmniOpt2-Share to your local machine, reachable under `localhost:8080`.
+From there on, you will push OmniOpt2-Share to your local machine, reachable under `localhost:1234`.
 
 ### Download all exports
 

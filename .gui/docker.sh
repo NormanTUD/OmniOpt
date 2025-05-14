@@ -66,17 +66,6 @@ export LOCAL_PORT
 echo "#!/bin/bash" > .env
 echo "LOCAL_PORT=$LOCAL_PORT" >> .env
 
-echo "=== Current git hash before auto-pulling ==="
-git rev-parse HEAD
-echo "=== Current git hash before auto-pulling ==="
-
-git pull
-
-function die {
-	echo $1
-	exit 1
-}
-
 function docker_compose {
 	if id -nG "$USER" | grep -qw docker; then
 		DOCKER_CMD=""

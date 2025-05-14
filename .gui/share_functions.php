@@ -941,8 +941,8 @@
 							echo "<a class='share_folder_buttons' href='$url'>";
 							echo "<button type='button'>$folder ($bracket_string)</button>";
 							echo '</a><br>';
-							$shown_folders++;
 						}
+						$shown_folders++;
 					}
 				}
 			}

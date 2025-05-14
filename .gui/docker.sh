@@ -136,14 +136,19 @@ docker_compose up -d || {
 	exit 255
 }
 
-docker_compose exec php-web chown -R www-data:www-data /var/www/html/shares || {
+docker_compose exec php-web chown -R www-data:www-data /var/www/html || {
 	echo "Failed to set ownership inside container"
 	exit 256
 }
 
-docker_compose exec php-web chmod 755 /var/www/html/shares || {
-	echo "Failed to set ownership inside container"
-	exit 256
+docker_compose exec php-web find /var/www/html -type d -exec chmod 755 {} \; || {
+	echo "Failed to chmod directories inside container"
+	exit 257
+}
+
+docker_compose exec php-web find /var/www/html -type f -exec chmod 644 {} \; || {
+	echo "Failed to chmod files inside container"
+	exit 258
 }
 
 rm docker-compose.yml

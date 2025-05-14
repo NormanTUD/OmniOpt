@@ -6895,7 +6895,7 @@ def set_global_generation_strategy() -> None:
     if args_generation_strategy is None:
         num_imported_jobs: int = get_nr_of_imported_jobs()
         set_max_eval(max_eval + num_imported_jobs)
-        random_steps = random_steps or 0
+        set_random_steps(random_steps or 0)
 
         if max_eval is None:
             set_max_eval(max(1, random_steps))
@@ -6903,7 +6903,7 @@ def set_global_generation_strategy() -> None:
         chosen_model = get_chosen_model()
 
         if chosen_model == "SOBOL":
-            random_steps = max_eval
+            set_random_steps(max_eval)
 
         if random_steps >= 1:
             next_node_name = None
@@ -8061,11 +8061,19 @@ def write_ui_url_if_present() -> None:
             myfile.write(decode_if_base64(args.ui_url))
 
 @beartype
+def set_random_steps(new_steps: int) -> None:
+    global random_steps
+
+    print_debug(f"Setting random_steps from {random_steps} to {new_steps}")
+
+    random_steps = new_steps
+
+@beartype
 def handle_random_steps() -> None:
     global random_steps
     if args.parameter and args.continue_previous_job and random_steps <= 0:
         print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
-        random_steps = args.num_random_steps
+        set_random_steps(args.num_random_steps)
 
 @beartype
 def initialize_ax_client() -> None:

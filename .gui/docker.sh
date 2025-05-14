@@ -87,7 +87,6 @@ services:
     ports:
       - "$LOCAL_PORT:80"
     volumes:
-      - ./:/var/www/html:rw
       - ${SHARES_PATH}:/var/www/html/shares:rw
     restart: unless-stopped
     environment:

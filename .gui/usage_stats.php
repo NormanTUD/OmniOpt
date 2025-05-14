@@ -73,41 +73,43 @@
 	function importCsvToDatabase($db_path) {
 		$csvFile = __DIR__ . "/stats/usage_statistics.csv";
 
-		$pdo = new PDO("sqlite:" . $db_path);
-		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		if(file_exists($csvFile)) {
+			$pdo = new PDO("sqlite:" . $db_path);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-		if (($handle = fopen($csvFile, "r")) !== FALSE) {
-			wrapped_fgetcsv($handle);
+			if (($handle = fopen($csvFile, "r")) !== FALSE) {
+				wrapped_fgetcsv($handle);
 
-			$successful_inserts = 0;
-			$failed_inserts = 0;
+				$successful_inserts = 0;
+				$failed_inserts = 0;
 
-			$stmt = $pdo->prepare("INSERT INTO usage_statistics
-				(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time)
-				VALUES (?, ?, ?, ?, ?, ?, ?)");
+				$stmt = $pdo->prepare("INSERT INTO usage_statistics
+					(anon_user, has_sbatch, run_uuid, git_hash, exit_code, runtime, time)
+					VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-			while (($data = wrapped_fgetcsv($handle)) !== FALSE) {
-				$ret = $stmt->execute($data);
+				while (($data = wrapped_fgetcsv($handle)) !== FALSE) {
+					$ret = $stmt->execute($data);
 
-				if(!$ret) {
-					echo "<pre>";
-					echo "Failed to insert:\n";
-					print_r($data);
-					echo "</pre>";
+					if(!$ret) {
+						echo "<pre>";
+						echo "Failed to insert:\n";
+						print_r($data);
+						echo "</pre>";
 
-					$failed_inserts++;
-				} else {
-					$successful_inserts++;
+						$failed_inserts++;
+					} else {
+						$successful_inserts++;
+					}
 				}
+				fclose($handle);
+
+				print("Successful inserts: $successful_inserts, failed inserts: $failed_inserts\n");
+			} else {
+				print("Failed to load CSV file");
 			}
-			fclose($handle);
 
-			print("Successful inserts: $successful_inserts, failed inserts: $failed_inserts\n");
-		} else {
-			print("Failed to load CSV file");
+			echo "<br>Import done! Reload the page.";
 		}
-
-		echo "<br>Import done! Reload the page.";
 	}
 
 	function append_to_db($params, $db_path) {

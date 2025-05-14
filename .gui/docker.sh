@@ -51,9 +51,6 @@ if [[ ! -d "$SHARES_PATH" ]]; then
 		}
 fi
 
-# Set proper permissions to ensure the shares directory has correct access
-sudo chown -R $(id -u):$(id -g) "$SHARES_PATH"
-
 is_package_installed() {
 	dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -c "ok installed"
 }

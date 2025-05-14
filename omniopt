@@ -1610,6 +1610,10 @@ EOF
 
 		sbatch_command="sbatch --mem=${main_process_gb}GB -N 1 --job-name $experiment_name --time=$formatted_time"
 
+		if [[ $num_cpus_main_job != "" ]]; then
+			sbatch_command+=" --cpus-per-task=$num_cpus_main_job $args_string"
+		fi
+
 		if [[ $gpus -ne 0 ]]; then
 			sbatch_command+=" --gres=gpu:$gpus"
 		fi
@@ -1628,11 +1632,7 @@ EOF
 			fi
 		fi
 
-		if [[ $num_cpus_main_job != "" ]]; then
-			sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
-		else
-		iii	sbatch_command+=" $SCRIPT_DIR/omniopt --cpus-per-task=$num_cpus_main_job $args_string"
-		fi
+		sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
 
 		if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
 			yellow_text "$sbatch_command"

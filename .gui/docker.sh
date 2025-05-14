@@ -123,12 +123,12 @@ docker_compose up -d || {
 	exit 255
 }
 
-docker_compose exec php-web chown -R www-data:www-data $SHARES_PATH || {
+docker_compose exec php-web chown -R www-data:www-data /var/www/html/shares || {
 	echo "Failed to set ownership inside container"
 	exit 256
 }
 
-docker_compose exec php-web chmod 755 $SHARES_PATH || {
+docker_compose exec php-web chmod 755 /var/www/html/shares || {
 	echo "Failed to set ownership inside container"
 	exit 256
 }

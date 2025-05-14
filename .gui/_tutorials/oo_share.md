@@ -35,7 +35,7 @@ It is possible to run OmniOpt-Share locally, via Docker.
 
 ```bash
 cd .gui
-bash docker.sh --local-port 1234
+bash docker.sh --local-port 1234 --shares-path /tmp/shares_stuff
 echo "http://localhost:1234/" > ~/.oo_base_url
 ```
 

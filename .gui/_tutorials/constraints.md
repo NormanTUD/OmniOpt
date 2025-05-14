@@ -63,13 +63,13 @@ For a constraint to be treated as an ax-constraint:
 - \( \text{sample_period} \cdot \text{window_size} >= 1 \)
 - \( 1 \cdot \text{sample_period} >= 1 / \text{window_size} \)
 
-These are valid constraints but will be evaluated *after* point creation, as non-ax-constraints.
+These are valid constraints but will be evaluated *after* point creation, as Post-Generation-Constraints.
 
-## Non-Ax-Constraints
+## Post-Generation-Constraints
 
-For more complex constraints, non-ax-constraints will be used. These are evaluated *after* point creation. If a point does not satisfy a non-ax constraint, the job will be immediately marked as *abandoned* and will not be executed.
+For more complex constraints, Post-Generation-Constraints will be used. These are evaluated *after* point creation. If a point does not satisfy a Post-Generation-Constraint, the job will be immediately marked as *abandoned* and will not be executed.
 
-### Valid operators for non-ax-constraints include:
+### Valid operators for Post-Generation-Constraints include:
 
 - `==`, `!=`, `<=`, `>=`
 
@@ -81,14 +81,14 @@ For more complex constraints, non-ax-constraints will be used. These are evaluat
 - Unary operations: `+x`, `-x`
 - Constants (e.g., `5`, `1.2`, etc.)
 
-### Non-ax-constraints must:
+### Post-Generation-Constraints must:
 
 - Be valid equations (syntax-checked and structurally correct)
 - Include at least one comparison operator
 - Reference only allowed parameter names and numeric constants
 - Not be ax-compatible — otherwise, they will be treated as ax-constraints instead
 
-#### Examples of valid non-ax-constraints:
+#### Examples of valid Post-Generation-Constraints:
 
 - \( \text{sample_period} \cdot \text{window_size} >= 1 \)
 - \( 1 * \text{sample_period} >= 1 / \text{window_size} \)

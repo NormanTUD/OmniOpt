@@ -4765,7 +4765,7 @@ def print_non_ax_parameter_constraints_table() -> None:
         return None
 
     table = Table(header_style="bold")
-    columns = ["Non-Ax-Constraints"]
+    columns = ["Post-Generation-Constraints"]
 
     for column in columns:
         table.add_column(column)
@@ -6478,7 +6478,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                 trial_durations.append(float(end_time - start_time))
 
                 if not has_no_non_ax_constraints_or_matches_constraints(non_ax_constraints, params):
-                    print_debug(f"Marking trial as abandoned since it doesn't fit a non-ax-constraint: {params}")
+                    print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
                     trial.mark_abandoned()
                     abandoned_trial_indices.append(trial_index)
                 else:
@@ -7891,7 +7891,7 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
         if is_ax:
             final_constraints_list.append(decoded)
         elif is_equation:
-            print_debug(f"Added non-ax-constraint '{decoded}'")
+            print_debug(f"Added Post-Generation-constraint '{decoded}'")
             non_ax_constraints.append(decoded)
         else:
             print_red(f"Invalid constraint found: '{decoded}' (is valid ax? {is_ax}, is valid equation? {is_equation}).")

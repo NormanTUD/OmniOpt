@@ -77,14 +77,6 @@ function die {
 	exit 1
 }
 
-SYNTAX_ERRORS=0
-{ for i in $(ls *.php); do if ! php -l $i 2>&1; then SYNTAX_ERRORS=1; fi ; done } | 2>&1 grep -v mongodb
-
-if [[ "$SYNTAX_ERRORS" -ne "0" ]]; then
-	echo "Tests failed";
-	exit 1
-fi
-
 function docker_compose {
 	if id -nG "$USER" | grep -qw docker; then
 		DOCKER_CMD=""

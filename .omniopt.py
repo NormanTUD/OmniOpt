@@ -3652,7 +3652,7 @@ def get_random_steps_from_prev_job() -> int:
     prev_step_file: str = f"{args.continue_previous_job}/state_files/phase_random_steps"
 
     if not os.path.exists(prev_step_file):
-        return count_sobol_steps()
+        return _count_sobol_steps(prev_step_file)
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 

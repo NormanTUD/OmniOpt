@@ -192,7 +192,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `result_errors.log`: A list of errors for the run regarding the results
 - `result_names_overview.txt`: The rich overview-table of all result names
 - `result_names.txt`: A list of RESULT names
-- `post_generation_constraints.txt`: A list constraints that are not compatible with ax, but minded by OmniOpt2 after generating points
+- `post_generation_constraints.txt`: A table of [constraints that are not compatible with ax, but minded by OmniOpt2 after generating points](tutorials?tutorial=constraints)
 - `revert_to_random_when_seemingly_exhausted`: If it exists, continued jobs will revert to random models when the sweep has converged
 - `run.sh`: A bash-file that allows you to re-run this program
 - `run_uuid`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) for each run

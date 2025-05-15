@@ -4025,10 +4025,10 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def show_pareto_or_error_msg(res_names: list = arg_result_names) -> None:
+def show_pareto_or_error_msg(res_names: list = arg_result_names, force: bool = False) -> None:
     if len(res_names) > 1:
         try:
-            show_pareto_frontier_data(res_names)
+            show_pareto_frontier_data(res_names, force)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception {e}")
     else:
@@ -4040,7 +4040,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     wait_for_jobs_to_complete()
 
-    show_pareto_or_error_msg()
+    show_pareto_or_error_msg(arg_result_names, True)
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
@@ -7618,7 +7618,7 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @beartype
-def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list) -> Any:
+def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
         print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
         return None
@@ -7629,7 +7629,7 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
 
         cache_file = os.path.join(state_dir, "pareto_front_data.json")
 
-        if os.path.isfile(cache_file):
+        if os.path.isfile(cache_file) and not force:
             with open(cache_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 b64_encoded = data.get("pickle_data", "")
@@ -7683,7 +7683,7 @@ def live_share_after_pareto() -> None:
         live_share()
 
 @beartype
-def show_pareto_frontier_data(res_names) -> None:
+def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
@@ -7713,7 +7713,7 @@ def show_pareto_frontier_data(res_names) -> None:
                 metric_j = objectives[j].metric
 
                 try:
-                    calculated_frontier = get_calculated_or_cached_frontier(metric_i, metric_j, res_names)
+                    calculated_frontier = get_calculated_or_cached_frontier(metric_i, metric_j, res_names, force)
 
                     collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
                 except ax.exceptions.core.DataRequiredError as e:

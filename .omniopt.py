@@ -256,7 +256,10 @@ def is_slurm_job() -> bool:
 @beartype
 def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
-        time.sleep(t)
+        try:
+            time.sleep(t)
+        except KeyboardInterrupt:
+            pass
 
     return t
 
@@ -1953,7 +1956,8 @@ def load_max_eval_or_exit(_args: Any) -> None:
         else:
             print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
     else:
-        print_yellow("--max_eval needs to be set")
+        if not args.calculate_pareto_front_of_job:
+            print_yellow("--max_eval needs to be set")
 
 try:
     if not args.tests:
@@ -3547,8 +3551,11 @@ def get_res_name_is_maximized(res_name: str) -> bool:
 
     maximize = False
 
-    if arg_result_min_or_max[idx] == "max":
-        maximize = True
+    try:
+        if arg_result_min_or_max[idx] == "max":
+            maximize = True
+    except IndexError as e:
+        print_debug(f"Error: Failed with {e}")
 
     return maximize
 

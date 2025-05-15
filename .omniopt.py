@@ -8089,6 +8089,8 @@ def main() -> None:
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
+    post_job_calculate_pareto_front()
+
     write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
 
     try:
@@ -8117,8 +8119,6 @@ def main() -> None:
         error_description: str = "Some error occurred during execution (this is not a real error!)."
 
         write_failed_logs(data_dict, error_description)
-
-    post_job_calculate_pareto_front()
 
     save_state_files()
 

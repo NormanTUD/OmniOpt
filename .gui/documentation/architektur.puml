@@ -8,9 +8,11 @@ package "OmniOpt Workflow" {
 
   node "User" {
     component "Web GUI\n(optional)" as GUI
-    component "CLI Command\nomniopt ..." as CLI
-    GUI --> CLI : Generate command
   }
+
+  component "CLI Command\nomniopt ..." as CLI
+
+  GUI ..> CLI : Generate command
 
   database "OmniOpt Server\n(optional live upload)" as OmniOptServer
 
@@ -29,34 +31,36 @@ package "OmniOpt Workflow" {
 
   package "HPC Mode (via submitit/sbatch)" {
 
-    component "OmniOpt Core\n(main script)" as HPCMaster
+    cloud "Compute Nodes\n(parallel jobs including head node)" {
+      node "Head Node\n(also compute node)" {
+        component "OmniOpt Core\n(main script)" as HPCMaster
+      }
 
-    CLI --> HPCMaster : Run via sbatch
-
-    node "Head Node\n(SBATCH job)" {
-      database "runs/ (on file system)" as HPCRuns
-    }
-
-    cloud "Compute Nodes\n(parallel jobs)" {
-      node "Node 1" {
+      node "Compute Node 1" {
         component "Job 1" as Job1
       }
-      node "Node 2" {
+
+      node "Compute Node 2" {
         component "Job 2" as Job2
       }
-      node "Node 3" {
+
+      node "Compute Node 3" {
         component "Job 3" as Job3
       }
     }
 
+    database "runs/ (on file system)" as HPCRuns
+
+    CLI --> HPCMaster : ssh login && sbatch
     HPCMaster --> Job1 : submit
     HPCMaster --> Job2 : submit
     HPCMaster --> Job3 : submit
 
-    Job1 --> HPCRuns : write results
-    Job2 --> HPCRuns : write results
-    Job3 --> HPCRuns : write results
+    Job1 --> HPCMaster : return results
+    Job2 --> HPCMaster : return results
+    Job3 --> HPCMaster : return results
 
+    HPCMaster --> HPCRuns : write results
     HPCMaster --> OmniOptServer : --live_share (optional)
   }
 }

@@ -51,6 +51,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		config_json
 		config_toml
 		run_tests_that_fail_on_taurus
+		calculate_pareto_front_of_job
 		tests
 		parameter
 		continue_previous_job

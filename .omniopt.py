@@ -7914,6 +7914,9 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
 
 @beartype
 def post_job_calculate_pareto_front() -> None:
+    if not args.calculate_pareto_front_of_job:
+        return
+
     global CURRENT_RUN_FOLDER
     global ax_client
     global RESULT_CSV_FILE
@@ -7982,6 +7985,8 @@ def post_job_calculate_pareto_front() -> None:
 
     show_pareto_or_error_msg(res_names)
 
+    my_exit(0)
+
 @beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
@@ -8040,10 +8045,7 @@ def main() -> None:
 
         write_failed_logs(data_dict, error_description)
 
-    if args.calculate_pareto_front_of_job:
-        post_job_calculate_pareto_front()
-
-        my_exit(0)
+    post_job_calculate_pareto_front()
 
     save_state_files()
 

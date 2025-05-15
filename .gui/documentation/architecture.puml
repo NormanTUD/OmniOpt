@@ -1,4 +1,37 @@
 @startuml
+
+!if "%MODE_DARK%" == "true"
+  skinparam backgroundColor #1e1e1e
+  skinparam defaultFontColor #ffffff
+  skinparam titleFontColor #ffffff
+  skinparam componentFontColor #ffffff
+  skinparam nodeFontColor #ffffff
+  skinparam databaseFontColor #ffffff
+  skinparam arrowColor #ffffff
+  skinparam ArrowFontColor #ffffff
+  skinparam componentBackgroundColor #2d2d2d
+  skinparam nodeBackgroundColor #2d2d2d
+  skinparam databaseBackgroundColor #2d2d2d
+  skinparam componentBorderColor #cccccc
+  skinparam nodeBorderColor #cccccc
+  skinparam databaseBorderColor #cccccc
+!else
+  skinparam backgroundColor #ffffff
+  skinparam defaultFontColor #000000
+  skinparam titleFontColor #000000
+  skinparam componentFontColor #000000
+  skinparam nodeFontColor #000000
+  skinparam databaseFontColor #000000
+  skinparam arrowColor #000000
+  skinparam ArrowFontColor #000000
+  skinparam componentBackgroundColor #f0f0f0
+  skinparam nodeBackgroundColor #f0f0f0
+  skinparam databaseBackgroundColor #f0f0f0
+  skinparam componentBorderColor #000000
+  skinparam nodeBorderColor #000000
+  skinparam databaseBorderColor #000000
+!endif
+
 skinparam componentStyle rectangle
 skinparam defaultFontName Monospace
 skinparam ArrowFontSize 11

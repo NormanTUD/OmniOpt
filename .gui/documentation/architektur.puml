@@ -1,6 +1,7 @@
 @startuml
 skinparam componentStyle rectangle
 skinparam defaultFontName Monospace
+skinparam ArrowFontSize 11
 
 title OmniOpt Architecture
 
@@ -19,46 +20,55 @@ package "OmniOpt Workflow" {
   package "Local Mode" {
     node "Local System" {
       component "OmniOpt Core\n(main script)" as LocalCore
-      component "Evaluation Jobs\n(sequential)" as LocalJobs
+      component "Job #1" as LocalJobs1
+      component "Job #2" as LocalJobs2
+      component "Job #n" as LocalJobs3
       database "runs/ (local)" as LocalRuns
     }
 
     CLI --> LocalCore : Run
-    LocalCore --> LocalJobs
-    LocalJobs --> LocalRuns : write results
+    LocalCore --> LocalJobs1
+    LocalJobs1 --> LocalJobs2
+    LocalJobs2 --> LocalJobs3
+    LocalJobs3 --> LocalRuns : write results
     LocalCore --> OmniOptServer : --live_share (optional)
   }
 
   package "HPC Mode (via submitit/sbatch)" {
 
-    cloud "Compute Nodes\n(parallel jobs including head node)" {
-      node "Head Node\n(also compute node)" {
+    cloud "HPC" {
+
+      node "Login Node\n(sbatch only)" as LoginNode
+
+      node "Head Node" {
         component "OmniOpt Core\n(main script)" as HPCMaster
       }
 
       node "Compute Node 1" {
-        component "Job 1" as Job1
+        component "Job #1" as Job1
       }
 
       node "Compute Node 2" {
-        component "Job 2" as Job2
+        component "Job #2" as Job2
       }
 
-      node "Compute Node 3" {
-        component "Job 3" as Job3
+      node "Compute Node n" {
+        component "Job #n" as Job3
       }
     }
 
     database "runs/ (on file system)" as HPCRuns
 
-    CLI --> HPCMaster : ssh login && sbatch
+    CLI --> LoginNode : ssh login
+    LoginNode --> HPCMaster : sbatch command
+
     HPCMaster --> Job1 : submit
     HPCMaster --> Job2 : submit
     HPCMaster --> Job3 : submit
 
-    Job1 --> HPCMaster : return results
-    Job2 --> HPCMaster : return results
-    Job3 --> HPCMaster : return results
+    Job1 -down-> HPCMaster : return results
+    Job2 -down-> HPCMaster : return results
+    Job3 -down-> HPCMaster : return results
 
     HPCMaster --> HPCRuns : write results
     HPCMaster --> OmniOptServer : --live_share (optional)
@@ -66,4 +76,3 @@ package "OmniOpt Workflow" {
 }
 
 @enduml
-

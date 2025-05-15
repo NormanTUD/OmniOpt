@@ -1764,16 +1764,19 @@ function plotJobStatusDistribution() {
 
 function _colorize_table_entries_by_generation_method () {
 	document.querySelectorAll('[data-column-id="generation_node"]').forEach(el => {
-		let color = el.textContent.includes("Manual") ? "green" :
-			el.textContent.includes("Sobol") ? "orange" :
-			el.textContent.includes("SAASBO") ? "pink" :
-			el.textContent.includes("Uniform") ? "lightblue" :
-			el.textContent.includes("Legacy_GPEI") ? "Sienna" :
-			el.textContent.includes("BO_MIXED") ? "Aqua" :
-			el.textContent.includes("RANDOMFOREST") ? "DarkSeaGreen" :
-			el.textContent.includes("EXTERNAL_GENERATOR") ? "Purple" :
-			el.textContent.includes("BoTorch") ? "yellow" : "";
-		if (color) el.style.backgroundColor = color;
+		let text = el.textContent.toLowerCase();
+		let color = text.includes("manual") ? "green" :
+			text.includes("sobol") ? "orange" :
+			text.includes("saasbo") ? "pink" :
+			text.includes("uniform") ? "lightblue" :
+			text.includes("legacy_gpei") ? "sienna" :
+			text.includes("bo_mixed") ? "aqua" :
+			text.includes("randomforest") ? "darkseagreen" :
+			text.includes("external_generator") ? "purple" :
+			text.includes("botorch") ? "yellow" : "";
+		if (color !== "") {
+			el.style.backgroundColor = color;
+		}
 		el.classList.add("invert_in_dark_mode");
 	});
 }

@@ -67,20 +67,29 @@ package "OmniOpt2 Workflow" {
   database "OmniOpt2 Server\n(optional, Live-Share)" as OmniOpt2Server
 
   package "Local Mode" {
-    node "Local System" {
-      component "OmniOpt2 Core\n(main script)" as LocalCore
-      component "Job #1" as LocalJobs1
-      component "Job #2" as LocalJobs2
-      component "Job #n" as LocalJobs3
-      database "runs/ (local)" as LocalRuns
-    }
+	  database "runs/ (local)" as LocalRuns
 
-    CLI --> LocalCore : Run
-    LocalCore --> LocalJobs1
-    LocalJobs1 --> LocalJobs2
-    LocalJobs2 --> LocalJobs3
-    LocalJobs3 --> LocalRuns : write results
-    LocalCore --> OmniOpt2Server : --live_share (optional)
+	  node "Local System" {
+		  component "OmniOpt2 Core\n(main script)" as LocalCore
+			  component "Job #1" as LocalJobs1
+			  component "Job #2" as LocalJobs2
+			  component "Job #n" as LocalJobsN
+	  }
+
+	  CLI --> LocalCore : Run locally
+
+		  LocalCore --> LocalJobs1 : start job 1
+		  LocalJobs1 --> LocalCore : notify completion
+
+		  LocalCore --> LocalJobs2 : start job 2
+		  LocalJobs2 --> LocalCore : notify completion
+
+		  LocalCore --> LocalJobsN : start job n
+		  LocalJobsN --> LocalCore : notify completion
+
+		  LocalCore --> LocalRuns : write all results
+
+		  LocalCore --> OmniOpt2Server : --live_share (optional)
   }
 
   package "HPC Mode (via submitit/sbatch)" {

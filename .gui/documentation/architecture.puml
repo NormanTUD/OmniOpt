@@ -9,12 +9,19 @@
   skinparam databaseFontColor #ffffff
   skinparam arrowColor #ffffff
   skinparam ArrowFontColor #ffffff
+
   skinparam componentBackgroundColor #2d2d2d
   skinparam nodeBackgroundColor #2d2d2d
   skinparam databaseBackgroundColor #2d2d2d
-  skinparam componentBorderColor #cccccc
-  skinparam nodeBorderColor #cccccc
-  skinparam databaseBorderColor #cccccc
+  skinparam packageBackgroundColor #2d2d2d
+  skinparam cloudBackgroundColor #2d2d2d
+
+  skinparam componentBorderColor #ffffff
+  skinparam nodeBorderColor #ffffff
+  skinparam databaseBorderColor #ffffff
+  skinparam packageBorderColor #ffffff
+  skinparam cloudBorderColor #ffffff
+  skinparam rectangleBorderColor #ffffff
 !else
   skinparam backgroundColor #ffffff
   skinparam defaultFontColor #000000
@@ -24,12 +31,19 @@
   skinparam databaseFontColor #000000
   skinparam arrowColor #000000
   skinparam ArrowFontColor #000000
+
   skinparam componentBackgroundColor #f0f0f0
   skinparam nodeBackgroundColor #f0f0f0
   skinparam databaseBackgroundColor #f0f0f0
+  skinparam packageBackgroundColor #f0f0f0
+  skinparam cloudBackgroundColor #f0f0f0
+
   skinparam componentBorderColor #000000
   skinparam nodeBorderColor #000000
   skinparam databaseBorderColor #000000
+  skinparam packageBorderColor #000000
+  skinparam cloudBorderColor #000000
+  skinparam rectangleBorderColor #000000
 !endif
 
 skinparam componentStyle rectangle

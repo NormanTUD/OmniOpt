@@ -448,6 +448,7 @@ class ConfigLoader:
     max_nr_of_zero_results: int
     mem_gb: int
     continue_previous_job: Optional[str]
+    calculate_pareto_front_of_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float
     decimalrounding: int
@@ -550,6 +551,7 @@ class ConfigLoader:
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
+        optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -677,7 +679,7 @@ args = loader.parse_arguments()
 if args.seed is not None:
     set_rng_seed(args.seed)
 
-if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None:
+if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and not args.calculate_pareto_front_of_job:
     print_red("Either --max_eval or --generation_strategy must be set.")
     my_exit(104)
 
@@ -1812,7 +1814,7 @@ else:
         print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
         my_exit(44)
 
-if not args.tests and len(global_vars["joined_run_program"]) == 0:
+if not args.tests and len(global_vars["joined_run_program"]) == 0 and not args.calculate_pareto_front_of_job:
     print_red("--run_program was empty")
     my_exit(19)
 
@@ -1867,18 +1869,18 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
 @beartype
 def check_required_parameters(_args: Any) -> None:
     check_param_or_exit(
-        _args.parameter or _args.continue_previous_job,
-        "Either --parameter or --continue_previous_job is required. Both were not found.",
+        _args.parameter or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        "Either --parameter, --calculate_pareto_front_of_job or --continue_previous_job is required. Both were not found.",
         19
     )
     check_param_or_exit(
-        _args.run_program or _args.continue_previous_job,
-        "--run_program needs to be defined when --continue_previous_job is not set",
+        _args.run_program or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        "--run_program or --calculate_pareto_front_of_job needs to be defined when --continue_previous_job is not set",
         19
     )
     check_param_or_exit(
-        global_vars.get("experiment_name") or _args.continue_previous_job,
-        "--experiment_name needs to be defined when --continue_previous_job is not set",
+        global_vars.get("experiment_name") or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        "--experiment_name or --calculate_pareto_front_of_job needs to be defined when --continue_previous_job is not set",
         19
     )
 
@@ -1897,8 +1899,9 @@ def load_time_or_exit(_args: Any) -> None:
         else:
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
-        print_red("Missing --time parameter. Cannot continue.")
-        my_exit(19)
+        if not args.calculate_pareto_front_of_job:
+            print_red("Missing --time parameter. Cannot continue.")
+            my_exit(19)
 
 @beartype
 def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
@@ -3632,6 +3635,7 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
         rows = df[df["generation_node"] == _type]
     else:
         rows = df[df["trial_status"] == _type]
+
     count = len(rows)
 
     return count
@@ -4003,10 +4007,10 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def show_pareto_or_error_msg() -> None:
-    if len(arg_result_names) > 1:
+def show_pareto_or_error_msg(res_names: list = arg_result_names) -> None:
+    if len(res_names) > 1:
         try:
-            show_pareto_frontier_data()
+            show_pareto_frontier_data(res_names)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception {e}")
     else:
@@ -7594,9 +7598,9 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @beartype
-def show_pareto_frontier_data() -> None:
-    if len(arg_result_names) <= 1:
-        print_debug(f"--result_names (has {len(arg_result_names)} entries) must be at least 2.")
+def show_pareto_frontier_data(res_names) -> None:
+    if len(res_names) <= 1:
+        print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
 
     if ax_client is None:
@@ -7629,7 +7633,7 @@ def show_pareto_frontier_data() -> None:
                         data=ax_client.experiment.fetch_data(),
                         primary_objective=metric_i,
                         secondary_objective=metric_j,
-                        absolute_metrics=arg_result_names,
+                        absolute_metrics=res_names,
                         num_points=count_done_jobs()
                     )
 
@@ -7909,6 +7913,76 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
     return final_constraints_list
 
 @beartype
+def post_job_calculate_pareto_front() -> None:
+    global CURRENT_RUN_FOLDER
+    global ax_client
+    global RESULT_CSV_FILE
+    global arg_result_names
+
+    if not args.calculate_pareto_front_of_job:
+        print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
+        my_exit(24)
+
+    if not os.path.exists(args.calculate_pareto_front_of_job):
+        print_red(f"Path '{args.calculate_pareto_front_of_job}' does not exist")
+        my_exit(24)
+
+    ax_client_json = f"{args.calculate_pareto_front_of_job}/state_files/ax_client.experiment.json"
+
+    if not os.path.exists(ax_client_json):
+        print_red(f"Path '{ax_client_json}' not found")
+        my_exit(24)
+
+    checkpoint_file: str = f"{args.calculate_pareto_front_of_job}/state_files/checkpoint.json"
+    if not os.path.exists(checkpoint_file):
+        print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
+        my_exit(24)
+
+    RESULT_CSV_FILE = f"{args.calculate_pareto_front_of_job}/results.csv"
+    if not os.path.exists(RESULT_CSV_FILE):
+        print_red(f"{RESULT_CSV_FILE} not found")
+        my_exit(24)
+
+    res_names = []
+
+    res_names_file = f"{args.calculate_pareto_front_of_job}/result_names.txt"
+    if not os.path.exists(res_names_file):
+        print_red(f"File '{res_names_file}' does not exist")
+        my_exit(24)
+
+    try:
+        with open(res_names_file, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+    except Exception as e:
+        print_red(f"Error reading file '{res_names_file}': {e}")
+        my_exit(24)
+
+    for line in lines:
+        entry = line.strip()
+        if entry != "":
+            res_names.append(entry)
+
+    CURRENT_RUN_FOLDER = args.calculate_pareto_front_of_job
+
+    ax_client = AxClient(
+        verbose_logging=args.verbose
+    )
+
+    arg_result_names = res_names
+
+    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+
+    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+
+    ax_client = AxClient.load_from_json_file(tmp_file_path)
+
+    os.unlink(tmp_file_path)
+
+    ax_client = cast(AxClient, ax_client)
+
+    show_pareto_or_error_msg(res_names)
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -7965,6 +8039,11 @@ def main() -> None:
         error_description: str = "Some error occurred during execution (this is not a real error!)."
 
         write_failed_logs(data_dict, error_description)
+
+    if args.calculate_pareto_front_of_job:
+        post_job_calculate_pareto_front()
+
+        my_exit(0)
 
     save_state_files()
 

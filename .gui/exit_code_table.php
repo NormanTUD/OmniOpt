@@ -24,6 +24,7 @@
 			21 => "requirements.txt or test_requirements.txt not found",
 			22 => "Python header-files not found",
 			23 => "Loading of Environment failed",
+			24 => "Error calculating pareto-front post job. Check stdout for details.",
 			31 => "Basic modules could not be loaded or you cancelled loading them",
 			32 => "Error regarding the --signed_weighted_euclidean_weights parameter. Check output for details",
 			33 => "Unknown data type for EXTERNAL_GENERATOR",

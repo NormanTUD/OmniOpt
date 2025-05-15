@@ -12,52 +12,54 @@ package "OmniOpt Workflow" {
     GUI --> CLI : Generate command
   }
 
-  database "Local 'runs/' directory" as RunsFolder
-
-  package "Execution Modes" {
-
-    folder "Local Mode" {
-      component "OmniOpt Core\n(main script)" as LocalCore
-      component "Evaluation Jobs\n(sequential)" as LocalJobs
-
-      CLI --> LocalCore : Run
-      LocalCore --> LocalJobs : evaluate()
-      LocalJobs --> RunsFolder : write results
-    }
-
-    folder "HPC Mode (via Submitit)" {
-      node "Head Node\n(SBATCH job)" {
-        component "OmniOpt Core\n(main script)" as HPCMaster
-      }
-
-      cloud "Compute Nodes\n(parallel jobs)" {
-        node "Node 1" {
-          component "Job 1"
-        }
-        node "Node 2" {
-          component "Job 2"
-        }
-        node "Node 3" {
-          component "Job 3"
-        }
-      }
-
-      CLI --> HPCMaster : Run via sbatch
-      HPCMaster --> Job1 : dispatch
-      HPCMaster --> Job2 : dispatch
-      HPCMaster --> Job3 : dispatch
-
-      Job1 --> RunsFolder : write results
-      Job2 --> RunsFolder : write results
-      Job3 --> RunsFolder : write results
-    }
-  }
-
   database "OmniOpt Server\n(optional live upload)" as OmniOptServer
 
-  LocalCore --> OmniOptServer : --live_share (optional)
-  HPCMaster --> OmniOptServer : --live_share (optional)
+  package "Local Mode" {
+    node "Local System" {
+      component "OmniOpt Core\n(main script)" as LocalCore
+      component "Evaluation Jobs\n(sequential)" as LocalJobs
+      database "runs/ (local)" as LocalRuns
+    }
 
+    CLI --> LocalCore : Run
+    LocalCore --> LocalJobs : evaluate()
+    LocalJobs --> LocalRuns : write results
+    LocalCore --> OmniOptServer : --live_share (optional)
+  }
+
+  package "HPC Mode (via Submitit)" {
+
+    component "OmniOpt Core\n(main script)" as HPCMaster
+
+    CLI --> HPCMaster : Run via sbatch
+
+    node "Head Node\n(SBATCH job)" {
+      database "runs/ (on head node)" as HPCRuns
+    }
+
+    cloud "Compute Nodes\n(parallel jobs)" {
+      node "Node 1" {
+        component "Job 1" as Job1
+      }
+      node "Node 2" {
+        component "Job 2" as Job2
+      }
+      node "Node 3" {
+        component "Job 3" as Job3
+      }
+    }
+
+    HPCMaster --> Job1 : submit
+    HPCMaster --> Job2 : submit
+    HPCMaster --> Job3 : submit
+
+    Job1 --> HPCRuns : write results
+    Job2 --> HPCRuns : write results
+    Job3 --> HPCRuns : write results
+
+    HPCMaster --> OmniOptServer : --live_share (optional)
+  }
 }
 
 @enduml
+

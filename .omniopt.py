@@ -7642,6 +7642,27 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
         return None
 
 @beartype
+def live_share_after_pareto() -> None:
+    if args.calculate_pareto_front_of_job or args.live_share:
+        if not args.live_share:
+            live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
+            if os.path.exists(live_share_file):
+                try:
+                    with open(live_share_file, "r", encoding="utf-8") as f:
+                        first_line = f.readline().strip()
+                        if first_line == "1":
+                            args.live_share = True
+                except Exception as e:
+                    print_debug(f"Error reading {live_share_file}: {e}")
+                    args.live_share = False
+
+        global SHOWN_LIVE_SHARE_COUNTER
+
+        SHOWN_LIVE_SHARE_COUNTER = 1
+
+        live_share()
+
+@beartype
 def show_pareto_frontier_data(res_names) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
@@ -7714,25 +7735,7 @@ def show_pareto_frontier_data(res_names) -> None:
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 
-    if args.calculate_pareto_front_of_job or args.live_share:
-        if not args.live_share:
-            live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
-            if os.path.exists(live_share_file):
-                try:
-                    with open(live_share_file, "r", encoding="utf-8") as f:
-                        first_line = f.readline().strip()
-                        if first_line == "1":
-                            args.live_share = True
-                except Exception as e:
-                    print_debug(f"Error reading {live_share_file}: {e}")
-                    args.live_share = False
-
-        global SHOWN_LIVE_SHARE_COUNTER
-
-        SHOWN_LIVE_SHARE_COUNTER = 1
-
-        live_share()
-
+    live_share_after_pareto()
 
 @beartype
 def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_color: str) -> None:

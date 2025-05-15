@@ -873,6 +873,8 @@ if [[ $superquick -eq 0 ]]; then
 
 			_test "Running Slurm-Docker-Test" ".tests/slurm_docker/run_docker --run_tests" 0
 		fi
+
+		_test "post_job_pareto_front_calculation" ".tests/post_job_pareto_front_calculation" 0
 	fi
 fi
 

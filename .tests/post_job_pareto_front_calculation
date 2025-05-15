@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+
+NUM_GPUS=0
+
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
+fi
+
+run_dir="runs/__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_2/"
+
+if [[ -d $run_dir ]]; then
+	rm -rf $run_dir
+fi
+
+export DIE_AFTER_THIS_NR_OF_DONE_JOBS=1
+.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --max_eval=200 --mem_gb=4 --generate_all_jobs_at_once --random_sem --nr_results=2
+
+exit_code=$?
+
+if [[ $exit_code -ne 34 ]]; then
+	red_text "post_job_pareto_front_calculation: The OmniOpt2 job failed. It should have exited with exit code 34, but had $exit_code."
+	exit 1
+fi
+
+./omniopt --calculate_pareto_front_of_job $run_dir/0
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "post_job_pareto_front_calculation: The OmniOpt2 job failed."
+	exit 2
+fi
+
+json_file="$run_dir/0/pareto_front_data.json"
+
+if [[ ! -e $json_file ]]; then
+	red_text "post_job_pareto_front_calculation: $json_file does not exist"
+	exit 3
+fi
+
+if command -v jq 2>/dev/null >/dev/null; then
+	cat "$json_file" | jq
+	exit_code=$?
+
+	if [[ $exit_code -ne 0 ]]; then
+		red_text "post_job_pareto_front_calculation: The file '$json_file' is not valid JSON."
+		exit 4
+	fi
+fi
+
+green_text "post_job_pareto_front_calculation: Test OK"
+exit 0

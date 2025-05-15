@@ -58,9 +58,10 @@ package "User Interface" {
   }
 }
 
+component "CLI Command\nomniopt ..." as CLI
+
 package "OmniOpt2 Workflow" {
 
-  component "CLI Command\nomniopt ..." as CLI
 
   GUI ..> CLI : Generates CLI Command to be executed
 

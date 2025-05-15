@@ -183,6 +183,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `minimize`: If it exists, it means, the job was about to minimize
 - `model`: The model chosen for the non-SOBOL-step-phase
 - `num_random_steps`: Number of random steps, used for continued jobs
+- `pareto_front_data.json`: Saves data for pareto fronts
 - `original_ax_client_before_loading_tmp_one.json`: Required to re-load generation strategy in continued jobs
 - `pareto_front_data.json`: Data about the pareto-front (exists only for multi-objective-optimizations)
 - `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated pareto-front

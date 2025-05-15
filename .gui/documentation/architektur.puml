@@ -22,19 +22,19 @@ package "OmniOpt Workflow" {
     }
 
     CLI --> LocalCore : Run
-    LocalCore --> LocalJobs : evaluate()
+    LocalCore --> LocalJobs
     LocalJobs --> LocalRuns : write results
     LocalCore --> OmniOptServer : --live_share (optional)
   }
 
-  package "HPC Mode (via Submitit)" {
+  package "HPC Mode (via submitit/sbatch)" {
 
     component "OmniOpt Core\n(main script)" as HPCMaster
 
     CLI --> HPCMaster : Run via sbatch
 
     node "Head Node\n(SBATCH job)" {
-      database "runs/ (on head node)" as HPCRuns
+      database "runs/ (on file system)" as HPCRuns
     }
 
     cloud "Compute Nodes\n(parallel jobs)" {

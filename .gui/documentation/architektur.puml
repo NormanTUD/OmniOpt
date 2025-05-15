@@ -17,7 +17,7 @@ package "OmniOpt2 Workflow" {
 
   GUI ..> CLI : Generates CLI Command to be executed
 
-  database "OmniOpt2 Server\n(optional live upload)" as OmniOpt2Server
+  database "OmniOpt2 Server\n(optional, Live-Share)" as OmniOpt2Server
 
   package "Local Mode" {
     node "Local System" {

@@ -7718,14 +7718,14 @@ def show_pareto_frontier_data(res_names) -> None:
         if not args.live_share:
             live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
             if os.path.exists(live_share_file):
-                    try:
-                        with open(live_share_file, "r", encoding="utf-8") as f:
-                            first_line = f.readline().strip()
-                            if first_line == "1":
-                                args.live_share = True
-                    except Exception as e:
-                        print_debug(f"Error reading {live_share_file}: {e}")
-                        args.live_share = False
+                try:
+                    with open(live_share_file, "r", encoding="utf-8") as f:
+                        first_line = f.readline().strip()
+                        if first_line == "1":
+                            args.live_share = True
+                except Exception as e:
+                    print_debug(f"Error reading {live_share_file}: {e}")
+                    args.live_share = False
 
         global SHOWN_LIVE_SHARE_COUNTER
 

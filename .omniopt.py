@@ -8047,6 +8047,10 @@ def post_job_calculate_pareto_front() -> None:
         if entry != "":
             res_names.append(entry)
 
+    if len(res_names) < 2:
+        print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
+        my_exit(24)
+
     CURRENT_RUN_FOLDER = args.calculate_pareto_front_of_job
 
     ax_client = AxClient(

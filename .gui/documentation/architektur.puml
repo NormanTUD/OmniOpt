@@ -15,7 +15,7 @@ package "OmniOpt Workflow" {
 
   component "CLI Command\nomniopt ..." as CLI
 
-  GUI ..> CLI : generiert Befehl zur Ausführung
+  GUI ..> CLI : Generates CLI Command to be executed
 
   database "OmniOpt Server\n(optional live upload)" as OmniOptServer
 

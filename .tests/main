@@ -387,6 +387,11 @@ function run_tests {
 			fi
                 fi
 
+		if [[ -d None ]]; then
+			red_text "None exists. Will fail."
+			exit 1
+		fi
+
 		if [[ -d runs/None ]]; then
 			red_text "runs/None exists. Will fail."
 			exit 1

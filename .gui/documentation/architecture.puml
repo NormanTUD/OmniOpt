@@ -73,7 +73,7 @@ component "CLI Command\nomniopt ..." as CLI
           database "runs/ (local)" as LocalRuns
 
           node "Local System" {
-                  component "OmniOpt2 Core\n(main script)" as LocalCore
+                  component "OmniOpt2 main script" as LocalCore
 
                   ' Jobs mit eigener Farbe:
                   !if (MODE_DARK == "true")
@@ -110,7 +110,7 @@ component "CLI Command\nomniopt ..." as CLI
       !if (MODE_DARK == "true")
         node "Login Node\n(sbatch only)" as LoginNode #CC7000
         node "Head Node" {
-          component "OmniOpt2 Core\n(main script)" as HPCMaster
+          component "OmniOpt2 main script" as HPCMaster
         }
         node "Compute Node 1" {
           component "Job #1" as Job1 #FF8C00
@@ -124,7 +124,7 @@ component "CLI Command\nomniopt ..." as CLI
       !else
         node "Login Node\n(sbatch only)" as LoginNode #FFB84D
         node "Head Node" {
-          component "OmniOpt2 Core\n(main script)" as HPCMaster
+          component "OmniOpt2 main script" as HPCMaster
         }
         node "Compute Node 1" {
           component "Job #1" as Job1 #FF8C00

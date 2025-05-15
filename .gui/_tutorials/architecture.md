@@ -13,24 +13,24 @@ This document describes the architecture of the OmniOpt2 system, highlighting it
 - **User**: The human operator interacting with the system.  
 - **[Web GUI](gui)**: A web-based graphical interface that allows users to generate CLI commands easily. This is the primary and only interface for user interaction and command generation.
 
-The [Web GUI](gui) translates user actions into CLI commands that drive the core OmniOpt2 workflow.
+The [Web GUI](gui) let's the user create the CLI command that drive the OmniOpt2 workflow.
 
 ## OmniOpt2 Workflow
 
-The core of OmniOpt2 operates primarily via a CLI (Command Line Interface) command `omniopt ...`. This command controls the entire optimization workflow.
+OmniOpt2 operates primarily via a CLI (Command Line Interface) command `omniopt ...`. This command controls the entire optimization workflow.
 
 ### Local Mode
 
 In Local Mode, OmniOpt2 runs on the user's local system with the following components:
 
-- **OmniOpt2 Core (main script)**: The main execution engine responsible for orchestrating jobs.  
+- **OmniOpt2 main script**: The main execution engine responsible for orchestrating jobs.  
 - **Jobs (#1 to #n)**: Individual optimization tasks or experiments executed sequentially (parallel execution only in HPC mode)
 - **Local Runs Storage**: A local directory (`runs/`) where all results and logs are saved.
 
 The flow is:
 
 1. The CLI command triggers the OmniOpt2 Core.  
-2. The Core manages and distributes jobs (`Job #1`, `Job #2`, ..., `Job #n`).  
+2. The main script manages and distributes jobs (`Job #1`, `Job #2`, ..., `Job #n`).  
 3. Each job produces results written back to the local storage.  
 
 ### HPC Mode (High Performance Computing)
@@ -40,7 +40,7 @@ For larger scale or parallelized workloads, OmniOpt2 supports HPC clusters using
 The HPC setup includes:
 
 - **Login Node**: The initial access point to the cluster where users log in via SSH.  
-- **Head Node**: Runs the OmniOpt2 Core script that manages job submissions.  
+- **Head Node**: Runs the OmniOpt2 main script that manages job submissions.  
 - **Compute Nodes**: Actual machines in the cluster executing jobs (`Job #1`, `Job #2`, ..., `Job #n`).  
 - **Runs Storage**: A filesystem accessible by the cluster where results are saved.
 

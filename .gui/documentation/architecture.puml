@@ -79,17 +79,17 @@ package "OmniOpt2 Workflow" {
 	  CLI --> LocalCore : Run locally
 
 		  LocalCore --> LocalJobs1 : start job 1
-		  LocalJobs1 --> LocalCore : notify completion
+		  LocalJobs1 --> LocalCore : return results
 
 		  LocalCore --> LocalJobs2 : start job 2
-		  LocalJobs2 --> LocalCore : notify completion
+		  LocalJobs2 --> LocalCore : return results
 
 		  LocalCore --> LocalJobsN : start job n
-		  LocalJobsN --> LocalCore : notify completion
+		  LocalJobsN --> LocalCore : return results
 
 		  LocalCore --> LocalRuns : write all results
 
-		  LocalCore --> OmniOpt2Server : --live_share (optional)
+		  LocalCore ..> OmniOpt2Server : --live_share (optional)
   }
 
   package "HPC Mode (via submitit/sbatch)" {
@@ -129,7 +129,7 @@ package "OmniOpt2 Workflow" {
     Job3 -down-> HPCMaster : return results
 
     HPCMaster --> HPCRuns : write results
-    HPCMaster --> OmniOpt2Server : --live_share (optional)
+    HPCMaster ..> OmniOpt2Server : --live_share (optional)
   }
 }
 

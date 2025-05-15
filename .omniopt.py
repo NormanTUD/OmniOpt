@@ -2644,11 +2644,13 @@ def execute_bash_code(code: str) -> list:
 @beartype
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]:
     if input_string is None:
-        print_red("get_results: Input-String is None")
+        if not args.tests:
+            print_red("get_results: Input-String is None")
         return None
 
     if not isinstance(input_string, str):
-        print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
+        if not args.tests:
+            print_red(f"get_results: Type of input_string is not string, but {type(input_string)}")
         return None
 
     try:
@@ -3142,23 +3144,26 @@ def print_evaluate_times() -> None:
 def print_debug_infos(program_string_with_params: str) -> None:
     string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
-    original_print("Debug-Infos:", string)
+    if not args.tests:
+        original_print("Debug-Infos:", string)
 
 @beartype
 def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> None:
-    if stdout:
-        original_print("stdout:\n", stdout)
-    else:
-        original_print("stdout was empty")
+    if not args.tests:
+        if stdout:
+            original_print("stdout:\n", stdout)
+        else:
+            original_print("stdout was empty")
 
-    if stderr:
-        original_print("stderr:\n", stderr)
-    else:
-        original_print("stderr was empty")
+        if stderr:
+            original_print("stderr:\n", stderr)
+        else:
+            original_print("stderr was empty")
 
 @beartype
 def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict) -> None:
-    original_print(f"Parameters: {json.dumps(parameters)}")
+    if not args.tests:
+        original_print(f"Parameters: {json.dumps(parameters)}")
 
     print_debug_infos(program_string_with_params)
 
@@ -3166,13 +3171,15 @@ def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdo
 
     print_stdout_and_stderr(stdout, stderr)
 
-    original_print(f"Result: {result}")
+    if not args.tests:
+        original_print(f"Result: {result}")
 
-    original_print(f"Final-results: {final_result}")
+        original_print(f"Final-results: {final_result}")
 
     write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
 
-    original_print(f"EXIT_CODE: {exit_code}")
+    if not args.tests:
+        original_print(f"EXIT_CODE: {exit_code}")
 
 @beartype
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]:
@@ -5740,7 +5747,8 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
                     params = json.loads(params)
                     return params
     except FileNotFoundError:
-        original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
+        if not args.tests:
+            original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
     except Exception as e:
         print(f"get_parameters_from_outfile: There was an error: {e}")
 

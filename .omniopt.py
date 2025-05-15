@@ -7747,7 +7747,9 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
         if rich_table is not None:
             console.print(rich_table)
 
-            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
+            mode = "w" if force else "a"
+
+            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode=mode, encoding="utf-8") as text_file:
                 with console.capture() as capture:
                     console.print(rich_table)
                 text_file.write(capture.get())

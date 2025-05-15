@@ -10,11 +10,11 @@
   skinparam arrowColor #ffffff
   skinparam ArrowFontColor #ffffff
 
-  skinparam componentBackgroundColor #2d2d2d
-  skinparam nodeBackgroundColor #2d2d2d
-  skinparam databaseBackgroundColor #2d2d2d
-  skinparam packageBackgroundColor #2d2d2d
-  skinparam cloudBackgroundColor #2d2d2d
+  skinparam componentBackgroundColor #1e1e1e
+  skinparam nodeBackgroundColor #CC7000   ' dunkles Orange/Braun
+  skinparam databaseBackgroundColor #003366
+  skinparam packageBackgroundColor #1e1e1e
+  skinparam cloudBackgroundColor #1e1e1e
 
   skinparam componentBorderColor #ffffff
   skinparam nodeBorderColor #ffffff
@@ -22,6 +22,10 @@
   skinparam packageBorderColor #ffffff
   skinparam cloudBorderColor #ffffff
   skinparam rectangleBorderColor #ffffff
+
+  ' Jobs Farben
+  skinparam componentBackgroundColor #1e1e1e
+  ' Wir definieren Jobs separat weiter unten per note oder workaround (wegen PlantUML Limitierungen)
 !else
   skinparam backgroundColor #ffffff
   skinparam defaultFontColor #000000
@@ -32,11 +36,11 @@
   skinparam arrowColor #000000
   skinparam ArrowFontColor #000000
 
-  skinparam componentBackgroundColor #f0f0f0
-  skinparam nodeBackgroundColor #f0f0f0
-  skinparam databaseBackgroundColor #f0f0f0
-  skinparam packageBackgroundColor #f0f0f0
-  skinparam cloudBackgroundColor #f0f0f0
+  skinparam componentBackgroundColor #e0e0e0
+  skinparam nodeBackgroundColor #FFB84D   ' helleres Orange
+  skinparam databaseBackgroundColor #FFEB3B
+  skinparam packageBackgroundColor #e0e0e0
+  skinparam cloudBackgroundColor #e0e0e0
 
   skinparam componentBorderColor #000000
   skinparam nodeBorderColor #000000
@@ -60,60 +64,79 @@ package "User Interface" {
 
 component "CLI Command\nomniopt ..." as CLI
 
-package "OmniOpt2 Workflow" {
-
 
   GUI ..> CLI : Generates CLI Command to be executed
 
   database "OmniOpt2 Server\n(optional, Live-Share)" as OmniOpt2Server
 
   package "Local Mode" {
-	  database "runs/ (local)" as LocalRuns
+          database "runs/ (local)" as LocalRuns
 
-	  node "Local System" {
-		  component "OmniOpt2 Core\n(main script)" as LocalCore
-			  component "Job #1" as LocalJobs1
-			  component "Job #2" as LocalJobs2
-			  component "Job #n" as LocalJobsN
-	  }
+          node "Local System" {
+                  component "OmniOpt2 Core\n(main script)" as LocalCore
 
-	  CLI --> LocalCore : Run locally
+                  ' Jobs mit eigener Farbe:
+                  !if (MODE_DARK == "true")
+                    component "Job #1" as LocalJobs1 #FF8C00
+                    component "Job #2" as LocalJobs2 #FF8C00
+                    component "Job #n" as LocalJobsN #FF8C00
+                  !else
+                    component "Job #1" as LocalJobs1 #FF8C00
+                    component "Job #2" as LocalJobs2 #FF8C00
+                    component "Job #n" as LocalJobsN #FF8C00
+                  !endif
+          }
 
-		  LocalCore --> LocalJobs1 : start job 1
-		  LocalJobs1 --> LocalCore : return results
+          CLI --> LocalCore : Run locally
 
-		  LocalCore --> LocalJobs2 : start job 2
-		  LocalJobs2 --> LocalCore : return results
+                  LocalCore --> LocalJobs1 : start job 1
+                  LocalJobs1 --> LocalCore : return results
 
-		  LocalCore --> LocalJobsN : start job n
-		  LocalJobsN --> LocalCore : return results
+                  LocalCore --> LocalJobs2 : start job 2
+                  LocalJobs2 --> LocalCore : return results
 
-		  LocalCore --> LocalRuns : write all results
+                  LocalCore --> LocalJobsN : start job n
+                  LocalJobsN --> LocalCore : return results
 
-		  LocalCore ..> OmniOpt2Server : --live_share (optional)
+                  LocalCore --> LocalRuns : write all results
+
+                  LocalCore ..> OmniOpt2Server : --live_share (optional)
   }
 
   package "HPC Mode (via submitit/sbatch)" {
 
     cloud "HPC" {
 
-      node "Login Node\n(sbatch only)" as LoginNode
+      !if (MODE_DARK == "true")
+        node "Login Node\n(sbatch only)" as LoginNode #CC7000
+        node "Head Node" {
+          component "OmniOpt2 Core\n(main script)" as HPCMaster
+        }
+        node "Compute Node 1" {
+          component "Job #1" as Job1 #FF8C00
+        }
+        node "Compute Node 2" {
+          component "Job #2" as Job2 #FF8C00
+        }
+        node "Compute Node n" {
+          component "Job #n" as Job3 #FF8C00
+        }
+      !else
+        node "Login Node\n(sbatch only)" as LoginNode #FFB84D
+        node "Head Node" {
+          component "OmniOpt2 Core\n(main script)" as HPCMaster
+        }
+        node "Compute Node 1" {
+          component "Job #1" as Job1 #FF8C00
+        }
+        node "Compute Node 2" {
+          component "Job #2" as Job2 #FF8C00
+        }
+        node "Compute Node n" {
+          component "Job #n" as Job3 #FF8C00
+        }
+      !endif
 
-      node "Head Node" {
-        component "OmniOpt2 Core\n(main script)" as HPCMaster
-      }
-
-      node "Compute Node 1" {
-        component "Job #1" as Job1
-      }
-
-      node "Compute Node 2" {
-        component "Job #2" as Job2
-      }
-
-      node "Compute Node n" {
-        component "Job #n" as Job3
-      }
     }
 
     database "runs/ (on file system)" as HPCRuns
@@ -132,6 +155,5 @@ package "OmniOpt2 Workflow" {
     HPCMaster --> HPCRuns : write results
     HPCMaster ..> OmniOpt2Server : --live_share (optional)
   }
-}
 
 @enduml

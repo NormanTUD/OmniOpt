@@ -1,7 +1,7 @@
 @startuml
 
 !if (MODE_DARK == "true")
-  skinparam backgroundColor #1e1e1e
+  skinparam backgroundColor #000000
   skinparam defaultFontColor #ffffff
   skinparam titleFontColor #ffffff
   skinparam componentFontColor #ffffff

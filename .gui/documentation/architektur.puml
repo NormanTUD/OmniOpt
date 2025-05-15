@@ -3,7 +3,7 @@ skinparam componentStyle rectangle
 skinparam defaultFontName Monospace
 skinparam ArrowFontSize 11
 
-title OmniOpt Architecture
+title OmniOpt2 Architecture
 
 package "User Interface" {
   node "User" {
@@ -11,17 +11,17 @@ package "User Interface" {
   }
 }
 
-package "OmniOpt Workflow" {
+package "OmniOpt2 Workflow" {
 
   component "CLI Command\nomniopt ..." as CLI
 
   GUI ..> CLI : Generates CLI Command to be executed
 
-  database "OmniOpt Server\n(optional live upload)" as OmniOptServer
+  database "OmniOpt2 Server\n(optional live upload)" as OmniOpt2Server
 
   package "Local Mode" {
     node "Local System" {
-      component "OmniOpt Core\n(main script)" as LocalCore
+      component "OmniOpt2 Core\n(main script)" as LocalCore
       component "Job #1" as LocalJobs1
       component "Job #2" as LocalJobs2
       component "Job #n" as LocalJobs3
@@ -33,7 +33,7 @@ package "OmniOpt Workflow" {
     LocalJobs1 --> LocalJobs2
     LocalJobs2 --> LocalJobs3
     LocalJobs3 --> LocalRuns : write results
-    LocalCore --> OmniOptServer : --live_share (optional)
+    LocalCore --> OmniOpt2Server : --live_share (optional)
   }
 
   package "HPC Mode (via submitit/sbatch)" {
@@ -43,7 +43,7 @@ package "OmniOpt Workflow" {
       node "Login Node\n(sbatch only)" as LoginNode
 
       node "Head Node" {
-        component "OmniOpt Core\n(main script)" as HPCMaster
+        component "OmniOpt2 Core\n(main script)" as HPCMaster
       }
 
       node "Compute Node 1" {
@@ -73,7 +73,7 @@ package "OmniOpt Workflow" {
     Job3 -down-> HPCMaster : return results
 
     HPCMaster --> HPCRuns : write results
-    HPCMaster --> OmniOptServer : --live_share (optional)
+    HPCMaster --> OmniOpt2Server : --live_share (optional)
   }
 }
 

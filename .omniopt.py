@@ -9,6 +9,7 @@
 
 import sys
 import os
+import pickle
 import re
 import math
 import time
@@ -7598,6 +7599,50 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @beartype
+def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list) -> Any:
+    if ax_client is None:
+        print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
+        return None
+
+    try:
+        state_dir = os.path.join(get_current_run_folder(), "state_files")
+        os.makedirs(state_dir, exist_ok=True)
+
+        cache_file = os.path.join(state_dir, "pareto_front_data.json")
+
+        if os.path.isfile(cache_file):
+            with open(cache_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                b64_encoded = data.get("pickle_data", "")
+                if not b64_encoded:
+                    print_red(f"Cache-file '{cache_file}' exists, but has no valid data")
+                else:
+                    binary_data = base64.b64decode(b64_encoded)
+                    frontier = pickle.loads(binary_data)
+                    return frontier
+
+        frontier = compute_posterior_pareto_frontier(
+            experiment=ax_client.experiment,
+            data=ax_client.experiment.fetch_data(),
+            primary_objective=metric_i,
+            secondary_objective=metric_j,
+            absolute_metrics=res_names,
+            num_points=count_done_jobs()
+        )
+
+        pickled_data = pickle.dumps(frontier)
+        b64_data = base64.b64encode(pickled_data).decode("utf-8")
+
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump({"pickle_data": b64_data}, f, indent=2)
+
+        return frontier
+
+    except Exception as e:
+        print_red(f"Error in get_calculated_or_cached_frontier: {str(e)}")
+        return None
+
+@beartype
 def show_pareto_frontier_data(res_names) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
@@ -7628,14 +7673,7 @@ def show_pareto_frontier_data(res_names) -> None:
                 metric_j = objectives[j].metric
 
                 try:
-                    calculated_frontier = compute_posterior_pareto_frontier(
-                        experiment=ax_client.experiment,
-                        data=ax_client.experiment.fetch_data(),
-                        primary_objective=metric_i,
-                        secondary_objective=metric_j,
-                        absolute_metrics=res_names,
-                        num_points=count_done_jobs()
-                    )
+                    calculated_frontier = get_calculated_or_cached_frontier(metric_i, metric_j, res_names)
 
                     collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
                 except ax.exceptions.core.DataRequiredError as e:

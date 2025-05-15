@@ -8085,11 +8085,11 @@ def main() -> None:
         if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
             args.revert_to_random_when_seemingly_exhausted = True
 
+    post_job_calculate_pareto_front()
+
     set_run_folder()
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
-
-    post_job_calculate_pareto_front()
 
     write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
 

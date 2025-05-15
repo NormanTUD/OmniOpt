@@ -42,7 +42,7 @@ link Job2 to HPCMaster--><path d="M408.1,885.3658 C420.56,865.3858 442.17,833.46
 link HPCMaster to Job3--><path d="M549.1,778.7058 C547.53,793.2058 547.07,811.0258 551,826.5158 C555.98,846.1458 567.03,866.1858 576.55,880.9658 " fill="none" id="HPCMaster-&gt;Job3" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="579.44,885.3858,577.8376,875.6682,576.693,881.2081,571.1531,880.0635,579.44,885.3858" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="36" x="552" y="823.2748">submit</text><!--MD5=[0b084569a1b025af739eee478835d34a]
 link Job3 to HPCMaster--><path d="M596.07,885.2958 C598.51,866.0958 600.43,835.5758 593,810.5158 C590.2,801.0658 585.39,791.7158 580.09,783.3058 " fill="none" id="Job3-&gt;HPCMaster" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="577.1,778.7358,578.6639,788.4597,579.8305,782.9245,585.3657,784.091,577.1,778.7358" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="72" x="597" y="823.2748">return results</text><!--MD5=[571935b6720c67f63951b3fde5967843]
 link HPCMaster to HPCRuns--><path d="M616.34,778.6658 C636.33,788.2158 658.37,799.3258 678,810.5158 C714.7,831.4358 754.66,858.3558 782.64,877.9358 " fill="none" id="HPCMaster-&gt;HPCRuns" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="787.02,881.0158,781.9427,872.5766,782.9245,878.1476,777.3535,879.1294,787.02,881.0158" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="65" x="702" y="823.2748">write results</text><!--MD5=[9b4661392c5508d5bc2f8f38988871a1]
-link HPCMaster to OmniOpt2Server--><path d="M616.79,757.0158 C691.12,766.4958 817.25,788.2958 916,834.5158 C935.11,843.4558 954.47,856.0958 970.94,868.1358 " fill="none" id="HPCMaster-&gt;OmniOpt2Server" style="stroke: #000000; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#000000" points="975.07,871.1858,970.216,862.6162,971.0512,868.2111,965.4563,869.0463,975.07,871.1858" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="113" x="898" y="823.2748">--live_share (optional)</text><!--MD5=[07932d474faaa1f32f10fb88013e4137]
+link HPCMaster to OmniOpt2Server--><path d="M616.79,757.0158 C691.12,766.4958 817.25,788.2958 916,834.5158 C935.11,843.4558 954.47,856.0958 970.94,868.1358 " fill="none" id="HPCMaster-&gt;OmniOpt2Server" style="stroke: #000000; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#000000" points="975.07,871.1858,970.216,862.6162,971.0512,868.2111,965.4563,869.0463,975.07,871.1858" style="stroke: #000000; stroke-width: 1.0;"/><text fill="#000000" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="113" x="898" y="823.2748">--live_share (optional)</text><!--MD5=[3aa2ab1063bdda9fbb4ced9a15ee407d]
 @startuml
 
   skinparam backgroundColor #ffffff
@@ -156,7 +156,7 @@ PlantUML version 1.2020.02(Sun Mar 01 11:22:07 CET 2020)
 (GPL source distribution)
 Java Runtime: OpenJDK Runtime Environment
 JVM: OpenJDK 64-Bit Server VM
-Java Version: 11.0.26+4-post-Debian-1
+Java Version: 17.0.15+6-Debian-1deb12u1
 Operating System: Linux
 Default Encoding: UTF-8
 Language: de

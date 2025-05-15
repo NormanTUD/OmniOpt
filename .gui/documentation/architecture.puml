@@ -1,6 +1,6 @@
 @startuml
 
-!if "%MODE_DARK%" == "true"
+!if (MODE_DARK == "true")
   skinparam backgroundColor #1e1e1e
   skinparam defaultFontColor #ffffff
   skinparam titleFontColor #ffffff

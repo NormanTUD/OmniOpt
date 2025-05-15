@@ -40,7 +40,7 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
-non_ax_constraints: list = []
+post_generation_constraints: list = []
 abandoned_trial_indices: list = []
 global_param_names: list = []
 
@@ -4761,7 +4761,7 @@ def parse_single_experiment_parameter_table(experiment_parameters: Union[list, d
 
 @beartype
 def print_non_ax_parameter_constraints_table() -> None:
-    if not non_ax_constraints:
+    if not post_generation_constraints:
         return None
 
     table = Table(header_style="bold")
@@ -4770,7 +4770,7 @@ def print_non_ax_parameter_constraints_table() -> None:
     for column in columns:
         table.add_column(column)
 
-    for constraint in non_ax_constraints:
+    for constraint in post_generation_constraints:
         table.add_row(constraint)
 
     with console.capture() as capture:
@@ -4780,7 +4780,7 @@ def print_non_ax_parameter_constraints_table() -> None:
 
     console.print(table)
 
-    fn = f"{get_current_run_folder()}/non_ax_constraints.txt"
+    fn = f"{get_current_run_folder()}/post_generation_constraints.txt"
     try:
         with open(fn, mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
@@ -6413,11 +6413,11 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
     return ret
 
 @beartype
-def has_no_non_ax_constraints_or_matches_constraints(_non_ax_constraints: list, params: dict) -> bool:
-    if not _non_ax_constraints or len(_non_ax_constraints) == 0:
+def has_no_post_generation_constraints_or_matches_constraints(_post_generation_constraints: list, params: dict) -> bool:
+    if not _post_generation_constraints or len(_post_generation_constraints) == 0:
         return True
 
-    for constraint in _non_ax_constraints:
+    for constraint in _post_generation_constraints:
         try:
             expression = constraint
 
@@ -6477,7 +6477,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
                 trial_durations.append(float(end_time - start_time))
 
-                if not has_no_non_ax_constraints_or_matches_constraints(non_ax_constraints, params):
+                if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
                     print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
                     trial.mark_abandoned()
                     abandoned_trial_indices.append(trial_index)
@@ -7892,7 +7892,7 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
             final_constraints_list.append(decoded)
         elif is_equation:
             print_debug(f"Added Post-Generation-constraint '{decoded}'")
-            non_ax_constraints.append(decoded)
+            post_generation_constraints.append(decoded)
         else:
             print_red(f"Invalid constraint found: '{decoded}' (is valid ax? {is_ax}, is valid equation? {is_equation}).")
 
@@ -8252,44 +8252,44 @@ def run_tests() -> None:
     nr_errors += is_equal('is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc", "xyz"])', is_ax_compatible_constraint("2*abc * xyz <= 3.5", ["abc", "xyz"]), False)
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints([], {})",
-        has_no_non_ax_constraints_or_matches_constraints([], {}),
+        "has_no_post_generation_constraints_or_matches_constraints([], {})",
+        has_no_post_generation_constraints_or_matches_constraints([], {}),
         True
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': 5})",
-        has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': 5}),
+        "has_no_post_generation_constraints_or_matches_constraints(['a > 0'], {'a': 5})",
+        has_no_post_generation_constraints_or_matches_constraints(['a > 0'], {'a': 5}),
         True
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': -1})",
-        has_no_non_ax_constraints_or_matches_constraints(['a > 0'], {'a': -1}),
+        "has_no_post_generation_constraints_or_matches_constraints(['a > 0'], {'a': -1})",
+        has_no_post_generation_constraints_or_matches_constraints(['a > 0'], {'a': -1}),
         False
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2})",
-        has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2}),
+        "has_no_post_generation_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2})",
+        has_no_post_generation_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 2}),
         True
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1})",
-        has_no_non_ax_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1}),
+        "has_no_post_generation_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1})",
+        has_no_post_generation_constraints_or_matches_constraints(['a + b == 3'], {'a': 1, 'b': 1}),
         False
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['unknown > 0'], {'a': 1})",
-        has_no_non_ax_constraints_or_matches_constraints(['unknown > 0'], {'a': 1}),
+        "has_no_post_generation_constraints_or_matches_constraints(['unknown > 0'], {'a': 1})",
+        has_no_post_generation_constraints_or_matches_constraints(['unknown > 0'], {'a': 1}),
         False  # unknown bleibt unersetzt → eval Error
     )
 
     nr_errors += is_equal(
-        "has_no_non_ax_constraints_or_matches_constraints(['a + '], {'a': 1})",
-        has_no_non_ax_constraints_or_matches_constraints(['a + '], {'a': 1}),
+        "has_no_post_generation_constraints_or_matches_constraints(['a + '], {'a': 1})",
+        has_no_post_generation_constraints_or_matches_constraints(['a + '], {'a': 1}),
         False  # Syntaxfehler
     )
 

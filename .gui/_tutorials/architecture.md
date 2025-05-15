@@ -55,4 +55,4 @@ The flow is:
 
 ## Visualization
 
-<img data-lightsrc="documentation/output_light/architecture.svg" data-darksrc="documentation/output_dark/architecture.svg" />
+<img style="max-width: 100%;" data-lightsrc="documentation/output_light/architecture.svg" data-darksrc="documentation/output_dark/architecture.svg" />

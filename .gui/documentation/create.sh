@@ -2,7 +2,7 @@
 
 if ! command -v plantuml >/dev/null 2>/dev/null; then
 	echo "plantuml is not installed. Try to install it, e.g. via"
-	echo "sudo apt-install plantuml"
+	echo "sudo apt-get install plantuml"
 	echo "Cannot continue."
 	exit 1
 fi

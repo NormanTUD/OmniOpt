@@ -8094,6 +8094,8 @@ def main() -> None:
         if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
             args.revert_to_random_when_seemingly_exhausted = True
 
+    disable_logging()
+
     post_job_calculate_pareto_front()
 
     set_run_folder()
@@ -8150,7 +8152,6 @@ def main() -> None:
 
     write_git_version()
 
-    disable_logging()
     check_max_eval(max_eval)
 
     _random_steps, second_step_steps = get_number_of_steps(max_eval)

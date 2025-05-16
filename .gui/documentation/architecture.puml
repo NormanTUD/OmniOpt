@@ -1,9 +1,11 @@
 @startuml
 
+actor User
+
+' === Konfigurierbares Theme ===
 !if (MODE_DARK == "true")
   skinparam backgroundColor #000000
   skinparam defaultFontColor #ffffff
-  skinparam titleFontColor #ffffff
   skinparam componentFontColor #ffffff
   skinparam nodeFontColor #ffffff
   skinparam databaseFontColor #ffffff
@@ -11,7 +13,7 @@
   skinparam ArrowFontColor #ffffff
 
   skinparam componentBackgroundColor #1e1e1e
-  skinparam nodeBackgroundColor #CC7000   ' dunkles Orange/Braun
+  skinparam nodeBackgroundColor #CC7000
   skinparam databaseBackgroundColor #003366
   skinparam packageBackgroundColor #1e1e1e
   skinparam cloudBackgroundColor #1e1e1e
@@ -22,14 +24,9 @@
   skinparam packageBorderColor #ffffff
   skinparam cloudBorderColor #ffffff
   skinparam rectangleBorderColor #ffffff
-
-  ' Jobs Farben
-  skinparam componentBackgroundColor #1e1e1e
-  ' Wir definieren Jobs separat weiter unten per note oder workaround (wegen PlantUML Limitierungen)
 !else
   skinparam backgroundColor #ffffff
   skinparam defaultFontColor #000000
-  skinparam titleFontColor #000000
   skinparam componentFontColor #000000
   skinparam nodeFontColor #000000
   skinparam databaseFontColor #000000
@@ -37,7 +34,7 @@
   skinparam ArrowFontColor #000000
 
   skinparam componentBackgroundColor #e0e0e0
-  skinparam nodeBackgroundColor #FFB84D   ' helleres Orange
+  skinparam nodeBackgroundColor #FFB84D
   skinparam databaseBackgroundColor #FFEB3B
   skinparam packageBackgroundColor #e0e0e0
   skinparam cloudBackgroundColor #e0e0e0
@@ -56,104 +53,78 @@ skinparam ArrowFontSize 11
 
 title OmniOpt2 Architecture
 
+' === Benutzeroberfläche ===
 package "User Interface" {
-  node "User" {
-    component "Web GUI\n(optional)" as GUI
-  }
+  component "Web GUI\n(optional)" as GUI #line.dashed
+  database "OmniOpt2 Share" as Share #line.dashed
 }
 
 component "CLI Command\nomniopt ..." as CLI
 
+GUI ..> CLI : Generates CLI command
+User --> GUI
 
-  GUI ..> CLI : Generates CLI Command to be executed
+' === Lokaler Modus ===
+package "Local Mode" {
+  database "runs/ (local)" as LocalRuns
 
-  database "OmniOpt2 Server\n(optional, Live-Share)" as OmniOpt2Server
+  node "Local System" {
+    component "OmniOpt2 main script" as LocalCore
 
-  package "Local Mode" {
-          database "runs/ (local)" as LocalRuns
-
-          node "Local System" {
-                  component "OmniOpt2 main script" as LocalCore
-
-                  ' Jobs mit eigener Farbe:
-                  !if (MODE_DARK == "true")
-                    component "Job #1" as LocalJobs1 #FF8C00
-                    component "Job #2" as LocalJobs2 #FF8C00
-                    component "Job #n" as LocalJobsN #FF8C00
-                  !else
-                    component "Job #1" as LocalJobs1 #FF8C00
-                    component "Job #2" as LocalJobs2 #FF8C00
-                    component "Job #n" as LocalJobsN #FF8C00
-                  !endif
-          }
-
-          CLI --> LocalCore : Run locally
-
-                  LocalCore --> LocalJobs1 : start job 1
-                  LocalJobs1 --> LocalCore : return results
-
-                  LocalCore --> LocalJobs2 : start job 2
-                  LocalJobs2 --> LocalCore : return results
-
-                  LocalCore --> LocalJobsN : start job n
-                  LocalJobsN --> LocalCore : return results
-
-                  LocalCore --> LocalRuns : write all results
-
-                  LocalCore ..> OmniOpt2Server : --live_share (optional)
+    component "Job #1" as LocalJob1 #FF8C00
+    component "Job #2" as LocalJob2 #FF8C00
+    component "Job #n" as LocalJobN #FF8C00
   }
 
-  package "HPC Mode (via submitit/sbatch)" {
+  CLI --> LocalCore : run locally
 
-    cloud "HPC" {
+  LocalCore --> LocalJob1 : start
+  LocalJob1 --> LocalCore : result
 
-      !if (MODE_DARK == "true")
-        node "Login Node\n(sbatch only)" as LoginNode #CC7000
-        node "Head Node" {
-          component "OmniOpt2 main script" as HPCMaster
-        }
-        node "Compute Node 1" {
-          component "Job #1" as Job1 #FF8C00
-        }
-        node "Compute Node 2" {
-          component "Job #2" as Job2 #FF8C00
-        }
-        node "Compute Node n" {
-          component "Job #n" as Job3 #FF8C00
-        }
-      !else
-        node "Login Node\n(sbatch only)" as LoginNode #FFB84D
-        node "Head Node" {
-          component "OmniOpt2 main script" as HPCMaster
-        }
-        node "Compute Node 1" {
-          component "Job #1" as Job1 #FF8C00
-        }
-        node "Compute Node 2" {
-          component "Job #2" as Job2 #FF8C00
-        }
-        node "Compute Node n" {
-          component "Job #n" as Job3 #FF8C00
-        }
-      !endif
+  LocalCore --> LocalJob2 : start
+  LocalJob2 --> LocalCore : result
 
+  LocalCore --> LocalJobN : start
+  LocalJobN --> LocalCore : result
+
+  LocalCore --> LocalRuns : write all results
+  LocalRuns ..> Share : --live_share
+}
+
+' === HPC Modus ===
+package "HPC Mode (via submitit/sbatch)" {
+  cloud "HPC Cluster" {
+
+    node "Login Node\n(sbatch only)" as LoginNode
+    node "Head Node" {
+      component "OmniOpt2 main script" as HPCMaster
     }
-
-    database "runs/ (on file system)" as HPCRuns
-
-    CLI --> LoginNode : ssh login
-    LoginNode --> HPCMaster : sbatch command
-
-    HPCMaster --> Job1 : submit
-    HPCMaster --> Job2 : submit
-    HPCMaster --> Job3 : submit
-
-    Job1 -down-> HPCMaster : return results
-    Job2 -down-> HPCMaster : return results
-    Job3 -down-> HPCMaster : return results
-
-    HPCMaster --> HPCRuns : write results
-    HPCMaster ..> OmniOpt2Server : --live_share (optional)
+    node "Compute Node 1" {
+      component "Job #1" as HPCJob1 #FF8C00
+    }
+    node "Compute Node 2" {
+      component "Job #2" as HPCJob2 #FF8C00
+    }
+    node "Compute Node n" {
+      component "Job #n" as HPCJobN #FF8C00
+    }
   }
+
+  database "runs/ (HPC filesystem)" as HPCRuns
+
+  CLI --> LoginNode : ssh login
+  LoginNode --> HPCMaster : sbatch command
+
+  HPCMaster --> HPCJob1 : submit
+  HPCMaster --> HPCJob2 : submit
+  HPCMaster --> HPCJobN : submit
+
+  HPCJob1 --> HPCMaster : result
+  HPCJob2 --> HPCMaster : result
+  HPCJobN --> HPCMaster : result
+
+  HPCMaster --> HPCRuns : write all results
+  HPCRuns ..> Share : --live_share
+}
 
 @enduml

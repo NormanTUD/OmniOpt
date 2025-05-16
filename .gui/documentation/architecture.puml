@@ -62,7 +62,8 @@ package "User Interface" {
 component "CLI Command\nomniopt ..." as CLI
 
 GUI ..> CLI : Generates CLI command
-User --> GUI
+User ..> GUI
+User --> CLI
 
 ' === Lokaler Modus ===
 package "Local Mode" {

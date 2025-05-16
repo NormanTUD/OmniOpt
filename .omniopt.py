@@ -7875,7 +7875,21 @@ def write_live_share_file_if_needed() -> None:
         write_state_file("live_share", "1\n")
 
 @beartype
-def write_revert_to_random_when_seemingly_exhausted_file(_path: str) -> None:
+def write_username_statefile() -> None:
+    _path = get_current_run_folder()
+    if args.username:
+        file_path = f"{_path}/state_files/username"
+
+        try:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, mode="w", encoding="utf-8") as f:
+                f.write(args.username)
+        except Exception as e:
+            print_red(f"Error writing to file: {e}")
+
+@beartype
+def write_revert_to_random_when_seemingly_exhausted_file() -> None:
+    _path = get_current_run_folder()
     file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
 
     try:
@@ -8051,6 +8065,14 @@ def post_job_calculate_pareto_front() -> None:
         print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
         my_exit(24)
 
+    username_file_path = os.path.join(args.calculate_pareto_front_of_job, "state_files", "username")
+    if os.path.isfile(username_file_path):
+        try:
+            with open(username_file_path, mode="r", encoding="utf-8") as f:
+                args.username = f.readline().strip()
+        except Exception as e:
+            print_red(f"Error reading from file: {e}")
+
     CURRENT_RUN_FOLDER = args.calculate_pareto_front_of_job
 
     ax_client = AxClient(
@@ -8106,7 +8128,9 @@ def main() -> None:
 
     RESULT_CSV_FILE = create_folder_and_file(get_current_run_folder())
 
-    write_revert_to_random_when_seemingly_exhausted_file(get_current_run_folder())
+    write_revert_to_random_when_seemingly_exhausted_file()
+
+    write_username_statefile()
 
     try:
         fn = f"{get_current_run_folder()}/result_names.txt"

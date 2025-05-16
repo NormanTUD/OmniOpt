@@ -885,6 +885,7 @@ if [[ $superquick -eq 0 ]]; then
 		fi
 
 		_test "post_job_pareto_front_calculation" ".tests/post_job_pareto_front_calculation" 0
+		_test "post_job_pareto_front_calculation: not existing" "./omniopt --calculate_pareto_front_of_job ASDASDASDASDASD" 24
 	fi
 fi
 

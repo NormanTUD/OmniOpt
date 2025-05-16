@@ -8066,7 +8066,7 @@ def post_job_calculate_pareto_front() -> None:
         my_exit(24)
 
     username_file_path = os.path.join(args.calculate_pareto_front_of_job, "state_files", "username")
-    if os.path.isfile(username_file_path):
+    if os.path.isfile(username_file_path) and not args.username:
         try:
             with open(username_file_path, mode="r", encoding="utf-8") as f:
                 args.username = f.readline().strip()

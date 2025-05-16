@@ -55,6 +55,8 @@ jobs:
     environment: Production
     strategy:
       fail-fast: true
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -80,6 +82,8 @@ jobs:
     environment: Production
     strategy:
       fail-fast: true
+      matrix:
+        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

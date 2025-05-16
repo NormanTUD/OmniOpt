@@ -7,7 +7,7 @@ if ! command -v plantuml >/dev/null 2>/dev/null; then
 	exit 1
 fi
 
-plantuml -DMODE_DARK=true -tsvg architecture.puml -o output_dark
 plantuml -DMODE_DARK=false -tsvg architecture.puml -o output_light
+plantuml -DMODE_DARK=true -tsvg architecture.puml -o output_dark
 
 exit 0

@@ -8009,7 +8009,7 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
     return final_constraints_list
 
 @beartype
-@def load_username_to_args() -> None:
+def load_username_to_args() -> None:
     if not args.calculate_pareto_front_of_job:
         return
 

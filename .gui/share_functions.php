@@ -1540,6 +1540,23 @@
 		return $cleaned_string;
 	}
 
+	function warnIfLowDiskSpace($userFolder, $minFreeMB = 100) {
+		$freeBytes = disk_free_space($userFolder);
+		if ($freeBytes === false) {
+			error_log("Could not determine free space for: $userFolder");
+			return false;
+		}
+
+		$freeMB = $freeBytes / (1024 * 1024);
+
+		if ($freeMB < $minFreeMB) {
+			error_log("WARNING: Low disk space in '$userFolder': only " . round($freeMB, 2) . " MB left.");
+			return true;
+		}
+
+		return false;
+	}
+
 	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath) {
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);

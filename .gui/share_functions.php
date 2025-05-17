@@ -1421,8 +1421,7 @@
 			$destinationPath = "$userFolder/hash.md5";
 			assert(is_writable(dirname($destinationPath)), "Directory is not writable: " . dirname($destinationPath));
 
-			$write_success = file_put_contents($destinationPath, $new_upload_md5);
-			assert($write_success !== false, "Failed to write to file: $destinationPath");
+			file_put_contents($destinationPath, $new_upload_md5);
 		} catch (\Throwable $e) {
 			print("\n" . $e->getMessage() . "\n");
 		}

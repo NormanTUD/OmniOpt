@@ -120,14 +120,6 @@ jobs:
         os: [ubuntu-24.04, ubuntu-22.04, windows-latest] #, macos-14]
 
     steps:
-    - name: Log Versions
-      run: |
-        echo "::group::System Info"
-        uname -a | tee /dev/stderr
-        python3 --version | tee /dev/stderr
-        php --version | tee /dev/stderr
-        echo "::endgroup::"
-
     - name: Checkout code
       uses: actions/checkout@v4
 

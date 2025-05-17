@@ -27,7 +27,7 @@
 
 			<p>You can run <i>OmniOpt2</i> on any linux that has <samp>python3</samp> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it. If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
 
-			<p><i>OmniOpt2</i> installs all of it's python-dependencies automatically in a virtual environment once at first run. This may take up to 20 minutes, but has to be done once. This is done to isolate it from other dependencies and to make you focus on your task of hyperparameter-minimization.</p>
+			<p><i>OmniOpt2</i> installs all of it's python-dependencies automatically in a virtual environment once at first run. This may take up to 20 minutes, but has to be done once. This is done to isolate it from other dependencies and to make you focus on your task of hyperparameter-minimization. For even more isolation, you can also use <a href="tutorials?tutorial=basics">Docker</a>.</p>
 
 			<p>In short: It will try out your program with different hyperparameter settings and tries to find new ones to minimize the result using an algorithm called <a target="_blank" href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf">BoTorch-Modular.</a></p>
 

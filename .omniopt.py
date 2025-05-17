@@ -8811,30 +8811,30 @@ def main_outside() -> None:
 
         if args.tests:
             run_tests()
-        else:
-            try:
-                main()
-            except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
-                signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-                print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
+        try:
+            main()
+        except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-                end_program(False, 1)
-            except SearchSpaceExhausted:
-                _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
+            print_red("\n⚠ You pressed CTRL+C or got a signal. Optimization stopped.")
 
-                if _get_perc < 100:
-                    print_red(
-                        f"\nIt seems like the search space was exhausted. "
-                        f"You were able to get {_get_perc}% of the jobs you requested "
-                        f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, submitted: {submitted_jobs()}, failed: {failed_jobs()}, "
-                        f"requested: {max_eval}) after main ran"
-                    )
+            end_program(False, 1)
+        except SearchSpaceExhausted:
+            _get_perc: int = abs(int(((count_done_jobs() - NR_INSERTED_JOBS) / max_eval) * 100))
 
-                if _get_perc != 100:
-                    end_program(True, 87)
-                else:
-                    end_program(True)
+            if _get_perc < 100:
+                print_red(
+                    f"\nIt seems like the search space was exhausted. "
+                    f"You were able to get {_get_perc}% of the jobs you requested "
+                    f"(got: {count_done_jobs() - NR_INSERTED_JOBS}, submitted: {submitted_jobs()}, failed: {failed_jobs()}, "
+                    f"requested: {max_eval}) after main ran"
+                )
+
+            if _get_perc != 100:
+                end_program(True, 87)
+            else:
+                end_program(True)
 
 if __name__ == "__main__":
     try:

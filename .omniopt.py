@@ -8009,6 +8009,19 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
     return final_constraints_list
 
 @beartype
+@def load_username_to_args() -> None:
+    if not args.calculate_pareto_front_of_job:
+        return
+
+    username_file_path = os.path.join(args.calculate_pareto_front_of_job, "state_files", "username")
+    if os.path.isfile(username_file_path) and not args.username:
+        try:
+            with open(username_file_path, mode="r", encoding="utf-8") as f:
+                args.username = f.readline().strip()
+        except Exception as e:
+            print_red(f"Error reading from file: {e}")
+
+@beartype
 def post_job_calculate_pareto_front() -> None:
     if not args.calculate_pareto_front_of_job:
         return
@@ -8065,13 +8078,7 @@ def post_job_calculate_pareto_front() -> None:
         print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
         my_exit(24)
 
-    username_file_path = os.path.join(args.calculate_pareto_front_of_job, "state_files", "username")
-    if os.path.isfile(username_file_path) and not args.username:
-        try:
-            with open(username_file_path, mode="r", encoding="utf-8") as f:
-                args.username = f.readline().strip()
-        except Exception as e:
-            print_red(f"Error reading from file: {e}")
+    load_username_to_args()
 
     CURRENT_RUN_FOLDER = args.calculate_pareto_front_of_job
 

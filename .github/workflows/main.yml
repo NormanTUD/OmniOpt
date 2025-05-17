@@ -117,28 +117,32 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
+        os: [ubuntu-24.04, ubuntu-22.04, windows-latest] #, macos-14]
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
-        if [[ $RUNNER_OS == 'Linux' ]]; then
-          if grep -q '^ID=ubuntu' /etc/os-release; then
-            sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux
-            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-            sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-          else
-            echo "Invalid OS for pipeline. Only works with Ubuntu"
-            exit 1
-          fi
+        if grep -q '^ID=ubuntu' /etc/os-release; then
+          sudo apt-get update || sudo apt-get update || sudo apt-get update
+          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux
+          curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+          sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
         else
-            echo "Invalid OS detected"
-            exit 2
+          echo "Invalid OS for pipeline. Only works with Ubuntu"
+          exit 1
         fi
+
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install php curl unzip -y
+        curl -sS https://getcomposer.org/installer -o $env:TEMP\composer-setup.php
+        php $env:TEMP\composer-setup.php --install-dir=C:\tools --filename=composer
+
     - name: Creating virtualenv
       run: |
         python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')

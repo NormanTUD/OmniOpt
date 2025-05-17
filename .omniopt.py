@@ -8103,6 +8103,20 @@ def post_job_calculate_pareto_front() -> None:
     my_exit(0)
 
 @beartype
+def set_arg_states_from_continue() -> None:
+    if args.continue_previous_job and not args.num_random_steps:
+        num_random_steps_file = f"{args.continue_previous_job}/state_files/num_random_steps"
+
+        if os.path.exists(num_random_steps_file):
+            args.num_random_steps = int(open(num_random_steps_file, mode="r", encoding="utf-8").readline().strip())
+        else:
+            print_red(f"Cannot find >{num_random_steps_file}<. Will use default, it being >{args.num_random_steps}<.")
+
+    if args.continue_previous_job:
+        if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
+            args.revert_to_random_when_seemingly_exhausted = True
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -8115,17 +8129,7 @@ def main() -> None:
 
     debug_vars_unused_by_python_for_linter()
 
-    if args.continue_previous_job and not args.num_random_steps:
-        num_random_steps_file = f"{args.continue_previous_job}/state_files/num_random_steps"
-
-        if os.path.exists(num_random_steps_file):
-            args.num_random_steps = int(open(num_random_steps_file, mode="r", encoding="utf-8").readline().strip())
-        else:
-            print_red(f"Cannot find >{num_random_steps_file}<. Will use default, it being >{args.num_random_steps}<.")
-
-    if args.continue_previous_job:
-        if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
-            args.revert_to_random_when_seemingly_exhausted = True
+    set_arg_states_from_continue()
 
     disable_logging()
 

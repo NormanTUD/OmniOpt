@@ -136,7 +136,7 @@ docker_compose up -d || {
 	exit 255
 }
 
-CONTAINER_ID=$(docker ps -q -f "ancestor=gui-php-web")
+CONTAINER_ID=$(docker ps -q -f "ancestor=gui_php-web")
 
 docker exec -u root "$CONTAINER_ID" chown -R www-data:www-data /var/www/html
 

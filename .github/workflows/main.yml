@@ -179,10 +179,12 @@ jobs:
 
     - name: Install Linux-like tools (Windows)
       if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        choco install wget -y
-        choco install util-linux -y   # enthält `uuidgen`
-        choco install git -y          # bringt optional Bash und Tools mit
+        choco install -y wget
+        choco install -y util-linux        # enthält uuidgen
+        choco install -y git               # bringt bash + optional resize
+        choco install -y xterm             # enthält resize
 
     - name: Installing stuff (Windows)
       if: runner.os == 'Windows'

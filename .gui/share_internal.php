@@ -17,7 +17,13 @@
 
 	$sharesPath = './shares/';
 
-	$BASEURL = dirname((isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http")  . "://" . (isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "localhost") . "/" . $_SERVER["SCRIPT_NAME"]);
+	$port = $_SERVER["SERVER_PORT"] ?? 80;
+	$scheme = ($port == 443) ? "https" : "http";
+	$host = $_SERVER["SERVER_NAME"] ?? "localhost";
+	$portPart = ($port != 80 && $port != 443) ? ":$port" : "";
+	$script = $_SERVER["SCRIPT_NAME"];
+
+	$BASEURL = dirname("$scheme://$host$portPart$script");
 
 	try {
 		delete_old_shares();

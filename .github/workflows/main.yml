@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
+        os: [ubuntu-24.04, ubuntu-22.04, windows-latest] #, macos-14]
 
     steps:
     - name: Checkout code
@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
+        os: [ubuntu-24.04, ubuntu-22.04, windows-latest] #, macos-14]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-24.04, ubuntu-22.04] #, macos-14]
+        os: [ubuntu-24.04, ubuntu-22.04, windows-latest] #, macos-14]
 
     steps:
     - name: Log Versions

@@ -130,7 +130,7 @@
 
 		if($num_offered_files) {
 			if (warnIfLowDiskSpace($userFolder)) {
-				echo "Warning: The disk space is almost full. This may lead to error messages and you not being able to push jobs. If you want to see results anyway, check https://imageseg.scads.de/omniax/tutorials?tutorial=oo_share#run-locally-in-docker on how to install it locally (with docker).\n";
+				echo "Warning: The disk space is almost full. This may lead to error messages and you not being able to push jobs. If you want to see results anyway, check https://imageseg.scads.de/omniax/tutorials?tutorial=oo_share#run-locally-in-docker on how to install it locally (with docker). If you run on HPC, you may want to install this into a Research Cloud at the TU Dresden.\n";
 			}
 
 			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder, $sharesPath);

@@ -3,12 +3,12 @@
 
 	$GLOBALS["files"] = array(
 		"tutorials" => array(
-			"name" => "Tutorials&Help",
+			"name" => "<span class='invert_in_dark_mode'>📚</span> Tutorials&Help",
 			"entries" => array()
 		),
-		"gui" => "GUI",
-		"share" => "Share",
-		"usage_stats" => "Statistics"
+		"gui" => "<span class='invert_in_dark_mode'>⚙️</span> GUI",
+		"share" => "<span class='invert_in_dark_mode'>🌍</span> Share",
+		"usage_stats" => "<span class='invert_in_dark_mode'>📊</span> Statistics"
 	);
 
 	$_files = scandir('_tutorials/');

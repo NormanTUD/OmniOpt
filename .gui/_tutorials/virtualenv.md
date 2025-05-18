@@ -1,4 +1,4 @@
-# VirtualEnv
+# <span class="invert_in_dark_mode">🧑‍💻</span> VirtualEnv
 
 <!-- What are Virtual Environments and how OmniOpt2 uses them -->
 

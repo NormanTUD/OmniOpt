@@ -1,4 +1,4 @@
-# What is optimization with combined criteria?
+# <span class="invert_in_dark_mode">🔗</span> What is optimization with combined criteria?
 
 <!-- How to use OmniOpt2 with multiple results (OCC) -->
 

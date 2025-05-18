@@ -53,6 +53,8 @@ The code between `DEBUG INFOS START:` and `DEBUG INFOS END` contains info about 
 
 If, for example, you have error code 137, that means you likely ran out of RAM and need to increase the amount of RAM for your workers.
 
+## Exit Code Table
+
 <table>
 	<thead>
 		<tr class="invert_in_dark_mode">

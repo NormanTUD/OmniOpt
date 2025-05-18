@@ -14,14 +14,14 @@ But under certain circumstances, you may need a more complex strategy, for examp
 then searching them with BOTORCH_MODULAR, then searching 20 pseudorandom again, and then 10 SAASBO. This is possible with
 OmniOpt2, and the way to do it is to use a *custom generation strategy*.
 
-# How to enter them in the GUI
+## How to enter them in the GUI
 
 Click the *Show additional parameters* button, then scroll down to *Generation Strategy*. Enter the list of models with an equal-sign
 and the number of jobs that should be executed with them, like given in the example.
 
 <img alt="Custom Generation Strategy in GUI" data-lightsrc="imgs/custom_generation_strategy_light.png" data-darksrc="imgs/custom_generation_strategy_dark.png" /><br>
 
-# How to add it manually to an OmniOpt2-job
+## How to add it manually to an OmniOpt2-job
 
 It's simple: just add this command line argument to your OmniOpt2-call:
 
@@ -31,7 +31,7 @@ It's simple: just add this command line argument to your OmniOpt2-call:
 
 Of cource, change it according to your needs.
 
-# Caveats
+## Caveats
 
 - Currently, the custom Generation Strategy does not work with `PSEUDORANDOM`, `RANDOMFOREST` and `EXTERNAL_GENERATOR`
 - Jobs with custom generation strategies cannot be continued

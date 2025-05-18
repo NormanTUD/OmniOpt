@@ -422,7 +422,7 @@ function generateTOC() {
 		}
 
 		var $tocContainer = $('<div class="toc"></div>');
-		var $tocHeader = $('<h2>Table of Contents</h2>');
+		var $tocHeader = $('<h2><span class="invert_in_dark_mode">📖</span> Table of Contents</h2>');
 		var $tocList = $('<ul></ul>');
 
 		$tocContainer.append($tocHeader);
@@ -489,6 +489,8 @@ function generateTOC() {
 		console.error('Error generating TOC:', err);
 		console.trace();
 	}
+
+	apply_theme_based_on_system_preferences();
 }
 
 function sleep(ms) {

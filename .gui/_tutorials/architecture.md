@@ -30,7 +30,7 @@ In Local Mode, OmniOpt2 runs on the user's local system with the following compo
 The flow is:
 
 1. The CLI command triggers the OmniOpt2 Core.  
-2. The main script manages and distributes jobs (`Job #1`, `Job #2`, ..., `Job #n`).  
+2. The main script manages and distributes jobs (*Job #1*, *Job #2*, ..., *Job #n*).  
 3. Each job produces results written back to the local storage.  
 
 ### HPC Mode (High Performance Computing)

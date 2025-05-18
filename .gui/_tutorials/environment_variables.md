@@ -12,6 +12,8 @@ Every program on Linux has an environment, like a bash- or zsh-shell, that it ru
 
 It is important that you run these commands before you run OmniOpt2, and also that you write <samp>export</samp> in front of them. Unexported variables are not passed to programs started by the shell.
 
+## Table of environment variables
+
 <table>
 	<tr class="invert_in_dark_mode">
 		<th>Name</th>

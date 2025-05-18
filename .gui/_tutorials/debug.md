@@ -1,4 +1,4 @@
-# Debugging
+# <span class="invert_in_dark_mode">🐞</a> Debugging
 
 <!-- How to find and solve bugs -->
 

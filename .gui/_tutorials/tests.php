@@ -1,4 +1,4 @@
-<h1>Run automated tests</h1>
+<h1><span class="invert_in_dark_mode">✅</span> Run automated tests</h1>
 
 <!-- How to run automated tests and what options are available -->
 

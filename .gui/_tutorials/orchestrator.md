@@ -1,4 +1,4 @@
-# Orchestrator
+# <span class="invert_in_dark_mode">🎼</span> Orchestrator
 
 <!-- How to orchestrate how failing jobs should restart or be treated in general -->
 

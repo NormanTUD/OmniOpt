@@ -1,4 +1,4 @@
-# Basics and Docker
+# <span class='invert_in_dark_mode'>🐳</span> Basics and Docker
 
 <!-- How to use OmniOpt locally, on HPC-Systems or in Docker -->
 

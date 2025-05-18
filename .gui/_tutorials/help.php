@@ -11,7 +11,7 @@
 
 <!-- Category: Preparations, Basics and Setup -->
 
-<h2 id="available_parameters_help">Available Parameters (--help)</h2>
+<h1 id="available_parameters_help"><span class="invert_in_dark_mode">📘</span> Available Parameters (--help)</h1>
 
 <p>An overview table of all arguments that OmniOpt2 accepts via the Command line. Same data as in <tt>./omniopt --help</tt>.</p>
 

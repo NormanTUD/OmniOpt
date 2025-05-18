@@ -1,4 +1,4 @@
-# Folder structure of OmniOpt2 runs
+# <span class="invert_in_dark_mode">📁</span> Folder structure of OmniOpt2 runs
 
 <!-- What files are created for each run? -->
 

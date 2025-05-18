@@ -70,7 +70,7 @@
 	}
 ?>
 
-<h1>Available partitions</h1>
+<h1><span class="invert_in_dark_mode">🖥️</span> Available partitions</h1>
 
 <div id="toc"></div>
 

@@ -1,4 +1,4 @@
-<h1>Exit-Codes and Bash-scripting</h1>
+<h1><span class="invert_in_dark_mode">🧾</span> Exit-Codes and Bash-scripting</h1>
 
 <!-- How to script OmniOpt2 -->
 

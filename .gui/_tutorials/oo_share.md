@@ -1,4 +1,4 @@
-# OmniOpt2-Share
+# <span class="invert_in_dark_mode">🌍</span> OmniOpt2-Share
 
 <!-- What is OmniOpt2-Share and how to use it? -->
 

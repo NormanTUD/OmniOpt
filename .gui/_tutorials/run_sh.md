@@ -1,4 +1,4 @@
-# Create `run.sh`-file & modify your program
+# <span class="invert_in_dark_mode">📝</span> Create `run.sh`-file & modify your program
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 

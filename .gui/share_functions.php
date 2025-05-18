@@ -2172,7 +2172,7 @@ $onclick_string
 		if(file_exists($progressbar_file) && filesize($progressbar_file)) {
 			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
 
-			$overview_html .= "<h2>Last progressbar status:</h2>\n";
+			$overview_html .= "<h2>Last progressbar status</h2>\n";
 			$overview_html .= "<tt>".htmlentities(remove_ansi_colors($lastLine))."</tt>";
 		} else {
 			if(!is_file($progressbar_file)) {
@@ -2187,8 +2187,8 @@ $onclick_string
 
 	function add_result_names_table_to_overview ($result_names, $result_min_max, $overview_html, $warnings) {
 		if(count($result_names)) {
-			$result_names_table = '<h2>Result names and types:</h2>'."\n";
-			$result_names_table .= '<br><table>'."\n";
+			$result_names_table = '<h2>Result names and types</h2>'."\n";
+			$result_names_table .= '<table>'."\n";
 			$result_names_table .= '<tr><th>name</th><th>min/max</th></tr>'."\n";
 			for ($i = 0; $i < count($result_names); $i++) {
 				$min_or_max = "min";
@@ -2202,7 +2202,7 @@ $onclick_string
 				$result_names_table .= '<td>' . htmlspecialchars($min_or_max) . '</td>'."\n";
 				$result_names_table .= '</tr>'."\n";
 			}
-			$result_names_table .= '</table><br>'."\n";
+			$result_names_table .= '</table>'."\n";
 
 			$overview_html .= $result_names_table;
 		} else {
@@ -2218,7 +2218,7 @@ $onclick_string
 			$lastLine = htmlentities(file_get_contents($git_version_file));
 
 			$overview_html .= "<br>\n";
-			$overview_html .= "<h2>Git-Version:</h2>\n";
+			$overview_html .= "<h2>Git-Version</h2>\n";
 			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
 		} else {
 			if(!is_file($git_version_file)) {
@@ -2238,7 +2238,7 @@ $onclick_string
 			$status_data = getStatusForResultsCsv($results_csv_file);
 
 			if($status_data["total"]) {
-				$overview_table = '<h2>Number of evaluations:</h2>'."\n";
+				$overview_table = '<h2>Number of evaluations</h2>'."\n";
 				$overview_table .= '<table>'."\n";
 				$overview_table .= '<tbody>'."\n";
 				$overview_table .= '<tr>'."\n";
@@ -2259,7 +2259,7 @@ $onclick_string
 				$overview_table .= '</tbody>'."\n";
 				$overview_table .= '</table>'."\n";
 
-				$overview_html .= "<br>$overview_table";
+				$overview_html .= "$overview_table";
 			} else {
 				$warnings[] = "No evaluations detected";
 			}

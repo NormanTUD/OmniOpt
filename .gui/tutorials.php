@@ -75,23 +75,34 @@ function list_tutorials() {
 		return;
 	}
 
+	$category_icons = [
+		"Preparations, Basics and Setup" => "📦",
+		"Advanced Usage"                 => "⚙️",
+		"Developing"                     => "🧪",
+		"Models"                         => "🧠",
+		"Multiple Objectives"            => "🎯",
+		"Plotting and Sharing Results"  => "📈"
+	];
+
 	foreach ($categories as $cat => $entries) {
-		echo "<h3>" . htmlspecialchars($cat) . "</h3>\n";
+		$icon = $category_icons[$cat] ?? "📚"; // Fallback-Icon
+		echo "<h3>" . $icon . " " . htmlspecialchars($cat) . "</h3>\n";
+
 		if (count($entries) === 1) {
 			$e = $entries[0];
 			$comment = "";
 			if ($e["comment"]) {
-				$comment = " &mdash; ".$e["comment"];
+				$comment = " &mdash; " . htmlspecialchars($e["comment"]);
 			}
-			echo "<p><a href='{$e['link']}'>{$e['label']}</a>$comment</p>\n";
+			echo "<p><a href='{$e['link']}'>" . htmlspecialchars($e['label']) . "</a>$comment</p>\n";
 		} else {
 			echo "<ul>\n";
 			foreach ($entries as $e) {
 				$comment = "";
 				if ($e["comment"]) {
-					$comment = " &mdash; ".$e["comment"];
+					$comment = " &mdash; " . htmlspecialchars($e["comment"]);
 				}
-				echo "<li class='li_list'><a href='{$e['link']}'>{$e['label']}</a>$comment</li>\n";
+				echo "<li class='li_list'><a href='{$e['link']}'>" . htmlspecialchars($e['label']) . "</a>$comment</li>\n";
 			}
 			echo "</ul>\n";
 		}

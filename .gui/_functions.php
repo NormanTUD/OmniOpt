@@ -233,6 +233,10 @@
 
 		$markdown = preg_replace('/(<(?:h[1-6]|ul|ol|li)[^>]*>.*?<\/(?:h[1-6]|ul|ol|li)>)(\s*<br\s*\/?>)+/is', '$1', $markdown);
 
+		$pattern = '#<br\s*/?\s*>(?=\s*<h[1-6]\b)#i';
+
+		$markdown = preg_replace($pattern, '', $markdown);
+
 		return $markdown;
 	}
 

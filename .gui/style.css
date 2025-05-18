@@ -760,11 +760,13 @@ input:checked + .slider::before {
 	}
 
 	.header_button {
+		white-space: pre;
 		font-size: 2em;
 	}
 }
 
 .header_button {
+	white-space: pre;
 	margin-top: 20px;
 	margin: 5px;
 }
@@ -830,4 +832,8 @@ h1, h2, h3, h4, h5, h6 {
 	color: #333;
 	border-left: 5px solid #ccc;
 	padding-left: 0.5em;
+}
+
+.no_cursive {
+	font-style: normal;	
 }

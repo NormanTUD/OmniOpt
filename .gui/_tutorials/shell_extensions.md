@@ -46,9 +46,10 @@ omniopt --[Tab]
 This will display all available options for **OmniOpt**.
 
 ### Troubleshooting
-
+<div class="caveat tip">
 If tab completion is not working, try the following:
 - Ensure you have restarted your shell.
 - Check that the `.shells/install` script ran successfully.
 
 Enjoy faster and more efficient command-line usage with tab completion!
+</div>

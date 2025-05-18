@@ -214,5 +214,6 @@ This is an example python-program that generated random points that lie within t
 ```
 
 ## Caveats
-
+<div class="caveat warning">
 External Generator does not work with [custom generation strategies](tutorials?tutorial=custom_generation_strategy).
+</div>

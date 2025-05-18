@@ -32,6 +32,7 @@ It's simple: just add this command line argument to your OmniOpt2-call:
 Of cource, change it according to your needs.
 
 ## Caveats
-
+<div class="caveat warning">
 - Currently, the custom Generation Strategy does not work with `PSEUDORANDOM`, `RANDOMFOREST` and `EXTERNAL_GENERATOR`
 - Jobs with custom generation strategies cannot be continued
+</div>

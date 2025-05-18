@@ -49,6 +49,7 @@ experiment. If you continue the job `0`, it's job data will be in the subfolder 
 non-existing folder for that project..
 
 ## Caveats
-
+<div class="caveat warning">
 It is currently not possible to decrease the search space on a continued run. Attempts to do that will be ignored and the
 original limits will automatically be restored.
+</div>

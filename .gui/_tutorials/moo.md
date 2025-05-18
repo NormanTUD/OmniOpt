@@ -59,5 +59,6 @@ When you have a job that was cancelled for whatever reason (ie. time limit, memo
 This will calculate the pareto fronts, and, when you had `--live_share` enabled, will automatically push these results to the OmniOpt2-[Share](tutorials?tutorial=oo_share) server. This can also be done manually, by calling `omniopt_share` on the run folder.
 
 ## Caveats
-
+<div class="caveat warning">
 Using MOO prohibits most of the graphs you can usually plot with OmniOpt2, since the result-value is not unambiguous anymore and cannot be used for plotting easily. We'd recommend using [OmniOpt2-Share](tutorials?tutorial=oo_share) to plot Parallel plots of your data in the browser.
+</div>

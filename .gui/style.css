@@ -837,3 +837,38 @@ h1, h2, h3, h4, h5, h6 {
 .no_cursive {
 	font-style: normal;	
 }
+
+.caveat {
+	background-color: #fff8b3; /* hellgelber Hintergrund */
+	border: 1px solid #f2d600; /* gelbe Umrandung */
+	padding: 1em 1em 1em 70px; /* links genug Platz für das Icon */
+	position: relative;
+	font-family: sans-serif;
+	color: #665500;
+	margin: 1em 0;
+	border-radius: 4px;
+}
+
+.caveat h1, .caveat h2, .caveat h3, .caveat h4 {
+	margin-top: 0;
+	margin-bottom: 0.5em;
+	font-weight: bold;
+}
+
+.caveat::before {
+	content: "⚠️"; /* Standard-Emoji: Warning Sign */
+	font-size: 50px;
+	line-height: 1;
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none; /* verhindert, dass es klickbar ist */
+	user-select: none;
+}
+
+.caveat.warning::before { content: "⚠️"; }
+.caveat.stop::before { content: "🛑"; }
+.caveat.exclamation::before { content: "❗"; }
+.caveat.alarm::before { content: "🚨"; }
+.caveat.tip::before { content: "💡"; }

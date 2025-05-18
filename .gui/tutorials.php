@@ -79,14 +79,14 @@ function list_tutorials() {
 		"Preparations, Basics and Setup" => "📦",
 		"Advanced Usage"                 => "⚙️",
 		"Developing"                     => "🧪",
-		"Models"                         => "🧠",
+		"Models"                         => "🤖",
 		"Multiple Objectives"            => "🎯",
 		"Plotting and Sharing Results"  => "📈"
 	];
 
 	foreach ($categories as $cat => $entries) {
 		$icon = $category_icons[$cat] ?? "📚"; // Fallback-Icon
-		echo "<h3>" . $icon . " " . $cat . "</h3>\n";
+		echo "<h3><span  class='invert_in_dark_mode'>" . $icon . "</span> " . $cat . "</h3>\n";
 
 		if (count($entries) === 1) {
 			$e = $entries[0];

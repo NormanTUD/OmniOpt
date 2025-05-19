@@ -1,4 +1,4 @@
-# <span class="invert_in_dark_mode">🧭</span> What is Multi-Objective-Optimization?
+# <span class="tutorial_icon invert_in_dark_mode">🧭</span> What is Multi-Objective-Optimization?
 
 <!-- How to use OmniOpt2 with Multi-Objective-Optimization (MOO)? -->
 

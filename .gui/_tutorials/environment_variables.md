@@ -1,4 +1,4 @@
-# <span class="invert_in_dark_mode">🌿</span> Environment Variables
+# <span class="tutorial_icon invert_in_dark_mode">🌿</span> Environment Variables
 
 <!-- List of all environment variables that change how OmniOpt2 works -->
 

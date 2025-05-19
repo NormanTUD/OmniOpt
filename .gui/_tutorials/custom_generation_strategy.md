@@ -1,4 +1,4 @@
-# <span class="invert_in_dark_mode">🧩</span> Custom Generation Strategy
+# <span class="tutorial_icon invert_in_dark_mode">🧩</span> Custom Generation Strategy
 
 <!-- How to run custom generation strategies -->
 

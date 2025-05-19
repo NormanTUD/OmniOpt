@@ -570,7 +570,6 @@ input[type="checkbox"]:hover {
 
 .li_list a {
 	text-decoration: none;
-	font-size: 1.3em;
 }
 
 .gridjs-td {
@@ -839,9 +838,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .caveat {
-	background-color: #fff8b3; /* hellgelber Hintergrund */
-	border: 1px solid #f2d600; /* gelbe Umrandung */
-	padding: 1em 1em 1em 70px; /* links genug Platz für das Icon */
+	background-color: #fff8b3;
+	border: 1px solid #f2d600;
+	padding: 1em 1em 1em 70px;
 	position: relative;
 	font-family: sans-serif;
 	color: #665500;
@@ -856,14 +855,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .caveat::before {
-	content: "⚠️"; /* Standard-Emoji: Warning Sign */
+	content: "⚠️";
 	font-size: 50px;
 	line-height: 1;
 	position: absolute;
 	left: 10px;
 	top: 50%;
 	transform: translateY(-50%);
-	pointer-events: none; /* verhindert, dass es klickbar ist */
+	pointer-events: none;
 	user-select: none;
 }
 
@@ -872,3 +871,12 @@ h1, h2, h3, h4, h5, h6 {
 .caveat.exclamation::before { content: "❗"; }
 .caveat.alarm::before { content: "🚨"; }
 .caveat.tip::before { content: "💡"; }
+
+.tutorial_icon {
+	display: inline-block;
+	font-size: 1.3em;
+	line-height: 1;
+	vertical-align: middle;
+	transform: translateY(-10%);
+	padding: 0.2em 0;
+}

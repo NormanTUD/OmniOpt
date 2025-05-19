@@ -1,4 +1,4 @@
-# <span class="invert_in_dark_mode">🧬</span> Surrogate Models
+# <span class="tutorial_icon invert_in_dark_mode">🧬</span> Surrogate Models
 
 <!-- What are Surrogate Models and when to use which one? -->
 

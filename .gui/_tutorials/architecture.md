@@ -1,4 +1,4 @@
-# <span class='invert_in_dark_mode'>🏗️</span> OmniOpt2 Architecture Overview
+# <span class='tutorial_icon invert_in_dark_mode'>🏗️</span> OmniOpt2 Architecture Overview
 
 <!-- What is the Architecture of OmniOpt2? -->
 

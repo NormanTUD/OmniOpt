@@ -119,9 +119,14 @@ async function displaySearchResults(searchTerm, results) {
 
                                         group.forEach(function (result) {
                                                 try {
-                                                        var markedContent = mark_search_result_yellow(result.content, searchTerm);
-                                                        var itemLine = `<li><a onclick='delete_search()' href="${result.link}">${markedContent}</a></li>`;
-                                                        itemLines.push(itemLine);
+							if(category.match(/Shares/)) {
+								var itemLine = `<li>${result.content}</li>`;
+								itemLines.push(itemLine);
+							} else {
+								var markedContent = mark_search_result_yellow(result.content, searchTerm);
+								var itemLine = `<li><a href="${result.link}">${markedContent}</a></li>`;
+								itemLines.push(itemLine);
+							}
                                                 } catch (err) {
                                                         console.error("Error creating result line: ", err);
                                                         console.trace();

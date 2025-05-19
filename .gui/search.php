@@ -124,27 +124,26 @@
 		}
 
 		$html_parts[] = '<div id="search_share_path" class="invert_in_dark_mode title-bar-text">';
-		$html_parts[] = '<button onclick="window.location.href=\'?sort=time_desc&amp;\'">Home</button>';
 
 		$param_parts = array();
-		$href = '?sort=time_desc';
+		$href = 'share?';
 
 		if (isset($segments[0])) {
 			$user_id = htmlspecialchars($segments[0]);
 			$param_parts[] = "user_id=" . rawurlencode($user_id);
-			$html_parts[] = ' / <button onclick="window.location.href=\'' . $href . '&amp;' . implode('&amp;', $param_parts) . '\'">' . $user_id . '</button>';
+			$html_parts[] = '<button onclick="window.location.href=\'' . $href . '&' . implode('&', $param_parts) . '\'">' . $user_id . '</button>';
 		}
 
 		if (isset($segments[1])) {
 			$experiment_name = htmlspecialchars($segments[1]);
 			$param_parts[] = "experiment_name=" . rawurlencode($experiment_name);
-			$html_parts[] = ' / <button onclick="window.location.href=\'' . $href . '&amp;' . implode('&amp;', $param_parts) . '\'">' . $experiment_name . '</button>';
+			$html_parts[] = ' / <button onclick="window.location.href=\'' . $href . '&' . implode('&', $param_parts) . '\'">' . $experiment_name . '</button>';
 		}
 
 		if (isset($segments[2])) {
 			$run_nr = htmlspecialchars($segments[2]);
 			$param_parts[] = "run_nr=" . rawurlencode($run_nr);
-			$html_parts[] = ' / <button onclick="window.location.href=\'' . $href . '&amp;' . implode('&amp;', $param_parts) . '\'">' . $run_nr . '</button>';
+			$html_parts[] = ' / <button onclick="window.location.href=\'' . $href . '&' . implode('&', $param_parts) . '\'">' . $run_nr . '</button>';
 		}
 
 		$html_parts[] = '</div>';

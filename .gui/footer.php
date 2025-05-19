@@ -11,7 +11,7 @@
 				</a>
 			</p>
 			<p class="status-bar-field hide_on_mobile">
-				&copy; 2024-<?php echo date('Y'); ?> <a href="https://scads.ai/" target="_blank">ScaDS</a>
+				&copy; 2024-<?php echo date('Y'); ?> <a href="https://scads.ai/" target="_blank">ScaDS.ai</a>
 			</p>
 			<p class="status-bar-field">
 				<a href="https://scads.ai/imprint/" target="_blank">Imprint/Impressum</a>

@@ -32,7 +32,6 @@ async function start_search() {
 					$("#searchResults").show();
 					$("#mainContent").hide();
 
-					// Ajax mit Promise-Wrapper, damit wir await nutzen können
 					var response = await new Promise(function(resolve, reject) {
 						$.ajax({
 							url: "search.php",
@@ -48,25 +47,20 @@ async function start_search() {
 						});
 					});
 
-					// JSON.stringify der Ergebnisse für Hash-Bildung
 					var jsonString = JSON.stringify(response);
 					var currentHash = md5(jsonString);
 
 					if (currentHash !== lastResultsHash) {
 						lastResultsHash = currentHash;
 						await displaySearchResults(searchTerm, response);
-					} else {
-						// Ergebnisse unverändert, kein Update nötig
-						console.log("Search results unchanged, skipping update.");
 					}
 
 					removeSpinnerOverlay();
 				} else {
-					// Leerer Suchbegriff: UI zurücksetzen
 					$("#delete_search").hide();
 					$("#searchResults").hide();
 					$("#mainContent").show();
-					lastResultsHash = ""; // Reset Hash, falls vorher Suche lief
+					lastResultsHash = "";
 				}
 			} catch (error) {
 				console.error("Error during search:", error);

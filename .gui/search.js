@@ -79,21 +79,24 @@ async function displaySearchResults(searchTerm, results) {
 	var $searchResults = $("#searchResults");
 	$searchResults.empty();
 
+	if (Object.keys(results).length > 0) {
+		$searchResults.append("<h2>Search results:</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>");
 
-	if (results.length > 0) {
-		$searchResults.append("<h2>Search results:</h2>\n<p>To get back back to the original page, clear the search or press Escape.</p>");
+		Object.keys(results).forEach(function(category) {
+			var entries = results[category];
+			if (entries.length > 0) {
+				var result_lis = [];
 
-		var result_lis = [];
+				entries.forEach(function(result) {
+					var result_line = `<li><a onclick='delete_search()' href="${result.link}">${mark_search_result_yellow(result.content, searchTerm)}</a></li>`;
+					result_lis.push(result_line);
+				});
 
-		results.forEach(function(result) {
-			var result_line = `<li><a onclick='delete_search()' href="${result.link}">${mark_search_result_yellow(result.content, searchTerm)}</a></li>`;
-			result_lis.push(result_line);
-
+				if (result_lis.length) {
+					$searchResults.append(`<h3>${category}</h3>\n<ul>\n${result_lis.join("\n")}</ul>`);
+				}
+			}
 		});
-
-		if(result_lis.length) {
-			$searchResults.append("<ul>\n" + result_lis.join("\n") + "</ul>");
-		}
 	} else {
 		$searchResults.append("<p>No results found.</p>");
 	}

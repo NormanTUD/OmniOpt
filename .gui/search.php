@@ -114,9 +114,9 @@
 		return $url;
 	}
 
-	function scan_share_directories($output, $root_dir, $regex_pattern) {
+	function scan_share_directories(&$categorized, $root_dir, $regex_pattern) {
 		if (!is_dir($root_dir)) {
-			return $output;
+			return;
 		}
 
 		$user_dirs = scandir($root_dir);
@@ -138,14 +138,14 @@
 				}
 
 				if ($GLOBALS["cnt"] >= $GLOBALS["max_results"]) {
-					return $output;
+					return;
 				}
 
 				$run_path = "$user_path/$experiment_dir/";
 
 				if (is_dir($run_path) && preg_match($regex_pattern, $run_path)) {
 					$parsed = parsePath($run_path);
-					$output[] = [
+					$categorized["Shares"][] = [
 						'link' => create_share_url($parsed),
 						'content' => "OmniOpt2-Share: $run_path"
 					];
@@ -154,8 +154,6 @@
 				}
 			}
 		}
-
-		return $output;
 	}
 
 	function validate_regex($regex) {
@@ -192,9 +190,7 @@
 		return $list;
 	}
 
-	function process_php_files($php_files, $regex) {
-		$output = [];
-
+	function process_php_files($php_files, $regex, &$categorized) {
 		foreach ($php_files as $file_path) {
 			if (in_array(basename($file_path), ["share.php", "usage_stats.php"])) {
 				continue;
@@ -225,17 +221,15 @@
 						$entry['link'] .= '#' . $result['context']['id'];
 					}
 
-					$output[] = $entry;
+					$categorized["Tutorials"][] = $entry;
 					$GLOBALS["cnt"]++;
 
 					if ($GLOBALS["cnt"] >= $GLOBALS["max_results"]) {
-						return $output;
+						return;
 					}
 				}
 			}
 		}
-
-		return $output;
 	}
 
 	$regex_raw = $_GET['regex'] ?? getenv("regex");
@@ -244,13 +238,16 @@
 	}
 
 	$regex = validate_regex($regex_raw);
-
 	$php_files = build_php_file_list($files);
 
-	$output = process_php_files($php_files, $regex);
+	$categorized = [
+		"Tutorials" => [],
+		"Shares" => []
+	];
 
-	$output = scan_share_directories($output, "shares", $regex);
+	process_php_files($php_files, $regex, $categorized);
+	scan_share_directories($categorized, "shares", $regex);
 
 	header('Content-Type: application/json');
-	echo json_encode($output);
+	echo json_encode($categorized);
 ?>

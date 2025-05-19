@@ -880,3 +880,8 @@ h1, h2, h3, h4, h5, h6 {
 	transform: translateY(-10%);
 	padding: 0.2em 0;
 }
+
+.highlight {
+	background-color: yellow;
+	font-weight: bold;
+}

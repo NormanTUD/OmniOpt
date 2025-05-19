@@ -3884,7 +3884,7 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
     table = Table(
         show_header=True,
         header_style="bold",
-        title=f"Best {res_name}, {min_or_max} ({bracket_string}):"
+        title=f"Best {res_name}, {min_or_max} ({bracket_string})"
     )
 
     if best_params and "parameters" in best_params:
@@ -4898,7 +4898,7 @@ def print_result_names_overview_table() -> None:
 
 @beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
-    table = Table(header_style="bold", title="Experiment parameters:")
+    table = Table(header_style="bold", title="Experiment parameters")
     for column in filtered_columns:
         table.add_column(column)
 

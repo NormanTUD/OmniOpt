@@ -45,7 +45,7 @@ You can then download all exports as single HTML files by simply doing this:
 
 ```bash
 cd .gui
-bash download_local_exports --export_dir /home/s3811141/test/randomtest_98580
+bash download_local_exports --export_dir /home/YourUsername/test/randomtest_98580
 ```
 
 The `download_local_exports` script has some options to filter which jobs you want to export:
@@ -58,7 +58,7 @@ The `download_local_exports` script has some options to filter which jobs you wa
 Run Parameters *without* equal signs, like this:
 
 ```bash
-bash download_local_exports --export_dir /home/s3811141/test/randomtest_98580 --user s3811141 --experiment MY_EXPERIMENT_NAME
+bash download_local_exports --export_dir /home/YourUsername/test/randomtest_98580 --user YourUsername --experiment MY_EXPERIMENT_NAME
 ```
 
 ## Notes on Privacy

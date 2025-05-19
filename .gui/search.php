@@ -147,7 +147,7 @@
 					$parsed = parsePath($run_path);
 					$categorized["Shares"][] = [
 						'link' => create_share_url($parsed),
-						'content' => "OmniOpt2-Share: $run_path"
+						'content' => "$run_path"
 					];
 
 					$GLOBALS["cnt"]++;

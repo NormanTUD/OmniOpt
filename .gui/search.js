@@ -75,6 +75,15 @@ function mark_search_result_yellow(content, search) {
 	}
 }
 
+function get_category_icon(category) {
+	var icons = {
+		"Tutorials": "📚",
+		"Shares": "🌏",
+		"Default": "📄"
+	};
+	return icons[category] || icons["Default"];
+}
+
 async function displaySearchResults(searchTerm, results) {
 	var $searchResults = $("#searchResults");
 	$searchResults.empty();
@@ -82,18 +91,26 @@ async function displaySearchResults(searchTerm, results) {
 	if (Object.keys(results).length > 0) {
 		$searchResults.append("<h2>Search results:</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>");
 
-		Object.keys(results).forEach(function(category) {
+		Object.keys(results).forEach(function (category) {
 			var entries = results[category];
 			if (entries.length > 0) {
 				var result_lis = [];
 
-				entries.forEach(function(result) {
-					var result_line = `<li><a onclick='delete_search()' href="${result.link}">${mark_search_result_yellow(result.content, searchTerm)}</a></li>`;
-					result_lis.push(result_line);
+				entries.forEach(function (result) {
+					try {
+						var markedContent = mark_search_result_yellow(result.content, searchTerm);
+						var result_line = `<li><a onclick='delete_search()' href="${result.link}">${markedContent}</a></li>`;
+						result_lis.push(result_line);
+					} catch (err) {
+						console.error("Error creating result line: ", err);
+					}
 				});
 
 				if (result_lis.length) {
-					$searchResults.append(`<h3>${category}</h3>\n<ul>\n${result_lis.join("\n")}</ul>`);
+					var icon = get_category_icon(category);
+					var heading = `<h3>${icon} ${category} (${entries.length})</h3>`;
+					var list = `<ul>\n${result_lis.join("\n")}</ul>`;
+					$searchResults.append(heading + "\n" + list);
 				}
 			}
 		});

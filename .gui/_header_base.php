@@ -197,7 +197,7 @@
 			<div class="header-badges">
 
 			</div>
-			<span style="display: block; margin-bottom: auto; margin-top: auto;">
+			<span style="display: block ruby; margin-bottom: auto; margin-top: auto;">
 				<input class="invert_in_dark_mode" onkeyup="start_search()" onfocus="start_search()" onblur="start_search()" onchange='start_search()' type="text" placeholder="Search..." id="search">
 				<button id="del_search_button" class="invert_in_dark_mode" style="display: none;" onclick="delete_search()"><img src='i/red_x.svg' style='height: 1em' /></button>
 			</span>

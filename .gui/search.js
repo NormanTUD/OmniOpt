@@ -85,38 +85,70 @@ function get_category_icon(category) {
 }
 
 async function displaySearchResults(searchTerm, results) {
-	var $searchResults = $("#searchResults");
-	$searchResults.empty();
+        var $searchResults = $("#searchResults");
+        $searchResults.empty();
 
-	if (Object.keys(results).length > 0) {
-		$searchResults.append("<h2>Search results:</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>");
+        if (Object.keys(results).length > 0) {
+                $searchResults.append(
+                        "<h2>Search results:</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>"
+                );
 
-		Object.keys(results).forEach(function (category) {
-			var entries = results[category];
-			if (entries.length > 0) {
-				var result_lis = [];
+                Object.keys(results).forEach(function (category) {
+                        var entries = results[category];
+                        if (entries.length > 0) {
+                                // Gruppieren nach headline
+                                var groupedByHeadline = {};
 
-				entries.forEach(function (result) {
-					try {
-						var markedContent = mark_search_result_yellow(result.content, searchTerm);
-						var result_line = `<li><a onclick='delete_search()' href="${result.link}">${markedContent}</a></li>`;
-						result_lis.push(result_line);
-					} catch (err) {
-						console.error("Error creating result line: ", err);
-					}
-				});
+                                entries.forEach(function (entry) {
+                                        var headlineKey = (entry.headline && typeof entry.headline === "string" && entry.headline.trim() !== "")
+                                                ? entry.headline.trim()
+                                                : "_no_headline_";
 
-				if (result_lis.length) {
-					var icon = get_category_icon(category);
-					var heading = `<h3>${icon} ${category} (${entries.length})</h3>`;
-					var list = `<ul>\n${result_lis.join("\n")}</ul>`;
-					$searchResults.append(heading + "\n" + list);
-				}
-			}
-		});
-	} else {
-		$searchResults.append("<p>No results found.</p>");
-	}
+                                        if (!(headlineKey in groupedByHeadline)) {
+                                                groupedByHeadline[headlineKey] = [];
+                                        }
 
-	MathJax.typeset();
+                                        groupedByHeadline[headlineKey].push(entry);
+                                });
+
+                                var blocks = [];
+
+                                Object.keys(groupedByHeadline).forEach(function (headline) {
+                                        var group = groupedByHeadline[headline];
+                                        var itemLines = [];
+
+                                        group.forEach(function (result) {
+                                                try {
+                                                        var markedContent = mark_search_result_yellow(result.content, searchTerm);
+                                                        var itemLine = `<li><a onclick='delete_search()' href="${result.link}">${markedContent}</a></li>`;
+                                                        itemLines.push(itemLine);
+                                                } catch (err) {
+                                                        console.error("Error creating result line: ", err);
+                                                        console.trace();
+                                                }
+                                        });
+
+                                        if (itemLines.length > 0) {
+                                                var headlineHtml = "";
+                                                if (headline !== "_no_headline_") {
+                                                        headlineHtml = `<div class="search_headline">${headline}</div>\n`;
+                                                }
+
+                                                var listHtml = `<ul>\n${itemLines.join("\n")}\n</ul>`;
+                                                blocks.push(headlineHtml + listHtml);
+                                        }
+                                });
+
+                                if (blocks.length > 0) {
+                                        var icon = get_category_icon(category);
+                                        var heading = `<h3>${icon} ${category} (${entries.length})</h3>`;
+                                        $searchResults.append(heading + "\n" + blocks.join("\n"));
+                                }
+                        }
+                });
+        } else {
+                $searchResults.append("<p>No results found.</p>");
+        }
+
+        MathJax.typeset();
 }

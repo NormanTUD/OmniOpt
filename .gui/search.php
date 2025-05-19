@@ -3,6 +3,7 @@
 	$GLOBALS["cnt"] = 0;
 
 	require_once "searchable_php_files.php";
+	require_once "_functions.php";
 
 	function assertCondition($condition, $errorText) {
 		if (!$condition) {
@@ -214,6 +215,7 @@
 
 					$entry = [
 						'content' => $result['line'],
+						'headline' => get_first_heading_content($file_path),
 						'link' => "tutorials?tutorial=$tutorial"
 					];
 

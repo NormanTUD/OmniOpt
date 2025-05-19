@@ -10,7 +10,7 @@
 		}
 	}
 
-	function log_error($message) {
+	function log_error_and_exit($message) {
 		error_log($message);
 		header('Content-Type: application/json');
 		echo json_encode(["error" => $message]);
@@ -31,27 +31,22 @@
 				'file' => $parts[2]
 			];
 		} catch (Exception $e) {
-			echo("Error: " . $e->getMessage());
+			log_error_and_exit("parsePath error: " . $e->getMessage());
 		}
-		return null;
 	}
 
 	function read_file_content($file_path) {
-		try {
-			if (!file_exists($file_path)) {
-				throw new Exception("File not found: $file_path");
-			}
-
-			$content = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-			if ($content === false) {
-				throw new Exception("Error reading file: $file_path");
-			}
-			return $content;
-
-		} catch (Exception $e) {
-			log_error($e->getMessage());
-			return false;
+		if (!file_exists($file_path)) {
+			log_error_and_exit("File not found: $file_path");
 		}
+
+		$content = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+		if ($content === false) {
+			log_error_and_exit("Error reading file: $file_path");
+		}
+
+		return $content;
 	}
 
 	function extract_html_from_php($filename) {
@@ -67,17 +62,17 @@
 			$output = ob_get_clean();
 
 			if ($return_var !== 0) {
-				throw new Exception('Error executing PHP script.');
+				throw new Exception("Error executing PHP script: $filename");
 			}
 
 			return preg_replace("/<head>.*<\/head>/is", "", $output);
 		} catch (Throwable $e) {
 			ob_end_clean();
-			return 'Error: ' . $e->getMessage();
+			return "Error: " . $e->getMessage();
 		}
 	}
 
-	function strip_html_tags($html) {
+	function strip_html_tags_safe($html) {
 		return strip_tags($html);
 	}
 
@@ -97,7 +92,7 @@
 		$results = [];
 
 		foreach ($lines as $line_number => $line) {
-			$stripped = strip_html_tags($line);
+			$stripped = strip_html_tags_safe($line);
 
 			if (preg_match($regex, $stripped)) {
 				$context = find_nearest_heading($lines, $line_number);
@@ -109,6 +104,14 @@
 		}
 
 		return $results;
+	}
+
+	function create_share_url($parsed) {
+		$url = "share?user_id={$parsed['user']}&experiment_name={$parsed['directory']}";
+		if (!empty($parsed['file'])) {
+			$url .= "&run_nr={$parsed['file']}";
+		}
+		return $url;
 	}
 
 	function scan_share_directories($output, $root_dir, $regex_pattern) {
@@ -142,17 +145,8 @@
 
 				if (is_dir($run_path) && preg_match($regex_pattern, $run_path)) {
 					$parsed = parsePath($run_path);
-					if ($parsed === null) {
-						continue;
-					}
-
-					$url = "share?user_id={$parsed['user']}&experiment_name={$parsed['directory']}";
-					if (!empty($parsed['file'])) {
-						$url .= "&run_nr={$parsed['file']}";
-					}
-
 					$output[] = [
-						'link' => $url,
+						'link' => create_share_url($parsed),
 						'content' => "OmniOpt2-Share: $run_path"
 					];
 
@@ -172,79 +166,88 @@
 			$regex .= '/i';
 		}
 		if (@preg_match($regex, '') === false) {
-			log_error("Invalid regex pattern: $regex");
+			log_error_and_exit("Invalid regex pattern: $regex");
 		}
-
 		return $regex;
 	}
 
-	if (!isset($_GET['regex']) && !getenv("regex")) {
-		header('Content-Type: application/json');
-		echo json_encode(["error" => "No 'regex' parameter given for search"]);
-		exit;
+	function build_php_file_list($files) {
+		$list = [];
+
+		foreach ($files as $fn => $n) {
+			if (is_array($n)) {
+				foreach ($n["entries"] as $sub_fn => $sub_n) {
+					$file_base = "_tutorials/$sub_fn";
+					if (file_exists("$file_base.php")) {
+						$list[] = "$file_base.php";
+					} elseif (file_exists("$file_base.md")) {
+						$list[] = "$file_base.md";
+					}
+				}
+			} else {
+				$list[] = "$fn.php";
+			}
+		}
+
+		return $list;
 	}
 
-	$regex_raw = isset($_GET['regex']) ? $_GET['regex'] : getenv("regex");
+	function process_php_files($php_files, $regex) {
+		$output = [];
+
+		foreach ($php_files as $file_path) {
+			if (in_array(basename($file_path), ["share.php", "usage_stats.php"])) {
+				continue;
+			}
+
+			$content = read_file_content($file_path);
+			if ($content === false) {
+				continue;
+			}
+
+			$html_content = preg_match("/\.md$/", $file_path)
+				? convertMarkdownToHtml(implode("\n", $content))
+				: extract_html_from_php($file_path);
+
+			$lines = explode("\n", $html_content);
+			$results = search_text_with_context($lines, $regex);
+
+			foreach ($results as $result) {
+				if (!empty($result['line'])) {
+					$tutorial = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.(md|php)$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
+
+					$entry = [
+						'content' => $result['line'],
+						'link' => "tutorials?tutorial=$tutorial"
+					];
+
+					if (!empty($result['context']['id'])) {
+						$entry['link'] .= '#' . $result['context']['id'];
+					}
+
+					$output[] = $entry;
+					$GLOBALS["cnt"]++;
+
+					if ($GLOBALS["cnt"] >= $GLOBALS["max_results"]) {
+						return $output;
+					}
+				}
+			}
+		}
+
+		return $output;
+	}
+
+	$regex_raw = $_GET['regex'] ?? getenv("regex");
+	if (!$regex_raw) {
+		log_error_and_exit("No 'regex' parameter given for search");
+	}
+
 	$regex = validate_regex($regex_raw);
 
-	$php_files = [];
+	$php_files = build_php_file_list($files);
 
-	foreach ($files as $fn => $n) {
-		if (is_array($n)) {
-			foreach ($n["entries"] as $sub_fn => $sub_n) {
-				$file_base = "_tutorials/$sub_fn";
-				if (file_exists("$file_base.php")) {
-					$php_files[] = "$file_base.php";
-				} else if (file_exists("$file_base.md")) {
-					$php_files[] = "$file_base.md";
-				}
-			}
-		} else {
-			$php_files[] = "$fn.php";
-		}
-	}
-
-	$output = [];
-
-	foreach ($php_files as $file_path) {
-		if (in_array(basename($file_path), ["share.php", "usage_stats.php"])) {
-			continue;
-		}
-
-		$file_content = read_file_content($file_path);
-		if ($file_content === false) {
-			continue;
-		}
-
-		$html_content = preg_match("/\.md$/", $file_path)
-			? convertMarkdownToHtml(file_get_contents($file_path))
-			: extract_html_from_php($file_path);
-
-		$lines = explode("\n", $html_content);
-		$results = search_text_with_context($lines, $regex);
-
-		foreach ($results as $result) {
-			if (!empty($result['line'])) {
-				$tutorial = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.(md|php)$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
-
-				$entry = [
-					'content' => $result['line'],
-					'link' => "tutorials?tutorial=$tutorial"
-				];
-
-				if (!empty($result['context']['id'])) {
-					$entry['link'] .= '#' . $result['context']['id'];
-				}
-
-				$output[] = $entry;
-				$GLOBALS["cnt"]++;
-
-				if ($GLOBALS["cnt"] >= $GLOBALS["max_results"]) {
-					break 2;
-				}
-			}
-		}
-	}
+	$output = process_php_files($php_files, $regex);
 
 	$output = scan_share_directories($output, "shares", $regex);
 

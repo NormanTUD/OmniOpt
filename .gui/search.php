@@ -193,7 +193,7 @@
 
 	function process_php_files($php_files, $regex, &$categorized) {
 		foreach ($php_files as $file_path) {
-			if (in_array(basename($file_path), ["share.php", "usage_stats.php"])) {
+			if (in_array(basename($file_path), ["share.php", "usage_stats.php", "gui.php"])) {
 				continue;
 			}
 
@@ -213,9 +213,11 @@
 				if (!empty($result['line'])) {
 					$tutorial = preg_replace("/(_tutorial=)*/", "", preg_replace("/\.(md|php)$/", "", preg_replace("/tutorials\//", "tutorial=", $file_path)));
 
+					$headline = get_first_heading_content($file_path);
+
 					$entry = [
 						'content' => $result['line'],
-						'headline' => get_first_heading_content($file_path),
+						'headline' => $headline,
 						'link' => "tutorials?tutorial=$tutorial"
 					];
 

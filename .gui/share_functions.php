@@ -2044,7 +2044,7 @@ $onclick_string
 		}
 
 		if(!isset($_GET["export_and_exit"])) {
-			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'>".htmlentities($export_content)."</pre>$buttons";
+			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
 		}
 
 		$tabs["{$svg_icon}Export"] = [

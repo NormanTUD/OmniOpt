@@ -341,6 +341,7 @@ clusterCounts
 clusterhost
 CLUSTERHOST
 cmp
+cnt
 co
 col
 collapseAll
@@ -1680,6 +1681,7 @@ parentInstance
 Pareto
 parseDate
 parsedPath
+parsePath
 partitionInfo
 partitionSelect
 pathlike

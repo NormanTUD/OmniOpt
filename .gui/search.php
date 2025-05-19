@@ -272,6 +272,16 @@
 		}
 	}
 
+	function remove_empty_subarrays(array $array): array {
+		$result = [];
+		foreach ($array as $key => $subarray) {
+			if (is_array($subarray) && count($subarray) > 0) {
+				$result[$key] = $subarray;
+			}
+		}
+		return $result;
+	}
+
 	$regex_raw = $_GET['regex'] ?? getenv("regex");
 	if (!$regex_raw) {
 		log_error_and_exit("No 'regex' parameter given for search");
@@ -287,6 +297,8 @@
 
 	process_php_files($php_files, $regex, $categorized);
 	scan_share_directories($categorized, "shares", $regex);
+
+	$categorized = remove_empty_subarrays($categorized);
 
 	header('Content-Type: application/json');
 	echo json_encode($categorized);

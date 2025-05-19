@@ -2108,6 +2108,8 @@ $onclick_string
 			if($constraints_table) {
 				$constraints .= $constraints_table;
 
+				$overview_html .= "<h2>Constraints</h2>";
+
 				$overview_html .= $constraints_table;
 			} else {
 				$warnings[] = "Could not create \$constraints_table";

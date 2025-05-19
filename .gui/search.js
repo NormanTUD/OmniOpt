@@ -117,4 +117,6 @@ async function displaySearchResults(searchTerm, results) {
 	} else {
 		$searchResults.append("<p>No results found.</p>");
 	}
+
+	MathJax.typeset();
 }

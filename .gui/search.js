@@ -65,13 +65,12 @@ function delete_search () {
 
 function mark_search_result_yellow(content, search) {
 	try {
-		// Escape the search term to safely use it in a regular expression
 		var escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		var regex = new RegExp("(" + escapedSearch + ")", "gi");
 		return content.replace(regex, "<span class='marked_text'>$1</span>");
 	} catch (error) {
 		console.error("Error while marking search results: ", error);
-		return content; // return original content if there's an error
+		return content;
 	}
 }
 
@@ -96,7 +95,6 @@ async function displaySearchResults(searchTerm, results) {
                 Object.keys(results).forEach(function (category) {
                         var entries = results[category];
                         if (entries.length > 0) {
-                                // Gruppieren nach headline
                                 var groupedByHeadline = {};
 
                                 entries.forEach(function (entry) {

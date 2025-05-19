@@ -87,36 +87,40 @@ async function displaySearchResults(searchTerm, results) {
         var $searchResults = $("#searchResults");
         $searchResults.empty();
 
-        if (Object.keys(results).length > 0) {
-                $searchResults.append(
-                        "<h2>Search results:</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>"
-                );
+	if (
+		Object.keys(results).some(function (category) {
+			return Array.isArray(results[category]) && results[category].length > 0;
+		})
+	) {
+		$searchResults.append(
+			"<h2>Search results</h2>\n<p>To get back to the original page, clear the search or press Escape.</p>"
+		);
 
-                Object.keys(results).forEach(function (category) {
-                        var entries = results[category];
-                        if (entries.length > 0) {
-                                var groupedByHeadline = {};
+		Object.keys(results).forEach(function (category) {
+			var entries = results[category];
+			if (entries.length > 0) {
+				var groupedByHeadline = {};
 
-                                entries.forEach(function (entry) {
-                                        var headlineKey = (entry.headline && typeof entry.headline === "string" && entry.headline.trim() !== "")
-                                                ? entry.headline.trim()
-                                                : "_no_headline_";
+				entries.forEach(function (entry) {
+					var headlineKey = (entry.headline && typeof entry.headline === "string" && entry.headline.trim() !== "")
+						? entry.headline.trim()
+						: "_no_headline_";
 
-                                        if (!(headlineKey in groupedByHeadline)) {
-                                                groupedByHeadline[headlineKey] = [];
-                                        }
+					if (!(headlineKey in groupedByHeadline)) {
+						groupedByHeadline[headlineKey] = [];
+					}
 
-                                        groupedByHeadline[headlineKey].push(entry);
-                                });
+					groupedByHeadline[headlineKey].push(entry);
+				});
 
-                                var blocks = [];
+				var blocks = [];
 
-                                Object.keys(groupedByHeadline).forEach(function (headline) {
-                                        var group = groupedByHeadline[headline];
-                                        var itemLines = [];
+				Object.keys(groupedByHeadline).forEach(function (headline) {
+					var group = groupedByHeadline[headline];
+					var itemLines = [];
 
-                                        group.forEach(function (result) {
-                                                try {
+					group.forEach(function (result) {
+						try {
 							if(category.match(/Shares/)) {
 								var itemLine = `<li>${result.content}</li>`;
 								itemLines.push(itemLine);
@@ -125,31 +129,31 @@ async function displaySearchResults(searchTerm, results) {
 								var itemLine = `<li><a href="${result.link}">${markedContent}</a></li>`;
 								itemLines.push(itemLine);
 							}
-                                                } catch (err) {
-                                                        console.error("Error creating result line: ", err);
-                                                        console.trace();
-                                                }
-                                        });
+						} catch (err) {
+							console.error("Error creating result line: ", err);
+							console.trace();
+						}
+					});
 
-                                        if (itemLines.length > 0) {
-                                                var headlineHtml = "";
-                                                if (headline !== "_no_headline_") {
-                                                        headlineHtml = `<div class="search_headline">${headline}</div>\n`;
-                                                }
+					if (itemLines.length > 0) {
+						var headlineHtml = "";
+						if (headline !== "_no_headline_") {
+							headlineHtml = `<div class="search_headline">${headline}</div>\n`;
+						}
 
-                                                var listHtml = `<ul>\n${itemLines.join("\n")}\n</ul>`;
-                                                blocks.push(headlineHtml + listHtml);
-                                        }
-                                });
+						var listHtml = `<ul>\n${itemLines.join("\n")}\n</ul>`;
+						blocks.push(headlineHtml + listHtml);
+					}
+				});
 
-                                if (blocks.length > 0) {
-                                        var icon = get_category_icon(category);
-                                        var heading = `<h3>${icon} ${category} (${entries.length})</h3>`;
-                                        $searchResults.append(heading + "\n" + blocks.join("\n"));
-                                }
-                        }
-                });
-        } else {
+				if (blocks.length > 0) {
+					var icon = get_category_icon(category);
+					var heading = `<h3>${icon} ${category} (${entries.length})</h3>`;
+					$searchResults.append(heading + "\n" + blocks.join("\n"));
+				}
+			}
+		});
+	} else {
                 $searchResults.append("<p>No results found.</p>");
         }
 

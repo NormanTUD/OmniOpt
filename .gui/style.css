@@ -909,7 +909,8 @@ h1, h2, h3, h4, h5, h6 {
 	color: #444;
 }
 
-#search_share_path {
+.search_share_path {
 	color: black;
 	display: block ruby;
+	margin-top: 20px;
 }

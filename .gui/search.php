@@ -123,7 +123,7 @@
 			array_shift($segments);
 		}
 
-		$html_parts[] = '<div id="search_share_path" class="invert_in_dark_mode title-bar-text">';
+		$html_parts[] = '<div class="search_share_path" class="invert_in_dark_mode title-bar-text">';
 
 		$param_parts = array();
 		$href = 'share?';

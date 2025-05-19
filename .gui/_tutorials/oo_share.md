@@ -61,7 +61,7 @@ Run Parameters *without* equal signs, like this:
 bash download_local_exports --export_dir /home/YourUsername/test/randomtest_98580 --user YourUsername --experiment MY_EXPERIMENT_NAME
 ```
 
-## Download exported shares via curl:
+## Download exported shares via curl
 
 If you want to automatically download exported shares, ie. over curl, you can do the following:
 

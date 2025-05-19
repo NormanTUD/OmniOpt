@@ -3131,7 +3131,7 @@ def print_evaluate_times() -> None:
                 f"{median_time:.2f} sec {human_time_when_larger_than_a_min(median_time)}"
             ]
 
-            table = Table(title="Runtime Infos:")
+            table = Table(title="Runtime Infos")
             for h in headers:
                 table.add_column(h, justify="center")
 
@@ -3449,7 +3449,7 @@ def display_failed_jobs_table() -> None:
             #print_debug(f"Parameters: {parameters}")
 
         # Create the table
-        table = Table(show_header=True, header_style="bold red", title="Failed Jobs parameters:")
+        table = Table(show_header=True, header_style="bold red", title="Failed Jobs parameters")
 
         for header in headers:
             table.add_column(header)
@@ -3986,7 +3986,7 @@ def show_end_table_and_save_end_files() -> int:
     if args.show_worker_percentage_table_at_end and len(WORKER_PERCENTAGE_USAGE) and not ALREADY_SHOWN_WORKER_USAGE_OVER_TIME:
         ALREADY_SHOWN_WORKER_USAGE_OVER_TIME = True
 
-        table = Table(header_style="bold", title="Worker usage over time:")
+        table = Table(header_style="bold", title="Worker usage over time")
         columns = ["Time", "Nr. workers", "Max. nr. workers", "%"]
         for column in columns:
             table.add_column(column)
@@ -4876,7 +4876,7 @@ def print_result_names_overview_table() -> None:
         res_names.append(obj.metric_names[0])
         res_min_max.append(min_or_max)
 
-    __table = Table(title="Result-Names:")
+    __table = Table(title="Result-Names")
 
     __table.add_column("Result-Name", justify="left", style="bold")
     __table.add_column("Min or max?", justify="right", style="bold")
@@ -6735,7 +6735,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
 
 @beartype
 def print_generation_strategy(generation_strategy_array: list) -> None:
-    table = Table(header_style="bold", title="Generation Strategy:")
+    table = Table(header_style="bold", title="Generation Strategy")
 
     table.add_column("Generation Strategy")
     table.add_column("Number of Generations")
@@ -7777,7 +7777,7 @@ def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_
 
 @beartype
 def write_args_overview_table() -> None:
-    table = Table(title="Arguments Overview:")
+    table = Table(title="Arguments Overview")
     table.add_column("Key", justify="left", style="bold")
     table.add_column("Value", justify="left", style="dim")
 
@@ -7796,7 +7796,7 @@ def write_args_overview_table() -> None:
 
 @beartype
 def show_experiment_overview_table() -> None:
-    table = Table(title="Experiment overview:", show_header=True)
+    table = Table(title="Experiment overview", show_header=True)
 
     #random_step = gs_data[0]
     #systematic_step = gs_data[1]

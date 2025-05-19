@@ -422,7 +422,7 @@ function generateTOC() {
 		}
 
 		var $tocContainer = $('<div class="toc"></div>');
-		var $tocHeader = $('<h2><span class="invert_in_dark_mode">📖</span> Table of Contents</h2>');
+		var $tocHeader = $('<h2><span class="tutorial_icon invert_in_dark_mode">📖</span> Table of Contents</h2>');
 		var $tocList = $('<ul></ul>');
 
 		$tocContainer.append($tocHeader);

@@ -1,6 +1,8 @@
 <?php
 	include_once("share_functions.php");
 
+	ini_set('memory_limit', '512M');
+
 	$GLOBALS["json_data"] = [];
 
 	$GLOBALS["SPECIAL_COL_NAMES"] = [

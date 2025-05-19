@@ -108,7 +108,11 @@
 	}
 
 	function ansi_to_html($string) {
-		$ret = (new \SensioLabs\AnsiConverter\AnsiToHtmlConverter)->convert($string);
+		if(!isset($GLOBALS["ansi_to_html_converter"])) {
+			$GLOBALS["ansi_to_html_converter"] = new \SensioLabs\AnsiConverter\AnsiToHtmlConverter;
+		}
+
+		$ret = $GLOBALS["ansi_to_html_converter"]->convert($string);
 
 		return html_entity_decode($ret);
 	}
@@ -380,7 +384,9 @@
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
 			} else {
-				$contents = removeAnsiEscapeSequences(ansi_to_html(htmlspecialchars($contents)));
+				$contents = htmlspecialchars($contents);
+				$ansi_to_htmled = ansi_to_html($contents);
+				$contents = removeAnsiEscapeSequences($ansi_to_htmled);
 			}
 
 			if(!$remove_ansi_colors) {
@@ -415,7 +421,9 @@
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
 			} else {
-				$contents = removeAnsiEscapeSequences(ansi_to_html(htmlspecialchars($contents)));
+				$contents = htmlspecialchars($contents);
+				$ansi_to_htmled = ansi_to_html($contents);
+				$contents = removeAnsiEscapeSequences($ansi_to_htmled);
 			}
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);

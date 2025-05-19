@@ -1,61 +1,88 @@
 "use strict";
 var searchTimer;
 var lastSearch = "";
+var lastResultsHash = "";
 
 async function start_search() {
-	var searchTerm = $("#search").val();
+	try {
+		var searchTerm = $("#search").val();
 
-	if(searchTerm == lastSearch) {
-		return;
-	}
-
-	lastSearch = searchTerm;
-
-	function abortPreviousRequest() {
-		if (searchTimer) {
-			clearTimeout(searchTimer);
-			searchTimer = null;
+		if (searchTerm === lastSearch) {
+			return;
 		}
-	}
 
-	abortPreviousRequest();
+		lastSearch = searchTerm;
 
-	async function performSearch() {
+		function abortPreviousRequest() {
+			if (searchTimer) {
+				clearTimeout(searchTimer);
+				searchTimer = null;
+			}
+		}
+
 		abortPreviousRequest();
 
-		if (!/^\s*$/.test(searchTerm)) {
-			showSpinnerOverlay("Searching...");
-			$("#delete_search").show();
-			$("#searchResults").show();
-			$("#mainContent").hide();
-			$.ajax({
-				url: "search.php",
-				type: "GET",
-				data: {
-					regex: searchTerm
-				},
-				success: async function (response) {
-					await displaySearchResults(searchTerm, response);
+		async function performSearch() {
+			try {
+				abortPreviousRequest();
+
+				if (!/^\s*$/.test(searchTerm)) {
+					showSpinnerOverlay("Searching...");
+					$("#delete_search").show();
+					$("#searchResults").show();
+					$("#mainContent").hide();
+
+					// Ajax mit Promise-Wrapper, damit wir await nutzen können
+					var response = await new Promise(function(resolve, reject) {
+						$.ajax({
+							url: "search.php",
+							type: "GET",
+							data: { regex: searchTerm },
+							dataType: "json",
+							success: function(data) {
+								resolve(data);
+							},
+							error: function(xhr, status, error) {
+								reject(new Error(error));
+							}
+						});
+					});
+
+					// JSON.stringify der Ergebnisse für Hash-Bildung
+					var jsonString = JSON.stringify(response);
+					var currentHash = md5(jsonString);
+
+					if (currentHash !== lastResultsHash) {
+						lastResultsHash = currentHash;
+						await displaySearchResults(searchTerm, response);
+					} else {
+						// Ergebnisse unverändert, kein Update nötig
+						console.log("Search results unchanged, skipping update.");
+					}
+
 					removeSpinnerOverlay();
-				},
-				error: function (xhr, status, error) {
-					console.error(error);
-					removeSpinnerOverlay();
+				} else {
+					// Leerer Suchbegriff: UI zurücksetzen
+					$("#delete_search").hide();
+					$("#searchResults").hide();
+					$("#mainContent").show();
+					lastResultsHash = ""; // Reset Hash, falls vorher Suche lief
 				}
-			});
-		} else {
-			$("#delete_search").hide();
-			$("#searchResults").hide();
-			$("#mainContent").show();
+			} catch (error) {
+				console.error("Error during search:", error);
+				removeSpinnerOverlay();
+			}
 		}
-	}
 
-	searchTimer = setTimeout(performSearch, 10);
+		searchTimer = setTimeout(performSearch, 10);
 
-	if(searchTerm.length) {
-		$("#del_search_button").show();
-	} else {
-		$("#del_search_button").hide();
+		if (searchTerm.length) {
+			$("#del_search_button").show();
+		} else {
+			$("#del_search_button").hide();
+		}
+	} catch (error) {
+		console.error("Error in start_search:", error);
 	}
 }
 

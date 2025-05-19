@@ -138,6 +138,10 @@ docker_compose up -d || {
 
 CONTAINER_ID=$(docker ps -q -f "ancestor=gui_php-web")
 
+if [[ -z $CONTAINER_ID ]]; then
+	CONTAINER_ID=$(docker ps -q -f "ancestor=gui-php-web")
+fi
+
 docker exec -u root "$CONTAINER_ID" chown -R www-data:www-data /var/www/html
 
 rm docker-compose.yml

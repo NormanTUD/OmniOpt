@@ -180,7 +180,7 @@
 
 				$run_path = "$user_path/$experiment_dir/";
 
-				if (is_dir($run_path) && preg_match($regex_pattern, $run_path)) {
+				if (is_dir($run_path) && (preg_match($regex_pattern, $experiment_dir) || preg_match($regex_pattern, $user_dir))) {
 					$parsed = parsePath($run_path);
 					$categorized["Shares"][] = [
 						'link' => create_share_url($parsed),

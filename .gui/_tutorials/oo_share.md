@@ -70,6 +70,8 @@ URL="https://imageseg.scads.de/omniax/share?user_id=norman&sort=time_desc&experi
 curl $URL | awk '/<!-- export.html -->/{p=!p; next} p' | perl -MHTML::Entities -pe 'decode_entities($_)' > name_of_your_exported_file.html
 ```
 
+Of course, you need to adapt the URL to your use case.
+
 ## Notes on Privacy
 <div class="caveat tip">
 You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload

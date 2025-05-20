@@ -5527,7 +5527,6 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
 
                 return True
 
-
             print_red("Error getting ax_client")
             my_exit(9)
 
@@ -7721,7 +7720,6 @@ def _pareto_front_aggregate_data(
 
     return records
 
-
 @beartype
 def _pareto_front_filter_complete_points(
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
@@ -7738,7 +7736,6 @@ def _pareto_front_filter_complete_points(
     if len(points) == 0:
         raise ValueError("No full data points with both objectives found.")
     return points
-
 
 @beartype
 def _pareto_front_transform_objectives(
@@ -7764,7 +7761,6 @@ def _pareto_front_transform_objectives(
 
     return x, y
 
-
 @beartype
 def _pareto_front_select_pareto_points(
     x: np.ndarray,
@@ -7777,7 +7773,6 @@ def _pareto_front_select_pareto_points(
     sorted_indices = sorted_indices[:num_points]
     selected_points = [points[i] for i in sorted_indices]
     return selected_points
-
 
 @beartype
 def _pareto_front_build_return_structure(
@@ -7812,7 +7807,6 @@ def _pareto_front_build_return_structure(
             "absolute_metrics": absolute_metrics
         }
     }
-
 
 @beartype
 def custom_pareto_frontier(

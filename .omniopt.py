@@ -5365,6 +5365,56 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
     return arm_params_list, results_list
 
 @beartype
+def get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, index):
+    try:
+        if index < 0 or index >= len(arm_params_list) or index >= len(results_list):
+            return "MANUAL"
+
+        target_arm_params = arm_params_list[index]
+        target_result = results_list[index]
+
+        target_combined = {}
+        target_combined.update(target_arm_params)
+        target_combined.update(target_result)
+
+        with open(this_csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            if "generation_node" not in reader.fieldnames:
+                return "MANUAL"
+
+            for row in reader:
+                all_match = True
+                for key, val in target_combined.items():
+                    row_val = row.get(key)
+                    if row_val is None:
+                        all_match = False
+                        break
+
+                    # Vergleich für numerische Werte mit Toleranz
+                    if isinstance(val, (int, float)):
+                        try:
+                            row_val_num = float(row_val)
+                            val_num = float(val)
+                            if abs(row_val_num - val_num) > 1e-8:
+                                all_match = False
+                                break
+                        except ValueError:
+                            all_match = False
+                            break
+                    else:
+                        # String-Vergleich
+                        if str(val) != row_val:
+                            all_match = False
+                            break
+
+                if all_match:
+                    return row["generation_node"]
+    except Exception as e:
+        print(f"Error while get_generation_node_for_index: {e}")
+
+    return "MANUAL"
+
+@beartype
 def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
     if not os.path.exists(this_csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
@@ -5404,12 +5454,16 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     err_msgs = []
 
     with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
+        i = 0
         for arm_params, result in zip(arm_params_list, results_list):
+
             __status.update(f"[bold green]Loading existing jobs from {this_csv_file_path} into ax_client")
             arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
             try:
-                if insert_job_into_ax_client(arm_params, result):
+                gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i)
+
+                if insert_job_into_ax_client(arm_params, result, gen_node_name):
                     cnt += 1
 
                     print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
@@ -5420,6 +5474,8 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
                 if err_msg not in err_msgs:
                     print_red(err_msg)
                     err_msgs.append(err_msg)
+
+            i = i + 1
 
     if cnt:
         if cnt == 1:

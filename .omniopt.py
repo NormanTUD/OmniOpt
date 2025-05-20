@@ -7651,13 +7651,17 @@ def supports_sixel() -> bool:
 
 @beartype
 def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
+    if data is None:
+        print(f"[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
+        return
+
     absolute_metrics = arg_result_names
 
     x_metric = absolute_metrics[i]
     y_metric = absolute_metrics[j]
 
     if not supports_sixel():
-        console.print(f"[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
+        print(f"[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
         return
 
     import matplotlib.pyplot as plt

@@ -7170,29 +7170,23 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 
         range_nr = new_nr_of_jobs_to_get
-        get_next_trials_nr = 1
 
-        if args.generate_all_jobs_at_once:
-            range_nr = 1
-            get_next_trials_nr = new_nr_of_jobs_to_get
+        trial_index_to_param, optimization_complete = _get_next_trials(range_nr)
+        done_optimizing = handle_optimization_completion(optimization_complete)
+        if done_optimizing:
+            return 0
+        if trial_index_to_param:
+            nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
 
-        for _ in range(range_nr):
-            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
-            done_optimizing = handle_optimization_completion(optimization_complete)
-            if done_optimizing:
-                continue
-            if trial_index_to_param:
-                nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
+            trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
 
-                trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
-
-                if len(list(trial_index_to_param.keys())):
-                    results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+            if len(list(trial_index_to_param.keys())):
+                results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+            else:
+                if nr_jobs_before_removing_abandoned > 0:
+                    print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
                 else:
-                    if nr_jobs_before_removing_abandoned > 0:
-                        print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
-                    else:
-                        print_debug("Could not generate any jobs")
+                    print_debug("Could not generate any jobs")
 
         finish_previous_jobs(["finishing jobs"])
 

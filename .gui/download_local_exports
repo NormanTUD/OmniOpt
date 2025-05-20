@@ -37,9 +37,18 @@ function help {
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
+		--*=*)
+			key="${1%%=*}"
+			val="${1#*=}"
+			shift
+			set -- "$key" "$val" "$@"
+			;;
+	esac
+
+	case "$1" in
 		--autosubmit)
 			SHARE_BEFORE=1
-			shift 1
+			shift
 			;;
 		--user)
 			FILTER_USER="$2"
@@ -57,16 +66,15 @@ while [[ $# -gt 0 ]]; do
 			EXPORT_DIR="$2"
 			shift 2
 			;;
-                -h|--help)
-                        help
-                        ;;
-                *)
-                        echo "Unknown argument: $1"
-                        help
-                        ;;
+		-h|--help)
+			help
+			;;
+		*)
+			echo "Unknown argument: $1"
+			help
+			;;
 	esac
 done
-
 
 if [[ $SHARE_BEFORE -eq 1 ]]; then
 	cd ..

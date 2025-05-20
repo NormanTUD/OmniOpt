@@ -33,3 +33,4 @@ setuptools
 pyright
 qrcode
 tabulate
+pymoo

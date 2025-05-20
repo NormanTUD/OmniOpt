@@ -147,6 +147,8 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
+
+        from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
     try:
         from pyfiglet import Figlet
         figlet_loaded = True
@@ -4030,6 +4032,7 @@ def show_pareto_or_error_msg(res_names: list = arg_result_names, force: bool = F
             show_pareto_frontier_data(res_names, force)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
+            raise Exception from e
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
@@ -7697,13 +7700,26 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
 
 @beartype
 def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    is_dominated = np.zeros(len(x), dtype=bool)
-    for i in range(len(x)):
-        for j in range(len(x)):
-            if (x[j] <= x[i] and y[j] <= y[i]) and (x[j] < x[i] or y[j] < y[i]):
-                is_dominated[i] = True
-                break
-    return np.where(~is_dominated)[0]
+    # Input prüfen
+    if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
+        raise TypeError("x and y must be numpy arrays.")
+    if x.ndim != 1 or y.ndim != 1:
+        raise ValueError("x and y must be 1D numpy arrays.")
+    if len(x) != len(y):
+        raise ValueError("x and y must have the same length.")
+    if len(x) == 0:
+        return np.array([], dtype=int)
+    
+    try:
+        points = np.column_stack((x, y))
+        
+        nds = NonDominatedSorting()
+        
+        fronts = nds.do(points, only_non_dominated_front=True)
+        
+        return np.array(fronts, dtype=int)
+    except Exception as e:
+        raise RuntimeError(f"Error calculating the pareto-front with pymoo: {e}")
 
 @beartype
 def _pareto_front_aggregate_data(

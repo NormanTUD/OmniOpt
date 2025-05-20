@@ -6575,7 +6575,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     search_space=generator_run.search_space,
                     optimization_config=generator_run.optimization_config,
                     model_predictions=generator_run.model_predictions,
-                    gen_metadata=generator_run.gen_metadata
+                    gen_metadata=generator_run.gen_metadata,
+                    generation_node_name=global_gs.current_node_name
                 )
 
                 trial = ax_client.experiment.new_trial(generator_run=single_arm_run)

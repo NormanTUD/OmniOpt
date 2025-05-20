@@ -6549,10 +6549,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trial_durations: List[float] = []
 
-    if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
-        print_red("ax_client, ax_client.experiment or global_gs is not defined")
-        my_exit(101)
-
     try:
         generator_run = global_gs.gen(
             experiment=ax_client.experiment,
@@ -6566,6 +6562,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             start_time = time.time()
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
+
+            if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
+                print_red("ax_client, ax_client.experiment or global_gs is not defined")
+                my_exit(101)
 
             trial_index = ax_client.experiment.num_trials
 

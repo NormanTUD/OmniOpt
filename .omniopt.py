@@ -4032,7 +4032,6 @@ def show_pareto_or_error_msg(res_names: list = arg_result_names, force: bool = F
             show_pareto_frontier_data(res_names, force)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
-            raise Exception from e
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 
@@ -7709,17 +7708,17 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         raise ValueError("x and y must have the same length.")
     if len(x) == 0:
         return np.array([], dtype=int)
-    
+
     try:
         points = np.column_stack((x, y))
-        
+
         nds = NonDominatedSorting()
-        
+
         fronts = nds.do(points, only_non_dominated_front=True)
-        
+
         return np.array(fronts, dtype=int)
     except Exception as e:
-        raise RuntimeError(f"Error calculating the pareto-front with pymoo: {e}")
+        raise RuntimeError(f"Error calculating the pareto-front with pymoo: {e}") from e
 
 @beartype
 def _pareto_front_aggregate_data(

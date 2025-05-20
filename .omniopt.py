@@ -7842,6 +7842,43 @@ def sanitize_json(obj: Any) -> Any:
     return obj
 
 @beartype
+def set_arg_min_or_max_if_required() -> None:
+    global arg_result_names
+    global arg_result_min_or_max
+
+    if args.calculate_pareto_front_of_job:
+        found_result_min_max = []
+        default_min_max = "min"
+
+        found_result_names = []
+
+        look_for_result_names_file = f"{args.calculate_pareto_front_of_job}/result_names.txt"
+
+        if os.path.exists(look_for_result_names_file):
+            try:
+                with open(look_for_result_names_file, 'r', encoding='utf-8') as _file:
+                    _content = _file.read()
+                    found_result_names = _content.split('\n')
+
+                    if found_result_names and found_result_names[-1] == '':
+                        found_result_names.pop()
+            except FileNotFoundError:
+                print_red(f"Error: The file at '{look_for_result_names_file}' was not found.")
+            except IOError as e:
+                print_red(f"Error reading file '{look_for_result_names_file}': {e}")
+        else:
+            print_yellow(f"{look_for_result_names_file} not found!")
+
+        for _n in range(len(found_result_names)):
+            min_max = get_min_max_from_file(args.calculate_pareto_front_of_job, _n, default_min_max)
+
+            found_result_min_max.append(min_max)
+
+        arg_result_names = found_result_names
+        arg_result_min_or_max = found_result_min_max
+
+
+@beartype
 def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
         print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
@@ -7865,6 +7902,8 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
                     return frontier
 
         data = ax_client.experiment.fetch_data()
+
+        set_arg_min_or_max_if_required()
 
         frontier = custom_pareto_frontier(
             experiment=ax_client.experiment,

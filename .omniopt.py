@@ -7529,7 +7529,7 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
     return param_dicts, means, metrics
 
 @beartype
-def create_table(param_dicts: List, means: dict, metrics: List, metric_i: str, metric_j: str) -> Table:
+def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_i: str, metric_j: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + metrics
@@ -7557,7 +7557,7 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, 
 
     all_columns, rows = get_csv_data(RESULT_CSV_FILE)
     param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
-    return create_table(param_dicts, means, metrics, metric_i, metric_j)
+    return create_pareto_front_table(param_dicts, means, metrics, metric_i, metric_j)
 
 @beartype
 def supports_sixel() -> bool:
@@ -7865,9 +7865,7 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
         if rich_table is not None:
             console.print(rich_table)
 
-            mode = "w" if force else "a"
-
-            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode=mode, encoding="utf-8") as text_file:
+            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                 with console.capture() as capture:
                     console.print(rich_table)
                 text_file.write(capture.get())

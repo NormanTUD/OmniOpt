@@ -7652,7 +7652,7 @@ def supports_sixel() -> bool:
 @beartype
 def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
     if data is None:
-        print(f"[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
+        print("[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
         return
 
     absolute_metrics = arg_result_names
@@ -7887,7 +7887,6 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
 
     except Exception as e:
         print_red(f"Error in get_calculated_or_cached_frontier: {str(e)}")
-        raise Exception from e
         return None
 
 @beartype

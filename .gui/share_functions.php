@@ -1818,7 +1818,9 @@
 				$pareto_front_html .= "<pre>$pareto_front_text</pre>";
 			}
 
-			$GLOBALS["json_data"]["pareto_front_data"] = json_decode(file_get_contents($pareto_front_json_file));
+			$pareto_json_content = file_get_contents($pareto_front_json_file);
+
+			$GLOBALS["json_data"]["pareto_front_data"] = json_decode($pareto_json_content);
 
 			if($pareto_front_html) {
 				$pareto_front_html = "<div id='pareto_front_graphs_container'></div>\n$pareto_front_html";

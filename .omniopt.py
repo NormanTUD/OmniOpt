@@ -7714,6 +7714,18 @@ def custom_pareto_frontier(
     }
 
 @beartype
+def sanitize_json(obj: Any) -> Any:
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, dict):
+        return {k: sanitize_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_json(x) for x in obj]
+    return obj
+
+@beartype
 def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
         print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
@@ -7746,6 +7758,8 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
             absolute_metrics=res_names,
             num_points=count_done_jobs()
         )
+
+        frontier = sanitize_json(frontier)
 
         pickled_data = pickle.dumps(frontier)
         b64_data = base64.b64encode(pickled_data).decode("utf-8")

@@ -843,6 +843,11 @@ async function load_pareto_graph() {
 
 	var data = pareto_front_data;
 
+	if(data === null) {
+		console.error("pareto_front_data is null");
+		return;
+	}
+
 	if (!data || typeof data !== "object") {
 		console.error("Invalid data format for pareto_front_data");
 		return;

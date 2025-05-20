@@ -6499,6 +6499,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     trial_durations: List[float] = []
 
     try:
+        all_start_time = time.time()
+
+        cnt = 0
+
         for k in range(nr_of_jobs_to_get):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
@@ -6532,9 +6536,20 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     abandoned_trial_indices.append(trial_index)
                 else:
                     trial.mark_running(no_runner_required=True)
+
+                cnt = cnt + 1
             else:
                 print_red("ax_client, ax_client.experiment or global_gs is not defined")
                 my_exit(101)
+        all_end_time = time.time()
+
+        all_time = float(all_end_time - all_start_time)
+
+        if cnt:
+            print_debug(f"Requested {nr_of_jobs_to_get} jobs, got {cnt}, took {all_time / cnt} seconds per job (avg)")
+        else:
+            print_debug(f"Requested {nr_of_jobs_to_get} jobs, got {cnt}")
+
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)

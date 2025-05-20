@@ -461,6 +461,8 @@
 			fi
 		fi
 
+		echo "OmniOpt2 ran $SECONDS seconds"
+
 		exit $CODE
 	}
 

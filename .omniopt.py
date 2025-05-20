@@ -3244,14 +3244,14 @@ def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None, 
 
 @beartype
 def die_for_debug_reasons() -> None:
-    max_done = os.getenv("DIE_AFTER_THIS_NR_OF_DONE_JOBS")
-    if max_done is not None:
+    max_done_str = os.getenv("DIE_AFTER_THIS_NR_OF_DONE_JOBS")
+    if max_done_str is not None:
         try:
-            max_done = int(max_done)
+            max_done = int(max_done_str)
             if count_done_jobs() > max_done:
                 my_exit(34)
         except ValueError:
-            print_red(f"Invalid value for DIE_AFTER_THIS_NR_OF_DONE_JOBS: '{max_done}', cannot be converted to int")
+            print_red(f"Invalid value for DIE_AFTER_THIS_NR_OF_DONE_JOBS: '{max_done_str}', cannot be converted to int")
 
 @beartype
 def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:

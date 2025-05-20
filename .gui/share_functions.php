@@ -1827,7 +1827,7 @@
 
 				$svg_icon = get_icon_html("plot.svg");
 
-				$tabs["{$svg_icon}Pareto-Fronts"] = [
+				$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
 					'id' => 'tab_pareto_fronts',
 					'content' => $pareto_front_html,
 					'onclick' => "load_pareto_graph();"

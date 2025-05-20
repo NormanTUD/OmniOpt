@@ -7887,6 +7887,7 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
 
     except Exception as e:
         print_red(f"Error in get_calculated_or_cached_frontier: {str(e)}")
+        raise Exception from e
         return None
 
 @beartype
@@ -7958,7 +7959,10 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
         if metric_i.name not in pareto_front_data:
             pareto_front_data[metric_i.name] = {}
 
-        cf = calculated_frontier[metric_i.name][metric_j.name]
+        metric_i_name = metric_i.name
+        metric_j_name = metric_j.name
+
+        cf = calculated_frontier[metric_i_name][metric_j_name]
 
         _param_dicts = cf["param_dicts"]
         _means = cf["means"]

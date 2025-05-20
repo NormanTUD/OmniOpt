@@ -5230,6 +5230,8 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
             last_progress_bar_desc = desc
 
+    save_results_csv()
+
     live_share()
 
 @beartype
@@ -6312,7 +6314,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        update_progress()
+        progressbar_description(["started new job"])
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -6380,10 +6382,6 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         save_results_csv()
     else:
         print_debug("cancel_failed_job: new_job was undefined")
-
-@beartype
-def update_progress() -> None:
-    progressbar_description(["started new job"])
 
 @beartype
 def handle_exit_signal() -> None:

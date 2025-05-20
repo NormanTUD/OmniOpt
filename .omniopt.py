@@ -6498,49 +6498,55 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trial_durations: List[float] = []
 
+    if ax_client is None:
+        print_red("Error: ax_client is not defined")
+        my_exit(101)
+    elif ax_client.experiment is None:
+        print_red("Error: ax_client.experiment is not defined")
+        my_exit(101)
+    elif global_gs is None:
+        print_red("Error: global_gs is not defined")
+        my_exit(101)
+
     try:
         all_start_time = time.time()
 
         cnt = 0
 
         for k in range(nr_of_jobs_to_get):
+            print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()
 
-            print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
+            trial_index = ax_client.experiment.num_trials
 
-            if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
-                trial_index = ax_client.experiment.num_trials
+            generator_run = global_gs.gen(
+                experiment=ax_client.experiment,
+                n=1,
+                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+            )
 
-                generator_run = global_gs.gen(
-                    experiment=ax_client.experiment,
-                    n=1,
-                    pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-                )
+            trial = ax_client.experiment.new_trial(generator_run)
+            params = generator_run.arms[0].parameters
 
-                trial = ax_client.experiment.new_trial(generator_run)
-                params = generator_run.arms[0].parameters
+            trials_dict[trial_index] = params
+            gotten_jobs = gotten_jobs + 1
 
-                trials_dict[trial_index] = params
-                gotten_jobs = gotten_jobs + 1
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
+            end_time = time.time()
 
-                print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
-                end_time = time.time()
+            trial_durations.append(float(end_time - start_time))
 
-                trial_durations.append(float(end_time - start_time))
-
-                if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
-                    print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
-                    trial.mark_abandoned()
-                    abandoned_trial_indices.append(trial_index)
-                else:
-                    trial.mark_running(no_runner_required=True)
-
-                cnt = cnt + 1
+            if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
+                print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
+                trial.mark_abandoned()
+                abandoned_trial_indices.append(trial_index)
             else:
-                print_red("ax_client, ax_client.experiment or global_gs is not defined")
-                my_exit(101)
+                trial.mark_running(no_runner_required=True)
+
+            cnt = cnt + 1
+
         all_end_time = time.time()
 
         all_time = float(all_end_time - all_start_time)

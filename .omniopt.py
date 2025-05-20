@@ -7630,10 +7630,6 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 def _pareto_front_aggregate_data(
     data: ax.core.data.Data
 ) -> Dict[Tuple[int, str], Dict[str, Dict[str, float]]]:
-    """
-    Aggregiert Mean und SEM Werte aus data.df in ein verschachteltes Dict:
-    { (trial_index, arm_name): {'means': {metric: mean}, 'sems': {metric: sem}} }
-    """
     records: dict = defaultdict(lambda: {'means': {}, 'sems': {}})
 
     for row in data.df.itertuples(index=False):
@@ -7656,10 +7652,6 @@ def _pareto_front_filter_complete_points(
     primary_name: str,
     secondary_name: str
 ) -> List[Tuple[Tuple[int, str], float, float]]:
-    """
-    Filtert Punkte, bei denen sowohl primäres als auch sekundäres Ziel vorhanden ist.
-    Gibt eine Liste von Tupeln zurück: ((trial_index, arm_name), x_val, y_val)
-    """
     points = []
     for key, metrics in records.items():
         means = metrics['means']
@@ -7668,7 +7660,7 @@ def _pareto_front_filter_complete_points(
             y_val = means[secondary_name]
             points.append((key, x_val, y_val))
     if len(points) == 0:
-        raise ValueError("Keine vollständigen Datenpunkte mit beiden Zielen gefunden.")
+        raise ValueError("No full data points with both objectives found.")
     return points
 
 
@@ -7678,10 +7670,6 @@ def _pareto_front_transform_objectives(
     primary_name: str,
     secondary_name: str
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Transformiert x und y Werte je nach Minimierungs-/Maximierungsrichtung.
-    Max wird zu -x transformiert, damit Pareto-Logik min minimiert.
-    """
     primary_idx = arg_result_names.index(primary_name)
     secondary_idx = arg_result_names.index(secondary_name)
 
@@ -7708,10 +7696,6 @@ def _pareto_front_select_pareto_points(
     points: List[Tuple[Any, float, float]],
     num_points: int
 ) -> List[Tuple[Any, float, float]]:
-    """
-    Bestimmt die Indizes der Pareto-Front und gibt die ausgewählten Punkte zurück,
-    sortiert nach x und begrenzt auf num_points.
-    """
     indices = pareto_front_general(x, y)
     sorted_indices = indices[np.argsort(x[indices])]
     sorted_indices = sorted_indices[:num_points]
@@ -7728,9 +7712,6 @@ def _pareto_front_build_return_structure(
     primary_name: str,
     secondary_name: str
 ) -> dict:
-    """
-    Baut die Rückgabe-Struktur wie in der Originalfunktion mit param_dicts, means, sems.
-    """
     param_dicts = []
     means_dict = defaultdict(list)
     sems_dict = defaultdict(list)
@@ -7766,9 +7747,6 @@ def custom_pareto_frontier(
     absolute_metrics: List[str],
     num_points: int
 ) -> dict:
-    """
-    Refaktorisierte Version der custom_pareto_frontier Funktion, in einzelne Schritte zerlegt.
-    """
     records = _pareto_front_aggregate_data(data)
     points = _pareto_front_filter_complete_points(records, primary_objective.name, secondary_objective.name)
     x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)

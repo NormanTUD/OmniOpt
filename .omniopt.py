@@ -6560,7 +6560,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
         )
 
-        for k in range(len(generator_run.arms):
+        for k in range(len(generator_run.arms)):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()

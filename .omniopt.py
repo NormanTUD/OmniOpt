@@ -3612,8 +3612,8 @@ def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
 
 @beartype
 def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
-    if _type not in ["Sobol", "COMPLETED"]:
-        print_red(f"_type is not in Sobol or COMPLETED, but is '{_type}'")
+    if _type not in ["Sobol", "COMPLETED", "SOBOL"]:
+        print_red(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
         return 0
 
     count = 0
@@ -3648,7 +3648,7 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
 
     assert df is not None, "DataFrame should not be None after reading CSV file"
 
-    if _type == "Sobol":
+    if _type == "Sobol" or type == "SOBOL":
         rows = df[df["generation_node"] == _type]
     else:
         rows = df[df["trial_status"] == _type]

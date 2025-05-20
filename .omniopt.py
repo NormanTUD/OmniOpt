@@ -7654,20 +7654,15 @@ def custom_pareto_frontier(experiment: ax.core.experiment.Experiment, data: ax.c
     if len(points) == 0:
         raise ValueError("Keine vollständigen Datenpunkte mit beiden Zielen gefunden.")
 
-    # X/Y für Pareto-Selektion
     x = np.array([p[1] for p in points])
     y = np.array([p[2] for p in points])
 
-    # Indexe der Pareto-Punkte
     indices = pareto_front(x, y)
 
-    # Sortiert, z. B. nach primary_objective.name
     sorted_indices = indices[np.argsort(x[indices])]
 
-    # Begrenze auf num_points
     sorted_indices = sorted_indices[:num_points]
 
-    # Output-Datenstruktur zusammenbauen
     selected_points = [points[i] for i in sorted_indices]
     param_dicts = []
     means_dict = defaultdict(list)

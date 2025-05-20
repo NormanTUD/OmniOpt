@@ -7634,7 +7634,7 @@ def _pareto_front_aggregate_data(
     Aggregiert Mean und SEM Werte aus data.df in ein verschachteltes Dict:
     { (trial_index, arm_name): {'means': {metric: mean}, 'sems': {metric: sem}} }
     """
-    records = defaultdict(lambda: {'means': {}, 'sems': {}})
+    records: dict = defaultdict(lambda: {'means': {}, 'sems': {}})
 
     for row in data.df.itertuples(index=False):
         trial_index = row.trial_index

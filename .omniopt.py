@@ -810,6 +810,9 @@ try:
         from ax.core.types import TParameterization
 
         from ax.service.ax_client import AxClient, ObjectiveProperties
+
+        from ax.core.generator_run import GeneratorRun
+
         from sklearn.ensemble import RandomForestRegressor
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
@@ -6572,7 +6575,18 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
                 trial_index = ax_client.experiment.num_trials
 
-                trial = ax_client.experiment.new_trial(generator_run)
+                single_arm_run = GeneratorRun(
+                    arms=[generator_run.arms[k]],
+                    weights=[generator_run.weights[k]],
+                    best_arm_predictions=generator_run.best_arm_predictions,
+                    search_space=generator_run.search_space,
+                    optimization_config=generator_run.optimization_config,
+                    model_predictions=generator_run.model_predictions,
+                    gen_metadata=generator_run.gen_metadata
+                )
+
+                trial = ax_client.experiment.new_trial(generator_run=single_arm_run)
+
                 params = generator_run.arms[k].parameters
 
                 trials_dict[trial_index] = params

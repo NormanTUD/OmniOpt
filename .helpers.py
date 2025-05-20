@@ -18,6 +18,8 @@ from matplotlib.widgets import Button, TextBox
 from matplotlib.colors import LinearSegmentedColormap
 
 all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
+val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
+NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
 def check_environment_variable(variable_name: str) -> bool:
     try:
@@ -265,7 +267,7 @@ def get_csv_file_path(_args: Any) -> str:
 
     return csv_file_path
 
-def drop_empty_results (NO_RESULT: Any, df: pd.DataFrame, res_col_name: str) -> pd.DataFrame:
+def drop_empty_results (df: pd.DataFrame, res_col_name: str) -> pd.DataFrame:
     negative_rows_to_remove = df[df[res_col_name].astype(str) == '-' + NO_RESULT].index
     positive_rows_to_remove = df[df[res_col_name].astype(str) == NO_RESULT].index
 
@@ -605,7 +607,6 @@ def get_df_without_special_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df_filtered
 
 def get_data(
-    NO_RESULT: Any,
     csv_file_path: str,
     _min: Optional[Union[int, float]],
     _max: Optional[Union[int, float]],
@@ -629,7 +630,7 @@ def get_data(
         df = filter_by_result_range(df, res_col_name, _min, _max)
         if drop_columns_with_strings:
             df = drop_string_columns(df)
-        return drop_empty_results(NO_RESULT, df, res_col_name)
+        return drop_empty_results(df, res_col_name)
     except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
         handle_csv_exceptions(csv_file_path, e)
     except KeyError as e:
@@ -711,11 +712,11 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any, csv_file_path: str) 
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args: Any, df: pd.DataFrame, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame:
+def merge_df_with_old_data(_args: Any, df: pd.DataFrame, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame:
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
-            prev_run_df = get_data(NO_RESULT, prev_run_csv_path, _min, _max, old_headers_string)
+            prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
             if prev_run_df:
                 df = df.merge(prev_run_df, how='outer')
     return df
@@ -728,22 +729,22 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args: Any, NO_RESULT: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]:
-    df = get_data(NO_RESULT, csv_file_path, _min, _max, None, filter_out_strings)
+def load_and_merge_data(_args: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]:
+    df = get_data(csv_file_path, _min, _max, None, filter_out_strings)
 
     if df is not None and not df.empty:
         old_headers_string = ','.join(sorted(df.columns))
-        return merge_df_with_old_data(_args, df, NO_RESULT, _min, _max, old_headers_string)
+        return merge_df_with_old_data(_args, df, _min, _max, old_headers_string)
 
     return None
 
 def _update_graph(_params: list) -> None:
-    csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button = _params
+    csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, _args, filter_out_strings, set_title, plot_graphs, button = _params
 
     try:
         csv_file_path = get_csv_file_path(_args)
         _min, _max = set_min_max(MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max)
-        df = load_and_merge_data(_args, NO_RESULT, _min, _max, filter_out_strings, csv_file_path)
+        df = load_and_merge_data(_args, _min, _max, filter_out_strings, csv_file_path)
         if df is not None and not df.empty:
             df_filtered = get_df_filtered(_args, df)
 

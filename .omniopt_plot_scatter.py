@@ -38,13 +38,8 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
-NO_RESULT = "{:.0e}".format(val_if_nothing_found)
-
 args = None
 fig = None
-MAXIMUM_TEXTBOX = None
-MINIMUM_TEXTBOX = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -168,11 +163,11 @@ def main() -> None:
 
         csv_file_path = helpers.get_csv_file_path(args)
 
-        df = helpers.get_data(NO_RESULT, csv_file_path, args.min, args.max)
+        df = helpers.get_data(csv_file_path, args.min, args.max)
 
         old_headers_string = ','.join(sorted(df.columns))
 
-        df = helpers.merge_df_with_old_data(args, df, NO_RESULT, args.min, args.max, old_headers_string)
+        df = helpers.merge_df_with_old_data(args, df, args.min, args.max, old_headers_string)
 
         nr_of_items_before_filtering = len(df)
         df_filtered = helpers.get_df_filtered(args, df)
@@ -215,7 +210,7 @@ def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, 
         pass
 
     filter_out_strings = False
-    helpers._update_graph([csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, NO_RESULT, filter_out_strings, set_title, plot_graphs, button])
+    helpers._update_graph([csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, filter_out_strings, set_title, plot_graphs, button])
 
 if __name__ == "__main__":
     try:

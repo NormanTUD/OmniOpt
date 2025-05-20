@@ -6546,9 +6546,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         all_time = float(all_end_time - all_start_time)
 
         if cnt:
-            print_debug(f"Requested {nr_of_jobs_to_get} jobs, got {cnt}, took {all_time / cnt} seconds per job (avg)")
+            print_debug(f"_fetch_next_trials: Requested {nr_of_jobs_to_get} jobs, got {cnt}, took {all_time / cnt} seconds per job (avg)")
         else:
-            print_debug(f"Requested {nr_of_jobs_to_get} jobs, got {cnt}")
+            print_debug(f"_fetch_next_trials: Requested {nr_of_jobs_to_get} jobs, got {cnt}")
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:

@@ -73,6 +73,7 @@ function enable_dark_mode() {
 
 	$("html").css("filter", "invert(1)");
 	$(".invert_in_dark_mode").css("filter", "invert(1)");
+	$(".caveat").css("filter", "invert(1)");
 	$("img").not($(".invert_in_dark_mode img")).css("filter", "invert(1)");
 	$(".invert_icon").css("filter", "invert(0)");
 	$(".share_graph").css("filter", "invert(1)");
@@ -107,6 +108,7 @@ function enable_light_mode() {
 
 	$("html").css("filter", "");
 	$(".invert_in_dark_mode").css("filter", "");
+	$(".caveat").css("filter", "");
 	$("img").css("filter", "invert(0)");
 	$(".invert_icon").css("filter", "invert(0)");
 	$(".share_graph").css("filter", "invert(0)");

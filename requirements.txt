@@ -1,3 +1,4 @@
+pymoo
 setuptools
 wheel
 multidict
@@ -33,4 +34,3 @@ setuptools
 pyright
 qrcode
 tabulate
-pymoo

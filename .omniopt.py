@@ -6566,6 +6566,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
                 trial_index = ax_client.experiment.num_trials
 
+                print_debug(f"generator_run.arms: {generator_run.arms}, k: {k}")
+
                 arm = generator_run.arms[k]
 
                 single_arm_run = GeneratorRun(

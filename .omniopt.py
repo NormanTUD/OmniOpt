@@ -7626,19 +7626,22 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
                 break
     return np.where(~is_dominated)[0]
 
+
 @beartype
-def custom_pareto_frontier(
-    experiment: ax.core.experiment.Experiment,
-    data: ax.core.data.Data,
-    primary_objective: ax.core.metric.Metric,
-    secondary_objective: ax.core.metric.Metric,
-    absolute_metrics: List[str],
-    num_points: int
-) -> dict:
+def _pareto_front_validate_inputs(arg_result_names: List[str], arg_result_min_or_max: List[str]) -> None:
     if len(arg_result_names) != len(arg_result_min_or_max):
         raise ValueError("arg_result_names and arg_result_min_or_max must have the same length.")
 
-    records = defaultdict(dict)
+
+@beartype
+def _pareto_front_aggregate_data(
+    data: ax.core.data.Data
+) -> Dict[Tuple[int, str], Dict[str, Dict[str, float]]]:
+    """
+    Aggregiert Mean und SEM Werte aus data.df in ein verschachteltes Dict:
+    { (trial_index, arm_name): {'means': {metric: mean}, 'sems': {metric: sem}} }
+    """
+    records = defaultdict(lambda: {'means': {}, 'sems': {}})
 
     for row in data.df.itertuples(index=False):
         trial_index = row.trial_index
@@ -7648,26 +7651,48 @@ def custom_pareto_frontier(
         sem = row.sem
 
         key = (trial_index, arm_name)
-        if key not in records:
-            records[key] = {'means': {}, 'sems': {}}
-
         records[key]['means'][metric] = mean
         records[key]['sems'][metric] = sem
 
+    return records
+
+
+@beartype
+def _pareto_front_filter_complete_points(
+    records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
+    primary_name: str,
+    secondary_name: str
+) -> List[Tuple[Tuple[int, str], float, float]]:
+    """
+    Filtert Punkte, bei denen sowohl primäres als auch sekundäres Ziel vorhanden ist.
+    Gibt eine Liste von Tupeln zurück: ((trial_index, arm_name), x_val, y_val)
+    """
     points = []
     for key, metrics in records.items():
         means = metrics['means']
-        if primary_objective.name in means and secondary_objective.name in means:
-            x_val = means[primary_objective.name]
-            y_val = means[secondary_objective.name]
+        if primary_name in means and secondary_name in means:
+            x_val = means[primary_name]
+            y_val = means[secondary_name]
             points.append((key, x_val, y_val))
-
     if len(points) == 0:
         raise ValueError("Keine vollständigen Datenpunkte mit beiden Zielen gefunden.")
+    return points
 
-    # Transformieren je nach Minimierungs-/Maximierungsrichtung
-    primary_idx = arg_result_names.index(primary_objective.name)
-    secondary_idx = arg_result_names.index(secondary_objective.name)
+
+@beartype
+def _pareto_front_transform_objectives(
+    points: List[Tuple[Any, float, float]],
+    primary_name: str,
+    secondary_name: str,
+    arg_result_names: List[str],
+    arg_result_min_or_max: List[str],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Transformiert x und y Werte je nach Minimierungs-/Maximierungsrichtung.
+    Max wird zu -x transformiert, damit Pareto-Logik min minimiert.
+    """
+    primary_idx = arg_result_names.index(primary_name)
+    secondary_idx = arg_result_names.index(secondary_name)
 
     x = np.array([p[1] for p in points])
     y = np.array([p[2] for p in points])
@@ -7675,19 +7700,46 @@ def custom_pareto_frontier(
     if arg_result_min_or_max[primary_idx] == "max":
         x = -x
     elif arg_result_min_or_max[primary_idx] != "min":
-        raise ValueError(f"Unknown mode for {primary_objective.name}: {arg_result_min_or_max[primary_idx]}")
+        raise ValueError(f"Unknown mode for {primary_name}: {arg_result_min_or_max[primary_idx]}")
 
     if arg_result_min_or_max[secondary_idx] == "max":
         y = -y
     elif arg_result_min_or_max[secondary_idx] != "min":
-        raise ValueError(f"Unknown mode for {secondary_objective.name}: {arg_result_min_or_max[secondary_idx]}")
+        raise ValueError(f"Unknown mode for {secondary_name}: {arg_result_min_or_max[secondary_idx]}")
 
+    return x, y
+
+
+@beartype
+def _pareto_front_select_pareto_points(
+    x: np.ndarray,
+    y: np.ndarray,
+    points: List[Tuple[Any, float, float]],
+    num_points: int
+) -> List[Tuple[Any, float, float]]:
+    """
+    Bestimmt die Indizes der Pareto-Front und gibt die ausgewählten Punkte zurück,
+    sortiert nach x und begrenzt auf num_points.
+    """
     indices = pareto_front_general(x, y)
-
     sorted_indices = indices[np.argsort(x[indices])]
     sorted_indices = sorted_indices[:num_points]
-
     selected_points = [points[i] for i in sorted_indices]
+    return selected_points
+
+
+@beartype
+def _pareto_front_build_return_structure(
+    selected_points: List[Tuple[Any, float, float]],
+    records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
+    experiment: ax.core.experiment.Experiment,
+    absolute_metrics: List[str],
+    primary_name: str,
+    secondary_name: str
+) -> dict:
+    """
+    Baut die Rückgabe-Struktur wie in der Originalfunktion mit param_dicts, means, sems.
+    """
     param_dicts = []
     means_dict = defaultdict(list)
     sems_dict = defaultdict(list)
@@ -7702,8 +7754,8 @@ def custom_pareto_frontier(
             sems_dict[metric].append(records[(trial_index, arm_name)]['sems'].get(metric, float("nan")))
 
     return {
-        primary_objective.name: {
-            secondary_objective.name: {
+        primary_name: {
+            secondary_name: {
                 "absolute_metrics": absolute_metrics,
                 "param_dicts": param_dicts,
                 "means": dict(means_dict),
@@ -7712,6 +7764,28 @@ def custom_pareto_frontier(
             "absolute_metrics": absolute_metrics
         }
     }
+
+
+@beartype
+def custom_pareto_frontier(
+    experiment: ax.core.experiment.Experiment,
+    data: ax.core.data.Data,
+    primary_objective: ax.core.metric.Metric,
+    secondary_objective: ax.core.metric.Metric,
+    absolute_metrics: List[str],
+    num_points: int
+) -> dict:
+    """
+    Refaktorisierte Version der custom_pareto_frontier Funktion, in einzelne Schritte zerlegt.
+    """
+    _pareto_front_validate_inputs(arg_result_names, arg_result_min_or_max)
+    records = _pareto_front_aggregate_data(data)
+    points = _pareto_front_filter_complete_points(records, primary_objective.name, secondary_objective.name)
+    x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name, arg_result_names, arg_result_min_or_max)
+    selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
+    result = _pareto_front_build_return_structure(selected_points, records, experiment, absolute_metrics, primary_objective.name, secondary_objective.name)
+
+    return result
 
 @beartype
 def sanitize_json(obj: Any) -> Any:

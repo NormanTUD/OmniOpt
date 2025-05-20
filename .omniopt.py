@@ -810,10 +810,6 @@ try:
         from ax.core.types import TParameterization
 
         from ax.service.ax_client import AxClient, ObjectiveProperties
-
-        from ax.core.generator_run import GeneratorRun
-        from ax.core.arm import Arm
-
         from sklearn.ensemble import RandomForestRegressor
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
@@ -5230,8 +5226,6 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
             last_progress_bar_desc = desc
 
-    save_results_csv()
-
     live_share()
 
 @beartype
@@ -5503,21 +5497,29 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
     while not done_converting:
         try:
             if ax_client:
+                # Trial manuell anlegen
                 new_trial = ax_client.attach_trial(arm_params)
                 if not isinstance(new_trial, tuple) or len(new_trial) < 2:
                     raise RuntimeError("attach_trial didn't return the expected tuple")
 
                 new_trial_idx = new_trial[1]
 
+                # Trial aus Experiment laden
                 trial = ax_client.experiment.trials.get(new_trial_idx)
                 if trial is None:
                     raise RuntimeError(f"Trial with index {new_trial_idx} not found")
 
+                # GeneratorRun mit generation_node "MANUAL" erstellen
+                from ax.core.generator_run import GeneratorRun
+                from ax.core.arm import Arm
+
                 arm = Arm(parameters=arm_params, name=f'{new_trial_idx}_0')
                 manual_generator_run = GeneratorRun(arms=[arm], generation_node_name=new_job_type)
 
+                # GeneratorRun dem Trial zuweisen
                 trial._generator_run = manual_generator_run
 
+                # Trial als completed markieren und Daten anhängen
                 ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
 
                 done_converting = True
@@ -6314,7 +6316,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        progressbar_description(["started new job"])
+        update_progress()
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -6382,6 +6384,10 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         save_results_csv()
     else:
         print_debug("cancel_failed_job: new_job was undefined")
+
+@beartype
+def update_progress() -> None:
+    progressbar_description(["started new job"])
 
 @beartype
 def handle_exit_signal() -> None:
@@ -6550,58 +6556,42 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     trial_durations: List[float] = []
 
     try:
-        generator_run = global_gs.gen(
-            experiment=ax_client.experiment,
-            n=nr_of_jobs_to_get,
-            pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-        )
-
-        for k in range(len(generator_run.arms)):
+        for k in range(nr_of_jobs_to_get):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
 
-            if ax_client is None or ax_client.experiment is None or global_gs is None:
+            if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
+                trial_index = ax_client.experiment.num_trials
+
+                generator_run = global_gs.gen(
+                    experiment=ax_client.experiment,
+                    n=1,
+                    pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+                )
+
+                trial = ax_client.experiment.new_trial(generator_run)
+                params = generator_run.arms[0].parameters
+
+                trials_dict[trial_index] = params
+                gotten_jobs = gotten_jobs + 1
+
+                print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
+                end_time = time.time()
+
+                trial_durations.append(float(end_time - start_time))
+
+                if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
+                    print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
+                    trial.mark_abandoned()
+                    abandoned_trial_indices.append(trial_index)
+                else:
+                    trial.mark_running(no_runner_required=True)
+            else:
                 print_red("ax_client, ax_client.experiment or global_gs is not defined")
                 my_exit(101)
-
-            trial_index = ax_client.experiment.num_trials
-
-            print_debug(f"generator_run.arms: {generator_run.arms}, k: {k}")
-
-            arm = generator_run.arms[k]
-
-            single_arm_run = GeneratorRun(
-                arms=[arm],
-                weights=[generator_run.weights[k]],
-                best_arm_predictions=generator_run.best_arm_predictions,
-                search_space=generator_run.search_space,
-                optimization_config=generator_run.optimization_config,
-                model_predictions=generator_run.model_predictions,
-                gen_metadata=generator_run.gen_metadata,
-                generation_node_name=global_gs.current_node_name
-            )
-
-            trial = ax_client.experiment.new_trial(generator_run=single_arm_run)
-
-            params = arm.parameters
-
-            trials_dict[trial_index] = params
-            gotten_jobs = gotten_jobs + 1
-
-            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
-            end_time = time.time()
-
-            trial_durations.append(float(end_time - start_time))
-
-            if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
-                print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
-                trial.mark_abandoned()
-                abandoned_trial_indices.append(trial_index)
-            else:
-                trial.mark_running(no_runner_required=True)
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
@@ -7180,23 +7170,29 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 
         range_nr = new_nr_of_jobs_to_get
+        get_next_trials_nr = 1
 
-        trial_index_to_param, optimization_complete = _get_next_trials(range_nr)
-        done_optimizing = handle_optimization_completion(optimization_complete)
-        if done_optimizing:
-            return 0
-        if trial_index_to_param:
-            nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
+        if args.generate_all_jobs_at_once:
+            range_nr = 1
+            get_next_trials_nr = new_nr_of_jobs_to_get
 
-            trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
+        for _ in range(range_nr):
+            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
+            done_optimizing = handle_optimization_completion(optimization_complete)
+            if done_optimizing:
+                continue
+            if trial_index_to_param:
+                nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
 
-            if len(list(trial_index_to_param.keys())):
-                results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
-            else:
-                if nr_jobs_before_removing_abandoned > 0:
-                    print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
+                trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
+
+                if len(list(trial_index_to_param.keys())):
+                    results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
                 else:
-                    print_debug("Could not generate any jobs")
+                    if nr_jobs_before_removing_abandoned > 0:
+                        print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
+                    else:
+                        print_debug("Could not generate any jobs")
 
         finish_previous_jobs(["finishing jobs"])
 

@@ -72,6 +72,10 @@ curl $URL | awk '/<!-- export.html -->/{p=!p; next} p' | perl -MHTML::Entities -
 
 Of course, you need to adapt the URL to your use case.
 
+## Filter out certain subpages via URL
+
+When exporting, and, for example, you do not want the **Evolution** and **Errors** page to be exported, you can add the parameter `filter_tabs_regex=Errors|Evolution`. Only valid characters here are `[A-Za-z0-9\s()|]`. This uses the tab names, and does a simple case-insensitive regex on them to filter them out.
+
 ## Notes on Privacy
 <div class="caveat tip">
 You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload

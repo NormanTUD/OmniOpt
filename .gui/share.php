@@ -262,6 +262,12 @@
 		http_response_code(400);
 	}
 
+	if (isset($_GET["filter_tabs_regex"])) {
+		$re = $_GET["filter_tabs_regex"];
+
+		[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
+	}
+
         require "_header_base.php";
 ?>
 	<?php js("share.js"); ?>

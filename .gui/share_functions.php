@@ -2420,4 +2420,22 @@ $onclick_string
 		$pattern = '/[⠇⠋⠏⠙⠦⠧⠴⠸⠹⠼].*$/mu';
 		return preg_replace($pattern, '', $input);
 	}
+
+
+	function check_and_filter_tabs($re, $tabs, $warnings) {
+		if (!preg_match('/^[()a-zA-Z0-9|\s]+$/', $re)) {
+			dier('Wrong Regex format: Only a-z, A-Z, space, parentheses, and | allowed');
+		}
+
+		$pattern = '/' . $re . '/i';
+
+		foreach ($tabs as $key => $value) {
+			if (preg_match($pattern, $key)) {
+				$warnings[] = "Filtered out Tab '$key'";
+				unset($tabs[$key]);
+			}
+		}
+
+		return [$tabs, $warnings];
+	}
 ?>

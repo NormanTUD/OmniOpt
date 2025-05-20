@@ -6487,9 +6487,8 @@ def has_no_post_generation_constraints_or_matches_constraints(_post_generation_c
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
-    """Attempts to fetch the next trials using the ax_client."""
-
     global global_gs, overwritten_to_random, gotten_jobs
+
     if not ax_client:
         print_red("ax_client was not defined")
         my_exit(9)

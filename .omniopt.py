@@ -4029,7 +4029,7 @@ def show_pareto_or_error_msg(res_names: list = arg_result_names, force: bool = F
         try:
             show_pareto_frontier_data(res_names, force)
         except Exception as e:
-            print_red(f"show_pareto_frontier_data() failed with exception {e}")
+            print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
 

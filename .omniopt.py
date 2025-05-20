@@ -6549,6 +6549,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trial_durations: List[float] = []
 
+    if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
+        print_red("ax_client, ax_client.experiment or global_gs is not defined")
+        my_exit(101)
+
     try:
         generator_run = global_gs.gen(
             experiment=ax_client.experiment,
@@ -6556,52 +6560,48 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
         )
 
-        for k in range(nr_of_jobs_to_get):
+        for k in range(len(generator_run.arms):
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
             start_time = time.time()
 
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
 
-            if ax_client is not None and ax_client.experiment is not None and global_gs is not None:
-                trial_index = ax_client.experiment.num_trials
+            trial_index = ax_client.experiment.num_trials
 
-                print_debug(f"generator_run.arms: {generator_run.arms}, k: {k}")
+            print_debug(f"generator_run.arms: {generator_run.arms}, k: {k}")
 
-                arm = generator_run.arms[k]
+            arm = generator_run.arms[k]
 
-                single_arm_run = GeneratorRun(
-                    arms=[arm],
-                    weights=[generator_run.weights[k]],
-                    best_arm_predictions=generator_run.best_arm_predictions,
-                    search_space=generator_run.search_space,
-                    optimization_config=generator_run.optimization_config,
-                    model_predictions=generator_run.model_predictions,
-                    gen_metadata=generator_run.gen_metadata,
-                    generation_node_name=global_gs.current_node_name
-                )
+            single_arm_run = GeneratorRun(
+                arms=[arm],
+                weights=[generator_run.weights[k]],
+                best_arm_predictions=generator_run.best_arm_predictions,
+                search_space=generator_run.search_space,
+                optimization_config=generator_run.optimization_config,
+                model_predictions=generator_run.model_predictions,
+                gen_metadata=generator_run.gen_metadata,
+                generation_node_name=global_gs.current_node_name
+            )
 
-                trial = ax_client.experiment.new_trial(generator_run=single_arm_run)
+            trial = ax_client.experiment.new_trial(generator_run=single_arm_run)
 
-                params = arm.parameters
+            params = arm.parameters
 
-                trials_dict[trial_index] = params
-                gotten_jobs = gotten_jobs + 1
+            trials_dict[trial_index] = params
+            gotten_jobs = gotten_jobs + 1
 
-                print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
-                end_time = time.time()
+            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
+            end_time = time.time()
 
-                trial_durations.append(float(end_time - start_time))
+            trial_durations.append(float(end_time - start_time))
 
-                if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
-                    print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
-                    trial.mark_abandoned()
-                    abandoned_trial_indices.append(trial_index)
-                else:
-                    trial.mark_running(no_runner_required=True)
+            if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
+                print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
+                trial.mark_abandoned()
+                abandoned_trial_indices.append(trial_index)
             else:
-                print_red("ax_client, ax_client.experiment or global_gs is not defined")
-                my_exit(101)
+                trial.mark_running(no_runner_required=True)
         return trials_dict, False
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)

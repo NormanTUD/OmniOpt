@@ -248,6 +248,12 @@
 		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
 	}
 
+	if (isset($_GET["filter_tabs_regex"])) {
+		$re = $_GET["filter_tabs_regex"];
+
+		[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
+	}
+
 	[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
 
 	if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
@@ -260,12 +266,6 @@
 
 	if(count($errors)) {
 		http_response_code(400);
-	}
-
-	if (isset($_GET["filter_tabs_regex"])) {
-		$re = $_GET["filter_tabs_regex"];
-
-		[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
 	}
 
         require "_header_base.php";

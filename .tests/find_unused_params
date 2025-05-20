@@ -10,6 +10,7 @@ allowed=(
 	run_mode
 	root_venv_dir
 	partition
+	debug
 	checkout_to_latest_tested_version
 )
 

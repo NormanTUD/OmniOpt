@@ -747,6 +747,7 @@
 		}
 
 		continue_previous_job=""
+		calculate_pareto_front_of_job=""
 		mem_gb=
 		gpus=
 		time=
@@ -981,6 +982,36 @@ $complex_options_str
 			args_string+=" --continue \$continue_previous_job "
 
 			continue_was_set=1
+
+			;;
+
+		--calculate_pareto_front_of_job=*)
+			old_continue=\$calculate_pareto_front_of_job
+			calculate_pareto_front_of_job="\${i#*=}"
+
+			if [[ -n \$old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one.\\n"
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
+			fi
+
+			args_string+=" --continue \$calculate_pareto_front_of_job "
+
+			;;
+
+		--calculate_pareto_front_of_job)
+			old_continue=\$calculate_pareto_front_of_job
+
+			shift
+			k=\$((k+1))
+
+			calculate_pareto_front_of_job="\${args[k]}"
+
+			if [[ -n \$old_continue ]]; then
+				red_text "--continue was specified more than once. Using the last one.\\n"
+				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue.*[[:space:]][[:space:]]*# #')
+			fi
+
+			args_string+=" --continue \$calculate_pareto_front_of_job "
 
 			;;
 
@@ -1273,7 +1304,7 @@ EOF
 		myexit 5
 	fi
 
-	if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]]; then
+	if [[ $tests -eq 0 ]] && [[ $help -eq 0 ]] && command -v sbatch >/dev/null && [[ "$continue_previous_job" == "" ]] && [[ "$calculate_pareto_front_of_job" == "" ]]; then
 		set +e
 
 		if [[ -z "$mem_gb" ]]; then
@@ -1561,7 +1592,7 @@ EOF
 		return 0
 	}
 
-	if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]]; then
+	if [ -n "${SLURM_JOB_ID:-}" ] || ! command -v sbatch >/dev/null || [[ $force_local_execution -eq 1 ]] || [[ $calculate_pareto_front_of_job != "" ]] ; then
 		# To start all subjobs independently from the omniopt job, unset all SLURM variables
 		for i in $(env | grep -e "^SLURM" | sed -e 's#[[:space:]]*=.*##' | grep -v SLURM_JOB_ID | grep -v SBATCH_RESERVATION); do
 			unset "$i"

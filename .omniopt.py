@@ -147,8 +147,6 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
-
-        from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
     try:
         from pyfiglet import Figlet
         figlet_loaded = True
@@ -7699,26 +7697,13 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
 
 @beartype
 def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    # Input prüfen
-    if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
-        raise TypeError("x and y must be numpy arrays.")
-    if x.ndim != 1 or y.ndim != 1:
-        raise ValueError("x and y must be 1D numpy arrays.")
-    if len(x) != len(y):
-        raise ValueError("x and y must have the same length.")
-    if len(x) == 0:
-        return np.array([], dtype=int)
-
-    try:
-        points = np.column_stack((x, y))
-
-        nds = NonDominatedSorting()
-
-        fronts = nds.do(points, only_non_dominated_front=True)
-
-        return np.array(fronts, dtype=int)
-    except Exception as e:
-        raise RuntimeError(f"Error calculating the pareto-front with pymoo: {e}") from e
+    is_dominated = np.zeros(len(x), dtype=bool)
+    for i in range(len(x)):
+        for j in range(len(x)):
+            if (x[j] <= x[i] and y[j] <= y[i]) and (x[j] < x[i] or y[j] < y[i]):
+                is_dominated[i] = True
+                break
+    return np.where(~is_dominated)[0]
 
 @beartype
 def _pareto_front_aggregate_data(

@@ -58,18 +58,6 @@ When you have a job that was cancelled for whatever reason (ie. time limit, memo
 
 This will calculate the pareto fronts, and, when you had `--live_share` enabled, will automatically push these results to the OmniOpt2-[Share](tutorials?tutorial=oo_share) server. This can also be done manually, by calling `omniopt_share` on the run folder.
 
-## Algorithm for determining Pareto-Front-Estimation
-
-By default, [NSGA-II](https://pymoo.org/algorithms/moo/nsga2.html) by the **pymoo**-module is used.
-
-## What is NSGA-II?
-
-NSGA-II is a special kind of genetic algorithm. A genetic algorithm is a method inspired by how nature evolves things over time. It tries to find the best solutions to a problem by creating "populations" of possible answers and improving them over generations.
-
-## What makes NSGA-II special?
-
-NSGA-II is used when we want to find **more than one goal** at the same time (multi-objective optimization). For example, we might want a car that's both **fast** and **cheap**, but these goals often compete.
-
 ## Caveats
 <div class="caveat warning">
 Using MOO prohibits most of the graphs you can usually plot with OmniOpt2, since the result-value is not unambiguous anymore and cannot be used for plotting easily. We'd recommend using [OmniOpt2-Share](tutorials?tutorial=oo_share) to plot Parallel plots of your data in the browser.

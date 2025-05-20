@@ -2886,7 +2886,6 @@ def extract_info(data: Optional[str]) -> Tuple[List[str], List[str]]:
     names: List[str] = []
     values: List[str] = []
 
-    # Regex-Muster für OO-Info, das sowohl Groß- als auch Kleinschreibung berücksichtigt
     _pattern = re.compile(r'\s*OO-Info:\s*([a-zA-Z0-9_]+):\s*(.+)\s*$', re.IGNORECASE)
 
     # Gehe durch jede Zeile im String
@@ -4330,14 +4329,14 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
                    is_only_allowed_vars(node.operand)
         if isinstance(node, ast.Constant):
             return isinstance(node.value, (int, float))
-        if isinstance(node, ast.Num):  # für Python < 3.8
+        if isinstance(node, ast.Num):
             return isinstance(node.n, (int, float))
         return False
 
     def is_constant_expr(node: Any) -> bool:
         if isinstance(node, ast.Constant):
             return isinstance(node.value, (int, float))
-        if isinstance(node, ast.Num):  # für Python < 3.8
+        if isinstance(node, ast.Num):
             return isinstance(node.n, (int, float))
         if isinstance(node, ast.BinOp):
             return is_valid_op(node.op) and \
@@ -7617,20 +7616,30 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
-
 @beartype
-def pareto_front(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     is_dominated = np.zeros(len(x), dtype=bool)
     for i in range(len(x)):
         for j in range(len(x)):
-            if (x[j] >= x[i] and y[j] <= y[i]) and (x[j] != x[i] or y[j] != y[i]):
+            if (x[j] <= x[i] and y[j] <= y[i]) and (x[j] < x[i] or y[j] < y[i]):
                 is_dominated[i] = True
                 break
     return np.where(~is_dominated)[0]
 
 @beartype
-def custom_pareto_frontier(experiment: ax.core.experiment.Experiment, data: ax.core.data.Data, primary_objective: ax.core.metric.Metric, secondary_objective: ax.core.metric.Metric, absolute_metrics: list, num_points: int) -> dict:
+def custom_pareto_frontier(
+    experiment: ax.core.experiment.Experiment,
+    data: ax.core.data.Data,
+    primary_objective: ax.core.metric.Metric,
+    secondary_objective: ax.core.metric.Metric,
+    absolute_metrics: List[str],
+    num_points: int
+) -> dict:
+    if len(arg_result_names) != len(arg_result_min_or_max):
+        raise ValueError("arg_result_names and arg_result_min_or_max must have the same length.")
+
     records = defaultdict(dict)
+
     for row in data.df.itertuples(index=False):
         trial_index = row.trial_index
         arm_name = row.arm_name
@@ -7641,26 +7650,41 @@ def custom_pareto_frontier(experiment: ax.core.experiment.Experiment, data: ax.c
         key = (trial_index, arm_name)
         if key not in records:
             records[key] = {'means': {}, 'sems': {}}
+
         records[key]['means'][metric] = mean
         records[key]['sems'][metric] = sem
 
-    # Nur vollständige Einträge nehmen
     points = []
     for key, metrics in records.items():
         means = metrics['means']
         if primary_objective.name in means and secondary_objective.name in means:
-            points.append((key, means[primary_objective.name], means[secondary_objective.name]))
+            x_val = means[primary_objective.name]
+            y_val = means[secondary_objective.name]
+            points.append((key, x_val, y_val))
 
     if len(points) == 0:
         raise ValueError("Keine vollständigen Datenpunkte mit beiden Zielen gefunden.")
 
+    # Transformieren je nach Minimierungs-/Maximierungsrichtung
+    primary_idx = arg_result_names.index(primary_objective.name)
+    secondary_idx = arg_result_names.index(secondary_objective.name)
+
     x = np.array([p[1] for p in points])
     y = np.array([p[2] for p in points])
 
-    indices = pareto_front(x, y)
+    if arg_result_min_or_max[primary_idx] == "max":
+        x = -x
+    elif arg_result_min_or_max[primary_idx] != "min":
+        raise ValueError(f"Unknown mode for {primary_objective.name}: {arg_result_min_or_max[primary_idx]}")
+
+    if arg_result_min_or_max[secondary_idx] == "max":
+        y = -y
+    elif arg_result_min_or_max[secondary_idx] != "min":
+        raise ValueError(f"Unknown mode for {secondary_objective.name}: {arg_result_min_or_max[secondary_idx]}")
+
+    indices = pareto_front_general(x, y)
 
     sorted_indices = indices[np.argsort(x[indices])]
-
     sorted_indices = sorted_indices[:num_points]
 
     selected_points = [points[i] for i in sorted_indices]
@@ -7678,15 +7702,15 @@ def custom_pareto_frontier(experiment: ax.core.experiment.Experiment, data: ax.c
             sems_dict[metric].append(records[(trial_index, arm_name)]['sems'].get(metric, float("nan")))
 
     return {
-            primary_objective.name: {
-                secondary_objective.name: {
-                    "absolute_metrics": absolute_metrics,
-                    "param_dicts": param_dicts,
-                    "means": dict(means_dict),
-                    "sems": dict(sems_dict),
-                },
-                "absolute_metrics": absolute_metrics
-            }
+        primary_objective.name: {
+            secondary_objective.name: {
+                "absolute_metrics": absolute_metrics,
+                "param_dicts": param_dicts,
+                "means": dict(means_dict),
+                "sems": dict(sems_dict),
+            },
+            "absolute_metrics": absolute_metrics
+        }
     }
 
 @beartype

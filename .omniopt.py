@@ -8465,6 +8465,8 @@ def main() -> None:
     for existing_run in args.load_data_from_existing_jobs:
         insert_jobs_from_csv(f"{existing_run}/results.csv", experiment_parameters)
 
+        set_global_generation_strategy()
+
     try:
         run_search_with_progress_bar()
 

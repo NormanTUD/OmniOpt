@@ -7626,13 +7626,6 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
                 break
     return np.where(~is_dominated)[0]
 
-
-@beartype
-def _pareto_front_validate_inputs(arg_result_names: List[str], arg_result_min_or_max: List[str]) -> None:
-    if len(arg_result_names) != len(arg_result_min_or_max):
-        raise ValueError("arg_result_names and arg_result_min_or_max must have the same length.")
-
-
 @beartype
 def _pareto_front_aggregate_data(
     data: ax.core.data.Data
@@ -7683,9 +7676,7 @@ def _pareto_front_filter_complete_points(
 def _pareto_front_transform_objectives(
     points: List[Tuple[Any, float, float]],
     primary_name: str,
-    secondary_name: str,
-    arg_result_names: List[str],
-    arg_result_min_or_max: List[str],
+    secondary_name: str
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Transformiert x und y Werte je nach Minimierungs-/Maximierungsrichtung.
@@ -7778,10 +7769,9 @@ def custom_pareto_frontier(
     """
     Refaktorisierte Version der custom_pareto_frontier Funktion, in einzelne Schritte zerlegt.
     """
-    _pareto_front_validate_inputs(arg_result_names, arg_result_min_or_max)
     records = _pareto_front_aggregate_data(data)
     points = _pareto_front_filter_complete_points(records, primary_objective.name, secondary_objective.name)
-    x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name, arg_result_names, arg_result_min_or_max)
+    x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)
     selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
     result = _pareto_front_build_return_structure(selected_points, records, experiment, absolute_metrics, primary_objective.name, secondary_objective.name)
 

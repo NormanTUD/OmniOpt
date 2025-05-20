@@ -772,10 +772,10 @@ try:
         import torch
     with console.status("[bold green]Loading numpy...") as status:
         import numpy as np
+    with console.status("[bold green]Loading collections...") as status:
+        from collections import defaultdict
     with console.status("[bold green]Loading ax...") as status:
         import ax
-
-        from ax.plot.pareto_utils import compute_posterior_pareto_frontier
         from ax.core.objective import MultiObjective
         from ax.core import Metric
         import ax.exceptions.core
@@ -7577,7 +7577,7 @@ def supports_sixel() -> bool:
 
 @beartype
 def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
-    absolute_metrics = data.absolute_metrics
+    absolute_metrics = arg_result_names
 
     x_metric = absolute_metrics[i]
     y_metric = absolute_metrics[j]
@@ -7588,7 +7588,7 @@ def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
 
     import matplotlib.pyplot as plt
 
-    means = data.means
+    means = data[x_metric][y_metric]["means"]
 
     x_values = means[x_metric]
     y_values = means[y_metric]
@@ -7617,6 +7617,83 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
+
+@beartype
+def pareto_front(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    is_dominated = np.zeros(len(x), dtype=bool)
+    for i in range(len(x)):
+        for j in range(len(x)):
+            if (x[j] >= x[i] and y[j] <= y[i]) and (x[j] != x[i] or y[j] != y[i]):
+                is_dominated[i] = True
+                break
+    return np.where(~is_dominated)[0]
+
+@beartype
+def custom_pareto_frontier(experiment: ax.core.experiment.Experiment, data: ax.core.data.Data, primary_objective: ax.core.metric.Metric, secondary_objective: ax.core.metric.Metric, absolute_metrics: list, num_points: int) -> dict:
+    records = defaultdict(dict)
+    for row in data.df.itertuples(index=False):
+        trial_index = row.trial_index
+        arm_name = row.arm_name
+        metric = row.metric_name
+        mean = row.mean
+        sem = row.sem
+
+        key = (trial_index, arm_name)
+        if key not in records:
+            records[key] = {'means': {}, 'sems': {}}
+        records[key]['means'][metric] = mean
+        records[key]['sems'][metric] = sem
+
+    # Nur vollständige Einträge nehmen
+    points = []
+    for key, metrics in records.items():
+        means = metrics['means']
+        if primary_objective.name in means and secondary_objective.name in means:
+            points.append((key, means[primary_objective.name], means[secondary_objective.name]))
+
+    if len(points) == 0:
+        raise ValueError("Keine vollständigen Datenpunkte mit beiden Zielen gefunden.")
+
+    # X/Y für Pareto-Selektion
+    x = np.array([p[1] for p in points])
+    y = np.array([p[2] for p in points])
+
+    # Indexe der Pareto-Punkte
+    indices = pareto_front(x, y)
+
+    # Sortiert, z. B. nach primary_objective.name
+    sorted_indices = indices[np.argsort(x[indices])]
+
+    # Begrenze auf num_points
+    sorted_indices = sorted_indices[:num_points]
+
+    # Output-Datenstruktur zusammenbauen
+    selected_points = [points[i] for i in sorted_indices]
+    param_dicts = []
+    means_dict = defaultdict(list)
+    sems_dict = defaultdict(list)
+
+    for (trial_index, arm_name), _, _ in selected_points:
+        trial = experiment.trials[trial_index]
+        arm = trial.arms_by_name[arm_name]
+        param_dicts.append(arm.parameters)
+
+        for metric in absolute_metrics:
+            means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
+            sems_dict[metric].append(records[(trial_index, arm_name)]['sems'].get(metric, float("nan")))
+
+    return {
+            primary_objective.name: {
+                secondary_objective.name: {
+                    "absolute_metrics": absolute_metrics,
+                    "param_dicts": param_dicts,
+                    "means": dict(means_dict),
+                    "sems": dict(sems_dict),
+                },
+                "absolute_metrics": absolute_metrics
+            }
+    }
+
 @beartype
 def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
@@ -7640,9 +7717,11 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
                     frontier = pickle.loads(binary_data)
                     return frontier
 
-        frontier = compute_posterior_pareto_frontier(
+        data = ax_client.experiment.fetch_data()
+
+        frontier = custom_pareto_frontier(
             experiment=ax_client.experiment,
-            data=ax_client.experiment.fetch_data(),
+            data=data,
             primary_objective=metric_i,
             secondary_objective=metric_j,
             absolute_metrics=res_names,
@@ -7730,16 +7809,22 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
         if metric_i.name not in pareto_front_data:
             pareto_front_data[metric_i.name] = {}
 
+        cf = calculated_frontier[metric_i.name][metric_j.name]
+
+        _param_dicts = cf["param_dicts"]
+        _means = cf["means"]
+        _sems = cf["sems"]
+
         pareto_front_data[metric_i.name][metric_j.name] = {
-            "param_dicts": calculated_frontier.param_dicts,
-            "means": calculated_frontier.means,
-            "sems": calculated_frontier.sems,
-            "absolute_metrics": calculated_frontier.absolute_metrics
+            "param_dicts": _param_dicts,
+            "means": _means,
+            "sems": _sems,
+            "absolute_metrics": arg_result_names
         }
 
         rich_table = pareto_front_as_rich_table(
-            calculated_frontier.param_dicts,
-            calculated_frontier.absolute_metrics,
+            _param_dicts,
+            arg_result_names,
             metric_j.name,
             metric_i.name
         )

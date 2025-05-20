@@ -6512,7 +6512,15 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
         cnt = 0
 
-        for k in range(nr_of_jobs_to_get):
+        batched_generator_run = global_gs.gen(
+            experiment=ax_client.experiment,
+            n=nr_of_jobs_to_get,
+            pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+        )
+
+        batched_arms = batched_generator_run.arms
+
+        for k in range(len(batched_arms)):
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
             progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
 
@@ -6520,14 +6528,14 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
             trial_index = ax_client.experiment.num_trials
 
-            generator_run = global_gs.gen(
-                experiment=ax_client.experiment,
-                n=1,
-                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+            arm = batched_arms[k]
+            generator_run = GeneratorRun(
+                arms=[arm],
+                generation_node_name=global_gs.current_node_name
             )
 
             trial = ax_client.experiment.new_trial(generator_run)
-            params = generator_run.arms[0].parameters
+            params = arm.parameters
 
             trials_dict[trial_index] = params
             gotten_jobs = gotten_jobs + 1
@@ -6547,7 +6555,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             cnt = cnt + 1
 
         all_end_time = time.time()
-
         all_time = float(all_end_time - all_start_time)
 
         if cnt:

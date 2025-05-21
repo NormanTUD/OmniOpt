@@ -7948,7 +7948,7 @@ def _pareto_front_aggregate_data(
         trial_index = row.trial_index
         arm_name = row.arm_name
         metric = row.metric_name
-        _mean = row._mean
+        _mean = row.mean
         sem = row.sem
 
         key = (trial_index, arm_name)

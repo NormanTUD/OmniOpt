@@ -3,7 +3,9 @@ set -euo pipefail
 
 PARAMS=(
 	"--dont_warm_start_refitting"
-	"--refit_on_cv"
+	"--no_transform_inputs"
+	"--no_normalize_y"
+	#"--refit_on_cv"
 	#"--fit_out_of_design" Always use it
 	"--jit_compile"
 	"--num_restarts=1"
@@ -12,8 +14,6 @@ PARAMS=(
 	"--raw_samples=1"
 	"--raw_samples=10"
 	"--raw_samples=100"
-	"--no_transform_inputs"
-	"--no_normalize_y"
 )
 
 FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5 --generate_all_jobs_at_once"

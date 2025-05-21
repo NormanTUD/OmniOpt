@@ -6745,6 +6745,8 @@ def generate_time_table_rich() -> None:
 
     console.print(table)
 
+    generate_job_submit_table_rich()
+
 @beartype
 def generate_job_submit_table_rich() -> None:
     if not isinstance(job_submit_durations, list):

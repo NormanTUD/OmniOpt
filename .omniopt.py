@@ -7731,8 +7731,8 @@ def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, met
         this_table_row = [str(params[k]) for k in params.keys()]
         for metric in metrics:
             try:
-                mean = means[metric][i]
-                this_table_row.append(f"{mean:.3f}")
+                _mean = means[metric][i]
+                this_table_row.append(f"{_mean:.3f}")
             except IndexError:
                 this_table_row.append("")
 
@@ -7831,11 +7831,11 @@ def _pareto_front_aggregate_data(
         trial_index = row.trial_index
         arm_name = row.arm_name
         metric = row.metric_name
-        mean = row.mean
+        _mean = row._mean
         sem = row.sem
 
         key = (trial_index, arm_name)
-        records[key]['means'][metric] = mean
+        records[key]['means'][metric] = _mean
         records[key]['sems'][metric] = sem
 
     return records

@@ -506,9 +506,6 @@ fi
 
 omniopt_cmd="$omniopt_cmd --show_generate_time_table"
 
-echo "$omniopt_cmd"
-exit 0
-
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"
 exit_code=$?

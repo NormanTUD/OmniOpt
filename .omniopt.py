@@ -6674,7 +6674,7 @@ def generate_time_table_rich() -> None:
             print_debug(f"generate_time_table_rich: Error: Element at index {i} is not a valid float.")
             return
 
-    table = Table(show_header=True, header_style="bold magenta", title="Model generation times")
+    table = Table(show_header=True, header_style="bold", title="Model generation times")
     table.add_column("Iteration", justify="right")
     table.add_column("Seconds", justify="right")
 

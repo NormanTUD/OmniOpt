@@ -2,10 +2,10 @@
 set -euo pipefail
 
 PARAMS=(
-	"--dont_warm_start_refitting"
+	#"--dont_warm_start_refitting" # Slow, disabled
 	"--no_transform_inputs"
 	"--no_normalize_y"
-	#"--refit_on_cv"
+	#"--refit_on_cv" # Slow, disabled
 	#"--fit_out_of_design" Always use it
 	"--jit_compile"
 	"--num_restarts=1"
@@ -58,7 +58,7 @@ declare -a DURATIONS=()
 
 for index in "${!COMBOS[@]}"; do
 	combo="${COMBOS[$index]}"
-	ADDITIONAL_ARGS="--fit_out_of_design $combo"
+	ADDITIONAL_ARGS="$combo"
 	FILENAME_PART=$(sanitize_filename "$ADDITIONAL_ARGS")
 	OUTPUT_FILE="output/${FILENAME_PART}.txt"
 
@@ -74,7 +74,7 @@ for index in "${!COMBOS[@]}"; do
 	echo ""
 
 	START_TIME=$(date +%s)
-	bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
+	bash run_docker $FIXED_ARGS --additional_parameter="--fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
 	END_TIME=$(date +%s)
 
 	DURATION=$((END_TIME - START_TIME))

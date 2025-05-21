@@ -60,6 +60,7 @@ function help () {
 	echo "  --two_params                                                     Two parameters"
 	echo "  --nr_results=1                                                   Nr of 'RESULT's (default: 1)"
 	echo "  --seed=1                                                         Seed"
+	echo "  --additional_parameter=STR                                       List of additional parameters"
 	echo "  --alternate_min_max                                              Alternate min/max when nr_results > 1"
 	echo "  --generate_all_jobs_at_once                                      Generate all jobs at once"
 	echo "  --verbose                                                        Verbose output"
@@ -107,6 +108,7 @@ nr_results=1
 seed=""
 generate_all_jobs_at_once=0
 verbose=0
+additional_parameter=
 revert_to_random_when_seemingly_exhausted=0
 show_ram_every_n_seconds=0
 
@@ -381,6 +383,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--nr_results=*|--nr_results)
 			parse_argument "$i" "nr_results" 1
 			;;
+		--additional_parameter=*|--additional_parameter)
+			parse_argument "$i" "additional_parameter" 0
+			;;
 		--testname=*|--testname)
 			parse_argument "$i" "arg_testname" 0
 			;;
@@ -495,7 +500,14 @@ if [[ "$seed" != "" ]]; then
 	omniopt_cmd="$omniopt_cmd --seed $seed"
 fi
 
+if [[ "$additional_parameter" != "" ]]; then
+	omniopt_cmd="$omniopt_cmd $additional_parameter"
+fi
+
 omniopt_cmd="$omniopt_cmd --show_generate_time_table"
+
+echo "$omniopt_cmd"
+exit 0
 
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"

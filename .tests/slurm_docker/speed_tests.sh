@@ -13,7 +13,7 @@ PARAMS=(
 	"--no_normalize_y"
 )
 
-FIXED_ARGS="--num_random_steps=20 --max_eval=50 --num_parallel_jobs=20 --nr_nodes=3"
+FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=3"
 
 generate_combinations() {
 	local n="${#PARAMS[@]}"
@@ -43,5 +43,5 @@ for combo in "${COMBOS[@]}"; do
 	mkdir -p output
 
 	echo "Running with: $ADDITIONAL_ARGS > $OUTPUT_FILE"
-	# bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" > "$OUTPUT_FILE" 2>&1
+	bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" > "$OUTPUT_FILE" 2>&1
 done

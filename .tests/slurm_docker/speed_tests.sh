@@ -43,5 +43,5 @@ for combo in "${COMBOS[@]}"; do
 	mkdir -p output
 
 	echo "Running with: $ADDITIONAL_ARGS > $OUTPUT_FILE"
-	bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" > "$OUTPUT_FILE" 2>&1
+	bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
 done

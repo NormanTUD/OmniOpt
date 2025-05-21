@@ -6512,6 +6512,15 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
         print_red("Error: global_gs is not defined")
         my_exit(101)
 
+@beartype
+def get_acquisition_options() -> dict:
+    return {
+        "optimizer_options": {
+            "num_restarts": 5,
+            "raw_samples": 128
+        }
+    }
+
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
@@ -6631,12 +6640,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                 GeneratorSpec(
                                     Models.SOBOL,
                                     model_gen_kwargs={
-                                        "acquisition_options": {
-                                            "optimizer_options": {
-                                                "num_restarts": 5,
-                                                "raw_samples": 128
-                                            }
-                                        },
+                                        "acquisition_options": get_acquisition_options(),
                                         'optimizer_kwargs': {
                                             "sequential": False
                                         },
@@ -7044,12 +7048,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         GeneratorSpec(
             selected_model,
             model_gen_kwargs={
-                "acquisition_options": {
-                    "optimizer_options": {
-                        "num_restarts": 5,
-                        "raw_samples": 128
-                    }
-                },
+                "acquisition_options": get_acquisition_options(),
                 'optimizer_kwargs': {
                     "sequential": False
                 },
@@ -7081,12 +7080,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
-            "acquisition_options": {
-                "optimizer_options": {
-                    "num_restarts": 5,
-                    "raw_samples": 128
-                }
-            },
+            "acquisition_options": get_acquisition_options(),
             'optimizer_kwargs': {
                 "sequential": False
             },

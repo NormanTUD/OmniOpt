@@ -64,6 +64,7 @@ function help () {
 	echo "  --generate_all_jobs_at_once                                      Generate all jobs at once"
 	echo "  --verbose                                                        Verbose output"
 	echo "  --revert_to_random_when_seemingly_exhausted                      Revert to random if the model space is seemingly exhausted"
+	echo "  --testname=ABC                                                   Override testname"
 	echo "  --show_ram_every_n_seconds=n                                     Show ram usage every n seconds"
 	echo "  --random_sem                                                     Add random SEM to each result"
 	echo "  --help                                                           This help"
@@ -86,6 +87,7 @@ debug=0
 max_eval=30
 num_parallel_jobs=20
 num_random_steps=$num_parallel_jobs
+arg_testname=
 
 if ! command -v sbatch 2>/dev/null >/dev/null; then
 	max_eval=2
@@ -137,6 +139,10 @@ function build_omniopt_command_all_float() {
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
 	fi
 
+	if [[ -n $arg_testname ]]; then
+		TESTNAME="$arg_testname"
+	fi
+
 	run_program_string=".tests/optimization_example_all_float $random_sem --x=%(x) --y=%(y) --z=%(z) --a=%(a)"
 
 	run_program="$(echo "$run_program_string" | base64 -w 0)"
@@ -181,6 +187,10 @@ function build_omniopt_command_standard() {
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
 	fi
 
+	if [[ -n $arg_testname ]]; then
+		TESTNAME="$arg_testname"
+	fi
+
 	local base_cmd=("$OMNIOPT_CALL" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example $random_sem --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)' --nr_results=$nr_results" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--parameter" "choice_param choice 1,2,4,8,16,hallo" "--parameter" "int_param_two range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model" "--auto_exclude_defective_hosts")
 
 	if [[ "$gridsearch" -eq "1" ]]; then
@@ -219,6 +229,10 @@ function build_omniopt_command_standard() {
 function build_omniopt_command_one_param() {
 	if [[ $nr_results -ne 1 ]]; then
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
+	fi
+
+	if [[ -n $arg_testname ]]; then
+		TESTNAME="$arg_testname"
 	fi
 
 	local cmd=("$OMNIOPT_CALL" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example $random_sem --int_param='%(int_param)' --float_param='1' --choice_param='1' --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model")
@@ -260,6 +274,10 @@ function build_omniopt_command_one_param() {
 function build_omniopt_command_two_params() {
 	if [[ $nr_results -ne 1 ]]; then
 		TESTNAME="${TESTNAME}_nr_results_$nr_results"
+	fi
+
+	if [[ -n $arg_testname ]]; then
+		TESTNAME="$arg_testname"
 	fi
 
 	local cmd=("$OMNIOPT_CALL" "--live_share" "--send_anonymized_usage_stats" "--partition" "$PARTITION" "--experiment_name" "$TESTNAME" "--mem_gb=$mem_gb" "--time" "$time" "--worker_timeout=5" "--max_eval" "$max_eval" "--num_parallel_jobs" "$num_parallel_jobs" "--gpus" "$NUM_GPUS" "--run_program" "$(echo -n "./.tests/optimization_example $random_sem --int_param='%(int_param)' --float_param='1' --choice_param='1' --int_param_two='1'" | base64 -w 0)" "--parameter" "int_param range -100 10 int" "--parameter" "float_param range -100 10 float" "--follow" "--num_random_steps" "$num_random_steps" "--model" "$model")
@@ -363,6 +381,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--nr_results=*|--nr_results)
 			parse_argument "$i" "nr_results" 1
 			;;
+		--testname=*|--testname)
+			parse_argument "$i" "arg_testname" 0
+			;;
 		--gpus=*|--gpus)
 			parse_argument "$i" "NUM_GPUS" 1
 			;;
@@ -434,6 +455,10 @@ if [[ "$one_param" -eq "1" ]]; then
 	else
 		TESTNAME="${TESTNAME}_nogridsearch"
 	fi
+fi
+
+if [[ -n $arg_testname ]]; then
+	TESTNAME="$arg_testname"
 fi
 
 if [[ "$one_param" -eq "1" ]]; then

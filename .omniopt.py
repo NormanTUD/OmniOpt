@@ -1708,8 +1708,35 @@ def log_what_needs_to_be_logged() -> None:
             print_debug(f"Error in log_nr_of_workers: {e}")
 
 @beartype
-def get_line_info() -> Tuple[str, str, int, str, str]:
-    return (inspect.stack()[1][1], ":", inspect.stack()[1][2], ":", inspect.stack()[1][3])
+def get_line_info() -> Any:
+    try:
+        stack = inspect.stack()
+        if len(stack) < 2:
+            return ("<no caller>", ":", -1, ":", "<unknown>")
+        
+        frame_info = stack[1]
+
+        # fallbacks bei Problemen mit Encoding oder Zugriffsfehlern
+        try:
+            filename = str(frame_info.filename)
+        except Exception as e:
+            filename = f"<filename error: {e}>"
+        
+        try:
+            lineno = int(frame_info.lineno)
+        except Exception as e:
+            lineno = -1
+
+        try:
+            function = str(frame_info.function)
+        except Exception as e:
+            function = f"<function error: {e}>"
+
+        return (filename, ":", lineno, ":", function)
+
+    except Exception as e:
+        # finaler Fallback, wenn gar nichts geht
+        return ("<exception in get_line_info>", ":", -1, ":", str(e))
 
 @beartype
 def print_image_to_cli(image_path: str, width: int) -> bool:

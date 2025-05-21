@@ -6716,7 +6716,7 @@ def save_table_as_text(table: Table, filepath: str) -> None:
             text_output = sio.getvalue()
             file.write(text_output)
     except Exception as e:
-        print_debug(f"save_table_as_text: Fehler beim Schreiben der Datei '{filepath}': {e}")
+        print_debug(f"save_table_as_text: error at writing the file '{filepath}': {e}")
 
 @beartype
 def generate_time_table_rich() -> None:

@@ -8,7 +8,6 @@ PARAMS=(
 	"--refit_on_cv"
 	"--fit_out_of_design"
 	"--jit_compile"
-	"--show_generate_time_table"
 	"--num_restarts"
 	"--raw_samples"
 	"--no_transform_inputs"
@@ -50,4 +49,3 @@ for combo in $(generate_combinations); do
 	echo "Running with: $ADDITIONAL_ARGS > $OUTPUT_FILE"
 	#bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" > "$OUTPUT_FILE" 2>&1
 done
-

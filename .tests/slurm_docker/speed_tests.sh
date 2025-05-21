@@ -71,6 +71,7 @@ for index in "${!COMBOS[@]}"; do
 	BAR=$(printf "%0.s#" $(seq 1 $FILLED))$(printf "%0.s-" $(seq 1 $EMPTY))
 
 	printf "\r[%s] %3d%% (%d/%d) Running with: %s" "$BAR" "$PROGRESS" "$CURRENT" "$TOTAL" "$ADDITIONAL_ARGS"
+	echo ""
 
 	START_TIME=$(date +%s)
 	bash run_docker $FIXED_ARGS --additional_parameter="$ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"

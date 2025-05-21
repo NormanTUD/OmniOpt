@@ -203,6 +203,8 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `time`: The time this job-sbatch has allocated
 - `ui_url.txt`: Contains the URL that this run was started by
 - `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
+- `generation_times.txt`: The generation times table
+- `job_submit_durations.txt`: The table of job submission times
 
 ### `eval_nodes_cpu_ram_logs.txt`
 

@@ -6703,6 +6703,22 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     return {}, True
 
 @beartype
+def save_table_as_text(table: Table, filepath: str) -> None:
+    try:
+        with open(filepath, "w", encoding="utf-8") as file:
+            # rich.Table hat keine direkte Methode für Text-Export,
+            # aber wir können den Console-Export nutzen:
+            # Wir erstellen eine Konsole mit StringIO-Output
+            from io import StringIO
+            sio = StringIO()
+            console_for_save = Console(file=sio, force_terminal=True, width=120)
+            console_for_save.print(table)
+            text_output = sio.getvalue()
+            file.write(text_output)
+    except Exception as e:
+        print_debug(f"save_table_as_text: Fehler beim Schreiben der Datei '{filepath}': {e}")
+
+@beartype
 def generate_time_table_rich() -> None:
     if not args.show_generate_time_table:
         return
@@ -6710,6 +6726,7 @@ def generate_time_table_rich() -> None:
     if not isinstance(log_gen_times, list):
         print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
         return
+
     if len(log_gen_times) == 0:
         print_debug("generate_time_table_rich: No times to display.")
         return
@@ -6728,7 +6745,7 @@ def generate_time_table_rich() -> None:
     for idx, time_val in enumerate(log_gen_times, start=1):
         table.add_row(str(idx), f"{float(time_val):.3f}")
 
-    times_float = [float(t) for t in log_gen_times]
+    times_float: List[float] = [float(t) for t in log_gen_times]
     avg_time = mean(times_float)
     median_time = median(times_float)
     total_time = sum(times_float)
@@ -6736,7 +6753,6 @@ def generate_time_table_rich() -> None:
     min_time = min(times_float)
 
     table.add_row("", "")
-
     table.add_row("Average", f"{avg_time:.3f}")
     table.add_row("Median", f"{median_time:.3f}")
     table.add_row("Total", f"{total_time:.3f}")
@@ -6744,6 +6760,11 @@ def generate_time_table_rich() -> None:
     table.add_row("Min", f"{min_time:.3f}")
 
     console.print(table)
+
+    folder = get_current_run_folder()
+    filename = "generation_times.txt"
+    filepath = os.path.join(folder, filename)
+    save_table_as_text(table, filepath)
 
     generate_job_submit_table_rich()
 
@@ -6771,7 +6792,7 @@ def generate_job_submit_table_rich() -> None:
     for idx, time_val in enumerate(job_submit_durations, start=1):
         table.add_row(str(idx), f"{float(time_val):.3f}")
 
-    times_float = [float(t) for t in job_submit_durations]
+    times_float: List[float] = [float(t) for t in job_submit_durations]
     avg_time = mean(times_float)
     median_time = median(times_float)
     total_time = sum(times_float)
@@ -6786,6 +6807,11 @@ def generate_job_submit_table_rich() -> None:
     table.add_row("Min", f"{min_time:.3f}")
 
     console.print(table)
+
+    folder = get_current_run_folder()
+    filename = "job_submit_durations.txt"
+    filepath = os.path.join(folder, filename)
+    save_table_as_text(table, filepath)
 
 @beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:

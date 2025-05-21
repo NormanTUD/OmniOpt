@@ -69,6 +69,8 @@
 		"result_names.txt",
 		"result_min_max.txt",
 		"result_min_max",
+		"job_submit_durations.txt",
+		"generation_times.txt",
 		"git_version"
 	];
 

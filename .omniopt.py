@@ -6643,9 +6643,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                     Models.SOBOL,
                                     model_gen_kwargs={
                                         "acquisition_options": get_acquisition_options(),
-                                        'optimizer_kwargs': {
-                                            "sequential": False
-                                        },
+                                        'optimizer_kwargs': get_optimizer_kwargs(),
                                         "torch_device": get_torch_device_str(),
                                         "random_seed": args.seed,
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
@@ -7051,9 +7049,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             selected_model,
             model_gen_kwargs={
                 "acquisition_options": get_acquisition_options(),
-                'optimizer_kwargs': {
-                    "sequential": False
-                },
+                'optimizer_kwargs': get_optimizer_kwargs(),
                 "torch_device": get_torch_device_str(),
                 "random_seed": args.seed,
                 "fallback_to_sample_polytope": True,
@@ -7075,6 +7071,12 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     return res
 
 @beartype
+def get_optimizer_kwargs() -> dict:
+    return {
+        "sequential": False
+    }
+
+@beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     """Creates a generation step for Bayesian optimization."""
     step = GenerationStep(
@@ -7083,9 +7085,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
             "acquisition_options": get_acquisition_options(),
-            'optimizer_kwargs': {
-                "sequential": False
-            },
+            'optimizer_kwargs': get_optimizer_kwargs(),
             "torch_device": get_torch_device_str(),
             'enforce_num_arms': False,
             "warm_start_refitting": not args.dont_warm_start_refitting,

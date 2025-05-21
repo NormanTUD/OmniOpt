@@ -6620,6 +6620,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                 GeneratorSpec(
                                     Models.SOBOL,
                                     model_gen_kwargs={
+                                        "torch_device": get_torch_device_str(),
                                         "random_seed": args.seed,
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
                                         "refit_on_cv": args.refit_on_cv
@@ -6912,6 +6913,19 @@ def join_with_comma_and_then(items: list) -> str:
     return ", ".join(items[:-1]) + " and then " + items[-1]
 
 @beartype
+def get_torch_device_str() -> str:
+    try:
+        if torch.cuda.is_available():
+            return "cuda"
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            return "mps"
+
+        return "cpu"
+    except Exception as e:
+        print_debug(f"Error detecting device: {e}")
+        return "cpu"
+
+@beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
@@ -6966,6 +6980,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         GeneratorSpec(
             selected_model,
             model_gen_kwargs={
+                "torch_device": get_torch_device_str(),
                 "random_seed": args.seed,
                 "fallback_to_sample_polytope": True,
                 "check_duplicates": True,
@@ -6992,6 +7007,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
+            "torch_device": get_torch_device_str(),
             'enforce_num_arms': False,
             "warm_start_refitting": not args.dont_warm_start_refitting,
             "refit_on_cv": args.refit_on_cv

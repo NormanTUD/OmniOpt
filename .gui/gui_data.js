@@ -676,4 +676,25 @@ var hiddenTableData = [
 		placeholder: "Number of raw samples for the Optimizer",
 		min: 1,
 	},
+	{
+		label: "Disable input transformations",
+		id: "no_transform_inputs",
+		type: "checkbox",
+		value: 0,
+		info: "Skip transforming input parameters (e.g., scaling, encoding) before training. Speeds up generation but may hurt model quality."
+	},
+	{
+		label: "Disable target normalization",
+		id: "no_normalize_y",
+		type: "checkbox",
+		value: 0,
+		info: "Avoid normalizing the output (objective) values. Faster, but less stable when outputs vary in scale."
+	},
+	{
+		label: "Disable output transforms",
+		id: "no_output_transforms",
+		type: "checkbox",
+		value: 0,
+		info: "Skips standard output transformations, reducing compute time. May lower model accuracy for some problems."
+	}
 ];

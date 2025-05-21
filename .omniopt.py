@@ -485,6 +485,9 @@ class ConfigLoader:
     config_yaml: Optional[str]
     workdir: str
     jit_compile: bool
+    no_normalize_y: bool
+    no_output_transforms: bool
+    no_transform_inputs: bool
     occ: bool
     run_mode: str
 
@@ -570,6 +573,9 @@ class ConfigLoader:
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
         optional.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=5)
         optional.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
+        optional.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
+        optional.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
+        optional.add_argument('--no_output_transforms', help='Disable default output transforms', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6647,6 +6653,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                 GeneratorSpec(
                                     Models.SOBOL,
                                     model_gen_kwargs={
+                                        "normalize_y": not args.no_normalize_y,
+                                        "transform_inputs": not args.no_transform_inputs,
+                                        "outcome_transform_classes": None if args.no_output_transforms else,
                                         "acquisition_options": get_acquisition_options(),
                                         'optimizer_kwargs': get_optimizer_kwargs(),
                                         "torch_device": get_torch_device_str(),
@@ -7054,6 +7063,9 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         GeneratorSpec(
             selected_model,
             model_gen_kwargs={
+                "normalize_y": not args.no_normalize_y,
+                "transform_inputs": not args.no_transform_inputs,
+                "outcome_transform_classes": None if args.no_output_transforms else,
                 "acquisition_options": get_acquisition_options(),
                 'optimizer_kwargs': get_optimizer_kwargs(),
                 "torch_device": get_torch_device_str(),
@@ -7091,6 +7103,9 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
+            "normalize_y": not args.no_normalize_y,
+            "transform_inputs": not args.no_transform_inputs,
+            "outcome_transform_classes": None if args.no_output_transforms else,
             "acquisition_options": get_acquisition_options(),
             'optimizer_kwargs': get_optimizer_kwargs(),
             "torch_device": get_torch_device_str(),

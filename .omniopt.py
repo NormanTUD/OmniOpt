@@ -6706,9 +6706,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 def save_table_as_text(table: Table, filepath: str) -> None:
     try:
         with open(filepath, "w", encoding="utf-8") as file:
-            # rich.Table hat keine direkte Methode für Text-Export,
-            # aber wir können den Console-Export nutzen:
-            # Wir erstellen eine Konsole mit StringIO-Output
             from io import StringIO
             sio = StringIO()
             console_for_save = Console(file=sio, force_terminal=True, width=120)

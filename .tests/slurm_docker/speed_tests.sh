@@ -17,7 +17,6 @@ PARAMS=(
 )
 
 FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5 --generate_all_jobs_at_once"
-FIXED_ARGS="$FIXED_ARGS --fit_out_of_design"
 
 generate_combinations() {
 	local n="${#PARAMS[@]}"
@@ -59,7 +58,7 @@ declare -a DURATIONS=()
 
 for index in "${!COMBOS[@]}"; do
 	combo="${COMBOS[$index]}"
-	ADDITIONAL_ARGS="$combo"
+	ADDITIONAL_ARGS="--fit_out_of_design $combo"
 	FILENAME_PART=$(sanitize_filename "$ADDITIONAL_ARGS")
 	OUTPUT_FILE="output/${FILENAME_PART}.txt"
 

@@ -4,15 +4,20 @@ set -euo pipefail
 PARAMS=(
 	"--dont_warm_start_refitting"
 	"--refit_on_cv"
-	"--fit_out_of_design"
+	#"--fit_out_of_design" Always use it
 	"--jit_compile"
-	"--num_restarts"
-	"--raw_samples"
+	"--num_restarts=1"
+	"--num_restarts=5"
+	"--num_restarts=10"
+	"--raw_samples=1"
+	"--raw_samples=10"
+	"--raw_samples=100"
 	"--no_transform_inputs"
 	"--no_normalize_y"
 )
 
 FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5 --generate_all_jobs_at_once"
+FIXED_ARGS="$FIXED_ARGS --fit_out_of_design"
 
 generate_combinations() {
 	local n="${#PARAMS[@]}"

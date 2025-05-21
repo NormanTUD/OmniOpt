@@ -444,6 +444,8 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    dont_warm_start_refitting: bool
+    refit_on_cv: bool
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
@@ -551,6 +553,8 @@ class ConfigLoader:
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
+        optional.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
+        optional.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6610,7 +6614,16 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                     nodes=[
                         GenerationNode(
                             node_name="Sobol",
-                            model_specs=[GeneratorSpec(Models.SOBOL, model_gen_kwargs={"random_seed": args.seed})]
+                            model_specs=[
+                                GeneratorSpec(
+                                    Models.SOBOL,
+                                    model_gen_kwargs={
+                                        "random_seed": args.seed,
+                                        "warm_start_refitting": not args.dont_warm_start_refitting,
+                                        "refit_on_cv": args.refit_on_cv
+                                    }
+                                )
+                            ]
                         )
                     ]
             )
@@ -6955,6 +6968,8 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                 "fallback_to_sample_polytope": True,
                 "check_duplicates": True,
                 "deduplicate_strict": True,
+                "warm_start_refitting": not args.dont_warm_start_refitting,
+                "refit_on_cv": args.refit_on_cv
             }
         )
     ]
@@ -6975,7 +6990,9 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
-            'enforce_num_arms': False
+            'enforce_num_arms': False,
+            "warm_start_refitting": not args.dont_warm_start_refitting,
+            "refit_on_cv": args.refit_on_cv
         },
         should_deduplicate=True,
         index=index

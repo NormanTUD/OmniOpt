@@ -6524,8 +6524,8 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
 def get_acquisition_options() -> dict:
     return {
         "optimizer_options": {
-            "num_restarts": 5,
-            "raw_samples": 128
+            "num_restarts": args.num_restarts,
+            "raw_samples": args.raw_samples
         }
     }
 

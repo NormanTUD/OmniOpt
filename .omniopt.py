@@ -18,6 +18,7 @@ import statistics
 import tempfile
 
 last_progress_bar_desc: str = ""
+job_submit_durations: list[float] = []
 log_gen_times: list[float] = []
 generation_strategy_human_readable: str = ""
 oo_call: str = "./omniopt"
@@ -486,7 +487,6 @@ class ConfigLoader:
     workdir: str
     jit_compile: bool
     no_normalize_y: bool
-    no_output_transforms: bool
     no_transform_inputs: bool
     occ: bool
     run_mode: str
@@ -575,7 +575,6 @@ class ConfigLoader:
         optional.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
         optional.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         optional.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
-        optional.add_argument('--no_output_transforms', help='Disable default output transforms', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6655,7 +6654,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                     model_gen_kwargs={
                                         "normalize_y": not args.no_normalize_y,
                                         "transform_inputs": not args.no_transform_inputs,
-                                        "outcome_transform_classes": None if args.no_output_transforms else,
                                         "acquisition_options": get_acquisition_options(),
                                         'optimizer_kwargs': get_optimizer_kwargs(),
                                         "torch_device": get_torch_device_str(),
@@ -6714,6 +6712,46 @@ def generate_time_table_rich() -> None:
 
     table.add_row("", "")
 
+    table.add_row("Average", f"{avg_time:.3f}")
+    table.add_row("Median", f"{median_time:.3f}")
+    table.add_row("Total", f"{total_time:.3f}")
+    table.add_row("Max", f"{max_time:.3f}")
+    table.add_row("Min", f"{min_time:.3f}")
+
+    console.print(table)
+
+@beartype
+def generate_job_submit_table_rich() -> None:
+    if not isinstance(job_submit_durations, list):
+        print_debug("generate_job_submit_table_rich: Error: job_submit_durations is not a list.")
+        return
+
+    if len(job_submit_durations) == 0:
+        print_debug("generate_job_submit_table_rich: No durations to display.")
+        return
+
+    for i, val in enumerate(job_submit_durations):
+        try:
+            float(val)
+        except (ValueError, TypeError):
+            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} is not a valid float.")
+            return
+
+    table = Table(show_header=True, header_style="bold", title="Job submission durations")
+    table.add_column("Batch", justify="right")
+    table.add_column("Seconds", justify="right")
+
+    for idx, time_val in enumerate(job_submit_durations, start=1):
+        table.add_row(str(idx), f"{float(time_val):.3f}")
+
+    times_float = [float(t) for t in job_submit_durations]
+    avg_time = mean(times_float)
+    median_time = median(times_float)
+    total_time = sum(times_float)
+    max_time = max(times_float)
+    min_time = min(times_float)
+
+    table.add_row("", "")
     table.add_row("Average", f"{avg_time:.3f}")
     table.add_row("Median", f"{median_time:.3f}")
     table.add_row("Total", f"{total_time:.3f}")
@@ -7065,7 +7103,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             model_gen_kwargs={
                 "normalize_y": not args.no_normalize_y,
                 "transform_inputs": not args.no_transform_inputs,
-                "outcome_transform_classes": None if args.no_output_transforms else,
                 "acquisition_options": get_acquisition_options(),
                 'optimizer_kwargs': get_optimizer_kwargs(),
                 "torch_device": get_torch_device_str(),
@@ -7105,7 +7142,6 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model_gen_kwargs={
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,
-            "outcome_transform_classes": None if args.no_output_transforms else,
             "acquisition_options": get_acquisition_options(),
             'optimizer_kwargs': get_optimizer_kwargs(),
             "torch_device": get_torch_device_str(),
@@ -7253,6 +7289,8 @@ def execute_trials(
         index_param_list.append(_args)
         i += 1
 
+    start_time = time.time()
+
     with ThreadPoolExecutor(max_workers=min(len(index_param_list), 16)) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
 
@@ -7263,6 +7301,10 @@ def execute_trials(
             except Exception as exc:
                 print_red(f"execute_trials: Error at executing a trial: {exc}")
                 results.append(None)
+
+
+    duration = float(end_time - start_time)
+    job_submit_durations.append(duration)
 
     return results
 

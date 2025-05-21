@@ -690,11 +690,4 @@ var hiddenTableData = [
 		value: 0,
 		info: "Avoid normalizing the output (objective) values. Faster, but less stable when outputs vary in scale."
 	},
-	{
-		label: "Disable output transforms",
-		id: "no_output_transforms",
-		type: "checkbox",
-		value: 0,
-		info: "Skips standard output transformations, reducing compute time. May lower model accuracy for some problems."
-	}
 ];

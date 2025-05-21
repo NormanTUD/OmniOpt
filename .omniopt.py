@@ -1713,7 +1713,7 @@ def get_line_info() -> Any:
         stack = inspect.stack()
         if len(stack) < 2:
             return ("<no caller>", ":", -1, ":", "<unknown>")
-        
+
         frame_info = stack[1]
 
         # fallbacks bei Problemen mit Encoding oder Zugriffsfehlern
@@ -1721,7 +1721,7 @@ def get_line_info() -> Any:
             filename = str(frame_info.filename)
         except Exception as e:
             filename = f"<filename error: {e}>"
-        
+
         try:
             lineno = int(frame_info.lineno)
         except Exception as e:
@@ -7325,6 +7325,7 @@ def execute_trials(
                 print_red(f"execute_trials: Error at executing a trial: {exc}")
                 results.append(None)
 
+    end_time = time.time()
 
     duration = float(end_time - start_time)
     job_submit_durations.append(duration)

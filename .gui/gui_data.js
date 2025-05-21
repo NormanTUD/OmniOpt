@@ -626,6 +626,13 @@ var hiddenTableData = [
 		info: "JIT-Compiling should make the model fitting faster"
 	},
 	{
+		label: "Fit out of design",
+		id: "fit_out_of_design",
+		type: "checkbox",
+		value: 0,
+		info: "Ignore data points outside of the design to improve generation-of-points-speed"
+	},
+	{
 		label: "Refit on Cross-Validation",
 		id: "refit_on_cv",
 		type: "checkbox",

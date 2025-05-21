@@ -451,6 +451,7 @@ class ConfigLoader:
     max_attempts_for_generation: int
     dont_warm_start_refitting: bool
     refit_on_cv: bool
+    fit_out_of_design: bool
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
@@ -562,6 +563,7 @@ class ConfigLoader:
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
         optional.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         optional.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
+        optional.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)
         optional.add_argument('--jit_compile', help='Enable JIT-compiling the model', action='store_true', default=False)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
 
@@ -6648,7 +6650,8 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                         "random_seed": args.seed,
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
                                         "jit_compile": args.jit_compile,
-                                        "refit_on_cv": args.refit_on_cv
+                                        "refit_on_cv": args.refit_on_cv,
+                                        "fit_out_of_design": args.fit_out_of_design
                                     }
                                 )
                             ]
@@ -7057,7 +7060,8 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                 "deduplicate_strict": True,
                 "warm_start_refitting": not args.dont_warm_start_refitting,
                 "jit_compile": args.jit_compile,
-                "refit_on_cv": args.refit_on_cv
+                "refit_on_cv": args.refit_on_cv,
+                "fit_out_of_design": args.fit_out_of_design
             }
         )
     ]
@@ -7090,7 +7094,8 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
             'enforce_num_arms': True,
             "warm_start_refitting": not args.dont_warm_start_refitting,
             "jit_compile": args.jit_compile,
-            "refit_on_cv": args.refit_on_cv
+            "refit_on_cv": args.refit_on_cv,
+            "fit_out_of_design": args.fit_out_of_design
         },
         should_deduplicate=True,
         index=index

@@ -8,8 +8,8 @@ PARAMS=(
 	#
 	#"--no_normalize_y" # Always use it
 	#"--fit_out_of_design" Always use it
-	#
-	"--jit_compile"
+	#"--jit_compile" # Always use it
+
 	"--num_restarts=1"
 	"--num_restarts=5"
 	"--num_restarts=10"
@@ -76,7 +76,7 @@ for index in "${!COMBOS[@]}"; do
 	echo ""
 
 	START_TIME=$(date +%s)
-	bash run_docker $FIXED_ARGS --additional_parameter="--no_normalize_y --fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
+	bash run_docker $FIXED_ARGS --additional_parameter="--jit_compile --no_normalize_y --fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
 	END_TIME=$(date +%s)
 
 	DURATION=$((END_TIME - START_TIME))

@@ -6681,7 +6681,6 @@ def generate_time_table_rich() -> None:
     for idx, time_val in enumerate(log_gen_times, start=1):
         table.add_row(str(idx), f"{time_val:.3f}")
 
-    console = Console()
     console.print(table)
 
 @beartype

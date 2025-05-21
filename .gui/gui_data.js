@@ -617,5 +617,19 @@ var hiddenTableData = [
 		required: false,
 		regex: regex_path,
 		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
+	},
+	{
+		label: "Refit on Cross-Validation",
+		id: "refit_on_cv",
+		type: "checkbox",
+		value: 0,
+		info: "Enable warm-fitting for Cross-validation on model-fitting (may lead to better results, but is slower)"
+	},
+	{
+		label: "Don't warm-start-refitting",
+		id: "dont_warm_start_refitting",
+		type: "checkbox",
+		value: 0,
+		info: "Disable warm-fitting for model-fitting"
 	}
 ];

@@ -6484,6 +6484,18 @@ def has_no_post_generation_constraints_or_matches_constraints(_post_generation_c
 
     return True
 
+@beartype
+def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
+    if ax_client is None:
+        print_red("Error: ax_client is not defined")
+        my_exit(101)
+    elif ax_client.experiment is None:
+        print_red("Error: ax_client.experiment is not defined")
+        my_exit(101)
+    elif global_gs is None:
+        print_red("Error: global_gs is not defined")
+        my_exit(101)
+
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
@@ -6497,28 +6509,43 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
     trial_durations: List[float] = []
 
-    if ax_client is None:
-        print_red("Error: ax_client is not defined")
-        my_exit(101)
-    elif ax_client.experiment is None:
-        print_red("Error: ax_client.experiment is not defined")
-        my_exit(101)
-    elif global_gs is None:
-        print_red("Error: global_gs is not defined")
-        my_exit(101)
+    die_101_if_no_ax_client_or_experiment_or_gs()
 
     try:
         all_start_time = time.time()
 
         cnt = 0
 
-        batched_generator_run = global_gs.gen(
-            experiment=ax_client.experiment,
-            n=nr_of_jobs_to_get,
-            pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-        )
+        batched_arms = []
 
-        batched_arms = batched_generator_run.arms
+        max_attempts = 10
+        attempts = 0
+
+        while len(batched_arms) != nr_of_jobs_to_get:
+            if attempts > max_attempts:
+                print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
+                            f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
+                break
+
+            remaining = nr_of_jobs_to_get - len(batched_arms)
+            print_debug(f"_fetch_next_trials: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
+
+            batched_generator_run = global_gs.gen(
+                experiment=ax_client.experiment,
+                n=remaining,
+                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+            )
+
+            new_arms = batched_generator_run.arms
+            if not new_arms:
+                print_debug("_fetch_next_trials: No new arms were generated in this attempt.")
+            else:
+                print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s).")
+
+            batched_arms.extend(new_arms)
+            attempts += 1
+
+        print_debug(f"_fetch_next_trials: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
         for k in range(len(batched_arms)):
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")

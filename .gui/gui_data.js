@@ -626,6 +626,12 @@ var hiddenTableData = [
 		info: "Enable warm-fitting for Cross-validation on model-fitting (may lead to better results, but is slower)"
 	},
 	{
+		label: "Show a table at the end showing how much time was spent at the different iterations of the model to create new points",
+		id: "show_generate_time_table",
+		type: "checkbox",
+		value: 0
+	},
+	{
 		label: "Don't warm-start-refitting",
 		id: "dont_warm_start_refitting",
 		type: "checkbox",

@@ -470,6 +470,8 @@ if [[ "$seed" != "" ]]; then
 	omniopt_cmd="$omniopt_cmd --seed $seed"
 fi
 
+omniopt_cmd="$omniopt_cmd --show_generate_time_table"
+
 green_text "$omniopt_cmd"
 eval "$omniopt_cmd"
 exit_code=$?

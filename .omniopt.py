@@ -18,6 +18,7 @@ import statistics
 import tempfile
 
 last_progress_bar_desc: str = ""
+log_gen_times: list[float] = []
 generation_strategy_human_readable: str = ""
 oo_call: str = "./omniopt"
 progress_bar_length: int = 0
@@ -444,6 +445,7 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    show_generate_time_table: bool
     max_attempts_for_generation: int
     dont_warm_start_refitting: bool
     refit_on_cv: bool
@@ -557,6 +559,7 @@ class ConfigLoader:
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
         optional.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         optional.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
+        optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -4056,6 +4059,9 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     if exit_code:
         _exit = exit_code
 
+
+    generate_time_table_rich()
+
     live_share()
 
     if succeeded_jobs() == 0 and failed_jobs() > 0:
@@ -6589,10 +6595,12 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         all_end_time = time.time()
         all_time = float(all_end_time - all_start_time)
 
+        log_gen_times.append(all_time)
+
         if cnt:
             progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}, {all_time / cnt} s/job"])
         else:
-            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}"})
+            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}"])
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:
@@ -6647,6 +6655,34 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
             return _fetch_next_trials(nr_of_jobs_to_get, True)
 
     return {}, True
+
+@beartype
+def generate_time_table_rich() -> None:
+    if not args.show_generate_time_table:
+        return
+
+    if not isinstance(log_gen_times, list):
+        print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
+        return
+    if len(log_gen_times) == 0:
+        print_debug("generate_time_table_rich: No times to display.")
+        return
+    for i, val in enumerate(log_gen_times):
+        try:
+            float(val)
+        except (ValueError, TypeError):
+            print_debug(f"generate_time_table_rich: Error: Element at index {i} is not a valid float.")
+            return
+
+    table = Table(show_header=True, header_style="bold magenta", title="Model generation times")
+    table.add_column("Iteration", justify="right")
+    table.add_column("Seconds", justify="right")
+
+    for idx, time_val in enumerate(log_gen_times, start=1):
+        table.add_row(str(idx), f"{time_val:.3f}")
+
+    console = Console()
+    console.print(table)
 
 @beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:

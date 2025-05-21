@@ -41,6 +41,7 @@ verbose=0
 nr_nodes=4
 seed=""
 model=BOTORCH_MODULAR
+additional_parameter=""
 
 cleanup() {
 	if [[ -e slurm.conf ]]; then
@@ -58,26 +59,27 @@ usage() {
 	echo "Usage: $0 [OPTIONS]"
 	echo ""
 	echo "Options:"
-	echo "  --mem_gb=MEM_GB               Memory in GB (default: 1)"
-	echo "  --time=TIME                   Time in minutes (default: 60)"
-	echo "  --worker_timeout=TIME         Timeout for workers (default: 1)"
-	echo "  --max_eval=MAX_EVAL           Maximum number of evaluations (default: 4)"
-	echo "  --num_parallel_jobs=NUM       Number of parallel jobs (default: 2)"
-	echo "  --model=<model name>          Name of the systematic mode (default: BOTORCH_MODULAR)"
-	echo "  --num_random_steps=NUM        Number of random steps (default: 2)"
-	echo "  --install_slurm               Install SLURM in Docker (default: false)"
-	echo "  --nr_nodes=INT                Some integer for the amount of nodes that should be created (default: 4)"
-	echo "  --generate_all_jobs_at_once   Generate all jobs at once"
-	echo "  --live_share                  Enable live share"
-	echo "  --should_deduplicate          Deduplicate jobs"
-	echo "  --debug                       Enable debug mode"
-	echo "  --verbose                     Enable verbose mode"
-	echo "  --run_tests                   Run tests"
-	echo "  --send_anonymized_usage_stats Send anonymized usage statistics"
-	echo "  --max_nr_of_zero=NUM          The max. nr. of zero-jobs (default: 3)"
-	echo "  --seed=INT                    The seed for the run. Default is empty"
-	echo "  --stop                        Stop the Docker container"
-	echo "  --help                        Show this help message"
+	echo "  --mem_gb=MEM_GB                  Memory in GB (default: 1)"
+	echo "  --time=TIME                      Time in minutes (default: 60)"
+	echo "  --worker_timeout=TIME            Timeout for workers (default: 1)"
+	echo "  --max_eval=MAX_EVAL              Maximum number of evaluations (default: 4)"
+	echo "  --num_parallel_jobs=NUM          Number of parallel jobs (default: 2)"
+	echo "  --model=<model name>             Name of the systematic mode (default: BOTORCH_MODULAR)"
+	echo "  --num_random_steps=NUM           Number of random steps (default: 2)"
+	echo "  --install_slurm                  Install SLURM in Docker (default: false)"
+	echo "  --nr_nodes=INT                   Some integer for the amount of nodes that should be created (default: 4)"
+	echo "  --generate_all_jobs_at_once      Generate all jobs at once"
+	echo "  --live_share                     Enable live share"
+	echo "  --should_deduplicate             Deduplicate jobs"
+	echo "  --debug                          Enable debug mode"
+	echo "  --verbose                        Enable verbose mode"
+	echo "  --run_tests                      Run tests"
+	echo "  --additional_parameter=STR       List of additional parameters"
+	echo "  --send_anonymized_usage_stats    Send anonymized usage statistics"
+	echo "  --max_nr_of_zero=NUM             The max. nr. of zero-jobs (default: 3)"
+	echo "  --seed=INT                       The seed for the run. Default is empty"
+	echo "  --stop                           Stop the Docker container"
+	echo "  --help                           Show this help message"
 	exit 1
 }
 
@@ -229,6 +231,9 @@ for arg in "$@"; do
 				echo "Error: --max_nr_of_zero must be an integer."
 				exit 1
 			fi
+			;;
+		--additional_parameter=*)
+			additional_parameter="${arg#*=}"
 			;;
 		--model=*)
 			model="${arg#*=}"
@@ -401,6 +406,10 @@ if [[ $run_tests -eq 1 ]]; then
 		--skip_test_job_nr
 		--skip_worker_check
 	)
+fi
+
+if [[ $additional_parameter != "" ]]; then
+	cmd+=("$additional_parameter")
 fi
 
 "${cmd[@]}"

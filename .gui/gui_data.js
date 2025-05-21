@@ -631,5 +631,13 @@ var hiddenTableData = [
 		type: "checkbox",
 		value: 0,
 		info: "Disable warm-fitting for model-fitting"
-	}
+	},
+	{
+		label: "Max. attempts for generating new points",
+		id: "max_attempts_for_generation",
+		type: "number",
+		value: 20,
+		placeholder: "Number of attempts for generating the sets of new hyperparameters",
+		min: 1,
+	},
 ];

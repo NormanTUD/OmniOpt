@@ -444,6 +444,7 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    max_attempts_for_generation: int
     dont_warm_start_refitting: bool
     refit_on_cv: bool
     no_sleep: bool
@@ -548,6 +549,7 @@ class ConfigLoader:
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
         optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help='List of job data to load from existing jobs')
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
+        optional.add_argument('--max_attempts_for_generation', help='Max. number of attempts for generating sets of new points (default: 20)', type=int, default=20)
         optional.add_argument('--external_generator', help='Programm call for an external generator', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
@@ -6522,11 +6524,10 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
         batched_arms = []
 
-        max_attempts = 10
         attempts = 0
 
         while len(batched_arms) != nr_of_jobs_to_get:
-            if attempts > max_attempts:
+            if attempts > args.max_attempts_for_generation:
                 print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
                             f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
                 break

@@ -12,7 +12,7 @@ PARAMS=(
 	"--no_normalize_y"
 )
 
-FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5"
+FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5 --generate_all_jobs_at_once"
 
 generate_combinations() {
 	local n="${#PARAMS[@]}"

@@ -6620,9 +6620,19 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                 GeneratorSpec(
                                     Models.SOBOL,
                                     model_gen_kwargs={
+                                        "acquisition_options": {
+                                            "optimizer_options": {
+                                                "num_restarts": 5,
+                                                "raw_samples": 128
+                                            }
+                                        },
+                                        'optimizer_kwargs': {
+                                            "sequential": False
+                                        },
                                         "torch_device": get_torch_device_str(),
                                         "random_seed": args.seed,
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
+                                        "jit_compile": True,
                                         "refit_on_cv": args.refit_on_cv
                                     }
                                 )
@@ -6980,12 +6990,22 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         GeneratorSpec(
             selected_model,
             model_gen_kwargs={
+                "acquisition_options": {
+                    "optimizer_options": {
+                        "num_restarts": 5,
+                        "raw_samples": 128
+                    }
+                },
+                'optimizer_kwargs': {
+                    "sequential": False
+                },
                 "torch_device": get_torch_device_str(),
                 "random_seed": args.seed,
                 "fallback_to_sample_polytope": True,
                 "check_duplicates": True,
                 "deduplicate_strict": True,
                 "warm_start_refitting": not args.dont_warm_start_refitting,
+                "jit_compile": True,
                 "refit_on_cv": args.refit_on_cv
             }
         )
@@ -7007,9 +7027,19 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
+            "acquisition_options": {
+                "optimizer_options": {
+                    "num_restarts": 5,
+                    "raw_samples": 128
+                }
+            },
+            'optimizer_kwargs': {
+                "sequential": False
+            },
             "torch_device": get_torch_device_str(),
             'enforce_num_arms': False,
             "warm_start_refitting": not args.dont_warm_start_refitting,
+            "jit_compile": True,
             "refit_on_cv": args.refit_on_cv
         },
         should_deduplicate=True,

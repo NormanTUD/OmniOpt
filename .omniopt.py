@@ -148,6 +148,8 @@ try:
         from tqdm import tqdm
 
         from beartype import beartype
+
+        from statistics import mean, median
     try:
         from pyfiglet import Figlet
         figlet_loaded = True
@@ -2848,6 +2850,8 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
         try:
             for i in range(torch.cuda.device_count()):
                 tmp = torch.cuda.get_device_properties(i).name
+
+                fool_linter(tmp)
         except RuntimeError:
             print(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
             count_defective_nodes(None, socket.gethostname())
@@ -6667,6 +6671,7 @@ def generate_time_table_rich() -> None:
     if len(log_gen_times) == 0:
         print_debug("generate_time_table_rich: No times to display.")
         return
+
     for i, val in enumerate(log_gen_times):
         try:
             float(val)
@@ -6679,7 +6684,22 @@ def generate_time_table_rich() -> None:
     table.add_column("Seconds", justify="right")
 
     for idx, time_val in enumerate(log_gen_times, start=1):
-        table.add_row(str(idx), f"{time_val:.3f}")
+        table.add_row(str(idx), f"{float(time_val):.3f}")
+
+    times_float = [float(t) for t in log_gen_times]
+    avg_time = mean(times_float)
+    median_time = median(times_float)
+    total_time = sum(times_float)
+    max_time = max(times_float)
+    min_time = min(times_float)
+
+    table.add_row("", "")
+
+    table.add_row("Average", f"{avg_time:.3f}")
+    table.add_row("Median", f"{median_time:.3f}")
+    table.add_row("Total", f"{total_time:.3f}")
+    table.add_row("Max", f"{max_time:.3f}")
+    table.add_row("Min", f"{min_time:.3f}")
 
     console.print(table)
 

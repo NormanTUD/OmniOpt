@@ -1727,6 +1727,8 @@ def get_line_info() -> Any:
         except Exception as e:
             lineno = -1
 
+            print_red(f"Error in get_line_info: {e}, using lineno = -1")
+
         try:
             function = str(frame_info.function)
         except Exception as e:

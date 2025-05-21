@@ -6720,9 +6720,6 @@ def save_table_as_text(table: Table, filepath: str) -> None:
 
 @beartype
 def generate_time_table_rich() -> None:
-    if not args.show_generate_time_table:
-        return
-
     if not isinstance(log_gen_times, list):
         print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
         return
@@ -6759,7 +6756,8 @@ def generate_time_table_rich() -> None:
     table.add_row("Max", f"{max_time:.3f}")
     table.add_row("Min", f"{min_time:.3f}")
 
-    console.print(table)
+    if args.show_generate_time_table:
+        console.print(table)
 
     folder = get_current_run_folder()
     filename = "generation_times.txt"
@@ -6806,7 +6804,8 @@ def generate_job_submit_table_rich() -> None:
     table.add_row("Max", f"{max_time:.3f}")
     table.add_row("Min", f"{min_time:.3f}")
 
-    console.print(table)
+    if args.show_generate_time_table:
+        console.print(table)
 
     folder = get_current_run_folder()
     filename = "job_submit_durations.txt"

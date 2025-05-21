@@ -7087,7 +7087,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
             "acquisition_options": get_acquisition_options(),
             'optimizer_kwargs': get_optimizer_kwargs(),
             "torch_device": get_torch_device_str(),
-            'enforce_num_arms': False,
+            'enforce_num_arms': True,
             "warm_start_refitting": not args.dont_warm_start_refitting,
             "jit_compile": args.jit_compile,
             "refit_on_cv": args.refit_on_cv

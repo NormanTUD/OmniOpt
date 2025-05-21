@@ -6591,9 +6591,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         all_time = float(all_end_time - all_start_time)
 
         if cnt:
-            print_debug(f"_fetch_next_trials: Requested {nr_of_jobs_to_get} jobs, got {cnt}, took {all_time / cnt} seconds per job (avg)")
+            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}, {all_time / cnt} s/job"])
         else:
-            print_debug(f"_fetch_next_trials: Requested {nr_of_jobs_to_get} jobs, got {cnt}")
+            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}"})
 
         return trials_dict, False
     except np.linalg.LinAlgError as e:

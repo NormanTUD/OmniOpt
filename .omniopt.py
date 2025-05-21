@@ -4105,7 +4105,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     if exit_code:
         _exit = exit_code
 
-    generate_time_table_rich()
+    show_time_debugging_table()
 
     live_share()
 
@@ -6719,6 +6719,11 @@ def save_table_as_text(table: Table, filepath: str) -> None:
         print_debug(f"save_table_as_text: error at writing the file '{filepath}': {e}")
 
 @beartype
+def show_time_debugging_table() -> None:
+    generate_time_table_rich()
+    generate_job_submit_table_rich()
+
+@beartype
 def generate_time_table_rich() -> None:
     if not isinstance(log_gen_times, list):
         print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
@@ -6763,8 +6768,6 @@ def generate_time_table_rich() -> None:
     filename = "generation_times.txt"
     filepath = os.path.join(folder, filename)
     save_table_as_text(table, filepath)
-
-    generate_job_submit_table_rich()
 
 @beartype
 def generate_job_submit_table_rich() -> None:

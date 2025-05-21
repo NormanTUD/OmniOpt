@@ -6756,11 +6756,11 @@ def generate_time_table_rich() -> None:
     min_time = min(times_float)
 
     table.add_row("", "")
-    table.add_row("Average", f"{avg_time:.3f}")
-    table.add_row("Median", f"{median_time:.3f}")
-    table.add_row("Total", f"{total_time:.3f}")
-    table.add_row("Max", f"{max_time:.3f}")
-    table.add_row("Min", f"{min_time:.3f}")
+    table.add_row("Model generation times Average", f"{avg_time:.3f}")
+    table.add_row("Model generation times Median", f"{median_time:.3f}")
+    table.add_row("Model generation times Total", f"{total_time:.3f}")
+    table.add_row("Model generation times Max", f"{max_time:.3f}")
+    table.add_row("Model generation times Min", f"{min_time:.3f}")
 
     if args.show_generate_time_table:
         console.print(table)
@@ -6802,11 +6802,11 @@ def generate_job_submit_table_rich() -> None:
     min_time = min(times_float)
 
     table.add_row("", "")
-    table.add_row("Average", f"{avg_time:.3f}")
-    table.add_row("Median", f"{median_time:.3f}")
-    table.add_row("Total", f"{total_time:.3f}")
-    table.add_row("Max", f"{max_time:.3f}")
-    table.add_row("Min", f"{min_time:.3f}")
+    table.add_row("Job submission durations Average", f"{avg_time:.3f}")
+    table.add_row("Job submission durations Median", f"{median_time:.3f}")
+    table.add_row("Job submission durations Total", f"{total_time:.3f}")
+    table.add_row("Job submission durations Max", f"{max_time:.3f}")
+    table.add_row("Job submission durations Min", f"{min_time:.3f}")
 
     if args.show_generate_time_table:
         console.print(table)

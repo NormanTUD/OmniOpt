@@ -354,6 +354,7 @@ cmd=(
 	--model $model
 	--auto_exclude_defective_hosts
 	--max_nr_of_zero $max_nr_of_zero
+	--show_generate_time_table
 )
 
 if [[ "$generate_all_jobs_at_once" == "1" ]]; then
@@ -398,7 +399,6 @@ if [[ $run_tests -eq 1 ]]; then
 		--superquick
 		--run_with_coverage
 		--skip_test_job_nr
-		--show_generate_time_table
 		--skip_worker_check
 	)
 fi

@@ -4071,7 +4071,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     if exit_code:
         _exit = exit_code
 
-
     generate_time_table_rich()
 
     live_share()

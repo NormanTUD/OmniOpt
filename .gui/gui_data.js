@@ -660,4 +660,20 @@ var hiddenTableData = [
 		placeholder: "Number of attempts for generating the sets of new hyperparameters",
 		min: 1,
 	},
+	{
+		label: "num_restarts Option for optimizer_options",
+		id: "num_restarts",
+		type: "number",
+		value: 5,
+		placeholder: "Number of restarts for the Optimizer",
+		min: 1,
+	},
+	{
+		label: "raw_samples Option for the optimizer_options",
+		id: "raw_samples",
+		type: "number",
+		value: 128,
+		placeholder: "Number of raw samples for the Optimizer",
+		min: 1,
+	},
 ];

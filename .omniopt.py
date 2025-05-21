@@ -447,6 +447,8 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    num_restarts: int
+    raw_samples: int
     show_generate_time_table: bool
     max_attempts_for_generation: int
     dont_warm_start_refitting: bool
@@ -566,6 +568,8 @@ class ConfigLoader:
         optional.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)
         optional.add_argument('--jit_compile', help='Enable JIT-compiling the model', action='store_true', default=False)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
+        optional.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=5)
+        optional.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)

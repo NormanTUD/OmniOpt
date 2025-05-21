@@ -3,10 +3,12 @@ set -euo pipefail
 
 PARAMS=(
 	#"--dont_warm_start_refitting" # Slow, disabled
-	"--no_transform_inputs"
-	"--no_normalize_y"
+	#"--no_transform_inputs" # Slow, disabled
 	#"--refit_on_cv" # Slow, disabled
+	#
+	#"--no_normalize_y" # Always use it
 	#"--fit_out_of_design" Always use it
+	#
 	"--jit_compile"
 	"--num_restarts=1"
 	"--num_restarts=5"
@@ -74,7 +76,7 @@ for index in "${!COMBOS[@]}"; do
 	echo ""
 
 	START_TIME=$(date +%s)
-	bash run_docker $FIXED_ARGS --additional_parameter="--fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
+	bash run_docker $FIXED_ARGS --additional_parameter="--no_normalize_y --fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
 	END_TIME=$(date +%s)
 
 	DURATION=$((END_TIME - START_TIME))

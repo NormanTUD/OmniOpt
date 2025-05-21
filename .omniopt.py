@@ -6723,6 +6723,8 @@ def show_time_debugging_table() -> None:
     generate_time_table_rich()
     generate_job_submit_table_rich()
 
+    live_share()
+
 @beartype
 def generate_time_table_rich() -> None:
     if not isinstance(log_gen_times, list):

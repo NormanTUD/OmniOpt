@@ -2434,6 +2434,38 @@ $onclick_string
 		return [$tabs, $warnings];
 	}
 
+	function getLatestRecursiveModificationTime($folderPath) {
+		$latestTime = 0;
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($folderPath, FilesystemIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		foreach ($iterator as $item) {
+			$modTime = $item->getMTime();
+			if ($modTime > $latestTime) {
+				$latestTime = $modTime;
+			}
+		}
+
+		// Falls keine Dateien/Ordner drin, nehme den Ordner selbst als Zeit
+		if ($latestTime === 0 && is_dir($folderPath)) {
+			$latestTime = filemtime($folderPath);
+		}
+
+		return $latestTime;
+	}
+
+	function sortFoldersByModificationTime($basePath, &$folders) {
+		usort($folders, function($a, $b) use ($basePath) {
+			$timeA = getLatestRecursiveModificationTime("$basePath/$a");
+			$timeB = getLatestRecursiveModificationTime("$basePath/$b");
+			// Absteigend sortieren: neueste zuerst
+			return $timeB <=> $timeA;
+		});
+	}
+
 	function generateFolderTreeView($basePath) {
 		if (!is_dir($basePath)) {
 			echo "Base path does not exist.";
@@ -2443,32 +2475,36 @@ $onclick_string
 		echo '<ul class="tree-view">';
 
 		$users = getValidFolders($basePath);
+		sortFoldersByModificationTime($basePath, $users);  // Sortiere User nach Aktualität
+
 		foreach ($users as $user) {
 			$userPath = "$basePath/$user";
 			$experiments = getValidFolders($userPath);
+			sortFoldersByModificationTime($userPath, $experiments); // Sortiere Experimente
 
-			// Check ob mindestens ein gültiger Run in allen Experimenten existiert
 			$hasValidRun = false;
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
 				$runs = getValidFolders($experimentPath);
+				sortFoldersByModificationTime($experimentPath, $runs); // Sortiere Runs
 
 				foreach ($runs as $run) {
 					$runPath = "$experimentPath/$run";
 					if (hasNonEmptyFolder($runPath)) {
 						$hasValidRun = true;
-						break 2; // break both loops
+						break 2;
 					}
 				}
 			}
 
-			if (!$hasValidRun) continue; // Skip diesen User komplett
+			if (!$hasValidRun) continue;
 
 			echo '<li><details'.(count($users) == 1 ? ' open' : '').'><summary>' . htmlspecialchars($user) . '</summary><ul>';
 
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
 				$runs = getValidFolders($experimentPath);
+				sortFoldersByModificationTime($experimentPath, $runs); // nochmal Sortierung, falls notwendig
 
 				$validRunItems = [];
 
@@ -2477,13 +2513,11 @@ $onclick_string
 
 					if (!hasNonEmptyFolder($runPath)) continue;
 
-					// Zeitinformationen
 					$timestamp = getLatestModificationTime($runPath);
 					$lastModified = date("F d Y H:i:s", $timestamp);
 					$timeSince = timeSince($timestamp);
 					$bracket_string = "$lastModified | $timeSince";
 
-					// CSV-Analyse oder Subfolder zählen
 					$res_csv = "$runPath/results.csv";
 					$show = 1;
 

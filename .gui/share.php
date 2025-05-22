@@ -320,66 +320,7 @@
 		});
 	</script>
 	<div class="page">
-		<div class="invert_in_dark_mode" style="height: fit-content;">
-			<div id="share_path" class="invert_in_dark_mode title-bar-text">
-<?php
-				if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
-					$user_id_link = get_get("user_id");
-					$experiment_name_link = get_get("experiment_name");
-					$run_nr_link = get_get("run_nr");
-
-					if (!is_valid_user_id($user_id_link)) {
-						$user_id_link = '';
-					}
-
-					if (!is_valid_experiment_name($experiment_name_link)) {
-						$experiment_name_link = '';
-					}
-
-					if (!is_valid_run_nr($run_nr_link)) {
-						$run_nr_link = '';
-					}
-
-					$base_url = "?";
-					if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
-						$base_url = "?sort=" . $_GET["sort"] . "&";
-					}
-
-					$links = [];
-
-					if (!empty($user_id_link)) {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
-					}
-
-					if (!empty($experiment_name_link)) {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
-					}
-
-					if ($run_nr_link != "") {
-						$links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
-					}
-
-					if(count($links)) {
-						$home = $_SERVER["PHP_SELF"];
-						$home = preg_replace("/.*\//", "", $home);
-						$home = preg_replace("/\.php$/", "", $home);
-
-						if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
-							$home = "?sort=" . $_GET["sort"] . "&";
-						}
-
-						array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
-					}
-
-					$path_with_links = implode(" / ", $links);
-
-					if(count($links)) {
-						echo $path_with_links;
-					}
-				}
-?>
-			</div>
-		</div>
+		<br>
 		<div id="spinner" class="spinner"></div>
 
 		<script>
@@ -432,6 +373,9 @@
 					</section>
 <?php
 				} else {
+					generateFolderTreeView($GLOBALS["sharesPath"]);
+
+					/*
 					if(!$user_id && !$experiment_name && !$run_nr) {
 						generateFolderButtons($GLOBALS["sharesPath"], "user_id");
 					} else if($user_id && !$experiment_name && !$run_nr) {
@@ -444,6 +388,7 @@
 						print "experiment_name: " . ($experiment_name ? "Yes" : "No") . ", ";
 						print "run_nr: " . ($run_nr ? "Yes" : "No");
 					}
+					 */
 				}
 			}
 ?>

@@ -2440,4 +2440,62 @@ $onclick_string
 
 		return [$tabs, $warnings];
 	}
+
+	function generateFolderTreeView($basePath) {
+		if (!is_dir($basePath)) {
+			echo "Base path does not exist.";
+			return;
+		}
+
+		echo '<ul class="tree-view">';
+
+		$users = getValidFolders($basePath);
+		foreach ($users as $user) {
+			echo '<li><details open><summary>' . htmlspecialchars($user) . '</summary><ul>';
+
+			$userPath = $basePath . '/' . $user;
+			$experiments = getValidFolders($userPath);
+
+			foreach ($experiments as $experiment) {
+				echo '<li><details><summary>' . htmlspecialchars($experiment) . '</summary><ul>';
+
+				$experimentPath = $userPath . '/' . $experiment;
+				$runs = getValidFolders($experimentPath);
+
+				foreach ($runs as $run) {
+					$runPath = $experimentPath . '/' . $run;
+
+					if (!hasNonEmptyFolder($runPath)) continue;
+
+					// Hier wird der Link zur Share-Seite erzeugt
+					$href = htmlspecialchars("share?user_id=$user&experiment_name=$experiment&run_nr=$run");
+
+					echo '<li><a href="' . $href . '">' . htmlspecialchars($run) . '</a></li>';
+				}
+
+				echo '</ul></details></li>';
+			}
+
+			echo '</ul></details></li>';
+		}
+
+		echo '</ul>';
+	}
+
+	function getValidFolders($path) {
+		$folders = [];
+		if (!is_dir($path)) return $folders;
+
+		$dir = opendir($path);
+		while (($entry = readdir($dir)) !== false) {
+			if ($entry === '.' || $entry === '..') continue;
+			$full = $path . '/' . $entry;
+			if (is_dir($full) && preg_match('/^[a-zA-Z0-9-_]+$/', $entry)) {
+				$folders[] = $entry;
+			}
+		}
+		closedir($dir);
+		sort($folders); // Oder andere Sortierung nach Wunsch
+		return $folders;
+	}
 ?>

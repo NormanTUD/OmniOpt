@@ -56,3 +56,7 @@ The flow is:
 ## Visualization
 
 <img style="max-width: 100%;" data-lightsrc="documentation/output_light/architecture.svg" data-darksrc="documentation/output_dark/architecture.svg" />
+
+## Visualization of the interactions of OmniOpt2, Ax, BoTorch and Slurm
+
+<img style="max-width: 100%;" data-lightsrc="documentation/output_light_slurm/slurm.svg" data-darksrc="documentation/output_dark_slurm/slurm.svg" />

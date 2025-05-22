@@ -1,0 +1,61 @@
+@startuml
+
+title Interaction between OmniOpt, sbatch, ax, BoTorch Module, and ExternalGenerationNodes
+
+node "HPC Master Node" as HPCMaster {
+  component "OmniOpt2 Core" as OmniOptCore
+  component "ax" as ax_module #LightBlue
+
+  package "BoTorch Module" {
+    component "Sobol Sequence Generator" as sobol #LightGreen
+    component "BoTorch Optimizer" as botorch #LightYellow
+  }
+
+  component "ExternalGenerationNodes" as external_nodes #LightYellow
+}
+
+node "Compute Nodes" as ComputeNodes {
+  component "Job #1" as Job1 #FF8C00
+  component "Job #2" as Job2 #FF8C00
+  component "Job #n" as JobN #FF8C00
+}
+
+' OmniOpt Core calls ax with search space
+OmniOptCore --> ax_module : invoke with search space
+
+' ax always calls Sobol first to generate initial points (default)
+ax_module --> sobol : generate initial points (default)
+
+' Sobol returns initial points to ax
+sobol --> ax_module : initial points
+
+' BoTorch and ExternalGenerationNodes receive the current points generated so far
+' to generate new candidate points based on previous results
+
+' ax calls BoTorch Optimizer with current points (excluding Sobol initial points)
+ax_module --> botorch : generate points\n(using current points)
+
+' ax calls ExternalGenerationNodes with current points (alternative to BoTorch)
+ax_module --> external_nodes : generate points\n(using current points)
+
+' BoTorch and ExternalGenerationNodes return new points to ax
+botorch --> ax_module : new points
+external_nodes --> ax_module : new points
+
+' ax returns all generated points to OmniOpt Core
+ax_module --> OmniOptCore : all generated points
+
+' OmniOpt Core submits jobs to HPC via sbatch
+OmniOptCore --> Job1 : submit job
+OmniOptCore --> Job2 : submit job
+OmniOptCore --> JobN : submit job
+
+' Compute Nodes return results to OmniOpt Core
+Job1 --> OmniOptCore : results
+Job2 --> OmniOptCore : results
+JobN --> OmniOptCore : results
+
+' OmniOpt Core forwards results to ax for model update
+OmniOptCore --> ax_module : forward results
+
+@enduml

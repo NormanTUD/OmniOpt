@@ -1,16 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-ALWAYS_THERE="--jit_compile --no_normalize_y --fit_out_of_design"
+ALWAYS_THERE="--no_normalize_y --fit_out_of_design"
 
 PARAMS=(
-	#"--dont_warm_start_refitting" # Slow, disabled
-	#"--no_transform_inputs" # Slow, disabled
-	#"--refit_on_cv" # Slow, disabled
+	#"--dont_warm_start_refitting"
+	#"--no_transform_inputs"
+	#"--refit_on_cv"
 	#
-	#"--no_normalize_y" # Always use it
-	#"--fit_out_of_design" Always use it
-	#"--jit_compile" # Always use it
+	#"--no_normalize_y"
+	#"--fit_out_of_design"
 
 	#"--num_restarts=1"
 	#"--num_restarts=5"
@@ -19,7 +18,6 @@ PARAMS=(
 	#"--raw_samples=10"
 	#"--raw_samples=100"
 	
-	#"--jit_compile"
 	"--fit_abandoned"
 )
 

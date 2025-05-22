@@ -734,11 +734,6 @@ var hiddenTableData = [
 				info: "Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups."
 			},
 			{
-				text: "q Knowledge Gradient",
-				value: "qKnowledgeGradient",
-				info: "Batch optimization based on information gain. Good for expensive function evaluations."
-			},
-			{
 				text: "q Multi Step Lookahead",
 				value: "qMultiStepLookahead",
 				info: "Considers future steps in batch optimization. Computationally intensive but efficient."
@@ -793,7 +788,6 @@ var hiddenTableData = [
 			"<li><b>qNoisyExpectedImprovement</b>: Batch version of Noisy EI. Useful in parallel, noisy observations.</li>" +
 			"<li><b>qLogExpectedImprovement</b>: Batch version of Log Expected Improvement. Useful for complex noise in parallel queries.</li>" +
 			"<li><b>qLogNoisyExpectedImprovement</b>: Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups.</li>" +
-			"<li><b>qKnowledgeGradient</b>: Batch optimization based on information gain. Good for expensive function evaluations.</li>" +
 			"<li><b>qMultiStepLookahead</b>: Considers future steps in batch optimization. Computationally intensive but efficient.</li>" +
 			"<li><b>qMaxValueEntropy</b>: Maximizes uncertainty about the global optimum value. Good for exploratory batch searches.</li>" +
 			"<li><b>qLowerBoundMaxValueEntropy</b>: Lower bound approximation of Max Value Entropy. More efficient computation.</li>" +

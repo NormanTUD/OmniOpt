@@ -572,7 +572,7 @@ class ConfigLoader:
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
-        optional.add_argument('--acquisition_class', help=f'Choose the acquisition class for creating the surrogate model. Possible options are: {joined_valid_acquisition_classes}', default='LogExpectedImprovement', type=str)
+        optional.add_argument('--acquisition_class', help=f'Choose the acquisition class for creating the surrogate model. Possible options are: {joined_valid_acquisition_classes}', default=None, type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
@@ -6581,6 +6581,9 @@ def get_acquisition_class() -> Any:
         "qlognoisyexpectedimprovement": qLogNoisyExpectedImprovement,
         "qmaxvalueentropy": qMaxValueEntropy
     }
+
+    if args.acquisition_class is None or args.acquisition_class.lower() == "default":
+        return None
 
     key = args.acquisition_class.strip().lower()
     if key not in ACQUISITION_CLASS_MAP:

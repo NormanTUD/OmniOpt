@@ -701,8 +701,13 @@ var hiddenTableData = [
 		label: "Select acquisition function",
 		id: "acquisition_class",
 		type: "select",
-		value: "LogExpectedImprovement",
+		value: "default",
 		options: [
+			{
+				text: "Default",
+				value: "default",
+				info: "Use the default one."
+			},
 			{
 				text: "Log Expected Improvement",
 				value: "LogExpectedImprovement",
@@ -747,6 +752,7 @@ var hiddenTableData = [
 		required: true,
 		help: "This selection determines which acquisition function guides the optimization process.",
 		info: "Select the acquisition function to use for Bayesian optimization. <ul>" +
+			"<li><b>Default</b>: Use the default one.</li>" +
 			"<li><b>LogExpectedImprovement</b>: Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions.</li>" +
 			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
 			"<li><b>qExpectedImprovement</b>: Extends EI to parallel/batch queries. Suitable for distributed computations.</li>" +

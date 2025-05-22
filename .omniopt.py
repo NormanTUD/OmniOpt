@@ -455,6 +455,7 @@ class ConfigLoader:
     dont_warm_start_refitting: bool
     refit_on_cv: bool
     fit_out_of_design: bool
+    fit_abandoned: bool
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
@@ -572,6 +573,7 @@ class ConfigLoader:
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
         speed.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)
+        speed.add_argument('--fit_abandoned', help='Do not ignore abandoned data points while creating new points', action='store_true', default=False)
         speed.add_argument('--jit_compile', help='Enable JIT-compiling the model', action='store_true', default=False)
         speed.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=5)
         speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
@@ -6688,6 +6690,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
                                         "jit_compile": args.jit_compile,
                                         "refit_on_cv": args.refit_on_cv,
+                                        "fit_abandoned": args.fit_abandoned,
                                         "fit_out_of_design": args.fit_out_of_design
                                     }
                                 )
@@ -7169,6 +7172,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                 "warm_start_refitting": not args.dont_warm_start_refitting,
                 "jit_compile": args.jit_compile,
                 "refit_on_cv": args.refit_on_cv,
+                "fit_abandoned": args.fit_abandoned,
                 "fit_out_of_design": args.fit_out_of_design
             }
         )
@@ -7205,6 +7209,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
             "warm_start_refitting": not args.dont_warm_start_refitting,
             "jit_compile": args.jit_compile,
             "refit_on_cv": args.refit_on_cv,
+            "fit_abandoned": args.fit_abandoned,
             "fit_out_of_design": args.fit_out_of_design
         },
         should_deduplicate=True,

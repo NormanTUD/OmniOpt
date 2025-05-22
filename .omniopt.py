@@ -6563,6 +6563,39 @@ def get_acquisition_options() -> dict:
         }
     }
 
+@beartype
+def get_batched_arms(nr_of_jobs_to_get: int) -> list:
+    batched_arms = []
+    attempts = 0
+
+    while len(batched_arms) != nr_of_jobs_to_get:
+        if attempts > args.max_attempts_for_generation:
+            print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
+                        f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
+            break
+
+        remaining = nr_of_jobs_to_get - len(batched_arms)
+        print_debug(f"_fetch_next_trials: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
+
+        batched_generator_run = global_gs.gen(
+            experiment=ax_client.experiment,
+            n=remaining,
+            pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+        )
+
+        new_arms = batched_generator_run.arms
+        if not new_arms:
+            print_debug("_fetch_next_trials: No new arms were generated in this attempt.")
+        else:
+            print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s).")
+
+        batched_arms.extend(new_arms)
+        attempts += 1
+
+    print_debug(f"_fetch_next_trials: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
+
+    return batched_arms
+
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
@@ -6581,37 +6614,9 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     try:
         all_start_time = time.time()
 
+        batched_arms = get_batched_arms(nr_of_jobs_to_get)
+
         cnt = 0
-
-        batched_arms = []
-
-        attempts = 0
-
-        while len(batched_arms) != nr_of_jobs_to_get:
-            if attempts > args.max_attempts_for_generation:
-                print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
-                            f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
-                break
-
-            remaining = nr_of_jobs_to_get - len(batched_arms)
-            print_debug(f"_fetch_next_trials: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
-
-            batched_generator_run = global_gs.gen(
-                experiment=ax_client.experiment,
-                n=remaining,
-                pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
-            )
-
-            new_arms = batched_generator_run.arms
-            if not new_arms:
-                print_debug("_fetch_next_trials: No new arms were generated in this attempt.")
-            else:
-                print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s).")
-
-            batched_arms.extend(new_arms)
-            attempts += 1
-
-        print_debug(f"_fetch_next_trials: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
         for k in range(len(batched_arms)):
             print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")

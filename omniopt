@@ -1622,7 +1622,7 @@ EOF
 				echo "Starting OmniOpt with Py-Spy"
 				pip install py-spy
 				#stdbuf -e 0 -o 0 py-spy record --rate 1000 --subprocesses --native --output profile.svg python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
-				stdbuf -e 0 -o 0 py-spy record --subprocesses --native --output profile.svg python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
+				stdbuf -e 0 -o 0 py-spy record --rate 10 --subprocesses --native --output profile.svg python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
 				EXIT_CODE=$?
 			fi
 		else

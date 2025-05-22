@@ -445,13 +445,6 @@ var hiddenTableData = [
 		info: "Shows a table of the workers percentage at the end."
 	},
 	{
-		label: "Enforce sequential optimization?",
-		id: "enforce_sequential_optimization",
-		type: "checkbox",
-		value: 0,
-		info: "Enforce sequential optimization."
-	},
-	{
 		label: "Optimization with combined criteria?",
 		id: "occ",
 		type: "checkbox",

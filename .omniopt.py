@@ -463,7 +463,6 @@ class ConfigLoader:
     username: Optional[str]
     max_nr_of_zero_results: int
     mem_gb: int
-    acquisition_class: Optional[str]
     continue_previous_job: Optional[str]
     calculate_pareto_front_of_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
@@ -571,7 +570,6 @@ class ConfigLoader:
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
-        optional.add_argument('--acquisition_class', help=f'Choose the acquisition class for creating the surrogate model. Possible options are: {joined_valid_acquisition_classes}', default=None, type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
@@ -6571,30 +6569,6 @@ def get_acquisition_options() -> dict:
         }
     }
 
-@beartype
-def get_acquisition_class() -> Any:
-    ACQUISITION_CLASS_MAP = {
-        "logexpectedimprovement": LogExpectedImprovement,
-        "expectedimprovement": ExpectedImprovement,
-        "qexpectedimprovement": qExpectedImprovement,
-        "qnoisyexpectedimprovement": qNoisyExpectedImprovement,
-        "qlogexpectedimprovement": qLogExpectedImprovement,
-        "qlognoisyexpectedimprovement": qLogNoisyExpectedImprovement,
-        "qmaxvalueentropy": qMaxValueEntropy
-    }
-
-    if args.acquisition_class is None or args.acquisition_class.lower() == "default":
-        print_debug("Using default acquisition class")
-        return None
-
-    key = args.acquisition_class.strip().lower()
-    if key not in ACQUISITION_CLASS_MAP:
-        raise ValueError(
-            f"Unknown acquisition function '{args.acquisition_class}'. Valid options are:\n{joined_valid_acquisition_classes}"
-        )
-
-    return ACQUISITION_CLASS_MAP[key]
-
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
@@ -6716,12 +6690,6 @@ def set_global_gs_to_random() -> None:
     global global_gs
     global overwritten_to_random
 
-    acq_class = get_acquisition_class()
-
-    sobol_model_kwargs = {}
-    if acq_class:
-        sobol_model_kwargs["botorch_acqf_class"] = acq_class
-
     global_gs = GenerationStrategy(
         name="Random*",
         nodes=[
@@ -6730,7 +6698,6 @@ def set_global_gs_to_random() -> None:
                 model_specs=[
                     GeneratorSpec(
                         Models.SOBOL,
-                        model_kwargs=sobol_model_kwargs if sobol_model_kwargs else None,
                         model_gen_kwargs={
                             "normalize_y": not args.no_normalize_y,
                             "transform_inputs": not args.no_transform_inputs,
@@ -7231,9 +7198,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         model_spec = [
             GeneratorSpec(
                 selected_model,
-                model_kwargs={
-                    "botorch_acqf_class": get_acquisition_class()
-                },
                 model_gen_kwargs={
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
@@ -7269,18 +7233,10 @@ def get_optimizer_kwargs() -> dict:
 
 @beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    acq_class = get_acquisition_class()
-    model_kwargs = None
-    if acq_class:
-        model_kwargs = {
-            "botorch_acqf_class": acq_class
-        }
-
     step = GenerationStep(
         model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
-        model_kwargs=model_kwargs,
         model_gen_kwargs={
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,

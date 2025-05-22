@@ -6597,7 +6597,7 @@ def get_acquisition_class() -> Any:
 @disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
-    global global_gs, overwritten_to_random, gotten_jobs
+    global gotten_jobs
 
     if not ax_client:
         print_red("ax_client was not defined")
@@ -6632,13 +6632,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                 n=remaining,
                 pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
             )
-
-            # TODO: Modell speichern hier
-            #if count_done_jobs() > 2:
-            #    dier(help(global_gs.model.model))
-            #    dier(global_gs.model.model.serialize_state())
-            #    dier(global_gs.model.model.surrogate)
-            #    dier(global_gs.model.model._get_state())
 
             new_arms = batched_generator_run.arms
             if not new_arms:
@@ -6711,47 +6704,55 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         if recursion is False and args.revert_to_random_when_seemingly_exhausted:
             print_debug("The search space seems exhausted. Generating random points from here on.")
 
-            acq_class = get_acquisition_class()
-
-            sobol_model_kwargs = {}
-            if acq_class:
-                sobol_model_kwargs["botorch_acqf_class"] = acq_class
-
-            global_gs = GenerationStrategy(
-                name="Random*",
-                nodes=[
-                    GenerationNode(
-                        node_name="Sobol",
-                        model_specs=[
-                            GeneratorSpec(
-                                Models.SOBOL,
-                                model_kwargs=sobol_model_kwargs if sobol_model_kwargs else None,
-                                model_gen_kwargs={
-                                    "normalize_y": not args.no_normalize_y,
-                                    "transform_inputs": not args.no_transform_inputs,
-                                    "acquisition_options": get_acquisition_options(),
-                                    "optimizer_kwargs": get_optimizer_kwargs(),
-                                    "torch_device": get_torch_device_str(),
-                                    "random_seed": args.seed,
-                                    "warm_start_refitting": not args.dont_warm_start_refitting,
-                                    "jit_compile": not args.dont_jit_compile,
-                                    "refit_on_cv": args.refit_on_cv,
-                                    "fit_abandoned": args.fit_abandoned,
-                                    "fit_out_of_design": args.fit_out_of_design
-                                }
-                            )
-                        ]
-                    )
-                ]
-            )
-
-            overwritten_to_random = True
-
-            print_debug(f"New global_gs: {global_gs}")
+            set_global_gs_to_random()
 
             return _fetch_next_trials(nr_of_jobs_to_get, True)
 
     return {}, True
+
+@beartype
+def set_global_gs_to_random() -> None:
+    global global_gs
+    global overwritten_to_random
+
+    acq_class = get_acquisition_class()
+
+    sobol_model_kwargs = {}
+    if acq_class:
+        sobol_model_kwargs["botorch_acqf_class"] = acq_class
+
+    global_gs = GenerationStrategy(
+        name="Random*",
+        nodes=[
+            GenerationNode(
+                node_name="Sobol",
+                model_specs=[
+                    GeneratorSpec(
+                        Models.SOBOL,
+                        model_kwargs=sobol_model_kwargs if sobol_model_kwargs else None,
+                        model_gen_kwargs={
+                            "normalize_y": not args.no_normalize_y,
+                            "transform_inputs": not args.no_transform_inputs,
+                            "acquisition_options": get_acquisition_options(),
+                            "optimizer_kwargs": get_optimizer_kwargs(),
+                            "torch_device": get_torch_device_str(),
+                            "random_seed": args.seed,
+                            "warm_start_refitting": not args.dont_warm_start_refitting,
+                            "jit_compile": not args.dont_jit_compile,
+                            "refit_on_cv": args.refit_on_cv,
+                            "fit_abandoned": args.fit_abandoned,
+                            "fit_out_of_design": args.fit_out_of_design
+                        }
+                    )
+                ]
+            )
+        ]
+    )
+
+    overwritten_to_random = True
+
+    print_debug(f"New global_gs: {global_gs}")
+
 
 @beartype
 def save_table_as_text(table: Table, filepath: str) -> None:

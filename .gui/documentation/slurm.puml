@@ -12,7 +12,7 @@
 
   skinparam componentBackgroundColor #1e1e1e
   skinparam nodeBackgroundColor #CC7000
-  skinparam databaseBackgroundColor #003366
+  skinparam databaseBackgroundColor #003166
   skinparam packageBackgroundColor #1e1e1e
   skinparam cloudBackgroundColor #1e1e1e
 
@@ -33,7 +33,7 @@
 
   skinparam componentBackgroundColor #e0e0e0
   skinparam nodeBackgroundColor #FFB84D
-  skinparam databaseBackgroundColor #FFEB3B
+  skinparam databaseBackgroundColor #003166
   skinparam packageBackgroundColor #e0e0e0
   skinparam cloudBackgroundColor #e0e0e0
 
@@ -58,11 +58,20 @@ node "HPC Master Node" as HPCMaster {
   package "BoTorch Module" {
     component "Sobol Sequence Generator" as sobol #LightGreen
     component "BoTorch Optimizer" as botorch
+
+    component "BOTORCH_MODULAR\n..." as modular #99FF99
+    component "GPEI\n..." as gpei #99FF99
+    component "SAASBO\n..." as saasbo #99FF99
+
+    botorch -down-> modular
+    botorch -down-> gpei
+    botorch -down-> saasbo
   }
 
   component "ExternalGenerationNodes" as external_nodes
+  component "RandomForest" as rf_nodes #LightBlue
 
-  database "runs/" as db_runs #FFEB3B
+  database "runs/" as db_runs
 }
 
 node "Compute Nodes" as ComputeNodes {
@@ -78,9 +87,11 @@ sobol --> ax_module : initial points
 
 ax_module --> botorch : generate points\n(using current points)
 ax_module --> external_nodes : generate points\n(using current points)
+ax_module --> rf_nodes : generate points\n(using current points)
 
 botorch --> ax_module : new points
 external_nodes --> ax_module : new points
+rf_nodes --> ax_module : new points
 
 ax_module --> OmniOptCore : all generated points
 

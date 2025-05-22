@@ -336,6 +336,7 @@
 
 		$replacements = array(
 			"Path.home()" => "\$HOME",
+			"joined_valid_acquisition_classes" => extract_and_join_python_list($file_path, "VALID_ACQUISITION_CLASSES"),
 			"joined_valid_occ_types" => extract_and_join_python_list($file_path, "valid_occ_types"),
 			"joined_supported_models" => extract_and_join_python_list($file_path, "SUPPORTED_MODELS")
 		);

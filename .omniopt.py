@@ -43,6 +43,9 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
+VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "ProbabilityOfImprovement", "UpperConfidenceBound", "NoisyExpectedImprovement", "LogNoisyExpectedImprovement", "PosteriorMean", "PosteriorStandardDeviation", "qExpectedImprovement", "qNoisyExpectedImprovement", "qProbabilityOfImprovement", "qUpperConfidenceBound", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qSimpleRegret", "qPosteriorStandardDeviation", "qKnowledgeGradient", "qMultiStepLookahead", "qMaxValueEntropy", "qLowerBoundMaxValueEntropy", "PairwiseBayesianActiveLearningByDisagreement", "PairwiseMCPosteriorVariance", "ConstrainedExpectedImprovement", "ProximalAcquisitionFunction", "qMultiFidelityMaxValueEntropy", "qMultiFidelityKnowledgeGradient"]
+joined_valid_acquisition_classes: str = ", ".join(VALID_ACQUISITION_CLASSES)
+
 post_generation_constraints: list = []
 abandoned_trial_indices: list = []
 global_param_names: list = []
@@ -568,6 +571,7 @@ class ConfigLoader:
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
+        optional.add_argument('--acquisition_class', help=f'Choose the acquisition class for creating the surrogate model. Possible options are: {joined_valid_acquisition_classes}', default="LogExpectedImprovement", type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
@@ -6567,7 +6571,42 @@ def get_acquisition_options() -> dict:
 
 @beartype
 def get_acquisition_class() -> Any:
-    return LogExpectedImprovement
+    ACQUISITION_CLASS_MAP = {
+        "logexpectedimprovement": LogExpectedImprovement,
+        "expectedimprovement": ExpectedImprovement,
+        "probabilityofimprovement": ProbabilityOfImprovement,
+        "upperconfidencebound": UpperConfidenceBound,
+        "noisyexpectedimprovement": NoisyExpectedImprovement,
+        "lognoisyexpectedimprovement": LogNoisyExpectedImprovement,
+        "posteriormean": PosteriorMean,
+        "posteriorstandarddeviation": PosteriorStandardDeviation,
+        "qexpectedimprovement": qExpectedImprovement,
+        "qnoisyexpectedimprovement": qNoisyExpectedImprovement,
+        "qprobabilityofimprovement": qProbabilityOfImprovement,
+        "qupperconfidencebound": qUpperConfidenceBound,
+        "qlogexpectedimprovement": qLogExpectedImprovement,
+        "qlognoisyexpectedimprovement": qLogNoisyExpectedImprovement,
+        "qsimpleregret": qSimpleRegret,
+        "qposteriorstandarddeviation": qPosteriorStandardDeviation,
+        "qknowledgegradient": qKnowledgeGradient,
+        "qmultisteplookahead": qMultiStepLookahead,
+        "qmaxvalueentropy": qMaxValueEntropy,
+        "qlowerboundmaxvalueentropy": qLowerBoundMaxValueEntropy,
+        "pairwisebayesianactivelearningbydisagreement": PairwiseBayesianActiveLearningByDisagreement,
+        "pairwisemcposteriorvariance": PairwiseMCPosteriorVariance,
+        "constrainedexpectedimprovement": ConstrainedExpectedImprovement,
+        "proximalacquisitionfunction": ProximalAcquisitionFunction,
+        "qmultifidelitymaxvalueentropy": qMultiFidelityMaxValueEntropy,
+        "qmultifidelityknowledgegradient": qMultiFidelityKnowledgeGradient
+    }
+
+    key = args.acquisition_class.strip().lower()
+    if key not in ACQUISITION_CLASS_MAP:
+        raise ValueError(
+            f"Unknown acquisition function '{args.acquisition_class}'. Valid options are:\n{joined_valid_acquisition_classes}"
+        )
+
+    return ACQUISITION_CLASS_MAP[key]
 
 @disable_logs
 @beartype

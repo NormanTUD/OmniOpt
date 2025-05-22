@@ -697,4 +697,172 @@ var hiddenTableData = [
 		value: 0,
 		info: "Avoid normalizing the output (objective) values. Faster, but less stable when outputs vary in scale."
 	},
+	{
+		label: "Select acquisition function",
+		id: "acquisition_function",
+		type: "select",
+		value: "LogExpectedImprovement",
+		options: [
+			{
+				text: "Log Expected Improvement",
+				value: "LogExpectedImprovement",
+				info: "Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions."
+			},
+			{
+				text: "Expected Improvement",
+				value: "ExpectedImprovement",
+				info: "Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modelled uncertainty."
+			},
+			{
+				text: "Probability Of Improvement",
+				value: "ProbabilityOfImprovement",
+				info: "Focuses on finding better results with high probability. Can be conservative and favor local minima."
+			},
+			{
+				text: "Upper Confidence Bound",
+				value: "UpperConfidenceBound",
+				info: "Balances exploration and exploitation via confidence intervals. Good for well-balanced optimization tasks."
+			},
+			{
+				text: "Noisy Expected Improvement",
+				value: "NoisyExpectedImprovement",
+				info: "For problems with measurement noise. Accounts for uncertainty in observations."
+			},
+			{
+				text: "Log Noisy Expected Improvement",
+				value: "LogNoisyExpectedImprovement",
+				info: "Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise."
+			},
+			{
+				text: "Posterior Mean",
+				value: "PosteriorMean",
+				info: "Uses only the expected model output. More exploitative, less exploratory."
+			},
+			{
+				text: "Posterior Standard Deviation",
+				value: "PosteriorStandardDeviation",
+				info: "Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone."
+			},
+			{
+				text: "q Expected Improvement",
+				value: "qExpectedImprovement",
+				info: "Extends EI to parallel/batch queries. Suitable for distributed computations."
+			},
+			{
+				text: "q Noisy Expected Improvement",
+				value: "qNoisyExpectedImprovement",
+				info: "Batch version of Noisy EI. Useful in parallel, noisy observations."
+			},
+			{
+				text: "q Probability Of Improvement",
+				value: "qProbabilityOfImprovement",
+				info: "Batch version of Probability of Improvement. Can be conservative in parallel optimization."
+			},
+			{
+				text: "q Upper Confidence Bound",
+				value: "qUpperConfidenceBound",
+				info: "Batch version of UCB. Good when exploration and exploitation are important in batches."
+			},
+			{
+				text: "q Log Expected Improvement",
+				value: "qLogExpectedImprovement",
+				info: "Batch version of Log Expected Improvement. Useful for complex noise in parallel queries."
+			},
+			{
+				text: "q Log Noisy Expected Improvement",
+				value: "qLogNoisyExpectedImprovement",
+				info: "Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups."
+			},
+			{
+				text: "q Simple Regret",
+				value: "qSimpleRegret",
+				info: "Minimizes expected loss in batch. Good for final parameter selection."
+			},
+			{
+				text: "q Posterior Standard Deviation",
+				value: "qPosteriorStandardDeviation",
+				info: "Batch focus on uncertainty exploration. Useful for exploratory batch strategies."
+			},
+			{
+				text: "q Knowledge Gradient",
+				value: "qKnowledgeGradient",
+				info: "Batch optimization based on information gain. Good for expensive function evaluations."
+			},
+			{
+				text: "q Multi Step Lookahead",
+				value: "qMultiStepLookahead",
+				info: "Considers future steps in batch optimization. Computationally intensive but efficient."
+			},
+			{
+				text: "q Max Value Entropy",
+				value: "qMaxValueEntropy",
+				info: "Maximizes uncertainty about the global optimum value. Good for exploratory batch searches."
+			},
+			{
+				text: "q Lower Bound Max Value Entropy",
+				value: "qLowerBoundMaxValueEntropy",
+				info: "Lower bound approximation of Max Value Entropy. More efficient computation."
+			},
+			{
+				text: "Pairwise Bayesian Active Learning By Disagreement",
+				value: "PairwiseBayesianActiveLearningByDisagreement",
+				info: "Active learning focusing on model disagreement. Good for uncertain data scenarios."
+			},
+			{
+				text: "Pairwise MC Posterior Variance",
+				value: "PairwiseMCPosteriorVariance",
+				info: "Uses Monte Carlo posterior variance for exploration. Effective in complex uncertainty."
+			},
+			{
+				text: "Constrained Expected Improvement",
+				value: "ConstrainedExpectedImprovement",
+				info: "Accounts for constraints in EI. Useful for constrained optimization problems."
+			},
+			{
+				text: "Proximal Acquisition Function",
+				value: "ProximalAcquisitionFunction",
+				info: "Focuses search locally around current points. Good for problems with strong local optima."
+			},
+			{
+				text: "q Multi Fidelity Max Value Entropy",
+				value: "qMultiFidelityMaxValueEntropy",
+				info: "Batch and multi-fidelity optimization with Max Value Entropy. Good for hierarchical models."
+			},
+			{
+				text: "q Multi Fidelity Knowledge Gradient",
+				value: "qMultiFidelityKnowledgeGradient",
+				info: "Batch and multi-fidelity with Knowledge Gradient. Useful with multi-level accuracy models."
+			}
+		],
+		required: true,
+		help: "This selection determines which acquisition function guides the optimization process.",
+		info: "Select the acquisition function to use for Bayesian optimization. <ul>" +
+			"<li><b>LogExpectedImprovement</b>: Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions.</li>" +
+			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
+			"<li><b>ProbabilityOfImprovement</b>: Focuses on finding better results with high probability. Can be conservative and favor local minima.</li>" +
+			"<li><b>UpperConfidenceBound</b>: Balances exploration and exploitation via confidence intervals. Good for well-balanced optimization tasks.</li>" +
+			"<li><b>NoisyExpectedImprovement</b>: For problems with measurement noise. Accounts for uncertainty in observations.</li>" +
+			"<li><b>LogNoisyExpectedImprovement</b>: Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise.</li>" +
+			"<li><b>PosteriorMean</b>: Uses only the expected model output. More exploitative, less exploratory.</li>" +
+			"<li><b>PosteriorStandardDeviation</b>: Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone.</li>" +
+			"<li><b>qExpectedImprovement</b>: Extends EI to parallel/batch queries. Suitable for distributed computations.</li>" +
+			"<li><b>qNoisyExpectedImprovement</b>: Batch version of Noisy EI. Useful in parallel, noisy observations.</li>" +
+			"<li><b>qProbabilityOfImprovement</b>: Batch version of Probability of Improvement. Can be conservative in parallel optimization.</li>" +
+			"<li><b>qUpperConfidenceBound</b>: Batch version of UCB. Good when exploration and exploitation are important in batches.</li>" +
+			"<li><b>qLogExpectedImprovement</b>: Batch version of Log Expected Improvement. Useful for complex noise in parallel queries.</li>" +
+			"<li><b>qLogNoisyExpectedImprovement</b>: Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups.</li>" +
+			"<li><b>qSimpleRegret</b>: Minimizes expected loss in batch. Good for final parameter selection.</li>" +
+			"<li><b>qPosteriorStandardDeviation</b>: Batch focus on uncertainty exploration. Useful for exploratory batch strategies.</li>" +
+			"<li><b>qKnowledgeGradient</b>: Batch optimization based on information gain. Good for expensive function evaluations.</li>" +
+			"<li><b>qMultiStepLookahead</b>: Considers future steps in batch optimization. Computationally intensive but efficient.</li>" +
+			"<li><b>qMaxValueEntropy</b>: Maximizes uncertainty about the global optimum value. Good for exploratory batch searches.</li>" +
+			"<li><b>qLowerBoundMaxValueEntropy</b>: Lower bound approximation of Max Value Entropy. More efficient computation.</li>" +
+			"<li><b>PairwiseBayesianActiveLearningByDisagreement</b>: Active learning focusing on model disagreement. Good for uncertain data scenarios.</li>" +
+			"<li><b>PairwiseMCPosteriorVariance</b>: Uses Monte Carlo posterior variance for exploration. Effective in complex uncertainty.</li>" +
+			"<li><b>ConstrainedExpectedImprovement</b>: Accounts for constraints in EI. Useful for constrained optimization problems.</li>" +
+			"<li><b>ProximalAcquisitionFunction</b>: Focuses search locally around current points. Good for problems with strong local optima.</li>" +
+			"<li><b>qMultiFidelityMaxValueEntropy</b>: Batch and multi-fidelity optimization with Max Value Entropy. Good for hierarchical models.</li>" +
+			"<li><b>qMultiFidelityKnowledgeGradient</b>: Batch and multi-fidelity with Knowledge Gradient. Useful with multi-level accuracy models.</li>" +
+			"</ul>"
+	}
 ];

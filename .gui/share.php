@@ -63,6 +63,11 @@
 		}
 	}
 
+	if(isset($_GET["show_overview"])) {
+		generateFolderTreeView($GLOBALS["sharesPath"]);
+		exit(0);
+	}
+
 	$run_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 	if($run_nr == -1) {
@@ -373,8 +378,12 @@
 					</section>
 <?php
 				} else {
-					generateFolderTreeView($GLOBALS["sharesPath"]);
-
+?>
+					<div style="text-align: center;">
+						<progress id="progressbar"></progress> Loading OmniOpt2-Share-Overview ..
+					</div>
+					<div id="overview_content" style="display: none"></div>
+<?php
 					/*
 					if(!$user_id && !$experiment_name && !$run_nr) {
 						generateFolderButtons($GLOBALS["sharesPath"], "user_id");
@@ -394,6 +403,13 @@
 ?>
 		</div>
 	</div>
+
+	<script>
+		$.get("share?show_overview=1", function(content) {
+			$("#progressbar").parent().remove();
+			$("#overview_content").html(content).show();
+		});
+	</script>
 <?php
 	include("footer.php");
 ?>

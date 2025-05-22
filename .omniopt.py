@@ -582,6 +582,7 @@ class ConfigLoader:
         speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
+        speed.add_argument('--acquisition_sequential', help='Force sequential acquisition generation', action='store_true', default=False)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6563,7 +6564,7 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
 def get_acquisition_options() -> dict:
     return {
         "optimizer_options": {
-            "sequential": False,
+            "sequential": args.acquisition_sequential,
             "num_restarts": args.num_restarts,
             "raw_samples": args.raw_samples
         }

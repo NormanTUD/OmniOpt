@@ -17,7 +17,7 @@ PARAMS=(
 	#"--raw_samples=10"
 	#"--raw_samples=100"
 	
-	"--jit_compile"
+	#"--jit_compile"
 	"--fit_abandoned"
 )
 

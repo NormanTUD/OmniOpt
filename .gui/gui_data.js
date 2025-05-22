@@ -714,16 +714,6 @@ var hiddenTableData = [
 				info: "Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modelled uncertainty."
 			},
 			{
-				text: "Posterior Mean",
-				value: "PosteriorMean",
-				info: "Uses only the expected model output. More exploitative, less exploratory."
-			},
-			{
-				text: "Posterior Standard Deviation",
-				value: "PosteriorStandardDeviation",
-				info: "Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone."
-			},
-			{
 				text: "q Expected Improvement",
 				value: "qExpectedImprovement",
 				info: "Extends EI to parallel/batch queries. Suitable for distributed computations."
@@ -819,8 +809,6 @@ var hiddenTableData = [
 		info: "Select the acquisition function to use for Bayesian optimization. <ul>" +
 			"<li><b>LogExpectedImprovement</b>: Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions.</li>" +
 			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
-			"<li><b>PosteriorMean</b>: Uses only the expected model output. More exploitative, less exploratory.</li>" +
-			"<li><b>PosteriorStandardDeviation</b>: Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone.</li>" +
 			"<li><b>qExpectedImprovement</b>: Extends EI to parallel/batch queries. Suitable for distributed computations.</li>" +
 			"<li><b>qNoisyExpectedImprovement</b>: Batch version of Noisy EI. Useful in parallel, noisy observations.</li>" +
 			"<li><b>qProbabilityOfImprovement</b>: Batch version of Probability of Improvement. Can be conservative in parallel optimization.</li>" +

@@ -43,7 +43,7 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
-VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "ProbabilityOfImprovement", "UpperConfidenceBound", "NoisyExpectedImprovement", "LogNoisyExpectedImprovement", "PosteriorMean", "PosteriorStandardDeviation", "qExpectedImprovement", "qNoisyExpectedImprovement", "qProbabilityOfImprovement", "qUpperConfidenceBound", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qSimpleRegret", "qPosteriorStandardDeviation", "qKnowledgeGradient", "qMultiStepLookahead", "qMaxValueEntropy", "qLowerBoundMaxValueEntropy", "PairwiseBayesianActiveLearningByDisagreement", "PairwiseMCPosteriorVariance", "ConstrainedExpectedImprovement", "ProximalAcquisitionFunction", "qMultiFidelityMaxValueEntropy", "qMultiFidelityKnowledgeGradient"]
+VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "LogNoisyExpectedImprovement", "PosteriorMean", "PosteriorStandardDeviation", "qExpectedImprovement", "qNoisyExpectedImprovement", "qProbabilityOfImprovement", "qUpperConfidenceBound", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qSimpleRegret", "qPosteriorStandardDeviation", "qKnowledgeGradient", "qMultiStepLookahead", "qMaxValueEntropy", "qLowerBoundMaxValueEntropy", "PairwiseBayesianActiveLearningByDisagreement", "PairwiseMCPosteriorVariance", "ConstrainedExpectedImprovement", "ProximalAcquisitionFunction", "qMultiFidelityMaxValueEntropy", "qMultiFidelityKnowledgeGradient"]
 joined_valid_acquisition_classes: str = ", ".join(VALID_ACQUISITION_CLASSES)
 
 post_generation_constraints: list = []
@@ -463,6 +463,7 @@ class ConfigLoader:
     username: Optional[str]
     max_nr_of_zero_results: int
     mem_gb: int
+    acquisition_class: str
     continue_previous_job: Optional[str]
     calculate_pareto_front_of_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
@@ -510,7 +511,7 @@ class ConfigLoader:
 
         self.add_arguments()
 
-    @beartype
+    @beartypeacquisition_class
     def add_arguments(self) -> None:
         required = self.parser.add_argument_group('Required arguments', 'These options have to be set')
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', 'Of these arguments, one has to be set to continue')
@@ -839,7 +840,7 @@ try:
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
 
-        from botorch.acquisition import LogExpectedImprovement, ExpectedImprovement, ProbabilityOfImprovement, UpperConfidenceBound, NoisyExpectedImprovement, LogNoisyExpectedImprovement, PosteriorMean, PosteriorStandardDeviation, qExpectedImprovement, qNoisyExpectedImprovement, qProbabilityOfImprovement, qUpperConfidenceBound, qLogExpectedImprovement, qLogNoisyExpectedImprovement, qSimpleRegret, qPosteriorStandardDeviation, qKnowledgeGradient, qMultiStepLookahead, qMaxValueEntropy, qLowerBoundMaxValueEntropy, PairwiseBayesianActiveLearningByDisagreement, PairwiseMCPosteriorVariance, ConstrainedExpectedImprovement, ProximalAcquisitionFunction, qMultiFidelityMaxValueEntropy, qMultiFidelityKnowledgeGradient
+        from botorch.acquisition import LogExpectedImprovement, ExpectedImprovement, LogNoisyExpectedImprovement, PosteriorMean, PosteriorStandardDeviation, qExpectedImprovement, qNoisyExpectedImprovement, qProbabilityOfImprovement, qUpperConfidenceBound, qLogExpectedImprovement, qLogNoisyExpectedImprovement, qSimpleRegret, qPosteriorStandardDeviation, qKnowledgeGradient, qMultiStepLookahead, qMaxValueEntropy, qLowerBoundMaxValueEntropy, PairwiseBayesianActiveLearningByDisagreement, PairwiseMCPosteriorVariance, ConstrainedExpectedImprovement, ProximalAcquisitionFunction, qMultiFidelityMaxValueEntropy, qMultiFidelityKnowledgeGradient
 
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
@@ -6574,9 +6575,6 @@ def get_acquisition_class() -> Any:
     ACQUISITION_CLASS_MAP = {
         "logexpectedimprovement": LogExpectedImprovement,
         "expectedimprovement": ExpectedImprovement,
-        "probabilityofimprovement": ProbabilityOfImprovement,
-        "upperconfidencebound": UpperConfidenceBound,
-        "noisyexpectedimprovement": NoisyExpectedImprovement,
         "lognoisyexpectedimprovement": LogNoisyExpectedImprovement,
         "posteriormean": PosteriorMean,
         "posteriorstandarddeviation": PosteriorStandardDeviation,

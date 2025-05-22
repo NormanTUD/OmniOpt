@@ -714,21 +714,6 @@ var hiddenTableData = [
 				info: "Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modelled uncertainty."
 			},
 			{
-				text: "Probability Of Improvement",
-				value: "ProbabilityOfImprovement",
-				info: "Focuses on finding better results with high probability. Can be conservative and favor local minima."
-			},
-			{
-				text: "Upper Confidence Bound",
-				value: "UpperConfidenceBound",
-				info: "Balances exploration and exploitation via confidence intervals. Good for well-balanced optimization tasks."
-			},
-			{
-				text: "Noisy Expected Improvement",
-				value: "NoisyExpectedImprovement",
-				info: "For problems with measurement noise. Accounts for uncertainty in observations."
-			},
-			{
 				text: "Log Noisy Expected Improvement",
 				value: "LogNoisyExpectedImprovement",
 				info: "Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise."
@@ -839,9 +824,6 @@ var hiddenTableData = [
 		info: "Select the acquisition function to use for Bayesian optimization. <ul>" +
 			"<li><b>LogExpectedImprovement</b>: Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions.</li>" +
 			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
-			"<li><b>ProbabilityOfImprovement</b>: Focuses on finding better results with high probability. Can be conservative and favor local minima.</li>" +
-			"<li><b>UpperConfidenceBound</b>: Balances exploration and exploitation via confidence intervals. Good for well-balanced optimization tasks.</li>" +
-			"<li><b>NoisyExpectedImprovement</b>: For problems with measurement noise. Accounts for uncertainty in observations.</li>" +
 			"<li><b>LogNoisyExpectedImprovement</b>: Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise.</li>" +
 			"<li><b>PosteriorMean</b>: Uses only the expected model output. More exploitative, less exploratory.</li>" +
 			"<li><b>PosteriorStandardDeviation</b>: Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone.</li>" +

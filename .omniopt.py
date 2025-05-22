@@ -450,6 +450,7 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    acquisition_sequential: bool
     num_restarts: int
     raw_samples: int
     show_generate_time_table: bool

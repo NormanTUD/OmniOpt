@@ -511,7 +511,7 @@ class ConfigLoader:
 
         self.add_arguments()
 
-    @beartypeacquisition_class
+    @beartype
     def add_arguments(self) -> None:
         required = self.parser.add_argument_group('Required arguments', 'These options have to be set')
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', 'Of these arguments, one has to be set to continue')

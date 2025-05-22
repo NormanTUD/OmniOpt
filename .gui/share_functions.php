@@ -2451,29 +2451,74 @@ $onclick_string
 
 		$users = getValidFolders($basePath);
 		foreach ($users as $user) {
-			echo '<li><details open><summary>' . htmlspecialchars($user) . '</summary><ul>';
-
-			$userPath = $basePath . '/' . $user;
+			$userPath = "$basePath/$user";
 			$experiments = getValidFolders($userPath);
 
+			// Check ob mindestens ein gültiger Run in allen Experimenten existiert
+			$hasValidRun = false;
 			foreach ($experiments as $experiment) {
-				echo '<li><details><summary>' . htmlspecialchars($experiment) . '</summary><ul>';
-
-				$experimentPath = $userPath . '/' . $experiment;
+				$experimentPath = "$userPath/$experiment";
 				$runs = getValidFolders($experimentPath);
 
 				foreach ($runs as $run) {
-					$runPath = $experimentPath . '/' . $run;
+					$runPath = "$experimentPath/$run";
+					if (hasNonEmptyFolder($runPath)) {
+						$hasValidRun = true;
+						break 2; // break both loops
+					}
+				}
+			}
+
+			if (!$hasValidRun) continue; // Skip diesen User komplett
+
+			echo '<li><details><summary>' . htmlspecialchars($user) . '</summary><ul>';
+
+			foreach ($experiments as $experiment) {
+				$experimentPath = "$userPath/$experiment";
+				$runs = getValidFolders($experimentPath);
+
+				$validRunItems = [];
+
+				foreach ($runs as $run) {
+					$runPath = "$experimentPath/$run";
 
 					if (!hasNonEmptyFolder($runPath)) continue;
 
-					// Hier wird der Link zur Share-Seite erzeugt
-					$href = htmlspecialchars("share?user_id=$user&experiment_name=$experiment&run_nr=$run");
+					// Zeitinformationen
+					$timestamp = getLatestModificationTime($runPath);
+					$lastModified = date("F d Y H:i:s", $timestamp);
+					$timeSince = timeSince($timestamp);
+					$bracket_string = "$lastModified | $timeSince";
 
-					echo '<li><a href="' . $href . '">' . htmlspecialchars($run) . '</a></li>';
+					// CSV-Analyse oder Subfolder zählen
+					$res_csv = "$runPath/results.csv";
+					$show = 1;
+
+					if (file_exists($res_csv)) {
+						$analyzed = analyze_results_csv($res_csv);
+						if ($analyzed) {
+							$bracket_string .= " | " . $analyzed;
+						}
+					} else {
+						$counted_subfolders = countSubfolders($runPath);
+						if ($counted_subfolders > 0) {
+							$bracket_string .= " | $counted_subfolders " . ($counted_subfolders === 1 ? "subfolder" : "subfolders");
+						} else {
+							$show = 0;
+						}
+					}
+
+					if ($show) {
+						$href = htmlspecialchars("share?user_id=$user&experiment_name=$experiment&run_nr=$run");
+						$validRunItems[] = '<li><a href="' . $href . '">' . htmlspecialchars($run) . ' (' . htmlspecialchars($bracket_string) . ')</a></li>';
+					}
 				}
 
-				echo '</ul></details></li>';
+				if (count($validRunItems) > 0) {
+					echo '<li><details open><summary>' . htmlspecialchars($experiment) . '</summary><ul>';
+					echo implode('', $validRunItems);
+					echo '</ul></details></li>';
+				}
 			}
 
 			echo '</ul></details></li>';
@@ -2481,6 +2526,7 @@ $onclick_string
 
 		echo '</ul>';
 	}
+
 
 	function getValidFolders($path) {
 		$folders = [];

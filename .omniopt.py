@@ -410,7 +410,6 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
 class ConfigLoader:
     disable_previous_job_constraint: bool
     run_tests_that_fail_on_taurus: bool
-    enforce_sequential_optimization: bool
     num_random_steps: int
     verbose: bool
     disable_tqdm: bool
@@ -534,7 +533,6 @@ class ConfigLoader:
         optional.add_argument('--run_dir', help='Directory, in which runs should be saved. Default: runs', default='runs', type=str)
         optional.add_argument('--seed', help='Seed for random number generator', type=int)
         optional.add_argument('--decimalrounding', help='Number of decimal places for rounding', type=int, default=4)
-        optional.add_argument('--enforce_sequential_optimization', help='Enforce sequential optimization (default: false)', action='store_true', default=False)
         optional.add_argument('--verbose_tqdm', help='Show verbose TQDM messages', action='store_true', default=False)
         optional.add_argument('--model', help=f'Use special models for nonrandom steps. Valid models are: {joined_supported_models}', type=str, default=None)
         optional.add_argument('--gridsearch', help='Enable gridsearch', action='store_true', default=False)
@@ -6565,6 +6563,7 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
 def get_acquisition_options() -> dict:
     return {
         "optimizer_options": {
+            "sequential": False,
             "num_restarts": args.num_restarts,
             "raw_samples": args.raw_samples
         }
@@ -8889,7 +8888,7 @@ def initialize_ax_client() -> None:
     with console.status("[bold green]Initializing ax_client..."):
         ax_client = AxClient(
             verbose_logging=args.verbose,
-            enforce_sequential_optimization=args.enforce_sequential_optimization,
+            enforce_sequential_optimization=False,
             generation_strategy=global_gs
         )
 

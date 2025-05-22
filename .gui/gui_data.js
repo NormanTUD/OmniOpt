@@ -724,16 +724,6 @@ var hiddenTableData = [
 				info: "Batch version of Noisy EI. Useful in parallel, noisy observations."
 			},
 			{
-				text: "q Probability Of Improvement",
-				value: "qProbabilityOfImprovement",
-				info: "Batch version of Probability of Improvement. Can be conservative in parallel optimization."
-			},
-			{
-				text: "q Upper Confidence Bound",
-				value: "qUpperConfidenceBound",
-				info: "Batch version of UCB. Good when exploration and exploitation are important in batches."
-			},
-			{
 				text: "q Log Expected Improvement",
 				value: "qLogExpectedImprovement",
 				info: "Batch version of Log Expected Improvement. Useful for complex noise in parallel queries."
@@ -811,8 +801,6 @@ var hiddenTableData = [
 			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
 			"<li><b>qExpectedImprovement</b>: Extends EI to parallel/batch queries. Suitable for distributed computations.</li>" +
 			"<li><b>qNoisyExpectedImprovement</b>: Batch version of Noisy EI. Useful in parallel, noisy observations.</li>" +
-			"<li><b>qProbabilityOfImprovement</b>: Batch version of Probability of Improvement. Can be conservative in parallel optimization.</li>" +
-			"<li><b>qUpperConfidenceBound</b>: Batch version of UCB. Good when exploration and exploitation are important in batches.</li>" +
 			"<li><b>qLogExpectedImprovement</b>: Batch version of Log Expected Improvement. Useful for complex noise in parallel queries.</li>" +
 			"<li><b>qLogNoisyExpectedImprovement</b>: Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups.</li>" +
 			"<li><b>qSimpleRegret</b>: Minimizes expected loss in batch. Good for final parameter selection.</li>" +

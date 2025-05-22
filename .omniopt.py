@@ -43,7 +43,7 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
-VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "qExpectedImprovement", "qNoisyExpectedImprovement", "qProbabilityOfImprovement", "qUpperConfidenceBound", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qSimpleRegret", "qPosteriorStandardDeviation", "qKnowledgeGradient", "qMultiStepLookahead", "qMaxValueEntropy", "qLowerBoundMaxValueEntropy", "PairwiseBayesianActiveLearningByDisagreement", "PairwiseMCPosteriorVariance", "ConstrainedExpectedImprovement", "ProximalAcquisitionFunction", "qMultiFidelityMaxValueEntropy", "qMultiFidelityKnowledgeGradient"]
+VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "qExpectedImprovement", "qNoisyExpectedImprovement", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qSimpleRegret", "qPosteriorStandardDeviation", "qKnowledgeGradient", "qMultiStepLookahead", "qMaxValueEntropy", "qLowerBoundMaxValueEntropy", "PairwiseBayesianActiveLearningByDisagreement", "PairwiseMCPosteriorVariance", "ConstrainedExpectedImprovement", "ProximalAcquisitionFunction", "qMultiFidelityMaxValueEntropy", "qMultiFidelityKnowledgeGradient"]
 joined_valid_acquisition_classes: str = ", ".join(VALID_ACQUISITION_CLASSES)
 
 post_generation_constraints: list = []
@@ -840,7 +840,7 @@ try:
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
 
-        from botorch.acquisition import LogExpectedImprovement, ExpectedImprovement, qExpectedImprovement, qNoisyExpectedImprovement, qProbabilityOfImprovement, qUpperConfidenceBound, qLogExpectedImprovement, qLogNoisyExpectedImprovement, qSimpleRegret, qPosteriorStandardDeviation, qKnowledgeGradient, qMultiStepLookahead, qMaxValueEntropy, qLowerBoundMaxValueEntropy, PairwiseBayesianActiveLearningByDisagreement, PairwiseMCPosteriorVariance, ConstrainedExpectedImprovement, ProximalAcquisitionFunction, qMultiFidelityMaxValueEntropy, qMultiFidelityKnowledgeGradient
+        from botorch.acquisition import LogExpectedImprovement, ExpectedImprovement, qExpectedImprovement, qNoisyExpectedImprovement, qLogExpectedImprovement, qLogNoisyExpectedImprovement, qSimpleRegret, qPosteriorStandardDeviation, qKnowledgeGradient, qMultiStepLookahead, qMaxValueEntropy, qLowerBoundMaxValueEntropy, PairwiseBayesianActiveLearningByDisagreement, PairwiseMCPosteriorVariance, ConstrainedExpectedImprovement, ProximalAcquisitionFunction, qMultiFidelityMaxValueEntropy, qMultiFidelityKnowledgeGradient
 
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
@@ -6577,8 +6577,6 @@ def get_acquisition_class() -> Any:
         "expectedimprovement": ExpectedImprovement,
         "qexpectedimprovement": qExpectedImprovement,
         "qnoisyexpectedimprovement": qNoisyExpectedImprovement,
-        "qprobabilityofimprovement": qProbabilityOfImprovement,
-        "qupperconfidencebound": qUpperConfidenceBound,
         "qlogexpectedimprovement": qLogExpectedImprovement,
         "qlognoisyexpectedimprovement": qLogNoisyExpectedImprovement,
         "qsimpleregret": qSimpleRegret,

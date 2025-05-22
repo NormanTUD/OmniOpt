@@ -4665,7 +4665,6 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
 
-
         ax_client.save_to_json_file(filepath=original_ax_client_file)
 
         with open(original_ax_client_file, encoding="utf-8") as f:
@@ -4700,7 +4699,6 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         copy_continue_uuid()
 
-
         if experiment_constraints:
             experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
     else:
@@ -4727,14 +4725,10 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
         experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters)
 
         try:
-            if ax_client:
-                ax_client.create_experiment(**experiment_args)
+            ax_client.create_experiment(**experiment_args)
 
-                new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
-                ax_client.experiment.add_tracking_metrics(new_metrics)
-            else:
-                print_red("ax_client could not be found!")
-                sys.exit(9)
+            new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
+            ax_client.experiment.add_tracking_metrics(new_metrics)
         except AssertionError as error:
             print_red(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.")
             my_exit(102)
@@ -6721,7 +6715,6 @@ def set_global_gs_to_random() -> None:
     overwritten_to_random = True
 
     print_debug(f"New global_gs: {global_gs}")
-
 
 @beartype
 def save_table_as_text(table: Table, filepath: str) -> None:

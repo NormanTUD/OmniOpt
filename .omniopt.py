@@ -4637,6 +4637,10 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
     global ax_client
 
+    if not ax_client:
+        print_red("Something went wrong with the ax_client")
+        my_exit(9)
+
     gpu_string = ""
     gpu_color = "green"
 
@@ -4661,43 +4665,41 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
 
-        if ax_client:
-            ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-            with open(original_ax_client_file, encoding="utf-8") as f:
-                loaded_original_ax_client_json = json.load(f)
-                original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+        ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-                if original_generation_strategy:
-                    experiment_parameters["generation_strategy"] = original_generation_strategy
+        with open(original_ax_client_file, encoding="utf-8") as f:
+            loaded_original_ax_client_json = json.load(f)
+            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 
-            tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+            if original_generation_strategy:
+                experiment_parameters["generation_strategy"] = original_generation_strategy
 
-            ax_client = AxClient.load_from_json_file(tmp_file_path)
+        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
 
-            ax_client = cast(AxClient, ax_client)
+        ax_client = AxClient.load_from_json_file(tmp_file_path)
 
-            os.unlink(tmp_file_path)
+        ax_client = cast(AxClient, ax_client)
 
-            state_files_folder = f"{get_current_run_folder()}/state_files"
+        os.unlink(tmp_file_path)
 
-            checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-            makedirs(state_files_folder)
+        state_files_folder = f"{get_current_run_folder()}/state_files"
 
-            with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
-                json.dump(experiment_parameters, outfile)
+        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+        makedirs(state_files_folder)
 
-            if not os.path.exists(checkpoint_filepath):
-                print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-                my_exit(47)
+        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
+            json.dump(experiment_parameters, outfile)
 
-            with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-                print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+        if not os.path.exists(checkpoint_filepath):
+            print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
+            my_exit(47)
 
-            copy_continue_uuid()
-        else:
-            print_red("Something went wrong with the ax_client")
-            my_exit(9)
+        with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+
+        copy_continue_uuid()
+
 
         if experiment_constraints:
             experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])

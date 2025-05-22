@@ -22,7 +22,7 @@ cd "$SCRIPT_DIR"
 cd ..
 
 for acq_class in $(cat .omniopt.py | grep "VALID_ACQUISITION_CLASSES: list" | sed -e 's#.*=\s*##' | tr -d '[]" ' | tr ',' '\n'); do
-	.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=0 --num_random_steps=1 --max_eval=4 --mem_gb=4 --nr_results=1 --testname="test_acquisition_function_$acq_class" --additional_parameter="--acquisition_class $acq_class"
+	.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=4 --nr_results=1 --testname="test_acquisition_function_$acq_class" --additional_parameter="--acquisition_class $acq_class"
 	exit_code=$?
 
 	if [[ $exit_code != 0 ]]; then

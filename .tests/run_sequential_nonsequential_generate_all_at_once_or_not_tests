@@ -24,7 +24,7 @@ run_optimization() {
     local generate_all_jobs_at_once_flag="$2"
     local testname="$3"
 
-    local additional_parameter="--username=sequential_or_non_sequential_two"
+    local additional_parameter="--username=sequential_or_non_sequential_three"
     if [[ "$acquisition_sequential_flag" == "true" ]]; then
         additional_parameter+=" --acquisition_sequential"
     fi

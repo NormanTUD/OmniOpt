@@ -1682,6 +1682,8 @@ EOF
 		sbatch_result=$($sbatch_command)
 		exit_code=$?
 
+		echo "$sbatch_result"
+
 		set -e
 
 		started_job_nr=$(echo "$sbatch_result" | sed -e 's#.*[[:space:]]##')

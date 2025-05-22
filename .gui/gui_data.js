@@ -699,7 +699,7 @@ var hiddenTableData = [
 	},
 	{
 		label: "Select acquisition function",
-		id: "acquisition_function",
+		id: "acquisition_class",
 		type: "select",
 		value: "LogExpectedImprovement",
 		options: [

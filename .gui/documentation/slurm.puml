@@ -1,5 +1,54 @@
 @startuml
 
+' === Configurable Theme ===
+!if (MODE_DARK == "true")
+  skinparam backgroundColor #000000
+  skinparam defaultFontColor #ffffff
+  skinparam componentFontColor #ffffff
+  skinparam nodeFontColor #ffffff
+  skinparam databaseFontColor #ffffff
+  skinparam arrowColor #ffffff
+  skinparam ArrowFontColor #ffffff
+
+  skinparam componentBackgroundColor #1e1e1e
+  skinparam nodeBackgroundColor #CC7000
+  skinparam databaseBackgroundColor #003366
+  skinparam packageBackgroundColor #1e1e1e
+  skinparam cloudBackgroundColor #1e1e1e
+
+  skinparam componentBorderColor #ffffff
+  skinparam nodeBorderColor #ffffff
+  skinparam databaseBorderColor #ffffff
+  skinparam packageBorderColor #ffffff
+  skinparam cloudBorderColor #ffffff
+  skinparam rectangleBorderColor #ffffff
+!else
+  skinparam backgroundColor #ffffff
+  skinparam defaultFontColor #000000
+  skinparam componentFontColor #000000
+  skinparam nodeFontColor #000000
+  skinparam databaseFontColor #000000
+  skinparam arrowColor #000000
+  skinparam ArrowFontColor #000000
+
+  skinparam componentBackgroundColor #e0e0e0
+  skinparam nodeBackgroundColor #FFB84D
+  skinparam databaseBackgroundColor #FFEB3B
+  skinparam packageBackgroundColor #e0e0e0
+  skinparam cloudBackgroundColor #e0e0e0
+
+  skinparam componentBorderColor #000000
+  skinparam nodeBorderColor #000000
+  skinparam databaseBorderColor #000000
+  skinparam packageBorderColor #000000
+  skinparam cloudBorderColor #000000
+  skinparam rectangleBorderColor #000000
+!endif
+
+skinparam componentStyle rectangle
+skinparam defaultFontName Monospace
+skinparam ArrowFontSize 11
+
 title Interaction between OmniOpt, sbatch, ax, BoTorch Module, and ExternalGenerationNodes
 
 node "HPC Master Node" as HPCMaster {
@@ -8,10 +57,10 @@ node "HPC Master Node" as HPCMaster {
 
   package "BoTorch Module" {
     component "Sobol Sequence Generator" as sobol #LightGreen
-    component "BoTorch Optimizer" as botorch #LightYellow
+    component "BoTorch Optimizer" as botorch
   }
 
-  component "ExternalGenerationNodes" as external_nodes #LightYellow
+  component "ExternalGenerationNodes" as external_nodes
 }
 
 node "Compute Nodes" as ComputeNodes {
@@ -20,42 +69,29 @@ node "Compute Nodes" as ComputeNodes {
   component "Job #n" as JobN #FF8C00
 }
 
-' OmniOpt Core calls ax with search space
 OmniOptCore --> ax_module : invoke with search space
 
-' ax always calls Sobol first to generate initial points (default)
 ax_module --> sobol : generate initial points (default)
 
-' Sobol returns initial points to ax
 sobol --> ax_module : initial points
 
-' BoTorch and ExternalGenerationNodes receive the current points generated so far
-' to generate new candidate points based on previous results
-
-' ax calls BoTorch Optimizer with current points (excluding Sobol initial points)
 ax_module --> botorch : generate points\n(using current points)
 
-' ax calls ExternalGenerationNodes with current points (alternative to BoTorch)
 ax_module --> external_nodes : generate points\n(using current points)
 
-' BoTorch and ExternalGenerationNodes return new points to ax
 botorch --> ax_module : new points
 external_nodes --> ax_module : new points
 
-' ax returns all generated points to OmniOpt Core
 ax_module --> OmniOptCore : all generated points
 
-' OmniOpt Core submits jobs to HPC via sbatch
 OmniOptCore --> Job1 : submit job
 OmniOptCore --> Job2 : submit job
 OmniOptCore --> JobN : submit job
 
-' Compute Nodes return results to OmniOpt Core
 Job1 --> OmniOptCore : results
 Job2 --> OmniOptCore : results
 JobN --> OmniOptCore : results
 
-' OmniOpt Core forwards results to ax for model update
 OmniOptCore --> ax_module : forward results
 
 @enduml

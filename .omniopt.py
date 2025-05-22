@@ -1166,6 +1166,19 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return parsed_constraints
 
+    def get_and_create_temp_dir() -> str:
+        temp_dir_counter = 0
+        temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
+        while os.path.isdir(temp_dir):
+            temp_dir_counter = temp_dir_counter + 1
+            temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
+
+        os.makedirs(temp_dir, exist_ok=True)
+
+        print_debug(f"Created temporary directory: {temp_dir}")
+
+        return temp_dir
+
     @beartype
     def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
         if self.parameters is None:
@@ -1174,15 +1187,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         print_debug("Getting next candidate...")
 
         try:
-            temp_dir_counter = 0
-            temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
-            while os.path.isdir(temp_dir):
-                temp_dir_counter = temp_dir_counter + 1
-                temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
-
-            os.makedirs(temp_dir, exist_ok=True)
-
-            print_debug(f"Created temporary directory: {temp_dir}")
+            temp_dir = self.get_and_create_temp_dir()
 
             if self.experiment.search_space.parameter_constraints:
                 self.constraints = self.experiment.search_space.parameter_constraints

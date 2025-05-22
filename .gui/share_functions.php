@@ -87,7 +87,6 @@
 			"hash" => $hash
 		);
 
-
 		$json_encoded_data = json_encode(utf8ize($json_data));
 
 		print $json_encoded_data;
@@ -1891,7 +1890,6 @@
 		return implode("\n", $lines);
 	}
 
-
 	function removeFontFaceRules($cssContent) {
 		$pattern = '/@font-face\s*\{[^}]*\}/s';
 		$cleanedCss = preg_replace($pattern, '', $cssContent);
@@ -1949,8 +1947,6 @@
 				if(!preg_match("/gpu/", $json_name)) {
 					$json_data_str .= "var $json_name = " . implode("\n", array_map(fn($i, $l) => $i === 0 ? $l : "$l", array_keys(explode("\n", json_encode($json_data, JSON_PRETTY_PRINT))), explode("\n", json_encode($json_data, JSON_PRETTY_PRINT)))) . ";\n";
 				}
-
-
 			}
 		}
 
@@ -2383,8 +2379,6 @@ $onclick_string
 								unset($entry[$ignore_colname]);
 							}
 
-
-
 							$gpu_usage_data[$index][] = array($entry["ts"], $entry["gpu"], $entry["gputemp"]);
 						}
 					}
@@ -2422,7 +2416,6 @@ $onclick_string
 		$pattern = '/[⠇⠋⠏⠙⠦⠧⠴⠸⠹⠼].*$/mu';
 		return preg_replace($pattern, '', $input);
 	}
-
 
 	function check_and_filter_tabs($re, $tabs, $warnings) {
 		if (!preg_match('/^[()a-zA-Z0-9|\s]+$/', $re)) {
@@ -2471,7 +2464,7 @@ $onclick_string
 
 			if (!$hasValidRun) continue; // Skip diesen User komplett
 
-			echo '<li><details><summary>' . htmlspecialchars($user) . '</summary><ul>';
+			echo '<li><details'.(count($users) == 1 ? ' open' : '').'><summary>' . htmlspecialchars($user) . '</summary><ul>';
 
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
@@ -2526,7 +2519,6 @@ $onclick_string
 
 		echo '</ul>';
 	}
-
 
 	function getValidFolders($path) {
 		$folders = [];

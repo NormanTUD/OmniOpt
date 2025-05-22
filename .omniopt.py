@@ -6601,6 +6601,13 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                 pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
             )
 
+            # TODO: Modell speichern hier
+            #if count_done_jobs() > 2:
+            #    dier(help(global_gs.model.model))
+            #    dier(global_gs.model.model.serialize_state())
+            #    dier(global_gs.model.model.surrogate)
+            #    dier(global_gs.model.model._get_state())
+
             new_arms = batched_generator_run.arms
             if not new_arms:
                 print_debug("_fetch_next_trials: No new arms were generated in this attempt.")

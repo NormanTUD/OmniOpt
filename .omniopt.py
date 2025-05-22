@@ -4706,7 +4706,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             "choose_generation_strategy_kwargs": {
                 "num_trials": max_eval,
                 "num_initialization_trials": num_parallel_jobs,
-                #"use_batch_trials": True,
+                "use_batch_trials": True,
                 "max_parallelism_override": -1,
                 "random_seed": seed
             },
@@ -8629,9 +8629,7 @@ def post_job_calculate_pareto_front() -> None:
     experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
 
     tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-
     ax_client = AxClient.load_from_json_file(tmp_file_path)
-
     os.unlink(tmp_file_path)
 
     ax_client = cast(AxClient, ax_client)

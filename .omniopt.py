@@ -6711,34 +6711,38 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         if recursion is False and args.revert_to_random_when_seemingly_exhausted:
             print_debug("The search space seems exhausted. Generating random points from here on.")
 
+            acq_class = get_acquisition_class()
+
+            sobol_model_kwargs = {}
+            if acq_class:
+                sobol_model_kwargs["botorch_acqf_class"] = acq_class
+
             global_gs = GenerationStrategy(
-                    name="Random*",
-                    nodes=[
-                        GenerationNode(
-                            node_name="Sobol",
-                            model_specs=[
-                                GeneratorSpec(
-                                    Models.SOBOL,
-                                    model_kwargs={
-                                        "botorch_acqf_class": get_acquisition_class()
-                                    },
-                                    model_gen_kwargs={
-                                        "normalize_y": not args.no_normalize_y,
-                                        "transform_inputs": not args.no_transform_inputs,
-                                        "acquisition_options": get_acquisition_options(),
-                                        'optimizer_kwargs': get_optimizer_kwargs(),
-                                        "torch_device": get_torch_device_str(),
-                                        "random_seed": args.seed,
-                                        "warm_start_refitting": not args.dont_warm_start_refitting,
-                                        "jit_compile": not args.dont_jit_compile,
-                                        "refit_on_cv": args.refit_on_cv,
-                                        "fit_abandoned": args.fit_abandoned,
-                                        "fit_out_of_design": args.fit_out_of_design
-                                    }
-                                )
-                            ]
-                        )
-                    ]
+                name="Random*",
+                nodes=[
+                    GenerationNode(
+                        node_name="Sobol",
+                        model_specs=[
+                            GeneratorSpec(
+                                Models.SOBOL,
+                                model_kwargs=sobol_model_kwargs if sobol_model_kwargs else None,
+                                model_gen_kwargs={
+                                    "normalize_y": not args.no_normalize_y,
+                                    "transform_inputs": not args.no_transform_inputs,
+                                    "acquisition_options": get_acquisition_options(),
+                                    "optimizer_kwargs": get_optimizer_kwargs(),
+                                    "torch_device": get_torch_device_str(),
+                                    "random_seed": args.seed,
+                                    "warm_start_refitting": not args.dont_warm_start_refitting,
+                                    "jit_compile": not args.dont_jit_compile,
+                                    "refit_on_cv": args.refit_on_cv,
+                                    "fit_abandoned": args.fit_abandoned,
+                                    "fit_out_of_design": args.fit_out_of_design
+                                }
+                            )
+                        ]
+                    )
+                ]
             )
 
             overwritten_to_random = True
@@ -7198,6 +7202,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         ]
 
     selected_model = select_model(model_name)
+
     if model_name.lower() == "sobol":
         model_spec = [
             GeneratorSpec(
@@ -7262,21 +7267,25 @@ def get_optimizer_kwargs() -> dict:
 
 @beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    """Creates a generation step for Bayesian optimization."""
+    acq_class = get_acquisition_class()
+    model_kwargs = None
+    if acq_class:
+        model_kwargs = {
+            "botorch_acqf_class": acq_class
+        }
+
     step = GenerationStep(
         model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
-        model_kwargs={
-            "botorch_acqf_class": get_acquisition_class()
-        },
+        model_kwargs=model_kwargs,
         model_gen_kwargs={
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,
             "acquisition_options": get_acquisition_options(),
-            'optimizer_kwargs': get_optimizer_kwargs(),
+            "optimizer_kwargs": get_optimizer_kwargs(),
             "torch_device": get_torch_device_str(),
-            'enforce_num_arms': True,
+            "enforce_num_arms": True,
             "warm_start_refitting": not args.dont_warm_start_refitting,
             "jit_compile": not args.dont_jit_compile,
             "refit_on_cv": args.refit_on_cv,

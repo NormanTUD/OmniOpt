@@ -10,12 +10,15 @@ PARAMS=(
 	#"--fit_out_of_design" Always use it
 	#"--jit_compile" # Always use it
 
-	"--num_restarts=1"
-	"--num_restarts=5"
-	"--num_restarts=10"
-	"--raw_samples=1"
-	"--raw_samples=10"
-	"--raw_samples=100"
+	#"--num_restarts=1"
+	#"--num_restarts=5"
+	#"--num_restarts=10"
+	#"--raw_samples=1"
+	#"--raw_samples=10"
+	#"--raw_samples=100"
+	
+	"--jit_compile"
+	"--fit_abandoned"
 )
 
 FIXED_ARGS="--num_random_steps=5 --max_eval=20 --num_parallel_jobs=5 --nr_nodes=5 --generate_all_jobs_at_once"

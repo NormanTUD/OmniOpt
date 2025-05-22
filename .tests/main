@@ -352,11 +352,16 @@ function run_tests {
 
                 local start_time=$(date +%s)
 
-		_running_string="[$count/$total] (${percent}%) Running: $test_case"
 
-		_running_string=$(echo "$_running_string" | sed -e 's#[[:space:]]*$##')
+		if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
+			true
+		else
+			_running_string="[$count/$total] (${percent}%) Running: $test_case"
 
-                _green_text_bold_underline $_running_string
+			_running_string=$(echo "$_running_string" | sed -e 's#[[:space:]]*$##')
+
+			_green_text_bold_underline $_running_string
+		fi
 
                 eval "$test_case"
 
@@ -383,7 +388,11 @@ function run_tests {
                         fi
 
 			if [[ $remaining -gt 0 ]]; then
-				_green_text_bold_underline "-> Estimated time remaining: $readable_time"
+				if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
+					true
+				else
+					_green_text_bold_underline "-> Estimated time remaining: $readable_time"
+				fi
 			fi
                 fi
 
@@ -417,7 +426,6 @@ function _test_internal {
 	fi
 
 	if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
-		yellow_text "Skipping $NAME because of --exit_on_first_error and one test failed..."
 		return
 	fi
 

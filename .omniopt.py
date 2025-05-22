@@ -7425,7 +7425,7 @@ def execute_trials(
         if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
             break
 
-        progressbar_description(["eval start"])
+        progressbar_description([f"eval #{i}/{len(trial_index_to_param.items())} start"])
         _args = [trial_index, parameters, i, next_nr_steps, phase]
         index_param_list.append(_args)
         i += 1

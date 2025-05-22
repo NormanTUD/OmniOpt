@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+ALWAYS_THERE="--jit_compile --no_normalize_y --fit_out_of_design"
+
 PARAMS=(
 	#"--dont_warm_start_refitting" # Slow, disabled
 	#"--no_transform_inputs" # Slow, disabled
@@ -79,7 +81,7 @@ for index in "${!COMBOS[@]}"; do
 	echo ""
 
 	START_TIME=$(date +%s)
-	bash run_docker $FIXED_ARGS --additional_parameter="--jit_compile --no_normalize_y --fit_out_of_design $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
+	bash run_docker $FIXED_ARGS --additional_parameter="$ALWAYS_THERE $ADDITIONAL_ARGS" 2>&1 | tee "$OUTPUT_FILE"
 	END_TIME=$(date +%s)
 
 	DURATION=$((END_TIME - START_TIME))

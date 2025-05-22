@@ -486,7 +486,7 @@ class ConfigLoader:
     config_json: Optional[str]
     config_yaml: Optional[str]
     workdir: str
-    jit_compile: bool
+    dont_jit_compile: bool
     no_normalize_y: bool
     no_transform_inputs: bool
     occ: bool
@@ -574,7 +574,7 @@ class ConfigLoader:
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
         speed.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)
         speed.add_argument('--fit_abandoned', help='Do not ignore abandoned data points while creating new points', action='store_true', default=False)
-        speed.add_argument('--jit_compile', help='Enable JIT-compiling the model', action='store_true', default=False)
+        speed.add_argument('--dont_jit_compile', help='Disable JIT-compiling the model', action='store_true', default=False)
         speed.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=5)
         speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
@@ -6695,7 +6695,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
                                         "torch_device": get_torch_device_str(),
                                         "random_seed": args.seed,
                                         "warm_start_refitting": not args.dont_warm_start_refitting,
-                                        "jit_compile": args.jit_compile,
+                                        "jit_compile": not args.dont_jit_compile,
                                         "refit_on_cv": args.refit_on_cv,
                                         "fit_abandoned": args.fit_abandoned,
                                         "fit_out_of_design": args.fit_out_of_design
@@ -7177,7 +7177,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                 "check_duplicates": True,
                 "deduplicate_strict": True,
                 "warm_start_refitting": not args.dont_warm_start_refitting,
-                "jit_compile": args.jit_compile,
+                "jit_compile": not args.dont_jit_compile,
                 "refit_on_cv": args.refit_on_cv,
                 "fit_abandoned": args.fit_abandoned,
                 "fit_out_of_design": args.fit_out_of_design
@@ -7214,7 +7214,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
             "torch_device": get_torch_device_str(),
             'enforce_num_arms': True,
             "warm_start_refitting": not args.dont_warm_start_refitting,
-            "jit_compile": args.jit_compile,
+            "jit_compile": not args.dont_jit_compile,
             "refit_on_cv": args.refit_on_cv,
             "fit_abandoned": args.fit_abandoned,
             "fit_out_of_design": args.fit_out_of_design

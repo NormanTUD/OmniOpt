@@ -619,11 +619,11 @@ var hiddenTableData = [
 		regex_does_not_match_text: "The value must be a valid directory path, which can include alphanumeric characters, underscores, hyphens, and forward slashes. Each segment of the path must start and end with a valid character, and no trailing slashes are allowed at the end.",
 	},
 	{
-		label: "JIT-Compile?",
-		id: "jit_compile",
+		label: "Do not JIT-Compile",
+		id: "dont_jit_compile",
 		type: "checkbox",
-		value: 1,
-		info: "JIT-Compiling should make the model fitting faster"
+		value: 0,
+		info: "JIT-Compiling makes the model fitting faster by Just-in-Time-Compiling the Python-Code creating new models"
 	},
 	{
 		label: "Fit out of design",

@@ -829,6 +829,33 @@
 		return $count;
 	}
 
+	function getLatestModificationTime($folderPath) {
+		global $modificationCache;
+
+		if (isset($modificationCache[$folderPath])) {
+			return $modificationCache[$folderPath];
+		}
+
+		$latestTime = 0;
+		$dir = opendir($folderPath);
+
+		while (($file = readdir($dir)) !== false) {
+			$filePath = $folderPath . '/' . $file;
+			if ($file != "." && $file != "..") {
+				if (is_dir($filePath)) {
+					$latestTime = max($latestTime, getLatestModificationTime($filePath));
+				} else {
+					$latestTime = max($latestTime, filemtime($filePath));
+				}
+			}
+		}
+
+		closedir($dir);
+		$modificationCache[$folderPath] = $latestTime;
+
+		return $latestTime;
+	}
+
 	function generateFolderButtons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
 			return;
@@ -851,33 +878,6 @@
 			closedir($dir);
 
 			$modificationCache = [];
-
-			function getLatestModificationTime($folderPath) {
-				global $modificationCache;
-
-				if (isset($modificationCache[$folderPath])) {
-					return $modificationCache[$folderPath];
-				}
-
-				$latestTime = 0;
-				$dir = opendir($folderPath);
-
-				while (($file = readdir($dir)) !== false) {
-					$filePath = $folderPath . '/' . $file;
-					if ($file != "." && $file != "..") {
-						if (is_dir($filePath)) {
-							$latestTime = max($latestTime, getLatestModificationTime($filePath));
-						} else {
-							$latestTime = max($latestTime, filemtime($filePath));
-						}
-					}
-				}
-
-				closedir($dir);
-				$modificationCache[$folderPath] = $latestTime;
-
-				return $latestTime;
-			}
 
 			switch ($sort) {
 				case 'time_asc':

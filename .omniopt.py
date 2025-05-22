@@ -43,9 +43,6 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
-VALID_ACQUISITION_CLASSES: list = ["LogExpectedImprovement", "ExpectedImprovement", "qExpectedImprovement", "qNoisyExpectedImprovement", "qLogExpectedImprovement", "qLogNoisyExpectedImprovement", "qMaxValueEntropy"]
-joined_valid_acquisition_classes: str = ", ".join(VALID_ACQUISITION_CLASSES)
-
 post_generation_constraints: list = []
 abandoned_trial_indices: list = []
 global_param_names: list = []
@@ -837,9 +834,6 @@ try:
         from sklearn.ensemble import RandomForestRegressor
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
-
-        from botorch.acquisition import LogExpectedImprovement, ExpectedImprovement, qExpectedImprovement, qNoisyExpectedImprovement, qLogExpectedImprovement, qLogNoisyExpectedImprovement, qMaxValueEntropy
-
     with console.status("[bold green]Loading submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob

@@ -744,11 +744,6 @@ var hiddenTableData = [
 				info: "Lower bound approximation of Max Value Entropy. More efficient computation."
 			},
 			{
-				text: "Proximal Acquisition Function",
-				value: "ProximalAcquisitionFunction",
-				info: "Focuses search locally around current points. Good for problems with strong local optima."
-			},
-			{
 				text: "q Multi Fidelity Max Value Entropy",
 				value: "qMultiFidelityMaxValueEntropy",
 				info: "Batch and multi-fidelity optimization with Max Value Entropy. Good for hierarchical models."
@@ -770,7 +765,6 @@ var hiddenTableData = [
 			"<li><b>qLogNoisyExpectedImprovement</b>: Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups.</li>" +
 			"<li><b>qMaxValueEntropy</b>: Maximizes uncertainty about the global optimum value. Good for exploratory batch searches.</li>" +
 			"<li><b>qLowerBoundMaxValueEntropy</b>: Lower bound approximation of Max Value Entropy. More efficient computation.</li>" +
-			"<li><b>ProximalAcquisitionFunction</b>: Focuses search locally around current points. Good for problems with strong local optima.</li>" +
 			"<li><b>qMultiFidelityMaxValueEntropy</b>: Batch and multi-fidelity optimization with Max Value Entropy. Good for hierarchical models.</li>" +
 			"<li><b>qMultiFidelityKnowledgeGradient</b>: Batch and multi-fidelity with Knowledge Gradient. Useful with multi-level accuracy models.</li>" +
 			"</ul>"

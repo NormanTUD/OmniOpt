@@ -463,7 +463,7 @@ class ConfigLoader:
     username: Optional[str]
     max_nr_of_zero_results: int
     mem_gb: int
-    acquisition_class: str
+    acquisition_class: Optional[str]
     continue_previous_job: Optional[str]
     calculate_pareto_front_of_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool

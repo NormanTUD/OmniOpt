@@ -6583,6 +6583,7 @@ def get_acquisition_class() -> Any:
     }
 
     if args.acquisition_class is None or args.acquisition_class.lower() == "default":
+        print_debug(f"Using default acquisition class")
         return None
 
     key = args.acquisition_class.strip().lower()

@@ -4630,7 +4630,6 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
     cli_params_experiment_parameters, experiment_parameters = _params
 
     continue_previous_job = args.continue_previous_job
-    seed = args.seed
     parameter = args.parameter
 
     experiment_constraints = get_constraints()
@@ -4708,12 +4707,12 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
                 "num_initialization_trials": num_parallel_jobs,
                 "use_batch_trials": True,
                 "max_parallelism_override": -1,
-                "random_seed": seed
+                "random_seed": args.seed
             },
         }
 
-        if seed:
-            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = seed
+        if args.seed:
+            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
 
         experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
 

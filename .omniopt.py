@@ -4651,6 +4651,9 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         checkpoint_file: str = f"{continue_previous_job}/state_files/checkpoint.json"
         checkpoint_parameters_filepath: str = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
+        original_ax_client_file: str = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
+        state_files_folder = f"{get_current_run_folder()}/state_files"
+        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
 
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
@@ -4663,8 +4666,6 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         replace_parameters_for_continued_jobs(parameter, cli_params_experiment_parameters, experiment_parameters)
 
-        original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
-
         ax_client.save_to_json_file(filepath=original_ax_client_file)
 
         with open(original_ax_client_file, encoding="utf-8") as f:
@@ -4675,16 +4676,10 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
                 experiment_parameters["generation_strategy"] = original_generation_strategy
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-
         ax_client = AxClient.load_from_json_file(tmp_file_path)
-
         ax_client = cast(AxClient, ax_client)
-
         os.unlink(tmp_file_path)
 
-        state_files_folder = f"{get_current_run_folder()}/state_files"
-
-        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         makedirs(state_files_folder)
 
         with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:

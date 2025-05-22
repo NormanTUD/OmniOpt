@@ -650,6 +650,7 @@ eg
 egrep
 egularizer
 ehasOwnPropertymessage
+EI
 eincludesCorrupted
 eincludesis
 eincludesnot
@@ -941,6 +942,7 @@ heightStyle
 helperIsFunction
 helperspy
 heNormal
+heteroscedastic
 heUniform
 hexscatter
 hexStr
@@ -1277,6 +1279,7 @@ maxval
 maxvalue
 maxValue
 maxY
+MC
 mdformat
 mdn
 meanAbsoluteError

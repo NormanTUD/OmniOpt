@@ -8,7 +8,7 @@
 
 ## `runs`-folder
 
-For every experiment you do, there will be a new folder created inside the `runs`-folder in your OmniOpt2-installation.
+For every experiment you do, there will be a new directory created inside the `runs`-folder in your OmniOpt2-installation.
 
 Each of these has a subfolder for each run that the experiment with that name was run. For example, if you run the experiment `my_experiment`
 twice, the paths `runs/my_experiment/0` and `runs/my_experiment/1` exist.

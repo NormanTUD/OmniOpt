@@ -684,6 +684,13 @@ var hiddenTableData = [
 		info: "Skip transforming input parameters (e.g., scaling, encoding) before training. Speeds up generation but may hurt model quality."
 	},
 	{
+		label: "Also fit jobs that were abandoned",
+		id: "fit_abandoned",
+		type: "checkbox",
+		value: 0,
+		info: "Use jobs that were abandoned while fitting a new model."
+	},
+	{
 		label: "Disable target normalization",
 		id: "no_normalize_y",
 		type: "checkbox",

@@ -1,5 +1,4 @@
 abc
-lineno
 aboveMin
 accentunder
 acontent
@@ -376,6 +375,8 @@ connectToSortable
 connectWith
 const
 Constains
+constrainedexpectedimprovement
+ConstrainedExpectedImprovement
 constrainInput
 constrainPosition
 cont
@@ -715,6 +716,7 @@ exitCodePie
 exitCodePlot
 exitcodes
 exp
+ExpectedImprovement
 expectedsclass
 expirationDate
 Exponetial
@@ -1186,6 +1188,7 @@ limupper
 linebreak
 linebreakContainer
 lineHeight
+lineno
 LineString
 linkchecker
 Linkchecker
@@ -1212,10 +1215,13 @@ logBackup
 logcosh
 logdotFileContent
 logElement
+logexpectedimprovement
 Logfile
 logginggetLogger
 logginggetLoggerdisabled
 logMessages
+lognoisyexpectedimprovement
+LogNoisyExpectedImprovement
 logout
 logoutshow
 logt
@@ -1395,6 +1401,7 @@ mphantom
 mpmath
 mprescripts
 MPRESCRIPTS
+mps
 mroot
 mrow
 mse
@@ -1496,6 +1503,7 @@ nofollow
 noheader
 noir
 noiseShape
+NoisyExpectedImprovement
 nonContentHeight
 nonexisting
 noninteractive
@@ -1661,6 +1669,8 @@ padPos
 padWrapper
 pageX
 pageY
+PairwiseBayesianActiveLearningByDisagreement
+PairwiseMCPosteriorVariance
 palegreen
 panelId
 papermill
@@ -1745,6 +1755,9 @@ positionOption
 positionSortedKeys
 POSIX
 posProperty
+posteriormean
+PosteriorMean
+PosteriorStandardDeviation
 postMessage
 postProcess
 powerpc
@@ -1780,6 +1793,8 @@ printf
 printfrunning
 PrismJS
 PRNG
+probabilityofimprovement
+ProbabilityOfImprovement
 processedData
 productPattern
 profilekernelsmapk
@@ -1795,6 +1810,7 @@ PROJECTDIR
 propertyName
 protobuf
 ProxiedPrototype
+ProximalAcquisitionFunction
 PSEUDORANDOM
 pstate
 psutil
@@ -1817,14 +1833,33 @@ pyright
 pythonCode
 pytz
 pyyaml
+qExpectedImprovement
+qknowledgegradient
+qlogexpectedimprovement
+qlognoisyexpectedimprovement
+qLogNoisyExpectedImprovement
+qLowerBoundMaxValueEntropy
+qMaxValueEntropy
+qmultifidelityknowledgegradient
+qMultiFidelityKnowledgeGradient
+qMultiFidelityMaxValueEntropy
+qMultiStepLookahead
+qnoisyexpectedimprovement
+qNoisyExpectedImprovement
 QOSMinGRES
+qposteriorstandarddeviation
+qProbabilityOfImprovement
 qrcodes
+qsimpleregret
+qSimpleRegret
 queriesLength
 queuelen
 queueLength
 queueMicrotask
 quickfix
 quot
+qupperconfidencebound
+qUpperConfidenceBound
 rad
 ramChart
 randomforest
@@ -2321,6 +2356,7 @@ tensorflowjs
 tensorList
 termcolor
 termPattern
+testname
 TestRunTime
 texShape
 textarea
@@ -2458,6 +2494,7 @@ uparrow
 updateAxes
 updateCommands
 updiagonalarrow
+upperconfidencebound
 Upsampling
 url
 URL
@@ -2626,5 +2663,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-mps
-testname

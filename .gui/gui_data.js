@@ -744,11 +744,6 @@ var hiddenTableData = [
 				info: "Lower bound approximation of Max Value Entropy. More efficient computation."
 			},
 			{
-				text: "Pairwise MC Posterior Variance",
-				value: "PairwiseMCPosteriorVariance",
-				info: "Uses Monte Carlo posterior variance for exploration. Effective in complex uncertainty."
-			},
-			{
 				text: "Constrained Expected Improvement",
 				value: "ConstrainedExpectedImprovement",
 				info: "Accounts for constraints in EI. Useful for constrained optimization problems."
@@ -780,7 +775,6 @@ var hiddenTableData = [
 			"<li><b>qLogNoisyExpectedImprovement</b>: Batch variant of Log Noisy EI. Optimal for heteroscedastic noisy batch setups.</li>" +
 			"<li><b>qMaxValueEntropy</b>: Maximizes uncertainty about the global optimum value. Good for exploratory batch searches.</li>" +
 			"<li><b>qLowerBoundMaxValueEntropy</b>: Lower bound approximation of Max Value Entropy. More efficient computation.</li>" +
-			"<li><b>PairwiseMCPosteriorVariance</b>: Uses Monte Carlo posterior variance for exploration. Effective in complex uncertainty.</li>" +
 			"<li><b>ConstrainedExpectedImprovement</b>: Accounts for constraints in EI. Useful for constrained optimization problems.</li>" +
 			"<li><b>ProximalAcquisitionFunction</b>: Focuses search locally around current points. Good for problems with strong local optima.</li>" +
 			"<li><b>qMultiFidelityMaxValueEntropy</b>: Batch and multi-fidelity optimization with Max Value Entropy. Good for hierarchical models.</li>" +

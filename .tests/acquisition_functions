@@ -33,7 +33,7 @@ for acq_class in $(cat .omniopt.py | grep "VALID_ACQUISITION_CLASSES: list" | se
 			exit 1
 		fi
 	else
-		if [[ $acq_class == "qLogNoisyExpectedImprovement" ]]; then
+		if [[ $acq_class == "qMaxValueEntropy" ]]; then
 			DO=1
 		else
 			yellow_text "Skipping $acq_class"

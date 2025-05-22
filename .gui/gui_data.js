@@ -714,11 +714,6 @@ var hiddenTableData = [
 				info: "Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modelled uncertainty."
 			},
 			{
-				text: "Log Noisy Expected Improvement",
-				value: "LogNoisyExpectedImprovement",
-				info: "Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise."
-			},
-			{
 				text: "Posterior Mean",
 				value: "PosteriorMean",
 				info: "Uses only the expected model output. More exploitative, less exploratory."
@@ -824,7 +819,6 @@ var hiddenTableData = [
 		info: "Select the acquisition function to use for Bayesian optimization. <ul>" +
 			"<li><b>LogExpectedImprovement</b>: Improves the search logarithmically. Good for functions with high variance. Less ideal for very smooth functions.</li>" +
 			"<li><b>ExpectedImprovement</b>: Standard acquisition function in Bayesian optimization. Suitable for most problems with well-modeled uncertainty.</li>" +
-			"<li><b>LogNoisyExpectedImprovement</b>: Like Noisy EI but on a logarithmic scale. Useful for heteroscedastic noise.</li>" +
 			"<li><b>PosteriorMean</b>: Uses only the expected model output. More exploitative, less exploratory.</li>" +
 			"<li><b>PosteriorStandardDeviation</b>: Focuses on uncertainty exploration. Good for exploratory strategies but often suboptimal alone.</li>" +
 			"<li><b>qExpectedImprovement</b>: Extends EI to parallel/batch queries. Suitable for distributed computations.</li>" +

@@ -45,7 +45,7 @@ link HPCJob2 to HPCMaster--><path d="M418.19,729.1858 C416.03,708.5658 415.26,67
 link HPCMaster to HPCJobN--><path d="M525.24,594.2658 C534.29,612.5958 548.51,641.2658 561,666.0158 C571.08,685.9858 582.68,708.6058 591.13,725.0258 " fill="none" id="HPCMaster-&gt;HPCJobN" style="stroke: #FFFFFF; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="593.43,729.4858,592.8575,719.6536,591.1371,725.0426,585.7482,723.3222,593.43,729.4858" style="stroke: #FFFFFF; stroke-width: 1.0;"/><text fill="#FFFFFF" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="36" x="562" y="662.7748">submit</text><!--MD5=[cbab37695bd00e2f37efe170a9fa92c9]
 link HPCJobN to HPCMaster--><path d="M607.45,729.3358 C611.34,708.8558 614.74,675.5158 603,650.0158 C592.8,627.8458 572.38,609.8158 553.89,597.0458 " fill="none" id="HPCJobN-&gt;HPCMaster" style="stroke: #FFFFFF; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="549.74,594.2358,554.9568,602.5896,553.8826,597.0357,559.4365,595.9614,549.74,594.2358" style="stroke: #FFFFFF; stroke-width: 1.0;"/><text fill="#FFFFFF" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="30" x="609" y="662.7748">result</text><!--MD5=[571935b6720c67f63951b3fde5967843]
 link HPCMaster to HPCRuns--><path d="M548.83,594.0258 C575.54,609.0858 614.21,630.9158 648,650.0158 C691.28,674.4858 740.62,702.4458 775.5,722.2158 " fill="none" id="HPCMaster-&gt;HPCRuns" style="stroke: #FFFFFF; stroke-width: 1.0;"/><polygon fill="#FFFFFF" points="780.11,724.8258,774.2663,716.898,775.7644,722.3529,770.3095,723.8509,780.11,724.8258" style="stroke: #FFFFFF; stroke-width: 1.0;"/><text fill="#FFFFFF" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="80" x="672" y="662.7748">write all results</text><!--MD5=[9251a4ddef4a8be2b2b946da628c179a]
-link HPCRuns to Share--><path d="M904.61,749.0158 C1056.98,749.0158 1377.32,749.0158 1520.36,749.0158 " fill="none" id="HPCRuns-&gt;Share" style="stroke: #FFFFFF; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#FFFFFF" points="1525.38,749.0158,1516.38,745.0158,1520.38,749.0158,1516.38,753.0158,1525.38,749.0158" style="stroke: #FFFFFF; stroke-width: 1.0;"/><text fill="#FFFFFF" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="145" x="1142.5" y="742.7748">--live_share, omniopt_share</text><!--MD5=[dd87c0e0c594b4f402d7c75753ca1d4f]
+link HPCRuns to Share--><path d="M904.61,749.0158 C1056.98,749.0158 1377.32,749.0158 1520.36,749.0158 " fill="none" id="HPCRuns-&gt;Share" style="stroke: #FFFFFF; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#FFFFFF" points="1525.38,749.0158,1516.38,745.0158,1520.38,749.0158,1516.38,753.0158,1525.38,749.0158" style="stroke: #FFFFFF; stroke-width: 1.0;"/><text fill="#FFFFFF" font-family="Monospace" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="145" x="1142.5" y="742.7748">--live_share, omniopt_share</text><!--MD5=[be977e6b20050ba4298c25c0980bb079]
 @startuml
 
 actor User
@@ -156,7 +156,7 @@ PlantUML version 1.2020.02(Sun Mar 01 11:22:07 CET 2020)
 (GPL source distribution)
 Java Runtime: OpenJDK Runtime Environment
 JVM: OpenJDK 64-Bit Server VM
-Java Version: 11.0.26+4-post-Debian-1
+Java Version: 11.0.27+6-post-Debian-1deb11u1
 Operating System: Linux
 Default Encoding: UTF-8
 Language: de

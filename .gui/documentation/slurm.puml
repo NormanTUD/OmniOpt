@@ -12,7 +12,7 @@
 
   skinparam componentBackgroundColor #1e1e1e
   skinparam nodeBackgroundColor #CC7000
-  skinparam databaseBackgroundColor #003366
+  skinparam databaseBackgroundColor #003166
   skinparam packageBackgroundColor #1e1e1e
   skinparam cloudBackgroundColor #1e1e1e
 
@@ -61,6 +61,8 @@ node "HPC Master Node" as HPCMaster {
   }
 
   component "ExternalGenerationNodes" as external_nodes
+
+  database "runs" as db_runs #FFEB3B
 }
 
 node "Compute Nodes" as ComputeNodes {
@@ -72,11 +74,9 @@ node "Compute Nodes" as ComputeNodes {
 OmniOptCore --> ax_module : invoke with search space
 
 ax_module --> sobol : generate initial points (default)
-
 sobol --> ax_module : initial points
 
 ax_module --> botorch : generate points\n(using current points)
-
 ax_module --> external_nodes : generate points\n(using current points)
 
 botorch --> ax_module : new points
@@ -93,5 +93,7 @@ Job2 --> OmniOptCore : results
 JobN --> OmniOptCore : results
 
 OmniOptCore --> ax_module : forward results
+
+OmniOptCore --> db_runs : log runs and results
 
 @enduml

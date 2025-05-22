@@ -21,23 +21,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"
 cd ..
 
-DO=0
-
 for acq_class in $(cat .omniopt.py | grep "VALID_ACQUISITION_CLASSES: list" | sed -e 's#.*=\s*##' | tr -d '[]" ' | tr ',' '\n'); do
-	if [[ $DO -eq 1 ]]; then
-		.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=4 --nr_results=1 --testname="test_acquisition_function_$acq_class" --additional_parameter="--acquisition_class $acq_class"
-		exit_code=$?
+	.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=4 --nr_results=1 --testname="test_acquisition_function_$acq_class" --additional_parameter="--acquisition_class $acq_class"
+	exit_code=$?
 
-		if [[ $exit_code != 0 ]]; then
-			red_text "Acquisition class '$acq_class' failed. See stdout for more details."
-			exit 1
-		fi
-	else
-		if [[ $acq_class == "qMaxValueEntropy" ]]; then
-			DO=1
-		else
-			yellow_text "Skipping $acq_class"
-		fi
+	if [[ $exit_code != 0 ]]; then
+		red_text "Acquisition class '$acq_class' failed. See stdout for more details."
+		exit 1
 	fi
 done
 

@@ -1166,7 +1166,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return parsed_constraints
 
-    def get_and_create_temp_dir() -> str:
+    def get_and_create_temp_dir(self: Any) -> str:
         temp_dir_counter = 0
         temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
         while os.path.isdir(temp_dir):

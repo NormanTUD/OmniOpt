@@ -12,7 +12,7 @@
 
   skinparam componentBackgroundColor #1e1e1e
   skinparam nodeBackgroundColor #CC7000
-  skinparam databaseBackgroundColor #003166
+  skinparam databaseBackgroundColor #003366
   skinparam packageBackgroundColor #1e1e1e
   skinparam cloudBackgroundColor #1e1e1e
 
@@ -62,7 +62,7 @@ node "HPC Master Node" as HPCMaster {
 
   component "ExternalGenerationNodes" as external_nodes
 
-  database "runs" as db_runs #FFEB3B
+  database "runs/" as db_runs #FFEB3B
 }
 
 node "Compute Nodes" as ComputeNodes {

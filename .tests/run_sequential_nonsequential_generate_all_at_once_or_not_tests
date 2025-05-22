@@ -48,6 +48,7 @@ run_optimization() {
 }
 
 # Alle 4 Kombinationen ausführen
+#                SEQ   ONCE  NAME
 run_optimization true  true  "sequential_all_at_once"
 run_optimization false true  "nonsequential_all_at_once"
 run_optimization true  false "sequential_no_all_at_once"

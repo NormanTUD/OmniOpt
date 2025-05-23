@@ -44,6 +44,7 @@ run_optimization() {
 	--revert_to_random_when_seemingly_exhausted \
         --testname="$testname" \
 	--flame_graph \
+	--show_generation_and_submission_sixel \
         $generate_flag
 }
 

@@ -50,6 +50,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		config_yaml
 		config_json
 		config_toml
+		show_generation_and_submission_sixel
 		run_tests_that_fail_on_taurus
 		calculate_pareto_front_of_job
 		tests

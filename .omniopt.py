@@ -475,6 +475,7 @@ class ConfigLoader:
     root_venv_dir: str
     pareto_front_confidence: float
     follow: bool
+    show_generation_and_submission_sixel: bool
     n_estimators_randomforest: int
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: List[str]
@@ -610,6 +611,7 @@ class ConfigLoader:
         debug.add_argument('--run_tests_that_fail_on_taurus', help='Run tests on Taurus that usually fail', action='store_true', default=False)
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing)', action='store_true', default=False)
         debug.add_argument('--show_ram_every_n_seconds', help='Show RAM usage every n seconds (0 = disabled)', type=int, default=0)
+        debug.add_argument('--show_generation_and_submission_sixel', help='Show sixel plots for generation and submission times', action='store_true', default=False)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
@@ -6928,6 +6930,9 @@ def generate_job_submit_table_rich() -> None:
 
 @beartype
 def plot_times_for_creation_and_submission() -> None:
+    if not args.show_generation_and_submission_sixel:
+        return
+
     plot_times_vs_jobs_sixel(
         times=job_submit_durations,
         job_counts=job_submit_nrs,

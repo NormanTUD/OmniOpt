@@ -10,6 +10,7 @@ allowed=(
 	run_mode
 	root_venv_dir
 	partition
+        flame_graph
 	debug
 	checkout_to_latest_tested_version
 )

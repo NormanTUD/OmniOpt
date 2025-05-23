@@ -3,6 +3,9 @@
 {
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+	USERNAME_FILE="$HOME/.oo_share_username"
+	DONT_ASK_FILE="$HOME/.oo_share_dont_ask"
+
 	source $SCRIPT_DIR/.colorfunctions.sh
 
 	function displaytime {
@@ -185,12 +188,41 @@
 				fi
 			fi
 
+			is_valid_username() {
+				[[ -n "$1" && "$1" != *[[:space:]]* ]]
+			}
+
+			user_id=""
+
 			if [[ "$k" -eq "0" ]]; then
-				if [[ -z $DONT_ASK_USERNAME ]]; then
+				if [[ -z $DONT_ASK_USERNAME && ! -f "$DONT_ASK_FILE" ]]; then
+
+				if [[ -f "$USERNAME_FILE" ]]; then
+					stored_username=$(<"$USERNAME_FILE")
+					if is_valid_username "$stored_username"; then
+						user_id="$stored_username"
+					fi
+				fi
+
+				if ! is_valid_username "$user_id"; then
 					eval "$(resize)"
-					user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data? If you don't agree, cancel." 12 40  "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
-				else
-					user_id=$username
+					user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data. If you don't agree, cancel." 12 60 "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
+
+				    exitstatus=$?
+				    if [[ $exitstatus -ne 0 || -z "$user_id" ]]; then
+					    echo "Cancelled or empty input. Exiting."
+					    exit 1
+				    fi
+
+				    echo "$user_id" > "$USERNAME_FILE"
+
+				    if whiptail --yesno "Do you want to avoid this question in the future and simply use this username?" 10 60 --title "Remember this choice?"; then
+					    touch "$DONT_ASK_FILE"
+				    fi
+				fi
+
+			else
+				user_id=$username
 				fi
 			fi
 

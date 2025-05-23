@@ -6414,16 +6414,23 @@ def exclude_defective_nodes() -> None:
             my_exit(9)
 
 @beartype
-def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Job) -> None:
+def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Optional[Job]) -> None:
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
     else:
         print_red(f"\n⚠ FAILED: {error}")
 
+    if new_job is None:
+        print_red("handle_failed_job: job is None")
+
+        return None
+
     try:
         cancel_failed_job(trial_index, new_job)
     except Exception as e:
         print_red(f"\n⚠ Cancelling failed job FAILED: {e}")
+
+    return None
 
 @beartype
 def cancel_failed_job(trial_index: int, new_job: Job) -> None:

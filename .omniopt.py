@@ -371,6 +371,7 @@ def my_exit(_code: int = 0) -> None:
 
     print(exit_code_string)
     print_debug(exit_code_string)
+
     sys.exit(_code)
 
 @beartype
@@ -1296,12 +1297,7 @@ def run_live_share_command() -> Tuple[str, str]:
 
     if get_current_run_folder():
         try:
-            _user = os.getenv('USER')
-            if _user is None:
-                _user = 'defaultuser'
-
-            if args.username:
-                _user = args.username
+            _user = get_username()
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
@@ -4618,6 +4614,17 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
         my_exit(47)
 
     return experiment_parameters
+
+@beartype
+def get_username() -> str:
+    _user = os.getenv('USER')
+    if _user is None:
+        _user = 'defaultuser'
+
+    if args.username:
+        _user = args.username
+
+    return _user
 
 @beartype
 def copy_continue_uuid() -> None:

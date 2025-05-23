@@ -7,6 +7,7 @@
 	);
 
 	$GLOBALS["modificationCache"] = [];
+	$GLOBALS["recursiveModificationCache"] = [];
 
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
@@ -2433,6 +2434,9 @@ $onclick_string
 	}
 
 	function getLatestRecursiveModificationTime($folderPath) {
+		if (isset($GLOBALS["recursiveModificationCache"][$folderPath])) {
+			return $GLOBALS["recursiveModificationCache"][$folderPath];
+		}
 		$latestTime = 0;
 
 		$iterator = new RecursiveIteratorIterator(
@@ -2452,6 +2456,7 @@ $onclick_string
 			$latestTime = filemtime($folderPath);
 		}
 
+		$GLOBALS["recursiveModificationCache"][$folderPath] = $latestTime;
 		return $latestTime;
 	}
 

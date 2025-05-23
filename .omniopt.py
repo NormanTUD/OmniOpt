@@ -6839,8 +6839,8 @@ def generate_time_table_rich() -> None:
     table.add_row("Average", f"{mean(times_float):.3f}", "", "")
     table.add_row("Median", f"{median(times_float):.3f}", "", "")
     table.add_row("Total", f"{sum(times_float):.3f}", "", "")
-    table.add_row("Max", f"{max(times_float):.3f}", "", f"")
-    table.add_row("Min", f"{min(times_float):.3f}", "", f"")
+    table.add_row("Max", f"{max(times_float):.3f}", "", "")
+    table.add_row("Min", f"{min(times_float):.3f}", "", "")
 
     if args.show_generate_time_table:
         console.print(table)

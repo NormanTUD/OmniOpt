@@ -6008,8 +6008,6 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
             print_debug(f"finish_previous_jobs: job {job} is None")
             continue
 
-        #print_debug(f"finish_previous_jobs: single job {job}")
-
         if job.done() or type(job) in [LocalJob, DebugJob]:
             try:
                 this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)

@@ -6836,7 +6836,6 @@ def generate_time_table_rich() -> None:
 
     table.add_section()
 
-    # Summary
     table.add_row("Average", f"{mean(times_float):.3f}", "", "")
     table.add_row("Median", f"{median(times_float):.3f}", "", "")
     table.add_row("Total", f"{sum(times_float):.3f}", "", "")
@@ -6882,7 +6881,8 @@ def generate_job_submit_table_rich() -> None:
     max_time = max(times_float)
     min_time = min(times_float)
 
-    table.add_row("", "")
+    table.add_section()
+
     table.add_row("Job submission durations Average", f"{avg_time:.3f}")
     table.add_row("Job submission durations Median", f"{median_time:.3f}")
     table.add_row("Job submission durations Total", f"{total_time:.3f}")

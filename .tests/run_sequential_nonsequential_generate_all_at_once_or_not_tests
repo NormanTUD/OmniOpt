@@ -8,11 +8,10 @@ cd ..
 set -euo pipefail
 
 # Variablen definieren
-MAX_EVAL=100
-NUM_PARALLEL_JOBS=20
-REVERT_RANDOM="--revert_to_random_when_seemingly_exhausted"
+MAX_EVAL=50
+NUM_PARALLEL_JOBS=10
 NR_RESULTS=1
-NUM_RANDOM_STEPS=20
+NUM_RANDOM_STEPS=10
 TIME=1200
 
 # Basis-Befehl
@@ -38,11 +37,11 @@ run_optimization() {
     $BASE_COMMAND \
         --max_eval=$MAX_EVAL \
         --num_parallel_jobs=$NUM_PARALLEL_JOBS \
-        $REVERT_RANDOM \
         --nr_results=$NR_RESULTS \
         --num_random_steps=$NUM_RANDOM_STEPS \
         --time=$TIME \
         --additional_parameter="$additional_parameter" \
+	--revert_to_random_when_seemingly_exhausted \
         --testname="$testname" \
 	--flame_graph \
         $generate_flag

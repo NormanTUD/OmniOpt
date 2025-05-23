@@ -49,7 +49,7 @@ run_optimization() {
 
 # Alle 4 Kombinationen ausführen
 #                SEQ   ONCE  NAME
-run_optimization true  true  "sequential____all_at_once___use_batch_trials"
-run_optimization false true  "nonsequential____all_at_once___use_batch_trials"
-run_optimization true  false "sequential____no_all_at_once___use_batch_trials"
-run_optimization false false "nonsequential____no_all_at_once___use_batch_trials"
+run_optimization true  true  "sequential____all_at_once___use_batch_trials___parallized_job_completetion"
+run_optimization false true  "nonsequential____all_at_once___use_batch_trials___parallized_job_completetion"
+run_optimization true  false "sequential____no_all_at_once___use_batch_trials___parallized_job_completetion"
+run_optimization false false "nonsequential____no_all_at_once___use_batch_trials___parallized_job_completetion"

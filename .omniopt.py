@@ -20,6 +20,7 @@ import threading
 
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
+job_submit_nrs: list[int] = []
 log_gen_times: list[float] = []
 log_nr_gen_jobs: list[int] = []
 generation_strategy_human_readable: str = ""
@@ -6867,29 +6868,41 @@ def generate_time_table_rich() -> None:
 
 @beartype
 def generate_job_submit_table_rich() -> None:
-    if not isinstance(job_submit_durations, list):
-        print_debug("generate_job_submit_table_rich: Error: job_submit_durations is not a list.")
-        return
-
-    if len(job_submit_durations) == 0:
-        print_debug("generate_job_submit_table_rich: No durations to display.")
+    if not isinstance(job_submit_durations, list) or not isinstance(job_submit_nrs, list):
+        print_debug("generate_job_submit_table_rich: Error: job_submit_durations or job_submit_nrs is not a list.")
+        return   
+    
+    if len(job_submit_durations) == 0 or len(job_submit_nrs) == 0:
+        print_debug("generate_job_submit_table_rich: No durations or job counts to display.")
+        return   
+    
+    if len(job_submit_durations) != len(job_submit_nrs):
+        print_debug("generate_job_submit_table_rich: Length mismatch between durations and job counts.")
         return
 
     for i, val in enumerate(job_submit_durations):
         try:
             float(val)
         except (ValueError, TypeError):
-            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} is not a valid float.")
+            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} in durations is not a valid float.")
+            return
+    for i, val in enumerate(job_submit_nrs):
+        if not isinstance(val, int):
+            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} in job counts is not an int.")
             return
 
     table = Table(show_header=True, header_style="bold", title="Job submission durations")
     table.add_column("Batch", justify="right")
     table.add_column("Seconds", justify="right")
+    table.add_column("Jobs", justify="right")
+    table.add_column("Time per job", justify="right")
 
-    for idx, time_val in enumerate(job_submit_durations, start=1):
-        table.add_row(str(idx), f"{float(time_val):.3f}")
+    for idx, (time_val, jobs) in enumerate(zip(job_submit_durations, job_submit_nrs), start=1):
+        time_val_float = float(time_val)
+        time_per_job = time_val_float / jobs if jobs > 0 else 0
+        table.add_row(str(idx), f"{time_val_float:.3f}", str(jobs), f"{time_per_job:.3f}")
 
-    times_float: List[float] = [float(t) for t in job_submit_durations]
+    times_float = [float(t) for t in job_submit_durations]
     avg_time = mean(times_float)
     median_time = median(times_float)
     total_time = sum(times_float)
@@ -6898,11 +6911,11 @@ def generate_job_submit_table_rich() -> None:
 
     table.add_section()
 
-    table.add_row("Job submission durations Average", f"{avg_time:.3f}")
-    table.add_row("Job submission durations Median", f"{median_time:.3f}")
-    table.add_row("Job submission durations Total", f"{total_time:.3f}")
-    table.add_row("Job submission durations Max", f"{max_time:.3f}")
-    table.add_row("Job submission durations Min", f"{min_time:.3f}")
+    table.add_row("Average", f"{avg_time:.3f}", "", "")
+    table.add_row("Median", f"{median_time:.3f}", "", "")
+    table.add_row("Total", f"{total_time:.3f}", "", "")
+    table.add_row("Max", f"{max_time:.3f}", "", "")
+    table.add_row("Min", f"{min_time:.3f}", "", "")
 
     if args.show_generate_time_table:
         console.print(table)
@@ -7468,10 +7481,13 @@ def execute_trials(
 
     start_time = time.time()
 
+    cnt = 0
+
     with ThreadPoolExecutor(max_workers=min(len(index_param_list), 16)) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
 
         for future in as_completed(future_to_args):
+            cnt = cnt + 1
             try:
                 result = future.result()
                 results.append(result)
@@ -7483,6 +7499,7 @@ def execute_trials(
 
     duration = float(end_time - start_time)
     job_submit_durations.append(duration)
+    job_submit_nrs.append(cnt)
 
     return results
 

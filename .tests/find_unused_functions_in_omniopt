@@ -19,6 +19,7 @@ exceptions=(
 	"parse_choice_param"
 	"parse_range_param"
 	"parse_fixed_param"
+	"_finish_previous_jobs_helper_wrapper"
 )
 
 unused_count=0

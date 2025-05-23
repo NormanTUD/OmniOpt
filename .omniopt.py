@@ -6059,6 +6059,11 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
     return this_jobs_finished
 
 @beartype
+def _finish_previous_jobs_helper_wrapper(args: Tuple[Any, int]) -> int:
+    job, trial_index = args
+    return _finish_previous_jobs_helper_check_and_process(job, trial_index, 0)
+
+@beartype
 def finish_previous_jobs(new_msgs: List[str]) -> None:
     global JOBS_FINISHED
 
@@ -6069,11 +6074,19 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
 
     this_jobs_finished = 0
 
-    if len(global_vars["jobs"]) > 0:
-        print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
+    jobs_copy = global_vars["jobs"][:]
 
-    for job, trial_index in global_vars["jobs"][:]:
-        this_jobs_finished = _finish_previous_jobs_helper_check_and_process(job, trial_index, this_jobs_finished)
+    if len(jobs_copy) > 0:
+        print_debug(f"jobs in finish_previous_jobs: {jobs_copy}")
+
+    with ThreadPoolExecutor() as finish_job_executor:
+        futures = [finish_job_executor.submit(_finish_previous_jobs_helper_wrapper, (job, trial_index)) for job, trial_index in jobs_copy]
+
+        for future in as_completed(futures):
+            try:
+                this_jobs_finished += future.result()
+            except Exception as e:
+                print_red(f"⚠ Exception in parallel job handling: {e}")
 
     save_results_csv()
 

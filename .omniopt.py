@@ -5916,11 +5916,65 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
     return None
 
 @beartype
+def _finish_job_core_helper_check_valid_result(result: Union[list, int, float, tuple]) -> bool:
+    possible_val_not_found_values = [
+        VAL_IF_NOTHING_FOUND,
+        -VAL_IF_NOTHING_FOUND,
+        -99999999999999997168788049560464200849936328366177157906432,
+        99999999999999997168788049560464200849936328366177157906432
+    ]
+    values_to_check = result if isinstance(result, list) else [result]
+    return result is not None and all(r not in possible_val_not_found_values for r in values_to_check)
+
+@beartype
+def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -> None:
+    try:
+        print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
+        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+        print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
+    except ax.exceptions.core.UnsupportedError as e:
+        if f"{e}":
+            print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
+            ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
+            print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
+        else:
+            print_red(f"Error completing trial: {e}")
+            my_exit(234)
+
+@beartype
+def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Union[float, int, tuple]) -> None:
+    print_debug(f"Marking trial {_trial} as completed")
+    _trial.mark_completed(unsafe=True)
+
+    succeeded_jobs(1)
+
+    progressbar_description([f"new result: {result}"])
+    update_progress_bar(progress_bar, 1)
+
+    log_what_needs_to_be_logged()
+    live_share()
+
+@beartype
+def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
+    print_debug(f"Counting job {job} as failed, because the result is {job.result() if job else 'None'}")
+    if job:
+        try:
+            progressbar_description(["job_failed"])
+            ax_client.log_trial_failure(trial_index=trial_index)
+            _trial.mark_failed(unsafe=True)
+        except Exception as e:
+            print_red(f"\nERROR while trying to mark job as failure: {e}")
+        job.cancel()
+        orchestrate_job(job, trial_index)
+
+    mark_trial_as_failed(trial_index, _trial)
+    failed_jobs(1)
+
+@beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     die_for_debug_reasons()
 
     result = job.result()
-
     print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}, state: {state_from_job(job)}")
 
     raw_result = result
@@ -5931,54 +5985,15 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if ax_client:
         _trial = ax_client.get_trial(trial_index)
 
-        possible_val_not_found_values = [VAL_IF_NOTHING_FOUND, -VAL_IF_NOTHING_FOUND, -99999999999999997168788049560464200849936328366177157906432, 99999999999999997168788049560464200849936328366177157906432]
+        if _finish_job_core_helper_check_valid_result(result):
+            _finish_job_core_helper_complete_trial(trial_index, raw_result)
 
-        values_to_check = result if isinstance(result, list) else [result]
-
-        if result is not None and all(r not in possible_val_not_found_values for r in values_to_check):
-            print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
             try:
-                print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
-                ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
-                print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
-            except ax.exceptions.core.UnsupportedError as e:
-                if f"{e}":
-                    print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
-                    ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
-                    print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
-                else:
-                    print_red(f"Error completing trial: {e}")
-                    my_exit(234)
-
-            #count_done_jobs(1)
-            try:
-                print_debug(f"Marking trial {_trial} as completed")
-                _trial.mark_completed(unsafe=True)
-
-                succeeded_jobs(1)
-
-                progressbar_description([f"new result: {result}"])
-                update_progress_bar(progress_bar, 1)
-
-                log_what_needs_to_be_logged()
-
-                live_share()
+                _finish_job_core_helper_mark_success(_trial, result)
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
-            print_debug(f"Counting job {job} as failed, because the result is {result}")
-            if job:
-                try:
-                    progressbar_description(["job_failed"])
-                    ax_client.log_trial_failure(trial_index=trial_index)
-                    _trial.mark_failed(unsafe=True)
-                except Exception as e:
-                    print_red(f"\nERROR while trying to mark job as failure: {e}")
-                job.cancel()
-                orchestrate_job(job, trial_index)
-
-            mark_trial_as_failed(trial_index, _trial)
-            failed_jobs(1)
+            _finish_job_core_helper_mark_failure(job, trial_index, _trial)
     else:
         print_red("ax_client could not be found or used")
         my_exit(9)

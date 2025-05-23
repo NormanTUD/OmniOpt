@@ -419,6 +419,8 @@
 
 						exitstatus=$?
 						if [ $exitstatus -eq 0 ]; then
+							selected_dirs_array=()
+
 							eval "selected_dirs_array=($selected_dirs)"
 
 							filtered_args=()

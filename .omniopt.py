@@ -6873,12 +6873,12 @@ def generate_time_table_rich() -> None:
 def generate_job_submit_table_rich() -> None:
     if not isinstance(job_submit_durations, list) or not isinstance(job_submit_nrs, list):
         print_debug("generate_job_submit_table_rich: Error: job_submit_durations or job_submit_nrs is not a list.")
-        return   
-    
+        return
+
     if len(job_submit_durations) == 0 or len(job_submit_nrs) == 0:
         print_debug("generate_job_submit_table_rich: No durations or job counts to display.")
-        return   
-    
+        return
+
     if len(job_submit_durations) != len(job_submit_nrs):
         print_debug("generate_job_submit_table_rich: Length mismatch between durations and job counts.")
         return
@@ -6967,19 +6967,19 @@ def plot_times_vs_jobs_sixel(
 
     import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots()
+    fig, _ax = plt.subplots()
 
     iterations = list(range(1, len(times) + 1))
     sizes = [max(20, min(200, jc * 10)) for jc in job_counts]  # Punktgröße je nach Jobanzahl, skaliert
 
-    scatter = ax.scatter(iterations, times, s=sizes, c=job_counts, cmap='viridis', alpha=0.7, edgecolors='black')
+    scatter = _ax.scatter(iterations, times, s=sizes, c=job_counts, cmap='viridis', alpha=0.7, edgecolors='black')
 
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    ax.grid(True)
+    _ax.set_xlabel(xlabel)
+    _ax.set_ylabel(ylabel)
+    _ax.set_title(title)
+    _ax.grid(True)
 
-    cbar = plt.colorbar(scatter, ax=ax)
+    cbar = plt.colorbar(scatter, ax=_ax)
     cbar.set_label('Number of Jobs')
 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:

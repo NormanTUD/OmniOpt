@@ -8305,7 +8305,7 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
         return
 
     objectives = ax_client.experiment.optimization_config.objective.objectives
-    pareto_front_data = {}
+    pareto_front_data: dict = {}
     all_combinations = list(combinations(range(len(objectives)), 2))
     collected_data = []
 

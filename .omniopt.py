@@ -6030,7 +6030,6 @@ def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, er
         print_red(f"\n⚠ {error}")
 
     _finish_previous_jobs_helper_handle_failed_job(job, trial_index)
-    save_checkpoint()
     return 1
 
 @beartype
@@ -6051,7 +6050,6 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
 
     if job.done() or type(job) in [LocalJob, DebugJob]:
         this_jobs_finished = _finish_previous_jobs_helper_process_job(job, trial_index, this_jobs_finished)
-        save_checkpoint()
     else:
         if not isinstance(job, SlurmJob):
             print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
@@ -6097,6 +6095,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
     save_results_csv()
+    save_checkpoint()
 
     if this_jobs_finished > 0:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])

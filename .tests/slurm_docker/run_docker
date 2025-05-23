@@ -360,6 +360,7 @@ cmd=(
 	--auto_exclude_defective_hosts
 	--max_nr_of_zero $max_nr_of_zero
 	--show_generate_time_table
+	--show_generation_and_submission_sixel
 	--no_sleep
 )
 

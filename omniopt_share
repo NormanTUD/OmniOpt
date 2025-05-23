@@ -95,6 +95,11 @@
 		exit $exit_code
 	}
 
+	if [ $# -eq 0 ]; then
+		yellow_text "Please run with a folder as argument"
+		exit 1
+	fi
+
 	for arg in "$@"; do
 		if [ "$arg" == "--debug" ]; then
 			DEBUG=1

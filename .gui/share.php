@@ -406,9 +406,18 @@
 	</div>
 
 	<script>
-		$.get("share?show_overview=1", function(content) {
-			$("#progressbar").parent().remove();
-			$("#overview_content").html(content).show();
+		function load_share_overview() {
+			const currentParams = new URLSearchParams(window.location.search);
+			currentParams.set("show_overview", "1");
+
+			$.get("share?" + currentParams.toString(), function(content) {
+				$("#progressbar").parent().remove();
+				$("#overview_content").html(content).show();
+			});
+		}
+
+		$(document).ready(function() {
+			load_share_overview();
 		});
 	</script>
 <?php

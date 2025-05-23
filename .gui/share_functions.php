@@ -2469,27 +2469,47 @@ $onclick_string
 		});
 	}
 
+	function getValidFolders($path) {
+		$folders = [];
+		if (!is_dir($path)) return $folders;
+
+		$dir = opendir($path);
+		while (($entry = readdir($dir)) !== false) {
+			if ($entry === '.' || $entry === '..') continue;
+			$full = $path . '/' . $entry;
+			if (is_dir($full) && preg_match('/^[a-zA-Z0-9-_]+$/', $entry)) {
+				$folders[] = $entry;
+			}
+		}
+		closedir($dir);
+		return $folders;
+	}
+
 	function generateFolderTreeView($basePath) {
 		if (!is_dir($basePath)) {
 			echo "Base path does not exist.";
 			return;
 		}
 
+		$currentUser = $_GET['user_id'] ?? null;
+		$currentExp  = $_GET['experiment_name'] ?? null;
+		$currentRun  = $_GET['run_nr'] ?? null;
+
 		echo '<ul class="tree-view">';
 
 		$users = getValidFolders($basePath);
-		sortFoldersByModificationTime($basePath, $users);  // Sortiere User nach Aktualität
+		sortFoldersByModificationTime($basePath, $users);
 
 		foreach ($users as $user) {
 			$userPath = "$basePath/$user";
 			$experiments = getValidFolders($userPath);
-			sortFoldersByModificationTime($userPath, $experiments); // Sortiere Experimente
+			sortFoldersByModificationTime($userPath, $experiments);
 
 			$hasValidRun = false;
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
 				$runs = getValidFolders($experimentPath);
-				sortFoldersByModificationTime($experimentPath, $runs); // Sortiere Runs
+				sortFoldersByModificationTime($experimentPath, $runs);
 
 				foreach ($runs as $run) {
 					$runPath = "$experimentPath/$run";
@@ -2502,12 +2522,14 @@ $onclick_string
 
 			if (!$hasValidRun) continue;
 
-			echo '<li><details'.(count($users) == 1 ? ' open' : '').'><summary>' . htmlspecialchars($user) . '</summary><ul>';
+			$userIsOpen = ($currentUser === $user);
+			$userLink = htmlspecialchars("share?user_id=$user");
+			echo '<li><details' . ($userIsOpen ? ' open' : '') . '><summary><a href="' . $userLink . '">' . htmlspecialchars($user) . '</a></summary><ul>';
 
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
 				$runs = getValidFolders($experimentPath);
-				sortFoldersByModificationTime($experimentPath, $runs); // nochmal Sortierung, falls notwendig
+				sortFoldersByModificationTime($experimentPath, $runs);
 
 				$validRunItems = [];
 
@@ -2527,7 +2549,7 @@ $onclick_string
 					if (file_exists($res_csv)) {
 						$analyzed = analyze_results_csv($res_csv);
 						if ($analyzed) {
-							$bracket_string .= " | " . $analyzed;
+							$bracket_string .= " | $analyzed";
 						}
 					} else {
 						$counted_subfolders = countSubfolders($runPath);
@@ -2545,7 +2567,9 @@ $onclick_string
 				}
 
 				if (count($validRunItems) > 0) {
-					echo '<li><details open><summary>' . htmlspecialchars($experiment) . '</summary><ul>';
+					$experimentIsOpen = ($currentUser === $user && $currentExp === $experiment);
+					$expLink = htmlspecialchars("share?user_id=$user&experiment_name=$experiment");
+					echo '<li><details' . ($experimentIsOpen ? ' open' : '') . '><summary><a href="' . $expLink . '">' . htmlspecialchars($experiment) . '</a></summary><ul>';
 					echo implode('', $validRunItems);
 					echo '</ul></details></li>';
 				}
@@ -2555,21 +2579,5 @@ $onclick_string
 		}
 
 		echo '</ul>';
-	}
-
-	function getValidFolders($path) {
-		$folders = [];
-		if (!is_dir($path)) return $folders;
-
-		$dir = opendir($path);
-		while (($entry = readdir($dir)) !== false) {
-			if ($entry === '.' || $entry === '..') continue;
-			$full = $path . '/' . $entry;
-			if (is_dir($full) && preg_match('/^[a-zA-Z0-9-_]+$/', $entry)) {
-				$folders[] = $entry;
-			}
-		}
-		closedir($dir);
-		return $folders;
 	}
 ?>

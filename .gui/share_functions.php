@@ -417,6 +417,55 @@
 		return [$tabs, $warnings];
 	}
 
+	function isValidSvgFile(string $filepath): bool {
+		if (!is_readable($filepath)) {
+			return false;
+		}
+
+		$contents = file_get_contents($filepath, false, null, 0, 2 * 1024 * 1024);
+		if ($contents === false) {
+			return false;
+		}
+
+		$contents = preg_replace('/^\xEF\xBB\xBF/', '', $contents);
+
+		if (stripos($contents, '<svg') === false) {
+			return false;
+		}
+
+		$start = trim(substr($contents, 0, 4096)); // nur Anfang parsen
+		if (!preg_match('/<svg[^>]*xmlns\s*=\s*["\']http:\/\/www\.w3\.org\/2000\/svg["\']/', $start)) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	function add_flame_svg_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
+		if(is_file($filename) && filesize($filename) > 0 && isValidSvgFile($filename)) {
+			$svg_icon = get_icon_html("flame.svg");
+
+			$html = "<iframe width='100%' src='get_svg?file=$filename'>Your browser does not support iframes</iframe>";
+
+			$tabs["$svg_icon$name"] = [
+				'id' => $id,
+				'content' => $html
+			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			} else if (!isValidSvgFile($filename)) {
+				$warnings[] = "$filename is not a valid SVG file";
+			}
+		}
+
+		return [$tabs, $warnings];
+	}
+
+
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);

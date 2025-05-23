@@ -294,6 +294,10 @@
 					curl_options+=("-F" "trial_index_to_params=@$log_dir/${run_uuid}_trial_index_to_param_logs")
 				fi
 
+				if [[ -e "${run_uuid}.svg" ]]; then
+					curl_options+=("-F" "profile.svg=@$run_uuid.svg")
+				fi
+
 				if [[ -e "$log_dir/${run_uuid}_log" ]]; then
 					curl_options+=("-F" "log=@$log_dir/${run_uuid}_log")
 				fi

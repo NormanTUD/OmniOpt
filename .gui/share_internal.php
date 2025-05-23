@@ -46,6 +46,7 @@
 		"get_next_trials.csv",
 		"global_vars.json",
 		"run_uuid",
+		"profile_svg",
 		"outfile.txt",
 		"oo_errors.txt",
 		"evaluation_errors.log",

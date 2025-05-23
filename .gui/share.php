@@ -120,6 +120,9 @@
 			'add_cpu_ram_usage_main_worker_from_file' => [
 				["$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram"]
 			],
+			'add_flame_svg_file' => [
+				["$run_dir/profile_svg", "Flame-Graph", "tab_flame_graph"]
+			],
 			'add_worker_cpu_ram_from_file' => [
 				["$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs"]
 			]

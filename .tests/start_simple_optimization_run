@@ -54,7 +54,7 @@ function help () {
 	echo "  --gpus=(INT)                                                     Number of GPUs per worker"
 	echo "  --time=(INT)                                                     Time each subjob should run"
 	echo "  --allow_failure                                                  Adds a parameter to randomly fail"
-	echo "  --force_local_executio n                                         Run locally even if SLURM is installed"
+	echo "  --force_local_execution                                          Run locally even if SLURM is installed"
 	echo "  --all_float                                                      Use all_float logic"
 	echo "  --one_param                                                      One parameter"
 	echo "  --two_params                                                     Two parameters"

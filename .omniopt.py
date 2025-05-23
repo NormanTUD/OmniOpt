@@ -6055,7 +6055,7 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
     else:
         if not isinstance(job, SlurmJob):
             print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
-    save_results_csv()
+
     return this_jobs_finished
 
 @beartype

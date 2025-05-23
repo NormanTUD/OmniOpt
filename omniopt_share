@@ -388,7 +388,35 @@
 
 			if [[ ${#curl_options[@]} -eq 0 ]]; then
 				if [[ $nr_curl_options_before -eq 0 ]]; then
+
+
 					red_text "Could not find any files in $RUN_DIR\n"
+
+					matching_dirs=$(find "$RUN_DIR" -mindepth 2 -maxdepth 2 -type d | grep -E "^$RUN_DIR/[a-zA-Z0-9_]+/[0-9]+$")
+
+					if [ -n "$matching_dirs" ]; then
+						display_list=$(echo "$matching_dirs" | sed 's/^/  - /')
+
+						whiptail --title "No Files Found" \
+							--yesno "Could not find any files in:\n\n  $RUN_DIR\n\nHowever, the following subfolders were found:\n\n$display_list\n\nDo you want to share all matching folders?" \
+							20 80
+
+						if [ $? -eq 0 ]; then
+							filtered_args=()
+							for arg in "$@"; do
+								if [[ "$arg" == --username=* ]] || [[ "$arg" == "$RUN_DIR" ]]; then
+									continue
+								fi
+								filtered_args+=("$arg")
+							done
+
+							for folder in $matching_dirs; do
+								bash "$SCRIPT_DIR/omniopt_share" "$folder" --username="$username" "${filtered_args[@]}"
+							done
+						else
+							yellow_text "Aborted sharing."
+						fi
+					fi
 				else
 					green_text "No update needed"
 				fi

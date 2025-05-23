@@ -40,11 +40,10 @@ run_optimization() {
         --nr_results=$NR_RESULTS \
         --num_random_steps=$NUM_RANDOM_STEPS \
         --time=$TIME \
-        --additional_parameter="$additional_parameter" \
+        --additional_parameter="$additional_parameter --show_generation_and_submission_sixel" \
 	--revert_to_random_when_seemingly_exhausted \
         --testname="$testname" \
 	--flame_graph \
-	--show_generation_and_submission_sixel \
         $generate_flag
 }
 

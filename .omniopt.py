@@ -6936,7 +6936,7 @@ def plot_times_for_creation_and_submission() -> None:
     plot_times_vs_jobs_sixel(
         times=job_submit_durations,
         job_counts=job_submit_nrs,
-        xlabel="Number of Jobs per Batch",
+        xlabel="Index",
         ylabel="Duration (seconds)",
         title="Job Submission Durations vs Number of Jobs"
     )
@@ -6944,7 +6944,7 @@ def plot_times_for_creation_and_submission() -> None:
     plot_times_vs_jobs_sixel(
         times=log_gen_times,
         job_counts=log_nr_gen_jobs,
-        xlabel="Number of Jobs",
+        xlabel="Index",
         ylabel="Generation Time (seconds)",
         title="Model Generation Times vs Number of Jobs"
     )

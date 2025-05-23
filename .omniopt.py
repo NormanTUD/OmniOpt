@@ -5403,7 +5403,7 @@ def get_generation_node_for_index(this_csv_file_path: str, arm_params_list: list
 
         with open(this_csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
-            if "generation_node" not in reader.fieldnames:
+            if reader.fieldnames is None or "generation_node" not in reader.fieldnames:
                 return "MANUAL"
 
             for row in reader:

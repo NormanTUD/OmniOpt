@@ -18,7 +18,7 @@ import statistics
 import tempfile
 import threading
 
-whole_start_time: float = time.time
+whole_start_time: float = time.time()
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
 job_submit_nrs: list[int] = []

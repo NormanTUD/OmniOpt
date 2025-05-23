@@ -18,6 +18,7 @@ import statistics
 import tempfile
 import threading
 
+whole_start_time: float = time.time
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
 job_submit_nrs: list[int] = []
@@ -372,6 +373,10 @@ def my_exit(_code: int = 0) -> None:
 
     print(exit_code_string)
     print_debug(exit_code_string)
+
+    whole_end_time: float = time.time()
+    whole_run_time = whole_end_time - whole_start_time
+    print(f"Wallclock-Runtime: {whole_run_time} seconds ({human_time_when_larger_than_a_min(int(whole_run_time))})")
 
     sys.exit(_code)
 

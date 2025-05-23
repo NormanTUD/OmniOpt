@@ -352,6 +352,7 @@
 			} else {
 				if($user_id && $experiment_name && !is_null($run_nr)) {
 ?>
+					<i><a href="share">Share</a></i> / <i><?php print $user_id; ?></i> / <i><?php print $experiment_name; ?></i> / <i><?php print $run_nr; ?></i><br>
 					<section class="tabs" style="width: 100%">
 						<menu role="tablist" aria-label="OmniOpt2-Run">
 <?php

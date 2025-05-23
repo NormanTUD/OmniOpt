@@ -24,7 +24,7 @@ run_optimization() {
     local generate_all_jobs_at_once_flag="$2"
     local testname="$3"
 
-    local additional_parameter="--username=sequential_or_non_sequential_three"
+    local additional_parameter="--username=sequential_or_non_sequential_four"
     if [[ "$acquisition_sequential_flag" == "true" ]]; then
         additional_parameter+=" --acquisition_sequential"
     fi
@@ -50,7 +50,7 @@ run_optimization() {
 
 # Alle 4 Kombinationen ausführen
 #                SEQ   ONCE  NAME
-run_optimization true  true  "sequential____all_at_once___use_batch_trials___parallized_job_completetion___flame_graph"
-run_optimization false true  "nonsequential____all_at_once___use_batch_trials___parallized_job_completetion___flame_graph"
-run_optimization true  false "sequential____no_all_at_once___use_batch_trials___parallized_job_completetion___flame_graph"
-run_optimization false false "nonsequential____no_all_at_once___use_batch_trials___parallized_job_completetion___flame_graph"
+run_optimization true  true  "sequential____all_at_once"
+run_optimization false true  "nonsequential____all_at_once"
+run_optimization true  false "sequential____no_all_at_once"
+run_optimization false false "nonsequential____no_all_at_once"

@@ -21,6 +21,7 @@ import threading
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
 log_gen_times: list[float] = []
+log_nr_gen_jobs: list[int] = []
 generation_strategy_human_readable: str = ""
 oo_call: str = "./omniopt"
 progress_bar_length: int = 0
@@ -6705,6 +6706,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         all_time = float(all_end_time - all_start_time)
 
         log_gen_times.append(all_time)
+        log_nr_gen_jobs.append(cnt)
 
         if cnt:
             progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}, {all_time / cnt} s/job"])
@@ -6795,37 +6797,51 @@ def generate_time_table_rich() -> None:
         print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
         return
 
+    if not isinstance(log_nr_gen_jobs, list):
+        print_debug("generate_time_table_rich: Error: log_nr_gen_jobs is not a list.")
+        return
+
+    if len(log_gen_times) != len(log_nr_gen_jobs):
+        print_debug("generate_time_table_rich: Error: Mismatched lengths of times and job counts.")
+        return
+
     if len(log_gen_times) == 0:
         print_debug("generate_time_table_rich: No times to display.")
         return
 
-    for i, val in enumerate(log_gen_times):
+    for i, (val, jobs) in enumerate(zip(log_gen_times, log_nr_gen_jobs)):
         try:
             float(val)
+            int(jobs)
         except (ValueError, TypeError):
-            print_debug(f"generate_time_table_rich: Error: Element at index {i} is not a valid float.")
+            print_debug(f"generate_time_table_rich: Error: Invalid data at index {i}.")
             return
 
     table = Table(show_header=True, header_style="bold", title="Model generation times")
     table.add_column("Iteration", justify="right")
     table.add_column("Seconds", justify="right")
+    table.add_column("Jobs", justify="right")
+    table.add_column("Time per job", justify="right")
 
-    for idx, time_val in enumerate(log_gen_times, start=1):
-        table.add_row(str(idx), f"{float(time_val):.3f}")
+    times_float: List[float] = []
+    times_per_job: List[float] = []
 
-    times_float: List[float] = [float(t) for t in log_gen_times]
-    avg_time = mean(times_float)
-    median_time = median(times_float)
-    total_time = sum(times_float)
-    max_time = max(times_float)
-    min_time = min(times_float)
+    for idx, (time_val, job_count) in enumerate(zip(log_gen_times, log_nr_gen_jobs), start=1):
+        seconds = float(time_val)
+        jobs = int(job_count)
+        per_job = seconds / jobs if jobs != 0 else 0.0
+        times_float.append(seconds)
+        times_per_job.append(per_job)
+        table.add_row(str(idx), f"{seconds:.3f}", str(jobs), f"{per_job:.3f}")
 
-    table.add_row("", "")
-    table.add_row("Model generation times Average", f"{avg_time:.3f}")
-    table.add_row("Model generation times Median", f"{median_time:.3f}")
-    table.add_row("Model generation times Total", f"{total_time:.3f}")
-    table.add_row("Model generation times Max", f"{max_time:.3f}")
-    table.add_row("Model generation times Min", f"{min_time:.3f}")
+    table.add_section()
+
+    # Summary
+    table.add_row("Average", f"{mean(times_float):.3f}", "", "")
+    table.add_row("Median", f"{median(times_float):.3f}", "", "")
+    table.add_row("Total", f"{sum(times_float):.3f}", "", "")
+    table.add_row("Max", f"{max(times_float):.3f}", "", f"")
+    table.add_row("Min", f"{min(times_float):.3f}", "", f"")
 
     if args.show_generate_time_table:
         console.print(table)

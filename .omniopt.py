@@ -6079,6 +6079,8 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     if len(jobs_copy) > 0:
         print_debug(f"jobs in finish_previous_jobs: {jobs_copy}")
 
+    finishing_jobs_start_time = time.time()
+
     with ThreadPoolExecutor() as finish_job_executor:
         futures = [finish_job_executor.submit(_finish_previous_jobs_helper_wrapper, (job, trial_index)) for job, trial_index in jobs_copy]
 
@@ -6087,6 +6089,12 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
                 this_jobs_finished += future.result()
             except Exception as e:
                 print_red(f"⚠ Exception in parallel job handling: {e}")
+
+    finishing_jobs_end_time = time.time()
+
+    finishing_jobs_runtime = finishing_jobs_end_time - finishing_jobs_start_time
+
+    print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
     save_results_csv()
 

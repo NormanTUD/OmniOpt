@@ -1034,7 +1034,7 @@ $complex_options_str
 			;;
 
 		--flame_graph)
-			RUN_WITH_PYSPY=1
+			export RUN_WITH_PYSPY=1
 			;;
 
 		-d|--debug)

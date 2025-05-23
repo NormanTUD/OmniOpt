@@ -6804,6 +6804,7 @@ def save_table_as_text(table: Table, filepath: str) -> None:
 def show_time_debugging_table() -> None:
     generate_time_table_rich()
     generate_job_submit_table_rich()
+    plot_times_for_creation_and_submission()
 
     live_share()
 
@@ -6924,6 +6925,56 @@ def generate_job_submit_table_rich() -> None:
     filename = "job_submit_durations.txt"
     filepath = os.path.join(folder, filename)
     save_table_as_text(table, filepath)
+
+@beartype
+def plot_times_for_creation_and_submission() -> None:
+    plot_times_vs_jobs_sixel(
+        times=job_submit_durations,
+        job_counts=job_submit_nrs,
+        xlabel="Number of Jobs per Batch",
+        ylabel="Duration (seconds)",
+        title="Job Submission Durations vs Number of Jobs"
+    )
+
+    plot_times_vs_jobs_sixel(
+        times=log_gen_times,
+        job_counts=log_nr_gen_jobs,
+        xlabel="Number of Jobs",
+        ylabel="Generation Time (seconds)",
+        title="Model Generation Times vs Number of Jobs"
+    )
+
+@beartype
+def plot_times_vs_jobs_sixel(
+    times: List[float],
+    job_counts: List[int],
+    xlabel: Optional[str] = "Number of Jobs",
+    ylabel: Optional[str] = "Duration (seconds)",
+    title: Optional[str] = "Times vs Jobs"
+) -> None:
+    if not times or not job_counts or len(times) != len(job_counts):
+        print("[italic yellow]No valid data or mismatched lengths to plot.[/]")
+        return
+
+    if not supports_sixel():
+        print("[italic yellow]Your console does not support sixel-images. Cannot show plot.[/]")
+        return
+
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+
+    ax.scatter(job_counts, times, color='green', marker='o')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(True)
+
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
+        plt.savefig(tmp_file.name, dpi=300)
+        print_image_to_cli(tmp_file.name, width=1000)
+
+    plt.close(fig)
 
 @beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:

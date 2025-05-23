@@ -6953,7 +6953,7 @@ def plot_times_for_creation_and_submission() -> None:
 def plot_times_vs_jobs_sixel(
     times: List[float],
     job_counts: List[int],
-    xlabel: Optional[str] = "Number of Jobs",
+    xlabel: Optional[str] = "Iteration",
     ylabel: Optional[str] = "Duration (seconds)",
     title: Optional[str] = "Times vs Jobs"
 ) -> None:
@@ -6969,17 +6969,25 @@ def plot_times_vs_jobs_sixel(
 
     fig, ax = plt.subplots()
 
-    ax.scatter(job_counts, times, color='green', marker='o')
+    iterations = list(range(1, len(times) + 1))
+    sizes = [max(20, min(200, jc * 10)) for jc in job_counts]  # Punktgröße je nach Jobanzahl, skaliert
+
+    scatter = ax.scatter(iterations, times, s=sizes, c=job_counts, cmap='viridis', alpha=0.7, edgecolors='black')
+
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     ax.grid(True)
+
+    cbar = plt.colorbar(scatter, ax=ax)
+    cbar.set_label('Number of Jobs')
 
     with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
         plt.savefig(tmp_file.name, dpi=300)
         print_image_to_cli(tmp_file.name, width=1000)
 
     plt.close(fig)
+
 
 @beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:

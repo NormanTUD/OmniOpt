@@ -4618,11 +4618,12 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
 @beartype
 def get_username() -> str:
     _user = os.getenv('USER')
-    if _user is None:
-        return 'defaultuser'
 
     if args.username:
         _user = args.username
+
+    if _user is None:
+        return 'defaultuser'
 
     return _user
 

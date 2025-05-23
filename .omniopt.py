@@ -6004,13 +6004,67 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     return this_jobs_finished
 
 @beartype
+def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -> None:
+    if job:
+        try:
+            progressbar_description(["job_failed"])
+            _trial = ax_client.get_trial(trial_index)
+            ax_client.log_trial_failure(trial_index=trial_index)
+            mark_trial_as_failed(trial_index, _trial)
+        except Exception as e:
+            print(f"ERROR in line {get_line_info()}: {e}")
+        job.cancel()
+        orchestrate_job(job, trial_index)
+    failed_jobs(1)
+    print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
+    global_vars["jobs"].remove((job, trial_index))
+
+@beartype
+def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:
+    if "None for metric" in str(error):
+        print_red(
+            f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string."
+            f"\nError: {error}\nJob-result: {job.result()}"
+        )
+    else:
+        print_red(f"\n⚠ {error}")
+
+    _finish_previous_jobs_helper_handle_failed_job(job, trial_index)
+    save_checkpoint()
+    return 1
+
+@beartype
+def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jobs_finished: int) -> int:
+    try:
+        this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
+    except (SignalINT, SignalUSR, SignalCONT) as e:
+        print_red(f"Cancelled finish_job_core: {e}")
+    except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
+        this_jobs_finished += _finish_previous_jobs_helper_handle_exception(job, trial_index, error)
+    return this_jobs_finished
+
+@beartype
+def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, this_jobs_finished: int) -> int:
+    if job is None:
+        print_debug(f"finish_previous_jobs: job {job} is None")
+        return this_jobs_finished
+
+    if job.done() or type(job) in [LocalJob, DebugJob]:
+        this_jobs_finished = _finish_previous_jobs_helper_process_job(job, trial_index, this_jobs_finished)
+        save_checkpoint()
+    else:
+        if not isinstance(job, SlurmJob):
+            print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
+    save_results_csv()
+    return this_jobs_finished
+
+@beartype
 def finish_previous_jobs(new_msgs: List[str]) -> None:
     global JOBS_FINISHED
 
     if not ax_client:
         print_red("ax_client failed")
         my_exit(101)
-
         return None
 
     this_jobs_finished = 0
@@ -6019,43 +6073,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         print_debug(f"jobs in finish_previous_jobs: {global_vars['jobs']}")
 
     for job, trial_index in global_vars["jobs"][:]:
-        if job is None:
-            print_debug(f"finish_previous_jobs: job {job} is None")
-            continue
-
-        if job.done() or type(job) in [LocalJob, DebugJob]:
-            try:
-                this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
-            except (SignalINT, SignalUSR, SignalCONT) as e:
-                print_red(f"Cancelled finish_job_core: {e}")
-            except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
-                if "None for metric" in str(error):
-                    print_red(f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string.\nError: {error}\nJob-result: {job.result()}")
-                else:
-                    print_red(f"\n⚠ {error}")
-
-                if job:
-                    try:
-                        progressbar_description(["job_failed"])
-                        _trial = ax_client.get_trial(trial_index)
-                        ax_client.log_trial_failure(trial_index=trial_index)
-                        mark_trial_as_failed(trial_index, _trial)
-                    except Exception as e:
-                        print(f"ERROR in line {get_line_info()}: {e}")
-                    job.cancel()
-                    orchestrate_job(job, trial_index)
-
-                failed_jobs(1)
-                this_jobs_finished += 1
-                print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
-                global_vars["jobs"].remove((job, trial_index))
-
-            save_checkpoint()
-        else:
-            if not isinstance(job, SlurmJob):
-                print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
-
-        save_results_csv()
+        this_jobs_finished = _finish_previous_jobs_helper_check_and_process(job, trial_index, this_jobs_finished)
 
     save_results_csv()
 
@@ -6063,9 +6081,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])
 
     JOBS_FINISHED += this_jobs_finished
-
     clean_completed_jobs()
-
     return None
 
 @beartype

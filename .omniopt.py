@@ -6059,8 +6059,8 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
     return this_jobs_finished
 
 @beartype
-def _finish_previous_jobs_helper_wrapper(args: Tuple[Any, int]) -> int:
-    job, trial_index = args
+def _finish_previous_jobs_helper_wrapper(__args: Tuple[Any, int]) -> int:
+    job, trial_index = __args
     return _finish_previous_jobs_helper_check_and_process(job, trial_index, 0)
 
 @beartype

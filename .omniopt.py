@@ -5918,7 +5918,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
     return None
 
 @beartype
-def _finish_job_core_helper_check_valid_result(result: Union[list, int, float, tuple]) -> bool:
+def _finish_job_core_helper_check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
     possible_val_not_found_values = [
         VAL_IF_NOTHING_FOUND,
         -VAL_IF_NOTHING_FOUND,

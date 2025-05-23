@@ -446,7 +446,7 @@
 		if(is_file($filename) && filesize($filename) > 0 && isValidSvgFile($filename)) {
 			$svg_icon = get_icon_html("flame.svg");
 
-			$html = "<iframe width='100%' src='get_svg?file=$filename'>Your browser does not support iframes</iframe>";
+			$html = "<iframe width='100%' height='100%' src='get_svg?file=$filename'>Your browser does not support iframes</iframe>";
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,

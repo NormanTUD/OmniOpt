@@ -56,6 +56,7 @@ function help () {
 	echo "  --allow_failure                                                  Adds a parameter to randomly fail"
 	echo "  --force_local_execution                                          Run locally even if SLURM is installed"
 	echo "  --all_float                                                      Use all_float logic"
+	echo "  --flame_graph                                                    Enable flame-graph"
 	echo "  --one_param                                                      One parameter"
 	echo "  --two_params                                                     Two parameters"
 	echo "  --nr_results=1                                                   Nr of 'RESULT's (default: 1)"
@@ -103,6 +104,7 @@ time=60
 model=BOTORCH_MODULAR
 mem_gb=4
 all_float=0
+flame_graph=0
 one_param=0
 alternate_min_max=0
 nr_results=1
@@ -328,6 +330,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--all_float=*|--all_float)
 			all_float=1
 			;;
+		--flame_graph)
+			flame_graph=1
+			;;
 		--force_local_execution)
 			force_local_execution=1
 			;;
@@ -479,6 +484,10 @@ elif [[ "$two_params" -eq "1" ]]; then
 	omniopt_cmd=$(build_omniopt_command_two_params)
 else
 	omniopt_cmd=$(build_omniopt_command_standard)
+fi
+
+if [[ "$flame_graph" -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --flame_graph"
 fi
 
 if [[ "$debug" -eq 1 ]]; then

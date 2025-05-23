@@ -293,6 +293,13 @@ var hiddenTableData = [
 		help: "This generates all hyperparameter sets for the set of workers at once."
 	},
 	{
+		label: "Flame-Graph",
+		id: "flame_graph",
+		type: "checkbox",
+		value: 0,
+		help: "Enable flame-graphing. Makes everything slower, but creates a flame graph"
+	},
+	{
 		label: "Debug",
 		id: "debug",
 		type: "checkbox",

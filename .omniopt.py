@@ -459,6 +459,7 @@ class ConfigLoader:
     username: Optional[str]
     max_nr_of_zero_results: int
     mem_gb: int
+    flame_graph: bool
     continue_previous_job: Optional[str]
     calculate_pareto_front_of_job: Optional[str]
     revert_to_random_when_seemingly_exhausted: bool
@@ -598,6 +599,7 @@ class ConfigLoader:
         debug.add_argument('--verbose', help='Verbose logging', action='store_true', default=False)
         debug.add_argument('--verbose_break_run_search_table', help='Verbose logging for break_run_search', action='store_true', default=False)
         debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
+        debug.add_argument('--flame_graph', help='Enable flame-graphing. Makes everything slower, but creates a flame graph', action='store_true', default=False)
         debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
         debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
         debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)

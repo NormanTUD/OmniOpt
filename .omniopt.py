@@ -4619,7 +4619,7 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
 def get_username() -> str:
     _user = os.getenv('USER')
     if _user is None:
-        _user = 'defaultuser'
+        return 'defaultuser'
 
     if args.username:
         _user = args.username
@@ -6622,7 +6622,7 @@ def get_acquisition_options() -> dict:
 
 @beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
-    batched_arms = []
+    batched_arms: list = []
     attempts = 0
 
     while len(batched_arms) != nr_of_jobs_to_get:

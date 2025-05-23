@@ -5389,7 +5389,7 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
     return arm_params_list, results_list
 
 @beartype
-def get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, index):
+def get_generation_node_for_index(this_csv_file_path: str, arm_params_list: list, results_list: list, index: int) -> str:
     try:
         if index < 0 or index >= len(arm_params_list) or index >= len(results_list):
             return "MANUAL"

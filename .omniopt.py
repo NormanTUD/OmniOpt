@@ -16,6 +16,7 @@ import time
 import random
 import statistics
 import tempfile
+import threading
 
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
@@ -115,8 +116,6 @@ try:
 
         from submitit import LocalExecutor, AutoExecutor
         from submitit import Job
-
-        import threading
 
         import importlib.util
         import inspect
@@ -1579,6 +1578,7 @@ except Exception as e:
     print(f"Error trying to get process: {e}")
 
 global_vars: dict = {}
+global_vars_jobs_lock = threading.Lock()
 
 VAL_IF_NOTHING_FOUND: int = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT: str = "{:.0e}".format(VAL_IF_NOTHING_FOUND)
@@ -6017,7 +6017,10 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
         orchestrate_job(job, trial_index)
     failed_jobs(1)
     print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
-    global_vars["jobs"].remove((job, trial_index))
+
+    with global_vars_jobs_lock:
+        print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
+        global_vars["jobs"].remove((job, trial_index))
 
 @beartype
 def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:

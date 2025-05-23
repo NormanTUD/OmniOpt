@@ -6,6 +6,8 @@
 		}
 	);
 
+	$GLOBALS["modificationCache"] = [];
+
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
 
@@ -829,10 +831,8 @@
 	}
 
 	function getLatestModificationTime($folderPath) {
-		global $modificationCache;
-
-		if (isset($modificationCache[$folderPath])) {
-			return $modificationCache[$folderPath];
+		if (isset($GLOBALS["modificationCache"][$folderPath])) {
+			return $GLOBALS["modificationCache"][$folderPath];
 		}
 
 		$latestTime = 0;
@@ -850,7 +850,7 @@
 		}
 
 		closedir($dir);
-		$modificationCache[$folderPath] = $latestTime;
+		$GLOBALS["modificationCache"][$folderPath] = $latestTime;
 
 		return $latestTime;
 	}
@@ -875,8 +875,6 @@
 				}
 			}
 			closedir($dir);
-
-			$modificationCache = [];
 
 			switch ($sort) {
 				case 'time_asc':
@@ -2567,7 +2565,6 @@ $onclick_string
 			}
 		}
 		closedir($dir);
-		sort($folders); // Oder andere Sortierung nach Wunsch
 		return $folders;
 	}
 ?>

@@ -390,16 +390,37 @@
 				if [[ $nr_curl_options_before -eq 0 ]]; then
 					yellow_text "Could not find any files in $RUN_DIR\n"
 
+
+
+
 					matching_dirs=$(find "$RUN_DIR" -mindepth 2 -maxdepth 2 -type d | grep -E "^$RUN_DIR/[a-zA-Z0-9_]+/[0-9]+$")
 
 					if [ -n "$matching_dirs" ]; then
-						display_list=$(echo "$matching_dirs" | sed 's/^/  - /')
+						IFS=' ' read -r term_height term_width < <(stty size)
 
-						whiptail --title "No Files Found" \
-							--yesno "Could not find any files in:\n\n  $RUN_DIR\n\nHowever, the following subfolders were found:\n\n$display_list\n\nDo you want to share all matching folders?" \
-							20 80
+						dialog_width=$((term_width - 4))
+						dialog_height=$((term_height - 4))
 
-						if [ $? -eq 0 ]; then
+						max_list_height=$((dialog_height - 10))
+						list_height=$(( $(echo "$matching_dirs" | wc -l) ))
+						[ $list_height -gt $max_list_height ] && list_height=$max_list_height
+
+						checklist_items=()
+						while IFS= read -r line; do
+							shortname=$(basename "$(dirname "$line")")/$(basename "$line")
+							checklist_items+=("$line" "$shortname" "ON")
+						done <<< "$matching_dirs"
+
+						selected_dirs=$(whiptail --title "Select folders to share" \
+							--checklist "Could not find any files in:\n\n  $RUN_DIR\n\nHowever, the following subfolders were found:\n\n(Use SPACE to select/deselect folders)\n" \
+							"$dialog_height" "$dialog_width" "$list_height" \
+							"${checklist_items[@]}" \
+							3>&1 1>&2 2>&3)
+
+						exitstatus=$?
+						if [ $exitstatus -eq 0 ]; then
+							eval "selected_dirs_array=($selected_dirs)"
+
 							filtered_args=()
 							for arg in "$@"; do
 								if [[ "$arg" == --username=* ]] || [[ "$arg" == "$RUN_DIR" ]]; then
@@ -408,7 +429,7 @@
 								filtered_args+=("$arg")
 							done
 
-							for folder in $matching_dirs; do
+							for folder in "${selected_dirs_array[@]}"; do
 								bash "$SCRIPT_DIR/omniopt_share" "$folder" --username="$username" "${filtered_args[@]}"
 							done
 						else

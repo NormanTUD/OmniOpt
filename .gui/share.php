@@ -328,6 +328,68 @@
 		});
 	</script>
 	<div class="page">
+               <div class="invert_in_dark_mode" style="height: fit-content;">
+                       <div id="share_path" class="invert_in_dark_mode title-bar-text">
+<?php
+                               if(get_get("user_id") || get_get("experiment_name") || get_get("run_nr")) {
+                                       $user_id_link = get_get("user_id");
+                                       $experiment_name_link = get_get("experiment_name");
+                                       $run_nr_link = get_get("run_nr");
+
+                                       if (!is_valid_user_id($user_id_link)) {
+                                               $user_id_link = '';
+                                       }
+
+                                       if (!is_valid_experiment_name($experiment_name_link)) {
+                                               $experiment_name_link = '';
+                                       }
+
+                                       if (!is_valid_run_nr($run_nr_link)) {
+                                               $run_nr_link = '';
+                                       }
+
+                                       $base_url = "?";
+                                       if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
+                                               $base_url = "?sort=" . $_GET["sort"] . "&";
+                                       }
+
+                                       $links = [];
+
+                                       if (!empty($user_id_link)) {
+                                               $links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '\'">' . $user_id_link . '</button>';
+                                       }
+
+                                       if (!empty($experiment_name_link)) {
+                                               $links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '\'">' . $experiment_name_link . '</button>';
+                                       }
+
+                                       if ($run_nr_link != "") {
+                                               $links[] = '<button onclick="window.location.href=\'' . $base_url . 'user_id=' . urlencode($user_id_link) . '&experiment_name=' . urlencode($experiment_name_link) . '&run_nr=' . urlencode($run_nr_link) . '\'">' . $run_nr_link . '</button>';
+                                       }
+
+                                       if(count($links)) {
+                                               $home = $_SERVER["PHP_SELF"];
+                                               $home = preg_replace("/.*\//", "", $home);
+                                               $home = preg_replace("/\.php$/", "", $home);
+
+                                               if (isset($_GET["sort"]) && preg_match("/^[a-zA-Z0-9_]+$/", $_GET["sort"])) {
+                                                       $home = "?sort=" . $_GET["sort"] . "&";
+                                               }
+
+                                               array_unshift($links, "<button onclick=\"window.location.href='$home'\">Home</button>");
+                                       }
+
+                                       $path_with_links = implode(" / ", $links);
+
+                                       if(count($links)) {
+                                               echo $path_with_links;
+                                       }
+                               }
+?>
+                       </div>
+               </div>
+
+
 		<br>
 		<div id="spinner" class="spinner"></div>
 
@@ -355,11 +417,6 @@
 			} else {
 				if($user_id && $experiment_name && !is_null($run_nr)) {
 ?>
-					<i><a href="share">Share</a></i> /
-					<i><a href="share?user_id=<?php print htmlentities($user_id); ?>"><?php print $user_id; ?></a></i> /
-					<i><a href="share?user_id=<?php print htmlentities($user_id); ?>&experiment_name=<?php print htmlentities($experiment_name); ?>"><?php print $experiment_name; ?></a></i> /
-					<i><?php print $run_nr; ?></a></i> /
-					<br>
 					<section class="tabs" style="width: 100%">
 						<menu role="tablist" aria-label="OmniOpt2-Run">
 <?php

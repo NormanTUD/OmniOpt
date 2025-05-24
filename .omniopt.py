@@ -2308,7 +2308,6 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
     if value_type == "int":
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)] if int(upper_bound) - int(lower_bound) + 1 <= 999 else list(dict.fromkeys([str(round(int(lower_bound) + i * (int(upper_bound) - int(lower_bound)) / 998)) for i in range(999)]))
 
-
     if value_type == "float":
         num_steps = 999
         step = (upper_bound - lower_bound) / num_steps
@@ -4826,7 +4825,7 @@ def get_converted_to_choice(param: dict, experiment_parameters: Union[list, dict
     return converted_to_choice
 
 @beartype
-def parse_single_experiment_parameter_table(classic_params: Union[list, dict], experiment_parameters: Union[list, dict]) -> list:
+def parse_single_experiment_parameter_table(classic_params: Union[list, dict]) -> list:
     rows: list = []
 
     k = 0
@@ -5018,7 +5017,7 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
         print_red(f"Error trying to write file {fn}: {e}")
 
 @beartype
-def print_experiment_parameters_table(classic_param: Union[list, dict], experiment_parameters: Union[list, dict]) -> None:
+def print_experiment_parameters_table(classic_param: Union[list, dict]) -> None:
     if not classic_param:
         print_red("Cannot determine classic_param. No parameter table will be shown.")
         return
@@ -5030,7 +5029,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict], experime
     if isinstance(classic_param, dict) and "_type" in classic_param:
         classic_param = classic_param["experiment"]["search_space"]["parameters"]
 
-    rows = parse_single_experiment_parameter_table(classic_param, experiment_parameters)
+    rows = parse_single_experiment_parameter_table(classic_param)
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
@@ -5056,7 +5055,7 @@ def print_overview_tables(classic_params: Optional[Union[list, dict]], experimen
     if classic_params is None:
         classic_params = experiment_parameters
 
-    print_experiment_parameters_table(classic_params, experiment_parameters)
+    print_experiment_parameters_table(classic_params)
 
     print_ax_parameter_constraints_table(experiment_args)
     print_non_ax_parameter_constraints_table()
@@ -7064,7 +7063,6 @@ def plot_times_vs_jobs_sixel(
         print_image_to_cli(tmp_file.name, width=1000)
 
     plt.close(fig)
-
 
 @beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:

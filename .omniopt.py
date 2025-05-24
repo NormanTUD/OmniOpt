@@ -5010,7 +5010,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict], experime
     rows = parse_single_experiment_parameter_table(classic_param, experiment_parameters)
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
-    
+
     if args.force_choice_for_float_ranges is not None:
         columns.append("Converted to Choice?")
 

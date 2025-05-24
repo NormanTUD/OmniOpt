@@ -691,11 +691,11 @@ var hiddenTableData = [
 		info: "Use jobs that were abandoned while fitting a new model."
 	},
 	{
-		label: "Force sequential acquisition function",
-		id: "acquisition_sequential",
+		label: "Don't force sequential acquisition function",
+		id: "no_acquisition_sequential",
 		type: "checkbox",
 		value: 0,
-		info: "Using a non-sequential acquisition function may speed up the process of OmniOpt2's point generation."
+		info: "Disabling using a non-sequential acquisition function may speed up the process of OmniOpt2's point generation."
 	},
 	{
 		label: "Disable target normalization",

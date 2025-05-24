@@ -2306,7 +2306,8 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 @beartype
 def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> list:
     if value_type == "int":
-        return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
+        return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)] if int(upper_bound) - int(lower_bound) + 1 <= 999 else list(dict.fromkeys([str(round(int(lower_bound) + i * (int(upper_bound) - int(lower_bound)) / 998)) for i in range(999)]))
+
 
     if value_type == "float":
         num_steps = 999

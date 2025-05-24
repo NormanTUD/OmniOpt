@@ -2300,14 +2300,14 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
     return lower_bound, upper_bound
 
 @beartype
-def generate_values(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float], stepsize_percentage: Union[int, float]) -> list:
+def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float], stepsize_percentage: Union[int, float]) -> list:
     if value_type == "int":
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
     elif value_type == "float":
         # Schrittweite = kleinstmögliches Delta zwischen floats auf dem System
         step = (abs(upper_bound - lower_bound) * (stepsize_percentage / 100))
-        num_steps = int((upper_bound - lower_bound) / step)
-        print_debug(f"step_size for converting to float: {step}, num_steps: {num_steps}")
+        num_steps = int((upper_bound - lower_bound) / step) / max_eval
+        print_debug(f"{name}: step_size for converting to float: {step}, num_steps: {num_steps}")
         return [str(lower_bound + i * step) for i in range(num_steps + 1)]
     else:
         raise ValueError("Unsupported value_type")
@@ -2320,7 +2320,7 @@ def create_range_param(name: Union[list, str], lower_bound: Union[float, int], u
             'name': name,
             'type': 'choice',
             'value_type': 'str',
-            'values': generate_values(value_type, lower_bound, upper_bound, args.range_param_stepsize_percentage)
+            'values': generate_values(name, value_type, lower_bound, upper_bound, args.range_param_stepsize_percentage)
         }
     return {
         "name": name,

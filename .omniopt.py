@@ -4803,6 +4803,24 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @beartype
+def get_converted_to_choice(param: dict, experiment_parameters: Union[list, dict]) -> str:
+    exp_params = experiment_parameters
+
+    converted_to_choice = ""
+
+    if "experiment" in exp_params:
+        exp_params = exp_params["experiment"]
+
+    if "__type" in param:
+        if param["__type"] == "RangeParameter" and exp_params["__type"] == "choice":
+            converted_to_choice = "Y"
+    else:
+        if param["type"] == "range" and exp_params["type"] == "choice":
+            converted_to_choice = "Y"
+
+    return converted_to_choice
+
+@beartype
 def parse_single_experiment_parameter_table(classic_params: Union[list, dict], experiment_parameters: Union[list, dict]) -> list:
     rows: list = []
 
@@ -4810,10 +4828,7 @@ def parse_single_experiment_parameter_table(classic_params: Union[list, dict], e
 
     for param in classic_params:
         _type = ""
-        converted_to_choice = ""
-
-        if param["type"] == "range" and experiment_parameters[k]["type"] == "choice":
-            converted_to_choice = "Y"
+        converted_to_choice = get_converted_to_choice(param, experiment_parameters)
 
         if "__type" in param:
             _type = param["__type"]
@@ -5030,7 +5045,10 @@ def print_experiment_parameters_table(classic_param: Union[list, dict], experime
     print_experiment_param_table_to_file(filtered_columns, filtered_data)
 
 @beartype
-def print_overview_tables(classic_params: Union[list, dict], experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
+def print_overview_tables(classic_params: Optional[Union[list, dict]], experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
+    if classic_params is None:
+        classic_params = experiment_parameters
+
     print_experiment_parameters_table(classic_params, experiment_parameters)
 
     print_ax_parameter_constraints_table(experiment_args)

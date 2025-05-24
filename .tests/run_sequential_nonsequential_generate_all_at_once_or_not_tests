@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 cd "$SCRIPT_DIR"
 cd ..
 
@@ -15,39 +14,49 @@ TIME=1200
 
 BASE_COMMAND=".tests/start_simple_optimization_run"
 
+RAW_SAMPLES_LIST=(1 10 100 1000)
+NUM_RESTARTS_LIST=(1 10 100 1000)
+
 run_optimization() {
 	local acquisition_sequential_flag="$1"
 	local generate_all_jobs_at_once_flag="$2"
-	local testname="$3"
+	local raw_samples="$3"
+	local num_restarts="$4"
+	local testname="$5"
 
-	local additional_parameter="--username=sequential_or_non_sequential_ten"
+	local additional_parameter="--username=sequential_or_non_sequential_eleven"
 	if [[ "$acquisition_sequential_flag" == "false" ]]; then
 		additional_parameter+=" --no_acquisition_sequential"
 	fi
+
+	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
 	local generate_flag=""
 	if [[ "$generate_all_jobs_at_once_flag" == "true" ]]; then
 		generate_flag="--generate_all_jobs_at_once"
 	fi
 
-	echo "Starte Test: $testname"
+	echo "Starting Test: $testname"
 	$BASE_COMMAND \
 		--max_eval=$MAX_EVAL \
 		--num_parallel_jobs=$NUM_PARALLEL_JOBS \
 		--nr_results=$NR_RESULTS \
 		--num_random_steps=$NUM_RANDOM_STEPS \
 		--time=$TIME \
-		--additional_parameter="$additional_parameter \
-		--show_generation_and_submission_sixel" \
+		--additional_parameter="$additional_parameter --show_generation_and_submission_sixel" \
 		--revert_to_random_when_seemingly_exhausted \
 		--force_choice_for_ranges \
 		--testname="$testname" \
 		--flame_graph \
 		$generate_flag
-	}
+}
 
-#                SEQ   ONCE  NAME
-run_optimization true  true  "sequential____all_at_once"
-run_optimization false true  "nonsequential____all_at_once"
-run_optimization true  false "sequential____no_all_at_once"
-run_optimization false false "nonsequential____no_all_at_once"
+for raw_samples in "${RAW_SAMPLES_LIST[@]}"; do
+	for num_restarts in "${NUM_RESTARTS_LIST[@]}"; do
+		#        SEQ   ONCE  RAW  RST  NAME
+		run_optimization true  true  $raw_samples $num_restarts "sequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization false true  $raw_samples $num_restarts "nonsequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization true  false $raw_samples $num_restarts "sequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization false false $raw_samples $num_restarts "nonsequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
+	done
+done

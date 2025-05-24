@@ -499,6 +499,7 @@ class ConfigLoader:
     no_normalize_y: bool
     no_transform_inputs: bool
     occ: bool
+    range_param_stepsize_percentage: Optional[int]
     run_mode: str
 
     @beartype
@@ -577,6 +578,7 @@ class ConfigLoader:
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
+        optional.add_argument('--range_param_stepsize_percentage', help='Stepsize for range param (to avoid ax to force nonsequential)', type=int, default=None)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -2298,7 +2300,28 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
     return lower_bound, upper_bound
 
 @beartype
-def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
+def generate_values(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float], stepsize_percentage: Union[int, float]) -> list:
+    if value_type == "int":
+        return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
+    elif value_type == "float":
+        # Schrittweite = kleinstmögliches Delta zwischen floats auf dem System
+        step = abs(upper_bound - lower_bound) * (stepsize_percentage / 100)
+        print(f"upper_bound: {upper_bound}, lower_bound: {lower_bound}, stepsize_percentage: {stepsize_percentage}, step: {step}")
+        num_steps = int((upper_bound - lower_bound) / step)
+        return [str(lower_bound + i * step) for i in range(num_steps + 1)]
+    else:
+        raise ValueError("Unsupported value_type")
+
+@beartype
+def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
+    if args.range_param_stepsize_percentage and force_classic == False:
+        return {
+            'is_ordered': False,
+            'name': name,
+            'type': 'choice',
+            'value_type': 'str',
+            'values': generate_values(value_type, lower_bound, upper_bound, args.range_param_stepsize_percentage)
+        }
     return {
         "name": name,
         "type": "range",
@@ -2371,7 +2394,7 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
     return skip, value_type, log_scale
 
 @beartype
-def parse_range_param(params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_range_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
 
@@ -2395,15 +2418,17 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: s
     search_space_reduction_warning = check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning)
 
     param = create_range_param(name, lower_bound, upper_bound, value_type, log_scale)
+    classic_param = create_range_param(name, lower_bound, upper_bound, value_type, log_scale, True)
 
     if args.gridsearch:
         param = handle_grid_search(name, lower_bound, upper_bound, value_type)
 
     global_vars["parameter_names"].append(name)
     params.append(param)
+    classic_params.append(classic_param)
 
     j += skip
-    return j, params, search_space_reduction_warning
+    return j, params, classic_params, search_space_reduction_warning
 
 @beartype
 def validate_value_type(value_type: str) -> None:
@@ -2411,7 +2436,7 @@ def validate_value_type(value_type: str) -> None:
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
 @beartype
-def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_fixed_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
         my_exit(181)
@@ -2432,10 +2457,10 @@ def parse_fixed_param(params: list, j: int, this_args: Union[str, list], name: U
 
     j += 3
 
-    return j, params, search_space_reduction_warning
+    return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, bool]:
+def parse_choice_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
         print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
         my_exit(181)
@@ -2458,11 +2483,12 @@ def parse_choice_param(params: list, j: int, this_args: Union[str, list], name: 
 
     j += 3
 
-    return j, params, search_space_reduction_warning
+    return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> list:
+def parse_experiment_parameters() -> Tuple[list, list]:
     params: list = []
+    classic_params: list = []
     param_names: List[str] = []
 
     i = 0
@@ -2499,29 +2525,32 @@ def parse_experiment_parameters() -> list:
                 print_red("Not enough arguments for --parameter")
                 my_exit(181)
 
-            if param_type not in valid_types:
-                valid_types_string = ', '.join(valid_types)
-                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
-                my_exit(181)
-
             param_parsers = {
                 "range": parse_range_param,
                 "fixed": parse_fixed_param,
                 "choice": parse_choice_param
             }
 
-            if param_type in param_parsers:
-                j, params, search_space_reduction_warning = param_parsers[param_type](params, j, this_args, name, search_space_reduction_warning)
-            else:
+            if param_type not in param_parsers:
                 print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
                 my_exit(181)
+
+            if param_type not in valid_types:
+                valid_types_string = ', '.join(valid_types)
+                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
+                my_exit(181)
+
+            j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](classic_params, params, j, this_args, name, search_space_reduction_warning)
 
         i += 1
 
     if search_space_reduction_warning:
         print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
-    return params
+    params = list({p['name']: p for p in params}.values())
+    classic_params = list({p['name']: p for p in classic_params}.values())
+
+    return params, classic_params
 
 @beartype
 def check_factorial_range() -> None:
@@ -4773,11 +4802,17 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @beartype
-def parse_single_experiment_parameter_table(experiment_parameters: Union[list, dict]) -> list:
+def parse_single_experiment_parameter_table(classic_params: Union[list, dict], experiment_parameters: Union[list, dict]) -> list:
     rows: list = []
 
-    for param in experiment_parameters:
+    k = 0
+
+    for param in classic_params:
         _type = ""
+        converted_to_choice = ""
+
+        if param["type"] == "range" and experiment_parameters[k]["type"] == "choice":
+            converted_to_choice = "Y"
 
         if "__type" in param:
             _type = param["__type"]
@@ -4811,17 +4846,19 @@ def parse_single_experiment_parameter_table(experiment_parameters: Union[list, d
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale])
+            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale, converted_to_choice])
         elif "fixed" in _type.lower():
-            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", "", converted_to_choice])
         elif "choice" in _type.lower():
             values = param["values"]
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
-            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", "", converted_to_choice])
         else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
+
+        k = k + 1
 
     return rows
 
@@ -4958,21 +4995,24 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
         print_red(f"Error trying to write file {fn}: {e}")
 
 @beartype
-def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) -> None:
-    if not experiment_parameters:
-        print_red("Cannot determine experiment_parameters. No parameter table will be shown.")
+def print_experiment_parameters_table(classic_param: Union[list, dict], experiment_parameters: Union[list, dict]) -> None:
+    if not classic_param:
+        print_red("Cannot determine classic_param. No parameter table will be shown.")
         return
 
-    if not experiment_parameters:
+    if not classic_param:
         print_red("Experiment parameters could not be determined for display")
         return
 
-    if isinstance(experiment_parameters, dict) and "_type" in experiment_parameters:
-        experiment_parameters = experiment_parameters["experiment"]["search_space"]["parameters"]
+    if isinstance(classic_param, dict) and "_type" in classic_param:
+        classic_param = classic_param["experiment"]["search_space"]["parameters"]
 
-    rows = parse_single_experiment_parameter_table(experiment_parameters)
+    rows = parse_single_experiment_parameter_table(classic_param, experiment_parameters)
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
+    
+    if args.range_param_stepsize_percentage is not None:
+        columns.append("Converted to Choice?")
 
     data = []
     for row in rows:
@@ -4989,8 +5029,8 @@ def print_experiment_parameters_table(experiment_parameters: Union[list, dict]) 
     print_experiment_param_table_to_file(filtered_columns, filtered_data)
 
 @beartype
-def print_overview_tables(experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
-    print_experiment_parameters_table(experiment_parameters)
+def print_overview_tables(classic_params: Union[list, dict], experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
+    print_experiment_parameters_table(classic_params, experiment_parameters)
 
     print_ax_parameter_constraints_table(experiment_args)
     print_non_ax_parameter_constraints_table()
@@ -8018,14 +8058,15 @@ def check_max_eval(_max_eval: int) -> None:
         my_exit(19)
 
 @beartype
-def parse_parameters() -> Union[Tuple[Union[Any, None], Union[Any, None]], Tuple[Union[Any, None], Union[Any, None]]]:
+def parse_parameters() -> Any:
     with console.status("[bold green]Parsing parameters..."):
         experiment_parameters = None
         cli_params_experiment_parameters = None
         if args.parameter:
-            experiment_parameters = parse_experiment_parameters()
+            experiment_parameters, classic_params = parse_experiment_parameters()
             cli_params_experiment_parameters = experiment_parameters
-        return experiment_parameters, cli_params_experiment_parameters
+
+        return experiment_parameters, cli_params_experiment_parameters, classic_params
 
 @beartype
 def get_csv_data(csv_path: str) -> Tuple[Union[Sequence[str], None], List[Dict[Union[str, Any], Union[str, Any]]]]:
@@ -8901,7 +8942,7 @@ def main() -> None:
     write_ui_url_if_present()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
-    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
+    experiment_parameters, cli_params_experiment_parameters, classic_params = parse_parameters()
 
     write_live_share_file_if_needed()
 
@@ -8947,7 +8988,7 @@ def main() -> None:
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
 
-    print_overview_tables(experiment_parameters, experiment_args)
+    print_overview_tables(classic_params, experiment_parameters, experiment_args)
 
     write_files_and_show_overviews()
 

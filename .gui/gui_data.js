@@ -669,6 +669,15 @@ var hiddenTableData = [
 		min: 1,
 	},
 	{
+		label: "Stepsize for range param in percentage",
+		id: "range_param_stepsize_percentage",
+		type: "number",
+		placeholder: "Step size in percentage of range difference. Converts range params to choice params to avoid the acquisition function to be slow.",
+		min: 0,
+		min: 100,
+		step: 1
+	},
+	{
 		label: "raw_samples Option for the optimizer_options",
 		id: "raw_samples",
 		type: "number",

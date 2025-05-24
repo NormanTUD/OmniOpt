@@ -2305,8 +2305,8 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
     elif value_type == "float":
         # Schrittweite = kleinstmögliches Delta zwischen floats auf dem System
-        step = (abs(upper_bound - lower_bound) * (stepsize_percentage / 100))
-        num_steps = int((upper_bound - lower_bound) / step) / max_eval
+        step = (abs(upper_bound - lower_bound) * (stepsize_percentage / 100)) / max_eval
+        num_steps = int((upper_bound - lower_bound) / step)
         print_debug(f"{name}: step_size for converting to float: {step}, num_steps: {num_steps}")
         return [str(lower_bound + i * step) for i in range(num_steps + 1)]
     else:

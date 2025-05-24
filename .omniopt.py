@@ -796,8 +796,8 @@ if args.continue_previous_job is not None:
             args.external_generator = ext_gen_f.readline().strip()
 
     path_to_force_choice_for_ranges = os.path.join(args.continue_previous_job, "state_files", "force_choice_for_ranges")
-    if os.path.exists(force_choice_for_ranges):
-        args.force_choice_for_ranges
+    if os.path.exists(path_to_force_choice_for_ranges):
+        args.force_choice_for_ranges = True
 
 disable_logs = None
 

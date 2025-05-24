@@ -4803,7 +4803,7 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @beartype
-def get_converted_to_choice(param: dict, experiment_parameters: Union[list, dict]) -> str:
+def get_converted_to_choice(param: dict, experiment_parameters: Union[list, dict], k: int) -> str:
     exp_params = experiment_parameters
 
     converted_to_choice = ""
@@ -4815,7 +4815,7 @@ def get_converted_to_choice(param: dict, experiment_parameters: Union[list, dict
         if param["__type"] == "RangeParameter" and exp_params["__type"] == "choice":
             converted_to_choice = "Y"
     else:
-        if param["type"] == "range" and exp_params["type"] == "choice":
+        if param["type"] == "range" and exp_params[k]["type"] == "choice":
             converted_to_choice = "Y"
 
     return converted_to_choice
@@ -4828,7 +4828,7 @@ def parse_single_experiment_parameter_table(classic_params: Union[list, dict], e
 
     for param in classic_params:
         _type = ""
-        converted_to_choice = get_converted_to_choice(param, experiment_parameters)
+        converted_to_choice = get_converted_to_choice(param, experiment_parameters, k)
 
         if "__type" in param:
             _type = param["__type"]

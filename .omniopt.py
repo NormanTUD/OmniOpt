@@ -2303,18 +2303,19 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> list:
     if value_type == "int":
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
-    elif value_type == "float":
+
+    if value_type == "float":
         num_steps = 999
         step = (upper_bound - lower_bound) / num_steps
 
         print_debug(f"{name}: step_size for converting to float: {step}, num_steps: {num_steps}")
         return [str(lower_bound + i * step) for i in range(num_steps + 1)]
-    else:
-        raise ValueError("Unsupported value_type")
+
+    raise ValueError("Unsupported value_type")
 
 @beartype
 def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
-    if args.force_choice_for_float_ranges and force_classic == False:
+    if args.force_choice_for_float_ranges and not force_classic:
         return {
             'is_ordered': False,
             'name': name,

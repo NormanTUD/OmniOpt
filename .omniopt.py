@@ -2305,9 +2305,9 @@ def generate_values(value_type: str, lower_bound: Union[int, float], upper_bound
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
     elif value_type == "float":
         # Schrittweite = kleinstmögliches Delta zwischen floats auf dem System
-        step = abs(upper_bound - lower_bound) * (stepsize_percentage / 100)
-        print(f"upper_bound: {upper_bound}, lower_bound: {lower_bound}, stepsize_percentage: {stepsize_percentage}, step: {step}")
+        step = (abs(upper_bound - lower_bound) * (stepsize_percentage / 100))
         num_steps = int((upper_bound - lower_bound) / step)
+        print_debug(f"step_size for converting to float: {num_steps}")
         return [str(lower_bound + i * step) for i in range(num_steps + 1)]
     else:
         raise ValueError("Unsupported value_type")

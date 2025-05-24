@@ -583,8 +583,8 @@ class ConfigLoader:
         speed.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)
         speed.add_argument('--fit_abandoned', help='Do not ignore abandoned data points while creating new points', action='store_true', default=False)
         speed.add_argument('--dont_jit_compile', help='Disable JIT-compiling the model', action='store_true', default=False)
-        speed.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=5)
-        speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=128)
+        speed.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=20)
+        speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=1024)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
         speed.add_argument('--no_acquisition_sequential', help='Force sequential acquisition generation', action='store_true', default=False)
@@ -6772,6 +6772,9 @@ def set_global_gs_to_random() -> None:
                     GeneratorSpec(
                         Models.SOBOL,
                         model_gen_kwargs={
+                            "acquisition_optimizer_kwargs": {
+                                "sequential": False,
+                            },
                             "normalize_y": not args.no_normalize_y,
                             "transform_inputs": not args.no_transform_inputs,
                             "acquisition_options": get_acquisition_options(),
@@ -7337,6 +7340,9 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
+                    "acquisition_optimizer_kwargs": {
+                        "sequential": False,
+                    },
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
                     "acquisition_options": get_acquisition_options(),
@@ -7359,6 +7365,9 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
+                    "acquisition_optimizer_kwargs": {
+                        "sequential": False,
+                    },
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
                     "acquisition_options": get_acquisition_options(),
@@ -7398,6 +7407,9 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
+            "acquisition_optimizer_kwargs": {
+                "sequential": False,
+            },
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,
             "acquisition_options": get_acquisition_options(),

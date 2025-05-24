@@ -1561,6 +1561,10 @@
 					$content_encoding = mb_detect_encoding($content);
 					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
+							if(preg_match("/\.svg$/", $filename)) {
+								$filename = "profile_svg";
+							}
+
 							try {
 								move_uploaded_file($file, "$userFolder/$filename");
 								$added_files++;

@@ -63,6 +63,7 @@ function help () {
 	echo "  --seed=1                                                         Seed"
 	echo "  --additional_parameter=STR                                       List of additional parameters"
 	echo "  --alternate_min_max                                              Alternate min/max when nr_results > 1"
+	echo "  --force_choice_for_ranges                                        Force ranges to be converted to choice"
 	echo "  --follow                                                         Follow tail"
 	echo "  --generate_all_jobs_at_once                                      Generate all jobs at once"
 	echo "  --verbose                                                        Verbose output"
@@ -91,6 +92,7 @@ max_eval=30
 num_parallel_jobs=20
 num_random_steps=$num_parallel_jobs
 arg_testname=
+force_choice_for_ranges=0
 
 if ! command -v sbatch 2>/dev/null >/dev/null; then
 	max_eval=2
@@ -342,6 +344,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--follow)
 			follow=1
 			;;
+		--force_choice_for_ranges)
+			force_choice_for_ranges=1
+			;;
 		--verbose)
 			verbose=1
 			;;
@@ -500,6 +505,10 @@ fi
 
 if [[ "$generate_all_jobs_at_once" -eq 1 ]]; then
 	omniopt_cmd="$omniopt_cmd --generate_all_jobs_at_once"
+fi
+
+if [[ "$force_choice_for_ranges" -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --force_choice_for_ranges"
 fi
 
 if [[ "$follow" -eq 1 ]]; then

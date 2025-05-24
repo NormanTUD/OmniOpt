@@ -2298,7 +2298,7 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
     return lower_bound, upper_bound
 
 @beartype
-def create_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
+def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool) -> dict:
     return {
         "name": name,
         "type": "range",
@@ -2394,7 +2394,7 @@ def parse_range_param(params: list, j: int, this_args: Union[str, list], name: s
 
     search_space_reduction_warning = check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning)
 
-    param = create_param(name, lower_bound, upper_bound, value_type, log_scale)
+    param = create_range_param(name, lower_bound, upper_bound, value_type, log_scale)
 
     if args.gridsearch:
         param = handle_grid_search(name, lower_bound, upper_bound, value_type)

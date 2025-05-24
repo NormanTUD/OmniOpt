@@ -678,7 +678,7 @@ var hiddenTableData = [
 	},
 	{
 		label: "Force float ranges to be converted to choice",
-		id: "force_choice_for_float_ranges",
+		id: "force_choice_for_ranges",
 		type: "checkbox",
 		value: 0,
 		info: "Force float ranges to be converted to choice; makes searching faster."

@@ -499,7 +499,7 @@ class ConfigLoader:
     no_normalize_y: bool
     no_transform_inputs: bool
     occ: bool
-    force_choice_for_float_ranges: bool
+    force_choice_for_ranges: bool
     run_mode: str
 
     @beartype
@@ -578,7 +578,7 @@ class ConfigLoader:
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
-        optional.add_argument('--force_choice_for_float_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
+        optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -2315,7 +2315,7 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
 
 @beartype
 def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
-    if args.force_choice_for_float_ranges and not force_classic:
+    if args.force_choice_for_ranges and not force_classic:
         return {
             'is_ordered': False,
             'name': name,
@@ -5012,7 +5012,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict], experime
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
 
-    if args.force_choice_for_float_ranges is not None:
+    if args.force_choice_for_ranges is not None:
         columns.append("Converted to Choice?")
 
     data = []

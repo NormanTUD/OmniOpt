@@ -27,7 +27,7 @@ cd $SCRIPT_DIR
 mem_gb=1
 time=60
 worker_timeout=1
-range_param_stepsize_percentage=""
+force_choice_for_ranges=""
 max_eval=4
 num_parallel_jobs=2
 num_random_steps=2
@@ -69,7 +69,7 @@ usage() {
 	echo "  --num_random_steps=NUM                                  Number of random steps (default: 2)"
 	echo "  --install_slurm                                         Install SLURM in Docker (default: false)"
 	echo "  --nr_nodes=INT                                          Some integer for the amount of nodes that should be created (default: 4)"
-	echo "  --range_param_stepsize_percentage=FLOAT                 Some integer for the amount of nodes that should be created (default: 4)"
+	echo "  --force_choice_for_ranges                               For choice for float ranges"
 	echo "  --generate_all_jobs_at_once                             Generate all jobs at once"
 	echo "  --live_share                                            Enable live share"
 	echo "  --should_deduplicate                                    Deduplicate jobs"
@@ -249,8 +249,8 @@ for arg in "$@"; do
 				fi
 			fi
 			;;
-		--range_param_stepsize_percentage=*)
-			range_param_stepsize_percentage="${arg#*=}"
+		--force_choice_for_ranges)
+			force_choice_for_ranges=1
 			;;
 		--nr_nodes=*)
 			nr_nodes="${arg#*=}"
@@ -397,8 +397,8 @@ if [[ $should_deduplicate == 1 ]]; then
 	cmd+=("--should_deduplicate")
 fi
 
-if [[ $range_param_stepsize_percentage != "" ]]; then
-	cmd+=("--range_param_stepsize_percentage $range_param_stepsize_percentage")
+if [[ $force_choice_for_ranges != "" ]]; then
+	cmd+=("--force_choice_for_ranges")
 fi
 
 if [[ $run_tests -eq 1 ]]; then

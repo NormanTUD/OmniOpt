@@ -669,21 +669,19 @@ var hiddenTableData = [
 		min: 1,
 	},
 	{
-		label: "Stepsize for range param in percentage",
-		id: "range_param_stepsize_percentage",
-		type: "number",
-		placeholder: "Step size in percentage of range difference. Converts range params to choice params to avoid the acquisition function to be slow.",
-		min: 0,
-		min: 100,
-		step: 1
-	},
-	{
 		label: "raw_samples Option for the optimizer_options",
 		id: "raw_samples",
 		type: "number",
 		value: 1024,
 		placeholder: "Number of raw samples for the Optimizer",
 		min: 1,
+	},
+	{
+		label: "Force float ranges to be converted to choice",
+		id: "force_choice_for_float_ranges",
+		type: "checkbox",
+		value: 0,
+		info: "Force float ranges to be converted to choice; makes searching faster."
 	},
 	{
 		label: "Disable input transformations",

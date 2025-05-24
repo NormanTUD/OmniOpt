@@ -499,7 +499,7 @@ class ConfigLoader:
     no_normalize_y: bool
     no_transform_inputs: bool
     occ: bool
-    range_param_stepsize_percentage: Optional[int]
+    force_choice_for_float_ranges: bool
     run_mode: str
 
     @beartype
@@ -578,7 +578,7 @@ class ConfigLoader:
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
-        optional.add_argument('--range_param_stepsize_percentage', help='Stepsize for range param (to avoid ax to force nonsequential)', type=int, default=None)
+        optional.add_argument('--force_choice_for_float_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -2300,13 +2300,13 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
     return lower_bound, upper_bound
 
 @beartype
-def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float], stepsize_percentage: Union[int, float]) -> list:
+def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> list:
     if value_type == "int":
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)]
     elif value_type == "float":
-        # Schrittweite = kleinstmögliches Delta zwischen floats auf dem System
-        step = (abs(upper_bound - lower_bound) * (stepsize_percentage / 100)) / max_eval
-        num_steps = int((upper_bound - lower_bound) / step)
+        num_steps = 999
+        step = (upper_bound - lower_bound) / num_steps
+
         print_debug(f"{name}: step_size for converting to float: {step}, num_steps: {num_steps}")
         return [str(lower_bound + i * step) for i in range(num_steps + 1)]
     else:
@@ -2314,13 +2314,13 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
 
 @beartype
 def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
-    if args.range_param_stepsize_percentage and force_classic == False:
+    if args.force_choice_for_float_ranges and force_classic == False:
         return {
             'is_ordered': False,
             'name': name,
             'type': 'choice',
             'value_type': 'str',
-            'values': generate_values(name, value_type, lower_bound, upper_bound, args.range_param_stepsize_percentage)
+            'values': generate_values(name, value_type, lower_bound, upper_bound)
         }
     return {
         "name": name,
@@ -5011,7 +5011,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict], experime
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
     
-    if args.range_param_stepsize_percentage is not None:
+    if args.force_choice_for_float_ranges is not None:
         columns.append("Converted to Choice?")
 
     data = []

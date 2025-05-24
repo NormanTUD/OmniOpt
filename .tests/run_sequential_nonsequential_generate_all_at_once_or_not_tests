@@ -23,7 +23,7 @@ run_optimization() {
     local generate_all_jobs_at_once_flag="$2"
     local testname="$3"
 
-    local additional_parameter="--username=sequential_or_non_sequential_eight"
+    local additional_parameter="--username=sequential_or_non_sequential_nine"
     if [[ "$acquisition_sequential_flag" == "false" ]]; then
         additional_parameter+=" --no_acquisition_sequential"
     fi
@@ -43,6 +43,7 @@ run_optimization() {
         --additional_parameter="$additional_parameter \
 	--show_generation_and_submission_sixel" \
 	--revert_to_random_when_seemingly_exhausted \
+	--force_choice_for_float_ranges \
         --testname="$testname" \
 	--flame_graph \
         $generate_flag

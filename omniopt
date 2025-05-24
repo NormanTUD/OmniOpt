@@ -441,7 +441,7 @@
 			set -e
 		fi
 
-		if [[ $follow -eq 1 ]] || ! command -v sbatch || [[ $force_local_execution -eq 1 ]]; then
+		if [[ $follow -eq 1 ]] || ! command -v sbatch 2>/dev/null >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 			if [[ $live_share -eq 1 ]]; then
 				if [[ $RUN_UUID != "" ]]; then
 					full_log_file="$ORIGINAL_PWD/logs/$RUN_UUID"

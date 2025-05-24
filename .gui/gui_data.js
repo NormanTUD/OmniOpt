@@ -710,5 +710,21 @@ var hiddenTableData = [
 		type: "checkbox",
 		value: 0,
 		info: "Avoid normalizing the output (objective) values. Faster, but less stable when outputs vary in scale."
+	},
+	{
+		label: "maxiter Option for optimizer_options",
+			id: "maxiter",
+			type: "number",
+			value: 200,
+			placeholder: "Maximum iterations for inner optimizer",
+			min: 1,
+	},
+	{
+		label: "batch_limit Option for optimizer_options",
+		id: "batch_limit",
+		type: "number",
+		value: 5,
+		placeholder: "Maximum batch size per restart",
+		min: 1,
 	}
 ];

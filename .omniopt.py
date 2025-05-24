@@ -456,6 +456,8 @@ class ConfigLoader:
     debug: bool
     no_acquisition_sequential: bool
     num_restarts: int
+    batch_limit: int
+    maxiter: int
     raw_samples: int
     show_generate_time_table: bool
     max_attempts_for_generation: int
@@ -590,6 +592,8 @@ class ConfigLoader:
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
         speed.add_argument('--no_acquisition_sequential', help='Force sequential acquisition generation', action='store_true', default=False)
+        speed.add_argument('--maxiter', help='maxiter option for optimizer_options (controls maximum iterations for inner optimizer)', type=int, default=200)
+        speed.add_argument('--batch_limit', help='batch_limit option for optimizer_options (limits number of parallel candidates per restart)', type=int, default=5)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6843,6 +6847,16 @@ def set_global_gs_to_random() -> None:
                             "acquisition_optimizer_kwargs": {
                                 "sequential": False,
                             },
+                            "model_gen_options": {
+                                "optimizer_kwargs": {
+                                    "num_restarts": args.num_restarts,
+                                    "sequential": False,
+                                    "options": {
+                                        "batch_limit": args.batch_limit,
+                                        "maxiter": args.maxiter
+                                    },
+                                },
+                            },
                             "normalize_y": not args.no_normalize_y,
                             "transform_inputs": not args.no_transform_inputs,
                             "acquisition_options": get_acquisition_options(),
@@ -7410,6 +7424,16 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                     "acquisition_optimizer_kwargs": {
                         "sequential": False,
                     },
+                    "model_gen_options": {
+                        "optimizer_kwargs": {
+                            "num_restarts": args.num_restarts,
+                            "sequential": False,
+                            "options": {
+                                "batch_limit": args.batch_limit,
+                                "maxiter": args.maxiter
+                            },
+                        },
+                    },
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
                     "acquisition_options": get_acquisition_options(),
@@ -7434,6 +7458,16 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                 model_gen_kwargs={
                     "acquisition_optimizer_kwargs": {
                         "sequential": False,
+                    },
+                    "model_gen_options": {
+                        "optimizer_kwargs": {
+                            "num_restarts": args.num_restarts,
+                            "sequential": False,
+                            "options": {
+                                "batch_limit": args.batch_limit,
+                                "maxiter": args.maxiter
+                            },
+                        },
                     },
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
@@ -7476,6 +7510,16 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model_gen_kwargs={
             "acquisition_optimizer_kwargs": {
                 "sequential": False,
+            },
+            "model_gen_options": {
+                "optimizer_kwargs": {
+                    "num_restarts": args.num_restarts,
+                    "sequential": False,
+                    "options": {
+                        "batch_limit": args.batch_limit,
+                        "maxiter": args.maxiter
+                    },
+                },
             },
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,

@@ -4832,7 +4832,9 @@ def parse_single_experiment_parameter_table(classic_params: Union[list, dict], e
 
     for param in classic_params:
         _type = ""
-        converted_to_choice = get_converted_to_choice(param, experiment_parameters, k)
+        #converted_to_choice = get_converted_to_choice(param, experiment_parameters, k)
+
+        converted_to_choice = ""
 
         if "__type" in param:
             _type = param["__type"]

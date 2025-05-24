@@ -43,7 +43,7 @@ run_optimization() {
         --additional_parameter="$additional_parameter \
 	--show_generation_and_submission_sixel" \
 	--revert_to_random_when_seemingly_exhausted \
-	--force_choice_for_float_ranges \
+	--force_choice_for_ranges \
         --testname="$testname" \
 	--flame_graph \
         $generate_flag

@@ -386,13 +386,14 @@
 					</section>
 <?php
 				} else {
+					/*
 ?>
 					<div style="text-align: center;">
 						<progress id="progressbar"></progress> Loading OmniOpt2-Share-Overview ..
 					</div>
 					<div id="overview_content" style="display: none"></div>
 <?php
-					/*
+					 */
 					if(!$user_id && !$experiment_name && !$run_nr) {
 						generateFolderButtons($GLOBALS["sharesPath"], "user_id");
 					} else if($user_id && !$experiment_name && !$run_nr) {
@@ -405,7 +406,6 @@
 						print "experiment_name: " . ($experiment_name ? "Yes" : "No") . ", ";
 						print "run_nr: " . ($run_nr ? "Yes" : "No");
 					}
-					 */
 				}
 			}
 ?>

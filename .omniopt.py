@@ -795,6 +795,10 @@ if args.continue_previous_job is not None:
         with open(path_to_external_generator_file, encoding="utf-8", mode="r") as ext_gen_f:
             args.external_generator = ext_gen_f.readline().strip()
 
+    path_to_force_choice_for_ranges = os.path.join(args.continue_previous_job, "state_files", "force_choice_for_ranges")
+    if os.path.exists(force_choice_for_ranges):
+        args.force_choice_for_ranges
+
 disable_logs = None
 
 try:
@@ -6402,6 +6406,9 @@ def save_state_files() -> None:
 
         if args.main_process_gb:
             write_state_file("main_process_gb", str(args.main_process_gb))
+
+        if args.force_choice_for_ranges:
+            write_state_file("force_choice_for_ranges", str(args.main_process_gb))
 
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:

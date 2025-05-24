@@ -8063,6 +8063,7 @@ def parse_parameters() -> Any:
     with console.status("[bold green]Parsing parameters..."):
         experiment_parameters = None
         cli_params_experiment_parameters = None
+        classic_params = None
         if args.parameter:
             experiment_parameters, classic_params = parse_experiment_parameters()
             cli_params_experiment_parameters = experiment_parameters

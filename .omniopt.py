@@ -3341,7 +3341,7 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[
 
     if _test_gpu is None:
         parameters = {
-            k: (float(v) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
+            k: (int(float(v)) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
             for k, v in parameters.items()
         }
 

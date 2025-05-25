@@ -32,6 +32,7 @@
 			44 => "Continuation of previous job failed",
 			45 => "Could not create log dir",
 			47 => "Missing checkpoint or defective file or state files (check output)",
+			48 => "Error regarding raw samples and num_parallel_jobs",
 			49 => "Something went wrong while creating the experiment",
 			50 => "Something went wrong with the --result_names option (check output)",
 			55 => "Something went wrong defining the Generation strategy nodes. This is probably a bug in OmniOpt2.",

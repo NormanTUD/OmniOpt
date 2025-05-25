@@ -6829,7 +6829,7 @@ def get_model_gen_kwargs() -> dict:
                     "batch_limit": args.batch_limit,
                 },
             },
-        }
+        },
         "fallback_to_sample_polytope": True,
         "normalize_y": not args.no_normalize_y,
         "transform_inputs": not args.no_transform_inputs,

@@ -1901,6 +1901,10 @@ EOF
 			if [[ $force_local_execution -eq 0 ]]; then
 				show_runtime=0
 			fi
+		else
+			if [[ $follow -eq 0 ]]; then
+				show_runtime=0
+			fi
 		fi
 	fi
 

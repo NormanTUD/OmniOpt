@@ -6833,13 +6833,6 @@ def get_model_gen_kwargs() -> dict:
         "fallback_to_sample_polytope": True,
         "normalize_y": not args.no_normalize_y,
         "transform_inputs": not args.no_transform_inputs,
-        "acquisition_options": {
-            "optimizer_options": {
-                "sequential": not args.no_acquisition_sequential,
-                "num_restarts": args.num_restarts,
-                "raw_samples": args.raw_samples
-            }
-        },
         "optimizer_kwargs": get_optimizer_kwargs(),
         "torch_device": get_torch_device_str(),
         "random_seed": args.seed,

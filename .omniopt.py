@@ -6829,6 +6829,27 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     return {}, True
 
 @beartype
+def get_model_gen_kwargs() -> dict:
+    return {
+        "model_gen_options": get_model_gen_options(),
+        "fallback_to_sample_polytope": True,
+        "normalize_y": not args.no_normalize_y,
+        "transform_inputs": not args.no_transform_inputs,
+        "acquisition_options": get_acquisition_options(),
+        "optimizer_kwargs": get_optimizer_kwargs(),
+        "torch_device": get_torch_device_str(),
+        "random_seed": args.seed,
+        "check_duplicates": True,
+        "deduplicate_strict": True,
+        "enforce_num_arms": True,
+        "warm_start_refitting": not args.dont_warm_start_refitting,
+        "jit_compile": not args.dont_jit_compile,
+        "refit_on_cv": args.refit_on_cv,
+        "fit_abandoned": args.fit_abandoned,
+        "fit_out_of_design": args.fit_out_of_design
+    }
+
+@beartype
 def set_global_gs_to_random() -> None:
     global global_gs
     global overwritten_to_random
@@ -6841,20 +6862,7 @@ def set_global_gs_to_random() -> None:
                 model_specs=[
                     GeneratorSpec(
                         Models.SOBOL,
-                        model_gen_kwargs={
-                            "model_gen_options": get_model_gen_options(),
-                            "normalize_y": not args.no_normalize_y,
-                            "transform_inputs": not args.no_transform_inputs,
-                            "acquisition_options": get_acquisition_options(),
-                            "optimizer_kwargs": get_optimizer_kwargs(),
-                            "torch_device": get_torch_device_str(),
-                            "random_seed": args.seed,
-                            "warm_start_refitting": not args.dont_warm_start_refitting,
-                            "jit_compile": not args.dont_jit_compile,
-                            "refit_on_cv": args.refit_on_cv,
-                            "fit_abandoned": args.fit_abandoned,
-                            "fit_out_of_design": args.fit_out_of_design
-                        }
+                        model_gen_kwargs=get_model_gen_kwargs()
                     )
                 ]
             )
@@ -7406,46 +7414,14 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         model_spec = [
             GeneratorSpec(
                 selected_model,
-                model_gen_kwargs={
-                    "model_gen_options": get_model_gen_options(),
-                    "normalize_y": not args.no_normalize_y,
-                    "transform_inputs": not args.no_transform_inputs,
-                    "acquisition_options": get_acquisition_options(),
-                    'optimizer_kwargs': get_optimizer_kwargs(),
-                    "torch_device": get_torch_device_str(),
-                    "random_seed": args.seed,
-                    "fallback_to_sample_polytope": True,
-                    "check_duplicates": True,
-                    "deduplicate_strict": True,
-                    "warm_start_refitting": not args.dont_warm_start_refitting,
-                    "jit_compile": not args.dont_jit_compile,
-                    "refit_on_cv": args.refit_on_cv,
-                    "fit_abandoned": args.fit_abandoned,
-                    "fit_out_of_design": args.fit_out_of_design
-                }
+                model_gen_kwargs=get_model_gen_kwargs()
             )
         ]
     else:
         model_spec = [
             GeneratorSpec(
                 selected_model,
-                model_gen_kwargs={
-                    "model_gen_options": get_model_gen_options(),
-                    "normalize_y": not args.no_normalize_y,
-                    "transform_inputs": not args.no_transform_inputs,
-                    "acquisition_options": get_acquisition_options(),
-                    'optimizer_kwargs': get_optimizer_kwargs(),
-                    "torch_device": get_torch_device_str(),
-                    "random_seed": args.seed,
-                    "fallback_to_sample_polytope": True,
-                    "check_duplicates": True,
-                    "deduplicate_strict": True,
-                    "warm_start_refitting": not args.dont_warm_start_refitting,
-                    "jit_compile": not args.dont_jit_compile,
-                    "refit_on_cv": args.refit_on_cv,
-                    "fit_abandoned": args.fit_abandoned,
-                    "fit_out_of_design": args.fit_out_of_design
-                }
+                model_gen_kwargs=get_model_gen_kwargs()
             )
         ]
 
@@ -7481,20 +7457,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
-        model_gen_kwargs={
-            "model_gen_options": get_model_gen_options(),
-            "normalize_y": not args.no_normalize_y,
-            "transform_inputs": not args.no_transform_inputs,
-            "acquisition_options": get_acquisition_options(),
-            "optimizer_kwargs": get_optimizer_kwargs(),
-            "torch_device": get_torch_device_str(),
-            "enforce_num_arms": True,
-            "warm_start_refitting": not args.dont_warm_start_refitting,
-            "jit_compile": not args.dont_jit_compile,
-            "refit_on_cv": args.refit_on_cv,
-            "fit_abandoned": args.fit_abandoned,
-            "fit_out_of_design": args.fit_out_of_design
-        },
+        model_gen_kwargs=get_model_gen_kwargs(),
         should_deduplicate=True,
         index=index
     )

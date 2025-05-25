@@ -20,7 +20,7 @@ run_optimization() {
 	local num_restarts="$2"
 	local testname="$3"
 
-	local additional_parameter="--username=raw_samples_and_num_restart_tests_5"
+	local additional_parameter="--username=raw_samples_and_num_restart_tests_6"
 	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
 	echo "Starting Test: $testname"

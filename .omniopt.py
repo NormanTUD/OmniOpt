@@ -591,7 +591,7 @@ class ConfigLoader:
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
         speed.add_argument('--no_acquisition_sequential', help='Force sequential acquisition generation', action='store_true', default=False)
-        speed.add_argument('--batch_limit', help='batch_limit option for optimizer_options (limits number of parallel candidates per restart)', type=int, default=5)
+        speed.add_argument('--batch_limit', help='batch_limit option for optimizer_options (limits number of parallel candidates per restart)', type=int, default=32)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6697,16 +6697,6 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
         my_exit(101)
 
 @beartype
-def get_acquisition_options() -> dict:
-    return {
-        "optimizer_options": {
-            "sequential": not args.no_acquisition_sequential,
-            "num_restarts": args.num_restarts,
-            "raw_samples": args.raw_samples
-        }
-    }
-
-@beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     batched_arms: list = []
     attempts = 0
@@ -6843,7 +6833,13 @@ def get_model_gen_kwargs() -> dict:
         "fallback_to_sample_polytope": True,
         "normalize_y": not args.no_normalize_y,
         "transform_inputs": not args.no_transform_inputs,
-        "acquisition_options": get_acquisition_options(),
+        "acquisition_options": {
+            "optimizer_options": {
+                "sequential": not args.no_acquisition_sequential,
+                "num_restarts": args.num_restarts,
+                "raw_samples": args.raw_samples
+            }
+        },
         "optimizer_kwargs": get_optimizer_kwargs(),
         "torch_device": get_torch_device_str(),
         "random_seed": args.seed,

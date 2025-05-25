@@ -715,7 +715,7 @@ var hiddenTableData = [
 		label: "batch_limit Option for optimizer_options",
 		id: "batch_limit",
 		type: "number",
-		value: 5,
+		value: 32,
 		placeholder: "Maximum batch size per restart",
 		min: 1,
 	}

@@ -5052,7 +5052,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict]) -> None:
 
 @beartype
 def print_overview_tables(classic_params: Optional[Union[list, dict]], experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
-    if classic_params is None:
+    if classic_params is None or len(classic_params) == 0:
         classic_params = experiment_parameters
 
     print_experiment_parameters_table(classic_params)

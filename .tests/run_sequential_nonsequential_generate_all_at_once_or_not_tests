@@ -27,7 +27,7 @@ run_optimization() {
 	local num_restarts="$4"
 	local testname="$5"
 
-	local additional_parameter="--username=sequential_or_non_sequential_thirteen"
+	local additional_parameter="--username=sequential_or_non_sequential_fourteen"
 	if [[ "$acquisition_sequential_flag" == "false" ]]; then
 		additional_parameter+=" --no_acquisition_sequential"
 	fi

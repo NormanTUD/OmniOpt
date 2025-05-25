@@ -6831,7 +6831,15 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 @beartype
 def get_model_gen_kwargs() -> dict:
     return {
-        "model_gen_options": get_model_gen_options(),
+        "model_gen_options": {
+            "optimizer_kwargs": {
+                "num_restarts": args.num_restarts,
+                # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
+                "options": {
+                    "batch_limit": args.batch_limit,
+                },
+            },
+        }
         "fallback_to_sample_polytope": True,
         "normalize_y": not args.no_normalize_y,
         "transform_inputs": not args.no_transform_inputs,
@@ -7437,18 +7445,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 def get_optimizer_kwargs() -> dict:
     return {
         "sequential": False
-    }
-
-@beartype
-def get_model_gen_options() -> dict:
-    return {
-        "optimizer_kwargs": {
-            "num_restarts": args.num_restarts,
-            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
-            "options": {
-                "batch_limit": args.batch_limit,
-            },
-        },
     }
 
 @beartype

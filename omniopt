@@ -1890,7 +1890,21 @@ EOF
 		fi
 	fi
 
-	if [[ $cancelled_manually -eq 0 ]]; then
+	show_runtime=1
+
+	if [[ $cancelled_manually -ne 0 ]]; then
+		show_runtime=0
+	fi
+
+	if command -v sbatch 2>/dev/null >/dev/null; then
+		if [[ -z $SLURM_JOB_ID ]]; then
+			if [[ $force_local_execution -eq 0 ]]; then
+				show_runtime=0
+			fi
+		fi
+	fi
+
+	if [[ $show_runtime -eq 0 ]]; then
 		echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
 	fi
 

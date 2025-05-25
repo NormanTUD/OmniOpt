@@ -20,7 +20,7 @@ run_optimization() {
 	local num_restarts="$2"
 	local testname="$3"
 
-	local additional_parameter="--username=raw_samples_and_num_restart_tests"
+	local additional_parameter="--username=raw_samples_and_num_restart_tests_2"
 	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
 	echo "Starting Test: $testname"
@@ -40,7 +40,6 @@ run_optimization() {
 
 for raw_samples in "${RAW_SAMPLES_LIST[@]}"; do
 	for num_restarts in "${NUM_RESTARTS_LIST[@]}"; do
-		run_optimization $raw_samples $num_restarts "sequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
-		run_optimization $raw_samples $num_restarts "nonsequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization $raw_samples $num_restarts "raw_samples${raw_samples}__nr_restarts_${num_restarts}"
 	done
 done

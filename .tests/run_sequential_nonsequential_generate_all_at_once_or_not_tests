@@ -21,16 +21,12 @@ RAW_SAMPLES_LIST=(1024)
 NUM_RESTARTS_LIST=(20)
 
 run_optimization() {
-	local acquisition_sequential_flag="$1"
-	local generate_all_jobs_at_once_flag="$2"
-	local raw_samples="$3"
-	local num_restarts="$4"
-	local testname="$5"
+	local generate_all_jobs_at_once_flag="$1"
+	local raw_samples="$2"
+	local num_restarts="$3"
+	local testname="$4"
 
-	local additional_parameter="--username=sequential_or_non_sequential_fourteen"
-	if [[ "$acquisition_sequential_flag" == "false" ]]; then
-		additional_parameter+=" --no_acquisition_sequential"
-	fi
+	local additional_parameter="--username=sequential_or_non_sequential_fifteen"
 
 	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
@@ -56,10 +52,9 @@ run_optimization() {
 
 for raw_samples in "${RAW_SAMPLES_LIST[@]}"; do
 	for num_restarts in "${NUM_RESTARTS_LIST[@]}"; do
-		#        SEQ   ONCE  RAW  RST  NAME
-		run_optimization true  true  $raw_samples $num_restarts "sequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
-		run_optimization false true  $raw_samples $num_restarts "nonsequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
-		run_optimization true  false $raw_samples $num_restarts "sequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
-		run_optimization false false $raw_samples $num_restarts "nonsequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization true  $raw_samples $num_restarts "sequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization true  $raw_samples $num_restarts "nonsequential____all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization false $raw_samples $num_restarts "sequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
+		run_optimization false $raw_samples $num_restarts "nonsequential____no_all_at_once____rs${raw_samples}_nr${num_restarts}"
 	done
 done

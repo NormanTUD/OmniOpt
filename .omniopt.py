@@ -454,7 +454,6 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
-    no_acquisition_sequential: bool
     num_restarts: int
     batch_limit: int
     raw_samples: int
@@ -590,7 +589,6 @@ class ConfigLoader:
         speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=1024)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
-        speed.add_argument('--no_acquisition_sequential', help='Force sequential acquisition generation', action='store_true', default=False)
         speed.add_argument('--batch_limit', help='batch_limit option for optimizer_options (limits number of parallel candidates per restart)', type=int, default=32)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
@@ -6824,6 +6822,7 @@ def get_model_gen_kwargs() -> dict:
         "model_gen_options": {
             "optimizer_kwargs": {
                 "num_restarts": args.num_restarts,
+                "raw_samples": args.raw_samples,
                 # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
                 "options": {
                     "batch_limit": args.batch_limit,

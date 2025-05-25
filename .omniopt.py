@@ -711,7 +711,7 @@ loader = ConfigLoader()
 args = loader.parse_arguments()
 
 if SYSTEM_HAS_SBATCH and not args.force_local_execution and args.raw_samples < args.num_parallel_jobs:
-    print_red(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue.")
+    print_red(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.")
     my_exit(48)
 
 if args.seed is not None:

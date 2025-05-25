@@ -12,7 +12,7 @@ NR_RESULTS=1
 NUM_RANDOM_STEPS=10
 TIME=2400
 
-RAW_SAMPLES_LIST=(1 512 1024)
+RAW_SAMPLES_LIST=(64 512 1024)
 NUM_RESTARTS_LIST=(1 10 20)
 
 run_optimization() {
@@ -20,7 +20,7 @@ run_optimization() {
 	local num_restarts="$2"
 	local testname="$3"
 
-	local additional_parameter="--username=raw_samples_and_num_restart_tests_3"
+	local additional_parameter="--username=raw_samples_and_num_restart_tests_4"
 	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
 	echo "Starting Test: $testname"

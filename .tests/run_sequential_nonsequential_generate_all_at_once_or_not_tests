@@ -14,8 +14,11 @@ TIME=1200
 
 BASE_COMMAND=".tests/start_simple_optimization_run"
 
-RAW_SAMPLES_LIST=(1 10 100)
-NUM_RESTARTS_LIST=(1 10 100)
+#RAW_SAMPLES_LIST=(1 10 100)
+#NUM_RESTARTS_LIST=(1 10 100)
+
+RAW_SAMPLES_LIST=(1024)
+NUM_RESTARTS_LIST=(20)
 
 run_optimization() {
 	local acquisition_sequential_flag="$1"
@@ -24,7 +27,7 @@ run_optimization() {
 	local num_restarts="$4"
 	local testname="$5"
 
-	local additional_parameter="--username=sequential_or_non_sequential_twelve"
+	local additional_parameter="--username=sequential_or_non_sequential_thirteen"
 	if [[ "$acquisition_sequential_flag" == "false" ]]; then
 		additional_parameter+=" --no_acquisition_sequential"
 	fi

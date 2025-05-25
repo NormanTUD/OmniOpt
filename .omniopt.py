@@ -6842,9 +6842,6 @@ def set_global_gs_to_random() -> None:
                     GeneratorSpec(
                         Models.SOBOL,
                         model_gen_kwargs={
-                            "acquisition_optimizer_kwargs": {
-                                "sequential": False,
-                            },
                             "model_gen_options": {
                                 "optimizer_kwargs": {
                                     "num_restarts": args.num_restarts,
@@ -7418,9 +7415,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
-                    "acquisition_optimizer_kwargs": {
-                        "sequential": False,
-                    },
                     "model_gen_options": {
                         "optimizer_kwargs": {
                             "num_restarts": args.num_restarts,
@@ -7452,9 +7446,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
-                    "acquisition_optimizer_kwargs": {
-                        "sequential": False,
-                    },
                     "model_gen_options": {
                         "optimizer_kwargs": {
                             "num_restarts": args.num_restarts,
@@ -7503,9 +7494,6 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
-            "acquisition_optimizer_kwargs": {
-                "sequential": False,
-            },
             "model_gen_options": {
                 "optimizer_kwargs": {
                     "num_restarts": args.num_restarts,

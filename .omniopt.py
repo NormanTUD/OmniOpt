@@ -6850,7 +6850,7 @@ def set_global_gs_to_random() -> None:
                             "model_gen_options": {
                                 "optimizer_kwargs": {
                                     "num_restarts": args.num_restarts,
-                                    "sequential": False,
+                                    # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
                                     "options": {
                                         "batch_limit": args.batch_limit,
                                         "maxiter": args.maxiter
@@ -7427,7 +7427,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                     "model_gen_options": {
                         "optimizer_kwargs": {
                             "num_restarts": args.num_restarts,
-                            "sequential": False,
+                            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
                             "options": {
                                 "batch_limit": args.batch_limit,
                                 "maxiter": args.maxiter
@@ -7462,7 +7462,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
                     "model_gen_options": {
                         "optimizer_kwargs": {
                             "num_restarts": args.num_restarts,
-                            "sequential": False,
+                            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
                             "options": {
                                 "batch_limit": args.batch_limit,
                                 "maxiter": args.maxiter
@@ -7514,7 +7514,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
             "model_gen_options": {
                 "optimizer_kwargs": {
                     "num_restarts": args.num_restarts,
-                    "sequential": False,
+                    # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
                     "options": {
                         "batch_limit": args.batch_limit,
                         "maxiter": args.maxiter

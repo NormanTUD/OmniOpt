@@ -24,7 +24,7 @@ run_optimization() {
 	additional_parameter+=" --raw_samples=$raw_samples --num_restarts=$num_restarts"
 
 	echo "Starting Test: $testname"
-	tests/start_simple_optimization_run \
+	.tests/start_simple_optimization_run \
 		--max_eval=$MAX_EVAL \
 		--num_parallel_jobs=$NUM_PARALLEL_JOBS \
 		--nr_results=$NR_RESULTS \

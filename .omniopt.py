@@ -6842,15 +6842,7 @@ def set_global_gs_to_random() -> None:
                     GeneratorSpec(
                         Models.SOBOL,
                         model_gen_kwargs={
-                            "model_gen_options": {
-                                "optimizer_kwargs": {
-                                    "num_restarts": args.num_restarts,
-                                    # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
-                                    "options": {
-                                        "batch_limit": args.batch_limit,
-                                    },
-                                },
-                            },
+                            "model_gen_options": get_model_gen_options(),
                             "normalize_y": not args.no_normalize_y,
                             "transform_inputs": not args.no_transform_inputs,
                             "acquisition_options": get_acquisition_options(),
@@ -7415,15 +7407,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
-                    "model_gen_options": {
-                        "optimizer_kwargs": {
-                            "num_restarts": args.num_restarts,
-                            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
-                            "options": {
-                                "batch_limit": args.batch_limit,
-                            },
-                        },
-                    },
+                    "model_gen_options": get_model_gen_options(),
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
                     "acquisition_options": get_acquisition_options(),
@@ -7446,15 +7430,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             GeneratorSpec(
                 selected_model,
                 model_gen_kwargs={
-                    "model_gen_options": {
-                        "optimizer_kwargs": {
-                            "num_restarts": args.num_restarts,
-                            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
-                            "options": {
-                                "batch_limit": args.batch_limit,
-                            },
-                        },
-                    },
+                    "model_gen_options": get_model_gen_options(),
                     "normalize_y": not args.no_normalize_y,
                     "transform_inputs": not args.no_transform_inputs,
                     "acquisition_options": get_acquisition_options(),
@@ -7488,21 +7464,25 @@ def get_optimizer_kwargs() -> dict:
     }
 
 @beartype
+def get_model_gen_options() -> dict:
+    return {
+        "optimizer_kwargs": {
+            "num_restarts": args.num_restarts,
+            # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
+            "options": {
+                "batch_limit": args.batch_limit,
+            },
+        },
+    }
+
+@beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     step = GenerationStep(
         model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_gen_kwargs={
-            "model_gen_options": {
-                "optimizer_kwargs": {
-                    "num_restarts": args.num_restarts,
-                    # "sequential": False, # TODO, when https://github.com/facebook/Ax/issues/3819 is solved
-                    "options": {
-                        "batch_limit": args.batch_limit,
-                    },
-                },
-            },
+            "model_gen_options": get_model_gen_options(),
             "normalize_y": not args.no_normalize_y,
             "transform_inputs": not args.no_transform_inputs,
             "acquisition_options": get_acquisition_options(),

@@ -526,16 +526,6 @@ var hiddenTableData = [
 		min: 1
 	},
 	{
-		label: "Pareto-Front-confidence",
-		id: "pareto_front_confidence",
-		type: "number",
-		value: 1,
-		info: "How certain OmniOpt2 should be regarding the pareto-front to count values in",
-		min: 0,
-		max: 1,
-		step: 0.01
-	},
-	{
 		label: "Slurm-Signal-Delay",
 		id: "slurm_signal_delay_s",
 		type: "number",

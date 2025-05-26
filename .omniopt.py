@@ -3950,27 +3950,31 @@ def write_to_file(file_path: str, content: str) -> None:
 
 @beartype
 def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
-    min_or_max = arg_result_min_or_max[arg_result_names.index(res_name)]
-    bracket_string = f"{total_str}{failed_error_str}"
+    arg_result_min_or_max_index = arg_result_names.index(res_name)
 
-    table = Table(
-        show_header=True,
-        header_style="bold",
-        title=f"Best {res_name}, {min_or_max} ({bracket_string})"
-    )
+    try:
+        min_or_max = arg_result_min_or_max[arg_result_min_or_max_index]
+        bracket_string = f"{total_str}{failed_error_str}"
 
-    if best_params and "parameters" in best_params:
-        row_data = {**best_params['parameters']}
-        result_name = arg_result_names[0]
-        row_data[result_name] = best_params.get(result_name, '?')
+        table = Table(
+            show_header=True,
+            header_style="bold",
+            title=f"Best {res_name}, {min_or_max} ({bracket_string})"
+        )
 
-        for col in row_data.keys():
-            table.add_column(col, style="bold")
+        if best_params and "parameters" in best_params:
+            row_data = {**best_params['parameters']}
+            result_name = arg_result_names[0]
+            row_data[result_name] = best_params.get(result_name, '?')
 
-        table.add_row(*[str(v) for v in row_data.values()])
+            for col in row_data.keys():
+                table.add_column(col, style="bold")
 
-        return table
+            table.add_row(*[str(v) for v in row_data.values()])
 
+            return table
+    except IndexError as e:
+        print_red(f"create_result_table: Error {e}")
     return None
 
 @beartype

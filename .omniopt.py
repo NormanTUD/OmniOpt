@@ -4818,7 +4818,6 @@ def parse_single_experiment_parameter_table(classic_params: Union[list, dict]) -
 
     for param in classic_params:
         _type = ""
-        converted_to_choice = ""
 
         if "__type" in param:
             _type = param["__type"]
@@ -4852,14 +4851,14 @@ def parse_single_experiment_parameter_table(classic_params: Union[list, dict]) -
             else:
                 _upper = param["bounds"][1]
 
-            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale, converted_to_choice])
+            rows.append([str(param["name"]), get_type_short(_type), str(helpers.to_int_when_possible(_lower)), str(helpers.to_int_when_possible(_upper)), "", value_type, log_scale])
         elif "fixed" in _type.lower():
-            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", "", converted_to_choice])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", str(helpers.to_int_when_possible(param["value"])), "", ""])
         elif "choice" in _type.lower():
             values = param["values"]
             values = [str(helpers.to_int_when_possible(item)) for item in values]
 
-            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", "", converted_to_choice])
+            rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
         else:
             print_red(f"Type {_type} is not yet implemented in the overview table.")
             my_exit(15)
@@ -5016,9 +5015,6 @@ def print_experiment_parameters_table(classic_param: Union[list, dict]) -> None:
     rows = parse_single_experiment_parameter_table(classic_param)
 
     columns = ["Name", "Type", "Lower bound", "Upper bound", "Values", "Type", "Log Scale?"]
-
-    if args.force_choice_for_ranges is not None:
-        columns.append("Converted to Choice?")
 
     data = []
     for row in rows:

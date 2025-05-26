@@ -4645,7 +4645,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
     return experiment_parameters
 
 @beartype
-def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dict:
+def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> Optional[dict]:
     experiment_parameters = None
 
     try:
@@ -4657,7 +4657,8 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dic
             experiment_parameters = json.load(f)
     except json.decoder.JSONDecodeError:
         print_red(f"Error parsing checkpoint_file {checkpoint_file}")
-        my_exit(47)
+        if _die:
+            my_exit(47)
 
     return experiment_parameters
 
@@ -8857,7 +8858,10 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
 
     arg_result_names = res_names
 
-    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
+
+    if experiment_parameters is None:
+        return True
 
     tmp_file_path = get_tmp_file_from_json(experiment_parameters)
     ax_client = AxClient.load_from_json_file(tmp_file_path)

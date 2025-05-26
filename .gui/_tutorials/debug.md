@@ -55,6 +55,8 @@ If, for example, you have error code 137, that means you likely ran out of RAM a
 
 ## Exit Code Table
 
+These are some default Linux exit codes and their meanings. They are not neccessarily representative for any application, but may guide you for standard applications and errors codes.
+
 <table>
 	<thead>
 		<tr class="invert_in_dark_mode">

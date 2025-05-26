@@ -8425,7 +8425,7 @@ def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, met
 
 @beartype
 def live_share_after_pareto() -> None:
-    if args.calculate_pareto_front_of_job or args.live_share:
+    if args.calculate_pareto_front_of_job is not None or args.live_share:
         if not args.live_share:
             live_share_file = f"{args.calculate_pareto_front_of_job}/state_files/live_share"
             if os.path.exists(live_share_file):

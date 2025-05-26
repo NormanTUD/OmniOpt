@@ -8161,7 +8161,7 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 def _pareto_front_aggregate_data(
     data: ax.core.data.Data
 ) -> Dict[Tuple[int, str], Dict[str, Dict[str, float]]]:
-    records: dict = defaultdict(lambda: {'means': {}, 'sems': {}})
+    records: dict = defaultdict(lambda: {'means': {}})
 
     for row in data.df.itertuples(index=False):
         trial_index = row.trial_index
@@ -8172,7 +8172,6 @@ def _pareto_front_aggregate_data(
 
         key = (trial_index, arm_name)
         records[key]['means'][metric] = _mean
-        records[key]['sems'][metric] = sem
 
     return records
 
@@ -8242,7 +8241,6 @@ def _pareto_front_build_return_structure(
 ) -> dict:
     param_dicts = []
     means_dict = defaultdict(list)
-    sems_dict = defaultdict(list)
 
     for (trial_index, arm_name), _, _ in selected_points:
         trial = experiment.trials[trial_index]
@@ -8251,15 +8249,13 @@ def _pareto_front_build_return_structure(
 
         for metric in absolute_metrics:
             means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
-            sems_dict[metric].append(records[(trial_index, arm_name)]['sems'].get(metric, float("nan")))
 
     return {
         primary_name: {
             secondary_name: {
                 "absolute_metrics": absolute_metrics,
                 "param_dicts": param_dicts,
-                "means": dict(means_dict),
-                "sems": dict(sems_dict),
+                "means": dict(means_dict)
             },
             "absolute_metrics": absolute_metrics
         }
@@ -8465,12 +8461,10 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
 
         _param_dicts = cf["param_dicts"]
         _means = cf["means"]
-        _sems = cf["sems"]
 
         pareto_front_data[metric_i.name][metric_j.name] = {
             "param_dicts": _param_dicts,
             "means": _means,
-            "sems": _sems,
             "absolute_metrics": arg_result_names
         }
 

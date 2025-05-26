@@ -8396,7 +8396,7 @@ def live_share_after_pareto() -> None:
 
         SHOWN_LIVE_SHARE_COUNTER = 1
 
-        live_share(1)
+        live_share(True)
 
 @beartype
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bool = False) -> None:

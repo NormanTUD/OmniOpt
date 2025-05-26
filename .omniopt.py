@@ -8791,7 +8791,7 @@ def post_job_calculate_pareto_front() -> None:
 def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
     # Returns true if it fails
     if not path_to_calculate:
-        return
+        return True
 
     global CURRENT_RUN_FOLDER
     global ax_client

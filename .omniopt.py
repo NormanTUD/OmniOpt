@@ -8447,7 +8447,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         if hide_pareto is None:
             plot_pareto_frontier_sixel(calculated_frontier, i, j)
         else:
-            print("Not showing pareto-front-sixel")
+            print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 
         if metric_i.name not in pareto_front_data:
             pareto_front_data[metric_i.name] = {}
@@ -8479,7 +8479,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
             if hide_pareto is None:
                 console.print(rich_table)
             else:
-                print("Not showing pareto-front-table")
+                print("Not showing pareto-front-table for {path_to_calculate}")
 
             with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                 with console.capture() as capture:

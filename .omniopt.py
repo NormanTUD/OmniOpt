@@ -8842,7 +8842,7 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
             res_names.append(entry)
 
     if len(res_names) < 2:
-        print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
+        print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}) in {path_to_calculate}. Cannot continue calculating the pareto front.")
         return True
 
     load_username_to_args(path_to_calculate)

@@ -469,7 +469,7 @@ class ConfigLoader:
     mem_gb: int
     flame_graph: bool
     continue_previous_job: Optional[str]
-    calculate_pareto_front_of_job: Optional[str]
+    calculate_pareto_front_of_job: Optional[List[str]]
     revert_to_random_when_seemingly_exhausted: bool
     minkowski_p: float
     decimalrounding: int
@@ -4646,6 +4646,8 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 
 @beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str) -> dict:
+    experiment_parameters = None
+
     try:
         f = open(checkpoint_file, encoding="utf-8")
         experiment_parameters = json.load(f)

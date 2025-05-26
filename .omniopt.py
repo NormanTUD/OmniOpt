@@ -8768,9 +8768,10 @@ def find_results_paths(base_path: str) -> list:
         return [base_path]
 
     found_paths = []
-    for root, dirs, files in os.walk(base_path):
-        if "results.csv" in files:
-            found_paths.append(root)
+    with console.status("[bold green]Searching for subfolders with results.csv...") as __status:
+        for root, dirs, files in os.walk(base_path):
+            if "results.csv" in files:
+                found_paths.append(root)
 
     return found_paths
 

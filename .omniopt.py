@@ -2016,7 +2016,7 @@ def load_max_eval_or_exit(_args: Any) -> None:
         else:
             print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
     else:
-        if not len(args.calculate_pareto_front_of_job) == 0:
+        if len(args.calculate_pareto_front_of_job) == 0:
             print_yellow("--max_eval needs to be set")
 
 try:

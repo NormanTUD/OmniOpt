@@ -390,9 +390,6 @@
 				if [[ $nr_curl_options_before -eq 0 ]]; then
 					yellow_text "Could not find any files in $RUN_DIR\n"
 
-
-
-
 					matching_dirs=$(find "$RUN_DIR" -mindepth 2 -maxdepth 2 -type d | grep -E "^$RUN_DIR/[a-zA-Z0-9_]+/[0-9]+$")
 
 					if [ -n "$matching_dirs" ]; then

@@ -5589,39 +5589,39 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str = "MANUAL") -> bool:
     done_converting = False
 
+    if not ax_client:
+        print_red("Error getting ax_client")
+        my_exit(9)
+
+        return False
+
     if ax_client is None or not ax_client:
         print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
         my_exit(101)
 
     while not done_converting:
         try:
-            if ax_client:
-                new_trial = ax_client.attach_trial(arm_params)
-                if not isinstance(new_trial, tuple) or len(new_trial) < 2:
-                    raise RuntimeError("attach_trial didn't return the expected tuple")
+            new_trial = ax_client.attach_trial(arm_params)
+            if not isinstance(new_trial, tuple) or len(new_trial) < 2:
+                raise RuntimeError("attach_trial didn't return the expected tuple")
 
-                new_trial_idx = new_trial[1]
+            new_trial_idx = new_trial[1]
 
-                trial = ax_client.experiment.trials.get(new_trial_idx)
-                if trial is None:
-                    raise RuntimeError(f"Trial with index {new_trial_idx} not found")
+            trial = ax_client.experiment.trials.get(new_trial_idx)
+            if trial is None:
+                raise RuntimeError(f"Trial with index {new_trial_idx} not found")
 
-                arm = Arm(parameters=arm_params, name=f'{new_trial_idx}_0')
-                manual_generator_run = GeneratorRun(arms=[arm], generation_node_name=new_job_type)
+            arm = Arm(parameters=arm_params, name=f'{new_trial_idx}_0')
+            manual_generator_run = GeneratorRun(arms=[arm], generation_node_name=new_job_type)
 
-                trial._generator_run = manual_generator_run
+            trial._generator_run = manual_generator_run
 
-                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
+            ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
 
-                done_converting = True
-                save_results_csv()
+            done_converting = True
+            save_results_csv()
 
-                return True
-
-            print_red("Error getting ax_client")
-            my_exit(9)
-
-            return False
+            return True
         except ax.exceptions.core.UnsupportedError as e:
             parsed_error = parse_parameter_type_error(e)
 

@@ -35,7 +35,6 @@ OmniOpt2 is self-installing and does not require any additional manual setup. Si
 	--gpus=0 \
 	--num_random_steps=20 \
 	--follow \
-	--show_sixel_graphics \
 	--run_program=$(echo "bash /my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)" | base64 -w0) \
 	--cpus_per_task=1 \
 	--send_anonymized_usage_stats \
@@ -59,7 +58,6 @@ This command includes all necessary options to run a hyperparameter optimization
 - `--gpus=0`: Specifies the number of GPUs to use.
 - `--num_random_steps=20`: Sets the number of random steps to 20.
 - `--follow`: Follows the job's progress.
-- `--show_sixel_graphics`: Displays sixel graphics.
 - `--run_program=$(echo "bash /my_experiment/run.sh --epochs=%(epochs) --lr=%(learning_rate) --layers=%(layers)" | base64 -w0)`: Specifies the base64-encoded command to run the program, encoded in base64.
 - `--cpus_per_task=1`: Allocates 1 CPU per task.
 - `--send_anonymized_usage_stats`: Sends anonymized usage statistics.

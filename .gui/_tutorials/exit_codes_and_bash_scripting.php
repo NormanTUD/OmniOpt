@@ -38,7 +38,6 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 	--gpus=0 \
 	--num_random_steps=20 \
 	--follow \
-	--show_sixel_graphics \
 	--run_program=$(echo -n "bash /path/to/my_experiment/run.sh --epochs=%(epochs) --learning_rate=%(learning_rate) --layers=%(layers)" | base64 -w 0) \
 	--cpus_per_task=1 \
 	--send_anonymized_usage_stats \

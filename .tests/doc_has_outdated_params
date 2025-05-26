@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+errors=0
+
+for f in .gui/_tutorials/*; do
+	for p in $(cat "$f" | grep -- "--" | grep -v '<!--' | grep "^\s*--" | sed -e 's#^\s*##' -e 's#=.*##' -e 's#\s.*##'); do
+		if ! grep -q "add_argument('$p" .omniopt.py; then
+			red_text "Parameter $p in $f was not found"
+		fi
+	done
+done
+
+if [[ $errors -gt 0 ]]; then
+	exit 1
+fi
+
+exit 0

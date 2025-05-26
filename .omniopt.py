@@ -8166,13 +8166,13 @@ def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[
         return None
 
     # Lade die Ergebnisnamen
-    with open(result_names_file, "r") as f:
+    with open(result_names_file, mode="r", encoding="utf-8") as f:
         result_names = [line.strip() for line in f if line.strip()]
 
     records: dict = defaultdict(lambda: {'means': {}})
 
     # Lese die CSV-Datei
-    with open(results_csv_file, newline='') as csvfile:
+    with open(results_csv_file, encoding="utf-8", mode="r", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             trial_index = int(row['trial_index'])
@@ -8255,12 +8255,12 @@ def _pareto_front_build_return_structure(
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
     # Lade die Ergebnisnamen
-    with open(result_names_file, "r") as f:
+    with open(result_names_file, mode="r", encoding="utf-8") as f:
         result_names = [line.strip() for line in f if line.strip()]
 
     # CSV komplett in dict laden (trial_index als int -> row dict)
     csv_rows = {}
-    with open(results_csv_file, newline='') as csvfile:
+    with open(results_csv_file, mode="r", encoding="utf-8", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             trial_index = int(row['trial_index'])
@@ -8814,7 +8814,7 @@ def find_results_paths(base_path: str) -> list:
 
     found_paths = []
     with console.status("[bold green]Searching for subfolders with results.csv..."):
-        for root, dirs, files in os.walk(base_path):
+        for root, _, files in os.walk(base_path):
             if "results.csv" in files:
                 found_paths.append(root)
 

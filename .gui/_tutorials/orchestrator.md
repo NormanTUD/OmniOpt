@@ -40,6 +40,6 @@ This configuration file does the following. When a job ends, and in the output t
 
 ## Valid behaviors:
 
-- `ExcludeNode`: Exludes the node for future jobs
+- `ExcludeNode`: Excludes the node for future jobs
 - `Restart`: Restarts the job, may end up on a different node
 - `RestartOnDifferentNode`: Add the host to the excluded-hosts-list, and restart it (on another node)

@@ -2322,7 +2322,7 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
     raise ValueError("Unsupported value_type")
 
 @beartype
-def create_range_param(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
+def create_range_param(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
     if args.force_choice_for_ranges and not force_classic:
         return {
             'is_ordered': False,
@@ -7031,9 +7031,9 @@ def plot_times_for_creation_and_submission() -> None:
 def plot_times_vs_jobs_sixel(
     times: List[float],
     job_counts: List[int],
-    xlabel: Optional[str] = "Iteration",
-    ylabel: Optional[str] = "Duration (seconds)",
-    title: Optional[str] = "Times vs Jobs"
+    xlabel: str = "Iteration",
+    ylabel: str = "Duration (seconds)",
+    title: str = "Times vs Jobs"
 ) -> None:
     if not times or not job_counts or len(times) != len(job_counts):
         print("[italic yellow]No valid data or mismatched lengths to plot.[/]")

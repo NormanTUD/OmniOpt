@@ -3244,7 +3244,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
             original_print("stderr was empty")
 
 @beartype
-def evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict) -> None:
+def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict) -> None:
     if not args.tests:
         original_print(f"Parameters: {json.dumps(parameters)}")
 
@@ -3390,7 +3390,7 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[
             else:
                 write_failed_logs(parameters, "No Result")
 
-            evaluate_print_stuff(
+            _evaluate_print_stuff(
                 parameters,
                 program_string_with_params,
                 stdout,

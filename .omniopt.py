@@ -1306,7 +1306,7 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     return 0
 
 @beartype
-def run_live_share_command() -> Tuple[str, str]:
+def run_live_share_command(force: bool = False) -> Tuple[str, str]:
     global shown_run_live_share_command
 
     if get_current_run_folder():
@@ -1314,6 +1314,9 @@ def run_live_share_command() -> Tuple[str, str]:
             _user = get_username()
 
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
+
+            if force:
+                _command = f"{command} --force"
 
             if not shown_run_live_share_command:
                 print_debug(f"run_live_share_command: {_command}")
@@ -1346,7 +1349,7 @@ def extract_and_print_qr(text: str) -> None:
         qr.print_ascii(out=sys.stdout)
 
 @beartype
-def live_share() -> bool:
+def live_share(force: bool = False) -> bool:
     global SHOWN_LIVE_SHARE_COUNTER
 
     try:
@@ -1356,7 +1359,7 @@ def live_share() -> bool:
         if not get_current_run_folder():
             return False
 
-        stdout, stderr = run_live_share_command()
+        stdout, stderr = run_live_share_command(force)
 
         if SHOWN_LIVE_SHARE_COUNTER == 0 and stderr:
             print_green(stderr)
@@ -8393,7 +8396,7 @@ def live_share_after_pareto() -> None:
 
         SHOWN_LIVE_SHARE_COUNTER = 1
 
-        live_share()
+        live_share(1)
 
 @beartype
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bool = False) -> None:
@@ -8749,12 +8752,32 @@ def load_username_to_args(path_to_calculate: str) -> None:
             print_red(f"Error reading from file: {e}")
 
 @beartype
+def find_results_paths(base_path: str) -> list:
+    if not os.path.exists(base_path):
+        raise FileNotFoundError(f"Path not found: {base_path}")
+
+    if not os.path.isdir(base_path):
+        raise NotADirectoryError(f"No directory: {base_path}")
+
+    direct_result_file = os.path.join(base_path, "results.csv")
+    if os.path.isfile(direct_result_file):
+        return [base_path]
+
+    found_paths = []
+    for root, dirs, files in os.walk(base_path):
+        if "results.csv" in files:
+            found_paths.append(root)
+
+    return found_paths
+
+@beartype
 def post_job_calculate_pareto_front() -> None:
     if not args.calculate_pareto_front_of_job:
         return
 
-    for path_to_calculate in args.calculate_pareto_front_of_job:
-        _post_job_calculate_pareto_front(path_to_calculate)
+    for _path_to_calculate in args.calculate_pareto_front_of_job:
+        for path_to_calculate in find_results_paths(_path_to_calculate):
+            _post_job_calculate_pareto_front(path_to_calculate)
 
     my_exit(0)
 

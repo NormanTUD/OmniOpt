@@ -8312,8 +8312,8 @@ def _pareto_front_build_return_structure(
 @beartype
 def custom_pareto_frontier(
     path_to_calculate: str,
-    primary_objective: ax.core.metric.Metric,
-    secondary_objective: ax.core.metric.Metric,
+    primary_objective: str,
+    secondary_objective: str,
     absolute_metrics: List[str],
     num_points: int
 ) -> Optional[dict]:
@@ -8321,10 +8321,10 @@ def custom_pareto_frontier(
     if records is None:
         return None
 
-    points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective.name, secondary_objective.name)
-    x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)
+    points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
+    x, y = _pareto_front_transform_objectives(points, primary_objective, secondary_objective)
     selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
-    result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective.name, secondary_objective.name)
+    result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
 
     return result
 
@@ -8377,11 +8377,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
-    if ax_client is None:
-        print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
-        return None
-
+def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, metric_j: str, res_names: list, force: bool) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
         os.makedirs(state_dir, exist_ok=True)
@@ -8454,11 +8450,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
 
-    if ax_client is None:
-        print_red("show_pareto_frontier_data: Cannot plot pareto-front. ax_client is undefined.")
-        return
-
-    objectives = ax_client.experiment.optimization_config.objective.objectives
+    objectives = arg_result_names
     pareto_front_data: dict = {}
     all_combinations = list(combinations(range(len(objectives)), 2))
     collected_data = []
@@ -8475,8 +8467,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
 
         for i, j in all_combinations:
             if not skip:
-                metric_i = objectives[i].metric
-                metric_j = objectives[j].metric
+                metric_i = objectives[i]
+                metric_j = objectives[j]
 
                 try:
                     calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, res_names, force)
@@ -8484,7 +8476,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
                     if calculated_frontier is not None:
                         collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
                 except ax.exceptions.core.DataRequiredError as e:
-                    print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
+                    print_red(f"Error computing Pareto frontier for {metric_i} and {metric_j}: {e}")
                 except SignalINT:
                     print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
                     skip = True
@@ -8498,18 +8490,18 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         else:
             print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 
-        if metric_i.name not in pareto_front_data:
-            pareto_front_data[metric_i.name] = {}
+        if metric_i not in pareto_front_data:
+            pareto_front_data[metric_i] = {}
 
-        metric_i_name = metric_i.name
-        metric_j_name = metric_j.name
+        metric_i_name = metric_i
+        metric_j_name = metric_j
 
         cf = calculated_frontier[metric_i_name][metric_j_name]
 
         _param_dicts = cf["param_dicts"]
         _means = cf["means"]
 
-        pareto_front_data[metric_i.name][metric_j.name] = {
+        pareto_front_data[metric_i][metric_j] = {
             "param_dicts": _param_dicts,
             "means": _means,
             "absolute_metrics": arg_result_names
@@ -8518,8 +8510,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         rich_table = pareto_front_as_rich_table(
             _param_dicts,
             arg_result_names,
-            metric_j.name,
-            metric_i.name
+            metric_j,
+            metric_i
         )
 
         if rich_table is not None:
@@ -8905,22 +8897,12 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
 
     CURRENT_RUN_FOLDER = path_to_calculate
 
-    ax_client = AxClient(
-        verbose_logging=args.verbose
-    )
-
     arg_result_names = res_names
 
     experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
 
     if experiment_parameters is None:
         return True
-
-    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-    ax_client = AxClient.load_from_json_file(tmp_file_path)
-    os.unlink(tmp_file_path)
-
-    ax_client = cast(AxClient, ax_client)
 
     show_pareto_or_error_msg(path_to_calculate, res_names, True)
 

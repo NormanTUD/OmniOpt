@@ -8763,7 +8763,7 @@ def find_results_paths(base_path: str) -> list:
         return [base_path]
 
     found_paths = []
-    with console.status("[bold green]Searching for subfolders with results.csv...") as __status:
+    with console.status("[bold green]Searching for subfolders with results.csv..."):
         for root, dirs, files in os.walk(base_path):
             if "results.csv" in files:
                 found_paths.append(root)

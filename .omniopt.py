@@ -6319,7 +6319,6 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
 
 @beartype
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
-    # TODO: Implement ExcludeNodeAndRestartAll fully
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs or behavs is None:

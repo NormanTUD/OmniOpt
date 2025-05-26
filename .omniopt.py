@@ -6697,6 +6697,12 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     batched_arms: list = []
     attempts = 0
 
+    if global_gs is None:
+        print_red("Global generation strategy is not set. This is a bug in OmniOpt2.")
+        my_exit(107)
+
+        return []
+
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
             print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
@@ -6733,6 +6739,12 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     if not ax_client:
         print_red("ax_client was not defined")
         my_exit(9)
+
+    if global_gs is None:
+        print_red("Global generation strategy is not set. This is a bug in OmniOpt2.")
+        my_exit(107)
+
+        return None
 
     trials_dict: dict = {}
 

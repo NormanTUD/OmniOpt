@@ -8325,7 +8325,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_or_cached_frontier(path_to_calculate, metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
+def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
         print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
         return None
@@ -8759,7 +8759,7 @@ def post_job_calculate_pareto_front() -> None:
     my_exit(0)
 
 @beartype
-def _post_job_calculate_pareto_front(path_to_calculate) -> None:
+def _post_job_calculate_pareto_front(path_to_calculate: str) -> None:
     if not path_to_calculate:
         return
 

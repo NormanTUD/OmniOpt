@@ -1912,7 +1912,7 @@ def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> s
     return get_file_as_string(filepath).strip()
 
 @beartype
-def check_param_or_exit(param: bool, error_msg: str, exit_code: int) -> None:
+def check_param_or_exit(param: Any, error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)

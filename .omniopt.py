@@ -8842,7 +8842,6 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
         return True
 
     global CURRENT_RUN_FOLDER
-    global ax_client
     global RESULT_CSV_FILE
     global arg_result_names
 

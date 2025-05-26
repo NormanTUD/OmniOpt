@@ -5589,12 +5589,6 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str = "MANUAL") -> bool:
     done_converting = False
 
-    if not ax_client:
-        print_red("Error getting ax_client")
-        my_exit(9)
-
-        return False
-
     if ax_client is None or not ax_client:
         print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
         my_exit(101)

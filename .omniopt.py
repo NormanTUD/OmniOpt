@@ -8158,20 +8158,33 @@ def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return np.where(~is_dominated)[0]
 
 @beartype
-def _pareto_front_aggregate_data(
-    data: ax.core.data.Data
-) -> Dict[Tuple[int, str], Dict[str, Dict[str, float]]]:
+def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
+    results_csv_file = f"{path_to_calculate}/results.csv"
+    result_names_file = f"{path_to_calculate}/result_names.txt"
+
+    if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
+        return None
+
+    # Lade die Ergebnisnamen
+    with open(result_names_file, "r") as f:
+        result_names = [line.strip() for line in f if line.strip()]
+
     records: dict = defaultdict(lambda: {'means': {}})
 
-    for row in data.df.itertuples(index=False):
-        trial_index = row.trial_index
-        arm_name = row.arm_name
-        metric = row.metric_name
-        _mean = row.mean
-        sem = row.sem
+    # Lese die CSV-Datei
+    with open(results_csv_file, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            trial_index = int(row['trial_index'])
+            arm_name = row['arm_name']
+            key = (trial_index, arm_name)
 
-        key = (trial_index, arm_name)
-        records[key]['means'][metric] = _mean
+            for metric in result_names:
+                if metric in row:
+                    try:
+                        records[key]['means'][metric] = float(row[metric])
+                    except ValueError:
+                        continue  # Wenn der Wert nicht konvertierbar ist
 
     return records
 
@@ -8230,27 +8243,60 @@ def _pareto_front_select_pareto_points(
     selected_points = [points[i] for i in sorted_indices]
     return selected_points
 
-@beartype
 def _pareto_front_build_return_structure(
+    path_to_calculate: str,
     selected_points: List[Tuple[Any, float, float]],
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
-    experiment: ax.core.experiment.Experiment,
     absolute_metrics: List[str],
     primary_name: str,
     secondary_name: str
 ) -> dict:
+    results_csv_file = f"{path_to_calculate}/results.csv"
+    result_names_file = f"{path_to_calculate}/result_names.txt"
+
+    # Lade die Ergebnisnamen
+    with open(result_names_file, "r") as f:
+        result_names = [line.strip() for line in f if line.strip()]
+
+    # CSV komplett in dict laden (trial_index als int -> row dict)
+    csv_rows = {}
+    with open(results_csv_file, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            trial_index = int(row['trial_index'])
+            csv_rows[trial_index] = row
+
+    # Statische Spalten, die keine Parameter sind
+    ignored_columns = {'trial_index', 'arm_name', 'trial_status', 'generation_node'}
+    ignored_columns.update(result_names)
+
     param_dicts = []
     means_dict = defaultdict(list)
 
     for (trial_index, arm_name), _, _ in selected_points:
-        trial = experiment.trials[trial_index]
-        arm = trial.arms_by_name[arm_name]
-        param_dicts.append(arm.parameters)
+        row = csv_rows.get(trial_index)
+        if row is None or row['arm_name'] != arm_name:
+            continue  # Sicherheitshalber prüfen
 
+        # Parameter extrahieren
+        param_dict = {}
+        for key, value in row.items():
+            if key not in ignored_columns:
+                try:
+                    param_dict[key] = int(value)
+                except ValueError:
+                    try:
+                        param_dict[key] = float(value)
+                    except ValueError:
+                        param_dict[key] = value  # z.B. choice_param als String
+
+        param_dicts.append(param_dict)
+
+        # Mittelwerte aus records übernehmen
         for metric in absolute_metrics:
             means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
 
-    return {
+    ret = {
         primary_name: {
             secondary_name: {
                 "absolute_metrics": absolute_metrics,
@@ -8261,23 +8307,24 @@ def _pareto_front_build_return_structure(
         }
     }
 
+    return ret
+
 @beartype
 def custom_pareto_frontier(
     path_to_calculate: str,
-    experiment: ax.core.experiment.Experiment,
-    data: ax.core.data.Data,
     primary_objective: ax.core.metric.Metric,
     secondary_objective: ax.core.metric.Metric,
     absolute_metrics: List[str],
     num_points: int
-) -> dict:
-    #dier(experiment)
-    #dier(data)
-    records = _pareto_front_aggregate_data(data)
+) -> Optional[dict]:
+    records = _pareto_front_aggregate_data(path_to_calculate)
+    if records is None:
+        return None
+
     points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective.name, secondary_objective.name)
     x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)
     selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
-    result = _pareto_front_build_return_structure(selected_points, records, experiment, absolute_metrics, primary_objective.name, secondary_objective.name)
+    result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective.name, secondary_objective.name)
 
     return result
 
@@ -8352,19 +8399,19 @@ def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: ax.core.
                     frontier = pickle.loads(binary_data)
                     return frontier
 
-        data = ax_client.experiment.fetch_data()
-
         set_arg_min_or_max_if_required(path_to_calculate)
 
         frontier = custom_pareto_frontier(
             path_to_calculate=path_to_calculate,
-            experiment=ax_client.experiment,
-            data=data,
             primary_objective=metric_i,
             secondary_objective=metric_j,
             absolute_metrics=res_names,
             num_points=count_done_jobs()
         )
+
+        if frontier is None:
+            print_red(f"Could not get frontier for {path_to_calculate}")
+            return None
 
         frontier = sanitize_json(frontier)
 

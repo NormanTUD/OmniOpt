@@ -8275,6 +8275,8 @@ def custom_pareto_frontier(
     absolute_metrics: List[str],
     num_points: int
 ) -> dict:
+    #dier(experiment)
+    #dier(data)
     records = _pareto_front_aggregate_data(data)
     points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective.name, secondary_objective.name)
     x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)
@@ -8879,7 +8881,7 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
 
     ax_client = cast(AxClient, ax_client)
 
-    show_pareto_or_error_msg(path_to_calculate, res_names)
+    show_pareto_or_error_msg(path_to_calculate, res_names, True)
 
     return False
 

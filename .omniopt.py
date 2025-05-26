@@ -1316,7 +1316,7 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
             _command = f"bash {script_dir}/omniopt_share {get_current_run_folder()} --update --username={_user} --no_color"
 
             if force:
-                _command = f"{command} --force"
+                _command = f"{_command} --force"
 
             if not shown_run_live_share_command:
                 print_debug(f"run_live_share_command: {_command}")

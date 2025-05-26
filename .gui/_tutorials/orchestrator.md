@@ -8,7 +8,7 @@
 
 ## What is the Orchestrator?
 
-Sometimes, partitions contain instable nodes that have, for example, hardware issues. The Orchestrator allows you to react to those circumstances by detecting certain configurable strings in the stdout and stderr of your programs. Given the strings are contained, certain actions are possible. For example,
+Sometimes, partitions contain unstable nodes that have, for example, hardware issues. The Orchestrator allows you to react to those circumstances by detecting certain configurable strings in the stdout and stderr of your programs. Given the strings are contained, certain actions are possible. For example,
 restarting on a different node, restarting in general, and just excluding the node. This allows to detect defective nodes and skip them in production after only a single test job that failed on them automatically.
 
 ## Example <samp>orchestrator.yaml</samp>-file
@@ -36,7 +36,10 @@ This configuration file does the following. When a job ends, and in the output t
 - ... `AssertionError: AmpOptimizerWrapper is only available` appears, it will exclude that node from all future executions inside the current and all continued jobs from it
 - ... `Timeout` appears, it will exclude that node from all future executions inside the current and all continued jobs from it, and restart the job on the list of nodes on that partition excluding the one that ran this timeout job
 - ... `StartAgain` appears, it will restart that job (may end up on the same node)
-- ... `Read/Write failure` appears, it will exclude the node the job started on and restart it on a different node
+
+## How to use it
+
+You can call OmniOpt2 with the parameter `--orchestrator_file orchestrator.yaml` to load such a file.
 
 ## Valid behaviors:
 

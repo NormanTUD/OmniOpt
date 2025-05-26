@@ -8775,14 +8775,21 @@ def post_job_calculate_pareto_front() -> None:
     if not args.calculate_pareto_front_of_job:
         return
 
+    failure = False
+
     for _path_to_calculate in args.calculate_pareto_front_of_job:
         for path_to_calculate in find_results_paths(_path_to_calculate):
-            _post_job_calculate_pareto_front(path_to_calculate)
+            if _post_job_calculate_pareto_front(path_to_calculate):
+                failure = True
+
+    if failure:
+        my_exit(24)
 
     my_exit(0)
 
 @beartype
-def _post_job_calculate_pareto_front(path_to_calculate: str) -> None:
+def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
+    # Returns true if it fails
     if not path_to_calculate:
         return
 
@@ -8793,41 +8800,41 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> None:
 
     if not path_to_calculate:
         print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
-        my_exit(24)
+        return True
 
     if not os.path.exists(path_to_calculate):
         print_red(f"Path '{path_to_calculate}' does not exist")
-        my_exit(24)
+        return True
 
     ax_client_json = f"{path_to_calculate}/state_files/ax_client.experiment.json"
 
     if not os.path.exists(ax_client_json):
         print_red(f"Path '{ax_client_json}' not found")
-        my_exit(24)
+        return True
 
     checkpoint_file: str = f"{path_to_calculate}/state_files/checkpoint.json"
     if not os.path.exists(checkpoint_file):
         print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
-        my_exit(24)
+        return True
 
     RESULT_CSV_FILE = f"{path_to_calculate}/results.csv"
     if not os.path.exists(RESULT_CSV_FILE):
         print_red(f"{RESULT_CSV_FILE} not found")
-        my_exit(24)
+        return True
 
     res_names = []
 
     res_names_file = f"{path_to_calculate}/result_names.txt"
     if not os.path.exists(res_names_file):
         print_red(f"File '{res_names_file}' does not exist")
-        my_exit(24)
+        return True
 
     try:
         with open(res_names_file, "r", encoding="utf-8") as file:
             lines = file.readlines()
     except Exception as e:
         print_red(f"Error reading file '{res_names_file}': {e}")
-        my_exit(24)
+        return True
 
     for line in lines:
         entry = line.strip()
@@ -8836,7 +8843,7 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> None:
 
     if len(res_names) < 2:
         print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
-        my_exit(24)
+        return True
 
     load_username_to_args(path_to_calculate)
 
@@ -8857,6 +8864,8 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> None:
     ax_client = cast(AxClient, ax_client)
 
     show_pareto_or_error_msg(path_to_calculate, res_names)
+
+    return False
 
 @beartype
 def set_arg_states_from_continue() -> None:

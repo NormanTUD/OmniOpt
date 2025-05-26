@@ -23,6 +23,11 @@ It is important that you run these commands before you run OmniOpt2, and also th
 		<th class="section-header invert_in_dark_mode" colspan=2>OmniOpt2</th>
 	</tr>
 	<tr>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">export HIDE_PARETO_FRONT_TABLE_DATA=1</code></pre></td>
+		<td>Hide pareto front table</td>
+	</tr>
+	<tr>
+	<tr>
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export RUN_WITH_PYSPY=1</code></pre></td>
 		<td>Run the OmniOpt2 main script with py-spy to create flame graphs</td>
 	</tr>

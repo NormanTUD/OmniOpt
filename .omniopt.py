@@ -8438,7 +8438,11 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
             progress.update(task, advance=1)
 
     for i, j, metric_i, metric_j, calculated_frontier in collected_data:
-        plot_pareto_frontier_sixel(calculated_frontier, i, j)
+        hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
+        if hide_pareto is None:
+            plot_pareto_frontier_sixel(calculated_frontier, i, j)
+        else:
+            print("Not showing pareto-front-sixel")
 
         if metric_i.name not in pareto_front_data:
             pareto_front_data[metric_i.name] = {}
@@ -8467,7 +8471,10 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         )
 
         if rich_table is not None:
-            console.print(rich_table)
+            if hide_pareto is None:
+                console.print(rich_table)
+            else:
+                print("Not showing pareto-front-table")
 
             with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                 with console.capture() as capture:

@@ -40,7 +40,6 @@ You can specify your program with the `--external_generator` parameter, though i
     --occ_type=euclid \
     --main_process_gb=8 \
     --max_nr_of_zero_results=1 \
-    --pareto_front_confidence=1 \
     --slurm_signal_delay_s=0 \
     --n_estimators_randomforest=100 \
     --parameter x range 123 100000000 int false \
@@ -152,7 +151,6 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 	--occ_type=euclid \
 	--main_process_gb=8 \
 	--max_nr_of_zero_results=1 \
-	--pareto_front_confidence=1 \
 	--slurm_signal_delay_s=0 \
 	--n_estimators_randomforest=100 \
 	--parameter x range 123 100000000 int false \

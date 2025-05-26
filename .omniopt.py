@@ -553,7 +553,6 @@ class ConfigLoader:
         optional.add_argument('--root_venv_dir', help=f'Where to install your modules to ($root_venv_dir/.omniax_..., default: {Path.home()})', default=Path.home(), type=str)
         optional.add_argument('--exclude', help='A comma separated list of values of excluded nodes (taurusi8009,taurusi8010)', default=None, type=str)
         optional.add_argument('--main_process_gb', help='Amount of RAM for the main process in GB (default: 8GB)', type=int, default=8)
-        optional.add_argument('--pareto_front_confidence', help='Confidence for pareto-front-plotting (between 0 and 1, default: 1)', type=float, default=1)
         optional.add_argument('--max_nr_of_zero_results', help='Max. nr of successive zero results by the generator before the search space is seen as exhausted', type=int, default=10)
         optional.add_argument('--abbreviate_job_names', help='Abbreviate pending job names (r = running, p = pending, u = unknown, c = cancelling)', action='store_true', default=False)
         optional.add_argument('--orchestrator_file', help='An orchestrator file', default=None, type=str)
@@ -716,10 +715,6 @@ if args.seed is not None:
 if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and (not args.calculate_pareto_front_of_job or len(args.calculate_pareto_front_of_job) == 0):
     print_red("Either --max_eval or --generation_strategy must be set.")
     my_exit(104)
-
-if not 0 <= args.pareto_front_confidence <= 1:
-    print_yellow("--pareto_front_confidence must be between 0 and 1, will be set to 1")
-    args.pareto_front_confidence = 1
 
 arg_result_names = []
 arg_result_min_or_max = []

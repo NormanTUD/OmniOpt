@@ -8176,6 +8176,7 @@ def _pareto_front_aggregate_data(
 
 @beartype
 def _pareto_front_filter_complete_points(
+    path_to_calculate: str,
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
     primary_name: str,
     secondary_name: str
@@ -8188,7 +8189,7 @@ def _pareto_front_filter_complete_points(
             y_val = means[secondary_name]
             points.append((key, x_val, y_val))
     if len(points) == 0:
-        raise ValueError("No full data points with both objectives found.")
+        raise ValueError(f"No full data points with both objectives found in {path_to_calculate}.")
     return points
 
 @beartype
@@ -8264,6 +8265,7 @@ def _pareto_front_build_return_structure(
 
 @beartype
 def custom_pareto_frontier(
+    path_to_calculate: str,
     experiment: ax.core.experiment.Experiment,
     data: ax.core.data.Data,
     primary_objective: ax.core.metric.Metric,
@@ -8272,7 +8274,7 @@ def custom_pareto_frontier(
     num_points: int
 ) -> dict:
     records = _pareto_front_aggregate_data(data)
-    points = _pareto_front_filter_complete_points(records, primary_objective.name, secondary_objective.name)
+    points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective.name, secondary_objective.name)
     x, y = _pareto_front_transform_objectives(points, primary_objective.name, secondary_objective.name)
     selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
     result = _pareto_front_build_return_structure(selected_points, records, experiment, absolute_metrics, primary_objective.name, secondary_objective.name)
@@ -8355,6 +8357,7 @@ def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: ax.core.
         set_arg_min_or_max_if_required(path_to_calculate)
 
         frontier = custom_pareto_frontier(
+            path_to_calculate=path_to_calculate,
             experiment=ax_client.experiment,
             data=data,
             primary_objective=metric_i,

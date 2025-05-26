@@ -8431,7 +8431,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
                 try:
                     calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, res_names, force)
 
-                    collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
+                    if calculated_frontier is not None:
+                        collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
                 except ax.exceptions.core.DataRequiredError as e:
                     print_red(f"Error computing Pareto frontier for {metric_i.name} and {metric_j.name}: {e}")
                 except SignalINT:

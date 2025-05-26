@@ -6318,17 +6318,6 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
 @beartype
-def handle_exclude_node_and_restart_all(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
-    if hostname_from_out_file:
-        if not is_already_in_defective_nodes(hostname_from_out_file):
-            print_yellow(f"ExcludeNodeAndRestartAll not yet fully implemented. Adding {hostname_from_out_file} to unavailable hosts.")
-            count_defective_nodes(None, hostname_from_out_file)
-        else:
-            print_yellow(f"ExcludeNodeAndRestartAll was triggered for node {hostname_from_out_file}, but it was already in defective nodes and won't be added again.")
-    else:
-        print_red(f"Cannot do ExcludeNodeAndRestartAll because the host could not be determined from {stdout_path}")
-
-@beartype
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
     # TODO: Implement ExcludeNodeAndRestartAll fully
     behavs = check_orchestrator(stdout_path, trial_index)
@@ -6342,7 +6331,6 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None:
         "ExcludeNode": lambda: handle_exclude_node(stdout_path, hostname_from_out_file),
         "Restart": lambda: handle_restart(stdout_path, trial_index),
         "RestartOnDifferentNode": lambda: handle_restart_on_different_node(stdout_path, hostname_from_out_file, trial_index),
-        "ExcludeNodeAndRestartAll": lambda: handle_exclude_node_and_restart_all(stdout_path, hostname_from_out_file)
     }
 
     for behav in behavs:

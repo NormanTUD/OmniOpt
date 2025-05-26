@@ -29,11 +29,6 @@ errors:
     match_strings:
       - "StartAgain"
     behavior: Restart
-
-  - name: StorageError
-    match_strings:
-      - "Read/Write failure"
-    behavior: ExcludeNodeAndRestartAll
 ```
 
 This configuration file does the following. When a job ends, and in the output the string...
@@ -42,3 +37,9 @@ This configuration file does the following. When a job ends, and in the output t
 - ... `Timeout` appears, it will exclude that node from all future executions inside the current and all continued jobs from it, and restart the job on the list of nodes on that partition excluding the one that ran this timeout job
 - ... `StartAgain` appears, it will restart that job (may end up on the same node)
 - ... `Read/Write failure` appears, it will exclude the node the job started on and restart it on a different node
+
+## Valid behaviors:
+
+- `ExcludeNode`: Exludes the node for future jobs
+- `Restart`: Restarts the job, may end up on a different node
+- `RestartOnDifferentNode`: Add the host to the excluded-hosts-list, and restart it (on another node)

@@ -576,7 +576,7 @@ class ConfigLoader:
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
-        optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', default=None, type=str)
+        optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', type=str, nargs='+', default=[])
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
         optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
 
@@ -713,7 +713,7 @@ args = loader.parse_arguments()
 if args.seed is not None:
     set_rng_seed(args.seed)
 
-if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and not args.calculate_pareto_front_of_job:
+if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and (not args.calculate_pareto_front_of_job or len(args.calculate_pareto_front_of_job) == 0):
     print_red("Either --max_eval or --generation_strategy must be set.")
     my_exit(104)
 
@@ -1912,7 +1912,7 @@ def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> s
     return get_file_as_string(filepath).strip()
 
 @beartype
-def check_param_or_exit(param: Optional[Union[list, str]], error_msg: str, exit_code: int) -> None:
+def check_param_or_exit(param: bool, error_msg: str, exit_code: int) -> None:
     if param is None:
         print_red(error_msg)
         my_exit(exit_code)
@@ -1934,17 +1934,17 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
 @beartype
 def check_required_parameters(_args: Any) -> None:
     check_param_or_exit(
-        _args.parameter or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        _args.parameter or _args.continue_previous_job or args.calculate_pareto_front_of_job is None or len(args.calculate_pareto_front_of_job) == 0,
         "Either --parameter, --calculate_pareto_front_of_job or --continue_previous_job is required. Both were not found.",
         19
     )
     check_param_or_exit(
-        _args.run_program or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        _args.run_program or _args.continue_previous_job or args.calculate_pareto_front_of_job is None or len(args.calculate_pareto_front_of_job) == 0,
         "--run_program or --calculate_pareto_front_of_job needs to be defined when --continue_previous_job is not set",
         19
     )
     check_param_or_exit(
-        global_vars.get("experiment_name") or _args.continue_previous_job or args.calculate_pareto_front_of_job,
+        global_vars.get("experiment_name") or _args.continue_previous_job or args.calculate_pareto_front_of_job is None or len(args.calculate_pareto_front_of_job) == 0,
         "--experiment_name or --calculate_pareto_front_of_job needs to be defined when --continue_previous_job is not set",
         19
     )
@@ -1964,7 +1964,7 @@ def load_time_or_exit(_args: Any) -> None:
         else:
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
-        if not args.calculate_pareto_front_of_job:
+        if len(args.calculate_pareto_front_of_job) == 0:
             print_red("Missing --time parameter. Cannot continue.")
             my_exit(19)
 
@@ -2018,7 +2018,7 @@ def load_max_eval_or_exit(_args: Any) -> None:
         else:
             print_yellow(f"max_eval-setting: The contents of {max_eval_file} do not contain a single number")
     else:
-        if not args.calculate_pareto_front_of_job:
+        if not len(args.calculate_pareto_front_of_job) == 0:
             print_yellow("--max_eval needs to be set")
 
 try:
@@ -4099,10 +4099,10 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def show_pareto_or_error_msg(res_names: list = arg_result_names, force: bool = False) -> None:
+def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, force: bool = False) -> None:
     if len(res_names) > 1:
         try:
-            show_pareto_frontier_data(res_names, force)
+            show_pareto_frontier_data(path_to_calculate, res_names, force)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
     else:
@@ -4114,7 +4114,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     wait_for_jobs_to_complete()
 
-    show_pareto_or_error_msg(arg_result_names, True)
+    show_pareto_or_error_msg(get_current_run_folder(), arg_result_names, True)
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
@@ -8289,17 +8289,17 @@ def sanitize_json(obj: Any) -> Any:
     return obj
 
 @beartype
-def set_arg_min_or_max_if_required() -> None:
+def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
     global arg_result_names
     global arg_result_min_or_max
 
-    if args.calculate_pareto_front_of_job:
+    if path_to_calculate:
         _found_result_min_max = []
         _default_min_max = "min"
 
         _found_result_names = []
 
-        _look_for_result_names_file = f"{args.calculate_pareto_front_of_job}/result_names.txt"
+        _look_for_result_names_file = f"{path_to_calculate}/result_names.txt"
 
         if os.path.exists(_look_for_result_names_file):
             try:
@@ -8317,7 +8317,7 @@ def set_arg_min_or_max_if_required() -> None:
             print_yellow(f"{_look_for_result_names_file} not found!")
 
         for _n in range(len(_found_result_names)):
-            _min_max = get_min_max_from_file(args.calculate_pareto_front_of_job, _n, _default_min_max)
+            _min_max = get_min_max_from_file(path_to_calculate, _n, _default_min_max)
 
             _found_result_min_max.append(_min_max)
 
@@ -8325,7 +8325,7 @@ def set_arg_min_or_max_if_required() -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
+def get_calculated_or_cached_frontier(path_to_calculate, metric_i: ax.core.metric.Metric, metric_j: ax.core.metric.Metric, res_names: list, force: bool) -> Any:
     if ax_client is None:
         print_red("get_calculated_or_cached_frontier: Cannot get pareto-front. ax_client is undefined.")
         return None
@@ -8349,7 +8349,7 @@ def get_calculated_or_cached_frontier(metric_i: ax.core.metric.Metric, metric_j:
 
         data = ax_client.experiment.fetch_data()
 
-        set_arg_min_or_max_if_required()
+        set_arg_min_or_max_if_required(path_to_calculate)
 
         frontier = custom_pareto_frontier(
             experiment=ax_client.experiment,
@@ -8396,7 +8396,7 @@ def live_share_after_pareto() -> None:
         live_share()
 
 @beartype
-def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
+def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
@@ -8426,7 +8426,7 @@ def show_pareto_frontier_data(res_names: list, force: bool = False) -> None:
                 metric_j = objectives[j].metric
 
                 try:
-                    calculated_frontier = get_calculated_or_cached_frontier(metric_i, metric_j, res_names, force)
+                    calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, res_names, force)
 
                     collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
                 except ax.exceptions.core.DataRequiredError as e:
@@ -8729,11 +8729,11 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
     return final_constraints_list
 
 @beartype
-def load_username_to_args() -> None:
-    if not args.calculate_pareto_front_of_job:
+def load_username_to_args(path_to_calculate: str) -> None:
+    if not path_to_calculate:
         return
 
-    username_file_path = os.path.join(args.calculate_pareto_front_of_job, "state_files", "username")
+    username_file_path = os.path.join(path_to_calculate, "state_files", "username")
     if os.path.isfile(username_file_path) and not args.username:
         try:
             with open(username_file_path, mode="r", encoding="utf-8") as f:
@@ -8746,38 +8746,48 @@ def post_job_calculate_pareto_front() -> None:
     if not args.calculate_pareto_front_of_job:
         return
 
+    for path_to_calculate in args.calculate_pareto_front_of_job:
+        _post_job_calculate_pareto_front(path_to_calculate)
+
+    my_exit(0)
+
+@beartype
+def _post_job_calculate_pareto_front(path_to_calculate) -> None:
+    if not path_to_calculate:
+        return
+
     global CURRENT_RUN_FOLDER
     global ax_client
     global RESULT_CSV_FILE
     global arg_result_names
 
-    if not args.calculate_pareto_front_of_job:
+    if not path_to_calculate:
         print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
         my_exit(24)
 
-    if not os.path.exists(args.calculate_pareto_front_of_job):
-        print_red(f"Path '{args.calculate_pareto_front_of_job}' does not exist")
+    if not os.path.exists(path_to_calculate):
+        print_red(f"Path '{path_to_calculate}' does not exist")
         my_exit(24)
 
-    ax_client_json = f"{args.calculate_pareto_front_of_job}/state_files/ax_client.experiment.json"
+    ax_client_json = f"{path_to_calculate}/state_files/ax_client.experiment.json"
 
     if not os.path.exists(ax_client_json):
         print_red(f"Path '{ax_client_json}' not found")
         my_exit(24)
 
-    checkpoint_file: str = f"{args.calculate_pareto_front_of_job}/state_files/checkpoint.json"
+    checkpoint_file: str = f"{path_to_calculate}/state_files/checkpoint.json"
     if not os.path.exists(checkpoint_file):
         print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
         my_exit(24)
 
-    RESULT_CSV_FILE = f"{args.calculate_pareto_front_of_job}/results.csv"
+    RESULT_CSV_FILE = f"{path_to_calculate}/results.csv"
     if not os.path.exists(RESULT_CSV_FILE):
         print_red(f"{RESULT_CSV_FILE} not found")
         my_exit(24)
 
     res_names = []
 
-    res_names_file = f"{args.calculate_pareto_front_of_job}/result_names.txt"
+    res_names_file = f"{path_to_calculate}/result_names.txt"
     if not os.path.exists(res_names_file):
         print_red(f"File '{res_names_file}' does not exist")
         my_exit(24)
@@ -8798,9 +8808,9 @@ def post_job_calculate_pareto_front() -> None:
         print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}). Cannot continue calculating the pareto front.")
         my_exit(24)
 
-    load_username_to_args()
+    load_username_to_args(path_to_calculate)
 
-    CURRENT_RUN_FOLDER = args.calculate_pareto_front_of_job
+    CURRENT_RUN_FOLDER = path_to_calculate
 
     ax_client = AxClient(
         verbose_logging=args.verbose
@@ -8816,9 +8826,7 @@ def post_job_calculate_pareto_front() -> None:
 
     ax_client = cast(AxClient, ax_client)
 
-    show_pareto_or_error_msg(res_names)
-
-    my_exit(0)
+    show_pareto_or_error_msg(path_to_calculate, res_names)
 
 @beartype
 def set_arg_states_from_continue() -> None:
@@ -8888,7 +8896,8 @@ def main() -> None:
 
         write_failed_logs(data_dict, error_description)
 
-    save_state_files()
+    if len(args.calculate_pareto_front_of_job) == 0:
+        save_state_files()
 
     print_run_info()
 

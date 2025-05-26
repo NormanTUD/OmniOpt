@@ -8781,9 +8781,15 @@ def post_job_calculate_pareto_front() -> None:
     failure = False
 
     for _path_to_calculate in args.calculate_pareto_front_of_job:
-        for path_to_calculate in find_results_paths(_path_to_calculate):
-            if _post_job_calculate_pareto_front(path_to_calculate):
-                failure = True
+        try:
+            found_paths = find_results_paths(_path_to_calculate)
+            for path_to_calculate in found_paths:
+                if _post_job_calculate_pareto_front(path_to_calculate):
+                    failure = True
+        except (FileNotFoundError, NotADirectoryError) as e:
+            print_red(f"post_job_calculate_pareto_front: find_results_paths('{_path_to_calculate}') failed with {e}")
+
+            failure = True
 
     if failure:
         my_exit(24)

@@ -30,7 +30,7 @@ if command -v linkchecker 2>/dev/null >/dev/null; then
 	linkchecker https://imageseg.scads.de/omniax/
 	exit $?
 else
-	red_text "linkchecker not found"
+	red_text "linkchecker not found\n"
 fi
 
 exit 0

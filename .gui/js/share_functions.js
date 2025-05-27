@@ -837,24 +837,12 @@ function plotScatter3d() {
 }
 
 async function load_pareto_graph() {
-	if($("#tab_pareto_fronts").data("loaded") == "true") {
-		return;
-	}
+	if($("#tab_pareto_fronts").data("loaded") == "true") return;
 
 	var data = pareto_front_data;
 
-	if(data === null) {
-		console.error("pareto_front_data is null");
-		return;
-	}
-
-	if (!data || typeof data !== "object") {
-		console.error("Invalid data format for pareto_front_data");
-		return;
-	}
-
-	if (!Object.keys(data).length) {
-		console.warn("No data found in pareto_front_data");
+	if(!data || typeof data !== "object" || Object.keys(data).length === 0) {
+		console.error("Invalid or empty pareto_front_data");
 		return;
 	}
 
@@ -875,11 +863,14 @@ async function load_pareto_graph() {
 		}
 	}
 
-	for (let cat of categories) {
-		extractMetrics(data[cat]);
-	}
-
+	for (let cat of categories) extractMetrics(data[cat]);
 	allMetrics = Array.from(allMetrics);
+
+	function extractValuesFromCSV(indices, columnName) {
+		let colIdx = tab_results_headers_json.indexOf(columnName);
+		if (colIdx === -1) return [];
+		return indices.map(idx => tab_results_csv_json[idx]?.[colIdx]).filter(v => v !== undefined && v !== null);
+	}
 
 	function extractValues(obj, metricPath, values) {
 		let parts = metricPath.split(" -> ");
@@ -900,48 +891,53 @@ async function load_pareto_graph() {
 	graphContainer.classList.add("invert_in_dark_mode");
 	graphContainer.innerHTML = "";
 
-	var already_plotted = [];
+	let already_plotted = [];
 
 	for (let i = 0; i < allMetrics.length; i++) {
 		for (let j = i + 1; j < allMetrics.length; j++) {
 			let xMetric = allMetrics[i];
 			let yMetric = allMetrics[j];
+			let xValues = [], yValues = [];
 
-			let xValues = [];
-			let yValues = [];
+			let cleanX = xMetric.replace(/.* -> /g, "");
+			let cleanY = yMetric.replace(/.* -> /g, "");
+
+			if (cleanX === cleanY) continue;
 
 			for (let cat of categories) {
-				let metricData = data[cat];
-				extractValues(metricData, xMetric, xValues);
-				extractValues(metricData, yMetric, yValues);
+				let subCats = Object.keys(data[cat]);
+				for (let sub of subCats) {
+					let block = data[cat][sub];
+
+					let cleanXMetric = xMetric.replace(/.* -> /g, "");
+					let cleanYMetric = yMetric.replace(/.* -> /g, "");
+					if (cleanXMetric === "idxs" || cleanYMetric === "idxs") continue;
+
+					if (Array.isArray(block["idxs"])) {
+						let idxs = block["idxs"];
+						xValues.push(...extractValuesFromCSV(idxs, cleanXMetric));
+						yValues.push(...extractValuesFromCSV(idxs, cleanYMetric));
+					} else {
+						extractValues(block, xMetric, xValues);
+						extractValues(block, yMetric, yValues);
+					}
+				}
 			}
 
-			xValues = xValues.filter(v => v !== undefined && v !== null);
-			yValues = yValues.filter(v => v !== undefined && v !== null);
+			if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length) {
+				let plot_key_one = `${cleanX}-${cleanY}`;
+				let plot_key_two = `${cleanY}-${cleanX}`;
+				if (already_plotted.includes(plot_key_one) && already_plotted.includes(plot_key_two)) continue;
 
-			let cleanXMetric = xMetric.replace(/.* -> /g, "");
-			let cleanYMetric = yMetric.replace(/.* -> /g, "");
-
-			if(cleanXMetric == "idxs" || cleanYMetric == "idxs") {
-				continue;
-			}
-
-			let plot_key = `${cleanXMetric}-${cleanYMetric}`;
-
-			if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length && !already_plotted.includes(plot_key)) {
 				let div = document.createElement("div");
 				div.id = `pareto_front_graph_${i}_${j}`;
 				div.style.marginBottom = "20px";
 				graphContainer.appendChild(div);
 
 				let layout = {
-					title: `${cleanXMetric} vs ${cleanYMetric}`,
-					xaxis: {
-						title: get_axis_title_data(cleanXMetric)
-					},
-					yaxis: {
-						title: get_axis_title_data(cleanYMetric)
-					},
+					title: `${cleanX} vs ${cleanY}`,
+					xaxis: { title: get_axis_title_data(cleanX) },
+					yaxis: { title: get_axis_title_data(cleanY) },
 					hovermode: "closest"
 				};
 
@@ -949,16 +945,14 @@ async function load_pareto_graph() {
 					x: xValues,
 					y: yValues,
 					mode: "markers",
-					marker: {
-						size: get_marker_size(),
-					},
+					marker: { size: get_marker_size() },
 					type: "scatter",
-					name: `${cleanXMetric} vs ${cleanYMetric}`
+					name: `${cleanX} vs ${cleanY}`
 				};
 
 				Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
-
-				already_plotted.push(plot_key);
+				already_plotted.push(plot_key_one);
+				already_plotted.push(plot_key_two);
 			}
 		}
 	}

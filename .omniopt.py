@@ -9008,9 +9008,17 @@ def post_job_calculate_pareto_front() -> None:
 
     failure = False
 
+    _paths_to_calculate = []
+
     for _path_to_calculate in list(set(args.calculate_pareto_front_of_job)):
+        found_paths = find_results_paths(_path_to_calculate)
+
+        for _fp in found_paths:
+            if _fp not in _paths_to_calculate:
+                _paths_to_calculate.append(_fp)
+
+    for _path_to_calculate in _paths_to_calculate:
         try:
-            found_paths = find_results_paths(_path_to_calculate)
             for path_to_calculate in found_paths:
                 if _post_job_calculate_pareto_front(path_to_calculate):
                     failure = True

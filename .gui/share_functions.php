@@ -492,7 +492,7 @@
 				$contents = convert_sixel($contents);
 			}
 
-			$contents = remove_rich_progress_lines($contents);
+			#$contents = remove_rich_progress_lines($contents);
 
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
 

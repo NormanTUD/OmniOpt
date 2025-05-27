@@ -27,6 +27,9 @@ It is important that you run these commands before you run OmniOpt2, and also th
 		<td>Hide pareto front table</td>
 	</tr>
 	<tr>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">export DO_NOT_SEARCH_FOLDERS_FOR_RESULTS_CSV=1</code></pre></td>
+		<td>Do not search for folders with results.csv</td>
+	</tr>
 	<tr>
 		<td><pre class="invert_in_dark_mode"><code class="language-bash">export RUN_WITH_PYSPY=1</code></pre></td>
 		<td>Run the OmniOpt2 main script with py-spy to create flame graphs</td>

@@ -8969,10 +8969,12 @@ def find_results_paths(base_path: str) -> list:
         return [base_path]
 
     found_paths = []
-    with console.status("[bold green]Searching for subfolders with results.csv..."):
-        for root, _, files in os.walk(base_path):
-            if "results.csv" in files:
-                found_paths.append(root)
+
+    if "DO_NOT_SEARCH_FOLDERS_FOR_RESULTS_CSV" not in os.environ:
+        with console.status("[bold green]Searching for subfolders with results.csv..."):
+            for root, _, files in os.walk(base_path):
+                if "results.csv" in files:
+                    found_paths.append(root)
 
     return list(set(found_paths))
 

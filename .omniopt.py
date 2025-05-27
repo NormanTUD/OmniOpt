@@ -872,47 +872,101 @@ try:
         import numpy as np
     with console.status("[bold green]Loading collections...") as status:
         from collections import defaultdict
-    with console.status("[bold green]Loading ax...") as status:
+    with console.status("[bold green]Importing ax..."):
         import ax
 
+    with console.status("[bold green]Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
+
+    with console.status("[bold green]Importing ax.core.arm..."):
         from ax.core.arm import Arm
 
+    with console.status("[bold green]Importing ax.core.objective..."):
         from ax.core.objective import MultiObjective
+
+    with console.status("[bold green]Importing ax.core.Metric..."):
         from ax.core import Metric
+
+    with console.status("[bold green]Importing ax.exceptions.core..."):
         import ax.exceptions.core
+
+    with console.status("[bold green]Importing ax.exceptions.generation_strategy..."):
         import ax.exceptions.generation_strategy
 
+    with console.status("[bold green]Importing CORE_DECODER_REGISTRY..."):
         from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
 
-        try:
+    try:
+        with console.status("[bold green]Trying ax.generation_strategy.generation_node..."):
             import ax.generation_strategy.generation_node
-            from ax.generation_strategy.generation_strategy import (GenerationStep, GenerationStrategy)
+
+        with console.status("[bold green]Importing GenerationStep, GenerationStrategy from generation_strategy..."):
+            from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
+
+        with console.status("[bold green]Importing GenerationNode from generation_node..."):
             from ax.generation_strategy.generation_node import GenerationNode
+
+        with console.status("[bold green]Importing ExternalGenerationNode..."):
             from ax.generation_strategy.external_generation_node import ExternalGenerationNode
+
+        with console.status("[bold green]Importing MaxTrials..."):
             from ax.generation_strategy.transition_criterion import MaxTrials
+
+        with console.status("[bold green]Importing GeneratorSpec..."):
             from ax.generation_strategy.model_spec import GeneratorSpec
-        except Exception:
+
+    except Exception:
+        with console.status("[bold green]Fallback: Importing ax.modelbridge.generation_node..."):
             import ax.modelbridge.generation_node
-            from ax.modelbridge.generation_strategy import (GenerationStep, GenerationStrategy)
+
+        with console.status("[bold green]Fallback: Importing GenerationStep, GenerationStrategy from modelbridge..."):
+            from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
+
+        with console.status("[bold green]Fallback: Importing GenerationNode..."):
             from ax.modelbridge.generation_node import GenerationNode
+
+        with console.status("[bold green]Fallback: Importing ExternalGenerationNode..."):
             from ax.modelbridge.external_generation_node import ExternalGenerationNode
+
+        with console.status("[bold green]Fallback: Importing MaxTrials..."):
             from ax.modelbridge.transition_criterion import MaxTrials
+
+        with console.status("[bold green]Fallback: Importing GeneratorSpec..."):
             from ax.modelbridge.model_spec import GeneratorSpec
 
+    with console.status("[bold green]Importing Models from ax.modelbridge.registry..."):
         from ax.modelbridge.registry import Models
+
+    with console.status("[bold green]Importing get_pending_observation_features..."):
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
+
+    with console.status("[bold green]Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment
+
+    with console.status("[bold green]Importing save_experiment..."):
         from ax.storage.json_store.save import save_experiment
 
+    with console.status("[bold green]Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
+
+    with console.status("[bold green]Importing Data..."):
         from ax.core.data import Data
+
+    with console.status("[bold green]Importing Experiment..."):
         from ax.core.experiment import Experiment
+
+    with console.status("[bold green]Importing parameter types..."):
         from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
+
+    with console.status("[bold green]Importing TParameterization..."):
         from ax.core.types import TParameterization
 
+    with console.status("[bold green]Importing AxClient and ObjectiveProperties..."):
         from ax.service.ax_client import AxClient, ObjectiveProperties
+
+    with console.status("[bold green]Importing RandomForestRegressor..."):
         from sklearn.ensemble import RandomForestRegressor
+
     with console.status("[bold green]Loading botorch...") as status:
         import botorch
     with console.status("[bold green]Loading submitit...") as status:

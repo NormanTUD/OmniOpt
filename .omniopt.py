@@ -8623,6 +8623,23 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     return minmax[index] == "min"
 
 @beartype
+def rename_pareto_file_with_old_cleanup():
+    folder = get_current_run_folder()
+    original_file = os.path.join(folder, "pareto_front_table.txt")
+    old_file = original_file + "_OLD"
+
+    try:
+        # Delete the old backup file if it exists
+        if os.path.exists(old_file):
+            os.remove(old_file)
+
+        # Rename the original file to the backup name if it exists
+        if os.path.exists(original_file):
+            os.rename(original_file, old_file)
+    except Exception as e:
+        print_debug(f"Error while processing file: {e}")
+
+@beartype
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
@@ -8652,6 +8669,9 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
             except SignalINT:
                 print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
                 skip = True
+
+    if len(collected_data):
+        rename_pareto_file_with_old_cleanup()
 
     for metric_x, metric_y, calculated_frontier in collected_data:
         hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')

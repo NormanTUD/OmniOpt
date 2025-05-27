@@ -97,6 +97,7 @@
 			<?php js("js/gridjs.umd.js"); ?>
 
 			<?php js("js/share_functions.js"); ?>
+			<?php js("js/pareto.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php

@@ -2049,6 +2049,7 @@
 		$html_parts_str = addTabsToString(implode("\n", $html_parts), 3);
 
 		$js_functions = file_get_contents("js/share_functions.js");
+		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto.js");
 
 		$js_functions = addTabsToString($js_functions, 3);
 

@@ -709,7 +709,7 @@ class ConfigLoader:
 loader = ConfigLoader()
 args = loader.parse_arguments()
 
-original_result_names = arg.result_names
+original_result_names = args.result_names
 
 if args.seed is not None:
     set_rng_seed(args.seed)

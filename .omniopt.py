@@ -89,9 +89,6 @@ try:
     with console.status("[bold green]Importing datetime..."):
         import datetime
 
-    with console.status("[bold green]Importing ax random seed..."):
-        from ax.utils.common.random import set_rng_seed
-
     with console.status("[bold green]Importing dataclass..."):
         from dataclasses import dataclass
 
@@ -778,6 +775,9 @@ args = loader.parse_arguments()
 original_result_names = args.result_names
 
 if args.seed is not None:
+    with console.status("[bold green]Importing ax random seed..."):
+        from ax.utils.common.random import set_rng_seed
+
     set_rng_seed(args.seed)
 
 if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and (not args.calculate_pareto_front_of_job or len(args.calculate_pareto_front_of_job) == 0):

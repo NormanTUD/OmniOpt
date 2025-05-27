@@ -8165,7 +8165,7 @@ def get_csv_data(csv_path: str) -> Tuple[Union[Sequence[str], None], List[Dict[U
     return all_columns, rows
 
 @beartype
-def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[str]], metrics: List) -> Tuple[List, dict, List]:
+def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[str]], metrics: List, idxs: list) -> Tuple[List, dict, List]:
     if all_columns is None:
         return [], {}, []
 
@@ -8176,6 +8176,7 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
     means: dict = {metric: [] for metric in metrics}
 
     for row in rows:
+        dier(rows)
         param_dict = {param: row[param] for param in param_names}
         for metric in metrics:
             if row[metric] != "":
@@ -8185,36 +8186,42 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
     return param_dicts, means, metrics
 
 @beartype
-def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_x: str, metric_y: str) -> Table:
+def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
-    headers = list(param_dicts[0].keys()) + metrics
+    with open(RESULT_CSV_FILE, newline="") as f:
+        reader = list(csv.DictReader(f))
+    
+    # Wenn Datei leer oder keine passenden Zeilen vorhanden
+    if not reader:
+        table.add_column("No data found")
+        return table
+
+    # Header aus erster Zeile ermitteln
+    headers = list(reader[0].keys())
     for header in headers:
         table.add_column(header, justify="center")
 
-    for i, params in enumerate(param_dicts):
-        this_table_row = [str(params[k]) for k in params.keys()]
-        for metric in metrics:
-            try:
-                _mean = means[metric][i]
-                this_table_row.append(f"{_mean:.3f}")
-            except IndexError:
-                this_table_row.append("")
+    # Nur Zeilen mit passendem trial_index anzeigen
+    for row in reader:
+        try:
+            trial_index = int(row["trial_index"])
+        except (KeyError, ValueError):
+            continue
 
-        table.add_row(*this_table_row, style="bold green")
+        if trial_index in idxs:
+            table_row = [row[h] for h in headers]
+            table.add_row(*table_row, style="bold green")
 
     return table
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_x: str, metric_y: str) -> Optional[Table]:
+def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Optional[Table]:
     if not os.path.exists(RESULT_CSV_FILE):
         print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
         return None
 
-    #dier(param_dicts)
-    all_columns, rows = get_csv_data(RESULT_CSV_FILE)
-    _param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
-    return create_pareto_front_table(param_dicts, means, metrics, metric_x, metric_y)
+    return create_pareto_front_table(idxs, metric_x, metric_y)
 
 @beartype
 def supports_sixel() -> bool:
@@ -8422,12 +8429,15 @@ def _pareto_front_build_return_structure(
     ignored_columns.update(result_names)
 
     param_dicts = []
+    idxs = []
     means_dict = defaultdict(list)
 
     for (trial_index, arm_name), _, _ in selected_points:
         row = csv_rows.get(trial_index)
         if row is None or row['arm_name'] != arm_name:
             continue  # Sicherheitshalber prüfen
+
+        idxs.append(int(row["trial_index"]))
 
         # Parameter extrahieren
         param_dict = {}
@@ -8452,7 +8462,8 @@ def _pareto_front_build_return_structure(
             secondary_name: {
                 "absolute_metrics": absolute_metrics,
                 "param_dicts": param_dicts,
-                "means": dict(means_dict)
+                "means": dict(means_dict),
+                "idxs": idxs
             },
             "absolute_metrics": absolute_metrics
         }
@@ -8696,8 +8707,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
             }
 
             rich_table = pareto_front_as_rich_table(
-                calculated_frontier[metric_x][metric_y]["param_dicts"],
-                arg_result_names,
+                calculated_frontier[metric_x][metric_y]["idxs"],
                 metric_y,
                 metric_x
             )

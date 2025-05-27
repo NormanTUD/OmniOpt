@@ -562,7 +562,6 @@ class ConfigLoader:
     external_generator: Optional[str]
     generation_strategy: Optional[str]
     root_venv_dir: str
-    pareto_front_confidence: float
     follow: bool
     show_generation_and_submission_sixel: bool
     n_estimators_randomforest: int

@@ -4224,10 +4224,10 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names) -> None:
+def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) > 1:
         try:
-            show_pareto_frontier_data(path_to_calculate, res_names)
+            show_pareto_frontier_data(path_to_calculate, res_names, disable_sixel_and_table)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
     else:
@@ -6177,7 +6177,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             try:
                 _finish_job_core_helper_mark_success(_trial, result)
 
-                if _post_job_calculate_pareto_front(get_current_run_folder()) and count_done_jobs() > 1:
+                if count_done_jobs() > 1 and _post_job_calculate_pareto_front(get_current_run_folder(), True):
                     print_red("_post_job_calculate_pareto_front post job failed")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
@@ -8623,7 +8623,7 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     return minmax[index] == "min"
 
 @beartype
-def show_pareto_frontier_data(path_to_calculate: str, res_names: list) -> None:
+def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
@@ -8655,10 +8655,12 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list) -> None:
 
     for metric_x, metric_y, calculated_frontier in collected_data:
         hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
-        if hide_pareto is None:
-            plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
-        else:
-            print(f"Not showing pareto-front-sixel for {path_to_calculate}")
+
+        if not disable_sixel_and_table:
+            if hide_pareto is None:
+                plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
+            else:
+                print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 
         if metric_x not in pareto_front_data:
             pareto_front_data[metric_x] = {}
@@ -8677,10 +8679,11 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list) -> None:
         )
 
         if rich_table is not None:
-            if hide_pareto is None:
-                console.print(rich_table)
-            else:
-                print(f"Not showing pareto-front-table for {path_to_calculate}")
+            if not disable_sixel_and_table:
+                if hide_pareto is None:
+                    console.print(rich_table)
+                else:
+                    print(f"Not showing pareto-front-table for {path_to_calculate}")
 
             with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                 with console.capture() as capture:
@@ -9005,7 +9008,7 @@ def post_job_calculate_pareto_front() -> None:
     my_exit(0)
 
 @beartype
-def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
+def _post_job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
     # Returns true if it fails
     if not path_to_calculate:
         return True
@@ -9072,7 +9075,7 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
     if experiment_parameters is None:
         return True
 
-    show_pareto_or_error_msg(path_to_calculate, res_names)
+    show_pareto_or_error_msg(path_to_calculate, res_names, disable_sixel_and_table)
 
     return False
 

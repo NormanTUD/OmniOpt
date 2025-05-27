@@ -434,8 +434,6 @@ def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
         parts.append(f"{secs}s")
     return f"({''.join(parts)})"
 
-
-
 @beartype
 def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()

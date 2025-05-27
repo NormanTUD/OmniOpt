@@ -121,15 +121,9 @@
 
 	function convert_sixel($output) {
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
-
-		if ($command_v_sixel2png) {
-			$has_sixel2png = trim($command_v_sixel2png) !== '';
-		} else {
-			$has_sixel2png = false;
-		}
+		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
 		$output = preg_replace_callback("/\x1bP([0-9;]*q.*?\x1b\\\\)/s", function ($matches) use ($has_sixel2png) {
-			$sixel = $matches[1];
 			$sixel = "\x1bP" . $matches[1];
 
 			if (!$has_sixel2png) {
@@ -139,24 +133,33 @@
 			$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
 			$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
 
-			// Optional Debug: echo $tmp_sixel;
-			file_put_contents($tmp_sixel, $sixel);
+			$img_html = "<br>";
+			try {
+				$bytes_written = file_put_contents($tmp_sixel, $sixel);
+				if ($bytes_written === false || $bytes_written === 0) {
+					return $img_html;
+				}
 
-			$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
+				$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
+				shell_exec($cmd);
 
-			shell_exec($cmd);
+				if (!file_exists($tmp_png) || filesize($tmp_png) === 0) {
+					return $img_html;
+				}
 
-			if (!file_exists($tmp_png)) {
-				return "<br>";
+				$data = file_get_contents($tmp_png);
+				if ($data === false || strlen($data) > 5 * 1024 * 1024) { // Limit 5 MB
+					return $img_html;
+				}
+
+				$base64 = base64_encode($data);
+				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
+			} finally {
+				if (file_exists($tmp_sixel)) unlink($tmp_sixel);
+				if (file_exists($tmp_png)) unlink($tmp_png);
 			}
 
-			$data = base64_encode(file_get_contents($tmp_png));
-			$img = '<img src="data:image/png;base64,' . $data . '" alt="SIXEL Image"/>';
-
-			unlink($tmp_sixel);
-			unlink($tmp_png);
-
-			return $img;
+			return $img_html;
 		}, $output);
 
 		return $output;

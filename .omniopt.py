@@ -3278,7 +3278,10 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     values = ['None' if element is None else element for element in values]
 
     if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()):
-        add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
+        try:
+            add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
+        except Exception as e:
+            print_red(f"Error writing job_infos.csv: {e}")
     else:
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
 

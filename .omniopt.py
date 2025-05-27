@@ -8650,7 +8650,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
 
     pareto_front_data: dict = {}
     all_combinations = list(combinations(range(len(arg_result_names)), 2))
-    collected_data = []
 
     skip = False
 
@@ -8663,55 +8662,55 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
             y_minimize = get_result_minimize_flag(path_to_calculate, metric_y)
 
             try:
-                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
+                if metric_x not in pareto_front_data:
+                    pareto_front_data[metric_x] = {}
 
-                if calculated_frontier is not None:
-                    collected_data.append((metric_x, metric_y, calculated_frontier))
+                pareto_front_data[metric_x][metric_y] = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
             except ax.exceptions.core.DataRequiredError as e:
                 print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
             except SignalINT:
                 print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
                 skip = True
 
-    if len(collected_data):
+    if pareto_front_data.keys():
         rename_pareto_file_with_old_cleanup()
 
-    for metric_x, metric_y, calculated_frontier in collected_data:
-        hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
+    for metric_x in pareto_front_data.keys():
+        for metric_y in pareto_front_data[metric_x].keys():
+            calculated_frontier = pareto_front_data[metric_x][metric_y]
 
-        if not disable_sixel_and_table:
-            if hide_pareto is None:
-                plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
-            else:
-                print(f"Not showing pareto-front-sixel for {path_to_calculate}")
+            hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
 
-        if metric_x not in pareto_front_data:
-            pareto_front_data[metric_x] = {}
-
-        pareto_front_data[metric_x][metric_y] = {
-            "param_dicts": calculated_frontier[metric_x][metric_y]["param_dicts"],
-            "means": calculated_frontier[metric_x][metric_y]["means"],
-            "absolute_metrics": arg_result_names
-        }
-
-        rich_table = pareto_front_as_rich_table(
-            calculated_frontier[metric_x][metric_y]["param_dicts"],
-            arg_result_names,
-            metric_y,
-            metric_x
-        )
-
-        if rich_table is not None:
             if not disable_sixel_and_table:
                 if hide_pareto is None:
-                    console.print(rich_table)
+                    plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
                 else:
-                    print(f"Not showing pareto-front-table for {path_to_calculate}")
+                    print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 
-            with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
-                with console.capture() as capture:
-                    console.print(rich_table)
-                text_file.write(capture.get())
+            pareto_front_data[metric_x][metric_y] = {
+                "param_dicts": calculated_frontier[metric_x][metric_y]["param_dicts"],
+                "means": calculated_frontier[metric_x][metric_y]["means"],
+                "absolute_metrics": arg_result_names
+            }
+
+            rich_table = pareto_front_as_rich_table(
+                calculated_frontier[metric_x][metric_y]["param_dicts"],
+                arg_result_names,
+                metric_y,
+                metric_x
+            )
+
+            if rich_table is not None:
+                if not disable_sixel_and_table:
+                    if hide_pareto is None:
+                        console.print(rich_table)
+                    else:
+                        print(f"Not showing pareto-front-table for {path_to_calculate}")
+
+                with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
+                    with console.capture() as capture:
+                        console.print(rich_table)
+                    text_file.write(capture.get())
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 

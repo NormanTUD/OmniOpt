@@ -8185,18 +8185,23 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
 def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_i: str, metric_j: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
 
-    headers = list(param_dicts[0].keys()) + metrics
+    headers = list(param_dicts[0].keys()) + [" "] + metrics
     for header in headers:
         table.add_column(header, justify="center")
 
     for i, params in enumerate(param_dicts):
         this_table_row = [str(params[k]) for k in params.keys()]
+        k = 0
         for metric in metrics:
             try:
                 _mean = means[metric][i]
+                if k == 0:
+                    this_table_row.append("=")
                 this_table_row.append(f"{_mean:.3f}")
             except IndexError:
                 this_table_row.append("")
+
+            k = k + 1
 
         table.add_row(*this_table_row, style="bold green")
 
@@ -8704,6 +8709,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
             "absolute_metrics": arg_result_names
         }
 
+
         rich_table = pareto_front_as_rich_table(
             _param_dicts,
             arg_result_names,
@@ -8721,7 +8727,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
                 with console.capture() as capture:
                     console.print(rich_table)
                 text_file.write(capture.get())
-
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
 

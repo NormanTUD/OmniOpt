@@ -8999,7 +8999,7 @@ def find_results_paths(base_path: str) -> list:
             if "results.csv" in files:
                 found_paths.append(root)
 
-    return found_paths
+    return list(set(found_paths))
 
 @beartype
 def post_job_calculate_pareto_front() -> None:
@@ -9008,7 +9008,7 @@ def post_job_calculate_pareto_front() -> None:
 
     failure = False
 
-    for _path_to_calculate in args.calculate_pareto_front_of_job:
+    for _path_to_calculate in list(set(args.calculate_pareto_front_of_job)):
         try:
             found_paths = find_results_paths(_path_to_calculate)
             for path_to_calculate in found_paths:

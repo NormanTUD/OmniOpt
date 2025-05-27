@@ -6180,7 +6180,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             try:
                 _finish_job_core_helper_mark_success(_trial, result)
 
-                if count_done_jobs() > 1 and job_calculate_pareto_front(get_current_run_folder(), True):
+                if len(arg_result_names) > 1 and count_done_jobs() > 1 and job_calculate_pareto_front(get_current_run_folder(), True):
                     print_red("job_calculate_pareto_front post job failed")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")

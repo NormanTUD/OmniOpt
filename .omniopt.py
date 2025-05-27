@@ -144,7 +144,7 @@ try:
         from types import FunctionType
 
     with console.status("[bold green]Importing typing..."):
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type, Sequence
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
 
     with console.status("[bold green]Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8160,39 +8160,10 @@ def parse_parameters() -> Any:
         return experiment_parameters, cli_params_experiment_parameters, classic_params
 
 @beartype
-def get_csv_data(csv_path: str) -> Tuple[Union[Sequence[str], None], List[Dict[Union[str, Any], Union[str, Any]]]]:
-    with open(csv_path, encoding="utf-8", mode="r") as file:
-        reader = csv.DictReader(file)
-        all_columns = reader.fieldnames
-        rows = list(reader)
-    return all_columns, rows
-
-@beartype
-def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[str]], metrics: List, idxs: list) -> Tuple[List, dict, List]:
-    if all_columns is None:
-        return [], {}, []
-
-    param_names = [col for col in all_columns if col not in metrics and col not in IGNORABLE_COLUMNS]
-    metrics = [col for col in all_columns if col in arg_result_names]
-
-    param_dicts = []
-    means: dict = {metric: [] for metric in metrics}
-
-    for row in rows:
-        dier(rows)
-        param_dict = {param: row[param] for param in param_names}
-        for metric in metrics:
-            if row[metric] != "":
-                means[metric].append(float(row[metric]))
-        param_dicts.append(param_dict)
-
-    return param_dicts, means, metrics
-
-@beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
-    with open(RESULT_CSV_FILE, newline="") as f:
+    with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
         reader = list(csv.DictReader(f))
 
     if not reader:

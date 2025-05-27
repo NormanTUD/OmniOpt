@@ -4227,10 +4227,10 @@ def abandon_all_jobs() -> None:
             print_debug(f"Job {job} could not be abandoned.")
 
 @beartype
-def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, force: bool = False) -> None:
+def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names) -> None:
     if len(res_names) > 1:
         try:
-            show_pareto_frontier_data(path_to_calculate, res_names, force)
+            show_pareto_frontier_data(path_to_calculate, res_names)
         except Exception as e:
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
     else:
@@ -4242,7 +4242,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     wait_for_jobs_to_complete()
 
-    show_pareto_or_error_msg(get_current_run_folder(), arg_result_names, True)
+    show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)
 
     if os.getpid() != main_pid:
         print_debug("returning from end_program, because it can only run in the main thread, not any forks")
@@ -8529,7 +8529,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
+def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str, x_minimize: bool, y_minimize: bool, res_names: list) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
         os.makedirs(state_dir, exist_ok=True)
@@ -8626,7 +8626,7 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     return minmax[index] == "min"
 
 @beartype
-def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bool = False) -> None:
+def show_pareto_frontier_data(path_to_calculate: str, res_names: list) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
@@ -8646,7 +8646,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
             y_minimize = get_result_minimize_flag(path_to_calculate, metric_y)
 
             try:
-                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names, force)
+                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
 
                 if calculated_frontier is not None:
                     collected_data.append((metric_x, metric_y, calculated_frontier))
@@ -8666,20 +8666,14 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         if metric_x not in pareto_front_data:
             pareto_front_data[metric_x] = {}
 
-        this_calculated_frontier = calculated_frontier[metric_x][metric_y]
-
-        _param_dicts = this_calculated_frontier["param_dicts"]
-        _means = this_calculated_frontier["means"]
-
         pareto_front_data[metric_x][metric_y] = {
-            "param_dicts": _param_dicts,
-            "means": _means,
+            "param_dicts": calculated_frontier[metric_x][metric_y]["param_dicts"],
+            "means": calculated_frontier[metric_x][metric_y]["means"],
             "absolute_metrics": arg_result_names
         }
 
-
         rich_table = pareto_front_as_rich_table(
-            _param_dicts,
+            calculated_frontier[metric_x][metric_y]["param_dicts"],
             arg_result_names,
             metric_y,
             metric_x
@@ -9081,7 +9075,7 @@ def _post_job_calculate_pareto_front(path_to_calculate: str) -> bool:
     if experiment_parameters is None:
         return True
 
-    show_pareto_or_error_msg(path_to_calculate, res_names, True)
+    show_pareto_or_error_msg(path_to_calculate, res_names)
 
     return False
 

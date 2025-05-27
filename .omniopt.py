@@ -8233,15 +8233,10 @@ def supports_sixel() -> bool:
     return False
 
 @beartype
-def plot_pareto_frontier_sixel(data: Any, i: int, j: int) -> None:
+def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
     if data is None:
         print("[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
         return
-
-    absolute_metrics = arg_result_names
-
-    x_metric = absolute_metrics[i]
-    y_metric = absolute_metrics[j]
 
     if not supports_sixel():
         print(f"[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
@@ -8539,23 +8534,12 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, metric_j: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
+def get_calculated_frontier(path_to_calculate: str, metric_i: str, metric_j: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
         os.makedirs(state_dir, exist_ok=True)
 
-        cache_file = os.path.join(state_dir, "pareto_front_data.json")
-
-        if os.path.isfile(cache_file) and not force:
-            with open(cache_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                b64_encoded = data.get("pickle_data", "")
-                if not b64_encoded:
-                    print_red(f"Cache-file '{cache_file}' exists, but has no valid data")
-                else:
-                    binary_data = base64.b64decode(b64_encoded)
-                    frontier = pickle.loads(binary_data)
-                    return frontier
+        json_file = os.path.join(state_dir, "pareto_front_data.json")
 
         set_arg_min_or_max_if_required(path_to_calculate)
 
@@ -8578,13 +8562,13 @@ def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, met
         pickled_data = pickle.dumps(frontier)
         b64_data = base64.b64encode(pickled_data).decode("utf-8")
 
-        with open(cache_file, "w", encoding="utf-8") as f:
+        with open(json_file, "w", encoding="utf-8") as f:
             json.dump({"pickle_data": b64_data}, f, indent=2)
 
         return frontier
 
     except Exception as e:
-        print_red(f"Error in get_calculated_or_cached_frontier: {str(e)}")
+        print_red(f"Error in get_calculated_frontier: {str(e)}")
         return None
 
 @beartype
@@ -8652,46 +8636,35 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
         return
 
-    objectives = arg_result_names
     pareto_front_data: dict = {}
-    all_combinations = list(combinations(range(len(objectives)), 2))
+    all_combinations = list(combinations(range(len(arg_result_names)), 2))
     collected_data = []
 
-    with Progress(
-        "[progress.description]{task.description}",
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        TimeRemainingColumn(),
-        transient=True
-    ) as progress:
-        task = progress.add_task("Calculating Pareto-Front...", total=len(all_combinations))
+    skip = False
 
-        skip = False
+    for i, j in all_combinations:
+        if not skip:
+            metric_i = arg_result_names[i]
+            metric_j = arg_result_names[j]
 
-        for i, j in all_combinations:
-            if not skip:
-                metric_i = objectives[i]
-                metric_j = objectives[j]
+            x_minimize = get_result_minimize_flag(path_to_calculate, metric_i)
+            y_minimize = get_result_minimize_flag(path_to_calculate, metric_j)
 
-                x_minimize = get_result_minimize_flag(path_to_calculate, metric_i)
-                y_minimize = get_result_minimize_flag(path_to_calculate, metric_j)
+            try:
+                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_i, metric_j, x_minimize, y_minimize, res_names, force)
 
-                try:
-                    calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, x_minimize, y_minimize, res_names, force)
+                if calculated_frontier is not None:
+                    collected_data.append((metric_i, metric_j, calculated_frontier))
+            except ax.exceptions.core.DataRequiredError as e:
+                print_red(f"Error computing Pareto frontier for {metric_i} and {metric_j}: {e}")
+            except SignalINT:
+                print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
+                skip = True
 
-                    if calculated_frontier is not None:
-                        collected_data.append((i, j, metric_i, metric_j, calculated_frontier))
-                except ax.exceptions.core.DataRequiredError as e:
-                    print_red(f"Error computing Pareto frontier for {metric_i} and {metric_j}: {e}")
-                except SignalINT:
-                    print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
-                    skip = True
-
-            progress.update(task, advance=1)
-
-    for i, j, metric_i, metric_j, calculated_frontier in collected_data:
+    for metric_i, metric_j, calculated_frontier in collected_data:
         hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
         if hide_pareto is None:
-            plot_pareto_frontier_sixel(calculated_frontier, i, j)
+            plot_pareto_frontier_sixel(calculated_frontier, metric_i, metric_j)
         else:
             print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 

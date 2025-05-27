@@ -1897,7 +1897,7 @@ EOF
 	fi
 
 	if command -v sbatch 2>/dev/null >/dev/null; then
-		if [[ -z $SLURM_JOB_ID ]]; then
+		if [[ -n $SLURM_JOB_ID ]]; then
 			if [[ $force_local_execution -eq 0 ]]; then
 				show_runtime=0
 			fi

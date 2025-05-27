@@ -236,7 +236,7 @@ except KeyboardInterrupt:
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args
 
-with console.status("[bold green]Loading rich_argparse...") as status:
+with console.status("[bold green]Importing rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
@@ -867,11 +867,11 @@ if args.continue_previous_job is not None:
 disable_logs = None
 
 try:
-    with console.status("[bold green]Loading torch...") as status:
+    with console.status("[bold green]Importing torch...") as status:
         import torch
-    with console.status("[bold green]Loading numpy...") as status:
+    with console.status("[bold green]Importing numpy...") as status:
         import numpy as np
-    with console.status("[bold green]Loading collections...") as status:
+    with console.status("[bold green]Importing collections...") as status:
         from collections import defaultdict
     with console.status("[bold green]Importing ax..."):
         import ax
@@ -968,9 +968,9 @@ try:
     with console.status("[bold green]Importing RandomForestRegressor..."):
         from sklearn.ensemble import RandomForestRegressor
 
-    with console.status("[bold green]Loading botorch...") as status:
+    with console.status("[bold green]Importing botorch...") as status:
         import botorch
-    with console.status("[bold green]Loading submitit...") as status:
+    with console.status("[bold green]Importing submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
 except ModuleNotFoundError as ee:
@@ -998,7 +998,7 @@ except ImportError as e:
     print(f"Failed to load module: {e}")
     my_exit(93)
 
-with console.status("[bold green]Loading ax logger...") as status:
+with console.status("[bold green]Importing ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
 disable_logs = disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 

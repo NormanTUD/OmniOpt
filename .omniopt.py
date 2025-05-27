@@ -770,7 +770,8 @@ class ConfigLoader:
         return _args
 
 loader = ConfigLoader()
-args = loader.parse_arguments()
+with console.status("[bold green]Parsing arguments..."):
+    args = loader.parse_arguments()
 
 original_result_names = args.result_names
 

@@ -694,17 +694,17 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Test OO without needed params (missing max eval)" "$OMNIOPT_CALL --parameter x range 0 1 float --run_program 'echo' --experiment_name=asdf --time=12 --mem_gb=4 --gpus=$NUM_GPUS --follow" 89 104
 
-	_test "Incomplete fixed parameter" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x fixed --mem_gb=4 --follow" 181 104
+	_test "Incomplete fixed parameter" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x fixed --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "Invalid name for parameter: exit_code" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter exit_code range 0 1 --mem_gb=4 --follow" 181 104
+	_test "Invalid name for parameter: exit_code" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter exit_code range 0 1 --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "Incomplete choice parameter" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice --mem_gb=4 --follow" 181 104
+	_test "Incomplete choice parameter" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "Incomplete range parameter (missing upper and lower)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range --mem_gb=4 --follow" 181 104
+	_test "Incomplete range parameter (missing upper and lower)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "Incomplete range parameter (missing upper)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 --mem_gb=4 --follow" 181 104
+	_test "Incomplete range parameter (missing upper)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 0 --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "Non-unique parameter names" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234 --mem_gb=4 --follow" 181 104
+	_test "Non-unique parameter names" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234 --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
 	_test "External generator" ".tests/external_generator" 0
 

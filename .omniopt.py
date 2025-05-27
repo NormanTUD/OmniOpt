@@ -439,8 +439,10 @@ def my_exit(_code: int = 0) -> None:
     print_debug(exit_code_string)
 
     whole_end_time: float = time.time()
-    whole_run_time = whole_end_time - whole_start_time
-    print(f"Wallclock-Runtime: {whole_run_time} seconds")
+    whole_run_time = round(whole_end_time - whole_start_time)
+    human_time = human_time_when_larger_than_a_min(whole_run_time)
+
+    print(f"Wallclock-Runtime: {whole_run_time} seconds {human_time}")
 
     sys.exit(_code)
 

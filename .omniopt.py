@@ -8273,33 +8273,42 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
-@beartype
-def pareto_front_general(x: np.ndarray, y: np.ndarray, x_minimize: bool = True, y_minimize: bool = True) -> np.ndarray:
-    is_dominated = np.zeros(len(x), dtype=bool)
-    for i in range(len(x)):
-        for j in range(len(x)):
-            if i == j:
-                continue
-            # Vergleich für x
-            if x_minimize:
-                x_better_or_equal = x[j] <= x[i]
-                x_strictly_better = x[j] < x[i]
-            else:
-                x_better_or_equal = x[j] >= x[i]
-                x_strictly_better = x[j] > x[i]
-            # Vergleich für y
-            if y_minimize:
-                y_better_or_equal = y[j] <= y[i]
-                y_strictly_better = y[j] < y[i]
-            else:
-                y_better_or_equal = y[j] >= y[i]
-                y_strictly_better = y[j] > y[i]
+import numpy as np
+from beartype import beartype
 
-            # Dominanz prüfen
-            if (x_better_or_equal and y_better_or_equal) and (x_strictly_better or y_strictly_better):
-                is_dominated[i] = True
-                break
-    return np.where(~is_dominated)[0]
+@beartype
+def pareto_front_general(
+    x: np.ndarray,
+    y: np.ndarray,
+    x_minimize: bool = True,
+    y_minimize: bool = True
+) -> np.ndarray:
+    try:
+        if x.shape != y.shape:
+            raise ValueError("Input arrays x and y must have the same shape.")
+        
+        num_points = len(x)
+        is_dominated = np.zeros(num_points, dtype=bool)
+
+        for i in range(num_points):
+            for j in range(num_points):
+                if i == j:
+                    continue
+
+                x_better_or_equal = x[j] <= x[i] if x_minimize else x[j] >= x[i]
+                y_better_or_equal = y[j] <= y[i] if y_minimize else y[j] >= y[i]
+                x_strictly_better = x[j] < x[i] if x_minimize else x[j] > x[i]
+                y_strictly_better = y[j] < y[i] if y_minimize else y[j] > y[i]
+
+                if x_better_or_equal and y_better_or_equal and (x_strictly_better or y_strictly_better):
+                    is_dominated[i] = True
+                    break
+
+        return np.where(~is_dominated)[0]
+
+    except Exception as e:
+        print("Error in pareto_front_general:", str(e))
+        return np.array([], dtype=int)
 
 @beartype
 def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:

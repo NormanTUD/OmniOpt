@@ -8150,11 +8150,29 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
 @beartype
-def pareto_front_general(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def pareto_front_general(x: np.ndarray, y: np.ndarray, x_minimize: bool = True, y_minimize: bool = True) -> np.ndarray:
     is_dominated = np.zeros(len(x), dtype=bool)
     for i in range(len(x)):
         for j in range(len(x)):
-            if (x[j] <= x[i] and y[j] <= y[i]) and (x[j] < x[i] or y[j] < y[i]):
+            if i == j:
+                continue
+            # Vergleich für x
+            if x_minimize:
+                x_better_or_equal = x[j] <= x[i]
+                x_strictly_better = x[j] < x[i]
+            else:
+                x_better_or_equal = x[j] >= x[i]
+                x_strictly_better = x[j] > x[i]
+            # Vergleich für y
+            if y_minimize:
+                y_better_or_equal = y[j] <= y[i]
+                y_strictly_better = y[j] < y[i]
+            else:
+                y_better_or_equal = y[j] >= y[i]
+                y_strictly_better = y[j] > y[i]
+
+            # Dominanz prüfen
+            if (x_better_or_equal and y_better_or_equal) and (x_strictly_better or y_strictly_better):
                 is_dominated[i] = True
                 break
     return np.where(~is_dominated)[0]
@@ -8236,10 +8254,12 @@ def _pareto_front_transform_objectives(
 def _pareto_front_select_pareto_points(
     x: np.ndarray,
     y: np.ndarray,
+    x_minimize: bool,
+    y_minimize: bool,
     points: List[Tuple[Any, float, float]],
     num_points: int
 ) -> List[Tuple[Any, float, float]]:
-    indices = pareto_front_general(x, y)
+    indices = pareto_front_general(x, y, x_minimize, y_minimize)
     sorted_indices = indices[np.argsort(x[indices])]
     sorted_indices = sorted_indices[:num_points]
     selected_points = [points[i] for i in sorted_indices]
@@ -8312,10 +8332,12 @@ def _pareto_front_build_return_structure(
     return ret
 
 @beartype
-def custom_pareto_frontier(
+def get_pareto_frontier_points(
     path_to_calculate: str,
     primary_objective: str,
     secondary_objective: str,
+    x_minimize: bool,
+    y_minimize: bool,
     absolute_metrics: List[str],
     num_points: int
 ) -> Optional[dict]:
@@ -8325,7 +8347,7 @@ def custom_pareto_frontier(
 
     points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
     x, y = _pareto_front_transform_objectives(points, primary_objective, secondary_objective)
-    selected_points = _pareto_front_select_pareto_points(x, y, points, num_points)
+    selected_points = _pareto_front_select_pareto_points(x, y, x_minimize, y_minimize, points, num_points)
     result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
 
     return result
@@ -8379,7 +8401,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, metric_j: str, res_names: list, force: bool) -> Any:
+def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, metric_j: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
         os.makedirs(state_dir, exist_ok=True)
@@ -8399,10 +8421,12 @@ def get_calculated_or_cached_frontier(path_to_calculate: str, metric_i: str, met
 
         set_arg_min_or_max_if_required(path_to_calculate)
 
-        frontier = custom_pareto_frontier(
+        frontier = get_pareto_frontier_points(
             path_to_calculate=path_to_calculate,
             primary_objective=metric_i,
             secondary_objective=metric_j,
+            x_minimize=x_minimize,
+            y_minimize=y_minimize,
             absolute_metrics=res_names,
             num_points=count_done_jobs()
         )
@@ -8446,6 +8470,44 @@ def live_share_after_pareto() -> None:
 
         live_share(True)
 
+def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
+    result_names_path = os.path.join(path_to_calculate, "result_names.txt")
+    result_min_max_path = os.path.join(path_to_calculate, "result_min_max.txt")
+
+    if not os.path.isdir(path_to_calculate):
+        print_red(f"Error: Directory '{path_to_calculate}' does not exist.")
+        my_exit(24)
+
+    if not os.path.isfile(result_names_path) or not os.path.isfile(result_min_max_path):
+        print_red(f"Error: Missing 'result_names.txt' or 'result_min_max.txt' in '{path_to_calculate}'.")
+        my_exit(24)
+
+    try:
+        with open(result_names_path, "r", encoding="utf-8") as f:
+            names = [line.strip() for line in f]
+    except Exception as e:
+        print_red(f"Error: Failed to read 'result_names.txt': {e}")
+        my_exit(24)
+
+    if resname not in names:
+        print_red(f"Error: Result name '{resname}' not found in 'result_names.txt'.")
+        my_exit(24)
+
+    index = names.index(resname)
+
+    try:
+        with open(result_min_max_path, "r", encoding="utf-8") as f:
+            minmax = [line.strip().lower() for line in f]
+    except Exception as e:
+        print_red(f"Error: Failed to read 'result_min_max.txt': {e}")
+        my_exit(24)
+
+    if index >= len(minmax):
+        print_red(f"Error: Not enough entries in 'result_min_max.txt' for index {index}.")
+        my_exit(24)
+
+    return minmax[index] == "min"
+
 @beartype
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bool = False) -> None:
     if len(res_names) <= 1:
@@ -8472,8 +8534,11 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
                 metric_i = objectives[i]
                 metric_j = objectives[j]
 
+                x_minimize = get_result_minimize_flag(path_to_calculate, metric_i)
+                y_minimize = get_result_minimize_flag(path_to_calculate, metric_j)
+
                 try:
-                    calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, res_names, force)
+                    calculated_frontier = get_calculated_or_cached_frontier(path_to_calculate, metric_i, metric_j, x_minimize, y_minimize, res_names, force)
 
                     if calculated_frontier is not None:
                         collected_data.append((i, j, metric_i, metric_j, calculated_frontier))

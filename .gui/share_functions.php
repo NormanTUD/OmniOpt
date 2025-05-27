@@ -130,7 +130,7 @@
 
 		$output = preg_replace_callback("/\x1bP([0-9;]*q.*?\x1b\\\\)/s", function ($matches) use ($has_sixel2png) {
 			$sixel = $matches[1];
-			$sixel = "\x1bP" . $matches[1]; // wieder komplett machn
+			$sixel = "\x1bP" . $matches[1];
 
 			if (!$has_sixel2png) {
 				return "<br>";
@@ -142,7 +142,8 @@
 			// Optional Debug: echo $tmp_sixel;
 			file_put_contents($tmp_sixel, $sixel);
 
-			$cmd = escapeshellcmd("sixel2png -i $tmp_sixel -o $tmp_png");
+			$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
+
 			shell_exec($cmd);
 
 			if (!file_exists($tmp_png)) {

@@ -8162,51 +8162,64 @@ def parse_parameters() -> Any:
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
-    with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
-        reader = list(csv.DictReader(f))
-
-    if not reader:
+    rows = _pareto_front_table_read_csv()
+    if not rows:
         table.add_column("No data found")
         return table
 
-    # Zeilen filtern: nur COMPLETED + trial_index in idxs
-    filtered_rows = []
-    for row in reader:
+    filtered_rows = _pareto_front_table_filter_rows(rows, idxs)
+    if not filtered_rows:
+        table.add_column("No matching entries")
+        return table
+
+    param_cols, result_cols = _pareto_front_table_get_columns(filtered_rows[0])
+
+    _pareto_front_table_add_headers(table, param_cols, result_cols)
+    _pareto_front_table_add_rows(table, filtered_rows, param_cols, result_cols)
+
+    return table
+
+@beartype
+def _pareto_front_table_read_csv() -> List[Dict[str, str]]:
+    with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+@beartype
+def _pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int]) -> List[Dict[str, str]]:
+    result = []
+    for row in rows:
         try:
             trial_index = int(row["trial_index"])
         except (KeyError, ValueError):
             continue
 
         if row.get("trial_status", "").strip().upper() == "COMPLETED" and trial_index in idxs:
-            filtered_rows.append(row)
+            result.append(row)
+    return result
 
-    if not filtered_rows:
-        table.add_column("No matching entries")
-        return table
-
-    # Spalten aufteilen: normale Parameter + Resultate
-    all_columns = list(filtered_rows[0].keys())
-
-    # trial_index soll angezeigt werden, auch wenn in special_col_names
+@beartype
+def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
+    all_columns = list(first_row.keys())
     ignored_cols = set(special_col_names) - {"trial_index"}
 
     param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names]
     result_cols = [col for col in arg_result_names if col in all_columns]
+    return param_cols, result_cols
 
-    # Tabellenkopf
+@beartype
+def _pareto_front_table_add_headers(table: Table, param_cols: List[str], result_cols: List[str]) -> None:
     for col in param_cols:
         table.add_column(col, justify="center")
-
     for col in result_cols:
         table.add_column(Text(f"{col}", style="cyan"), justify="center")
 
-    # Datenzeilen
-    for row in filtered_rows:
+@beartype
+def _pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]],
+                                 param_cols: List[str], result_cols: List[str]) -> None:
+    for row in rows:
         values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
         result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]
         table.add_row(*values, *result_values, style="bold green")
-
-    return table
 
 @beartype
 def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Optional[Table]:

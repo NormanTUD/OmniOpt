@@ -709,6 +709,8 @@ class ConfigLoader:
 loader = ConfigLoader()
 args = loader.parse_arguments()
 
+original_result_names = arg.result_names
+
 if args.seed is not None:
     set_rng_seed(args.seed)
 
@@ -4941,7 +4943,7 @@ def print_result_names_overview_table() -> None:
 
         return None
 
-    if args.continue_previous_job is not None and args.result_names is not None:
+    if args.continue_previous_job is not None and args.result_names is not None and len(args.result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
         print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
     if ax_client.experiment.optimization_config.is_moo_problem:

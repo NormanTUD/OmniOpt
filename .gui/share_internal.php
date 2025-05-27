@@ -98,7 +98,7 @@
 
 		$tmp_name = $_file['tmp_name'];
 
-		if($tmp_name && file_error($tmp_name)) {
+		if($tmp_name && file_exists($tmp_name)) {
 			$contents = file_get_contents($tmp_name);
 
 			if($contents) {

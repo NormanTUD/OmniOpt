@@ -8699,7 +8699,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 "absolute_metrics": arg_result_names
             }
 
-
             rich_table = pareto_front_as_rich_table(
                 calculated_frontier[metric_x][metric_y]["idxs"],
                 metric_y,

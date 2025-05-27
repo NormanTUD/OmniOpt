@@ -286,21 +286,22 @@ error_8_saved: List[str] = []
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-helpers_file: str = f"{script_dir}/.helpers.py"
-spec = importlib.util.spec_from_file_location(
-    name="helpers",
-    location=helpers_file,
-)
-if spec is not None and spec.loader is not None:
-    helpers = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helpers)
-else:
-    raise ImportError(f"Could not load module from {helpers_file}")
+with console.status("[bold green]Importing helpers..."):
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    helpers_file: str = f"{script_dir}/.helpers.py"
+    spec = importlib.util.spec_from_file_location(
+        name="helpers",
+        location=helpers_file,
+    )
+    if spec is not None and spec.loader is not None:
+        helpers = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helpers)
+    else:
+        raise ImportError(f"Could not load module from {helpers_file}")
 
-dier: FunctionType = helpers.dier
-is_equal: FunctionType = helpers.is_equal
-is_not_equal: FunctionType = helpers.is_not_equal
+    dier: FunctionType = helpers.dier
+    is_equal: FunctionType = helpers.is_equal
+    is_not_equal: FunctionType = helpers.is_not_equal
 
 ORCHESTRATE_TODO: dict = {}
 
@@ -769,8 +770,8 @@ class ConfigLoader:
 
         return _args
 
-loader = ConfigLoader()
 with console.status("[bold green]Parsing arguments..."):
+    loader = ConfigLoader()
     args = loader.parse_arguments()
 
 original_result_names = args.result_names

@@ -95,16 +95,25 @@
 	foreach ($_FILES as $_file) {
 		$file_name = $_file["name"];
 		$file_error = $_file["error"];
-		$file_size = strlen(file_get_contents($_file['tmp_name']));
-		$file_without_ending = pathinfo($file_name, PATHINFO_FILENAME);
 
-		if($file_size > 0) {
-			$num_offered_files++;
-			$offered_files[$file_without_ending] = array(
-				"file" => $_file["tmp_name"] ?? null,
-				"filename" => $file_name,
-				"file_size" => $file_size
-			);
+		$tmp_name = $_file['tmp_name'];
+
+		if($tmp_name && file_error($tmp_name)) {
+			$contents = file_get_contents($tmp_name);
+
+			if($contents) {
+				$file_size = strlen($contents);
+				$file_without_ending = pathinfo($file_name, PATHINFO_FILENAME);
+
+				if($file_size > 0) {
+					$num_offered_files++;
+					$offered_files[$file_without_ending] = array(
+						"file" => $_file["tmp_name"] ?? null,
+						"filename" => $file_name,
+						"file_size" => $file_size
+					);
+				}
+			}
 		}
 	}
 

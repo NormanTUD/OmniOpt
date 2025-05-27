@@ -8268,9 +8268,6 @@ def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
         return obj.tolist()
     raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
 
-import numpy as np
-from beartype import beartype
-
 @beartype
 def pareto_front_general(
     x: np.ndarray,

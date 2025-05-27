@@ -125,9 +125,6 @@ try:
     with console.status("[bold green]Importing ast..."):
         import ast
 
-    with console.status("[bold green]Importing rich.progress..."):
-        from rich.progress import Progress, TimeRemainingColumn
-
     with console.status("[bold green]Importing rich.table..."):
         from rich.table import Table
 
@@ -8284,7 +8281,7 @@ def pareto_front_general(
     try:
         if x.shape != y.shape:
             raise ValueError("Input arrays x and y must have the same shape.")
-        
+
         num_points = len(x)
         is_dominated = np.zeros(num_points, dtype=bool)
 

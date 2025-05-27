@@ -922,6 +922,10 @@ async function load_pareto_graph() {
 			let cleanXMetric = xMetric.replace(/.* -> /g, "");
 			let cleanYMetric = yMetric.replace(/.* -> /g, "");
 
+			if(cleanXMetric == "idxs" || cleanYMetric == "idxs") {
+				continue;
+			}
+
 			let plot_key = `${cleanXMetric}-${cleanYMetric}`;
 
 			if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length && !already_plotted.includes(plot_key)) {

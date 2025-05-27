@@ -8693,10 +8693,10 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         if metric_i not in pareto_front_data:
             pareto_front_data[metric_i] = {}
 
-        cf = calculated_frontier[metric_i][metric_j]
+        this_calculated_frontier = calculated_frontier[metric_i][metric_j]
 
-        _param_dicts = cf["param_dicts"]
-        _means = cf["means"]
+        _param_dicts = this_calculated_frontier["param_dicts"]
+        _means = this_calculated_frontier["means"]
 
         pareto_front_data[metric_i][metric_j] = {
             "param_dicts": _param_dicts,

@@ -8182,8 +8182,8 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
     return param_dicts, means, metrics
 
 @beartype
-def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_i: str, metric_j: str) -> Table:
-    table = Table(title=f"Pareto-Front for {metric_j}/{metric_i}:", show_lines=True)
+def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_x: str, metric_y: str) -> Table:
+    table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
     headers = list(param_dicts[0].keys()) + [" "] + metrics
     for header in headers:
@@ -8208,14 +8208,14 @@ def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, met
     return table
 
 @beartype
-def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_i: str, metric_j: str) -> Optional[Table]:
+def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_x: str, metric_y: str) -> Optional[Table]:
     if not os.path.exists(RESULT_CSV_FILE):
         print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
         return None
 
     all_columns, rows = get_csv_data(RESULT_CSV_FILE)
     param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
-    return create_pareto_front_table(param_dicts, means, metrics, metric_i, metric_j)
+    return create_pareto_front_table(param_dicts, means, metrics, metric_x, metric_y)
 
 @beartype
 def supports_sixel() -> bool:
@@ -8534,7 +8534,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_min_or_max = _found_result_min_max
 
 @beartype
-def get_calculated_frontier(path_to_calculate: str, metric_i: str, metric_j: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
+def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str, x_minimize: bool, y_minimize: bool, res_names: list, force: bool) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
         os.makedirs(state_dir, exist_ok=True)
@@ -8545,8 +8545,8 @@ def get_calculated_frontier(path_to_calculate: str, metric_i: str, metric_j: str
 
         frontier = get_pareto_frontier_points(
             path_to_calculate=path_to_calculate,
-            primary_objective=metric_i,
-            secondary_objective=metric_j,
+            primary_objective=metric_x,
+            secondary_objective=metric_y,
             x_minimize=x_minimize,
             y_minimize=y_minimize,
             absolute_metrics=res_names,
@@ -8644,39 +8644,39 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
 
     for i, j in all_combinations:
         if not skip:
-            metric_i = arg_result_names[i]
-            metric_j = arg_result_names[j]
+            metric_x = arg_result_names[i]
+            metric_y = arg_result_names[j]
 
-            x_minimize = get_result_minimize_flag(path_to_calculate, metric_i)
-            y_minimize = get_result_minimize_flag(path_to_calculate, metric_j)
+            x_minimize = get_result_minimize_flag(path_to_calculate, metric_x)
+            y_minimize = get_result_minimize_flag(path_to_calculate, metric_y)
 
             try:
-                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_i, metric_j, x_minimize, y_minimize, res_names, force)
+                calculated_frontier = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names, force)
 
                 if calculated_frontier is not None:
-                    collected_data.append((metric_i, metric_j, calculated_frontier))
+                    collected_data.append((metric_x, metric_y, calculated_frontier))
             except ax.exceptions.core.DataRequiredError as e:
-                print_red(f"Error computing Pareto frontier for {metric_i} and {metric_j}: {e}")
+                print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
             except SignalINT:
                 print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
                 skip = True
 
-    for metric_i, metric_j, calculated_frontier in collected_data:
+    for metric_x, metric_y, calculated_frontier in collected_data:
         hide_pareto = os.environ.get('HIDE_PARETO_FRONT_TABLE_DATA')
         if hide_pareto is None:
-            plot_pareto_frontier_sixel(calculated_frontier, metric_i, metric_j)
+            plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
         else:
             print(f"Not showing pareto-front-sixel for {path_to_calculate}")
 
-        if metric_i not in pareto_front_data:
-            pareto_front_data[metric_i] = {}
+        if metric_x not in pareto_front_data:
+            pareto_front_data[metric_x] = {}
 
-        this_calculated_frontier = calculated_frontier[metric_i][metric_j]
+        this_calculated_frontier = calculated_frontier[metric_x][metric_y]
 
         _param_dicts = this_calculated_frontier["param_dicts"]
         _means = this_calculated_frontier["means"]
 
-        pareto_front_data[metric_i][metric_j] = {
+        pareto_front_data[metric_x][metric_y] = {
             "param_dicts": _param_dicts,
             "means": _means,
             "absolute_metrics": arg_result_names
@@ -8686,8 +8686,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, force: bo
         rich_table = pareto_front_as_rich_table(
             _param_dicts,
             arg_result_names,
-            metric_j,
-            metric_i
+            metric_y,
+            metric_x
         )
 
         if rich_table is not None:

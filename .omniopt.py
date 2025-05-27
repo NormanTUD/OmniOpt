@@ -128,6 +128,9 @@ try:
     with console.status("[bold green]Importing rich.table..."):
         from rich.table import Table
 
+    with console.status("[bold green]Importing rich.text..."):
+        from rich.text import Text
+
     with console.status("[bold green]Importing rich print..."):
         from rich import print
 
@@ -8191,27 +8194,47 @@ def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> 
 
     with open(RESULT_CSV_FILE, newline="") as f:
         reader = list(csv.DictReader(f))
-    
-    # Wenn Datei leer oder keine passenden Zeilen vorhanden
+
     if not reader:
         table.add_column("No data found")
         return table
 
-    # Header aus erster Zeile ermitteln
-    headers = list(reader[0].keys())
-    for header in headers:
-        table.add_column(header, justify="center")
-
-    # Nur Zeilen mit passendem trial_index anzeigen
+    # Zeilen filtern: nur COMPLETED + trial_index in idxs
+    filtered_rows = []
     for row in reader:
         try:
             trial_index = int(row["trial_index"])
         except (KeyError, ValueError):
             continue
 
-        if trial_index in idxs:
-            table_row = [row[h] for h in headers]
-            table.add_row(*table_row, style="bold green")
+        if row.get("trial_status", "").strip().upper() == "COMPLETED" and trial_index in idxs:
+            filtered_rows.append(row)
+
+    if not filtered_rows:
+        table.add_column("No matching entries")
+        return table
+
+    # Spalten aufteilen: normale Parameter + Resultate
+    all_columns = list(filtered_rows[0].keys())
+
+    # trial_index soll angezeigt werden, auch wenn in special_col_names
+    ignored_cols = set(special_col_names) - {"trial_index"}
+
+    param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names]
+    result_cols = [col for col in arg_result_names if col in all_columns]
+
+    # Tabellenkopf
+    for col in param_cols:
+        table.add_column(col, justify="center")
+
+    for col in result_cols:
+        table.add_column(Text(f"{col}", style="cyan"), justify="center")
+
+    # Datenzeilen
+    for row in filtered_rows:
+        values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
+        result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]
+        table.add_row(*values, *result_values, style="bold green")
 
     return table
 

@@ -71,93 +71,159 @@ try:
         width=max(200, terminal_width)
     )
 
-    with console.status("[bold green]Loading base modules...") as status:
+    with console.status("[bold green]Importing logging..."):
         import logging
         logging.basicConfig(level=logging.CRITICAL)
 
+    with console.status("[bold green]Importing warnings..."):
         import warnings
-
         warnings.filterwarnings(
             "ignore",
             category=FutureWarning,
             module="ax.modelbridge.best_model_selector"
         )
 
+    with console.status("[bold green]Importing argparse..."):
         import argparse
+
+    with console.status("[bold green]Importing datetime..."):
         import datetime
 
+    with console.status("[bold green]Importing ax random seed..."):
         from ax.utils.common.random import set_rng_seed
 
+    with console.status("[bold green]Importing dataclass..."):
         from dataclasses import dataclass
 
+    with console.status("[bold green]Importing hashlib..."):
         import hashlib
 
+    with console.status("[bold green]Importing socket..."):
         import socket
+
+    with console.status("[bold green]Importing stat..."):
         import stat
+
+    with console.status("[bold green]Importing pwd..."):
         import pwd
+
+    with console.status("[bold green]Importing signal..."):
         import signal
+
+    with console.status("[bold green]Importing base64..."):
         import base64
 
+    with console.status("[bold green]Importing json..."):
         import json
+
+    with console.status("[bold green]Importing yaml..."):
         import yaml
+
+    with console.status("[bold green]Importing toml..."):
         import toml
+
+    with console.status("[bold green]Importing csv..."):
         import csv
 
+    with console.status("[bold green]Importing ast..."):
         import ast
 
+    with console.status("[bold green]Importing rich.progress..."):
         from rich.progress import Progress, TimeRemainingColumn
+
+    with console.status("[bold green]Importing rich.table..."):
         from rich.table import Table
+
+    with console.status("[bold green]Importing rich print..."):
         from rich import print
+
+    with console.status("[bold green]Importing rich.pretty..."):
         from rich.pretty import pprint
 
+    with console.status("[bold green]Importing fcntl..."):
         import fcntl
 
+    with console.status("[bold green]Importing types.FunctionType..."):
         from types import FunctionType
+
+    with console.status("[bold green]Importing typing..."):
         from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type, Sequence
 
+    with console.status("[bold green]Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
+    with console.status("[bold green]Importing submitit.LocalExecutor..."):
         from submitit import LocalExecutor, AutoExecutor
+
+    with console.status("[bold green]Importing submitit.Job..."):
         from submitit import Job
 
+    with console.status("[bold green]Importing importlib.util..."):
         import importlib.util
+
+    with console.status("[bold green]Importing inspect..."):
         import inspect
+
+    with console.status("[bold green]Importing platform..."):
         import platform
 
+    with console.status("[bold green]Importing inspect frame info..."):
         from inspect import currentframe, getframeinfo
+
+    with console.status("[bold green]Importing pathlib.Path..."):
         from pathlib import Path
 
+    with console.status("[bold green]Importing uuid..."):
         import uuid
 
+    with console.status("[bold green]Importing traceback..."):
         import traceback
 
+    with console.status("[bold green]Importing cowsay..."):
         import cowsay
 
+    with console.status("[bold green]Importing psutil..."):
         import psutil
+
+    with console.status("[bold green]Importing shutil..."):
         import shutil
 
+    with console.status("[bold green]Importing itertools.combinations..."):
         from itertools import combinations
 
+    with console.status("[bold green]Importing pandas..."):
         import pandas as pd
 
+    with console.status("[bold green]Importing os.listdir..."):
         from os import listdir
+
+    with console.status("[bold green]Importing os.path..."):
         from os.path import isfile, join
 
+    with console.status("[bold green]Importing PIL.Image..."):
         from PIL import Image
+
+    with console.status("[bold green]Importing sixel..."):
         import sixel
 
+    with console.status("[bold green]Importing subprocess..."):
         import subprocess
 
+    with console.status("[bold green]Importing tqdm..."):
         from tqdm import tqdm
 
+    with console.status("[bold green]Importing beartype..."):
         from beartype import beartype
 
+    with console.status("[bold green]Importing statistics..."):
         from statistics import mean, median
-    try:
-        from pyfiglet import Figlet
-        figlet_loaded = True
-    except ModuleNotFoundError:
-        figlet_loaded = False
+
+    with console.status("[bold green]Trying to import pyfiglet..."):
+        try:
+            from pyfiglet import Figlet
+            figlet_loaded = True
+        except ModuleNotFoundError:
+            figlet_loaded = False
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 2")

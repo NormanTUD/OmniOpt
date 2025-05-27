@@ -129,14 +129,19 @@ avg
 avgRuntimeBar
 avgRuntimes
 awk
+AxClient
+axcorearm
 axcoredata
 axcoreexperiment
+axcoreMetric
 axcoreobjective
 axcoreparameter
 axesreorder
+axexceptionscore
 axisElement
 axmodelbridgeaxmodelbridgebase
 axmodelbridgebase
+axmodelbridgeregistry
 axmodelbridgetorch
 axmodelbridgetransforms
 axservice
@@ -484,6 +489,7 @@ darkmode
 darkred
 darktheme
 darwin
+dataclass
 dataclass,
 datadebug
 dataFormat
@@ -726,6 +732,7 @@ expectedsclass
 expirationDate
 Exponetial
 expt
+ExternalGenerationNode
 EXTERNAL_GENERATOR
 ExternalProgramGenerationNode
 extractCategoryFromURL
@@ -837,8 +844,10 @@ gcd
 Gebot
 generateOnesString
 generateRandomArray
+GenerationNode
 GenerationStep
 GenerationStrategy
+GeneratorSpec
 geolist
 getComputedStyle
 getDate
@@ -1288,6 +1297,7 @@ maxProb
 maxRadius
 maxShapeSize
 maxSpacing
+MaxTrials
 maxval
 maxvalue
 maxValue
@@ -1369,6 +1379,7 @@ MM
 MMULTISCRIPTS
 Mo
 modding
+modelbridge
 modeless
 modelfit
 modelTopology
@@ -1577,6 +1588,7 @@ nvidia
 nvidiasmi
 nw
 obj
+ObjectiveProperties
 Objectkeysactivationsjoin
 Objectkeystensorslength
 occ

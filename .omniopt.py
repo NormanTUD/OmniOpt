@@ -8211,8 +8211,9 @@ def pareto_front_as_rich_table(param_dicts: list, metrics: list, metric_x: str, 
         print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
         return None
 
+    #dier(param_dicts)
     all_columns, rows = get_csv_data(RESULT_CSV_FILE)
-    param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
+    _param_dicts, means, metrics = extract_parameters_and_metrics(rows, all_columns, metrics)
     return create_pareto_front_table(param_dicts, means, metrics, metric_x, metric_y)
 
 @beartype

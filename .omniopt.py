@@ -8470,6 +8470,7 @@ def get_pareto_frontier_points(
     num_points: int
 ) -> Optional[dict]:
     records = _pareto_front_aggregate_data(path_to_calculate)
+
     if records is None:
         return None
 

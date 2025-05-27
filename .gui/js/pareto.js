@@ -73,13 +73,37 @@ function getAllMetrics(data, categories) {
 
 // Extrahiert Werte aus CSV nach Indices und Spaltenname
 function extractValuesFromCSV(indices, columnName) {
-	const colIdx = tab_results_headers_json.indexOf(columnName);
-	if (colIdx === -1) return [];
+	// Finde die Spaltenindex für den gesuchten Spaltennamen
+	const trial_index_idx = tab_results_headers_json.indexOf("trial_index");
 
-	return indices
-		.map(idx => tab_results_csv_json[idx]?.[colIdx])
-		.filter(v => v !== undefined && v !== null);
+	let rowIndices = [];
+
+	for (let row_nr = 0; row_nr < tab_results_csv_json.length; row_nr++) {
+		let row = tab_results_csv_json[row_nr];
+
+		if (indices.includes(row[trial_index_idx])) {
+			rowIndices.push(row_nr);
+		}
+	}
+
+	const colIdx = tab_results_headers_json.indexOf(columnName);
+	if (colIdx === -1) {
+		// Wenn Spalte nicht gefunden wurde, gebe leeres Array zurück
+		return [];
+	}
+
+	const values = [];
+	// Durchlaufe alle Indices, die ausgewertet werden sollen
+	for (let i = 0; i < rowIndices.length; i++) {
+		const rowIdx = rowIndices[i];
+		let res = tab_results_csv_json[rowIdx][colIdx];
+		log(`columnName: ${columnName}, colIdx: ${colIdx}, rowIdx: ${rowIdx}, res = ${res}`);
+		values.push(res);
+	}
+
+	return values;
 }
+
 
 // Extrahiert Werte aus Objekt anhand von Metric-Pfad
 function extractValues(obj, metricPath) {

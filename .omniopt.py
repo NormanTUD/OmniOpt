@@ -8191,16 +8191,12 @@ def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, met
 
     for i, params in enumerate(param_dicts):
         this_table_row = [str(params[k]) for k in params.keys()]
-        k = 0
         for metric in metrics:
             try:
                 _mean = means[metric][i]
-                if k == 0:
                 this_table_row.append(f"{_mean:.3f}")
             except IndexError:
                 this_table_row.append("")
-
-            k = k + 1
 
         table.add_row(*this_table_row, style="bold green")
 

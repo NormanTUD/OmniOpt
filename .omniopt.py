@@ -8185,7 +8185,7 @@ def extract_parameters_and_metrics(rows: List, all_columns: Optional[Sequence[st
 def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
-    headers = list(param_dicts[0].keys()) + [" "] + metrics
+    headers = list(param_dicts[0].keys()) + metrics
     for header in headers:
         table.add_column(header, justify="center")
 
@@ -8196,7 +8196,6 @@ def create_pareto_front_table(param_dicts: List, means: dict, metrics: List, met
             try:
                 _mean = means[metric][i]
                 if k == 0:
-                    this_table_row.append("=")
                 this_table_row.append(f"{_mean:.3f}")
             except IndexError:
                 this_table_row.append("")

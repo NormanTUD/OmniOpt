@@ -417,6 +417,26 @@ def print_debug(msg: str) -> None:
         original_print(f"_debug: Error trying to write log file: {e}")
 
 @beartype
+def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
+    total_seconds = int(seconds)
+
+    if total_seconds < 60:
+        return ""
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    if secs or not parts:
+        parts.append(f"{secs}s")
+    return f"({''.join(parts)})"
+
+
+
+@beartype
 def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()
 
@@ -3266,24 +3286,6 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
         add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
     else:
         print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
-
-@beartype
-def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
-    total_seconds = int(seconds)
-
-    if total_seconds < 60:
-        return ""
-
-    hours, remainder = divmod(total_seconds, 3600)
-    minutes, secs = divmod(remainder, 60)
-    parts = []
-    if hours:
-        parts.append(f"{hours}h")
-    if minutes:
-        parts.append(f"{minutes}m")
-    if secs or not parts:
-        parts.append(f"{secs}s")
-    return f"({''.join(parts)})"
 
 @beartype
 def print_evaluate_times() -> None:

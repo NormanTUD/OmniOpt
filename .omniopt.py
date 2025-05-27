@@ -6180,8 +6180,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             try:
                 _finish_job_core_helper_mark_success(_trial, result)
 
-                if count_done_jobs() > 1 and _post_job_calculate_pareto_front(get_current_run_folder(), True):
-                    print_red("_post_job_calculate_pareto_front post job failed")
+                if count_done_jobs() > 1 and job_calculate_pareto_front(get_current_run_folder(), True):
+                    print_red("job_calculate_pareto_front post job failed")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
         else:
@@ -9020,7 +9020,7 @@ def post_job_calculate_pareto_front() -> None:
     for _path_to_calculate in _paths_to_calculate:
         try:
             for path_to_calculate in found_paths:
-                if _post_job_calculate_pareto_front(path_to_calculate):
+                if job_calculate_pareto_front(path_to_calculate):
                     failure = True
         except (FileNotFoundError, NotADirectoryError) as e:
             print_red(f"post_job_calculate_pareto_front: find_results_paths('{_path_to_calculate}') failed with {e}")
@@ -9033,7 +9033,7 @@ def post_job_calculate_pareto_front() -> None:
     my_exit(0)
 
 @beartype
-def _post_job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
+def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
     # Returns true if it fails
     if not path_to_calculate:
         return True

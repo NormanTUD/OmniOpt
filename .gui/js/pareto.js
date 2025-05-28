@@ -97,7 +97,7 @@ function extractValuesFromCSV(indices, columnName) {
 	for (let i = 0; i < rowIndices.length; i++) {
 		const rowIdx = rowIndices[i];
 		let res = tab_results_csv_json[rowIdx][colIdx];
-		log(`columnName: ${columnName}, colIdx: ${colIdx}, rowIdx: ${rowIdx}, res = ${res}`);
+		//log(`columnName: ${columnName}, colIdx: ${colIdx}, rowIdx: ${rowIdx}, res = ${res}`);
 		values.push(res);
 	}
 

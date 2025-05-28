@@ -198,7 +198,7 @@ $OMNIOPT_CALL \
 	--gpus=$NUM_GPUS \
 	--experiment_name=$experiment_name \
 	--mem_gb=1 \
-	--time=60 \
+	--time=120 \
 	--worker_timeout=1 \
 	--max_eval=$NUMBER_OF_EVALS \
 	--num_parallel_jobs=10 \

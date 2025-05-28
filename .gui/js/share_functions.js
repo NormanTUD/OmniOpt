@@ -1,8 +1,10 @@
 "use strict";
 
-function add_default_layout_data (layout) {
+function add_default_layout_data (layout, no_height = 0) {
 	layout["width"] = get_graph_width();
-	layout["height"] = get_graph_height();
+	if (!no_height) {
+		layout["height"] = get_graph_height();
+	}
 	layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
 	layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
 

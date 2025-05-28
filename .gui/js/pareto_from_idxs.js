@@ -53,6 +53,125 @@ function load_pareto_graph_from_idxs () {
 	var html_tables = createParetoTablesFromData(table);
 
 	$("#pareto_from_idxs_table").html(html_tables);
+
+	renderParetoFrontPlots(table);
+}
+
+function renderParetoFrontPlots(data) {
+	try {
+		let container = document.getElementById("pareto_front_idxs_plot_container");
+		if (!container) {
+			console.error("DIV with id 'pareto_front_idxs_plot_container' not found.");
+			return;
+		}
+
+		// Clear any previous content
+		container.innerHTML = "";
+
+		Object.keys(data).forEach((key, idx) => {
+			if (!key.startsWith("Pareto front for ")) return;
+
+			let label = key.replace("Pareto front for ", "");
+			let [xKey, yKey] = label.split("/");
+
+			if (!xKey || !yKey) {
+				console.warn("Could not extract two objectives from key:", key);
+				return;
+			}
+
+			let entries = data[key];
+			let x = [];
+			let y = [];
+			let hoverTexts = [];
+
+			entries.forEach((entry) => {
+				let results = entry.results || {};
+				let values = entry.values || {};
+
+				let xVal = (results[xKey] || [])[0];
+				let yVal = (results[yKey] || [])[0];
+
+				if (xVal === undefined || yVal === undefined) {
+					console.warn("Missing values for", xKey, yKey, "in", entry);
+					return;
+				}
+
+				x.push(xVal);
+				y.push(yVal);
+
+				let hoverInfo = [];
+
+				if ("trial_index" in values) {
+					hoverInfo.push(`<b>Trial Index:</b> ${values.trial_index[0]}`);
+				}
+
+				Object.keys(values)
+					.filter(k => k !== "trial_index")
+					.sort()
+					.forEach(k => {
+						hoverInfo.push(`<b>${k}:</b> ${values[k][0]}`);
+					});
+
+				Object.keys(results)
+					.filter(k => k !== xKey && k !== yKey)
+					.sort()
+					.forEach(k => {
+						hoverInfo.push(`<b>${k}:</b> ${results[k][0]}`);
+					});
+
+				hoverTexts.push(hoverInfo.join("<br>"));
+			});
+
+			// Create wrapper div for this plot
+			let wrapper = document.createElement("div");
+			wrapper.style.marginBottom = "30px";
+
+			// Title
+			let titleEl = document.createElement("h3");
+			titleEl.textContent = `Pareto Front: ${xKey} vs ${yKey}`;
+			wrapper.appendChild(titleEl);
+
+			// Plot div
+			let divId = `pareto_plot_${idx}`;
+			let plotDiv = document.createElement("div");
+			plotDiv.id = divId;
+			plotDiv.style.width = "100%";
+			plotDiv.style.height = "400px";
+
+			wrapper.appendChild(plotDiv);
+			container.appendChild(wrapper);
+
+			let trace = {
+				x: x,
+				y: y,
+				text: hoverTexts,
+				hoverinfo: "text",
+				mode: "markers",
+				type: "scatter",
+				marker: {
+					size: 8,
+					color: 'rgb(31, 119, 180)',
+					line: {
+						width: 1,
+						color: 'black'
+					}
+				},
+				name: label
+			};
+
+			let layout = {
+				xaxis: { title: { text: xKey } },
+				yaxis: { title: { text: yKey } },
+				margin: { t: 10, l: 60, r: 20, b: 50 },
+				hovermode: "closest",
+				showlegend: false
+			};
+
+			Plotly.newPlot(divId, [trace], add_default_layout_data(layout, 1));
+		});
+	} catch (e) {
+		console.error("Error while rendering Pareto front plots:", e);
+	}
 }
 
 function createParetoTablesFromData(data) {

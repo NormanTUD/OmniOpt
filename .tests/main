@@ -110,12 +110,15 @@ function help () {
         echo "  --no_linkchecker                                   Disable link checker"
         echo "  --no_linter                                        Disable linter"
         echo "  --skip_test_job_nr                                 Skip testing for proper job nrs"
+	echo "  --skip_first_n_tests=<NR>                          Skip the first n tests"
         echo "  --skip_worker_check                                Skip worker checks"
         echo "  --no_plots                                         Disables plot tests"
         exit $1
 }
 
 skip_worker_check=0
+test_counter=0
+skip_first_n_tests=""
 skip_test_job_nr=0
 NUM_GPUS=0
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
@@ -208,6 +211,25 @@ while [ $k -lt ${#args[@]} ]; do
 			max_eval="${args[k]}"
 			if ! [[ $max_eval =~ $int_re ]] ; then
 				red_text "error: --max_eval not a INT: $i\n" >&2
+				exit 100
+			fi
+			;;
+
+		--skip_first_n_tests=*)
+			skip_first_n_tests="${i#*=}"
+			if ! [[ $skip_first_n_tests =~ $int_re ]] ; then
+				red_text "error: --skip_first_n_tests not a INT: $i\n" >&2
+				exit 100
+			fi
+			;;
+
+		--skip_first_n_tests)
+			shift
+			k=$((k+1))
+
+			skip_first_n_tests="${args[k]}"
+			if ! [[ $skip_first_n_tests =~ $int_re ]] ; then
+				red_text "error: --skip_first_n_tests not a INT: $i\n" >&2
 				exit 100
 			fi
 			;;
@@ -410,6 +432,16 @@ function run_tests {
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"
 function _test_internal {
+	if [[ "$skip_first_n_tests" != "" ]]; then
+		if [[ $test_counter -lt $skip_first_n_tests ]]; then
+			yellow_text "Skipping test $test_counter, will start at $skip_first_n_tests"
+
+			test_counter=$(($test_counter+1))
+
+			return 0
+		fi
+	fi
+
 	if [[ -d None ]]; then
 		echo "None folder exists before (!!!) test $name -> $command"
 		exit 1
@@ -822,11 +854,11 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Testing real MOO with alternating results with one_param" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once" 0 87
 
-		_test "Testing continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/0 --generate_all_jobs_at_once --mem_gb=4" 0 87
+		_test "Testing continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/0 --generate_all_jobs_at_once --mem_gb=4 --follow" 0 87
 
-		_test "Testing continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --generate_all_jobs_at_once --mem_gb=4" 0 87
+		_test "Testing continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --generate_all_jobs_at_once --mem_gb=4 --follow" 0 87
 
-		_test "Testing continued continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --mem_gb=4" 0 87
+		_test "Testing continued continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --mem_gb=4 --follow" 0 87
 
 		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4" 0 87
 

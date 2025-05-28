@@ -313,8 +313,6 @@ function get_pareto_table_data_from_idx () {
 		for (var j = 0; j < y_keys.length; j++) {
 			var y_key = y_keys[j];
 
-			log(`x_key: ${x_key}, y_key: ${y_key}`);
-
 			var indices = pareto_idxs[x_key][y_key];
 
 			for (var k = 0; k < indices.length; k++) {

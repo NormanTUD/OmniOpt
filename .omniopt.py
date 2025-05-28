@@ -8694,7 +8694,12 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
     if pareto_front_data.keys():
         rename_pareto_file_with_old_cleanup()
 
+    pareto_points = {}
+
     for metric_x in pareto_front_data.keys():
+        if metric_x not in pareto_points:
+            pareto_points[metric_x] = {}
+
         for metric_y in pareto_front_data[metric_x].keys():
             calculated_frontier = pareto_front_data[metric_x][metric_y]
 
@@ -8712,6 +8717,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 "absolute_metrics": arg_result_names,
                 "idxs": calculated_frontier[metric_x][metric_y]["idxs"]
             }
+
+            pareto_points[metric_x][metric_y] = calculated_frontier[metric_x][metric_y]["idxs"]
 
             rich_table = pareto_front_as_rich_table(
                 calculated_frontier[metric_x][metric_y]["idxs"],
@@ -8733,6 +8740,9 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
         json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
+
+    with open(f"{get_current_run_folder()}/pareto_idxs.json", mode="w", encoding="utf-8") as pareto_idxs_json_handle:
+        json.dump(pareto_points, pareto_idxs_json_handle, default=convert_to_serializable)
 
     live_share_after_pareto()
 

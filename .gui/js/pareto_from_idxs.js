@@ -113,7 +113,6 @@ function renderParetoFrontPlots(data) {
 					});
 
 				Object.keys(results)
-					.filter(k => k !== xKey && k !== yKey)
 					.sort()
 					.forEach(k => {
 						hoverInfo.push(`<b>${k}:</b> ${results[k][0]}`);

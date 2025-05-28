@@ -8076,7 +8076,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
                     die_orchestrator_exit_code_206(_test)
 
                 valid_keys: list = ['name', 'match_strings', 'behavior']
-                valid_behaviours: list = ["ExcludeNodeAndRestartAll", "RestartOnDifferentNode", "ExcludeNode", "Restart"]
+                valid_behaviours: list = ["RestartOnDifferentNode", "ExcludeNode", "Restart"]
 
                 for x in data["errors"]:
                     expected_types = {
@@ -9757,7 +9757,7 @@ Exit-Code: 159
 
     if os.path.exists(orchestrator_yaml):
         _is: str = json.dumps(parse_orchestrator_file(orchestrator_yaml, True))
-        should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}, {"name": "StorageError", "match_strings": ["Read/Write failure"], "behavior": "ExcludeNodeAndRestartAll"}]}'
+        should_be: str = '{"errors": [{"name": "GPUDisconnected", "match_strings": ["AssertionError: ``AmpOptimizerWrapper`` is only available"], "behavior": "ExcludeNode"}, {"name": "Timeout", "match_strings": ["Timeout"], "behavior": "RestartOnDifferentNode"}]}'
         nr_errors += is_equal(f"parse_orchestrator_file({orchestrator_yaml})", should_be, _is)
     else:
         nr_errors += is_equal(".tests/example_orchestrator_config.yaml exists", True, False)

@@ -9058,6 +9058,8 @@ def post_job_calculate_pareto_front() -> None:
 
 @beartype
 def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
+    pf_start_time = time.time()
+
     # Returns true if it fails
     if not path_to_calculate:
         return True
@@ -9125,6 +9127,10 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
         return True
 
     show_pareto_or_error_msg(path_to_calculate, res_names, disable_sixel_and_table)
+
+    pf_end_time = time.time()
+
+    print_debug(f"Calculating the pareto-front took {pf_end_time - pf_start_time} seconds")
 
     return False
 

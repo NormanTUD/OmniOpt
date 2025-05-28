@@ -64,8 +64,11 @@ node "HPC Master Node" as HPCMaster {
     component "SAASBO\n..." as saasbo #99FF99
 
     botorch -down-> modular
+    modular -> botorch
     botorch -down-> gpei
+    gpei -> botorch
     botorch -down-> saasbo
+    saasbo -> botorch
   }
 
   component "ExternalGenerationNodes" as external_nodes

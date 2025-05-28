@@ -79,7 +79,6 @@ function renderHeatmapCorrelations(data) {
 		}
 		container.innerHTML = "";
 
-		// Alle Einträge aus allen Fronten zusammenfassen
 		let allEntries = [];
 		Object.values(data).forEach(frontArray => {
 			frontArray.forEach(entry => allEntries.push(entry));
@@ -89,19 +88,16 @@ function renderHeatmapCorrelations(data) {
 			return;
 		}
 
-		// Sammle alle Dimensionen (Param + Ergebnis) numerisch
 		let dimNamesSet = new Set();
 		allEntries.forEach(entry => {
 			Object.keys(entry.values).forEach(k => dimNamesSet.add(k));
 			Object.keys(entry.results).forEach(k => dimNamesSet.add(k));
 		});
 
-		// trial_index rausfiltern
 		dimNamesSet.delete("trial_index");
 
 		let dimNames = Array.from(dimNamesSet);
 
-		// Erzeuge eine Matrix der Werte (Spalten = dimNames, Zeilen = Einträge)
 		let matrix = [];
 		for (let i = 0; i < allEntries.length; i++) {
 			let row = [];
@@ -113,7 +109,6 @@ function renderHeatmapCorrelations(data) {
 				} else if (dim in entry.results) {
 					val = entry.results[dim][0];
 				}
-				// numerisch?
 				let numVal = (typeof val === "number") ? val : parseFloat(val);
 				if (isNaN(numVal)) numVal = null;
 				row.push(numVal);
@@ -121,7 +116,6 @@ function renderHeatmapCorrelations(data) {
 			matrix.push(row);
 		}
 
-		// Funktion zur Korrelation zweier Arrays (Pearson)
 		function pearson(x, y) {
 			let n = x.length;
 			let sumX = 0, sumY = 0, sumX2 = 0, sumY2 = 0, sumXY = 0, count = 0;
@@ -141,19 +135,16 @@ function renderHeatmapCorrelations(data) {
 			return numerator / denominator;
 		}
 
-		// Korrelationen berechnen
 		let corrMatrix = [];
 		for (let i = 0; i < dimNames.length; i++) {
 			corrMatrix[i] = [];
 			for (let j = 0; j < dimNames.length; j++) {
-				// Spalten i und j extrahieren
 				let colI = matrix.map(row => row[i]);
 				let colJ = matrix.map(row => row[j]);
 				corrMatrix[i][j] = pearson(colI, colJ);
 			}
 		}
 
-		// Heatmap Plot mit Plotly
 		let trace = {
 			z: corrMatrix,
 			x: dimNames,

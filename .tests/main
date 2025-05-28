@@ -846,7 +846,7 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Test stuff that goes wrong without successes" "bash .tests/wronggoing_stuff --nosuccess --num_random_steps=$num_random_steps --gpus=$NUM_GPUS" 89
 
-		_test "Testing real MOO" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once" 0 87
+		_test "Testing real MOO" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once --follow" 0 87
 
 		if [[ -d runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/ ]]; then
 			rm -rf runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/

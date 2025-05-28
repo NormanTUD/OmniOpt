@@ -73,6 +73,12 @@ function renderParetoFrontPlots(data) {
 
 		container.innerHTML = "";
 
+		if(data === undefined || data === null) {
+			var err_msg = "There was an error getting the data for Pareto-Fronts. See the developer's console to see further details.";
+			$("#pareto_from_idxs_table").html(`<div class="caveat alarm">${err_msg}</div>`);
+			return;
+		}
+
 		Object.keys(data).forEach((key, idx) => {
 			if (!key.startsWith("Pareto front for ")) return;
 

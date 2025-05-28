@@ -8639,29 +8639,9 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     return minmax[index] == "min"
 
 @beartype
-def rename_pareto_file_with_old_cleanup():
-    folder = get_current_run_folder()
-    original_file = os.path.join(folder, "pareto_front_table.txt")
-    old_file = original_file + "_OLD"
-
-    try:
-        # Delete the old backup file if it exists
-        if os.path.exists(old_file):
-            os.remove(old_file)
-
-        # Rename the original file to the backup name if it exists
-        if os.path.exists(original_file):
-            os.rename(original_file, old_file)
-    except Exception as e:
-        print_debug(f"Error while processing file: {e}")
-
-@beartype
-def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
-    if len(res_names) <= 1:
-        print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
-        return
-
+def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
     pareto_front_data: dict = {}
+
     all_combinations = list(combinations(range(len(arg_result_names)), 2))
 
     skip = False
@@ -8685,8 +8665,15 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
                 skip = True
 
-    if pareto_front_data.keys():
-        rename_pareto_file_with_old_cleanup()
+    return pareto_front_data
+
+@beartype
+def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
+    if len(res_names) <= 1:
+        print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
+        return
+
+    pareto_front_data: dict = get_pareto_front_data(path_to_calculate, res_names)
 
     pareto_points = {}
 
@@ -8704,13 +8691,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
                 else:
                     print(f"Not showing pareto-front-sixel for {path_to_calculate}")
-
-            pareto_front_data[metric_x][metric_y] = {
-                "param_dicts": calculated_frontier[metric_x][metric_y]["param_dicts"],
-                "means": calculated_frontier[metric_x][metric_y]["means"],
-                "absolute_metrics": arg_result_names,
-                "idxs": calculated_frontier[metric_x][metric_y]["idxs"]
-            }
 
             if len(calculated_frontier[metric_x][metric_y]["idxs"]):
                 pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
@@ -8732,9 +8712,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     with console.capture() as capture:
                         console.print(rich_table)
                     text_file.write(capture.get())
-
-    with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
-        json.dump(pareto_front_data, pareto_front_json_handle)
 
     with open(f"{get_current_run_folder()}/pareto_idxs.json", mode="w", encoding="utf-8") as pareto_idxs_json_handle:
         json.dump(pareto_points, pareto_idxs_json_handle)

@@ -1878,7 +1878,7 @@
 
 			$GLOBALS["json_data"]["pareto_idxs"] = json_decode(json_encode(json_decode($pareto_idxs_json_content)), true);
 
-			$pareto_front_html = "<div id='pareto_front_idxs_container'></div>\n";
+			$pareto_front_html = "<div id='pareto_front_idxs_container'></div><div id='pareto_from_idxs_table'></div>\n";
 
 			$svg_icon = get_icon_html("plot.svg");
 

@@ -50,7 +50,122 @@ function load_pareto_graph_from_idxs () {
 
 	var table = get_pareto_table_data_from_idx();
 
-	console.log(table);
+	var html_tables = createParetoTablesFromData(table);
+
+	$("#pareto_from_idxs_table").html(html_tables);
+}
+
+function createParetoTablesFromData(data) {
+	try {
+		var container = document.createElement("div");
+
+		var parsedData;
+		try {
+			parsedData = typeof data === "string" ? JSON.parse(data) : data;
+		} catch (e) {
+			console.error("JSON parsing failed:", e);
+			return container;
+		}
+
+		for (var sectionTitle in parsedData) {
+			if (!parsedData.hasOwnProperty(sectionTitle)) {
+				continue;
+			}
+
+			var sectionData = parsedData[sectionTitle];
+			var heading = document.createElement("h2");
+			heading.textContent = sectionTitle;
+			container.appendChild(heading);
+
+			var table = document.createElement("table");
+			table.style.borderCollapse = "collapse";
+			table.style.marginBottom = "2em";
+			table.style.width = "100%";
+
+			var thead = document.createElement("thead");
+			var headerRow = document.createElement("tr");
+
+			// First collect all value and result keys
+			var allValueKeys = new Set();
+			var allResultKeys = new Set();
+
+			sectionData.forEach(entry => {
+				var values = entry.values || {};
+				var results = entry.results || {};
+
+				Object.keys(values).forEach(key => {
+					allValueKeys.add(key);
+				});
+
+				Object.keys(results).forEach(key => {
+					allResultKeys.add(key);
+				});
+			});
+
+			// Convert sets to arrays and sort
+			var sortedValueKeys = Array.from(allValueKeys).sort();
+			var sortedResultKeys = Array.from(allResultKeys).sort();
+
+			// Move trial_index to the front if present
+			if (sortedValueKeys.includes("trial_index")) {
+				sortedValueKeys = sortedValueKeys.filter(k => k !== "trial_index");
+				sortedValueKeys.unshift("trial_index");
+			}
+
+			var allColumns = [...sortedValueKeys, ...sortedResultKeys];
+
+			allColumns.forEach(col => {
+				var th = document.createElement("th");
+				th.textContent = col;
+				th.style.border = "1px solid black";
+				th.style.padding = "4px";
+				headerRow.appendChild(th);
+			});
+
+			thead.appendChild(headerRow);
+			table.appendChild(thead);
+
+			var tbody = document.createElement("tbody");
+
+			sectionData.forEach(entry => {
+				var tr = document.createElement("tr");
+
+				allColumns.forEach(col => {
+					var td = document.createElement("td");
+					td.style.border = "1px solid black";
+					td.style.padding = "4px";
+
+					var value = null;
+
+					if (col in entry.values) {
+						value = entry.values[col];
+					} else if (col in entry.results) {
+						value = entry.results[col];
+					}
+
+					if (Array.isArray(value)) {
+						td.textContent = value.join(", ");
+					} else {
+						td.textContent = value !== null && value !== undefined ? value : "";
+					}
+
+					tr.appendChild(td);
+				});
+
+				tbody.appendChild(tr);
+			});
+
+			table.appendChild(tbody);
+			container.appendChild(table);
+		}
+
+		return container;
+	} catch (err) {
+		console.error("Unexpected error:", err);
+		var errorDiv = document.createElement("div");
+		errorDiv.textContent = "Error generating tables.";
+		return errorDiv;
+	}
 }
 
 function get_pareto_table_data_from_idx () {

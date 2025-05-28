@@ -33,7 +33,7 @@
 
   skinparam componentBackgroundColor #e0e0e0
   skinparam nodeBackgroundColor #FFB84D
-  skinparam databaseBackgroundColor #003166
+  skinparam databaseBackgroundColor #FFEB3B
   skinparam packageBackgroundColor #e0e0e0
   skinparam cloudBackgroundColor #e0e0e0
 

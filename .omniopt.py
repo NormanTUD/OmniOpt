@@ -2305,7 +2305,7 @@ def check_slurm_job_id() -> None:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
         if slurm_job_id is not None and not slurm_job_id.isdigit():
             print_red("Not a valid SLURM_JOB_ID.")
-        elif slurm_job_id is None:
+        elif slurm_job_id is None and len(args.calculate_pareto_front_of_job) == 0:
             print_red(
                 "You are on a system that has SLURM available, but you are not running the main-script in a SLURM-Environment. "
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."

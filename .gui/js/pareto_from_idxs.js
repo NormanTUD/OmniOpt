@@ -245,7 +245,7 @@ function renderParetoFrontPlots(data) {
 			wrapper.style.marginBottom = "30px";
 
 			let titleEl = document.createElement("h3");
-			titleEl.textContent = `Pareto Front: ${xKey} vs ${yKey}`;
+			titleEl.textContent = `Pareto Front: ${xKey} (${getMinMaxByResultName(xKey)}) vs ${yKey} (${getMinMaxByResultName(yKey)})`;
 			wrapper.appendChild(titleEl);
 
 			let divId = `pareto_plot_${idx}`;
@@ -478,4 +478,45 @@ function get_pareto_table_data_from_idx () {
 	}
 
 	return tables;
+}
+
+function getMinMaxByResultName(resultName) {
+	try {
+		if (typeof resultName !== "string") {
+			error("Parameter resultName must be a string");
+			return;
+		}
+
+		if (!Array.isArray(result_names)) {
+			error("Global variable result_names is not an array or undefined");
+			return;
+		}
+		if (!Array.isArray(result_min_max)) {
+			error("Global variable result_min_max is not an array or undefined");
+			return;
+		}
+
+		if (result_names.length !== result_min_max.length) {
+			error("Global arrays result_names and result_min_max must have the same length");
+			return;
+		}
+
+		var index = result_names.indexOf(resultName);
+		if (index === -1) {
+			error("Result name '" + resultName + "' not found in result_names");
+			return;
+		}
+
+		var minMaxValue = result_min_max[index];
+
+		if (minMaxValue !== "min" && minMaxValue !== "max") {
+			error("Value for result name '" + resultName + "' is invalid: expected 'min' or 'max'");
+			return;
+		}
+
+		return minMaxValue;
+
+	} catch (e) {
+		error("Unexpected error: " + e.message);
+	}
 }

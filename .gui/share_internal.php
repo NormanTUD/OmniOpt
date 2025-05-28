@@ -50,6 +50,7 @@
 		"oo_errors.txt",
 		"evaluation_errors.log",
 		"continue_from_run_uuid",
+		"pareto_idxs.json",
 		"outfile",
 		"log",
 		"install_errors",

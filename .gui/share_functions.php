@@ -1902,7 +1902,7 @@
 			$GLOBALS["json_data"]["pareto_front_data"] = json_decode($pareto_json_content);
 
 			if($pareto_front_html) {
-				$pareto_front_html = "<div class='caveat warning'>The old algorithm for calculating the pareto-front was buggy. Please re-calculate them, see <a href='tutorials?tutorial=moo#how-to-calculate-pareto-fronts-in-cancelled-jobs'>on how to do just that</a>.</div><div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
+				$pareto_front_html = "<div class='caveat warning'>The old algorithm for calculating the pareto-front was buggy. Please re-calculate them using <tt>bash omniopt --calculate_pareto_front_of_job runs/path_to_job/run_nr --live_share</tt>.</div><div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
 
 				$svg_icon = get_icon_html("plot.svg");
 

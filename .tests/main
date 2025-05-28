@@ -686,7 +686,7 @@ _test "find_functions_with_missing_types" ".tests/find_functions_with_missing_ty
 _test "Find outdated parameters in Documentation" ".tests/doc_has_outdated_params" 0
 
 if command -v sbatch 2>/dev/null >/dev/null; then
-	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once" 0
+	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once --follow" 0
 fi
 
 if [[ -z $CI ]]; then
@@ -742,7 +742,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "External generator with constraint" ".tests/external_generator_with_constraint" 0
 
-	_test "SEM-Test" ".tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --max_eval=2 --mem_gb=4 --generate_all_jobs_at_once --random_sem" 0
+	_test "SEM-Test" ".tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --max_eval=2 --mem_gb=4 --generate_all_jobs_at_once --random_sem --follow" 0
 
 	_test "Invalid range type (wrong type)" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x range 123 123123 123 --mem_gb=4 --gpus=$NUM_GPUS --follow" 181 104
 
@@ -803,18 +803,18 @@ if [[ $superquick -eq 0 ]]; then
 
 		#_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 9170345a89bf6d4a76c8c2c29109124d" 0
 
-		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
-		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
+		_test "Simple optimization run (with allowed failures)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --allow_failure --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once --follow" 0 87
+		_test "Simple optimization run (grid search)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --gridsearch --mem_gb=$mem_gb --generate_all_jobs_at_once --follow" 0 87
 
-		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
+		_test "Simple optimization run with 1 param" ".tests/start_simple_optimization_run --one_param --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once --follow" 0 87
 
-		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
+		_test "Simple optimization run with 2 params" ".tests/start_simple_optimization_run --two_params --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --mem_gb=$mem_gb --generate_all_jobs_at_once --follow" 0 87
 
 		_test "log scale test" "$OMNIOPT_CALL --partition=alpha --experiment_name=log_scale_test --live_share --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI= --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter x range 123 100000000 int false --parameter y range 5431 1234 float true" 0
 
 		if [[ "$quick" -eq "0" ]]; then
 			for model_name in SOBOL SAASBO BOTORCH_MODULAR UNIFORM BO_MIXED; do
-				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb --generate_all_jobs_at_once" 0 87
+				_test "Simple optimization run (model: $model_name)" ".tests/start_simple_optimization_run --max_eval=$max_eval --num_parallel_jobs=$num_parallel_jobs --num_random_steps=$num_random_steps --model=$model_name --mem_gb=$mem_gb --generate_all_jobs_at_once --follow" 0 87
 			done
 		fi
 
@@ -860,11 +860,11 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Testing continued continued continued MOO" "bash omniopt --continue runs/__main__tests__BOTORCH_MODULAR__one_param_nogridsearch_nr_results_4/1 --mem_gb=4 --follow" 0 87
 
-		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4" 0 87
+		_test "Testing real MOO with alternating results with two_params" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4 --follow" 0 87
 
-		_test "Testing real MOO with alternating results with all_float" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4" 0
+		_test "Testing real MOO with alternating results with all_float" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4 --follow" 0
 
-		_test "Testing real MOO with alternating results default" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4" 0 87
+		_test "Testing real MOO with alternating results default" "bash .tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4 --follow" 0 87
 
 		_test "Continued constraint" ".tests/continued_constraint" 0 
 

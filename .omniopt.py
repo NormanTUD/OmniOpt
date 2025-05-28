@@ -8280,12 +8280,6 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
     plt.close(fig)
 
 @beartype
-def convert_to_serializable(obj: np.ndarray) -> Union[str, list]:
-    if isinstance(obj, np.ndarray):
-        return obj.tolist()
-    raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
-
-@beartype
 def pareto_front_general(
     x: np.ndarray,
     y: np.ndarray,
@@ -8739,10 +8733,10 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     text_file.write(capture.get())
 
     with open(f"{get_current_run_folder()}/pareto_front_data.json", mode="w", encoding="utf-8") as pareto_front_json_handle:
-        json.dump(pareto_front_data, pareto_front_json_handle, default=convert_to_serializable)
+        json.dump(pareto_front_data, pareto_front_json_handle)
 
     with open(f"{get_current_run_folder()}/pareto_idxs.json", mode="w", encoding="utf-8") as pareto_idxs_json_handle:
-        json.dump(pareto_points, pareto_idxs_json_handle, default=convert_to_serializable)
+        json.dump(pareto_points, pareto_idxs_json_handle)
 
     live_share_after_pareto()
 

@@ -48,6 +48,12 @@ function load_pareto_graph_from_idxs () {
 		return;
 	}
 
+	if(pareto_idxs === null) {
+		var err_msg = "pareto_idxs is null. Cannot plot or create tables from empty data. This can be caused by a defective <tt>pareto_idxs.json</tt> file. Please try reloading, or re-calculating the pareto-front and re-submitting if this problem persists.";
+		$("#pareto_from_idxs_table").html(`<div class="caveat alarm">${err_msg}</div>`);
+		return;	
+	}
+
 	var table = get_pareto_table_data_from_idx();
 
 	var html_tables = createParetoTablesFromData(table);

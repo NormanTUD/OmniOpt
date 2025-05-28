@@ -8,8 +8,3 @@ errors:
     match_strings:
       - "Timeout"
     behavior: RestartOnDifferentNode
-
-  - name: StorageError
-    match_strings:
-      - "Read/Write failure"
-    behavior: ExcludeNodeAndRestartAll

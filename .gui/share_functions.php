@@ -1871,8 +1871,24 @@
 	function add_pareto_from_from_file($tabs, $warnings, $run_dir) {
 		$pareto_front_txt_file = "$run_dir/pareto_front_table.txt";
 		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
+		$pareto_front_json_points_file = "$run_dir/pareto_idxs.json";
 
-		if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
+		if(file_exists($pareto_front_json_points_file) && filesize($pareto_front_json_points_file)) {
+			$pareto_idxs_json_content = file_get_contents($pareto_front_json_points_file);
+
+			$GLOBALS["json_data"]["pareto_idxs"] = json_decode(json_encode(json_decode($pareto_idxs_json_content)), true);
+
+			$pareto_front_html = "<div id='pareto_front_idxs_container'></div>\n";
+
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
+				'id' => 'tab_pareto_fronts',
+				'content' => $pareto_front_html,
+				'onclick' => "load_pareto_graph_from_idxs();"
+			];
+
+		} else if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
 
 			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
@@ -1897,6 +1913,12 @@
 				];
 			}
 		} else {
+			if(!file_exists($pareto_front_json_points_file)) {
+				$warnings[] = "$pareto_front_json_points_file not found";
+			} else if(!filesize($pareto_front_json_points_file)) {
+				$warnings[] = "$pareto_front_json_points_file is empty";
+			}
+
 			if(!file_exists($pareto_front_json_file)) {
 				$warnings[] = "$pareto_front_json_file not found";
 			} else if(!filesize($pareto_front_json_file)) {
@@ -2050,6 +2072,7 @@
 
 		$js_functions = file_get_contents("js/share_functions.js");
 		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto.js");
+		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto_from_idxs.js");
 
 		$js_functions = addTabsToString($js_functions, 3);
 

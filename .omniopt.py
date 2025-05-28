@@ -8712,7 +8712,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 "idxs": calculated_frontier[metric_x][metric_y]["idxs"]
             }
 
-            pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
+            if len(calculated_frontier[metric_x][metric_y]["idxs"]):
+                pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
 
             rich_table = pareto_front_as_rich_table(
                 calculated_frontier[metric_x][metric_y]["idxs"],

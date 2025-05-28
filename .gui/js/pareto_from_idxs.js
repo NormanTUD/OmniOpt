@@ -65,7 +65,6 @@ function renderParetoFrontPlots(data) {
 			return;
 		}
 
-		// Clear any previous content
 		container.innerHTML = "";
 
 		Object.keys(data).forEach((key, idx) => {
@@ -121,16 +120,13 @@ function renderParetoFrontPlots(data) {
 				hoverTexts.push(hoverInfo.join("<br>"));
 			});
 
-			// Create wrapper div for this plot
 			let wrapper = document.createElement("div");
 			wrapper.style.marginBottom = "30px";
 
-			// Title
 			let titleEl = document.createElement("h3");
 			titleEl.textContent = `Pareto Front: ${xKey} vs ${yKey}`;
 			wrapper.appendChild(titleEl);
 
-			// Plot div
 			let divId = `pareto_plot_${idx}`;
 			let plotDiv = document.createElement("div");
 			plotDiv.id = divId;
@@ -203,7 +199,6 @@ function createParetoTablesFromData(data) {
 			var thead = document.createElement("thead");
 			var headerRow = document.createElement("tr");
 
-			// First collect all value and result keys
 			var allValueKeys = new Set();
 			var allResultKeys = new Set();
 
@@ -220,11 +215,9 @@ function createParetoTablesFromData(data) {
 				});
 			});
 
-			// Convert sets to arrays and sort
 			var sortedValueKeys = Array.from(allValueKeys).sort();
 			var sortedResultKeys = Array.from(allResultKeys).sort();
 
-			// Move trial_index to the front if present
 			if (sortedValueKeys.includes("trial_index")) {
 				sortedValueKeys = sortedValueKeys.filter(k => k !== "trial_index");
 				sortedValueKeys.unshift("trial_index");

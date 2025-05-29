@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test if the seed is properly used and results are consistent and deterministic.
+
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 if [[ -z $OMNIOPT_CALL ]]; then

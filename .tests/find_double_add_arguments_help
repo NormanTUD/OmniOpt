@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find arguments added multiple times in .omniopt.py.
+
 function echoerr {
 	echo "$@" 1>&2
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Checks all links on the site.
+
 export install_tests=1
 
 function echoerr {

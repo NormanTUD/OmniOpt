@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find argparse parameter for plots that go unused.
+
 function echoerr() {
         echo "$@" 1>&2
 }

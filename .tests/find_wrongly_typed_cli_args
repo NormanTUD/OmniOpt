@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find CLI arguments that have the wrong types.
+
 function echoerr {
 	echo "$@" 1>&2
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test if any documentation page has outdated options for .omniopt.py/omniopt.
+
 function echoerr {
 	echo "$@" 1>&2
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test if random forest works properly.
+
 if [[ -d runs/randomforest ]]; then
 	rm -rf runs/randomforest
 fi

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Tests for security-related python bugs and improvement suggestions.
+
 export install_tests=1
 
 _cluster=""

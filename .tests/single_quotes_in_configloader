@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Tests if the config-loader in .omniopt.py has only single quotes, as double-quotes cause other scripts that parse it to fail.
+
 function echoerr {
 	echo "$@" 1>&2
 }

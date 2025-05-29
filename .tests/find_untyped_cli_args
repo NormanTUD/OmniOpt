@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find CLI arguments that are not typed properly for mypy and beartype.
+
 function echoerr {
 	echo "$@" 1>&2
 }

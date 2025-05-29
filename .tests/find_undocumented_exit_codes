@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Check if all used exit codes are documented.
+
 errors=0
 
 for found_exit_code in $(grep -e "exit.[0-9]" omniopt .omniopt.py | sed -e 's#.*exit.##' | sed -e 's#).*##' | sort | grep -v "^0$" | sort -nr | uniq); do

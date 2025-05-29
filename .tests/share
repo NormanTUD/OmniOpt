@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Tests the share page for PHP-syntax errors and other simple-to-test stuff.
+
 export disable_folder_creation=1
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

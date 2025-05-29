@@ -85,3 +85,39 @@
 </ul>
 
 <pre class="invert_in_dark_mode"><code class="language-bash">./.tests/main --num_random_steps=1 --max_eval=2 --reallyquick</code></pre>
+
+<h2 id="All test scripts">All test scripts</h2>
+
+<?php
+
+$directory = realpath('../.tests');
+
+foreach (new DirectoryIterator($directory) as $file) {
+	if ($file->isDot() || !$file->isFile()) continue;
+
+	$handle = fopen($file->getPathname(), 'r');
+	if ($handle === false) continue;
+
+	$firstLine = fgets($handle);
+	fclose($handle);
+
+	if (strpos($firstLine, '#!/usr/bin/env bash') === 0) {
+		print "<h3>" . basename($file->getPathname()) . "</h3>\n";
+
+		$contents = file($file->getPathname());
+		$helpTextFound = false;
+
+		foreach ($contents as $line) {
+			if (preg_match('/^#\s*HELPPAGE:\s*(.+)$/', $line, $matches)) {
+				print "<p>" . htmlspecialchars($matches[1]) . "</p>\n";
+				$helpTextFound = true;
+				break;
+			}
+		}
+
+		if (!$helpTextFound) {
+			print '<div class="caveat error">No help text could be found</div>' . "\n";
+		}
+	}
+}
+?>

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test if adding jobs from existing jobs to new jobs works
+
 if [[ -z $OMNIOPT_CALL ]]; then
 	OMNIOPT_CALL="./omniopt"
 fi

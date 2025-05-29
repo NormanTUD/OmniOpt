@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Syntax check all PHP files.
+
 export NO_WHIPTAIL=1
 
 errors=()

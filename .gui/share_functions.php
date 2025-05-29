@@ -1908,8 +1908,7 @@
 
 				$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
 					'id' => 'tab_pareto_fronts',
-					'content' => $pareto_front_html,
-					'onclick' => "load_pareto_graph();"
+					'content' => $pareto_front_html
 				];
 			}
 		} else {
@@ -2071,7 +2070,6 @@
 		$html_parts_str = addTabsToString(implode("\n", $html_parts), 3);
 
 		$js_functions = file_get_contents("js/share_functions.js");
-		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto.js");
 		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto_from_idxs.js");
 
 		$js_functions = addTabsToString($js_functions, 3);

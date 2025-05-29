@@ -240,7 +240,7 @@ with console.status("[bold green]Importing rich_argparse...") as status:
     try:
         from rich_argparse import RichHelpFormatter
     except ModuleNotFoundError:
-        RichHelpFormatter = argparse.HelpFormatter  # type: ignore
+        RichHelpFormatter = argparse.HelpFormatter
 
 @beartype
 def makedirs(p: str) -> bool:
@@ -1879,7 +1879,6 @@ def get_line_info() -> Any:
 
         frame_info = stack[1]
 
-        # fallbacks bei Problemen mit Encoding oder Zugriffsfehlern
         try:
             filename = str(frame_info.filename)
         except Exception as e:
@@ -1900,7 +1899,6 @@ def get_line_info() -> Any:
         return (filename, ":", lineno, ":", function)
 
     except Exception as e:
-        # finaler Fallback, wenn gar nichts geht
         return ("<exception in get_line_info>", ":", -1, ":", str(e))
 
 @beartype
@@ -6186,7 +6184,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             try:
                 _finish_job_core_helper_mark_success(_trial, result)
 
-                if len(arg_result_names) > 1 and count_done_jobs() > 1 and job_calculate_pareto_front(get_current_run_folder(), True):
+                if len(arg_result_names) > 1 and count_done_jobs() > 1 and not job_calculate_pareto_front(get_current_run_folder(), True):
                     print_red("job_calculate_pareto_front post job failed")
             except Exception as e:
                 print(f"ERROR in line {get_line_info()}: {e}")
@@ -7163,7 +7161,7 @@ def plot_times_vs_jobs_sixel(
     fig, _ax = plt.subplots()
 
     iterations = list(range(1, len(times) + 1))
-    sizes = [max(20, min(200, jc * 10)) for jc in job_counts]  # Punktgröße je nach Jobanzahl, skaliert
+    sizes = [max(20, min(200, jc * 10)) for jc in job_counts]
 
     scatter = _ax.scatter(iterations, times, s=sizes, c=job_counts, cmap='viridis', alpha=0.7, edgecolors='black')
 
@@ -8325,13 +8323,11 @@ def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[
     if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
         return None
 
-    # Lade die Ergebnisnamen
     with open(result_names_file, mode="r", encoding="utf-8") as f:
         result_names = [line.strip() for line in f if line.strip()]
 
     records: dict = defaultdict(lambda: {'means': {}})
 
-    # Lese die CSV-Datei
     with open(results_csv_file, encoding="utf-8", mode="r", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -8344,7 +8340,7 @@ def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[
                     try:
                         records[key]['means'][metric] = float(row[metric])
                     except ValueError:
-                        continue  # Wenn der Wert nicht konvertierbar ist
+                        continue
 
     return records
 
@@ -8416,11 +8412,9 @@ def _pareto_front_build_return_structure(
     results_csv_file = f"{path_to_calculate}/results.csv"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
-    # Lade die Ergebnisnamen
     with open(result_names_file, mode="r", encoding="utf-8") as f:
         result_names = [line.strip() for line in f if line.strip()]
 
-    # CSV komplett in dict laden (trial_index als int -> row dict)
     csv_rows = {}
     with open(results_csv_file, mode="r", encoding="utf-8", newline='') as csvfile:
         reader = csv.DictReader(csvfile)
@@ -8428,7 +8422,6 @@ def _pareto_front_build_return_structure(
             trial_index = int(row['trial_index'])
             csv_rows[trial_index] = row
 
-    # Statische Spalten, die keine Parameter sind
     ignored_columns = {'trial_index', 'arm_name', 'trial_status', 'generation_node'}
     ignored_columns.update(result_names)
 
@@ -8439,11 +8432,10 @@ def _pareto_front_build_return_structure(
     for (trial_index, arm_name), _, _ in selected_points:
         row = csv_rows.get(trial_index)
         if row is None or row['arm_name'] != arm_name:
-            continue  # Sicherheitshalber prüfen
+            continue
 
         idxs.append(int(row["trial_index"]))
 
-        # Parameter extrahieren
         param_dict = {}
         for key, value in row.items():
             if key not in ignored_columns:
@@ -8453,7 +8445,7 @@ def _pareto_front_build_return_structure(
                     try:
                         param_dict[key] = float(value)
                     except ValueError:
-                        param_dict[key] = value  # z.B. choice_param als String
+                        param_dict[key] = value
 
         param_dicts.append(param_dict)
 
@@ -8679,7 +8671,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
 
     pareto_front_data: dict = get_pareto_front_data(path_to_calculate, res_names)
 
-    pareto_points = {}
+    pareto_points: dict = {}
 
     for metric_x in pareto_front_data.keys():
         if metric_x not in pareto_points:
@@ -9029,7 +9021,7 @@ def post_job_calculate_pareto_front() -> None:
 
     for _path_to_calculate in _paths_to_calculate:
         for path_to_calculate in found_paths:
-            if job_calculate_pareto_front(path_to_calculate):
+            if not job_calculate_pareto_front(path_to_calculate):
                 failure = True
 
     if failure:
@@ -9041,9 +9033,8 @@ def post_job_calculate_pareto_front() -> None:
 def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
     pf_start_time = time.time()
 
-    # Returns true if it fails
     if not path_to_calculate:
-        return True
+        return False
 
     global CURRENT_RUN_FOLDER
     global RESULT_CSV_FILE
@@ -9051,41 +9042,41 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     if not path_to_calculate:
         print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
-        return True
+        return False
 
     if not os.path.exists(path_to_calculate):
         print_red(f"Path '{path_to_calculate}' does not exist")
-        return True
+        return False
 
     ax_client_json = f"{path_to_calculate}/state_files/ax_client.experiment.json"
 
     if not os.path.exists(ax_client_json):
         print_red(f"Path '{ax_client_json}' not found")
-        return True
+        return False
 
     checkpoint_file: str = f"{path_to_calculate}/state_files/checkpoint.json"
     if not os.path.exists(checkpoint_file):
         print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
-        return True
+        return False
 
     RESULT_CSV_FILE = f"{path_to_calculate}/results.csv"
     if not os.path.exists(RESULT_CSV_FILE):
         print_red(f"{RESULT_CSV_FILE} not found")
-        return True
+        return False
 
     res_names = []
 
     res_names_file = f"{path_to_calculate}/result_names.txt"
     if not os.path.exists(res_names_file):
         print_red(f"File '{res_names_file}' does not exist")
-        return True
+        return False
 
     try:
         with open(res_names_file, "r", encoding="utf-8") as file:
             lines = file.readlines()
     except Exception as e:
         print_red(f"Error reading file '{res_names_file}': {e}")
-        return True
+        return False
 
     for line in lines:
         entry = line.strip()
@@ -9094,7 +9085,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     if len(res_names) < 2:
         print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}) in {path_to_calculate}. Cannot continue calculating the pareto front.")
-        return True
+        return False
 
     load_username_to_args(path_to_calculate)
 
@@ -9105,7 +9096,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
     experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
 
     if experiment_parameters is None:
-        return True
+        return False
 
     show_pareto_or_error_msg(path_to_calculate, res_names, disable_sixel_and_table)
 
@@ -9113,7 +9104,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     print_debug(f"Calculating the pareto-front took {pf_end_time - pf_start_time} seconds")
 
-    return False
+    return True
 
 @beartype
 def set_arg_states_from_continue() -> None:

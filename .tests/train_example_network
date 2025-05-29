@@ -130,7 +130,7 @@ function help () {
 	echo "  --min_learning_rate=<float>                            Min learning_rate (default: 0.01)"
 	echo "  --max_learning_rate=<float>                            Max learning_rate (default: 0.4)"
 	echo "  --validation_split=<float>                             Validation split (default: 0.2)"
-	echo "  --result_names NAME=min/max                            Result names (default: VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min)"
+	echo "  --result_names=<str>                                   Result names (default: VAL_ACCURACY=max VAL_LOSS=min RAM_USAGE=min RUNTIME=min)"
 	echo "  --follow                                               Follow the output (default: $follow)"
 	echo "  --gridsearch                                           Do gridsearch"
 	echo "  --generate_all_jobs_at_once                            Generate all jobs at once"

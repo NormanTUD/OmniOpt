@@ -37,10 +37,10 @@ trap 'calltracer' ERR
 function help () {
         echo "Possible options:"
         echo "  --random_sem=0|1                                   Enable random SEM"
-        echo "  --x=(FLOAT)                                        Any float"
-        echo "  --y=(FLOAT)                                        Any float"
-        echo "  --z=(FLOAT)                                        Any float"
-        echo "  --a=(FLOAT)                                        Any float"
+        echo "  --x=<float>                                        Any float"
+        echo "  --y=<float>                                        Any float"
+        echo "  --z=<float>                                        Any float"
+        echo "  --a=<float>                                        Any float"
         echo "  --help                                             This help"
         echo "  --debug                                            Enables debug mode"
         exit $1

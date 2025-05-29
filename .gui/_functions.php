@@ -469,8 +469,12 @@
 
 					if (!empty($matches[2])) {
 						$equal_part = trim($matches[2], "=() ");
-						if (preg_match('/INT|NR|NUM|[0-9]/i', $equal_part)) {
+						if (preg_match('/0\|1/i', $equal_part)) {
+							$type = "0 or 1";
+						} elseif (preg_match('/INT|NR|NUM|[0-9]/i', $equal_part)) {
 							$type = "int";
+						} elseif (preg_match('/FLOAT/i', $equal_part)) {
+							$type = "float";
 						} elseif (preg_match('/STR|string/i', $equal_part)) {
 							$type = "str";
 						}

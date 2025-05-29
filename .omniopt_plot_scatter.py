@@ -49,7 +49,6 @@ parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=T
 parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
 parser.add_argument('--max', type=float, help='Maximum value', default=None)
 parser.add_argument('--min', type=float, help='Minimum value', default=None)
-parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
 parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
 parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
@@ -214,12 +213,6 @@ def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, 
 
 if __name__ == "__main__":
     try:
-        theme = "fast"
-
-        if args is not None and args.darkmode:
-            theme = "dark_background"
-
-        with plt.style.context(theme):
-            main()
+        main()
     except KeyboardInterrupt:
         sys.exit(0)

@@ -41,7 +41,6 @@ def parse_arguments() -> Any:
     parser.add_argument('--max', type=float, help='Maximum value for result filtering')
     parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
     parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
     parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
     parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
     parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
@@ -139,10 +138,4 @@ if __name__ == "__main__":
         logging.error("Specified --run_dir does not exist")
         sys.exit(1)
 
-    theme = "fast"
-
-    if args is not None and args.darkmode:
-        theme = "dark_background"
-
-    with plt.style.context(theme):
-        update_graph()
+    update_graph()

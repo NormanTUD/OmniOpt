@@ -8424,8 +8424,9 @@ def _pareto_front_build_return_structure(
     means_dict = defaultdict(list)
 
     for (trial_index, arm_name), _, _ in selected_points:
-        row = csv_rows.get(trial_index)
-        if row is None or row['arm_name'] != arm_name:
+        row = csv_rows.get(trial_index, {})
+        if row == {} or row is None or row['arm_name'] != arm_name:
+            print_debug(f"_pareto_front_build_return_structure: trial_index '{trial_index}' could not be found and row returned as None")
             continue
 
         idxs.append(int(row["trial_index"]))

@@ -2954,11 +2954,13 @@ def find_file_paths(_text: str) -> List[str]:
 @beartype
 def check_file_info(file_path: str) -> str:
     if not os.path.exists(file_path):
-        print(f"check_file_info: The file {file_path} does not exist.")
+        if not args.tests:
+            print(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
     if not os.access(file_path, os.R_OK):
-        print(f"check_file_info: The file {file_path} is not readable.")
+        if not args.tests:
+            print(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
     file_stat = os.stat(file_path)
@@ -4061,7 +4063,8 @@ def plot_sixel_imgs() -> None:
 def get_crf() -> str:
     crf = get_current_run_folder()
     if crf in ["", None]:
-        console.print("[red]Could not find current run folder[/]")
+        if not args.tests:
+            console.print("[red]Could not find current run folder[/]")
         return ""
     return crf
 

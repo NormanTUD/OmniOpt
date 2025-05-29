@@ -80,6 +80,10 @@ When exporting, and, for example, you do not want the **Evolution** and **Errors
 Filtering subpages does not work for the export subpage.
 </div>
 
+## Automatically share (`--live_share`)
+
+When using `--live_share` with OmniOpt2, the job is shared automatically after each finished job. A URL where you can reach the Job and a QR-Code is printed as well, so you can easily access the site from anywhere in the world.
+
 ## Notes on Privacy
 <div class="caveat tip">
 You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload

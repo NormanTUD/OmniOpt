@@ -844,7 +844,7 @@ def can_be_plotted(path: str) -> bool:
 
 def die_if_cannot_be_plotted(run_dir: Optional[str]) -> None:
     if run_dir is None:
-        log_error(f"run_dir was empty")
+        log_error("run_dir was empty")
         sys.exit(2)
 
     if not can_be_plotted(run_dir):

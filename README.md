@@ -7,7 +7,7 @@ scientists with hyperparameter optimization on SLURM-based clusters, even
 though it works without it as well. It simplifies large-scale optimization
 tasks with built-in fault tolerance and flexibility. A graphical user interface
 (GUI) is available for command creation, accessible at 
-[OmniOpt2 GUI](https://imageseg.scads.de/omniax/). For tutorials on 
+[OmniOpt2 GUI](https://imageseg.scads.de/omniax/gui). For tutorials on 
 configuration, exit codes, and debugging, visit
 [OmniOpt2 Tutorials](https://imageseg.scads.de/omniax/tutorials).
 

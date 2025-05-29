@@ -5715,6 +5715,8 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
 
             trial._generator_run = manual_generator_run
 
+            fool_linter(trial._generator_run)
+
             ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
 
             done_converting = True
@@ -9816,6 +9818,9 @@ def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
     print_logo()
+
+    fool_linter(args.num_cpus_main_job)
+    fool_linter(args.flame_graph)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

@@ -1718,7 +1718,7 @@ EOF
 						trap - DEBUG
 					fi
 
-					while ! [[ -e $LOG_PATH ]]; do
+					while [[ ! -e $LOG_PATH || ! -s $LOG_PATH ]]; do
 						_tput civis # Disable cursor
 
 						current_time=$(date +%s)

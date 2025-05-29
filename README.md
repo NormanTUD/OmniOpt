@@ -38,6 +38,12 @@ omniopt_plot --run_dir runs/example/0
 omniopt_plot --run_dir runs/example/0 --min 0 --max 100
 ```
 
+## Using live-share
+
+Use `--live_share` (also enablable via GUI) to automatically share the job. You will get a URL
+where your job data is hosted publically for 30 days, meaning everyone can access your results,
+and you can see all kinds of visualizations and export them.
+
 ## Run Tests (Developer Use Only)
 
 The test suite simulates various scenarios, including handling faulty

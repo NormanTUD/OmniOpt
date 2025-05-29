@@ -8444,7 +8444,6 @@ def _pareto_front_build_return_structure(
 
         param_dicts.append(param_dict)
 
-        # Mittelwerte aus records übernehmen
         for metric in absolute_metrics:
             means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
 

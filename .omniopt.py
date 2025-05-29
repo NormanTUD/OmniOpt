@@ -6471,12 +6471,12 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
 
 @beartype
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
+    stdout_path = check_alternate_path(stdout_path)
+
     behavs = check_orchestrator(stdout_path, trial_index)
 
     if not behavs or behavs is None:
         return
-
-    stdout_path = check_alternate_path(stdout_path)
 
     hostname_from_out_file = get_hostname_from_outfile(stdout_path)
 

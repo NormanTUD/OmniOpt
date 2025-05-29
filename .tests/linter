@@ -20,7 +20,7 @@ function green_text {
         echoerr -e "\e\033[0;32m$1\e[0m"
 }
 
-function _help {
+function help() {
 	exit_code=$?
 
 	echo ".tests/linter"
@@ -60,7 +60,7 @@ while [ $k -lt ${#args[@]} ]; do
 	elif [[ "$i" == "--quick" ]]; then
 		quick=1
 	elif [[ "$i" == "--help" ]]; then
-		_help 0
+		help 0
 	elif [[ -f "$i" ]]; then
 		files+=("$i")
 	else

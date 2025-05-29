@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Optimization example based on the shekel-function.
+
 function echoerr() {
         echo "$@" 1>&2
 }

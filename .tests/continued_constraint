@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Testing if continueing a constrainted run works.
+
 function echoerr {
 	echo "$@" 1>&2
 }

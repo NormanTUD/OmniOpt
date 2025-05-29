@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find functions with too large cyclomatic complexity.
+
 export install_tests=1
 
 function echoerr() {

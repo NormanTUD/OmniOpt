@@ -32,3 +32,4 @@ setuptools
 pyright
 qrcode
 tabulate
+rich-argparse

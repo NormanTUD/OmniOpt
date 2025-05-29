@@ -842,7 +842,11 @@ def can_be_plotted(path: str) -> bool:
 
     return len(lines) == 1
 
-def die_if_cannot_be_plotted(run_dir: str) -> None:
+def die_if_cannot_be_plotted(run_dir: Optional[str]) -> None:
+    if run_dir is None:
+        log_error(f"run_dir was empty")
+        sys.exit(2)
+
     if not can_be_plotted(run_dir):
         log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)

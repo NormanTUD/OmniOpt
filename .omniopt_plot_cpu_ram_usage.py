@@ -39,6 +39,7 @@ def load_helpers(script_dir: str) -> None:
 parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
 parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
 parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
 args = parser.parse_args()
 
@@ -113,4 +114,10 @@ def main() -> None:
         update_graph(csv_path)
 
 if __name__ == "__main__":
-    main()
+    theme = "fast"
+
+    if args is not None and args.darkmode:
+        theme = "dark_background"
+
+    with plt.style.context(theme):
+        main()

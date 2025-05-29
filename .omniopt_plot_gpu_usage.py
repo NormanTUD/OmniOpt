@@ -20,7 +20,7 @@ from beartype import beartype
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')
-
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
 parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
@@ -140,10 +140,16 @@ def save_to_file_or_show_canvas() -> None:
                 plt.show()
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    try:
-        plot_gpu_usage(args.run_dir)
-    except UnicodeDecodeError:
-        if not os.environ.get("PLOT_TESTS"):
-            print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
-        sys.exit(7)
+    theme = "fast"
+
+    if args is not None and args.darkmode:
+        theme = "dark_background"
+
+    with plt.style.context(theme):
+        args = parser.parse_args()
+        try:
+            plot_gpu_usage(args.run_dir)
+        except UnicodeDecodeError:
+            if not os.environ.get("PLOT_TESTS"):
+                print(f"{args.run_dir}/results.csv seems to be invalid utf8.")
+            sys.exit(7)

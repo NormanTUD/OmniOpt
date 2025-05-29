@@ -34,6 +34,7 @@ else:
 parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
 parser.add_argument('--min', type=float, help='Minimum value for result filtering')
 parser.add_argument('--max', type=float, help='Maximum value for result filtering')
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
 parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
 parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
 parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
@@ -115,4 +116,10 @@ if __name__ == "__main__":
 
     helpers.die_if_cannot_be_plotted(args.run_dir)
 
-    update_graph()
+    theme = "fast"
+
+    if args is not None and args.darkmode:
+        theme = "dark_background"
+
+    with plt.style.context(theme):
+        update_graph()

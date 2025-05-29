@@ -19,6 +19,14 @@ import pandas as pd
 
 from beartype import beartype
 
+parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
+parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
+parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+parser.add_argument('--darkmode', help='Enable darktheme', action='store_true', default=False)
+parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
+parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+args = parser.parse_args()
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 helpers_file = f"{script_dir}/.helpers.py"
 spec = importlib.util.spec_from_file_location(
@@ -93,15 +101,6 @@ def plot_worker_usage(args: Any, pd_csv: str) -> None:
         print(traceback.format_exc(), file=sys.stderr)
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
-    parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-
-    parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
-    args = parser.parse_args()
-
     if args.debug:
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
 
@@ -120,4 +119,10 @@ def main() -> None:
             sys.exit(19)
 
 if __name__ == "__main__":
-    main()
+    theme = "fast"
+
+    if args is not None and args.darkmode:
+        theme = "dark_background"
+
+    with plt.style.context(theme):
+        main()

@@ -87,6 +87,10 @@ to install them.
 
 I'd be glad to see your contributions!
 
+## Issues
+
+If you experience any problems, please write issues at my [Github Issues page](https://github.com/NormanTUD/OmniOpt/issues).
+
 ## Old OmniOpt
 
 The old OmniOpt version, based on HyperOpt, is not supported anymore. It is still available, though, at [https://github.com/NormanTUD/LegacyOmniOpt](https://github.com/NormanTUD/LegacyOmniOpt).

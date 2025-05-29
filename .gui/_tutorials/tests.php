@@ -24,52 +24,9 @@
 
 <p>Possible options:</p>
 
-<table>
-	<tr class="invert_in_dark_mode">
-		<th>Option</th>
-		<th>Meaning</th>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--max_eval=(INT)</code></pre></td>
-		<td>How many evaluations should be tried for each test (the lower, the faster)</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--num_random_steps=(INT)</code></pre></td>
-		<td>Number of random steps that should be tried (the lower, the faster)</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--num_parallel_jobs=(INT)</code></pre></td>
-		<td>How many parallel jobs should be started (ignored on non-sbatch-systems)</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--run_with_coverage</code></pre></td>
-		<td>Allows to use coverage instead of python3 for coverage testing unit test coverage</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--exit_on_first_error</code></pre></td>
-		<td>Exit on first error</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--gpus=(INT)</code></pre></td>
-		<td>How many GPUs you want for each worker/need to allocate an sbatch job</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--debug</code></pre></td>
-		<td>Enables debug mode</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--no_plots</code></pre></td>
-		<td>Disables plot tests</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--quick</code></pre></td>
-		<td>Only runs quick tests (faster)</td>
-	</tr>
-	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">--reallyquick</code></pre></td>
-		<td>Only runs really quick tests (fastest)</td>
-	</tr>
-</table>
+<?php
+	parse_arguments_and_print_html_table("../.tests/main");
+?>
 
 <h3 id="example_run_quick">Example on the quickest useful test</h3>
 

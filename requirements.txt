@@ -23,7 +23,6 @@ hiplot
 html5lib
 lxml
 toml
-rich_argparse
 beartype
 pyyaml
 pyspellchecker
@@ -32,4 +31,3 @@ setuptools
 pyright
 qrcode
 tabulate
-rich-argparse

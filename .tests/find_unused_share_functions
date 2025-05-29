@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find functions in the share_functions.php that are not used anywhere.
+
 function echoerr() {
         echo "$@" 1>&2
 }

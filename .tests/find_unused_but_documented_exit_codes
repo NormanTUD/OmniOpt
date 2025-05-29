@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find exit codes in documentation that are not used in OmniOpt2.
+
 function echoerr {
 	echo "$@" 1>&2
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find function names that are defined twice or more.
+
 function echoerr {
 	echo "$@" 1>&2
 }

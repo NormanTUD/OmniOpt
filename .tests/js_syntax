@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Check syntax of JS scripts.
+
 export disable_folder_creation=1
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Start a simple optimization based on the shekel-function.
+
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'

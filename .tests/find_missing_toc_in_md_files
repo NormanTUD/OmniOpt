@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find help documentation files missing the Table-of-Contents.
+
 function echoerr {
 	echo "$@" 1>&2
 }

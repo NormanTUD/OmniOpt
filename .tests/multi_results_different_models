@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test multi-objective-optimization with different models.
+
 function echoerr {
 	echo "$@" 1>&2
 }

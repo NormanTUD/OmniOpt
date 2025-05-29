@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test non-standard constraints.
+
 function echoerr {
 	echo "$@" 1>&2
 }

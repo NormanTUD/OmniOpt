@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Install via gitub and pip and test if it works properly.
+
 for install_type in omniopt git; do
 	VENV_DIR=$HOME/omniopt_via_pip_$install_type/
 

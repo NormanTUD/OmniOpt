@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find arguments in .omniopt.py that have double quotes and fail if they do, since other script that parse it need them to be single quotes.
+
 function echoerr {
 	echo "$@" 1>&2
 }

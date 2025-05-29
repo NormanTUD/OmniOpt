@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test all plot scripts for different jobs.
+
 export install_tests=1
 
 {

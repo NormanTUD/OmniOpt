@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Run python-linters only.
+
 export install_tests=1
 
 function echoerr() {

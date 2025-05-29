@@ -64,7 +64,7 @@ function updateTextColorIfUsageStatsInURL() {
 	}
 }
 
-function enable_dark_mode() {
+function enable_dark_mode(set_theme_cookie=true) {
 	$("#themeSelect").val("dark");
 
 	$('#main_window pre:not(.invert_in_dark_mode)').addClass('invert_in_dark_mode');
@@ -79,7 +79,9 @@ function enable_dark_mode() {
 	$(".share_graph").css("filter", "invert(1)");
 	$(".usage_plot").css("filter", "invert(1)");
 
-	set_cookie("theme", "dark");
+	if(set_theme_cookie) {
+		set_cookie("theme", "dark");
+	}
 
 	theme = "dark";
 
@@ -103,7 +105,7 @@ function enable_dark_mode() {
 	updateTextColorIfUsageStatsInURL();
 }
 
-function enable_light_mode() {
+function enable_light_mode(set_theme_cookie=true) {
 	$("#themeSelect").val("light");
 
 	$("html").css("filter", "");
@@ -114,7 +116,9 @@ function enable_light_mode() {
 	$(".share_graph").css("filter", "invert(0)");
 	$(".usage_plot").css("filter", "invert(0)");
 
-	set_cookie("theme", "light");
+	if(set_theme_cookie) {
+		set_cookie("theme", "light");
+	}
 
 	theme = "light";
 
@@ -172,4 +176,12 @@ document.addEventListener("DOMContentLoaded", function() {
 			enable_light_mode();
 		}
 	});
+});
+
+window.addEventListener('beforeprint', () => {
+	enable_light_mode(false);
+});
+
+window.addEventListener('afterprint', () => {
+	apply_theme_based_on_system_preferences();
 });

@@ -55,7 +55,6 @@ figlet_loaded: bool = False
 
 try:
     from rich.console import Console
-    from tqdm import tqdm
 
     terminal_width = 150
 
@@ -72,63 +71,153 @@ try:
         width=max(200, terminal_width)
     )
 
-    import_tasks = [
-        ("logging", "import logging\nlogging.basicConfig(level=logging.CRITICAL)"),
-        ("warnings", '''import warnings\nwarnings.filterwarnings("ignore", category=FutureWarning, module="ax.modelbridge.best_model_selector")'''),
-        ("argparse", "import argparse"),
-        ("datetime", "import datetime"),
-        ("dataclass", "from dataclasses import dataclass"),
-        ("hashlib", "import hashlib"),
-        ("socket", "import socket"),
-        ("stat", "import stat"),
-        ("pwd", "import pwd"),
-        ("signal", "import signal"),
-        ("base64", "import base64"),
-        ("json", "import json"),
-        ("yaml", "import yaml"),
-        ("toml", "import toml"),
-        ("csv", "import csv"),
-        ("ast", "import ast"),
-        ("rich.table", "from rich.table import Table"),
-        ("rich.text", "from rich.text import Text"),
-        ("rich print", "from rich import print"),
-        ("rich.pretty", "from rich.pretty import pprint"),
-        ("fcntl", "import fcntl"),
-        ("types.FunctionType", "from types import FunctionType"),
-        ("typing", "from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type"),
-        ("ThreadPoolExecutor", "from concurrent.futures import ThreadPoolExecutor, as_completed"),
-        ("submitit.LocalExecutor", "from submitit import LocalExecutor, AutoExecutor"),
-        ("submitit.Job", "from submitit import Job"),
-        ("importlib.util", "import importlib.util"),
-        ("inspect", "import inspect"),
-        ("platform", "import platform"),
-        ("inspect frame info", "from inspect import currentframe, getframeinfo"),
-        ("pathlib.Path", "from pathlib import Path"),
-        ("uuid", "import uuid"),
-        ("traceback", "import traceback"),
-        ("cowsay", "import cowsay"),
-        ("psutil", "import psutil"),
-        ("shutil", "import shutil"),
-        ("itertools.combinations", "from itertools import combinations"),
-        ("os.listdir", "from os import listdir"),
-        ("os.path", "from os.path import isfile, join"),
-        ("PIL.Image", "from PIL import Image"),
-        ("sixel", "import sixel"),
-        ("subprocess", "import subprocess"),
-        ("beartype", "from beartype import beartype"),
-        ("statistics", "from statistics import mean, median"),
-        ("pyfiglet", "from pyfiglet import Figlet\nfiglet_loaded = True")
-    ]
+    with console.status("[bold green]Importing logging..."):
+        import logging
+        logging.basicConfig(level=logging.CRITICAL)
 
-    for name, code in tqdm(import_tasks, desc="Importing modules", unit="module", leave=False):
+    with console.status("[bold green]Importing warnings..."):
+        import warnings
+        warnings.filterwarnings(
+            "ignore",
+            category=FutureWarning,
+            module="ax.modelbridge.best_model_selector"
+        )
+
+    with console.status("[bold green]Importing argparse..."):
+        import argparse
+
+    with console.status("[bold green]Importing datetime..."):
+        import datetime
+
+    with console.status("[bold green]Importing dataclass..."):
+        from dataclasses import dataclass
+
+    with console.status("[bold green]Importing hashlib..."):
+        import hashlib
+
+    with console.status("[bold green]Importing socket..."):
+        import socket
+
+    with console.status("[bold green]Importing stat..."):
+        import stat
+
+    with console.status("[bold green]Importing pwd..."):
+        import pwd
+
+    with console.status("[bold green]Importing signal..."):
+        import signal
+
+    with console.status("[bold green]Importing base64..."):
+        import base64
+
+    with console.status("[bold green]Importing json..."):
+        import json
+
+    with console.status("[bold green]Importing yaml..."):
+        import yaml
+
+    with console.status("[bold green]Importing toml..."):
+        import toml
+
+    with console.status("[bold green]Importing csv..."):
+        import csv
+
+    with console.status("[bold green]Importing ast..."):
+        import ast
+
+    with console.status("[bold green]Importing rich.table..."):
+        from rich.table import Table
+
+    with console.status("[bold green]Importing rich.text..."):
+        from rich.text import Text
+
+    with console.status("[bold green]Importing rich print..."):
+        from rich import print
+
+    with console.status("[bold green]Importing rich.pretty..."):
+        from rich.pretty import pprint
+
+    with console.status("[bold green]Importing fcntl..."):
+        import fcntl
+
+    with console.status("[bold green]Importing types.FunctionType..."):
+        from types import FunctionType
+
+    with console.status("[bold green]Importing typing..."):
+        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
+
+    with console.status("[bold green]Importing ThreadPoolExecutor..."):
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    with console.status("[bold green]Importing submitit.LocalExecutor..."):
+        from submitit import LocalExecutor, AutoExecutor
+
+    with console.status("[bold green]Importing submitit.Job..."):
+        from submitit import Job
+
+    with console.status("[bold green]Importing importlib.util..."):
+        import importlib.util
+
+    with console.status("[bold green]Importing inspect..."):
+        import inspect
+
+    with console.status("[bold green]Importing platform..."):
+        import platform
+
+    with console.status("[bold green]Importing inspect frame info..."):
+        from inspect import currentframe, getframeinfo
+
+    with console.status("[bold green]Importing pathlib.Path..."):
+        from pathlib import Path
+
+    with console.status("[bold green]Importing uuid..."):
+        import uuid
+
+    with console.status("[bold green]Importing traceback..."):
+        import traceback
+
+    with console.status("[bold green]Importing cowsay..."):
+        import cowsay
+
+    with console.status("[bold green]Importing psutil..."):
+        import psutil
+
+    with console.status("[bold green]Importing shutil..."):
+        import shutil
+
+    with console.status("[bold green]Importing itertools.combinations..."):
+        from itertools import combinations
+
+    with console.status("[bold green]Importing os.listdir..."):
+        from os import listdir
+
+    with console.status("[bold green]Importing os.path..."):
+        from os.path import isfile, join
+
+    with console.status("[bold green]Importing PIL.Image..."):
+        from PIL import Image
+
+    with console.status("[bold green]Importing sixel..."):
+        import sixel
+
+    with console.status("[bold green]Importing subprocess..."):
+        import subprocess
+
+    with console.status("[bold green]Importing tqdm..."):
+        from tqdm import tqdm
+
+    with console.status("[bold green]Importing beartype..."):
+        from beartype import beartype
+
+    with console.status("[bold green]Importing statistics..."):
+        from statistics import mean, median
+
+    with console.status("[bold green]Trying to import pyfiglet..."):
         try:
-            exec(code, globals())
+            from pyfiglet import Figlet
+            figlet_loaded = True
         except ModuleNotFoundError:
-            if "pyfiglet" in name:
-                globals()["figlet_loaded"] = False
-            else:
-                raise Exception from e
-
+            figlet_loaded = False
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 4")

@@ -8431,7 +8431,7 @@ def _pareto_front_build_return_structure(
 
         idxs.append(int(row["trial_index"]))
 
-        param_dict = {}
+        param_dict: dict[str, int | float | str] = {}
         for key, value in row.items():
             if key not in ignored_columns:
                 try:

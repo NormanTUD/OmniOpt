@@ -5661,7 +5661,6 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
-
             __status.update(f"[bold green]Loading existing jobs from {this_csv_file_path} into ax_client")
             arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
@@ -9245,7 +9244,7 @@ def main() -> None:
     write_files_and_show_overviews()
 
     for existing_run in args.load_data_from_existing_jobs:
-        insert_jobs_from_csv(f"{existing_run}/results.csv", experiment_parameters)
+        insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"), experiment_parameters)
 
         set_global_generation_strategy()
 

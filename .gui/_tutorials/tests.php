@@ -11,8 +11,7 @@
 	while (!file_exists($path . '/' . $targetFile)) {
 		$parent = dirname($path);
 		if ($parent === $path) {
-			// Wir sind im Root angekommen und haben die Datei nicht gefunden
-			die("Datei '$targetFile' nicht gefunden.\n");
+			die("File '$targetFile' not found.\n");
 		}
 		$path = $parent;
 	}

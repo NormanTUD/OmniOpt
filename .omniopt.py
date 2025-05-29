@@ -188,9 +188,6 @@ try:
     with console.status("[bold green]Importing itertools.combinations..."):
         from itertools import combinations
 
-    with console.status("[bold green]Importing pandas..."):
-        import pandas as pd
-
     with console.status("[bold green]Importing os.listdir..."):
         from os import listdir
 
@@ -974,6 +971,9 @@ try:
 
     with console.status("[bold green]Importing TParameterization..."):
         from ax.core.types import TParameterization
+
+    with console.status("[bold green]Importing pandas..."):
+        import pandas as pd
 
     with console.status("[bold green]Importing AxClient and ObjectiveProperties..."):
         from ax.service.ax_client import AxClient, ObjectiveProperties

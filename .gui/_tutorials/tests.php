@@ -4,6 +4,23 @@
 
 <!-- Category: Developing -->
 
+<?php
+	$path = __DIR__;
+	$targetFile = '_functions.php';
+
+	while (!file_exists($path . '/' . $targetFile)) {
+		$parent = dirname($path);
+		if ($parent === $path) {
+			// Wir sind im Root angekommen und haben die Datei nicht gefunden
+			die("Datei '$targetFile' nicht gefunden.\n");
+		}
+		$path = $parent;
+	}
+
+	echo ($path . '/' . $targetFile);
+	include_once($path . '/' . $targetFile);
+?>
+
 <div id="toc"></div>
 
 <h2 id="what_are_automated_tests">What are automated tests?</h2>
@@ -46,38 +63,37 @@
 <h2 id="All test scripts">All test scripts</h2>
 
 <?php
+	$directory = realpath('../.tests');
 
-$directory = realpath('../.tests');
+	foreach (new DirectoryIterator($directory) as $file) {
+		if ($file->isDot() || !$file->isFile()) continue;
 
-foreach (new DirectoryIterator($directory) as $file) {
-	if ($file->isDot() || !$file->isFile()) continue;
+		$handle = fopen($file->getPathname(), 'r');
+		if ($handle === false) continue;
 
-	$handle = fopen($file->getPathname(), 'r');
-	if ($handle === false) continue;
+		$firstLine = fgets($handle);
+		fclose($handle);
 
-	$firstLine = fgets($handle);
-	fclose($handle);
+		if (strpos($firstLine, '#!/usr/bin/env bash') === 0) {
+			print "<h3>" . basename($file->getPathname()) . "</h3>\n";
 
-	if (strpos($firstLine, '#!/usr/bin/env bash') === 0) {
-		print "<h3>" . basename($file->getPathname()) . "</h3>\n";
+			$contents = file($file->getPathname());
+			$helpTextFound = false;
 
-		$contents = file($file->getPathname());
-		$helpTextFound = false;
-
-		foreach ($contents as $line) {
-			if (preg_match('/^#\s*HELPPAGE:\s*(.+)$/', $line, $matches)) {
-				print "<p>" . htmlspecialchars($matches[1]) . "</p>\n";
-				$helpTextFound = true;
-				break;
+			foreach ($contents as $line) {
+				if (preg_match('/^#\s*HELPPAGE:\s*(.+)$/', $line, $matches)) {
+					print "<p>" . htmlspecialchars($matches[1]) . "</p>\n";
+					$helpTextFound = true;
+					break;
+				}
 			}
+
+			if (!$helpTextFound) {
+				print '<div class="caveat error">No help text could be found</div>' . "\n";
+			}
+
+
+			parse_arguments_and_print_html_table($file->getPathname(), 1);
 		}
-
-		if (!$helpTextFound) {
-			print '<div class="caveat error">No help text could be found</div>' . "\n";
-		}
-
-
-		parse_arguments_and_print_html_table($file->getPathname(), 1);
 	}
-}
 ?>

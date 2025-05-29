@@ -6440,6 +6440,24 @@ def handle_restart(stdout_path: str, trial_index: int) -> None:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
 @beartype
+def check_alternate_path(path: str) -> str:
+    if os.path.exists(path):
+        return path
+
+    if path.endswith('.out'):
+        alt_path = path[:-4] + '.err'
+    elif path.endswith('.err'):
+        alt_path = path[:-4] + '.out'
+    else:
+        alt_path = None
+
+    if alt_path and os.path.exists(alt_path):
+        return alt_path
+
+    # Wenn auch der alternative Pfad nicht existiert, gib den Originalpfad zurück
+    return path
+
+@beartype
 def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None:
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
@@ -6457,6 +6475,8 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None:
 
     if not behavs or behavs is None:
         return
+
+    stdout_path = check_alternate_path(stdout_path)
 
     hostname_from_out_file = get_hostname_from_outfile(stdout_path)
 

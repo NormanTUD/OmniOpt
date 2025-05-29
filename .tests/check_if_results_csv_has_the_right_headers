@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Start an OmniOpt2 run and see if the results.csv has the proper results.
+
 function echoerr {
 	echo "$@" 1>&2
 }

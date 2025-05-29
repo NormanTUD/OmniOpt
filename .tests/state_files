@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Test if all state_files are properly documented.
+
 export NO_WHIPTAIL=1
 
 errors=()

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Tests if all files that are in the run subfolders are documented properly.
+
 errors=()
 
 function join_by {

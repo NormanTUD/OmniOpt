@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Tests if al plot scripts have the metadata for the help pages, i.e. <tt># EXPECTED FILES</tt> and <tt># DESCRIPTION</tt>.
+
 cnt=0
 
 for i in $(ls .omniopt_plot_*.py); do

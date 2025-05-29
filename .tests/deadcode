@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find unreachable and unused code.
+
 export install_tests=1
 
 current_python_version=$(python3 --version | sed -e 's#Python ##')

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Main test script, coordinates complete test runs
+
 {
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'

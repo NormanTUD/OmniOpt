@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find GUI options that are not in OmniOpt2 or vice versa, so they always reflect each other.
+
 function echoerr() {
 	echo "$@" 1>&2
 }

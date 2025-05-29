@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Find environment variables that change how OmniOpt works that are not documented.
+
 function echoerr {
 	echo "$@" 1>&2
 }

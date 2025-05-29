@@ -61,6 +61,8 @@ function load_pareto_graph_from_idxs () {
 	$("#pareto_from_idxs_table").html(html_tables);
 
 	renderParetoFrontPlots(table);
+
+	apply_theme_based_on_system_preferences();
 }
 
 function renderParetoFrontPlots(data) {

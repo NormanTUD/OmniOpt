@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# HELPPAGE: Test external generator.
 
 # Defaultwerte
 MEM_GB=1
@@ -10,21 +12,19 @@ GPUS=1
 NUM_RANDOM_STEPS=1
 EXTERNAL_GENERATOR=$(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
 
-print_help() {
-cat <<EOF
-Usage: $(basename "$0") [OPTIONS]
+function help () {
+	echo "Usage: $(basename "$0") [OPTIONS]"
 
-Optional arguments:
-  --mem_gb=INT                   Memory in GB (default: $MEM_GB)
-  --time=INT                     Time in minutes (default: $TIME)
-  --worker_timeout=INT           Timeout for worker (default: $WORKER_TIMEOUT)
-  --max_eval=INT                 Maximum evaluations (default: $MAX_EVAL)
-  --num_parallel_jobs=INT        Number of parallel jobs (default: $NUM_PARALLEL_JOBS)
-  --gpus=INT                     Number of GPUs (default: $GPUS)
-  --num_random_steps=INT         Number of random steps (default: $NUM_RANDOM_STEPS)
-  --external_generator=CMD       External generator command (Base64 encoded)
-  --help                         Show this help message and exit
-EOF
+	echo "Optional arguments:"
+	echo "--mem_gb=INT                   Memory in GB (default: 1)"
+	echo "--time=INT                     Time in minutes (default: 60)"
+	echo "--worker_timeout=INT           Timeout for worker (default: 60)"
+	echo "--max_eval=INT                 Maximum evaluations (default: 2)"
+	echo "--num_parallel_jobs=INT        Number of parallel jobs (default: 1)"
+	echo "--gpus=INT                     Number of GPUs (default: 1)"
+	echo "--num_random_steps=INT         Number of random steps (default: 1)"
+	echo "--external_generator=CMD       External generator command (Base64 encoded)"
+	echo "--help                         Show this help message and exit"
 }
 
 # Argumente parsen
@@ -41,8 +41,8 @@ for arg in "$@"; do
       RAW_GEN="${arg#*=}"
       EXTERNAL_GENERATOR=$(echo "$RAW_GEN" | base64 -w0)
       ;;
-    --help) print_help; exit 0 ;;
-    *) echo "Unknown option: $arg"; print_help; exit 1 ;;
+    --help) help; exit 0 ;;
+    *) echo "Unknown option: $arg"; help; exit 1 ;;
   esac
 done
 

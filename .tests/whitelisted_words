@@ -24,6 +24,7 @@ addStyles
 Adhoc
 admin
 affeaffeaffeaffeaffeaffeaffeaffe
+afterprint
 AISTATS
 ajax
 Ajax
@@ -178,6 +179,7 @@ BC
 beartype
 beforeActivate
 beforeClose
+beforeprint
 beforesend
 beforeShow
 beforeShowDay

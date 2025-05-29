@@ -482,6 +482,7 @@ cyanOCR
 cyanPerson
 cyanSearching
 cyanYOLO
+cyclomatic
 cz
 da
 darkgreen
@@ -1003,6 +1004,7 @@ iconSpace
 idname
 IDONTEXIST
 idx
+idxs
 ie
 ifevttargeterror
 ifevttargetreadyState
@@ -1138,6 +1140,7 @@ jqMinor
 jquery
 jqXHR
 js
+JS
 jscolor
 json
 JSON
@@ -1219,6 +1222,7 @@ linkonclick
 linters
 Linters
 linting
+Lints
 linux
 linuxdistributions
 listbox
@@ -2021,6 +2025,7 @@ rhash
 richpretty
 richprogress
 richtable
+richtext
 rightSide
 rm
 rmse
@@ -2573,6 +2578,7 @@ varName
 varnames
 venv
 Verbot
+versa
 versioning
 verticalOffset
 verticalSpacing
@@ -2706,9 +2712,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-idxs
-JS
-versa
-richtext
-Lints
-cyclomatic

@@ -18,12 +18,12 @@ seed=""
 gpus=""
 hash=""
 
-function show_help() {
+function help() {
 	echo "Usage: $0 --seed <int> --gpus <int> --hash <string>"
-	echo "  --seed <int>    : Sets the seed value"
-	echo "  --gpus <int>    : Number of GPUs"
-	echo "  --hash <string> : MD5 hash value"
-	echo "  --help          : Displays this help message"
+	echo "  --seed=<int>    Sets the seed value"
+	echo "  --gpus=<int>    Number of GPUs"
+	echo "  --hash=<string> MD5 hash value"
+	echo "  --help          Displays this help message"
 	exit 0
 }
 
@@ -57,11 +57,11 @@ while [[ $# -gt 0 ]]; do
 			fi
 			;;
 		--help)
-			show_help
+			help
 			;;
 		*)
 			echo "Error: Unknown option $1" >&2
-			show_help
+			help
 			exit 1
 			;;
 	esac
@@ -69,7 +69,7 @@ done
 
 if [[ -z "$seed" || -z "$gpus" || -z "$hash" ]]; then
 	echo "Error: --seed, --gpus, and --hash are required options" >&2
-	show_help
+	help	
 	exit 1
 fi
 

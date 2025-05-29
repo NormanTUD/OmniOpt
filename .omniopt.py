@@ -236,12 +236,6 @@ except KeyboardInterrupt:
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args
 
-with console.status("[bold green]Importing rich_argparse...") as status:
-    try:
-        from rich_argparse import RichHelpFormatter
-    except ModuleNotFoundError:
-        RichHelpFormatter = argparse.HelpFormatter
-
 @beartype
 def makedirs(p: str) -> bool:
     if not os.path.exists(p):
@@ -591,7 +585,7 @@ class ConfigLoader:
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
             epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ...",
-            formatter_class=RichHelpFormatter
+            formatter_class=argparse.HelpFormatter
         )
 
         self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str, default=None)

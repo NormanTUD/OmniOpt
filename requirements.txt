@@ -7,7 +7,6 @@ ax-platform
 art
 tzlocal
 Rich
-rich-argparse
 sixel
 scikit-learn
 submitit

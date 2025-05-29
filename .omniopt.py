@@ -220,11 +220,11 @@ try:
             figlet_loaded = False
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
-    print("Exit-Code: 2")
-    sys.exit(2)
+    print("Exit-Code: 4")
+    sys.exit(4)
 except ImportError as e:
     print(f"Error loading modules: {e}\nThis may be caused by forgetting to 'module load' the right python version or missing the python virtual environment.")
-    sys.exit(2)
+    sys.exit(4)
 except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)

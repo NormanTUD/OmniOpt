@@ -118,6 +118,9 @@ foreach (new DirectoryIterator($directory) as $file) {
 		if (!$helpTextFound) {
 			print '<div class="caveat error">No help text could be found</div>' . "\n";
 		}
+
+
+		parse_arguments_and_print_html_table($file->getPathname(), 1);
 	}
 }
 ?>

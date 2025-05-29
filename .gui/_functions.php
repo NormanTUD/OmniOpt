@@ -317,122 +317,193 @@
 	}
 
 	function parse_arguments($file_path) {
-		$groups = [];
-		$current_group = "Ungrouped";
+		if (preg_match("/\.py$/", $file_path)) {
+			$groups = [];
+			$current_group = "Ungrouped";
 
-		$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*'(.+?)',\s*'(.+?)'/";
-		$pattern_argument = "/\.add_argument\(\s*'([^']+)'(.*)\)/";
+			$pattern_group = "/(\w+)\s*=\s*(?:self\.)?parser\.add_argument_group\(\s*'(.+?)',\s*'(.+?)'/";
+			$pattern_argument = "/\.add_argument\(\s*'([^']+)'(.*)\)/";
 
-		if (!file_exists($file_path)) {
-			echo "<p><strong>ERROR:</strong> File not found: $file_path</p>";
-			return [];
-		}
+			if (!file_exists($file_path)) {
+				echo "<p><strong>ERROR:</strong> File not found: $file_path</p>";
+				return [];
+			}
 
-		$file = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-		if (!$file) {
-			echo "<p><strong>ERROR:</strong> Unable to read file.</p>";
-			return [];
-		}
+			$file = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			if (!$file) {
+				echo "<p><strong>ERROR:</strong> Unable to read file.</p>";
+				return [];
+			}
 
-		$replacements = array(
-			"Path.home()" => "\$HOME",
-			"joined_valid_acquisition_classes" => extract_and_join_python_list($file_path, "VALID_ACQUISITION_CLASSES"),
-			"joined_valid_occ_types" => extract_and_join_python_list($file_path, "valid_occ_types"),
-			"joined_supported_models" => extract_and_join_python_list($file_path, "SUPPORTED_MODELS")
-		);
+			$replacements = array(
+				"Path.home()" => "\$HOME",
+				"joined_valid_acquisition_classes" => extract_and_join_python_list($file_path, "VALID_ACQUISITION_CLASSES"),
+				"joined_valid_occ_types" => extract_and_join_python_list($file_path, "valid_occ_types"),
+				"joined_supported_models" => extract_and_join_python_list($file_path, "SUPPORTED_MODELS")
+			);
 
-		$group_vars = [];
+			$group_vars = [];
 
-		foreach ($file as $line) {
-			if (preg_match($pattern_group, $line, $matches)) {
-				$group_var = trim($matches[1]);
-				$group_name = trim($matches[2]);
-				$group_desc = trim($matches[3]);
+			foreach ($file as $line) {
+				if (preg_match($pattern_group, $line, $matches)) {
+					$group_var = trim($matches[1]);
+					$group_name = trim($matches[2]);
+					$group_desc = trim($matches[3]);
 
-				$group_vars[$group_var] = $group_name;
-				$groups[$group_name] = ["desc" => $group_desc, "args" => []];
-			} elseif (preg_match($pattern_argument, $line, $matches)) {
-				$arg_name = trim($matches[1]);
-				$raw_params = trim($matches[2]);
+					$group_vars[$group_var] = $group_name;
+					$groups[$group_name] = ["desc" => $group_desc, "args" => []];
+				} elseif (preg_match($pattern_argument, $line, $matches)) {
+					$arg_name = trim($matches[1]);
+					$raw_params = trim($matches[2]);
 
-				$description = "<i style='color: red;'>No description available.</i>";
-				$default = "";
-				$type = "";
-				$action = "";
+					$description = "<i style='color: red;'>No description available.</i>";
+					$default = "";
+					$type = "";
+					$action = "";
 
-				preg_match_all("/(\w+)\s*=\s*f?(['\"])(.*?)\\2/s", $raw_params, $param_matches, PREG_SET_ORDER);
+					preg_match_all("/(\w+)\s*=\s*f?(['\"])(.*?)\\2/s", $raw_params, $param_matches, PREG_SET_ORDER);
 
-				foreach ($param_matches as $pm) {
-					$key = $pm[1];
-					$value = trim($pm[3]);
+					foreach ($param_matches as $pm) {
+						$key = $pm[1];
+						$value = trim($pm[3]);
 
-					if ($key === "help") {
-						$description = htmlentities($value);
-						if (strpos($raw_params, "f'") !== false) {
-							$description = replace_python_placeholders($description, $replacements);
-						}
-					} elseif ($key === "default") {
-						$default = $value;
-						if (is_numeric($default)) {
-							$default = (int)$default;
-						} elseif ($default === "Path.home(") {
-							$default = "\$HOME";
-						} elseif ($default === "None") {
-							$default = "";
-						}
-					} elseif ($key === "type") {
-						$type = $value;
-					} elseif ($key === "action") {
-						$action = $value;
-					}
-				}
-
-				if (preg_match("/default\s*=\s*(\d+)/", $raw_params, $default_match)) {
-					$default = (int)$default_match[1];
-				}
-
-				if (preg_match("/type\s*=\s*([\w\.]+)/", $raw_params, $type_match)) {
-					$type = $type_match[1];
-				}
-
-				if ($action !== "") {
-					if ($action == "store_false") {
-						$default = "True";
-						$type = "bool";
-					}
-
-					if ($action == "store_true") {
-						$default = "False";
-						$type = "bool";
-					}
-				}
-
-				$arg_entry = [$arg_name, $description, $default];
-				if ($type !== "") {
-					$arg_entry[] = "type: $type";
-				}
-				if ($action !== "") {
-					$arg_entry[] = "action: $action";
-				}
-
-				if (count($group_vars)) {
-					foreach (array_reverse($group_vars) as $var => $group) {
-						if (strpos($line, $var . ".add_argument") !== false) {
-							$groups[$group]["args"][] = $arg_entry;
-							break;
+						if ($key === "help") {
+							$description = htmlentities($value);
+							if (strpos($raw_params, "f'") !== false) {
+								$description = replace_python_placeholders($description, $replacements);
+							}
+						} elseif ($key === "default") {
+							$default = $value;
+							if (is_numeric($default)) {
+								$default = (int)$default;
+							} elseif ($default === "Path.home(") {
+								$default = "\$HOME";
+							} elseif ($default === "None") {
+								$default = "";
+							}
+						} elseif ($key === "type") {
+							$type = $value;
+						} elseif ($key === "action") {
+							$action = $value;
 						}
 					}
-				} else {
-					$groups["Ungrouped"]["args"][] = $arg_entry;
+
+					if (preg_match("/default\s*=\s*(\d+)/", $raw_params, $default_match)) {
+						$default = (int)$default_match[1];
+					}
+
+					if (preg_match("/type\s*=\s*([\w\.]+)/", $raw_params, $type_match)) {
+						$type = $type_match[1];
+					}
+
+					if ($action !== "") {
+						if ($action == "store_false") {
+							$default = "True";
+							$type = "bool";
+						}
+
+						if ($action == "store_true") {
+							$default = "False";
+							$type = "bool";
+						}
+					}
+
+					$arg_entry = [$arg_name, $description, $default];
+					if ($type !== "") {
+						$arg_entry[] = "type: $type";
+					}
+					if ($action !== "") {
+						$arg_entry[] = "action: $action";
+					}
+
+					if (count($group_vars)) {
+						foreach (array_reverse($group_vars) as $var => $group) {
+							if (strpos($line, $var . ".add_argument") !== false) {
+								$groups[$group]["args"][] = $arg_entry;
+								break;
+							}
+						}
+					} else {
+						$groups["Ungrouped"]["args"][] = $arg_entry;
+					}
 				}
 			}
-		}
 
-		return $groups;
+			return $groups;
+		} else {
+			// Bash help parser
+			$groups = [];
+			$help_found = false;
+
+			if (!file_exists($file_path)) {
+				echo "<p><strong>ERROR:</strong> File not found: $file_path</p>";
+				return [];
+			}
+
+			$file = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			if (!$file) {
+				echo "<p><strong>ERROR:</strong> Unable to read file.</p>";
+				return [];
+			}
+
+			$in_help_function = false;
+			$args = [];
+
+			foreach ($file as $line) {
+				$line = trim($line);
+
+				if (preg_match("/^function\s+help\s*\(\)\s*{/", $line) || preg_match("/^help\s*\(\)\s*{/", $line)) {
+					$in_help_function = true;
+					$help_found = true;
+					continue;
+				}
+				if ($in_help_function && preg_match("/^}/", $line)) {
+					$in_help_function = false;
+					break;
+				}
+
+				if ($in_help_function && preg_match('/echo\s+"?\s*--([a-zA-Z0-9_\-]+)(=[^)\s]+)?\s+(.*?)"?$/', $line, $matches)) {
+					$arg_name = "--" . $matches[1];
+					$default = "";
+					$type = "";
+
+					if (!empty($matches[2])) {
+						$equal_part = trim($matches[2], "=() ");
+						if (preg_match('/INT|NR|NUM|[0-9]/i', $equal_part)) {
+							$type = "int";
+						} elseif (preg_match('/STR|string/i', $equal_part)) {
+							$type = "str";
+						}
+					} else {
+						$type = "bool";
+						$default = "False";
+					}
+
+					$description = htmlentities(trim($matches[3]));
+
+					$args[] = [$arg_name, $description, $default, ($type !== "" ? "type: $type" : "")];
+				}
+			}
+
+			if (!$help_found || count($args) === 0) {
+				return [];
+			}
+
+			$groups["Ungrouped"] = [
+				"desc" => "Extracted from <tt>--help</tt>",
+				"args" => $args
+			];
+
+			return $groups;
+		}
 	}
 
-	function generate_argparse_html_table($arguments) {
+	function generate_argparse_html_table($arguments, $no_msg_when_empty) {
 		if (empty($arguments)) {
+			if($no_msg_when_empty) {
+				return "";
+			}
+
 			return "<p><strong>No arguments found.</strong></p>";
 		}
 
@@ -499,9 +570,9 @@
 		return $html;
 	}
 
-	function parse_arguments_and_print_html_table ($file_path) {
+	function parse_arguments_and_print_html_table ($file_path, $no_msg_when_empty = 0) {
 		$arguments = parse_arguments($file_path);
-		echo generate_argparse_html_table($arguments);
+		echo generate_argparse_html_table($arguments, $no_msg_when_empty);
 	}
 
 	function extract_magic_comment($file_path, $descriptionKey) {

@@ -12,7 +12,6 @@ import os
 import sys
 import traceback
 from datetime import datetime, timezone
-from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd

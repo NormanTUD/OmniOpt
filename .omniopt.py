@@ -87,15 +87,6 @@ try:
     with console.status("[bold green]Importing argparse..."):
         import argparse
 
-    with console.status("[bold green]Importing rich_argparse...") as status:
-        from argparse import HelpFormatter
-
-        try:
-            from rich_argparse import RichHelpFormatter
-            Formatter: type[HelpFormatter] = RichHelpFormatter
-        except ModuleNotFoundError:
-            Formatter = HelpFormatter
-
     with console.status("[bold green]Importing datetime..."):
         import datetime
 
@@ -591,8 +582,7 @@ class ConfigLoader:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
-            epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ...",
-            formatter_class=Formatter
+            epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ..."
         )
 
         self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str, default=None)

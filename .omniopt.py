@@ -2413,11 +2413,13 @@ def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[
 def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[Union[int, float], Union[int, float]]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
-            print_yellow(f"{value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
+            if not args.tests:
+                print_yellow(f"{value_type} can only contain integers. You chose {lower_bound}. Will be rounded down to {math.floor(lower_bound)}.")
             lower_bound = math.floor(lower_bound)
 
         if not helpers.looks_like_int(upper_bound):
-            print_yellow(f"{value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
+            if not args.tests:
+                print_yellow(f"{value_type} can only contain integers. You chose {upper_bound}. Will be rounded up to {math.ceil(upper_bound)}.")
             upper_bound = math.ceil(upper_bound)
 
     return lower_bound, upper_bound
@@ -3175,11 +3177,13 @@ def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]]
     weights = [float(w.strip()) for w in weights_string.split(",") if w.strip()]
 
     if len(weights) > len(_args):
-        print_yellow(f"calculate_signed_weighted_euclidean_distance: Warning: Trimming {len(weights) - len(_args)} extra weight(s): {weights[len(_args):]}")
+        if not args.tests:
+            print_yellow(f"calculate_signed_weighted_euclidean_distance: Warning: Trimming {len(weights) - len(_args)} extra weight(s): {weights[len(_args):]}")
         weights = weights[:len(_args)]
 
     if len(weights) < len(_args):
-        print_yellow("calculate_signed_weighted_euclidean_distance: Warning: Not enough weights, filling with 1s")
+        if not args.tests:
+            print_yellow("calculate_signed_weighted_euclidean_distance: Warning: Not enough weights, filling with 1s")
         weights.extend([1] * (len(_args) - len(weights)))
 
     if len(_args) != len(weights):

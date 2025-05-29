@@ -53,13 +53,13 @@ for more details.
 
 ## Install from pypi
 
-This may not use the latest version.
+This may not use the bleeding-edge version, but if you get the version from here it means, the test suite has completety tested it properly.
 
 ```command
 pip3 install omniopt2
 ```
 
-## Install from repo
+## Install from repo (bleeding edge, may contain untested changes)
 
 ```command
 pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2

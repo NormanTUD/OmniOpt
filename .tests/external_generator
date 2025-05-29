@@ -2,7 +2,6 @@
 
 # HELPPAGE: Test external generator.
 
-# Defaultwerte
 MEM_GB=1
 TIME=60
 WORKER_TIMEOUT=60
@@ -27,7 +26,6 @@ function help () {
 	echo "--help                           Show this help message and exit"
 }
 
-# Argumente parsen
 for arg in "$@"; do
   case $arg in
     --mem_gb=*) MEM_GB="${arg#*=}" ;;
@@ -50,7 +48,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"
 cd ..
 
-# Aufruf
 ./omniopt \
   --partition=alpha \
   --experiment_name=EXTERNAL_GENERATOR_test \

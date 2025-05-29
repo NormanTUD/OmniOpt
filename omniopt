@@ -1778,15 +1778,7 @@ EOF
 							fi
 						fi
 
-						CNT_FOR_DOTS=0
-
 						for i in "${spin[@]}"; do
-							case $((CNT_FOR_DOTS % 3)) in
-								0) dots=".  " ;;
-								1) dots=" . " ;;
-								2) dots="  ." ;;
-							esac
-
 							print_line="$i Waiting for slurm job $started_job_nr to be started (\e[4mtail -f $LOG_PATH\e[0m) $estimated_start_time$dots"
 
 							_tput cr # Move cursor to beginning of line
@@ -1794,8 +1786,6 @@ EOF
 
 							echo -ne "$print_line"
 							sleep 0.2
-
-							CNT_FOR_DOTS=$((CNT_FOR_DOTS + 1))
 						done
 
 						_tput cnorm # Enable cursor

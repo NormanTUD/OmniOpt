@@ -1778,8 +1778,8 @@ EOF
 							fi
 						fi
 
-						for i in "${spin[@]}"; do
-							print_line="$i Waiting for slurm job $started_job_nr to be started (\e[4mtail -f $LOG_PATH\e[0m) $estimated_start_time"
+						for spin_element in "${spin[@]}"; do
+							print_line="$spin_element Waiting for slurm job $started_job_nr to be started (\e[4mtail -f $LOG_PATH\e[0m) $estimated_start_time"
 
 							_tput cr # Move cursor to beginning of line
 							_tput el # Delete line from start to finish

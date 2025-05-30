@@ -7,9 +7,13 @@ TIME=60
 WORKER_TIMEOUT=60
 MAX_EVAL=2
 NUM_PARALLEL_JOBS=1
-GPUS=1
+NUM_GPUS=1
 NUM_RANDOM_STEPS=1
 EXTERNAL_GENERATOR=$(echo "python3 $(pwd)/.tests/example_external.py" | base64 -w0)
+
+if command -v nvidia-smi 2>/dev/null; then
+	NUM_GPUS=1
+fi
 
 function help () {
 	echo "Usage: $(basename "$0") [OPTIONS]"
@@ -33,7 +37,7 @@ for arg in "$@"; do
     --worker_timeout=*) WORKER_TIMEOUT="${arg#*=}" ;;
     --max_eval=*) MAX_EVAL="${arg#*=}" ;;
     --num_parallel_jobs=*) NUM_PARALLEL_JOBS="${arg#*=}" ;;
-    --gpus=*) GPUS="${arg#*=}" ;;
+    --gpus=*) NUM_GPUS="${arg#*=}" ;;
     --num_random_steps=*) NUM_RANDOM_STEPS="${arg#*=}" ;;
     --external_generator=*)
       RAW_GEN="${arg#*=}"
@@ -56,7 +60,7 @@ cd ..
   --worker_timeout="$WORKER_TIMEOUT" \
   --max_eval="$MAX_EVAL" \
   --num_parallel_jobs="$NUM_PARALLEL_JOBS" \
-  --gpus="$GPUS" \
+  --gpus="$NUM_GPUS" \
   --num_random_steps="$NUM_RANDOM_STEPS" \
   --follow \
   --live_share \

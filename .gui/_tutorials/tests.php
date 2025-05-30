@@ -16,7 +16,6 @@
 		$path = $parent;
 	}
 
-	echo ($path . '/' . $targetFile);
 	include_once($path . '/' . $targetFile);
 ?>
 

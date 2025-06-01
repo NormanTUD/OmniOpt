@@ -80,7 +80,7 @@
 
 			foreach ($contents as $line) {
 				if (preg_match('/^#\s*HELPPAGE:\s*(.+)$/', $line, $matches)) {
-					print "<p>" . htmlspecialchars($matches[1]) . "</p>\n";
+					print "<p>" . $matches[1] . "</p>\n";
 					$helpTextFound = true;
 					break;
 				}

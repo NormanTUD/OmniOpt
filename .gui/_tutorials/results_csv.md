@@ -18,7 +18,7 @@ In **OmniOpt**, the `results.csv` file is used to store the outcomes of all exec
 - The **results** (objective values) produced by these configurations.
 - Metadata about the optimization process such as the trial index, arm name, trial status, and generation method used.
 
-#### Example content:
+### Example content:
 
 ```csv
 trial_index,arm_name,trial_status,generation_node,RESULT,int_param
@@ -99,7 +99,7 @@ Below is a list of possible values in the `generation_node` column and a brief d
 
 These options are color-coded in the GUI for visual clarity.
 
-### Summary
+## Summary
 
 The `results.csv` file is central to understanding what was tried, how it was generated, and how it performed. It enables:
 

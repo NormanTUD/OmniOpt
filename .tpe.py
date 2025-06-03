@@ -4,6 +4,7 @@ import json
 import logging
 try:
     import optuna
+    from optuna.trial import create_trial
 except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.")
     sys.exit(1)

@@ -24,11 +24,20 @@ cd $SCRIPT_DIR
 
 cd ..
 
-if [[ -d "runs/tpe" ]]; then
-	rm -rf "runs/tpe"
+TESTNAME=TPE
+rundir="runs/$TESTNAME"
+csv_path=$rundir/0/results.csv
+NUM_GPUS=0
+
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
 fi
 
-.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="tpe"
+if [[ -d $rundir ]]; then
+	rm -rf $rundir
+fi
+
+.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="$TESTNAME" --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -36,3 +45,24 @@ if [[ $exit_code -ne 0 ]]; then
 	red_text "TPE run failed with exit code $exit_code. Test failed."
 	exit 1
 fi
+
+if [[ ! -e $csv_path ]]; then
+	red_text "$csv_path could not be found."
+	exit 2
+fi
+
+if [[ $(wc -l $csv_path | sed -e 's#\s.*##') -ne 3 ]]; then
+	red_text "$csv_path does not contain 3 lines of results:"
+	cat "$csv_path"
+	exit 3
+fi
+
+if ! cat $csv_path | tail -n1 | grep -q TPE; then
+	red_text "$csv_path: The last line does not contain TPE"
+	cat "$csv_path"
+	exit 4
+fi
+
+green_text "TPE test OK"
+
+exit 0

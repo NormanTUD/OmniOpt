@@ -103,7 +103,6 @@ if [[ -d "$rundir" ]]; then
 fi
 
 .tests/start_simple_optimization_run \
-	--two_params \
 	--max_eval="$MAX_EVAL" \
 	--num_parallel_jobs="$NUM_PARALLEL_JOBS" \
 	--num_random_steps="$NUM_RANDOM_STEPS" \

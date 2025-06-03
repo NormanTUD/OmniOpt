@@ -83,6 +83,10 @@ Below is a list of possible values in the `generation_node` column and a brief d
       <td>Bayesian Optimization with mixed models – hybrid of multiple models.</td>
     </tr>
     <tr>
+      <td><strong>TPE</strong></td>
+      <td>[TPE](tutorials?tutorial=tpe) (Tree-structured Parzen Estimator) is a sequential model-based optimization algorithm used for hyperparameter tuning.</td>
+    </tr>
+    <tr>
       <td><strong>RANDOMFOREST</strong></td>
       <td>[Random Forest model](tutorials?tutorial=randomforest) used for prediction and optimization.</td>
     </tr>

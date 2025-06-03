@@ -24,10 +24,15 @@ cd $SCRIPT_DIR
 
 cd ..
 
-EXTERNAL_GENERATOR=$(echo "python3 $SCRIPT_DIR/../.tpe.py" | base64 -w0)
-
 if [[ -d "runs/tpe" ]]; then
 	rm -rf "runs/tpe"
 fi
 
-.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=EXTERNAL_GENERATOR --external_generator='$EXTERNAL_GENERATOR'" --testname="tpe"
+.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="tpe"
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "TPE run failed with exit code $exit_code. Test failed."
+	exit 1
+fi

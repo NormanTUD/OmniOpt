@@ -18,7 +18,7 @@ function red_text {
 	echoerr -e "\033[0;31m$1\033[0m"
 }
 
-function help {
+function help () {
 	echo "Usage: $0 [OPTIONS]"
 	echo
 	echo "Runs a test optimization with TPE using .tests/start_simple_optimization_run."

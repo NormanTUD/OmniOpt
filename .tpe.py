@@ -58,20 +58,68 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     parameters = data["parameters"]
     constraints = data.get("constraints", [])
     seed = data.get("seed", None)
+    trials_data = data.get("trials", [])
 
     def objective(trial: optuna.Trial):
         point = tpe_suggest_point(trial, parameters)
-
-        for constraint in constraints:
-            if not constraints_not_ok(constraints, point):
-                return 1e6
-
+        if not constraints_not_ok(constraints, point):
+            return 1e6
         return 0
 
-    study = optuna.create_study(sampler=optuna.samplers.TPESampler(seed=seed), direction="minimize")
+    study = optuna.create_study(
+        sampler=optuna.samplers.TPESampler(seed=seed),
+        direction="minimize"
+    )
+
+    for trial_entry in trials_data:
+        if len(trial_entry) != 2:
+            continue  # Ungültig
+        param_dict, result_dict = trial_entry[0], trial_entry[1]
+
+        # Dynamisch den einzigen Ergebnis-Key ermitteln
+        if not result_dict or len(result_dict) != 1:
+            continue  # ungültiger Result-Eintrag
+
+        result_key = next(iter(result_dict))
+        result_value = result_dict[result_key]
+
+        trial_params = {}
+        trial_distributions = {}
+
+        for name, p in parameters.items():
+            if p["parameter_type"] == "FIXED":
+                continue
+            value = param_dict[name]
+            if p["parameter_type"] == "RANGE":
+                if p["type"] == "INT":
+                    dist = optuna.distributions.IntUniformDistribution(p["range"][0], p["range"][1])
+                elif p["type"] == "FLOAT":
+                    dist = optuna.distributions.UniformDistribution(p["range"][0], p["range"][1])
+                else:
+                    continue
+            elif p["parameter_type"] == "CHOICE":
+                dist = optuna.distributions.CategoricalDistribution(p["values"])
+            else:
+                continue
+
+            trial_params[name] = value
+            trial_distributions[name] = dist
+
+        study.add_trial(
+            create_trial(
+                params=trial_params,
+                distributions=trial_distributions,
+                value=result_value
+            )
+        )
+
     study.optimize(objective, n_trials=max_trials)
 
-    best_point = study.best_params if study.best_trial.value < 1e6 else tpe_suggest_point(study.best_trial, parameters)
+    best_point = (
+        study.best_params
+        if study.best_trial.value < 1e6
+        else tpe_suggest_point(study.best_trial, parameters)
+    )
 
     return best_point
 

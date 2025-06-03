@@ -37,7 +37,7 @@ if [[ -d $rundir ]]; then
 	rm -rf $rundir
 fi
 
-.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="$TESTNAME" --gpus=$NUM_GPUS
+.tests/start_simple_optimization_run --one_param --max_eval=6 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="$TESTNAME" --gpus=$NUM_GPUS
 
 exit_code=$?
 
@@ -51,8 +51,8 @@ if [[ ! -e $csv_path ]]; then
 	exit 2
 fi
 
-if [[ $(wc -l $csv_path | sed -e 's#\s.*##') -ne 3 ]]; then
-	red_text "$csv_path does not contain 3 lines of results:"
+if [[ $(wc -l $csv_path | sed -e 's#\s.*##') -ne 7 ]]; then
+	red_text "$csv_path does not contain 7 lines of results:"
 	cat "$csv_path"
 	exit 3
 fi

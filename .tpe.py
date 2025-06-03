@@ -73,12 +73,11 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
 
     for trial_entry in trials_data:
         if len(trial_entry) != 2:
-            continue  # Ungültig
+            continue
         param_dict, result_dict = trial_entry[0], trial_entry[1]
 
-        # Dynamisch den einzigen Ergebnis-Key ermitteln
         if not result_dict or len(result_dict) != 1:
-            continue  # ungültiger Result-Eintrag
+            continue
 
         result_key = next(iter(result_dict))
         result_value = result_dict[result_key]

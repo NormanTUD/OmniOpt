@@ -1,11 +1,14 @@
 import sys
 import os
 import json
+import logging
 try:
     import optuna
 except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.")
     sys.exit(1)
+
+logging.getLogger("optuna").setLevel(logging.WARNING)
 
 def check_constraint(constraint: str, params: dict) -> bool:
     return eval(constraint, {}, params)

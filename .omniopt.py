@@ -4941,8 +4941,12 @@ def get_type_short(typename: str) -> str:
     return typename
 
 @beartype
-def parse_single_experiment_parameter_table(classic_params: Union[list, dict]) -> list:
+def parse_single_experiment_parameter_table(classic_params: Optional[Union[list, dict]]) -> list:
     rows: list = []
+
+    if classic_params is None:
+        print_red("parse_single_experiment_parameter_table: classic_param is None")
+        return rows
 
     k = 0
 
@@ -5130,7 +5134,7 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
         print_red(f"Error trying to write file {fn}: {e}")
 
 @beartype
-def print_experiment_parameters_table(classic_param: Union[list, dict]) -> None:
+def print_experiment_parameters_table(classic_param: Optional[Union[list, dict]]) -> None:
     if not classic_param:
         print_red("Cannot determine classic_param. No parameter table will be shown.")
         return

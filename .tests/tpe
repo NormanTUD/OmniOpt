@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Test TPE
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\e[0m"
+}
+
+function red_text {
+	echoerr -e "\e[31m$1\e[0m"
+}
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+EXTERNAL_GENERATOR=$(echo "python3 $SCRIPT_DIR/../.tpe.py" | base64 -w0)
+
+if [[ -d "runs/tpe" ]]; then
+	rm -rf "runs/tpe"
+fi
+
+.tests/start_simple_optimization_run --one_param --max_eval=2 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=EXTERNAL_GENERATOR --external_generator='$EXTERNAL_GENERATOR'" --testname="tpe"

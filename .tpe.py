@@ -77,7 +77,7 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     study = create_study_with_seed(seed, direction)
 
     for trial_entry in trials_data:
-        add_existing_trial_to_study(study, trial_entry, parameters, result_key, direction)
+        add_existing_trial_to_study(study, trial_entry, parameters, result_key)
 
     study.optimize(lambda trial: wrapped_objective(trial, parameters, constraints, direction), n_trials=max_trials)
 
@@ -108,7 +108,7 @@ def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, 
     return 0.0
 
 @beartype
-def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: list, parameters: dict, result_key: str, direction: str) -> None:
+def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: list, parameters: dict, result_key: str) -> None:
     if len(trial_entry) != 2:
         return
     param_dict, result_dict = trial_entry

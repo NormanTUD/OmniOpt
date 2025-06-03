@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import logging
+from typing import Optional
 try:
     import optuna
     from optuna.trial import create_trial
@@ -72,84 +73,95 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     trials_data = data.get("trials", [])
     objectives = data.get("objectives", {})
 
+    direction, result_key = parse_objectives(objectives)
+    study = create_study_with_seed(seed, direction)
+
+    for trial_entry in trials_data:
+        add_existing_trial_to_study(study, trial_entry, parameters, result_key, direction)
+
+    study.optimize(lambda trial: wrapped_objective(trial, parameters, constraints, direction), n_trials=max_trials)
+
+    return get_best_or_new_point(study, parameters, direction)
+
+@beartype
+def parse_objectives(objectives: dict) -> tuple[str, str]:
     if len(objectives) != 1:
         raise ValueError("Only single-objective optimization is supported.")
-
     result_key, result_goal = next(iter(objectives.items()))
     if result_goal.lower() not in ("min", "max"):
         raise ValueError(f"Unsupported objective direction: {result_goal}")
-
     direction = "maximize" if result_goal.lower() == "max" else "minimize"
+    return direction, result_key
 
-    def objective(trial: optuna.Trial):
-        point = tpe_suggest_point(trial, parameters)
-        if not constraints_not_ok(constraints, point):
-            return 1e6 if direction == "minimize" else -1e6
-        return 0.0
-
-    study = optuna.create_study(
+@beartype
+def create_study_with_seed(seed: Optional[int], direction) -> optuna.study.study.Study:
+    return optuna.create_study(
         sampler=optuna.samplers.TPESampler(seed=seed),
         direction=direction
     )
 
-    for trial_entry in trials_data:
-        if len(trial_entry) != 2:
+@beartype
+def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: str) -> float:
+    point = tpe_suggest_point(trial, parameters)
+    if not constraints_not_ok(constraints, point):
+        return 1e6 if direction == "minimize" else -1e6
+    return 0.0
+
+@beartype
+def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: list, parameters: dict, result_key: str, direction: str) -> None:
+    if len(trial_entry) != 2:
+        return
+    param_dict, result_dict = trial_entry
+
+    if not result_dict or result_key not in result_dict:
+        return
+
+    if not all(k in param_dict for k in parameters):
+        return
+
+    final_value = result_dict[result_key]
+
+    trial_params = {}
+    trial_distributions = {}
+
+    for name, p in parameters.items():
+        value = param_dict[name]
+
+        if p["parameter_type"] == "FIXED":
+            trial_params[name] = value
             continue
-        param_dict, result_dict = trial_entry[0], trial_entry[1]
 
-        if not result_dict or result_key not in result_dict:
-            continue
-
-        result_value = result_dict[result_key]
-        if direction == "minimize":
-            final_value = result_value
-        else:
-            final_value = result_value
-
-        trial_params = {}
-        trial_distributions = {}
-
-        if not all(k in param_dict for k in parameters):
-            continue
-
-        for name, p in parameters.items():
-            value = param_dict[name]
-
-            if p["parameter_type"] == "FIXED":
-                trial_params[name] = value
+        if p["parameter_type"] == "RANGE":
+            if p["type"] == "INT":
+                dist = optuna.distributions.IntUniformDistribution(p["range"][0], p["range"][1])
+            elif p["type"] == "FLOAT":
+                dist = optuna.distributions.UniformDistribution(p["range"][0], p["range"][1])
+            else:
                 continue
 
-            if p["parameter_type"] == "RANGE":
-                if p["type"] == "INT":
-                    dist = optuna.distributions.IntUniformDistribution(p["range"][0], p["range"][1])
-                elif p["type"] == "FLOAT":
-                    dist = optuna.distributions.UniformDistribution(p["range"][0], p["range"][1])
-                else:
-                    continue
+        elif p["parameter_type"] == "CHOICE":
+            dist = optuna.distributions.CategoricalDistribution(p["values"])
+        else:
+            continue
 
-            if p["parameter_type"] == "CHOICE":
-                dist = optuna.distributions.CategoricalDistribution(p["values"])
+        trial_params[name] = value
+        trial_distributions[name] = dist
 
-            trial_params[name] = value
-            trial_distributions[name] = dist
-
-        study.add_trial(
-            create_trial(
-                params=trial_params,
-                distributions=trial_distributions,
-                value=final_value
-            )
+    study.add_trial(
+        create_trial(
+            params=trial_params,
+            distributions=trial_distributions,
+            value=final_value
         )
-
-    study.optimize(objective, n_trials=max_trials)
-
-    best_point = (
-        study.best_params
-        if (study.best_trial.value < 1e6 if direction == "minimize" else study.best_trial.value > -1e6)
-        else tpe_suggest_point(study.best_trial, parameters)
     )
 
-    return best_point
+@beartype
+def get_best_or_new_point(study: optuna.study.study.Study, parameters: dict, direction: str) -> dict:
+    best_trial_value = study.best_trial.value
+    if (direction == "minimize" and best_trial_value < 1e6) or \
+       (direction == "maximize" and best_trial_value > -1e6):
+        return study.best_params
+    return tpe_suggest_point(study.best_trial, parameters)
 
 @beartype
 def main() -> None:

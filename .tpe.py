@@ -110,6 +110,9 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
         trial_distributions = {}
 
         for name, p in parameters.items():
+            if not all(k in param_dict for k in parameters):
+                continue  # skip trial if a param is missing
+
             if p["parameter_type"] == "FIXED":
                 continue
             value = param_dict[name]

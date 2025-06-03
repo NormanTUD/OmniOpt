@@ -36,7 +36,7 @@ function help () {
 }
 
 # Default values
-MAX_EVAL=6
+MAX_EVAL=2
 NUM_RANDOM_STEPS=1
 NUM_PARALLEL_JOBS=2
 MEM_GB=4

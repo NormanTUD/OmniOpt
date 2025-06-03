@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Test TPE
+# HELPPAGE: Test the Tree Parzen Estimator model (TPE).
 
 function echoerr {
 	echo "$@" 1>&2

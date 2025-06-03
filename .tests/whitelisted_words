@@ -1735,6 +1735,7 @@ parsedPath
 parsePath
 partitionInfo
 partitionSelect
+parzen
 Parzen
 pathlibPath
 pathlike
@@ -2483,6 +2484,7 @@ TouchFunc
 touchmove
 touchstart
 TParameterization
+tpe
 TPE
 tput
 tqdm

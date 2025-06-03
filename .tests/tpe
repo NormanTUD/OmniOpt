@@ -7,37 +7,112 @@ function echoerr {
 }
 
 function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
+	echoerr -e "\033[0;33m$1\033[0m"
 }
 
 function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
+	echoerr -e "\033[0;32m$1\033[0m"
 }
 
 function red_text {
-	echoerr -e "\e[31m$1\e[0m"
+	echoerr -e "\033[0;31m$1\033[0m"
 }
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+function help {
+	echo "Usage: $0 [OPTIONS]"
+	echo
+	echo "Runs a test optimization with TPE using .tests/start_simple_optimization_run."
+	echo
+	echo "Options:"
+	echo "  --max_eval=N              Maximum number of evaluations (default: 6)"
+	echo "  --num_random_steps=N      Number of random steps before model (default: 1)"
+	echo "  --num_parallel_jobs=N     Number of parallel jobs (default: 2)"
+	echo "  --mem_gb=N                Memory in GB per job (default: 4)"
+	echo "  --testname=NAME           Name for the test run (default: TPE)"
+	echo "  --gpus=0|1                Use GPU (default: auto-detect)"
+	echo "  --additional=ARGS         Additional parameters for the optimizer"
+	echo "  --help                    Show this help message"
+	exit 0
+}
 
-cd $SCRIPT_DIR
-
-cd ..
-
-TESTNAME=TPE
-rundir="runs/$TESTNAME"
-csv_path=$rundir/0/results.csv
+# Default values
+MAX_EVAL=6
+NUM_RANDOM_STEPS=1
+NUM_PARALLEL_JOBS=2
+MEM_GB=4
+TESTNAME="TPE"
+ADDITIONAL_PARAMETER=""
+AUTO_GPUS=true
 NUM_GPUS=0
 
-if command -v nvidia-smi 2>/dev/null >/dev/null; then
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--max_eval=*)
+			MAX_EVAL="${1#*=}"
+			shift
+			;;
+		--num_random_steps=*)
+			NUM_RANDOM_STEPS="${1#*=}"
+			shift
+			;;
+		--num_parallel_jobs=*)
+			NUM_PARALLEL_JOBS="${1#*=}"
+			shift
+			;;
+		--mem_gb=*)
+			MEM_GB="${1#*=}"
+			shift
+			;;
+		--testname=*)
+			TESTNAME="${1#*=}"
+			shift
+			;;
+		--gpus=*)
+			NUM_GPUS="${1#*=}"
+			AUTO_GPUS=false
+			shift
+			;;
+		--additional=*)
+			ADDITIONAL_PARAMETER="${1#*=}"
+			shift
+			;;
+		--help|-h)
+			help
+			;;
+		*)
+			red_text "Unknown option: $1"
+			help
+			;;
+	esac
+done
+
+# Auto-detect GPU if not specified
+if $AUTO_GPUS && command -v nvidia-smi >/dev/null 2>&1; then
 	NUM_GPUS=1
 fi
 
-if [[ -d $rundir ]]; then
-	rm -rf $rundir
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$SCRIPT_DIR/.."
+
+rundir="runs/$TESTNAME"
+csv_path="$rundir/0/results.csv"
+
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
 fi
 
-.tests/start_simple_optimization_run --two_params --max_eval=6 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --additional_parameter="--model=TPE" --testname="$TESTNAME" --gpus=$NUM_GPUS
+.tests/start_simple_optimization_run \
+	--two_params \
+	--max_eval="$MAX_EVAL" \
+	--num_parallel_jobs="$NUM_PARALLEL_JOBS" \
+	--num_random_steps="$NUM_RANDOM_STEPS" \
+	--mem_gb="$MEM_GB" \
+	--generate_all_jobs_at_once \
+	--follow \
+	--additional_parameter="--model=TPE $ADDITIONAL_PARAMETER" \
+	--testname="$TESTNAME" \
+	--gpus="$NUM_GPUS"
 
 exit_code=$?
 
@@ -46,23 +121,22 @@ if [[ $exit_code -ne 0 ]]; then
 	exit 1
 fi
 
-if [[ ! -e $csv_path ]]; then
+if [[ ! -e "$csv_path" ]]; then
 	red_text "$csv_path could not be found."
 	exit 2
 fi
 
-if [[ $(wc -l $csv_path | sed -e 's#\s.*##') -ne 7 ]]; then
-	red_text "$csv_path does not contain 7 lines of results:"
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL + 1)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL + 1)) lines of results:"
 	cat "$csv_path"
 	exit 3
 fi
 
-if ! cat $csv_path | tail -n1 | grep -q TPE; then
+if ! tail -n1 "$csv_path" | grep -q TPE; then
 	red_text "$csv_path: The last line does not contain TPE"
 	cat "$csv_path"
 	exit 4
 fi
 
 green_text "TPE test OK"
-
 exit 0

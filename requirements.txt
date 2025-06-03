@@ -31,3 +31,4 @@ setuptools
 pyright
 qrcode
 tabulate
+optuna

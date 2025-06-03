@@ -109,24 +109,29 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
         trial_params = {}
         trial_distributions = {}
 
-        for name, p in parameters.items():
-            if not all(k in param_dict for k in parameters):
-                continue  # skip trial if a param is missing
+        if not all(k in param_dict for k in parameters):
+            continue  # skip trial if a param is missing
 
-            if p["parameter_type"] == "FIXED":
-                continue
+        for name, p in parameters.items():
             value = param_dict[name]
-            if p["parameter_type"] == "RANGE":
+
+            # Determine Optuna distribution based on parameter_type and type
+            if p["parameter_type"] == "FIXED":
+                # No distribution needed for FIXED, just store the value
+                trial_params[name] = value
+                continue  # no distribution to record
+
+            elif p["parameter_type"] == "RANGE":
                 if p["type"] == "INT":
                     dist = optuna.distributions.IntUniformDistribution(p["range"][0], p["range"][1])
                 elif p["type"] == "FLOAT":
                     dist = optuna.distributions.UniformDistribution(p["range"][0], p["range"][1])
                 else:
-                    continue
+                    continue  # unknown type in RANGE
             elif p["parameter_type"] == "CHOICE":
                 dist = optuna.distributions.CategoricalDistribution(p["values"])
             else:
-                continue
+                continue  # unknown parameter_type
 
             trial_params[name] = value
             trial_distributions[name] = dist

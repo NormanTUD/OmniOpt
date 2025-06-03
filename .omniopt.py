@@ -556,6 +556,7 @@ class ConfigLoader:
     follow: bool
     show_generation_and_submission_sixel: bool
     n_estimators_randomforest: int
+    max_num_of_parallel_sruns: int
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: List[str]
     time: str
@@ -659,6 +660,7 @@ class ConfigLoader:
         speed.add_argument('--dont_jit_compile', help='Disable JIT-compiling the model', action='store_true', default=False)
         speed.add_argument('--num_restarts', help='num_restarts option for optimizer_options', type=int, default=20)
         speed.add_argument('--raw_samples', help='raw_samples option for optimizer_options', type=int, default=1024)
+        speed.add_argument('--max_num_of_parallel_sruns', help='Maximal number of parallel sruns', type=int, default=16)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
 
@@ -7713,7 +7715,7 @@ def execute_trials(
 
     cnt = 0
 
-    with ThreadPoolExecutor(max_workers=min(len(index_param_list), 16)) as tp_executor:
+    with ThreadPoolExecutor(max_workers=min(len(index_param_list), args.max_num_of_parallel_sruns)) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
 
         for future in as_completed(future_to_args):

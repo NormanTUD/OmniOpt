@@ -673,6 +673,14 @@ var hiddenTableData = [
 		min: 1,
 	},
 	{
+		label: "Maximal number of parallel sruns when stating jobs",
+		id: "max_num_of_parallel_sruns",
+		type: "number",
+		value: 16,
+		placeholder: "Max number of parallel sruns to be started. More = faster job startup time but also more load on slurm controller",
+		min: 1,
+	},
+	{
 		label: "Force float ranges to be converted to choice",
 		id: "force_choice_for_ranges",
 		type: "checkbox",

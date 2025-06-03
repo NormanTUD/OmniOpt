@@ -1664,6 +1664,8 @@ optionCell
 optionSelect
 optionsi
 optionslength
+optuna
+Optuna
 orchestratoryaml
 orig
 originalAriaControls
@@ -2285,6 +2287,7 @@ squeue
 src
 SRE
 srun
+sruns
 ssml
 stackedRNNCells
 stacktrace

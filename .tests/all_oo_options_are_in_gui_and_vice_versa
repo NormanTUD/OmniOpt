@@ -45,6 +45,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		EXTERNAL_GENERATOR
 		RANDOMFOREST
 		BO_MIXED
+		TPE
 	)
 
 	declare -a help_exceptions=(

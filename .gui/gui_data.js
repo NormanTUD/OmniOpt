@@ -12,6 +12,12 @@ var model_data = [
 		link: 'https://en.wikipedia.org/wiki/Sobol_sequence'
 	},
 	{
+		id: 'TPE',
+		name: 'TPE: Tree Parzen Estimator. TPE runs cannot be continued (yet).',
+		link: 'https://de.wikipedia.org/wiki/Parzen-Tree_Estimator',
+		hide_in_custom_generation_strategy: true
+	},
+	{
 		id: 'PSEUDORANDOM',
 		name: 'PSEUDORANDOM: Uniformly random sequence. PSEUDORANDOM runs cannot be continued (yet).',
 		link: 'https://en.wikipedia.org/wiki/Pseudorandomness',

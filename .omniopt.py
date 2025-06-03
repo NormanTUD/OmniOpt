@@ -41,7 +41,7 @@ overwritten_to_random: bool = False
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 joined_valid_occ_types: str = ", ".join(valid_occ_types)
 
-SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM"]
+SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs"]
@@ -7489,6 +7489,11 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             },
             seed=args.seed
         )
+
+        return node
+
+    if model_name == "TPE":
+        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
 
         return node
 

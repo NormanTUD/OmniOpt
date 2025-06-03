@@ -14,7 +14,7 @@ var model_data = [
 	{
 		id: 'TPE',
 		name: 'TPE: Tree Parzen Estimator. TPE runs cannot be continued (yet).',
-		link: 'https://de.wikipedia.org/wiki/Parzen-Tree_Estimator',
+		link: 'https://proceedings.neurips.cc/paper_files/paper/2011/file/86e8f7ab32cfd12577bc2619bc635690-Paper.pdf',
 		hide_in_custom_generation_strategy: true
 	},
 	{

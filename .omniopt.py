@@ -6567,6 +6567,8 @@ def execute_evaluation(_params: list) -> Optional[int]:
         trial_counter += 1
 
         progressbar_description(["started new job"])
+
+        save_results_csv()
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1

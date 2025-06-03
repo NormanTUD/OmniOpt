@@ -7715,7 +7715,9 @@ def execute_trials(
 
     cnt = 0
 
-    with ThreadPoolExecutor(max_workers=min(len(index_param_list), args.max_num_of_parallel_sruns)) as tp_executor:
+    nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
+
+    with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
 
         for future in as_completed(future_to_args):

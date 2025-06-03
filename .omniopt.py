@@ -5161,7 +5161,7 @@ def print_experiment_parameters_table(classic_param: Union[list, dict]) -> None:
     print_experiment_param_table_to_file(filtered_columns, filtered_data)
 
 @beartype
-def print_overview_tables(classic_params: Optional[Union[list, dict]], experiment_parameters: Union[list, dict], experiment_args: dict) -> None:
+def print_overview_tables(classic_params: Optional[Union[list, dict]], experiment_args: dict) -> None:
     if classic_params is None or len(classic_params) == 0:
         classic_params = experiment_parameters
 
@@ -9246,7 +9246,7 @@ def main() -> None:
     checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
     save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
 
-    print_overview_tables(classic_params, experiment_parameters, experiment_args)
+    print_overview_tables(experiment_parameters, experiment_args)
 
     write_files_and_show_overviews()
 

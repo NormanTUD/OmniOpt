@@ -59,16 +59,26 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     constraints = data.get("constraints", [])
     seed = data.get("seed", None)
     trials_data = data.get("trials", [])
+    objectives = data.get("objectives", {})
+
+    if len(objectives) != 1:
+        raise ValueError("Only single-objective optimization is supported.")
+
+    result_key, result_goal = next(iter(objectives.items()))
+    if result_goal.lower() not in ("min", "max"):
+        raise ValueError(f"Unsupported objective direction: {result_goal}")
+
+    direction = "maximize" if result_goal.lower() == "max" else "minimize"
 
     def objective(trial: optuna.Trial):
         point = tpe_suggest_point(trial, parameters)
         if not constraints_not_ok(constraints, point):
-            return 1e6
-        return 0
+            return 1e6 if direction == "minimize" else -1e6
+        return 0.0
 
     study = optuna.create_study(
         sampler=optuna.samplers.TPESampler(seed=seed),
-        direction="minimize"
+        direction=direction
     )
 
     for trial_entry in trials_data:
@@ -76,11 +86,14 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
             continue
         param_dict, result_dict = trial_entry[0], trial_entry[1]
 
-        if not result_dict or len(result_dict) != 1:
+        if not result_dict or result_key not in result_dict:
             continue
 
-        result_key = next(iter(result_dict))
         result_value = result_dict[result_key]
+        if direction == "minimize":
+            final_value = result_value
+        else:
+            final_value = result_value
 
         trial_params = {}
         trial_distributions = {}
@@ -108,7 +121,7 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
             create_trial(
                 params=trial_params,
                 distributions=trial_distributions,
-                value=result_value
+                value=final_value
             )
         )
 
@@ -116,7 +129,7 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
 
     best_point = (
         study.best_params
-        if study.best_trial.value < 1e6
+        if (study.best_trial.value < 1e6 if direction == "minimize" else study.best_trial.value > -1e6)
         else tpe_suggest_point(study.best_trial, parameters)
     )
 

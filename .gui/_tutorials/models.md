@@ -99,6 +99,20 @@ Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but 
 
 Sources: [Bayesian Optimization using Pseudo-Points](https://arxiv.org/abs/1910.05484)
 
+### TPE
+
+`TPE` (Tree-structured Parzen Estimator) is a sequential model-based optimization method that models probability densities instead of surrogate functions. Unlike classical Bayesian Optimization using Gaussian Processes, TPE builds two conditional distributions – one for good outcomes and one for the rest – and proposes new candidates by maximizing the ratio `l(x) / g(x)`.
+
+**Best suited for:** Optimization in high-dimensional, noisy, or heavily categorical search spaces.
+**Use case:** Hyperparameter tuning in machine learning, e.g., neural network architecture (`dropout`, `batch_size`, `num_layers`, `learning_rate`).
+- **Pros:** Naturally handles discrete and categorical parameters; robust under noise; performs well with few initial evaluations.
+- **Cons:** Less efficient than Gaussian Processes in continuous spaces; uncertainty estimation is indirect; performance may degrade with very high-dimensional spaces.
+
+Sources:
+- [Algorithms for Hyper-Parameter Optimization (Bergstra et al., NeurIPS 2011)](https://proceedings.neurips.cc/paper_files/paper/2011/file/86e8f7ab32cfd12577bc2619bc635690-Paper.pdf)
+- [Hyperopt GitHub Repository](https://github.com/hyperopt/hyperopt)
+- [Practical Bayesian Optimization of Machine Learning Algorithms (Snoek et al., 2012)](https://arxiv.org/abs/1206.2944)
+
 ### EXTERNAL_GENERATOR
 
 External generators allow you to use *any* external program to generate new points. See [External Generators](tutorials?tutorial=external_generator) for more details.

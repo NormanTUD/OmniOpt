@@ -8,11 +8,19 @@ except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.")
     sys.exit(1)
 
+try:
+    from beartype import beartype
+except ModuleNotFoundError:
+    print("beartype not found. Cannot continue.")
+    sys.exit(1)
+
 logging.getLogger("optuna").setLevel(logging.WARNING)
 
+@beartype
 def check_constraint(constraint: str, params: dict) -> bool:
     return eval(constraint, {}, params)
 
+@beartype
 def constraints_not_ok(constraints: list, point: dict) -> bool:
     if not constraints or constraints is None or len(constraints) == 0:
         return True
@@ -23,6 +31,7 @@ def constraints_not_ok(constraints: list, point: dict) -> bool:
 
     return False
 
+@beartype
 def tpe_suggest_point(trial: optuna.Trial, parameters: dict) -> dict:
     point = {}
     for param_name, param in parameters.items():
@@ -54,6 +63,7 @@ def tpe_suggest_point(trial: optuna.Trial, parameters: dict) -> dict:
 
     return point
 
+@beartype
 def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
     parameters = data["parameters"]
     constraints = data.get("constraints", [])
@@ -135,6 +145,7 @@ def generate_tpe_point(data: dict, max_trials: int = 100) -> dict:
 
     return best_point
 
+@beartype
 def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: python script.py <path>")

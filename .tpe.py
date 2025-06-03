@@ -94,7 +94,7 @@ def parse_objectives(objectives: dict) -> tuple[str, str]:
     return direction, result_key
 
 @beartype
-def create_study_with_seed(seed: Optional[int], direction) -> optuna.study.study.Study:
+def create_study_with_seed(seed: Optional[int], direction: str) -> optuna.study.study.Study:
     return optuna.create_study(
         sampler=optuna.samplers.TPESampler(seed=seed),
         direction=direction
@@ -158,9 +158,10 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
 @beartype
 def get_best_or_new_point(study: optuna.study.study.Study, parameters: dict, direction: str) -> dict:
     best_trial_value = study.best_trial.value
-    if (direction == "minimize" and best_trial_value < 1e6) or \
-       (direction == "maximize" and best_trial_value > -1e6):
-        return study.best_params
+    if best_trial_value is not None:
+        if (direction == "minimize" and best_trial_value < 1e6) or \
+           (direction == "maximize" and best_trial_value > -1e6):
+            return study.best_params
     return tpe_suggest_point(study.best_trial, parameters)
 
 @beartype

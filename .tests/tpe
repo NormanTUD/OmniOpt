@@ -126,8 +126,8 @@ if [[ ! -e "$csv_path" ]]; then
 	exit 2
 fi
 
-if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL + 1)) ]]; then
-	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL + 1)) lines of results:"
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
 	cat "$csv_path"
 	exit 3
 fi

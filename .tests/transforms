@@ -117,7 +117,7 @@ function run_test {
 run_test "no_transforms" "" 0
 run_test "Cont_X_trans" "--transforms='Cont_X_trans'" 3
 #run_test "Y_trans" "--transforms='Y_trans'" 6
-run_test "Cont_X_trans_Y_trans" "--transforms=Cont_X_trans transforms=Y_trans" 9
+run_test "Cont_X_trans_Y_trans" "--transforms=Cont_X_trans --transforms=Y_trans" 9
 
 green_text "Transforms-Test OK"
 exit 0

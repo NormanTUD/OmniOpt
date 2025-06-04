@@ -204,11 +204,21 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 }
 ```
 
-## Example program
+## Example programs
+
+### PSEUDORANDOM
 
 This is an example python-program that generated random points that lie within the ranges and parameter boundaries of your experiment:
 
+
 ```python[../.random_generator.py]
+```
+
+### TPE (Tree Parzen Estimator)
+
+This is another program. It uses [Optuna](https://optuna.org/) and a Tree-Parzen-Estimator to generate new points:
+
+```python[../.tpe.py]
 ```
 
 ## Caveats

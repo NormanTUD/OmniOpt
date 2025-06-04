@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Test the Tree Parzen Estimator model (TPE).
+
+function echoerr {
+	echo "$@" 1>&2
+}
+
+function yellow_text {
+	echoerr -e "\033[0;33m$1\033[0m"
+}
+
+function green_text {
+	echoerr -e "\033[0;32m$1\033[0m"
+}
+
+function red_text {
+	echoerr -e "\033[0;31m$1\033[0m"
+}
+
+function help () {
+	echo "Usage: $0 [OPTIONS]"
+	echo
+	echo "Runs a test optimization with TPE using .tests/start_simple_optimization_run."
+	echo
+	echo "Options:"
+	echo "  --max_eval=N              Maximum number of evaluations (default: 6)"
+	echo "  --num_random_steps=N      Number of random steps before model (default: 1)"
+	echo "  --num_parallel_jobs=N     Number of parallel jobs (default: 2)"
+	echo "  --mem_gb=N                Memory in GB per job (default: 4)"
+	echo "  --testname=NAME           Name for the test run (default: TPE)"
+	echo "  --gpus=0|1                Use GPU (default: auto-detect)"
+	echo "  --additional=ARGS         Additional parameters for the optimizer"
+	echo "  --help                    Show this help message"
+	exit 0
+}
+
+# Default values
+MAX_EVAL=2
+NUM_RANDOM_STEPS=1
+NUM_PARALLEL_JOBS=2
+MEM_GB=4
+TESTNAME="TRANSFORMS"
+ADDITIONAL_PARAMETER=""
+AUTO_GPUS=true
+NUM_GPUS=0
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		--max_eval=*)
+			MAX_EVAL="${1#*=}"
+			shift
+			;;
+		--num_random_steps=*)
+			NUM_RANDOM_STEPS="${1#*=}"
+			shift
+			;;
+		--num_parallel_jobs=*)
+			NUM_PARALLEL_JOBS="${1#*=}"
+			shift
+			;;
+		--mem_gb=*)
+			MEM_GB="${1#*=}"
+			shift
+			;;
+		--testname=*)
+			TESTNAME="${1#*=}"
+			shift
+			;;
+		--gpus=*)
+			NUM_GPUS="${1#*=}"
+			AUTO_GPUS=false
+			shift
+			;;
+		--additional=*)
+			ADDITIONAL_PARAMETER="${1#*=}"
+			shift
+			;;
+		--help|-h)
+			help
+			;;
+		*)
+			red_text "Unknown option: $1"
+			help
+			;;
+	esac
+done
+
+# Auto-detect GPU if not specified
+if $AUTO_GPUS && command -v nvidia-smi >/dev/null 2>&1; then
+	NUM_GPUS=1
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$SCRIPT_DIR/.."
+
+rundir="runs/${TESTNAME}_no_transforms"
+csv_path="$rundir/0/results.csv"
+
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
+fi
+
+.tests/start_simple_optimization_run \
+	--max_eval=2 \
+	--num_parallel_jobs=1 \
+	--num_random_steps=1 \
+	--mem_gb="$MEM_GB" \
+	--generate_all_jobs_at_once \
+	--follow \
+	--additional_parameter="$ADDITIONAL_PARAMETER" \
+	--testname="${TESTNAME}_no_transforms" \
+	--gpus="$NUM_GPUS" \
+	--nr_results=2
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "Exit code should have been 0, but is $exit_code"
+	exit 1
+fi
+
+if [[ ! -e "$csv_path" ]]; then
+	red_text "$csv_path could not be found."
+	exit 2
+fi
+
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
+	cat "$csv_path"
+	exit 3
+fi
+
+rundir="runs/${TESTNAME}_Cont_X_trans"
+csv_path="$rundir/0/results.csv"
+
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
+fi
+
+.tests/start_simple_optimization_run \
+	--max_eval=2 \
+	--num_parallel_jobs=1 \
+	--num_random_steps=1 \
+	--mem_gb="$MEM_GB" \
+	--generate_all_jobs_at_once \
+	--follow \
+	--additional_parameter="$ADDITIONAL_PARAMETER" \
+	--testname="${TESTNAME}_Cont_X_trans --transforms='Cont_X_trans'" \
+	--gpus="$NUM_GPUS" \
+	--nr_results=2
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "Exit code should have been 0, but is $exit_code"
+	exit 4
+fi
+
+if [[ ! -e "$csv_path" ]]; then
+	red_text "$csv_path could not be found."
+	exit 5
+fi
+
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
+	cat "$csv_path"
+	exit 6
+fi
+
+rundir="runs/${TESTNAME}_Y_trans"
+csv_path="$rundir/0/results.csv"
+
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
+fi
+
+.tests/start_simple_optimization_run \
+	--max_eval=2 \
+	--num_parallel_jobs=1 \
+	--num_random_steps=1 \
+	--mem_gb="$MEM_GB" \
+	--generate_all_jobs_at_once \
+	--follow \
+	--additional_parameter="$ADDITIONAL_PARAMETER" \
+	--testname="${TESTNAME}_Y_trans --transforms='Y_trans'" \
+	--gpus="$NUM_GPUS" \
+	--nr_results=2
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "Exit code should have been 0, but is $exit_code"
+	exit 7
+fi
+
+if [[ ! -e "$csv_path" ]]; then
+	red_text "$csv_path could not be found."
+	exit 8
+fi
+
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
+	cat "$csv_path"
+	exit 9
+fi
+
+rundir="runs/${TESTNAME}_Cont_X_trans_Y_Trans"
+csv_path="$rundir/0/results.csv"
+
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
+fi
+
+.tests/start_simple_optimization_run \
+	--max_eval=2 \
+	--num_parallel_jobs=1 \
+	--num_random_steps=1 \
+	--mem_gb="$MEM_GB" \
+	--generate_all_jobs_at_once \
+	--follow \
+	--additional_parameter="$ADDITIONAL_PARAMETER" \
+	--testname="${TESTNAME}_Cont_X_trans_Y_trans --transforms='Cont_X_trans Y_trans'" \
+	--gpus="$NUM_GPUS" \
+	--nr_results=2
+
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	red_text "Exit code should have been 0, but is $exit_code"
+	exit 10
+fi
+
+if [[ ! -e "$csv_path" ]]; then
+	red_text "$csv_path could not be found."
+	exit 11
+fi
+
+if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
+	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
+	cat "$csv_path"
+	exit 12
+fi
+
+green_text "Transforms-Test OK"
+exit 0

@@ -664,7 +664,7 @@ class ConfigLoader:
         speed.add_argument('--max_num_of_parallel_sruns', help='Maximal number of parallel sruns', type=int, default=16)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
-        speed.add_argument('--transforms', nargs='*', choices=['Cont_X_Trans', 'Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_Trans, Y_trans, or leave the option; use like this: --transforms Cont_X_Trans Y_trans)')
+        speed.add_argument('--transforms', nargs='*', choices=['Cont_X_trans', 'Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_trans, Y_trans, or leave the option; use like this: --transforms Cont_X_trans Y_trans)')
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -6952,7 +6952,7 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
 @beartype
 def get_model_kwargs() -> dict:
-    if 'Cont_X_Trans' in args.transforms and 'Y_trans' in args.transforms:
+    if 'Cont_X_trans' in args.transforms and 'Y_trans' in args.transforms:
         return {
             "transforms": Cont_X_trans + Y_trans
         }
@@ -6962,7 +6962,7 @@ def get_model_kwargs() -> dict:
             "transforms": Y_trans
         }
 
-    if 'Cont_X_Trans' in args.transforms:
+    if 'Cont_X_trans' in args.transforms:
         return {
             "transforms": Cont_X_trans
         }

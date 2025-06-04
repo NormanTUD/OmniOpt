@@ -59,6 +59,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		tests
 		parameter
 		continue_previous_job
+		transforms
 		num_cpus_main_job
 		orchestrator_file
 		disable_previous_job_constraint

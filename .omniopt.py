@@ -572,6 +572,7 @@ class ConfigLoader:
     workdir: str
     dont_jit_compile: bool
     no_normalize_y: bool
+    transforms: List[str]
     no_transform_inputs: bool
     occ: bool
     force_choice_for_ranges: bool
@@ -663,6 +664,7 @@ class ConfigLoader:
         speed.add_argument('--max_num_of_parallel_sruns', help='Maximal number of parallel sruns', type=int, default=16)
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
+        speed.add_argument('--transforms', nargs='*', choices=['Cont_X_Trans', 'Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_Trans, Y_trans)')
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -888,6 +890,9 @@ try:
 
     with console.status("[bold green]Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
+
+    with console.status("[bold green]Importing Cont_X_trans and Y_trans from ax.modelbridge.registry..."):
+        from ax.modelbridge.registry import Cont_X_trans, Y_trans
 
     with console.status("[bold green]Importing ax.core.arm..."):
         from ax.core.arm import Arm
@@ -6946,6 +6951,25 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
     return {}, True
 
 @beartype
+def get_model_kwargs() -> dict:
+    if 'Cont_X_Trans' in args.transforms and 'Y_trans' in args.transforms:
+        return {
+            "transforms": Cont_X_trans + Y_trans
+        }
+
+    if 'Y_trans' in args.transforms:
+        return {
+            "transforms": Y_trans
+        }
+
+    if 'Cont_X_Trans' in args.transforms:
+        return {
+            "transforms": Cont_X_trans
+        }
+
+    return {}
+
+@beartype
 def get_model_gen_kwargs() -> dict:
     return {
         "model_gen_options": {
@@ -7552,6 +7576,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         model_spec = [
             GeneratorSpec(
                 selected_model,
+                model_kwargs=get_model_kwargs(),
                 model_gen_kwargs=get_model_gen_kwargs()
             )
         ]
@@ -7576,6 +7601,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
+        model_kwargs=get_model_kwargs(),
         model_gen_kwargs=get_model_gen_kwargs(),
         should_deduplicate=True,
         index=index

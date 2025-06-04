@@ -54,6 +54,7 @@
 			105 => "Continued job error: previous job has missing state files",
 			106 => "--num_parallel_jobs must be equal to or larger than 1",
 			107 => "global_gs is not set",
+			108 => "Tried to to Multi-Objective-Optimization with TPE, which is currently not supported",
 			123 => "Something is wrong the the --generation_strategy",
 			130 => "Interrupt-Signal detected",
 			133 => "Error loading --config_toml, --config_json or --config_yaml",

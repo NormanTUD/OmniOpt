@@ -7498,6 +7498,10 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         return node
 
     if model_name == "TPE":
+        if len(arg_result_names) != 1:
+            print_red(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.")
+            my_exit(108)
+
         node = ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
 
         return node

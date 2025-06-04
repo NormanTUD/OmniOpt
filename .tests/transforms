@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Test the Tree Parzen Estimator model (TPE).
+# HELPPAGE: Test the Tree Parzen Estimator model (TPE) with optional transforms.
 
 function echoerr {
 	echo "$@" 1>&2
@@ -45,49 +45,22 @@ ADDITIONAL_PARAMETER=""
 AUTO_GPUS=true
 NUM_GPUS=0
 
-# Parse arguments
+# Argument parsing
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		--max_eval=*)
-			MAX_EVAL="${1#*=}"
-			shift
-			;;
-		--num_random_steps=*)
-			NUM_RANDOM_STEPS="${1#*=}"
-			shift
-			;;
-		--num_parallel_jobs=*)
-			NUM_PARALLEL_JOBS="${1#*=}"
-			shift
-			;;
-		--mem_gb=*)
-			MEM_GB="${1#*=}"
-			shift
-			;;
-		--testname=*)
-			TESTNAME="${1#*=}"
-			shift
-			;;
-		--gpus=*)
-			NUM_GPUS="${1#*=}"
-			AUTO_GPUS=false
-			shift
-			;;
-		--additional=*)
-			ADDITIONAL_PARAMETER="${1#*=}"
-			shift
-			;;
-		--help|-h)
-			help
-			;;
-		*)
-			red_text "Unknown option: $1"
-			help
-			;;
+		--max_eval=*) MAX_EVAL="${1#*=}"; shift ;;
+		--num_random_steps=*) NUM_RANDOM_STEPS="${1#*=}"; shift ;;
+		--num_parallel_jobs=*) NUM_PARALLEL_JOBS="${1#*=}"; shift ;;
+		--mem_gb=*) MEM_GB="${1#*=}"; shift ;;
+		--testname=*) TESTNAME="${1#*=}"; shift ;;
+		--gpus=*) NUM_GPUS="${1#*=}"; AUTO_GPUS=false; shift ;;
+		--additional=*) ADDITIONAL_PARAMETER="${1#*=}"; shift ;;
+		--help|-h) help ;;
+		*) red_text "Unknown option: $1"; help ;;
 	esac
 done
 
-# Auto-detect GPU if not specified
+# Auto-detect GPU if not set
 if $AUTO_GPUS && command -v nvidia-smi >/dev/null 2>&1; then
 	NUM_GPUS=1
 fi
@@ -95,153 +68,56 @@ fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR/.."
 
-rundir="runs/${TESTNAME}_no_transforms"
-csv_path="$rundir/0/results.csv"
+# Shared runner
+function run_test {
+	local suffix="$1"
+	local transform_args="$2"
+	local exit_base="$3"
+	local runname="${TESTNAME}_${suffix}"
+	local csv_path="runs/${runname}/0/results.csv"
 
-if [[ -d "$rundir" ]]; then
-	rm -rf "$rundir"
-fi
+	if [[ -d "runs/$runname" ]]; then
+		rm -rf "runs/$runname"
+	fi
 
-.tests/start_simple_optimization_run \
-	--max_eval=2 \
-	--num_parallel_jobs=1 \
-	--num_random_steps=1 \
-	--mem_gb="$MEM_GB" \
-	--generate_all_jobs_at_once \
-	--follow \
-	--additional_parameter="$ADDITIONAL_PARAMETER" \
-	--testname="${TESTNAME}_no_transforms" \
-	--gpus="$NUM_GPUS" \
-	--nr_results=2
+	.tests/start_simple_optimization_run \
+		--max_eval="$MAX_EVAL" \
+		--num_parallel_jobs=1 \
+		--num_random_steps="$NUM_RANDOM_STEPS" \
+		--mem_gb="$MEM_GB" \
+		--generate_all_jobs_at_once \
+		--follow \
+		--additional_parameter="$ADDITIONAL_PARAMETER" \
+		--testname="${runname} ${transform_args}" \
+		--gpus="$NUM_GPUS" \
+		--nr_results=2
 
-exit_code=$?
+	local exit_code=$?
+	if [[ $exit_code -ne 0 ]]; then
+		red_text "[$runname] Exit code should have been 0, but is $exit_code"
+		exit $((exit_base))
+	fi
 
-if [[ $exit_code -ne 0 ]]; then
-	red_text "Exit code should have been 0, but is $exit_code"
-	exit 1
-fi
+	if [[ ! -e "$csv_path" ]]; then
+		red_text "[$runname] $csv_path could not be found."
+		exit $((exit_base + 1))
+	fi
 
-if [[ ! -e "$csv_path" ]]; then
-	red_text "$csv_path could not be found."
-	exit 2
-fi
+	local expected_lines=$((NUM_RANDOM_STEPS + MAX_EVAL))
+	local actual_lines
+	actual_lines=$(wc -l < "$csv_path")
+	if [[ $actual_lines -ne $expected_lines ]]; then
+		red_text "[$runname] Expected $expected_lines lines, got $actual_lines:"
+		cat "$csv_path"
+		exit $((exit_base + 2))
+	fi
+}
 
-if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
-	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
-	cat "$csv_path"
-	exit 3
-fi
-
-rundir="runs/${TESTNAME}_Cont_X_trans"
-csv_path="$rundir/0/results.csv"
-
-if [[ -d "$rundir" ]]; then
-	rm -rf "$rundir"
-fi
-
-.tests/start_simple_optimization_run \
-	--max_eval=2 \
-	--num_parallel_jobs=1 \
-	--num_random_steps=1 \
-	--mem_gb="$MEM_GB" \
-	--generate_all_jobs_at_once \
-	--follow \
-	--additional_parameter="$ADDITIONAL_PARAMETER" \
-	--testname="${TESTNAME}_Cont_X_trans --transforms='Cont_X_trans'" \
-	--gpus="$NUM_GPUS" \
-	--nr_results=2
-
-exit_code=$?
-
-if [[ $exit_code -ne 0 ]]; then
-	red_text "Exit code should have been 0, but is $exit_code"
-	exit 4
-fi
-
-if [[ ! -e "$csv_path" ]]; then
-	red_text "$csv_path could not be found."
-	exit 5
-fi
-
-if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
-	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
-	cat "$csv_path"
-	exit 6
-fi
-
-rundir="runs/${TESTNAME}_Y_trans"
-csv_path="$rundir/0/results.csv"
-
-if [[ -d "$rundir" ]]; then
-	rm -rf "$rundir"
-fi
-
-.tests/start_simple_optimization_run \
-	--max_eval=2 \
-	--num_parallel_jobs=1 \
-	--num_random_steps=1 \
-	--mem_gb="$MEM_GB" \
-	--generate_all_jobs_at_once \
-	--follow \
-	--additional_parameter="$ADDITIONAL_PARAMETER" \
-	--testname="${TESTNAME}_Y_trans --transforms='Y_trans'" \
-	--gpus="$NUM_GPUS" \
-	--nr_results=2
-
-exit_code=$?
-
-if [[ $exit_code -ne 0 ]]; then
-	red_text "Exit code should have been 0, but is $exit_code"
-	exit 7
-fi
-
-if [[ ! -e "$csv_path" ]]; then
-	red_text "$csv_path could not be found."
-	exit 8
-fi
-
-if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
-	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
-	cat "$csv_path"
-	exit 9
-fi
-
-rundir="runs/${TESTNAME}_Cont_X_trans_Y_Trans"
-csv_path="$rundir/0/results.csv"
-
-if [[ -d "$rundir" ]]; then
-	rm -rf "$rundir"
-fi
-
-.tests/start_simple_optimization_run \
-	--max_eval=2 \
-	--num_parallel_jobs=1 \
-	--num_random_steps=1 \
-	--mem_gb="$MEM_GB" \
-	--generate_all_jobs_at_once \
-	--follow \
-	--additional_parameter="$ADDITIONAL_PARAMETER" \
-	--testname="${TESTNAME}_Cont_X_trans_Y_trans --transforms='Cont_X_trans Y_trans'" \
-	--gpus="$NUM_GPUS" \
-	--nr_results=2
-
-exit_code=$?
-
-if [[ $exit_code -ne 0 ]]; then
-	red_text "Exit code should have been 0, but is $exit_code"
-	exit 10
-fi
-
-if [[ ! -e "$csv_path" ]]; then
-	red_text "$csv_path could not be found."
-	exit 11
-fi
-
-if [[ $(wc -l < "$csv_path") -ne $((NUM_RANDOM_STEPS + MAX_EVAL)) ]]; then
-	red_text "$csv_path does not contain $((NUM_RANDOM_STEPS + MAX_EVAL)) lines of results:"
-	cat "$csv_path"
-	exit 12
-fi
+# Run tests
+run_test "no_transforms" "" 0
+run_test "Cont_X_trans" "--transforms='Cont_X_trans'" 3
+run_test "Y_trans" "--transforms='Y_trans'" 6
+run_test "Cont_X_trans_Y_trans" "--transforms='Cont_X_trans Y_trans'" 9
 
 green_text "Transforms-Test OK"
 exit 0

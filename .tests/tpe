@@ -121,6 +121,10 @@ if [[ $exit_code -ne 108 ]]; then
 	exit 5
 fi
 
+if [[ -d "$rundir" ]]; then
+	rm -rf "$rundir"
+fi
+
 .tests/start_simple_optimization_run \
 	--max_eval="$MAX_EVAL" \
 	--num_parallel_jobs="$NUM_PARALLEL_JOBS" \

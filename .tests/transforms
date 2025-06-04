@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Test the Tree Parzen Estimator model (TPE) with optional transforms.
+# HELPPAGE: Test transforms.
 
 function echoerr {
 	echo "$@" 1>&2

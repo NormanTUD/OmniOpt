@@ -1504,7 +1504,6 @@ EOF
 	python_pid=""
 
 	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
-		#echo "source $SCRIPT_DIR/.shellscript_functions"
 		source "$SCRIPT_DIR/.shellscript_functions"
 	else
 		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"

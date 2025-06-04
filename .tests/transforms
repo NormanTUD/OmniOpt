@@ -21,14 +21,14 @@ function red_text {
 function help () {
 	echo "Usage: $0 [OPTIONS]"
 	echo
-	echo "Runs a test optimization with TPE using .tests/start_simple_optimization_run."
+	echo "Runs a test optimization with Transforms using .tests/start_simple_optimization_run."
 	echo
 	echo "Options:"
 	echo "  --max_eval=N              Maximum number of evaluations (default: 6)"
 	echo "  --num_random_steps=N      Number of random steps before model (default: 1)"
 	echo "  --num_parallel_jobs=N     Number of parallel jobs (default: 2)"
 	echo "  --mem_gb=N                Memory in GB per job (default: 4)"
-	echo "  --testname=NAME           Name for the test run (default: TPE)"
+	echo "  --testname=NAME           Name for the test run (default: TRANSFORMS)"
 	echo "  --gpus=0|1                Use GPU (default: auto-detect)"
 	echo "  --additional=ARGS         Additional parameters for the optimizer"
 	echo "  --help                    Show this help message"

@@ -81,6 +81,7 @@
 			246 => "A path that should have been a file is actually a folder. Check output for more details.",
 			247 => "Trying to continue a job which was started with --generation_strategy. This is currently not possible.",
 			251 => "Currently unsupported feature used. Please check stdout for more details",
+			254 => "Y_trans cannot be used alone; must be combined with Cont_X_trans",
 			255 => "sbatch error"
 		];
 

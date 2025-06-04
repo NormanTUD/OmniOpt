@@ -6958,9 +6958,8 @@ def get_model_kwargs() -> dict:
         }
 
     if 'Y_trans' in args.transforms:
-        return {
-            "transforms": Y_trans
-        }
+        print_red(f"Y_trans cannot be used alone; must be combined with Cont_X_trans")
+        my_exit(254)
 
     if 'Cont_X_trans' in args.transforms:
         return {

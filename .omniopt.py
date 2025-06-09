@@ -2621,62 +2621,84 @@ def parse_choice_param(classic_params: list, params: list, j: int, this_args: Un
     return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> Tuple[list, list]:
-    params: list = []
-    classic_params: list = []
-    param_names: List[str] = []
+def _parse_experiment_parameters_validate_name(name: str, invalid_names: List[str], param_names: List[str]) -> None:
+    if name in invalid_names:
+        _fatal_error(f"\n⚠ Name for argument is invalid: {name}. Invalid names are: {', '.join(invalid_names)}", 181)
+    if name in param_names:
+        _fatal_error(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!", 181)
 
-    i = 0
+@beartype
+def _parse_experiment_parameters_get_param_type(this_args: List[Any], j: int) -> str:
+    try:
+        return this_args[j + 1]
+    except Exception:
+        _fatal_error("Not enough arguments for --parameter", 181)
+
+    return ""
+
+@beartype
+def _parse_experiment_parameters_parse_this_args(
+    this_args: List[Any],
+    invalid_names: List[str],
+    param_names: List[str],
+    classic_params: List[Dict[str, Any]],
+    params: List[Dict[str, Any]],
+    search_space_reduction_warning: bool
+) -> Tuple[int, List[Dict[str, Any]], List[Dict[str, Any]], bool]:
+    j = 0
+    param_parsers = {
+        "range": parse_range_param,
+        "fixed": parse_fixed_param,
+        "choice": parse_choice_param
+    }
+    valid_types = list(param_parsers.keys())
+
+    while j < len(this_args) - 1:
+        name = this_args[j]
+        _parse_experiment_parameters_validate_name(name, invalid_names, param_names)
+
+        param_names.append(name)
+        global_param_names.append(name)
+
+        param_type = _parse_experiment_parameters_get_param_type(this_args, j)
+
+        if param_type not in param_parsers:
+            _fatal_error(f"⚠ Parameter type '{param_type}' not yet implemented.", 181)
+
+        if param_type not in valid_types:
+            valid_types_string = ', '.join(valid_types)
+            _fatal_error(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}", 181)
+
+        j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](
+            classic_params, params, j, this_args, name, search_space_reduction_warning)
+
+    return j, params, classic_params, search_space_reduction_warning
+
+@beartype
+def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    params: List[Dict[str, Any]] = []
+    classic_params: List[Dict[str, Any]] = []
+    param_names: List[str] = []
 
     search_space_reduction_warning = False
 
-    valid_types = ["range", "fixed", "choice"]
     invalid_names = ["start_time", "end_time", "run_time", "program_string", *arg_result_names, "exit_code", "signal"]
 
+    i = 0
     while args.parameter and i < len(args.parameter):
         this_args = args.parameter[i]
-        j = 0
-
         if this_args is not None and isinstance(this_args, dict) and "param" in this_args:
             this_args = this_args["param"]
 
-        while j < len(this_args) - 1:
-            name = this_args[j]
-
-            if name in invalid_names:
-                _fatal_error(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}", 181)
-
-            if name in param_names:
-                _fatal_error(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!", 181)
-
-            param_names.append(name)
-            global_param_names.append(name)
-
-            try:
-                param_type = this_args[j + 1]
-            except Exception:
-                _fatal_error("Not enough arguments for --parameter", 181)
-
-            param_parsers = {
-                "range": parse_range_param,
-                "fixed": parse_fixed_param,
-                "choice": parse_choice_param
-            }
-
-            if param_type not in param_parsers:
-                _fatal_error(f"⚠ Parameter type '{param_type}' not yet implemented.", 181)
-
-            if param_type not in valid_types:
-                valid_types_string = ', '.join(valid_types)
-                _fatal_error(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}", 181)
-
-            j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](classic_params, params, j, this_args, name, search_space_reduction_warning)
+        _, params, classic_params, search_space_reduction_warning = _parse_experiment_parameters_parse_this_args(
+            this_args, invalid_names, param_names, classic_params, params, search_space_reduction_warning)
 
         i += 1
 
     if search_space_reduction_warning:
         print_red("⚠ Search space reduction is not currently supported on continued runs or runs that have previous data.")
 
+    # Remove duplicates by 'name' key preserving order
     params = list({p['name']: p for p in params}.values())
     classic_params = list({p['name']: p for p in classic_params}.values())
 

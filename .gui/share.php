@@ -468,32 +468,6 @@
 ?>
 		</div>
 	</div>
-
-	<script>
-		function load_share_overview() {
-			const currentParams = new URLSearchParams(window.location.search);
-			currentParams.set("show_overview", "1");
-
-			$.get("share?" + currentParams.toString(), function(content) {
-				$("#progressbar").parent().remove();
-				$("#overview_content").html(content).show();
-			});
-		}
-
-		$(document).ready(function() {
-			var params = new URLSearchParams(window.location.search);
-
-			var blockParams = ['user_id', 'sort', 'experiment_name'];
-
-			var shouldBlock = blockParams.some(function(key) {
-				return params.has(key);
-			});
-
-			if (!shouldBlock) {
-				load_share_overview();
-			}
-		});
-	</script>
 <?php
 	include("footer.php");
 ?>

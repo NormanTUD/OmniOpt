@@ -516,10 +516,10 @@ function update_command() {
 	function processTableData(_tableData) {
 		_tableData.forEach(function(item) {
 			if (!item.use_in_curl_bash) {
-				var cew = update_table_row(item, errors, warnings, command);
-				command = cew[0];
-				errors = cew[1];
-				warnings = cew[2];
+				var command_error_and_warning = update_table_row(item, errors, warnings, command);
+				command = command_error_and_warning[0];
+				errors = command_error_and_warning[1];
+				warnings = command_error_and_warning[2];
 			} else {
 				if (item.type == "select") {
 					curl_options = ` --${item.id}=${$(`#${item.id}`).val()} `;

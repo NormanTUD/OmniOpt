@@ -6342,45 +6342,60 @@ def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
     return alt_path
 
 @beartype
-def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[list]:
-    behavs: list = []
+def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]]:
+    if not orchestrator or "errors" not in orchestrator:
+        return []
 
-    if orchestrator and "errors" in orchestrator:
-        try:
-            stdout = Path(stdout_path).read_text("UTF-8")
-        except FileNotFoundError:
-            alt_path = get_alt_path_for_orchestrator(stdout_path)
+    stdout = _check_orchestrator_read_stdout_with_fallback(stdout_path, trial_index)
+    if stdout is None:
+        return None
 
-            if alt_path and alt_path is not None and Path(alt_path).exists():
-                stdout_path = alt_path
-                try:
-                    stdout = Path(stdout_path).read_text("UTF-8")
-                except FileNotFoundError:
-                    stdout = None
-            else:
-                stdout = None
+    return _check_orchestrator_find_behaviors(stdout, orchestrator["errors"])
 
-            if stdout is None:
-                orchestrate_todo_copy = ORCHESTRATE_TODO
-                if stdout_path not in orchestrate_todo_copy.keys():
-                    ORCHESTRATE_TODO[stdout_path] = trial_index
-                    print_red(f"File not found: {stdout_path}, will try again later")
-                else:
-                    print_red(f"File not found: {stdout_path}, not trying again")
+
+@beartype
+def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index: int) -> Optional[str]:
+    try:
+        return Path(stdout_path).read_text("UTF-8")
+    except FileNotFoundError:
+        alt_path = get_alt_path_for_orchestrator(stdout_path)
+
+        if alt_path and Path(alt_path).exists():
+            try:
+                return Path(alt_path).read_text("UTF-8")
+            except FileNotFoundError:
                 return None
 
-        for oc in orchestrator["errors"]:
-            name = oc["name"]
-            match_strings = oc["match_strings"]
-            behavior = oc["behavior"]
+        _check_orchestrator_register_missing_file(stdout_path, trial_index)
+        return None
 
-            for match_string in match_strings:
-                if match_string.lower() in stdout.lower():
-                    if behavior not in behavs:
-                        print_debug(f"Appending behavior {behavior}, orchestrator-error-name: {name}")
-                        behavs.append(behavior)
 
-    return behavs
+@beartype
+def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int) -> None:
+    if stdout_path not in ORCHESTRATE_TODO:
+        ORCHESTRATE_TODO[stdout_path] = trial_index
+        print_red(f"File not found: {stdout_path}, will try again later")
+    else:
+        print_red(f"File not found: {stdout_path}, not trying again")
+
+
+@beartype
+def _check_orchestrator_find_behaviors(stdout: str, errors: List[Dict[str, Any]]) -> List[str]:
+    behaviors: List[str] = []
+    stdout_lower = stdout.lower()
+
+    for error in errors:
+        name = error.get("name", "")
+        match_strings = error.get("match_strings", [])
+        behavior = error.get("behavior", "")
+
+        for match_string in match_strings:
+            if match_string.lower() in stdout_lower:
+                if behavior not in behaviors:
+                    print_debug(f"Appending behavior {behavior}, orchestrator-error-name: {name}")
+                    behaviors.append(behavior)
+
+    return behaviors
 
 @beartype
 def orchestrate_job(job: Job, trial_index: int) -> None:

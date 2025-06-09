@@ -5562,53 +5562,98 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
 
     return arm_params_list, results_list
 
+
 @beartype
-def get_generation_node_for_index(this_csv_file_path: str, arm_params_list: list, results_list: list, index: int) -> str:
+def get_generation_node_for_index(
+    this_csv_file_path: str,
+    arm_params_list: List[Dict[str, Any]],
+    results_list: List[Dict[str, Any]],
+    index: int
+) -> str:
     try:
-        if index < 0 or index >= len(arm_params_list) or index >= len(results_list):
+        if not _get_generation_node_for_index_index_valid(index, arm_params_list, results_list):
             return "MANUAL"
 
         target_arm_params = arm_params_list[index]
         target_result = results_list[index]
 
-        target_combined = {}
-        target_combined.update(target_arm_params)
-        target_combined.update(target_result)
+        target_combined = _get_generation_node_for_index_combine_dicts(target_arm_params, target_result)
 
-        with open(this_csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            if reader.fieldnames is None or "generation_node" not in reader.fieldnames:
-                return "MANUAL"
-
-            for row in reader:
-                all_match = True
-                for key, val in target_combined.items():
-                    row_val = row.get(key)
-                    if row_val is None:
-                        all_match = False
-                        break
-
-                    if isinstance(val, (int, float)):
-                        try:
-                            row_val_num = float(row_val)
-                            val_num = float(val)
-                            if abs(row_val_num - val_num) > 1e-8:
-                                all_match = False
-                                break
-                        except ValueError:
-                            all_match = False
-                            break
-                    else:
-                        if str(val) != row_val:
-                            all_match = False
-                            break
-
-                if all_match:
-                    return row["generation_node"]
+        generation_node = _get_generation_node_for_index_find_generation_node(this_csv_file_path, target_combined)
+        return generation_node
     except Exception as e:
         print(f"Error while get_generation_node_for_index: {e}")
+        return "MANUAL"
+
+
+@beartype
+def _get_generation_node_for_index_index_valid(
+    index: int,
+    arm_params_list: List[Dict[str, Any]],
+    results_list: List[Dict[str, Any]]
+) -> bool:
+    return 0 <= index < len(arm_params_list) and index < len(results_list)
+
+
+@beartype
+def _get_generation_node_for_index_combine_dicts(
+    dict1: Dict[str, Any],
+    dict2: Dict[str, Any]
+) -> Dict[str, Any]:
+    combined = {}
+    combined.update(dict1)
+    combined.update(dict2)
+    return combined
+
+
+@beartype
+def _get_generation_node_for_index_find_generation_node(
+    csv_file_path: str,
+    target_combined: Dict[str, Any]
+) -> str:
+    with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        if reader.fieldnames is None or "generation_node" not in reader.fieldnames:
+            return "MANUAL"
+
+        for row in reader:
+            if _get_generation_node_for_index_row_matches(row, target_combined):
+                return row["generation_node"]
 
     return "MANUAL"
+
+
+@beartype
+def _get_generation_node_for_index_row_matches(
+    row: Dict[str, str],
+    target_combined: Dict[str, Any]
+) -> bool:
+    for key, val in target_combined.items():
+        row_val = row.get(key)
+        if row_val is None:
+            return False
+
+        if isinstance(val, (int, float)):
+            if not _get_generation_node_for_index_floats_match(val, row_val):
+                return False
+        else:
+            if str(val) != row_val:
+                return False
+
+    return True
+
+
+@beartype
+def _get_generation_node_for_index_floats_match(
+    val: float,
+    row_val_str: str,
+    tolerance: float = 1e-8
+) -> bool:
+    try:
+        row_val_num = float(row_val_str)
+    except ValueError:
+        return False
+    return abs(row_val_num - val) <= tolerance
 
 @beartype
 def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:

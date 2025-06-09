@@ -7945,8 +7945,8 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
     nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
     # Sicherstellen, dass _max_eval nicht None ist
-    max_eval = _max_eval if _max_eval is not None else 0
-    new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
+    __max_eval = _max_eval if _max_eval is not None else 0
+    new_nr_of_jobs_to_get = min(__max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 
     range_nr = new_nr_of_jobs_to_get
     get_next_trials_nr = 1

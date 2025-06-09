@@ -673,6 +673,14 @@ var hiddenTableData = [
 		min: 1,
 	},
 	{
+		label: "Maximal number of retrials after jobs have been abandoned",
+		id: "max_abandoned_retrial",
+		type: "number",
+		value: 16,
+		placeholder: "Maximum number retrials to get when a job is abandoned post-generation",
+		min: 20,
+	},
+	{
 		label: "Maximal number of parallel sruns when stating jobs",
 		id: "max_num_of_parallel_sruns",
 		type: "number",

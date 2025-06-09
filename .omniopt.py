@@ -565,6 +565,7 @@ class ConfigLoader:
     verbose_break_run_search_table: bool
     send_anonymized_usage_stats: bool
     max_failed_jobs: Optional[int]
+    max_abandoned_retrial: int
     show_ram_every_n_seconds: int
     config_toml: Optional[str]
     config_json: Optional[str]
@@ -653,6 +654,7 @@ class ConfigLoader:
         optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', type=str, nargs='+', default=[])
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
         optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
+        optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -6855,100 +6857,132 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     return batched_arms
 
-@disable_logs
 @beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
-    global gotten_jobs
-
-    if not ax_client:
-        print_red("ax_client was not defined")
-        my_exit(9)
-
-    if global_gs is None:
-        print_red("Global generation strategy is not set. This is a bug in OmniOpt2.")
-        my_exit(107)
-
-        return None
-
-    trials_dict: dict = {}
-
-    trial_durations: List[float] = []
-
     die_101_if_no_ax_client_or_experiment_or_gs()
 
-    try:
-        all_start_time = time.time()
+    if not ax_client:
+        _fatal_error("ax_client was not defined", 9)
 
-        batched_arms = get_batched_arms(nr_of_jobs_to_get)
+    if global_gs is None:
+        _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
 
-        cnt = 0
+    return _generate_trials(nr_of_jobs_to_get, recursion)
 
-        for k in range(len(batched_arms)):
-            print_debug(f"_fetch_next_trials: fetching trial {k + 1}/{nr_of_jobs_to_get}...")
-            progressbar_description([_get_trials_message(k + 1, nr_of_jobs_to_get, trial_durations)])
+# ========== Helper Functions ==========
 
-            start_time = time.time()
+@beartype
+def _fatal_error(message: str, code: int) -> None:
+    print_red(message)
+    my_exit(code)
 
-            trial_index = ax_client.experiment.num_trials
+@beartype
+def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
+    global gotten_jobs
 
-            arm = batched_arms[k]
-            generator_run = GeneratorRun(
-                arms=[arm],
-                generation_node_name=global_gs.current_node_name
-            )
+    trials_dict: Dict[int, Any] = {}
+    trial_durations: List[float] = []
 
-            trial = ax_client.experiment.new_trial(generator_run)
-            params = arm.parameters
+    start_time = time.time()
+    cnt = 0
+    retries = 0
+    max_retries = args.max_abandoned_retrial
 
-            trials_dict[trial_index] = params
-            gotten_jobs = gotten_jobs + 1
+    while cnt < n and retries < max_retries:
+        for arm in get_batched_arms(n - cnt):
+            if cnt >= n:
+                break
 
-            print_debug(f"_fetch_next_trials: got trial {k + 1}/{nr_of_jobs_to_get} (trial_index: {trial_index} [gotten_jobs: {gotten_jobs}, k: {k}])")
-            end_time = time.time()
+            print_debug(f"Fetching trial {cnt + 1}/{n}...")
+            progressbar_description([_get_trials_message(cnt + 1, n, trial_durations)])
 
-            trial_durations.append(float(end_time - start_time))
+            try:
+                trial_index, trial_duration, trial_successful = _create_and_handle_trial(arm)
+            except TrialRejected as e:
+                print_debug(f"Trial rejected: {e}")
+                retries += 1
+                continue
 
-            if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
-                print_debug(f"Marking trial as abandoned since it doesn't fit a Post-Generation-constraint: {params}")
-                trial.mark_abandoned()
-                abandoned_trial_indices.append(trial_index)
-            else:
-                trial.mark_running(no_runner_required=True)
+            trial_durations.append(trial_duration)
 
-            cnt = cnt + 1
+            if trial_successful:
+                cnt += 1
+                trials_dict[trial_index] = arm.parameters
+                gotten_jobs += 1
 
-        all_end_time = time.time()
-        all_time = float(all_end_time - all_start_time)
+    return _finalize_generation(trials_dict, cnt, n, start_time, recursion)
 
-        log_gen_times.append(all_time)
-        log_nr_gen_jobs.append(cnt)
+class TrialRejected(Exception):
+    pass
 
-        if cnt:
-            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}, {all_time / cnt} s/job"])
-        else:
-            progressbar_description([f"requested {nr_of_jobs_to_get} jobs, got {cnt}"])
+@beartype
+def _create_and_handle_trial(arm: Any) -> Tuple[int, float, bool]:
+    start = time.time()
 
+    trial_index = ax_client.experiment.num_trials
+    generator_run = GeneratorRun(
+        arms=[arm],
+        generation_node_name=global_gs.current_node_name
+    )
+
+    trial = ax_client.experiment.new_trial(generator_run)
+    params = arm.parameters
+
+    if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
+        print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned.")
+        trial.mark_abandoned()
+        abandoned_trial_indices.append(trial_index)
+        raise TrialRejected("Post-generation constraints not met.")
+
+    trial.mark_running(no_runner_required=True)
+    end = time.time()
+    return trial_index, float(end - start), True
+
+@beartype
+def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float, recursion: bool) -> Tuple[Dict[int, Any], bool]:
+    total_time = time.time() - start_time
+
+    log_gen_times.append(total_time)
+    log_nr_gen_jobs.append(cnt)
+
+    avg_time_str = f"{total_time / cnt:.2f} s/job" if cnt else "n/a"
+    progressbar_description([f"requested {requested} jobs, got {cnt}, {avg_time_str}"])
+
+    if cnt > 0:
         return trials_dict, False
+
+    return _handle_generation_failure(requested, recursion)
+
+@beartype
+def _handle_generation_failure(requested: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
+    try:
+        raise
     except np.linalg.LinAlgError as e:
         _handle_linalg_error(e)
         my_exit(242)
-    except (ax.exceptions.core.SearchSpaceExhausted, ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints, ax.exceptions.generation_strategy.MaxParallelismReachedException) as e:
-        if str(e) not in error_8_saved:
-            if recursion is False and args.revert_to_random_when_seemingly_exhausted:
-                print_yellow(f"\n⚠Error 8: {e} From now (done jobs: {count_done_jobs()}) on, random points will be generated.")
-            else:
-                print_red(f"\n⚠Error 8: {e}")
-
-            error_8_saved.append(str(e))
+    except (
+        ax.exceptions.core.SearchSpaceExhausted,
+        ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints,
+        ax.exceptions.generation_strategy.MaxParallelismReachedException
+    ) as e:
+        msg = str(e)
+        if msg not in error_8_saved:
+            _print_exhaustion_warning(e, recursion)
+            error_8_saved.append(msg)
 
         if recursion is False and args.revert_to_random_when_seemingly_exhausted:
-            print_debug("The search space seems exhausted. Generating random points from here on.")
-
+            print_debug("Switching to random search strategy.")
             set_global_gs_to_random()
-
-            return _fetch_next_trials(nr_of_jobs_to_get, True)
+            return _fetch_next_trials(requested, True)
 
     return {}, True
+
+@beartype
+def _print_exhaustion_warning(e: Exception, recursion: bool) -> None:
+    if not recursion and args.revert_to_random_when_seemingly_exhausted:
+        print_yellow(f"\n⚠Error 8: {e} From now (done jobs: {count_done_jobs()}) on, random points will be generated.")
+    else:
+        print_red(f"\n⚠Error 8: {e}")
 
 @beartype
 def get_model_kwargs() -> dict:

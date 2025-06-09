@@ -1,21 +1,26 @@
 import sys
-import json
-from typing import Union, Tuple, Any, Optional
-from datetime import datetime
-from itertools import combinations
-import math
-import difflib
-import logging
-import os
-import platform
-import re
-import traceback
-from pprint import pprint
-import numpy as np
-import pandas as pd
-import matplotlib
-from matplotlib.widgets import Button, TextBox
-from matplotlib.colors import LinearSegmentedColormap
+
+try:
+    import json
+    from typing import Union, Tuple, Any, Optional
+    from datetime import datetime
+    from itertools import combinations
+    import math
+    import difflib
+    import logging
+    import os
+    import platform
+    import re
+    import traceback
+    from pprint import pprint
+    import numpy as np
+    import pandas as pd
+    import matplotlib
+    from matplotlib.widgets import Button, TextBox
+    from matplotlib.colors import LinearSegmentedColormap
+except OSError as e:
+    print(f"Error loading module: {e}")
+    sys.exit(109)
 
 all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999

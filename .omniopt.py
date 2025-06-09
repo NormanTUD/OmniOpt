@@ -6826,41 +6826,57 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     retries = 0
     max_retries = args.max_abandoned_retrial
 
-    while cnt < n and retries < max_retries:
-        for arm in get_batched_arms(n - cnt):
-            if cnt >= n:
-                break
+    try:
+        while cnt < n and retries < max_retries:
+            for arm in get_batched_arms(n - cnt):
+                if cnt >= n:
+                    break
 
-            print_debug(f"Fetching trial {cnt + 1}/{n}...")
-            progressbar_description([_get_trials_message(cnt + 1, n, trial_durations)])
+                print_debug(f"Fetching trial {cnt + 1}/{n}...")
+                progressbar_description([_get_trials_message(cnt + 1, n, trial_durations)])
 
-            try:
-                trial_index, trial_duration, trial_successful = _create_and_handle_trial(arm)
-            except TrialRejected as e:
-                print_debug(f"Trial rejected: {e}")
-                retries += 1
-                continue
+                try:
+                    result = _create_and_handle_trial(arm)
+                    if result is not None:
+                        trial_index, trial_duration, trial_successful = result
 
-            trial_durations.append(trial_duration)
+                except TrialRejected as e:
+                    print_debug(f"Trial rejected: {e}")
+                    retries += 1
+                    continue
 
-            if trial_successful:
-                cnt += 1
-                trials_dict[trial_index] = arm.parameters
-                gotten_jobs += 1
+                trial_durations.append(trial_duration)
 
-    return _finalize_generation(trials_dict, cnt, n, start_time, recursion)
+                if trial_successful:
+                    cnt += 1
+                    trials_dict[trial_index] = arm.parameters
+                    gotten_jobs += 1
+
+        return _finalize_generation(trials_dict, cnt, n, start_time)
+
+    except Exception as e:
+        return _handle_generation_failure(e, n, recursion)
 
 class TrialRejected(Exception):
     pass
 
 @beartype
-def _create_and_handle_trial(arm: Any) -> Tuple[int, float, bool]:
+def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     start = time.time()
+
+    current_node_name = ""
+
+    if global_gs is None:
+        _fatal_error("global_gs is not set", 107)
+
+        return None
+
+    _current_node_name = global_gs.current_node_name
 
     trial_index = ax_client.experiment.num_trials
     generator_run = GeneratorRun(
         arms=[arm],
-        generation_node_name=global_gs.current_node_name
+        generation_node_name=_current_node_name
     )
 
     trial = ax_client.experiment.new_trial(generator_run)
@@ -6877,7 +6893,7 @@ def _create_and_handle_trial(arm: Any) -> Tuple[int, float, bool]:
     return trial_index, float(end - start), True
 
 @beartype
-def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float, recursion: bool) -> Tuple[Dict[int, Any], bool]:
+def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float) -> Tuple[Dict[int, Any], bool]:
     total_time = time.time() - start_time
 
     log_gen_times.append(total_time)
@@ -6886,29 +6902,29 @@ def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, 
     avg_time_str = f"{total_time / cnt:.2f} s/job" if cnt else "n/a"
     progressbar_description([f"requested {requested} jobs, got {cnt}, {avg_time_str}"])
 
-    if cnt > 0:
-        return trials_dict, False
-
-    return _handle_generation_failure(requested, recursion)
+    return trials_dict, False
 
 @beartype
-def _handle_generation_failure(requested: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
-    try:
-        raise
-    except np.linalg.LinAlgError as e:
+def _handle_generation_failure(
+    e: Exception,
+    requested: int,
+    recursion: bool
+) -> Tuple[Dict[int, Any], bool]:
+    if isinstance(e, np.linalg.LinAlgError):
         _handle_linalg_error(e)
         my_exit(242)
-    except (
+
+    elif isinstance(e, (
         ax.exceptions.core.SearchSpaceExhausted,
         ax.exceptions.generation_strategy.GenerationStrategyRepeatedPoints,
         ax.exceptions.generation_strategy.MaxParallelismReachedException
-    ) as e:
+    )):
         msg = str(e)
         if msg not in error_8_saved:
             _print_exhaustion_warning(e, recursion)
             error_8_saved.append(msg)
 
-        if recursion is False and args.revert_to_random_when_seemingly_exhausted:
+        if not recursion and args.revert_to_random_when_seemingly_exhausted:
             print_debug("Switching to random search strategy.")
             set_global_gs_to_random()
             return _fetch_next_trials(requested, True)

@@ -3248,9 +3248,7 @@ def _write_job_infos_csv_main(parameters: dict, stdout: Optional[str], program_s
     headline = _write_job_infos_csv_build_headline(parameters_keys, extra_vars_names)
     result_values = _write_job_infos_csv_result_to_strlist(result)
 
-    values = _write_job_infos_csv_build_values(start_time, end_time, run_time, program_string_with_params,
-                                               str_parameters_values, result_values, exit_code, _signal,
-                                               extra_vars_values)
+    values = _write_job_infos_csv_build_values(start_time, end_time, run_time, program_string_with_params, str_parameters_values, result_values, exit_code, _signal, extra_vars_values)
 
     headline = _write_job_infos_csv_replace_none_with_str(headline)
     values = _write_job_infos_csv_replace_none_with_str(values)
@@ -3268,12 +3266,10 @@ def _write_job_infos_csv_main(parameters: dict, stdout: Optional[str], program_s
 def _write_job_infos_csv_parameters_to_str(parameters: dict) -> List[str]:
     return [str(v) for v in list(parameters.values())]
 
-
 @beartype
 def _write_job_infos_csv_extract_extra_vars(stdout: Optional[str]) -> Tuple[List[str], List[str]]:
     # extract_info ist hier eine vorhandene Funktion, die extra Variablen aus stdout extrahiert
     return extract_info(stdout)
-
 
 @beartype
 def _write_job_infos_csv_add_slurm_job_id(extra_vars_names: List[str], extra_vars_values: List[str]) -> Tuple[List[str], List[str]]:
@@ -3282,7 +3278,6 @@ def _write_job_infos_csv_add_slurm_job_id(extra_vars_names: List[str], extra_var
         extra_vars_names.append("OO_Info_SLURM_JOB_ID")
         extra_vars_values.append(str(_SLURM_JOB_ID))
     return extra_vars_names, extra_vars_values
-
 
 @beartype
 def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_names: List[str]) -> List[str]:
@@ -3298,7 +3293,6 @@ def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_n
         "hostname",
         *extra_vars_names
     ]
-
 
 @beartype
 def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]]) -> List[str]:
@@ -3317,7 +3311,6 @@ def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Opti
 
     return result_values
 
-
 @beartype
 def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int],
                                       program_string_with_params: str, str_parameters_values: List[str],
@@ -3335,7 +3328,6 @@ def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: U
         socket.gethostname(),
         *extra_vars_values
     ]
-
 
 @beartype
 def _write_job_infos_csv_replace_none_with_str(elements: List[Optional[str]]) -> List[str]:
@@ -5616,7 +5608,6 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
 
     return arm_params_list, results_list
 
-
 @beartype
 def get_generation_node_for_index(
     this_csv_file_path: str,
@@ -5639,7 +5630,6 @@ def get_generation_node_for_index(
         print(f"Error while get_generation_node_for_index: {e}")
         return "MANUAL"
 
-
 @beartype
 def _get_generation_node_for_index_index_valid(
     index: int,
@@ -5647,7 +5637,6 @@ def _get_generation_node_for_index_index_valid(
     results_list: List[Dict[str, Any]]
 ) -> bool:
     return 0 <= index < len(arm_params_list) and index < len(results_list)
-
 
 @beartype
 def _get_generation_node_for_index_combine_dicts(
@@ -5658,7 +5647,6 @@ def _get_generation_node_for_index_combine_dicts(
     combined.update(dict1)
     combined.update(dict2)
     return combined
-
 
 @beartype
 def _get_generation_node_for_index_find_generation_node(
@@ -5675,7 +5663,6 @@ def _get_generation_node_for_index_find_generation_node(
                 return row["generation_node"]
 
     return "MANUAL"
-
 
 @beartype
 def _get_generation_node_for_index_row_matches(
@@ -5695,7 +5682,6 @@ def _get_generation_node_for_index_row_matches(
                 return False
 
     return True
-
 
 @beartype
 def _get_generation_node_for_index_floats_match(
@@ -6406,7 +6392,6 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]
 
     return _check_orchestrator_find_behaviors(stdout, orchestrator["errors"])
 
-
 @beartype
 def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index: int) -> Optional[str]:
     try:
@@ -6423,7 +6408,6 @@ def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index:
         _check_orchestrator_register_missing_file(stdout_path, trial_index)
         return None
 
-
 @beartype
 def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int) -> None:
     if stdout_path not in ORCHESTRATE_TODO:
@@ -6431,7 +6415,6 @@ def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int
         print_red(f"File not found: {stdout_path}, will try again later")
     else:
         print_red(f"File not found: {stdout_path}, not trying again")
-
 
 @beartype
 def _check_orchestrator_find_behaviors(stdout: str, errors: List[Dict[str, Any]]) -> List[str]:
@@ -7905,49 +7888,71 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
         print_debug(f"Warning: create_and_execute_next_runs(next_nr_steps: {next_nr_steps}, phase: {phase}, _max_eval: {_max_eval}, progress_bar)")
         return 0
 
-    trial_index_to_param = None
-    done_optimizing = False
+    trial_index_to_param: Optional[Dict] = None
+    done_optimizing: bool = False
+    results: List = []
 
     try:
-        nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
-        results = []
-
-        new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
-
-        range_nr = new_nr_of_jobs_to_get
-        get_next_trials_nr = 1
-
-        if args.generate_all_jobs_at_once:
-            range_nr = 1
-            get_next_trials_nr = new_nr_of_jobs_to_get
-
-        for _ in range(range_nr):
-            trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
-            done_optimizing = handle_optimization_completion(optimization_complete)
-            if done_optimizing:
-                continue
-            if trial_index_to_param:
-                nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
-
-                trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
-
-                if len(list(trial_index_to_param.keys())):
-                    results.extend(execute_trials(trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
-                else:
-                    if nr_jobs_before_removing_abandoned > 0:
-                        print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
-                    else:
-                        print_debug("Could not generate any jobs")
-
-        finish_previous_jobs(["finishing jobs"])
-
-        if done_optimizing:
-            end_program(False, 0)
+        done_optimizing, trial_index_to_param, results = _create_and_execute_next_runs_run_loop(next_nr_steps, _max_eval, phase, _progress_bar)
+        _create_and_execute_next_runs_finish(done_optimizing)
     except Exception as e:
         stacktrace = traceback.format_exc()
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}\n{stacktrace}")
         return handle_exceptions_create_and_execute_next_runs(e)
 
+    return _create_and_execute_next_runs_return_value(trial_index_to_param)
+
+@beartype
+def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Optional[int], phase: Optional[str], _progress_bar: Any
+                                          ) -> Tuple[bool, Optional[Dict], List]:
+    done_optimizing = False
+    trial_index_to_param: Optional[Dict] = None
+    results: List = []
+
+    nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
+
+    # Sicherstellen, dass _max_eval nicht None ist
+    max_eval = _max_eval if _max_eval is not None else 0
+    new_nr_of_jobs_to_get = min(max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
+
+    range_nr = new_nr_of_jobs_to_get
+    get_next_trials_nr = 1
+
+    if getattr(args, "generate_all_jobs_at_once", False):
+        range_nr = 1
+        get_next_trials_nr = new_nr_of_jobs_to_get
+
+    for _ in range(range_nr):
+        trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
+        done_optimizing = handle_optimization_completion(optimization_complete)
+        if done_optimizing:
+            continue
+
+        if trial_index_to_param:
+            nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
+
+            filtered_trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
+
+            if len(filtered_trial_index_to_param):
+                results.extend(execute_trials(filtered_trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+            else:
+                if nr_jobs_before_removing_abandoned > 0:
+                    print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
+                else:
+                    print_debug("Could not generate any jobs")
+
+            trial_index_to_param = filtered_trial_index_to_param
+
+    return done_optimizing, trial_index_to_param, results
+
+@beartype
+def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
+    finish_previous_jobs(["finishing jobs"])
+    if done_optimizing:
+        end_program(False, 0)
+
+@beartype
+def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Dict]) -> int:
     try:
         if trial_index_to_param:
             res = len(trial_index_to_param.keys())

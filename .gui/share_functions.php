@@ -892,7 +892,7 @@
 		return $count;
 	}
 
-	function getLatestModificationTime($folderPath) {
+	function get_latest_modification_time($folderPath) {
 		if (isset($GLOBALS["modificationCache"][$folderPath])) {
 			return $GLOBALS["modificationCache"][$folderPath];
 		}
@@ -904,7 +904,7 @@
 			$filePath = $folderPath . '/' . $file;
 			if ($file != "." && $file != "..") {
 				if (is_dir($filePath)) {
-					$latestTime = max($latestTime, getLatestModificationTime($filePath));
+					$latestTime = max($latestTime, get_latest_modification_time($filePath));
 				} else {
 					$latestTime = max($latestTime, filemtime($filePath));
 				}
@@ -941,15 +941,15 @@
 			switch ($sort) {
 				case 'time_asc':
 					usort($folders, function($a, $b) use ($folderPath) {
-						$timeA = getLatestModificationTime($folderPath . '/' . $a);
-						$timeB = getLatestModificationTime($folderPath . '/' . $b);
+						$timeA = get_latest_modification_time($folderPath . '/' . $a);
+						$timeB = get_latest_modification_time($folderPath . '/' . $b);
 						return $timeA - $timeB;
 					});
 					break;
 				case 'time_desc':
 					usort($folders, function($a, $b) use ($folderPath) {
-						$timeA = getLatestModificationTime($folderPath . '/' . $a);
-						$timeB = getLatestModificationTime($folderPath . '/' . $b);
+						$timeA = get_latest_modification_time($folderPath . '/' . $a);
+						$timeB = get_latest_modification_time($folderPath . '/' . $b);
 						return $timeB - $timeA;
 					});
 					break;
@@ -971,9 +971,9 @@
 						$url .= '&sort=' . urlencode($sort);
 					}
 
-					$timestamp = getLatestModificationTime($folderPathWithFile);
+					$timestamp = get_latest_modification_time($folderPathWithFile);
 					$lastModified = date("F d Y H:i:s", $timestamp);
-					$timeSince = timeSince($timestamp);
+					$timeSince = time_since($timestamp);
 
 					if(hasNonEmptyFolder($folderPathWithFile)) {
 						$folder = htmlspecialchars($folder);
@@ -1022,7 +1022,7 @@
 		}
 	}
 
-	function timeSince($timestamp) {
+	function time_since($timestamp) {
 		$diff = time() - $timestamp;
 
 		$units = [
@@ -2550,7 +2550,7 @@ $onclick_string
 		return $latestTime;
 	}
 
-	function sortFoldersByModificationTime($basePath, &$folders) {
+	function sort_folders_by_modification_time($basePath, &$folders) {
 		usort($folders, function($a, $b) use ($basePath) {
 			$timeA = getLatestRecursiveModificationTime("$basePath/$a");
 			$timeB = getLatestRecursiveModificationTime("$basePath/$b");
@@ -2559,7 +2559,7 @@ $onclick_string
 		});
 	}
 
-	function getValidFolders($path) {
+	function get_valid_folders($path) {
 		$folders = [];
 		if (!is_dir($path)) return $folders;
 
@@ -2587,19 +2587,19 @@ $onclick_string
 
 		echo '<ul class="tree-view">';
 
-		$users = getValidFolders($basePath);
-		sortFoldersByModificationTime($basePath, $users);
+		$users = get_valid_folders($basePath);
+		sort_folders_by_modification_time($basePath, $users);
 
 		foreach ($users as $user) {
 			$userPath = "$basePath/$user";
-			$experiments = getValidFolders($userPath);
-			sortFoldersByModificationTime($userPath, $experiments);
+			$experiments = get_valid_folders($userPath);
+			sort_folders_by_modification_time($userPath, $experiments);
 
 			$hasValidRun = false;
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
-				$runs = getValidFolders($experimentPath);
-				sortFoldersByModificationTime($experimentPath, $runs);
+				$runs = get_valid_folders($experimentPath);
+				sort_folders_by_modification_time($experimentPath, $runs);
 
 				foreach ($runs as $run) {
 					$runPath = "$experimentPath/$run";
@@ -2618,8 +2618,8 @@ $onclick_string
 
 			foreach ($experiments as $experiment) {
 				$experimentPath = "$userPath/$experiment";
-				$runs = getValidFolders($experimentPath);
-				sortFoldersByModificationTime($experimentPath, $runs);
+				$runs = get_valid_folders($experimentPath);
+				sort_folders_by_modification_time($experimentPath, $runs);
 
 				$validRunItems = [];
 
@@ -2628,9 +2628,9 @@ $onclick_string
 
 					if (!hasNonEmptyFolder($runPath)) continue;
 
-					$timestamp = getLatestModificationTime($runPath);
+					$timestamp = get_latest_modification_time($runPath);
 					$lastModified = date("F d Y H:i:s", $timestamp);
-					$timeSince = timeSince($timestamp);
+					$timeSince = time_since($timestamp);
 					$bracket_string = "$lastModified | $timeSince";
 
 					$res_csv = "$runPath/results.csv";

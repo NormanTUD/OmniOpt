@@ -6864,8 +6864,6 @@ class TrialRejected(Exception):
 def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     start = time.time()
 
-    current_node_name = ""
-
     if global_gs is None:
         _fatal_error("global_gs is not set", 107)
 

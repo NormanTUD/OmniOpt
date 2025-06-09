@@ -3226,44 +3226,104 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int]) -> None:
-    str_parameters_values: List[str] = [str(v) for v in list(parameters.values())]
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str,
+                        exit_code: Optional[int], _signal: Optional[int],
+                        result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]],
+                        start_time: Union[int, float], end_time: Union[int, float],
+                        run_time: Union[float, int]) -> None:
+    _write_job_infos_csv_main(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time)
 
-    extra_vars_names, extra_vars_values = extract_info(stdout)
+@beartype
+def _write_job_infos_csv_main(parameters: dict, stdout: Optional[str], program_string_with_params: str,
+                              exit_code: Optional[int], _signal: Optional[int],
+                              result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]],
+                              start_time: Union[int, float], end_time: Union[int, float],
+                              run_time: Union[float, int]) -> None:
+    str_parameters_values = _write_job_infos_csv_parameters_to_str(parameters)
+    extra_vars_names, extra_vars_values = _write_job_infos_csv_extract_extra_vars(stdout)
+    extra_vars_names, extra_vars_values = _write_job_infos_csv_add_slurm_job_id(extra_vars_names, extra_vars_values)
 
+    parameters_keys = list(parameters.keys())
+
+    headline = _write_job_infos_csv_build_headline(parameters_keys, extra_vars_names)
+    result_values = _write_job_infos_csv_result_to_strlist(result)
+
+    values = _write_job_infos_csv_build_values(start_time, end_time, run_time, program_string_with_params,
+                                               str_parameters_values, result_values, exit_code, _signal,
+                                               extra_vars_values)
+
+    headline = _write_job_infos_csv_replace_none_with_str(headline)
+    values = _write_job_infos_csv_replace_none_with_str(values)
+
+    run_folder = get_current_run_folder()
+    if run_folder is not None and os.path.exists(run_folder):
+        try:
+            add_to_csv(f"{run_folder}/job_infos.csv", headline, values)
+        except Exception as e:
+            print_red(f"Error writing job_infos.csv: {e}")
+    else:
+        print_debug(f"evaluate: get_current_run_folder() {run_folder} could not be found")
+
+@beartype
+def _write_job_infos_csv_parameters_to_str(parameters: dict) -> List[str]:
+    return [str(v) for v in list(parameters.values())]
+
+
+@beartype
+def _write_job_infos_csv_extract_extra_vars(stdout: Optional[str]) -> Tuple[List[str], List[str]]:
+    # extract_info ist hier eine vorhandene Funktion, die extra Variablen aus stdout extrahiert
+    return extract_info(stdout)
+
+
+@beartype
+def _write_job_infos_csv_add_slurm_job_id(extra_vars_names: List[str], extra_vars_values: List[str]) -> Tuple[List[str], List[str]]:
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
     if _SLURM_JOB_ID:
         extra_vars_names.append("OO_Info_SLURM_JOB_ID")
         extra_vars_values.append(str(_SLURM_JOB_ID))
+    return extra_vars_names, extra_vars_values
 
-    parameters_keys = list(parameters.keys())
 
-    headline: List[str] = [
+@beartype
+def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_names: List[str]) -> List[str]:
+    return [
         "start_time",
         "end_time",
         "run_time",
         "program_string",
         *parameters_keys,
-        *arg_result_names,
+        *arg_result_names,  # arg_result_names muss global definiert sein
         "exit_code",
         "signal",
         "hostname",
         *extra_vars_names
     ]
 
-    result_values = []
+
+@beartype
+def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]]) -> List[str]:
+    result_values: List[str] = []
 
     if isinstance(result, list):
         for rkey in result:
             result_values.append(str(rkey))
     elif isinstance(result, dict):
-        result_keys: list = list(result.keys())
+        result_keys = list(result.keys())
         for rkey in result_keys:
             rval = str(result[str(rkey)])
-
             result_values.append(rval)
+    elif result is not None:  # int or float
+        result_values.append(str(result))
 
-    values: List[str] = [
+    return result_values
+
+
+@beartype
+def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int],
+                                      program_string_with_params: str, str_parameters_values: List[str],
+                                      result_values: List[str], exit_code: Optional[int], _signal: Optional[int],
+                                      extra_vars_values: List[str]) -> List[str]:
+    return [
         str(start_time),
         str(end_time),
         str(run_time),
@@ -3276,16 +3336,10 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
         *extra_vars_values
     ]
 
-    headline = ['None' if element is None else element for element in headline]
-    values = ['None' if element is None else element for element in values]
 
-    if get_current_run_folder() is not None and os.path.exists(get_current_run_folder()):
-        try:
-            add_to_csv(f"{get_current_run_folder()}/job_infos.csv", headline, values)
-        except Exception as e:
-            print_red(f"Error writing job_infos.csv: {e}")
-    else:
-        print_debug(f"evaluate: get_current_run_folder() {get_current_run_folder()} could not be found")
+@beartype
+def _write_job_infos_csv_replace_none_with_str(elements: List[Optional[str]]) -> List[str]:
+    return ['None' if element is None else element for element in elements]
 
 @beartype
 def print_evaluate_times() -> None:

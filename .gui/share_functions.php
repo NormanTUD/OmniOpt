@@ -1951,7 +1951,7 @@
 		return [$tabs, $warnings];
 	}
 
-	function addTabsToString($inputString, $numTabs) {
+	function add_tabs_to_string($inputString, $numTabs) {
 		$lines = explode("\n", $inputString);
 		$tabs = str_repeat("\t", $numTabs);
 		$inPre = false;
@@ -1988,7 +1988,7 @@
 		return $cleanedString;
 	}
 
-	function generateCssStyleTag($filePath, $indentLevel = 3) {
+	function generate_css_style_tag($filePath, $indentLevel = 3) {
 		$cssContent = removeExcessiveNewlines(removeFontFaceRules(file_get_contents($filePath)));
 
 		if ($cssContent === false) {
@@ -1996,7 +1996,7 @@
 			return '';
 		}
 
-		$cssContentWithTabs = addTabsToString($cssContent, $indentLevel);
+		$cssContentWithTabs = add_tabs_to_string($cssContent, $indentLevel);
 
 		return $cssContentWithTabs."\n";
 	}
@@ -2035,7 +2035,7 @@
 			}
 		}
 
-		$json_data_str = addTabsToString($json_data_str, 3);
+		$json_data_str = add_tabs_to_string($json_data_str, 3);
 
 		$onclicks = [];
 		$html_parts = [];
@@ -2065,18 +2065,18 @@
 			$onclick_string .= ';';
 		}
 
-		$onclick_string = addTabsToString($onclick_string, 4);
+		$onclick_string = add_tabs_to_string($onclick_string, 4);
 
-		$html_parts_str = addTabsToString(implode("\n", $html_parts), 3);
+		$html_parts_str = add_tabs_to_string(implode("\n", $html_parts), 3);
 
 		$js_functions = file_get_contents("js/share_functions.js");
 		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto_from_idxs.js");
 
-		$js_functions = addTabsToString($js_functions, 3);
+		$js_functions = add_tabs_to_string($js_functions, 3);
 
-		$share_css = generateCssStyleTag("css/share.css");
-		$style_css = generateCssStyleTag("style.css");
-		$xp_css = generateCssStyleTag("css/xp.css");
+		$share_css = generate_css_style_tag("css/share.css");
+		$style_css = generate_css_style_tag("style.css");
+		$xp_css = generate_css_style_tag("css/xp.css");
 
 		$export_content = "<!DOCTYPE html>
 <html lang='en'>

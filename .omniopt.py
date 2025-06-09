@@ -7200,63 +7200,81 @@ def generate_time_table_rich() -> None:
     save_table_as_text(table, filepath)
 
 @beartype
-def generate_job_submit_table_rich() -> None:
-    if not isinstance(job_submit_durations, list) or not isinstance(job_submit_nrs, list):
-        print_debug("generate_job_submit_table_rich: Error: job_submit_durations or job_submit_nrs is not a list.")
-        return
+def validate_job_submit_data(durations: List[float], job_counts: List[int]) -> bool:
+    if not durations or not job_counts:
+        print_debug("No durations or job counts to display.")
+        return False
 
-    if len(job_submit_durations) == 0 or len(job_submit_nrs) == 0:
-        print_debug("generate_job_submit_table_rich: No durations or job counts to display.")
-        return
+    if len(durations) != len(job_counts):
+        print_debug("Length mismatch between durations and job counts.")
+        return False
 
-    if len(job_submit_durations) != len(job_submit_nrs):
-        print_debug("generate_job_submit_table_rich: Length mismatch between durations and job counts.")
-        return
+    return True
 
-    for i, val in enumerate(job_submit_durations):
-        try:
-            float(val)
-        except (ValueError, TypeError):
-            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} in durations is not a valid float.")
-            return
-    for i, val in enumerate(job_submit_nrs):
-        if not isinstance(val, int):
-            print_debug(f"generate_job_submit_table_rich: Error: Element at index {i} in job counts is not an int.")
-            return
+@beartype
+def convert_durations_to_float(raw_durations: List) -> List[float] | None:
+    try:
+        return [float(val) for val in raw_durations]
+    except (ValueError, TypeError) as e:
+        print_debug(f"Invalid float in durations: {e}")
+        return None
 
+@beartype
+def convert_job_counts_to_int(raw_counts: List) -> List[int] | None:
+    try:
+        return [int(val) for val in raw_counts]
+    except (ValueError, TypeError) as e:
+        print_debug(f"Invalid int in job counts: {e}")
+        return None
+
+@beartype
+def build_job_submission_table(durations: List[float], job_counts: List[int]) -> Table:
     table = Table(show_header=True, header_style="bold", title="Job submission durations")
     table.add_column("Batch", justify="right")
     table.add_column("Seconds", justify="right")
     table.add_column("Jobs", justify="right")
     table.add_column("Time per job", justify="right")
 
-    for idx, (time_val, jobs) in enumerate(zip(job_submit_durations, job_submit_nrs), start=1):
-        time_val_float = float(time_val)
-        time_per_job = time_val_float / jobs if jobs > 0 else 0
-        table.add_row(str(idx), f"{time_val_float:.3f}", str(jobs), f"{time_per_job:.3f}")
-
-    times_float = [float(t) for t in job_submit_durations]
-    avg_time = mean(times_float)
-    median_time = median(times_float)
-    total_time = sum(times_float)
-    max_time = max(times_float)
-    min_time = min(times_float)
+    for idx, (duration, jobs) in enumerate(zip(durations, job_counts), start=1):
+        time_per_job = duration / jobs if jobs > 0 else 0
+        table.add_row(str(idx), f"{duration:.3f}", str(jobs), f"{time_per_job:.3f}")
 
     table.add_section()
+    table.add_row("Average", f"{mean(durations):.3f}", "", "")
+    table.add_row("Median", f"{median(durations):.3f}", "", "")
+    table.add_row("Total", f"{sum(durations):.3f}", "", "")
+    table.add_row("Max", f"{max(durations):.3f}", "", "")
+    table.add_row("Min", f"{min(durations):.3f}", "", "")
 
-    table.add_row("Average", f"{avg_time:.3f}", "", "")
-    table.add_row("Median", f"{median_time:.3f}", "", "")
-    table.add_row("Total", f"{total_time:.3f}", "", "")
-    table.add_row("Max", f"{max_time:.3f}", "", "")
-    table.add_row("Min", f"{min_time:.3f}", "", "")
+    return table
+
+@beartype
+def export_table_to_file(table: Table, filename: str) -> None:
+    folder = get_current_run_folder()
+    filepath = os.path.join(folder, filename)
+    save_table_as_text(table, filepath)
+
+@beartype
+def generate_job_submit_table_rich() -> None:
+    if not isinstance(job_submit_durations, list) or not isinstance(job_submit_nrs, list):
+        print_debug("job_submit_durations or job_submit_nrs is not a list.")
+        return
+
+    durations = convert_durations_to_float(job_submit_durations)
+    job_counts = convert_job_counts_to_int(job_submit_nrs)
+
+    if durations is None or job_counts is None:
+        return
+
+    if not validate_job_submit_data(durations, job_counts):
+        return
+
+    table = build_job_submission_table(durations, job_counts)
 
     if args.show_generate_time_table:
         console.print(table)
 
-    folder = get_current_run_folder()
-    filename = "job_submit_durations.txt"
-    filepath = os.path.join(folder, filename)
-    save_table_as_text(table, filepath)
+    export_table_to_file(table, "job_submit_durations.txt")
 
 @beartype
 def plot_times_for_creation_and_submission() -> None:

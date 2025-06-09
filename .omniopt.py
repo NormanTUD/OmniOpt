@@ -8493,7 +8493,7 @@ def _pareto_front_general_compare(
     x_strictly_better = xj < xi if x_minimize else xj > xi
     y_strictly_better = yj < yi if y_minimize else yj > yi
 
-    return x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better)
+    return bool(x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better))
 
 @beartype
 def _pareto_front_general_find_dominated(

@@ -83,7 +83,7 @@
 	$uuid_folder = null;
 
 	if ($update_uuid) {
-		$uuid_folder = findMatchingUUIDRunFolder($update_uuid, $sharesPath, $user_id, $experiment_name);
+		$uuid_folder = find_matching_uuid_run_folder($update_uuid, $sharesPath, $user_id, $experiment_name);
 	}
 
 	$num_offered_files = 0;

@@ -1417,7 +1417,7 @@
 		echo "Warning: " . $message . "\n";
 	}
 
-	function findMatchingUUIDRunFolder(string $targetUUID, $sharesPath, $user_id, $experiment_name): ?string {
+	function find_matching_uuid_run_folder(string $targetUUID, $sharesPath, $user_id, $experiment_name): ?string {
 		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id)) {
 			return null;
 		}
@@ -1440,17 +1440,17 @@
 		return null;
 	}
 
-	function deleteFolder($folder) {
+	function delete_folder($folder) {
 		$files = array_diff(scandir($folder), array('.', '..'));
 
 		foreach ($files as $file) {
-			(is_dir("$folder/$file")) ? deleteFolder("$folder/$file") : unlink("$folder/$file");
+			(is_dir("$folder/$file")) ? delete_folder("$folder/$file") : unlink("$folder/$file");
 		}
 
 		return rmdir($folder);
 	}
 
-	function createNewFolder($path, $user_id, $experiment_name) {
+	function create_new_folder($path, $user_id, $experiment_name) {
 		$i = 0;
 
 		$newFolder = $path . "/$user_id/$experiment_name/$i";
@@ -1469,7 +1469,7 @@
 		return $newFolder;
 	}
 
-	function searchForHashFile($directory, $new_upload_md5, $userFolder) {
+	function search_for_hash_file($directory, $new_upload_md5, $userFolder) {
 		$files = glob($directory);
 
 		foreach ($files as $file) {
@@ -1527,7 +1527,7 @@
 		}
 
 		if (!$_uuid_folder) {
-			$userFolder = createNewFolder($sharesPath, $user_id, $experiment_name);
+			$userFolder = create_new_folder($sharesPath, $user_id, $experiment_name);
 		} else {
 			$userFolder = $_uuid_folder;
 		}
@@ -1632,7 +1632,7 @@
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$found_hash_file_data = searchForHashFile("$sharesPath/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
+		$found_hash_file_data = search_for_hash_file("$sharesPath/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
@@ -1975,21 +1975,24 @@
 		return implode("\n", $lines);
 	}
 
-	function removeFontFaceRules($cssContent) {
+	function remove_font_face_rules($cssContent) {
 		$pattern = '/@font-face\s*\{[^}]*\}/s';
 		$cleanedCss = preg_replace($pattern, '', $cssContent);
 
 		return $cleanedCss;
 	}
 
-	function removeExcessiveNewlines($string) {
+	function remove_excessive_newlines($string) {
 		$cleanedString = preg_replace('/\n{3,}/', "\n", $string);
 
 		return $cleanedString;
 	}
 
 	function generate_css_style_tag($filePath, $indentLevel = 3) {
-		$cssContent = removeExcessiveNewlines(removeFontFaceRules(file_get_contents($filePath)));
+		$file_content = file_get_contents($filePath); 
+		$file_content = remove_font_face_rules($file_content);
+
+		$cssContent = remove_excessive_newlines($file_content);
 
 		if ($cssContent === false) {
 			error_log("Error: The file '$filePath' Could not be read.");
@@ -2001,7 +2004,7 @@
 		return $cssContentWithTabs."\n";
 	}
 
-	function removeImgTagsFromHtml($html) {
+	function remove_img_tags_from_html($html) {
 		$pattern = '/<img\b[^>]*>/i';
 		$cleaned = preg_replace($pattern, '', $html);
 
@@ -2116,7 +2119,7 @@ $onclick_string
 </html>
 ";
 
-		$export_content = removeImgTagsFromHtml($export_content);
+		$export_content = remove_img_tags_from_html($export_content);
 
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 

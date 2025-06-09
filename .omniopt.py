@@ -8464,6 +8464,41 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
     plt.close(fig)
 
 @beartype
+def _pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
+    if x.shape != y.shape:
+        raise ValueError("Input arrays x and y must have the same shape.")
+
+@beartype
+def _pareto_front_general_compare(
+    xi: float, yi: float, xj: float, yj: float,
+    x_minimize: bool, y_minimize: bool
+) -> bool:
+    x_better_eq = xj <= xi if x_minimize else xj >= xi
+    y_better_eq = yj <= yi if y_minimize else yj >= yi
+    x_strictly_better = xj < xi if x_minimize else xj > xi
+    y_strictly_better = yj < yi if y_minimize else yj > yi
+
+    return x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better)
+
+@beartype
+def _pareto_front_general_find_dominated(
+    x: np.ndarray, y: np.ndarray, x_minimize: bool, y_minimize: bool
+) -> np.ndarray:
+    num_points = len(x)
+    is_dominated = np.zeros(num_points, dtype=bool)
+
+    for i in range(num_points):
+        for j in range(num_points):
+            if i == j:
+                continue
+
+            if _pareto_front_general_compare(x[i], y[i], x[j], y[j], x_minimize, y_minimize):
+                is_dominated[i] = True
+                break
+
+    return is_dominated
+
+@beartype
 def pareto_front_general(
     x: np.ndarray,
     y: np.ndarray,
@@ -8471,28 +8506,9 @@ def pareto_front_general(
     y_minimize: bool = True
 ) -> np.ndarray:
     try:
-        if x.shape != y.shape:
-            raise ValueError("Input arrays x and y must have the same shape.")
-
-        num_points = len(x)
-        is_dominated = np.zeros(num_points, dtype=bool)
-
-        for i in range(num_points):
-            for j in range(num_points):
-                if i == j:
-                    continue
-
-                x_better_or_equal = x[j] <= x[i] if x_minimize else x[j] >= x[i]
-                y_better_or_equal = y[j] <= y[i] if y_minimize else y[j] >= y[i]
-                x_strictly_better = x[j] < x[i] if x_minimize else x[j] > x[i]
-                y_strictly_better = y[j] < y[i] if y_minimize else y[j] > y[i]
-
-                if x_better_or_equal and y_better_or_equal and (x_strictly_better or y_strictly_better):
-                    is_dominated[i] = True
-                    break
-
+        _pareto_front_general_validate_shapes(x, y)
+        is_dominated = _pareto_front_general_find_dominated(x, y, x_minimize, y_minimize)
         return np.where(~is_dominated)[0]
-
     except Exception as e:
         print("Error in pareto_front_general:", str(e))
         return np.array([], dtype=int)

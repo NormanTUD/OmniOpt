@@ -401,7 +401,7 @@
 				$contents = convert_sixel($contents);
 			}
 
-			$html_table = asciiTableToHtml($contents);
+			$html_table = ascii_table_to_html($contents);
 			$html = $html_table;
 
 			$svg_icon = get_icon_html("table.svg");
@@ -1773,7 +1773,7 @@
 		return $oldDirs;
 	}
 
-	function asciiTableToHtml($asciiTable) {
+	function ascii_table_to_html($asciiTable) {
 		$lines = explode("\n", trim($asciiTable));
 
 		while (!empty($lines) && trim($lines[0]) === '') {
@@ -2191,7 +2191,7 @@ $onclick_string
 	function add_constraints_to_overview ($run_dir, $overview_html, $warnings) {
 		$constraints = "$run_dir/constraints.txt";
 		if(file_exists($constraints) && filesize($constraints)) {
-			$constraints_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
+			$constraints_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
 			if($constraints_table) {
 				$constraints .= $constraints_table;
 
@@ -2215,7 +2215,7 @@ $onclick_string
 	function add_experiment_overview_to_overview ($run_dir, $overview_html, $warnings) {
 		$experiment_overview = "$run_dir/experiment_overview.txt";
 		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
-			$experiment_overview_table = asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
+			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
 				$experiment_overview .= $experiment_overview_table;
 
@@ -2237,7 +2237,7 @@ $onclick_string
 	function add_best_results_to_overview ($run_dir, $overview_html, $warnings) {
 		$best_results_txt = "$run_dir/best_result.txt";
 		if(is_file($best_results_txt)) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
 		} else {
 			if(!is_file($best_results_txt)) {
 				$warnings[] = "$best_results_txt not found";
@@ -2252,7 +2252,7 @@ $onclick_string
 	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
 		$parameters_txt_file = "$run_dir/parameters.txt";
 		if(is_file($parameters_txt_file) && filesize($parameters_txt_file)) {
-			$overview_html .= asciiTableToHtml(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
 		} else {
 			if(!is_file($parameters_txt_file)) {
 				$warnings[] = "$run_dir/parameters.txt not found";

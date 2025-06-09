@@ -481,7 +481,17 @@
 		}
 
 		$(document).ready(function() {
-			load_share_overview();
+			var params = new URLSearchParams(window.location.search);
+
+			var blockParams = ['user_id', 'sort', 'experiment_name'];
+
+			var shouldBlock = blockParams.some(function(key) {
+				return params.has(key);
+			});
+
+			if (!shouldBlock) {
+				load_share_overview();
+			}
 		});
 	</script>
 <?php

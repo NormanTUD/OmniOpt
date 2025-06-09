@@ -3503,27 +3503,58 @@ def die_for_debug_reasons() -> None:
             print_red(f"Invalid value for DIE_AFTER_THIS_NR_OF_DONE_JOBS: '{max_done_str}', cannot be converted to int")
 
 @beartype
+def _evaluate_preprocess_parameters(parameters: dict) -> dict:
+    return {
+        k: (int(float(v)) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
+        for k, v in parameters.items()
+    }
+
+@beartype
+def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
+    return {
+        "USR1-signal": SignalUSR,
+        "CONT-signal": SignalCONT,
+        "INT-signal": SignalINT
+    }
+
+@beartype
+def _evaluate_handle_result(
+    stdout: str,
+    result: Union[int, float, dict, list],
+    parameters: dict
+) -> Dict[str, Optional[Union[float, Tuple]]]:
+    final_result: Dict[str, Optional[Union[float, Tuple]]] = {}
+
+    if isinstance(result, (int, float)):
+        for name in arg_result_names:
+            final_result[name] = attach_sem_to_result(stdout, name, float(result))
+
+    elif isinstance(result, list):
+        float_values = [float(r) for r in result]
+        for name in arg_result_names:
+            final_result[name] = attach_sem_to_result(stdout, name, float_values)
+
+    elif isinstance(result, dict):
+        for name in arg_result_names:
+            final_result[name] = attach_sem_to_result(stdout, name, result.get(name))
+
+    else:
+        write_failed_logs(parameters, "No Result")
+
+    return final_result
+
+@beartype
 def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     start_nvidia_smi_thread()
-
     return_in_case_of_error: dict = get_return_in_case_of_errors()
 
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
-    final_result = return_in_case_of_error
+    final_result: Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]] = return_in_case_of_error
 
     if _test_gpu is None:
-        parameters = {
-            k: (int(float(v)) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
-            for k, v in parameters.items()
-        }
-
+        parameters = _evaluate_preprocess_parameters(parameters)
         ignore_signals()
-
-        signal_messages = {
-            "USR1-signal": SignalUSR,
-            "CONT-signal": SignalCONT,
-            "INT-signal": SignalINT
-        }
+        signal_messages = _evaluate_create_signal_map()
 
         try:
             if args.raise_in_eval:
@@ -3544,23 +3575,7 @@ def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[
 
             result = get_results_with_occ(stdout)
 
-            final_result = {}
-
-            if isinstance(result, (int, float)):
-                for name in arg_result_names:
-                    final_result[name] = attach_sem_to_result(stdout, name, float(result))
-
-            elif isinstance(result, list):
-                float_values = [float(r) for r in result]
-                for name in arg_result_names:
-                    final_result[name] = attach_sem_to_result(stdout, name, float_values)
-
-            elif isinstance(result, dict):
-                for name in arg_result_names:
-                    final_result[name] = attach_sem_to_result(stdout, name, result.get(name))
-
-            else:
-                write_failed_logs(parameters, "No Result")
+            final_result = _evaluate_handle_result(stdout, result, parameters)
 
             _evaluate_print_stuff(
                 parameters,

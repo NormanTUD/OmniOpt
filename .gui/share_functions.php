@@ -1175,7 +1175,7 @@
 
 			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
 				$i == 0 ? 'aria-selected="true"' : ''
-			).' aria-controls="single_run_'.$i.'">'.$tabname.'</button>';
+			).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
 			$i++;
 		}
 

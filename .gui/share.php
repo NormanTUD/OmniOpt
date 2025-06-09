@@ -29,7 +29,7 @@
 
 	$expected_user_and_group = "www-data";
 	$alternative_user_and_group = get_current_user();
-	if(checkFolderPermissions($GLOBALS["sharesPath"], $expected_user_and_group, $expected_user_and_group, $alternative_user_and_group, $alternative_user_and_group, 0755)) {
+	if(check_folder_permissions($GLOBALS["sharesPath"], $expected_user_and_group, $expected_user_and_group, $alternative_user_and_group, $alternative_user_and_group, 0755)) {
 		exit(1);
 	}
 
@@ -64,7 +64,7 @@
 	}
 
 	if(isset($_GET["show_overview"])) {
-		generateFolderTreeView($GLOBALS["sharesPath"]);
+		generate_folder_tree_view($GLOBALS["sharesPath"]);
 		exit(0);
 	}
 
@@ -452,11 +452,11 @@
 <?php
 					 */
 					if(!$user_id && !$experiment_name && !$run_nr) {
-						generateFolderButtons($GLOBALS["sharesPath"], "user_id");
+						generate_folder_buttons($GLOBALS["sharesPath"], "user_id");
 					} else if($user_id && !$experiment_name && !$run_nr) {
-						generateFolderButtons($GLOBALS["sharesPath"]."/$user_id", "experiment_name");
+						generate_folder_buttons($GLOBALS["sharesPath"]."/$user_id", "experiment_name");
 					} else if($user_id && $experiment_name && !$run_nr) {
-						generateFolderButtons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
+						generate_folder_buttons($GLOBALS["sharesPath"]."/$user_id/$experiment_name", "run_nr");
 					} else {
 						print "UNKNOWN STATE!<br>";
 						print "user_id: " . ($user_id ? "Yes" : "No") . ", ";

@@ -181,7 +181,7 @@
 		return $lines;
 	}
 
-	function getStatusForResultsCsv($csvFilePath) {
+	function get_status_for_results_csv($csvFilePath) {
 		if (!file_exists($csvFilePath) || !is_readable($csvFilePath)) {
 			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
 		}
@@ -294,7 +294,7 @@
 			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
-			$csv_contents = getCsvDataAsArray($filename);
+			$csv_contents = get_csv_data_as_array($filename);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);
@@ -362,7 +362,7 @@
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
-			$csv_contents = getCsvDataAsArray($filename);
+			$csv_contents = get_csv_data_as_array($filename);
 
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_contents;
 
@@ -392,7 +392,7 @@
 			} else {
 				$contents = htmlspecialchars($contents);
 				$ansi_to_htmled = ansi_to_html($contents);
-				$contents = removeAnsiEscapeSequences($ansi_to_htmled);
+				$contents = remove_ansi_escape_sequences($ansi_to_htmled);
 			}
 
 			if(!$remove_ansi_colors) {
@@ -421,7 +421,7 @@
 		return [$tabs, $warnings];
 	}
 
-	function isValidSvgFile(string $filepath): bool {
+	function is_valid_svg_file(string $filepath): bool {
 		if (!is_readable($filepath)) {
 			return false;
 		}
@@ -447,7 +447,7 @@
 
 
 	function add_flame_svg_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
-		if(is_file($filename) && filesize($filename) > 0 && isValidSvgFile($filename)) {
+		if(is_file($filename) && filesize($filename) > 0 && is_valid_svg_file($filename)) {
 			$svg_icon = get_icon_html("flame.svg");
 
 			$svg = file_get_contents($filename);
@@ -469,7 +469,7 @@
 				$warnings[] = "$filename does not exist";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
-			} else if (!isValidSvgFile($filename)) {
+			} else if (!is_valid_svg_file($filename)) {
 				$warnings[] = "$filename is not a valid SVG file";
 			}
 		}
@@ -486,7 +486,7 @@
 			} else {
 				$contents = htmlspecialchars($contents);
 				$ansi_to_htmled = ansi_to_html($contents);
-				$contents = removeAnsiEscapeSequences($ansi_to_htmled);
+				$contents = remove_ansi_escape_sequences($ansi_to_htmled);
 			}
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
@@ -720,7 +720,7 @@
 
 	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
 		if(is_file($filename) && filesize($filename) && has_real_char($filename)) {
-			$csv_contents = getCsvDataAsArray($filename, ",", $header_line);
+			$csv_contents = get_csv_data_as_array($filename, ",", $header_line);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);
@@ -785,7 +785,7 @@
 		return $log_files;
 	}
 
-	function getCsvDataAsArray($filePath, $delimiter = ",", $header_line = null) {
+	function get_csv_data_as_array($filePath, $delimiter = ",", $header_line = null) {
 		if (!file_exists($filePath) || !is_readable($filePath)) {
 			error_log("CSV file not found or not readable: " . $filePath);
 			return [];
@@ -875,7 +875,7 @@
 		return implode(", ", $parts);
 	}
 
-	function countSubfolders(string $path): int {
+	function count_subfolders(string $path): int {
 		$count = 0;
 
 		if (!is_dir($path)) {
@@ -917,14 +917,14 @@
 		return $latestTime;
 	}
 
-	function generateFolderButtons($folderPath, $new_param_name) {
+	function generate_folder_buttons($folderPath, $new_param_name) {
 		if (!isset($_SERVER["REQUEST_URI"])) {
 			return;
 		}
 
 		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'time_desc';
 
-		echo getSortOptions();
+		echo get_sort_options();
 
 		if (is_dir($folderPath)) {
 			$dir = opendir($folderPath);
@@ -975,7 +975,7 @@
 					$lastModified = date("F d Y H:i:s", $timestamp);
 					$timeSince = time_since($timestamp);
 
-					if(hasNonEmptyFolder($folderPathWithFile)) {
+					if(has_non_empty_folder($folderPathWithFile)) {
 						$folder = htmlspecialchars($folder);
 						$url = htmlspecialchars($url);
 
@@ -991,7 +991,7 @@
 								$bracket_string .= " | ".$analyzed;
 							}
 						} else {
-							$counted_subfolders = countSubfolders($folderPathWithFile);
+							$counted_subfolders = count_subfolders($folderPathWithFile);
 
 							if($counted_subfolders != 0) {
 								if($counted_subfolders == 1) {
@@ -1044,7 +1044,7 @@
 		return "just now";
 	}
 
-	function getSortOptions() {
+	function get_sort_options() {
 		$sort = isset($_GET['sort']) ? $_GET['sort'] : 'time_desc';
 
 		$currentUrl = $_SERVER['REQUEST_URI'];
@@ -1054,7 +1054,7 @@
 
 		return '
 			<form id="sortForm" method="get">
-				<select name="sort" onchange="updateUrl()">
+				<select name="sort" onchange="update_url()">
 					<option value="time_asc"' . ($sort == 'time_asc' ? ' selected' : '') . '>Time (ascending)</option>
 					<option value="time_desc"' . ($sort == 'time_desc' ? ' selected' : '') . '>Time (descending)</option>
 					<option value="nr_asc"' . ($sort == 'nr_asc' ? ' selected' : '') . '>Name (ascending)</option>
@@ -1062,7 +1062,7 @@
 				</select>
 			</form>
 			<script>
-				function updateUrl() {
+				function update_url() {
 					const currentUrl = window.location.href;
 					const url = new URL(currentUrl);
 
@@ -1112,7 +1112,7 @@
 		return true;
 	}
 
-	function endsWithSubmititInfo($string) {
+	function ends_with_submitit_info($string) {
 		$ret = preg_match('/submitit INFO \(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}\) - Exiting after successful completion$/', $string) === 1;
 
 		return $ret;
@@ -1154,7 +1154,7 @@
 
 				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
 					$checkmark = $memory;
-				} else if(endsWithSubmititInfo($file_as_string)) {
+				} else if(ends_with_submitit_info($file_as_string)) {
 					$checkmark = $red_cross;
 				} else if(contains_slurm_time_limit_error($file_as_string)) {
 					$checkmark = $time_warning;
@@ -1192,7 +1192,7 @@
 			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
 			if ($i == 0) {
 				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlightDebugInfo(ansi_to_html(htmlspecialchars($content))) . '</pre>';
+				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
 				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
 			}
@@ -1226,13 +1226,13 @@
 		return !!preg_match('/^\d+$/', $value);
 	}
 
-	function removeAnsiEscapeSequences($string) {
+	function remove_ansi_escape_sequences($string) {
 		$string = preg_replace('/.\[?(1A|2(5[hl]|K))/', '', $string);
 		$string = preg_replace('/\[/', '', $string);
 		return $string;
 	}
 
-	function highlightDebugInfo($log) {
+	function highlight_debug_info($log) {
 		$log = preg_replace('/(E[0-9]{4}.*?)(?=\n|$)/', '<span style="color:red;">$1</span>', $log);
 
 		$log = preg_replace('/(WARNING:.*?)(?=\n|$)/', '<span style="color:orange;">$1</span>', $log);
@@ -1366,7 +1366,7 @@
 		return $html;
 	}
 
-	function checkFolderPermissions($directory, $expectedUser, $expectedGroup, $alternativeUser, $alternativeGroup, $expectedPermissions) {
+	function check_folder_permissions($directory, $expectedUser, $expectedGroup, $alternativeUser, $alternativeGroup, $expectedPermissions) {
 		if (getenv('CI') !== false) {
 			return false;
 		}
@@ -1496,7 +1496,7 @@
 		return [false, null];
 	}
 
-	function extractPathComponents($found_hash_file_dir, $sharesPath) {
+	function extract_path_components($found_hash_file_dir, $sharesPath) {
 		$pattern = "#^$sharesPath/([^/]+)/([^/]+)/(\d+)$#";
 
 		if (preg_match($pattern, $found_hash_file_dir, $matches)) {
@@ -1611,7 +1611,7 @@
 		return $cleaned_string;
 	}
 
-	function warnIfLowDiskSpace($userFolder, $minFreeMB = 100) {
+	function warn_if_low_disk_space($userFolder, $minFreeMB = 100) {
 		$freeBytes = disk_free_space($userFolder);
 		if ($freeBytes === false) {
 			error_log("Could not determine free space for: $userFolder");
@@ -1638,7 +1638,7 @@
 		$found_hash_file_dir = $found_hash_file_data[1];
 
 		if ($found_hash_file && is_null($update_uuid)) {
-			list($user, $experiment_name, $run_id) = extractPathComponents($found_hash_file_dir, $sharesPath);
+			list($user, $experiment_name, $run_id) = extract_path_components($found_hash_file_dir, $sharesPath);
 			$old_url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 			echo "This project already seems to have been uploaded. See $old_url\n";
 			exit(0);
@@ -1703,7 +1703,7 @@
 		}
 	}
 
-	function deleteEmptyDirectories(string $directory, bool $is_recursive_call): bool {
+	function delete_empty_directories(string $directory, bool $is_recursive_call): bool {
 		if (!is_dir($directory)) {
 			return false;
 		}
@@ -1713,7 +1713,7 @@
 		foreach ($files as $file) {
 			$path = $directory . DIRECTORY_SEPARATOR . $file;
 			if (is_dir($path)) {
-				deleteEmptyDirectories($path, true);
+				delete_empty_directories($path, true);
 			}
 		}
 
@@ -1766,9 +1766,9 @@
 		}
 
 		$directoryToCheck = 'shares';
-		deleteEmptyDirectories($directoryToCheck, false);
+		delete_empty_directories($directoryToCheck, false);
 		$oldDirs = _delete_old_shares($directoryToCheck);
-		deleteEmptyDirectories($directoryToCheck, false);
+		delete_empty_directories($directoryToCheck, false);
 
 		return $oldDirs;
 	}
@@ -2332,7 +2332,7 @@ $onclick_string
 		$results_csv_file = "$run_dir/results.csv";
 
 		if(is_file($results_csv_file) && filesize($results_csv_file)) {
-			$status_data = getStatusForResultsCsv($results_csv_file);
+			$status_data = get_status_for_results_csv($results_csv_file);
 
 			if($status_data["total"]) {
 				$overview_table = '<h2>Number of evaluations</h2>'."\n";
@@ -2481,7 +2481,7 @@ $onclick_string
 		return $gpu_usage_data;
 	}
 
-	function hasNonEmptyFolder($dir) {
+	function has_non_empty_folder($dir) {
 		if (!is_dir($dir)) {
 			return false;
 		}
@@ -2523,7 +2523,7 @@ $onclick_string
 		return [$tabs, $warnings];
 	}
 
-	function getLatestRecursiveModificationTime($folderPath) {
+	function get_latest_recursive_modification_time($folderPath) {
 		if (isset($GLOBALS["recursiveModificationCache"][$folderPath])) {
 			return $GLOBALS["recursiveModificationCache"][$folderPath];
 		}
@@ -2552,8 +2552,8 @@ $onclick_string
 
 	function sort_folders_by_modification_time($basePath, &$folders) {
 		usort($folders, function($a, $b) use ($basePath) {
-			$timeA = getLatestRecursiveModificationTime("$basePath/$a");
-			$timeB = getLatestRecursiveModificationTime("$basePath/$b");
+			$timeA = get_latest_recursive_modification_time("$basePath/$a");
+			$timeB = get_latest_recursive_modification_time("$basePath/$b");
 			// Absteigend sortieren: neueste zuerst
 			return $timeB <=> $timeA;
 		});
@@ -2575,7 +2575,7 @@ $onclick_string
 		return $folders;
 	}
 
-	function generateFolderTreeView($basePath) {
+	function generate_folder_tree_view($basePath) {
 		if (!is_dir($basePath)) {
 			echo "Base path does not exist.";
 			return;
@@ -2603,7 +2603,7 @@ $onclick_string
 
 				foreach ($runs as $run) {
 					$runPath = "$experimentPath/$run";
-					if (hasNonEmptyFolder($runPath)) {
+					if (has_non_empty_folder($runPath)) {
 						$hasValidRun = true;
 						break 2;
 					}
@@ -2626,7 +2626,7 @@ $onclick_string
 				foreach ($runs as $run) {
 					$runPath = "$experimentPath/$run";
 
-					if (!hasNonEmptyFolder($runPath)) continue;
+					if (!has_non_empty_folder($runPath)) continue;
 
 					$timestamp = get_latest_modification_time($runPath);
 					$lastModified = date("F d Y H:i:s", $timestamp);
@@ -2642,7 +2642,7 @@ $onclick_string
 							$bracket_string .= " | $analyzed";
 						}
 					} else {
-						$counted_subfolders = countSubfolders($runPath);
+						$counted_subfolders = count_subfolders($runPath);
 						if ($counted_subfolders > 0) {
 							$bracket_string .= " | $counted_subfolders " . ($counted_subfolders === 1 ? "subfolder" : "subfolders");
 						} else {

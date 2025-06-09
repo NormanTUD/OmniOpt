@@ -796,9 +796,13 @@ if args.seed is not None:
 
     set_rng_seed(args.seed)
 
+@beartype
+def _fatal_error(message: str, code: int) -> None:
+    print_red(message)
+    my_exit(code)
+
 if args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and (not args.calculate_pareto_front_of_job or len(args.calculate_pareto_front_of_job) == 0):
-    print_red("Either --max_eval or --generation_strategy must be set.")
-    my_exit(104)
+    _fatal_error("Either --max_eval or --generation_strategy must be set.", 104)
 
 arg_result_names = []
 arg_result_min_or_max = []
@@ -1275,8 +1279,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         if param_type == ParameterType.STRING:
             return "STRING"
 
-        print_red(f"Unknown data type {param_type}")
-        my_exit(33)
+        _fatal_error(f"Unknown data type {param_type}", 33)
 
         return ""
 
@@ -1305,8 +1308,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
                         "values": param.values
                 }
             else:
-                print_red(f"Unknown parameter type: {param}")
-                my_exit(15)
+                _fatal_error(f"Unknown parameter type: {param}", 15)
 
         return serialized
 
@@ -1585,8 +1587,7 @@ if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_pa
     num_parallel_jobs = int(args.num_parallel_jobs)
 
 if num_parallel_jobs <= 0:
-    print_red(f"--num_parallel_jobs must be 1 or larger, is {num_parallel_jobs}")
-    my_exit(106)
+    _fatal_error(f"--num_parallel_jobs must be 1 or larger, is {num_parallel_jobs}", 106)
 
 class SearchSpaceExhausted (Exception):
     pass
@@ -1838,11 +1839,9 @@ def log_nr_of_workers() -> None:
         with open(logfile_nr_workers, mode='a+', encoding="utf-8") as f:
             f.write(str(nr_current_workers) + "\n")
     except FileNotFoundError:
-        print_red(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.")
-        my_exit(99)
+        _fatal_error(f"It seems like the folder for writing {logfile_nr_workers} was deleted during the run. Cannot continue.", 99)
     except OSError as e:
-        print_red(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt2 probably cannot do anything about it.")
-        my_exit(199)
+        _fatal_error(f"Tried writing log_nr_of_workers to file {logfile_nr_workers}, but failed with error: {e}. This may mean that the file system you are running on is instable. OmniOpt2 probably cannot do anything about it.", 199)
 
     return None
 
@@ -2017,12 +2016,10 @@ else:
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
     else:
-        print_red(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.")
-        my_exit(44)
+        _fatal_error(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.", 44)
 
 if not args.tests and len(global_vars["joined_run_program"]) == 0 and not args.calculate_pareto_front_of_job:
-    print_red("--run_program was empty")
-    my_exit(19)
+    _fatal_error("--run_program was empty", 19)
 
 global_vars["experiment_name"] = args.experiment_name
 
@@ -2031,20 +2028,17 @@ def load_global_vars(_file: str) -> None:
     global global_vars
 
     if not os.path.exists(_file):
-        print_red(f"You've tried to continue a non-existing job: {_file}")
-        my_exit(44)
+        _fatal_error(f"You've tried to continue a non-existing job: {_file}", 44)
     try:
         with open(_file, encoding="utf-8") as f:
             global_vars = json.load(f)
     except Exception as e:
-        print_red(f"Error while loading old global_vars: {e}, trying to load {_file}")
-        my_exit(44)
+        _fatal_error(f"Error while loading old global_vars: {e}, trying to load {_file}", 44)
 
 @beartype
 def load_or_exit(filepath: str, error_msg: str, exit_code: int) -> None:
     if not os.path.exists(filepath):
-        print_red(error_msg)
-        my_exit(exit_code)
+        _fatal_error(error_msg, exit_code)
 
 @beartype
 def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> str:
@@ -2054,8 +2048,7 @@ def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> s
 @beartype
 def check_param_or_exit(param: Any, error_msg: str, exit_code: int) -> None:
     if param is None:
-        print_red(error_msg)
-        my_exit(exit_code)
+        _fatal_error(error_msg, exit_code)
 
 @beartype
 def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
@@ -2105,8 +2098,7 @@ def load_time_or_exit(_args: Any) -> None:
             print_yellow(f"Time-setting: The contents of {time_file} do not contain a single number")
     else:
         if len(args.calculate_pareto_front_of_job) == 0:
-            print_red("Missing --time parameter. Cannot continue.")
-            my_exit(19)
+            _fatal_error("Missing --time parameter. Cannot continue.", 19)
 
 @beartype
 def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
@@ -2124,8 +2116,7 @@ def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
         print_yellow(f"mem_gb-setting: The contents of {mem_gb_file} do not contain a single number")
         return None
 
-    print_red("--mem_gb needs to be set")
-    my_exit(19)
+    _fatal_error("--mem_gb needs to be set", 19)
 
     return None
 
@@ -2147,8 +2138,7 @@ def load_max_eval_or_exit(_args: Any) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
         if _args.max_eval <= 0:
-            print_red("--max_eval must be larger than 0")
-            my_exit(19)
+            _fatal_error("--max_eval must be larger than 0", 19)
     elif _args.continue_previous_job:
         max_eval_file = f"{_args.continue_previous_job}/state_files/max_eval"
         max_eval_content = get_file_content_or_exit(max_eval_file, f"neither --max_eval nor file {max_eval_file} found", 19)
@@ -2287,8 +2277,7 @@ if not SYSTEM_HAS_SBATCH:
     num_parallel_jobs = 1
 
 if SYSTEM_HAS_SBATCH and not args.force_local_execution and args.raw_samples < args.num_parallel_jobs:
-    print_red(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.")
-    my_exit(48)
+    _fatal_error(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.", 48)
 
 @beartype
 def save_global_vars() -> None:
@@ -2428,14 +2417,12 @@ def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
     except Exception:
-        print_red(f"\n{this_args[j + 2]} is not a number")
-        my_exit(181)
+        _fatal_error(f"\n{this_args[j + 2]} is not a number", 181)
 
     try:
         upper_bound = float(this_args[j + 3])
     except Exception:
-        print_red(f"\n{this_args[j + 3]} is not a number")
-        my_exit(181)
+        _fatal_error(f"\n{this_args[j + 3]} is not a number", 181)
 
     return lower_bound, upper_bound
 
@@ -2484,8 +2471,7 @@ def create_range_param(name: str, lower_bound: Union[float, int], upper_bound: U
 @beartype
 def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     if lower_bound is None or upper_bound is None:
-        print_red("handle_grid_search: lower_bound or upper_bound is None")
-        my_exit(91)
+        _fatal_error("handle_grid_search: lower_bound or upper_bound is None", 91)
 
         return {}
 
@@ -2589,8 +2575,7 @@ def validate_value_type(value_type: str) -> None:
 @beartype
 def parse_fixed_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
-        print_red("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>")
-        my_exit(181)
+        _fatal_error("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>", 181)
 
     value = this_args[j + 2]
 
@@ -2613,8 +2598,7 @@ def parse_fixed_param(classic_params: list, params: list, j: int, this_args: Uni
 @beartype
 def parse_choice_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
-        print_red("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>")
-        my_exit(181)
+        _fatal_error("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>", 181)
 
     values = re.split(r'\s*,\s*', str(this_args[j + 2]))
 
@@ -2660,12 +2644,10 @@ def parse_experiment_parameters() -> Tuple[list, list]:
             name = this_args[j]
 
             if name in invalid_names:
-                print_red(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}")
-                my_exit(181)
+                _fatal_error(f"\n⚠ Name for argument no. {j} is invalid: {name}. Invalid names are: {', '.join(invalid_names)}", 181)
 
             if name in param_names:
-                print_red(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!")
-                my_exit(181)
+                _fatal_error(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!", 181)
 
             param_names.append(name)
             global_param_names.append(name)
@@ -2673,8 +2655,7 @@ def parse_experiment_parameters() -> Tuple[list, list]:
             try:
                 param_type = this_args[j + 1]
             except Exception:
-                print_red("Not enough arguments for --parameter")
-                my_exit(181)
+                _fatal_error("Not enough arguments for --parameter", 181)
 
             param_parsers = {
                 "range": parse_range_param,
@@ -2683,13 +2664,11 @@ def parse_experiment_parameters() -> Tuple[list, list]:
             }
 
             if param_type not in param_parsers:
-                print_red(f"⚠ Parameter type '{param_type}' not yet implemented.")
-                my_exit(181)
+                _fatal_error(f"⚠ Parameter type '{param_type}' not yet implemented.", 181)
 
             if param_type not in valid_types:
                 valid_types_string = ', '.join(valid_types)
-                print_red(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}")
-                my_exit(181)
+                _fatal_error(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}", 181)
 
             j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](classic_params, params, j, this_args, name, search_space_reduction_warning)
 
@@ -2706,31 +2685,26 @@ def parse_experiment_parameters() -> Tuple[list, list]:
 @beartype
 def check_factorial_range() -> None:
     if args.model and args.model == "FACTORIAL":
-        print_red("\n⚠ --model FACTORIAL cannot be used with range parameter")
-        my_exit(181)
+        _fatal_error("\n⚠ --model FACTORIAL cannot be used with range parameter", 181)
 
 @beartype
 def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:
     if value_type not in valid_value_types:
         valid_value_types_string = ", ".join(valid_value_types)
-        print_red(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}")
-        my_exit(181)
+        _fatal_error(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}", 181)
 
 @beartype
 def check_range_params_length(this_args: Union[str, list]) -> None:
     if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
-        print_red("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)")
-        my_exit(181)
+        _fatal_error("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)", 181)
 
 @beartype
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
     if upper_bound is None or lower_bound is None:
-        print_red("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.")
-        my_exit(91)
+        _fatal_error("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.", 91)
     if upper_bound == lower_bound:
         if lower_bound == 0:
-            print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)")
-            my_exit(181)
+            _fatal_error(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)", 181)
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
         if upper_bound is not None:
             lower_bound = -upper_bound
@@ -3172,8 +3146,7 @@ def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]]
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
     if not re.fullmatch(pattern, weights_string):
-        print_red(f"String '{weights_string}' does not match pattern {pattern}")
-        my_exit(32)
+        _fatal_error(f"String '{weights_string}' does not match pattern {pattern}", 32)
 
     weights = [float(w.strip()) for w in weights_string.split(",") if w.strip()]
 
@@ -4216,8 +4189,7 @@ def abandon_job(job: Job, trial_index: int) -> bool:
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
-                print_red("ax_client could not be found")
-                my_exit(9)
+                _fatal_error("ax_client could not be found", 9)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
             print_debug(f"ERROR in line {get_line_info()}: {e}")
@@ -4322,8 +4294,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         if ax_client:
             ax_client.save_to_json_file(filepath=checkpoint_filepath)
         else:
-            print_red("Something went wrong using the ax_client")
-            my_exit(9)
+            _fatal_error("Something went wrong using the ax_client", 9)
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
@@ -4419,8 +4390,7 @@ def get_ax_param_representation(data: dict) -> dict:
 
     print("data:")
     pprint(data)
-    print_red(f"Unknown data range {data['type']}")
-    my_exit(19)
+    _fatal_error(f"Unknown data range {data['type']}", 19)
 
     return {}
 
@@ -4450,8 +4420,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
         if experiment_args:
             experiment_args["choose_generation_strategy_kwargs"]["torch_device"] = torch_device
         else:
-            print_red("experiment_args could not be created.")
-            my_exit(90)
+            _fatal_error("experiment_args could not be created.", 90)
 
     if experiment_args:
         return experiment_args, gpu_string, gpu_color
@@ -4461,8 +4430,7 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
 @beartype
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
     if not os.path.exists(_file):
-        print_red(f"Cannot find {_file}")
-        my_exit(47)
+        _fatal_error(f"Cannot find {_file}", 47)
 
 @beartype
 def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
@@ -4742,8 +4710,7 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
                 if equation:
                     experiment_args["parameter_constraints"].append(constraints_string)
                 else:
-                    print_red(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.")
-                    my_exit(19)
+                    _fatal_error(f"Experiment constraint '{constraints_string}' is invalid. Cannot continue.", 19)
 
                 file_path = os.path.join(get_current_run_folder(), "state_files", "constraints")
 
@@ -4838,8 +4805,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
     global ax_client
 
     if not ax_client:
-        print_red("Something went wrong with the ax_client")
-        my_exit(9)
+        _fatal_error("Something went wrong with the ax_client", 9)
 
     gpu_string = ""
     gpu_color = "green"
@@ -4886,8 +4852,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             json.dump(experiment_parameters, outfile)
 
         if not os.path.exists(checkpoint_filepath):
-            print_red(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.")
-            my_exit(47)
+            _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
 
         with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
             print(f"Continuation from checkpoint {continue_previous_job}", file=f)
@@ -4925,17 +4890,13 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
             new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
             ax_client.experiment.add_tracking_metrics(new_metrics)
         except AssertionError as error:
-            print_red(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.")
-            my_exit(102)
+            _fatal_error(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.", 102)
         except ValueError as error:
-            print_red(f"An error has occurred while creating the experiment (1): {error}")
-            my_exit(49)
+            _fatal_error(f"An error has occurred while creating the experiment (1): {error}", 49)
         except TypeError as error:
-            print_red(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.")
-            my_exit(49)
+            _fatal_error(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.", 49)
         except ax.exceptions.core.UserInputError as error:
-            print_red(f"An error occurred while creating the experiment (3): {error}")
-            my_exit(49)
+            _fatal_error(f"An error occurred while creating the experiment (3): {error}", 49)
 
     return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color
 
@@ -5003,8 +4964,7 @@ def parse_single_experiment_parameter_table(classic_params: Optional[Union[list,
 
             rows.append([str(param["name"]), get_type_short(_type), "", "", ", ".join(values), "", ""])
         else:
-            print_red(f"Type {_type} is not yet implemented in the overview table.")
-            my_exit(15)
+            _fatal_error(f"Type {_type} is not yet implemented in the overview table.", 15)
 
         k = k + 1
 
@@ -5074,8 +5034,7 @@ def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
 @beartype
 def print_result_names_overview_table() -> None:
     if not ax_client:
-        print_red("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.")
-        my_exit(101)
+        _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
 
         return None
 
@@ -5705,8 +5664,7 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
     done_converting = False
 
     if ax_client is None or not ax_client:
-        print_red("insert_job_into_ax_client: ax_client was not defined where it should have been")
-        my_exit(101)
+        _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
     while not done_converting:
         try:
@@ -6102,8 +6060,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
         if not ax_client:
-            print_red("mark_trial_as_failed: ax_client is not defined")
-            my_exit(101)
+            _fatal_error("mark_trial_as_failed: ax_client is not defined", 101)
 
             return None
 
@@ -6137,8 +6094,7 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
             ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
         else:
-            print_red(f"Error completing trial: {e}")
-            my_exit(234)
+            _fatal_error(f"Error completing trial: {e}", 234)
 
 @beartype
 def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Union[float, int, tuple]) -> None:
@@ -6197,8 +6153,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
         else:
             _finish_job_core_helper_mark_failure(job, trial_index, _trial)
     else:
-        print_red("ax_client could not be found or used")
-        my_exit(9)
+        _fatal_error("ax_client could not be found or used", 9)
 
     print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
@@ -6271,8 +6226,8 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
     global JOBS_FINISHED
 
     if not ax_client:
-        print_red("ax_client failed")
-        my_exit(101)
+        _fatal_error("ax_client failed", 101)
+
         return None
 
     this_jobs_finished = 0
@@ -6427,8 +6382,7 @@ def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index
         print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
         global_vars["jobs"].append((new_job, trial_index))
     else:
-        print_red("executor or ax_client could not be found properly")
-        my_exit(9)
+        _fatal_error("executor or ax_client could not be found properly", 9)
 
 @beartype
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
@@ -6498,8 +6452,7 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None:
         if handler:
             handler()
         else:
-            print_red(f"Orchestrator: {behav} not yet implemented!")
-            my_exit(210)
+            _fatal_error(f"Orchestrator: {behav} not yet implemented!", 210)
 
 @beartype
 def write_continue_run_uuid_to_file() -> None:
@@ -6539,14 +6492,12 @@ def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, next_nr_steps, phase = _params
     if not ax_client:
-        print_red("Failed to get ax_client")
-        my_exit(9)
+        _fatal_error("Failed to get ax_client", 9)
 
         return None
 
     if not executor:
-        print_red("executor could not be found")
-        my_exit(9)
+        _fatal_error("executor could not be found", 9)
 
         return None
 
@@ -6610,8 +6561,7 @@ def exclude_defective_nodes() -> None:
         if executor:
             executor.update_parameters(exclude=excluded_string)
         else:
-            print_red("executor could not be found")
-            my_exit(9)
+            _fatal_error("executor could not be found", 9)
 
 @beartype
 def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Optional[Job]) -> None:
@@ -6640,8 +6590,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
             if ax_client:
                 ax_client.log_trial_failure(trial_index=trial_index)
             else:
-                print_red("ax_client not defined")
-                my_exit(101)
+                _fatal_error("ax_client not defined", 101)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
@@ -6809,14 +6758,11 @@ def has_no_post_generation_constraints_or_matches_constraints(_post_generation_c
 @beartype
 def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
     if ax_client is None:
-        print_red("Error: ax_client is not defined")
-        my_exit(101)
+        _fatal_error("Error: ax_client is not defined", 101)
     elif ax_client.experiment is None:
-        print_red("Error: ax_client.experiment is not defined")
-        my_exit(101)
+        _fatal_error("Error: ax_client.experiment is not defined", 101)
     elif global_gs is None:
-        print_red("Error: global_gs is not defined")
-        my_exit(101)
+        _fatal_error("Error: global_gs is not defined", 101)
 
 @beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
@@ -6824,8 +6770,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     attempts = 0
 
     if global_gs is None:
-        print_red("Global generation strategy is not set. This is a bug in OmniOpt2.")
-        my_exit(107)
+        _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
 
         return []
 
@@ -6868,13 +6813,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
         _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
 
     return _generate_trials(nr_of_jobs_to_get, recursion)
-
-# ========== Helper Functions ==========
-
-@beartype
-def _fatal_error(message: str, code: int) -> None:
-    print_red(message)
-    my_exit(code)
 
 @beartype
 def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
@@ -7410,8 +7348,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
                 matching_model = get_matching_model_name(model_name)
 
                 if matching_model in ["RANDOMFOREST", "EXTERNAL_GENERATOR"]:
-                    print_red(f"Model {matching_model} is not valid for custom generation strategy.")
-                    my_exit(56)
+                    _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
 
                 if matching_model:
                     gen_strat_list.append({matching_model: nr})
@@ -7446,8 +7383,7 @@ def write_state_file(name: str, var: str) -> None:
     file_path = f"{get_current_run_folder()}/state_files/{name}"
 
     if os.path.isdir(file_path):
-        print_red(f"{file_path} is a dir. Must be a file.")
-        my_exit(246)
+        _fatal_error(f"{file_path} is a dir. Must be a file.", 246)
 
     makedirs(os.path.dirname(file_path))
 
@@ -7494,8 +7430,7 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
         generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
 
         if os.path.exists(generation_strategy_file):
-            print_red("Trying to continue a job which was started with --generation_strategy. This is currently not possible.")
-            my_exit(247)
+            _fatal_error("Trying to continue a job which was started with --generation_strategy. This is currently not possible.", 247)
 
 @beartype
 def get_step_name(model_name: str, nr: int) -> str:
@@ -7537,8 +7472,7 @@ def get_torch_device_str() -> str:
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
-            print_red("Currently, RANDOMFOREST does not support Multi-Objective-Optimization")
-            my_exit(251)
+            _fatal_error("Currently, RANDOMFOREST does not support Multi-Objective-Optimization", 251)
 
         node = RandomForestGenerationNode(
             num_samples=threshold,
@@ -7552,8 +7486,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     if model_name == "TPE":
         if len(arg_result_names) != 1:
-            print_red(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.")
-            my_exit(108)
+            _fatal_error(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.", 108)
 
         node = ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
 
@@ -7566,8 +7499,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     if model_name == "EXTERNAL_GENERATOR":
         if args.external_generator is None or args.external_generator == "":
-            print_red("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.")
-            my_exit(204)
+            _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
 
         node = ExternalProgramGenerationNode(args.external_generator)
 
@@ -7804,8 +7736,7 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
         print_red(f"Error 2: {e}")
     elif isinstance(e, ax.exceptions.core.DataRequiredError):
         if "transform requires non-empty data" in str(e) and args.num_random_steps == 0:
-            print_red(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.")
-            my_exit(233)
+            _fatal_error(f"Error 3: {e} Increase --num_random_steps to at least 1 to continue.", 233)
         else:
             print_debug(f"Error 4: {e}")
     elif isinstance(e, RuntimeError):
@@ -7956,8 +7887,7 @@ executor.update_parameters(
         if args.exclude:
             print_yellow(f"Excluding the following nodes: {args.exclude}")
     else:
-        print_red("executor could not be found")
-        my_exit(9)
+        _fatal_error("executor could not be found", 9)
 
 @beartype
 def set_global_executor() -> None:
@@ -8212,8 +8142,7 @@ def set_orchestrator() -> None:
 def check_if_has_random_steps() -> None:
     with console.status("[bold green]Checking if has random steps..."):
         if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
-            print_red("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.")
-            my_exit(233)
+            _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:
@@ -8226,8 +8155,7 @@ def add_exclude_to_defective_nodes() -> None:
 @beartype
 def check_max_eval(_max_eval: int) -> None:
     if not _max_eval:
-        print_red("--max_eval needs to be set!")
-        my_exit(19)
+        _fatal_error("--max_eval needs to be set!", 19)
 
 @beartype
 def parse_parameters() -> Any:
@@ -8682,23 +8610,19 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     result_min_max_path = os.path.join(path_to_calculate, "result_min_max.txt")
 
     if not os.path.isdir(path_to_calculate):
-        print_red(f"Error: Directory '{path_to_calculate}' does not exist.")
-        my_exit(24)
+        _fatal_error(f"Error: Directory '{path_to_calculate}' does not exist.", 24)
 
     if not os.path.isfile(result_names_path) or not os.path.isfile(result_min_max_path):
-        print_red(f"Error: Missing 'result_names.txt' or 'result_min_max.txt' in '{path_to_calculate}'.")
-        my_exit(24)
+        _fatal_error(f"Error: Missing 'result_names.txt' or 'result_min_max.txt' in '{path_to_calculate}'.", 24)
 
     try:
         with open(result_names_path, "r", encoding="utf-8") as f:
             names = [line.strip() for line in f]
     except Exception as e:
-        print_red(f"Error: Failed to read 'result_names.txt': {e}")
-        my_exit(24)
+        _fatal_error(f"Error: Failed to read 'result_names.txt': {e}", 24)
 
     if resname not in names:
-        print_red(f"Error: Result name '{resname}' not found in 'result_names.txt'.")
-        my_exit(24)
+        _fatal_error(f"Error: Result name '{resname}' not found in 'result_names.txt'.", 24)
 
     index = names.index(resname)
 
@@ -8706,12 +8630,10 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
         with open(result_min_max_path, "r", encoding="utf-8") as f:
             minmax = [line.strip().lower() for line in f]
     except Exception as e:
-        print_red(f"Error: Failed to read 'result_min_max.txt': {e}")
-        my_exit(24)
+        _fatal_error(f"Error: Failed to read 'result_min_max.txt': {e}", 24)
 
     if index >= len(minmax):
-        print_red(f"Error: Not enough entries in 'result_min_max.txt' for index {index}.")
-        my_exit(24)
+        _fatal_error(f"Error: Not enough entries in 'result_min_max.txt' for index {index}.", 24)
 
     return minmax[index] == "min"
 
@@ -9440,8 +9362,7 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
     program_path: str = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"
 
     if not os.path.exists(program_path):
-        print_red(f"Program path {program_path} not found!")
-        my_exit(18)
+        _fatal_error(f"Program path {program_path} not found!", 18)
 
     program_path_with_program: str = f"{program_path}"
 

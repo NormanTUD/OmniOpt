@@ -1,6 +1,8 @@
 <?php
 	chdir(__DIR__);
 
+	$GLOBALS["main_script_dir"] = null;
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			$print = "";

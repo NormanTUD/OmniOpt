@@ -2,6 +2,8 @@
 	$GLOBALS["max_results"] = 500;
 	$GLOBALS["cnt"] = 0;
 
+	$GLOBALS["index_tutorials"] = 1;
+
 	require_once "searchable_php_files.php";
 	require_once "_functions.php";
 

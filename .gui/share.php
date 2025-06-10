@@ -256,22 +256,22 @@
 
 
 		[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
-	}
 
-	if (isset($_GET["filter_tabs_regex"])) {
-		$re = $_GET["filter_tabs_regex"];
+		if (isset($_GET["filter_tabs_regex"])) {
+			$re = $_GET["filter_tabs_regex"];
 
-		[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
-	}
+			[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
+		}
 
-	[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
+		[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
 
-	if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
-		$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
-	}
+		if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
+			$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
+		}
 
-	if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
-		$errors[] = "Could not find plotable files";
+		if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
+			$errors[] = "Could not find plotable files";
+		}
 	}
 
 	if(count($errors)) {

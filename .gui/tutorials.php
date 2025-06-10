@@ -22,7 +22,7 @@ function is_valid_file($file, $ext) {
 function render_tutorial($file) {
 	$path = "_tutorials/$file";
 	if (str_ends_with($file, '.md')) {
-		convertFileToHtml($path);
+		convert_file_to_html($path);
 	} elseif (str_ends_with($file, '.php')) {
 		include($path);
 	} else {
@@ -41,7 +41,7 @@ function list_tutorials() {
 
 		$path = "_tutorials/$file";
 		$name = get_first_heading_content($path) ?? $file;
-		$label = highlightBackticks(preg_replace("/\.(md|php)$/", "", $name));
+		$label = highlight_backticks(preg_replace("/\.(md|php)$/", "", $name));
 		$file_link = preg_replace("/\.(md|php)$/", "", $file);
 
 		$category = get_html_category_comment($path);

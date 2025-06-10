@@ -7,7 +7,7 @@
 	require_once "searchable_php_files.php";
 	require_once "_functions.php";
 
-	function assertCondition($condition, $errorText) {
+	function assert_condition($condition, $errorText) {
 		if (!$condition) {
 			throw new Exception($errorText);
 		}
@@ -20,13 +20,13 @@
 		exit;
 	}
 
-	function parsePath($path) {
+	function parse_path($path) {
 		try {
-			assertCondition(strpos($path, "shares/") === 0, "Path must begin with 'shares/'");
+			assert_condition(strpos($path, "shares/") === 0, "Path must begin with 'shares/'");
 
 			$parts = explode("/", substr($path, strlen("shares/")));
 
-			assertCondition(count($parts) === 3, "Path must contain exactly 3 components after 'shares/'");
+			assert_condition(count($parts) === 3, "Path must contain exactly 3 components after 'shares/'");
 
 			return [
 				'user' => $parts[0],
@@ -34,7 +34,7 @@
 				'file' => $parts[2]
 			];
 		} catch (Exception $e) {
-			log_error_and_exit("parsePath error: " . $e->getMessage());
+			log_error_and_exit("parse_path error: " . $e->getMessage());
 		}
 	}
 
@@ -183,7 +183,7 @@
 				$run_path = "$user_path/$experiment_dir/";
 
 				if (is_dir($run_path) && (preg_match($regex_pattern, $experiment_dir) || preg_match($regex_pattern, $user_dir))) {
-					$parsed = parsePath($run_path);
+					$parsed = parse_path($run_path);
 					$categorized["Shares"][] = [
 						'link' => create_share_url($parsed),
 						'content' => generate_breadcrumb_buttons($run_path)

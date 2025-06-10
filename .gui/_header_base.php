@@ -128,7 +128,7 @@
 				}
 			};
 
-			function openURLInNewTab() {
+			function open_url_in_new_tab() {
 				var url = window.location.protocol + "//" + window.location.host + window.location.pathname +
 					'?partition=alpha&experiment_name=small_test_experiment&reservation=&account=&mem_gb=1&time=60&worker_timeout=60' +
 					'&max_eval=5&num_parallel_jobs=20&gpus=1&num_random_steps=2&follow=1&send_anonymized_usage_stats=1&show_sixel_graphics=1&' +
@@ -139,17 +139,17 @@
 				window.open(url, '_blank');
 			}
 
-			function handleKeyDown(event) {
+			function handle_key_down(event) {
 				// Check if 'Control' key and '*' key are pressed
 				var isControlPressed = event.ctrlKey;
 				var isAsteriskPressed = event.key === '*';
 
 				if (isControlPressed && isAsteriskPressed) {
-					openURLInNewTab();
+					open_url_in_new_tab();
 				}
 			}
 
-			document.addEventListener('keydown', handleKeyDown);
+			document.addEventListener('keydown', handle_key_down);
 		</script>
 		<script id="MathJax-script" async src="tex-mml-chtml.js"></script>
 	</head>

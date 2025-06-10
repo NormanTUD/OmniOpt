@@ -3,7 +3,7 @@
 
 	require "_usage_stat_functions.php";
 
-	function assignUniqueIds(array $strings) {
+	function assign_unique_ids(array $strings) {
 		$idMap = [];
 		$counter = 1;
 		$result = [];
@@ -33,7 +33,7 @@
 	$show_sbatch_plot = count(array_unique($has_sbatch)) > 1 ? 1 : 0;
 
 	echo json_encode([
-		'anon_users' => assignUniqueIds($anon_users),
+		'anon_users' => assign_unique_ids($anon_users),
 		'has_sbatch' => $has_sbatch,
 		'exit_codes' => $exit_codes,
 		'runtimes' => $runtimes,

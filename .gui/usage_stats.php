@@ -70,7 +70,7 @@
 		return fgetcsv($handle, null, ",", "\"", "\\");
 	}
 
-	function importCsvToDatabase($db_path) {
+	function import_csv_to_database($db_path) {
 		$csvFile = __DIR__ . "/stats/usage_statistics.csv";
 
 		if(file_exists($csvFile)) {
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
 EOT;
 
 	} else {
-		if(importCsvToDatabase($db_path)) {
+		if(import_csv_to_database($db_path)) {
 			echo "Please reload the page to see the imported statistics";
 		} else {
 			echo "No statistics data found";

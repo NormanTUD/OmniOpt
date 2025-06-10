@@ -106,13 +106,13 @@
 		return null;
 	}
 
-	function highlightBackticks($text) {
+	function highlight_backticks($text) {
 		return preg_replace_callback('/`([^`]+)`/', function ($matches) {
 			return '<tt>' . htmlspecialchars($matches[1]) . '</tt>';
 		}, $text);
 	}
 
-	function convertMarkdownToHtml($markdown) {
+	function convert_markdown_to_html($markdown) {
 		$markdown = preg_replace_callback('/(?:^[-*] .*(?:\n(?!\n)[-*] .*)*)/m', function ($matches) {
 			$items = preg_replace('/^[-*] (.*)$/m', '<li>$1</li>', $matches[0]);
 			return "<ul>\n$items\n</ul>";
@@ -242,14 +242,14 @@
 		return $markdown;
 	}
 
-	function convertFileToHtml($filePath) {
+	function convert_file_to_html($filePath) {
 		if (!file_exists($filePath)) {
 			echo "File not found: " . $filePath;
 			return;
 		}
 
 		$markdownContent = file_get_contents($filePath);
-		$htmlContent = convertMarkdownToHtml($markdownContent);
+		$htmlContent = convert_markdown_to_html($markdownContent);
 
 		echo $htmlContent;
 	}

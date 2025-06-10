@@ -1,5 +1,5 @@
 <?php
-	function getCsvStatusSummary($filePath) {
+	function get_csv_status_summary($filePath) {
 		if (!file_exists($filePath) || !is_readable($filePath)) {
 			return json_encode(["error" => "File not found or not readable"], JSON_PRETTY_PRINT);
 		}
@@ -87,7 +87,7 @@
 	}
 
 	if(file_exists("$run_folder/results.csv")) {
-		print(getCsvStatusSummary("$run_folder/results.csv"));
+		print(get_csv_status_summary("$run_folder/results.csv"));
 	} else {
 		$statuses = [
 			"failed" => 0,

@@ -1773,7 +1773,6 @@
 		}
 
 		$directoryToCheck = 'shares';
-		delete_empty_directories($directoryToCheck, false);
 		$oldDirs = _delete_old_shares($directoryToCheck);
 		delete_empty_directories($directoryToCheck, false);
 

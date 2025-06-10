@@ -227,7 +227,14 @@
 
 		set +e
 
+		FROZEN=$(pip --disable-pip-version-check list --format=freeze)
+
 		PROGRESSBAR=$(generate_progress_bar_setup "$NUMBER_OF_MAIN_MODULES")
+
+		if [[ -z $CI ]]; then
+			green_reset_line "${PROGRESSBAR}➤Installing $MODULE $(bg_jobs_str)"
+		fi
+
 
 		MODULES_WITHOUT_VERSIONS=$(echo "$MODULE" | sed -e 's#[=<>]=.*##' -e 's#~.*##')
 

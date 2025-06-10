@@ -241,7 +241,7 @@
 			}
 
 			$html_content = preg_match("/\.md$/", $file_path)
-				? convertMarkdownToHtml(implode("\n", $content))
+				? convert_markdown_to_html(implode("\n", $content))
 				: extract_html_from_php($file_path);
 
 			$lines = explode("\n", $html_content);

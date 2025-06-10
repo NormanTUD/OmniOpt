@@ -2301,13 +2301,14 @@ def check_slurm_job_id() -> None:
 
 @beartype
 def create_folder_and_file(folder: str) -> str:
-    print_debug(f"create_folder_and_file({folder})")
+    with console.status(f"[bold green]Creating folder {folder}..."):
+        print_debug(f"create_folder_and_file({folder})")
 
-    makedirs(folder)
+        makedirs(folder)
 
-    file_path = os.path.join(folder, "results.csv")
+        file_path = os.path.join(folder, "results.csv")
 
-    return file_path
+        return file_path
 
 @beartype
 def get_program_code_from_out_file(f: str) -> str:
@@ -4301,63 +4302,64 @@ def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_resul
 
 @beartype
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
-    global END_PROGRAM_RAN
+    with console.status("[bold green]Ending program..."):
+        global END_PROGRAM_RAN
 
-    wait_for_jobs_to_complete()
+        wait_for_jobs_to_complete()
 
-    show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)
+        show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)
 
-    if os.getpid() != main_pid:
-        print_debug("returning from end_program, because it can only run in the main thread, not any forks")
-        return
+        if os.getpid() != main_pid:
+            print_debug("returning from end_program, because it can only run in the main thread, not any forks")
+            return
 
-    if END_PROGRAM_RAN and not _force:
-        print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
-        return
+        if END_PROGRAM_RAN and not _force:
+            print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
+            return
 
-    END_PROGRAM_RAN = True
+        END_PROGRAM_RAN = True
 
-    _exit: int = 0
+        _exit: int = 0
 
-    try:
-        check_conditions = {
-            get_current_run_folder(): "[end_program] get_current_run_folder() was empty. Not running end-algorithm.",
-            bool(ax_client): "[end_program] ax_client was empty. Not running end-algorithm.",
-            bool(console): "[end_program] console was empty. Not running end-algorithm."
-        }
+        try:
+            check_conditions = {
+                get_current_run_folder(): "[end_program] get_current_run_folder() was empty. Not running end-algorithm.",
+                bool(ax_client): "[end_program] ax_client was empty. Not running end-algorithm.",
+                bool(console): "[end_program] console was empty. Not running end-algorithm."
+            }
 
-        for condition, message in check_conditions.items():
-            if condition is None:
-                print_debug(message)
-                return
+            for condition, message in check_conditions.items():
+                if condition is None:
+                    print_debug(message)
+                    return
 
-        new_exit = show_end_table_and_save_end_files()
-        if new_exit > 0:
-            _exit = new_exit
-    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
-        print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
-        print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
-        new_exit = show_end_table_and_save_end_files()
-        if new_exit > 0:
-            _exit = new_exit
-    except TypeError as e:
-        print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
+            new_exit = show_end_table_and_save_end_files()
+            if new_exit > 0:
+                _exit = new_exit
+        except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+            print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
+            print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
+            new_exit = show_end_table_and_save_end_files()
+            if new_exit > 0:
+                _exit = new_exit
+        except TypeError as e:
+            print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
-    abandon_all_jobs()
+        abandon_all_jobs()
 
-    save_results_csv()
+        save_results_csv()
 
-    if exit_code:
-        _exit = exit_code
+        if exit_code:
+            _exit = exit_code
 
-    show_time_debugging_table()
+        show_time_debugging_table()
 
-    live_share()
+        live_share()
 
-    if succeeded_jobs() == 0 and failed_jobs() > 0:
-        _exit = 89
+        if succeeded_jobs() == 0 and failed_jobs() > 0:
+            _exit = 89
 
-    my_exit(_exit)
+        my_exit(_exit)
 
 @beartype
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
@@ -7738,87 +7740,88 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
 
 @beartype
 def set_global_generation_strategy() -> None:
-    global global_gs, generation_strategy_human_readable
+    with console.status("[bold green]Setting generation strategy..."):
+        global global_gs, generation_strategy_human_readable
 
-    args_generation_strategy = args.generation_strategy
+        args_generation_strategy = args.generation_strategy
 
-    continue_not_supported_on_custom_generation_strategy()
+        continue_not_supported_on_custom_generation_strategy()
 
-    gs_names: list = []
-    gs_nodes: list = []
+        gs_names: list = []
+        gs_nodes: list = []
 
-    if args_generation_strategy is None:
-        num_imported_jobs: int = get_nr_of_imported_jobs()
-        set_max_eval(max_eval + num_imported_jobs)
-        set_random_steps(random_steps or 0)
+        if args_generation_strategy is None:
+            num_imported_jobs: int = get_nr_of_imported_jobs()
+            set_max_eval(max_eval + num_imported_jobs)
+            set_random_steps(random_steps or 0)
 
-        if max_eval is None:
-            set_max_eval(max(1, random_steps))
+            if max_eval is None:
+                set_max_eval(max(1, random_steps))
 
-        chosen_model = get_chosen_model()
+            chosen_model = get_chosen_model()
 
-        if chosen_model == "SOBOL":
-            set_random_steps(max_eval)
+            if chosen_model == "SOBOL":
+                set_random_steps(max_eval)
 
-        if random_steps >= 1:
-            next_node_name = None
-            if max_eval - random_steps and chosen_model:
-                next_node_name = chosen_model
+            if random_steps >= 1:
+                next_node_name = None
+                if max_eval - random_steps and chosen_model:
+                    next_node_name = chosen_model
 
-            gs_names.append(get_step_name("SOBOL", random_steps))
-            gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
+                gs_names.append(get_step_name("SOBOL", random_steps))
+                gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
 
-        write_state_file("model", str(chosen_model))
+            write_state_file("model", str(chosen_model))
 
-        if chosen_model != "SOBOL" and max_eval > random_steps:
-            this_node = create_node(chosen_model, max_eval - random_steps, None)
+            if chosen_model != "SOBOL" and max_eval > random_steps:
+                this_node = create_node(chosen_model, max_eval - random_steps, None)
 
-            gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
-            gs_nodes.append(this_node)
+                gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
+                gs_nodes.append(this_node)
 
-        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
-        try:
-            global_gs = GenerationStrategy(
-                name="+".join(gs_names),
-                nodes=gs_nodes
-            )
-        except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
-            print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
+            try:
+                global_gs = GenerationStrategy(
+                    name="+".join(gs_names),
+                    nodes=gs_nodes
+                )
+            except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
+                print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
 
-            my_exit(55)
-    else:
-        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
+                my_exit(55)
+        else:
+            generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
-        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
-        if max_eval < new_max_eval_plus_inserted_jobs:
-            print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
-            set_max_eval(new_max_eval_plus_inserted_jobs)
+            if max_eval < new_max_eval_plus_inserted_jobs:
+                print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+                set_max_eval(new_max_eval_plus_inserted_jobs)
 
-        print_generation_strategy(generation_strategy_array)
+            print_generation_strategy(generation_strategy_array)
 
-        start_index = int(len(generation_strategy_array) / 2)
+            start_index = int(len(generation_strategy_array) / 2)
 
-        steps: list = []
+            steps: list = []
 
-        for gs_element in generation_strategy_array:
-            model_name = list(gs_element.keys())[0]
+            for gs_element in generation_strategy_array:
+                model_name = list(gs_element.keys())[0]
 
-            nr = int(gs_element[model_name])
+                nr = int(gs_element[model_name])
 
-            gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
-            steps.append(gs_elem)
+                gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
+                steps.append(gs_elem)
 
-            gs_names.append(get_step_name(model_name, nr))
+                gs_names.append(get_step_name(model_name, nr))
 
-            start_index = start_index + 1
+                start_index = start_index + 1
 
-        write_state_file("custom_generation_strategy", args_generation_strategy)
+            write_state_file("custom_generation_strategy", args_generation_strategy)
 
-        global_gs = GenerationStrategy(steps=steps)
+            global_gs = GenerationStrategy(steps=steps)
 
-        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
 @beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
@@ -8000,35 +8003,36 @@ def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Di
 
 @beartype
 def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
-    _random_steps = args.num_random_steps
+    with console.status("[bold green]Calculating number of steps..."):
+        _random_steps = args.num_random_steps
 
-    already_done_random_steps = get_random_steps_from_prev_job()
+        already_done_random_steps = get_random_steps_from_prev_job()
 
-    _random_steps = _random_steps - already_done_random_steps
+        _random_steps = _random_steps - already_done_random_steps
 
-    if _random_steps > _max_eval:
-        print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")
-        _random_steps, _max_eval = _max_eval, _random_steps
+        if _random_steps > _max_eval:
+            print_yellow(f"You have less --max_eval {_max_eval} than --num_random_steps {_random_steps}. Switched both.")
+            _random_steps, _max_eval = _max_eval, _random_steps
 
-    if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
-        print_yellow(f"Warning: --num_random_steps {_random_steps} is smaller than --num_parallel_jobs {num_parallel_jobs}. It's recommended that --num_parallel_jobs is the same as or a multiple of --num_random_steps")
+        if _random_steps < num_parallel_jobs and SYSTEM_HAS_SBATCH:
+            print_yellow(f"Warning: --num_random_steps {_random_steps} is smaller than --num_parallel_jobs {num_parallel_jobs}. It's recommended that --num_parallel_jobs is the same as or a multiple of --num_random_steps")
 
-    if _random_steps > _max_eval:
-        set_max_eval(_random_steps)
+        if _random_steps > _max_eval:
+            set_max_eval(_random_steps)
 
-    original_second_steps = _max_eval - _random_steps
-    second_step_steps = max(0, original_second_steps)
-    if second_step_steps != original_second_steps:
-        original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
-    if second_step_steps == 0:
-        print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        original_second_steps = _max_eval - _random_steps
+        second_step_steps = max(0, original_second_steps)
+        if second_step_steps != original_second_steps:
+            original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
+        if second_step_steps == 0:
+            print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
 
-    second_step_steps = second_step_steps - already_done_random_steps
+        second_step_steps = second_step_steps - already_done_random_steps
 
-    if args.continue_previous_job:
-        second_step_steps = _max_eval
+        if args.continue_previous_job:
+            second_step_steps = _max_eval
 
-    return _random_steps, second_step_steps
+        return _random_steps, second_step_steps
 
 @beartype
 def _set_global_executor() -> None:
@@ -8334,16 +8338,18 @@ def check_if_has_random_steps() -> None:
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:
-    if args.exclude:
-        entries = [entry.strip() for entry in args.exclude.split(',')]
+    with console.status("[bold green]Adding excluded nodes..."):
+        if args.exclude:
+            entries = [entry.strip() for entry in args.exclude.split(',')]
 
-        for entry in entries:
-            count_defective_nodes(None, entry)
+            for entry in entries:
+                count_defective_nodes(None, entry)
 
 @beartype
 def check_max_eval(_max_eval: int) -> None:
-    if not _max_eval:
-        _fatal_error("--max_eval needs to be set!", 19)
+    with console.status("[bold green]Checking max_eval..."):
+        if not _max_eval:
+            _fatal_error("--max_eval needs to be set!", 19)
 
 @beartype
 def parse_parameters() -> Any:
@@ -9009,57 +9015,71 @@ def write_files_and_show_overviews() -> None:
 
 @beartype
 def write_git_version() -> None:
-    folder = f"{get_current_run_folder()}/"
-    os.makedirs(folder, exist_ok=True)
-    file_path = os.path.join(folder, "git_version")
-
-    try:
-        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-
-        git_tag = ""
+    with console.status("[bold green]Writing git info file..."):
+        folder = f"{get_current_run_folder()}/"
+        os.makedirs(folder, exist_ok=True)
+        file_path = os.path.join(folder, "git_version")
 
         try:
-            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
-            git_tag = f" ({git_tag})"
+            commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+
+            git_tag = ""
+
+            try:
+                git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
+                git_tag = f" ({git_tag})"
+            except subprocess.CalledProcessError:
+                pass
+
+            if commit_hash:
+                with open(file_path, mode="w", encoding="utf-8") as f:
+                    f.write(f"Commit: {commit_hash}{git_tag}\n")
+
         except subprocess.CalledProcessError:
             pass
 
-        if commit_hash:
-            with open(file_path, mode="w", encoding="utf-8") as f:
-                f.write(f"Commit: {commit_hash}{git_tag}\n")
-
-    except subprocess.CalledProcessError:
-        pass
+@beartype
+def write_job_start_file() -> None:
+    with console.status("[bold green]Writing job_start_time file..."):
+        fn = f'{get_current_run_folder()}/job_start_time.txt'
+        try:
+            with open(fn, mode='w', encoding="utf-8") as f:
+                f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        except Exception as e:
+            print_red(f"Error trying to write {fn}: {e}")
 
 @beartype
 def write_live_share_file_if_needed() -> None:
-    if args.live_share:
-        write_state_file("live_share", "1\n")
+    with console.status("[bold green]Writing live_share file if it is present..."):
+        if args.live_share:
+            write_state_file("live_share", "1\n")
 
 @beartype
 def write_username_statefile() -> None:
-    _path = get_current_run_folder()
-    if args.username:
-        file_path = f"{_path}/state_files/username"
+    with console.status("[bold green]Writing username state file..."):
+        _path = get_current_run_folder()
+        if args.username:
+            file_path = f"{_path}/state_files/username"
+
+            try:
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                with open(file_path, mode="w", encoding="utf-8") as f:
+                    f.write(args.username)
+            except Exception as e:
+                print_red(f"Error writing to file: {e}")
+
+@beartype
+def write_revert_to_random_when_seemingly_exhausted_file() -> None:
+    with console.status("[bold green]Writing revert_to_random_when_seemingly_exhausted file ..."):
+        _path = get_current_run_folder()
+        file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
 
         try:
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             with open(file_path, mode="w", encoding="utf-8") as f:
-                f.write(args.username)
+                f.write("1\n")
         except Exception as e:
             print_red(f"Error writing to file: {e}")
-
-@beartype
-def write_revert_to_random_when_seemingly_exhausted_file() -> None:
-    _path = get_current_run_folder()
-    file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
-
-    try:
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, mode="w", encoding="utf-8") as f:
-            f.write("1\n")
-    except Exception as e:
-        print_red(f"Error writing to file: {e}")
 
 @beartype
 def debug_vars_unused_by_python_for_linter() -> None:
@@ -9328,6 +9348,28 @@ def set_arg_states_from_continue() -> None:
             args.revert_to_random_when_seemingly_exhausted = True
 
 @beartype
+def write_result_min_max_file() -> None:
+    with console.status("[bold green]Writing result min/max file..."):
+        try:
+            fn = f"{get_current_run_folder()}/result_min_max.txt"
+            with open(fn, mode="a", encoding="utf-8") as myfile:
+                for rarg in arg_result_min_or_max:
+                    original_print(rarg, file=myfile)
+        except Exception as e:
+            print_red(f"Error trying to open file '{fn}': {e}")
+
+@beartype
+def write_result_names_file() -> None:
+    with console.status("[bold green]Writing result names file..."):
+        try:
+            fn = f"{get_current_run_folder()}/result_names.txt"
+            with open(fn, mode="a", encoding="utf-8") as myfile:
+                for rarg in arg_result_names:
+                    original_print(rarg, file=myfile)
+        except Exception as e:
+            print_red(f"Error trying to open file '{fn}': {e}")
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -9354,21 +9396,9 @@ def main() -> None:
 
     write_username_statefile()
 
-    try:
-        fn = f"{get_current_run_folder()}/result_names.txt"
-        with open(fn, mode="a", encoding="utf-8") as myfile:
-            for rarg in arg_result_names:
-                original_print(rarg, file=myfile)
-    except Exception as e:
-        print_red(f"Error trying to open file '{fn}': {e}")
+    write_result_names_file()
 
-    try:
-        fn = f"{get_current_run_folder()}/result_min_max.txt"
-        with open(fn, mode="a", encoding="utf-8") as myfile:
-            for rarg in arg_result_min_or_max:
-                original_print(rarg, file=myfile)
-    except Exception as e:
-        print_red(f"Error trying to open file '{fn}': {e}")
+    write_result_min_max_file()
 
     if os.getenv("CI"):
         data_dict: dict = {
@@ -9394,12 +9424,7 @@ def main() -> None:
 
     write_live_share_file_if_needed()
 
-    fn = f'{get_current_run_folder()}/job_start_time.txt'
-    try:
-        with open(fn, mode='w', encoding="utf-8") as f:
-            f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    except Exception as e:
-        print_red(f"Error trying to write {fn}: {e}")
+    write_job_start_file()
 
     write_git_version()
 
@@ -9410,6 +9435,7 @@ def main() -> None:
     set_random_steps(_random_steps)
 
     add_exclude_to_defective_nodes()
+
     handle_random_steps()
 
     set_global_generation_strategy()
@@ -9463,30 +9489,34 @@ def log_worker_creation() -> None:
 
 @beartype
 def set_run_folder() -> None:
-    global CURRENT_RUN_FOLDER
-    RUN_FOLDER_NUMBER: int = 0
-    CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
-
-    while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
-        RUN_FOLDER_NUMBER += 1
+    with console.status("[bold green]Setting run folder..."):
+        global CURRENT_RUN_FOLDER
+        RUN_FOLDER_NUMBER: int = 0
         CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+        while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
+            RUN_FOLDER_NUMBER += 1
+            CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 @beartype
 def print_run_info() -> None:
-    original_print(f"Run-folder: {get_current_run_folder()}")
-    if args.continue_previous_job:
-        original_print(f"Continuation from {args.continue_previous_job}")
+    with console.status("[bold green]Printing run info..."):
+        original_print(f"Run-folder: {get_current_run_folder()}")
+        if args.continue_previous_job:
+            original_print(f"Continuation from {args.continue_previous_job}")
 
 @beartype
 def initialize_nvidia_logs() -> None:
-    global NVIDIA_SMI_LOGS_BASE
-    NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
+    with console.status("[bold green]Initializing NVIDIA-Logs..."):
+        global NVIDIA_SMI_LOGS_BASE
+        NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
 @beartype
 def write_ui_url_if_present() -> None:
-    if args.ui_url:
-        with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
-            myfile.write(decode_if_base64(args.ui_url))
+    with console.status("[bold green]Writing ui_url file if it is present..."):
+        if args.ui_url:
+            with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
+                myfile.write(decode_if_base64(args.ui_url))
 
 @beartype
 def set_random_steps(new_steps: int) -> None:
@@ -9498,9 +9528,10 @@ def set_random_steps(new_steps: int) -> None:
 
 @beartype
 def handle_random_steps() -> None:
-    if args.parameter and args.continue_previous_job and random_steps <= 0:
-        print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
-        set_random_steps(args.num_random_steps)
+    with console.status("[bold green]Handling random steps..."):
+        if args.parameter and args.continue_previous_job and random_steps <= 0:
+            print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
+            set_random_steps(args.num_random_steps)
 
 @beartype
 def initialize_ax_client() -> None:

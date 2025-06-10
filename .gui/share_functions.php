@@ -1569,7 +1569,16 @@
 			if ($file) {
 				if(file_exists($file)) {
 					$content = file_get_contents($file);
-					$content_encoding = mb_detect_encoding($content);
+					$content_encoding = 'UTF-8';
+
+					if (mb_check_encoding($content, 'UTF-8')) {
+						$content_encoding = 'UTF-8';
+					} elseif (mb_check_encoding($content, 'ASCII')) {
+						$content_encoding = 'ASCII';
+					} else {
+						$content_encoding = mb_detect_encoding($content);
+					}
+
 					if ($content_encoding == "ASCII" || $content_encoding == "UTF-8" || is_valid_zip_file($file)) {
 						if (filesize($file)) {
 							if(preg_match("/\.svg$/", $filename)) {

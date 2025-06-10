@@ -309,7 +309,7 @@
 				FROZEN=$(pip --disable-pip-version-check list --format=freeze)
 			fi
 
-			if [[ $noversion -eq "rich_argparse" ]]; then
+			if [[ $noversion == "rich_argparse" ]]; then
 				noversion="rich-argparse"
 			fi
 

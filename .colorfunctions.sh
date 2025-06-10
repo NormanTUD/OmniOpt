@@ -27,34 +27,46 @@ function green {
 	echo -ne "${Green}$1${Color_Off}"
 }
 
-function _tput {
+_tput() {
 	set +e
 	CHAR=$1
 
-	if ! command -v tput 2>/dev/null >/dev/null; then
-		red_text "tput not installed" >&2
-		set +e
-		return 0
-	fi
-
 	if [[ -z $CHAR ]]; then
 		red_text "No character given" >&2
-		set +e
 		return 0
 	fi
 
-	if ! tty 2>/dev/null >/dev/null; then
-		echo ""
-		set +e
-		return 0
-	fi
+	case "$CHAR" in
+		cr)
+			echo -ne '\r'
+			return 0
+			;;
+		el)
+			echo -ne '\033[K'
+			return 0
+			;;
+		bel)
+			if [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
+				echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
+				return 0
+			else
+				echo -ne '\a'
+				return 0
+			fi
+			;;
+	esac
 
-	if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
-		echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
+	if command -v tput >/dev/null 2>&1; then
+		if tty >/dev/null 2>&1; then
+			tput "$CHAR"
+		else
+			red_text "Skipping tput $CHAR: no tty and no fallback" >&2
+		fi
 	else
-		tput "$CHAR"
+		red_text "tput not installed" >&2
 	fi
-	set +e
+
+	return 0
 }
 
 function green_reset_line {

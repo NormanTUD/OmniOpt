@@ -366,37 +366,6 @@
 		fi
 	done
 
-	function _tput {
-		set +e
-		CHAR=$1
-
-		if ! command -v tput 2>/dev/null >/dev/null; then
-			red_text "tput not installed\n" >&2
-			set +e
-			return 0
-		fi
-
-		if [[ -z $CHAR ]]; then
-			red_text "No character given\n" >&2
-			set +e
-			return 0
-		fi
-
-		if ! tty 2>/dev/null >/dev/null; then
-			echo ""
-			set +e
-			return 0
-		fi
-
-		if [[ "$CHAR" == "bel" ]] && [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
-			echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
-		else
-			tput "$CHAR"
-		fi
-
-		set +e
-	}
-
 	int_re='^[+-]?[0-9]+$'
 
 	if [[ -n $PRINT_SEPERATOR ]]; then # for tests, so that things are properly visually seperated

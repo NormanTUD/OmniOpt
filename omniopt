@@ -1753,7 +1753,7 @@ EOF
 							_tput el # Delete line from start to finish
 
 							echo -ne "$print_line"
-							sleep 0.2
+							sleep 0.05
 						done
 
 						_tput cnorm # Enable cursor

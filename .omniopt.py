@@ -4302,64 +4302,63 @@ def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_resul
 
 @beartype
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
-    with console.status("[bold green]Ending program..."):
-        global END_PROGRAM_RAN
+    global END_PROGRAM_RAN
 
-        wait_for_jobs_to_complete()
+    wait_for_jobs_to_complete()
 
-        show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)
+    show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)
 
-        if os.getpid() != main_pid:
-            print_debug("returning from end_program, because it can only run in the main thread, not any forks")
-            return
+    if os.getpid() != main_pid:
+        print_debug("returning from end_program, because it can only run in the main thread, not any forks")
+        return
 
-        if END_PROGRAM_RAN and not _force:
-            print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
-            return
+    if END_PROGRAM_RAN and not _force:
+        print_debug("[end_program] END_PROGRAM_RAN was true. Returning.")
+        return
 
-        END_PROGRAM_RAN = True
+    END_PROGRAM_RAN = True
 
-        _exit: int = 0
+    _exit: int = 0
 
-        try:
-            check_conditions = {
-                get_current_run_folder(): "[end_program] get_current_run_folder() was empty. Not running end-algorithm.",
-                bool(ax_client): "[end_program] ax_client was empty. Not running end-algorithm.",
-                bool(console): "[end_program] console was empty. Not running end-algorithm."
-            }
+    try:
+        check_conditions = {
+            get_current_run_folder(): "[end_program] get_current_run_folder() was empty. Not running end-algorithm.",
+            bool(ax_client): "[end_program] ax_client was empty. Not running end-algorithm.",
+            bool(console): "[end_program] console was empty. Not running end-algorithm."
+        }
 
-            for condition, message in check_conditions.items():
-                if condition is None:
-                    print_debug(message)
-                    return
+        for condition, message in check_conditions.items():
+            if condition is None:
+                print_debug(message)
+                return
 
-            new_exit = show_end_table_and_save_end_files()
-            if new_exit > 0:
-                _exit = new_exit
-        except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
-            print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
-            print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
-            new_exit = show_end_table_and_save_end_files()
-            if new_exit > 0:
-                _exit = new_exit
-        except TypeError as e:
-            print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
+        new_exit = show_end_table_and_save_end_files()
+        if new_exit > 0:
+            _exit = new_exit
+    except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
+        print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
+        print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
+        new_exit = show_end_table_and_save_end_files()
+        if new_exit > 0:
+            _exit = new_exit
+    except TypeError as e:
+        print_red(f"\n⚠ The program has been halted without attaining any results. Error: {e}")
 
-        abandon_all_jobs()
+    abandon_all_jobs()
 
-        save_results_csv()
+    save_results_csv()
 
-        if exit_code:
-            _exit = exit_code
+    if exit_code:
+        _exit = exit_code
 
-        show_time_debugging_table()
+    show_time_debugging_table()
 
-        live_share()
+    live_share()
 
-        if succeeded_jobs() == 0 and failed_jobs() > 0:
-            _exit = 89
+    if succeeded_jobs() == 0 and failed_jobs() > 0:
+        _exit = 89
 
-        my_exit(_exit)
+    my_exit(_exit)
 
 @beartype
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:

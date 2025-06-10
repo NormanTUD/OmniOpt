@@ -901,6 +901,8 @@ graphWidth
 grayscale
 grayscaleValue
 greenAdded
+greenAdding
+greenCalculating
 greenChecking
 greenCreated
 greenCreating
@@ -914,6 +916,7 @@ greenFinding
 greenFinished
 greenFound
 greenGetting
+greenHandling
 greenImage
 greenImporting
 greenIn
@@ -921,6 +924,7 @@ greenIndexed
 greenInitializing
 greenLoading
 greenParsing
+greenPrinting
 greenSaved
 greenSaving
 greenSearching

@@ -48,7 +48,7 @@ if command -v deadcode 2>/dev/null >/dev/null; then
 		}
 	done
 else
-	red_text "Deadcode is not installed"
+	red_text "Deadcode is not installed\n"
 fi
 
 secs=$SECONDS

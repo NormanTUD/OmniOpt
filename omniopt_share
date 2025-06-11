@@ -62,6 +62,7 @@
 	#keep_tmp_dir=0
 	folders_to_share=()
 	username=$USER
+	password=""
 	outfile=
 	send_single_runs=1
 
@@ -88,6 +89,7 @@
 		echo "  --no_color                                         Disables color output"
 		echo "  --force                                            Ignores cache"
 		echo "  --username=s3811141                                Specify username (with or without = sign)"
+		echo "  --password=abcdef123                               Specify a password for this run"
 		echo "  --dont_send_singleruns                             Don't send single runs"
 		#echo "  --keep_tmp_dir                                    Keeps the tmp dir, prints it as well"
 		echo "  --outfile=slurm-12345.out                          Path to the outfile"
@@ -116,8 +118,10 @@
 		#	keep_tmp_dir=1
 		elif [ "$arg" == "--no_color" ]; then
 			no_color=1
+		elif [[ "$arg" == --password=* ]]; then
+			password="${arg#--password=}"
 		elif [[ "$arg" == --outfile=* ]]; then
-			outfile="${arg#--username=}"
+			outfile="${arg#--outfile=}"
 		elif [[ "$arg" == --username=* ]]; then
 			username="${arg#--username=}"
 			DONT_ASK_USERNAME=1
@@ -278,10 +282,10 @@
 					if command -v zip 2>/dev/null >/dev/null; then
 						zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
 							red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
-																exit 1
-															}
-														else
-															red_text "zip not found. You will not be able to continue this job from the URL."
+							exit 1
+						}
+					else
+						red_text "zip not found. You will not be able to continue this job from the URL."
 					fi
 
 					curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
@@ -439,6 +443,10 @@
 					green_text "No update needed"
 				fi
 			else
+				if [[ $password != "" ]]; then
+					url="$url&password=$password"
+				fi
+
 				if [[ $DEBUG -eq 1 ]]; then
 					echo "curl -s ${curl_options[@]} $url"
 				fi

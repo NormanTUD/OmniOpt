@@ -1653,6 +1653,13 @@
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
 
+		$password_hash_file = "$userFolder/password.sha256";
+		$get_password = "";
+
+		if($_GET["password"]) {
+			$get_password = hash("sha256", $_GET["password"]);
+		}
+
 		if ($found_hash_file && is_null($update_uuid)) {
 			list($user, $experiment_name, $run_id) = extract_path_components($found_hash_file_dir, $sharesPath);
 			$old_url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
@@ -1666,6 +1673,10 @@
 
 			if (!(!$uuid_folder || !is_dir($uuid_folder))) {
 				$second_message = $first_message;
+			}
+
+			if($get_password) {
+				file_put_contents($password_hash_file, $get_password);
 			}
 
 			move_files(

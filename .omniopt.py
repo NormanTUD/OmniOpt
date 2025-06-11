@@ -558,6 +558,7 @@ class ConfigLoader:
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: List[str]
     time: str
+    share_password: Optional[str]
     generate_all_jobs_at_once: bool
     result_names: Optional[List[str]]
     verbose_break_run_search_table: bool
@@ -653,6 +654,7 @@ class ConfigLoader:
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
         optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
         optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
+        optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -1455,6 +1457,9 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
 
             if force:
                 _command = f"{_command} --force"
+
+            if args.share_password:
+                _command = f"{_command} --password='{args.share_password}'"
 
             if not shown_run_live_share_command:
                 print_debug(f"run_live_share_command: {_command}")

@@ -1021,6 +1021,8 @@ except ImportError as e:
 with console.status("[bold green]Importing ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
 
+    disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
+
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
 

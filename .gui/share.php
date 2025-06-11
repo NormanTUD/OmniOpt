@@ -283,9 +283,9 @@
 				echo "<p class='caveat alarm'>The password you entered was wrong.</p>";
 			}
 ?>
-			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>">
+			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>" autocomplete="off">
 				<p>This share requires you to enter a password:</p>
-				<input type="password" name="password" id="password" placeholder="Enter password" required autofocus>
+				<input type="password" name="password" id="password" placeholder="Enter password" required autofocus autocomplete="new-password">
 				<button type="submit">Submit</button>
 			</form>
 <?php

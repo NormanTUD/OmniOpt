@@ -4,7 +4,6 @@ import argparse
 import time
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from datasets import load_dataset
 from transformers import AutoTokenizer

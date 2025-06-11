@@ -285,7 +285,7 @@
 ?>
 			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>">
 				<p>This share requires you to enter a password:</p>
-				<input type="password" name="password" placeholder="Enter password" required>
+				<input type="password" name="password" id="password" placeholder="Enter password" required autofocus>
 				<button type="submit">Submit</button>
 			</form>
 <?php

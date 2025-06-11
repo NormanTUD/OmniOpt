@@ -46,6 +46,10 @@ cd ..
 
 source .shellscript_functions
 
+if ! command -v pylint 2>/dev/null >/dev/null; then
+	pip install -r test_requirements.txt
+fi
+
 PYLINTRC_FILE=".tools/pylint.rc"
 PYLINTRC_DEST_FILE="$HOME/.pylintrc"
 

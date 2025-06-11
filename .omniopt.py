@@ -31,8 +31,6 @@ progress_bar_length: int = 0
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
     oo_call = "omniopt"
 
-gotten_jobs: int = 0
-
 shown_run_live_share_command: bool = False
 ci_env: bool = os.getenv("CI", "false").lower() == "true"
 original_print = print
@@ -6952,8 +6950,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optio
 
 @beartype
 def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
-    global gotten_jobs
-
     trials_dict: Dict[int, Any] = {}
     trial_durations: List[float] = []
 
@@ -6986,7 +6982,6 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 if trial_successful:
                     cnt += 1
                     trials_dict[trial_index] = arm.parameters
-                    gotten_jobs += 1
 
         return _finalize_generation(trials_dict, cnt, n, start_time)
 

@@ -3911,7 +3911,7 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
 
     assert df is not None, "DataFrame should not be None after reading CSV file"
 
-    if _type == "Sobol" or type == "SOBOL":
+    if _type == "Sobol" or _type == "SOBOL":
         rows = df[df["generation_node"] == _type]
     else:
         rows = df[df["trial_status"] == _type]

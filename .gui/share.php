@@ -83,6 +83,7 @@
 
 	if(!count($errors) && $user_id && $experiment_name && $run_nr != -1 && $run_nr !== null && is_dir($run_dir)) {
 		$password_hash_file = "$run_dir/password.sha256";
+
 		if(!file_exists($password_hash_file) || isset($_POST["password"]) && hash("sha256", $_POST["password"]) == file_get_contents($password_hash_file)) {
 			[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max($run_dir, $warnings);
 
@@ -276,6 +277,11 @@
 			}
 		} else {
 			require "_header_base.php";
+
+
+			if(isset($_POST["password"]) && hash("sha256", $_POST["password"]) != file_get_contents($password_hash_file)) {
+				echo "<p class='caveat alarm'>The password you entered was wrong.</p>";
+			}
 ?>
 			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>">
 				<p>This share requires you to enter a password:</p>

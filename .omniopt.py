@@ -1335,7 +1335,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         return temp_dir
 
     @beartype
-    def get_next_candidate(self: Any, pending_parameters: List[Any]) -> Any:
+    def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
 

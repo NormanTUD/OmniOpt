@@ -86,6 +86,13 @@
 		$uuid_folder = find_matching_uuid_run_folder($update_uuid, $sharesPath, $user_id, $experiment_name);
 	}
 
+	if(file_exists("$uuid_folder/password.sha256")) {
+		if(hash("sha256", $_GET["password"]) != file_get_contents("$uuid_folder/password.sha256")) {
+			print("Error: The password you provided does not match the password of this job. Even for updating job on live-share, the password is required.");
+			exit(1);
+		}
+	}
+
 	$num_offered_files = 0;
 
 	$offered_files_i = get_offered_files($acceptable_files, $acceptable_file_names, 0);

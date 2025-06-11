@@ -6601,26 +6601,27 @@ def write_continue_run_uuid_to_file() -> None:
 
 @beartype
 def save_state_files() -> None:
-    with console.status("[bold green]Saving state files..."):
-        write_state_file("joined_run_program", global_vars["joined_run_program"])
-        write_state_file("experiment_name", global_vars["experiment_name"])
-        write_state_file("mem_gb", str(global_vars["mem_gb"]))
-        write_state_file("max_eval", str(max_eval))
-        write_state_file("gpus", str(args.gpus))
-        write_state_file("time", str(global_vars["_time"]))
-        write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
-        write_state_file("run_uuid", str(run_uuid))
-        if args.external_generator:
-            write_state_file("external_generator", str(args.external_generator))
+    if len(args.calculate_pareto_front_of_job) == 0:
+        with console.status("[bold green]Saving state files..."):
+            write_state_file("joined_run_program", global_vars["joined_run_program"])
+            write_state_file("experiment_name", global_vars["experiment_name"])
+            write_state_file("mem_gb", str(global_vars["mem_gb"]))
+            write_state_file("max_eval", str(max_eval))
+            write_state_file("gpus", str(args.gpus))
+            write_state_file("time", str(global_vars["_time"]))
+            write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
+            write_state_file("run_uuid", str(run_uuid))
+            if args.external_generator:
+                write_state_file("external_generator", str(args.external_generator))
 
-        if args.follow:
-            write_state_file("follow", "True")
+            if args.follow:
+                write_state_file("follow", "True")
 
-        if args.main_process_gb:
-            write_state_file("main_process_gb", str(args.main_process_gb))
+            if args.main_process_gb:
+                write_state_file("main_process_gb", str(args.main_process_gb))
 
-        if args.force_choice_for_ranges:
-            write_state_file("force_choice_for_ranges", str(args.main_process_gb))
+            if args.force_choice_for_ranges:
+                write_state_file("force_choice_for_ranges", str(args.main_process_gb))
 
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:
@@ -9410,8 +9411,7 @@ def main() -> None:
 
         write_failed_logs(data_dict, error_description)
 
-    if len(args.calculate_pareto_front_of_job) == 0:
-        save_state_files()
+    save_state_files()
 
     print_run_info()
 

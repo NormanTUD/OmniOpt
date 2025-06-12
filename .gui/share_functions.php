@@ -34,7 +34,10 @@
 			$print .= "Backtrace:\n";
 			$print .= "<pre>\n";
 			foreach (debug_backtrace() as $trace) {
-				$print .= htmlentities(sprintf("\n%s:%s %s", $trace['file'], $trace['line'], $trace['function']));
+				$file = array_key_exists('file', $trace) ? $trace['file'] : '[internal function]';
+				$line = array_key_exists('line', $trace) ? $trace['line'] : '?';
+				$function = array_key_exists('function', $trace) ? $trace['function'] : '[unknown]';
+				$print .= htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
 			}
 			$print .= "</pre>\n";
 
@@ -131,6 +134,7 @@
 			}
 
 			$matches[1] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			#dier($matches[1]);
 
 			$sixel = "\x1bP" . $matches[1];
 

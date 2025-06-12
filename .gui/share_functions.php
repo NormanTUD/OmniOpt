@@ -133,10 +133,9 @@
 				return "<br>";
 			}
 
-			$matches[1] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-			#dier($matches[1]);
-
 			$sixel = "\x1bP" . $matches[1];
+
+			$sixel = html_entity_decode($sixel, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
 			if (!$has_sixel2png) {
 				return "<br>";

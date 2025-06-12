@@ -283,12 +283,12 @@
 				echo "<p class='caveat alarm'>The password you entered was wrong.</p>";
 			}
 ?>
-			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>" autocomplete="off" onsubmit="return submitFakePassword()">
+			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>" autocomplete="off" onsubmit="return submitFakePassword()" id="passwordForm">
 				<p>This share requires you to enter a password:</p>
 				<input type="text" id="fakePassword" placeholder="Enter password" required autofocus autocomplete="off" oninput="syncFakePassword()" />
 				<input type="hidden" name="password" id="password">
 				<br>
-				<label>
+					<label>
 					<input type="checkbox" id="savePasswordCheckbox" onchange="toggleSavePassword()" />
 					Save password
 				</label>
@@ -298,6 +298,8 @@
 
 			<script>
 				var realPassword = '';
+				var form = document.getElementById('passwordForm');
+				var storageKey = 'savedPassword_' + encodeURIComponent(form.action);
 
 				function syncFakePassword() {
 					var fake = document.getElementById('fakePassword');
@@ -318,7 +320,7 @@
 					var checkbox = document.getElementById('savePasswordCheckbox');
 					if (checkbox && checkbox.checked) {
 						try {
-							localStorage.setItem('savedPassword', realPassword);
+							localStorage.setItem(storageKey, realPassword);
 						} catch (e) {
 							console.error('Failed to save password to localStorage:', e);
 						}
@@ -334,24 +336,23 @@
 					var checkbox = document.getElementById('savePasswordCheckbox');
 					if (!checkbox.checked) {
 						try {
-							localStorage.removeItem('savedPassword');
+							localStorage.removeItem(storageKey);
 						} catch (e) {
 							console.error('Failed to remove password from localStorage:', e);
 						}
 					} else {
-						// Immediately save current password if already typed
 						try {
-							localStorage.setItem('savedPassword', realPassword);
+							localStorage.setItem(storageKey, realPassword);
 						} catch (e) {
 							console.error('Failed to save password to localStorage:', e);
 						}
 					}
 				}
 
-				// Load password from localStorage (if available)
+				// Beim Laden gespeichertes Passwort URL-spezifisch laden
 				window.addEventListener('DOMContentLoaded', function () {
 					try {
-						var saved = localStorage.getItem('savedPassword');
+						var saved = localStorage.getItem(storageKey);
 						if (saved) {
 							realPassword = saved;
 							var fake = document.getElementById('fakePassword');

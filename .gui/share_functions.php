@@ -162,8 +162,13 @@
 				$base64 = base64_encode($data);
 				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
 			} finally {
-				if (file_exists($tmp_sixel)) unlink($tmp_sixel);
-				if (file_exists($tmp_png)) unlink($tmp_png);
+				if (file_exists($tmp_sixel)) {
+					unlink($tmp_sixel);
+				}
+
+				if (file_exists($tmp_png)) {
+					unlink($tmp_png);
+				}
 			}
 
 			return $img_html;

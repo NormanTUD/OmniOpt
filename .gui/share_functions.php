@@ -169,6 +169,7 @@
 						shell_exec($cmd);
 
 						if (file_exists($tmp_png) && filesize($tmp_png) > 0) {
+							clean_black_lines_inplace($tmp_png);
 							$data = file_get_contents($tmp_png);
 							if ($data !== false && strlen($data) <= 5 * 1024 * 1024) {
 								$base64 = base64_encode($data);
@@ -193,6 +194,77 @@
 		}
 
 		return $new_output;
+	}
+
+	function clean_black_lines_inplace($filepath) {
+		if (!file_exists($filepath)) {
+			error_log("clean_black_lines_inplace: file not found: $filepath");
+			return;
+		}
+
+		$img = @imagecreatefrompng($filepath);
+		if (!$img) {
+			error_log("clean_black_lines_inplace: could not load image: $filepath");
+			return;
+		}
+
+		$width = imagesx($img);
+		$height = imagesy($img);
+		$new_img = imagecreatetruecolor($width, $height);
+		if (!$new_img) {
+			imagedestroy($img);
+			error_log("clean_black_lines_inplace: failed to create image");
+			return;
+		}
+
+		$new_y = 0;
+		for ($y = 0; $y < $height; $y++) {
+			$is_black = true;
+			for ($x = 0; $x < $width; $x++) {
+				$rgb = imagecolorat($img, $x, $y);
+				$r = ($rgb >> 16) & 0xFF;
+				$g = ($rgb >> 8) & 0xFF;
+				$b = $rgb & 0xFF;
+				if ($r !== 0 || $g !== 0 || $b !== 0) {
+					$is_black = false;
+					break;
+				}
+			}
+
+			if ($is_black) {
+				continue;
+			}
+
+			for ($x = 0; $x < $width; $x++) {
+				$color = imagecolorat($img, $x, $y);
+				imagesetpixel($new_img, $x, $new_y, $color);
+			}
+			$new_y++;
+		}
+
+		$trimmed = imagecreatetruecolor($width, $new_y);
+		if (!$trimmed) {
+			imagedestroy($img);
+			imagedestroy($new_img);
+			error_log("clean_black_lines_inplace: failed to create trimmed image");
+			return;
+		}
+
+		if (!imagecopy($trimmed, $new_img, 0, 0, 0, 0, $width, $new_y)) {
+			imagedestroy($img);
+			imagedestroy($new_img);
+			imagedestroy($trimmed);
+			error_log("clean_black_lines_inplace: imagecopy failed");
+			return;
+		}
+
+		if (!imagepng($trimmed, $filepath)) {
+			error_log("clean_black_lines_inplace: failed to save image: $filepath");
+		}
+
+		imagedestroy($img);
+		imagedestroy($new_img);
+		imagedestroy($trimmed);
 	}
 
 	function my_unlink($path) {

@@ -210,16 +210,11 @@
 
 		$width = imagesx($img);
 		$height = imagesy($img);
-		$new_img = imagecreatetruecolor($width, $height);
-		if (!$new_img) {
-			imagedestroy($img);
-			error_log("clean_black_lines_inplace: failed to create image");
-			return;
-		}
-
 		$new_y = 0;
+
 		for ($y = 0; $y < $height; $y++) {
 			$is_black = true;
+
 			for ($x = 0; $x < $width; $x++) {
 				$rgb = imagecolorat($img, $x, $y);
 				$r = ($rgb >> 16) & 0xFF;
@@ -235,24 +230,26 @@
 				continue;
 			}
 
-			for ($x = 0; $x < $width; $x++) {
-				$color = imagecolorat($img, $x, $y);
-				imagesetpixel($new_img, $x, $new_y, $color);
+			if ($new_y !== $y) {
+				if (!imagecopy($img, $img, 0, $new_y, 0, $y, $width, 1)) {
+					imagedestroy($img);
+					error_log("clean_black_lines_inplace: failed to shift line from $y to $new_y");
+					return;
+				}
 			}
+
 			$new_y++;
 		}
 
 		$trimmed = imagecreatetruecolor($width, $new_y);
 		if (!$trimmed) {
 			imagedestroy($img);
-			imagedestroy($new_img);
 			error_log("clean_black_lines_inplace: failed to create trimmed image");
 			return;
 		}
 
-		if (!imagecopy($trimmed, $new_img, 0, 0, 0, 0, $width, $new_y)) {
+		if (!imagecopy($trimmed, $img, 0, 0, 0, 0, $width, $new_y)) {
 			imagedestroy($img);
-			imagedestroy($new_img);
 			imagedestroy($trimmed);
 			error_log("clean_black_lines_inplace: imagecopy failed");
 			return;
@@ -263,7 +260,6 @@
 		}
 
 		imagedestroy($img);
-		imagedestroy($new_img);
 		imagedestroy($trimmed);
 	}
 

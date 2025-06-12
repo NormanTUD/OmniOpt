@@ -126,7 +126,7 @@
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
 		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
-		$pattern = "/\x1b(.*?)\R/";
+		$pattern = "/\x1bP([0-9;]*q.*?\x1b\\\\)/s";
 
 		$output = preg_replace_callback($pattern, function ($matches) use ($has_sixel2png) {
 			if(!strlen($matches[1])) {
@@ -168,7 +168,7 @@
 				}
 
 				$base64 = base64_encode($data);
-				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/><br>';
+				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
 			} finally {
 				if (file_exists($tmp_sixel)) {
 					my_unlink($tmp_sixel);

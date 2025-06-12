@@ -123,7 +123,6 @@
 	}
 
 	function convert_sixel($output) {
-		// Prüfen, ob sixel2png verfügbar ist
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
 		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
@@ -137,60 +136,47 @@
 		$last_pos = 0;
 
 		while ($pos < $length) {
-			// Suche Startmarker
 			$start_pos = strpos($output, $start_marker, $pos);
 			if ($start_pos === false) {
-				// Kein Startmarker mehr gefunden, Resttext anhängen und fertig
 				$new_output .= substr($output, $last_pos);
 				break;
 			}
 
-			// Startmarker gefunden, suche Endmarker ab start_pos + 2
 			$end_pos = strpos($output, $end_marker, $start_pos + 2);
 			if ($end_pos === false) {
-				// Kein Endmarker gefunden, kein valides SIXEL, Rest anhängen und abbrechen
 				$new_output .= substr($output, $last_pos);
 				break;
 			}
 
-			// Endmarker am Ende der Sequenz, inklusive Länge von 2 Bytes
 			$end_pos_incl = $end_pos + 2;
 
-			// Vor dem Startmarker kommt normaler Text
 			$new_output .= substr($output, $last_pos, $start_pos - $last_pos);
 
-			// Extrahiere SIXEL-Sequenz
 			$sixel_sequence = substr($output, $start_pos, $end_pos_incl - $start_pos);
 
-			// Default Ersatz HTML (Fallback)
 			$img_html = "<br>";
 
 			if ($has_sixel2png && strlen($sixel_sequence) > 0) {
-				// sixel aus HTML Entities decodieren (falls nötig)
 				$sixel = html_entity_decode($sixel_sequence, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-				// Temporäre Dateien für sixel und png anlegen
 				$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
 				$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
 
 				try {
 					$bytes_written = file_put_contents($tmp_sixel, $sixel);
 					if ($bytes_written !== false && $bytes_written > 0) {
-						// Befehl zum Konvertieren
 						$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
 						shell_exec($cmd);
 
-						// Prüfen ob PNG existiert und nicht leer
 						if (file_exists($tmp_png) && filesize($tmp_png) > 0) {
 							$data = file_get_contents($tmp_png);
-							if ($data !== false && strlen($data) <= 5 * 1024 * 1024) { // 5 MB Limit
+							if ($data !== false && strlen($data) <= 5 * 1024 * 1024) {
 								$base64 = base64_encode($data);
 								$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
 							}
 						}
 					}
 				} finally {
-					// Temporäre Dateien löschen, falls vorhanden
 					if (file_exists($tmp_sixel)) {
 						my_unlink($tmp_sixel);
 					}
@@ -200,10 +186,8 @@
 				}
 			}
 
-			// Ersetze SIXEL-Sequenz mit generiertem HTML
 			$new_output .= $img_html;
 
-			// Update Positionen
 			$pos = $end_pos_incl;
 			$last_pos = $pos;
 		}
@@ -487,7 +471,7 @@
 			return false;
 		}
 
-		$start = trim(substr($contents, 0, 4096)); // nur Anfang parsen
+		$start = trim(substr($contents, 0, 4096));
 		if (!preg_match('/<svg[^>]*xmlns\s*=\s*["\']http:\/\/www\.w3\.org\/2000\/svg["\']/', $start)) {
 			return false;
 		}
@@ -1295,32 +1279,28 @@
 		$in_sixel = false;
 
 		foreach ($lines as $line) {
-			// Check if this line starts a sixel sequence
 			if (preg_match('/^\x1bP.*q/', $line)) {
 				$in_sixel = true;
 				$result[] = $line;
 				continue;
 			}
 
-			// Check if this line ends a sixel block (ESC \ is \x1b\\)
 			if ($in_sixel && strpos($line, "\x1b\\") !== false) {
 				$in_sixel = false;
 				$result[] = $line;
 				continue;
 			}
 
-			// If we're inside a sixel block, skip modification
 			if ($in_sixel) {
 				$result[] = $line;
 				continue;
 			}
 
-			// Otherwise, remove ANSI sequences
-			$line = preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $line); // Common CSI sequences
-			$line = preg_replace('/\x1b\][^\x07]*\x07/', '', $line);     // OSC sequences
-			$line = preg_replace('/\x1b[\(\)][0-9A-Za-z]/', '', $line);  // Charset selections
-			$line = preg_replace('/\x1b=|\x1b>/', '', $line);            // Keypad mode
-			$line = preg_replace('/\x1b./', '', $line);                  // Fallback for other short sequences
+			$line = preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $line);
+			$line = preg_replace('/\x1b\][^\x07]*\x07/', '', $line);
+			$line = preg_replace('/\x1b[\(\)][0-9A-Za-z]/', '', $line);
+			$line = preg_replace('/\x1b=|\x1b>/', '', $line);
+			$line = preg_replace('/\x1b./', '', $line);
 
 			$result[] = $line;
 		}
@@ -1644,7 +1624,6 @@
 		$signature = fread($handle, 4);
 		fclose($handle);
 
-		// ZIP-Files begin with "PK\x03\x04"
 		return $signature === "PK\x03\x04";
 	}
 
@@ -2104,7 +2083,7 @@
 	}
 
 	function generate_css_style_tag($filePath, $indentLevel = 3) {
-		$file_content = file_get_contents($filePath); 
+		$file_content = file_get_contents($filePath);
 		$file_content = remove_font_face_rules($file_content);
 
 		$cssContent = remove_excessive_newlines($file_content);
@@ -2656,7 +2635,6 @@ $onclick_string
 			}
 		}
 
-		// Falls keine Dateien/Ordner drin, nehme den Ordner selbst als Zeit
 		if ($latestTime === 0 && is_dir($folderPath)) {
 			$latestTime = filemtime($folderPath);
 		}
@@ -2669,7 +2647,6 @@ $onclick_string
 		usort($folders, function($a, $b) use ($basePath) {
 			$timeA = get_latest_recursive_modification_time("$basePath/$a");
 			$timeB = get_latest_recursive_modification_time("$basePath/$b");
-			// Absteigend sortieren: neueste zuerst
 			return $timeB <=> $timeA;
 		});
 	}

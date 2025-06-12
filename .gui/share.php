@@ -283,11 +283,38 @@
 				echo "<p class='caveat alarm'>The password you entered was wrong.</p>";
 			}
 ?>
-			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>" autocomplete="off">
+			<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF'] . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')) ?>" autocomplete="off" onsubmit="return submitFakePassword()">
 				<p>This share requires you to enter a password:</p>
-				<input type="password" name="password" id="password" placeholder="Enter password" required autofocus autocomplete="new-password">
+				<input type="text" id="fakePassword" placeholder="Enter password" required autofocus autocomplete="off" oninput="syncFakePassword()" />
+				<input type="hidden" name="password" id="password">
 				<button type="submit">Submit</button>
 			</form>
+
+			<script>
+				var realPassword = '';
+
+				function syncFakePassword() {
+					var fake = document.getElementById('fakePassword');
+					var displayed = fake.value;
+
+					if (displayed.length < realPassword.length) {
+						realPassword = realPassword.substring(0, displayed.length);
+					} else {
+						var added = displayed.length - realPassword.length;
+						if (added > 0) {
+							var lastChar = displayed.charAt(displayed.length - 1);
+							realPassword += lastChar;
+						}
+					}
+
+					fake.value = '*'.repeat(realPassword.length);
+				}
+
+				function submitFakePassword() {
+					document.getElementById('password').value = realPassword;
+					return true;
+				}
+			</script>
 <?php
 			include("footer.php");
 

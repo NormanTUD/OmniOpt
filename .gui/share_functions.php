@@ -531,10 +531,11 @@
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);
+
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
 			} else {
-				$contents = htmlspecialchars($contents);
+				#$contents = htmlspecialchars($contents);
 				$ansi_to_htmled = ansi_to_html($contents);
 				$contents = remove_ansi_escape_sequences($ansi_to_htmled);
 			}
@@ -1288,9 +1289,42 @@
 	}
 
 	function remove_ansi_escape_sequences($string) {
-		$string = preg_replace('/.\[?(1A|2(5[hl]|K))/', '', $string);
-		$string = preg_replace('/\[/', '', $string);
-		return $string;
+		$lines = explode("\n", $string);
+		$result = array();
+		$in_sixel = false;
+
+		foreach ($lines as $line) {
+			// Check if this line starts a sixel sequence
+			if (preg_match('/^\x1bP.*q/', $line)) {
+				$in_sixel = true;
+				$result[] = $line;
+				continue;
+			}
+
+			// Check if this line ends a sixel block (ESC \ is \x1b\\)
+			if ($in_sixel && strpos($line, "\x1b\\") !== false) {
+				$in_sixel = false;
+				$result[] = $line;
+				continue;
+			}
+
+			// If we're inside a sixel block, skip modification
+			if ($in_sixel) {
+				$result[] = $line;
+				continue;
+			}
+
+			// Otherwise, remove ANSI sequences
+			$line = preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $line); // Common CSI sequences
+			$line = preg_replace('/\x1b\][^\x07]*\x07/', '', $line);     // OSC sequences
+			$line = preg_replace('/\x1b[\(\)][0-9A-Za-z]/', '', $line);  // Charset selections
+			$line = preg_replace('/\x1b=|\x1b>/', '', $line);            // Keypad mode
+			$line = preg_replace('/\x1b./', '', $line);                  // Fallback for other short sequences
+
+			$result[] = $line;
+		}
+
+		return implode("\n", $result);
 	}
 
 	function highlight_debug_info($log) {

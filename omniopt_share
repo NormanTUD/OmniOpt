@@ -454,8 +454,8 @@
 
 				set -e
 
-				if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 ; then
-					red_text "$CURL_OUTPUT"
+				if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 || echo "$CURL_OUTPUT" | grep -q "Error:"; then
+					red_text "$CURL_OUTPUT\n"
 					if [[ $exit_code -ne 0 ]]; then
 						echo "Curling $url failed. Curl exited with $exit_code instead of 0"
 						if [[ $exit_code == 7 ]]; then

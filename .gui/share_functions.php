@@ -123,59 +123,82 @@
 	}
 
 	function convert_sixel($output) {
+		// Prüfen, ob sixel2png verfügbar ist
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
 		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
+		// Pattern für SIXEL Escape-Sequenzen (ESC P ... ESC \)
 		$pattern = "/(\x1bP[0-9;]*q.*?\x1b\\\\)/s";
 
-		$output = preg_replace_callback($pattern, function ($matches) use ($has_sixel2png) {
-			if(!$has_sixel2png || !strlen($matches[1])) {
-				return "<br>";
-			}
+		// Alle Matches finden
+		$matches_count = preg_match_all($pattern, $output, $matches, PREG_OFFSET_CAPTURE);
+		if ($matches_count === false || $matches_count === 0) {
+			// Keine SIXEL-Sequenzen gefunden, Original zurückgeben
+			return $output;
+		}
 
-			$sixel = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		// Wir bauen ein neues Output-Stück Schritt für Schritt
+		$new_output = '';
+		$last_pos = 0;
 
-			$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
-			$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
+		// Für jeden Match eine Verarbeitung und Ersetzung
+		foreach ($matches[1] as $match) {
+			$sixel_sequence = $match[0];
+			$start_pos = $match[1];
+			$end_pos = $start_pos + strlen($sixel_sequence);
 
+			// Originaltext bis zum Match anfügen
+			$new_output .= substr($output, $last_pos, $start_pos - $last_pos);
+
+			// Standard Ersatz-HTML (Fallback)
 			$img_html = "<br>";
-			try {
-				$bytes_written = file_put_contents($tmp_sixel, $sixel);
-				if ($bytes_written === false || $bytes_written === 0) {
-					my_unlink($tmp_sixel);
-					return $img_html;
-				}
 
-				$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
-				shell_exec($cmd);
+			if ($has_sixel2png && strlen($sixel_sequence) > 0) {
+				// sixel aus HTML Entities decodieren
+				$sixel = html_entity_decode($sixel_sequence, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-				if (!file_exists($tmp_png) || filesize($tmp_png) === 0) {
-					my_unlink($tmp_sixel);
-					return $img_html;
-				}
+				// Temporäre Dateien für sixel und png anlegen
+				$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
+				$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
 
-				$data = file_get_contents($tmp_png);
-				if ($data === false || strlen($data) > 5 * 1024 * 1024) { // Limit 5 MB
-					my_unlink($tmp_sixel);
-					return $img_html;
-				}
+				try {
+					$bytes_written = file_put_contents($tmp_sixel, $sixel);
+					if ($bytes_written !== false && $bytes_written > 0) {
+						// Befehl zum Konvertieren
+						$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
+						shell_exec($cmd);
 
-				$base64 = base64_encode($data);
-				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
-			} finally {
-				if (file_exists($tmp_sixel)) {
-					my_unlink($tmp_sixel);
-				}
-
-				if (file_exists($tmp_png)) {
-					my_unlink($tmp_png);
+						// Prüfen ob PNG existiert und nicht leer
+						if (file_exists($tmp_png) && filesize($tmp_png) > 0) {
+							$data = file_get_contents($tmp_png);
+							if ($data !== false && strlen($data) <= 5 * 1024 * 1024) { // 5 MB Limit
+								$base64 = base64_encode($data);
+								$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
+							}
+						}
+					}
+				} finally {
+					// Temporäre Dateien löschen, falls vorhanden
+					if (file_exists($tmp_sixel)) {
+						my_unlink($tmp_sixel);
+					}
+					if (file_exists($tmp_png)) {
+						my_unlink($tmp_png);
+					}
 				}
 			}
 
-			return $img_html;
-		}, $output);
+			// Ersetzen mit generiertem HTML
+			$new_output .= $img_html;
 
-		return $output;
+			// Position auf Ende des Matches setzen
+			$last_pos = $end_pos;
+		}
+
+		// Restlichen Text anhängen
+		$new_output .= substr($output, $last_pos);
+
+		return $new_output;
 	}
 
 	function my_unlink($path) {

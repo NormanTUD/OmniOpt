@@ -126,20 +126,14 @@
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
 		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
-		$pattern = "/\x1bP([0-9;]*q.*?\x1b\\\\)/s";
+		$pattern = "/(\x1bP[0-9;]*q.*?\x1b\\\\)/s";
 
 		$output = preg_replace_callback($pattern, function ($matches) use ($has_sixel2png) {
-			if(!strlen($matches[1])) {
+			if(!$has_sixel2png || !strlen($matches[1])) {
 				return "<br>";
 			}
 
-			$sixel = "\x1bP" . $matches[1];
-
-			$sixel = html_entity_decode($sixel, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-			if (!$has_sixel2png) {
-				return "<br>";
-			}
+			$sixel = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
 			$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
 			$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";

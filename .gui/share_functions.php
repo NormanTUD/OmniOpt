@@ -882,7 +882,7 @@
 		return implode(", ", $parts);
 	}
 
-	function count_subfolders(string $path): int {
+	function count_subfolders_or_files(string $path): int {
 		$count = 0;
 
 		if (!is_dir($path)) {
@@ -891,7 +891,7 @@
 
 		foreach (scandir($path) as $item) {
 			if ($item === '.' || $item === '..') continue;
-			if (is_dir($path . DIRECTORY_SEPARATOR . $item)) {
+			if (is_dir($path . DIRECTORY_SEPARATOR . $item) || is_file($path . DIRECTORY_SEPARATOR . $item)) {
 				$count++;
 			}
 		}
@@ -1007,7 +1007,7 @@
 								$bracket_string .= " | ".$analyzed;
 							}
 						} else {
-							$counted_subfolders = count_subfolders($folderPathWithFile);
+							$counted_subfolders = count_subfolders_or_files($folderPathWithFile);
 
 							if($counted_subfolders != 0) {
 								if($counted_subfolders == 1) {
@@ -2677,7 +2677,7 @@ $onclick_string
 							$bracket_string .= " | $analyzed";
 						}
 					} else {
-						$counted_subfolders = count_subfolders($runPath);
+						$counted_subfolders = count_subfolders_or_files($runPath);
 						if ($counted_subfolders > 0) {
 							$bracket_string .= " | $counted_subfolders " . ($counted_subfolders === 1 ? "subfolder" : "subfolders");
 						} else {

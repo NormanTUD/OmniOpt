@@ -1656,7 +1656,7 @@
 		$password_hash_file = "$userFolder/password.sha256";
 		$get_password = "";
 
-		if($_GET["password"]) {
+		if(isset($_GET["password"]) && $_GET["password"]) {
 			$get_password = hash("sha256", $_GET["password"]);
 		}
 

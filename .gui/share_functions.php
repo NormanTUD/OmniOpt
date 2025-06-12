@@ -217,10 +217,7 @@
 
 			for ($x = 0; $x < $width; $x++) {
 				$rgb = imagecolorat($img, $x, $y);
-				$r = ($rgb >> 16) & 0xFF;
-				$g = ($rgb >> 8) & 0xFF;
-				$b = $rgb & 0xFF;
-				if ($r !== 0 || $g !== 0 || $b !== 0) {
+				if (($rgb & 0xFFFFFF) !== 0) {
 					$is_black = false;
 					break;
 				}

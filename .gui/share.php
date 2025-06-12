@@ -287,6 +287,8 @@
 				<p>This share requires you to enter a password:</p>
 				<input type="text" id="fakePassword" placeholder="Enter password" required autofocus autocomplete="off" oninput="syncFakePassword()" />
 				<input type="hidden" name="password" id="password">
+				<br>
+				<br>
 				<button type="submit">Submit</button>
 			</form>
 

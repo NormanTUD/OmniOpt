@@ -982,6 +982,15 @@
 					$lastModified = date("F d Y H:i:s", $timestamp);
 					$timeSince = time_since($timestamp);
 
+					$key_string = "";
+
+					if($new_param_name == "run_nr") {
+						$pw_file = "$folderPathWithFile/password.sha256";
+						if(file_exists($pw_file)) {
+							$key_string = "&nbsp;&#128272;";
+						}
+					}
+
 					if(has_non_empty_folder($folderPathWithFile)) {
 						$folder = htmlspecialchars($folder);
 						$url = htmlspecialchars($url);
@@ -1013,7 +1022,7 @@
 
 						if($show) {
 							echo "<a class='share_folder_buttons' href='$url'>";
-							echo "<button type='button'>$folder ($bracket_string)</button>";
+							echo "<button type='button'>$folder ($bracket_string)$key_string</button>";
 							echo '</a><br>';
 						}
 						$shown_folders++;

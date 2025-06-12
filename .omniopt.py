@@ -4138,7 +4138,7 @@ def get_crf() -> str:
 
 @beartype
 def write_to_file(file_path: str, content: str) -> None:
-    with open(file_path, mode="w", encoding="utf-8") as text_file:
+    with open(file_path, mode="a+", encoding="utf-8") as text_file:
         text_file.write(content)
 
 @beartype

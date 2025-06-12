@@ -49,5 +49,4 @@ pyspellchecker
 pyfiglet
 setuptools
 pyright
-qrcode
 pymarkdownlnt

@@ -1010,10 +1010,12 @@
 							$counted_subfolders = count_subfolders_or_files($folderPathWithFile);
 
 							if($counted_subfolders != 0) {
-								if($counted_subfolders == 1) {
-									$bracket_string .= " | ".$counted_subfolders. " subfolder";
-								} else {
-									$bracket_string .= " | ".$counted_subfolders. " subfolders";
+								if($new_param_name != "run_nr") {
+									if($counted_subfolders == 1) {
+										$bracket_string .= " | ".$counted_subfolders. " subfolder";
+									} else {
+										$bracket_string .= " | ".$counted_subfolders. " subfolders";
+									}
 								}
 							} else {
 								$show = 0;

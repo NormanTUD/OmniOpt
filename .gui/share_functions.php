@@ -127,34 +127,46 @@
 		$command_v_sixel2png = shell_exec('command -v sixel2png');
 		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
 
-		// Pattern für SIXEL Escape-Sequenzen (ESC P ... ESC \)
-		$pattern = "/(\x1bP[0-9;]*q.*?\x1b\\\\)/s";
+		$ESC = "\x1b";
+		$start_marker = $ESC . "P";
+		$end_marker = $ESC . "\\";
 
-		// Alle Matches finden
-		$matches_count = preg_match_all($pattern, $output, $matches, PREG_OFFSET_CAPTURE);
-		if ($matches_count === false || $matches_count === 0) {
-			// Keine SIXEL-Sequenzen gefunden, Original zurückgeben
-			return $output;
-		}
-
-		// Wir bauen ein neues Output-Stück Schritt für Schritt
+		$length = strlen($output);
 		$new_output = '';
+		$pos = 0;
 		$last_pos = 0;
 
-		// Für jeden Match eine Verarbeitung und Ersetzung
-		foreach ($matches[1] as $match) {
-			$sixel_sequence = $match[0];
-			$start_pos = $match[1];
-			$end_pos = $start_pos + strlen($sixel_sequence);
+		while ($pos < $length) {
+			// Suche Startmarker
+			$start_pos = strpos($output, $start_marker, $pos);
+			if ($start_pos === false) {
+				// Kein Startmarker mehr gefunden, Resttext anhängen und fertig
+				$new_output .= substr($output, $last_pos);
+				break;
+			}
 
-			// Originaltext bis zum Match anfügen
+			// Startmarker gefunden, suche Endmarker ab start_pos + 2
+			$end_pos = strpos($output, $end_marker, $start_pos + 2);
+			if ($end_pos === false) {
+				// Kein Endmarker gefunden, kein valides SIXEL, Rest anhängen und abbrechen
+				$new_output .= substr($output, $last_pos);
+				break;
+			}
+
+			// Endmarker am Ende der Sequenz, inklusive Länge von 2 Bytes
+			$end_pos_incl = $end_pos + 2;
+
+			// Vor dem Startmarker kommt normaler Text
 			$new_output .= substr($output, $last_pos, $start_pos - $last_pos);
 
-			// Standard Ersatz-HTML (Fallback)
+			// Extrahiere SIXEL-Sequenz
+			$sixel_sequence = substr($output, $start_pos, $end_pos_incl - $start_pos);
+
+			// Default Ersatz HTML (Fallback)
 			$img_html = "<br>";
 
 			if ($has_sixel2png && strlen($sixel_sequence) > 0) {
-				// sixel aus HTML Entities decodieren
+				// sixel aus HTML Entities decodieren (falls nötig)
 				$sixel = html_entity_decode($sixel_sequence, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
 				// Temporäre Dateien für sixel und png anlegen
@@ -188,15 +200,13 @@
 				}
 			}
 
-			// Ersetzen mit generiertem HTML
+			// Ersetze SIXEL-Sequenz mit generiertem HTML
 			$new_output .= $img_html;
 
-			// Position auf Ende des Matches setzen
-			$last_pos = $end_pos;
+			// Update Positionen
+			$pos = $end_pos_incl;
+			$last_pos = $pos;
 		}
-
-		// Restlichen Text anhängen
-		$new_output .= substr($output, $last_pos);
 
 		return $new_output;
 	}

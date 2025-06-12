@@ -545,6 +545,7 @@
 				$contents = htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
+				#if(preg_match("/outfile/", $filename)) { dier($contents); }
 			}
 
 			#$contents = remove_rich_progress_lines($contents);

@@ -288,7 +288,11 @@
 				<input type="text" id="fakePassword" placeholder="Enter password" required autofocus autocomplete="off" oninput="syncFakePassword()" />
 				<input type="hidden" name="password" id="password">
 				<br>
-				<br>
+				<label>
+					<input type="checkbox" id="savePasswordCheckbox" onchange="toggleSavePassword()" />
+					Save password
+				</label>
+				<br><br>
 				<button type="submit">Submit</button>
 			</form>
 
@@ -310,12 +314,59 @@
 					}
 
 					fake.value = '*'.repeat(realPassword.length);
+
+					var checkbox = document.getElementById('savePasswordCheckbox');
+					if (checkbox && checkbox.checked) {
+						try {
+							localStorage.setItem('savedPassword', realPassword);
+						} catch (e) {
+							console.error('Failed to save password to localStorage:', e);
+						}
+					}
 				}
 
 				function submitFakePassword() {
 					document.getElementById('password').value = realPassword;
 					return true;
 				}
+
+				function toggleSavePassword() {
+					var checkbox = document.getElementById('savePasswordCheckbox');
+					if (!checkbox.checked) {
+						try {
+							localStorage.removeItem('savedPassword');
+						} catch (e) {
+							console.error('Failed to remove password from localStorage:', e);
+						}
+					} else {
+						// Immediately save current password if already typed
+						try {
+							localStorage.setItem('savedPassword', realPassword);
+						} catch (e) {
+							console.error('Failed to save password to localStorage:', e);
+						}
+					}
+				}
+
+				// Load password from localStorage (if available)
+				window.addEventListener('DOMContentLoaded', function () {
+					try {
+						var saved = localStorage.getItem('savedPassword');
+						if (saved) {
+							realPassword = saved;
+							var fake = document.getElementById('fakePassword');
+							if (fake) {
+								fake.value = '*'.repeat(realPassword.length);
+							}
+							var checkbox = document.getElementById('savePasswordCheckbox');
+							if (checkbox) {
+								checkbox.checked = true;
+							}
+						}
+					} catch (e) {
+						console.error('Failed to read password from localStorage:', e);
+					}
+				});
 			</script>
 <?php
 			include("footer.php");

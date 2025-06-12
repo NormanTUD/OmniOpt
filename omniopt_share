@@ -59,7 +59,6 @@
 	force=0
 	DEBUG=0
 	update=0
-	#keep_tmp_dir=0
 	folders_to_share=()
 	username=$USER
 	password=""
@@ -91,7 +90,6 @@
 		echo "  --username=s3811141                                Specify username (with or without = sign)"
 		echo "  --password=abcdef123                               Specify a password for this run"
 		echo "  --dont_send_singleruns                             Don't send single runs"
-		#echo "  --keep_tmp_dir                                    Keeps the tmp dir, prints it as well"
 		echo "  --outfile=slurm-12345.out                          Path to the outfile"
 
 		exit $exit_code
@@ -114,8 +112,6 @@
 			force=1
 		elif [ "$arg" == "--update" ]; then
 			update=1
-		#elif [ "$arg" == "--keep_tmp_dir" ]; then
-		#	keep_tmp_dir=1
 		elif [ "$arg" == "--no_color" ]; then
 			no_color=1
 		elif [[ "$arg" == --password=* ]]; then
@@ -477,15 +473,6 @@
 					fi
 				fi
 			fi
-
-			#if [[ -e $everything_but_singleruns ]] && [[ $keep_tmp_dir -eq 0 ]]; then
-			#	rm -rf $OO_tmp_dir || {
-			#		red_text "rm -rf $OO_tmp_dir failed"
-			#		exit 1
-			#	}
-			#else
-			#	yellow_text "Temporary file: $everything_but_singleruns"
-			#fi
 		fi
 		k=$(($k+1))
 	done

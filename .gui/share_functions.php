@@ -212,6 +212,13 @@
 		$height = imagesy($img);
 		$new_y = 0;
 
+		$buffer = imagecreatetruecolor($width, $height);
+		if (!$buffer) {
+			imagedestroy($img);
+			error_log("clean_black_lines_inplace: failed to create working buffer");
+			return;
+		}
+
 		for ($y = 0; $y < $height; $y++) {
 			$is_black = true;
 
@@ -227,28 +234,36 @@
 				continue;
 			}
 
-			if ($new_y !== $y) {
-				if (!imagecopy($img, $img, 0, $new_y, 0, $y, $width, 1)) {
-					imagedestroy($img);
-					error_log("clean_black_lines_inplace: failed to shift line from $y to $new_y");
-					return;
-				}
+			if (!imagecopy($buffer, $img, 0, $new_y, 0, $y, $width, 1)) {
+				imagedestroy($img);
+				imagedestroy($buffer);
+				error_log("clean_black_lines_inplace: failed to copy line $y to buffer row $new_y");
+				return;
 			}
 
 			$new_y++;
 		}
 
+		if ($new_y === 0) {
+			imagedestroy($img);
+			imagedestroy($buffer);
+			error_log("clean_black_lines_inplace: image is fully black");
+			return;
+		}
+
 		$trimmed = imagecreatetruecolor($width, $new_y);
 		if (!$trimmed) {
 			imagedestroy($img);
+			imagedestroy($buffer);
 			error_log("clean_black_lines_inplace: failed to create trimmed image");
 			return;
 		}
 
-		if (!imagecopy($trimmed, $img, 0, 0, 0, 0, $width, $new_y)) {
+		if (!imagecopy($trimmed, $buffer, 0, 0, 0, 0, $width, $new_y)) {
 			imagedestroy($img);
+			imagedestroy($buffer);
 			imagedestroy($trimmed);
-			error_log("clean_black_lines_inplace: imagecopy failed");
+			error_log("clean_black_lines_inplace: failed to copy from buffer to trimmed image");
 			return;
 		}
 
@@ -257,6 +272,7 @@
 		}
 
 		imagedestroy($img);
+		imagedestroy($buffer);
 		imagedestroy($trimmed);
 	}
 

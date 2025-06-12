@@ -128,6 +128,8 @@
 				return "<br>";
 			}
 
+			$matches[1] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
 			$sixel = "\x1bP" . $matches[1];
 
 			if (!$has_sixel2png) {

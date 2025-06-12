@@ -141,7 +141,7 @@
 			try {
 				$bytes_written = file_put_contents($tmp_sixel, $sixel);
 				if ($bytes_written === false || $bytes_written === 0) {
-					unlink($tmp_sixel);
+					my_unlink($tmp_sixel);
 					return $img_html;
 				}
 
@@ -149,13 +149,13 @@
 				shell_exec($cmd);
 
 				if (!file_exists($tmp_png) || filesize($tmp_png) === 0) {
-					unlink($tmp_sixel);
+					my_unlink($tmp_sixel);
 					return $img_html;
 				}
 
 				$data = file_get_contents($tmp_png);
 				if ($data === false || strlen($data) > 5 * 1024 * 1024) { // Limit 5 MB
-					unlink($tmp_sixel);
+					my_unlink($tmp_sixel);
 					return $img_html;
 				}
 
@@ -163,11 +163,11 @@
 				$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
 			} finally {
 				if (file_exists($tmp_sixel)) {
-					unlink($tmp_sixel);
+					my_unlink($tmp_sixel);
 				}
 
 				if (file_exists($tmp_png)) {
-					unlink($tmp_png);
+					my_unlink($tmp_png);
 				}
 			}
 
@@ -175,6 +175,10 @@
 		}, $output);
 
 		return $output;
+	}
+
+	function my_unlink($path) {
+		return unlink($path);
 	}
 
 	function read_file_as_array($filePath) {
@@ -1467,7 +1471,7 @@
 		$files = array_diff(scandir($folder), array('.', '..'));
 
 		foreach ($files as $file) {
-			(is_dir("$folder/$file")) ? delete_folder("$folder/$file") : unlink("$folder/$file");
+			(is_dir("$folder/$file")) ? delete_folder("$folder/$file") : my_unlink("$folder/$file");
 		}
 
 		return rmdir($folder);
@@ -1729,7 +1733,7 @@
 					} else {
 						if (file_exists($object_path)) {
 							try {
-								unlink($object_path);
+								my_unlink($object_path);
 							} catch (Exception $e) {
 								error_log("\nAn exception occured trying to move $file to $userFolder/$filename: $e\n");
 							}

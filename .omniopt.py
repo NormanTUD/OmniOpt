@@ -9547,12 +9547,18 @@ def log_worker_creation() -> None:
 def set_run_folder() -> None:
     with console.status("[bold green]Setting run folder..."):
         global CURRENT_RUN_FOLDER
-        RUN_FOLDER_NUMBER: int = 0
-        CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
-        while os.path.exists(f"{CURRENT_RUN_FOLDER}"):
+        # Ensure run_dir is an absolute path
+        run_dir = args.run_dir
+        if not os.path.isabs(run_dir):
+            run_dir = os.path.abspath(run_dir)
+
+        RUN_FOLDER_NUMBER: int = 0
+        CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+        while os.path.exists(CURRENT_RUN_FOLDER):
             RUN_FOLDER_NUMBER += 1
-            CURRENT_RUN_FOLDER = f"{args.run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+            CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 @beartype
 def print_run_info() -> None:

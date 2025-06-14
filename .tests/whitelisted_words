@@ -195,6 +195,7 @@ biasInitializer
 biasRegularizer
 binaryAccuracy
 binaryCrossentropy
+binasciiError
 bla
 BLA
 BlipModel
@@ -240,6 +241,8 @@ brightmagenta
 brightred
 brightwhite
 brightyellow
+BrokenPipeError
+BrokenProcessPool
 browserHeight
 browserWidth
 brushedColor
@@ -381,6 +384,7 @@ Concat
 concatted
 config
 ConfigLoader
+ConnectionError
 connectToSortable
 connectWith
 const
@@ -446,7 +450,12 @@ ctrl
 CTRL
 CTRLC
 ctx
+cuBLAS
 CUDA
+cudaErrorIllegalAddress
+cudaErrorLaunchFailure
+cudaErrorMemoryAllocation
+cudaErrorUnknown
 curElem
 curlcommand
 curleft
@@ -603,6 +612,7 @@ divNoNan
 divs
 DJ
 dn
+DNS
 Documentevaluate
 documentready
 docx
@@ -789,6 +799,7 @@ flattenSquareTopY
 flipAxes
 flipLeftRight
 floatingpoint
+FloatingPointError
 floatmatch
 floatval
 fn
@@ -1001,6 +1012,7 @@ html
 HTMLElement
 htmlheadmeta
 http
+httpclientRemoteDisconnected
 https
 Hyperparam
 hyperparameter
@@ -1030,6 +1042,7 @@ ig
 ii
 iiuu
 im
+imagecopy
 imageData
 ImageDataGenerator
 imageresizecontainer
@@ -1092,6 +1105,7 @@ InvalidMathMLAttr
 ipsum
 ipywidgets
 isActive
+IsADirectoryError
 isCache
 isContentEditable
 isDisabled
@@ -1151,6 +1165,7 @@ JS
 jscolor
 json
 JSON
+jsondecoderJSONDecodeError
 jStat
 Jul
 July
@@ -1210,6 +1225,7 @@ levelnames
 Levenshtein
 lg
 lia
+libcabidylib
 libs
 lightblue
 lightcoral
@@ -1470,6 +1486,7 @@ multipledispatch
 multipleOperatorsRegex
 multiplicator
 MultiPolygon
+multiprocessingProcessError
 munder
 MUNDER
 munderover
@@ -1563,6 +1580,7 @@ normnal
 northeastarrow
 northwestarrow
 nosuccess
+NotADirectoryError
 NotAllowedError
 notContained
 NotImplementedError
@@ -1657,7 +1675,9 @@ onUpdateDatepicker
 onwheel
 onxxx
 oom
+OOMKilled
 oorun
+OpenBLAS
 OpenJS
 oppositeMotion
 optgroup
@@ -1752,6 +1772,7 @@ pdjson
 Penner
 perl
 Perl
+PermissionError
 personid
 personname
 pformat
@@ -2270,6 +2291,8 @@ Sobol
 SOBOL
 SobolGenerator
 socalled
+socketgaierror
+sockettimeout
 soffseth
 soffsetw
 softmax
@@ -2294,6 +2317,8 @@ src
 SRE
 srun
 sruns
+SSL
+SSLSSLError
 ssml
 stackedRNNCells
 stacktrace
@@ -2323,6 +2348,7 @@ stepMonths
 stepsize
 Stepsize
 stimpy
+StopIteration
 storageerror
 str
 stringified
@@ -2381,6 +2407,7 @@ SyntaxError
 sys
 sysargv
 SystemError
+SystemExit
 Tabbable
 tabbables
 TabError
@@ -2449,6 +2476,7 @@ tickvals
 tickValues
 timebin
 timeDistributed
+TimeoutError
 timestamp
 timestamps
 tir
@@ -2533,6 +2561,7 @@ ul
 UL
 uln
 uname
+UnboundLocalError
 underfit
 underover
 unexported
@@ -2725,9 +2754,10 @@ zIndexMax
 zIndices
 zipContents
 zipWriter
+zlib
+zliberror
 zoomend
 zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-imagecopy

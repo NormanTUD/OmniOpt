@@ -60,7 +60,7 @@ _tput() {
 		if tty >/dev/null 2>&1; then
 			tput "$CHAR"
 		else
-			red_text "Skipping tput $CHAR: no tty and no fallback" >&2
+			return 0
 		fi
 	else
 		red_text "tput not installed" >&2

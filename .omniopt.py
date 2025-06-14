@@ -2315,9 +2315,18 @@ def create_folder_and_file(folder: str) -> str:
 @beartype
 def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
-        print_debug(f"{f} not found")
-        print_red(f"\n{f} not found")
-        return ""
+        if f.endswith(".err"):
+            alt = f[:-4] + ".out"
+        elif f.endswith(".out"):
+            alt = f[:-4] + ".err"
+        else:
+            alt = ""
+
+        if alt and os.path.exists(alt):
+            f = alt
+        else:
+            print_red(f"\nget_program_code_from_out_file: {f} not found")
+            return ""
 
     fs = get_file_as_string(f)
 

@@ -338,7 +338,6 @@
 				if [[ -e "$log_dir/${run_uuid}_log" ]]; then
 					curl_options+=("-F" "log=@$log_dir/${run_uuid}_log")
 				elif [[ -n $bash_logname ]] && [[ -e $bash_logname ]]; then
-					echo "bash_logname: $bash_logname"
 					curl_options+=("-F" "log=@$bash_logname")
 				fi
 			fi

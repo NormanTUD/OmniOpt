@@ -29,6 +29,14 @@ It may look like this:
 # Like this:
 # srun bash -l run.sh
 
+# This makes sure the script runs from the directory where this shell script is located,
+# so you don't need to use absolute paths. Just keep this script in the same folder
+# as the main script (e.g., your Python script), and relative paths will work fine.
+# Helps avoid common errors like "[Errno 2] No such file or directory" when starting
+# the script from a different working directory.
+SCRIPT_DIR=$(dirname $(realpath "$0"))
+cd $SCRIPT_DIR
+
 # Load modules your program needs, always specify versions!
 ml TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 # Or whatever modules you need
 
@@ -36,7 +44,10 @@ ml TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 # Or whatever modules you need
 source /path/to/environment/bin/activate
 
 # Load your script. $@ is all the parameters that are given to this run.sh file.
-python3 /absolute/path/to_script.py $@
+python3 script.py $@
+
+# If you didn't use the SCRIPT_DIR, please use absolute path like that:
+# python3 /absolute/path/to_script.py $@
 
 exit $? # Exit with exit code of python
 ```

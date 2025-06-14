@@ -1686,6 +1686,11 @@ EOF
 						trap - DEBUG
 					fi
 
+					if [[ -z $LOG_PATH ]]; then
+						red_text "LOG_PATH was undefined. Is slurm installed properly?\n"
+						myexit 110
+					fi
+
 					while [[ ! -e $LOG_PATH || ! -s $LOG_PATH ]]; do
 						_tput civis # Disable cursor
 

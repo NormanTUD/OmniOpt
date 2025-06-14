@@ -6018,6 +6018,7 @@ def get_python_errors() -> List[List[str]]:
 
 @beartype
 def get_first_line_of_file_that_contains_string(stdout_path: str, s: str) -> str:
+    stdout_path = check_alternate_path(stdout_path)
     if not os.path.exists(stdout_path):
         print_debug(f"File {stdout_path} not found")
         return ""
@@ -6045,6 +6046,7 @@ def get_first_line_of_file_that_contains_string(stdout_path: str, s: str) -> str
 
 @beartype
 def check_for_python_errors(stdout_path: str, file_as_string: str) -> List[str]:
+    stdout_path = check_alternate_path(stdout_path)
     errors: List[str] = []
 
     for search_array in get_python_errors():
@@ -6062,6 +6064,7 @@ def check_for_python_errors(stdout_path: str, file_as_string: str) -> List[str]:
 
 @beartype
 def get_errors_from_outfile(stdout_path: str) -> List[str]:
+    stdout_path = check_alternate_path(stdout_path)
     file_as_string = get_file_as_string(stdout_path)
 
     program_code = get_program_code_from_out_file(stdout_path)
@@ -6098,6 +6101,7 @@ def get_errors_from_outfile(stdout_path: str) -> List[str]:
 
 @beartype
 def print_outfile_analyzed(stdout_path: str) -> None:
+    stdout_path = check_alternate_path(stdout_path)
     errors = get_errors_from_outfile(stdout_path)
 
     _strs: List[str] = []
@@ -6129,6 +6133,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
 @beartype
 def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
+    stdout_path = check_alternate_path(stdout_path)
     try:
         with open(stdout_path, mode='r', encoding="utf-8") as file:
             for line in file:
@@ -6400,6 +6405,7 @@ def finish_previous_jobs(new_msgs: List[str]) -> None:
 
 @beartype
 def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
+    stdout_path = check_alternate_path(stdout_path)
     alt_path = None
     if stdout_path.endswith(".err"):
         alt_path = stdout_path[:-4] + ".out"
@@ -6410,6 +6416,7 @@ def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
 
 @beartype
 def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]]:
+    stdout_path = check_alternate_path(stdout_path)
     if not orchestrator or "errors" not in orchestrator:
         return []
 
@@ -6421,6 +6428,7 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]
 
 @beartype
 def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index: int) -> Optional[str]:
+    stdout_path = check_alternate_path(stdout_path)
     try:
         return Path(stdout_path).read_text("UTF-8")
     except FileNotFoundError:
@@ -6437,6 +6445,7 @@ def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index:
 
 @beartype
 def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int) -> None:
+    stdout_path = check_alternate_path(stdout_path)
     if stdout_path not in ORCHESTRATE_TODO:
         ORCHESTRATE_TODO[stdout_path] = trial_index
         print_red(f"File not found: {stdout_path}, will try again later")
@@ -6532,6 +6541,7 @@ def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index
 
 @beartype
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
+    stdout_path = check_alternate_path(stdout_path)
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"\nExcludeNode was triggered for node {hostname_from_out_file}")
@@ -6543,6 +6553,7 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
 
 @beartype
 def handle_restart(stdout_path: str, trial_index: int) -> None:
+    stdout_path = check_alternate_path(stdout_path)
     params_from_out_file = get_parameters_from_outfile(stdout_path)
     if params_from_out_file:
         orchestrator_start_trial(params_from_out_file, trial_index)
@@ -6565,6 +6576,7 @@ def check_alternate_path(path: str) -> str:
 
 @beartype
 def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None:
+    stdout_path = check_alternate_path(stdout_path)
     if hostname_from_out_file:
         if not is_already_in_defective_nodes(hostname_from_out_file):
             print_yellow(f"\nRestartOnDifferentNode was triggered for node {hostname_from_out_file}. Adding node to defective hosts list and restarting on another host.")

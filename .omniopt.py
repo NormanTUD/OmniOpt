@@ -5992,6 +5992,7 @@ def get_python_errors() -> List[List[str]]:
         ["NameError", synerr],
         ["ValueError", synerr],
         ["TypeError", synerr],
+        ["FileNotFoundError", "This can happen when you don't have absolute paths for your data, or you haven't used the SCRIPT_PATH variable. See the documentation for the run.sh file."],
         ["AssertionError", "Assertion failed"],
         ["AttributeError", "Attribute Error"],
         ["EOFError", "End of file Error"],

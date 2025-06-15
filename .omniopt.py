@@ -3861,7 +3861,6 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
     def is_nonempty(s: Optional[str]) -> bool:
         return bool(s and s.strip())
 
-    # TODO: Shows empty stuff here as well, shouldn not. Especially stderr.
     if is_nonempty(stdout_txt):
         print("\n")
         console.print(

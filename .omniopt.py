@@ -1421,6 +1421,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                 )
                 console.print(f"{prompt_msg} choices → {choices_str}")
                 user_val = Prompt.ask("Pick choice", default=str(default))
+                if user_val not in param.values:
+                    print_yellow(f"User-entered value '{user_val}' not in valid entries: [user_val]. Will use it anyway.")
                 return param.values[int(user_val)] if user_val.isdigit() else user_val
         except Exception as e:
             print_red(f"Error #2: {e}")

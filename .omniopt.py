@@ -818,7 +818,7 @@ class ConfigLoader:
             config = self.load_config(_args.config_json, 'json')
 
         _args = self.merge_args_with_config(config, _args)
-        
+
         if _args.dryrun:
             print_yellow("--dryrun activated. This job will try to run only one job which should be running quickly.")
 
@@ -1442,7 +1442,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                     except ValueError:
                         val = default
                     return min(max(val, low), high)
-                else:  # INT    
+                else:  # INT
                     user_val = IntPrompt.ask("Enter int", default=str(default))
                     try:
                         val = int(user_val)

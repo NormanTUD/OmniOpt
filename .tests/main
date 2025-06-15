@@ -868,6 +868,8 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "Testing TPE" ".tests/tpe" 0
 
+		_test "Testing dryrun" ".tests/start_simple_optimization_run --max_eval=1 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --testname=xyz --nr_results=1 --additional_parameter='--dryrun --just_return_defaults'"
+
 		_test "Continued constraint" ".tests/continued_constraint" 0 
 
 		_test "Transforms-Test" ".tests/transforms" 0

@@ -18,6 +18,7 @@ import statistics
 import tempfile
 import threading
 
+prepared_setting_to_custom: bool = False
 whole_start_time: float = time.time()
 last_progress_bar_desc: str = ""
 job_submit_durations: list[float] = []
@@ -53,6 +54,9 @@ figlet_loaded: bool = False
 
 try:
     from rich.console import Console
+
+    from rich.panel import Panel
+    from rich.text import Text
 
     terminal_width = 150
 
@@ -485,6 +489,33 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}")
     return _default_min_max
 
+@beartype
+def set_max_eval(new_max_eval: int) -> None:
+    global max_eval
+
+    print_debug(f"set_max_eval({new_max_eval})")
+
+    max_eval = new_max_eval
+
+@beartype
+def set_random_steps(new_steps: int) -> None:
+    global random_steps
+
+    print_debug(f"Setting random_steps from {random_steps} to {new_steps}")
+
+    random_steps = new_steps
+
+_DEFAULT_SPECIALS: Dict[str, Any] = {
+    "epochs": 1,
+    "epoch": 1,
+    "steps": 1,
+    "batchsize": 1,
+    "batchsz": 1,
+    "bs": 1,
+    "lr": "min",           # the literal string “min” → we choose lower bound later
+    "learning_rate": "min",
+}
+
 class ConfigLoader:
     disable_previous_job_constraint: bool
     run_tests_that_fail_on_taurus: bool
@@ -559,6 +590,7 @@ class ConfigLoader:
     load_data_from_existing_jobs: List[str]
     time: str
     share_password: Optional[str]
+    prettyprint: bool
     generate_all_jobs_at_once: bool
     result_names: Optional[List[str]]
     verbose_break_run_search_table: bool
@@ -655,6 +687,8 @@ class ConfigLoader:
         optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
         optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
         optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
+        optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
+        optional.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -781,8 +815,46 @@ class ConfigLoader:
             config = self.load_config(_args.config_json, 'json')
 
         _args = self.merge_args_with_config(config, _args)
+        
+        if _args.dryrun:
+            print_yellow("--dryrun activated. This job will try to run only one job which should be running quickly.")
+
+            print_yellow("Setting max_eval to 1, ignoring your settings")
+            set_max_eval(1)
+
+            print_yellow("Setting random steps to 0")
+            set_random_steps(0)
+
+            print_yellow("Using generation strategy HUMAN_INTERVENTION_MINIMUM")
+            set_global_gs_to_HUMAN_INTERVENTION_MINIMUM()
+
+            print_yellow("Setting --force_local_execution to disable SLURM")
+            _args.force_local_execution = True
+
+            print_yellow("Disabling TQDM")
+            _args.disable_tqdm = True
+
+            print_yellow("Enabling pretty-print")
+            _args.prettyprint = True
 
         return _args
+
+@beartype
+def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
+    global prepared_setting_to_custom
+
+    if not prepared_setting_to_custom:
+        prepared_setting_to_custom = True
+        return
+
+    global global_gs
+
+    node = InteractiveCLIGenerationNode()
+
+    global_gs = GenerationStrategy(
+        name="HUMAN_INTERVENTION_MINIMUM",
+        nodes=[node]
+    )
 
 with console.status("[bold green]Parsing arguments..."):
     loader = ConfigLoader()
@@ -1237,6 +1309,176 @@ def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) 
     elif param["parameter_type"] == "FIXED":
         if _res != param["value"]:
             print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
+
+
+# ────────────────────────────────────────────────────────────────────────────
+@dataclass(init=False)
+class InteractiveCLIGenerationNode(ExternalGenerationNode):
+    """
+    A GenerationNode that queries the user on the command line (via *rich*)
+    for the next candidate hyper‑parameter set instead of spawning an external
+    program.  All prompts come pre‑filled with sensible defaults:
+
+    • If the parameter name matches a key in `_DEFAULT_SPECIALS`, the associated
+      value is used:
+        – literal ``"min"`` → lower bound of the RangeParameter
+        – any other literal  → taken verbatim
+
+    • Otherwise:
+        – RangeParameter(INT/FLOAT) ⇒ midpoint (cast to int for INT)
+        – ChoiceParameter          ⇒ first element of ``param.values``
+        – FixedParameter           ⇒ its fixed value (prompt is skipped)
+
+    The user can simply press *Enter* to accept the default or type a new
+    value (validated & casted to the correct type automatically).
+    """
+    seed: int
+    parameters: Optional[Dict[str, Any]]
+    minimize: Optional[bool]
+    data: Optional[Any]
+    constraints: Optional[Any]
+    fit_time_since_gen: float
+
+    # ────────────────────────────────────────────────────────────────────
+    @beartype
+    def __init__(                  # identical signature to the original class
+        self: Any,
+        node_name: str = "INTERACTIVE_GENERATOR",
+    ) -> None:
+        console.log("[bold cyan]Initializing InteractiveCLIGenerationNode…[/]")
+        t0 = time.monotonic()
+        super().__init__(node_name=node_name)
+        self.parameters = None
+        self.minimize = None
+        self.data = None
+        self.constraints = None
+        self.seed = int(time.time())  # deterministic seeds are pointless here
+        self.fit_time_since_gen = time.monotonic() - t0
+        console.log(
+            f"[green]Initialized in {self.fit_time_since_gen:0.4f} s[/]"
+        )
+
+    # ────────────────────────────────────────────────────────────────────
+    @beartype
+    def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
+        console.log("[bold]Updating generator state…[/]")
+        self.data = data
+        search_space = experiment.search_space
+        self.parameters = search_space.parameters
+        self.constraints = search_space.parameter_constraints
+        console.log("[green]Generator state updated.[/]")
+
+    # ────────────────────────────────────────────────────────────────────
+    @staticmethod
+    def _ptype_to_str(param_type: Any) -> str:
+        return {
+            ParameterType.INT: "INT",
+            ParameterType.FLOAT: "FLOAT",
+            ParameterType.STRING: "STRING",
+        }.get(param_type, "<UNKNOWN>")
+
+    # ────────────────────────────────────────────────────────────────────
+    @beartype
+    def _default_for_param(self: Any, name: str, param: Any) -> Any:
+        # 1. explicit override
+        if name.lower() in _DEFAULT_SPECIALS:
+            override = _DEFAULT_SPECIALS[name.lower()]
+            if override == "min" and isinstance(param, RangeParameter):
+                return param.lower
+            return override
+
+        # 2. generic rules
+        if isinstance(param, FixedParameter):
+            return param.value
+        if isinstance(param, RangeParameter):
+            mid = (param.lower + param.upper) / 2
+            return int(mid) if param.parameter_type == ParameterType.INT else mid
+        if isinstance(param, ChoiceParameter):
+            return param.values[0]
+
+        # fall back
+        return None
+
+    # ────────────────────────────────────────────────────────────────────
+    @beartype
+    def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
+        prompt_msg = f"{name} ({self._ptype_to_str(param.parameter_type)})"
+        if isinstance(param, FixedParameter):
+            console.print(
+                f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]"
+            )
+            return param.value
+
+        if isinstance(param, ChoiceParameter):
+            default_idx = param.values.index(default)
+            choices_str = ", ".join(
+                f"[bold]{v}[/]" if i == default_idx else f"{v}"
+                for i, v in enumerate(param.values)
+            )
+            console.print(f"{prompt_msg} choices → {choices_str}")
+            user_val = Prompt.ask("Pick choice", default=str(default))
+            return param.values[int(user_val)] if user_val.isdigit() else user_val
+
+        if isinstance(param, RangeParameter):
+            low, high = param.lower, param.upper
+            console.print(f"{prompt_msg} range → [{low}, {high}]")
+            if param.parameter_type == ParameterType.FLOAT:
+                user_val = FloatPrompt.ask("Enter float", default=str(default))
+                return min(max(user_val, low), high)
+            else:  # INT
+                user_val = IntPrompt.ask("Enter int", default=str(default))
+                return min(max(user_val, low), high)
+
+        # fall back – treat as string
+        return Prompt.ask(prompt_msg, default=str(default))
+
+    # ────────────────────────────────────────────────────────────────────
+    @beartype
+    def get_next_candidate(
+        self: Any,
+        pending_parameters: List[TParameterization],
+    ) -> Dict[str, Any]:
+        """
+        Build the next candidate by querying the user for **each** parameter.
+        Raises RuntimeError if `update_generator_state` has not been called.
+        """
+        if self.parameters is None:
+            raise RuntimeError(
+                "Parameters are not initialized – call update_generator_state() first."
+            )
+
+        console.rule("[bold magenta]Next Candidate[/]")
+
+        candidate: Dict[str, Any] = {}
+        for name, param in self.parameters.items():
+            default_val = self._default_for_param(name, param)
+            value = self._ask_user(name, param, default_val)
+            candidate[name] = value
+
+        # ── simple constraint check (optional) ──────────────────────────
+        if self.constraints:
+            violations = [
+                c
+                for c in self.constraints
+                if not c.check(candidate)  # Ax Constraint objects support .check
+            ]
+            if violations:
+                console.print(
+                    "[red]WARNING:[/] The candidate violates "
+                    f"{len(violations)} constraint(s): {violations}"
+                )
+
+        # show summary table
+        tbl = Table(title="Chosen Hyper‑Parameters", show_lines=True)
+        tbl.add_column("Name", style="cyan", no_wrap=True)
+        tbl.add_column("Value", style="green")
+        for k, v in candidate.items():
+            tbl.add_row(k, str(v))
+        console.print(tbl)
+
+        console.rule()
+        return candidate
+
 
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
@@ -1756,14 +1998,6 @@ def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
     print_debug(f"set_nr_inserted_jobs({new_nr_inserted_jobs})")
 
     NR_INSERTED_JOBS = new_nr_inserted_jobs
-
-@beartype
-def set_max_eval(new_max_eval: int) -> None:
-    global max_eval
-
-    print_debug(f"set_max_eval({new_max_eval})")
-
-    max_eval = new_max_eval
 
 @beartype
 def write_worker_usage() -> None:
@@ -3556,6 +3790,45 @@ def _evaluate_handle_result(
     return final_result
 
 @beartype
+def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int]) -> None:
+    from rich.console import Console
+    console = Console()
+
+    def _read(p: str) -> str:
+        try:
+            return Path(p).read_text(encoding="utf-8", errors="replace")
+        except FileNotFoundError:
+            return f"[file not found: {p}]"
+
+    stdout_txt = _read(stdout_path)
+    stderr_txt = _read(stderr_path)
+
+    # -------- header -------- #
+    outcome = "SUCCESS" if (exit_code is not None and exit_code == 0) else "FAILURE"
+    header_style = "bold white on green" if exit_code == 0 else "bold white on red"
+    console.rule(Text(f" {outcome}  (exit {exit_code}) ", style=header_style))
+
+    def is_nonempty(s: str) -> bool:
+        return bool(s and s.strip())
+
+    # TODO: Shows empty stuff here as well, shouldn not. Especially stderr.
+    if is_nonempty(stdout_txt):
+        print("\n")
+        console.print(
+            Panel(stdout_txt, title="STDOUT", border_style="cyan", padding=(0, 1))
+        )
+
+    if is_nonempty(stderr_txt):
+        print("\n")
+        console.print(
+            Panel(stderr_txt, title="STDERR", border_style="magenta", padding=(0, 1))
+        )
+
+    if not (is_nonempty(stdout_txt) or is_nonempty(stderr_txt)):
+        print("\n")
+        console.print("[dim]No output captured.[/dim]")
+
+@beartype
 def evaluate(parameters: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     start_nvidia_smi_thread()
     return_in_case_of_error: dict = get_return_in_case_of_errors()
@@ -4254,6 +4527,8 @@ def show_end_table_and_save_end_files() -> int:
 
     display_failed_jobs_table()
 
+    best_result_exit = 0
+
     best_result_exit: int = print_best_result()
 
     print_evaluate_times()
@@ -4303,6 +4578,10 @@ def abandon_all_jobs() -> None:
 
 @beartype
 def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
+    if args.dryrun:
+        print_yellow("Not showing pareto-frontier data with --dryrun")
+        return None
+
     if len(res_names) > 1:
         try:
             show_pareto_frontier_data(path_to_calculate, res_names, disable_sixel_and_table)
@@ -4310,6 +4589,7 @@ def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_resul
             print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
+    return None
 
 @beartype
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
@@ -6349,6 +6629,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
             print(f"ERROR in line {get_line_info()}: {e}")
         job.cancel()
         orchestrate_job(job, trial_index)
+
     failed_jobs(1)
     print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
 
@@ -6373,6 +6654,9 @@ def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, er
 def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     try:
         this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
+
+        if args.prettyprint:
+            pretty_print_job_output(job, trial_index)
     except (SignalINT, SignalUSR, SignalCONT) as e:
         print_red(f"Cancelled finish_job_core: {e}")
     except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
@@ -6509,21 +6793,53 @@ def _check_orchestrator_find_behaviors(stdout: str, errors: List[Dict[str, Any]]
     return behaviors
 
 @beartype
+def get_exit_code_from_stderr_or_stdout_path(stderr_path: str, stdout_path: str) -> Optional[int]:
+    def extract_last_exit_code(path: str) -> Optional[int]:
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                matches = re.findall(r"EXIT_CODE:\s*(-?\d+)", f.read())
+                if matches:
+                    return int(matches[-1])
+        except Exception:
+            pass
+        return None
+
+    code = extract_last_exit_code(stdout_path)
+    if code is not None:
+        return code
+
+    return extract_last_exit_code(stderr_path)
+
+@beartype
+def pretty_print_job_output(job: Job, trial_index: int) -> None:
+    stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
+    stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
+    exit_code = get_exit_code_from_stderr_or_stdout_path(stderr_path, stdout_path)
+
+    pretty_process_output(stdout_path, stderr_path, exit_code)
+
+@beartype
+def get_stderr_or_stdout_from_job(job: Job, path_type: str) -> str:
+    if path_type == "stderr":
+        _path = str(job.paths.stderr.resolve())
+    elif path_type == "stdout":
+        _path = str(job.paths.stdout.resolve())
+    else:
+        print_red(f"ERROR: path_type {path_type} was neither stdout nor stderr. Using stdout")
+        _path = str(job.paths.stdout.resolve())
+
+    _path = _path.replace('\n', ' ').replace('\r', '')
+    _path = _path.rstrip('\r\n')
+    _path = _path.rstrip('\n')
+    _path = _path.rstrip('\r')
+    _path = _path.rstrip(' ')
+
+    return _path
+
+@beartype
 def orchestrate_job(job: Job, trial_index: int) -> None:
-    stdout_path = str(job.paths.stdout.resolve())
-    stderr_path = str(job.paths.stderr.resolve())
-
-    stdout_path = stdout_path.replace('\n', ' ').replace('\r', '')
-    stdout_path = stdout_path.rstrip('\r\n')
-    stdout_path = stdout_path.rstrip('\n')
-    stdout_path = stdout_path.rstrip('\r')
-    stdout_path = stdout_path.rstrip(' ')
-
-    stderr_path = stderr_path.replace('\n', ' ').replace('\r', '')
-    stderr_path = stderr_path.rstrip('\r\n')
-    stderr_path = stderr_path.rstrip('\n')
-    stderr_path = stderr_path.rstrip('\r')
-    stderr_path = stderr_path.rstrip(' ')
+    stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
+    stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
 
     print_outfile_analyzed(stdout_path)
     print_outfile_analyzed(stderr_path)
@@ -9496,6 +9812,9 @@ def main() -> None:
 
     set_global_generation_strategy()
 
+    if args.dryrun:
+        set_global_gs_to_HUMAN_INTERVENTION_MINIMUM()
+
     initialize_ax_client()
 
     with console.status("[bold green]Getting experiment parameters..."):
@@ -9579,14 +9898,6 @@ def write_ui_url_if_present() -> None:
         if args.ui_url:
             with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(decode_if_base64(args.ui_url))
-
-@beartype
-def set_random_steps(new_steps: int) -> None:
-    global random_steps
-
-    print_debug(f"Setting random_steps from {random_steps} to {new_steps}")
-
-    random_steps = new_steps
 
 @beartype
 def handle_random_steps() -> None:

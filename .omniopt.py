@@ -1442,13 +1442,13 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                     except ValueError:
                         val = default
                     return min(max(val, low), high)
-                else:  # INT
-                    user_val = IntPrompt.ask("Enter int", default=str(default))
-                    try:
-                        val = int(user_val)
-                    except ValueError:
-                        val = default
-                    return min(max(val, low), high)
+
+                user_val = IntPrompt.ask("Enter int", default=str(default))
+                try:
+                    val = int(user_val)
+                except ValueError:
+                    val = default
+                return min(max(val, low), high)
         except Exception as e:
             print_red(f"Error #3: {e}")
 
@@ -3818,7 +3818,16 @@ def _evaluate_handle_result(
 @beartype
 def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int]) -> None:
     from rich.console import Console
-    console = Console()
+
+    global console
+
+    console: Console = Console(
+        force_interactive=True,
+        soft_wrap=True,
+        color_system="256",
+        force_terminal=not ci_env,
+        width=max(200, terminal_width)
+    )
 
     def _read(p: str) -> str:
         try:
@@ -6682,7 +6691,7 @@ def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jo
         this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
 
         if args.prettyprint:
-            pretty_print_job_output(job, trial_index)
+            pretty_print_job_output(job)
     except (SignalINT, SignalUSR, SignalCONT) as e:
         print_red(f"Cancelled finish_job_core: {e}")
     except (FileNotFoundError, submitit.core.utils.UncompletedJobError, ax.exceptions.core.UserInputError) as error:
@@ -6837,7 +6846,7 @@ def get_exit_code_from_stderr_or_stdout_path(stderr_path: str, stdout_path: str)
     return extract_last_exit_code(stderr_path)
 
 @beartype
-def pretty_print_job_output(job: Job, trial_index: int) -> None:
+def pretty_print_job_output(job: Job) -> None:
     stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
     stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
     exit_code = get_exit_code_from_stderr_or_stdout_path(stderr_path, stdout_path)

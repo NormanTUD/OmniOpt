@@ -4,6 +4,8 @@
 
 <!-- Category: Preparations, Basics and Setup -->
 
+<div id="toc"></div>
+
 ## What are dry-runs?
 
 Dry-Runs allow you to test your OmniOpt2-configuration by running very quick jobs and skipping things like Slurm, just to see if things like environment variables are set properly, paths work, and so on.

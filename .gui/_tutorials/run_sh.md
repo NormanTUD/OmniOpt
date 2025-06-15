@@ -170,3 +170,10 @@ and has to be done for each parameter, like `RESULT`, where you want that kind o
 print(f"RESULT: {result}")
 print(f"SEM-RESULT: {sem_result}")
 ```
+
+## Test your configuration quickly (dryrun)
+
+<div class="caveat tip">
+If you want to test your configuration quickly to find errors before you try to run it on the Cluster, or even on the cluster, but avoiding slurm, this can be easily done with `--dryrun`. Simply attach this parameter to your OmniOpt2-run.
+See the [dryrun-page](tutorials?tutorial=dryrun) for more info.
+</div>

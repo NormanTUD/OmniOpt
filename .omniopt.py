@@ -1487,7 +1487,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                 "Parameters are not initialized – call update_generator_state() first."
             )
 
-        console.rule("[bold magenta]Next Candidate[/]")
+        console.rule("[bold magenta]Enter values for evaluation point, or press enter to accept the default[/]")
 
         candidate: Dict[str, Any] = {}
         for name, param in self.parameters.items():

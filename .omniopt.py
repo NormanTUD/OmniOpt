@@ -608,6 +608,8 @@ class ConfigLoader:
     no_transform_inputs: bool
     occ: bool
     force_choice_for_ranges: bool
+    dryrun: bool
+    just_return_defaults: bool
     run_mode: str
 
     @beartype
@@ -688,7 +690,6 @@ class ConfigLoader:
         optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
         optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
         optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
-        optional.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -730,6 +731,8 @@ class ConfigLoader:
         debug.add_argument('--raise_in_eval', help='Raise a signal in eval (only useful for debugging and testing)', action='store_true', default=False)
         debug.add_argument('--show_ram_every_n_seconds', help='Show RAM usage every n seconds (0 = disabled)', type=int, default=0)
         debug.add_argument('--show_generation_and_submission_sixel', help='Show sixel plots for generation and submission times', action='store_true', default=False)
+        debug.add_argument('--just_return_defaults', help='Just return defaults in dryrun', action='store_true', default=False)
+        debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
@@ -1399,6 +1402,9 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     # ────────────────────────────────────────────────────────────────────
     @beartype
     def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
+        if args.just_return_defaults:
+            return default
+
         if not console.is_terminal:
             print_red(f"Cannot prompt for {name!r}: no interactive terminal attached.")
 

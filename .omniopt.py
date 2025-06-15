@@ -1447,7 +1447,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         if not isinstance(param, ChoiceParameter):
             raise TypeError("Not a ChoiceParameter")
 
-        default_idx = param.values.index(default)
         choices_str = ", ".join(f"{v}" for v in param.values)
         console.print(f"{prompt_msg} choices → {choices_str}")
         user_val = Prompt.ask("Pick choice", default=str(default))

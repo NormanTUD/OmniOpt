@@ -3858,7 +3858,7 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
     header_style = "bold white on green" if exit_code == 0 else "bold white on red"
     console.rule(Text(f" {outcome}  (exit {exit_code}) ", style=header_style))
 
-    def is_nonempty(s: str) -> bool:
+    def is_nonempty(s: Optional[str]) -> bool:
         return bool(s and s.strip())
 
     # TODO: Shows empty stuff here as well, shouldn not. Especially stderr.

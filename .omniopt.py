@@ -1408,55 +1408,80 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         if not console.is_terminal:
             print_red(f"Cannot prompt for {name!r}: no interactive terminal attached.")
+            return default
 
         prompt_msg = f"{name} ({self._ptype_to_str(param.parameter_type)})"
+
         try:
-            if isinstance(param, FixedParameter):
-                console.print(
-                    f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]"
-                )
-                return param.value
+            return self._handle_fixed(param, prompt_msg)
+        except TypeError as e:
+            pass
         except Exception as e:
             print_red(f"Error #1: {e}")
 
         try:
-            if isinstance(param, ChoiceParameter):
-                default_idx = param.values.index(default)
-                choices_str = ", ".join(
-                    f"{v}" if i == default_idx else f"{v}"
-                    for i, v in enumerate(param.values)
-                )
-                console.print(f"{prompt_msg} choices → {choices_str}")
-                user_val = Prompt.ask("Pick choice", default=str(default))
-                if user_val not in param.values:
-                    print_yellow(f"User-entered value '{user_val}' not in valid entries: {choices_str}. Will use it anyway.")
-                return param.values[int(user_val)] if user_val.isdigit() else user_val
+            return self._handle_choice(param, default, prompt_msg)
+        except TypeError as e:
+            pass
         except Exception as e:
             print_red(f"Error #2: {e}")
 
         try:
-            if isinstance(param, RangeParameter):
-                low, high = param.lower, param.upper
-                console.print(f"{prompt_msg} range → [{low}, {high}]")
-                if param.parameter_type == ParameterType.FLOAT:
-                    user_val = FloatPrompt.ask("Enter float", default=str(default))
-                    try:
-                        val = float(user_val)
-                    except ValueError:
-                        val = default
-                    return min(max(val, low), high)
-
-                user_val = IntPrompt.ask("Enter int", default=str(default))
-                try:
-                    val = int(user_val)
-                except ValueError:
-                    val = default
-                return min(max(val, low), high)
+            return self._handle_range(param, default, prompt_msg)
+        except TypeError as e:
+            pass
         except Exception as e:
             print_red(f"Error #3: {e}")
 
-        # fall back – treat as string
+        return self._handle_fallback(prompt_msg, default)
+
+    @beartype
+    def _handle_fixed(self, param: Any, prompt_msg: str) -> Any:
+        if isinstance(param, FixedParameter):
+            console.print(f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]")
+            return param.value
+        raise TypeError("Not a FixedParameter")
+
+    @beartype
+    def _handle_choice(self, param: Any, default: Any, prompt_msg: str) -> Any:
+        if not isinstance(param, ChoiceParameter):
+            raise TypeError("Not a ChoiceParameter")
+
+        default_idx = param.values.index(default)
+        choices_str = ", ".join(f"{v}" for v in param.values)
+        console.print(f"{prompt_msg} choices → {choices_str}")
+        user_val = Prompt.ask("Pick choice", default=str(default))
+        if user_val not in param.values:
+            print_yellow(f"User-entered value '{user_val}' not in valid entries: {choices_str}. Will use it anyway.")
+        return param.values[int(user_val)] if user_val.isdigit() else user_val
+
+    @beartype
+    def _handle_range(self, param: Any, default: Any, prompt_msg: str) -> Any:
+        if not isinstance(param, RangeParameter):
+            raise TypeError("Not a RangeParameter")
+
+        low, high = param.lower, param.upper
+        console.print(f"{prompt_msg} range → [{low}, {high}]")
+
+        if param.parameter_type == ParameterType.FLOAT:
+            user_val = FloatPrompt.ask("Enter float", default=str(default))
+            try:
+                val = float(user_val)
+            except ValueError:
+                val = default
+        else:
+            user_val = IntPrompt.ask("Enter int", default=str(default))
+            try:
+                val = int(user_val)
+            except ValueError:
+                val = default
+
+        return min(max(val, low), high)
+
+    @beartype
+    def _handle_fallback(self, prompt_msg: str, default: Any) -> Any:
         return Prompt.ask(prompt_msg, default=str(default))
+
 
     # ────────────────────────────────────────────────────────────────────
     @beartype

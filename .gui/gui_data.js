@@ -288,7 +288,7 @@ var hiddenTableData = [
 		label: "Dryrun?",
 		id: "dryrun",
 		type: "checkbox",
-		value: 1,
+		value: 0,
 		help: "Run a dryrun job to determine possible issues quickly. See <a href='tutorials?tutorial=dryrun'>the dryrun tutorial page</a> for more info."
 	},
 	{

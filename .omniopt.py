@@ -1317,7 +1317,6 @@ def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) 
         if _res != param["value"]:
             print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
 
-# ────────────────────────────────────────────────────────────────────────────
 @dataclass(init=False)
 class InteractiveCLIGenerationNode(ExternalGenerationNode):
     """
@@ -1345,7 +1344,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     constraints: Optional[Any]
     fit_time_since_gen: float
 
-    # ────────────────────────────────────────────────────────────────────
     @beartype
     def __init__(                  # identical signature to the original class
         self: Any,
@@ -1360,7 +1358,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         self.seed = int(time.time())  # deterministic seeds are pointless here
         self.fit_time_since_gen = time.monotonic() - t0
 
-    # ────────────────────────────────────────────────────────────────────
     @beartype
     def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
         self.data = data
@@ -1368,7 +1365,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         self.parameters = search_space.parameters
         self.constraints = search_space.parameter_constraints
 
-    # ────────────────────────────────────────────────────────────────────
     @staticmethod
     def _ptype_to_str(param_type: Any) -> str:
         return {
@@ -1377,7 +1373,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
             ParameterType.STRING: "STRING",
         }.get(param_type, "<UNKNOWN>")
 
-    # ────────────────────────────────────────────────────────────────────
     @beartype
     def _default_for_param(self: Any, name: str, param: Any) -> Any:
         # 1. explicit override
@@ -1399,7 +1394,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         # fall back
         return None
 
-    # ────────────────────────────────────────────────────────────────────
     @beartype
     def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
         if args.just_return_defaults:
@@ -1479,7 +1473,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     def _handle_fallback(self, prompt_msg: str, default: Any) -> Any:
         return Prompt.ask(prompt_msg, default=str(default))
 
-    # ────────────────────────────────────────────────────────────────────
     @beartype
     def get_next_candidate(
         self: Any,

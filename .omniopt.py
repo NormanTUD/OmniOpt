@@ -1476,12 +1476,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         candidate: Dict[str, Any] = {}
         for name, param in self.parameters.items():
             default_val = self._default_for_param(name, param)
-            print_yellow(f"default_val: {default_val}")
             value = self._ask_user(name, param, default_val)
-            print_yellow(f"value: {value}")
-            print_yellow(f"name: {name}")
             candidate[name] = value
-            print_yellow(f"candidate[{name}]: {candidate[name]}")
 
         # ── simple constraint check (optional) ──────────────────────────
 

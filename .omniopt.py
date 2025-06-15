@@ -1479,7 +1479,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     def _handle_fallback(self, prompt_msg: str, default: Any) -> Any:
         return Prompt.ask(prompt_msg, default=str(default))
 
-
     # ────────────────────────────────────────────────────────────────────
     @beartype
     def get_next_candidate(

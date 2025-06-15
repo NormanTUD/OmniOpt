@@ -1314,7 +1314,6 @@ def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) 
         if _res != param["value"]:
             print_yellow(f"The result by the external generator for the axis '{keyname}' (FIXED) is not the specified fixed value '{param['value']}' {_res}")
 
-
 # ────────────────────────────────────────────────────────────────────────────
 @dataclass(init=False)
 class InteractiveCLIGenerationNode(ExternalGenerationNode):
@@ -1453,7 +1452,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         except Exception as e:
             print_red(f"Error #3: {e}")
 
-
         # fall back – treat as string
         return Prompt.ask(prompt_msg, default=str(default))
 
@@ -1505,7 +1503,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         console.rule()
         return candidate
-
 
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):

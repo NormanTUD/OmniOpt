@@ -140,6 +140,9 @@ try:
     with console.status("[bold green]Importing rich.pretty..."):
         from rich.pretty import pprint
 
+    with console.status("[bold green]Importing rich.prompt..."):
+        from rich.prompt import Prompt, FloatPrompt, IntPrompt
+
     with console.status("[bold green]Importing fcntl..."):
         import fcntl
 
@@ -1402,32 +1405,44 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     # ────────────────────────────────────────────────────────────────────
     @beartype
     def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
+        if not console.is_terminal:
+            print_red(f"Cannot prompt for {name!r}: no interactive terminal attached.")
+
         prompt_msg = f"{name} ({self._ptype_to_str(param.parameter_type)})"
-        if isinstance(param, FixedParameter):
-            console.print(
-                f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]"
-            )
-            return param.value
+        try:
+            if isinstance(param, FixedParameter):
+                console.print(
+                    f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]"
+                )
+                return param.value
+        except Exception as e:
+            print_red(f"Error #1: {e}")
 
-        if isinstance(param, ChoiceParameter):
-            default_idx = param.values.index(default)
-            choices_str = ", ".join(
-                f"[bold]{v}[/]" if i == default_idx else f"{v}"
-                for i, v in enumerate(param.values)
-            )
-            console.print(f"{prompt_msg} choices → {choices_str}")
-            user_val = Prompt.ask("Pick choice", default=str(default))
-            return param.values[int(user_val)] if user_val.isdigit() else user_val
+        try:
+            if isinstance(param, ChoiceParameter):
+                default_idx = param.values.index(default)
+                choices_str = ", ".join(
+                    f"[bold]{v}[/]" if i == default_idx else f"{v}"
+                    for i, v in enumerate(param.values)
+                )
+                console.print(f"{prompt_msg} choices → {choices_str}")
+                user_val = Prompt.ask("Pick choice", default=str(default))
+                return param.values[int(user_val)] if user_val.isdigit() else user_val
+        except Exception as e:
+            print_red(f"Error #2: {e}")
 
-        if isinstance(param, RangeParameter):
-            low, high = param.lower, param.upper
-            console.print(f"{prompt_msg} range → [{low}, {high}]")
-            if param.parameter_type == ParameterType.FLOAT:
-                user_val = FloatPrompt.ask("Enter float", default=str(default))
-                return min(max(user_val, low), high)
-            else:  # INT
-                user_val = IntPrompt.ask("Enter int", default=str(default))
-                return min(max(user_val, low), high)
+        try:
+            if isinstance(param, RangeParameter):
+                low, high = param.lower, param.upper
+                console.print(f"{prompt_msg} range → [{low}, {high}]")
+                if param.parameter_type == ParameterType.FLOAT:
+                    user_val = FloatPrompt.ask("Enter float", default=str(default))
+                    return min(max(user_val, low), high)
+                else:  # INT
+                    user_val = IntPrompt.ask("Enter int", default=str(default))
+                    return min(max(user_val, low), high)
+        except Exception as e:
+            print_red(f"Error #3: {e}")
 
         # fall back – treat as string
         return Prompt.ask(prompt_msg, default=str(default))
@@ -1452,11 +1467,17 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         candidate: Dict[str, Any] = {}
         for name, param in self.parameters.items():
             default_val = self._default_for_param(name, param)
+            print_yellow(f"default_val: {default_val}")
             value = self._ask_user(name, param, default_val)
+            print_yellow(f"value: {value}")
+            print_yellow(f"name: {name}")
             candidate[name] = value
+            print_yellow(f"candidate[{name}]: {candidate[name]}")
 
         # ── simple constraint check (optional) ──────────────────────────
+
         if self.constraints:
+            console.rule("[bold magenta]Checking constraints[/]")
             violations = [
                 c
                 for c in self.constraints

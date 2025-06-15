@@ -1437,12 +1437,21 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                 console.print(f"{prompt_msg} range → [{low}, {high}]")
                 if param.parameter_type == ParameterType.FLOAT:
                     user_val = FloatPrompt.ask("Enter float", default=str(default))
-                    return min(max(user_val, low), high)
-                else:  # INT
+                    try:
+                        val = float(user_val)
+                    except ValueError:
+                        val = default
+                    return min(max(val, low), high)
+                else:  # INT    
                     user_val = IntPrompt.ask("Enter int", default=str(default))
-                    return min(max(user_val, low), high)
+                    try:
+                        val = int(user_val)
+                    except ValueError:
+                        val = default
+                    return min(max(val, low), high)
         except Exception as e:
             print_red(f"Error #3: {e}")
+
 
         # fall back – treat as string
         return Prompt.ask(prompt_msg, default=str(default))

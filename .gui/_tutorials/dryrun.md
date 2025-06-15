@@ -1,4 +1,8 @@
-# <span class='tutorial_icon invert_in_dark_mode'>👀</span> Dry-Runs
+# <span class='tutorial_icon invert_in_dark_mode'>🧪</span> Dry-Runs
+
+<!-- How to quickly test if your configuration works properly -->
+
+<!-- Category: Preparations, Basics and Setup -->
 
 ## What are dry-runs?
 

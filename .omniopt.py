@@ -1348,7 +1348,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         self: Any,
         node_name: str = "INTERACTIVE_GENERATOR",
     ) -> None:
-        console.log("[bold cyan]Initializing InteractiveCLIGenerationNode…[/]")
         t0 = time.monotonic()
         super().__init__(node_name=node_name)
         self.parameters = None
@@ -1357,19 +1356,14 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         self.constraints = None
         self.seed = int(time.time())  # deterministic seeds are pointless here
         self.fit_time_since_gen = time.monotonic() - t0
-        console.log(
-            f"[green]Initialized in {self.fit_time_since_gen:0.4f} s[/]"
-        )
 
     # ────────────────────────────────────────────────────────────────────
     @beartype
     def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
-        console.log("[bold]Updating generator state…[/]")
         self.data = data
         search_space = experiment.search_space
         self.parameters = search_space.parameters
         self.constraints = search_space.parameter_constraints
-        console.log("[green]Generator state updated.[/]")
 
     # ────────────────────────────────────────────────────────────────────
     @staticmethod
@@ -3825,11 +3819,13 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
         width=max(200, terminal_width)
     )
 
-    def _read(p: str) -> str:
+    def _read(p: str) -> Optional[str]:
         try:
             return Path(p).read_text(encoding="utf-8", errors="replace")
         except FileNotFoundError:
-            return f"[file not found: {p}]"
+            print_debug(f"[file not found: {p}]")
+
+            return None
 
     stdout_txt = _read(stdout_path)
     stderr_txt = _read(stderr_path)

@@ -4562,7 +4562,8 @@ def show_end_table_and_save_end_files() -> int:
 
     best_result_exit: int = print_best_result()
 
-    print_evaluate_times()
+    if not args.dryrun:
+        print_evaluate_times()
 
     if best_result_exit > 0:
         _exit = best_result_exit

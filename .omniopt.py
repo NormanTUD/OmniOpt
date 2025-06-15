@@ -4610,7 +4610,7 @@ def abandon_all_jobs() -> None:
 @beartype
 def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
     if args.dryrun:
-        print_yellow("Not showing pareto-frontier data with --dryrun")
+        print_debug("Not showing pareto-frontier data with --dryrun")
         return None
 
     if len(res_names) > 1:

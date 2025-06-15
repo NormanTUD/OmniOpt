@@ -1414,21 +1414,21 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         try:
             return self._handle_fixed(param, prompt_msg)
-        except TypeError as e:
+        except TypeError:
             pass
         except Exception as e:
             print_red(f"Error #1: {e}")
 
         try:
             return self._handle_choice(param, default, prompt_msg)
-        except TypeError as e:
+        except TypeError:
             pass
         except Exception as e:
             print_red(f"Error #2: {e}")
 
         try:
             return self._handle_range(param, default, prompt_msg)
-        except TypeError as e:
+        except TypeError:
             pass
         except Exception as e:
             print_red(f"Error #3: {e}")

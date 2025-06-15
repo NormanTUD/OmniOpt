@@ -512,7 +512,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
     "batchsize": 1,
     "batchsz": 1,
     "bs": 1,
-    "lr": "min",           # the literal string “min” → we choose lower bound later
+    "lr": "min",
     "learning_rate": "min",
 }
 

@@ -1416,13 +1416,13 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
             if isinstance(param, ChoiceParameter):
                 default_idx = param.values.index(default)
                 choices_str = ", ".join(
-                    f"[bold]{v}[/]" if i == default_idx else f"{v}"
+                    f"{v}" if i == default_idx else f"{v}"
                     for i, v in enumerate(param.values)
                 )
                 console.print(f"{prompt_msg} choices → {choices_str}")
                 user_val = Prompt.ask("Pick choice", default=str(default))
                 if user_val not in param.values:
-                    print_yellow(f"User-entered value '{user_val}' not in valid entries: [{choices_str}]. Will use it anyway.")
+                    print_yellow(f"User-entered value '{user_val}' not in valid entries: {choices_str}. Will use it anyway.")
                 return param.values[int(user_val)] if user_val.isdigit() else user_val
         except Exception as e:
             print_red(f"Error #2: {e}")

@@ -6,7 +6,7 @@ Dry-Runs allow you to test your OmniOpt2-configuration by running very quick job
 
 ## How to run dry-runs?
 
-Simply attach `--dryrun` to your OmniOpt2-call, like this:
+Simply attach `--dryrun` to your OmniOpt2-call, like this, or chose the dry-run-Option in the GUI:
 
 ```bash
 ./omniopt \

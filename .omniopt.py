@@ -7555,11 +7555,12 @@ def save_table_as_text(table: Table, filepath: str) -> None:
 
 @beartype
 def show_time_debugging_table() -> None:
-    generate_time_table_rich()
-    generate_job_submit_table_rich()
-    plot_times_for_creation_and_submission()
+    if not args.dryrun:
+        generate_time_table_rich()
+        generate_job_submit_table_rich()
+        plot_times_for_creation_and_submission()
 
-    live_share()
+        live_share()
 
 @beartype
 def generate_time_table_rich() -> None:

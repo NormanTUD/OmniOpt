@@ -131,9 +131,6 @@ try:
     with console.status("[bold green]Importing rich.table..."):
         from rich.table import Table
 
-    with console.status("[bold green]Importing rich.text..."):
-        from rich.text import Text
-
     with console.status("[bold green]Importing rich print..."):
         from rich import print
 
@@ -839,6 +836,10 @@ class ConfigLoader:
 
             print_yellow("Enabling pretty-print")
             _args.prettyprint = True
+
+            if _args.live_share:
+                print_yellow("Disabling live-share")
+                _args.live_share = False
 
         return _args
 

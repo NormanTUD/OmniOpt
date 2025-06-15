@@ -3817,8 +3817,6 @@ def _evaluate_handle_result(
 
 @beartype
 def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int]) -> None:
-    from rich.console import Console
-
     global console
 
     console: Console = Console(

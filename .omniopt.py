@@ -65,7 +65,7 @@ try:
     except OSError:
         pass
 
-    console: Console = Console(
+    console = Console(
         force_interactive=True,
         soft_wrap=True,
         color_system="256",
@@ -3817,7 +3817,7 @@ def _evaluate_handle_result(
 def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int]) -> None:
     global console
 
-    console: Console = Console(
+    console = Console(
         force_interactive=True,
         soft_wrap=True,
         color_system="256",

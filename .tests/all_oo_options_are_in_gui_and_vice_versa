@@ -57,6 +57,8 @@ if command -v php 2>/dev/null >/dev/null; then
 		run_tests_that_fail_on_taurus
 		calculate_pareto_front_of_job
 		tests
+		prettyprint
+		just_return_defaults
 		share_password
 		parameter
 		continue_previous_job

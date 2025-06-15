@@ -285,25 +285,11 @@ var hiddenTableData = [
 		required: false
 	},
 	{
-		label: "Verbose",
-		id: "verbose",
-		type: "checkbox",
-		value: 0,
-		help: "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization."
-	},
-	{
-		label: "Generate all jobs at once",
-		id: "generate_all_jobs_at_once",
+		label: "Dryrun?",
+		id: "dryrun",
 		type: "checkbox",
 		value: 1,
-		help: "This generates all hyperparameter sets for the set of workers at once."
-	},
-	{
-		label: "Flame-Graph",
-		id: "flame_graph",
-		type: "checkbox",
-		value: 0,
-		help: "Enable flame-graphing. Makes everything slower, but creates a flame graph"
+		help: "Run a dryrun job to determine possible issues quickly. See <a href='tutorials?tutorial=dryrun'>the dryrun tutorial page</a> for more info."
 	},
 	{
 		label: "Debug",
@@ -715,5 +701,26 @@ var hiddenTableData = [
 		type: "checkbox",
 		value: 0,
 		info: "Avoid normalizing the output (objective) values. Faster, but less stable when outputs vary in scale."
-	}
+	},
+	{
+		label: "Verbose",
+		id: "verbose",
+		type: "checkbox",
+		value: 0,
+		help: "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization."
+	},
+	{
+		label: "Generate all jobs at once",
+		id: "generate_all_jobs_at_once",
+		type: "checkbox",
+		value: 1,
+		help: "This generates all hyperparameter sets for the set of workers at once."
+	},
+	{
+		label: "Flame-Graph",
+		id: "flame_graph",
+		type: "checkbox",
+		value: 0,
+		help: "Enable flame-graphing. Makes everything slower, but creates a flame graph"
+	},
 ];

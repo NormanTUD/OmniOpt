@@ -1703,8 +1703,8 @@ EOF
 						myexit 110
 					fi
 
+					_tput civis # Disable cursor
 					while [[ ! -e $LOG_PATH || ! -s $LOG_PATH ]]; do
-						_tput civis # Disable cursor
 
 						current_time=$(date +%s)
 
@@ -1772,10 +1772,9 @@ EOF
 							echo -ne "$print_line"
 							sleep 0.05
 						done
-
-						_tput cnorm # Enable cursor
-
 					done
+
+					_tput cnorm # Enable cursor
 
 					if [[ $debug -eq 1 ]]; then
 						set_debug

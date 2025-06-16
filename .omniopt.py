@@ -4837,6 +4837,9 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
                 else:
                     gpu_string = "No CUDA devices found."
                     gpu_color = "yellow"
+            else:
+                    gpu_string = "No CUDA devices searched."
+                    gpu_color = "yellow"
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 

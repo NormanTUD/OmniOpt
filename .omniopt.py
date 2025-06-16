@@ -3862,14 +3862,12 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
         return bool(s and s.strip())
 
     if is_nonempty(stdout_txt):
-        print("\n")
         console.rule(Text(f" {stdout_path} ", style=header_style))
         console.print(
             Panel(stdout_txt, title="STDOUT", border_style="cyan", padding=(0, 1))
         )
 
     if is_nonempty(stderr_txt):
-        print("\n")
         console.rule(Text(f" {stderr_path} ", style=header_style))
         console.print(
             Panel(stderr_txt, title="STDERR", border_style="magenta", padding=(0, 1))

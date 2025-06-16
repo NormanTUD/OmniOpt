@@ -1781,13 +1781,12 @@ def live_share(force: bool = False) -> bool:
             return False
 
         if SHOWN_LIVE_SHARE_COUNTER == 0:
-            with console.status("[bold green]First OmniOpt2-Share-Call..."):
-                stdout, stderr = run_live_share_command(force)
+            stdout, stderr = run_live_share_command(force)
 
-            if stderr:
-                print_green(stderr)
+        if stderr:
+            print_green(stderr)
 
-                extract_and_print_qr(stderr)
+            extract_and_print_qr(stderr)
         else:
             stdout, stderr = run_live_share_command(force)
 

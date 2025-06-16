@@ -1506,7 +1506,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
                 )
 
         # show summary table
-        tbl = Table(title="Chosen Hyper‑Parameters", show_lines=True)
+        tbl = Table(title="Chosen Hyperparameters", show_lines=True)
         tbl.add_column("Name", style="cyan", no_wrap=True)
         tbl.add_column("Value", style="green")
         for k, v in candidate.items():

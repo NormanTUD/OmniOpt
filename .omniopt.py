@@ -613,7 +613,7 @@ class ConfigLoader:
     run_mode: str
 
     @beartype
-    def __init__(self, _parsing_arguments_loader) -> None:
+    def __init__(self: Any, _parsing_arguments_loader: Any) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
@@ -629,7 +629,7 @@ class ConfigLoader:
         self.add_arguments()
 
     @beartype
-    def add_arguments(self) -> None:
+    def add_arguments(self: Any) -> None:
         required = self.parser.add_argument_group('Required arguments', 'These options have to be set')
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', 'Of these arguments, one has to be set to continue')
         optional = self.parser.add_argument_group('Optional', 'These options are optional')
@@ -4574,8 +4574,6 @@ def show_end_table_and_save_end_files() -> int:
     _exit: int = 0
 
     display_failed_jobs_table()
-
-    best_result_exit = 0
 
     best_result_exit: int = print_best_result()
 

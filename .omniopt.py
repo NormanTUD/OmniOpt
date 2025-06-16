@@ -739,6 +739,7 @@ class ConfigLoader:
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
+            self.parsing_arguments_loader.stop()
             print("Exit-Code: 5")
             sys.exit(5)
 

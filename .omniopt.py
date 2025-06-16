@@ -1783,10 +1783,10 @@ def live_share(force: bool = False) -> bool:
         if SHOWN_LIVE_SHARE_COUNTER == 0:
             stdout, stderr = run_live_share_command(force)
 
-        if stderr:
-            print_green(stderr)
+            if stderr:
+                print_green(stderr)
 
-            extract_and_print_qr(stderr)
+                extract_and_print_qr(stderr)
         else:
             stdout, stderr = run_live_share_command(force)
 

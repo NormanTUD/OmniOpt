@@ -1783,7 +1783,7 @@ def live_share(force: bool = False) -> bool:
 
 
         if SHOWN_LIVE_SHARE_COUNTER == 0:
-            with console.status("[bold green]First OmniOpt2-Share-Call...") as status:
+            with console.status("[bold green]First OmniOpt2-Share-Call..."):
                 stdout, stderr = run_live_share_command(force)
 
             if stderr:

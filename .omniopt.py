@@ -3617,7 +3617,15 @@ def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: U
 
 @beartype
 def _write_job_infos_csv_replace_none_with_str(elements: Optional[List[str]]) -> List[str]:
-    return ['None' if element is None else element for element in elements]
+    if elements is None:
+        return []
+    result = []
+    for element in elements:
+        if element is None:
+            result.append('None')
+        else:
+            result.append(element)
+    return result
 
 @beartype
 def print_evaluate_times() -> None:

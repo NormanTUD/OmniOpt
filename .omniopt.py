@@ -613,14 +613,14 @@ class ConfigLoader:
     run_mode: str
 
     @beartype
-    def __init__(self, parsing_arguments_loader) -> None:
+    def __init__(self, _parsing_arguments_loader) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
             epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ..."
         )
 
-        self.parsing_arguments_loader = parsing_arguments_loader
+        self._parsing_arguments_loader = _parsing_arguments_loader
 
         self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str, default=None)
         self.parser.add_argument('--config_toml', help='TOML configuration file', type=str, default=None)
@@ -739,7 +739,7 @@ class ConfigLoader:
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
-            self.parsing_arguments_loader.stop()
+            self._parsing_arguments_loader.stop()
             print("Exit-Code: 5")
             sys.exit(5)
 
@@ -755,7 +755,7 @@ class ConfigLoader:
                     return json.load(file)
             except (Exception, json.decoder.JSONDecodeError) as e:
                 print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                self.parsing_arguments_loader.stop()
+                self._parsing_arguments_loader.stop()
                 print("Exit-Code: 5")
                 sys.exit(5)
 
@@ -1412,7 +1412,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         if isinstance(param, FixedParameter):
             try:
-                return self._handle_fixed(param, prompt_msg)
+                return self._handle_fixed(param)
             except Exception as e:
                 print_red(f"Error #1: {e}")
 
@@ -1431,7 +1431,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         return self._handle_fallback(prompt_msg, default, param)
 
     @beartype
-    def _handle_fixed(self, param: Any, prompt_msg: str) -> Any:
+    def _handle_fixed(self, param: Any) -> Any:
         return param.value
 
     @beartype
@@ -4838,8 +4838,8 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
                     gpu_string = "No CUDA devices found."
                     gpu_color = "yellow"
             else:
-                    gpu_string = "No CUDA devices searched."
-                    gpu_color = "yellow"
+                gpu_string = "No CUDA devices searched."
+                gpu_color = "yellow"
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 

@@ -1050,11 +1050,11 @@ done
 EOF
 	)
 
+	eval "$PARAM_EVAL"
+
 	if [[ "$dryrun" -eq 1 ]]; then
 		force_local_execution=1
 	fi
-
-	eval "$PARAM_EVAL"
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
 		_show_ram_every_n_seconds $show_ram_every_n_seconds &

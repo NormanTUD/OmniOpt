@@ -833,7 +833,6 @@ EOF
 
 	simple_options=(
 		"force_local_execution"
-		"dryrun"
 		"follow"
 		"send_anonymized_usage_stats"
 		"tests"
@@ -1013,6 +1012,10 @@ $complex_options_str
 			set_debug
 			;;
 
+		--dryrun)
+			dryrun=1
+			;;
+
 		--live_share)
 			live_share=1
 
@@ -1050,11 +1053,11 @@ done
 EOF
 	)
 
-	if [[ "$dryrun" -eq 1 ]]; then
+	eval "$PARAM_EVAL"
+
+	if [[ $dryrun -eq 1 ]]; then
 		force_local_execution=1
 	fi
-
-	eval "$PARAM_EVAL"
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
 		_show_ram_every_n_seconds $show_ram_every_n_seconds &

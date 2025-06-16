@@ -613,12 +613,14 @@ class ConfigLoader:
     run_mode: str
 
     @beartype
-    def __init__(self) -> None:
+    def __init__(self, parsing_arguments_loader) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
             description='A hyperparameter optimizer for slurm-based HPC-systems',
             epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ..."
         )
+
+        self.parsing_arguments_loader = parsing_arguments_loader
 
         self.parser.add_argument('--config_yaml', help='YAML configuration file', type=str, default=None)
         self.parser.add_argument('--config_toml', help='TOML configuration file', type=str, default=None)
@@ -752,7 +754,8 @@ class ConfigLoader:
                     return json.load(file)
             except (Exception, json.decoder.JSONDecodeError) as e:
                 print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                print("\nExit-Code: 5")
+                self.parsing_arguments_loader.stop()
+                print("Exit-Code: 5")
                 sys.exit(5)
 
         return {}
@@ -863,8 +866,8 @@ def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
         nodes=[node]
     )
 
-with console.status("[bold green]Parsing arguments..."):
-    loader = ConfigLoader()
+with console.status("[bold green]Parsing arguments...") as parsing_arguments_loader:
+    loader = ConfigLoader(parsing_arguments_loader)
     args = loader.parse_arguments()
 
 original_result_names = args.result_names

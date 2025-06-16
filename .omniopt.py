@@ -4824,18 +4824,19 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
             gpu_string = "No CUDA devices found."
             gpu_color = "yellow"
         else:
-            if torch.cuda.device_count() >= 1:
-                try:
-                    torch_device = torch.cuda.current_device()
-                    gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}."
-                    gpu_color = "green"
-                except torch.cuda.DeferredCudaCallError as e:
-                    print_red(f"Could not load GPU: {e}")
-                    gpu_string = "Error loading the CUDA device."
-                    gpu_color = "red"
-            else:
-                gpu_string = "No CUDA devices found."
-                gpu_color = "yellow"
+            if args.gpus >= 1:
+                if torch.cuda.device_count() >= 1:
+                    try:
+                        torch_device = torch.cuda.current_device()
+                        gpu_string = f"Using CUDA device {torch.cuda.get_device_name(0)}."
+                        gpu_color = "green"
+                    except torch.cuda.DeferredCudaCallError as e:
+                        print_red(f"Could not load GPU: {e}")
+                        gpu_string = "Error loading the CUDA device."
+                        gpu_color = "red"
+                else:
+                    gpu_string = "No CUDA devices found."
+                    gpu_color = "yellow"
     except ModuleNotFoundError:
         print_red("Cannot load torch and thus, cannot use gpus")
 

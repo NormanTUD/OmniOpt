@@ -1403,7 +1403,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     @beartype
     def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
         if args.just_return_defaults:
-            print_yellow(f"Just returning defaults for '{name}' in InteractiveCLIGenerationNode")
+            print_yellow(f"Returning defaults for '{name}' in dry-mode with --just_return_defaults")
             return default
 
         if not console.is_terminal:

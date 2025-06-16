@@ -1057,6 +1057,7 @@ EOF
 
 	if [[ $dryrun -eq 1 ]]; then
 		force_local_execution=1
+		live_share=0
 	fi
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then

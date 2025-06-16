@@ -1058,6 +1058,8 @@ EOF
 	if [[ $dryrun -eq 1 ]]; then
 		force_local_execution=1
 		live_share=0
+		args_string=$(echo "$args_string" | sed -e 's# --live_share # #')
+		args_string="$args_string --dryrun"
 	fi
 
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then

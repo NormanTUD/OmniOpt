@@ -3807,7 +3807,7 @@ def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
 def _evaluate_handle_result(
     stdout: str,
     result: Union[int, float, dict, list],
-    parameters: dict
+    parameters: Optional[dict]
 ) -> Dict[str, Optional[Union[float, Tuple]]]:
     final_result: Dict[str, Optional[Union[float, Tuple]]] = {}
 
@@ -7371,7 +7371,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     return batched_arms
 
 @beartype
-def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Optional[Tuple[Dict[int, Any], bool]]:
+def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[Dict[int, Any], bool]:
     die_101_if_no_ax_client_or_experiment_or_gs()
 
     if not ax_client:

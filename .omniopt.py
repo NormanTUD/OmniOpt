@@ -1780,8 +1780,6 @@ def live_share(force: bool = False) -> bool:
         if not get_current_run_folder():
             return False
 
-
-
         if SHOWN_LIVE_SHARE_COUNTER == 0:
             with console.status("[bold green]First OmniOpt2-Share-Call..."):
                 stdout, stderr = run_live_share_command(force)

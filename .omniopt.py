@@ -1406,41 +1406,32 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         prompt_msg = f"{name} ({self._ptype_to_str(param.parameter_type)})"
 
-        try:
-            return self._handle_fixed(param, prompt_msg)
-        except TypeError:
-            pass
-        except Exception as e:
-            print_red(f"Error #1: {e}")
+        if isinstance(param, FixedParameter):
+            try:
+                return self._handle_fixed(param, prompt_msg)
+            except Exception as e:
+                print_red(f"Error #1: {e}")
 
-        try:
-            return self._handle_choice(param, default, prompt_msg)
-        except TypeError:
-            pass
-        except Exception as e:
-            print_red(f"Error #2: {e}")
+        elif isinstance(param, ChoiceParameter):
+            try:
+                return self._handle_choice(param, default, prompt_msg)
+            except Exception as e:
+                print_red(f"Error #2: {e}")
 
-        try:
-            return self._handle_range(param, default, prompt_msg)
-        except TypeError:
-            pass
-        except Exception as e:
-            print_red(f"Error #3: {e}")
+        elif isinstance(param, RangeParameter):
+            try:
+                return self._handle_range(param, default, prompt_msg)
+            except Exception as e:
+                print_red(f"Error #3: {e}")
 
-        return self._handle_fallback(prompt_msg, default)
+        return self._handle_fallback(prompt_msg, default, param)
 
     @beartype
     def _handle_fixed(self, param: Any, prompt_msg: str) -> Any:
-        if isinstance(param, FixedParameter):
-            console.print(f"[yellow]{prompt_msg} is FIXED at {param.value} → skipping prompt.[/]")
-            return param.value
-        raise TypeError("Not a FixedParameter")
+        return param.value
 
     @beartype
     def _handle_choice(self, param: Any, default: Any, prompt_msg: str) -> Any:
-        if not isinstance(param, ChoiceParameter):
-            raise TypeError("Not a ChoiceParameter")
-
         choices_str = ", ".join(f"{v}" for v in param.values)
         console.print(f"{prompt_msg} choices → {choices_str}")
         user_val = Prompt.ask("Pick choice", default=str(default))
@@ -1448,9 +1439,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     @beartype
     def _handle_range(self, param: Any, default: Any, prompt_msg: str) -> Any:
-        if not isinstance(param, RangeParameter):
-            raise TypeError("Not a RangeParameter")
-
         low, high = param.lower, param.upper
         console.print(f"{prompt_msg} range → [{low}, {high}]")
 
@@ -1470,7 +1458,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         return min(max(val, low), high)
 
     @beartype
-    def _handle_fallback(self, prompt_msg: str, default: Any) -> Any:
+    def _handle_fallback(self, prompt_msg: str, default: Any, param: Any) -> Any:
+        print_red(f"Unknown type detected: {param}")
         return Prompt.ask(prompt_msg, default=str(default))
 
     @beartype

@@ -752,7 +752,7 @@ class ConfigLoader:
                     return json.load(file)
             except (Exception, json.decoder.JSONDecodeError) as e:
                 print_red(f"Error parsing {file_format} file '{config_path}': {e}")
-                print("Exit-Code: 5")
+                print("\nExit-Code: 5")
                 sys.exit(5)
 
         return {}

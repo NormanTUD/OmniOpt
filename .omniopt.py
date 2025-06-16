@@ -1382,6 +1382,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         # 1. explicit override
         if name.lower() in _DEFAULT_SPECIALS:
             override = _DEFAULT_SPECIALS[name.lower()]
+            if override == "max" and isinstance(param, RangeParameter):
+                return param.upper
             if override == "min" and isinstance(param, RangeParameter):
                 return param.lower
             return override

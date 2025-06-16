@@ -47,7 +47,6 @@ _tput() {
 			;;
 		bel)
 			if [[ "$OO_MAIN_TESTS" -eq "1" ]]; then
-				echo "Not print BEL-character for main-test-suite ($CHAR, $OO_MAIN_TESTS)"
 				return 0
 			else
 				echo -ne '\a'

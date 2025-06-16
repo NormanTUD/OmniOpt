@@ -3304,22 +3304,28 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     return string
 
 @beartype
-def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
-    headers = list(data_dict.keys())
-    data = [list(data_dict.values())]
+def write_failed_logs(data_dict: Optional[dict], error_description: str = "") -> None:
+    headers = []
+    data = []
+
+    if data_dict is not None:
+        headers = list(data_dict.keys())
+        data = [list(data_dict.values())]
+    else:
+        print_debug("No data_dict provided, writing only error description.")
+        data = [[]]  # leeres Datenfeld, nur error_description kommt dazu
 
     if error_description:
         headers.append('error_description')
         for row in data:
             row.append(error_description)
 
-    failed_logs_dir = os.path.join(get_current_run_folder(), 'failed_logs')
-
-    data_file_path = os.path.join(failed_logs_dir, 'parameters.csv')
-    header_file_path = os.path.join(failed_logs_dir, 'headers.csv')
-
     try:
+        failed_logs_dir = os.path.join(get_current_run_folder(), 'failed_logs')
         makedirs(failed_logs_dir)
+
+        header_file_path = os.path.join(failed_logs_dir, 'headers.csv')
+        data_file_path = os.path.join(failed_logs_dir, 'parameters.csv')
 
         if not os.path.exists(header_file_path):
             try:
@@ -3331,11 +3337,10 @@ def write_failed_logs(data_dict: dict, error_description: str = "") -> None:
                 print_red(f"Failed to write header file: {e}")
 
         try:
-            with open(data_file_path, mode='a', encoding="utf-8", newline='') as data_file:
+            with open(data_file_path, mode='a', encoding='utf-8', newline='') as data_file:
                 writer = csv.writer(data_file)
                 writer.writerows(data)
                 print_debug(f"Data appended to file: {data_file_path}")
-
         except Exception as e:
             print_red(f"Failed to append data to file: {e}")
 
@@ -3814,7 +3819,7 @@ def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
 @beartype
 def _evaluate_handle_result(
     stdout: str,
-    result: Union[int, float, dict, list],
+    result: Optional[Union[int, float, dict, list]],
     parameters: Optional[dict]
 ) -> Dict[str, Optional[Union[float, Tuple]]]:
     final_result: Dict[str, Optional[Union[float, Tuple]]] = {}

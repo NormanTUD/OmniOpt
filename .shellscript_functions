@@ -115,21 +115,12 @@
 	#	export PATH="$SCRIPT_DIR/.tools/:$PATH"
 	#fi
 
-	_cluster=""
-
-	if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
-		MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
-		if [[ -n $MYCLUSTER_HOST ]]; then
-			_cluster="_$MYCLUSTER_HOST"
-		fi
-	fi
-
 	if ! command -v python3 2>/dev/null >/dev/null; then
 		red_text "python3 not installed. Cannot continue."
 		exit 245
 	fi
 
-	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
 
 	ROOT_VENV_DIR=$HOME
 

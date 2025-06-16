@@ -3868,17 +3868,15 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
     def is_nonempty(s: Optional[str]) -> bool:
         return bool(s and s.strip())
 
-    if is_nonempty(stdout_txt):
+    if is_nonempty(stdout_txt) and not stdout_txt is None:
         console.rule(Text(f" {stdout_path} ", style=header_style))
-        console.print(
-            Panel(stdout_txt, title="STDOUT", border_style="cyan", padding=(0, 1))
-        )
+        panel = Panel(stdout_txt, title="STDOUT", border_style="cyan", padding=(0, 1))
+        console.print(panel)
 
-    if is_nonempty(stderr_txt):
+    if is_nonempty(stderr_txt) and not stderr_txt is None:
         console.rule(Text(f" {stderr_path} ", style=header_style))
-        console.print(
-            Panel(stderr_txt, title="STDERR", border_style="magenta", padding=(0, 1))
-        )
+        panel = Panel(stderr_txt, title="STDERR", border_style="magenta", padding=(0, 1))
+        console.print(panel)
 
     if not (is_nonempty(stdout_txt) or is_nonempty(stderr_txt)):
         print("\n")

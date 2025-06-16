@@ -9829,6 +9829,9 @@ def main() -> None:
 
     write_result_min_max_file()
 
+    if args.dryrun:
+        set_max_eval(1)
+
     if os.getenv("CI"):
         data_dict: dict = {
             "param1": "value1",

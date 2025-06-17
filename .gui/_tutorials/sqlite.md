@@ -50,6 +50,10 @@ In summary, SQLite3 provides a lightweight, yet powerful database option for arc
 
 Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQLite3 to view the database.
 
+## Other DB-systems than SQLite3
+
+You can add any other system that `sqlalchemy` supports by creating it's connect-string and passing it to OmniOpt2 with `--db_urls postgresql://user:password@host:port/database mysql+pymysql://user:password@host:port/database ...`. The SQLite3 one will be saved independently.
+
 ## Tables and Meaning of Columns
 
 <table>
@@ -789,4 +793,3 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
     </tr>
   </tbody>
 </table>
-

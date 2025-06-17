@@ -603,6 +603,7 @@ class ConfigLoader:
     config_json: Optional[str]
     config_yaml: Optional[str]
     workdir: str
+    db_urls: list[str]
     dont_jit_compile: bool
     no_normalize_y: bool
     transforms: List[str]
@@ -693,6 +694,7 @@ class ConfigLoader:
         optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
         optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
         optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
+        optional.add_argument('--db_urls', action='append', default=[], help='Database URL, can be specified multiple times (e.g., mysql+pymysql://user:pass@host/db)')
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -1828,6 +1830,12 @@ def init_storage(db_url: str):
         create_all_tables(engine)
 
 @beartype
+def populate_db_urls_array(db_urls: list) -> list:
+    for db_url in args.db_urls:
+        db_urls.append(db_url)
+    return db_urls
+
+@beartype
 def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
@@ -1851,8 +1859,14 @@ def save_results_csv() -> Optional[str]:
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
-        url = f"sqlite:////{get_current_run_folder()}/database.db"
-        init_storage(url)
+        db_urls = [
+            f"sqlite:////{get_current_run_folder()}/database.db"
+        ]
+
+        db_url = populate_db_urls_array(db_urls)
+
+        for db_url in db_urls:
+            init_storage(db_url)
 
         save_experiment(
             ax_client.experiment,

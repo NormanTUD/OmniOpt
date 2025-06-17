@@ -52,7 +52,13 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
 
 ## Other DB-systems than SQLite3
 
-You can add any other system that `sqlalchemy` supports by creating it's connect-string and passing it to OmniOpt2 with `--db_urls postgresql://user:password@host:port/database mysql+pymysql://user:password@host:port/database ...`. The SQLite3 one will be saved independently. It may be possible that, for certain databases, you need to install further plugins to the [venv](tutorials?tutorial=virtualenv).
+You can add any other system that `sqlalchemy` supports by creating it's connect-string and passing it to OmniOpt2 with `--db_url`.
+
+These include, but are not limited to `postgresql://user:password@host:port/database`, `mysql+pymysql://user:password@host:port/database ...` and so on.
+
+It may be possible that, for certain databases, you need to install further plugins to the [venv](tutorials?tutorial=virtualenv).
+
+Using this option disables the saving into the SQLite3 database.
 
 ## Tables and Meaning of Columns
 

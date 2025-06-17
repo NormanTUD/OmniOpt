@@ -18,6 +18,7 @@ import statistics
 import tempfile
 import threading
 
+initialized_storage: bool = False
 prepared_setting_to_custom: bool = False
 whole_start_time: float = time.time()
 last_progress_bar_desc: str = ""
@@ -1818,8 +1819,6 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
     except Exception as e:
         print_red(f"Error computing MD5 for {filepath}: {e}")
         return None
-
-initialized_storage = False
 
 @beartype
 def init_storage(db_url: str):

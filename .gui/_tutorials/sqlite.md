@@ -216,7 +216,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
 
 ## Example data
 
-# Tabelle: experiment_v2
+# `experiment_v2`
 
 <table>
   <thead>
@@ -253,7 +253,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### generation_strategy Tabelle (leer)
+### `generation_strategy` (empty)
 
 <table>
   <thead>
@@ -272,7 +272,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: trial_v2
+### `trial_v2`
 
 <table>
   <thead>
@@ -373,7 +373,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: analysis_card (leer)
+### `analysis_card` (empty)
 
 <table>
   <thead>
@@ -397,7 +397,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: abandoned_arm_v2 (leer)
+### `abandoned_arm_v2` (empty)
 
 <table>
   <thead>
@@ -414,7 +414,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: generator_run_v2
+### `generator_run_v2`
 
 <table>
   <thead>
@@ -515,7 +515,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: runner (leer)
+### `runner` (empty)
 
 <table>
   <thead>
@@ -533,7 +533,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: data_v2
+### `data_v2`
 
 <table>
   <thead>
@@ -582,7 +582,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: parameter_v2
+### `parameter_v2`
 
 <table>
   <thead>
@@ -686,7 +686,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: parameter_constraint_v2
+### `parameter_constraint_v2`
 
 <table>
   <thead>
@@ -704,7 +704,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: metric_v2
+### `metric_v2`
 
 <table>
   <thead>
@@ -753,7 +753,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </tbody>
 </table>
 
-### Tabelle: arm_v2
+### `arm_v2`
 
 <table>
   <thead>

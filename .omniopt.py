@@ -8791,15 +8791,14 @@ def check_max_eval(_max_eval: int) -> None:
 
 @beartype
 def parse_parameters() -> Any:
-    with console.status("[bold green]Parsing parameters..."):
-        experiment_parameters = None
-        cli_params_experiment_parameters = None
-        classic_params = None
-        if args.parameter:
-            experiment_parameters, classic_params = parse_experiment_parameters()
-            cli_params_experiment_parameters = experiment_parameters
+    experiment_parameters = None
+    cli_params_experiment_parameters = None
+    classic_params = None
+    if args.parameter:
+        experiment_parameters, classic_params = parse_experiment_parameters()
+        cli_params_experiment_parameters = experiment_parameters
 
-        return experiment_parameters, cli_params_experiment_parameters, classic_params
+    return experiment_parameters, cli_params_experiment_parameters, classic_params
 
 @beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:

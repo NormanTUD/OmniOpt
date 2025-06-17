@@ -1,3 +1,4 @@
+sqlalchemy
 shellcheck-py
 vulture
 flake8

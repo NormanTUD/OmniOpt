@@ -1821,10 +1821,6 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
 
 @beartype
 def init_storage(db_url: str):
-    global initialized_storage
-
-    if not initialized_storage:
-        initialized_storage = True
         init_engine_and_session_factory(url=db_url)
         engine = get_engine()
         create_all_tables(engine)
@@ -1838,6 +1834,8 @@ def populate_db_urls_array(db_urls: list) -> list:
 
 @beartype
 def save_results_csv() -> Optional[str]:
+    global initialized_storage
+
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
     state_files_folder: str = f"{get_current_run_folder()}/state_files/"
@@ -1866,8 +1864,11 @@ def save_results_csv() -> Optional[str]:
 
         db_url = populate_db_urls_array(db_urls)
 
-        for db_url in db_urls:
-            init_storage(db_url)
+        if not initialized_storage:
+            for db_url in db_urls:
+                init_storage(db_url)
+
+            initialized_storage = True
 
         save_experiment(
             ax_client.experiment,

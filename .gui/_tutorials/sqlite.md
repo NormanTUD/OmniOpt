@@ -45,3 +45,7 @@ Using SQLite3 to save OmniOpt2 optimization results unlocks powerful possibiliti
 - Supports custom analyses without modifying the original OmniOpt2 optimization workflow.
 
 In summary, SQLite3 provides a lightweight, yet powerful database option for archiving, analyzing, and aggregating OmniOpt2 hyperparameter optimization results, making it easier to extract insights and improve models.
+
+## How to access
+
+Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQLite3 to view the database.

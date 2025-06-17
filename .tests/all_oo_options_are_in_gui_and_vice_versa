@@ -52,7 +52,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		raise_in_eval
 		config_yaml
 		config_json
-		db_urls
+		db_url
 		config_toml
 		show_generation_and_submission_sixel
 		run_tests_that_fail_on_taurus

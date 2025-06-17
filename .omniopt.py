@@ -603,7 +603,7 @@ class ConfigLoader:
     config_json: Optional[str]
     config_yaml: Optional[str]
     workdir: str
-    db_urls: list[str]
+    db_urls: Optional[List[str]]
     dont_jit_compile: bool
     no_normalize_y: bool
     transforms: List[str]
@@ -1831,8 +1831,9 @@ def init_storage(db_url: str):
 
 @beartype
 def populate_db_urls_array(db_urls: list) -> list:
-    for db_url in args.db_urls:
-        db_urls.append(db_url)
+    if args.db_urls:
+        for db_url in args.db_urls:
+            db_urls.append(db_url)
     return db_urls
 
 @beartype

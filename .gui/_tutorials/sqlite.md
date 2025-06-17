@@ -225,7 +225,7 @@ Go to your run folder, and run `sqlite3 database.db`. This allows you to use SQL
   </thead>
   <tbody>
     <tr>
-      <td></td><td></td><td>1</td><td>0</td><td>__main__tests__BOTORCH_MODULAR___nogridsearch</td>
+      <td></td><td></td><td>1</td><td>0</td><td>ExperimentName</td>
       <td class="json">{"immutable_search_space_and_opt_config": true}</td><td></td><td></td><td>1750171764</td><td>1</td><td>{}</td><td></td>
     </tr>
   </tbody>

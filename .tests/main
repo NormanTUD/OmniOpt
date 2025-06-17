@@ -638,6 +638,7 @@ _test "Find untyped CLI args" ".tests/find_untyped_cli_args" 0
 _test "Find double add_arguments help" ".tests/find_double_add_arguments_help" 0
 _test "Find wrongly typed CLI args" ".tests/find_wrongly_typed_cli_args" 0
 _test "Find double quotes in ConfigLoader" ".tests/single_quotes_in_configloader" 0
+_test "all_oo_options_are_in_gui_and_vice_versa" ".tests/all_oo_options_are_in_gui_and_vice_versa" 0
 _test "Find missing TOC in md files" ".tests/find_missing_toc_in_md_files" 0
 
 if [[ -z $CI ]]; then
@@ -675,7 +676,6 @@ _test "Testing defective toml file" "$OMNIOPT_CALL --config_toml .tests/defectiv
 _test "Testing defective yaml file" "$OMNIOPT_CALL --config_yaml .tests/defective_example_config.yaml --follow" 5 104
 _test "Testing defective json file" "$OMNIOPT_CALL --config_json .tests/defective_example_config.json --follow" 5 104
 #_test "Markdown-Linter" ".tests/test_markdown_doc" 0
-_test "all_oo_options_are_in_gui_and_vice_versa" ".tests/all_oo_options_are_in_gui_and_vice_versa" 0
 
 _test "Testing non-existant json config file" "$OMNIOPT_CALL --config_json /dev/idontexist.json" 100
 

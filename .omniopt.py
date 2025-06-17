@@ -1051,7 +1051,7 @@ try:
         from ax.storage.json_store.save import save_experiment
 
     with console.status("[bold green]Importing save_experiment_to_db..."):
-        from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db
+        from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
 
     with console.status("[bold green]Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
@@ -1860,6 +1860,7 @@ def save_results_csv() -> Optional[str]:
         )
 
         save_experiment_to_db(ax_client.experiment)
+        save_generation_strategy(global_gs)
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:

@@ -1055,6 +1055,9 @@ try:
     with console.status("[bold green]Importing save_experiment_to_db..."):
         from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
 
+    with console.status("[bold green]Importing pymysql..."):
+        import pymysql
+
     with console.status("[bold green]Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
 
@@ -1826,9 +1829,25 @@ def init_storage(db_url: str):
     create_all_tables(engine)
 
 @beartype
-def save_results_csv() -> Optional[str]:
+def try_saving_to_db() -> None:
     global initialized_storage
 
+    db_url = f"sqlite:////{get_current_run_folder()}/database.db"
+
+    if args.db_url:
+        db_url = args.db_url
+
+    if not initialized_storage:
+        init_storage(db_url)
+
+        initialized_storage = True
+
+    save_experiment_to_db(ax_client.experiment)
+    save_generation_strategy(global_gs)
+
+
+@beartype
+def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
     state_files_folder: str = f"{get_current_run_folder()}/state_files/"
@@ -1851,23 +1870,12 @@ def save_results_csv() -> Optional[str]:
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
-        db_url = f"sqlite:////{get_current_run_folder()}/database.db"
-
-        if args.db_url:
-            db_url = args.db_url
-
-        if not initialized_storage:
-            init_storage(db_url)
-
-            initialized_storage = True
-
         save_experiment(
             ax_client.experiment,
             f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
         )
 
-        save_experiment_to_db(ax_client.experiment)
-        save_generation_strategy(global_gs)
+        try_saving_to_db()
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:

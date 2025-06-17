@@ -1055,9 +1055,6 @@ try:
     with console.status("[bold green]Importing save_experiment_to_db..."):
         from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
 
-    with console.status("[bold green]Importing pymysql..."):
-        import pymysql
-
     with console.status("[bold green]Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
 

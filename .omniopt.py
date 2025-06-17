@@ -1110,9 +1110,6 @@ except ImportError as e:
 with console.status("[bold green]Importing ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
 
-with console.status("[bold green]Importing StorageConfig...") as status:
-    from ax.api.configs import StorageConfig
-
 with console.status("[bold green]Importing SQL-Storage-Stuff...") as status:
     from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
 

@@ -1862,7 +1862,7 @@ def save_results_csv() -> Optional[str]:
             f"sqlite:////{get_current_run_folder()}/database.db"
         ]
 
-        db_url = populate_db_urls_array(db_urls)
+        db_urls = populate_db_urls_array(db_urls)
 
         if not initialized_storage:
             for db_url in db_urls:

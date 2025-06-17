@@ -1859,7 +1859,6 @@ def save_results_csv() -> Optional[str]:
             f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
         )
 
-
         save_experiment_to_db(ax_client.experiment)
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e

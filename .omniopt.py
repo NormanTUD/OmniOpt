@@ -8770,9 +8770,8 @@ def set_orchestrator() -> None:
 
 @beartype
 def check_if_has_random_steps() -> None:
-    with console.status("[bold green]Checking if has random steps..."):
-        if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
-            _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
+    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
+        _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
 @beartype
 def add_exclude_to_defective_nodes() -> None:
@@ -9884,13 +9883,12 @@ def main() -> None:
 
     initialize_ax_client()
 
-    with console.status("[bold green]Getting experiment parameters..."):
-        ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
-            cli_params_experiment_parameters,
-            experiment_parameters,
-        ])
+    ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
+        cli_params_experiment_parameters,
+        experiment_parameters,
+    ])
 
-        print_debug(f"experiment_parameters: {experiment_parameters}")
+    print_debug(f"experiment_parameters: {experiment_parameters}")
 
     set_orchestrator()
 

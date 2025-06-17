@@ -158,6 +158,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `checkpoint_load_source`: Info for continued jobs where they are continued from
 - `constraints`: This file contains the constraints for the run and are used for continued jobs
 - `continue_from_run_uuid`: UUID of a run that was continued
+- `database.db`: A SQLite3-database that stores that run's data
 - `cpu_ram_usage.csv`: Logs CPU and RAM usage
 - `custom_generation_strategy`: Custom generation strategy file
 - `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set

@@ -1049,6 +1049,9 @@ try:
     with console.status("[bold green]Importing save_experiment..."):
         from ax.storage.json_store.save import save_experiment
 
+    with console.status("[bold green]Importing save_experiment_to_db..."):
+        from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db
+
     with console.status("[bold green]Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
 
@@ -1105,6 +1108,12 @@ except ImportError as e:
 
 with console.status("[bold green]Importing ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
+
+with console.status("[bold green]Importing StorageConfig...") as status:
+    from ax.api.configs import StorageConfig
+
+with console.status("[bold green]Importing SQL-Storage-Stuff...") as status:
+    from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
 
     disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
 
@@ -1810,6 +1819,18 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
         print_red(f"Error computing MD5 for {filepath}: {e}")
         return None
 
+initialized_storage = False
+
+@beartype
+def init_storage(db_url: str):
+    global initialized_storage
+
+    if not initialized_storage:
+        initialized_storage = True
+        init_engine_and_session_factory(url=db_url)
+        engine = get_engine()
+        create_all_tables(engine)
+
 @beartype
 def save_results_csv() -> Optional[str]:
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
@@ -1834,10 +1855,16 @@ def save_results_csv() -> Optional[str]:
         with open(pd_json, mode='w', encoding="utf-8") as json_file:
             json.dump(json_snapshot, json_file, indent=4)
 
+        url = f"sqlite:////{get_current_run_folder()}/database.db"
+        init_storage(url)
+
         save_experiment(
             ax_client.experiment,
             f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
         )
+
+
+        save_experiment_to_db(ax_client.experiment)
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:

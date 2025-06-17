@@ -1821,9 +1821,9 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
 
 @beartype
 def init_storage(db_url: str):
-        init_engine_and_session_factory(url=db_url)
-        engine = get_engine()
-        create_all_tables(engine)
+    init_engine_and_session_factory(url=db_url)
+    engine = get_engine()
+    create_all_tables(engine)
 
 @beartype
 def populate_db_urls_array(db_urls: list) -> list:

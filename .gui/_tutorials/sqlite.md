@@ -251,7 +251,7 @@ Using this option disables the saving into the SQLite3 database.
       <td></td>
       <td>1</td>
       <td>0</td>
-      <td>__main__tests__BOTORCH_MODULAR___nogridsearch</td>
+      <td>NameOfYourExperiment</td>
       <td>{"immutable_search_space_and_opt_config": true}</td>
       <td></td>
       <td></td>

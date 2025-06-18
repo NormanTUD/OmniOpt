@@ -678,7 +678,7 @@ class ConfigLoader:
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1', default='', type=str)
-        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy. Example: SOBOL=10,BOTORCH_MODULAR=10,SOBOL=10. Cannot use --model EXTERNAL_GENERATOR or PSEUDORANDOM', type=str, default=None)
+        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy. Example: SOBOL=10,BOTORCH_MODULAR=10,SOBOL=10. Cannot use --model EXTERNAL_GENERATOR, TPE, RANDOMFOREST or PSEUDORANDOM', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
         optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help='List of job data to load from existing jobs')
@@ -7988,7 +7988,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
                 model_name, nr = s.split("=")
                 matching_model = get_matching_model_name(model_name)
 
-                if matching_model in ["RANDOMFOREST", "EXTERNAL_GENERATOR"]:
+                if matching_model in ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "EXTERNAL_GENERATOR"]:
                     _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
 
                 if matching_model:

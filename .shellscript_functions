@@ -332,7 +332,9 @@
 				green_reset_line "${PROGRESSBAR}➤Checking if $install_this is installed..."
 			fi
 
-			ppip "$install_this" "-" "$MAX_NR"
+			if ! echo "$FROZEN" | grep -q "$install_this"; then
+				ppip "$install_this" "-" "$MAX_NR"
+			fi
 		done
 
 		_tput cr

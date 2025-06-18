@@ -252,7 +252,7 @@ $tablesStmt = $db->query("
 
 while ($tableRow = $tablesStmt->fetchArray(SQLITE3_ASSOC)) {
     $table = $tableRow['name'];
-    echo "<h4>" . htmlspecialchars($table, ENT_QUOTES, 'UTF-8') . "</h4>\n";
+    echo "<h3>" . htmlspecialchars($table, ENT_QUOTES, 'UTF-8') . "</h3>\n";
 
     // 2. fetch rows
     $dataStmt = @$db->query("SELECT * FROM \"$table\"");

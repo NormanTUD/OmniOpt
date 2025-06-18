@@ -47,7 +47,7 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
-uncontinueable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM"]
+uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM"]
 
 post_generation_constraints: list = []
 abandoned_trial_indices: list = []
@@ -1874,10 +1874,10 @@ def save_results_csv() -> Optional[str]:
             f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
         )
 
-        if args.model not in uncontinueable_models:
+        if args.model not in uncontinuable_models:
             try_saving_to_db()
         else:
-            print_debug(f"Model {args.model} is an uncontinueable model, so it will not be saved to a DB")
+            print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:
@@ -7993,7 +7993,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
                 model_name, nr = s.split("=")
                 matching_model = get_matching_model_name(model_name)
 
-                if matching_model in uncontinueable_models:
+                if matching_model in uncontinuable_models:
                     _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
 
                 if matching_model:

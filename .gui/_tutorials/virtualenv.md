@@ -41,16 +41,16 @@ On the `capella` partition of the TU Dresden HPC System, this would be:
 ml release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1
 ```
 
-On all others:
-
-```bash
-ml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
-```
-
 On the ML-Power9-Partition:
 
 ```bash
 ml release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1 zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+```
+
+On all others:
+
+```bash
+ml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
 ```
 
 ## Change the directory the virtual environment will be installed to

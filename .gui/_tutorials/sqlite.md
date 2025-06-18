@@ -226,6 +226,37 @@ Using this option disables the saving into the SQLite3 database.
 
 ## Example data
 
+This command was run:
+
+```bash
+./omniopt \
+	--live_share \
+	--send_anonymized_usage_stats \
+	--partition alpha \
+	--experiment_name ExampleDatabase \
+	--mem_gb=4 \
+	--time 60 \
+	--worker_timeout=5 \
+	--max_eval 4 \
+	--num_parallel_jobs 2 \
+	--gpus 0 \
+	--run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgIC0taW50X3BhcmFtPSclKGludF9wYXJhbSknIC0tZmxvYXRfcGFyYW09JyUoZmxvYXRfcGFyYW0pJyAtLWNob2ljZV9wYXJhbT0nJShjaG9pY2VfcGFyYW0pJyAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x \
+	--parameter int_param range -100 10 int \
+	--parameter float_param range -100 10 float \
+	--parameter choice_param choice 1,2,4,8,16,hallo \
+	--parameter int_param_two range -100 10 int \
+	--num_random_steps 2 \
+	--model BOTORCH_MODULAR \
+	--auto_exclude_defective_hosts \
+	--generate_all_jobs_at_once \
+	--follow \
+	--experiment_constraints MjAqaW50X3BhcmFtID49IDEwMAo= \
+	--show_generate_time_table
+
+```
+
+And resulted in this database:
+
 ```run_php
 /**
  * Dump every SQLite table (with headers) as HTML.

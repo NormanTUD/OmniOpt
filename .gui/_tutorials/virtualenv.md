@@ -23,6 +23,36 @@ The default folder will be created like this:
 while `uname -m` yields to your CPU architecture (usually `x86_64`),
 `python --version | sed -e 's# #_#g'` will yield to your python version (e.g. `3.11.2`), and `$_cluster` contains the cluster name, taken from the environment variable `CLUSTERHOST`.
 
+## How to install further modules manually
+
+Sometimes you need to install more modules, ie. when you want to export to a certain database like [Oracle or PostGRES](tutorials?tutorial=sqlite#other-db-systems-than-sqlite3). You can do that by first activating that virtualenv:
+
+```bash
+source ~/.omniax_x86_64_Python_3.11.2/bin/activate
+```
+
+and then installing modules with `pip install ...`.
+
+Make sure you are running the same python-Version. That means, if you do it on a System with Lmod or similiar systems, `module load ...` the proper python-version and modules first.
+
+On the `capella` partition of the TU Dresden HPC System, this would be:
+
+```bash
+ml release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1
+```
+
+On all others:
+
+```bash
+ml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
+```
+
+On the ML-Power9-Partition:
+
+```bash
+ml release/24.04 GCCcore/12.3.0 Python/3.11.3 Tkinter/3.11.3 PostgreSQL/16.1 zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+```
+
 ## Change the directory the virtual environment will be installed to
 
 If you cannot write in your home, for example, because it is too full, you can set the path where the virtual environment will be installed and used to. Simply set the variable:

@@ -226,576 +226,75 @@ Using this option disables the saving into the SQLite3 database.
 
 ## Example data
 
-# `experiment_v2`
+```run_php
+/**
+ * Dump every SQLite table (with headers) as HTML.
+ *
+ * Usage: place this file in the same directory as database.sqlite3
+ * and open it in the browser through your PHP server.
+ */
 
-<table>
-  <thead>
-    <tr>
-      <th>description</th>
-      <th>experiment_type</th>
-      <th>id</th>
-      <th>is_test</th>
-      <th>name</th>
-      <th>properties</th>
-      <th>status_quo_name</th>
-      <th>status_quo_parameters</th>
-      <th>time_created</th>
-      <th>default_trial_type</th>
-      <th>default_data_type</th>
-      <th>auxiliary_experiments_by_purpose</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td></td>
-      <td></td>
-      <td>1</td>
-      <td>0</td>
-      <td>NameOfYourExperiment</td>
-      <td>{"immutable_search_space_and_opt_config": true}</td>
-      <td></td>
-      <td></td>
-      <td>1750172209</td>
-      <td></td>
-      <td>1</td>
-      <td>{}</td>
-    </tr>
-  </tbody>
-</table>
+$dbFile = __DIR__ . '/database.db';
+if (!is_readable($dbFile)) {
+    die("Database file not found: $dbFile");
+}
 
-### `generation_strategy` (empty)
+$db = new SQLite3($dbFile, SQLITE3_OPEN_READONLY);
 
-<table>
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>name</th>
-      <th>steps</th>
-      <th>curr_index</th>
-      <th>experiment_id</th>
-      <th>nodes</th>
-      <th>curr_node_name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Keine Daten vorhanden -->
-  </tbody>
-</table>
+// 1. fetch all user tables (omit sqlite internal tables)
+$tablesStmt = $db->query("
+    SELECT name
+    FROM sqlite_master
+    WHERE type='table'
+      AND name NOT LIKE 'sqlite_%'
+    ORDER BY name;
+");
 
-### `trial_v2`
+while ($tableRow = $tablesStmt->fetchArray(SQLITE3_ASSOC)) {
+    $table = $tableRow['name'];
+    echo "<h4>" . htmlspecialchars($table, ENT_QUOTES, 'UTF-8') . "</h4>\n";
 
-<table>
-  <thead>
-    <tr>
-      <th>abandoned_reason</th>
-      <th>failed_reason</th>
-      <th>deployed_name</th>
-      <th>experiment_id</th>
-      <th>id</th>
-      <th>index</th>
-      <th>is_batched</th>
-      <th>lifecycle_stage</th>
-      <th>num_arms_created</th>
-      <th>ttl_seconds</th>
-      <th>run_metadata</th>
-      <th>stop_metadata</th>
-      <th>status</th>
-      <th>status_quo_name</th>
-      <th>time_completed</th>
-      <th>time_created</th>
-      <th>time_staged</th>
-      <th>time_run_started</th>
-      <th>trial_type</th>
-      <th>generation_step_index</th>
-      <th>properties</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td></td>
-      <td>1</td>
-      <td></td>
-      <td>{}</td>
-      <td>{}</td>
-      <td>3</td>
-      <td></td>
-      <td>1750172230</td>
-      <td>1750172214</td>
-      <td></td>
-      <td>1750172214</td>
-      <td></td>
-      <td></td>
-      <td>{}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>1</td>
-      <td>2</td>
-      <td>1</td>
-      <td>0</td>
-      <td></td>
-      <td>1</td>
-      <td></td>
-      <td>{}</td>
-      <td>{}</td>
-      <td>3</td>
-      <td></td>
-      <td>1750172249</td>
-      <td>1750172237</td>
-      <td></td>
-      <td>1750172237</td>
-      <td></td>
-      <td></td>
-      <td>{}</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>1</td>
-      <td>3</td>
-      <td>2</td>
-      <td>0</td>
-      <td></td>
-      <td>1</td>
-      <td></td>
-      <td>{}</td>
-      <td>{}</td>
-      <td>3</td>
-      <td></td>
-      <td>1750172274</td>
-      <td>1750172260</td>
-      <td></td>
-      <td>1750172260</td>
-      <td></td>
-      <td></td>
-      <td>{}</td>
-    </tr>
-  </tbody>
-</table>
+    // 2. fetch rows
+    $dataStmt = @$db->query("SELECT * FROM \"$table\"");
+    if (!$dataStmt) {
+        echo "<p><em>Could not read data.</em></p>\n";
+        continue;
+    }
 
-### `analysis_card` (empty)
+    // 3. print table
+    echo "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse:collapse;margin-bottom:2em;'>\n";
 
-<table>
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>name</th>
-      <th>title</th>
-      <th>subtitle</th>
-      <th>level</th>
-      <th>dataframe_json</th>
-      <th>blob</th>
-      <th>blob_annotation</th>
-      <th>time_created</th>
-      <th>experiment_id</th>
-      <th>attributes</th>
-      <th>category</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Keine Daten vorhanden -->
-  </tbody>
-</table>
+    // column headers
+    $firstRow = $dataStmt->fetchArray(SQLITE3_ASSOC);
+    if ($firstRow !== false) {
+        echo "  <tr>";
+        foreach (array_keys($firstRow) as $col) {
+            echo "<th>" . htmlspecialchars($col, ENT_QUOTES, 'UTF-8') . "</th>";
+        }
+        echo "</tr>\n";
 
-### `abandoned_arm_v2` (empty)
+        // first row data
+        echo "  <tr>";
+        foreach ($firstRow as $val) {
+            echo "<td>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</td>";
+        }
+        echo "</tr>\n";
 
-<table>
-  <thead>
-    <tr>
-      <th>abandoned_reason</th>
-      <th>id</th>
-      <th>name</th>
-      <th>time_abandoned</th>
-      <th>trial_id</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Keine Daten vorhanden -->
-  </tbody>
-</table>
+        // remaining rows
+        while ($row = $dataStmt->fetchArray(SQLITE3_ASSOC)) {
+            echo "  <tr>";
+            foreach ($row as $val) {
+                echo "<td>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</td>";
+            }
+            echo "</tr>\n";
+        }
+    } else {
+        // empty table
+        echo "  <tr><td><em>No rows</em></td></tr>\n";
+    }
 
-### `generator_run_v2`
+    echo "</table>\n";
+}
 
-<table>
-  <thead>
-    <tr>
-      <th>best_arm_name</th>
-      <th>best_arm_parameters</th>
-      <th>best_arm_predictions</th>
-      <th>generator_run_type</th>
-      <th>id</th>
-      <th>index</th>
-      <th>model_predictions</th>
-      <th>time_created</th>
-      <th>trial_id</th>
-      <th>weight</th>
-      <th>fit_time</th>
-      <th>gen_time</th>
-      <th>model_key</th>
-      <th>model_kwargs</th>
-      <th>bridge_kwargs</th>
-      <th>gen_metadata</th>
-      <th>model_state_after_gen</th>
-      <th>generation_strategy_id</th>
-      <th>generation_step_index</th>
-      <th>candidate_metadata_by_arm_signature</th>
-      <th>generation_node_name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>1</td>
-      <td>0</td>
-      <td></td>
-      <td>1750172214</td>
-      <td>1</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>SOBOL</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>2</td>
-      <td>0</td>
-      <td></td>
-      <td>1750172237</td>
-      <td>2</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>SOBOL</td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>3</td>
-      <td>0</td>
-      <td></td>
-      <td>1750172260</td>
-      <td>3</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>BOTORCH_MODULAR</td>
-    </tr>
-  </tbody>
-</table>
-
-### `runner` (empty)
-
-<table>
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>experiment_id</th>
-      <th>properties</th>
-      <th>runner_type</th>
-      <th>trial_id</th>
-      <th>trial_type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Keine Daten vorhanden -->
-  </tbody>
-</table>
-
-### `data_v2`
-
-<table>
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>data_json</th>
-      <th>description</th>
-      <th>experiment_id</th>
-      <th>time_created</th>
-      <th>trial_index</th>
-      <th>generation_strategy_id</th>
-      <th>structure_metadata_json</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>{"trial_index":{"0":0},"arm_name":{"0":"0_0"},"metric_name":{"0":"RESULT"},"mean":{"0":-93199.1948576998},"sem":{"0":null}}</td>
-      <td>1</td>
-      <td>1750172230632</td>
-      <td>0</td>
-      <td></td>
-      <td>0</td>
-      <td>{"df": {"__type": "DataFrame", "value": "{\"trial_index\":{\"0\":0},\"arm_name\":{\"0\":\"0_0\"},\"metric_name\":{\"0\":\"RESULT\"},\"mean\":{\"0\":-93199.1948576998},\"sem\":{\"0\":null}}"}, "description": null}</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>{"trial_index":{"0":1},"arm_name":{"0":"1_0"},"metric_name":{"0":"RESULT"},"mean":{"0":-79151.8159297052},"sem":{"0":null}}</td>
-      <td>1</td>
-      <td>1750172249564</td>
-      <td>1</td>
-      <td></td>
-      <td>0</td>
-      <td>{"df": {"__type": "DataFrame", "value": "{\"trial_index\":{\"0\":1},\"arm_name\":{\"0\":\"1_0\"},\"metric_name\":{\"0\":\"RESULT\"},\"mean\":{\"0\":-79151.8159297052},\"sem\":{\"0\":null}}"}, "description": null}</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>{"trial_index":{"0":2},"arm_name":{"0":"2_0"},"metric_name":{"0":"RESULT"},"mean":{"0":-111380.52},"sem":{"0":null}}</td>
-      <td>1</td>
-      <td>1750172274070</td>
-      <td>2</td>
-      <td></td>
-      <td>0</td>
-      <td>{"df": {"__type": "DataFrame", "value": "{\"trial_index\":{\"0\":2},\"arm_name\":{\"0\":\"2_0\"},\"metric_name\":{\"0\":\"RESULT\"},\"mean\":{\"0\":-111380.52},\"sem\":{\"0\":null}}"}, "description": null}</td>
-    </tr>
-  </tbody>
-</table>
-
-### `parameter_v2`
-
-<table>
-  <thead>
-    <tr>
-      <th>domain_type</th>
-      <th>experiment_id</th>
-      <th>id</th>
-      <th>generator_run_id</th>
-      <th>name</th>
-      <th>parameter_type</th>
-      <th>is_fidelity</th>
-      <th>target_value</th>
-      <th>digits</th>
-      <th>log_scale</th>
-      <th>lower</th>
-      <th>upper</th>
-      <th>choice_values</th>
-      <th>is_ordered</th>
-      <th>is_task</th>
-      <th>dependents</th>
-      <th>fixed_value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td></td>
-      <td>int_param</td>
-      <td>1</td>
-      <td>0</td>
-      <td></td>
-      <td>0</td>
-      <td>-100.0</td>
-      <td>10.0</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>2</td>
-      <td></td>
-      <td>float_param</td>
-      <td>2</td>
-      <td>0</td>
-      <td></td>
-      <td>0</td>
-      <td>-100.0</td>
-      <td>10.0</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>1</td>
-      <td>3</td>
-      <td></td>
-      <td>choice_param</td>
-      <td>3</td>
-      <td>0</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>["1", "2", "4", "8", "16", "hallo"]</td>
-      <td>0</td>
-      <td>0</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>4</td>
-      <td></td>
-      <td>int_param_two</td>
-      <td>1</td>
-      <td>0</td>
-      <td></td>
-      <td>0</td>
-      <td>-100.0</td>
-      <td>10.0</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
-### `parameter_constraint_v2`
-
-<table>
-  <thead>
-    <tr>
-      <th>bound</th>
-      <th>constraint_dict</th>
-      <th>experiment_id</th>
-      <th>id</th>
-      <th>generator_run_id</th>
-      <th>type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Keine Daten vorhanden -->
-  </tbody>
-</table>
-
-### `metric_v2`
-
-<table>
-  <thead>
-    <tr>
-      <th>experiment_id</th>
-      <th>generator_run_id</th>
-      <th>id</th>
-      <th>lower_is_better</th>
-      <th>intent</th>
-      <th>metric_type</th>
-      <th>name</th>
-      <th>properties</th>
-      <th>minimize</th>
-      <th>op</th>
-      <th>bound</th>
-      <th>relative</th>
-      <th>trial_type</th>
-      <th>canonical_name</th>
-      <th>scalarized_objective_id</th>
-      <th>scalarized_objective_weight</th>
-      <th>scalarized_outcome_constraint_id</th>
-      <th>scalarized_outcome_constraint_weight</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td></td>
-      <td>1</td>
-      <td>1</td>
-      <td>objective</td>
-      <td>0</td>
-      <td>RESULT</td>
-      <td>{"name": "RESULT", "lower_is_better": true, "properties": {}}</td>
-      <td>1</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
-### `arm_v2`
-
-<table>
-  <thead>
-    <tr>
-      <th>generator_run_id</th>
-      <th>id</th>
-      <th>name</th>
-      <th>parameters</th>
-      <th>weight</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>0_0</td>
-      <td>{"int_param": 1, "float_param": -69.76193875074387, "int_param_two": -56, "choice_param": "hallo"}</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>1_0</td>
-      <td>{"int_param": -66, "float_param": -32.97011447139084, "int_param_two": -31, "choice_param": "16"}</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>2_0</td>
-      <td>{"int_param": 10, "float_param": -100.0, "int_param_two": 10, "choice_param": "hallo"}</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
-</table>
+$db->close();
+```

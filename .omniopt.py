@@ -1847,6 +1847,9 @@ def try_saving_to_db() -> None:
 
 @beartype
 def save_results_csv() -> Optional[str]:
+    if args.dryrun:
+        return None
+
     pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
     pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
     state_files_folder: str = f"{get_current_run_folder()}/state_files/"

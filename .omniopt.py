@@ -1829,21 +1829,23 @@ def init_storage(db_url: str):
 
 @beartype
 def try_saving_to_db() -> None:
-    global initialized_storage
+    try:
+        global initialized_storage
 
-    db_url = f"sqlite:////{get_current_run_folder()}/database.db"
+        db_url = f"sqlite:////{get_current_run_folder()}/database.db"
 
-    if args.db_url:
-        db_url = args.db_url
+        if args.db_url:
+            db_url = args.db_url
 
-    if not initialized_storage:
-        init_storage(db_url)
+        if not initialized_storage:
+            init_storage(db_url)
 
-        initialized_storage = True
+            initialized_storage = True
 
-    save_experiment_to_db(ax_client.experiment)
-    save_generation_strategy(global_gs)
-
+        save_experiment_to_db(ax_client.experiment)
+        save_generation_strategy(global_gs)
+    except Exception as e:
+        print_debug(f"Failed trying to save sqlite3-DB: {e}")
 
 @beartype
 def save_results_csv() -> Optional[str]:

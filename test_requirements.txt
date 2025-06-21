@@ -51,3 +51,4 @@ pyfiglet
 setuptools
 pyright
 pymarkdownlnt
+types-qrcode

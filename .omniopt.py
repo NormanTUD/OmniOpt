@@ -6101,7 +6101,7 @@ def _get_generation_node_for_index_row_matches(
 
 @beartype
 def _get_generation_node_for_index_floats_match(
-    val: float,
+    val: Union[int, float],
     row_val_str: str,
     tolerance: float = 1e-8
 ) -> bool:

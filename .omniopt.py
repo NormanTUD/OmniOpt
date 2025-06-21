@@ -1822,7 +1822,7 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
         return None
 
 @beartype
-def init_storage(db_url: str):
+def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
     engine = get_engine()
     create_all_tables(engine)

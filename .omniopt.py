@@ -8942,7 +8942,7 @@ def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str
     all_columns = list(first_row.keys())
     ignored_cols = set(special_col_names) - {"trial_index"}
 
-    param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names]
+    param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names and not col.startswith("OO_Info_")]
     result_cols = [col for col in arg_result_names if col in all_columns]
     return param_cols, result_cols
 

@@ -523,6 +523,7 @@ function plotScatter2d() {
 
 		var numericColumns = tab_results_headers_json.filter(col =>
 			!special_col_names.includes(col) && !result_names.includes(col) &&
+			!col.startsWith("OO_Info") &&
 			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 		);
 
@@ -716,6 +717,7 @@ function plotScatter3d() {
 
 		var numericColumns = tab_results_headers_json.filter(col =>
 			!special_col_names.includes(col) && !result_names.includes(col) &&
+			!col.startsWith("OO_Info") &&
 			tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 		);
 
@@ -1010,6 +1012,7 @@ function plotBoxplot() {
 	}
 	var numericColumns = tab_results_headers_json.filter(col =>
 		!special_col_names.includes(col) && !result_names.includes(col) &&
+		!col.startsWith("OO_Info") &&
 		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 	);
 
@@ -1067,6 +1070,9 @@ function plotHeatmap() {
 		if (special_col_names.includes(col) || result_names.includes(col)) {
 			return false;
 		}
+		if (!col.startsWith("OO_Info")) {
+			return;
+		}
 		let index = tab_results_headers_json.indexOf(col);
 		return tab_results_csv_json.every(row => {
 			let value = parseFloat(row[index]);
@@ -1123,6 +1129,7 @@ function plotHistogram() {
 
 	var numericColumns = tab_results_headers_json.filter(col =>
 		!special_col_names.includes(col) && !result_names.includes(col) &&
+		!col.startsWith("OO_Info") &&
 		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 	);
 
@@ -1173,6 +1180,7 @@ function plotViolin() {
 	}
 	var numericColumns = tab_results_headers_json.filter(col =>
 		!special_col_names.includes(col) && !result_names.includes(col) &&
+		!col.startsWith("OO_Info") &&
 		tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
 	);
 

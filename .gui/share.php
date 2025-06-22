@@ -99,7 +99,6 @@
 				'add_pareto_from_from_file' => [["$run_dir"]],
 				'add_simple_csv_tab_from_file' => [
 					["$run_dir/results.csv", "Results", "tab_results"],
-					["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"],
 					//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
 				],
 				'add_simple_pre_tab_from_file' => [
@@ -130,6 +129,10 @@
 					["$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs"]
 				]
 			];
+
+			if (!in_array('program_string', str_getcsv(fgets(fopen("$run_dir/results.csv", 'r'))))) { 
+				$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
+			}
 
 			foreach ($tab_definitions as $function => $args_list) {
 				foreach ($args_list as $args) {

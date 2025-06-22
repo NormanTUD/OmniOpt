@@ -1848,6 +1848,31 @@ def try_saving_to_db() -> None:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
 
 @beartype
+def merge_with_job_infos(pd_frame: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge pd_frame with job_infos.csv on 'trial_index'.
+    Keep existing columns in pd_frame, and only add new ones from job_infos.csv.
+    """
+    job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
+    if not os.path.exists(job_infos_path):
+        return pd_frame
+
+    job_df = pd.read_csv(job_infos_path)
+
+    # Prüfe, ob 'trial_index' in beiden vorhanden ist
+    if 'trial_index' not in pd_frame.columns or 'trial_index' not in job_df.columns:
+        raise ValueError("Both DataFrames must contain a 'trial_index' column.")
+
+    # Entferne alle Spalten aus job_df, die schon in pd_frame sind (außer trial_index)
+    columns_to_add = [col for col in job_df.columns if col not in pd_frame.columns or col == 'trial_index']
+    job_df_reduced = job_df[columns_to_add]
+
+    # Merge über 'trial_index', nur zusätzliche Spalten übernehmen
+    merged = pd.merge(pd_frame, job_df_reduced, on='trial_index', how='left', suffixes=('', '_job'))
+
+    return merged
+
+@beartype
 def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
@@ -1867,6 +1892,9 @@ def save_results_csv() -> Optional[str]:
         ax_client.experiment.fetch_data()
 
         pd_frame = ax_client.get_trials_data_frame()
+
+        pd_frame = merge_with_job_infos(pd_frame)
+
         pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
         json_snapshot = ax_client.to_json_snapshot()

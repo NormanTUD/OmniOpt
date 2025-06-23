@@ -5360,6 +5360,17 @@ def save_checkpoint_for_continued(experiment_parameters: dict) -> None:
         _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
 
 @beartype
+def load_original_generation_strategy(experiment_parameters: dict, original_ax_client_file: str) -> dict:
+    with open(original_ax_client_file, encoding="utf-8") as f:
+        loaded_original_ax_client_json = json.load(f)
+        original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+
+        if original_generation_strategy:
+            experiment_parameters["generation_strategy"] = original_generation_strategy
+
+    return experiment_parameters
+
+@beartype
 def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
     cli_params_experiment_parameters, experiment_parameters = _params
 
@@ -5402,12 +5413,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
             ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-            with open(original_ax_client_file, encoding="utf-8") as f:
-                loaded_original_ax_client_json = json.load(f)
-                original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
-
-                if original_generation_strategy:
-                    experiment_parameters["generation_strategy"] = original_generation_strategy
+            experiment_parameters = load_original_generation_strategy(experiment_parameters, original_ax_client_file)
 
             load_ax_client_from_experiment_parameters(experiment_parameters)
 

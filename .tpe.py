@@ -6,6 +6,13 @@ from typing import Optional
 try:
     import optuna
     from optuna.trial import create_trial
+
+    from optuna.distributions import (
+        BaseDistribution,
+        IntUniformDistribution,
+        FloatDistribution,        # Optuna ≥3.6
+        UniformDistribution       # Optuna ≤3.5  (FloatUniform in much older versions)
+    )
 except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.")
     sys.exit(1)
@@ -121,8 +128,8 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
 
     final_value = result_dict[result_key]
 
-    trial_params = {}
-    trial_distributions = {}
+    trial_params: dict[str, object] = {}
+    trial_distributions: dict[str, BaseDistribution] = {}   # 👈 explicit & correct
 
     for name, p in parameters.items():
         value = param_dict[name]
@@ -131,26 +138,27 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
             trial_params[name] = value
             continue
 
+        dist: BaseDistribution
         if p["parameter_type"] == "RANGE":
             if p["type"] == "INT":
-                dist = optuna.distributions.IntUniformDistribution(p["range"][0], p["range"][1])
+                dist = IntUniformDistribution(p["range"][0], p["range"][1])
             elif p["type"] == "FLOAT":
-                dist = optuna.distributions.UniformDistribution(p["range"][0], p["range"][1])
+                # pick the right class for your Optuna version
+                dist = FloatDistribution(p["range"][0], p["range"][1])
             else:
                 continue
-
         elif p["parameter_type"] == "CHOICE":
             dist = optuna.distributions.CategoricalDistribution(p["values"])
         else:
             continue
 
         trial_params[name] = value
-        trial_distributions[name] = dist
+        trial_distributions[name] = dist      # keys are str, values are BaseDistribution
 
     study.add_trial(
         create_trial(
             params=trial_params,
-            distributions=trial_distributions,
+            distributions=trial_distributions,  # ✅ mypy is happy now
             value=final_value
         )
     )

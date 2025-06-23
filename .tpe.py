@@ -11,7 +11,6 @@ try:
         BaseDistribution,
         IntUniformDistribution,
         FloatDistribution,        # Optuna ≥3.6
-        UniformDistribution       # Optuna ≤3.5  (FloatUniform in much older versions)
     )
 except ModuleNotFoundError:
     print("Optuna not found. Cannot continue.")

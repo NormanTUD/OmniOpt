@@ -4835,10 +4835,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         save_checkpoint(trial_nr + 1, e)
 
 @beartype
-def get_tmp_file_from_json(experiment_args: Optional[dict]) -> str:
-    if experiment_args is None:
-        return None
-
+def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
 
     k = 0
@@ -5342,6 +5339,27 @@ def copy_continue_uuid() -> None:
         print_debug(f"copy_continue_uuid: Source file does not exist: {source_file}")
 
 @beartype
+def load_ax_client_from_experiment_parameters(experiment_parameters: dict) -> None:
+    global ax_client
+    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+    ax_client = AxClient.load_from_json_file(tmp_file_path)
+    ax_client = cast(AxClient, ax_client)
+    os.unlink(tmp_file_path)
+
+@beartype
+def save_checkpoint_for_continued(experiment_parameters: dict) -> None:
+    state_files_folder = f"{get_current_run_folder()}/state_files"
+    checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
+
+    makedirs(state_files_folder)
+
+    with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
+        json.dump(experiment_parameters, outfile)
+
+    if not os.path.exists(checkpoint_filepath):
+        _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
+
+@beartype
 def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
     cli_params_experiment_parameters, experiment_parameters = _params
 
@@ -5366,8 +5384,6 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
         checkpoint_file: str = f"{continue_previous_job}/state_files/checkpoint.json"
         checkpoint_parameters_filepath: str = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
         original_ax_client_file: str = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
-        state_files_folder = f"{get_current_run_folder()}/state_files"
-        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
 
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
         die_with_47_if_file_doesnt_exists(checkpoint_file)
@@ -5378,44 +5394,31 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
         copy_state_files_from_previous_job(continue_previous_job)
 
-        replace_parameters_for_continued_jobs(parameter, cli_params_experiment_parameters, experiment_parameters)
-
-        ax_client.save_to_json_file(filepath=original_ax_client_file)
-
-        with open(original_ax_client_file, encoding="utf-8") as f:
-            loaded_original_ax_client_json = json.load(f)
-            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
-
-            if original_generation_strategy:
-                experiment_parameters["generation_strategy"] = original_generation_strategy
-
-        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-        if tmp_file_path is None:
-            print_red("experiment_parameters was not defined where it should have been")
+        if experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]:
+            print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
             my_exit(95)
+        else:
+            replace_parameters_for_continued_jobs(parameter, cli_params_experiment_parameters, experiment_parameters)
 
-        ax_client = AxClient.load_from_json_file(tmp_file_path)
-        ax_client = cast(AxClient, ax_client)
-        os.unlink(tmp_file_path)
+            ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-        makedirs(state_files_folder)
+            with open(original_ax_client_file, encoding="utf-8") as f:
+                loaded_original_ax_client_json = json.load(f)
+                original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 
-        with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
-            json.dump(experiment_parameters, outfile)
+                if original_generation_strategy:
+                    experiment_parameters["generation_strategy"] = original_generation_strategy
 
-        if not os.path.exists(checkpoint_filepath):
-            _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
+            load_ax_client_from_experiment_parameters(experiment_parameters)
 
-        with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+            save_checkpoint_for_continued(experiment_parameters)
 
-        copy_continue_uuid()
+            with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+                print(f"Continuation from checkpoint {continue_previous_job}", file=f)
 
-        if experiment_constraints:
-            if experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]:
-                print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
-                my_exit(95)
-            else:
+            copy_continue_uuid()
+
+            if experiment_constraints:
                 experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
     else:
         objectives = set_objectives()

@@ -3692,10 +3692,8 @@ def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Opti
         for rkey in result:
             result_values.append(str(rkey))
     elif isinstance(result, dict):
-        result_keys = list(result.keys())
-        for rkey in result_keys:
-            rval = str(result[str(rkey)])
-            result_values.append(rval)
+        for _rkey, rval in result.items():  # type: str, Optional[float]
+            result_values.append(str(rval))
     elif result is not None:  # int or float
         result_values.append(str(result))
 

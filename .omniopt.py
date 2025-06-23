@@ -6733,6 +6733,10 @@ def _finish_job_core_helper_check_valid_result(result: Union[None, list, int, fl
 
 @beartype
 def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -> None:
+    if ax_client is None:
+        print_red("ax_client is not defined in _finish_job_core_helper_complete_trial")
+        return None
+
     try:
         print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
         ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
@@ -6744,6 +6748,8 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
             print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
         else:
             _fatal_error(f"Error completing trial: {e}", 234)
+
+    return None
 
 @beartype
 def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Union[float, int, tuple]) -> None:
@@ -6760,6 +6766,10 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
 
 @beartype
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
+    if ax_client is None:
+        print_red("ax_client is not defined in _finish_job_core_helper_mark_failure")
+        return None
+
     print_debug(f"Counting job {job} as failed, because the result is {job.result() if job else 'None'}")
     if job:
         try:
@@ -6811,6 +6821,10 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
 @beartype
 def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -> None:
+    if ax_client is None:
+        print_red("ax_client is not defined in _finish_job_core_helper_mark_failure")
+        return None
+
     if job:
         try:
             progressbar_description(["job_failed"])
@@ -7478,6 +7492,10 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         return []
 
+    if ax_client is None:
+        print_red("get_batched_arms: ax_client was None")
+        return []
+
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
             print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
@@ -7563,6 +7581,10 @@ class TrialRejected(Exception):
 
 @beartype
 def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
+    if ax_client is None:
+        print_red(f"ax_client is None in _create_and_handle_trial")
+        return None
+
     start = time.time()
 
     if global_gs is None:

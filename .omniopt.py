@@ -3916,6 +3916,20 @@ def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
     }
 
 @beartype
+def sanitize_for_evaluate_handle_result(val: Optional[Union[int, float, list, tuple]]) -> Optional[Union[float, Tuple]]:
+    if val is None:
+        return None
+    if isinstance(val, int):
+        return float(val)
+    if isinstance(val, float):
+        return val
+    if isinstance(val, list):
+        return tuple(val)
+    if isinstance(val, tuple):
+        return val
+    raise TypeError(f"Unexpected result type: {type(val)}")
+
+@beartype
 def _evaluate_handle_result(
     stdout: str,
     result: Optional[Union[int, float, dict, list]],
@@ -3925,16 +3939,19 @@ def _evaluate_handle_result(
 
     if isinstance(result, (int, float)):
         for name in arg_result_names:
-            final_result[name] = attach_sem_to_result(stdout, name, float(result))
+            value = attach_sem_to_result(stdout, name, float(result))
+            final_result[name] = sanitize_for_evaluate_handle_result(value)
 
     elif isinstance(result, list):
         float_values = [float(r) for r in result]
         for name in arg_result_names:
-            final_result[name] = attach_sem_to_result(stdout, name, float_values)
+            value = attach_sem_to_result(stdout, name, float_values)
+            final_result[name] = sanitize_for_evaluate_handle_result(value)
 
     elif isinstance(result, dict):
         for name in arg_result_names:
-            final_result[name] = attach_sem_to_result(stdout, name, result.get(name))
+            value = attach_sem_to_result(stdout, name, result.get(name))
+            final_result[name] = sanitize_for_evaluate_handle_result(value)
 
     else:
         write_failed_logs(parameters, "No Result")

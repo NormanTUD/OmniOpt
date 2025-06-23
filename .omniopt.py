@@ -6801,6 +6801,8 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
     mark_trial_as_failed(trial_index, _trial)
     failed_jobs(1)
 
+    return None
+
 @beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     die_for_debug_reasons()
@@ -6859,6 +6861,8 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
     with global_vars_jobs_lock:
         print_debug(f"finish_previous_jobs: removing job {job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((job, trial_index))
+
+    return None
 
 @beartype
 def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:
@@ -7599,7 +7603,7 @@ class TrialRejected(Exception):
 @beartype
 def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:
-        print_red(f"ax_client is None in _create_and_handle_trial")
+        print_red("ax_client is None in _create_and_handle_trial")
         return None
 
     start = time.time()

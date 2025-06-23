@@ -3641,7 +3641,7 @@ def _write_job_infos_csv_main(parameters: dict, stdout: Optional[str], program_s
     values = _write_job_infos_csv_replace_none_with_str(values)
 
     headline = ["trial_index", *headline]
-    values = [trial_index, *values]
+    values = [str(trial_index), *values]
 
     run_folder = get_current_run_folder()
     if run_folder is not None and os.path.exists(run_folder):

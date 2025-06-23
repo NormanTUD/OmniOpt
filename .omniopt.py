@@ -5412,7 +5412,11 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
         copy_continue_uuid()
 
         if experiment_constraints:
-            experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
+            if experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]:
+                print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
+                my_exit(95)
+            else:
+                experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
     else:
         objectives = set_objectives()
 

@@ -5379,8 +5379,6 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
 
     experiment_constraints = get_constraints()
 
-    global ax_client
-
     if not ax_client:
         _fatal_error("Something went wrong with the ax_client", 9)
         return None

@@ -45,6 +45,7 @@
 			92 => "Error loading torch: This can happen when your disk is full",
 			93 => "Failed loading module. See output for specific errors.",
 			94 => "Trying to continue an uncontinueable_models",
+			95 => "experiment_parameters was not defined where it should have been",
 			99 => "It seems like the run folder was deleted during the run",
 			100 => "--mem_gb or --gpus, which must be int, has received a value that is not int",
 			101 => "Error using ax_client: it was not defined where it should have been",

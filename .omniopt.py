@@ -1842,7 +1842,11 @@ def try_saving_to_db() -> None:
 
             initialized_storage = True
 
-        save_experiment_to_db(ax_client.experiment)
+        if ax_client is not None:
+            save_experiment_to_db(ax_client.experiment)
+        else:
+            print_red("ax_client was not defined in try_saving_to_db")
+            my_exit(101)
         save_generation_strategy(global_gs)
     except Exception as e:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
@@ -4831,7 +4835,10 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         save_checkpoint(trial_nr + 1, e)
 
 @beartype
-def get_tmp_file_from_json(experiment_args: dict) -> str:
+def get_tmp_file_from_json(experiment_args: Optional[dict]) -> str:
+    if experiment_args is None:
+        return None
+
     _tmp_dir = "/tmp"
 
     k = 0
@@ -5383,6 +5390,10 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
                 experiment_parameters["generation_strategy"] = original_generation_strategy
 
         tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+        if tmp_file_path is None:
+            print_red("experiment_parameters was not defined where it should have been")
+            my_exit(95)
+
         ax_client = AxClient.load_from_json_file(tmp_file_path)
         ax_client = cast(AxClient, ax_client)
         os.unlink(tmp_file_path)

@@ -5371,7 +5371,7 @@ def load_original_generation_strategy(experiment_parameters: dict, original_ax_c
     return experiment_parameters
 
 @beartype
-def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict], dict, str, str]:
+def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[list, dict], dict, str, str]]:
     cli_params_experiment_parameters, experiment_parameters = _params
 
     continue_previous_job = args.continue_previous_job
@@ -5383,6 +5383,7 @@ def get_experiment_parameters(_params: list) -> Tuple[AxClient, Union[list, dict
 
     if not ax_client:
         _fatal_error("Something went wrong with the ax_client", 9)
+        return None
 
     gpu_string = ""
     gpu_color = "green"
@@ -6272,6 +6273,9 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
 
     while not done_converting:
         try:
+            if ax_client is None:
+                return False
+
             new_trial = ax_client.attach_trial(arm_params)
             if not isinstance(new_trial, tuple) or len(new_trial) < 2:
                 raise RuntimeError("attach_trial didn't return the expected tuple")
@@ -10009,44 +10013,48 @@ def main() -> None:
 
     initialize_ax_client()
 
-    ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = get_experiment_parameters([
+    exp_params = get_experiment_parameters([
         cli_params_experiment_parameters,
         experiment_parameters,
     ])
 
-    print_debug(f"experiment_parameters: {experiment_parameters}")
+    if exp_params is not None:
+        ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = exp_params
+        print_debug(f"experiment_parameters: {experiment_parameters}")
 
-    set_orchestrator()
+        set_orchestrator()
 
-    show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
+        show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
-    original_print(f"Run-Program: {global_vars['joined_run_program']}")
+        original_print(f"Run-Program: {global_vars['joined_run_program']}")
 
-    if args.external_generator:
-        original_print(f"External-Generator: {decode_if_base64(args.external_generator)}")
+        if args.external_generator:
+            original_print(f"External-Generator: {decode_if_base64(args.external_generator)}")
 
-    checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
-    save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
+        checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
+        save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
 
-    print_overview_tables(experiment_parameters, experiment_args)
+        print_overview_tables(experiment_parameters, experiment_args)
 
-    write_files_and_show_overviews()
+        write_files_and_show_overviews()
 
-    for existing_run in args.load_data_from_existing_jobs:
-        insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"), experiment_parameters)
+        for existing_run in args.load_data_from_existing_jobs:
+            insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"), experiment_parameters)
 
-        set_global_generation_strategy()
+            set_global_generation_strategy()
 
-    try:
-        run_search_with_progress_bar()
+        try:
+            run_search_with_progress_bar()
 
-        live_share()
+            live_share()
 
-        time.sleep(2)
-    except ax.exceptions.core.UnsupportedError:
-        pass
+            time.sleep(2)
+        except ax.exceptions.core.UnsupportedError:
+            pass
 
-    end_program()
+        end_program()
+    else:
+        print_red("exp_params is None!")
 
 @beartype
 def log_worker_creation() -> None:

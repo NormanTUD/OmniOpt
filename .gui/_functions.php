@@ -112,6 +112,13 @@
 		}, $text);
 	}
 
+	function convertNewlinesToBr($text) {
+		return preg_replace_callback('/\n{2,}/', function($matches) {
+			$count = strlen($matches[0]);
+			return "\n" . str_repeat('<br>', $count - 1);
+		}, $text);
+	}
+
 	function convert_markdown_to_html($markdown) {
 		$markdown = preg_replace_callback('/(?:^[-*] .*(?:\n(?!\n)[-*] .*)*)/m', function ($matches) {
 			$items = preg_replace('/^[-*] (.*)$/m', '<li>$1</li>', $matches[0]);
@@ -185,7 +192,8 @@
 		$markdown = preg_replace('/`(.*?)`/', "<span class='invert_in_dark_mode'><code class='language-bash'>$1</code></span>\n", $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK>>>(.*?)<<<CODEBLOCK>>>/s', function($matches) {
-			return "<pre class='invert_in_dark_mode'><code>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+			$decoded = convertNewlinesToBr(htmlentities(base64_decode($matches[1])));
+			return "<pre class='invert_in_dark_mode'><code>" . $decoded . "</code></pre>\n";
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_YAML>>>(.*?)<<<CODEBLOCK_YAML>>>/s', function($matches) {
@@ -205,11 +213,13 @@
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_PYTHON>>>(.*?)<<<CODEBLOCK_PYTHON>>>/s', function($matches) {
-			return "<pre class='invert_in_dark_mode'><code class='language-python'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+			$decoded = convertNewlinesToBr(htmlentities(base64_decode($matches[1])));
+			return "<pre class='invert_in_dark_mode'><code class='language-python'>" . $decoded . "</code></pre>\n";
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<CODEBLOCK_BASH>>>(.*?)<<<CODEBLOCK_BASH>>>/s', function($matches) {
-			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . htmlentities(base64_decode($matches[1])) . "</code></pre>\n";
+			$decoded = convertNewlinesToBr(htmlentities(base64_decode($matches[1])));
+			return "<pre class='invert_in_dark_mode'><code class='language-bash'>" . $decoded . "</code></pre>\n";
 		}, $markdown);
 
 		$markdown = preg_replace_callback('/<<<PHP_RUN_BLOCK>>>(.*?)<<<PHP_RUN_BLOCK>>>/s', function($matches) {
@@ -218,6 +228,8 @@
 			eval(base64_decode($matches[1]));
 
 			$output = ob_get_clean();
+
+			convertNewlinesToBr($output);
 
 			return $output;
 		}, $markdown);

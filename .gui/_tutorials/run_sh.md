@@ -35,7 +35,8 @@ It may look like this:
 # Helps avoid common errors like "[Errno 2] No such file or directory" when starting
 # the script from a different working directory.
 # It's required to use scontrol since the original bash file gets copied by Slurm into
-# a spool-directory. If you use this outside of slurm, you can use:
+# a spool-directory. If outside of a Slurm-Job, it will simply return the directory path
+# of the main script.
 if [[ -z $SLURM_JOB_ID ]]; then
     SCRIPT_DIR=$(dirname $(realpath "$0"))
 else

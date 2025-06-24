@@ -36,10 +36,12 @@ It may look like this:
 # the script from a different working directory.
 # It's required to use scontrol since the original bash file gets copied by Slurm into
 # a spool-directory. If you use this outside of slurm, you can use:
-# > SCRIPT_DIR=$(dirname $(realpath "$0"))
-
-SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-SCRIPT_DIR=$(dirname "$SCRIPT_DIR")
+if [[ -z $SLURM_JOB_ID ]]; then
+    SCRIPT_DIR=$(dirname $(realpath "$0"))
+else
+    SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
+    SCRIPT_DIR=$(dirname "$SCRIPT_DIR")
+fi
 cd $SCRIPT_DIR
 
 # Load modules your program needs, always specify versions!

@@ -8467,6 +8467,8 @@ def execute_trials(
         index_param_list.append(_args)
         i += 1
 
+        save_results_csv()
+
     start_time = time.time()
 
     cnt = 0

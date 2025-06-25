@@ -1830,14 +1830,13 @@ function resizePlotlyCharts() {
 }
 
 function plotTimelineFromGlobals() {
-	// Prüfen ob globale Variablen vorhanden und korrekt sind
 	if (
 		typeof tab_results_headers_json === "undefined" ||
 		typeof tab_results_csv_json === "undefined" ||
 		!Array.isArray(tab_results_headers_json) ||
 		!Array.isArray(tab_results_csv_json)
 	) {
-		console.warn("Globale Daten 'tab_results_headers_json' oder 'tab_results_csv_json' fehlen oder sind ungültig.");
+		console.warn("Global variables 'tab_results_headers_json' or 'tab_results_csv_json' missing or invalid.");
 		return null;
 	}
 
@@ -1850,9 +1849,8 @@ function plotTimelineFromGlobals() {
 	const ix_end_time = col("end_time");
 	const ix_status = col("trial_status");
 
-	// Wenn eine essentielle Spalte fehlt, abbrechen
 	if ([ix_trial_index, ix_start_time, ix_end_time, ix_status].some(ix => ix === -1)) {
-		console.warn("Eine oder mehrere benötigte Spalten fehlen. Plot wird nicht erstellt.");
+		console.warn("One or more needed columns missing");
 		return null;
 	}
 
@@ -1884,7 +1882,7 @@ function plotTimelineFromGlobals() {
 	}
 
 	if (traces.length === 0) {
-		console.warn("Keine gültigen Daten zum Plotten gefunden.");
+		console.warn("No valid data for plotting found.");
 		return null;
 	}
 

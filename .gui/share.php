@@ -130,8 +130,13 @@
 				]
 			];
 
-			if (!in_array('program_string', str_getcsv(fgets(fopen("$run_dir/results.csv", 'r'))))) { 
+			$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')));
+			if (!in_array('program_string', $header)) { 
 				$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
+			}
+
+			if (in_array('start_time', $header) && in_array('end_time', $header)) {
+				$tab_definitions["add_timeline"][] = ["$run_dir/results.csv", "Timeline", "tab_timeline"];
 			}
 
 			foreach ($tab_definitions as $function => $args_list) {

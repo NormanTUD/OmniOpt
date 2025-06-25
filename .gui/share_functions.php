@@ -817,6 +817,21 @@
 		return $tabs;
 	}
 
+	function add_timeline ($tabs, $warnings, $csv_file, $name, $tab_name) {
+		$html = '<div class="invert_in_dark_mode" id="plot_timeline"></div>';
+
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}$name"] = [
+			'id' => $tab_name,
+			'content' => $html,
+			"onclick" => "plotTimelineFromGlobals();"
+		];
+
+		return [$tabs, $warnings];
+	}
+
+
 	function add_parallel_plot_tab ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
 

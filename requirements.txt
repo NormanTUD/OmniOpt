@@ -1,3 +1,4 @@
+mypydie
 pymysql
 sqlalchemy
 setuptools

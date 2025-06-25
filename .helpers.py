@@ -12,12 +12,13 @@ try:
     import platform
     import re
     import traceback
-    from pprint import pprint
     import numpy as np
     import pandas as pd
     import matplotlib
     from matplotlib.widgets import Button, TextBox
     from matplotlib.colors import LinearSegmentedColormap
+
+    from mypydie import dier
 except OSError as e:
     print(f"Error loading module: {e}")
     sys.exit(109)
@@ -97,10 +98,6 @@ def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
         return val
     except Exception:
         return val
-
-def dier(msg: Any) -> None:
-    pprint(msg)
-    sys.exit(1)
 
 def flatten_extend(matrix: list) -> list:
     flat_list = []

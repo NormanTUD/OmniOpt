@@ -34,16 +34,7 @@ It may look like this:
 # as the main script (e.g., your Python script), and relative paths will work fine.
 # Helps avoid common errors like "[Errno 2] No such file or directory" when starting
 # the script from a different working directory.
-# It's required to use scontrol since the original bash file gets copied by Slurm into
-# a spool-directory. If outside of a Slurm-Job, it will simply return the directory path
-# of the main script.
-if [[ -z $SLURM_JOB_ID ]]; then
-    SCRIPT_DIR=$(dirname $(realpath "$0"))
-else
-    SCRIPT_DIR=$(scontrol show job "$SLURM_JOB_ID" | awk -F= '/Command=/{print $2}')
-    SCRIPT_DIR=$(dirname "$SCRIPT_DIR")
-fi
-cd $SCRIPT_DIR
+SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 # Load modules your program needs, always specify versions!
 ml TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 # Or whatever modules you need

@@ -1856,6 +1856,38 @@ function plotTimelineFromGlobals() {
 
 	const traces = [];
 
+	// Add dummy traces for legend
+	traces.push({
+		type: "scatter",
+		mode: "lines",
+		x: [null, null],
+		y: [null, null],
+		line: { color: "green", width: 4 },
+		name: "COMPLETED",
+		showlegend: true,
+		hoverinfo: "none"
+	});
+	traces.push({
+		type: "scatter",
+		mode: "lines",
+		x: [null, null],
+		y: [null, null],
+		line: { color: "yellow", width: 4 },
+		name: "RUNNING",
+		showlegend: true,
+		hoverinfo: "none"
+	});
+	traces.push({
+		type: "scatter",
+		mode: "lines",
+		x: [null, null],
+		y: [null, null],
+		line: { color: "red", width: 4 },
+		name: "FAILED/OTHER",
+		showlegend: true,
+		hoverinfo: "none"
+	});
+
 	for (const row of data) {
 		const trial_index = row[ix_trial_index];
 		const start = row[ix_start_time];
@@ -1867,7 +1899,9 @@ function plotTimelineFromGlobals() {
 			isNaN(start) || isNaN(end)
 		) continue;
 
-		const color = (status === "COMPLETED") ? "green" : "red";
+		let color = "red"; // default
+		if (status === "COMPLETED") color = "green";
+		else if (status === "RUNNING") color = "yellow";
 
 		traces.push({
 			type: "scatter",
@@ -1881,7 +1915,7 @@ function plotTimelineFromGlobals() {
 		});
 	}
 
-	if (traces.length === 0) {
+	if (traces.length <= 3) { // only dummy traces added
 		console.warn("No valid data for plotting found.");
 		return null;
 	}

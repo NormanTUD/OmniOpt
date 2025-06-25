@@ -3957,7 +3957,7 @@ def _evaluate_handle_result(
     return final_result
 
 @beartype
-def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int]) -> None:
+def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int], result: Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]) -> None:
     global console
 
     console = Console(
@@ -3980,9 +3980,12 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
     stderr_txt = _read(stderr_path)
 
     # -------- header -------- #
-    outcome = "SUCCESS" if (exit_code is not None and exit_code == 0) else "FAILURE"
+    is_valid = result is not None and (isinstance(result, (int, float)) or (isinstance(result, list) and all(isinstance(x, (int, float)) and x is not None for x in result)) or (isinstance(result, dict) and all(isinstance(v, (int, float)) and v is not None for v in result.values())))
+
+    outcome = "SUCCESS" if is_valid else "FAILURE"
     header_style = "bold white on green" if exit_code == 0 else "bold white on red"
     console.rule(Text(f" {outcome}  (exit {exit_code}) ", style=header_style))
+    console.rule(Text(f" RESULT: {result} ", style=header_style))
 
     def is_nonempty(s: Optional[str]) -> bool:
         return bool(s and s.strip())
@@ -7040,8 +7043,9 @@ def pretty_print_job_output(job: Job) -> None:
     stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
     stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
     exit_code = get_exit_code_from_stderr_or_stdout_path(stderr_path, stdout_path)
+    result = get_results_with_occ(get_file_as_string(stdout_path))
 
-    pretty_process_output(stdout_path, stderr_path, exit_code)
+    pretty_process_output(stdout_path, stderr_path, exit_code, result)
 
 @beartype
 def get_stderr_or_stdout_from_job(job: Job, path_type: str) -> str:

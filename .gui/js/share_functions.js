@@ -1899,7 +1899,7 @@ function plotTimelineFromGlobals() {
 		margin: { t: 50 }
 	};
 
-	Plotly.newPlot('plot_timeline', traces, layout);
+	Plotly.newPlot('plot_timeline', traces, add_default_layout_data(layout));
 	return true;
 }
 

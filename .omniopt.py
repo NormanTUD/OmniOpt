@@ -3957,22 +3957,13 @@ def _evaluate_handle_result(
     return final_result
 
 @beartype
-def _read(p: str) -> Optional[str]:
-    try:
-        return Path(p).read_text(encoding="utf-8", errors="replace")
-    except FileNotFoundError:
-        print_debug(f"[file not found: {p}]")
-
-        return None
-
-@beartype
 def is_valid_result(result: Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]) -> bool:
     return result is not None and (isinstance(result, (int, float)) or (isinstance(result, list) and all(isinstance(x, (int, float)) and x is not None for x in result)) or (isinstance(result, dict) and all(isinstance(v, (int, float)) and v is not None for v in result.values())))
 
 @beartype
 def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int], result: Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]) -> None:
-    stdout_txt = _read(stdout_path)
-    stderr_txt = _read(stderr_path)
+    stdout_txt = get_file_as_string(stdout_path)
+    stderr_txt = get_file_as_string(stderr_path)
 
     # -------- header -------- #
     is_valid = is_valid_result(result)

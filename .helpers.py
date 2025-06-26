@@ -18,7 +18,7 @@ try:
     from matplotlib.widgets import Button, TextBox
     from matplotlib.colors import LinearSegmentedColormap
 
-    from mypydie import dier
+    from mypydie import dier as my_dier
 except OSError as e:
     print(f"Error loading module: {e}")
     sys.exit(109)
@@ -26,6 +26,8 @@ except OSError as e:
 all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+
+dier = my_dier
 
 def check_environment_variable(variable_name: str) -> bool:
     try:

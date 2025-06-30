@@ -14,9 +14,6 @@ except ModuleNotFoundError:
     print("venv not found. Is python3-venv installed?")
     sys.exit(1)
 
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
-
 console = Console()
 
 VENV_PATH = ".torch_venv"
@@ -75,6 +72,10 @@ def ensure_venv_and_rich():
                 create_and_setup_venv()
         restart_with_venv()
 
+ensure_venv_and_rich()
+
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 # -----------------------------------------------------------------------------------
 # Benchmark Code: CIFAR-10 mit PyTorch, Early Stopping, NaN-Check, rich-Ausgabe, CLI Params
@@ -227,10 +228,6 @@ def main_benchmark():
 
 
 if __name__ == '__main__':
-    # Erst sicherstellen, dass venv + rich + torch vorhanden sind und ggf. neu starten:
-    ensure_venv_and_rich()
-
-    # Dann den Benchmark ausführen
     try:
         main_benchmark()
     except KeyboardInterrupt:

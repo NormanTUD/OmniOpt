@@ -3,6 +3,25 @@ var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "s
 var fadeTime = 0;
 var fadeTimeAfterLoading = 300;
 
+function normalizeFloat(value) {
+	if (!isFinite(value)) {
+		return '';
+	}
+
+	// Um wissenschaftliche Notation zu vermeiden
+	var str = value.toString();
+
+	if (str.includes('e')) {
+		var fixed = value.toFixed(20); // sehr viele Stellen für Sicherheit
+		// Entferne alle unnötigen Nullen am Ende, und evtl. das letzte "."
+		fixed = fixed.replace(/(\.\d*?[1-9])0+$/, '$1'); // Trim trailing zeroes
+		fixed = fixed.replace(/\.0+$/, '');              // Falls nur ".0"
+		return fixed;
+	}
+
+	return str;
+}
+
 function get_invalid_names () {
 	var gin = JSON.parse(JSON.stringify(invalid_names));
 
@@ -560,21 +579,9 @@ function update_command() {
 			if (option === "range") {
 				var $this = $(this);
 				//log("$this.find('.minValue').val():", $this.find(".minValue").val());
-				var minValue = parseFloat($this.find(".minValue").val());
-				var maxValue = parseFloat($this.find(".maxValue").val());
 
-				var minFormatted = minValue.toLocaleString("en-US", {
-					useGrouping: false,
-					maximumFractionDigits: 20
-				});
-				var maxFormatted = maxValue.toLocaleString("en-US", {
-					useGrouping: false,
-					maximumFractionDigits: 20
-				});
-
-				$this.find(".minValue").val(minFormatted);
-				$this.find(".maxValue").val(maxFormatted);
-
+				var minValue = normalizeFloat(parseFloat($this.find(".minValue").val()));
+				var maxValue = normalizeFloat(parseFloat($this.find(".maxValue").val()));
 
 				var numberType = $($(".parameterRow")[i]).find(".numberTypeSelect").val();
 

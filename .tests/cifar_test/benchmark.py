@@ -167,12 +167,14 @@ def main_benchmark():
     console.print(f"[green]Using device:[/green] {device}")
 
     transform = transforms.Compose([
+        transforms.Resize((96, 96)),  # oder 96x96 für STL10
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Für allgemeinere Datensätze
     ])
 
-    trainset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-    testset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+    trainset = datasets.STL10(root='./data', train=True, download=True, transform=transform)
+    testset = datasets.STL10(root='./data', train=False, download=True, transform=transform)
 
     trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
     testloader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)

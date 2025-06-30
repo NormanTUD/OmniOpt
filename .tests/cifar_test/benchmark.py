@@ -72,180 +72,171 @@ from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeEl
 console = Console()
 
 import argparse
+import tarfile
+import urllib.request
+from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
+from PIL import Image
+
+DATA_DIR = Path("places365_data")
+VAL_TAR_URL = "http://data.csail.mit.edu/places/places365/val_256.tar"
+VAL_TAR_PATH = DATA_DIR / "val_256.tar"
+VAL_EXTRACTED_DIR = DATA_DIR / "val_256"
+
+def download_and_extract_places365():
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not VAL_TAR_PATH.exists():
+        console.print("⏬ Downloading Places365 val_256.tar ...")
+        with urllib.request.urlopen(VAL_TAR_URL) as response, open(VAL_TAR_PATH, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+        console.print("✅ Download complete.")
+
+    if not VAL_EXTRACTED_DIR.exists():
+        console.print("📦 Extracting val_256.tar ...")
+        with tarfile.open(VAL_TAR_PATH) as tar:
+            tar.extractall(path=VAL_EXTRACTED_DIR)
+        console.print("✅ Extraction complete.")
+
+class Places365Dataset(Dataset):
+    def __init__(self, root, transform=None):
+        self.root = Path(root)
+        self.image_paths = sorted(list(self.root.glob("*.jpg")))
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        image_path = self.image_paths[idx]
+        image = Image.open(image_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image)
+        return image, image  # input == target for reconstruction
+
+def get_dataloader(batch_size):
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+    dataset = Places365Dataset(VAL_EXTRACTED_DIR, transform=transform)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
+from torch.optim import Adam
+import torchvision.utils as vutils
+from datetime import datetime
 
-class SimpleCNN(nn.Module):
-    def __init__(self, dropout_rate):
-        super(SimpleCNN, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 32, 3, padding=1),  # (B,32,32,32)
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 32, 3),            # (B,32,30,30)
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                 # (B,32,15,15)
-            nn.Dropout(dropout_rate),
+def parse_args():
+    parser = argparse.ArgumentParser(description="Autoencoder Training on Places365 val_256")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
+    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
+    parser.add_argument("--output_dir", type=str, default="output", help="Directory for output images and loss.txt")
+    return parser.parse_args()
 
-            nn.Conv2d(32, 64, 3, padding=1), # (B,64,15,15)
-            nn.ReLU(inplace=True),
-            nn.Conv2d(64, 64, 3),             # (B,64,13,13)
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2),                  # (B,64,6,6)
-            nn.Dropout(dropout_rate),
+class SimpleAutoencoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=4, stride=2, padding=1),  # 112x112
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=4, stride=2, padding=1), # 56x56
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1), # 28x28
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),# 14x14
+            nn.ReLU(),
         )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 6 * 6, 512),
-            nn.ReLU(inplace=True),
-            nn.Dropout(dropout_rate * 2),  # Mehr Dropout im FC Layer
-            nn.Linear(512, 10)
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),  # 28x28
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),   # 56x56
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1),   # 112x112
+            nn.ReLU(),
+            nn.ConvTranspose2d(16, 3, kernel_size=4, stride=2, padding=1),    # 224x224
+            nn.Sigmoid()  # map to [0,1]
         )
 
     def forward(self, x):
-        return self.classifier(self.features(x))
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="CIFAR-10 Benchmark with PyTorch, EarlyStopping, NaN check")
+def denormalize(tensor):
+    # Unnormalize from ImageNet mean/std
+    mean = torch.tensor([0.485, 0.456, 0.406], device=tensor.device).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225], device=tensor.device).view(1, 3, 1, 1)
+    return tensor * std + mean
 
-    parser.add_argument('--learning_rate', type=float, required=True, help='Lernrate z.B. 0.001')
-    parser.add_argument('--batch_size', type=int, required=True, help='Batchgröße z.B. 64')
-    parser.add_argument('--epochs', type=int, required=True, help='Maximale Anzahl an Epochen')
-    parser.add_argument('--seed', type=int, default=None, help='Optionaler Seed für Reproduzierbarkeit')
-    parser.add_argument('--early_stopping_patience', type=int, default=5, help='Epochen ohne Verbesserung bis Stop')
-
-    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum für SGD Optimizer')
-    parser.add_argument('--weight_decay', type=float, default=0.0, help='L2 Regularisierung')
-    parser.add_argument('--dropout_rate', type=float, default=0.25, help='Dropout Rate in den Dropout-Layern')
-    parser.add_argument('--optimizer', choices=['adam', 'sgd'], default='adam', help='Optimizer: adam oder sgd')
-    parser.add_argument('--scheduler_step_size', type=int, default=10, help='Step size für Lernraten-Scheduler')
-    parser.add_argument('--scheduler_gamma', type=float, default=0.1, help='Multiplikator für Scheduler')
-
-    return parser.parse_args()
-
-def train_epoch(model, device, loader, optimizer, criterion):
-    model.train()
-    running_loss = 0.0
-    for inputs, targets in loader:
-        inputs, targets = inputs.to(device), targets.to(device)
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
-
-        if torch.isnan(loss) or torch.isinf(loss):
-            raise ValueError("Loss is NaN or Inf. Aborting training.")
-
-        loss.backward()
-        optimizer.step()
-        running_loss += loss.item() * inputs.size(0)
-    return running_loss / len(loader.dataset)
-
-def evaluate(model, device, loader):
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for inputs, targets in loader:
-            inputs, targets = inputs.to(device), targets.to(device)
-            outputs = model(inputs)
-            _, predicted = torch.max(outputs, 1)
-            total += targets.size(0)
-            correct += (predicted == targets).sum().item()
-    return correct / total
-
-def main_benchmark():
-    args = parse_args()
-
-    if args.seed is not None:
-        torch.manual_seed(args.seed)
-        torch.cuda.manual_seed_all(args.seed)
-
+def train_model(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    console.print(f"[green]Using device:[/green] {device}")
 
-    transform = transforms.Compose([
-        transforms.Resize((96, 96)),  # oder 96x96 für STL10
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Für allgemeinere Datensätze
-    ])
+    dataloader = get_dataloader(args.batch_size)
+    model = SimpleAutoencoder().to(device)
+    optimizer = Adam(model.parameters(), lr=args.lr)
+    criterion = nn.MSELoss()
 
-    trainset = datasets.STL10(
-        root='./data',
-        split='train',
-        download=True,
-        transform=transform
-    )
-
-    testset = datasets.STL10(
-        root='./data',
-        split='test',
-        download=True,
-        transform=transform
-    )
-
-    trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    testloader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
-
-    model = SimpleCNN(dropout_rate=args.dropout_rate).to(device)
-    criterion = nn.CrossEntropyLoss()
-
-    if args.optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
-    else:
-        optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
-
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.scheduler_step_size, gamma=args.scheduler_gamma)
-
-    best_val_acc = 0.0
-    epochs_no_improve = 0
+    os.makedirs(args.output_dir, exist_ok=True)
 
     with Progress(
-        "[progress.description]{task.description}",
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
         BarColumn(),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        "•",
-        TimeElapsedColumn(),
-        console=console
+        TimeElapsedColumn()
     ) as progress:
-        task = progress.add_task("[green]Training model...", total=args.epochs)
+        task = progress.add_task("Training...", total=args.epochs)
 
-        for epoch in range(1, args.epochs + 1):
-            try:
-                train_loss = train_epoch(model, device, trainloader, optimizer, criterion)
-            except ValueError as e:
-                console.print(f"[red]{e}[/red]")
-                console.print("[red]Aborting training due to NaN/Inf loss.[/red]")
-                sys.exit(1)
+        for epoch in range(args.epochs):
+            model.train()
+            running_loss = 0.0
+            for images, targets in dataloader:
+                images = images.to(device)
+                targets = targets.to(device)
 
-            val_acc = evaluate(model, device, testloader)
+                outputs = model(images)
+                loss = criterion(outputs, targets)
 
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                epochs_no_improve = 0
-            else:
-                epochs_no_improve += 1
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            scheduler.step()
+                running_loss += loss.item() * images.size(0)
 
-            progress.update(task, advance=1, description=f"[green]Epoch {epoch}/{args.epochs} Train Loss: {train_loss:.4f} Val Acc: {val_acc:.4f}")
+            avg_loss = running_loss / len(dataloader.dataset)
+            progress.update(task, advance=1, description=f"Epoch {epoch+1}/{args.epochs} | Loss: {avg_loss:.4f}")
 
-            if epochs_no_improve >= args.early_stopping_patience:
-                console.print(f"[yellow]Early stopping triggered after {epoch} epochs.[/yellow]")
-                break
+            if epoch == args.epochs - 1:
+                model.eval()
+                with torch.no_grad():
+                    example_batch, _ = next(iter(dataloader))
+                    example_batch = example_batch.to(device)
+                    outputs = model(example_batch)
 
-    console.print(f"[bold green]RESULT: {best_val_acc:.6f}[/bold green]")
+                    # Save original + reconstructed images
+                    vutils.save_image(
+                        denormalize(example_batch)[:8],
+                        os.path.join(args.output_dir, "originals.png"),
+                        normalize=True
+                    )
+                    vutils.save_image(
+                        denormalize(outputs)[:8],
+                        os.path.join(args.output_dir, "reconstructed.png"),
+                        normalize=True
+                    )
 
-if __name__ == '__main__':
-    try:
-        main_benchmark()
-    except KeyboardInterrupt:
-        console.print("[red]Cancelled by CTRL-C.[/red]")
-        sys.exit(130)
-    except Exception:
-        console.print("[red]Unexpected error:[/red]")
-        console.print_exception()
-        sys.exit(1)
+                with open(os.path.join(args.output_dir, "loss.txt"), "w") as f:
+                    f.write(f"{avg_loss:.6f}\n")
+
+                print(f"\nFinal Loss: {avg_loss:.6f}")
+                print(f"Images saved to {args.output_dir}/")
+
+if __name__ == "__main__":
+    args = parse_args()
+    download_and_extract_places365()
+    train_model(args)
+

@@ -33,7 +33,7 @@ def create_and_setup_venv():
     print("Virtual environment setup complete.")
 
 def restart_with_venv():
-    console.print("[yellow]Restarting script inside virtual environment...[/yellow]")
+    print("Restarting script inside virtual environment...")
     try:
         result = subprocess.run(
             [str(PYTHON_BIN)] + sys.argv,
@@ -43,10 +43,10 @@ def restart_with_venv():
         )
         sys.exit(result.returncode)
     except subprocess.CalledProcessError as e:
-        console.print(f"[red]Subprocess Error with exit code {e.returncode}[/red]")
+        print(f"Subprocess Error with exit code {e.returncode}")
         sys.exit(e.returncode)
     except Exception as e:
-        console.print(f"[red]Unexpected error while restarting python: {e}[/red]")
+        print(f"Unexpected error while restarting python: {e}")
         sys.exit(1)
 
 def ensure_venv_and_rich():

@@ -14,8 +14,6 @@ except ModuleNotFoundError:
     print("venv not found. Is python3-venv installed?")
     sys.exit(1)
 
-console = Console()
-
 VENV_PATH = ".torch_venv"
 if platform.system() == "Windows":
     PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"
@@ -76,6 +74,8 @@ ensure_venv_and_rich()
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+
+console = Console()
 
 # -----------------------------------------------------------------------------------
 # Benchmark Code: CIFAR-10 mit PyTorch, Early Stopping, NaN-Check, rich-Ausgabe, CLI Params

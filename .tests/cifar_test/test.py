@@ -24,7 +24,7 @@ else:
 
 
 def create_and_setup_venv():
-    console.print(f"[cyan]Creating virtual environment at[/cyan] {VENV_PATH}")
+    print(f"Creating virtual environment at {VENV_PATH}")
     venv.create(VENV_PATH, with_pip=True)
 
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:

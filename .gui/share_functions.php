@@ -310,14 +310,21 @@
 
 		$k = 0;
 
+		$status_index = null;
+
 		if (($handle = fopen($csvFilePath, "r")) !== false) {
 			while (($data = fgetcsv($handle, 0, ",", "\"", "\\")) !== false) {
 				if (count($data) < 3) continue;
 
-				$status = strtolower(trim($data[2]));
+				if ($k == 0) {
+					$status_index = array_search('trial_status', $data);
+				}
+
 
 				if ($k > 0) {
 					$statuses["total"]++;
+
+					$status = strtolower(trim($data[$status_index]));
 
 					if ($status === "completed") {
 						$statuses["succeeded"]++;

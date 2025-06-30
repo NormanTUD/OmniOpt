@@ -33,7 +33,6 @@ def create_and_setup_venv():
     print("Virtual environment setup complete.")
 
 def restart_with_venv():
-    print("Restarting script inside virtual environment...")
     try:
         result = subprocess.run(
             [str(PYTHON_BIN)] + sys.argv,

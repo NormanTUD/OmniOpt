@@ -7,6 +7,7 @@ import shutil
 import os
 import subprocess
 import traceback
+from pathlib import Path
 
 try:
     import venv
@@ -14,7 +15,8 @@ except ModuleNotFoundError:
     print("venv not found. Is python3-venv installed?")
     sys.exit(1)
 
-VENV_PATH = ".torch_venv"
+VENV_PATH = Path(".torch_venv")
+
 if platform.system() == "Windows":
     PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"
 else:

@@ -173,8 +173,19 @@ def main_benchmark():
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # Für allgemeinere Datensätze
     ])
 
-    trainset = datasets.STL10(root='./data', train=True, download=True, transform=transform)
-    testset = datasets.STL10(root='./data', train=False, download=True, transform=transform)
+    trainset = datasets.STL10(
+        root='./data',
+        split='train',
+        download=True,
+        transform=transform
+    )
+
+    testset = datasets.STL10(
+        root='./data',
+        split='test',
+        download=True,
+        transform=transform
+    )
 
     trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
     testloader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)

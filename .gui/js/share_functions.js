@@ -1071,7 +1071,7 @@ function plotHeatmap() {
 			return false;
 		}
 		if (!col.startsWith("OO_Info")) {
-			return;
+			return true;
 		}
 		let index = tab_results_headers_json.indexOf(col);
 		return tab_results_csv_json.every(row => {

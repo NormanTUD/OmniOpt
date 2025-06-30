@@ -307,7 +307,7 @@ while ($tableRow = $tablesStmt->fetchArray(SQLITE3_ASSOC)) {
         // first row data
         echo "  <tr>";
         foreach ($firstRow as $val) {
-            echo "<td>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</td>";
+            echo "<td><pre><code class='language-bash'>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</code></pre></td>";
         }
         echo "</tr>\n";
 
@@ -315,7 +315,7 @@ while ($tableRow = $tablesStmt->fetchArray(SQLITE3_ASSOC)) {
         while ($row = $dataStmt->fetchArray(SQLITE3_ASSOC)) {
             echo "  <tr>";
             foreach ($row as $val) {
-                echo "<td>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</td>";
+                echo "<td><pre><code class='language-bash'>" . htmlspecialchars(strval($val), ENT_QUOTES, 'UTF-8') . "</code></pre></td>";
             }
             echo "</tr>\n";
         }

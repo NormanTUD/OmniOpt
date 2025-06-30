@@ -81,7 +81,7 @@ from PIL import Image
 DATA_DIR = Path("places365_data")
 VAL_TAR_URL = "http://data.csail.mit.edu/places/places365/val_256.tar"
 VAL_TAR_PATH = DATA_DIR / "val_256.tar"
-VAL_EXTRACTED_DIR = DATA_DIR / "val_256"
+VAL_EXTRACTED_DIR = DATA_DIR / "val_256" / "val_256"
 
 def download_and_extract_places365():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -122,6 +122,10 @@ def get_dataloader(batch_size):
                              std=[0.229, 0.224, 0.225])
     ])
     dataset = Places365Dataset(VAL_EXTRACTED_DIR, transform=transform)
+
+    if len(dataset) == 0:
+        raise RuntimeError(f"Dataset is empty. Check if images are present in: {VAL_EXTRACTED_DIR}")
+
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
 import torch

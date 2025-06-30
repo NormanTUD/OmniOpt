@@ -563,6 +563,19 @@ function update_command() {
 				var minValue = parseFloat($this.find(".minValue").val());
 				var maxValue = parseFloat($this.find(".maxValue").val());
 
+				var minFormatted = minValue.toLocaleString("en-US", {
+					useGrouping: false,
+					maximumFractionDigits: 20
+				});
+				var maxFormatted = maxValue.toLocaleString("en-US", {
+					useGrouping: false,
+					maximumFractionDigits: 20
+				});
+
+				$this.find(".minValue").val(minFormatted);
+				$this.find(".maxValue").val(maxFormatted);
+
+
 				var numberType = $($(".parameterRow")[i]).find(".numberTypeSelect").val();
 
 				if (minValue === maxValue) {

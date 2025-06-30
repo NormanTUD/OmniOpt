@@ -214,3 +214,4 @@ start_baseline_jobs.sh
 .gui/docker-compose.yml
 .torch_venv/
 data/
+places365_data/

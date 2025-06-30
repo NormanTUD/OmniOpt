@@ -8,14 +8,12 @@ function normalizeFloat(value) {
 		return '';
 	}
 
-	// Um wissenschaftliche Notation zu vermeiden
 	var str = value.toString();
 
 	if (str.includes('e')) {
-		var fixed = value.toFixed(20); // sehr viele Stellen für Sicherheit
-		// Entferne alle unnötigen Nullen am Ende, und evtl. das letzte "."
-		fixed = fixed.replace(/(\.\d*?[1-9])0+$/, '$1'); // Trim trailing zeroes
-		fixed = fixed.replace(/\.0+$/, '');              // Falls nur ".0"
+		var fixed = value.toFixed(20);
+		fixed = fixed.replace(/(\.\d*?[1-9])0+$/, '$1');
+		fixed = fixed.replace(/\.0+$/, '');
 		return fixed;
 	}
 

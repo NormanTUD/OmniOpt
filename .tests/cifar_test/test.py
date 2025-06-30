@@ -22,21 +22,15 @@ if platform.system() == "Windows":
 else:
     PYTHON_BIN = VENV_PATH / "bin" / "python"
 
-
 def create_and_setup_venv():
     print(f"Creating virtual environment at {VENV_PATH}")
     venv.create(VENV_PATH, with_pip=True)
 
-    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
-        task = progress.add_task("Upgrading pip...", total=None)
-        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
-        progress.update(task, completed=1)
+    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
 
-        progress.update(task, description="Installing torch and rich...")
-        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
-        progress.update(task, completed=1)
-    console.print("[green]Virtual environment setup complete.[/green]")
+    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
 
+    print("Virtual environment setup complete.")
 
 def restart_with_venv():
     console.print("[yellow]Restarting script inside virtual environment...[/yellow]")
@@ -54,7 +48,6 @@ def restart_with_venv():
     except Exception as e:
         console.print(f"[red]Unexpected error while restarting python: {e}[/red]")
         sys.exit(1)
-
 
 def ensure_venv_and_rich():
     try:
@@ -93,7 +86,6 @@ import torchvision.datasets as datasets
 
 from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 
-
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
@@ -123,7 +115,6 @@ class SimpleCNN(nn.Module):
     def forward(self, x):
         return self.classifier(self.features(x))
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description="CIFAR-10 Benchmark with PyTorch, EarlyStopping, NaN check")
     parser.add_argument('--learning_rate', type=float, required=True, help='Lernrate z.B. 0.001')
@@ -132,7 +123,6 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=None, help='Optionaler Seed für Reproduzierbarkeit')
     parser.add_argument('--early_stopping_patience', type=int, default=5, help='Epochen ohne Verbesserung bis Stop')
     return parser.parse_args()
-
 
 def train_epoch(model, device, loader, optimizer, criterion):
     model.train()
@@ -151,7 +141,6 @@ def train_epoch(model, device, loader, optimizer, criterion):
         running_loss += loss.item() * inputs.size(0)
     return running_loss / len(loader.dataset)
 
-
 def evaluate(model, device, loader):
     model.eval()
     correct = 0
@@ -164,7 +153,6 @@ def evaluate(model, device, loader):
             total += targets.size(0)
             correct += (predicted == targets).sum().item()
     return correct / total
-
 
 def main_benchmark():
     args = parse_args()
@@ -227,7 +215,6 @@ def main_benchmark():
                 break
 
     console.print(f"[bold green]RESULT: {best_val_acc:.6f}[/bold green]")
-
 
 if __name__ == '__main__':
     try:

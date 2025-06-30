@@ -212,3 +212,5 @@ yolo11n.pt
 runs_OLD_2/
 start_baseline_jobs.sh
 .gui/docker-compose.yml
+.torch_venv/
+data/

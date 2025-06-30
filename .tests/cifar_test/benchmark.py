@@ -67,13 +67,9 @@ def ensure_venv_and_rich():
 ensure_venv_and_rich()
 
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 
 console = Console()
-
-# -----------------------------------------------------------------------------------
-# Benchmark Code: CIFAR-10 mit PyTorch, Early Stopping, NaN-Check, rich-Ausgabe, CLI Params
-# -----------------------------------------------------------------------------------
 
 import argparse
 import torch
@@ -83,10 +79,8 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
-from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
-
 class SimpleCNN(nn.Module):
-    def __init__(self):
+    def __init__(self, dropout_rate):
         super(SimpleCNN, self).__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 32, 3, padding=1),  # (B,32,32,32)
@@ -94,20 +88,20 @@ class SimpleCNN(nn.Module):
             nn.Conv2d(32, 32, 3),            # (B,32,30,30)
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2),                 # (B,32,15,15)
-            nn.Dropout(0.25),
+            nn.Dropout(dropout_rate),
 
             nn.Conv2d(32, 64, 3, padding=1), # (B,64,15,15)
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, 3),             # (B,64,13,13)
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2),                  # (B,64,6,6)
-            nn.Dropout(0.25),
+            nn.Dropout(dropout_rate),
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(64 * 6 * 6, 512),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_rate * 2),  # Mehr Dropout im FC Layer
             nn.Linear(512, 10)
         )
 
@@ -116,11 +110,20 @@ class SimpleCNN(nn.Module):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="CIFAR-10 Benchmark with PyTorch, EarlyStopping, NaN check")
+
     parser.add_argument('--learning_rate', type=float, required=True, help='Lernrate z.B. 0.001')
     parser.add_argument('--batch_size', type=int, required=True, help='Batchgröße z.B. 64')
     parser.add_argument('--epochs', type=int, required=True, help='Maximale Anzahl an Epochen')
     parser.add_argument('--seed', type=int, default=None, help='Optionaler Seed für Reproduzierbarkeit')
     parser.add_argument('--early_stopping_patience', type=int, default=5, help='Epochen ohne Verbesserung bis Stop')
+
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum für SGD Optimizer')
+    parser.add_argument('--weight_decay', type=float, default=0.0, help='L2 Regularisierung')
+    parser.add_argument('--dropout_rate', type=float, default=0.25, help='Dropout Rate in den Dropout-Layern')
+    parser.add_argument('--optimizer', choices=['adam', 'sgd'], default='adam', help='Optimizer: adam oder sgd')
+    parser.add_argument('--scheduler_step_size', type=int, default=10, help='Step size für Lernraten-Scheduler')
+    parser.add_argument('--scheduler_gamma', type=float, default=0.1, help='Multiplikator für Scheduler')
+
     return parser.parse_args()
 
 def train_epoch(model, device, loader, optimizer, criterion):
@@ -174,9 +177,15 @@ def main_benchmark():
     trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
     testloader = DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
-    model = SimpleCNN().to(device)
+    model = SimpleCNN(dropout_rate=args.dropout_rate).to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+
+    if args.optimizer == "adam":
+        optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+    else:
+        optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
+
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.scheduler_step_size, gamma=args.scheduler_gamma)
 
     best_val_acc = 0.0
     epochs_no_improve = 0
@@ -206,6 +215,8 @@ def main_benchmark():
                 epochs_no_improve = 0
             else:
                 epochs_no_improve += 1
+
+            scheduler.step()
 
             progress.update(task, advance=1, description=f"[green]Epoch {epoch}/{args.epochs} Train Loss: {train_loss:.4f} Val Acc: {val_acc:.4f}")
 

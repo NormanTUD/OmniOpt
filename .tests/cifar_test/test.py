@@ -6,7 +6,6 @@ import platform
 import shutil
 import os
 import subprocess
-from pathlib import Path
 import traceback
 
 try:
@@ -20,7 +19,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 console = Console()
 
-VENV_PATH = Path.home() / ".torch_venv"
+VENV_PATH = ".torch_venv"
 if platform.system() == "Windows":
     PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"
 else:

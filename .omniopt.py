@@ -7514,10 +7514,12 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         remaining = nr_of_jobs_to_get - len(batched_arms)
         print_debug(f"_fetch_next_trials: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
 
+        pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
+
         batched_generator_run = global_gs.gen(
             experiment=ax_client.experiment,
             n=remaining,
-            pending_observations=get_pending_observation_features(experiment=ax_client.experiment)
+            pending_observations=pending_observations
         )
 
         new_arms = batched_generator_run.arms

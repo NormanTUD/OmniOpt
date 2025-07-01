@@ -205,6 +205,8 @@ def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs
                             loss=running_loss / (batch_idx + 1),
                             acc=100.0 * correct / total)
 
+    console.print(f"[green]Epoch-Loss[/green]: {running_loss}")
+
 def test(model, device, test_loader, criterion, epoch, total_epochs):
     model.eval()
     test_loss = 0.0

@@ -17,6 +17,7 @@ debug=0
 reservation=""
 omniopt_venv=omniopt_venv
 installation_method="clone"
+dryrun=0
 
 start_command_base64=""
 
@@ -28,6 +29,7 @@ function help {
 	echo "--reservation=str                                           Name of your reservation, if any"
 	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
 	echo "--omniopt_venv=str                                          Path to virtual env dir (only used for --installation_method=pip, default: omniopt_venv)"
+	echo "--dryrun                                                    Clone, download, install and then run in dryrun mode"
 	echo "--debug                                                     Enable debug mode"
 	echo "--help                                                      This help"
 
@@ -134,6 +136,9 @@ function parse_parameters {
 			--reservation=*)
 				reservation="${i#*=}"
 				;;
+			--dryrun)
+				dryrun=1
+				;;
 			--debug)
 				set_debug
 				debug=1
@@ -223,6 +228,10 @@ function install_and_run {
 	start_command=$(echo "$_start_command_base64" | base64 --decode)
 	start_command_exit_code=$?
 	set -e
+
+	if [[ $dryrun -eq 1 ]]; then
+		start_command="$start_command --dryrun"
+	fi
 
 	if [[ $installation_method == "clone" ]]; then
 		if [[ $start_command_exit_code -eq 0 ]]; then

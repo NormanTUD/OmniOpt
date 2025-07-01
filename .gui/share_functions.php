@@ -1840,7 +1840,7 @@
 			$url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 
 			$first_message = "See $url for live-results.\n";
-			$second_message = "Run was successfully shared. See $url\nYou can share the link. It is valid for 30 days.\n";
+			$second_message = "Run was successfully shared. See $url\nYou can share the link. It is valid for 90 days.\n";
 
 			if (!(!$uuid_folder || !is_dir($uuid_folder))) {
 				$second_message = $first_message;

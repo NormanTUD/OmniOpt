@@ -762,11 +762,12 @@ function update_command() {
 		base_url = base_url.replace(/\/gui(?:.php)?/, "");
 
 		var curl_command = "";
+		var command_end = ` | bash -l -s -- "${base_64_string}"${curl_options}`;
 
 		if(curl_or_cat == "curl") {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -l -c -- "${base_64_string}"${curl_options}`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null${command_end}`;
 		} else {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -l -c -- "${base_64_string}"${curl_options}`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh${command_end}`;
 		}
 
 		toggleElementVisibility("#command_element_highlighted", command, true);

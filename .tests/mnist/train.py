@@ -211,7 +211,7 @@ def main():
             train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)
             val_loss, val_acc = test(model, device, test_loader, criterion, epoch, args.epochs)
 
-        console.print(f"[bold yellow]RESULT:[/] {val_loss:.3f}")
+        print(f"RESULT: {val_loss}")
 
     except KeyboardInterrupt:
         graceful_exit(None, None)

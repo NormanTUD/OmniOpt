@@ -673,7 +673,7 @@
 
 	function add_result_evolution_tab ($tabs, $warnings, $result_names) {
 		if(count($result_names)) {
-			if (isset($GLOBALS["json_data"]["tab_job_infos_headers_json"])) {
+			if (isset($GLOBALS["json_data"]["tab_results_headers_json"])) {
 				$html = '<div class="invert_in_dark_mode" id="plotResultEvolution"></div>';
 
 				$svg_icon = get_icon_html("evolution.svg");
@@ -684,7 +684,7 @@
 					"onclick" => "plotResultEvolution();"
 				];
 			} else {
-				$warnings[] = "tab_job_infos_headers_json not found in global json_data";
+				$warnings[] = "tab_results_headers_json not found in global json_data";
 			}
 		} else {
 			$warnings[] = "Not adding evolution tab because no result names could be found";

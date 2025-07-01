@@ -764,9 +764,9 @@ function update_command() {
 		var curl_command = "";
 
 		if(curl_or_cat == "curl") {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -s -- "${base_64_string}"${curl_options}`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh 2>/dev/null | bash -l -c -- "${base_64_string}"${curl_options}`;
 		} else {
-			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -s -- "${base_64_string}"${curl_options}`;
+			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh | bash -l -c -- "${base_64_string}"${curl_options}`;
 		}
 
 		toggleElementVisibility("#command_element_highlighted", command, true);

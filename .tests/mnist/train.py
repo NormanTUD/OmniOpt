@@ -23,12 +23,9 @@ else:
     PYTHON_BIN = VENV_PATH / "bin" / "python"
 
 def create_and_setup_venv():
-    from rich.console import Console
-    console = Console()
-    with console.status("[bold green]Creating virtual environment...", spinner="dots"):
-        venv.create(VENV_PATH, with_pip=True)
-        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
-        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
+    venv.create(VENV_PATH, with_pip=True)
+    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
+    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
 
 def restart_with_venv():
     try:

@@ -97,7 +97,7 @@ def parse_args():
     parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
     parser.add_argument("--weight_decay", type=float, default=0.0, help="L2 weight decay (regularization).")
     parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
-    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "none"], default="none", help="Weight initialization method.")
+    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="None", help="Weight initialization method.")
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
 
     return parser.parse_args()
@@ -112,7 +112,7 @@ class SimpleMLP(nn.Module):
         self.activation = self.get_activation(activation)
         self.fc2 = nn.Linear(hidden_size, num_classes)
 
-        if init_mode != "none":
+        if init_mode != "None":
             self.init_weights(init_mode)
 
     def get_activation(self, name):

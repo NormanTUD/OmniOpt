@@ -2,10 +2,10 @@
 
 import sys
 import os
-import re
-import shutil
 import platform
+import shutil
 import subprocess
+import signal
 import traceback
 from pathlib import Path
 
@@ -24,26 +24,15 @@ else:
 
 def create_and_setup_venv():
     from rich.console import Console
-    from rich.spinner import Spinner
-
     console = Console()
-    console.print("[yellow]Creating virtual environment...[/yellow]")
-
-    with console.status("[bold green]Setting up virtual environment...", spinner="earth"):
+    with console.status("[bold green]Creating virtual environment...", spinner="dots"):
         venv.create(VENV_PATH, with_pip=True)
         subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
         subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
-    
-    console.print("[green]Virtual environment setup complete.[/green]")
 
 def restart_with_venv():
     try:
-        result = subprocess.run(
-            [str(PYTHON_BIN)] + sys.argv,
-            text=True,
-            check=True,
-            env=dict(**os.environ)
-        )
+        result = subprocess.run([str(PYTHON_BIN)] + sys.argv, text=True, check=True, env=dict(**os.environ))
         sys.exit(result.returncode)
     except subprocess.CalledProcessError as e:
         print(f"Subprocess Error with exit code {e.returncode}")
@@ -71,7 +60,6 @@ def ensure_venv_and_rich():
 ensure_venv_and_rich()
 
 import argparse
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -79,12 +67,19 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
 from rich.console import Console
+from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.panel import Panel
+from rich.text import Text
 from rich.table import Table
-from rich.traceback import install
-from rich.progress import Progress, SpinnerColumn, BarColumn, TimeElapsedColumn, TimeRemainingColumn, TextColumn
+from rich import box
 
-install()
 console = Console()
+
+def graceful_exit(signum, frame):
+    console.print("\n[bold red]You pressed Ctrl+C. Exiting gracefully.[/bold red]")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, graceful_exit)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a simple neural network on MNIST with CLI hyperparameters.")
@@ -110,22 +105,37 @@ class SimpleMLP(nn.Module):
         x = self.fc2(x)
         return x
 
+def show_hyperparams(args):
+    table = Table(title="Hyperparameters", box=box.ROUNDED, title_style="bold magenta")
+    table.add_column("Parameter", style="bold cyan")
+    table.add_column("Value", style="bold green")
+
+    table.add_row("Device", args.device)
+    table.add_row("Epochs", str(args.epochs))
+    table.add_row("Batch size", str(args.batch_size))
+    table.add_row("Learning rate", str(args.learning_rate))
+    table.add_row("Hidden size", str(args.hidden_size))
+
+    console.print(table)
+
 def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs):
     model.train()
+    running_loss = 0.0
     correct = 0
     total = 0
 
+    console.rule(f"[bold blue]Epoch {epoch}/{total_epochs} - Training")
+
     with Progress(
-        SpinnerColumn(),
-        "[bold green]Training...",
+        TextColumn("[bold blue]Batch {task.completed}/{task.total}"),
         BarColumn(),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        TimeElapsedColumn(),
+        TaskProgressColumn(),
         TimeRemainingColumn(),
-        console=console,
-        transient=True
+        TextColumn("Loss: [green]{task.fields[loss]:.4f}"),
+        TextColumn("Acc: [cyan]{task.fields[acc]:.2f}%"),
+        transient=True,
     ) as progress:
-        task = progress.add_task(f"Epoch {epoch}/{total_epochs}", total=len(train_loader))
+        task_id = progress.add_task("Training", total=len(train_loader), loss=0.0, acc=0.0)
         for batch_idx, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
 
@@ -135,52 +145,48 @@ def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs
             loss.backward()
             optimizer.step()
 
+            running_loss += loss.item()
             _, predicted = torch.max(output.data, 1)
             total += target.size(0)
             correct += (predicted == target).sum().item()
 
-            progress.advance(task)
+            progress.update(task_id, advance=1,
+                            loss=running_loss / (batch_idx + 1),
+                            acc=100.0 * correct / total)
 
-    accuracy = 100.0 * correct / total
-    console.log(f"[cyan]Epoch {epoch} Training Accuracy: {accuracy:.2f}%[/cyan]")
-
-def test(model, device, test_loader, criterion):
+def test(model, device, test_loader, criterion, epoch, total_epochs):
     model.eval()
     test_loss = 0.0
     correct = 0
     total = 0
 
+    console.rule(f"[bold magenta]Epoch {epoch}/{total_epochs} - Validation")
+
     with torch.no_grad():
-        with Progress(
-            SpinnerColumn(),
-            "[bold blue]Evaluating...",
-            BarColumn(),
-            "[progress.percentage]{task.percentage:>3.0f}%",
-            TimeElapsedColumn(),
-            TimeRemainingColumn(),
-            console=console,
-            transient=True
-        ) as progress:
-            task = progress.add_task("Validating", total=len(test_loader))
-            for data, target in test_loader:
-                data, target = data.to(device), target.to(device)
-                output = model(data)
-                loss = criterion(output, target)
-                test_loss += loss.item()
-                _, predicted = torch.max(output.data, 1)
-                total += target.size(0)
-                correct += (predicted == target).sum().item()
-                progress.advance(task)
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            loss = criterion(output, target)
+            test_loss += loss.item()
+            _, predicted = torch.max(output.data, 1)
+            total += target.size(0)
+            correct += (predicted == target).sum().item()
 
     test_loss /= len(test_loader)
     accuracy = 100.0 * correct / total
-    console.log(f"[bold blue]Validation Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%[/bold blue]")
+
+    console.print(Panel.fit(
+        f"[bold green]Validation Loss:[/] {test_loss:.4f}\n[bold green]Accuracy:[/] {accuracy:.2f}%",
+        title=f"Epoch {epoch}/{total_epochs} Summary",
+        box=box.DOUBLE
+    ))
     return test_loss, accuracy
 
 def main():
     try:
         args = parse_args()
-        console.print(f"[bold magenta]Using device:[/bold magenta] {args.device}")
+        show_hyperparams(args)
+        console.print(f"[bold green]Using device:[/] {args.device}")
 
         device = torch.device(args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu")
 
@@ -199,36 +205,17 @@ def main():
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=args.learning_rate)
 
-        val_loss = None
-        val_acc = None
-
         for epoch in range(1, args.epochs + 1):
             train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)
-            val_loss, val_acc = test(model, device, test_loader, criterion)
+            val_loss, val_acc = test(model, device, test_loader, criterion, epoch, args.epochs)
 
-        table = Table(title="Training Summary", show_header=True, header_style="bold green")
-        table.add_column("Epochs")
-        table.add_column("Batch Size")
-        table.add_column("Learning Rate")
-        table.add_column("Hidden Size")
-        table.add_column("Validation Loss")
-        table.add_column("Validation Accuracy")
+        console.print(f"[bold yellow]RESULT:[/] {val_loss:.3f}")
 
-        table.add_row(
-            str(args.epochs),
-            str(args.batch_size),
-            f"{args.learning_rate:.4f}",
-            str(args.hidden_size),
-            f"{val_loss:.4f}" if val_loss is not None else "N/A",
-            f"{val_acc:.2f}%" if val_acc is not None else "N/A"
-        )
-        console.print(table)
-
-        if val_loss is not None:
-            console.print(f"[bold red]RESULT: {val_loss:.3f}[/bold red]")
-
+    except KeyboardInterrupt:
+        graceful_exit(None, None)
     except Exception as e:
-        console.print_exception(show_locals=True)
+        console.print(f"[bold red]An error occurred: {e}[/bold red]", style="bold red")
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1937,7 +1937,7 @@
 			$username_dir = $pathParts[1] ?? '';
 
 			if ($username_dir != "s4122485" && $username_dir != "pwinkler") {
-				$threshold = ($username_dir === 'runner' || $username_dir === "defaultuser" || $username_dir === "admin") ? 3600 : (30 * 24 * 3600);
+				$threshold = ($username_dir === 'runner' || $username_dir === "defaultuser" || $username_dir === "admin") ? 3600 : (3 * 30 * 24 * 3600);
 
 				if(is_dir($subdir)) {
 					$dir_date = filemtime($subdir);
@@ -1959,10 +1959,6 @@
 	}
 
 	function delete_old_shares () {
-		if (mt_rand(1, 100) <= 80) {
-			return;
-		}
-
 		$directoryToCheck = 'shares';
 		$oldDirs = _delete_old_shares($directoryToCheck);
 		delete_empty_directories($directoryToCheck, false);

@@ -56,6 +56,8 @@ def ensure_venv_and_rich():
                 shutil.rmtree(VENV_PATH)
                 create_and_setup_venv()
         restart_with_venv()
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 ensure_venv_and_rich()
 

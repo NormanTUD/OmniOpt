@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-import re
-import platform
-import shutil
 import os
+import re
+import shutil
+import platform
 import subprocess
 import traceback
 from pathlib import Path
@@ -23,14 +23,18 @@ else:
     PYTHON_BIN = VENV_PATH / "bin" / "python"
 
 def create_and_setup_venv():
-    print(f"Creating virtual environment at {VENV_PATH}")
-    venv.create(VENV_PATH, with_pip=True)
+    from rich.console import Console
+    from rich.spinner import Spinner
 
-    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
+    console = Console()
+    console.print("[yellow]Creating virtual environment...[/yellow]")
 
-    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
-
-    print("Virtual environment setup complete.")
+    with console.status("[bold green]Setting up virtual environment...", spinner="earth"):
+        venv.create(VENV_PATH, with_pip=True)
+        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
+        subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
+    
+    console.print("[green]Virtual environment setup complete.[/green]")
 
 def restart_with_venv():
     try:
@@ -67,14 +71,20 @@ def ensure_venv_and_rich():
 ensure_venv_and_rich()
 
 import argparse
-import sys
-import traceback
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+
+from rich.console import Console
+from rich.table import Table
+from rich.traceback import install
+from rich.progress import Progress, SpinnerColumn, BarColumn, TimeElapsedColumn, TimeRemainingColumn, TextColumn
+
+install()
+console = Console()
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a simple neural network on MNIST with CLI hyperparameters.")
@@ -94,34 +104,45 @@ class SimpleMLP(nn.Module):
         self.fc2 = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x):
-        x = x.view(x.size(0), -1)  # Flatten the input
+        x = x.view(x.size(0), -1)
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
         return x
 
-def train(model, device, train_loader, criterion, optimizer, epoch):
+def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs):
     model.train()
-    running_loss = 0.0
     correct = 0
     total = 0
-    for batch_idx, (data, target) in enumerate(train_loader):
-        data, target = data.to(device), target.to(device)
 
-        optimizer.zero_grad()
-        output = model(data)
-        loss = criterion(output, target)
-        loss.backward()
-        optimizer.step()
+    with Progress(
+        SpinnerColumn(),
+        "[bold green]Training...",
+        BarColumn(),
+        "[progress.percentage]{task.percentage:>3.0f}%",
+        TimeElapsedColumn(),
+        TimeRemainingColumn(),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task(f"Epoch {epoch}/{total_epochs}", total=len(train_loader))
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(device), target.to(device)
 
-        running_loss += loss.item()
-        _, predicted = torch.max(output.data, 1)
-        total += target.size(0)
-        correct += (predicted == target).sum().item()
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
 
-        if batch_idx % 100 == 0:
-            print(f"Epoch [{epoch}] Batch [{batch_idx}/{len(train_loader)}] "
-                  f"Loss: {running_loss/(batch_idx+1):.4f} Accuracy: {100.0*correct/total:.2f}%")
+            _, predicted = torch.max(output.data, 1)
+            total += target.size(0)
+            correct += (predicted == target).sum().item()
+
+            progress.advance(task)
+
+    accuracy = 100.0 * correct / total
+    console.log(f"[cyan]Epoch {epoch} Training Accuracy: {accuracy:.2f}%[/cyan]")
 
 def test(model, device, test_loader, criterion):
     model.eval()
@@ -130,28 +151,39 @@ def test(model, device, test_loader, criterion):
     total = 0
 
     with torch.no_grad():
-        for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
-            output = model(data)
-            loss = criterion(output, target)
-            test_loss += loss.item()
-            _, predicted = torch.max(output.data, 1)
-            total += target.size(0)
-            correct += (predicted == target).sum().item()
+        with Progress(
+            SpinnerColumn(),
+            "[bold blue]Evaluating...",
+            BarColumn(),
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeElapsedColumn(),
+            TimeRemainingColumn(),
+            console=console,
+            transient=True
+        ) as progress:
+            task = progress.add_task("Validating", total=len(test_loader))
+            for data, target in test_loader:
+                data, target = data.to(device), target.to(device)
+                output = model(data)
+                loss = criterion(output, target)
+                test_loss += loss.item()
+                _, predicted = torch.max(output.data, 1)
+                total += target.size(0)
+                correct += (predicted == target).sum().item()
+                progress.advance(task)
 
     test_loss /= len(test_loader)
     accuracy = 100.0 * correct / total
-    print(f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{total} ({accuracy:.2f}%)")
+    console.log(f"[bold blue]Validation Loss: {test_loss:.4f}, Accuracy: {accuracy:.2f}%[/bold blue]")
     return test_loss, accuracy
 
 def main():
     try:
         args = parse_args()
-        print(f"Using device: {args.device}")
+        console.print(f"[bold magenta]Using device:[/bold magenta] {args.device}")
 
         device = torch.device(args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu")
 
-        # Data loading and preprocessing
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.1307,), (0.3081,))
@@ -163,21 +195,41 @@ def main():
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
-        # Model, loss and optimizer
         model = SimpleMLP(28 * 28, args.hidden_size, 10).to(device)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=args.learning_rate)
 
+        val_loss = None
+        val_acc = None
+
         for epoch in range(1, args.epochs + 1):
-            train(model, device, train_loader, criterion, optimizer, epoch)
+            train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)
             val_loss, val_acc = test(model, device, test_loader, criterion)
 
-        # Nach dem letzten Epoch: RESULT ausgeben (val loss)
-        print(f"RESULT: {val_loss:.3f}")
+        table = Table(title="Training Summary", show_header=True, header_style="bold green")
+        table.add_column("Epochs")
+        table.add_column("Batch Size")
+        table.add_column("Learning Rate")
+        table.add_column("Hidden Size")
+        table.add_column("Validation Loss")
+        table.add_column("Validation Accuracy")
+
+        table.add_row(
+            str(args.epochs),
+            str(args.batch_size),
+            f"{args.learning_rate:.4f}",
+            str(args.hidden_size),
+            f"{val_loss:.4f}" if val_loss is not None else "N/A",
+            f"{val_acc:.2f}%" if val_acc is not None else "N/A"
+        )
+        console.print(table)
+
+        if val_loss is not None:
+            console.print(f"[bold red]RESULT: {val_loss:.3f}[/bold red]")
 
     except Exception as e:
-        print(f"An error occurred: {e}", file=sys.stderr)
-        traceback.print_exc()
+        console.print_exception(show_locals=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

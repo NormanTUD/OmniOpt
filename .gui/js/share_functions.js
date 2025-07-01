@@ -1235,7 +1235,7 @@ function plotExitCodesPieChart() {
 		return;
 	}
 
-	var exitCodes = tab_job_infos_csv_json.map(row => row[tab_job_infos_headers_json.indexOf("exit_code")]);
+	var exitCodes = tab_results_csv_json.map(row => row[tab_results_headers_json.indexOf("exit_code")]);
 
 	var exitCodeCounts = exitCodes.reduce(function(counts, exitCode) {
 		counts[exitCode] = (counts[exitCode] || 0) + 1;

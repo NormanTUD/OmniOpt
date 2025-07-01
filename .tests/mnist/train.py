@@ -37,6 +37,8 @@ def restart_with_venv():
     except subprocess.CalledProcessError as e:
         print(f"Subprocess Error with exit code {e.returncode}")
         sys.exit(e.returncode)
+    except KeyboardInterrupt:
+        sys.exit(0)
     except Exception as e:
         print(f"Unexpected error while restarting python: {e}")
         sys.exit(1)

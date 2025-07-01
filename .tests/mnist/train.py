@@ -91,21 +91,59 @@ def parse_args():
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training and testing.")
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Learning rate for optimizer.")
     parser.add_argument("--hidden_size", type=int, default=128, help="Number of neurons in the hidden layer.")
-    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu",
-                        help="Device to train on: 'cuda' or 'cpu'. Default is 'cuda' if available.")
+    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device to train on: 'cuda' or 'cpu'. Default is 'cuda' if available.")
+    parser.add_argument("--dropout", type=float, default=0.0, help="Dropout probability (0.0 = no dropout).")
+    parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="adam", help="Optimizer to use.")
+    parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
+    parser.add_argument("--weight_decay", type=float, default=0.0, help="L2 weight decay (regularization).")
+    parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
+    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "none"], default="none", help="Weight initialization method.")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed.")
+
     return parser.parse_args()
 
 class SimpleMLP(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes):
+    def __init__(self, input_size, hidden_size, num_classes, dropout, activation, init_mode):
         super(SimpleMLP, self).__init__()
+
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=dropout)
+
+        self.activation = self.get_activation(activation)
         self.fc2 = nn.Linear(hidden_size, num_classes)
+
+        if init_mode != "none":
+            self.init_weights(init_mode)
+
+    def get_activation(self, name):
+        if name == "relu":
+            return nn.ReLU()
+        elif name == "tanh":
+            return nn.Tanh()
+        elif name == "leaky_relu":
+            return nn.LeakyReLU()
+        elif name == "sigmoid":
+            return nn.Sigmoid()
+        else:
+            raise ValueError(f"Unknown activation function: {name}")
+
+    def init_weights(self, mode):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                if mode == "xavier":
+                    nn.init.xavier_uniform_(m.weight)
+                elif mode == "kaiming":
+                    nn.init.kaiming_uniform_(m.weight, nonlinearity='relu')
+                elif mode == "normal":
+                    nn.init.normal_(m.weight, mean=0.0, std=0.02)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = self.relu(x)
+        x = self.activation(x)
+        x = self.dropout(x)
         x = self.fc2(x)
         return x
 
@@ -119,7 +157,16 @@ def show_hyperparams(args):
     table.add_row("Batch size", str(args.batch_size))
     table.add_row("Learning rate", str(args.learning_rate))
     table.add_row("Hidden size", str(args.hidden_size))
+    table.add_row("Dropout", str(args.dropout))
+    table.add_row("Optimizer", args.optimizer)
+    table.add_row("Momentum", str(args.momentum))
+    table.add_row("Weight Decay", str(args.weight_decay))
+    table.add_row("Activation", args.activation)
+    table.add_row("Init Method", args.init)
+    table.add_row("Seed", str(args.seed) if args.seed is not None else "None")
 
+    from rich.console import Console
+    console = Console()
     console.print(table)
 
 def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs):
@@ -205,9 +252,28 @@ def main():
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
-        model = SimpleMLP(28 * 28, args.hidden_size, 10).to(device)
+        if args.seed is not None:
+            torch.manual_seed(args.seed)
+
+        model = SimpleMLP(
+            input_size=28 * 28,
+            hidden_size=args.hidden_size,
+            num_classes=10,
+            dropout=args.dropout,
+            activation=args.activation,
+            init_mode=args.init
+        ).to(args.device)
+
+        if args.optimizer == "adam":
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+        elif args.optimizer == "sgd":
+            optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
+        elif args.optimizer == "rmsprop":
+            optimizer = torch.optim.RMSprop(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+        else:
+            raise ValueError(f"Unknown optimizer: {args.optimizer}")
+
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=args.learning_rate)
 
         for epoch in range(1, args.epochs + 1):
             train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)

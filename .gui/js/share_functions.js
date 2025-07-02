@@ -199,7 +199,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		const controlContainerId = "parallel-plot-controls";
 		let controlContainer = $("#" + controlContainerId);
 		if (controlContainer.length === 0) {
-			controlContainer = $('<div id="' + controlContainerId + '" style="margin-bottom:10px;"></div>');
+			controlContainer = $('<div id="' + controlContainerId + '" style="margin-bottom:10px; display: flex;"></div>');
 			$("#parallel-plot").before(controlContainer);
 		} else {
 			controlContainer.empty();

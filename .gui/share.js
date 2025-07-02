@@ -73,6 +73,7 @@ function showFullscreenSpinnerWithMessage(message) {
 
 		// Overlay-Element
 		var overlay = document.createElement('div');
+		overlay.classList.add('invert_in_dark_mode');
 		overlay.id = spinnerOverlayId;
 		overlay.style.position = 'fixed';
 		overlay.style.top = '0';

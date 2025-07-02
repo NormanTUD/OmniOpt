@@ -166,148 +166,399 @@ function make_text_in_parallel_plot_nicer() {
 }
 
 function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [], reload = false) {
-	if ($("#parallel-plot").data("loaded") == "true" && !reload) {
-		return;
-	}
-
-	dataArray = filterNonEmptyRows(dataArray);
-	const ignoreSet = new Set(ignoreColumns);
-	const numericalCols = [];
-	const categoricalCols = [];
-	const categoryMappings = {};
-	const enable_slurm_id_if_exists = $("#enable_slurm_id_if_exists").is(":checked");
-
-	headers.forEach((header, colIndex) => {
-		if (ignoreSet.has(header)) {
+	try {
+		if ($("#parallel-plot").data("loaded") === "true" && !reload) {
 			return;
 		}
 
-		if(!enable_slurm_id_if_exists && header == "OO_Info_SLURM_JOB_ID") {
-			return;
+		// Hilfsfunktion: Filtert Zeilen, die komplett leer sind
+		function filterNonEmptyRows(data) {
+			return data.filter(row => row.some(cell => cell !== null && cell !== undefined && cell !== ''));
 		}
 
-		const values = dataArray.map(row => row[colIndex]);
-
-		if (values.every(val => !isNaN(parseFloat(val)))) {
-			numericalCols.push({ name: header, index: colIndex });
-		} else {
-			categoricalCols.push({ name: header, index: colIndex });
-			const uniqueValues = [...new Set(values)];
-			categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+		// Hilfsfunktion: Prüft, ob ein Wert eine gültige Zahl ist
+		function isNumeric(value) {
+			return !isNaN(parseFloat(value)) && isFinite(value);
 		}
-	});
 
-	const dimensions = [];
+		dataArray = filterNonEmptyRows(dataArray);
+		const ignoreSet = new Set(ignoreColumns);
+		const enableSlurmId = $("#enable_slurm_id_if_exists").is(":checked");
 
-	numericalCols.forEach(col => {
-		dimensions.push({
-			label: col.name,
-			values: dataArray.map(row => parseFloat(row[col.index])),
-			range: [
-				Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
-				Math.max(...dataArray.map(row => parseFloat(row[col.index])))
-			]
-		});
-	});
+		// Numerische und kategoriale Spalten mit Index speichern
+		const numericalCols = [];
+		const categoricalCols = [];
+		const categoryMappings = {};
 
-	categoricalCols.forEach(col => {
-		dimensions.push({
-			label: col.name,
-			values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
-			tickvals: Object.values(categoryMappings[col.name]),
-			ticktext: Object.keys(categoryMappings[col.name])
-		});
-	});
-
-	let colorScale = null;
-	let colorValues = null;
-
-	if (resultNames.length > 1) {
-		let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
-		selectBox += '<option value="none">No color</option>';
-		var k = 0;
-		resultNames.forEach(resultName => {
-			var minMax = result_min_max[k];
-			if(minMax === undefined) {
-				minMax = "min [automatically chosen]"
+		headers.forEach((header, colIndex) => {
+			if (ignoreSet.has(header)) {
+				return;
 			}
-			selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
-			k = k + 1;
-		});
-		selectBox += '</select>';
-		$("#parallel-plot").before(selectBox);
 
-		$("#result-select").change(function() {
-			const selectedResult = $(this).val();
-			if (selectedResult === "none") {
+			if (!enableSlurmId && header === "OO_Info_SLURM_JOB_ID") {
+				return;
+			}
+
+			const colValues = dataArray.map(row => row[colIndex]);
+
+			if (colValues.every(val => isNumeric(val))) {
+				numericalCols.push({ name: header, index: colIndex });
+			} else {
+				categoricalCols.push({ name: header, index: colIndex });
+				const uniqueVals = [...new Set(colValues)];
+				categoryMappings[header] = Object.fromEntries(uniqueVals.map((val, i) => [val, i]));
+			}
+		});
+
+		// Erstelle GUI-Bereich für Checkboxen und Filter
+		const controlsContainerId = "parallel-plot-controls";
+		let controlsContainer = $("#" + controlsContainerId);
+
+		if (controlsContainer.length === 0) {
+			controlsContainer = $('<div></div>').attr("id", controlsContainerId).css({
+				"margin-bottom": "15px",
+				"padding": "10px",
+				"border": "1px solid #ccc",
+				"display": "flex",
+				"flex-wrap": "wrap",
+				"gap": "10px",
+				"max-width": "100%"
+			});
+			$("#parallel-plot").before(controlsContainer);
+		} else {
+			controlsContainer.empty();
+		}
+
+		// Status für sichtbare Spalten und Filter (min/max für numerisch)
+		const visibleColumns = {};
+		const numericFilters = {};
+
+		headers.forEach(header => {
+			visibleColumns[header] = true;
+		});
+
+		// Erzeuge Checkbox + optional min/max Eingabe für jede Spalte
+		headers.forEach(header => {
+			if (ignoreSet.has(header)) {
+				return;
+			}
+
+			// Container pro Header
+			const controlDiv = $('<div></div>').css({
+				"display": "flex",
+				"flex-direction": "column",
+				"min-width": "150px",
+				"border": "1px solid #ddd",
+				"padding": "5px",
+				"border-radius": "4px",
+				"background": "#f9f9f9"
+			});
+
+			// Checkbox Label + Input
+			const checkboxId = `checkbox-${header}`;
+			const checkbox = $('<input type="checkbox" checked>').attr("id", checkboxId);
+			const label = $('<label></label>').attr("for", checkboxId).text(header).css({
+				"font-weight": "bold",
+				"user-select": "none"
+			});
+			controlDiv.append(checkbox).append(label);
+
+			// Prüfe ob numerisch
+			const isNum = numericalCols.some(c => c.name === header);
+
+			if (isNum) {
+				// Min/Max Eingabe
+				const minMaxDiv = $('<div></div>').css({
+					"display": "flex",
+					"gap": "5px",
+					"margin-top": "5px",
+					"align-items": "center"
+				});
+
+				// Label Min
+				const minLabel = $('<label></label>').text("Min:").css("font-size", "0.8em");
+				const minInput = $('<input type="number" step="any" placeholder="Min">').css({
+					"width": "60px",
+					"font-size": "0.8em"
+				});
+
+				// Label Max
+				const maxLabel = $('<label></label>').text("Max:").css("font-size", "0.8em");
+				const maxInput = $('<input type="number" step="any" placeholder="Max">').css({
+					"width": "60px",
+					"font-size": "0.8em"
+				});
+
+				minMaxDiv.append(minLabel, minInput, maxLabel, maxInput);
+				controlDiv.append(minMaxDiv);
+
+				// Init Filter als leer (keine Filterung)
+				numericFilters[header] = { min: null, max: null };
+
+				// Event Listener für min Input
+				minInput.on("input", () => {
+					const val = minInput.val();
+					if (val === '' || isNaN(val)) {
+						numericFilters[header].min = null;
+					} else {
+						numericFilters[header].min = parseFloat(val);
+					}
+					filterAndUpdatePlot();
+				});
+
+				// Event Listener für max Input
+				maxInput.on("input", () => {
+					const val = maxInput.val();
+					if (val === '' || isNaN(val)) {
+						numericFilters[header].max = null;
+					} else {
+						numericFilters[header].max = parseFloat(val);
+					}
+					filterAndUpdatePlot();
+				});
+			}
+
+			// Checkbox Listener
+			checkbox.on("change", () => {
+				visibleColumns[header] = checkbox.is(":checked");
+				filterAndUpdatePlot();
+			});
+
+			controlsContainer.append(controlDiv);
+		});
+
+		// Farb-Skalierung (wie bisher, aber flexibel)
+		let colorScale = null;
+		let colorValues = null;
+
+		// Ergebnis min/max Infos als global angenommen
+		if (typeof result_min_max === "undefined" || !Array.isArray(result_min_max)) {
+			// Falls nicht definiert, default setzen (alle "min")
+			window.result_min_max = resultNames.map(() => "min");
+		}
+
+		if (typeof result_names === "undefined" || !Array.isArray(result_names)) {
+			window.result_names = [...resultNames];
+		}
+
+		function setupColoring(selectedResult) {
+			if (selectedResult === "none" || !selectedResult) {
 				colorValues = null;
 				colorScale = null;
 			} else {
-				const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
-				colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
-
+				const lowerSelected = selectedResult.toLowerCase();
+				const resultCol = numericalCols.find(col => col.name.toLowerCase() === lowerSelected);
+				if (!resultCol) {
+					colorValues = null;
+					colorScale = null;
+					return;
+				}
+				colorValues = filteredData.map(row => parseFloat(row[resultCol.index]));
 				let minResult = Math.min(...colorValues);
 				let maxResult = Math.max(...colorValues);
 
-				var _result_min_max_idx = result_names.indexOf(selectedResult);
-
+				const idx = result_names.findIndex(r => r.toLowerCase() === lowerSelected);
 				let invertColor = false;
-				if (result_min_max.length > _result_min_max_idx) {
-					invertColor = result_min_max[_result_min_max_idx] === "max";
+				if (idx >= 0 && result_min_max.length > idx) {
+					invertColor = result_min_max[idx] === "max";
 				}
 
-				colorScale = invertColor
-					? [[0, 'red'], [1, 'green']]
-					: [[0, 'green'], [1, 'red']];
+				colorScale = invertColor ? [[0, 'red'], [1, 'green']] : [[0, 'green'], [1, 'red']];
 			}
-			updatePlot();
-		});
-	} else {
-		let invertColor = false;
-		if (Object.keys(result_min_max).length == 1) {
-			invertColor = result_min_max[0] === "max";
 		}
 
-		colorScale = invertColor
-			? [[0, 'red'], [1, 'green']]
-			: [[0, 'green'], [1, 'red']];
+		// Select für Farbe (wenn mehrere Ergebnisse)
+		if (resultNames.length > 1) {
+			let selectBoxId = "result-select";
+			let selectBox = $("#" + selectBoxId);
 
-		const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
-		colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
-	}
-
-	function updatePlot() {
-		const trace = {
-			type: 'parcoords',
-			dimensions: dimensions,
-			line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
-			unselected: {
-				line: {
-					color: get_text_color(),
-					opacity: 0
+			if (selectBox.length === 0) {
+				selectBox = $('<select></select>').attr("id", selectBoxId).css({
+					"margin-bottom": "10px",
+					"display": "block"
+				});
+				selectBox.append('<option value="none">No color</option>');
+				for (let i = 0; i < resultNames.length; i++) {
+					let minMax = result_min_max[i];
+					if (minMax === undefined) {
+						minMax = "min [auto]";
+					}
+					selectBox.append(`<option value="${resultNames[i]}">${resultNames[i]} (${minMax})</option>`);
 				}
-			},
-		};
-
-		dimensions.forEach(dim => {
-			if (!dim.line) {
-				dim.line = {};
+				$("#parallel-plot").before(selectBox);
 			}
-			if (!dim.line.color) {
-				dim.line.color = 'rgba(169,169,169, 0.01)';
+
+			// Startfarbe: none
+			colorValues = null;
+			colorScale = null;
+
+			selectBox.off("change").on("change", () => {
+				const val = selectBox.val();
+				setupColoring(val);
+				filterAndUpdatePlot();
+			});
+		} else if (resultNames.length === 1) {
+			// Single Ergebnis: automatische Farbzuweisung
+			const col = numericalCols.find(c => c.name.toLowerCase() === resultNames[0].toLowerCase());
+			if (col) {
+				colorValues = dataArray.map(row => parseFloat(row[col.index]));
+				let invertColor = false;
+				if (result_min_max.length === 1) {
+					invertColor = result_min_max[0] === "max";
+				}
+				colorScale = invertColor ? [[0, 'red'], [1, 'green']] : [[0, 'green'], [1, 'red']];
 			}
-		});
+		}
 
-		Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+		// Globale Variable zum Filtern
+		let filteredData = [...dataArray];
 
+		// Funktion zum Filtern der Daten nach Checkbox & Min/Max
+		function filterAndUpdatePlot() {
+			try {
+				filteredData = dataArray.filter(row => {
+					for (const header of headers) {
+						if (!visibleColumns[header]) {
+							// Spalte unsichtbar -> keine Einschränkung auf Zeilen nötig
+							continue;
+						}
+						// Filter für numerische Spalten beachten
+						if (numericFilters[header]) {
+							const colIndex = headers.indexOf(header);
+							if (colIndex === -1) {
+								continue;
+							}
+							const val = parseFloat(row[colIndex]);
+							if (numericFilters[header].min !== null && val < numericFilters[header].min) {
+								return false;
+							}
+							if (numericFilters[header].max !== null && val > numericFilters[header].max) {
+								return false;
+							}
+						}
+					}
+					return true;
+				});
+
+				updatePlot();
+			} catch (e) {
+				console.error("Fehler beim Filtern der Daten:", e);
+			}
+		}
+
+		// Plot Aktualisieren
+		function updatePlot() {
+			try {
+				// Dimensionen nur für sichtbare Spalten bauen
+				const dims = [];
+
+				// Numerische Spalten
+				numericalCols.forEach(col => {
+					if (!visibleColumns[col.name]) {
+						return;
+					}
+					const vals = filteredData.map(row => parseFloat(row[col.index]));
+					const minVal = Math.min(...vals);
+					const maxVal = Math.max(...vals);
+
+					// Falls min/max Filter gesetzt, auf Filterbereich begrenzen (damit Skala passt)
+					let displayMin = minVal;
+					let displayMax = maxVal;
+					if (numericFilters[col.name]) {
+						if (numericFilters[col.name].min !== null) {
+							displayMin = Math.max(displayMin, numericFilters[col.name].min);
+						}
+						if (numericFilters[col.name].max !== null) {
+							displayMax = Math.min(displayMax, numericFilters[col.name].max);
+						}
+					}
+
+					dims.push({
+						label: col.name,
+						values: vals,
+						range: [displayMin, displayMax]
+					});
+				});
+
+				// Kategoriale Spalten
+				categoricalCols.forEach(col => {
+					if (!visibleColumns[col.name]) {
+						return;
+					}
+					const mapping = categoryMappings[col.name];
+					const vals = filteredData.map(row => mapping[row[col.index]]);
+					dims.push({
+						label: col.name,
+						values: vals,
+						tickvals: Object.values(mapping),
+						ticktext: Object.keys(mapping)
+					});
+				});
+
+				// Update der Farbwerte falls eine Farbe aktiv ist
+				if (colorValues !== null) {
+					// Farbwerte nur von gefilterten Zeilen
+					// Versuche, aktuelle Auswahl aus select (falls existiert) zu verwenden
+					let selectedResult = null;
+					const selectBox = $("#result-select");
+					if (selectBox.length) {
+						selectedResult = selectBox.val();
+					} else if (resultNames.length === 1) {
+						selectedResult = resultNames[0];
+					}
+
+					if (selectedResult && selectedResult !== "none") {
+						const lowerSelected = selectedResult.toLowerCase();
+						const resultCol = numericalCols.find(c => c.name.toLowerCase() === lowerSelected);
+						if (resultCol) {
+							colorValues = filteredData.map(row => parseFloat(row[resultCol.index]));
+						} else {
+							colorValues = null;
+						}
+					} else {
+						colorValues = null;
+					}
+				}
+
+				const trace = {
+					type: 'parcoords',
+					dimensions: dims,
+					line: colorValues ? { color: colorValues, colorscale: colorScale, showscale: true } : {},
+					unselected: {
+						line: {
+							color: get_text_color(),
+							opacity: 0
+						}
+					}
+				};
+
+				// Sicherheits-Check: Falls keine Dimensionen, nichts plotten
+				if (dims.length === 0) {
+					$("#parallel-plot").empty();
+					$("#parallel-plot").append("<div style='color:red;'>Keine sichtbaren Spalten für Plot.</div>");
+					return;
+				}
+
+				Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+
+				make_text_in_parallel_plot_nicer();
+			} catch (e) {
+				console.error("Fehler beim Update des Plots:", e);
+			}
+		}
+
+		// Initialer Filter & Plot
+		filterAndUpdatePlot();
+
+		// Kennzeichne Plot als geladen
+		$("#parallel-plot").data("loaded", "true");
+
+		// Text im Plot ggf. anpassen (deine bestehende Funktion)
 		make_text_in_parallel_plot_nicer();
+
+	} catch (error) {
+		console.error("Fehler in createParallelPlot:", error);
 	}
-
-	updatePlot();
-
-	$("#parallel-plot").data("loaded", "true");
-
-	make_text_in_parallel_plot_nicer();
 }
 
 function plotWorkerUsage() {

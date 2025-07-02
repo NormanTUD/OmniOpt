@@ -130,7 +130,8 @@
 				]
 			];
 
-			$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')));
+			$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')), ",", '"', "\\");
+
 			if (!in_array('program_string', $header)) { 
 				$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
 			}

@@ -393,6 +393,7 @@
 ?>
 	<?php js("share.js"); ?>
 	<script>
+		showFullscreenSpinnerWithMessage('Loading OmniOpt2-Share...');
 		var special_col_names = <?php print json_encode($GLOBALS["SPECIAL_COL_NAMES"]); ?>;
 <?php
 		if(count($GLOBALS["json_data"])) {
@@ -436,6 +437,8 @@
 					$button.trigger('click');
 				}
 			}
+
+			hideFullscreenSpinner();
 		});
 	</script>
 	<div class="page">

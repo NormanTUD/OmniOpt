@@ -209,7 +209,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		const columnVisibility = {};
 		const minMaxLimits = {};
 
-		// Checkboxen + Min/Max Felder generieren mit optisch ansprechenderem Layout
+		// Checkboxen + Min/Max Felder generieren mit Boxen, max-Breite, Umbruch und Zeilenumbruch nach jeder Box
 		headers.forEach((header) => {
 			try {
 				if (ignoreSet.has(header)) return;
@@ -224,18 +224,36 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 				columnVisibility[header] = true;
 				minMaxLimits[header] = { min: null, max: null };
 
-				// Container mit flexbox für bessere Anordnung
+				// Wrapper Box mit max-Breite, Umbruch, Block-Level-Element für newline nach jeder Box
+				const boxWrapper = $('<div></div>').css({
+					border: "1px solid #ddd",
+					borderRadius: "8px",
+					padding: "12px 16px",
+					marginBottom: "12px",
+					boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+					backgroundColor: "#fff",
+					display: "flex",
+					flexWrap: "wrap",
+					alignItems: "center",
+					gap: "15px",
+					maxWidth: "350px",
+					width: "100%", // damit bei kleinen Screens die Box maximal voll breit ist
+					boxSizing: "border-box"
+				});
+
+				// Innerer Container mit Flexbox für Ausrichtung der Elemente, flex-grow damit Inputs genug Platz bekommen
 				const container = $('<div></div>').css({
 					display: "flex",
 					alignItems: "center",
-					marginBottom: "8px",
 					gap: "10px",
-					flexWrap: "wrap"
+					flexWrap: "wrap",
+					flexGrow: 1,
+					minWidth: "0" // wichtig für flexbox Overflow Handling
 				});
 
 				// Checkbox mit Label
 				const checkbox = $(`<input type="checkbox" id="${checkboxId}" checked />`);
-				const label = $(`<label for="${checkboxId}" style="font-weight: 600; min-width: 120px; cursor: pointer;">${header}</label>`);
+				const label = $(`<label for="${checkboxId}" style="font-weight: 600; min-width: 140px; cursor: pointer; white-space: nowrap;">${header}</label>`);
 
 				container.append(checkbox).append(label);
 
@@ -252,7 +270,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					const minWrapper = $('<div></div>').css({
 						display: "flex",
 						flexDirection: "column",
-						alignItems: "flex-start"
+						alignItems: "flex-start",
+						minWidth: "90px"
 					});
 					const minLabel = $('<label></label>').attr("for", minInputId).text("Min").css({
 						fontSize: "0.75rem",
@@ -261,12 +280,21 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					});
 					const minInput = $(`<input type="number" id="${minInputId}" placeholder="min" />`).css({
 						width: "80px",
-						padding: "3px 6px",
-						borderRadius: "4px",
-						border: "1px solid #ccc"
+						padding: "5px 8px",
+						borderRadius: "5px",
+						border: "1px solid #ccc",
+						boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+						transition: "border-color 0.3s ease"
 					});
 					minInput.attr("min", minVal);
 					minInput.attr("max", maxVal);
+
+					minInput.on("focus", function () {
+						$(this).css("border-color", "#007BFF");
+					});
+					minInput.on("blur", function () {
+						$(this).css("border-color", "#ccc");
+					});
 
 					minWrapper.append(minLabel).append(minInput);
 
@@ -274,7 +302,8 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					const maxWrapper = $('<div></div>').css({
 						display: "flex",
 						flexDirection: "column",
-						alignItems: "flex-start"
+						alignItems: "flex-start",
+						minWidth: "90px"
 					});
 					const maxLabel = $('<label></label>').attr("for", maxInputId).text("Max").css({
 						fontSize: "0.75rem",
@@ -283,12 +312,21 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					});
 					const maxInput = $(`<input type="number" id="${maxInputId}" placeholder="max" />`).css({
 						width: "80px",
-						padding: "3px 6px",
-						borderRadius: "4px",
-						border: "1px solid #ccc"
+						padding: "5px 8px",
+						borderRadius: "5px",
+						border: "1px solid #ccc",
+						boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
+						transition: "border-color 0.3s ease"
 					});
 					maxInput.attr("min", minVal);
 					maxInput.attr("max", maxVal);
+
+					maxInput.on("focus", function () {
+						$(this).css("border-color", "#007BFF");
+					});
+					maxInput.on("blur", function () {
+						$(this).css("border-color", "#ccc");
+					});
 
 					maxWrapper.append(maxLabel).append(maxInput);
 
@@ -314,11 +352,15 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					updatePlot();
 				});
 
-				controlContainer.append(container);
+				boxWrapper.append(container);
+
+				// Jede Box bekommt ihren eigenen Block (also newline)
+				controlContainer.append(boxWrapper);
 			} catch (error) {
 				console.error(`Fehler bei Header '${header}':`, error);
 			}
 		});
+
 
 
 		// Erzeuge Ergebnis-Auswahl für Farbskala (color by result)

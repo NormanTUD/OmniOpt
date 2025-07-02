@@ -165,8 +165,8 @@ function make_text_in_parallel_plot_nicer() {
 	});
 }
 
-function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
-	if ($("#parallel-plot").data("loaded") == "true") {
+function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [], reload = false) {
+	if ($("#parallel-plot").data("loaded") == "true" && !reload) {
 		return;
 	}
 
@@ -175,11 +175,19 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [])
 	const numericalCols = [];
 	const categoricalCols = [];
 	const categoryMappings = {};
+	const enable_slurm_id_if_exists = $("#enable_slurm_id_if_exists").is(":checked");
 
 	headers.forEach((header, colIndex) => {
-		if (ignoreSet.has(header)) return;
+		if (ignoreSet.has(header)) {
+			return;
+		}
+
+		if(!enable_slurm_id_if_exists && header == "OO_Info_SLURM_JOB_ID") {
+			return;
+		}
 
 		const values = dataArray.map(row => row[colIndex]);
+
 		if (values.every(val => !isNaN(parseFloat(val)))) {
 			numericalCols.push({ name: header, index: colIndex });
 		} else {

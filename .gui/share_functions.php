@@ -840,7 +840,7 @@
 
 
 	function add_parallel_plot_tab ($tabs) {
-		$html = '<div class="invert_in_dark_mode" id="parallel-plot"></div>';
+		$html = '<input type="checkbox" id="enable_slurm_id_if_exists" onchange="createParallelPlot(tab_results_csv_json, tab_results_headers_json, result_names, special_col_names, true)" /> Show SLURM-Job-ID (if it exists)<br><div class="invert_in_dark_mode" id="parallel-plot"></div>';
 
 		$svg_icon = get_icon_html("plot.svg");
 

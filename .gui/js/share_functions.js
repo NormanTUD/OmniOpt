@@ -368,7 +368,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		let resultSelect = $(`#${resultSelectId}`);
 		if (resultSelect.length === 0) {
 			resultSelect = $(`<select id="${resultSelectId}" style="margin-bottom: 10px;"></select>`);
-			controlContainer.append(resultSelect);
+			controlContainer.before(resultSelect);
 		} else {
 			resultSelect.empty();
 		}

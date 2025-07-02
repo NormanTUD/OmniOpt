@@ -56,12 +56,10 @@ function showFullscreenSpinnerWithMessage(message) {
 	try {
 		var spinnerOverlayId = 'fullscreen-spinner-overlay';
 
-		// Prüfen, ob Overlay schon existiert
 		if (document.getElementById(spinnerOverlayId)) {
 			return;
 		}
 
-		// Keyframes für Spinner-Animation nur einmal hinzufügen
 		if (!document.getElementById('fullscreen-spinner-style')) {
 			var styleEl = document.createElement('style');
 			styleEl.type = 'text/css';
@@ -71,7 +69,6 @@ function showFullscreenSpinnerWithMessage(message) {
 			document.head.appendChild(styleEl);
 		}
 
-		// Overlay-Element
 		var overlay = document.createElement('div');
 		overlay.classList.add('invert_in_dark_mode');
 		overlay.id = spinnerOverlayId;
@@ -80,14 +77,13 @@ function showFullscreenSpinnerWithMessage(message) {
 		overlay.style.left = '0';
 		overlay.style.width = '100vw';
 		overlay.style.height = '100vh';
-		overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)'; // dunkler und stärker verdunkelt (fast ausgeblendet)
+		overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
 		overlay.style.display = 'flex';
 		overlay.style.flexDirection = 'column';
 		overlay.style.justifyContent = 'center';
 		overlay.style.alignItems = 'center';
 		overlay.style.zIndex = '99999';
 
-		// Spinner (runde animierte Fläche)
 		var spinner = document.createElement('div');
 		spinner.style.border = '16px solid #f3f3f3';
 		spinner.style.borderTop = '16px solid #3498db';
@@ -96,7 +92,6 @@ function showFullscreenSpinnerWithMessage(message) {
 		spinner.style.height = '120px';
 		spinner.style.animation = 'spin 2s linear infinite';
 
-		// Nachricht unter Spinner
 		var text = document.createElement('div');
 		text.style.color = 'white';
 		text.style.fontSize = '1.5rem';
@@ -109,7 +104,7 @@ function showFullscreenSpinnerWithMessage(message) {
 
 		document.body.appendChild(overlay);
 	} catch (error) {
-		console.error('Fehler beim Anzeigen des Spinners:', error);
+		console.error('Error at showing the spinner:', error);
 	}
 }
 
@@ -121,6 +116,6 @@ function hideFullscreenSpinner() {
 			overlay.parentNode.removeChild(overlay);
 		}
 	} catch (error) {
-		console.error('Fehler beim Entfernen des Spinners:', error);
+		console.error('Error at removing the spinners:', error);
 	}
 }

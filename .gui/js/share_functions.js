@@ -209,59 +209,117 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		const columnVisibility = {};
 		const minMaxLimits = {};
 
-		// Checkboxen + Min/Max Felder generieren
+		// Checkboxen + Min/Max Felder generieren mit optisch ansprechenderem Layout
 		headers.forEach((header) => {
-			if (ignoreSet.has(header)) return;
-			if (!enable_slurm_id_if_exists && header === "OO_Info_SLURM_JOB_ID") return;
+			try {
+				if (ignoreSet.has(header)) return;
+				if (!enable_slurm_id_if_exists && header === "OO_Info_SLURM_JOB_ID") return;
 
-			const isNumerical = numericalCols.some(col => col.name === header);
+				const isNumerical = numericalCols.some(col => col.name === header);
 
-			const checkboxId = `chk_${header}`;
-			const minInputId = `min_${header}`;
-			const maxInputId = `max_${header}`;
+				const checkboxId = `chk_${header}`;
+				const minInputId = `min_${header}`;
+				const maxInputId = `max_${header}`;
 
-			columnVisibility[header] = true;
-			minMaxLimits[header] = { min: null, max: null };
+				columnVisibility[header] = true;
+				minMaxLimits[header] = { min: null, max: null };
 
-			const container = $('<div style="margin-bottom:5px;"></div>');
-			const checkbox = $(`<input type="checkbox" id="${checkboxId}" checked />`);
-			const label = $(`<label for="${checkboxId}" style="margin-right:10px;">${header}</label>`);
-
-			container.append(checkbox).append(label);
-
-			if (isNumerical) {
-				const minVal = Math.min(...dataArray.map(row => parseFloat(row[headers.indexOf(header)])));
-				const maxVal = Math.max(...dataArray.map(row => parseFloat(row[headers.indexOf(header)])));
-
-				const minInput = $(`<input type="number" id="${minInputId}" placeholder="min" style="width:80px; margin-right:5px;" />`);
-				const maxInput = $(`<input type="number" id="${maxInputId}" placeholder="max" style="width:80px; margin-right:5px;" />`);
-
-				minInput.attr("min", minVal);
-				minInput.attr("max", maxVal);
-				maxInput.attr("min", minVal);
-				maxInput.attr("max", maxVal);
-
-				minInput.on("input", function () {
-					const val = parseFloat($(this).val());
-					minMaxLimits[header].min = isNaN(val) ? null : val;
-					updatePlot();
-				});
-				maxInput.on("input", function () {
-					const val = parseFloat($(this).val());
-					minMaxLimits[header].max = isNaN(val) ? null : val;
-					updatePlot();
+				// Container mit flexbox für bessere Anordnung
+				const container = $('<div></div>').css({
+					display: "flex",
+					alignItems: "center",
+					marginBottom: "8px",
+					gap: "10px",
+					flexWrap: "wrap"
 				});
 
-				container.append(minInput).append(maxInput);
+				// Checkbox mit Label
+				const checkbox = $(`<input type="checkbox" id="${checkboxId}" checked />`);
+				const label = $(`<label for="${checkboxId}" style="font-weight: 600; min-width: 120px; cursor: pointer;">${header}</label>`);
+
+				container.append(checkbox).append(label);
+
+				if (isNumerical) {
+					// Werte ermitteln (nur gültige Zahlen)
+					const numericValues = dataArray
+						.map(row => parseFloat(row[headers.indexOf(header)]))
+						.filter(val => !isNaN(val));
+
+					const minVal = numericValues.length > 0 ? Math.min(...numericValues) : 0;
+					const maxVal = numericValues.length > 0 ? Math.max(...numericValues) : 100;
+
+					// Min Input mit Label
+					const minWrapper = $('<div></div>').css({
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "flex-start"
+					});
+					const minLabel = $('<label></label>').attr("for", minInputId).text("Min").css({
+						fontSize: "0.75rem",
+						color: "#555",
+						marginBottom: "2px"
+					});
+					const minInput = $(`<input type="number" id="${minInputId}" placeholder="min" />`).css({
+						width: "80px",
+						padding: "3px 6px",
+						borderRadius: "4px",
+						border: "1px solid #ccc"
+					});
+					minInput.attr("min", minVal);
+					minInput.attr("max", maxVal);
+
+					minWrapper.append(minLabel).append(minInput);
+
+					// Max Input mit Label
+					const maxWrapper = $('<div></div>').css({
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "flex-start"
+					});
+					const maxLabel = $('<label></label>').attr("for", maxInputId).text("Max").css({
+						fontSize: "0.75rem",
+						color: "#555",
+						marginBottom: "2px"
+					});
+					const maxInput = $(`<input type="number" id="${maxInputId}" placeholder="max" />`).css({
+						width: "80px",
+						padding: "3px 6px",
+						borderRadius: "4px",
+						border: "1px solid #ccc"
+					});
+					maxInput.attr("min", minVal);
+					maxInput.attr("max", maxVal);
+
+					maxWrapper.append(maxLabel).append(maxInput);
+
+					// Events für min/max Eingaben
+					minInput.on("input", function () {
+						const val = parseFloat($(this).val());
+						minMaxLimits[header].min = isNaN(val) ? null : val;
+						updatePlot();
+					});
+
+					maxInput.on("input", function () {
+						const val = parseFloat($(this).val());
+						minMaxLimits[header].max = isNaN(val) ? null : val;
+						updatePlot();
+					});
+
+					container.append(minWrapper).append(maxWrapper);
+				}
+
+				// Checkbox Change Event
+				checkbox.on("change", function () {
+					columnVisibility[header] = $(this).is(":checked");
+					updatePlot();
+				});
+
+				controlContainer.append(container);
+			} catch (error) {
+				console.error(`Fehler bei Header '${header}':`, error);
 			}
-
-			checkbox.on("change", function () {
-				columnVisibility[header] = $(this).is(":checked");
-				updatePlot();
-			});
-
-			controlContainer.append(container);
 		});
+
 
 		// Erzeuge Ergebnis-Auswahl für Farbskala (color by result)
 		const resultSelectId = "result-select";

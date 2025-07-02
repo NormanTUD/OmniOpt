@@ -382,81 +382,92 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		}
 
 		function updatePlot() {
-			// Filter Spalten nach Checkboxen
-			const filteredNumericalCols = numericalCols.filter(col => columnVisibility[col.name]);
-			const filteredCategoricalCols = categoricalCols.filter(col => columnVisibility[col.name]);
+			try {
+				// Filter Spalten nach Checkboxen
+				const filteredNumericalCols = numericalCols.filter(col => columnVisibility[col.name]);
+				const filteredCategoricalCols = categoricalCols.filter(col => columnVisibility[col.name]);
 
-			const dimensions = [];
+				// Filtere die Datenzeilen, um nur die zu behalten, die innerhalb aller gesetzten Min/Max Limits liegen
+				const filteredData = dataArray.filter(row => {
+					for (let col of filteredNumericalCols) {
+						const val = parseFloat(row[col.index]);
+						if (isNaN(val)) return false; // ungültiger Wert raus
 
-			// Füge numerische Dimensionen hinzu mit Min/Max Limits
-			filteredNumericalCols.forEach(col => {
-				let vals = dataArray.map(row => parseFloat(row[col.index]));
+						const limits = minMaxLimits[col.name];
+						if (limits.min !== null && val < limits.min) return false;
+						if (limits.max !== null && val > limits.max) return false;
+					}
+					// Kategorische Werte ignorieren Filter (könntest hier evtl. erweitern)
+					return true;
+				});
 
-				const minLimit = minMaxLimits[col.name].min;
-				const maxLimit = minMaxLimits[col.name].max;
+				const dimensions = [];
 
-				if (minLimit !== null || maxLimit !== null) {
-					vals = vals.map(v => {
-						if (minLimit !== null && v < minLimit) return minLimit;
-						if (maxLimit !== null && v > maxLimit) return maxLimit;
-						return v;
+				// Füge numerische Dimensionen hinzu mit Min/Max Limits (Range anhand gefilterter Daten)
+				filteredNumericalCols.forEach(col => {
+					let vals = filteredData.map(row => parseFloat(row[col.index]));
+
+					// Fallback falls alle Werte NaN (sollte eigentlich nicht vorkommen)
+					const realMin = vals.length > 0 ? Math.min(...vals) : 0;
+					const realMax = vals.length > 0 ? Math.max(...vals) : 100;
+
+					dimensions.push({
+						label: col.name,
+						values: vals,
+						range: [realMin, realMax]
+					});
+				});
+
+				// Kategorische Dimensionen (aus gefilterten Daten)
+				filteredCategoricalCols.forEach(col => {
+					const vals = filteredData.map(row => categoryMappings[col.name][row[col.index]]);
+					dimensions.push({
+						label: col.name,
+						values: vals,
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+
+				// Linienfarbe bestimmen, falls Farbskala gesetzt ist
+				let filteredColorValues = null;
+				if (colorValues) {
+					// Da colorValues für alle Daten sind, filtere sie auch entsprechend
+					filteredColorValues = filteredData.map(row => {
+						const col = numericalCols.find(c => c.name.toLowerCase() === resultSelect.val().toLowerCase());
+						return col ? parseFloat(row[col.index]) : null;
 					});
 				}
 
-				const realMin = Math.min(...vals);
-				const realMax = Math.max(...vals);
+				const trace = {
+					type: 'parcoords',
+					dimensions: dimensions,
+					line: filteredColorValues ? { color: filteredColorValues, colorscale: colorScale } : {},
+					unselected: {
+						line: {
+							color: get_text_color(),
+							opacity: 0
+						}
+					},
+				};
 
-				dimensions.push({
-					label: col.name,
-					values: vals,
-					range: [realMin, realMax]
-				});
-			});
-
-			// Füge kategorische Dimensionen hinzu
-			filteredCategoricalCols.forEach(col => {
-				const vals = dataArray.map(row => categoryMappings[col.name][row[col.index]]);
-				dimensions.push({
-					label: col.name,
-					values: vals,
-					tickvals: Object.values(categoryMappings[col.name]),
-					ticktext: Object.keys(categoryMappings[col.name])
-				});
-			});
-
-			// Linienfarbe bestimmen, falls Farbskala gesetzt ist, nur für angezeigte numerische Spalten
-			let filteredColorValues = null;
-			if (colorValues) {
-				// Filter colorValues nur für Daten, die in den Dimensionen sind und numerisch
-				// Hier ist Farbe pro Zeile, nicht pro Dimension, also bleibt colorValues gleich.
-				filteredColorValues = colorValues;
-			}
-
-			const trace = {
-				type: 'parcoords',
-				dimensions: dimensions,
-				line: filteredColorValues ? { color: filteredColorValues, colorscale: colorScale } : {},
-				unselected: {
-					line: {
-						color: get_text_color(),
-						opacity: 0
+				dimensions.forEach(dim => {
+					if (!dim.line) {
+						dim.line = {};
 					}
-				},
-			};
+					if (!dim.line.color) {
+						dim.line.color = 'rgba(169,169,169, 0.01)';
+					}
+				});
 
-			dimensions.forEach(dim => {
-				if (!dim.line) {
-					dim.line = {};
-				}
-				if (!dim.line.color) {
-					dim.line.color = 'rgba(169,169,169, 0.01)';
-				}
-			});
+				Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
 
-			Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
-
-			make_text_in_parallel_plot_nicer();
+				make_text_in_parallel_plot_nicer();
+			} catch (error) {
+				console.error("Fehler in updatePlot():", error);
+			}
 		}
+
 
 		updatePlot();
 

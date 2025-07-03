@@ -29,7 +29,7 @@ It's simple: just add this command line argument to your OmniOpt2-call:
 --generation_strategy SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10
 ```
 
-Of cource, change it according to your needs.
+Of course, change it according to your needs.
 
 ## Caveats
 <div class="caveat warning">

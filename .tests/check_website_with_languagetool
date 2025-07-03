@@ -44,6 +44,7 @@ def remove_latex_code(text):
     # Entfernt Latex-Code zwischen $$ ... $$
     # Multiline möglich, non-greedy
     cleaned_text = re.sub(r'\$\$.*?\$\$', '', text, flags=re.DOTALL)
+    cleaned_text = re.sub(r'\\\(.*?\\\)', '', text, flags=re.DOTALL)
     return cleaned_text
 
 def extract_main_content_segments(soup):

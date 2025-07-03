@@ -46,15 +46,21 @@ def remove_latex_code(text):
     cleaned_text = re.sub(r'\$\$.*?\$\$', '', text, flags=re.DOTALL)
     return cleaned_text
 
-def extract_main_content_text(soup):
+def extract_main_content_segments(soup):
     main_div = soup.find('div', id='mainContent')
     if not main_div:
-        return ""
-    # Remove <code> and <pre> blocks before extracting text
+        return []
     remove_code_and_pre_blocks(main_div)
-    text = main_div.get_text(separator=' ', strip=True)
-    text = remove_latex_code(text)
-    return text
+    segments = []
+
+    # Sammle Überschriften und Absätze getrennt, jeweils als eigene Segmente
+    for tag in main_div.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li']):
+        text = tag.get_text(separator=' ', strip=True)
+        if text:
+            text = remove_latex_code(text)
+            segments.append(text)
+
+    return segments
 
 def load_whitelisted_words(filepath):
     if not os.path.isfile(filepath):
@@ -71,6 +77,45 @@ def load_whitelisted_words(filepath):
     except Exception as e:
         console.print(f"[red]Error reading whitelist file {filepath}: {e}[/red]")
         return set()
+
+def check_text_segments(segments, tool, whitelist):
+    all_matches = []
+    for segment in segments:
+        try:
+            matches = tool.check(segment)
+            # Filter wie vorher
+            filtered_matches = []
+            for match in matches:
+                is_whitelisted = False
+                try:
+                    if hasattr(match, 'offset') and hasattr(match, 'errorLength'):
+                        error_word = segment[match.offset:match.offset + match.errorLength].strip()
+                        if error_word in whitelist:
+                            is_whitelisted = True
+                    else:
+                        context_words = re.findall(r'\w+', match.context.lower())
+                        for ww in whitelist:
+                            if ww.lower() in context_words:
+                                is_whitelisted = True
+                                break
+                except Exception:
+                    pass
+
+                if not is_whitelisted:
+                    for replacement in match.replacements:
+                        if replacement.lower() in whitelist:
+                            is_whitelisted = True
+                            break
+
+                if not is_whitelisted:
+                    filtered_matches.append(match)
+
+            all_matches.extend(filtered_matches)
+
+        except Exception as e:
+            console.print(f"[red]Error during language check: {e}[/red]")
+
+    return all_matches
 
 def check_text(text, tool, whitelist):
     try:
@@ -154,13 +199,13 @@ def crawl_and_check(base_url):
                     if norm_link not in visited and link not in queue:
                         queue.append(link)
 
-                text = extract_main_content_text(soup)
-                if not text:
-                    console.print(f"[yellow]No mainContent found at {current_url}[/yellow]")
-                    results[current_url] = []
-                else:
-                    matches = check_text(text, tool, whitelist)
-                    results[current_url] = matches
+                    segments = extract_main_content_segments(soup)
+                    if not segments:
+                        console.print(f"[yellow]No mainContent segments found at {current_url}[/yellow]")
+                        results[current_url] = []
+                    else:
+                        matches = check_text_segments(segments, tool, whitelist)
+                        results[current_url] = matches
 
                 pages_checked += 1
                 progress.update(crawl_task, total=pages_checked + len(queue), advance=1)

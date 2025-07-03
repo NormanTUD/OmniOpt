@@ -63,8 +63,8 @@ This command includes all necessary options to run a hyperparameter optimization
 - `--send_anonymized_usage_stats`: Sends anonymized usage statistics.
 - `--model=BOTORCH_MODULAR`: Specifies the optimization model to use.
 - `--parameter learning_rate range 0 0.5 float`: Defines the search space for the learning rate.
-- `--parameter epochs choice 1,10,20,30,100`: Defines the choices for the epochs parameter.
-- `--parameter layers fixed 10`: Sets the layers parameter to a fixed value of 10.
+- `--parameter epochs choice 1,10,20,30,100`: Defines the choices for the epochs' parameter.
+- `--parameter layers fixed 10`: Sets the layers' parameter to a fixed value of 10.
 
 ## `--run_program`
 

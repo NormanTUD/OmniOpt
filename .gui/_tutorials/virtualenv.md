@@ -33,7 +33,7 @@ source ~/.omniax_x86_64_Python_3.11.2/bin/activate
 
 and then installing modules with `pip install ...`.
 
-Make sure you are running the same python-Version. That means, if you do it on a System with Lmod or similiar systems, `module load ...` the proper python-version and modules first.
+Make sure you are running the same python-Version. That means, if you do it on a System with Lmod or similar systems, `module load ...` the proper python-version and modules first.
 
 On the `capella` partition of the TU Dresden HPC System, this would be:
 

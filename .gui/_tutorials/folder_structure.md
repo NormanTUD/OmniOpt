@@ -187,9 +187,9 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `num_random_steps`: Number of random steps, used for continued jobs
 - `pareto_front_data.json`: Saves data for pareto fronts
 - `original_ax_client_before_loading_tmp_one.json`: Required to re-load generation strategy in continued jobs
-- `pareto_front_data.json`: Data about the pareto-front (exists only for multi-objective-optimizations)
-- `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated pareto-front
-- `pareto_front_table.txt_OLD`: If multiple RESULT names are specified, this is the table of the calculated pareto-front (intermediate)
+- `pareto_front_data.json`: Data about the Pareto-front (exists only for multi-objective-optimizations)
+- `pareto_front_table.txt`: If multiple RESULT names are specified, this is the table of the calculated Pareto-front
+- `pareto_front_table.txt_OLD`: If multiple RESULT names are specified, this is the table of the calculated Pareto-front (intermediate)
 - `pd.json`: Contains data to restore the `ax_client`
 - `phase_random_steps`: How many random steps have been generated
 - `phase_systematic_steps`: How many non-random steps have been generated

@@ -61,7 +61,7 @@ A CSV file that contains the current time, the number of jobs `ax_client.get_nex
 
 #### `worker_usage.csv`
 
-This contains the unix-timestamp, the number of workers requested, the number of workers got and the percentage of numbers got in respective to the number requested.
+This contains the Unix-timestamp, the number of workers requested, the number of workers got and the percentage of numbers got in respective to the number requested.
 
 ```csv
 1717234020.5216107,20,20,100

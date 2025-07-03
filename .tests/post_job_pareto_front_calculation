@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Run an omniopt2 job with 2 result objectives, but cancel it, and test if the pareto front is calculated correctly afterwards.
+# HELPPAGE: Run an omniopt2 job with 2 result objectives, but cancel it, and test if the pareto front is calculated correctly afterward.
 
 function echoerr {
 	echo "$@" 1>&2

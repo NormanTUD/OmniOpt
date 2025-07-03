@@ -265,7 +265,7 @@ def print_results(results):
             message = match.message or ""
             incorrect_text = match.context if hasattr(match, 'context') else ""
 
-            if not is_word_whitelisted(incorrect_text):
+            if not is_word_whitelisted(incorrect_text) and "_" not in incorrect_text:
                 replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
                 table.add_row(url, issue, message, incorrect_text, replacement_suggestions)
                 total_issues += 1

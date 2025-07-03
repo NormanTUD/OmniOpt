@@ -142,7 +142,6 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
             if p["type"] == "INT":
                 dist = IntUniformDistribution(p["range"][0], p["range"][1])
             elif p["type"] == "FLOAT":
-                # pick the right class for your Optuna version
                 dist = FloatDistribution(p["range"][0], p["range"][1])
             else:
                 continue

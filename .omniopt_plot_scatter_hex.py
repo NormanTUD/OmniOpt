@@ -257,7 +257,7 @@ def main() -> None:
 # Define update function for the button
 def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
     if event:
-        # only for fooling pylint...
+        # Only for fooling pylint...
         pass
 
     filter_out_strings = True

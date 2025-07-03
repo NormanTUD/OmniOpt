@@ -30,7 +30,7 @@ This file contains an ANSI-table that shows you the best result and the paramete
 
 #### `results.csv`
 
-This file contains infos about every evaluation in this run, that is, it's number, the algorithm that created that point, its parameters, and it's result.
+This file contains infos about every evaluation in this run, that is, its number, the algorithm that created that point, its parameters, and its result.
 
 ```csv
 trial_index,arm_name,trial_status,generation_method,result,width_and_height,validation_split,learning_rate,epochs
@@ -125,7 +125,7 @@ To add custom lines to this file, for example for analyzing certain parts of you
 print("OO-Info: outputname: 123")
 ```
 
-This will add the column `OO_Info_outputname` to the `job_infos.csv`, and each line will have it's own output values then.
+This will add the column `OO_Info_outputname` to the `job_infos.csv`, and each line will have its own output values then.
 
 #### `oo_errors.txt`
 

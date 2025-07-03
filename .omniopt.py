@@ -679,7 +679,7 @@ class ConfigLoader:
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
-        optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-seperated list of values for the signed weighted euclidean distance. Needs to be equal to the number of results. Else, default will be 1', default='', type=str)
+        optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-separated list of values for the signed weighted Euclidean distance. Needs to be equal to the number of results. Else, default will be 1', default='', type=str)
         optional.add_argument('--generation_strategy', help='A string containing the generation_strategy. Example: SOBOL=10,BOTORCH_MODULAR=10,SOBOL=10. Cannot use --model EXTERNAL_GENERATOR, TPE, RANDOMFOREST or PSEUDORANDOM', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
@@ -690,7 +690,7 @@ class ConfigLoader:
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
-        optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no pareto-front (yet)', type=str, nargs='+', default=[])
+        optional.add_argument('--calculate_pareto_front_of_job', help='This can be used to calculate a Pareto-front for a multi-objective job that previously has results, but has been cancelled, and has no Pareto-front (yet)', type=str, nargs='+', default=[])
         optional.add_argument('--show_generate_time_table', help='Generate a table at the end, showing how much time was spent trying to generate new points', action='store_true', default=False)
         optional.add_argument('--force_choice_for_ranges', help='Force float ranges to be converted to choice', action='store_true', default=False)
         optional.add_argument('--max_abandoned_retrial', help='Maximum number retrials to get when a job is abandoned post-generation', default=20, type=int)
@@ -4744,7 +4744,7 @@ def abandon_all_jobs() -> None:
 @beartype
 def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
     if args.dryrun:
-        print_debug("Not showing pareto-frontier data with --dryrun")
+        print_debug("Not showing Pareto-frontier data with --dryrun")
         return None
 
     if len(res_names) > 1:
@@ -9059,7 +9059,7 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
         return
 
     if not supports_sixel():
-        print(f"[italic yellow]Your console does not support sixel-images. Will not print pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
+        print(f"[italic yellow]Your console does not support sixel-images. Will not print Pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
         return
 
     import matplotlib.pyplot as plt
@@ -9474,7 +9474,7 @@ def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
             except ax.exceptions.core.DataRequiredError as e:
                 print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
             except SignalINT:
-                print_red("Calculating pareto-fronts was cancelled by pressing CTRL-c")
+                print_red("Calculating Pareto-fronts was cancelled by pressing CTRL-c")
                 skip = True
 
     return pareto_front_data
@@ -9502,7 +9502,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 if hide_pareto is None:
                     plot_pareto_frontier_sixel(calculated_frontier, metric_x, metric_y)
                 else:
-                    print(f"Not showing pareto-front-sixel for {path_to_calculate}")
+                    print(f"Not showing Pareto-front-sixel for {path_to_calculate}")
 
             if len(calculated_frontier[metric_x][metric_y]["idxs"]):
                 pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
@@ -9518,7 +9518,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     if hide_pareto is None:
                         console.print(rich_table)
                     else:
-                        print(f"Not showing pareto-front-table for {path_to_calculate}")
+                        print(f"Not showing Pareto-front-table for {path_to_calculate}")
 
                 with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
                     with console.capture() as capture:
@@ -9932,7 +9932,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     pf_end_time = time.time()
 
-    print_debug(f"Calculating the pareto-front took {pf_end_time - pf_start_time} seconds")
+    print_debug(f"Calculating the Pareto-front took {pf_end_time - pf_start_time} seconds")
 
     return True
 

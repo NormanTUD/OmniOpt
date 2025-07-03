@@ -2,7 +2,7 @@
 
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urldefrag
 import language_tool_python
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
@@ -132,9 +132,13 @@ def crawl_and_check(base_url):
 
         while queue:
             current_url = queue.popleft()
-            if current_url in visited:
+
+            # Normalize URL by removing fragment before checking visited
+            normalized_url, _ = urldefrag(current_url)
+
+            if normalized_url in visited:
                 continue
-            visited.add(current_url)
+            visited.add(normalized_url)
 
             progress.update(crawl_task, description=f"[cyan]Fetching[/cyan] {current_url}")
             try:
@@ -146,7 +150,8 @@ def crawl_and_check(base_url):
 
                 new_links = extract_links(soup, current_url)
                 for link in new_links:
-                    if link not in visited and link not in queue:
+                    norm_link, _ = urldefrag(link)
+                    if norm_link not in visited and link not in queue:
                         queue.append(link)
 
                 text = extract_main_content_text(soup)

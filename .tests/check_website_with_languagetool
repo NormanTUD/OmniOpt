@@ -1,0 +1,151 @@
+#!/bin/env python3
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+import language_tool_python
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+from rich.table import Table
+from collections import deque
+import re
+import sys
+import time
+
+BASE_URL = "https://imageseg.scads.de/omniax/"
+
+console = Console()
+
+def is_valid_url(url):
+    # Exclude urls containing 'share' or 'statistics'
+    if 'share' in url or 'usage_stats' in url:
+        return False
+    # Accept only URLs that start with BASE_URL or relative URLs
+    return url.startswith(BASE_URL) or not bool(urlparse(url).netloc)
+
+def extract_links(soup, base_url):
+    links = set()
+    for a in soup.find_all('a', href=True):
+        href = a['href'].strip()
+        if not href or href.startswith('#') or href.startswith('mailto:') or href.startswith('javascript:'):
+            continue
+        full_url = urljoin(base_url, href)
+        if is_valid_url(full_url):
+            links.add(full_url)
+    return links
+
+def extract_main_content_text(soup):
+    main_div = soup.find('div', id='mainContent')
+    if not main_div:
+        return ""
+    # Get visible text only, strip extra whitespace
+    text = main_div.get_text(separator=' ', strip=True)
+    return text
+
+def check_text(text, tool):
+    try:
+        matches = tool.check(text)
+        return matches
+    except Exception as e:
+        console.print(f"[red]Error during language check: {e}[/red]")
+        return []
+
+def crawl_and_check(base_url):
+    visited = set()
+    queue = deque([base_url])
+    results = {}
+
+    tool = language_tool_python.LanguageTool('en-US')
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TimeElapsedColumn(),
+        transient=True,
+        console=console
+    ) as progress:
+        crawl_task = progress.add_task("Crawling and checking pages...", total=0)
+        pages_checked = 0
+
+        while queue:
+            current_url = queue.popleft()
+            if current_url in visited:
+                continue
+            visited.add(current_url)
+
+            progress.update(crawl_task, description=f"[cyan]Fetching[/cyan] {current_url}")
+            try:
+                response = requests.get(current_url, timeout=15)
+                if response.status_code != 200:
+                    console.print(f"[yellow]Warning: Got status {response.status_code} for URL {current_url}[/yellow]")
+                    continue
+                soup = BeautifulSoup(response.text, 'html.parser')
+
+                # Extract and enqueue new links (BFS)
+                new_links = extract_links(soup, current_url)
+                for link in new_links:
+                    if link not in visited and link not in queue:
+                        queue.append(link)
+
+                # Extract mainContent text
+                text = extract_main_content_text(soup)
+                if not text:
+                    console.print(f"[yellow]No mainContent found at {current_url}[/yellow]")
+                    results[current_url] = []
+                else:
+                    # Check text with LanguageTool
+                    matches = check_text(text, tool)
+                    results[current_url] = matches
+
+                pages_checked += 1
+                progress.update(crawl_task, total=pages_checked + len(queue), advance=1)
+
+            except requests.RequestException as e:
+                console.print(f"[red]Failed to fetch {current_url}: {e}[/red]")
+            except Exception as e:
+                console.print(f"[red]Unexpected error on {current_url}: {e}[/red]")
+
+    return results
+
+def print_results(results):
+    # Build summary table of errors found per page
+    table = Table(title="LanguageTool Issues Found", show_lines=True)
+    table.add_column("URL", style="cyan", no_wrap=True)
+    table.add_column("Issue", style="red")
+    table.add_column("Message")
+    table.add_column("Incorrect Text", style="magenta")
+    table.add_column("Suggestions", style="green")
+
+    total_issues = 0
+    for url, matches in results.items():
+        if not matches:
+            continue
+        for match in matches:
+            issue = match.ruleId or "N/A"
+            message = match.message or ""
+            incorrect_text = match.context if hasattr(match, 'context') else ""
+            # Safe fallback to highlight the error text from original text if possible
+            # LanguageTool matches include offset and errorLength but we have no original text here,
+            # so fallback to context or empty
+            replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
+            table.add_row(url, issue, message, incorrect_text, replacement_suggestions)
+            total_issues += 1
+
+    if total_issues == 0:
+        console.print("[green]No language issues found on any crawled page.[/green]")
+    else:
+        console.print(table)
+
+def main():
+    console.print(f"[bold]Starting crawl on:[/bold] {BASE_URL}\n")
+    results = crawl_and_check(BASE_URL)
+    print_results(results)
+    console.print(f"\n[bold]Crawled {len(results)} pages.[/bold]")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[red]Script interrupted by user (CTRL+C).[/red]")
+        sys.exit(1)

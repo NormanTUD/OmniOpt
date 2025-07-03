@@ -12,7 +12,7 @@ import re
 import sys
 import os
 
-BASE_URL = "https://imageseg.scads.de/omniax/"
+BASE_URL = "http://localhost/oo2_gui/"
 WHITELIST_FILE = ".tests/whitelisted_words"
 
 console = Console()

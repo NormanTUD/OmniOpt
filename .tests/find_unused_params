@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: find parameters that are defined in OmniOpt but never used.
+# HELPPAGE: Find parameters that are defined in OmniOpt but never used.
 
 unused_params=0
 

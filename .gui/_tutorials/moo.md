@@ -50,7 +50,7 @@ This way, LOSS is minimized, while PREDICTION_TIME is maximized.
 
 ## How to calculate Pareto-Fronts in cancelled jobs
 
-When you have a job that was cancelled for whatever reason (i.e. time limit, memory limit, ...), but you still had results and want to calculate the Pareto-Front afterwards, you can do that by simply calling:
+When you have a job that was cancelled for whatever reason (i.e. time limit, memory limit, ...), but you still had results and want to calculate the Pareto-Front afterward, you can do that by simply calling:
 
 ```bash
 ./omniopt --calculate_pareto_front_of_job runs/yourproject/0

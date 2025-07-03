@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+# HELPPAGE: Checks the website with a Language Tool to check for typos, grammatical mistakes and so on.
+
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, urldefrag

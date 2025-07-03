@@ -1,6 +1,6 @@
 # <span class="tutorial_icon invert_in_dark_mode">📊</span> <tt>results.csv</tt>
 
-<!-- What is the results.csv and what do it's columns mean? -->
+<!-- What is the results.csv and what do its columns mean? -->
 
 <!-- Category: Preparations, Basics and Setup -->
 

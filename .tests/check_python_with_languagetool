@@ -1,0 +1,161 @@
+#!/bin/env python3
+
+import os
+import re
+import sys
+import language_tool_python
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+from rich.table import Table
+
+WHITELIST_FILE = ".tests/whitelisted_words"
+console = Console()
+
+
+def find_python_files(start_paths):
+    python_files = []
+    for path in start_paths:
+        if os.path.isfile(path) and path.endswith(".py"):
+            python_files.append(path)
+        elif os.path.isdir(path):
+            for root, _, files in os.walk(path):
+                for file in files:
+                    if file.endswith(".py"):
+                        python_files.append(os.path.join(root, file))
+    return python_files
+
+
+def extract_comments_and_docstrings(filepath):
+    comments = []
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Einzeilige Kommentare (nicht innerhalb von Strings)
+        single_line_comments = re.findall(r'(?m)^\s*#(.*)$', content)
+
+        # Docstrings ('''...''' oder """...""")
+        docstring_matches = re.findall(r'(?s)(?<!\\)("""|\'\'\')(.*?)(\1)', content)
+        docstrings = [doc[1] for doc in docstring_matches]
+
+        # Zusammenführen
+        for line in single_line_comments:
+            cleaned = line.strip()
+            if cleaned:
+                comments.append(cleaned)
+
+        for doc in docstrings:
+            cleaned = doc.strip()
+            if cleaned:
+                comments.append(cleaned)
+
+    except Exception as e:
+        console.print(f"[red]Error reading {filepath}: {e}[/red]")
+
+    return comments
+
+
+def load_whitelisted_words(filepath):
+    if not os.path.isfile(filepath):
+        console.print(f"[yellow]Whitelist file not found: {filepath}[/yellow]")
+        return set()
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return set(line.strip() for line in f if line.strip() and not line.startswith('#'))
+    except Exception as e:
+        console.print(f"[red]Error reading whitelist file {filepath}: {e}[/red]")
+        return set()
+
+
+def check_text_segments(segments, tool, whitelist):
+    all_matches = []
+    for segment in segments:
+        try:
+            matches = tool.check(segment)
+            filtered_matches = []
+            for match in matches:
+                is_whitelisted = False
+                if hasattr(match, 'offset') and hasattr(match, 'errorLength'):
+                    error_word = segment[match.offset:match.offset + match.errorLength].strip()
+                    if error_word in whitelist:
+                        is_whitelisted = True
+                else:
+                    context_words = re.findall(r'\w+', match.context.lower())
+                    for ww in whitelist:
+                        if ww.lower() in context_words:
+                            is_whitelisted = True
+                            break
+                if not is_whitelisted:
+                    for replacement in match.replacements:
+                        if replacement.lower() in whitelist:
+                            is_whitelisted = True
+                            break
+                if not is_whitelisted:
+                    filtered_matches.append((segment, match))
+            all_matches.extend(filtered_matches)
+        except Exception as e:
+            console.print(f"[red]Error during language check: {e}[/red]")
+    return all_matches
+
+
+def print_results(results):
+    table = Table(title="LanguageTool Issues Found", show_lines=True)
+    table.add_column("File", style="cyan", no_wrap=True)
+    table.add_column("Line/Text", style="magenta")
+    table.add_column("Issue", style="red")
+    table.add_column("Message")
+    table.add_column("Suggestions", style="green")
+
+    total_issues = 0
+    for filepath, issues in results.items():
+        for segment, match in issues:
+            issue = match.ruleId or "N/A"
+            message = match.message or ""
+            replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
+            table.add_row(filepath, segment, issue, message, replacement_suggestions)
+            total_issues += 1
+
+    if total_issues == 0:
+        console.print("[green]No language issues found in any Python file.[/green]")
+    else:
+        console.print(table)
+
+
+def main(paths):
+    if not paths:
+        console.print("[red]Please specify at least one .py file or directory.[/red]")
+        sys.exit(1)
+
+    whitelist = load_whitelisted_words(WHITELIST_FILE)
+    tool = language_tool_python.LanguageTool('en-US')
+    results = {}
+
+    files = find_python_files(paths)
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TimeElapsedColumn(),
+        transient=True,
+        console=console
+    ) as progress:
+        task = progress.add_task("Checking Python files...", total=len(files))
+        for filepath in files:
+            segments = extract_comments_and_docstrings(filepath)
+            if segments:
+                matches = check_text_segments(segments, tool, whitelist)
+                if matches:
+                    results[filepath] = matches
+            progress.update(task, advance=1)
+
+    print_results(results)
+    console.print(f"\n[bold]Checked {len(files)} Python file(s).[/bold]")
+
+
+if __name__ == "__main__":
+    try:
+        main(sys.argv[1:])
+    except KeyboardInterrupt:
+        console.print("\n[red]Script interrupted by user.[/red]")
+        sys.exit(1)

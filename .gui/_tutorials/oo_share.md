@@ -63,7 +63,7 @@ bash download_local_exports --export_dir /home/YourUsername/test/randomtest_9858
 
 ## Download exported shares via curl
 
-If you want to automatically download exported shares, ie. over curl, you can do the following:
+If you want to automatically download exported shares, i.e. over curl, you can do the following:
 
 ```bash
 URL="https://imageseg.scads.de/omniax/share?user_id=norman&sort=time_desc&experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_2&sort=time_desc&run_nr=0&sort=time_desc"

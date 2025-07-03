@@ -25,7 +25,7 @@ while `uname -m` yields to your CPU architecture (usually `x86_64`),
 
 ## How to install further modules manually
 
-Sometimes you need to install more modules, ie. when you want to export to a certain database like [Oracle or PostGRES](tutorials?tutorial=sqlite#other-db-systems-than-sqlite3). You can do that by first activating that virtualenv:
+Sometimes you need to install more modules, i.e. when you want to export to a certain database like [Oracle or PostGRES](tutorials?tutorial=sqlite#other-db-systems-than-sqlite3). You can do that by first activating that virtualenv:
 
 ```bash
 source ~/.omniax_x86_64_Python_3.11.2/bin/activate

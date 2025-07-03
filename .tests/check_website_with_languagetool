@@ -75,6 +75,7 @@ def load_whitelisted_words(filepath):
 def check_text(text, tool, whitelist):
     try:
         matches = tool.check(text)
+        # Filter out matches which are whitelisted words (in context or replacements)
         filtered_matches = []
         for match in matches:
             is_whitelisted = False
@@ -102,6 +103,7 @@ def check_text(text, tool, whitelist):
                 filtered_matches.append(match)
 
         return filtered_matches
+
     except Exception as e:
         console.print(f"[red]Error during language check: {e}[/red]")
         return []
@@ -113,13 +115,9 @@ def crawl_and_check(base_url):
 
     tool = language_tool_python.LanguageTool('en-US')
 
+    # Whitelist laden, aber NICHT dem LanguageTool hinzufügen!
     whitelist = load_whitelisted_words(WHITELIST_FILE)
-    if whitelist:
-        for word in whitelist:
-            try:
-                tool.add_ignore(word)
-            except Exception as e:
-                console.print(f"[yellow]Warning: Could not add word to ignore list: {word} ({e})[/yellow]")
+    # KEIN tool.add_ignore(word) MEHR!
 
     with Progress(
         SpinnerColumn(),
@@ -206,4 +204,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         console.print("\n[red]Script interrupted by user (CTRL+C).[/red]")
         sys.exit(1)
-

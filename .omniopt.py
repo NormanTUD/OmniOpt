@@ -3644,7 +3644,6 @@ def _write_job_infos_csv_parameters_to_str(parameters: dict) -> List[str]:
 
 @beartype
 def _write_job_infos_csv_extract_extra_vars(stdout: Optional[str]) -> Tuple[List[str], List[str]]:
-    # extract_info ist hier eine vorhandene Funktion, die extra Variablen aus stdout extrahiert
     return extract_info(stdout)
 
 @beartype
@@ -8537,7 +8536,6 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
 
     nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
-    # Sicherstellen, dass _max_eval nicht None ist
     __max_eval = _max_eval if _max_eval is not None else 0
     new_nr_of_jobs_to_get = min(__max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
 

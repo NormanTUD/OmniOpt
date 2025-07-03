@@ -2819,3 +2819,15 @@ CSVs
 argv
 frac
 std
+interpretability
+HMC
+RNG
+checkpointable
+OHE
+lengthscales
+combinatoric
+natively
+BO
+parallelizable
+Unary
+etc

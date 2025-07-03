@@ -41,4 +41,4 @@ Simply attach `--dryrun` to your OmniOpt2-call, like this, or chose the dry-run-
 
 ```
 
-Dry-Runs allow you to chose the parameter of one job before it runs and run only that one job. It skips SLURM, so your job should run fastly with these parameters, or in debug-mode. You will be asked for parameters, but certain ones are suggested if named properly, i.e. `epochs` will be suggested to `1`. You will be able to change them before the run executes.
+Dry-Runs allow you to chose the parameter of one job before it runs and run only that one job. It skips SLURM, so your job should run quickly with these parameters, or in debug-mode. You will be asked for parameters, but certain ones are suggested if named properly, i.e. `epochs` will be suggested to `1`. You will be able to change them before the run executes.

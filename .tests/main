@@ -633,6 +633,7 @@ _test "Find missing env vars documentation" ".tests/find_missing_env_vars_docume
 _test "Find typos in bash" ".tests/find_typos_in_bash" 0
 _test "Find typos in js" ".tests/find_typos_in_js" 0
 _test "Find typos in php" ".tests/find_typos_in_php" 0
+_test "Find typos in md" ".tests/find_typos_in_md" 0
 _test "Find double quoted add_arguments" ".tests/find_add_arguments_with_double_quotes" 0
 _test "Find untyped CLI args" ".tests/find_untyped_cli_args" 0
 _test "Find double add_arguments help" ".tests/find_double_add_arguments_help" 0

@@ -10,14 +10,15 @@ from rich.table import Table
 from collections import deque
 import re
 import sys
-import time
+import os
 
 BASE_URL = "https://imageseg.scads.de/omniax/"
+WHITELIST_FILE = ".tests/whitelisted_words"
 
 console = Console()
 
 def is_valid_url(url):
-    # Exclude urls containing 'share' or 'statistics'
+    # Exclude urls containing 'share' or 'usage_stats'
     if 'share' in url or 'usage_stats' in url:
         return False
     # Accept only URLs that start with BASE_URL or relative URLs
@@ -34,18 +35,73 @@ def extract_links(soup, base_url):
             links.add(full_url)
     return links
 
+def remove_code_and_pre_blocks(soup):
+    # Entfernt <code> und <pre> Elemente aus dem BeautifulSoup-Objekt
+    for tag in soup.find_all(['code', 'pre']):
+        tag.decompose()
+
+def remove_latex_code(text):
+    # Entfernt Latex-Code zwischen $$ ... $$
+    # Multiline möglich, non-greedy
+    cleaned_text = re.sub(r'\$\$.*?\$\$', '', text, flags=re.DOTALL)
+    return cleaned_text
+
 def extract_main_content_text(soup):
     main_div = soup.find('div', id='mainContent')
     if not main_div:
         return ""
-    # Get visible text only, strip extra whitespace
+    # Remove <code> and <pre> blocks before extracting text
+    remove_code_and_pre_blocks(main_div)
     text = main_div.get_text(separator=' ', strip=True)
+    text = remove_latex_code(text)
     return text
 
-def check_text(text, tool):
+def load_whitelisted_words(filepath):
+    if not os.path.isfile(filepath):
+        console.print(f"[yellow]Whitelist file not found: {filepath}[/yellow]")
+        return set()
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            words = set()
+            for line in f:
+                clean_line = line.strip()
+                if clean_line and not clean_line.startswith('#'):
+                    words.add(clean_line)
+            return words
+    except Exception as e:
+        console.print(f"[red]Error reading whitelist file {filepath}: {e}[/red]")
+        return set()
+
+def check_text(text, tool, whitelist):
     try:
         matches = tool.check(text)
-        return matches
+        filtered_matches = []
+        for match in matches:
+            is_whitelisted = False
+            try:
+                if hasattr(match, 'offset') and hasattr(match, 'errorLength'):
+                    error_word = text[match.offset:match.offset + match.errorLength].strip()
+                    if error_word in whitelist:
+                        is_whitelisted = True
+                else:
+                    context_words = re.findall(r'\w+', match.context.lower())
+                    for ww in whitelist:
+                        if ww.lower() in context_words:
+                            is_whitelisted = True
+                            break
+            except Exception:
+                pass
+
+            if not is_whitelisted:
+                for replacement in match.replacements:
+                    if replacement.lower() in whitelist:
+                        is_whitelisted = True
+                        break
+
+            if not is_whitelisted:
+                filtered_matches.append(match)
+
+        return filtered_matches
     except Exception as e:
         console.print(f"[red]Error during language check: {e}[/red]")
         return []
@@ -56,6 +112,14 @@ def crawl_and_check(base_url):
     results = {}
 
     tool = language_tool_python.LanguageTool('en-US')
+
+    whitelist = load_whitelisted_words(WHITELIST_FILE)
+    if whitelist:
+        for word in whitelist:
+            try:
+                tool.add_ignore(word)
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not add word to ignore list: {word} ({e})[/yellow]")
 
     with Progress(
         SpinnerColumn(),
@@ -82,20 +146,17 @@ def crawl_and_check(base_url):
                     continue
                 soup = BeautifulSoup(response.text, 'html.parser')
 
-                # Extract and enqueue new links (BFS)
                 new_links = extract_links(soup, current_url)
                 for link in new_links:
                     if link not in visited and link not in queue:
                         queue.append(link)
 
-                # Extract mainContent text
                 text = extract_main_content_text(soup)
                 if not text:
                     console.print(f"[yellow]No mainContent found at {current_url}[/yellow]")
                     results[current_url] = []
                 else:
-                    # Check text with LanguageTool
-                    matches = check_text(text, tool)
+                    matches = check_text(text, tool, whitelist)
                     results[current_url] = matches
 
                 pages_checked += 1
@@ -109,7 +170,6 @@ def crawl_and_check(base_url):
     return results
 
 def print_results(results):
-    # Build summary table of errors found per page
     table = Table(title="LanguageTool Issues Found", show_lines=True)
     table.add_column("URL", style="cyan", no_wrap=True)
     table.add_column("Issue", style="red")
@@ -125,9 +185,6 @@ def print_results(results):
             issue = match.ruleId or "N/A"
             message = match.message or ""
             incorrect_text = match.context if hasattr(match, 'context') else ""
-            # Safe fallback to highlight the error text from original text if possible
-            # LanguageTool matches include offset and errorLength but we have no original text here,
-            # so fallback to context or empty
             replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
             table.add_row(url, issue, message, incorrect_text, replacement_suggestions)
             total_issues += 1
@@ -149,3 +206,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         console.print("\n[red]Script interrupted by user (CTRL+C).[/red]")
         sys.exit(1)
+

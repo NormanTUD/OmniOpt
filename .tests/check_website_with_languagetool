@@ -220,6 +220,34 @@ def crawl_and_check(base_url):
 
     return results
 
+def is_word_whitelisted(word):
+    """
+    Prüft, ob das gegebene Wort in der Datei .tests/whitelisted_words enthalten ist.
+
+    Parameter:
+        word (str): Das zu prüfende Wort.
+
+    Rückgabe:
+        bool: True, wenn das Wort in der Whitelist steht, sonst False.
+    """
+    if not isinstance(word, str):
+        raise TypeError("Parameter 'word' muss ein String sein.")
+
+    whitelist_path = os.path.join(".tests", "whitelisted_words")
+
+    if not os.path.isfile(whitelist_path):
+        raise FileNotFoundError(f"Die Datei {whitelist_path} wurde nicht gefunden.")
+
+    try:
+        with open(whitelist_path, "r", encoding="utf-8") as f:
+            lines = f.read().split("\n")
+    except Exception as e:
+        raise IOError(f"Fehler beim Lesen der Datei {whitelist_path}: {e}")
+
+    stripped_words = [line.strip() for line in lines if line.strip() != ""]
+
+    return word in stripped_words
+
 def print_results(results):
     table = Table(title="LanguageTool Issues Found", show_lines=True)
     table.add_column("URL", style="cyan", no_wrap=True)
@@ -236,9 +264,11 @@ def print_results(results):
             issue = match.ruleId or "N/A"
             message = match.message or ""
             incorrect_text = match.context if hasattr(match, 'context') else ""
-            replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
-            table.add_row(url, issue, message, incorrect_text, replacement_suggestions)
-            total_issues += 1
+
+            if not is_word_whitelisted(incorrect_text):
+                replacement_suggestions = ", ".join(match.replacements) if match.replacements else "None"
+                table.add_row(url, issue, message, incorrect_text, replacement_suggestions)
+                total_issues += 1
 
     if total_issues == 0:
         console.print("[green]No language issues found on any crawled page.[/green]")

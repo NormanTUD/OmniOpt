@@ -1,4 +1,4 @@
-<!-- List of partitions and Memory, GPUs and so on on the HPC-Systems of TU-Dresden -->
+<!-- List of partitions and Memory, GPUs etc. on the HPC-Systems of TU-Dresden -->
 
 <!-- Category: Preparations, Basics and Setup -->
 

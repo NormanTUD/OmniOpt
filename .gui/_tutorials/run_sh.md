@@ -160,7 +160,7 @@ One way of calculating this would be this:
 
 $$ \text{SEM} = \frac{s}{\sqrt{n}} s = \text{std deviation}, n = \text{number of trials} $$
 
-But it's totally up to you and your program to calculcate these results.
+But it's totally up to you and your program to calculate these results.
 
 To do that, you need to print out the result and also the SEM. This can be used with multi-objective-optimization as well,
 and has to be done for each parameter, like `RESULT`, where you want that kind of data.

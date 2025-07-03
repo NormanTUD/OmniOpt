@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Find typos in md.
+
+export install_tests=1
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+if [[ -n $1 ]]; then
+	python3 .tests/find_typos_in_md.py $1
+else
+	files=$(ls .gui/**/*.md | tr '\n' ' ')
+	eval "python3 .tests/find_typos_in_md.py $files"
+fi

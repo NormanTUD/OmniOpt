@@ -45,8 +45,8 @@ All parameters that are not specified here are taken out of the old run, and thu
 ## In which folder will a run continue in?
 
 It will create a new folder. Imagine there are already the subfolders `0`, `1` and `2` for your
-experiment. If you continue the job `0`, it's job data will be in the subfolder `3` then, since it is the first
-non-existing folder for that project..
+experiment. If you continue the job `0`, its job data will be in the subfolder `3` then, since it is the first
+non-existing folder for that project.
 
 ## Caveats
 <div class="caveat warning">

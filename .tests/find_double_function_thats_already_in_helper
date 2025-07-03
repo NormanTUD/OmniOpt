@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Find functions that are defined in any .py and also .helpers.py, so that they can be moved to the .helpers.py compeletly.
+# HELPPAGE: Find functions that are defined in any .py and also .helpers.py, so that they can be moved to the .helpers.py completely.
 
 count=0
 for helper_function in $(cat .helpers.py | grep "^def " | sed -e 's#^def ##' -e 's#[[:space:]]*(.*##'); do

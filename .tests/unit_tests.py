@@ -62,7 +62,6 @@ to_test = {
 errors = 0
 error_list = []
 
-# Ladeprozess mit Progress Bar
 with Progress(transient=True) as progress:
     load_task = progress.add_task("[cyan]Loading files...", total=len(files))
 
@@ -79,7 +78,6 @@ with Progress(transient=True) as progress:
 
         progress.update(load_task, advance=1)
 
-# Testen der geladenen Module mit Progress Bar
 with Progress(transient=True) as progress:
     test_task = progress.add_task("[cyan]Running tests...", total=len(mods))
 
@@ -94,11 +92,9 @@ with Progress(transient=True) as progress:
                     errors += 1
         progress.update(test_task, advance=1)
 
-# Fehleranzeige
 if errors > 0: # pragma: no cover
     console.print(f"{errors} error(s) found", style="bold red")
 
-    # Tabelle mit Fehlern
     table = Table(title="Test Errors")
 
     table.add_column("Module", justify="left", style="cyan", no_wrap=True)

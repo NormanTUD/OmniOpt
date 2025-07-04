@@ -96,11 +96,6 @@ def analyze_file(filepath, progress, task_id):
                         if word not in possibly_incorrect_words:
                             print(word)
                             possibly_incorrect_words.append(word)
-            #    else:
-            #        print(f"Ignored word: {word}")
-            #else:
-            #    print(f"Invalid word: {word}")
-        # Update the progress bar as each string is processed
         progress.advance(task_id)
 
     return possibly_incorrect_words

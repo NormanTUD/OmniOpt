@@ -64,7 +64,6 @@ def extract_strings_from_ast(node):
     return []  # Return empty list if no string literals are found
 
 def clean_word(word):
-    # Entfernt alle nicht-alphabetischen Zeichen und behält nur "a-zA-Z"
     after = re.sub(r'[^\'a-zA-Z0-9_/-]', '', word)
 
     return after

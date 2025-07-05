@@ -49,7 +49,7 @@ def is_valid_word(word):
     return re.match(r'^[a-zA-Z]{1,}$', word) is not None
 
 def extract_php_strings(content):
-    """Extract all single and double quoted strings from PHP content within <?php ... ?> tags."""
+    """Extract all single and double-quoted strings from PHP content within <?php ... ?> tags."""
     # Pattern to match PHP tags and capture quoted strings within
     pattern = r'<\?php(.*?)\?>'
     php_code_blocks = re.findall(pattern, content, re.DOTALL)

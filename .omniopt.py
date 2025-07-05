@@ -8636,34 +8636,22 @@ def _set_global_executor() -> None:
         executor = AutoExecutor(folder=log_folder)
 
     if executor:
-        executor.update_parameters(
-            name=f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
-            timeout_min=args.worker_timeout,
-            slurm_gres=f"gpu:{args.gpus}",
-            cpus_per_task=args.cpus_per_task,
-            nodes=args.nodes_per_job,
-            stderr_to_stdout=True,
-            mem_gb=args.mem_gb,
-            slurm_signal_delay_s=args.slurm_signal_delay_s,
-            slurm_use_srun=args.slurm_use_srun,
-            exclude=args.exclude
-        )
+        params = {
+            "name": f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
+            "timeout_min": args.worker_timeout,
+            "slurm_gres": f"gpu:{args.gpus}",
+            "cpus_per_task": args.cpus_per_task,
+            "nodes": args.nodes_per_job,
+            "stderr_to_stdout": True,
+            "mem_gb": args.mem_gb,
+            "slurm_signal_delay_s": args.slurm_signal_delay_s,
+            "slurm_use_srun": args.slurm_use_srun,
+            "exclude": args.exclude,
+        }
 
-        print_debug(f"""
-executor.update_parameters(
-    "name"="{f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}'}",
-    "timeout_min"={args.worker_timeout},
-    "slurm_gres"={f"gpu:{args.gpus}"},
-    "cpus_per_task"={args.cpus_per_task},
-    "nodes"={args.nodes_per_job},
-    "stderr_to_stdout"=True,
-    "mem_gb"={args.mem_gb},
-    "slurm_signal_delay_s"={args.slurm_signal_delay_s},
-    "slurm_use_srun"={args.slurm_use_srun},
-    "exclude"={args.exclude}
-)
-"""
-        )
+        executor.update_parameters(**params)
+
+        print_debug("executor.update_parameters(\n" + json.dumps(params, indent=4) + "\n)")
 
         if args.exclude:
             print_yellow(f"Excluding the following nodes: {args.exclude}")

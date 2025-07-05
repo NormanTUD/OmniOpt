@@ -18,7 +18,7 @@ def dier (msg):
     pprint(msg)
     sys.exit(1)
 
-# Allow editable install into user site directory.
+# Allow editable installation into user site directory.
 # See https://github.com/pypa/pip/issues/7953.
 site.ENABLE_USER_SITE = "--user" in sys.argv[1:]
 
@@ -60,9 +60,7 @@ for rp in required_programs:
 if _error >= 1:
     sys.exit(_error % 255)
 
-# Warn if we are installing over top of an existing installation. This can
-# cause issues where files that were deleted from a more recent OmniOpt2 are
-# still present in site-packages. See #18115.
+# Warn if we are installing over top of an existing installation. This can cause issues where files that were deleted from a more recent OmniOpt2 are still present in site-packages. See #18115.
 overlay_warning = False
 existing_path = ""
 
@@ -73,8 +71,7 @@ if "install" in sys.argv:
     for lib_path in lib_paths:
         existing_path = os.path.abspath(os.path.join(lib_path, "omniopt2"))
         if os.path.exists(existing_path):
-            # We note the need for the warning here, but present it after the
-            # command is run, so it's more likely to be seen.
+            # We note the need for the warning here, but present it after the command is run, so it's more likely to be seen.
             overlay_warning = True
             break
 
@@ -106,7 +103,6 @@ def is_bash_script(file_path):
     except (IOError, UnicodeDecodeError):
         return False
 
-# Alle Dateien im Home-Verzeichnis durchsuchen
 all_files = glob.glob("*")
 all_files.extend(glob.glob(".*"))
 bash_files = [f for f in all_files if is_bash_script(f)]

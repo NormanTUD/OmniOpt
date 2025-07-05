@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Tests if al plot scripts have the metadata for the help pages, i.e. <tt># EXPECTED FILES</tt> and <tt># DESCRIPTION</tt>.
+# HELPPAGE: Tests if all plot scripts have the metadata for the help pages, i.e. <tt># EXPECTED FILES</tt> and <tt># DESCRIPTION</tt>.
 
 cnt=0
 

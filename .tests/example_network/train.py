@@ -14,7 +14,7 @@ try:
     parser.add_argument("--beta1", type=float, help="beta1", default=0.9)
     parser.add_argument("--beta2", type=float, help="beta2", default=0.999)
     parser.add_argument("--epsilon", type=float, help="epsilon", default=0.0001)
-    parser.add_argument('--data', type=str, help='Data dir', default='data_full')
+    parser.add_argument('--data', type=str, help='Data dir', default='data')
     parser.add_argument('--activation', type=str, help='Activation function (default: relu)', default='relu')
     parser.add_argument('--width', type=int, help='Width as an integer', default=40)
     parser.add_argument('--height', type=int, help='Height as an integer', default=40)

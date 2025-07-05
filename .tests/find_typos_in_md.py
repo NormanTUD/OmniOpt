@@ -56,11 +56,11 @@ def clean_word(word):
 
 def extract_words_from_markdown(content):
     """
-    Extract words from markdown content, ignoring markdown syntax elements.
+    Extract words from Markdown content, ignoring Markdown syntax elements.
     We'll:
     - Remove code blocks (```...```)
     - Remove inline code (`...`)
-    - Remove markdown links [text](url)
+    - Remove Markdown links [text](url)
     - Remove images ![alt](url)
     - Remove HTML tags if any
     - Then split by whitespace and punctuation to get words.
@@ -75,7 +75,7 @@ def extract_words_from_markdown(content):
     content = re.sub(r'\[.*?\]\(.*?\)', '', content)
     # Remove HTML tags
     content = re.sub(r'<[^>]+>', '', content)
-    # Remove markdown headers, blockquotes, lists marks, etc.
+    # Remove Markdown headers, blockquotes, lists marks, etc.
     content = re.sub(r'^[>\-\*\#\d\.\s]+', '', content, flags=re.MULTILINE)
 
     # Now split into words by non-letter characters

@@ -2,17 +2,73 @@
 
 # HELPPAGE: Checks the website with a Language Tool to check for typos, grammatical mistakes and so on.
 
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse, urldefrag
-import language_tool_python
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
-from rich.table import Table
-from collections import deque
+import os
 import re
 import sys
-import os
+import platform
+import subprocess
+
+try:
+    import venv
+except ModuleNotFoundError:
+    print("venv not found. Is python3-venv installed?")
+    sys.exit(1)
+
+from pathlib import Path
+
+VENV_PATH = Path.home() / ".oo_lang_tool"
+PYTHON_BIN = VENV_PATH / "bin" / "python"
+
+if platform.system() == "Windows":
+    PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"
+
+def create_and_setup_venv():
+    print(f"Creating virtualenv at {VENV_PATH}")
+    venv.create(VENV_PATH, with_pip=True)
+    subprocess.check_call([PYTHON_BIN, "-m", "pip", "install", "--upgrade", "pip"])
+    subprocess.check_call([PYTHON_BIN, "-m", "pip", "install", "rich", "language_tool_python", "beautifulsoup4"])
+
+def restart_with_venv():
+    try:
+        result = subprocess.run(
+            [str(PYTHON_BIN)] + sys.argv,
+            text=True,
+            check=True,
+            env=dict(**os.environ)
+        )
+        sys.exit(result.returncode)
+    except subprocess.CalledProcessError as e:
+        print("Subprocess Error:")
+        print(f"Exit-Code: {e.returncode}")
+        sys.exit(e.returncode)
+    except Exception as e:
+        print(f"Unexpected error while restarting python: {e}")
+        sys.exit(1)
+
+try:
+    from rich.console import Console
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+    from rich.table import Table
+    import language_tool_python
+    import requests
+    from bs4 import BeautifulSoup
+    from urllib.parse import urljoin, urlparse, urldefrag
+    from collections import deque
+except ModuleNotFoundError:
+    if not VENV_PATH.exists():
+        create_and_setup_venv()
+    else:
+        try:
+            subprocess.check_call([PYTHON_BIN, "-m", "pip", "install", "-q", "rich", "language_tool_python", "beautifulsoup4"])
+        except subprocess.CalledProcessError:
+            shutil.rmtree(VENV_PATH)
+            create_and_setup_venv()
+            restart_with_venv()
+    try:
+        restart_with_venv()
+    except KeyboardInterrupt:
+        print("You cancelled installation")
+        sys.exit(0)
 
 BASE_URL = "http://localhost/oo2_gui/"
 WHITELIST_FILE = ".tests/whitelisted_words"

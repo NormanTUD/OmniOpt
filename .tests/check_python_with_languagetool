@@ -1,5 +1,7 @@
 #!/bin/env python3
 
+# HELPPAGE: Find spell and language problems in python scripts
+
 import os
 import re
 import sys

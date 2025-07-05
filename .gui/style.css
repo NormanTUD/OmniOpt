@@ -1,6 +1,6 @@
 body {
 	font-variant: oldstyle-nums;
-	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
+	font-family: sans-serif;
 	background-color: #fafafa;
 	text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
 	scroll-behavior: smooth;
@@ -99,7 +99,7 @@ button {
 	user-select: none;
 	-webkit-user-select: none;
 	touch-action: manipulation;
-	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
+	font-family: sans-serif;
 }
 
 button:hover {
@@ -813,7 +813,7 @@ input:checked + .slider::before {
 }
 
 input::placeholder {
-	font-family: 'IBM Plex Sans', 'Source Sans Pro', sans-serif;
+	font-family: sans-serif;
 }
 
 .gridjs-th-content {

@@ -14,7 +14,6 @@ import re
 import math
 import time
 import random
-import statistics
 import tempfile
 import threading
 
@@ -216,7 +215,7 @@ try:
         from beartype import beartype
 
     with console.status("[bold green]Importing statistics..."):
-        from statistics import mean, median
+        import statistics
 
     with console.status("[bold green]Trying to import pyfiglet..."):
         try:
@@ -7790,8 +7789,8 @@ def generate_time_table_rich() -> None:
 
     table.add_section()
 
-    table.add_row("Average", f"{mean(times_float):.3f}", "", "")
-    table.add_row("Median", f"{median(times_float):.3f}", "", "")
+    table.add_row("Average", f"{statistics.mean(times_float):.3f}", "", "")
+    table.add_row("Median", f"{statistics.median(times_float):.3f}", "", "")
     table.add_row("Total", f"{sum(times_float):.3f}", "", "")
     table.add_row("Max", f"{max(times_float):.3f}", "", "")
     table.add_row("Min", f"{min(times_float):.3f}", "", "")
@@ -7845,8 +7844,8 @@ def build_job_submission_table(durations: List[float], job_counts: List[int]) ->
         table.add_row(str(idx), f"{duration:.3f}", str(jobs), f"{time_per_job:.3f}")
 
     table.add_section()
-    table.add_row("Average", f"{mean(durations):.3f}", "", "")
-    table.add_row("Median", f"{median(durations):.3f}", "", "")
+    table.add_row("Average", f"{statistics.mean(durations):.3f}", "", "")
+    table.add_row("Median", f"{statistics.median(durations):.3f}", "", "")
     table.add_row("Total", f"{sum(durations):.3f}", "", "")
     table.add_row("Max", f"{max(durations):.3f}", "", "")
     table.add_row("Min", f"{min(durations):.3f}", "", "")

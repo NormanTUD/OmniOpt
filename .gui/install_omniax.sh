@@ -16,6 +16,7 @@ depth=1
 debug=0
 reservation=""
 omniopt_venv=omniopt_venv
+no_whiptail=0
 installation_method="clone"
 dryrun=0
 
@@ -28,6 +29,7 @@ function help {
 	echo "--depth=N                                                   Depth of git clone (default: 1, only used for --installation_method=clone)"
 	echo "--reservation=str                                           Name of your reservation, if any"
 	echo "--installation_method=str                                   How to install OmniOpt2 (default: clone, other option: pip)"
+	echo "--no_whiptail                                               Disable whiptail for cloning"
 	echo "--omniopt_venv=str                                          Path to virtual env dir (only used for --installation_method=pip, default: omniopt_venv)"
 	echo "--dryrun                                                    Clone, download, install and then run in dryrun mode"
 	echo "--debug                                                     Enable debug mode"
@@ -136,6 +138,9 @@ function parse_parameters {
 			--reservation=*)
 				reservation="${i#*=}"
 				;;
+			--no_whiptail)
+				no_whiptail=1
+				;;
 			--dryrun)
 				dryrun=1
 				;;
@@ -176,14 +181,18 @@ function git_clone_interactive {
 
 	total=0
 
-	$_command 2>&1 | tr \\r \\n | {
-		while read -r line ; do
-			cur=`grep -oP '\d+(?=%)' <<< ${line}`
-			total=$((total+cur))
-			percent=$(bc <<< "scale=2;100*($total/100)")
-			echo "$percent/1" | bc
-		done
-	} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && green_text 'Cloning successful' || red_text 'Cloning failed'
+	if [[ $no_whiptail -eq 0 ]]; then
+		$_command 2>&1 | tr \\r \\n | {
+			while read -r line ; do
+				cur=`grep -oP '\d+(?=%)' <<< ${line}`
+				total=$((total+cur))
+				percent=$(bc <<< "scale=2;100*($total/100)")
+				echo "$percent/1" | bc
+			done
+		} | whiptail --title "Cloning" --gauge "Cloning OmniOpt2 for optimizing project..." 8 78 0 && green_text 'Cloning successful' || red_text 'Cloning failed'
+	else
+		$_command
+	fi
 }
 
 function git_clone_non_interactive {

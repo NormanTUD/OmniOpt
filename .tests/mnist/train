@@ -25,7 +25,7 @@ else:
 def create_and_setup_venv():
     venv.create(VENV_PATH, with_pip=True)
     subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision", "ascii-graph"])
+    subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "rich", "torch", "torchvision"])
 
 def restart_with_venv():
     try:
@@ -44,13 +44,12 @@ def ensure_venv_and_rich():
         import rich
         import torch
         import torchvision
-        from ascii_graph import Pyasciigraph
     except ModuleNotFoundError:
         if not VENV_PATH.exists():
             create_and_setup_venv()
         else:
             try:
-                subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "-q", "rich", "torch", "torchvision", "ascii-graph"])
+                subprocess.check_call([str(PYTHON_BIN), "-m", "pip", "install", "-q", "rich", "torch", "torchvision"])
             except subprocess.CalledProcessError:
                 shutil.rmtree(VENV_PATH)
                 create_and_setup_venv()

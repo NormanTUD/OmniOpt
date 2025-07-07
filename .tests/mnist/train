@@ -100,95 +100,75 @@ def parse_args():
 
     return parser.parse_args()
 
+
 class SimpleMLP(nn.Module):
-    def __init__(self, input_channels, input_size, hidden_size, num_classes,
-                 dropout, activation, init_mode, num_conv_layers, num_dense_layers):
+    def __init__(self,
+                 input_channels,
+                 input_height,
+                 input_width,
+                 num_classes,
+                 hidden_size,
+                 dropout,
+                 activation,
+                 init_mode,
+                 num_dense_layers):
         super(SimpleMLP, self).__init__()
 
-        self.activation = self.get_activation(activation)
+        # Berechne die flache Eingabegröße
+        input_size = input_channels * input_height * input_width
+
+        # Aktivierungsfunktion wählen
+        self.activation_fn = self.get_activation(activation)
         self.dropout = nn.Dropout(p=dropout)
-        self.num_conv_layers = num_conv_layers
-        self.num_dense_layers = num_dense_layers
 
-        self.conv_layers = nn.ModuleList()
-        self.dense_layers = nn.ModuleList()
+        # Schichten aufbauen
+        layers = nn.Sequential()
+        in_features = input_size
 
-        conv_out_channels = 16
-        kernel_size = 3
-        padding = 1
-        pool = True
-
-        # === Convolutional layers ===
-        channels = input_channels
-        for i in range(num_conv_layers):
-            conv = nn.Conv2d(channels, conv_out_channels, kernel_size=kernel_size, padding=padding)
-            self.conv_layers.append(conv)
-            channels = conv_out_channels
-            if pool:
-                self.conv_layers.append(nn.MaxPool2d(kernel_size=2))
-
-        # Estimate flattened size after convolutions
-        dummy_input = torch.zeros(1, input_channels, input_size, input_size)
-        with torch.no_grad():
-            x = dummy_input
-            for layer in self.conv_layers:
-                x = layer(x)
-                if isinstance(layer, nn.Conv2d):
-                    x = self.activation(x)
-            self.flat_features = x.view(1, -1).shape[1]
-
-        # === Dense layers ===
-        in_features = self.flat_features
         for i in range(num_dense_layers):
-            self.dense_layers.append(nn.Linear(in_features, hidden_size))
+            layers.add_module(f"fc{i}", nn.Linear(in_features, hidden_size))
+            layers.add_module(f"act{i}", self.activation_fn)
+            layers.add_module(f"dropout{i}", self.dropout)
             in_features = hidden_size
 
-        # Output layer
-        self.output_layer = nn.Linear(in_features, num_classes)
+        layers.add_module("output", nn.Linear(in_features, num_classes))
+        self.classifier = layers
 
-        # Weight initialization
-        if init_mode != "None":
+        # Initialisierung (optional)
+        if init_mode is not None and init_mode != "None":
             self.init_weights(init_mode)
 
+    def forward(self, x):
+        # Flach machen für MLP
+        x = x.view(x.size(0), -1)
+        return self.classifier(x)
+
     def get_activation(self, name):
+        name = name.lower()
         if name == "relu":
             return nn.ReLU()
         elif name == "tanh":
             return nn.Tanh()
-        elif name == "leaky_relu":
-            return nn.LeakyReLU()
         elif name == "sigmoid":
             return nn.Sigmoid()
+        elif name == "leaky_relu":
+            return nn.LeakyReLU()
         else:
-            raise ValueError(f"Unknown activation function: {name}")
+            raise ValueError(f"Unbekannte Aktivierung: {name}")
 
     def init_weights(self, mode):
         for m in self.modules():
-            if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d):
+            if isinstance(m, nn.Linear):
                 if mode == "xavier":
                     nn.init.xavier_uniform_(m.weight)
                 elif mode == "kaiming":
                     nn.init.kaiming_uniform_(m.weight, nonlinearity='relu')
                 elif mode == "normal":
                     nn.init.normal_(m.weight, mean=0.0, std=0.02)
+                else:
+                    raise ValueError(f"Unbekannte Init-Methode: {mode}")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
-
-    def forward(self, x):
-        for layer in self.conv_layers:
-            x = layer(x)
-            if isinstance(layer, nn.Conv2d):
-                x = self.activation(x)
-
-        x = x.view(x.size(0), -1)
-
-        for layer in self.dense_layers:
-            x = layer(x)
-            x = self.activation(x)
-            x = self.dropout(x)
-
-        x = self.output_layer(x)
-        return x
 
 def show_hyperparams(args):
     table = Table(title="Hyperparameters", box=box.ROUNDED, title_style="bold magenta")
@@ -303,14 +283,14 @@ def main():
             torch.manual_seed(args.seed)
 
         model = SimpleMLP(
+            input_height=28,
+            input_width=28,
             input_channels=1,
-            input_size=28 * 28,
             hidden_size=args.hidden_size,
             num_classes=10,
             dropout=args.dropout,
             activation=args.activation,
             init_mode=args.init,
-            num_conv_layers=args.num_conv_layers,
             num_dense_layers=args.num_dense_layers
         ).to(args.device)
 

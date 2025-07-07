@@ -95,7 +95,6 @@ def parse_args():
     parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
     parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="None", help="Weight initialization method.")
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
-    parser.add_argument("--num_conv_layers", type=int, default=0, help="Number of convolutional layers before dense layers (0 = none).")
     parser.add_argument("--num_dense_layers", type=int, default=1, help="Number of dense (fully-connected) layers excluding the output layer.")
 
     return parser.parse_args()
@@ -177,7 +176,6 @@ def show_hyperparams(args):
 
     table.add_row("Device", args.device)
     table.add_row("Epochs", str(args.epochs))
-    table.add_row("Num Conv Layers", str(args.num_conv_layers))
     table.add_row("Num Dense Layers", str(args.num_dense_layers))
     table.add_row("Batch size", str(args.batch_size))
     table.add_row("Learning rate", str(args.learning_rate))

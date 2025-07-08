@@ -43,7 +43,7 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "trial_index", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname"]
+special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "trial_index", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time"]
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
 uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM"]
@@ -3672,7 +3672,7 @@ def get_return_in_case_of_errors() -> dict:
     return return_in_case_of_error
 
 @beartype
-def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], trial_index: int) -> None:
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     str_parameters_values = _write_job_infos_csv_parameters_to_str(parameters)
     extra_vars_names, extra_vars_values = _write_job_infos_csv_extract_extra_vars(stdout)
     extra_vars_names, extra_vars_values = _write_job_infos_csv_add_slurm_job_id(extra_vars_names, extra_vars_values)
@@ -3687,8 +3687,8 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     headline = _write_job_infos_csv_replace_none_with_str(headline)
     values = _write_job_infos_csv_replace_none_with_str(values)
 
-    headline = ["trial_index", *headline]
-    values = [str(trial_index), *values]
+    headline = ["trial_index", "submit_time", "queue_time", *headline]
+    values = [str(trial_index), submit_time, queue_time, *values]
 
     run_folder = get_current_run_folder()
     if run_folder is not None and os.path.exists(run_folder):
@@ -3858,7 +3858,7 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
             original_print("stderr was empty")
 
 @beartype
-def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict, trial_index: int) -> None:
+def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict, trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     if not args.tests:
         original_print(f"Parameters: {json.dumps(parameters)}")
 
@@ -3873,7 +3873,7 @@ def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, std
 
         original_print(f"Final-results: {final_result}")
 
-    write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time, trial_index)
+    write_job_infos_csv(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time, trial_index, submit_time, queue_time)
 
     if not args.tests:
         original_print(f"EXIT_CODE: {exit_code}")
@@ -4040,6 +4040,9 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
 def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     parameters = parameters_with_trial_index["params"]
     trial_index = parameters_with_trial_index["trial_idx"]
+    submit_time = parameters_with_trial_index["submit_time"]
+
+    queue_time = abs(int(time.time()) - int(submit_time))
 
     start_nvidia_smi_thread()
     return_in_case_of_error: dict = get_return_in_case_of_errors()
@@ -4085,7 +4088,9 @@ def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Di
                 end_time,
                 end_time - start_time,
                 final_result,
-                trial_index
+                trial_index,
+                submit_time,
+                queue_time
             )
 
         except tuple(signal_messages.values()) as sig:
@@ -7138,7 +7143,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
 @beartype
 def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None:
     if executor and ax_client:
-        new_job = executor.submit(evaluate, {"params": params_from_out_file, "trial_idx": trial_index})
+        new_job = executor.submit(evaluate, {"params": params_from_out_file, "trial_idx": trial_index, "submit_time": int(time.time())})
         submitted_jobs(1)
 
         _trial = ax_client.get_trial(trial_index)
@@ -7288,7 +7293,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
     try:
         initialize_job_environment()
-        new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index})
+        new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
         submitted_jobs(1)
 
         print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")

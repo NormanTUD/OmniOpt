@@ -4124,7 +4124,19 @@ def disable_logging() -> None:
 
         fool_linter(f"logging.getLogger().disabled set to {logging.getLogger().disabled}")
 
-        categories = [FutureWarning, RuntimeWarning, UserWarning, Warning]
+        categories = [
+            Warning,
+            UserWarning,
+            DeprecationWarning,
+            PendingDeprecationWarning,
+            SyntaxWarning,
+            RuntimeWarning,
+            FutureWarning,
+            ImportWarning,
+            UnicodeWarning,
+            BytesWarning,
+            ResourceWarning
+        ]
 
         modules = [
             "ax",

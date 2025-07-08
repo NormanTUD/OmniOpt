@@ -12,6 +12,11 @@ cd ..
 
 source .colorfunctions.sh
 
+if [ -f /.dockerenv ] || grep -qE '/docker/|/lxc/' /proc/1/cgroup 2>/dev/null; then
+	green_text "Not running this test in Docker"
+	exit 0
+fi
+
 cd .gui
 
 ERRORS=()

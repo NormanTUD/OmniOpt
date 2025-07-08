@@ -1897,6 +1897,30 @@ function _colorize_table_entries_by_trial_status () {
 	});
 }
 
+function _colorize_table_entries_by_queue_time() {
+	let cells = [...document.querySelectorAll('[data-column-id="queue_time"]')];
+	if (cells.length === 0) return;
+
+	let values = cells.map(el => parseFloat(el.textContent)).filter(v => !isNaN(v));
+	if (values.length === 0) return;
+
+	let min = Math.min(...values);
+	let max = Math.max(...values);
+	let range = max - min || 1;
+
+	cells.forEach(el => {
+		let value = parseFloat(el.textContent);
+		if (isNaN(value)) return;
+
+		let ratio = (value - min) / range;
+		let red = Math.round(255 * ratio);
+		let green = Math.round(255 * (1 - ratio));
+
+		el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
+		el.classList.add("invert_in_dark_mode");
+	});
+}
+
 function _colorize_table_entries_by_run_time() {
 	let cells = [...document.querySelectorAll('[data-column-id="run_time"]')];
 	if (cells.length === 0) return;
@@ -1983,6 +2007,7 @@ function colorize_table_entries () {
 			_colorize_table_entries_by_trial_status();
 			_colorize_table_entries_by_results();
 			_colorize_table_entries_by_run_time();
+			_colorize_table_entries_by_queue_time();
 			_colorize_table_entries_by_generation_method();
 			_colorize_table_entries_by_generation_node_or_hostname();
 			if (typeof apply_theme_based_on_system_preferences === 'function') {

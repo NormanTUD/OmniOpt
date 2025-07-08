@@ -142,9 +142,6 @@ try:
     with console.status("[bold green]Importing rich.prompt..."):
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
 
-    with console.status("[bold green]Importing fcntl..."):
-        import fcntl
-
     with console.status("[bold green]Importing types.FunctionType..."):
         from types import FunctionType
 

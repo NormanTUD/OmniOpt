@@ -10586,13 +10586,13 @@ Exit-Code: 159
 
     nr_errors += is_equal(
             "evaluate({'x': 123})",
-            json.dumps(evaluate({"params": {'x': 123.0}, "trial_idx": 0})),
+            json.dumps(evaluate({"params": {'x': 123.0}, "trial_idx": 0, "submit_time": int(time.time())})),
             json.dumps({'RESULT': 123.0})
     )
 
     nr_errors += is_equal(
             "evaluate({'x': -0.05})",
-            json.dumps(evaluate({"params": {'x': -0.05}, "trial_idx": 0})),
+            json.dumps(evaluate({"params": {'x': -0.05}, "trial_idx": 0, "submit_time": int(time.time())})),
             json.dumps({'RESULT': -0.05})
     )
 

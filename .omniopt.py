@@ -3597,15 +3597,6 @@ def get_return_in_case_of_errors() -> dict:
 
 @beartype
 def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str,
-                        exit_code: Optional[int], _signal: Optional[int],
-                        result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]],
-                        start_time: Union[int, float], end_time: Union[int, float],
-                        run_time: Union[float, int],
-                        trial_index: int) -> None:
-    _write_job_infos_csv_main(parameters, stdout, program_string_with_params, exit_code, _signal, result, start_time, end_time, run_time, trial_index)
-
-@beartype
-def _write_job_infos_csv_main(parameters: dict, stdout: Optional[str], program_string_with_params: str,
                               exit_code: Optional[int], _signal: Optional[int],
                               result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]],
                               start_time: Union[int, float], end_time: Union[int, float],

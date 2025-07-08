@@ -3751,9 +3751,9 @@ def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: U
                                       result_values: List[str], exit_code: Optional[int], _signal: Optional[int],
                                       extra_vars_values: List[str]) -> List[str]:
     return [
-        str(start_time),
-        str(end_time),
-        str(run_time),
+        str(int(start_time)),
+        str(int(end_time)),
+        str(int(run_time)),
         program_string_with_params,
         *str_parameters_values,
         *result_values,

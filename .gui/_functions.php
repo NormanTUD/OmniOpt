@@ -225,7 +225,9 @@
 		$markdown = preg_replace_callback('/<<<PHP_RUN_BLOCK>>>(.*?)<<<PHP_RUN_BLOCK>>>/s', function($matches) {
 			ob_start();
 
-			eval(base64_decode($matches[1]));
+			$decoded_code = base64_decode($matches[1]);
+
+			eval($decoded_code);
 
 			$output = ob_get_clean();
 

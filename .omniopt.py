@@ -10167,7 +10167,7 @@ def set_run_folder() -> None:
 @beartype
 def print_run_info() -> None:
     with console.status("[bold green]Printing run info..."):
-        original_print(f"Run-folder: {get_current_run_folder()}")
+        console.print(f"[bold]Run-folder[/bold]: [underline]{get_current_run_folder()}[/underline]")
         if args.continue_previous_job:
             original_print(f"Continuation from {args.continue_previous_job}")
 

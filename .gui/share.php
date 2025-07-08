@@ -18,6 +18,8 @@
 		"signal",
 		"end_time",
 		"program_string",
+		"submit_time",
+		"queue_time"
 	];
 
 	$errors = [];

@@ -3272,76 +3272,115 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
     return None
 
+
 @beartype
 def add_to_csv(file_path: str, new_heading: list, new_data: list) -> None:
     new_data = [helpers.to_int_when_possible(x) for x in new_data]
-    formatted_data = [
+    formatted_data = _add_to_csv_format_data(new_data)
+    _add_to_csv_with_lock(file_path, new_heading, formatted_data)
+
+
+@beartype
+def _add_to_csv_format_data(new_data: List[object]) -> List[object]:
+    return [
         ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
         for x in new_data
     ]
 
-    lockfile = file_path + ".lock"
-    lock_acquired = False
-    wait_time = 0.01
-    max_wait = 30  # seconds
 
-    # Simple lockfile mechanism (atomic hardlink)
-    while not lock_acquired and max_wait > 0:
+@beartype
+def _add_to_csv_with_lock(file_path: str, new_heading: list, formatted_data: list) -> None:
+    lockfile = file_path + ".lock"
+    if not _add_to_csv_acquire_lock(lockfile, os.path.dirname(file_path)):
+        return
+    try:
+        _add_to_csv_handle_file(file_path, new_heading, formatted_data)
+    finally:
+        _add_to_csv_release_lock(lockfile)
+
+
+@beartype
+def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
+    wait_time = 0.01
+    max_wait = 30.0  # seconds
+    while max_wait > 0:
         try:
-            tmp = tempfile.NamedTemporaryFile(delete=False, dir=os.path.dirname(file_path))
+            tmp = tempfile.NamedTemporaryFile(delete=False, dir=dir_path)
             tmp.close()
-            os.link(tmp.name, lockfile)  # atomic operation: only one can succeed
+            os.link(tmp.name, lockfile)
             os.unlink(tmp.name)
-            lock_acquired = True
+            return True
         except FileExistsError:
             time.sleep(wait_time)
             max_wait -= wait_time
         except Exception as e:
             print("Lock error:", e)
-            return
+            return False
+    return False
 
+
+@beartype
+def _add_to_csv_release_lock(lockfile: str) -> None:
     try:
-        if not os.path.exists(file_path):
-            with open(file_path, 'w', encoding="utf-8", newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(new_heading)
-                writer.writerow(formatted_data)
-            return
+        os.unlink(lockfile)
+    except FileNotFoundError:
+        pass
 
-        with open(file_path, 'r', encoding="utf-8", newline='') as f:
-            rows = list(csv.reader(f))
-        existing_heading = rows[0] if rows else []
-        all_headings = list(dict.fromkeys(existing_heading + new_heading))
 
-        if all_headings != existing_heading:
-            # Header changed – rewrite everything
-            tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(file_path), suffix=".csv")
-            with os.fdopen(tmp_fd, 'w', encoding="utf-8", newline='') as tmp_file:
-                writer = csv.writer(tmp_file)
-                writer.writerow(all_headings)
-                for row in rows[1:]:
-                    tmp_file.writerow([
-                        row[existing_heading.index(h)] if h in existing_heading else ""
-                        for h in all_headings
-                    ])
-                tmp_file.writerow([
-                    formatted_data[new_heading.index(h)] if h in new_heading else ""
-                    for h in all_headings
-                ])
-            shutil.move(tmp_path, file_path)
-        else:
-            # Header unchanged – just append
-            with open(file_path, 'a', encoding="utf-8", newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    formatted_data[new_heading.index(h)] if h in new_heading else ""
-                    for h in existing_heading
-                ])
-    finally:
-        try:
-            os.unlink(lockfile)
-        except FileNotFoundError:
-            pass
+@beartype
+def _add_to_csv_handle_file(file_path: str, new_heading: list, formatted_data: list) -> None:
+    if not os.path.exists(file_path):
+        _add_to_csv_create_new_file(file_path, new_heading, formatted_data)
+        return
+
+    with open(file_path, 'r', encoding="utf-8", newline='') as f:
+        rows = list(csv.reader(f))
+
+    existing_heading = rows[0] if rows else []
+    all_headings = list(dict.fromkeys(existing_heading + new_heading))
+
+    if all_headings != existing_heading:
+        _add_to_csv_rewrite_file(file_path, rows, existing_heading, all_headings, new_heading, formatted_data)
+    else:
+        _add_to_csv_append_row(file_path, existing_heading, new_heading, formatted_data)
+
+
+@beartype
+def _add_to_csv_create_new_file(file_path: str, heading: list, data: list) -> None:
+    with open(file_path, 'w', encoding="utf-8", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(heading)
+        writer.writerow(data)
+
+
+@beartype
+def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading: list,
+                             all_headings: list, new_heading: list, formatted_data: list) -> None:
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(file_path), suffix=".csv")
+    with os.fdopen(tmp_fd, 'w', encoding="utf-8", newline='') as tmp_file:
+        writer = csv.writer(tmp_file)
+        writer.writerow(all_headings)
+        for row in rows[1:]:
+            tmp_file.writerow([
+                row[existing_heading.index(h)] if h in existing_heading else ""
+                for h in all_headings
+            ])
+        tmp_file.writerow([
+            formatted_data[new_heading.index(h)] if h in new_heading else ""
+            for h in all_headings
+        ])
+    shutil.move(tmp_path, file_path)
+
+
+@beartype
+def _add_to_csv_append_row(file_path: str, existing_heading: list,
+                           new_heading: list, formatted_data: list) -> None:
+    with open(file_path, 'a', encoding="utf-8", newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            formatted_data[new_heading.index(h)] if h in new_heading else ""
+            for h in existing_heading
+        ])
 
 @beartype
 def find_file_paths(_text: str) -> List[str]:

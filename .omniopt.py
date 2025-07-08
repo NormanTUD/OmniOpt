@@ -3275,36 +3275,61 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
     return None
 
+
 @beartype
 def add_to_csv(file_path: str, new_heading: list, new_data: list) -> None:
     new_data = [helpers.to_int_when_possible(x) for x in new_data]
 
-    with open(file_path, 'a+', encoding="utf-8", newline='') as file:
-        fcntl.flock(file, fcntl.LOCK_EX)
+    # Format floats nicely
+    formatted_data = [
+        ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
+        for x in new_data
+    ]
 
-        file.seek(0)
-        rows = list(csv.reader(file))
-        existing_heading = rows[0] if rows else []
+    # Repeated attempts if file is temporarily locked
+    for _ in range(1000):  # retry mechanism (optional)
+        try:
+            with open(file_path, 'a+', encoding="utf-8", newline='') as file:
+                fcntl.flock(file, fcntl.LOCK_EX)
 
-        all_headings = list(dict.fromkeys(existing_heading + new_heading))
+                file.seek(0)
+                rows = list(csv.reader(file))
+                existing_heading = rows[0] if rows else []
 
-        updated_rows = [all_headings] + [
-            [row[existing_heading.index(h)] if h in existing_heading else "" for h in all_headings]
-            for row in rows[1:]
-        ]
+                all_headings = list(dict.fromkeys(existing_heading + new_heading))
 
-        formatted_data = [
-            ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
-            for x in new_data
-        ]
-        new_row = [formatted_data[new_heading.index(h)] if h in new_heading else "" for h in all_headings]
-        updated_rows.append(new_row)
+                # Wenn es neue Spalten gibt, temporäre Datei benutzen
+                if all_headings != existing_heading:
+                    tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(file_path), suffix=".csv")
+                    with os.fdopen(tmp_fd, 'w', encoding="utf-8", newline='') as tmp_file:
+                        writer = csv.writer(tmp_file)
+                        writer.writerow(all_headings)
+                        for row in rows[1:]:
+                            tmp_file_row = [
+                                row[existing_heading.index(h)] if h in existing_heading else ""
+                                for h in all_headings
+                            ]
+                            writer.writerow(tmp_file_row)
 
-        file.seek(0)
-        file.truncate()
-        csv.writer(file).writerows(updated_rows)
+                        # Neue Zeile mit ggf. neuen Spalten ergänzen
+                        new_row = [formatted_data[new_heading.index(h)] if h in new_heading else "" for h in all_headings]
+                        writer.writerow(new_row)
 
-        fcntl.flock(file, fcntl.LOCK_UN)
+                    shutil.move(tmp_path, file_path)  # atomarer Austausch
+                else:
+                    # Kein neuer Header → einfach anhängen
+                    file.seek(0, 2)
+                    writer = csv.writer(file)
+                    new_row = [formatted_data[new_heading.index(h)] if h in new_heading else "" for h in existing_heading]
+                    writer.writerow(new_row)
+
+                fcntl.flock(file, fcntl.LOCK_UN)
+                break  # success
+        except BlockingIOError:
+            time.sleep(0.01)
+        except Exception as e:
+            print("CSV write error:", e)
+            raise
 
 @beartype
 def find_file_paths(_text: str) -> List[str]:

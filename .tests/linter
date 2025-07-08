@@ -34,7 +34,7 @@ function help() {
 }
 
 # Available linters
-declare -a linters=("pylint" "bandit" "deadcode" "flake8" "shellcheck") # "pyflakes"
+declare -a linters=("pylint" "bandit" "deadcode" "flake8" "shellcheck" "lizard") # "pyflakes"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

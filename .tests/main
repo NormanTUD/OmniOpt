@@ -608,7 +608,6 @@ python3 --version
 export DONT_INSTALL_MODULES=1
 
 #_test "php linter" ".tests/phpcs" 0 255
-_test "Lizard" ".tests/lizard" 0
 _test "Find missing metadata in plots" ".tests/missing_plot_metadata" 0
 _test "check_state_file_documentation" ".tests/check_state_file_documentation" 0
 _test "Find double defined js functions" ".tests/find_double_function_names" 0

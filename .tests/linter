@@ -111,6 +111,7 @@ if [[ -n "$specific_linter" ]]; then
 	run_linter "$specific_linter" "${files[@]}"
 else
 	# Run all linters if no specific one is provided
+	run_linter "lizard" "${files[@]}"
 	if [[ "$quick" -eq 0 ]]; then
 		run_linter "pylint" "${files[@]}"
 		run_linter "bandit" "${files[@]}"

@@ -4134,8 +4134,7 @@ def disable_logging() -> None:
             FutureWarning,
             ImportWarning,
             UnicodeWarning,
-            BytesWarning,
-            ResourceWarning
+            BytesWarning
         ]
 
         modules = [

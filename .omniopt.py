@@ -1451,10 +1451,10 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     @beartype
     def _handle_range(self, param: Any, default: Any, prompt_msg: str) -> Any:
         low, high = param.lower, param.upper
-        console.print(f"{prompt_msg} range → [{low}, {high}]")
+        console.print(f"{prompt_msg} range → [{format_value(low)}, {format_value(high)}]")
 
         if param.parameter_type == ParameterType.FLOAT:
-            user_val = FloatPrompt.ask("Enter float", default=str(default))
+            user_val = FloatPrompt.ask("Enter float", default=str(format_value(default)))
             try:
                 val = float(user_val)
             except ValueError:
@@ -1514,8 +1514,9 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         tbl = Table(title="Chosen Hyperparameters", show_lines=True)
         tbl.add_column("Name", style="cyan", no_wrap=True)
         tbl.add_column("Value", style="green")
+
         for k, v in candidate.items():
-            tbl.add_row(k, str(v))
+            tbl.add_row(k, str(format_value(v)))
         console.print(tbl)
 
         console.rule()

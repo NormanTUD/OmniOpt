@@ -6852,6 +6852,9 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
     update_progress_bar(progress_bar, 1)
 
     log_what_needs_to_be_logged()
+
+    save_results_csv()
+
     live_share()
 
 @beartype

@@ -3031,8 +3031,7 @@ def _parse_experiment_parameters_parse_this_args(
             valid_types_string = ', '.join(valid_types)
             _fatal_error(f"\n⚠ Invalid type {param_type}, valid types are: {valid_types_string}", 181)
 
-        j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](
-            classic_params, params, j, this_args, name, search_space_reduction_warning)
+        j, params, classic_params, search_space_reduction_warning = param_parsers[param_type](classic_params, params, j, this_args, name, search_space_reduction_warning)
 
     return j, params, classic_params, search_space_reduction_warning
 
@@ -3052,8 +3051,7 @@ def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, 
         if this_args is not None and isinstance(this_args, dict) and "param" in this_args:
             this_args = this_args["param"]
 
-        _, params, classic_params, search_space_reduction_warning = _parse_experiment_parameters_parse_this_args(
-            this_args, invalid_names, param_names, classic_params, params, search_space_reduction_warning)
+        _, params, classic_params, search_space_reduction_warning = _parse_experiment_parameters_parse_this_args(this_args, invalid_names, param_names, classic_params, params, search_space_reduction_warning)
 
         i += 1
 

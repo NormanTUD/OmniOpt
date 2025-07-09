@@ -73,7 +73,6 @@ cd ..
   --revert_to_random_when_seemingly_exhausted \
   --model=EXTERNAL_GENERATOR \
   --run_mode=local \
-  --decimalrounding=4 \
   --occ_type=euclid \
   --main_process_gb=8 \
   --max_nr_of_zero_results=1 \

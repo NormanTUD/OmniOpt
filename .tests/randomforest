@@ -12,7 +12,7 @@ if command -v nvidia-smi 2>/dev/null; then
 	NUM_GPUS=1
 fi
 
-./omniopt --partition=alpha --experiment_name=randomforest --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --live_share --send_anonymized_usage_stats --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi' --cpus_per_task=1 --nodes_per_job=1 --generate_all_jobs_at_once --revert_to_random_when_seemingly_exhausted --model=RANDOMFOREST --run_mode=local --decimalrounding=4 --occ_type=euclid --main_process_gb=8 --max_nr_of_zero_results=1 --slurm_signal_delay_s=0 --n_estimators_randomforest=100 --parameter x fixed 123 --parameter y range 5431 1234 int false --parameter z range 0 1 float false --parameter a choice 1,2,3
+./omniopt --partition=alpha --experiment_name=randomforest --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=2 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --live_share --send_anonymized_usage_stats --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi' --cpus_per_task=1 --nodes_per_job=1 --generate_all_jobs_at_once --revert_to_random_when_seemingly_exhausted --model=RANDOMFOREST --run_mode=local --occ_type=euclid --main_process_gb=8 --max_nr_of_zero_results=1 --slurm_signal_delay_s=0 --n_estimators_randomforest=100 --parameter x fixed 123 --parameter y range 5431 1234 int false --parameter z range 0 1 float false --parameter a choice 1,2,3
 
 exit_code=$?
 

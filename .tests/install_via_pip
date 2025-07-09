@@ -48,7 +48,6 @@ for install_type in omniopt git; do
 				--generate_all_jobs_at_once \
 				--model=BOTORCH_MODULAR \
 				--run_mode=local \
-				--decimalrounding=4 \
 				--occ_type=euclid \
 				--main_process_gb=8 \
 				--max_nr_of_zero_results=50 \

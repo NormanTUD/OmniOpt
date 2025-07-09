@@ -87,21 +87,39 @@ def looks_like_number (x: Union[float, int, str, None]) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
 def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
-    if type(val) is int or (type(val) is float and val.is_integer()) or (type(val) is str and val.isdigit()):
-        return int(val)
+    if isinstance(val, int):
+        return val
 
-    if type(val) is str and re.match(r'^-?\d+(?:\.\d+)?$', val) is None:
+    if isinstance(val, float):
+        if val.is_integer():
+            return int(val)
+        return val
+
+    if isinstance(val, str):
+        val = val.strip()
+
+        if re.fullmatch(r'-?\d+', val):
+            return int(val)
+
+        if re.fullmatch(r'-?\d+\.\d+', val):
+            try:
+                fval = float(val)
+                return fval if not fval.is_integer() else int(fval)
+            except Exception:
+                return val
+
+        if re.fullmatch(r'-?\d+(?:\.\d+)?[eE][-+]?\d+', val):
+            try:
+                fval = float(val)
+                return fval if not fval.is_integer() else int(fval)
+            except Exception:
+                return val
+
         return val
 
     try:
-        if val:
-            val = float(val)
-            if '.' in str(val):
-                decimal_places = len(str(val).split('.')[1])
-                formatted_value = format(val, f'.{decimal_places}f').rstrip('0').rstrip('.')
-                return formatted_value if formatted_value else '0'
-            return int(val)
-        return val
+        fval = float(val)
+        return fval if not fval.is_integer() else int(fval)
     except Exception:
         return val
 

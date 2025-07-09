@@ -5585,6 +5585,7 @@ def parse_single_experiment_parameter_table(classic_params: Optional[Union[list,
                 _upper = param["bounds"][1]
 
             _possible_int_lower = str(helpers.to_int_when_possible(_lower))
+            #print(f"name: {_name}, _possible_int_lower: {_possible_int_lower}, lower: {_lower}")
             _possible_int_upper = str(helpers.to_int_when_possible(_upper))
 
             rows.append([_name, _short_type, _possible_int_lower, _possible_int_upper, "", value_type, log_scale])

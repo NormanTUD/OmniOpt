@@ -26,7 +26,7 @@ all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
-def dier(*args: Any, exit: Union[bool, int] = False) -> None:
+def dier(*args: Any, exit: Union[bool, int] = True) -> None:
     for msg in args:
         pprint(msg)
     if exit is False or exit == 0:

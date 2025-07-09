@@ -379,15 +379,6 @@ var hiddenTableData = [
 		help: "If set to docker, it will run in a local docker container."
 	},
 	{
-		label: "Decimal places",
-		id: "decimalrounding",
-		type: "number",
-		value: 4,
-		placeholder: "Number of decimal places to be rounded to",
-		min: 0,
-		max: 32
-	},
-	{
 		label: "Disable TQDM",
 		id: "disable_tqdm",
 		type: "checkbox",

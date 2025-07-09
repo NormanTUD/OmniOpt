@@ -3098,7 +3098,7 @@ def format_value(value: Any, float_format: str = '.80f') -> str:
             return s
         return str(value)
     except Exception as e:
-        print_red(f"⚠ Formatierungsfehler: {e}")
+        print_red(f"⚠ Error formatting the number {value}: {e}")
         return str(value)
 
 @beartype

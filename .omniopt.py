@@ -3090,18 +3090,39 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
             lower_bound = -upper_bound
 
 @beartype
-def replace_parameters_in_string(parameters: dict, input_string: str) -> str:
+def format_value(value: Any, float_format: str = '.80f') -> str:
     try:
-        for param_item in parameters:
-            input_string = input_string.replace(f"${param_item}", str(parameters[param_item]))
-            input_string = input_string.replace(f"$({param_item})", str(parameters[param_item]))
+        if isinstance(value, float):
+            s = format(value, float_format)
+            s = s.rstrip('0').rstrip('.') if '.' in s else s
+            return s
+        return str(value)
+    except Exception as e:
+        print_red(f"⚠ Formatierungsfehler: {e}")
+        return str(value)
 
-            input_string = input_string.replace(f"%{param_item}", str(parameters[param_item]))
-            input_string = input_string.replace(f"%({param_item})", str(parameters[param_item]))
+@beartype
+def replace_parameters_in_string(
+    parameters: dict,
+    input_string: str,
+    float_format: str = '.20f',
+    additional_prefixes: list[str] = [],
+    additional_patterns: list[str] = [],
+) -> str:
+    try:
+        prefixes = ['$', '%'] + additional_prefixes
+        patterns = ['{key}', '({key})'] + additional_patterns
+
+        for key, value in parameters.items():
+            replacement = format_value(value, float_format=float_format)
+            for prefix in prefixes:
+                for pattern in patterns:
+                    token = prefix + pattern.format(key=key)
+                    input_string = input_string.replace(token, replacement)
 
         input_string = input_string.replace('\r', ' ').replace('\n', ' ')
-
         return input_string
+
     except Exception as e:
         print_red(f"\n⚠ Error: {e}")
         return ""

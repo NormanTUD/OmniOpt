@@ -268,7 +268,7 @@ function computeParameterCorrelations(array $stats, array $resultNames): array {
     return $result;
 }
 
-function renderMarkdownNarrative(array $stats, array $correlations, array $result_names): string {
+function renderMarkdownNarrative(array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "## 📊 Summary of CSV Data\n\n";
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
@@ -337,36 +337,54 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 		}
 
 
-		$correlations = computeParameterCorrelations($stats, $result_names);
 
-		$md .= "\n### Interpretation\n\n";
+		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax): array {
+			$interpretations = [];
+			$ignoreKeys = ['trial_index', 'start_time', 'end_time', 'run_time', 'exit_code', 'RESULT1', 'RESULT2'];
 
-		foreach ($correlations as $resname => $paramCorrs) {
-			foreach ($paramCorrs as $paramPair => $r) {
-				// Trenne param1-param2
-				if (!str_contains($paramPair, '-')) continue;
+			foreach ($correlations as $result => $paramCorrs) {
+				if (!isset($resultMinMax[$result])) continue;
+				$goal = strtolower($resultMinMax[$result]) === 'min' ? 'minimize' : 'maximize';
 
-				list($param_a, $param_b) = explode('-', $paramPair, 2);
+				foreach ($paramCorrs as $param => $r) {
+					if (in_array($param, $ignoreKeys)) continue;
 
-				// Ignorieren, wenn einer in der Blacklist ist
-				if (in_array($param_a, $dont_show_col_overview) || in_array($param_b, $dont_show_col_overview)) {
-					continue;
+					$r = round($r, 3);
+					$abs = abs($r);
+					if ($abs < 0.3) continue;
+
+					$certainty = $abs >= 0.85 ? "very high" :
+						($abs >= 0.7 ? "high" :
+						($abs >= 0.5 ? "moderate" : "low"));
+
+					$positive_effect = ($goal === 'minimize') ? ($r < 0) : ($r > 0);
+					$color = $positive_effect ? "#006400" : "#8B0000";
+
+					$interpretations[] = [
+						'html' => "<p style=\"color: $color;\">
+						Increasing <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
+						with <b>$certainty certainty</b> (r = $r).
+						</p>",
+			'certainty' => $certainty,
+				'result' => $result,
+				'param' => $param,
+				'r' => $r,
+					];
 				}
-
-				$r = round($r, 3);
-				$abs = abs($r);
-				$direction = $r > 0 ? "increase or decrease together" : "vary inversely";
-				$certainty = ($abs >= 0.85) ? "very high certainty" :
-					(($abs >= 0.7) ? "high certainty" :
-					(($abs >= 0.5) ? "moderate certainty" : "low certainty"));
-				$color = $r > 0 ? "#006400" : "#8B0000";
-
-				$md .= "<p style=\"color: $color;\">";
-				$md .= "<b>[$resname]</b> Parameters <b>`$param_a`</b> and <b>`$param_b`</b> tend to $direction ";
-				$md .= "with <b>$certainty</b> (correlation coefficient <code>r = $r</code>).</p>\n";
 			}
+			return $interpretations;
 		}
 
+
+
+		$influences = computeDirectionalInfluenceFlat($correlations, array_combine($result_names, $resultMinMax));
+
+		if (!empty($influences)) {
+			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";
+			foreach ($influences as $info) {
+				$md .= $info['html'] . "\n";
+			}
+		}
 
 
 

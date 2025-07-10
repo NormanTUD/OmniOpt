@@ -290,16 +290,16 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 		$cnt = 0;
 
 		foreach ($correlations as $c) {
+			if (!isset($c['param1'], $c['param2'], $c['correlation'])) {
+				// Skip invalid entries
+				continue;
+			}
+
 			if ($cnt == 0) {
 				$md .= "## 🔍 Detected Correlations Between Parameters\n\n";
 				$md .= "The following notable correlations between parameter pairs were found:\n\n";
 
 				$cnt = $cnt + 1;
-			}
-
-			if (!isset($c['param1'], $c['param2'], $c['correlation'])) {
-				// Skip invalid entries
-				continue;
 			}
 
 			$r = round($c['correlation'], 3);

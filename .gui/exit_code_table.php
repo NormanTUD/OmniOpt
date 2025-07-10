@@ -65,6 +65,7 @@
 			138 => "USR-Signal detected",
 			142 => "Error in Models like THOMPSON or EMPIRICAL_BAYES_THOMPSON. Not sure why",
 			143 => "Slurm-Job was cancelled",
+			144 => "Error with Slurm-Config. See Stdout.",
 			146 => "CONT-Signal detected",
 			181 => "Error parsing --parameter. Check output for more details",
 			191 => "Could not create workdir ",

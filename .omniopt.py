@@ -4174,6 +4174,8 @@ def disable_logging() -> None:
             "ax.service.utils.best_point",
             "ax.service.utils.with_db_settings_base",
 
+            "ax.storage.sqa_store.save",
+
             "botorch.optim.fit",
             "botorch.models.utils.assorted",
             "botorch.optim.optimize",

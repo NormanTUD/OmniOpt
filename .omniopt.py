@@ -7607,7 +7607,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         if not new_arms:
             print_debug("_fetch_next_trials: No new arms were generated in this attempt.")
         else:
-            print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s).")
+            print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s), wanted {nr_of_jobs_to_get}.")
 
         batched_arms.extend(new_arms)
         attempts += 1

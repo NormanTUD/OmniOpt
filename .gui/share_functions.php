@@ -2543,6 +2543,7 @@ $onclick_string
 		}
 
 		$summary = array();
+		$all_statuses = array();
 
 		while (($row = fgetcsv($handle)) !== false) {
 			if (!isset($row[$index_generation]) || !isset($row[$index_status])) {
@@ -2557,35 +2558,45 @@ $onclick_string
 			}
 
 			if (!isset($summary[$gen])) {
-				$summary[$gen] = array(
-					'total' => 0,
-					'COMPLETED' => 0,
-					'FAILED' => 0
-				);
+				$summary[$gen] = array('total' => 0);
+			}
+
+			if (!isset($summary[$gen][$status])) {
+				$summary[$gen][$status] = 0;
+				$all_statuses[$status] = true;
 			}
 
 			$summary[$gen]['total'] += 1;
-
-			if ($status === 'COMPLETED') {
-				$summary[$gen]['COMPLETED'] += 1;
-			} elseif ($status === 'FAILED') {
-				$summary[$gen]['FAILED'] += 1;
-			}
+			$summary[$gen][$status] += 1;
 		}
 
 		fclose($handle);
 
+		// Sort status columns alphabetically
+		$status_columns = array_keys($all_statuses);
+		sort($status_columns, SORT_STRING | SORT_FLAG_CASE);
+
 		$overview_html .= "<h2>Job Summary per Generation Node</h2>\n";
 		$overview_html .= "<table border='1' cellpadding='5' cellspacing='0'>\n";
-		$overview_html .= "<thead><tr><th>Generation Node</th><th>Total</th><th>COMPLETED</th><th>FAILED</th></tr></thead>\n";
+		$overview_html .= "<thead><tr><th>Generation Node</th><th>Total</th>";
+
+		foreach ($status_columns as $status) {
+			$overview_html .= "<th>" . htmlspecialchars($status) . "</th>";
+		}
+
+		$overview_html .= "</tr></thead>\n";
 		$overview_html .= "<tbody>\n";
 
 		foreach ($summary as $gen => $counts) {
 			$overview_html .= "<tr>";
 			$overview_html .= "<td>" . htmlspecialchars($gen) . "</td>";
 			$overview_html .= "<td>" . htmlspecialchars((string)$counts['total']) . "</td>";
-			$overview_html .= "<td>" . htmlspecialchars((string)$counts['COMPLETED']) . "</td>";
-			$overview_html .= "<td>" . htmlspecialchars((string)$counts['FAILED']) . "</td>";
+
+			foreach ($status_columns as $status) {
+				$count = isset($counts[$status]) ? $counts[$status] : 0;
+				$overview_html .= "<td>" . htmlspecialchars((string)$count) . "</td>";
+			}
+
 			$overview_html .= "</tr>\n";
 		}
 
@@ -2593,7 +2604,6 @@ $onclick_string
 
 		return [$overview_html, $warnings];
 	}
-
 
 	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
 		$git_version_file = "$run_dir/git_version";

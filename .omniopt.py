@@ -8417,6 +8417,7 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
         model_kwargs=get_model_kwargs(),
         model_gen_kwargs=get_model_gen_kwargs(),
         should_deduplicate=True,
+        enforce_num_trials=True,
         index=index
     )
 

@@ -1,4 +1,28 @@
 <?php
+function detectCorrelationsAll(array $stats): array {
+	$keys = array_keys($stats);
+	$correlations = [];
+
+	for ($i = 0; $i < count($keys); $i++) {
+		for ($j = $i + 1; $j < count($keys); $j++) {
+			$x = $stats[$keys[$i]]['values'];
+			$y = $stats[$keys[$j]]['values'];
+			if (count($x) !== count($y)) continue;
+
+			$r = pearsonCorrelation($x, $y);
+			if (abs($r) > 0.3) {  // Schwellenwert 0.3 für Sichtbarkeit
+				$correlations[] = [
+					'param1' => $keys[$i],
+					'param2' => $keys[$j],
+					'correlation' => $r
+				];
+			}
+		}
+	}
+	return $correlations;
+}
+
+
 function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
     if (!file_exists($csvPath) || !is_readable($csvPath)) {
         return "## Error\nFile not found or not readable: `$csvPath`";
@@ -217,71 +241,78 @@ function analyzeFailures(array $header, array $rows, array $stats): array {
     ];
 }
 
-function renderMarkdownNarrative(array $stats, array $correlations, array $resultNames, array $resultMinMax, array $failureAnalysis): string {
-    $md = "# Analysis Report\n\n";
+function renderMarkdownNarrative(array $stats, array $correlations): string {
+    $md = "## 📊 Summary of CSV Data\n\n";
 
-    $md .= "## Summary Statistics\n\n";
-    foreach ($stats as $name => $stat) {
-        if ($stat['type'] === 'numeric') {
-            $md .= "- `$name`: numeric, min={$stat['min']}, max={$stat['max']}, mean=".round($stat['mean'],3).", std=".round($stat['std'],3)."\n";
-        } else {
-            $md .= "- `$name`: categorical, unique values={$stat['unique_count']}\n";
-        }
+    foreach ($stats as $col => $s) {
+        $md .= "### 🔹 `$col`\n";
+        $md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
     }
 
-    if (count($resultNames) > 0) {
-        $md .= "\n## Correlations with Result Metrics\n\n";
-        foreach ($correlations as $result => $corrs) {
-            $md .= "- **$result** correlations:\n";
-            arsort($corrs);
-            foreach ($corrs as $param => $corr) {
-                $sign = ($corr > 0) ? "+" : "";
-                $md .= "  - $param: {$sign}".round($corr,3)."\n";
+    if (count($correlations) > 0) {
+        $md .= "## 🔍 Detected Correlations Between Parameters\n\n";
+        $md .= "The following notable correlations between parameter pairs were found:\n\n";
+
+        foreach ($correlations as $c) {
+            $r = round($c['correlation'], 3);
+            $abs = abs($r);
+
+            // Choose color based on strength and sign of correlation
+            if ($r >= 0.7) {
+                $color = "#006400";  // Dark Green for strong positive
+            } elseif ($r >= 0.3) {
+                $color = "#32CD32";  // Lime Green for moderate positive
+            } elseif ($r <= -0.7) {
+                $color = "#8B0000";  // Dark Red for strong negative
+            } elseif ($r <= -0.3) {
+                $color = "#FF4500";  // OrangeRed for moderate negative
+            } else {
+                $color = "#000000";  // Black for weak/no correlation
             }
-            $md .= "\n";
+
+            // Determine strength label
+            if ($abs >= 0.85) {
+                $strength = "very strong";
+            } elseif ($abs >= 0.7) {
+                $strength = "strong";
+            } elseif ($abs >= 0.5) {
+                $strength = "moderate";
+            } else {
+                $strength = "weak";
+            }
+
+            // Format correlation coefficient as simple text, no mathjax
+            $md .= "<p style=\"color: $color;\">";
+            $md .= "Parameters <b>`{$c['param1']}`</b> and <b>`{$c['param2']}`</b> show a <i>{$strength}</i> ";
+            $md .= $r > 0 ? "positive" : "negative";
+            $md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
         }
+
+        $md .= "\n### Interpretation\n\n";
+
+        foreach ($correlations as $c) {
+            $param1 = $c['param1'];
+            $param2 = $c['param2'];
+            $r = round($c['correlation'], 3);
+            $abs = abs($r);
+            $direction = $r > 0 ? "increase or decrease together" : "vary inversely";
+            $certainty = ($abs >= 0.85) ? "very high certainty" :
+                         (($abs >= 0.7) ? "high certainty" :
+                         (($abs >= 0.5) ? "moderate certainty" : "low certainty"));
+
+            $color = $r > 0 ? "#006400" : "#8B0000";
+
+            $md .= "<p style=\"color: $color;\">";
+            $md .= "With <b>$certainty</b>, parameters <b>`$param1`</b> and <b>`$param2`</b> tend to $direction. ";
+            $md .= "This means that when the value of <b>`$param1`</b> changes, the value of <b>`$param2`</b> is likely to change in the ";
+            $md .= $r > 0 ? "same direction" : "opposite direction";
+            $md .= " (correlation coefficient <code>r = $r</code>).</p>\n";
+        }
+
     } else {
-        $md .= "\n_No result metrics provided for correlation analysis._\n";
+        $md .= "## ❕ No notable correlations between parameters were found (threshold: |r| > 0.3).\n";
     }
-
-    // Add failure analysis
-    $md .= "\n## Failure Analysis\n\n";
-    if (isset($failureAnalysis['error'])) {
-        $md .= "⚠️ " . $failureAnalysis['error'] . "\n\n";
-    } else {
-        // Numeric correlation with failure
-        if (count($failureAnalysis['numeric_correlations_with_failure']) > 0) {
-            $md .= "Numeric parameters showing moderate correlation (≥ 0.3 absolute) with failure:\n\n";
-            foreach ($failureAnalysis['numeric_correlations_with_failure'] as $param => $corr) {
-                $sign = ($corr > 0) ? "higher values correlate with failures" : "lower values correlate with failures";
-                $md .= "- `$param`: correlation = ".round($corr,3)." → $sign\n";
-            }
-            $md .= "\n";
-        } else {
-            $md .= "No strong numeric correlations with failure detected.\n\n";
-        }
-
-        // Categorical values with high failure risk
-        if (count($failureAnalysis['categorical_high_failure_values']) > 0) {
-            $md .= "Categorical parameters with values strongly associated with failures (failure rate > 50% and ≥ 3 samples):\n\n";
-            foreach ($failureAnalysis['categorical_high_failure_values'] as $param => $vals) {
-                $md .= "- `$param`:\n";
-                foreach ($vals as $val => $rate) {
-                    $percent = round($rate*100,1);
-                    $md .= "  - Value '$val' has failure rate ≈ {$percent}%\n";
-                }
-            }
-            $md .= "\n";
-        } else {
-            $md .= "No categorical values with strongly elevated failure rates found.\n\n";
-        }
-    }
-
-    $md .= "---\n\n*This report was generated automatically.*\n";
 
     return $md;
 }
-
-// Example usage:
-// echo analyzeResultsCSV("results.csv", ["loss", "accuracy"], ["loss" => "min", "accuracy" => "max"]);
 

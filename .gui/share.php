@@ -166,7 +166,11 @@
 			if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
 				$tabs = add_parallel_plot_tab($tabs);
 
-				$non_special_columns = array_diff($GLOBALS["json_data"]["tab_results_headers_json"], $GLOBALS["SPECIAL_COL_NAMES"]);
+				$tab_results_headers_json_without_oo_info = $GLOBALS["json_data"]["tab_results_headers_json"];
+
+				$tab_results_headers_json_without_oo_info = array_values(array_filter($tab_results_headers_json_without_oo_info, fn($v) => strpos($v, 'OO_Info_') !== 0));
+
+				$non_special_columns = array_diff($tab_results_headers_json_without_oo_info, $GLOBALS["SPECIAL_COL_NAMES"]);
 				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
 				$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
 

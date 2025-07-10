@@ -2633,7 +2633,9 @@ $onclick_string
 			$status_data = get_status_for_results_csv($results_csv_file);
 
 			if($status_data["total"]) {
-				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file));
+				[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max ($run_dir, $warnings);
+
+				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file, $result_names, $result_min_max));
 				$svg_icon = get_icon_html("analyze.svg");
 
 				$tabs["{$svg_icon}Interpretation"] = [
@@ -2643,7 +2645,6 @@ $onclick_string
 
 
 			} else {
-#print nl2br(analyzeResultsCSV("/home/norman/repos/OmniOpt/runs/__main__tests__BOTORCH_MODULAR___local_nogridsearch/0/results.csv"));
 				$warnings[] = "No evaluations detected";
 			}
 		} else {

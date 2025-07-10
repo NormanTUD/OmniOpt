@@ -1,21 +1,21 @@
 <?php
-function analyzeResultsCSV(string $csvPath): string {
+function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
     if (!file_exists($csvPath) || !is_readable($csvPath)) {
-        return "## Fehler\nDatei nicht gefunden oder nicht lesbar: `$csvPath`";
+        return "## Error\nFile not found or not readable: `$csvPath`";
     }
 
     $data = loadCSV($csvPath);
     if ($data === null || count($data) < 2) {
-        return "## Fehler\nCSV konnte nicht gelesen werden oder enthält keine Daten.";
+        return "## Error\nCSV could not be read or contains no data.";
     }
 
     $header = $data[0];
     $rows = array_slice($data, 1);
 
     $columnStats = calculateStats($header, $rows);
-    $correlationMatrix = computeCorrelationMatrix($columnStats);
+    $correlationMatrix = computeCorrelationMatrix($columnStats, $resultNames);
 
-    return renderMarkdownNarrative($columnStats, $correlationMatrix);
+    return renderMarkdownNarrative($columnStats, $correlationMatrix, $resultNames, $resultMinMax);
 }
 
 function loadCSV(string $path): ?array {
@@ -77,14 +77,25 @@ function pearsonCorrelation(array $x, array $y): float {
     return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
 }
 
-function computeCorrelationMatrix(array $stats): array {
+function computeCorrelationMatrix(array $stats, array $resultNames): array {
     $keys = array_keys($stats);
     $correlations = [];
+
+    $ignore = [
+        'trial_index','start_time','end_time','run_time','program_string','exit_code',
+        'signal','hostname','arm_name','trial_status','generation_method','generation_node'
+    ];
+
+    // Also ignore OO_Info... and all non-numeric combinations
+    $ignore = array_merge($ignore, array_filter($keys, fn($k) => str_starts_with($k, "OO_Info")));
 
     for ($i = 0; $i < count($keys); $i++) {
         for ($j = $i + 1; $j < count($keys); $j++) {
             $xKey = $keys[$i];
             $yKey = $keys[$j];
+
+            if (in_array($xKey, $ignore) || in_array($yKey, $ignore)) continue;
+            if (!isset($stats[$xKey]) || !isset($stats[$yKey])) continue;
 
             $xVals = $stats[$xKey]['values'];
             $yVals = $stats[$yKey]['values'];
@@ -103,9 +114,9 @@ function computeCorrelationMatrix(array $stats): array {
     return $correlations;
 }
 
-function renderMarkdownNarrative(array $stats, array $correlations): string {
-    $md = "## 📈 Automatische Analyse der CSV-Daten\n\n";
-    $md .= "Die folgenden numerischen Spalten wurden in der Datei erkannt:\n\n";
+function renderMarkdownNarrative(array $stats, array $correlations, array $resultNames, array $resultMinMax): string {
+    $md = "## 📊 Automatic CSV Analysis Report\n\n";
+    $md .= "The following numerical columns were detected in the data:\n\n";
 
     foreach ($stats as $col => $s) {
         $md .= "- **`$col`**: $$ \\min = " . round($s['min'], 4) .
@@ -115,32 +126,49 @@ function renderMarkdownNarrative(array $stats, array $correlations): string {
     }
 
     if (count($correlations) === 0) {
-        $md .= "\n### 🔍 Keine signifikanten Zusammenhänge erkannt\n";
+        $md .= "\n### 🔍 No significant correlations found\n";
         return $md;
     }
 
-    $md .= "\n## 🔄 Statistisch signifikante Korrelationen\n";
-    $md .= "Es wurden folgende Zusammenhänge zwischen den Parametern entdeckt:\n\n";
+    $md .= "\n## 🔄 Statistically Significant Correlations\n";
+    $md .= "The following relationships were discovered between parameters:\n\n";
 
     foreach ($correlations as $c) {
         $a = $c['x'];
         $b = $c['y'];
         $r = round($c['r'], 3);
-        $sign = $r > 0 ? "positiven" : "negativen";
+        $sign = $r > 0 ? "positive" : "negative";
         $abs = abs($r);
-        $stärke = $abs > 0.85 ? "sehr starken" :
-                  ($abs > 0.7 ? "starken" :
-                  ($abs > 0.5 ? "moderaten" : "schwachen"));
+        $strength = $abs > 0.85 ? "very strong" :
+                    ($abs > 0.7 ? "strong" :
+                    ($abs > 0.5 ? "moderate" : "weak"));
 
-        $md .= "- Zwischen **`$a`** und **`$b`** besteht eine $stärke $sign lineare Korrelation:\n";
-        $md .= "  $$ r_{\\text{".$a."}, \\text{".$b."}} = $r $$\n\n";
+        $md .= "- There is a **$strength $sign linear correlation** between **`$a`** and **`$b`**:\n";
+        $md .= "  $$ r_{\\text{" . $a . "}, \\text{" . $b . "}} = $r $$\n\n";
 
-        // Interpretation in Fließtext
-        $richtung = $r > 0
-            ? "Je höher der Wert von `$a`, desto höher ist tendenziell auch der Wert von `$b`."
-            : "Ein höherer Wert von `$a` geht typischerweise mit einem niedrigeren Wert von `$b` einher.";
+        // Interpretation
+        $explanation = $r > 0
+            ? "Higher values of `$a` tend to be associated with higher values of `$b`."
+            : "Higher values of `$a` tend to be associated with lower values of `$b`.";
 
-        $md .= "  → Interpretation: $richtung\n\n";
+        // Add result optimization context if applicable
+        $optimizeHint = "";
+        if (in_array($a, $resultNames)) {
+            $idx = array_search($a, $resultNames);
+            if (isset($resultMinMax[$idx])) {
+                $goal = $resultMinMax[$idx] === 'min' ? "lower is better" : "higher is better";
+                $optimizeHint .= " (`$a`: $goal)";
+            }
+        }
+        if (in_array($b, $resultNames)) {
+            $idx = array_search($b, $resultNames);
+            if (isset($resultMinMax[$idx])) {
+                $goal = $resultMinMax[$idx] === 'min' ? "lower is better" : "higher is better";
+                $optimizeHint .= " (`$b`: $goal)";
+            }
+        }
+
+        $md .= "  → Interpretation: $explanation$optimizeHint\n\n";
     }
 
     return $md;

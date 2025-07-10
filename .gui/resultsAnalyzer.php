@@ -365,10 +365,10 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 						Increasing <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
 						with <b>$certainty certainty</b> (r = $r).
 						</p>",
-			'certainty' => $certainty,
-				'result' => $result,
-				'param' => $param,
-				'r' => $r,
+						'certainty' => $certainty,
+						'result' => $result,
+						'param' => $param,
+						'r' => $r,
 					];
 				}
 			}

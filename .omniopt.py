@@ -8851,7 +8851,7 @@ def run_search(_progress_bar: Any) -> bool:
 
 @beartype
 def should_break_search(_progress_bar: Any) -> bool:
-    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS - failed_jobs()) >= max_eval)
 
 @beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:

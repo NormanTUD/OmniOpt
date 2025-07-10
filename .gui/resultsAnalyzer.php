@@ -271,7 +271,7 @@ function computeParameterCorrelations(array $stats, array $resultNames): array {
 function renderMarkdownNarrative(array $stats, array $correlations, array $result_names): string {
 	$md = "## 📊 Summary of CSV Data\n\n";
 
-	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status"];
+	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time"];
 
 	foreach ($stats as $col => $s) {
 		if (!in_array($col, $dont_show_col_overview)) {

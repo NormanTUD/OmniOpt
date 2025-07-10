@@ -3289,13 +3289,11 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
     return None
 
-
 @beartype
 def add_to_csv(file_path: str, new_heading: list, new_data: list) -> None:
     new_data = [helpers.to_int_when_possible(x) for x in new_data]
     formatted_data = _add_to_csv_format_data(new_data)
     _add_to_csv_with_lock(file_path, new_heading, formatted_data)
-
 
 @beartype
 def _add_to_csv_format_data(new_data: List[object]) -> List[object]:
@@ -3303,7 +3301,6 @@ def _add_to_csv_format_data(new_data: List[object]) -> List[object]:
         ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
         for x in new_data
     ]
-
 
 @beartype
 def _add_to_csv_with_lock(file_path: str, new_heading: list, formatted_data: list) -> None:
@@ -3314,7 +3311,6 @@ def _add_to_csv_with_lock(file_path: str, new_heading: list, formatted_data: lis
         _add_to_csv_handle_file(file_path, new_heading, formatted_data)
     finally:
         _add_to_csv_release_lock(lockfile)
-
 
 @beartype
 def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
@@ -3335,14 +3331,12 @@ def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
             return False
     return False
 
-
 @beartype
 def _add_to_csv_release_lock(lockfile: str) -> None:
     try:
         os.unlink(lockfile)
     except FileNotFoundError:
         pass
-
 
 @beartype
 def _add_to_csv_handle_file(file_path: str, new_heading: list, formatted_data: list) -> None:
@@ -3361,7 +3355,6 @@ def _add_to_csv_handle_file(file_path: str, new_heading: list, formatted_data: l
     else:
         _add_to_csv_append_row(file_path, existing_heading, new_heading, formatted_data)
 
-
 @beartype
 def _add_to_csv_create_new_file(file_path: str, heading: list, data: list) -> None:
     with open(file_path, 'w', encoding="utf-8", newline='') as f:
@@ -3369,10 +3362,8 @@ def _add_to_csv_create_new_file(file_path: str, heading: list, data: list) -> No
         writer.writerow(heading)
         writer.writerow(data)
 
-
 @beartype
-def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading: list,
-                             all_headings: list, new_heading: list, formatted_data: list) -> None:
+def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading: list, all_headings: list, new_heading: list, formatted_data: list) -> None:
     tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(file_path), suffix=".csv")
     with os.fdopen(tmp_fd, 'w', encoding="utf-8", newline='') as tmp_file:
         writer = csv.writer(tmp_file)
@@ -3388,10 +3379,8 @@ def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading:
         ])
     shutil.move(tmp_path, file_path)
 
-
 @beartype
-def _add_to_csv_append_row(file_path: str, existing_heading: list,
-                           new_heading: list, formatted_data: list) -> None:
+def _add_to_csv_append_row(file_path: str, existing_heading: list, new_heading: list, formatted_data: list) -> None:
     with open(file_path, 'a', encoding="utf-8", newline='') as f:
         writer = csv.writer(f)
         writer.writerow([
@@ -3763,10 +3752,7 @@ def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Opti
     return result_values
 
 @beartype
-def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int],
-                                      program_string_with_params: str, str_parameters_values: List[str],
-                                      result_values: List[str], exit_code: Optional[int], _signal: Optional[int],
-                                      extra_vars_values: List[str]) -> List[str]:
+def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], program_string_with_params: str, str_parameters_values: List[str], result_values: List[str], exit_code: Optional[int], _signal: Optional[int], extra_vars_values: List[str]) -> List[str]:
     return [
         str(int(start_time)),
         str(int(end_time)),
@@ -9098,8 +9084,7 @@ def _pareto_front_table_add_headers(table: Table, param_cols: List[str], result_
         table.add_column(Text(f"{col}", style="cyan"), justify="center")
 
 @beartype
-def _pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]],
-                                 param_cols: List[str], result_cols: List[str]) -> None:
+def _pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]], param_cols: List[str], result_cols: List[str]) -> None:
     for row in rows:
         values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
         result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]

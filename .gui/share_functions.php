@@ -2502,6 +2502,99 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
+	function add_overview_for_jobs_and_generation_stuff($run_dir, $overview_html, $warnings) {
+		$results_csv_file = "$run_dir/results.csv";
+
+		if (!file_exists($results_csv_file)) {
+			$warnings[] = "Missing file: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		if (!filesize($results_csv_file)) {
+			$warnings[] = "File is empty: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		if (!is_readable($results_csv_file)) {
+			$warnings[] = "File not readable: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		$handle = fopen($results_csv_file, 'r');
+		if ($handle === false) {
+			$warnings[] = "Failed to open file: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		$header = fgetcsv($handle);
+		if ($header === false) {
+			fclose($handle);
+			$warnings[] = "Missing header line in file: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		$index_generation = array_search('generation_node', $header);
+		$index_status = array_search('trial_status', $header);
+
+		if ($index_generation === false || $index_status === false) {
+			fclose($handle);
+			$warnings[] = "Required columns 'generation_node' or 'trial_status' not found in file: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
+
+		$summary = array();
+
+		while (($row = fgetcsv($handle)) !== false) {
+			if (!isset($row[$index_generation]) || !isset($row[$index_status])) {
+				continue;
+			}
+
+			$gen = trim($row[$index_generation]);
+			$status = strtoupper(trim($row[$index_status]));
+
+			if ($gen === '') {
+				$gen = 'UNKNOWN';
+			}
+
+			if (!isset($summary[$gen])) {
+				$summary[$gen] = array(
+					'total' => 0,
+					'COMPLETED' => 0,
+					'FAILED' => 0
+				);
+			}
+
+			$summary[$gen]['total'] += 1;
+
+			if ($status === 'COMPLETED') {
+				$summary[$gen]['COMPLETED'] += 1;
+			} elseif ($status === 'FAILED') {
+				$summary[$gen]['FAILED'] += 1;
+			}
+		}
+
+		fclose($handle);
+
+		$overview_html .= "<h2>Job Summary per Generation Node</h2>\n";
+		$overview_html .= "<table border='1' cellpadding='5' cellspacing='0'>\n";
+		$overview_html .= "<thead><tr><th>Generation Node</th><th>Total</th><th>COMPLETED</th><th>FAILED</th></tr></thead>\n";
+		$overview_html .= "<tbody>\n";
+
+		foreach ($summary as $gen => $counts) {
+			$overview_html .= "<tr>";
+			$overview_html .= "<td>" . htmlspecialchars($gen) . "</td>";
+			$overview_html .= "<td>" . htmlspecialchars((string)$counts['total']) . "</td>";
+			$overview_html .= "<td>" . htmlspecialchars((string)$counts['COMPLETED']) . "</td>";
+			$overview_html .= "<td>" . htmlspecialchars((string)$counts['FAILED']) . "</td>";
+			$overview_html .= "</tr>\n";
+		}
+
+		$overview_html .= "</tbody></table>\n";
+
+		return [$overview_html, $warnings];
+	}
+
+
 	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
 		$git_version_file = "$run_dir/git_version";
 		if(file_exists($git_version_file) && filesize($git_version_file)) {
@@ -2570,6 +2663,7 @@ $onclick_string
 		[$overview_html, $warnings] = add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_experiment_overview_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_best_results_to_overview($run_dir, $overview_html, $warnings);
+		[$overview_html, $warnings] = add_overview_for_jobs_and_generation_stuff($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_parameters_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings] = add_constraints_to_overview($run_dir, $overview_html, $warnings);
 		[$overview_html, $warnings, $status_data] = add_overview_table_to_overview_and_get_status_data($run_dir, $status_data, $overview_html, $warnings);

@@ -11,6 +11,8 @@
 
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
+	require_once '_functions.php';
+	require_once 'resultsAnalyzer.php';
 
 	ini_set('display_errors', 1);
 
@@ -2622,6 +2624,37 @@ $onclick_string
 		}
 
 		return [$overview_html, $warnings];
+	}
+
+	function add_interpretation_from_file($tabs, $warnings, $run_dir) {
+		$results_csv_file = "$run_dir/results.csv";
+
+		if(is_file($results_csv_file) && filesize($results_csv_file)) {
+			$status_data = get_status_for_results_csv($results_csv_file);
+
+			if($status_data["total"]) {
+				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file));
+				$svg_icon = get_icon_html("analyze.svg");
+
+				$tabs["{$svg_icon}Interpretation"] = [
+					'id' => 'tab_interpretation',
+					'content' => convert_markdown_to_html($natural_language_markdown)
+				];
+
+
+			} else {
+#print nl2br(analyzeResultsCSV("/home/norman/repos/OmniOpt/runs/__main__tests__BOTORCH_MODULAR___local_nogridsearch/0/results.csv"));
+				$warnings[] = "No evaluations detected";
+			}
+		} else {
+			if(!is_file($results_csv_file)) {
+				$warnings[] = "$results_csv_file not found";
+			} else if (!filesize($results_csv_file)) {
+				$warnings[] = "$results_csv_file is empty";
+			}
+		}
+
+		return [$tabs, $warnings];
 	}
 
 	function add_overview_table_to_overview_and_get_status_data ($run_dir, $status_data, $overview_html, $warnings) {

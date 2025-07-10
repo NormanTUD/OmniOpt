@@ -147,5 +147,5 @@ function renderMarkdownNarrative(array $stats, array $correlations): string {
 }
 
 // Beispiel-Nutzung:
-print nl2br(analyzeResultsCSV("/home/norman/repos/OmniOpt/runs/__main__tests__BOTORCH_MODULAR___local_nogridsearch/0/results.csv"));
+#print nl2br(analyzeResultsCSV("/home/norman/repos/OmniOpt/runs/__main__tests__BOTORCH_MODULAR___local_nogridsearch/0/results.csv"));
 ?>

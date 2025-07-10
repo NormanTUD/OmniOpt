@@ -94,6 +94,7 @@
 
 			$status_data = null;
 			[$tabs, $warnings, $status_data] = add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max);
+			[$tabs, $warnings] = add_interpretation_from_file($tabs, $warnings, $run_dir);
 
 			$gpu_usage_files = find_gpu_usage_files($run_dir);
 

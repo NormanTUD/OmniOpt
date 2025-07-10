@@ -245,69 +245,84 @@ function renderMarkdownNarrative(array $stats, array $correlations): string {
     $md = "## 📊 Summary of CSV Data\n\n";
 
     foreach ($stats as $col => $s) {
-        $md .= "### 🔹 `$col`\n";
-        $md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
+	    $md .= "### 🔹 `$col`\n";
+	    foreach ($stats as $col => $s) {
+		    if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
+			    $md .= "### 🔹 `$col`\n";
+			    $md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
+		    } else {
+			    $md .= "### 🔹 `$col`\n";
+			    $md .= "No numerical statistics available for this column.\n\n";
+		    }
+	    }
+
     }
 
     if (count($correlations) > 0) {
         $md .= "## 🔍 Detected Correlations Between Parameters\n\n";
         $md .= "The following notable correlations between parameter pairs were found:\n\n";
 
-        foreach ($correlations as $c) {
-            $r = round($c['correlation'], 3);
-            $abs = abs($r);
+	foreach ($correlations as $c) {
+		if (!isset($c['param1'], $c['param2'], $c['correlation'])) {
+			// Skip invalid entries
+			continue;
+		}
 
-            // Choose color based on strength and sign of correlation
-            if ($r >= 0.7) {
-                $color = "#006400";  // Dark Green for strong positive
-            } elseif ($r >= 0.3) {
-                $color = "#32CD32";  // Lime Green for moderate positive
-            } elseif ($r <= -0.7) {
-                $color = "#8B0000";  // Dark Red for strong negative
-            } elseif ($r <= -0.3) {
-                $color = "#FF4500";  // OrangeRed for moderate negative
-            } else {
-                $color = "#000000";  // Black for weak/no correlation
-            }
+		$r = round($c['correlation'], 3);
+		$abs = abs($r);
 
-            // Determine strength label
-            if ($abs >= 0.85) {
-                $strength = "very strong";
-            } elseif ($abs >= 0.7) {
-                $strength = "strong";
-            } elseif ($abs >= 0.5) {
-                $strength = "moderate";
-            } else {
-                $strength = "weak";
-            }
+		// Choose color based on strength and sign of correlation
+		if ($r >= 0.7) {
+			$color = "#006400";  // Dark Green for strong positive
+		} elseif ($r >= 0.3) {
+			$color = "#32CD32";  // Lime Green for moderate positive
+		} elseif ($r <= -0.7) {
+			$color = "#8B0000";  // Dark Red for strong negative
+		} elseif ($r <= -0.3) {
+			$color = "#FF4500";  // OrangeRed for moderate negative
+		} else {
+			$color = "#000000";  // Black for weak/no correlation
+		}
 
-            // Format correlation coefficient as simple text, no mathjax
-            $md .= "<p style=\"color: $color;\">";
-            $md .= "Parameters <b>`{$c['param1']}`</b> and <b>`{$c['param2']}`</b> show a <i>{$strength}</i> ";
-            $md .= $r > 0 ? "positive" : "negative";
-            $md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
-        }
+		// Determine strength label
+		if ($abs >= 0.85) {
+			$strength = "very strong";
+		} elseif ($abs >= 0.7) {
+			$strength = "strong";
+		} elseif ($abs >= 0.5) {
+			$strength = "moderate";
+		} else {
+			$strength = "weak";
+		}
+
+		// Format correlation coefficient as simple text, no mathjax
+		$md .= "<p style=\"color: $color;\">";
+		$md .= "Parameters <b>`{$c['param1']}`</b> and <b>`{$c['param2']}`</b> show a <i>{$strength}</i> ";
+		$md .= $r > 0 ? "positive" : "negative";
+		$md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
+	}
+
 
         $md .= "\n### Interpretation\n\n";
 
-        foreach ($correlations as $c) {
-            $param1 = $c['param1'];
-            $param2 = $c['param2'];
-            $r = round($c['correlation'], 3);
-            $abs = abs($r);
-            $direction = $r > 0 ? "increase or decrease together" : "vary inversely";
-            $certainty = ($abs >= 0.85) ? "very high certainty" :
-                         (($abs >= 0.7) ? "high certainty" :
-                         (($abs >= 0.5) ? "moderate certainty" : "low certainty"));
+foreach ($correlations as $resname => $paramCorrs) {
+    foreach ($paramCorrs as $paramPair => $r) {
+        $r = round($r, 3);
+        $abs = abs($r);
+        $direction = $r > 0 ? "increase or decrease together" : "vary inversely";
+        $certainty = ($abs >= 0.85) ? "very high certainty" :
+                     (($abs >= 0.7) ? "high certainty" :
+                     (($abs >= 0.5) ? "moderate certainty" : "low certainty"));
 
-            $color = $r > 0 ? "#006400" : "#8B0000";
+        $color = $r > 0 ? "#006400" : "#8B0000";
 
-            $md .= "<p style=\"color: $color;\">";
-            $md .= "With <b>$certainty</b>, parameters <b>`$param1`</b> and <b>`$param2`</b> tend to $direction. ";
-            $md .= "This means that when the value of <b>`$param1`</b> changes, the value of <b>`$param2`</b> is likely to change in the ";
-            $md .= $r > 0 ? "same direction" : "opposite direction";
-            $md .= " (correlation coefficient <code>r = $r</code>).</p>\n";
-        }
+        $md .= "<p style=\"color: $color;\">";
+        $md .= "<b>[$resname]</b> Parameters <b>`$paramPair`</b> tend to $direction ";
+        $md .= "with <b>$certainty</b> (correlation coefficient <code>r = $r</code>).</p>\n";
+    }
+}
+
+
 
     } else {
         $md .= "## ❕ No notable correlations between parameters were found (threshold: |r| > 0.3).\n";

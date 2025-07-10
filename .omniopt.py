@@ -7373,7 +7373,7 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
         print_red(f"\n⚠ FAILED: {error}")
 
         if "CPU count per node can not be satisfied" in f"{error}":
-            print_red("Cannot continue.")
+            print_red("Cannot continue. This can happen when you have too requested much memory.")
             my_exit(144)
 
     if new_job is None:

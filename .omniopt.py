@@ -8626,8 +8626,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     return _create_and_execute_next_runs_return_value(trial_index_to_param)
 
 @beartype
-def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Optional[int], phase: Optional[str], _progress_bar: Any
-                                          ) -> Tuple[bool, Optional[Dict], List]:
+def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict], List]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
     results: List = []

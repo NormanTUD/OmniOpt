@@ -245,15 +245,12 @@ function renderMarkdownNarrative(array $stats, array $correlations): string {
     $md = "## 📊 Summary of CSV Data\n\n";
 
     foreach ($stats as $col => $s) {
-	    $md .= "### 🔹 `$col`\n";
-	    foreach ($stats as $col => $s) {
-		    if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
-			    $md .= "### 🔹 `$col`\n";
-			    $md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
-		    } else {
-			    $md .= "### 🔹 `$col`\n";
-			    $md .= "No numerical statistics available for this column.\n\n";
-		    }
+	    if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
+		    $md .= "### 🔹 `$col`\n";
+		    $md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
+	    } else {
+		    $md .= "### 🔹 `$col`\n";
+		    $md .= "No numerical statistics available for this column.\n\n";
 	    }
 
     }

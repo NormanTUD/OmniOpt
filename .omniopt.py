@@ -7783,6 +7783,7 @@ def get_model_gen_kwargs() -> dict:
         "normalize_y": not args.no_normalize_y,
         "transform_inputs": not args.no_transform_inputs,
         "optimizer_kwargs": get_optimizer_kwargs(),
+        "enforce_num_trials": True,
         "torch_device": get_torch_device_str(),
         "random_seed": args.seed,
         "check_duplicates": True,

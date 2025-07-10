@@ -133,7 +133,7 @@ function renderMarkdownNarrative(array $stats, array $correlations): string {
                   ($abs > 0.5 ? "moderaten" : "schwachen"));
 
         $md .= "- Zwischen **`$a`** und **`$b`** besteht eine $stärke $sign lineare Korrelation:\n";
-        $md .= "  $$ r_{".$a.",".$b."} = $r $$\n\n";
+        $md .= "  $$ r_{\\text{".$a."}, \\text{".$b."}} = $r $$\n\n";
 
         // Interpretation in Fließtext
         $richtung = $r > 0

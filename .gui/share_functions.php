@@ -2640,9 +2640,11 @@ $onclick_string
 				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file, $result_names, $result_min_max));
 				$svg_icon = get_icon_html("insights.svg");
 
+				$html = convert_markdown_to_html($natural_language_markdown);
+
 				$tabs["{$svg_icon}Insights"] = [
 					'id' => 'tab_insights',
-					'content' => convert_markdown_to_html($natural_language_markdown)
+					'content' => $html
 				];
 
 

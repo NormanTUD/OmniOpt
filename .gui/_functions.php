@@ -253,6 +253,8 @@
 
 		$markdown = preg_replace($pattern, '', $markdown);
 
+		$markdown = preg_replace('/(?:<br>\s*){2,}/i', '<br>', $markdown);
+
 		return $markdown;
 	}
 

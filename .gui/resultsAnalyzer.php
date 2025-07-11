@@ -528,7 +528,7 @@ function quantile(array $sortedValues, float $q): float {
 }
 
 function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
-	$md = "## 📊 Summary of CSV Data\n\n";
+	$md = "";
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
 
@@ -548,14 +548,7 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 	}
 
 	$md .= "<table border='1' cellpadding='5' cellspacing='0'>";
-	$md .= "<thead><tr>
-		<th>Column</th>
-		<th>Min</th>
-		<th>Max</th>
-		<th>Mean</th>
-		<th>Std Dev</th>
-		<th>Count</th>
-		</tr></thead>";
+	$md .= "<thead><tr><th>Column</th><th>Min</th><th>Max</th><th>Mean</th><th>Std Dev</th><th>Count</th></tr></thead>";
 	$md .= "<tbody>";
 
 	foreach ($stats as $col => $s) {

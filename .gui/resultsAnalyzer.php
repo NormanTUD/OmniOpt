@@ -450,66 +450,24 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 
             // Calculate quantiles for typical good range
             sort($topParamVals);
-sort($paramValues);
-$paramQuantiles = [
-    0 => $paramValues[0],
-    10 => quantile($paramValues, 0.10),
-    25 => quantile($paramValues, 0.25),
-    50 => quantile($paramValues, 0.50),
-    75 => quantile($paramValues, 0.75),
-    90 => quantile($paramValues, 0.90),
-    100 => $paramValues[count($paramValues) - 1],
-];
+            $quantiles = [
+                '10%' => quantile($topParamVals, 0.10),
+                '25%' => quantile($topParamVals, 0.25),
+                '50%' => quantile($topParamVals, 0.50),
+                '75%' => quantile($topParamVals, 0.75),
+                '90%' => quantile($topParamVals, 0.90),
+            ];
 
-// Sort top parameter values (for top 10% best results)
-sort($topParamVals);
-$minTop = min($topParamVals);
-$maxTop = max($topParamVals);
-
-// Hilfsfunktion: finde Quantil-Position eines Wertes im Verteilungsquantil-Array
-function findQuantilePosition($value, $quantiles) {
-    $keys = array_keys($quantiles);
-    sort($keys);
-    for ($i = 0; $i < count($keys) - 1; $i++) {
-        $qLow = $keys[$i];
-        $qHigh = $keys[$i + 1];
-        if ($value >= $quantiles[$qLow] && $value <= $quantiles[$qHigh]) {
-            $frac = ($value - $quantiles[$qLow]) / ($quantiles[$qHigh] - $quantiles[$qLow]);
-            return $qLow + $frac * ($qHigh - $qLow);
-        }
-    }
-    if ($value < $quantiles[$keys[0]]) return $keys[0];
-    return $keys[count($keys) - 1];
-}
-
-$minQuantile = findQuantilePosition($minTop, $paramQuantiles);
-$maxQuantile = findQuantilePosition($maxTop, $paramQuantiles);
-
-// Runde auf nächstes Vielfaches von 5%
-$minQRounded = round($minQuantile / 5) * 5;
-$maxQRounded = round($maxQuantile / 5) * 5;
-
-// Baue die Beschreibung
-if ($minQRounded == $maxQRounded) {
-    $typicalRange = "around the {$minQRounded}% quantile";
-} else {
-    $typicalRange = "between the {$minQRounded}% and {$maxQRounded}% quantile";
-}
-
-// Ersetze den bisherigen quantile-Output durch übersichtlichen Text
-$typicalGoodRangeText = "Typical good range: $typicalRange (parameter value approx. {$minTop} to {$maxTop})";
-
-// Im paramInfos-Array speichern (ersetzt den bisherigen 'quantiles'-Eintrag)
-$paramInfos[] = [
-    'param' => $param,
-    'direction' => $direction,
-    'certainty' => $abs >= 0.85 ? "very high" :
-        ($abs >= 0.7 ? "high" :
-            ($abs >= 0.5 ? "moderate" : "low")),
-    'r' => $r,
-    'typicalGoodRange' => $typicalGoodRangeText,
-    'bestParamVal' => $bestParamVal,
-];
+            $paramInfos[] = [
+                'param' => $param,
+                'direction' => $direction,
+                'certainty' => $abs >= 0.85 ? "very high" :
+                    ($abs >= 0.7 ? "high" :
+                        ($abs >= 0.5 ? "moderate" : "low")),
+                'r' => $r,
+                'quantiles' => $quantiles,
+                'bestParamVal' => $bestParamVal,
+            ];
         }
 
         if (empty($paramInfos)) {

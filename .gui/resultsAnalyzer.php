@@ -22,7 +22,6 @@ function detectCorrelationsAll(array $stats): array {
 	return $correlations;
 }
 
-
 function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
 	if (!file_exists($csvPath) || !is_readable($csvPath)) {
 		return "## Error\nFile not found or not readable: `$csvPath`";
@@ -142,7 +141,6 @@ function pearsonCorrelation(array $x, array $y): float {
 
 	return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
 }
-
 
 function computeCorrelationMatrix(array $stats, array $resultNames): array {
 	$matrix = [];
@@ -410,8 +408,6 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 			return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview);
 		}
 
-
-
 		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview): array {
 			$interpretations = [];
 
@@ -434,10 +430,10 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 							'html' => "<p style=\"color: #808080;\">
 							<code>$param</code> shows no strong influence on <code>$result</code> (r = $r).
 							</p>",
-				'certainty' => 'none',
-					'result' => $result,
-					'param' => $param,
-					'r' => $r,
+							'certainty' => 'none',
+							'result' => $result,
+							'param' => $param,
+							'r' => $r,
 						];
 				continue;
 					}
@@ -482,16 +478,15 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 						{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
 						with <b>$certainty certainty</b> (r = $r).
 						</p>",
-				'certainty' => $certainty,
-					'result' => $result,
-					'param' => $param,
-					'r' => $r,
+						'certainty' => $certainty,
+						'result' => $result,
+						'param' => $param,
+						'r' => $r,
 					];
 				}
 			}
 			return $interpretations;
 		}
-
 
 		$influences = computeDirectionalInfluenceFromCsv($csvPath, $correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
 
@@ -501,9 +496,6 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 				$md .= $info['html'] . "\n";
 			}
 		}
-
-
-
 	} else {
 		$md .= "## ❕ No notable correlations between parameters were found (threshold: |r| > 0.3).\n";
 	}

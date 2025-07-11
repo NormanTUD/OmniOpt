@@ -341,175 +341,175 @@ function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax
 }
 
 function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
-    $interpretations = [];
+	$interpretations = [];
 
-    if (empty($correlations)) {
-        error_log("[Interpretation] ERROR: correlations are empty.");
-        return [];
-    }
+	if (empty($correlations)) {
+		error_log("[Interpretation] ERROR: correlations are empty.");
+		return [];
+	}
 
-    foreach ($correlations as $result => $paramCorrs) {
-        if (!isset($resultMinMax[$result])) {
-            error_log("[Interpretation] WARNING: Missing resultMinMax entry for '$result'. Skipping.");
-            continue;
-        }
+	foreach ($correlations as $result => $paramCorrs) {
+		if (!isset($resultMinMax[$result])) {
+			error_log("[Interpretation] WARNING: Missing resultMinMax entry for '$result'. Skipping.");
+			continue;
+		}
 
-        $goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
-        $goal = $goalType === 'min' ? 'minimize' : 'maximize';
+		$goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
+		$goal = $goalType === 'min' ? 'minimize' : 'maximize';
 
-        $resultValuesRaw = $columns[$result] ?? null;
-        if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
-            error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
-            continue;
-        }
+		$resultValuesRaw = $columns[$result] ?? null;
+		if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
+			error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
+			continue;
+		}
 
-        $resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
-        if (count($resultValues) < 3) {
-            error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
-            continue;
-        }
+		$resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
+		if (count($resultValues) < 3) {
+			error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
+			continue;
+		}
 
-        $bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
-        if (!$bestIndex) {
-            error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
-            continue;
-        }
-        $bestIndex = $bestIndex[0];
-        $bestValue = $resultValuesRaw[$bestIndex];
+		$bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
+		if (!$bestIndex) {
+			error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
+			continue;
+		}
+		$bestIndex = $bestIndex[0];
+		$bestValue = $resultValuesRaw[$bestIndex];
 
-        // Collect parameter info
-        $paramInfos = [];
+		// Collect parameter info
+		$paramInfos = [];
 
-        foreach ($paramCorrs as $param => $r) {
-            if (in_array($param, $dont_show_col_overview)) continue;
+		foreach ($paramCorrs as $param => $r) {
+			if (in_array($param, $dont_show_col_overview)) continue;
 
-            $r = round($r, 3);
-            $abs = abs($r);
+			$r = round($r, 3);
+			$abs = abs($r);
 
-            if ($abs < 0.05) {
-                // Too weak influence, ignore
-                continue;
-            }
+			if ($abs < 0.05) {
+				// Too weak influence, ignore
+				continue;
+			}
 
-            $paramValuesRaw = $columns[$param] ?? [];
-            if (!is_array($paramValuesRaw)) {
-                error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
-                continue;
-            }
-            if (count($paramValuesRaw) != count($resultValuesRaw)) {
-                error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
-                    . count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
-                continue;
-            }
+			$paramValuesRaw = $columns[$param] ?? [];
+			if (!is_array($paramValuesRaw)) {
+				error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
+				continue;
+			}
+			if (count($paramValuesRaw) != count($resultValuesRaw)) {
+				error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
+					. count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
+				continue;
+			}
 
-            // Extract aligned numeric values
-            $paramValues = [];
-            foreach ($resultValuesRaw as $i => $val) {
-                if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
-                    $paramValues[] = $paramValuesRaw[$i];
-                }
-            }
-            if (count($paramValues) < 3) {
-                error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
-                continue;
-            }
+			// Extract aligned numeric values
+			$paramValues = [];
+			foreach ($resultValuesRaw as $i => $val) {
+				if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
+					$paramValues[] = $paramValuesRaw[$i];
+				}
+			}
+			if (count($paramValues) < 3) {
+				error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
+				continue;
+			}
 
-            // Calculate min/max of full param range
-            $paramFullMin = min($paramValues);
-            $paramFullMax = max($paramValues);
+			// Calculate min/max of full param range
+			$paramFullMin = min($paramValues);
+			$paramFullMax = max($paramValues);
 
-            // Value of parameter at best index
-            $bestParamVal = $paramValuesRaw[$bestIndex];
+			// Value of parameter at best index
+			$bestParamVal = $paramValuesRaw[$bestIndex];
 
-            // Determine direction
-            $midpoint = ($paramFullMin + $paramFullMax) / 2;
-            $range = $paramFullMax - $paramFullMin;
-            $medianThreshold = 0.15;
+			// Determine direction
+			$midpoint = ($paramFullMin + $paramFullMax) / 2;
+			$range = $paramFullMax - $paramFullMin;
+			$medianThreshold = 0.15;
 
-            if ($abs < 0.2) {
-                $direction = 'not relevant';
-            } elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
-                $direction = 'median';
-            } else {
-                $direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
-            }
+			if ($abs < 0.2) {
+				$direction = 'not relevant';
+			} elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
+				$direction = 'median';
+			} else {
+				$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
+			}
 
-            // Number of top results (10%)
-            $count = count($resultValues);
-            $n_top = max(1, (int)round($count * 0.1));
+			// Number of top results (10%)
+			$count = count($resultValues);
+			$n_top = max(1, (int)round($count * 0.1));
 
-            // Pair result and param values and sort by result (best first)
-            $zipped = array_map(null, $resultValues, $paramValues);
-            usort($zipped, function ($a, $b) use ($goal) {
-                return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
-            });
+			// Pair result and param values and sort by result (best first)
+			$zipped = array_map(null, $resultValues, $paramValues);
+			usort($zipped, function ($a, $b) use ($goal) {
+				return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
+			});
 
-            // Get top 10% param values
-            $topValues = array_slice($zipped, 0, $n_top);
-            $topParamVals = array_column($topValues, 1);
+			// Get top 10% param values
+			$topValues = array_slice($zipped, 0, $n_top);
+			$topParamVals = array_column($topValues, 1);
 
-            // Calculate quantiles for typical good range
-            sort($topParamVals);
-            $quantiles = [
-                '10%' => quantile($topParamVals, 0.10),
-                '25%' => quantile($topParamVals, 0.25),
-                '50%' => quantile($topParamVals, 0.50),
-                '75%' => quantile($topParamVals, 0.75),
-                '90%' => quantile($topParamVals, 0.90),
-            ];
+			// Calculate quantiles for typical good range
+			sort($topParamVals);
+			$quantiles = [
+				'10%' => quantile($topParamVals, 0.10),
+				'25%' => quantile($topParamVals, 0.25),
+				'50%' => quantile($topParamVals, 0.50),
+				'75%' => quantile($topParamVals, 0.75),
+				'90%' => quantile($topParamVals, 0.90),
+			];
 
-            $paramInfos[] = [
-                'param' => $param,
-                'direction' => $direction,
-                'certainty' => $abs >= 0.85 ? "very high" :
-                    ($abs >= 0.7 ? "high" :
-                        ($abs >= 0.5 ? "moderate" : "low")),
-                'r' => $r,
-                'quantiles' => $quantiles,
-                'bestParamVal' => $bestParamVal,
-            ];
-        }
+			$paramInfos[] = [
+				'param' => $param,
+				'direction' => $direction,
+				'certainty' => $abs >= 0.85 ? "very high" :
+				($abs >= 0.7 ? "high" :
+				($abs >= 0.5 ? "moderate" : "low")),
+				'r' => $r,
+				'quantiles' => $quantiles,
+				'bestParamVal' => $bestParamVal,
+			];
+		}
 
-        if (empty($paramInfos)) {
-            continue;
-        }
+		if (empty($paramInfos)) {
+			continue;
+		}
 
-        // Generate HTML table with quantiles
-        $html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
-        $html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
-        foreach ($paramInfos as $info) {
-            $html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
-        }
-        $html .= "</p>";
+		// Generate HTML table with quantiles
+		$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
+		$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
+		foreach ($paramInfos as $info) {
+			$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
+		}
+		$html .= "</p>";
 
-        $html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
-        $html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th>"
-            . "<th>Typical good range (quantiles)</th></tr></thead><tbody>";
+		$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
+		$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th>"
+			. "<th>Typical good range for $result</th></tr></thead><tbody>";
 
-        foreach ($paramInfos as $info) {
-            $q = $info['quantiles'];
-            $rangeStr = "10%: {$q['10%']}, 25%: {$q['25%']}, 50%: {$q['50%']}, 75%: {$q['75%']}, 90%: {$q['90%']}";
-            $html .= "<tr>";
-            $html .= "<td><code>{$info['param']}</code></td>";
-            $html .= "<td>{$info['direction']}</td>";
-            $html .= "<td>{$info['certainty']}</td>";
-            $html .= "<td>{$info['r']}</td>";
-            $html .= "<td>{$rangeStr}</td>";
-            $html .= "</tr>";
-        }
+		foreach ($paramInfos as $info) {
+			$q = $info['quantiles'];
+			$rangeStr = "10%: {$q['10%']}, 25%: {$q['25%']}, 50%: {$q['50%']}, 75%: {$q['75%']}, 90%: {$q['90%']}";
+			$html .= "<tr>";
+			$html .= "<td><code>{$info['param']}</code></td>";
+			$html .= "<td>{$info['direction']}</td>";
+			$html .= "<td>{$info['certainty']}</td>";
+			$html .= "<td>{$info['r']}</td>";
+			$html .= "<td>{$rangeStr}</td>";
+			$html .= "</tr>";
+		}
 
-        $html .= "</tbody></table>";
+		$html .= "</tbody></table>";
 
-        $interpretations[] = [
-            'html' => $html,
-            'result' => $result,
-            'goal' => $goal,
-            'bestValue' => $bestValue,
-            'parameters' => $paramInfos,
-        ];
-    }
+		$interpretations[] = [
+			'html' => $html,
+			'result' => $result,
+			'goal' => $goal,
+			'bestValue' => $bestValue,
+			'parameters' => $paramInfos,
+		];
+	}
 
-    return $interpretations;
+	return $interpretations;
 }
 
 // Helper function to compute quantile from sorted array

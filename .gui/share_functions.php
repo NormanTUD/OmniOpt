@@ -2344,6 +2344,18 @@ $onclick_string
 		return [$tabs, $warnings];
 	}
 
+	function clean_result_name_lines(array $lines) {
+		$cleaned = [];
+
+		foreach ($lines as $line) {
+			$cleaned_line = preg_replace('/[^a-zA-ZäöüÖÄÜß_0-9]/u', '', $line);
+			$cleaned[] = $cleaned_line;
+		}
+
+		return $cleaned;
+	}
+
+
 	function get_result_names_and_min_max ($run_dir, $warnings) {
 		$result_names_file = "$run_dir/result_names.txt";
 		$result_min_max_file = "$run_dir/result_min_max";
@@ -2366,6 +2378,9 @@ $onclick_string
 		} else {
 			$warnings[] = "$result_min_max_file not found";
 		}
+
+		$result_names = clean_result_name_lines($result_names);
+		$result_min_max = clean_result_name_lines($result_min_max);
 
 		return [$result_names, $result_min_max, $warnings];
 	}

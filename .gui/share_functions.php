@@ -1961,11 +1961,13 @@
 	}
 
 	function delete_old_shares () {
-		$directoryToCheck = 'shares';
-		$oldDirs = _delete_old_shares($directoryToCheck);
-		delete_empty_directories($directoryToCheck, false);
-
-		return $oldDirs;
+		try {
+			$oldDirs = _delete_old_shares($GLOBALS["sharesPath"]);
+			delete_empty_directories($GLOBALS["sharesPath"], false);
+			return $oldDirs;
+		} catch (e) {
+			error_log(e);
+		}
 	}
 
 	function ascii_table_to_html($asciiTable) {
@@ -2218,7 +2220,7 @@
 			return [$tabs, $warnings];
 		}
 
-		$run_dir = preg_replace('/^shares\/*/', "", $run_dir);
+		$run_dir = preg_replace('/^'.$GLOBALS["sharesPath"].'\/*/', "", $run_dir);
 
 		$svg_icon = get_icon_html("export.svg");
 

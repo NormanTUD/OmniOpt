@@ -282,134 +282,63 @@ function computeParameterCorrelations(array $stats, array $resultNames): array {
 	return $result;
 }
 
-function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
-	$md = "## 📊 Summary of CSV Data\n\n";
+function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
+	if (!file_exists($csvPath)) {
+		throw new Exception("CSV file not found: $csvPath");
+	}
 
-	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
+	$handle = fopen($csvPath, 'r');
+	if (!$handle) {
+		throw new Exception("Cannot open CSV file: $csvPath");
+	}
 
-	$custom_params = [];
+	// Kopfzeile lesen
+	$header = fgetcsv($handle);
+	if (!$header) {
+		throw new Exception("CSV file is empty or invalid");
+	}
 
-	foreach ($stats as $col => $s) {
-		if (!in_array($col, $dont_show_col_overview)) {
-			$custom_params[] = $col;
-			if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
-				$md .= "### 🔹 `$col`\n";
-				$md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
+	// Spalteninitialisierung
+	$columns = array_fill_keys($header, []);
+
+	// CSV-Zeilen einlesen
+	while (($row = fgetcsv($handle)) !== false) {
+		foreach ($header as $i => $colName) {
+			$value = $row[$i];
+			// Versuche numerisch zu casten (falls möglich)
+			if (is_numeric($value)) {
+				$columns[$colName][] = (float)$value;
 			} else {
-				$md .= "### 🔹 `$col`\n";
-				$md .= "No numerical statistics available for this column.\n\n";
+				$columns[$colName][] = $value;
 			}
+		}
+	}
+	fclose($handle);
 
+	$resultNames = array_keys($resultMinMax);
+	$correlations = [];
+
+	foreach ($resultNames as $result) {
+		if (!isset($columns[$result])) continue;
+		$resultValues = $columns[$result];
+
+		// Nur wenn Result-Spalte numerisch ist
+		if (!is_numeric($resultValues[0])) continue;
+
+		foreach ($columns as $param => $values) {
+			if ($param === $result) continue;
+			if (in_array($param, $dont_show_col_overview)) continue;
+			if (!is_numeric($values[0])) continue;
+
+			$r = pearsonCorrelation($values, $resultValues);
+			if (!is_finite($r)) continue;
+
+			$correlations[$result][$param] = $r;
 		}
 	}
 
-	if (count($correlations) > 0) {
-		$cnt = 0;
-
-		foreach ($correlations as $c) {
-			if (!isset($c['param1'], $c['param2'], $c['correlation'])) {
-				// Skip invalid entries
-				continue;
-			}
-
-			if ($cnt == 0) {
-				$md .= "## 🔍 Detected Correlations Between Parameters\n\n";
-				$md .= "The following notable correlations between parameter pairs were found:\n\n";
-
-				$cnt = $cnt + 1;
-			}
-
-			$r = round($c['correlation'], 3);
-			$abs = abs($r);
-
-			// Choose color based on strength and sign of correlation
-			if ($r >= 0.7) {
-				$color = "#006400";  // Dark Green for strong positive
-			} elseif ($r >= 0.3) {
-				$color = "#32CD32";  // Lime Green for moderate positive
-			} elseif ($r <= -0.7) {
-				$color = "#8B0000";  // Dark Red for strong negative
-			} elseif ($r <= -0.3) {
-				$color = "#FF4500";  // OrangeRed for moderate negative
-			} else {
-				$color = "#000000";  // Black for weak/no correlation
-			}
-
-			// Determine strength label
-			if ($abs >= 0.85) {
-				$strength = "very strong";
-			} elseif ($abs >= 0.7) {
-				$strength = "strong";
-			} elseif ($abs >= 0.5) {
-				$strength = "moderate";
-			} else {
-				$strength = "weak";
-			}
-
-			// Format correlation coefficient as simple text, no mathjax
-			$md .= "<p style=\"color: $color;\">";
-			$md .= "Parameters <b>`{$c['param1']}`</b> and <b>`{$c['param2']}`</b> show a <i>{$strength}</i> ";
-			$md .= $r > 0 ? "positive" : "negative";
-			$md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
-		}
-
-		function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
-			if (!file_exists($csvPath)) {
-				throw new Exception("CSV file not found: $csvPath");
-			}
-
-			$handle = fopen($csvPath, 'r');
-			if (!$handle) {
-				throw new Exception("Cannot open CSV file: $csvPath");
-			}
-
-			// Kopfzeile lesen
-			$header = fgetcsv($handle);
-			if (!$header) {
-				throw new Exception("CSV file is empty or invalid");
-			}
-
-			// Spalteninitialisierung
-			$columns = array_fill_keys($header, []);
-
-			// CSV-Zeilen einlesen
-			while (($row = fgetcsv($handle)) !== false) {
-				foreach ($header as $i => $colName) {
-					$value = $row[$i];
-					// Versuche numerisch zu casten (falls möglich)
-					if (is_numeric($value)) {
-						$columns[$colName][] = (float)$value;
-					} else {
-						$columns[$colName][] = $value;
-					}
-				}
-			}
-			fclose($handle);
-
-			$resultNames = array_keys($resultMinMax);
-			$correlations = [];
-
-			foreach ($resultNames as $result) {
-				if (!isset($columns[$result])) continue;
-				$resultValues = $columns[$result];
-
-				// Nur wenn Result-Spalte numerisch ist
-				if (!is_numeric($resultValues[0])) continue;
-
-				foreach ($columns as $param => $values) {
-					if ($param === $result) continue;
-					if (in_array($param, $dont_show_col_overview)) continue;
-					if (!is_numeric($values[0])) continue;
-
-					$r = pearsonCorrelation($values, $resultValues);
-					if (!is_finite($r)) continue;
-
-					$correlations[$result][$param] = $r;
-				}
-			}
-
-			return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview, $columns);
-		}
+	return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview, $columns);
+}
 
 		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
 			$interpretations = [];
@@ -554,20 +483,54 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 			return $interpretations;
 		}
 
+function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
+	$md = "## 📊 Summary of CSV Data\n\n";
 
+	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
 
+	$custom_params = [];
 
+	if (count($correlations) > 0) {
 		$influences = computeDirectionalInfluenceFromCsv($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview, $custom_params);
 
 		if (!empty($influences)) {
 			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";
 			foreach ($influences as $info) {
-				$md .= $info['html'] . "\n";
+				$md .= $info['html'] . "";
 			}
 		}
 	} else {
-		$md .= "## ❕ No notable correlations between parameters were found (threshold: |r| > 0.3).\n";
+		$md .= "## ❕ No notable correlations between parameters were found (threshold: |r| > 0.3).";
 	}
 
+	$md .= "<table border='1' cellpadding='5' cellspacing='0'>";
+	$md .= "<thead><tr>
+		<th>Column</th>
+		<th>Min</th>
+		<th>Max</th>
+		<th>Mean</th>
+		<th>Std Dev</th>
+		<th>Count</th>
+		</tr></thead>";
+	$md .= "<tbody>";
+
+	foreach ($stats as $col => $s) {
+		if (!in_array($col, $dont_show_col_overview)) {
+			$md .= "<tr>";
+			$md .= "<td>" . htmlspecialchars($col) . "</td>";
+			if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
+				$md .= "<td>" . round($s['min'], 4) . "</td>";
+				$md .= "<td>" . round($s['max'], 4) . "</td>";
+				$md .= "<td>" . round($s['mean'], 4) . "</td>";
+				$md .= "<td>" . round($s['std'], 4) . "</td>";
+				$md .= "<td>" . $s['count'] . "</td>";
+			} else {
+				$md .= "<td colspan='5' style='text-align:center;'>No numerical statistics available</td>";
+			}
+			$md .= "</tr>";
+		}
+	}
+
+	$md .= "</tbody></table>";
 	return $md;
 }

@@ -338,20 +338,18 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 
 
 
-		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax): array {
+		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview): array {
 			$interpretations = [];
-			$ignoreKeys = ['trial_index', 'start_time', 'end_time', 'run_time', 'exit_code', 'RESULT1', 'RESULT2'];
 
 			foreach ($correlations as $result => $paramCorrs) {
 				if (!isset($resultMinMax[$result])) continue;
 				$goal = strtolower($resultMinMax[$result]) === 'min' ? 'minimize' : 'maximize';
 
 				foreach ($paramCorrs as $param => $r) {
-					if (in_array($param, $ignoreKeys)) continue;
+					if (in_array($param, $dont_show_col_overview)) continue;
 
 					$r = round($r, 3);
 					$abs = abs($r);
-					if ($abs < 0.3) continue;
 
 					$certainty = $abs >= 0.85 ? "very high" :
 						($abs >= 0.7 ? "high" :
@@ -375,9 +373,7 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 			return $interpretations;
 		}
 
-
-
-		$influences = computeDirectionalInfluenceFlat($correlations, array_combine($result_names, $resultMinMax));
+		$influences = computeDirectionalInfluenceFlat($correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
 
 		if (!empty($influences)) {
 			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";

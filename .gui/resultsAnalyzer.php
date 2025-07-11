@@ -354,65 +354,55 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
             continue;
         }
 
-        // Zieltyp (min oder max) ermitteln
-        $goalTypeRaw = is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result];
-        $goalType = strtolower($goalTypeRaw);
+        $goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
         $goal = $goalType === 'min' ? 'minimize' : 'maximize';
 
-        // Rohdaten für Ergebnis-Werte holen
         $resultValuesRaw = $columns[$result] ?? null;
         if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
             error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
             continue;
         }
 
-        // Nur numerische Werte filtern (mind. 3 Werte)
         $resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
         if (count($resultValues) < 3) {
             error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
             continue;
         }
 
-        // Index mit dem besten Ergebniswert finden (max oder min je nach Ziel)
-        if ($goal === 'maximize') {
-            $bestIndexCandidates = array_keys($resultValuesRaw, max($resultValues));
-        } else {
-            $bestIndexCandidates = array_keys($resultValuesRaw, min($resultValues));
-        }
-        if (empty($bestIndexCandidates)) {
+        $bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
+        if (!$bestIndex) {
             error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
             continue;
         }
-        $bestIndex = $bestIndexCandidates[0];
+        $bestIndex = $bestIndex[0];
         $bestValue = $resultValuesRaw[$bestIndex];
 
-        // Infos aller relevanten Parameter sammeln
+        // Collect parameter info
         $paramInfos = [];
 
         foreach ($paramCorrs as $param => $r) {
-            if (in_array($param, $dont_show_col_overview, true)) continue;
+            if (in_array($param, $dont_show_col_overview)) continue;
 
             $r = round($r, 3);
             $abs = abs($r);
 
             if ($abs < 0.05) {
-                // Kaum Einfluss, ignorieren
+                // Too weak influence, ignore
                 continue;
             }
 
-            // Werte für Parameter holen und prüfen
             $paramValuesRaw = $columns[$param] ?? [];
             if (!is_array($paramValuesRaw)) {
                 error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
                 continue;
             }
-            if (count($paramValuesRaw) !== count($resultValuesRaw)) {
-                error_log("[Interpretation] ERROR: Length mismatch between result '$result' and parameter '$param' ("
+            if (count($paramValuesRaw) != count($resultValuesRaw)) {
+                error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
                     . count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
                 continue;
             }
 
-            // Numerische Werte passend zu resultValuesRaw extrahieren (Index-gleich)
+            // Extract aligned numeric values
             $paramValues = [];
             foreach ($resultValuesRaw as $i => $val) {
                 if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
@@ -424,65 +414,67 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
                 continue;
             }
 
-            // Min, Max und Median-Wert für den Parameter bestimmen
+            // Calculate min/max of full param range
             $paramFullMin = min($paramValues);
             $paramFullMax = max($paramValues);
+
+            // Value of parameter at best index
             $bestParamVal = $paramValuesRaw[$bestIndex];
 
+            // Determine direction
             $midpoint = ($paramFullMin + $paramFullMax) / 2;
             $range = $paramFullMax - $paramFullMin;
-            $medianThreshold = 0.15; // 15% Toleranz um Median
+            $medianThreshold = 0.15;
 
-            // Richtung bestimmen mit neuer Logik:
-            // - Korrelationsbetrag < 0.2 => "not relevant"
-            // - Parameterwert nahe Median => "median"
-            // - Sonst Richtung: steigender oder fallender Einfluss
             if ($abs < 0.2) {
                 $direction = 'not relevant';
             } elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
                 $direction = 'median';
             } else {
-                // Wenn Ziel maximize ist und r positiv => steigender Einfluss, sonst fallend
-                // Oder umgekehrt für minimize
                 $direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
             }
 
-            // Top 10% der Ergebniswerte bestimmen
+            // Number of top results (10%)
             $count = count($resultValues);
             $n_top = max(1, (int)round($count * 0.1));
 
-            // Paarweise sortieren nach Ergebniswert, top N Werte extrahieren
+            // Pair result and param values and sort by result (best first)
             $zipped = array_map(null, $resultValues, $paramValues);
             usort($zipped, function ($a, $b) use ($goal) {
                 return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
             });
 
+            // Get top 10% param values
             $topValues = array_slice($zipped, 0, $n_top);
             $topParamVals = array_column($topValues, 1);
 
-            $paramMin = round(min($topParamVals), 5);
-            $paramMax = round(max($topParamVals), 5);
+            // Calculate quantiles for typical good range
+            sort($topParamVals);
+            $quantiles = [
+                '10%' => quantile($topParamVals, 0.10),
+                '25%' => quantile($topParamVals, 0.25),
+                '50%' => quantile($topParamVals, 0.50),
+                '75%' => quantile($topParamVals, 0.75),
+                '90%' => quantile($topParamVals, 0.90),
+            ];
 
-            // Parameterinfo speichern
             $paramInfos[] = [
                 'param' => $param,
                 'direction' => $direction,
                 'certainty' => $abs >= 0.85 ? "very high" :
-                               ($abs >= 0.7 ? "high" :
-                               ($abs >= 0.5 ? "moderate" : "low")),
+                    ($abs >= 0.7 ? "high" :
+                        ($abs >= 0.5 ? "moderate" : "low")),
                 'r' => $r,
-                'range_min' => $paramMin,
-                'range_max' => $paramMax,
+                'quantiles' => $quantiles,
                 'bestParamVal' => $bestParamVal,
             ];
         }
 
         if (empty($paramInfos)) {
-            // Keine relevanten Parameter gefunden
             continue;
         }
 
-        // HTML-Ausgabe für Ergebnis erzeugen
+        // Generate HTML table with quantiles
         $html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
         $html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
         foreach ($paramInfos as $info) {
@@ -491,16 +483,21 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
         $html .= "</p>";
 
         $html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
-        $html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th><th>Typical good range (top 10%)</th></tr></thead><tbody>";
+        $html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th>"
+            . "<th>Typical good range (quantiles)</th></tr></thead><tbody>";
+
         foreach ($paramInfos as $info) {
+            $q = $info['quantiles'];
+            $rangeStr = "10%: {$q['10%']}, 25%: {$q['25%']}, 50%: {$q['50%']}, 75%: {$q['75%']}, 90%: {$q['90%']}";
             $html .= "<tr>";
             $html .= "<td><code>{$info['param']}</code></td>";
             $html .= "<td>{$info['direction']}</td>";
             $html .= "<td>{$info['certainty']}</td>";
             $html .= "<td>{$info['r']}</td>";
-            $html .= "<td>{$info['range_min']} – {$info['range_max']}</td>";
+            $html .= "<td>{$rangeStr}</td>";
             $html .= "</tr>";
         }
+
         $html .= "</tbody></table>";
 
         $interpretations[] = [
@@ -515,6 +512,20 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
     return $interpretations;
 }
 
+// Helper function to compute quantile from sorted array
+function quantile(array $sortedValues, float $q): float {
+    $n = count($sortedValues);
+    if ($n === 0) return NAN;
+    $pos = ($n - 1) * $q;
+    $floor = floor($pos);
+    $ceil = ceil($pos);
+    if ($floor == $ceil) {
+        return $sortedValues[$floor];
+    }
+    $d0 = $sortedValues[$floor] * ($ceil - $pos);
+    $d1 = $sortedValues[$ceil] * ($pos - $floor);
+    return round($d0 + $d1, 5);
+}
 
 function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "## 📊 Summary of CSV Data\n\n";

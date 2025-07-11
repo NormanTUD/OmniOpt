@@ -287,8 +287,11 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
 
+	$custom_params = [];
+
 	foreach ($stats as $col => $s) {
 		if (!in_array($col, $dont_show_col_overview)) {
+			$custom_params[] = $col;
 			if (isset($s['min'], $s['max'], $s['mean'], $s['std'], $s['count'])) {
 				$md .= "### 🔹 `$col`\n";
 				$md .= "The values of **`$col`** range from <b>" . round($s['min'], 4) . "</b> to <b>" . round($s['max'], 4) . "</b>, with an average (mean) of <b>" . round($s['mean'], 4) . "</b> and a standard deviation of <b>" . round($s['std'], 4) . "</b>, based on <b>" . $s['count'] . "</b> data points.\n\n";
@@ -350,7 +353,7 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 			$md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
 		}
 
-		function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = []): array {
+		function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
 			if (!file_exists($csvPath)) {
 				throw new Exception("CSV file not found: $csvPath");
 			}
@@ -405,19 +408,45 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 				}
 			}
 
-			return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview);
+			return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview, $columns);
 		}
 
-		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview): array {
+		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
 			$interpretations = [];
 
+			if (empty($correlations)) {
+				error_log("[Interpretation] ERROR: correlations are empty.");
+				return [];
+			}
+
 			foreach ($correlations as $result => $paramCorrs) {
-				if (!isset($resultMinMax[$result])) continue;
+				if (!isset($resultMinMax[$result])) {
+					error_log("[Interpretation] WARNING: Missing resultMinMax entry for '$result'. Skipping.");
+					continue;
+				}
 
-				$value = $resultMinMax[$result];
-				if (is_array($value)) $value = reset($value);
+				$goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
+				$goal = $goalType === 'min' ? 'minimize' : 'maximize';
 
-				$goal = strtolower($value) === 'min' ? 'minimize' : 'maximize';
+				$resultValuesRaw = $columns[$result] ?? null;
+				if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
+					error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
+					continue;
+				}
+
+				$resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
+				if (count($resultValues) < 3) {
+					error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
+					continue;
+				}
+
+				$bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
+				if (!$bestIndex) {
+					error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
+					continue;
+				}
+				$bestIndex = $bestIndex[0];
+				$bestValue = $resultValuesRaw[$bestIndex];
 
 				foreach ($paramCorrs as $param => $r) {
 					if (in_array($param, $dont_show_col_overview)) continue;
@@ -425,59 +454,70 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 					$r = round($r, 3);
 					$abs = abs($r);
 
-					if ($abs < 0.05) {  // Schwelle für "keine Aussage"
+					if ($abs < 0.05) {
 						$interpretations[] = [
-							'html' => "<p style=\"color: #808080;\">
-							<code>$param</code> shows no strong influence on <code>$result</code> (r = $r).
-							</p>",
+							'html' => "<p style=\"color: #808080;\"><code>$param</code> shows no strong influence on <code>$result</code> (r = $r).</p>",
 							'certainty' => 'none',
 							'result' => $result,
 							'param' => $param,
 							'r' => $r,
 						];
-				continue;
+						continue;
 					}
 
-					// Entscheide Richtung und Farbe
-					// Wenn maximieren:
-					//   r > 0 → increasing leads to better (grün)
-					//   r < 0 → decreasing leads to better (grün)
-					// Wenn minimieren:
-					//   r > 0 → decreasing leads to better (grün)
-					//   r < 0 → increasing leads to better (grün)
+					$direction = ($goal === 'maximize') === ($r > 0) ? 'increasing' : 'decreasing';
+					$color = '#006400';
 
-					if ($goal === 'maximize') {
-						if ($r > 0) {
-							$direction = 'increasing';
-							$color = '#006400'; // dunkelgrün
-						} else {
-							$direction = 'decreasing';
-							$color = '#006400'; // dunkelgrün
-						}
-					} else { // minimize
-						if ($r > 0) {
-							$direction = 'decreasing';
-							$color = '#006400'; // dunkelgrün
-						} else {
-							$direction = 'increasing';
-							$color = '#006400'; // dunkelgrün
-						}
-					}
-
-					// Sicherheitstext
 					$certainty = $abs >= 0.85 ? "very high" :
 						($abs >= 0.7 ? "high" :
 						($abs >= 0.5 ? "moderate" : "low"));
 
-					// Falls Richtung / Ergebnis nicht passt, rot anzeigen (das heißt: Farbe ändern wenn Einfluss gegen Ziel)
-					// Eigentlich oben schon alles grün gesetzt, aber wenn wir z.B. abs > 0.05 und r widerspricht Ziel, dann rot
-					// Hier aber schon berücksichtigt, daher keine extra Logik nötig
+					$paramValuesRaw = $columns[$param] ?? [];
+					if (!is_array($paramValuesRaw)) {
+						error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
+						continue;
+					}
+					if (count($paramValuesRaw) != count($resultValuesRaw)) {
+						error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
+							. count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
+						continue;
+					}
+
+					$paramValues = [];
+					foreach ($resultValuesRaw as $i => $val) {
+						if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
+							$paramValues[] = $paramValuesRaw[$i];
+						}
+					}
+					if (count($paramValues) < 3) {
+						error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
+						continue;
+					}
+
+					$count = count($resultValues);
+					$n_top = max(1, (int)round($count * 0.1));
+
+					$zipped = array_map(null, $resultValues, $paramValues);
+					usort($zipped, function ($a, $b) use ($goal) {
+						return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
+					});
+
+					$topValues = array_slice($zipped, 0, $n_top);
+					$topParamVals = array_column($topValues, 1);
+
+					$paramMin = round(min($topParamVals), 5);
+					$paramMax = round(max($topParamVals), 5);
+					$bestParamVal = $paramValuesRaw[$bestIndex];
+
+					$html = "<p style=\"color: $color;\">
+					{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
+					with <b>$certainty certainty</b> (r = $r).<br>
+					Best <code>$result</code> = <b>$bestValue</b> at <code>$param = $bestParamVal</code>.<br>
+					Typical good <code>$param</code> range: <code>$paramMin</code>–<code>$paramMax</code> (top 10%).
+					</p>";
 
 					$interpretations[] = [
-						'html' => "<p style=\"color: $color;\">
-						{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
-						with <b>$certainty certainty</b> (r = $r).
-						</p>",
+						'html' => $html,
 						'certainty' => $certainty,
 						'result' => $result,
 						'param' => $param,
@@ -485,10 +525,13 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 					];
 				}
 			}
+
 			return $interpretations;
 		}
 
-		$influences = computeDirectionalInfluenceFromCsv($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
+
+
+		$influences = computeDirectionalInfluenceFromCsv($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview, $custom_params);
 
 		if (!empty($influences)) {
 			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";

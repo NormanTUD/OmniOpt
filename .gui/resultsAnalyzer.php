@@ -448,6 +448,9 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 				$bestIndex = $bestIndex[0];
 				$bestValue = $resultValuesRaw[$bestIndex];
 
+				// Sammle Infos aller Parameter in einem Array
+				$paramInfos = [];
+
 				foreach ($paramCorrs as $param => $r) {
 					if (in_array($param, $dont_show_col_overview)) continue;
 
@@ -455,18 +458,11 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 					$abs = abs($r);
 
 					if ($abs < 0.05) {
-						$interpretations[] = [
-							'html' => "<p style=\"color: #808080;\"><code>$param</code> shows no strong influence on <code>$result</code> (r = $r).</p>",
-							'certainty' => 'none',
-							'result' => $result,
-							'param' => $param,
-							'r' => $r,
-						];
+						// Kein starker Einfluss, kann ggf. ignoriert werden oder als "none" markiert werden
 						continue;
 					}
 
-					$direction = ($goal === 'maximize') === ($r > 0) ? 'increasing' : 'decreasing';
-					$color = '#006400';
+					$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
 
 					$certainty = $abs >= 0.85 ? "very high" :
 						($abs >= 0.7 ? "high" :
@@ -509,25 +505,55 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 					$paramMax = round(max($topParamVals), 5);
 					$bestParamVal = $paramValuesRaw[$bestIndex];
 
-					$html = "<p style=\"color: $color;\">
-					{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
-					with <b>$certainty certainty</b> (r = $r).<br>
-					Best <code>$result</code> = <b>$bestValue</b> at <code>$param = $bestParamVal</code>.<br>
-					Typical good <code>$param</code> range: <code>$paramMin</code>–<code>$paramMax</code> (top 10%).
-					</p>";
-
-					$interpretations[] = [
-						'html' => $html,
-						'certainty' => $certainty,
-						'result' => $result,
+					$paramInfos[] = [
 						'param' => $param,
+						'direction' => $direction,
+						'certainty' => $certainty,
 						'r' => $r,
+						'range_min' => $paramMin,
+						'range_max' => $paramMax,
+						'bestParamVal' => $bestParamVal,
 					];
 				}
+
+				if (empty($paramInfos)) {
+					// Keine relevanten Parameter gefunden
+					continue;
+				}
+
+				// Erzeuge eine HTML-Tabelle mit den Parametern
+				$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
+				$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
+				foreach ($paramInfos as $info) {
+					$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
+				}
+				$html .= "</p>";
+
+				$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
+				$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th><th>Typical good range (top 10%)</th></tr></thead><tbody>";
+				foreach ($paramInfos as $info) {
+					$html .= "<tr>";
+					$html .= "<td><code>{$info['param']}</code></td>";
+					$html .= "<td>{$info['direction']}</td>";
+					$html .= "<td>{$info['certainty']}</td>";
+					$html .= "<td>{$info['r']}</td>";
+					$html .= "<td>{$info['range_min']} – {$info['range_max']}</td>";
+					$html .= "</tr>";
+				}
+				$html .= "</tbody></table>";
+
+				$interpretations[] = [
+					'html' => $html,
+					'result' => $result,
+					'goal' => $goal,
+					'bestValue' => $bestValue,
+					'parameters' => $paramInfos,
+				];
 			}
 
 			return $interpretations;
 		}
+
 
 
 

@@ -453,8 +453,8 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 				'param' => $param,
 				'direction' => $direction,
 				'certainty' => $abs >= 0.85 ? "very high" :
-				($abs >= 0.7 ? "high" :
-				($abs >= 0.5 ? "moderate" : "low")),
+				($abs >= 0.4 ? "high" :
+				($abs >= 0.05 ? "moderate" : "low")),
 				'r' => $r,
 				'bestParamVal' => $bestParamVal,
 			];

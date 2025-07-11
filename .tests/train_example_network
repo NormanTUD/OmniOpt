@@ -73,7 +73,7 @@ export min_epochs=10
 export max_epochs=40
 export min_dense=1
 export max_dense=10
-export data=data
+export data=data_tiny
 
 export min_conv=1
 export max_conv=10
@@ -106,7 +106,7 @@ function help () {
 	echo "Possible options:"
 	echo "  --help                                                 This help"
 	echo "  --debug                                                Enables debug mode"
-	echo "  --data=<str>                                           Data folder (default: data, possible options: data, data_tiny, data_full)"
+	echo "  --data=<str>                                           Data folder (default: data, possible options: data_tiny)"
 	echo "  --num_parallel_jobs=<int>                              Number of parallel jobs (default: 20, but at least --num_random_steps)"
 	echo "  --worker_timeout=<int>                                 Number of minutes for a single-worker to timeout (default: 30)"
 	echo "  --mem_gb=<int>                                         Memory in GB (default 5)"

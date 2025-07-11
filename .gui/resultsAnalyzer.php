@@ -109,38 +109,38 @@ function calculateStats(array $header, array $rows): array {
 }
 
 function pearsonCorrelation(array $x, array $y): float {
-    $n = count($x);
-    if ($n !== count($y) || $n === 0) return 0;
+	$n = count($x);
+	if ($n !== count($y) || $n === 0) return 0;
 
-    $validX = [];
-    $validY = [];
+	$validX = [];
+	$validY = [];
 
-    for ($i = 0; $i < $n; $i++) {
-        if (is_numeric($x[$i]) && is_numeric($y[$i])) {
-            $validX[] = (float)$x[$i];
-            $validY[] = (float)$y[$i];
-        }
-    }
+	for ($i = 0; $i < $n; $i++) {
+		if (is_numeric($x[$i]) && is_numeric($y[$i])) {
+			$validX[] = (float)$x[$i];
+			$validY[] = (float)$y[$i];
+		}
+	}
 
-    $n = count($validX);
-    if ($n === 0) return 0;
+	$n = count($validX);
+	if ($n === 0) return 0;
 
-    $meanX = array_sum($validX) / $n;
-    $meanY = array_sum($validY) / $n;
+	$meanX = array_sum($validX) / $n;
+	$meanY = array_sum($validY) / $n;
 
-    $num = 0;
-    $denX = 0;
-    $denY = 0;
+	$num = 0;
+	$denX = 0;
+	$denY = 0;
 
-    for ($i = 0; $i < $n; $i++) {
-        $dx = $validX[$i] - $meanX;
-        $dy = $validY[$i] - $meanY;
-        $num += $dx * $dy;
-        $denX += $dx * $dx;
-        $denY += $dy * $dy;
-    }
+	for ($i = 0; $i < $n; $i++) {
+		$dx = $validX[$i] - $meanX;
+		$dy = $validY[$i] - $meanY;
+		$num += $dx * $dy;
+		$denX += $dx * $dx;
+		$denY += $dy * $dy;
+	}
 
-    return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
+	return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
 }
 
 
@@ -434,12 +434,12 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 							'html' => "<p style=\"color: #808080;\">
 							<code>$param</code> shows no strong influence on <code>$result</code> (r = $r).
 							</p>",
-							'certainty' => 'none',
-							'result' => $result,
-							'param' => $param,
-							'r' => $r,
+				'certainty' => 'none',
+					'result' => $result,
+					'param' => $param,
+					'r' => $r,
 						];
-						continue;
+				continue;
 					}
 
 					// Entscheide Richtung und Farbe
@@ -482,10 +482,10 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 						{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
 						with <b>$certainty certainty</b> (r = $r).
 						</p>",
-						'certainty' => $certainty,
-						'result' => $result,
-						'param' => $param,
-						'r' => $r,
+				'certainty' => $certainty,
+					'result' => $result,
+					'param' => $param,
+					'r' => $r,
 					];
 				}
 			}

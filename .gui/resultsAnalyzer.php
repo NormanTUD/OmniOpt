@@ -426,12 +426,12 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 			$range = $paramFullMax - $paramFullMin;
 			$medianThreshold = 0.15;
 
-			if ($abs < 0.2) {
+			if ($abs < 0.01) {
 				$direction = 'not relevant';
 			} elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
-				$direction = 'median';
+				$direction = 'uniformly distributed';
 			} else {
-				$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
+				$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; higher = better' : '&darr; lower = better';
 			}
 
 			// Number of top results (10%)
@@ -535,75 +535,68 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 			}
 
 			// Werte aus CSV durchgehen und je 1px in der Breite zeichnen
-			foreach ($csvData as $row) {
-				if (!isset($row[$param])) continue;
-				if (!isset($row[$result])) {
-					error_log("Result column '$result' not found in CSV row");
-					continue;
-				}
+foreach ($csvData as $row) {
+    if (!isset($row[$param])) continue;
+    if (!isset($row[$result])) {
+        error_log("Result column '$result' not found in CSV row");
+        continue;
+    }
 
-				$val = (float) $row[$param];
-				$resValRaw = $row[$result];
+    $val = (float) $row[$param];
+    $resValRaw = $row[$result];
 
-				if (!is_numeric($resValRaw)) {
-					error_log("Non-numeric result value '$resValRaw' for param '$param'");
-					continue;
-				}
-				$resVal = (float) $resValRaw;
+    if (!is_numeric($resValRaw)) {
+        error_log("Non-numeric result value '$resValRaw' for param '$param'");
+        continue;
+    }
+    $resVal = (float) $resValRaw;
 
-				// x-Position berechnen (linear skaliert von minVal..maxVal)
-				$x = (int)(($val - $minVal) / ($maxVal - $minVal) * ($width - 1));
-				if ($x < 0) $x = 0;
-				if ($x >= $width) $x = $width - 1;
+    $x = (int)(($val - $minVal) / ($maxVal - $minVal) * ($width - 1));
+    if ($x < 0) $x = 0;
+    if ($x >= $width) $x = $width - 1;
 
-				// Farbwert t von 0 bis 1 definieren je nach min/max Vorgabe
-				if (!isset($resultMinMax[$result])) {
-					error_log("No min/max info for result '$result'");
-					$t = 0.5; // neutral grau
-				} else {
-					if ($resultMinMax[$result] === 'min') {
-						// bei Minimierung: kleiner Wert = grün (t=0), größer Wert = rot (t=1)
-						$t = ($resVal - min(array_column($csvData, $result))) / (max(array_column($csvData, $result)) - min(array_column($csvData, $result)));
-					} else {
-						// bei Maximierung: größer Wert = grün (t=0), kleiner Wert = rot (t=1)
-						$allResultValsRaw = array_column($csvData, $result);
-						$allResultVals = array_filter($allResultValsRaw, 'is_numeric');
+    // Berechne t zwischen 0 und 1, je nachdem ob min oder max gewünscht ist
+    if (!isset($resultMinMax[$result])) {
+        error_log("No min/max info for result '$result'");
+        $t = 0.5;
+    } else {
+        $allResultValsRaw = array_column($csvData, $result);
+        $allResultVals = array_filter($allResultValsRaw, 'is_numeric');
 
-						if (count($allResultVals) === 0) {
-							// keine numerischen Werte, Fehler behandeln
-							error_log("No numeric values for result '$result'");
-							$t = 0.5; // default neutral
-						} else {
-							$minResult = min($allResultVals);
-							$maxResult = max($allResultVals);
+        if (count($allResultVals) === 0) {
+            error_log("No numeric values for result '$result'");
+            $t = 0.5;
+        } else {
+            $minResult = min($allResultVals);
+            $maxResult = max($allResultVals);
 
-							if ($maxResult == $minResult) {
-								$t = 0.5; // alle Werte gleich
-							} else {
-								if ($resultMinMax[$result] === 'min') {
-									$t = ($resVal - $minResult) / ($maxResult - $minResult);
-								} else {
-									$t = 1 - (($resVal - $minResult) / ($maxResult - $minResult));
-								}
-								$t = max(0, min(1, $t));
-							}
-						}
+            if ($maxResult == $minResult) {
+                $t = 0.5;
+            } else {
+                if ($resultMinMax[$result] === 'min') {
+                    $t = ($resVal - $minResult) / ($maxResult - $minResult);
+                } else {
+                    $t = 1 - (($resVal - $minResult) / ($maxResult - $minResult));
+                }
+                $t = max(0, min(1, $t));
+            }
+        }
+    }
 
+    // Farbverlauf grün -> gelb -> rot
+    if ($t <= 0.5) {
+        $r = (int)(255 * ($t * 2));    // von 0 bis 255
+        $g = 255;
+    } else {
+        $r = 255;
+        $g = (int)(255 * (1 - 2 * ($t - 0.5)));  // von 255 runter bis 0
+    }
+    $b = 0;
 
-					}
-					// clamp t
-					$t = max(0, min(1, $t));
-				}
+    $color = imagecolorallocate($im, $r, $g, $b);
+    imagesetpixel($im, $x, 0, $color);
+}
 
-				// Farbe aus t berechnen: grün (t=0) bis rot (t=1)
-				$r = (int)(255 * $t);
-				$g = (int)(255 * (1 - $t));
-				$b = 0;
-				$color = imagecolorallocate($im, $r, $g, $b);
-
-				// 1px breiter Punkt
-				imagesetpixel($im, $x, 0, $color);
-			}
 
 			// Base64 PNG erzeugen
 			ob_start();

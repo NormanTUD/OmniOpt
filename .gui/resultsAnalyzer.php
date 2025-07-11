@@ -351,27 +351,69 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 					$r = round($r, 3);
 					$abs = abs($r);
 
+					if ($abs < 0.05) {  // Schwelle für "keine Aussage"
+						$interpretations[] = [
+							'html' => "<p style=\"color: #808080;\">
+							<code>$param</code> shows no strong influence on <code>$result</code> (r = $r).
+							</p>",
+			'certainty' => 'none',
+				'result' => $result,
+				'param' => $param,
+				'r' => $r,
+						];
+			continue;
+					}
+
+					// Entscheide Richtung und Farbe
+					// Wenn maximieren:
+					//   r > 0 → increasing leads to better (grün)
+					//   r < 0 → decreasing leads to better (grün)
+					// Wenn minimieren:
+					//   r > 0 → decreasing leads to better (grün)
+					//   r < 0 → increasing leads to better (grün)
+
+					if ($goal === 'maximize') {
+						if ($r > 0) {
+							$direction = 'increasing';
+							$color = '#006400'; // dunkelgrün
+						} else {
+							$direction = 'decreasing';
+							$color = '#006400'; // dunkelgrün
+						}
+					} else { // minimize
+						if ($r > 0) {
+							$direction = 'decreasing';
+							$color = '#006400'; // dunkelgrün
+						} else {
+							$direction = 'increasing';
+							$color = '#006400'; // dunkelgrün
+						}
+					}
+
+					// Sicherheitstext
 					$certainty = $abs >= 0.85 ? "very high" :
 						($abs >= 0.7 ? "high" :
 						($abs >= 0.5 ? "moderate" : "low"));
 
-					$positive_effect = ($goal === 'minimize') ? ($r < 0) : ($r > 0);
-					$color = $positive_effect ? "#006400" : "#8B0000";
+					// Falls Richtung / Ergebnis nicht passt, rot anzeigen (das heißt: Farbe ändern wenn Einfluss gegen Ziel)
+					// Eigentlich oben schon alles grün gesetzt, aber wenn wir z.B. abs > 0.05 und r widerspricht Ziel, dann rot
+					// Hier aber schon berücksichtigt, daher keine extra Logik nötig
 
 					$interpretations[] = [
 						'html' => "<p style=\"color: $color;\">
-						Increasing <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
+						{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
 						with <b>$certainty certainty</b> (r = $r).
 						</p>",
-						'certainty' => $certainty,
-						'result' => $result,
-						'param' => $param,
-						'r' => $r,
+			'certainty' => $certainty,
+				'result' => $result,
+				'param' => $param,
+				'r' => $r,
 					];
 				}
 			}
 			return $interpretations;
 		}
+
 
 		$influences = computeDirectionalInfluenceFlat($correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
 

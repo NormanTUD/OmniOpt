@@ -2220,7 +2220,7 @@
 			return [$tabs, $warnings];
 		}
 
-		$run_dir = preg_replace('/^'.$GLOBALS["sharesPath"].'\/*/', "", $run_dir);
+		$run_dir = preg_replace('/^'.preg_replace("/\//", "\\/", $GLOBALS["sharesPath"]).'*/', "", $run_dir);
 
 		$svg_icon = get_icon_html("export.svg");
 
@@ -2628,7 +2628,7 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
-	function add_interpretation_from_file($tabs, $warnings, $run_dir) {
+	function add_insights_from_file($tabs, $warnings, $run_dir) {
 		$results_csv_file = "$run_dir/results.csv";
 
 		if(is_file($results_csv_file) && filesize($results_csv_file)) {
@@ -2638,10 +2638,10 @@ $onclick_string
 				[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max ($run_dir, $warnings);
 
 				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file, $result_names, $result_min_max));
-				$svg_icon = get_icon_html("analyze.svg");
+				$svg_icon = get_icon_html("insights.svg");
 
-				$tabs["{$svg_icon}Interpretation"] = [
-					'id' => 'tab_interpretation',
+				$tabs["{$svg_icon}Insights"] = [
+					'id' => 'tab_insights',
 					'content' => convert_markdown_to_html($natural_language_markdown)
 				];
 

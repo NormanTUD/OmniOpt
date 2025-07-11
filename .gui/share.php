@@ -165,7 +165,7 @@
 
 
 			if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
-				[$tabs, $warnings] = add_interpretation_from_file($tabs, $warnings, $run_dir);
+				[$tabs, $warnings] = add_insights_from_file($tabs, $warnings, $run_dir);
 
 				$tabs = add_parallel_plot_tab($tabs);
 

@@ -497,7 +497,7 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 			$html .= "<td>{$info['certainty']}</td>";
 			$html .= "<td>{$info['r']}</td>";
 
-			$width = 500;
+			$width = 800;
 			$height = count($paramInfos);
 			$im = imagecreatetruecolor($width, $height);
 

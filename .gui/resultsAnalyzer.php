@@ -42,7 +42,7 @@ function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resu
 	// Additional failure analysis
 	$failureAnalysis = analyzeFailures($header, $rows, $columnStats);
 
-	return renderMarkdownNarrative($columnStats, $correlationMatrix, $resultNames, $resultMinMax, $failureAnalysis);
+	return renderMarkdownNarrative($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax, $failureAnalysis);
 }
 
 function loadCSV(string $path): ?array {
@@ -109,24 +109,40 @@ function calculateStats(array $header, array $rows): array {
 }
 
 function pearsonCorrelation(array $x, array $y): float {
-	$n = count($x);
-	if ($n !== count($y) || $n === 0) return 0;
+    $n = count($x);
+    if ($n !== count($y) || $n === 0) return 0;
 
-	$meanX = array_sum($x) / $n;
-	$meanY = array_sum($y) / $n;
+    $validX = [];
+    $validY = [];
 
-	$num = 0;
-	$denX = 0;
-	$denY = 0;
-	for ($i = 0; $i < $n; $i++) {
-		$dx = $x[$i] - $meanX;
-		$dy = $y[$i] - $meanY;
-		$num += $dx * $dy;
-		$denX += $dx * $dx;
-		$denY += $dy * $dy;
-	}
-	return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
+    for ($i = 0; $i < $n; $i++) {
+        if (is_numeric($x[$i]) && is_numeric($y[$i])) {
+            $validX[] = (float)$x[$i];
+            $validY[] = (float)$y[$i];
+        }
+    }
+
+    $n = count($validX);
+    if ($n === 0) return 0;
+
+    $meanX = array_sum($validX) / $n;
+    $meanY = array_sum($validY) / $n;
+
+    $num = 0;
+    $denX = 0;
+    $denY = 0;
+
+    for ($i = 0; $i < $n; $i++) {
+        $dx = $validX[$i] - $meanX;
+        $dy = $validY[$i] - $meanY;
+        $num += $dx * $dy;
+        $denX += $dx * $dx;
+        $denY += $dy * $dy;
+    }
+
+    return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
 }
+
 
 function computeCorrelationMatrix(array $stats, array $resultNames): array {
 	$matrix = [];
@@ -268,7 +284,7 @@ function computeParameterCorrelations(array $stats, array $resultNames): array {
 	return $result;
 }
 
-function renderMarkdownNarrative(array $stats, array $correlations, array $result_names, array $resultMinMax): string {
+function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "## 📊 Summary of CSV Data\n\n";
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
@@ -336,6 +352,64 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 			$md .= " correlation with coefficient <code>r = {$r}</code>.</p>\n";
 		}
 
+		function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = []): array {
+			if (!file_exists($csvPath)) {
+				throw new Exception("CSV file not found: $csvPath");
+			}
+
+			$handle = fopen($csvPath, 'r');
+			if (!$handle) {
+				throw new Exception("Cannot open CSV file: $csvPath");
+			}
+
+			// Kopfzeile lesen
+			$header = fgetcsv($handle);
+			if (!$header) {
+				throw new Exception("CSV file is empty or invalid");
+			}
+
+			// Spalteninitialisierung
+			$columns = array_fill_keys($header, []);
+
+			// CSV-Zeilen einlesen
+			while (($row = fgetcsv($handle)) !== false) {
+				foreach ($header as $i => $colName) {
+					$value = $row[$i];
+					// Versuche numerisch zu casten (falls möglich)
+					if (is_numeric($value)) {
+						$columns[$colName][] = (float)$value;
+					} else {
+						$columns[$colName][] = $value;
+					}
+				}
+			}
+			fclose($handle);
+
+			$resultNames = array_keys($resultMinMax);
+			$correlations = [];
+
+			foreach ($resultNames as $result) {
+				if (!isset($columns[$result])) continue;
+				$resultValues = $columns[$result];
+
+				// Nur wenn Result-Spalte numerisch ist
+				if (!is_numeric($resultValues[0])) continue;
+
+				foreach ($columns as $param => $values) {
+					if ($param === $result) continue;
+					if (in_array($param, $dont_show_col_overview)) continue;
+					if (!is_numeric($values[0])) continue;
+
+					$r = pearsonCorrelation($values, $resultValues);
+					if (!is_finite($r)) continue;
+
+					$correlations[$result][$param] = $r;
+				}
+			}
+
+			return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview);
+		}
+
 
 
 		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview): array {
@@ -343,7 +417,11 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 
 			foreach ($correlations as $result => $paramCorrs) {
 				if (!isset($resultMinMax[$result])) continue;
-				$goal = strtolower($resultMinMax[$result]) === 'min' ? 'minimize' : 'maximize';
+
+				$value = $resultMinMax[$result];
+				if (is_array($value)) $value = reset($value);
+
+				$goal = strtolower($value) === 'min' ? 'minimize' : 'maximize';
 
 				foreach ($paramCorrs as $param => $r) {
 					if (in_array($param, $dont_show_col_overview)) continue;
@@ -356,12 +434,12 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 							'html' => "<p style=\"color: #808080;\">
 							<code>$param</code> shows no strong influence on <code>$result</code> (r = $r).
 							</p>",
-			'certainty' => 'none',
-				'result' => $result,
-				'param' => $param,
-				'r' => $r,
+							'certainty' => 'none',
+							'result' => $result,
+							'param' => $param,
+							'r' => $r,
 						];
-			continue;
+						continue;
 					}
 
 					// Entscheide Richtung und Farbe
@@ -404,10 +482,10 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 						{$direction} <code>$param</code> tends to lead to <b>better</b> results for <code>$result</code> (<i>$goal</i> goal),
 						with <b>$certainty certainty</b> (r = $r).
 						</p>",
-			'certainty' => $certainty,
-				'result' => $result,
-				'param' => $param,
-				'r' => $r,
+						'certainty' => $certainty,
+						'result' => $result,
+						'param' => $param,
+						'r' => $r,
 					];
 				}
 			}
@@ -415,7 +493,7 @@ function renderMarkdownNarrative(array $stats, array $correlations, array $resul
 		}
 
 
-		$influences = computeDirectionalInfluenceFlat($correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
+		$influences = computeDirectionalInfluenceFromCsv($csvPath, $correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
 
 		if (!empty($influences)) {
 			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";

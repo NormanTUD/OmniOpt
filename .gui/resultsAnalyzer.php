@@ -337,10 +337,10 @@ function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax
 		}
 	}
 
-	return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview, $columns);
+	return computeDirectionalInfluenceFlat($csvPath, $correlations, $resultMinMax, $dont_show_col_overview, $columns);
 }
 
-function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
+function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
 	$interpretations = [];
 
 	if (empty($correlations)) {
@@ -448,16 +448,7 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 			$topValues = array_slice($zipped, 0, $n_top);
 			$topParamVals = array_column($topValues, 1);
 
-			// Calculate quantiles for typical good range
 			sort($topParamVals);
-			$quantiles = [
-				'10%' => quantile($topParamVals, 0.10),
-				'25%' => quantile($topParamVals, 0.25),
-				'50%' => quantile($topParamVals, 0.50),
-				'75%' => quantile($topParamVals, 0.75),
-				'90%' => quantile($topParamVals, 0.90),
-			];
-
 			$paramInfos[] = [
 				'param' => $param,
 				'direction' => $direction,
@@ -465,7 +456,6 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 				($abs >= 0.7 ? "high" :
 				($abs >= 0.5 ? "moderate" : "low")),
 				'r' => $r,
-				'quantiles' => $quantiles,
 				'bestParamVal' => $bestParamVal,
 			];
 		}
@@ -474,7 +464,6 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 			continue;
 		}
 
-		// Generate HTML table with quantiles
 		$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
 		$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
 		foreach ($paramInfos as $info) {
@@ -484,17 +473,157 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 
 		$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
 		$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th>"
-			. "<th>Typical good range for $result</th></tr></thead><tbody>";
+			. "<th>Visualization in dependence of $result</th></tr></thead><tbody>";
+
+		$csvData = [];
+		if (($handle = fopen($csvPath, 'r')) !== false) {
+			$header = fgetcsv($handle);
+			if ($header === false) {
+				error_log("CSV file $csvPath appears empty or invalid header.");
+			} else {
+				while (($row = fgetcsv($handle)) !== false) {
+					$csvData[] = array_combine($header, $row);
+				}
+			}
+			fclose($handle);
+		} else {
+			error_log("Could not open CSV file $csvPath");
+		}
 
 		foreach ($paramInfos as $info) {
-			$q = $info['quantiles'];
-			$rangeStr = "10%: {$q['10%']}, 25%: {$q['25%']}, 50%: {$q['50%']}, 75%: {$q['75%']}, 90%: {$q['90%']}";
 			$html .= "<tr>";
 			$html .= "<td><code>{$info['param']}</code></td>";
 			$html .= "<td>{$info['direction']}</td>";
 			$html .= "<td>{$info['certainty']}</td>";
 			$html .= "<td>{$info['r']}</td>";
-			$html .= "<td>{$rangeStr}</td>";
+
+			$width = 300;
+			$height = count($paramInfos);
+			$im = imagecreatetruecolor($width, $height);
+
+			// Hintergrund weiß
+			$white = imagecolorallocate($im, 255, 255, 255);
+			imagefill($im, 0, 0, $white);
+
+			$height = 1;
+			$im = imagecreatetruecolor($width, $height);
+
+			// Weißer Hintergrund
+			$white = imagecolorallocate($im, 255, 255, 255);
+			imagefill($im, 0, 0, $white);
+
+			$param = $info['param'] ?? null;
+			if ($param === null) {
+				error_log("Param not set in info");
+				imagedestroy($im);
+				continue;
+			}
+
+			// Prüfe, ob $columns[$param] existiert und nicht leer
+			if (empty($columns[$param])) {
+				error_log("No data in columns for param '$param'");
+				imagedestroy($im);
+				continue;
+			}
+
+			$minVal = (float) min($columns[$param]);
+			$maxVal = (float) max($columns[$param]);
+			if ($maxVal == $minVal) {
+				error_log("Max equals min for param '$param'");
+				imagedestroy($im);
+				continue;
+			}
+
+			// Werte aus CSV durchgehen und je 1px in der Breite zeichnen
+			foreach ($csvData as $row) {
+				if (!isset($row[$param])) continue;
+				if (!isset($row[$result])) {
+					error_log("Result column '$result' not found in CSV row");
+					continue;
+				}
+
+				$val = (float) $row[$param];
+				$resValRaw = $row[$result];
+
+				if (!is_numeric($resValRaw)) {
+					error_log("Non-numeric result value '$resValRaw' for param '$param'");
+					continue;
+				}
+				$resVal = (float) $resValRaw;
+
+				// x-Position berechnen (linear skaliert von minVal..maxVal)
+				$x = (int)(($val - $minVal) / ($maxVal - $minVal) * ($width - 1));
+				if ($x < 0) $x = 0;
+				if ($x >= $width) $x = $width - 1;
+
+				// Farbwert t von 0 bis 1 definieren je nach min/max Vorgabe
+				if (!isset($resultMinMax[$result])) {
+					error_log("No min/max info for result '$result'");
+					$t = 0.5; // neutral grau
+				} else {
+					if ($resultMinMax[$result] === 'min') {
+						// bei Minimierung: kleiner Wert = grün (t=0), größer Wert = rot (t=1)
+						$t = ($resVal - min(array_column($csvData, $result))) / (max(array_column($csvData, $result)) - min(array_column($csvData, $result)));
+					} else {
+						// bei Maximierung: größer Wert = grün (t=0), kleiner Wert = rot (t=1)
+						$allResultValsRaw = array_column($csvData, $result);
+						$allResultVals = array_filter($allResultValsRaw, 'is_numeric');
+
+						if (count($allResultVals) === 0) {
+							// keine numerischen Werte, Fehler behandeln
+							error_log("No numeric values for result '$result'");
+							$t = 0.5; // default neutral
+						} else {
+							$minResult = min($allResultVals);
+							$maxResult = max($allResultVals);
+
+							if ($maxResult == $minResult) {
+								$t = 0.5; // alle Werte gleich
+							} else {
+								if ($resultMinMax[$result] === 'min') {
+									$t = ($resVal - $minResult) / ($maxResult - $minResult);
+								} else {
+									$t = 1 - (($resVal - $minResult) / ($maxResult - $minResult));
+								}
+								$t = max(0, min(1, $t));
+							}
+						}
+
+
+					}
+					// clamp t
+					$t = max(0, min(1, $t));
+				}
+
+				// Farbe aus t berechnen: grün (t=0) bis rot (t=1)
+				$r = (int)(255 * $t);
+				$g = (int)(255 * (1 - $t));
+				$b = 0;
+				$color = imagecolorallocate($im, $r, $g, $b);
+
+				// 1px breiter Punkt
+				imagesetpixel($im, $x, 0, $color);
+			}
+
+			// Base64 PNG erzeugen
+			ob_start();
+			imagepng($im);
+			$imgData = ob_get_clean();
+			imagedestroy($im);
+			$base64 = base64_encode($imgData);
+
+			$img_as_base64 = "<img src='data:image/png;base64,$base64' width='$width' height='$height' style='image-rendering: pixelated;'>";
+
+			// Bild als Base64 einbetten
+			ob_start();
+			imagepng($im);
+			$imgData = ob_get_clean();
+			imagedestroy($im);
+			$base64 = base64_encode($imgData);
+
+			$img_as_base64 = "<img src='data:image/png;base64,$base64' width='$width' height='50' style='image-rendering: pixelated;'>";
+
+			$html .= "<td>{$img_as_base64}</td>";
 			$html .= "</tr>";
 		}
 
@@ -510,6 +639,18 @@ function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMa
 	}
 
 	return $interpretations;
+}
+
+function getResultValueForParam($csvData, $paramName, $resultName) {
+	foreach ($csvData as $row) {
+		if (isset($row[$paramName]) && isset($row[$resultName])) {
+			// Beispiel: Einfacher Vergleich / erste gefundene Zeile
+			// Optional: Du kannst hier Logik erweitern, z.B. min/max Wert nehmen, etc.
+			return $row[$resultName];
+		}
+	}
+	error_log("Result or param '$paramName' or '$resultName' not found in CSV data.");
+	return null;
 }
 
 // Helper function to compute quantile from sorted array

@@ -340,148 +340,170 @@ function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax
 	return computeDirectionalInfluenceFlat($correlations, $resultMinMax, $dont_show_col_overview, $columns);
 }
 
-		function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
-			$interpretations = [];
+function computeDirectionalInfluenceFlat(array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
+	$interpretations = [];
 
-			if (empty($correlations)) {
-				error_log("[Interpretation] ERROR: correlations are empty.");
-				return [];
-			}
+	if (empty($correlations)) {
+		error_log("[Interpretation] ERROR: correlations are empty.");
+		return [];
+	}
 
-			foreach ($correlations as $result => $paramCorrs) {
-				if (!isset($resultMinMax[$result])) {
-					error_log("[Interpretation] WARNING: Missing resultMinMax entry for '$result'. Skipping.");
-					continue;
-				}
-
-				$goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
-				$goal = $goalType === 'min' ? 'minimize' : 'maximize';
-
-				$resultValuesRaw = $columns[$result] ?? null;
-				if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
-					error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
-					continue;
-				}
-
-				$resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
-				if (count($resultValues) < 3) {
-					error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
-					continue;
-				}
-
-				$bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
-				if (!$bestIndex) {
-					error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
-					continue;
-				}
-				$bestIndex = $bestIndex[0];
-				$bestValue = $resultValuesRaw[$bestIndex];
-
-				// Sammle Infos aller Parameter in einem Array
-				$paramInfos = [];
-
-				foreach ($paramCorrs as $param => $r) {
-					if (in_array($param, $dont_show_col_overview)) continue;
-
-					$r = round($r, 3);
-					$abs = abs($r);
-
-					if ($abs < 0.05) {
-						// Kein starker Einfluss, kann ggf. ignoriert werden oder als "none" markiert werden
-						continue;
-					}
-
-					$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
-
-					$certainty = $abs >= 0.85 ? "very high" :
-						($abs >= 0.7 ? "high" :
-						($abs >= 0.5 ? "moderate" : "low"));
-
-					$paramValuesRaw = $columns[$param] ?? [];
-					if (!is_array($paramValuesRaw)) {
-						error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
-						continue;
-					}
-					if (count($paramValuesRaw) != count($resultValuesRaw)) {
-						error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
-							. count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
-						continue;
-					}
-
-					$paramValues = [];
-					foreach ($resultValuesRaw as $i => $val) {
-						if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
-							$paramValues[] = $paramValuesRaw[$i];
-						}
-					}
-					if (count($paramValues) < 3) {
-						error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
-						continue;
-					}
-
-					$count = count($resultValues);
-					$n_top = max(1, (int)round($count * 0.1));
-
-					$zipped = array_map(null, $resultValues, $paramValues);
-					usort($zipped, function ($a, $b) use ($goal) {
-						return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
-					});
-
-					$topValues = array_slice($zipped, 0, $n_top);
-					$topParamVals = array_column($topValues, 1);
-
-					$paramMin = round(min($topParamVals), 5);
-					$paramMax = round(max($topParamVals), 5);
-					$bestParamVal = $paramValuesRaw[$bestIndex];
-
-					$paramInfos[] = [
-						'param' => $param,
-						'direction' => $direction,
-						'certainty' => $certainty,
-						'r' => $r,
-						'range_min' => $paramMin,
-						'range_max' => $paramMax,
-						'bestParamVal' => $bestParamVal,
-					];
-				}
-
-				if (empty($paramInfos)) {
-					// Keine relevanten Parameter gefunden
-					continue;
-				}
-
-				// Erzeuge eine HTML-Tabelle mit den Parametern
-				$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
-				$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
-				foreach ($paramInfos as $info) {
-					$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
-				}
-				$html .= "</p>";
-
-				$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
-				$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th><th>Typical good range (top 10%)</th></tr></thead><tbody>";
-				foreach ($paramInfos as $info) {
-					$html .= "<tr>";
-					$html .= "<td><code>{$info['param']}</code></td>";
-					$html .= "<td>{$info['direction']}</td>";
-					$html .= "<td>{$info['certainty']}</td>";
-					$html .= "<td>{$info['r']}</td>";
-					$html .= "<td>{$info['range_min']} – {$info['range_max']}</td>";
-					$html .= "</tr>";
-				}
-				$html .= "</tbody></table>";
-
-				$interpretations[] = [
-					'html' => $html,
-					'result' => $result,
-					'goal' => $goal,
-					'bestValue' => $bestValue,
-					'parameters' => $paramInfos,
-				];
-			}
-
-			return $interpretations;
+	foreach ($correlations as $result => $paramCorrs) {
+		if (!isset($resultMinMax[$result])) {
+			error_log("[Interpretation] WARNING: Missing resultMinMax entry for '$result'. Skipping.");
+			continue;
 		}
+
+		$goalType = strtolower(is_array($resultMinMax[$result]) ? reset($resultMinMax[$result]) : $resultMinMax[$result]);
+		$goal = $goalType === 'min' ? 'minimize' : 'maximize';
+
+		$resultValuesRaw = $columns[$result] ?? null;
+		if (!$resultValuesRaw || !is_array($resultValuesRaw)) {
+			error_log("[Interpretation] ERROR: Missing or invalid values for result '$result' in \$columns.");
+			continue;
+		}
+
+		$resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
+		if (count($resultValues) < 3) {
+			error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
+			continue;
+		}
+
+		$bestIndex = array_keys($resultValuesRaw, $goal === 'maximize' ? max($resultValues) : min($resultValues));
+		if (!$bestIndex) {
+			error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
+			continue;
+		}
+		$bestIndex = $bestIndex[0];
+		$bestValue = $resultValuesRaw[$bestIndex];
+
+		// Sammle Infos aller Parameter in einem Array
+		$paramInfos = [];
+
+		foreach ($paramCorrs as $param => $r) {
+			if (in_array($param, $dont_show_col_overview)) continue;
+
+			$r = round($r, 3);
+			$abs = abs($r);
+
+			if ($abs < 0.05) {
+				// Kein starker Einfluss, kann ggf. ignoriert werden oder als "none" markiert werden
+				continue;
+			}
+
+			// New logic to determine direction including "median" or "not relevant"
+			$paramValuesRaw = $columns[$param] ?? [];
+			if (!is_array($paramValuesRaw)) {
+				error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
+				continue;
+			}
+			if (count($paramValuesRaw) != count($resultValuesRaw)) {
+				error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
+					. count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
+				continue;
+			}
+
+			// Extract numeric values aligned with resultValuesRaw indices
+			$paramValues = [];
+			foreach ($resultValuesRaw as $i => $val) {
+				if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
+					$paramValues[] = $paramValuesRaw[$i];
+				}
+			}
+			if (count($paramValues) < 3) {
+				error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
+				continue;
+			}
+
+			// Calculate min and max of full param range for comparison
+			$paramFullMin = min($paramValues);
+			$paramFullMax = max($paramValues);
+
+			// Value of parameter at best index
+			$bestParamVal = $paramValuesRaw[$bestIndex];
+
+			// Define thresholds for "median" or "not relevant"
+			// For example, if bestParamVal is close to middle (within 15% of midrange), say "median"
+			// If correlation is low (<0.2), say "not relevant" even if above 0.05 threshold
+			$midpoint = ($paramFullMin + $paramFullMax) / 2;
+			$range = $paramFullMax - $paramFullMin;
+			$medianThreshold = 0.15; // 15% threshold around midpoint
+
+			if ($abs < 0.2) {
+				$direction = 'not relevant';
+			} elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
+				$direction = 'median';
+			} else {
+				$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; increasing' : '&darr; decreasing';
+			}
+
+			// The rest stays the same, just we set direction accordingly
+
+			$count = count($resultValues);
+			$n_top = max(1, (int)round($count * 0.1));
+
+			$zipped = array_map(null, $resultValues, $paramValues);
+			usort($zipped, function ($a, $b) use ($goal) {
+				return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
+			});
+
+			$topValues = array_slice($zipped, 0, $n_top);
+			$topParamVals = array_column($topValues, 1);
+
+			$paramMin = round(min($topParamVals), 5);
+			$paramMax = round(max($topParamVals), 5);
+
+			$paramInfos[] = [
+				'param' => $param,
+				'direction' => $direction,
+				'certainty' => $abs >= 0.85 ? "very high" :
+				($abs >= 0.7 ? "high" :
+				($abs >= 0.5 ? "moderate" : "low")),
+				'r' => $r,
+				'range_min' => $paramMin,
+				'range_max' => $paramMax,
+				'bestParamVal' => $bestParamVal,
+			];
+		}
+
+		if (empty($paramInfos)) {
+			// Keine relevanten Parameter gefunden
+			continue;
+		}
+
+		// Erzeuge eine HTML-Tabelle mit den Parametern
+		$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
+		$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
+		foreach ($paramInfos as $info) {
+			$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
+		}
+		$html .= "</p>";
+
+		$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
+		$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th><th>Typical good range (top 10%)</th></tr></thead><tbody>";
+		foreach ($paramInfos as $info) {
+			$html .= "<tr>";
+			$html .= "<td><code>{$info['param']}</code></td>";
+			$html .= "<td>{$info['direction']}</td>";
+			$html .= "<td>{$info['certainty']}</td>";
+			$html .= "<td>{$info['r']}</td>";
+			$html .= "<td>{$info['range_min']} – {$info['range_max']}</td>";
+			$html .= "</tr>";
+		}
+		$html .= "</tbody></table>";
+
+		$interpretations[] = [
+			'html' => $html,
+			'result' => $result,
+			'goal' => $goal,
+			'bestValue' => $bestValue,
+			'parameters' => $paramInfos,
+		];
+	}
+
+	return $interpretations;
+}
+
 
 function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "## 📊 Summary of CSV Data\n\n";

@@ -488,7 +488,7 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 			return $interpretations;
 		}
 
-		$influences = computeDirectionalInfluenceFromCsv($csvPath, $correlations, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
+		$influences = computeDirectionalInfluenceFromCsv($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview);
 
 		if (!empty($influences)) {
 			$md .= "\n## 🔁 Parameter Influence on Result Quality\n\n";

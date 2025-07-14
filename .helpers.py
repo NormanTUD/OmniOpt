@@ -631,7 +631,7 @@ def get_df_without_special_columns(df: pd.DataFrame) -> pd.DataFrame:
     existing_columns = df.columns.values.tolist()
 
     for col in existing_columns:
-        if col in all_columns_to_remove or starts_with_OO_Info(col):
+        if col in all_columns_to_remove or starts_with_OO_Info(col) or col in ["signal", "hostname", "queue_time", "submit_time", "exit_code", "end_time", "run_time", "program_string", "start_time"]:
             columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)

@@ -623,6 +623,41 @@
 		);
 	}
 
+	function sanitize_safe_html($html) {
+		libxml_use_internal_errors(true);
+		$doc = new DOMDocument();
+		$doc->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+		$allowed_tags = ['img', 'span', 'b', 'i', 'u', 'pre', 'code', 'br'];
+		$allowed_attrs = ['src', 'class'];
+
+		$xpath = new DOMXPath($doc);
+
+		foreach ($xpath->query('//*') as $node) {
+			if (!in_array($node->nodeName, $allowed_tags)) {
+				$node->parentNode->removeChild($node);
+				continue;
+			}
+
+			// Entferne alle Attribute, die nicht explizit erlaubt sind
+			if ($node->hasAttributes()) {
+				foreach (iterator_to_array($node->attributes) as $attr) {
+					if (!in_array($attr->name, $allowed_attrs)) {
+						$node->removeAttribute($attr->name);
+					} else if ($attr->name === 'src') {
+						// optional: nur bestimmte Protokolle zulassen
+						if (!preg_match('/^(https?|data):/', $attr->value)) {
+							$node->removeAttribute('src');
+						}
+					}
+				}
+			}
+		}
+
+		return $doc->saveHTML();
+	}
+
+
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
 			$contents = file_get_contents($filename);
@@ -638,10 +673,9 @@
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
-				if(!$remove_ansi_colors) {
-					$contents = replaceAngleBrackets($contents);
-				}
 				$contents = convert_sixel($contents);
+
+				$contents = sanitize_safe_html($contents);
 			}
 
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";

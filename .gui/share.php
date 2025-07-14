@@ -89,213 +89,217 @@
 		if(!file_exists($password_hash_file) || isset($_POST["password"]) && hash("sha256", $_POST["password"]) == file_get_contents($password_hash_file)) {
 			[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max($run_dir, $warnings);
 
-			$GLOBALS["json_data"]["result_names"] = $result_names;
-			$GLOBALS["json_data"]["result_min_max"] = $result_min_max;
+			if(count($result_names) && count($result_min_max)) {
+				$GLOBALS["json_data"]["result_names"] = $result_names;
+				$GLOBALS["json_data"]["result_min_max"] = $result_min_max;
 
-			$status_data = null;
-			[$tabs, $warnings, $status_data] = add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max);
+				$status_data = null;
+				[$tabs, $warnings, $status_data] = add_overview_tab($tabs, $warnings, $run_dir, $status_data, $result_names, $result_min_max);
 
-			$gpu_usage_files = find_gpu_usage_files($run_dir);
+				$gpu_usage_files = find_gpu_usage_files($run_dir);
 
-			$tab_definitions = [
-				'add_pareto_from_from_file' => [["$run_dir"]],
-				'add_simple_csv_tab_from_file' => [
-					["$run_dir/results.csv", "Results", "tab_results"],
-					//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
-				],
-				'add_simple_pre_tab_from_file' => [
-					["$run_dir/oo_errors.txt", "Errors", "tab_errors", true],
-					["$run_dir/outfile", "Main-Log", "tab_main_log", true],
-					//["$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param"],
-					["$run_dir/progressbar", "Progressbar log", "tab_progressbar_log"],
-					["$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log"],
-					["$run_dir/job_submit_durations.txt", "Job Submit Durations", "tab_job_submit_durations"],
-					["$run_dir/generation_times.txt", "Generation Times", "tab_job_generation_times"],
-				],
-				'add_simple_table_from_ascii_table_file' => [
-					["$run_dir/args_overview.txt", "Args Overview", "tab_args_overview"]
-				],
-				'add_worker_usage_plot_from_file' => [
-					["$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage"]
-				],
-				'add_debug_log_from_file' => [
-					["$run_dir/log", "Debug-Logs", "tab_debug_logs"]
-				],
-				'add_cpu_ram_usage_main_worker_from_file' => [
-					["$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram"]
-				],
-				'add_flame_svg_file' => [
-					["$run_dir/profile_svg", "Flame-Graph", "tab_flame_graph"]
-				],
-				'add_worker_cpu_ram_from_file' => [
-					["$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs"]
-				]
-			];
+				$tab_definitions = [
+					'add_pareto_from_from_file' => [["$run_dir"]],
+					'add_simple_csv_tab_from_file' => [
+						["$run_dir/results.csv", "Results", "tab_results"],
+						//["$run_dir/get_next_trials.csv", "Get-Next-Trials", "tab_get_next_trials", ["time", "got", "requested"]],
+					],
+					'add_simple_pre_tab_from_file' => [
+						["$run_dir/oo_errors.txt", "Errors", "tab_errors", true],
+						["$run_dir/outfile", "Main-Log", "tab_main_log", true],
+						//["$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param"],
+						["$run_dir/progressbar", "Progressbar log", "tab_progressbar_log"],
+						["$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log"],
+						["$run_dir/job_submit_durations.txt", "Job Submit Durations", "tab_job_submit_durations"],
+						["$run_dir/generation_times.txt", "Generation Times", "tab_job_generation_times"],
+					],
+					'add_simple_table_from_ascii_table_file' => [
+						["$run_dir/args_overview.txt", "Args Overview", "tab_args_overview"]
+					],
+					'add_worker_usage_plot_from_file' => [
+						["$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage"]
+					],
+					'add_debug_log_from_file' => [
+						["$run_dir/log", "Debug-Logs", "tab_debug_logs"]
+					],
+					'add_cpu_ram_usage_main_worker_from_file' => [
+						["$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram"]
+					],
+					'add_flame_svg_file' => [
+						["$run_dir/profile_svg", "Flame-Graph", "tab_flame_graph"]
+					],
+					'add_worker_cpu_ram_from_file' => [
+						["$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs"]
+					]
+				];
 
-			try {
-				$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')), ",", '"', "\\");
+				try {
+					$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')), ",", '"', "\\");
 
-				if (!in_array('program_string', $header) || isset($_GET["show_job_infos"])) { 
-					$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
-				}
-
-				if (in_array('start_time', $header) && in_array('end_time', $header)) {
-					$tab_definitions["add_timeline"][] = ["$run_dir/results.csv", "Timeline", "tab_timeline"];
-				}
-			} catch (\Throwable $e) {
-				error_log("Error in share.php: $e");
-			}
-
-			foreach ($tab_definitions as $function => $args_list) {
-				foreach ($args_list as $args) {
-					[$tabs, $warnings] = $function($tabs, $warnings, ...$args);
-				}
-			}
-
-			if(count($gpu_usage_files)) {
-				$parsed_gpu_files = parse_gpu_usage_files($gpu_usage_files);
-				if(count($parsed_gpu_files)) {
-					$GLOBALS["json_data"]["gpu_usage"] = $parsed_gpu_files;
-
-					$tabs = add_gpu_plots($tabs);
-				}
-			} else {
-				$warnings[] = "No GPU usage files found";
-			}
-
-
-			if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
-				[$tabs, $warnings] = add_insights_from_file($tabs, $warnings, $run_dir);
-
-				$tabs = add_parallel_plot_tab($tabs);
-
-				$tab_results_headers_json_without_oo_info = $GLOBALS["json_data"]["tab_results_headers_json"];
-
-				$tab_results_headers_json_without_oo_info = array_values(array_filter($tab_results_headers_json_without_oo_info, fn($v) => strpos($v, 'OO_Info_') !== 0));
-
-				$non_special_columns = array_diff($tab_results_headers_json_without_oo_info, $GLOBALS["SPECIAL_COL_NAMES"]);
-				$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
-				$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
-
-				list($nr_numerical_cols, $nr_string_cols) = count_column_types($nr_of_numerical_and_non_numerical_columns);
-
-				if (count($result_names) >= 1) {
-					/* Calculating the difference of the sets of columns to find how many parameters have been used, except the special column names and result column names. */
-
-					if(count($non_special_columns_without_result_columns) >= 2) {
-						if($nr_numerical_cols >= 2) {
-							$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
-						} else {
-							$warnings[] = "Has enough columns for 2d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
-						}
-					} else {
-						$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 2d scatter plot: " . count($non_special_columns_without_result_columns);
+					if (!in_array('program_string', $header) || isset($_GET["show_job_infos"])) { 
+						$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
 					}
 
-					if(count($non_special_columns_without_result_columns) >= 3) {
-						if($nr_numerical_cols >= 3) {
-							$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
-						} else {
-							$warnings[] = "Has enough columns for 3d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
-						}
-					} else {
-						$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 3d scatter plot: " . count($non_special_columns_without_result_columns);
+					if (in_array('start_time', $header) && in_array('end_time', $header)) {
+						$tab_definitions["add_timeline"][] = ["$run_dir/results.csv", "Timeline", "tab_timeline"];
 					}
+				} catch (\Throwable $e) {
+					error_log("Error in share.php: $e");
+				}
 
-					if (count($result_names) == 1) {
-						if (in_array("generation_node", $GLOBALS["json_data"]["tab_results_headers_json"])) {
-							$tabs = add_results_distribution_by_generation_method($tabs);
-						} else {
-							$warnings[] = "Cannot find 'generation_node' in JSON-data: Cannot plot add_results_distribution_by_generation_method.";
-						}
-					} else {
-
-						$warnings[] = "Cannot plot add_results_distribution_by_generation_method when there's more than one result value.";
+				foreach ($tab_definitions as $function => $args_list) {
+					foreach ($args_list as $args) {
+						[$tabs, $warnings] = $function($tabs, $warnings, ...$args);
 					}
 				}
 
-				$tabs = add_job_status_distribution($tabs);
+				if(count($gpu_usage_files)) {
+					$parsed_gpu_files = parse_gpu_usage_files($gpu_usage_files);
+					if(count($parsed_gpu_files)) {
+						$GLOBALS["json_data"]["gpu_usage"] = $parsed_gpu_files;
 
-				if($status_data["succeeded"] > 1) {
-					if($nr_numerical_cols >= 1) {
-						$tabs = add_box_plot_tab($tabs);
-						$tabs = add_violin_plot($tabs);
-						$tabs = add_histogram_plot($tabs);
-					} else {
-						$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
-					}
-
-					if(count($non_special_columns_without_result_columns) > 2) {
-						$tabs = add_heatmap_plot_tab($tabs);
-					} else {
-						$warnings[] = "Not enough columns for heatmap.";
-					}
-
-					if (count($result_names) > 1) {
-						$tabs = add_plot_result_pairs($tabs);
-					} else {
-						$warnings[] = "Not enough result-names for result-pairs";
-					}
-
-					[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);
-				} else {
-					$warnings[] = "No succeeded jobs found";
-				}
-			} else {
-				$warnings[] = "No successful jobs were found";
-			}
-
-			if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
-				if(isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
-					$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
-
-					$exitCodeIndex = array_search("exit_code", $headers, true);
-
-					if ($exitCodeIndex !== false) {
-						$rows = $GLOBALS["json_data"]["tab_results_csv_json"];
-
-						$exitCodes = array_column($rows, $exitCodeIndex);
-
-						$uniqueExitCodes = array_unique($exitCodes);
-
-						$uniqueExitCodes = array_filter($uniqueExitCodes, function ($value) {
-							return $value !== "None";
-						});
-
-						$uniqueExitCodes = array_values($uniqueExitCodes);
-
-						if (count($uniqueExitCodes) > 1) {
-							$tabs = add_exit_codes_pie_plot($tabs);
-						} else {
-							$warnings[] = "No exit-codes found or all are none";
-						}
-					} else {
-						$warnings[] = "exit_code not found in the headers.";
+						$tabs = add_gpu_plots($tabs);
 					}
 				} else {
-					$warnings[] = "Global variables tab_results_headers_json or tab_results_csv_json is not set.";
+					$warnings[] = "No GPU usage files found";
+				}
+
+
+				if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
+					[$tabs, $warnings] = add_insights_from_file($tabs, $warnings, $run_dir);
+
+					$tabs = add_parallel_plot_tab($tabs);
+
+					$tab_results_headers_json_without_oo_info = $GLOBALS["json_data"]["tab_results_headers_json"];
+
+					$tab_results_headers_json_without_oo_info = array_values(array_filter($tab_results_headers_json_without_oo_info, fn($v) => strpos($v, 'OO_Info_') !== 0));
+
+					$non_special_columns = array_diff($tab_results_headers_json_without_oo_info, $GLOBALS["SPECIAL_COL_NAMES"]);
+					$non_special_columns_without_result_columns = array_diff($non_special_columns, $result_names);
+					$nr_of_numerical_and_non_numerical_columns = analyze_column_types($GLOBALS["json_data"]["tab_results_csv_json"], $non_special_columns_without_result_columns);
+
+					list($nr_numerical_cols, $nr_string_cols) = count_column_types($nr_of_numerical_and_non_numerical_columns);
+
+					if (count($result_names) >= 1) {
+						/* Calculating the difference of the sets of columns to find how many parameters have been used, except the special column names and result column names. */
+
+						if(count($non_special_columns_without_result_columns) >= 2) {
+							if($nr_numerical_cols >= 2) {
+								$tabs = add_scatter_2d_plots($tabs, "$run_dir/results.csv", "Scatter-2D", "tab_scatter_2d");
+							} else {
+								$warnings[] = "Has enough columns for 2d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
+							}
+						} else {
+							$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 2d scatter plot: " . count($non_special_columns_without_result_columns);
+						}
+
+						if(count($non_special_columns_without_result_columns) >= 3) {
+							if($nr_numerical_cols >= 3) {
+								$tabs = add_scatter_3d_plots($tabs, "$run_dir/results.csv", "Scatter-3D", "tab_scatter_3d");
+							} else {
+								$warnings[] = "Has enough columns for 3d scatter plot, but at not enough if you discard non-numerical columns (numerical: $nr_numerical_cols, non-numerical: $nr_string_cols)";
+							}
+						} else {
+							$warnings[] = "Has not enough non_special_columns_without_result_columns to plot 3d scatter plot: " . count($non_special_columns_without_result_columns);
+						}
+
+						if (count($result_names) == 1) {
+							if (in_array("generation_node", $GLOBALS["json_data"]["tab_results_headers_json"])) {
+								$tabs = add_results_distribution_by_generation_method($tabs);
+							} else {
+								$warnings[] = "Cannot find 'generation_node' in JSON-data: Cannot plot add_results_distribution_by_generation_method.";
+							}
+						} else {
+
+							$warnings[] = "Cannot plot add_results_distribution_by_generation_method when there's more than one result value.";
+						}
+					}
+
+					$tabs = add_job_status_distribution($tabs);
+
+					if($status_data["succeeded"] > 1) {
+						if($nr_numerical_cols >= 1) {
+							$tabs = add_box_plot_tab($tabs);
+							$tabs = add_violin_plot($tabs);
+							$tabs = add_histogram_plot($tabs);
+						} else {
+							$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
+						}
+
+						if(count($non_special_columns_without_result_columns) > 2) {
+							$tabs = add_heatmap_plot_tab($tabs);
+						} else {
+							$warnings[] = "Not enough columns for heatmap.";
+						}
+
+						if (count($result_names) > 1) {
+							$tabs = add_plot_result_pairs($tabs);
+						} else {
+							$warnings[] = "Not enough result-names for result-pairs";
+						}
+
+						[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);
+					} else {
+						$warnings[] = "No succeeded jobs found";
+					}
+				} else {
+					$warnings[] = "No successful jobs were found";
+				}
+
+				if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
+					if(isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
+						$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
+
+						$exitCodeIndex = array_search("exit_code", $headers, true);
+
+						if ($exitCodeIndex !== false) {
+							$rows = $GLOBALS["json_data"]["tab_results_csv_json"];
+
+							$exitCodes = array_column($rows, $exitCodeIndex);
+
+							$uniqueExitCodes = array_unique($exitCodes);
+
+							$uniqueExitCodes = array_filter($uniqueExitCodes, function ($value) {
+								return $value !== "None";
+							});
+
+							$uniqueExitCodes = array_values($uniqueExitCodes);
+
+							if (count($uniqueExitCodes) > 1) {
+								$tabs = add_exit_codes_pie_plot($tabs);
+							} else {
+								$warnings[] = "No exit-codes found or all are none";
+							}
+						} else {
+							$warnings[] = "exit_code not found in the headers.";
+						}
+					} else {
+						$warnings[] = "Global variables tab_results_headers_json or tab_results_csv_json is not set.";
+					}
+				} else {
+					$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
+				}
+
+
+				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
+
+				if (isset($_GET["filter_tabs_regex"])) {
+					$re = $_GET["filter_tabs_regex"];
+
+					[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
+				}
+
+				[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
+
+				if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
+					$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
+				}
+
+				if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
+					$errors[] = "Could not find plotable files";
 				}
 			} else {
-				$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
-			}
-
-
-			[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
-
-			if (isset($_GET["filter_tabs_regex"])) {
-				$re = $_GET["filter_tabs_regex"];
-
-				[$tabs, $warnings] = check_and_filter_tabs($re, $tabs, $warnings);
-			}
-
-			[$tabs, $warnings] = get_export_tab($tabs, $warnings, $run_dir, $run_nr);
-
-			if(!count($tabs) && $run_dir != "" && count($errors) && $run_nr != "") {
-				$errors[] = "Cannot plot any data in <tt>".htmlentities($run_dir)."</tt>";
-			}
-
-			if(!count($tabs) && $user_id != "" && $experiment_name != "" && $run_nr != "") {
-				$errors[] = "Could not find plotable files";
+				$errors[] = "result_names or result_min_max was empty";
 			}
 		} else {
 			require "_header_base.php";

@@ -12,7 +12,7 @@
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
 	require_once '_functions.php';
-	require_once 'resultsAnalyzer.php';
+	require_once 'results_analyzer.php';
 
 	ini_set('display_errors', 1);
 

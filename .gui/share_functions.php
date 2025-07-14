@@ -981,7 +981,7 @@
 	}
 
 	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
-		if(is_file($filename) && filesize($filename) && has_real_char($filename)) {
+		if(is_file($filename) && filesize($filename) && has_real_char($filename) && is_ascii_or_utf8($filename)) {
 			$csv_contents = get_csv_data_as_array($filename, ",", $header_line);
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
@@ -1015,6 +1015,10 @@
 		} else {
 			if(!is_file($filename)) {
 				$warnings[] = "$filename does not exist";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
+			} else if(!is_readable($filename)) {
+				$warnings[] = "$filename is not a real char";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
 			}

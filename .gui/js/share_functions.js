@@ -2071,7 +2071,9 @@ function resizePlotlyCharts() {
 	}
 
 	make_text_in_parallel_plot_nicer();
-	apply_theme_based_on_system_preferences();
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
 }
 
 function plotTimelineFromGlobals() {

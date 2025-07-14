@@ -62,7 +62,9 @@ function load_pareto_graph_from_idxs () {
 
 	renderParetoFrontPlots(table);
 
-	apply_theme_based_on_system_preferences();
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
 }
 
 function renderParetoFrontPlots(data) {

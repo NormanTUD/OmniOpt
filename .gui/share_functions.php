@@ -2338,9 +2338,10 @@
 			return '';
 		}
 
-		$cssContentWithTabs = add_tabs_to_string($cssContent, $indentLevel);
+		//$cssContentWithTabs = add_tabs_to_string($cssContent, $indentLevel);
+		//return $cssContentWithTabs."\n";
 
-		return $cssContentWithTabs."\n";
+		return $cssContent;
 	}
 
 	function remove_img_tags_from_html($html) {
@@ -2377,7 +2378,7 @@
 			}
 		}
 
-		$json_data_str = add_tabs_to_string($json_data_str, 3);
+		//$json_data_str = add_tabs_to_string($json_data_str, 3);
 
 		$onclicks = [];
 		$html_parts = [];
@@ -2407,14 +2408,15 @@
 			$onclick_string .= ';';
 		}
 
-		$onclick_string = add_tabs_to_string($onclick_string, 4);
+		//$onclick_string = add_tabs_to_string($onclick_string, 4);
 
-		$html_parts_str = add_tabs_to_string(implode("\n", $html_parts), 3);
+		//$html_parts_str = add_tabs_to_string(implode("\n", $html_parts), 3);
+		$html_parts_str = implode("\n", $html_parts);
 
 		$js_functions = file_get_contents("js/share_functions.js");
 		$js_functions = $js_functions . "\n" . file_get_contents("js/pareto_from_idxs.js");
 
-		$js_functions = add_tabs_to_string($js_functions, 3);
+		//$js_functions = add_tabs_to_string($js_functions, 3);
 
 		$share_css = generate_css_style_tag("css/share.css");
 		$style_css = generate_css_style_tag("style.css");

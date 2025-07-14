@@ -149,7 +149,11 @@
 
 				foreach ($tab_definitions as $function => $args_list) {
 					foreach ($args_list as $args) {
+						$start = microtime(true);
 						[$tabs, $warnings] = $function($tabs, $warnings, ...$args);
+						$end = microtime(true);
+						$duration = $end - $start;
+						$warnings[] = sprintf("Function %s took %.4f seconds", $function, $duration);
 					}
 				}
 

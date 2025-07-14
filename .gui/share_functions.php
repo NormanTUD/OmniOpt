@@ -624,39 +624,60 @@
 	}
 
 	function sanitize_safe_html($html) {
-		libxml_use_internal_errors(true);
-		$doc = new DOMDocument();
-		$doc->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-
 		$allowed_tags = ['img', 'span', 'b', 'i', 'u', 'pre', 'code', 'br'];
 		$allowed_attrs = ['src', 'class'];
 
-		$xpath = new DOMXPath($doc);
+		// Sanitize all tags
+		$html = preg_replace_callback(
+			'#<\s*(/?)\s*([a-z0-9]+)([^<>]*?)(/?)\s*>#i',
+			function ($matches) use ($allowed_tags, $allowed_attrs) {
+				$closing_slash = $matches[1]; // '/' if closing tag
+				$tag_name = strtolower($matches[2]);
+				$attrs_string = $matches[3];
+				$self_closing_slash = $matches[4]; // '/' if self-closing
 
-		foreach ($xpath->query('//*') as $node) {
-			if (!in_array($node->nodeName, $allowed_tags)) {
-				$node->parentNode->removeChild($node);
-				continue;
-			}
+				if (!in_array($tag_name, $allowed_tags)) {
+					return ''; // Remove disallowed tags
+				}
 
-			// Entferne alle Attribute, die nicht explizit erlaubt sind
-			if ($node->hasAttributes()) {
-				foreach (iterator_to_array($node->attributes) as $attr) {
-					if (!in_array($attr->name, $allowed_attrs)) {
-						$node->removeAttribute($attr->name);
-					} else if ($attr->name === 'src') {
-						// optional: nur bestimmte Protokolle zulassen
-						if (!preg_match('/^(https?|data):/', $attr->value)) {
-							$node->removeAttribute('src');
+				// If closing tag, return it directly
+				if ($closing_slash === '/') {
+					return '</' . $tag_name . '>';
+				}
+
+				$safe_attrs = '';
+
+				// Match key="value" or key='value'
+				preg_match_all('/([a-z0-9\-\:_]+)\s*=\s*(["\'])(.*?)\2/si', $attrs_string, $attr_matches, PREG_SET_ORDER);
+				foreach ($attr_matches as $attr) {
+					$attr_name = strtolower($attr[1]);
+					$attr_value = $attr[3];
+
+					if (!in_array($attr_name, $allowed_attrs)) {
+						continue;
+					}
+
+					if ($attr_name === 'src') {
+						if (!preg_match('#^(https?|data):#i', $attr_value)) {
+							continue;
 						}
 					}
+
+					$safe_value = htmlspecialchars($attr_value, ENT_QUOTES);
+					$safe_attrs .= ' ' . $attr_name . '="' . $safe_value . '"';
 				}
-			}
-		}
 
-		return $doc->saveHTML();
+				if ($self_closing_slash === '/' || in_array($tag_name, ['br', 'img'])) {
+					return '<' . $tag_name . $safe_attrs . ' />';
+				}
+
+				return '<' . $tag_name . $safe_attrs . '>';
+			},
+			$html
+		);
+
+		return $html;
 	}
-
 
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {

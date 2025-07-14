@@ -44,7 +44,7 @@
 			$jsonData = json_decode($line, true);
 
 			if ($jsonData === null) {
-				$output .= "<tr><td colspan='3'>Error parsing the JSON data: $line</td></tr>";
+				$output .= "<tr><td colspan='3'>Error parsing the JSON data: ".htmlentities($line)."</td></tr>";
 				continue;
 			}
 
@@ -69,7 +69,7 @@
 			$output .= "<tr>\n";
 			$output .= "<td>".preg_replace("/\s+/", "&nbsp;", $time)."</td>\n";
 			$output .= "<td>$functionStack</td>\n";
-			$output .= "<td><pre class='invert_in_dark_mode debug_log_pre'>$msg</pre></td>\n";
+			$output .= "<td><pre class='invert_in_dark_mode debug_log_pre'>".htmlentities($msg)."</pre></td>\n";
 			$output .= "</tr>\n";
 		}
 

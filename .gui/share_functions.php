@@ -2967,7 +2967,6 @@ $onclick_string
 						$data = str_getcsv($line, ",", "\"", "\\");
 
 						if (count($data) !== count($headers)) {
-							error_log("Warning: Skipping malformed line in '$file'.");
 							continue;
 						}
 
@@ -2978,7 +2977,6 @@ $onclick_string
 
 						$entry = array_combine($headers, $data);
 						if ($entry === false) {
-							error_log("Error: array_combine failed for '$file'.");
 							continue;
 						}
 

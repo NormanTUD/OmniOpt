@@ -2652,7 +2652,7 @@ $onclick_string
 			if($status_data["total"]) {
 				[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max ($run_dir, $warnings);
 
-				$natural_language_markdown = nl2br(analyzeResultsCSV($results_csv_file, $result_names, $result_min_max));
+				$natural_language_markdown = nl2br(create_insights($results_csv_file, $result_names, $result_min_max));
 				$svg_icon = get_icon_html("insights.svg");
 
 				$html = convert_markdown_to_html($natural_language_markdown);

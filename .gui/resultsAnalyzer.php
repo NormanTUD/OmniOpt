@@ -1,10 +1,10 @@
 <?php
-function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
+function create_insights(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
 	if (!file_exists($csvPath) || !is_readable($csvPath)) {
 		return "## Error\nFile not found or not readable: `$csvPath`";
 	}
 
-	$data = loadCSV($csvPath);
+	$data = load_csv($csvPath);
 	if ($data === null || count($data) < 2) {
 		return "## Error\nCSV could not be read or contains no data.";
 	}
@@ -12,16 +12,16 @@ function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resu
 	$header = $data[0];
 	$rows = array_slice($data, 1);
 
-	$columnStats = calculateStats($header, $rows);
-	$correlationMatrix = computeCorrelationMatrix($columnStats, $resultNames);
+	$columnStats = calculate_stats($header, $rows);
+	$correlationMatrix = compute_correlation_matrix($columnStats, $resultNames);
 
 	// Additional failure analysis
-	$failureAnalysis = analyzeFailures($header, $rows, $columnStats);
+	$failureAnalysis = analyze_failures($header, $rows, $columnStats);
 
-	return renderMarkdownNarrative($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax, $failureAnalysis);
+	return render_markdown($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax, $failureAnalysis);
 }
 
-function loadCSV(string $path): ?array {
+function load_csv(string $path): ?array {
 	$rows = [];
 	if (($handle = fopen($path, "r")) !== false) {
 		while (($line = fgetcsv($handle)) !== false) {
@@ -32,7 +32,7 @@ function loadCSV(string $path): ?array {
 	return $rows ?: null;
 }
 
-function calculateStats(array $header, array $rows): array {
+function calculate_stats(array $header, array $rows): array {
 	$stats = [];
 	foreach ($header as $i => $name) {
 		$vals = [];
@@ -84,7 +84,7 @@ function calculateStats(array $header, array $rows): array {
 	return $stats;
 }
 
-function pearsonCorrelation(array $x, array $y): float {
+function pearson_correlation(array $x, array $y): float {
 	$n = count($x);
 	if ($n !== count($y) || $n === 0) return 0;
 
@@ -119,7 +119,7 @@ function pearsonCorrelation(array $x, array $y): float {
 	return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
 }
 
-function computeCorrelationMatrix(array $stats, array $resultNames): array {
+function compute_correlation_matrix(array $stats, array $resultNames): array {
 	$matrix = [];
 	foreach ($resultNames as $result) {
 		if (!isset($stats[$result]) || $stats[$result]['type'] !== 'numeric') continue;
@@ -128,7 +128,7 @@ function computeCorrelationMatrix(array $stats, array $resultNames): array {
 		foreach ($stats as $name => $stat) {
 			if ($name === $result) continue;
 			if ($stat['type'] === 'numeric') {
-				$corr = pearsonCorrelation($stat['values'], $resultVals);
+				$corr = pearson_correlation($stat['values'], $resultVals);
 				$matrix[$result][$name] = $corr;
 			}
 		}
@@ -136,7 +136,7 @@ function computeCorrelationMatrix(array $stats, array $resultNames): array {
 	return $matrix;
 }
 
-function analyzeFailures(array $header, array $rows, array $stats): array {
+function analyze_failures(array $header, array $rows, array $stats): array {
 	// We assume column "trial_status" exists and marks FAILED or COMPLETED jobs
 	$statusIndex = array_search('trial_status', $header);
 	if ($statusIndex === false) {
@@ -184,7 +184,7 @@ function analyzeFailures(array $header, array $rows, array $stats): array {
 			$failFlagsFiltered[] = $failureFlags[$i];
 		}
 		if (count($vals) < 2) continue;
-		$corr = pearsonCorrelation($vals, $failFlagsFiltered);
+		$corr = pearson_correlation($vals, $failFlagsFiltered);
 		// Significant correlation threshold > 0.3 or < -0.3 for example
 		if (abs($corr) >= 0.3) {
 			$numericFailures[$name] = $corr;
@@ -232,7 +232,7 @@ function analyzeFailures(array $header, array $rows, array $stats): array {
 	];
 }
 
-function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
+function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
 	if (!file_exists($csvPath)) {
 		throw new Exception("CSV file not found: $csvPath");
 	}
@@ -280,17 +280,17 @@ function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax
 			if (in_array($param, $dont_show_col_overview)) continue;
 			if (!is_numeric($values[0])) continue;
 
-			$r = pearsonCorrelation($values, $resultValues);
+			$r = pearson_correlation($values, $resultValues);
 			if (!is_finite($r)) continue;
 
 			$correlations[$result][$param] = $r;
 		}
 	}
 
-	return computeDirectionalInfluenceFlat($csvPath, $correlations, $resultMinMax, $dont_show_col_overview, $columns);
+	return compute_csv_insights_flat($csvPath, $correlations, $resultMinMax, $dont_show_col_overview, $columns);
 }
 
-function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
+function compute_csv_insights_flat(string $csvPath, array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
 	$interpretations = [];
 
 	if (empty($correlations)) {
@@ -563,7 +563,7 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 	return $interpretations;
 }
 
-function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
+function render_markdown(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "";
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
@@ -571,7 +571,7 @@ function renderMarkdownNarrative(string $csvPath, array $stats, array $correlati
 	$custom_params = [];
 
 	if (count($correlations) > 0) {
-		$influences = computeDirectionalInfluenceFromCsv($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview, $custom_params);
+		$influences = compute_csv_insights($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview, $custom_params);
 
 		if (!empty($influences)) {
 			$md .= "\n## <span class='invert_in_dark_mode'>🔁</span> Parameter Influence on Result Quality\n\n";

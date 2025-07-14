@@ -22,9 +22,13 @@ function create_insights(string $csvPath, array $resultNames = [], array $result
 }
 
 function load_csv(string $path): ?array {
+	$delimiter = ",";
+	$enclosure = "\"";
+	$escape = "\\";
+
 	$rows = [];
 	if (($handle = fopen($path, "r")) !== false) {
-		while (($line = fgetcsv($handle)) !== false) {
+		while (($line = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 			$rows[] = $line;
 		}
 		fclose($handle);
@@ -242,8 +246,12 @@ function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_
 		throw new Exception("Cannot open CSV file: $csvPath");
 	}
 
+	$delimiter = ",";
+	$enclosure = "\"";
+	$escape = "\\";
+
 	// Kopfzeile lesen
-	$header = fgetcsv($handle);
+	$header = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
 	if (!$header) {
 		throw new Exception("CSV file is empty or invalid");
 	}
@@ -252,7 +260,7 @@ function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_
 	$columns = array_fill_keys($header, []);
 
 	// CSV-Zeilen einlesen
-	while (($row = fgetcsv($handle)) !== false) {
+	while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 		foreach ($header as $i => $colName) {
 			$value = $row[$i];
 			// Versuche numerisch zu casten (falls möglich)
@@ -297,6 +305,11 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 		error_log("[Interpretation] ERROR: correlations are empty.");
 		return [];
 	}
+
+
+	$delimiter = ",";
+	$enclosure = "\"";
+	$escape = "\\";
 
 	foreach ($correlations as $result => $paramCorrs) {
 		if (!isset($resultMinMax[$result])) {
@@ -406,14 +419,13 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 		$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
 		$html .= "<thead><tr><th>Parameter</th>"
 			. "<th>Visualization in dependence of $result</th></tr></thead><tbody>";
-
 		$csvData = [];
 		if (($handle = fopen($csvPath, 'r')) !== false) {
-			$header = fgetcsv($handle);
+			$header = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
 			if ($header === false) {
 				error_log("CSV file $csvPath appears empty or invalid header.");
 			} else {
-				while (($row = fgetcsv($handle)) !== false) {
+				while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 					$csvData[] = array_combine($header, $row);
 				}
 			}

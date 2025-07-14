@@ -2545,7 +2545,11 @@ $onclick_string
 			return [$overview_html, $warnings];
 		}
 
-		$header = fgetcsv($handle);
+		$delimiter = ",";
+		$enclosure = "\"";
+		$escape = "\\";
+
+		$header = fgetcsv($handle, 0, $delimiter, $enclosure, $escape);
 		if ($header === false) {
 			fclose($handle);
 			$warnings[] = "Missing header line in file: $results_csv_file";
@@ -2564,7 +2568,7 @@ $onclick_string
 		$summary = array();
 		$all_statuses = array();
 
-		while (($row = fgetcsv($handle)) !== false) {
+		while (($row = fgetcsv($handle, 0, $delimiter, $enclosure, $escape)) !== false) {
 			if (!isset($row[$index_generation]) || !isset($row[$index_status])) {
 				continue;
 			}

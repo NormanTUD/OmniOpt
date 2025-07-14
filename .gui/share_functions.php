@@ -284,18 +284,31 @@
 
 	function read_file_as_array($filePath) {
 		if (!is_readable($filePath)) {
-			trigger_error("File cannot be read: $filePath", E_USER_WARNING);
 			return [];
 		}
 
-		$lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+		$contents = file_get_contents($filePath);
 
-		if ($lines === false) {
-			trigger_error("Error while reading this file: $filePath", E_USER_WARNING);
+		if ($contents === false) {
 			return [];
 		}
 
-		return $lines;
+		if (!mb_check_encoding($contents, 'UTF-8')) {
+			return [];
+		}
+
+		$isAsciiOnly = preg_match('//u', $contents) && !preg_match('/[^\x00-\x7F]/', $contents);
+
+		if (!$isAsciiOnly && !mb_detect_encoding($contents, ['UTF-8'], true)) {
+			return [];
+		}
+
+		$lines = explode("\n", str_replace("\r", '', $contents));
+		$lines = array_filter(array_map('trim', $lines), function ($line) {
+			return $line !== '';
+		});
+
+		return array_values($lines);
 	}
 
 	function get_status_for_results_csv($csvFilePath) {

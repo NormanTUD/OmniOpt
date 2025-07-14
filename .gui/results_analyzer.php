@@ -538,16 +538,6 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 				imagesetpixel($im, $x, 0, $color);
 			}
 
-
-			// Base64 PNG erzeugen
-			ob_start();
-			imagepng($im);
-			$imgData = ob_get_clean();
-			imagedestroy($im);
-			$base64 = base64_encode($imgData);
-
-			$img_as_base64 = "<img src='data:image/png;base64,$base64' width='$width' height='$height' style='image-rendering: pixelated;'>";
-
 			// Bild als Base64 einbetten
 			ob_start();
 			imagepng($im);

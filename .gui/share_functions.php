@@ -373,7 +373,7 @@
 
 			$svg_icon = get_icon_html("plot.svg");
 
-			$tabs["$plot$name"] = [
+			$tabs["$svg_icon$name"] = [
 				'id' => $id,
 				'content' => $html
 			];

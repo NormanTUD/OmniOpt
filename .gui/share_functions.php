@@ -601,28 +601,6 @@
 		return [$tabs, $warnings];
 	}
 
-	function replaceAngleBrackets(string $input): string {
-		return preg_replace_callback(
-			'/([<>]+)/',
-			function ($matches) {
-				$sequence = $matches[1];
-				$char = $sequence[0];
-
-				if ($char === '<') {
-					return str_repeat('&lt;', strlen($sequence));
-				}
-
-				if ($char === '>') {
-					return str_repeat('&gt;', strlen($sequence));
-				}
-
-				// Falls aus irgendeinem Grund ein anderer Charakter gematcht wurde (was nicht sein sollte)
-				return $sequence;
-			},
-			$input
-		);
-	}
-
 	function sanitize_safe_html($html) {
 		$allowed_tags = ['img', 'span', 'b', 'i', 'u', 'pre', 'code', 'br'];
 		$allowed_attrs = ['src', 'class'];
@@ -2928,11 +2906,6 @@ $onclick_string
 
 	function get_icon_html ($name) {
 		return "<img class='invert_icon' src='i/$name' style='height: 1em' />&nbsp;";
-	}
-
-	function remove_rich_progress_lines($input) {
-		$pattern = '/[⠇⠋⠏⠙⠦⠧⠴⠸⠹⠼].*$/mu';
-		return preg_replace($pattern, '', $input);
 	}
 
 	function check_and_filter_tabs($re, $tabs, $warnings) {

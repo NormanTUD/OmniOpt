@@ -601,6 +601,27 @@
 		return [$tabs, $warnings];
 	}
 
+	function replaceAngleBrackets(string $input): string {
+		return preg_replace_callback(
+			'/([<>]+)/',
+			function ($matches) {
+				$sequence = $matches[1];
+				$char = $sequence[0];
+
+				if ($char === '<') {
+					return str_repeat('&lt;', strlen($sequence));
+				}
+
+				if ($char === '>') {
+					return str_repeat('&gt;', strlen($sequence));
+				}
+
+				// Falls aus irgendeinem Grund ein anderer Charakter gematcht wurde (was nicht sein sollte)
+				return $sequence;
+			},
+			$input
+		);
+	}
 
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
 		if(is_file($filename) && filesize($filename) > 0) {
@@ -618,6 +639,9 @@
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
+				if(!$remove_ansi_colors) {
+					$contents = replaceAngleBrackets($contents);
+				}
 				$contents = convert_sixel($contents);
 				#if(preg_match("/outfile/", $filename)) { dier($contents); }
 			}

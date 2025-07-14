@@ -26,6 +26,12 @@ all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
 NO_RESULT = "{:.0e}".format(val_if_nothing_found)
 
+def starts_with_OO_Info(s: str) -> bool:
+    if not isinstance(s, str):
+        raise TypeError(f"Expected input of type str, got {type(s).__name__}")
+
+    return s.startswith("OO_Info_")
+
 def dier(*args: Any, exit: Union[bool, int] = True) -> None:
     for msg in args:
         pprint(msg)
@@ -625,7 +631,7 @@ def get_df_without_special_columns(df: pd.DataFrame) -> pd.DataFrame:
     existing_columns = df.columns.values.tolist()
 
     for col in existing_columns:
-        if col in all_columns_to_remove:
+        if col in all_columns_to_remove or starts_with_OO_Info(col):
             columns_to_remove.append(col)
 
     df_filtered = df.drop(columns=columns_to_remove)

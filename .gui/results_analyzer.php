@@ -439,14 +439,8 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 			$html .= "<td><code>{$info['param']}</code></td>";
 
 			$width = 1000;
-			$height = count($paramInfos);
-			$im = imagecreatetruecolor($width, $height);
-
-			// Hintergrund weiß
-			$white = imagecolorallocate($im, 255, 255, 255);
-			imagefill($im, 0, 0, $white);
-
 			$height = 1;
+
 			$im = imagecreatetruecolor($width, $height);
 
 			// Weißer Hintergrund

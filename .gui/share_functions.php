@@ -2523,7 +2523,7 @@ $onclick_string
 
 	function add_constraints_to_overview ($run_dir, $overview_html, $warnings) {
 		$constraints = "$run_dir/constraints.txt";
-		if(file_exists($constraints) && filesize($constraints)) {
+		if(file_exists($constraints) && filesize($constraints) && is_ascii_or_utf8($constraints)) {
 			$constraints_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
 			if($constraints_table) {
 				$constraints .= $constraints_table;
@@ -2539,15 +2539,47 @@ $onclick_string
 				$warnings[] = "$constraints not found";
 			} else if(!filesize($constraints)) {
 				$warnings[] = "$constraints is empty";
+			} else if(!is_ascii_or_utf8($constraints)) {
+				$warnings[] = "$constraints is not a ascii or utf8 file";
 			}
 		}
 
 		return [$overview_html, $warnings];
 	}
 
+	function is_ascii_or_utf8($filepath) {
+		if (!is_readable($filepath) || !is_file($filepath)) {
+			return false;
+		}
+
+		$handle = fopen($filepath, 'rb');
+		if ($handle === false) {
+			return false;
+		}
+
+		$chunkSize = 4096;
+		$valid = true;
+
+		while (!feof($handle)) {
+			$chunk = fread($handle, $chunkSize);
+			if ($chunk === false) {
+				fclose($handle);
+				return false;
+			}
+
+			if (!mb_check_encoding($chunk, 'UTF-8')) {
+				$valid = false;
+				break;
+			}
+		}
+
+		fclose($handle);
+		return $valid;
+	}
+
 	function add_experiment_overview_to_overview ($run_dir, $overview_html, $warnings) {
 		$experiment_overview = "$run_dir/experiment_overview.txt";
-		if(file_exists($experiment_overview) && filesize($experiment_overview)) {
+		if(file_exists($experiment_overview) && filesize($experiment_overview) && is_ascii_or_utf8($experiment_overview)) {
 			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
 				$experiment_overview .= $experiment_overview_table;
@@ -2561,6 +2593,8 @@ $onclick_string
 				$warnings[] = "$experiment_overview not found";
 			} else if(!filesize($experiment_overview)) {
 				$warnings[] = "$experiment_overview is empty";
+			} else if(!is_ascii_or_utf8($experiment_overview)) {
+				$warnings[] = "$experiment_overview is not Ascii or UTF8";
 			}
 		}
 
@@ -2569,13 +2603,15 @@ $onclick_string
 
 	function add_best_results_to_overview ($run_dir, $overview_html, $warnings) {
 		$best_results_txt = "$run_dir/best_result.txt";
-		if(is_file($best_results_txt)) {
+		if(is_file($best_results_txt) && filesize($best_results_txt) && is_ascii_or_utf8($best_results_txt)) {
 			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
 		} else {
 			if(!is_file($best_results_txt)) {
 				$warnings[] = "$best_results_txt not found";
 			} else if (!filesize($best_results_txt)) {
 				$warnings[] = "$best_results_txt is empty";
+			} else if (!is_ascii_or_utf8($best_results_txt)) {
+				$warnings[] = "$best_results_txt is not Ascii or UTF8";
 			}
 		}
 
@@ -2584,13 +2620,15 @@ $onclick_string
 
 	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
 		$parameters_txt_file = "$run_dir/parameters.txt";
-		if(is_file($parameters_txt_file) && filesize($parameters_txt_file)) {
+		if(is_file($parameters_txt_file) && filesize($parameters_txt_file) && is_ascii_or_utf8($parameters_txt_file)) {
 			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
 		} else {
 			if(!is_file($parameters_txt_file)) {
 				$warnings[] = "$run_dir/parameters.txt not found";
 			} else if (!filesize($parameters_txt_file)) {
 				$warnings[] = "$run_dir/parameters.txt is empty";
+			} else if (!is_ascii_or_utf8($parameters_txt_file)) {
+				$warnings[] = "$run_dir/parameters.txt is not Ascii or utf8";
 			}
 		}
 
@@ -2599,7 +2637,7 @@ $onclick_string
 
 	function add_progressbar_to_overview($run_dir, $overview_html, $warnings) {
 		$progressbar_file = "$run_dir/progressbar";
-		if(file_exists($progressbar_file) && filesize($progressbar_file)) {
+		if(file_exists($progressbar_file) && filesize($progressbar_file) && is_ascii_or_utf8($progressbar_file)) {
 			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
 
 			$overview_html .= "<h2>Last progressbar status</h2>\n";
@@ -2609,6 +2647,8 @@ $onclick_string
 				$warnings[] = "$progressbar_file not found";
 			} else if(!filesize($progressbar_file)) {
 				$warnings[] = "$progressbar_file is empty";
+			} else if(!is_ascii_or_utf8($progressbar_file)) {
+				$warnings[] = "$progressbar_file is not Ascii or UTF8";
 			}
 		}
 
@@ -2644,6 +2684,11 @@ $onclick_string
 
 	function add_overview_for_jobs_and_generation_stuff($run_dir, $overview_html, $warnings) {
 		$results_csv_file = "$run_dir/results.csv";
+
+		if (!is_ascii_or_utf8($results_csv_file)) {
+			$warnings[] = "Is not Ascii or utf8: $results_csv_file";
+			return [$overview_html, $warnings];
+		}
 
 		if (!file_exists($results_csv_file)) {
 			$warnings[] = "Missing file: $results_csv_file";
@@ -2751,7 +2796,7 @@ $onclick_string
 
 	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
 		$git_version_file = "$run_dir/git_version";
-		if(file_exists($git_version_file) && filesize($git_version_file)) {
+		if(file_exists($git_version_file) && filesize($git_version_file) && is_ascii_or_utf8($git_version_file)) {
 			$lastLine = htmlentities(file_get_contents($git_version_file));
 
 			$overview_html .= "<br>\n";
@@ -2762,6 +2807,8 @@ $onclick_string
 				$warnings[] = "$git_version_file not found";
 			} else if (!filesize($git_version_file)) {
 				$warnings[] = "$git_version_file empty";
+			} else if (!is_ascii_or_utf8($git_version_file)) {
+				$warnings[] = "$git_version_file is not Ascii or UTF8";
 			}
 		}
 
@@ -2805,7 +2852,7 @@ $onclick_string
 	function add_overview_table_to_overview_and_get_status_data ($run_dir, $status_data, $overview_html, $warnings) {
 		$results_csv_file = "$run_dir/results.csv";
 
-		if(is_file($results_csv_file) && filesize($results_csv_file)) {
+		if(is_file($results_csv_file) && filesize($results_csv_file) && is_ascii_or_utf8($results_csv_file)) {
 			$status_data = get_status_for_results_csv($results_csv_file);
 
 			if($status_data["total"]) {
@@ -2839,6 +2886,8 @@ $onclick_string
 				$warnings[] = "$results_csv_file not found";
 			} else if (!filesize($results_csv_file)) {
 				$warnings[] = "$results_csv_file is empty";
+			} else if (!is_ascii_or_utf8($results_csv_file)) {
+				$warnings[] = "$results_csv_file is not Ascii or UTF8";
 			}
 		}
 

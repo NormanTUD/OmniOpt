@@ -1431,37 +1431,40 @@
 
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
-			$checkmark = $red_cross;
-			if (file_contains_results("$run_dir/$file", $result_names)) {
-				$checkmark = $green_checkmark;
-			} else {
-				$file_as_string = file_get_contents("$run_dir/$file");
-
-				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
-					$checkmark = $memory;
-				} else if(ends_with_submitit_info($file_as_string)) {
-					$checkmark = $red_cross;
-				} else if(contains_slurm_time_limit_error($file_as_string)) {
-					$checkmark = $time_warning;
+			$file_path = "$run_dir/$file";
+			if (is_ascii_or_utf8($file_path)) {
+				$checkmark = $red_cross;
+				if (file_contains_results($file_path, $result_names)) {
+					$checkmark = $green_checkmark;
 				} else {
-					$checkmark = $gear;
+					$file_as_string = file_get_contents($file_path);
+
+					if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
+						$checkmark = $memory;
+					} else if(ends_with_submitit_info($file_as_string)) {
+						$checkmark = $red_cross;
+					} else if(contains_slurm_time_limit_error($file_as_string)) {
+						$checkmark = $time_warning;
+					} else {
+						$checkmark = $gear;
+					}
 				}
+
+				$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
+
+				if($runtime_string == "0s" || !$runtime_string) {
+					$runtime_string = "";
+				} else {
+					$runtime_string = " ($runtime_string) ";
+				}
+
+				$tabname = "$nr$runtime_string$checkmark";
+
+				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
+					$i == 0 ? 'aria-selected="true"' : ''
+				).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
+				$i++;
 			}
-
-			$runtime_string = get_runtime_from_outfile(file_get_contents("$run_dir/$file"));
-
-			if($runtime_string == "0s" || !$runtime_string) {
-				$runtime_string = "";
-			} else {
-				$runtime_string = " ($runtime_string) ";
-			}
-
-			$tabname = "$nr$runtime_string$checkmark";
-
-			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
-				$i == 0 ? 'aria-selected="true"' : ''
-			).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
-			$i++;
 		}
 
 		$output .= '</menu>';
@@ -1469,13 +1472,14 @@
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
-			if($i != 0) {
-				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
-			}
-
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
 			if (is_ascii_or_utf8($file_path)) {
+				$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
+				if($i != 0) {
+					$output .= "<div id='spinner_log_$i' class='spinner'></div>";
+				}
+
+				$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+
 				if ($i == 0) {
 					$content = file_get_contents($file_path);
 					$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';

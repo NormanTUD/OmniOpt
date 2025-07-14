@@ -23,11 +23,14 @@
 	}
 
 	function get_debug_log_html_table ($filename) {
+		if(!is_ascii_or_utf8($filename)) {
+			return "Error loading the file: It is not ascii or utf8";
+		}
+
 		$fileContent = file_get_contents($filename);
 
 		if ($fileContent === false) {
-			$output = "Error loading the file!";
-			exit;
+			return "Error loading the file!";
 		}
 
 		$lines = explode("\n", $fileContent);

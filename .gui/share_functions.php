@@ -8,6 +8,7 @@
 
 	$GLOBALS["modificationCache"] = [];
 	$GLOBALS["recursiveModificationCache"] = [];
+	$GLOBALS["ascii_or_utf8_cache"] = [];
 
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
@@ -2568,6 +2569,10 @@ $onclick_string
 	}
 
 	function is_ascii_or_utf8($filepath) {
+		if(isset($GLOBALS["ascii_or_utf8_cache"][$filepath])) {
+			return $GLOBALS["ascii_or_utf8_cache"][$filepath];
+		}
+
 		if (!is_readable($filepath) || !is_file($filepath)) {
 			return false;
 		}
@@ -2594,6 +2599,9 @@ $onclick_string
 		}
 
 		fclose($handle);
+
+		$GLOBALS["ascii_or_utf8_cache"][$filepath] = $valid;
+
 		return $valid;
 	}
 

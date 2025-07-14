@@ -630,7 +630,6 @@
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
 			} else {
-				#$contents = htmlspecialchars($contents);
 				$ansi_to_htmled = ansi_to_html($contents);
 				$contents = remove_ansi_escape_sequences($ansi_to_htmled);
 			}
@@ -643,10 +642,7 @@
 					$contents = replaceAngleBrackets($contents);
 				}
 				$contents = convert_sixel($contents);
-				#if(preg_match("/outfile/", $filename)) { dier($contents); }
 			}
-
-			#$contents = remove_rich_progress_lines($contents);
 
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
 

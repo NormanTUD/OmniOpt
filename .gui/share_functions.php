@@ -368,7 +368,7 @@
 	}
 
 	function add_worker_cpu_ram_from_file($tabs, $warnings, $filename, $name, $id) {
-		if(is_file($filename) && filesize($filename)) {
+		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$worker_info = file_get_contents($filename);
 			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
 
@@ -395,6 +395,8 @@
 				$warnings[] = "$filename does not exist";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
 			}
 		}
 

@@ -1495,7 +1495,7 @@
 		}
 
 		$output .= '</section>';
-		return $output;
+		return [$output, $i];
 	}
 
 	function is_valid_user_id($value) {
@@ -2276,12 +2276,16 @@
 		$out_files = get_log_files($run_dir);
 
 		if(count($out_files)) {
-			$svg_icon = get_icon_html("tabs.svg");
+			[$content, $i] = generate_log_tabs($run_dir, $out_files, $result_names);
 
-			$tabs["{$svg_icon}Single Logs"] = [
-				'id' => 'tab_logs',
-				'content' => generate_log_tabs($run_dir, $out_files, $result_names)
-			];
+			if ($i > 0) {
+				$svg_icon = get_icon_html("tabs.svg");
+
+				$tabs["{$svg_icon}Single Logs"] = [
+					'id' => 'tab_logs',
+					'content' => $content
+				];
+			}
 		} else {
 			$warnings[] = "No out-files found";
 		}

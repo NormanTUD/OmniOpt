@@ -618,7 +618,7 @@
 			if(!$remove_ansi_colors) {
 				$contents = htmlentities($contents);
 			} else {
-				$contents = htmlentities(convert_sixel($contents));
+				$contents = convert_sixel($contents);
 				#if(preg_match("/outfile/", $filename)) { dier($contents); }
 			}
 

@@ -286,6 +286,24 @@
 				shift
 				;;
 
+			--allow_axes=*)
+				allow_axes="${arg#*=}"
+				args_string+=" --allow_axes=$allow_axes"
+				shift
+				;;
+
+			--allow_axes)
+				k=$((k+1))
+				if [ $k -ge ${#args[@]} ] || [[ "${args[k]}" == --* ]]; then
+					red_text "Error: --allow_axes requires a value"
+					exit 1
+				fi
+				allow_axes="${args[k]}"
+				args_string+=" --allow_axes=$allow_axes"
+				shift
+				shift
+				;;
+
 			--plot_type=*)
 				plot_type="${arg#*=}"
 				shift

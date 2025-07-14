@@ -1475,15 +1475,17 @@
 			}
 
 			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
-			if ($i == 0) {
-				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
-			} else {
-				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
+			if (is_ascii_or_utf8($file_path)) {
+				if ($i == 0) {
+					$content = file_get_contents($file_path);
+					$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
+				} else {
+					$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
+				}
+				$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+				$output .= '</article>';
+				$i++;
 			}
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
-			$output .= '</article>';
-			$i++;
 		}
 
 		$output .= '</section>';

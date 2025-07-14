@@ -528,7 +528,7 @@
 	}
 
 	function add_simple_table_from_ascii_table_file($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
-		if(is_file($filename) && filesize($filename) > 0) {
+		if(is_file($filename) && filesize($filename) > 0 && is_ascii_or_utf8($filename)) {
 			$contents = file_get_contents($filename);
 			if(!$remove_ansi_colors) {
 				$contents = remove_ansi_colors($contents);
@@ -558,6 +558,8 @@
 				$warnings[] = "$filename does not exist";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
 			}
 		}
 

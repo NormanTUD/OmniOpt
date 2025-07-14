@@ -493,7 +493,7 @@
 	}
 
 	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
-		if(is_file($filename) && filesize($filename)) {
+		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
@@ -515,6 +515,8 @@
 				$warnings[] = "$filename does not exist";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
 			}
 		}
 
@@ -726,7 +728,7 @@
 	}
 
 	function add_simple_pre_tab_from_file ($tabs, $warnings, $filename, $name, $id, $remove_ansi_colors = false) {
-		if(is_file($filename) && filesize($filename) > 0) {
+		if(is_file($filename) && filesize($filename) > 0 && is_ascii_or_utf8($filename)) {
 			$contents = file_get_contents($filename);
 
 			if(!$remove_ansi_colors) {
@@ -760,6 +762,8 @@
 				$warnings[] = "$filename does not exist";
 			} else if(!filesize($filename)) {
 				$warnings[] = "$filename is empty";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
 			}
 		}
 

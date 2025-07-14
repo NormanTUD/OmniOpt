@@ -1,27 +1,4 @@
 <?php
-function detectCorrelationsAll(array $stats): array {
-	$keys = array_keys($stats);
-	$correlations = [];
-
-	for ($i = 0; $i < count($keys); $i++) {
-		for ($j = $i + 1; $j < count($keys); $j++) {
-			$x = $stats[$keys[$i]]['values'];
-			$y = $stats[$keys[$j]]['values'];
-			if (count($x) !== count($y)) continue;
-
-			$r = pearsonCorrelation($x, $y);
-			if (abs($r) > 0.3) {  // Schwellenwert 0.3 für Sichtbarkeit
-				$correlations[] = [
-					'param1' => $keys[$i],
-					'param2' => $keys[$j],
-					'correlation' => $r
-				];
-			}
-		}
-	}
-	return $correlations;
-}
-
 function analyzeResultsCSV(string $csvPath, array $resultNames = [], array $resultMinMax = []): string {
 	if (!file_exists($csvPath) || !is_readable($csvPath)) {
 		return "## Error\nFile not found or not readable: `$csvPath`";
@@ -253,33 +230,6 @@ function analyzeFailures(array $header, array $rows, array $stats): array {
 		'numeric_correlations_with_failure' => $numericFailures,
 		'categorical_high_failure_values' => $categoricalFailures,
 	];
-}
-
-function computeParameterCorrelations(array $stats, array $resultNames): array {
-	$result = [];
-
-	foreach ($resultNames as $res) {
-		if (!isset($stats[$res]) || $stats[$res]['type'] !== 'numeric') continue;
-
-		// Liste aller relevanten Parameter außer dem Result
-		$params = array_filter($stats, fn($s, $k) => $k !== $res && $s['type'] === 'numeric', ARRAY_FILTER_USE_BOTH);
-		$paramNames = array_keys($params);
-
-		foreach ($paramNames as $i => $paramA) {
-			foreach ($paramNames as $j => $paramB) {
-				if ($j <= $i) continue; // vermeide doppelt + Eigenkorrelation
-
-				$valA = $stats[$paramA]['values'];
-				$valB = $stats[$paramB]['values'];
-
-				$corr = pearsonCorrelation($valA, $valB);
-
-				$result[$res]["$paramA-$paramB"] = $corr;
-			}
-		}
-	}
-
-	return $result;
 }
 
 function computeDirectionalInfluenceFromCsv(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {
@@ -611,33 +561,6 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 	}
 
 	return $interpretations;
-}
-
-function getResultValueForParam($csvData, $paramName, $resultName) {
-	foreach ($csvData as $row) {
-		if (isset($row[$paramName]) && isset($row[$resultName])) {
-			// Beispiel: Einfacher Vergleich / erste gefundene Zeile
-			// Optional: Du kannst hier Logik erweitern, z.B. min/max Wert nehmen, etc.
-			return $row[$resultName];
-		}
-	}
-	error_log("Result or param '$paramName' or '$resultName' not found in CSV data.");
-	return null;
-}
-
-// Helper function to compute quantile from sorted array
-function quantile(array $sortedValues, float $q): float {
-    $n = count($sortedValues);
-    if ($n === 0) return NAN;
-    $pos = ($n - 1) * $q;
-    $floor = floor($pos);
-    $ceil = ceil($pos);
-    if ($floor == $ceil) {
-        return $sortedValues[$floor];
-    }
-    $d0 = $sortedValues[$floor] * ($ceil - $pos);
-    $d1 = $sortedValues[$ceil] * ($pos - $floor);
-    return round($d0 + $d1, 5);
 }
 
 function renderMarkdownNarrative(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {

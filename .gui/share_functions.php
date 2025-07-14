@@ -603,7 +603,7 @@
 
 	function sanitize_safe_html($html) {
 		$allowed_tags = ['img', 'span', 'b', 'i', 'u', 'pre', 'code', 'br'];
-		$allowed_attrs = ['src', 'class'];
+		$allowed_attrs = ['src', 'class', "style"];
 
 		// Sanitize all tags
 		$html = preg_replace_callback(

@@ -421,19 +421,6 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 			// Value of parameter at best index
 			$bestParamVal = $paramValuesRaw[$bestIndex];
 
-			// Determine direction
-			$midpoint = ($paramFullMin + $paramFullMax) / 2;
-			$range = $paramFullMax - $paramFullMin;
-			$medianThreshold = 0.15;
-
-			if ($abs < 0.01) {
-				$direction = 'not relevant';
-			} elseif ($range > 0 && abs($bestParamVal - $midpoint) <= $range * $medianThreshold) {
-				$direction = 'uniformly distributed';
-			} else {
-				$direction = ($goal === 'maximize') === ($r > 0) ? '&uarr; higher = better' : '&darr; lower = better';
-			}
-
 			// Number of top results (10%)
 			$count = count($resultValues);
 			$n_top = max(1, (int)round($count * 0.1));
@@ -451,11 +438,6 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 			sort($topParamVals);
 			$paramInfos[] = [
 				'param' => $param,
-				'direction' => $direction,
-				'certainty' => $abs >= 0.85 ? "very high" :
-				($abs >= 0.4 ? "high" :
-				($abs >= 0.05 ? "moderate" : "low")),
-				'r' => $r,
 				'bestParamVal' => $bestParamVal,
 			];
 		}
@@ -472,7 +454,7 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 		$html .= "</p>";
 
 		$html .= "<table border='1' cellpadding='4' cellspacing='0' style='border-collapse: collapse;'>";
-		$html .= "<thead><tr><th>Parameter</th><th>Influence</th><th>Certainty</th><th>r</th>"
+		$html .= "<thead><tr><th>Parameter</th>"
 			. "<th>Visualization in dependence of $result</th></tr></thead><tbody>";
 
 		$csvData = [];
@@ -493,9 +475,6 @@ function computeDirectionalInfluenceFlat(string $csvPath, array $correlations, a
 		foreach ($paramInfos as $info) {
 			$html .= "<tr>";
 			$html .= "<td><code>{$info['param']}</code></td>";
-			$html .= "<td>{$info['direction']}</td>";
-			$html .= "<td>{$info['certainty']}</td>";
-			$html .= "<td>{$info['r']}</td>";
 
 			$width = 1000;
 			$height = count($paramInfos);

@@ -1431,6 +1431,8 @@
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
+		$is_ascii_list = array();
+
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = "$run_dir/$file";
@@ -1466,6 +1468,7 @@
 					$i == 0 ? 'aria-selected="true"' : ''
 				).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
 				$i++;
+				$is_ascii_list[] = $file_path;
 			}
 		}
 
@@ -1474,7 +1477,7 @@
 		$i = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
-			if (is_ascii_or_utf8($file_path)) {
+			if (in_array($file_path, $is_ascii_list)) {
 				$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
 				if($i != 0) {
 					$output .= "<div id='spinner_log_$i' class='spinner'></div>";

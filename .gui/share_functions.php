@@ -2843,15 +2843,13 @@ $onclick_string
 		return [$overview_html, $warnings];
 	}
 
-	function add_insights_from_file($tabs, $warnings, $run_dir) {
+	function add_insights_from_file($tabs, $warnings, $run_dir, $result_names, $result_min_max) {
 		$results_csv_file = "$run_dir/results.csv";
 
 		if(is_file($results_csv_file) && filesize($results_csv_file)) {
 			$status_data = get_status_for_results_csv($results_csv_file);
 
 			if($status_data["total"]) {
-				[$result_names, $result_min_max, $warnings] = get_result_names_and_min_max ($run_dir, $warnings);
-
 				$natural_language_markdown = nl2br(create_insights($results_csv_file, $result_names, $result_min_max));
 				$svg_icon = get_icon_html("insights.svg");
 

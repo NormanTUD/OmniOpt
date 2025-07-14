@@ -168,9 +168,8 @@
 					$warnings[] = "No GPU usage files found";
 				}
 
-
 				if($status_data && isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) {
-					[$tabs, $warnings] = add_insights_from_file($tabs, $warnings, $run_dir);
+					[$tabs, $warnings] = add_insights_from_file($tabs, $warnings, $run_dir, $result_names, $result_min_max);
 
 					$tabs = add_parallel_plot_tab($tabs);
 

@@ -674,9 +674,9 @@
 				$contents = htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
-
-				$contents = sanitize_safe_html($contents);
 			}
+
+			$contents = sanitize_safe_html($contents);
 
 			$html .= "<pre id='simple_pre_tab_$id'>$contents</pre>";
 

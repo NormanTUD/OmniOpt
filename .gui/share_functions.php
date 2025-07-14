@@ -603,29 +603,45 @@
 
 	function sanitize_safe_html($html) {
 		$allowed_tags = ['img', 'span', 'b', 'i', 'u', 'pre', 'code', 'br'];
-		$allowed_attrs = ['src', 'class', "style"];
+		$allowed_attrs = ['src', 'class', 'style'];
 
-		// Sanitize all tags
+		$allowed_css_properties = [
+			'color',
+			'background-color',
+			'font-weight',
+			'font-style',
+			'text-decoration',
+			'font-size',
+			'font-family',
+			'margin',
+			'margin-left',
+			'margin-right',
+			'padding',
+			'padding-left',
+			'padding-right',
+			'text-align',
+			'white-space',
+			'display'
+		];
+
 		$html = preg_replace_callback(
 			'#<\s*(/?)\s*([a-z0-9]+)([^<>]*?)(/?)\s*>#i',
-			function ($matches) use ($allowed_tags, $allowed_attrs) {
-				$closing_slash = $matches[1]; // '/' if closing tag
+			function ($matches) use ($allowed_tags, $allowed_attrs, $allowed_css_properties) {
+				$closing_slash = $matches[1];
 				$tag_name = strtolower($matches[2]);
 				$attrs_string = $matches[3];
-				$self_closing_slash = $matches[4]; // '/' if self-closing
+				$self_closing_slash = $matches[4];
 
 				if (!in_array($tag_name, $allowed_tags)) {
-					return ''; // Remove disallowed tags
+					return '';
 				}
 
-				// If closing tag, return it directly
 				if ($closing_slash === '/') {
 					return '</' . $tag_name . '>';
 				}
 
 				$safe_attrs = '';
 
-				// Match key="value" or key='value'
 				preg_match_all('/([a-z0-9\-\:_]+)\s*=\s*(["\'])(.*?)\2/si', $attrs_string, $attr_matches, PREG_SET_ORDER);
 				foreach ($attr_matches as $attr) {
 					$attr_name = strtolower($attr[1]);
@@ -639,6 +655,45 @@
 						if (!preg_match('#^(https?|data):#i', $attr_value)) {
 							continue;
 						}
+					}
+
+					if ($attr_name === 'style') {
+						$clean_styles = [];
+
+						// Split style string into individual declarations
+						$style_parts = explode(';', $attr_value);
+						foreach ($style_parts as $style_part) {
+							$style_part = trim($style_part);
+							if (empty($style_part)) {
+								continue;
+							}
+
+							if (!preg_match('/^([a-z\-]+)\s*:\s*(.+)$/i', $style_part, $style_match)) {
+								continue;
+							}
+
+							$css_prop = strtolower(trim($style_match[1]));
+							$css_val = trim($style_match[2]);
+
+							// Skip disallowed properties
+							if (!in_array($css_prop, $allowed_css_properties)) {
+								continue;
+							}
+
+							// Reject dangerous values
+							if (preg_match('#expression\s*\(|javascript:|url\s*\(\s*[\'"]?\s*javascript:#i', $css_val)) {
+								continue;
+							}
+
+							$clean_styles[] = $css_prop . ': ' . htmlspecialchars($css_val, ENT_QUOTES);
+						}
+
+						if (!empty($clean_styles)) {
+							$safe_value = implode('; ', $clean_styles) . ';';
+							$safe_attrs .= ' style="' . $safe_value . '"';
+						}
+
+						continue;
 					}
 
 					$safe_value = htmlspecialchars($attr_value, ENT_QUOTES);

@@ -1054,8 +1054,10 @@
 
 		foreach ($files as $file) {
 			if (preg_match('/^(\d+)_0_log\.out$/', $file, $matches)) {
-				$nr = $matches[1];
-				$log_files[$nr] = $file;
+				if(is_ascii_or_utf8($file)) {
+					$nr = $matches[1];
+					$log_files[$nr] = $file;
+				}
 			}
 		}
 
@@ -1433,6 +1435,7 @@
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
 		$i = 0;
+
 		foreach ($log_files as $nr => $file) {
 			$file_path = "$run_dir/$file";
 			$checkmark = $red_cross;

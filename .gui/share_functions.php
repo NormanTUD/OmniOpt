@@ -2859,7 +2859,8 @@ $onclick_string
 
 				$tabs["{$svg_icon}Insights"] = [
 					'id' => 'tab_insights',
-					'content' => $html
+					'content' => $html,
+					"onclick" => "initializeResultParameterVisualizations()"
 				];
 
 

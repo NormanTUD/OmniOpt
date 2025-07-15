@@ -2184,7 +2184,7 @@ function plotTimelineFromGlobals() {
 	return true;
 }
 
-function createResultParameterCanvases() {
+function createResultParameterCanvases(this_res_name) {
 	if (
 		typeof special_col_names === "undefined" ||
 		typeof result_names === "undefined" ||
@@ -2296,115 +2296,120 @@ function createResultParameterCanvases() {
 
 	for (var r = 0; r < result_names.length; r++) {
 		var result_name = result_names[r];
-		var result_index = header_map[result_name];
-		var result_goal = result_min_max[r]; // "min" or "max"
+		if (this_res_name == result_name) {
+			var result_index = header_map[result_name];
+			var result_goal = result_min_max[r]; // "min" or "max"
 
-		var result_values = getColumnData(tab_results_csv_json, result_index);
-		var result_min = Math.min.apply(null, result_values);
-		var result_max = Math.max.apply(null, result_values);
+			var result_values = getColumnData(tab_results_csv_json, result_index);
+			var result_min = Math.min.apply(null, result_values);
+			var result_max = Math.max.apply(null, result_values);
 
-		var heading = document.createElement("h2");
-		heading.textContent = "Interpretation for result: " + result_name + " (goal: " + result_goal + ")";
-		heading.style.fontFamily = "sans-serif";
-		heading.style.marginTop = "24px";
-		heading.style.marginBottom = "12px";
-		container.appendChild(heading);
+			var heading = document.createElement("h2");
+			heading.textContent = "Interpretation for result: " + result_name + " (goal: " + result_goal + ")";
+			heading.style.fontFamily = "sans-serif";
+			heading.style.marginTop = "24px";
+			heading.style.marginBottom = "12px";
+			container.appendChild(heading);
 
-		var table = document.createElement("table");
-		table.style.borderCollapse = "collapse";
-		table.style.marginBottom = "32px";
-		table.style.width = "100%";
+			var table = document.createElement("table");
+			table.style.borderCollapse = "collapse";
+			table.style.marginBottom = "32px";
+			table.style.width = "100%";
 
-		var thead = document.createElement("thead");
-		var headRow = document.createElement("tr");
+			var thead = document.createElement("thead");
+			var headRow = document.createElement("tr");
 
-		var th1 = document.createElement("th");
-		th1.textContent = "Parameter";
-		th1.style.textAlign = "left";
-		th1.style.padding = "6px 12px";
-		var th2 = document.createElement("th");
-		th2.textContent = "Distribution of result";
-		th2.style.textAlign = "left";
-		th2.style.padding = "6px 12px";
+			var th1 = document.createElement("th");
+			th1.textContent = "Parameter";
+			th1.style.textAlign = "left";
+			th1.style.padding = "6px 12px";
+			var th2 = document.createElement("th");
+			th2.textContent = "Distribution of result";
+			th2.style.textAlign = "left";
+			th2.style.padding = "6px 12px";
 
-		headRow.appendChild(th1);
-		headRow.appendChild(th2);
-		thead.appendChild(headRow);
-		table.appendChild(thead);
+			headRow.appendChild(th1);
+			headRow.appendChild(th2);
+			thead.appendChild(headRow);
+			table.appendChild(thead);
 
-		var tbody = document.createElement("tbody");
+			var tbody = document.createElement("tbody");
 
-		for (var p = 0; p < parameter_columns.length; p++) {
-			var param_name = parameter_columns[p];
-			var param_index = header_map[param_name];
-			var param_values = getColumnData(tab_results_csv_json, param_index);
+			for (var p = 0; p < parameter_columns.length; p++) {
+				var param_name = parameter_columns[p];
+				var param_index = header_map[param_name];
+				var param_values = getColumnData(tab_results_csv_json, param_index);
 
-			var param_min = Math.min.apply(null, param_values);
-			var param_max = Math.max.apply(null, param_values);
+				var param_min = Math.min.apply(null, param_values);
+				var param_max = Math.max.apply(null, param_values);
 
-			var canvas = createCanvas(canvas_width, canvas_height);
-			var ctx = canvas.getContext("2d");
+				var canvas = createCanvas(canvas_width, canvas_height);
 
-			var x_groups = {};
+				canvas.classList.add("invert_in_dark_mode");
 
-			for (var i = 0; i < tab_results_csv_json.length; i++) {
-				var raw_param = tab_results_csv_json[i][param_index];
-				var raw_result = tab_results_csv_json[i][result_index];
+				var ctx = canvas.getContext("2d");
 
-				var x_ratio = normalize(raw_param, param_min, param_max);
-				var x = Math.floor(x_ratio * (canvas_width - 1));
+				var x_groups = {};
 
-				if (!x_groups[x]) {
-					x_groups[x] = [];
+				for (var i = 0; i < tab_results_csv_json.length; i++) {
+					var raw_param = tab_results_csv_json[i][param_index];
+					var raw_result = tab_results_csv_json[i][result_index];
+
+					var x_ratio = normalize(raw_param, param_min, param_max);
+					var x = Math.floor(x_ratio * (canvas_width - 1));
+
+					if (!x_groups[x]) {
+						x_groups[x] = [];
+					}
+
+					x_groups[x].push(raw_result);
 				}
 
-				x_groups[x].push(raw_result);
-			}
+				for (var x in x_groups) {
+					var values = x_groups[x];
+					values.sort(function (a, b) {
+						return a - b;
+					});
 
-			for (var x in x_groups) {
-				var values = x_groups[x];
-				values.sort(function (a, b) {
-					return a - b;
-				});
+					var stripe_height = canvas_height / values.length;
+					for (var i = 0; i < values.length; i++) {
+						var y_start = i * stripe_height;
+						var y_end = (i + 1) * stripe_height;
 
-				var stripe_height = canvas_height / values.length;
-				for (var i = 0; i < values.length; i++) {
-					var y_start = i * stripe_height;
-					var y_end = (i + 1) * stripe_height;
+						var value = values[i];
+						var result_ratio = normalize(value, result_min, result_max);
+						var color = interpolateColor(result_ratio, result_goal === "min");
 
-					var value = values[i];
-					var result_ratio = normalize(value, result_min, result_max);
-					var color = interpolateColor(result_ratio, result_goal === "min");
-
-					ctx.beginPath();
-					ctx.strokeStyle = color;
-					ctx.lineWidth = 1;
-					ctx.moveTo(Number(x) + 0.5, y_start);
-					ctx.lineTo(Number(x) + 0.5, y_end);
-					ctx.stroke();
+						ctx.beginPath();
+						ctx.strokeStyle = color;
+						ctx.lineWidth = 1;
+						ctx.moveTo(Number(x) + 0.5, y_start);
+						ctx.lineTo(Number(x) + 0.5, y_end);
+						ctx.stroke();
+					}
 				}
+
+				var row = document.createElement("tr");
+
+				var cell_param = document.createElement("td");
+				cell_param.textContent = param_name;
+				cell_param.style.padding = "4px 12px";
+				cell_param.style.verticalAlign = "top";
+				cell_param.style.fontFamily = "monospace";
+				cell_param.style.whiteSpace = "nowrap";
+
+				var cell_canvas = document.createElement("td");
+				cell_canvas.appendChild(canvas);
+				cell_canvas.style.padding = "4px 12px";
+
+				row.appendChild(cell_param);
+				row.appendChild(cell_canvas);
+				tbody.appendChild(row);
 			}
 
-			var row = document.createElement("tr");
-
-			var cell_param = document.createElement("td");
-			cell_param.textContent = param_name;
-			cell_param.style.padding = "4px 12px";
-			cell_param.style.verticalAlign = "top";
-			cell_param.style.fontFamily = "monospace";
-			cell_param.style.whiteSpace = "nowrap";
-
-			var cell_canvas = document.createElement("td");
-			cell_canvas.appendChild(canvas);
-			cell_canvas.style.padding = "4px 12px";
-
-			row.appendChild(cell_param);
-			row.appendChild(cell_canvas);
-			tbody.appendChild(row);
+			table.appendChild(tbody);
+			container.appendChild(table);
 		}
-
-		table.appendChild(tbody);
-		container.appendChild(table);
 	}
 
 	// === Summary: Best result ===
@@ -2438,6 +2443,44 @@ function createResultParameterCanvases() {
 	}
 
 	return container;
+}
+
+function initializeResultParameterVisualizations() {
+        try {
+                var elements = $('.result_parameter_visualization');
+
+                if (!elements || elements.length === 0) {
+                        console.warn('No .result_parameter_visualization elements found.');
+                        return;
+                }
+
+                elements.each(function () {
+                        var element = $(this);
+
+                        if (element.data('initialized')) {
+                                return; // Already initialized, skip
+                        }
+
+                        var resname = element.attr('data-resname');
+
+                        if (!resname) {
+                                console.error('Missing data-resname attribute for element:', this);
+                                return;
+                        }
+
+                        try {
+                                var html = createResultParameterCanvases(resname);
+
+                                element.html(html);
+                                element.data('initialized', true);
+
+                        } catch (err) {
+                                console.error('Error while calling createResultParameterCanvases for resname:', resname, err);
+                        }
+                });
+        } catch (outerErr) {
+                console.error('Failed to initialize result parameter visualizations:', outerErr);
+        }
 }
 
 window.addEventListener('load', updatePreWidths);

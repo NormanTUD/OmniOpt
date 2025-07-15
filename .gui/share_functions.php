@@ -2791,7 +2791,6 @@ $onclick_string
 
 		fclose($handle);
 
-		// Sort status columns alphabetically
 		$status_columns = array_keys($all_statuses);
 		sort($status_columns, SORT_STRING | SORT_FLAG_CASE);
 
@@ -2977,12 +2976,14 @@ $onclick_string
 			"memory.free", "memory.used"
 		];
 
-		$ignore_cols = [
-			"name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate",
-			"driver_version", "memory.total", "memory.free", "memory.used",
-			"utilization.memory", "memory.free", "memory.used", "timestamp",
-			"pci.bus_id", "utilization.gpu", "temperature.gpu"
-		];
+		$keep_cols = ['timestamp', 'utilization.gpu', 'temperature.gpu'];
+
+		$headerIndexes = [];
+		foreach ($headers as $idx => $colName) {
+			if (in_array($colName, $keep_cols)) {
+				$headerIndexes[$colName] = $idx;
+			}
+		}
 
 		foreach ($files as $file) {
 			$basename = basename($file);
@@ -2992,35 +2993,24 @@ $onclick_string
 
 				$handle = fopen($file, "r");
 				if ($handle !== false) {
-					while (($line = fgets($handle)) !== false) {
-						$data = str_getcsv($line, ",", "\"", "\\");
-
+					while (($data = fgetcsv($handle, 0, ",", '"', "\\")) !== false) {
 						if (count($data) !== count($headers)) {
 							continue;
 						}
 
-						$data = array_map(function ($item) {
-							$item = trim(str_replace(["MiB", "%"], "", $item));
-							return trim($item);
-						}, $data);
+						$timestampRaw = trim($data[$headerIndexes['timestamp']]);
+						$utilGpuRaw = str_replace('%', '', trim($data[$headerIndexes['utilization.gpu']]));
+						$tempGpuRaw = str_replace('MiB', '', trim($data[$headerIndexes['temperature.gpu']]));
 
-						$entry = array_combine($headers, $data);
-						if ($entry === false) {
+						$ts = strtotime($timestampRaw);
+						if ($ts === false) {
 							continue;
 						}
 
-						$entry['ts'] = strtotime($entry['timestamp']);
+						$utilGpu = intval($utilGpuRaw);
+						$tempGpu = intval($tempGpuRaw);
 
-						if(count($entry)) {
-							$entry["gpu"] = intval($entry["utilization.gpu"]);
-							$entry["gputemp"] = intval($entry["temperature.gpu"]);
-
-							foreach ($ignore_cols as $ignore_colname) {
-								unset($entry[$ignore_colname]);
-							}
-
-							$gpu_usage_data[$index][] = array($entry["ts"], $entry["gpu"], $entry["gputemp"]);
-						}
+						$gpu_usage_data[$index][] = [$ts, $utilGpu, $tempGpu];
 					}
 					fclose($handle);
 				} else {

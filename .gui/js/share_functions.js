@@ -2349,6 +2349,9 @@ function createResultParameterCanvases(this_res_name) {
 
 				var ctx = canvas.getContext("2d");
 
+				ctx.fillStyle = "white";
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 				var x_groups = {};
 
 				for (var i = 0; i < tab_results_csv_json.length; i++) {

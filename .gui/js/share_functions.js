@@ -2184,6 +2184,262 @@ function plotTimelineFromGlobals() {
 	return true;
 }
 
+function createResultParameterCanvases() {
+	if (
+		typeof special_col_names === "undefined" ||
+		typeof result_names === "undefined" ||
+		typeof result_min_max === "undefined" ||
+		typeof tab_results_headers_json === "undefined" ||
+		typeof tab_results_csv_json === "undefined"
+	) {
+		console.error("Missing one or more required global variables.");
+		return null;
+	}
+
+	if (
+		!Array.isArray(special_col_names) ||
+		!Array.isArray(result_names) ||
+		!Array.isArray(result_min_max) ||
+		!Array.isArray(tab_results_headers_json) ||
+		!Array.isArray(tab_results_csv_json)
+	) {
+		console.error("All inputs must be arrays.");
+		return null;
+	}
+
+	function getColumnIndexMap(headers) {
+		var map = {};
+		for (var i = 0; i < headers.length; i++) {
+			map[headers[i]] = i;
+		}
+		return map;
+	}
+
+	function getColumnData(data, index) {
+		var result = [];
+		for (var i = 0; i < data.length; i++) {
+			result.push(data[i][index]);
+		}
+		return result;
+	}
+
+	function normalize(value, min, max) {
+		if (max === min) {
+			return 0.5;
+		}
+		return (value - min) / (max - min);
+	}
+
+	function interpolateColor(ratio, reverse) {
+		var r = reverse ? ratio : 1 - ratio;
+		var g = reverse ? 1 - ratio : ratio;
+		var b = 0;
+		r = Math.floor(r * 255);
+		g = Math.floor(g * 255);
+		return "rgb(" + r + "," + g + "," + b + ")";
+	}
+
+	function createCanvas(width, height) {
+		var canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		return canvas;
+	}
+
+	function findBestRowIndex() {
+		var bestIndex = 0;
+
+		for (var i = 1; i < tab_results_csv_json.length; i++) {
+			var better = false;
+
+			for (var r = 0; r < result_names.length; r++) {
+				var col = result_names[r];
+				var colIdx = header_map[col];
+				var goal = result_min_max[r]; // "min" or "max"
+
+				var valCurrent = tab_results_csv_json[i][colIdx];
+				var valBest = tab_results_csv_json[bestIndex][colIdx];
+
+				if (goal === "min" && valCurrent < valBest) {
+					better = true;
+					break;
+				}
+
+				if (goal === "max" && valCurrent > valBest) {
+					better = true;
+					break;
+				}
+			}
+
+			if (better) {
+				bestIndex = i;
+			}
+		}
+
+		return bestIndex;
+	}
+
+	var canvas_width = 1000;
+	var canvas_height = 100;
+
+	var header_map = getColumnIndexMap(tab_results_headers_json);
+
+	var parameter_columns = tab_results_headers_json.filter(function (name) {
+		return (
+			!special_col_names.includes(name) &&
+			!result_names.includes(name) &&
+			!name.startsWith("OO_Info_")
+		);
+	});
+
+	var container = document.createElement("div");
+
+	for (var r = 0; r < result_names.length; r++) {
+		var result_name = result_names[r];
+		var result_index = header_map[result_name];
+		var result_goal = result_min_max[r]; // "min" or "max"
+
+		var result_values = getColumnData(tab_results_csv_json, result_index);
+		var result_min = Math.min.apply(null, result_values);
+		var result_max = Math.max.apply(null, result_values);
+
+		var heading = document.createElement("h2");
+		heading.textContent = "Interpretation for result: " + result_name + " (goal: " + result_goal + ")";
+		heading.style.fontFamily = "sans-serif";
+		heading.style.marginTop = "24px";
+		heading.style.marginBottom = "12px";
+		container.appendChild(heading);
+
+		var table = document.createElement("table");
+		table.style.borderCollapse = "collapse";
+		table.style.marginBottom = "32px";
+		table.style.width = "100%";
+
+		var thead = document.createElement("thead");
+		var headRow = document.createElement("tr");
+
+		var th1 = document.createElement("th");
+		th1.textContent = "Parameter";
+		th1.style.textAlign = "left";
+		th1.style.padding = "6px 12px";
+		var th2 = document.createElement("th");
+		th2.textContent = "Distribution of result";
+		th2.style.textAlign = "left";
+		th2.style.padding = "6px 12px";
+
+		headRow.appendChild(th1);
+		headRow.appendChild(th2);
+		thead.appendChild(headRow);
+		table.appendChild(thead);
+
+		var tbody = document.createElement("tbody");
+
+		for (var p = 0; p < parameter_columns.length; p++) {
+			var param_name = parameter_columns[p];
+			var param_index = header_map[param_name];
+			var param_values = getColumnData(tab_results_csv_json, param_index);
+
+			var param_min = Math.min.apply(null, param_values);
+			var param_max = Math.max.apply(null, param_values);
+
+			var canvas = createCanvas(canvas_width, canvas_height);
+			var ctx = canvas.getContext("2d");
+
+			var x_groups = {};
+
+			for (var i = 0; i < tab_results_csv_json.length; i++) {
+				var raw_param = tab_results_csv_json[i][param_index];
+				var raw_result = tab_results_csv_json[i][result_index];
+
+				var x_ratio = normalize(raw_param, param_min, param_max);
+				var x = Math.floor(x_ratio * (canvas_width - 1));
+
+				if (!x_groups[x]) {
+					x_groups[x] = [];
+				}
+
+				x_groups[x].push(raw_result);
+			}
+
+			for (var x in x_groups) {
+				var values = x_groups[x];
+				values.sort(function (a, b) {
+					return a - b;
+				});
+
+				var stripe_height = canvas_height / values.length;
+				for (var i = 0; i < values.length; i++) {
+					var y_start = i * stripe_height;
+					var y_end = (i + 1) * stripe_height;
+
+					var value = values[i];
+					var result_ratio = normalize(value, result_min, result_max);
+					var color = interpolateColor(result_ratio, result_goal === "min");
+
+					ctx.beginPath();
+					ctx.strokeStyle = color;
+					ctx.lineWidth = 1;
+					ctx.moveTo(Number(x) + 0.5, y_start);
+					ctx.lineTo(Number(x) + 0.5, y_end);
+					ctx.stroke();
+				}
+			}
+
+			var row = document.createElement("tr");
+
+			var cell_param = document.createElement("td");
+			cell_param.textContent = param_name;
+			cell_param.style.padding = "4px 12px";
+			cell_param.style.verticalAlign = "top";
+			cell_param.style.fontFamily = "monospace";
+			cell_param.style.whiteSpace = "nowrap";
+
+			var cell_canvas = document.createElement("td");
+			cell_canvas.appendChild(canvas);
+			cell_canvas.style.padding = "4px 12px";
+
+			row.appendChild(cell_param);
+			row.appendChild(cell_canvas);
+			tbody.appendChild(row);
+		}
+
+		table.appendChild(tbody);
+		container.appendChild(table);
+	}
+
+	// === Summary: Best result ===
+	var bestIndex = findBestRowIndex();
+	var bestRow = tab_results_csv_json[bestIndex];
+
+	var ul = document.createElement("ul");
+	ul.style.margin = "0";
+	ul.style.paddingLeft = "24px";
+
+	// Alle Result-Spalten
+	for (var i = 0; i < result_names.length; i++) {
+		var name = result_names[i];
+		var val = bestRow[header_map[name]];
+		var li = document.createElement("li");
+		li.textContent = name + " = " + val;
+		ul.appendChild(li);
+	}
+
+	// Alle Parameter-Spalten (außer special_col_names)
+	for (var i = 0; i < tab_results_headers_json.length; i++) {
+		var name = tab_results_headers_json[i];
+		if (special_col_names.includes(name) || name.startsWith("OO_Info_") || result_names.includes(name)) {
+			continue;
+		}
+
+		var val = bestRow[header_map[name]];
+		var li = document.createElement("li");
+		li.textContent = name + " = " + val;
+		ul.appendChild(li);
+	}
+
+	return container;
+}
+
 window.addEventListener('load', updatePreWidths);
 window.addEventListener('resize', updatePreWidths);
 

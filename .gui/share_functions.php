@@ -1054,10 +1054,8 @@
 
 		foreach ($files as $file) {
 			if (preg_match('/^(\d+)_0_log\.out$/', $file, $matches)) {
-				if(is_ascii_or_utf8($file)) {
-					$nr = $matches[1];
-					$log_files[$nr] = $file;
-				}
+				$nr = $matches[1];
+				$log_files[$nr] = $file;
 			}
 		}
 

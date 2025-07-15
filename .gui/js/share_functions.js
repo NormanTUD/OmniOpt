@@ -2314,7 +2314,6 @@ function createResultParameterCanvases(this_res_name) {
 			var table = document.createElement("table");
 			table.style.borderCollapse = "collapse";
 			table.style.marginBottom = "32px";
-			table.style.width = "100%";
 
 			var thead = document.createElement("thead");
 			var headRow = document.createElement("tr");

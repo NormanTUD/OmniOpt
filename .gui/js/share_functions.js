@@ -2246,6 +2246,16 @@ function createResultParameterCanvases(this_res_name) {
 		return canvas;
 	}
 
+	function isNumericArray(arr) {
+		for (var i = 0; i < arr.length; i++) {
+			var val = arr[i];
+			if (typeof val !== "number" || isNaN(val)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	function findBestRowIndex() {
 		var bestIndex = 0;
 
@@ -2338,6 +2348,10 @@ function createResultParameterCanvases(this_res_name) {
 				var param_name = parameter_columns[p];
 				var param_index = header_map[param_name];
 				var param_values = getColumnData(tab_results_csv_json, param_index);
+
+				if (!isNumericArray(param_values)) {
+					continue;
+				}
 
 				var param_min = Math.min.apply(null, param_values);
 				var param_max = Math.max.apply(null, param_values);

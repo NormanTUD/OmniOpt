@@ -295,7 +295,9 @@ function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_
 		}
 	}
 
-	return compute_csv_insights_flat($csvPath, $correlations, $resultMinMax, $dont_show_col_overview, $columns);
+	$ret = compute_csv_insights_flat($csvPath, $correlations, $resultMinMax, $dont_show_col_overview, $columns);
+
+	return $ret;
 }
 
 function compute_csv_insights_flat(string $csvPath, array $correlations, array $resultMinMax, array $dont_show_col_overview, array $columns = []): array {
@@ -421,7 +423,6 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 		$interpretations[] = [
 			'html' => $html,
 			'result' => $result,
-			'goal' => $goal,
 			'bestValue' => $bestValue,
 			'parameters' => $paramInfos,
 		];

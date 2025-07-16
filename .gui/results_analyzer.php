@@ -15,7 +15,6 @@ function create_insights(string $csvPath, array $resultNames = [], array $result
 	$columnStats = calculate_stats($header, $rows);
 	$correlations = compute_correlation_matrix($columnStats, $resultNames);
 
-	// Additional failure analysis
 	return render_markdown($csvPath, $columnStats, $correlations, $resultNames, $resultMinMax);
 }
 

@@ -15,7 +15,7 @@ function create_insights(string $csvPath, array $resultNames = [], array $result
 	$columnStats = calculate_stats($header, $rows);
 	$correlations = compute_correlation_matrix($columnStats, $resultNames);
 
-	return render_markdown($csvPath, $columnStats, $correlations, $resultNames, $resultMinMax);
+	return bring_insights_data_together($csvPath, $columnStats, $correlations, $resultNames, $resultMinMax);
 }
 
 function load_csv(string $path): ?array {
@@ -247,7 +247,7 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 	return $interpretations;
 }
 
-function render_markdown(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
+function bring_insights_data_together(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "";
 
 	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];

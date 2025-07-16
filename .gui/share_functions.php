@@ -30,7 +30,7 @@
 			if ($enable_html) {
 				$print .= $buffer;
 			} else {
-				$print .= htmlentities($buffer);
+				$print .= my_htmlentities($buffer);
 			}
 			$print .= "</pre>\n";
 
@@ -40,7 +40,7 @@
 				$file = array_key_exists('file', $trace) ? $trace['file'] : '[internal function]';
 				$line = array_key_exists('line', $trace) ? $trace['line'] : '?';
 				$function = array_key_exists('function', $trace) ? $trace['function'] : '[unknown]';
-				$print .= htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
+				$print .= my_htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
 			}
 			$print .= "</pre>\n";
 
@@ -363,7 +363,7 @@
 		$filename = basename($filename);
 
 		$str = "<button class='copy_clipboard_button' onclick='copy_to_clipboard_from_id(\"".$id."\")'><img src='i/clipboard.svg' style='height: 1em'> Copy raw data to clipboard</button>\n";
-		$str .= "<button onclick='download_as_file(\"".$id."\", \"".htmlentities($filename)."\")'><img src='i/download.svg' style='height: 1em'> Download &raquo;".htmlentities($filename)."&laquo; as file</button>\n";
+		$str .= "<button onclick='download_as_file(\"".$id."\", \"".my_htmlentities($filename)."\")'><img src='i/download.svg' style='height: 1em'> Download &raquo;".my_htmlentities($filename)."&laquo; as file</button>\n";
 
 		return $str;
 	}
@@ -374,7 +374,7 @@
 			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
 
 			if($min_max_table) {
-				$warnings[] = htmlentities($filename)." does not contain valid worker info";
+				$warnings[] = my_htmlentities($filename)." does not contain valid worker info";
 				return [$tabs, $warnings];
 			}
 
@@ -382,7 +382,7 @@
 			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
-			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities($worker_info).'</pre>';
+			$html .= '<pre id="worker_cpu_ram_pre">'.my_htmlentities($worker_info).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
 
 			$svg_icon = get_icon_html("plot.svg");
@@ -431,7 +431,7 @@
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_' . $id . '">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
@@ -501,7 +501,7 @@
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_'.$id.'">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
@@ -540,7 +540,7 @@
 			}
 
 			if(!$remove_ansi_colors) {
-				$contents = htmlentities($contents);
+				$contents = my_htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
 			}
@@ -747,7 +747,7 @@
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 			if(!$remove_ansi_colors) {
-				$contents = htmlentities($contents);
+				$contents = my_htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
 			}
@@ -1004,7 +1004,7 @@
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 
-			$content = htmlentities(file_get_contents($filename));
+			$content = my_htmlentities(file_get_contents($filename));
 
 			if($content && $header_line) {
 				$content = implode(",", $header_line)."\n$content";
@@ -2257,7 +2257,7 @@
 		} else if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
 
-			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
+			$pareto_front_text = remove_ansi_colors(my_htmlentities(file_get_contents($pareto_front_txt_file)));
 
 			if($pareto_front_text) {
 				$pareto_front_html .= "<pre>$pareto_front_text</pre>";
@@ -2375,18 +2375,6 @@
 		return $cssContent;
 	}
 
-	function remove_img_tags_from_html($html) {
-		$pattern = '/<img\b[^>]*>/i';
-		$cleaned = preg_replace($pattern, '', $html);
-
-		if ($cleaned === null) {
-			error_log("Error removing <img>-tags.");
-			return $html;
-		}
-
-		return $cleaned;
-	}
-
 	function get_export_tab ($tabs, $warnings, $run_dir) {
 		if(!file_exists("js/share_functions.js")) {
 			$warnings[] = "js/share_functions not found!";
@@ -2491,8 +2479,6 @@ $onclick_string
 </html>
 ";
 
-		$export_content = remove_img_tags_from_html($export_content);
-
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 
 		ini_set('memory_limit', '1024M');
@@ -2503,7 +2489,7 @@ $onclick_string
 		}
 
 		if(!isset($_GET["export_and_exit"])) {
-			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
+			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".my_htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
 		}
 
 		$tabs["{$svg_icon}Export"] = [
@@ -2578,7 +2564,7 @@ $onclick_string
 	function add_constraints_to_overview ($run_dir, $overview_html, $warnings) {
 		$constraints = "$run_dir/constraints.txt";
 		if(file_exists($constraints) && filesize($constraints) && is_ascii_or_utf8($constraints)) {
-			$constraints_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
+			$constraints_table = ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($constraints))));
 			if($constraints_table) {
 				$constraints .= $constraints_table;
 
@@ -2641,7 +2627,7 @@ $onclick_string
 	function add_experiment_overview_to_overview ($run_dir, $overview_html, $warnings) {
 		$experiment_overview = "$run_dir/experiment_overview.txt";
 		if(file_exists($experiment_overview) && filesize($experiment_overview) && is_ascii_or_utf8($experiment_overview)) {
-			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
+			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
 				$experiment_overview .= $experiment_overview_table;
 
@@ -2665,7 +2651,7 @@ $onclick_string
 	function add_best_results_to_overview ($run_dir, $overview_html, $warnings) {
 		$best_results_txt = "$run_dir/best_result.txt";
 		if(is_file($best_results_txt) && filesize($best_results_txt) && is_ascii_or_utf8($best_results_txt)) {
-			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($best_results_txt))));
 		} else {
 			if(!is_file($best_results_txt)) {
 				$warnings[] = "$best_results_txt not found";
@@ -2682,7 +2668,7 @@ $onclick_string
 	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
 		$parameters_txt_file = "$run_dir/parameters.txt";
 		if(is_file($parameters_txt_file) && filesize($parameters_txt_file) && is_ascii_or_utf8($parameters_txt_file)) {
-			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents("$run_dir/parameters.txt"))));
 		} else {
 			if(!is_file($parameters_txt_file)) {
 				$warnings[] = "$run_dir/parameters.txt not found";
@@ -2702,7 +2688,7 @@ $onclick_string
 			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
 
 			$overview_html .= "<h2>Last progressbar status</h2>\n";
-			$overview_html .= "<tt>".htmlentities(remove_ansi_colors($lastLine))."</tt>";
+			$overview_html .= "<tt>".my_htmlentities(remove_ansi_colors($lastLine))."</tt>";
 		} else {
 			if(!is_file($progressbar_file)) {
 				$warnings[] = "$progressbar_file not found";
@@ -2857,11 +2843,11 @@ $onclick_string
 	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
 		$git_version_file = "$run_dir/git_version";
 		if(file_exists($git_version_file) && filesize($git_version_file) && is_ascii_or_utf8($git_version_file)) {
-			$lastLine = htmlentities(file_get_contents($git_version_file));
+			$lastLine = my_htmlentities(file_get_contents($git_version_file));
 
 			$overview_html .= "<br>\n";
 			$overview_html .= "<h2>Git-Version</h2>\n";
-			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
+			$overview_html .= "<tt>".my_htmlentities($lastLine)."</tt>";
 		} else {
 			if(!is_file($git_version_file)) {
 				$warnings[] = "$git_version_file not found";
@@ -3234,5 +3220,9 @@ $onclick_string
 		}
 
 		echo '</ul>';
+	}
+
+	function my_htmlentities ($str) {
+		return htmlentities($str, ENT_QUOTES, 'utf-8');
 	}
 ?>

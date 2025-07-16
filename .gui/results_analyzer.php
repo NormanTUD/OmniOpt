@@ -339,6 +339,7 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 			error_log("[Interpretation] ERROR: Could not find best index for '$result'.");
 			continue;
 		}
+
 		$bestIndex = $bestIndex[0];
 		$bestValue = $resultValuesRaw[$bestIndex];
 

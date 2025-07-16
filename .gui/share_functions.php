@@ -1387,17 +1387,47 @@
 			return false;
 		}
 
-		$file_content = file_get_contents($filename);
+		$names = array_map('strtolower', $names);
+		$remaining = array_flip($names);
 
-		foreach ($names as $name) {
-			$pattern = '/(^|\s)\s*' . preg_quote($name, '/') . ':\s*[-+]?\d+(?:\.\d+)?\s*/mi';
+		$handle = fopen($filename, 'r');
+		if (!$handle) return false;
 
-			if (!preg_match($pattern, $file_content)) {
-				return false;
+		$buffer = '';
+		$pos = -1;
+		fseek($handle, 0, SEEK_END);
+		$filesize = ftell($handle);
+
+		while (-$pos < $filesize && count($remaining) > 0) {
+			fseek($handle, $pos, SEEK_END);
+			$char = fgetc($handle);
+			if ($char === false) break;
+
+			$buffer = $char . $buffer;
+			$pos--;
+
+			if ($char === "\n" || -$pos >= 8192 || -$pos >= $filesize) {
+				$lines = explode("\n", $buffer);
+				foreach ($lines as $line) {
+					$line_lc = strtolower($line);
+					foreach ($remaining as $name => $_) {
+						if (strpos($line_lc, $name . ':') !== false) {
+							if (preg_match('/\b' . preg_quote($name, '/') . '\s*:\s*[-+]?\d+(?:\.\d+)?/i', $line)) {
+								unset($remaining[$name]);
+								if (count($remaining) === 0) {
+									fclose($handle);
+									return true;
+								}
+							}
+						}
+					}
+				}
+				$buffer = '';
 			}
 		}
 
-		return true;
+		fclose($handle);
+		return count($remaining) === 0;
 	}
 
 	function ends_with_submitit_info($string) {

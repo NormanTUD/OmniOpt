@@ -86,41 +86,6 @@ function calculate_stats(array $header, array $rows): array {
 	return $stats;
 }
 
-function pearson_correlation(array $x, array $y): float {
-	$n = count($x);
-	if ($n !== count($y) || $n === 0) return 0;
-
-	$validX = [];
-	$validY = [];
-
-	for ($i = 0; $i < $n; $i++) {
-		if (is_numeric($x[$i]) && is_numeric($y[$i])) {
-			$validX[] = (float)$x[$i];
-			$validY[] = (float)$y[$i];
-		}
-	}
-
-	$n = count($validX);
-	if ($n === 0) return 0;
-
-	$meanX = array_sum($validX) / $n;
-	$meanY = array_sum($validY) / $n;
-
-	$num = 0;
-	$denX = 0;
-	$denY = 0;
-
-	for ($i = 0; $i < $n; $i++) {
-		$dx = $validX[$i] - $meanX;
-		$dy = $validY[$i] - $meanY;
-		$num += $dx * $dy;
-		$denX += $dx * $dx;
-		$denY += $dy * $dy;
-	}
-
-	return ($denX * $denY) == 0 ? 0 : $num / sqrt($denX * $denY);
-}
-
 function compute_correlation_matrix(array $stats, array $resultNames): array {
 	$matrix = [];
 	foreach ($resultNames as $result) {
@@ -130,8 +95,7 @@ function compute_correlation_matrix(array $stats, array $resultNames): array {
 		foreach ($stats as $name => $stat) {
 			if ($name === $result) continue;
 			if ($stat['type'] === 'numeric') {
-				$corr = pearson_correlation($stat['values'], $resultVals);
-				$matrix[$result][$name] = $corr;
+				$matrix[$result][$name] = 1;
 			}
 		}
 	}
@@ -190,10 +154,7 @@ function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_
 			if (in_array($param, $dont_show_col_overview)) continue;
 			if (!is_numeric($values[0])) continue;
 
-			$r = pearson_correlation($values, $resultValues);
-			if (!is_finite($r)) continue;
-
-			$correlations[$result][$param] = $r;
+			$correlations[$result][$param] = 1;
 		}
 	}
 

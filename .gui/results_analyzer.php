@@ -346,61 +346,14 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 		$paramInfos = [];
 
 		foreach ($paramCorrs as $param => $r) {
-			if (in_array($param, $dont_show_col_overview)) continue;
-
-			$r = round($r, 3);
-			$abs = abs($r);
-
-			if ($abs < 0.05) {
-				// Too weak influence, ignore
+			if (in_array($param, $dont_show_col_overview)) {
 				continue;
 			}
 
 			$paramValuesRaw = $columns[$param] ?? [];
-			if (!is_array($paramValuesRaw)) {
-				error_log("[Interpretation] ERROR: '$param' is missing or invalid in \$columns.");
-				continue;
-			}
-			if (count($paramValuesRaw) != count($resultValuesRaw)) {
-				error_log("[Interpretation] ERROR: Mismatch in length between result '$result' and parameter '$param' ("
-					. count($resultValuesRaw) . " vs " . count($paramValuesRaw) . ").");
-				continue;
-			}
 
-			// Extract aligned numeric values
-			$paramValues = [];
-			foreach ($resultValuesRaw as $i => $val) {
-				if (is_numeric($val) && isset($paramValuesRaw[$i]) && is_numeric($paramValuesRaw[$i])) {
-					$paramValues[] = $paramValuesRaw[$i];
-				}
-			}
-			if (count($paramValues) < 3) {
-				error_log("[Interpretation] ERROR: Too few valid numeric values for parameter '$param' (only " . count($paramValues) . ").");
-				continue;
-			}
-
-			// Calculate min/max of full param range
-			$paramFullMin = min($paramValues);
-			$paramFullMax = max($paramValues);
-
-			// Value of parameter at best index
 			$bestParamVal = $paramValuesRaw[$bestIndex];
 
-			// Number of top results (10%)
-			$count = count($resultValues);
-			$n_top = max(1, (int)round($count * 0.1));
-
-			// Pair result and param values and sort by result (best first)
-			$zipped = array_map(null, $resultValues, $paramValues);
-			usort($zipped, function ($a, $b) use ($goal) {
-				return $goal === 'maximize' ? $b[0] <=> $a[0] : $a[0] <=> $b[0];
-			});
-
-			// Get top 10% param values
-			$topValues = array_slice($zipped, 0, $n_top);
-			$topParamVals = array_column($topValues, 1);
-
-			sort($topParamVals);
 			$paramInfos[] = [
 				'param' => $param,
 				'bestParamVal' => $bestParamVal,

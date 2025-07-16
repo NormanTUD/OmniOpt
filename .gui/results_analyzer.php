@@ -13,10 +13,10 @@ function create_insights(string $csvPath, array $resultNames = [], array $result
 	$rows = array_slice($data, 1);
 
 	$columnStats = calculate_stats($header, $rows);
-	$correlationMatrix = compute_correlation_matrix($columnStats, $resultNames);
+	$correlations = compute_correlation_matrix($columnStats, $resultNames);
 
 	// Additional failure analysis
-	return render_markdown($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax);
+	return render_markdown($csvPath, $columnStats, $correlations, $resultNames, $resultMinMax);
 }
 
 function load_csv(string $path): ?array {

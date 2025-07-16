@@ -16,9 +16,7 @@ function create_insights(string $csvPath, array $resultNames = [], array $result
 	$correlationMatrix = compute_correlation_matrix($columnStats, $resultNames);
 
 	// Additional failure analysis
-	$failureAnalysis = analyze_failures($header, $rows, $columnStats);
-
-	return render_markdown($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax, $failureAnalysis);
+	return render_markdown($csvPath, $columnStats, $correlationMatrix, $resultNames, $resultMinMax);
 }
 
 function load_csv(string $path): ?array {
@@ -138,102 +136,6 @@ function compute_correlation_matrix(array $stats, array $resultNames): array {
 		}
 	}
 	return $matrix;
-}
-
-function analyze_failures(array $header, array $rows, array $stats): array {
-	// We assume column "trial_status" exists and marks FAILED or COMPLETED jobs
-	$statusIndex = array_search('trial_status', $header);
-	if ($statusIndex === false) {
-		return ['error' => "No 'trial_status' column found."];
-	}
-
-	$failureFlags = [];
-	$paramValues = [];
-
-	// Build arrays of values per column, aligned with failure status 1 or 0
-	foreach ($rows as $row) {
-		if (!isset($row[$statusIndex])) continue;
-		$fail = (strtoupper($row[$statusIndex]) === 'FAILED') ? 1 : 0;
-		$failureFlags[] = $fail;
-	}
-
-	// We'll collect param values aligned to failureFlags
-	foreach ($stats as $name => &$stat) {
-		$i = $stat['index'];
-		$vals = [];
-		foreach ($rows as $row) {
-			if (!isset($row[$i]) || trim($row[$i]) === '') {
-				$vals[] = null;
-				continue;
-			}
-			if ($stat['type'] === 'numeric') {
-				$vals[] = floatval($row[$i]);
-			} else {
-				$vals[] = $row[$i];
-			}
-		}
-		$paramValues[$name] = $vals;
-	}
-	unset($stat);
-
-	// Analyze numeric params for correlation with failure
-	$numericFailures = [];
-	foreach ($stats as $name => $stat) {
-		if ($stat['type'] !== 'numeric') continue;
-		$vals = [];
-		$failFlagsFiltered = [];
-		for ($i=0; $i<count($failureFlags); $i++) {
-			if ($paramValues[$name][$i] === null) continue; // skip missing
-			$vals[] = $paramValues[$name][$i];
-			$failFlagsFiltered[] = $failureFlags[$i];
-		}
-		if (count($vals) < 2) continue;
-		$corr = pearson_correlation($vals, $failFlagsFiltered);
-		// Significant correlation threshold > 0.3 or < -0.3 for example
-		if (abs($corr) >= 0.3) {
-			$numericFailures[$name] = $corr;
-		}
-	}
-
-	// Analyze categorical params for failure association (using simple risk ratios)
-	$categoricalFailures = [];
-	foreach ($stats as $name => $stat) {
-		if ($stat['type'] !== 'categorical') continue;
-		$valueFailures = [];
-		$valueCounts = [];
-		for ($i=0; $i<count($failureFlags); $i++) {
-			$val = $paramValues[$name][$i];
-			if ($val === null) continue;
-			if (!isset($valueFailures[$val])) {
-				$valueFailures[$val] = 0;
-				$valueCounts[$val] = 0;
-			}
-			$valueFailures[$val] += $failureFlags[$i];
-			$valueCounts[$val]++;
-		}
-		// Compute failure rate per category value
-		$failureRates = [];
-		foreach ($valueFailures as $val => $failCount) {
-			$count = $valueCounts[$val];
-			$rate = $count > 0 ? $failCount / $count : 0;
-			$failureRates[$val] = $rate;
-		}
-		// Find values with high failure rate > 0.5 and that have enough samples
-		$highRiskValues = [];
-		foreach ($failureRates as $val => $rate) {
-			if ($rate > 0.5 && $valueCounts[$val] >= 3) { // minimum count 3 to reduce noise
-				$highRiskValues[$val] = $rate;
-			}
-		}
-		if (count($highRiskValues) > 0) {
-			$categoricalFailures[$name] = $highRiskValues;
-		}
-	}
-
-	return [
-		'numeric_correlations_with_failure' => $numericFailures,
-		'categorical_high_failure_values' => $categoricalFailures,
-	];
 }
 
 function compute_csv_insights(string $csvPath, array $resultMinMax, array $dont_show_col_overview = [], array $custom_params = []): array {

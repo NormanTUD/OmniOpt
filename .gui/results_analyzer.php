@@ -266,7 +266,7 @@ function bring_insights_data_together(string $csvPath, array $stats, array $corr
 		$md .= "## <span class='invert_in_dark_mode'>❕</span> No notable correlations between parameters were found (threshold: |r| > 0.3).";
 	}
 
-	$md .= "<h2><span class='invert_in_dark_mode'>📊</span> Parameter statistics</h2>";
+	$md .= "<h2>Parameter statistics</h2>";
 
 	$md .= "<table border='1' cellpadding='5' cellspacing='0'>";
 	$md .= "<thead><tr><th>Parameter</th><th>Min</th><th>Max</th><th>Mean</th><th>Std Dev</th><th>Count</th></tr></thead>";

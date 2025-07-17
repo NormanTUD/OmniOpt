@@ -1458,7 +1458,7 @@
 		foreach ($log_files as $nr => $file) {
 			$file_path = "$run_dir/$file";
 			$checkmark = $red_cross;
-			if(is_file($file_path) && is_readable($file_path)) {
+			if(is_file($file_path) && is_readable($file_path) && is_ascii_or_utf8($file_path)) {
 				$file_as_string = file_get_contents($file_path);
 
 				if (file_string_contains_results($file_as_string, $result_names)) {

@@ -1382,31 +1382,24 @@
 
 	$tabs = [];
 
-	function file_contains_results($filename, $names) {
-		if (!file_exists($filename) || !is_readable($filename)) {
+	function file_string_contains_results($file_as_string, $names) {
+		if (!is_string($file_as_string) || strlen($file_as_string) === 0) {
 			return false;
 		}
 
 		$names = array_map('strtolower', $names);
 		$remaining = array_flip($names);
 
-		$handle = fopen($filename, 'r');
-		if (!$handle) return false;
-
+		$length = strlen($file_as_string);
+		$pos = $length - 1;
 		$buffer = '';
-		$pos = -1;
-		fseek($handle, 0, SEEK_END);
-		$filesize = ftell($handle);
 
-		while (-$pos < $filesize && count($remaining) > 0) {
-			fseek($handle, $pos, SEEK_END);
-			$char = fgetc($handle);
-			if ($char === false) break;
-
+		while ($pos >= 0 && count($remaining) > 0) {
+			$char = $file_as_string[$pos];
 			$buffer = $char . $buffer;
 			$pos--;
 
-			if ($char === "\n" || -$pos >= 8192 || -$pos >= $filesize) {
+			if ($char === "\n" || ($length - $pos >= 8192) || $pos < 0) {
 				$lines = explode("\n", $buffer);
 				foreach ($lines as $line) {
 					$line_lc = strtolower($line);
@@ -1415,7 +1408,6 @@
 							if (preg_match('/\b' . preg_quote($name, '/') . '\s*:\s*[-+]?\d+(?:\.\d+)?/i', $line)) {
 								unset($remaining[$name]);
 								if (count($remaining) === 0) {
-									fclose($handle);
 									return true;
 								}
 							}
@@ -1426,7 +1418,6 @@
 			}
 		}
 
-		fclose($handle);
 		return count($remaining) === 0;
 	}
 
@@ -1467,36 +1458,38 @@
 		foreach ($log_files as $nr => $file) {
 			$file_path = "$run_dir/$file";
 			$checkmark = $red_cross;
-			if (file_contains_results($file_path, $result_names)) {
-				$checkmark = $green_checkmark;
-			} else {
+			if(is_file($file_path) && is_readable($file_path)) {
 				$file_as_string = file_get_contents($file_path);
 
-				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
-					$checkmark = $memory;
-				} else if(ends_with_submitit_info($file_as_string)) {
-					$checkmark = $red_cross;
-				} else if(contains_slurm_time_limit_error($file_as_string)) {
-					$checkmark = $time_warning;
+				if (file_string_contains_results($file_as_string, $result_names)) {
+					$checkmark = $green_checkmark;
 				} else {
-					$checkmark = $gear;
+					if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
+						$checkmark = $memory;
+					} else if(ends_with_submitit_info($file_as_string)) {
+						$checkmark = $red_cross;
+					} else if(contains_slurm_time_limit_error($file_as_string)) {
+						$checkmark = $time_warning;
+					} else {
+						$checkmark = $gear;
+					}
 				}
+
+				$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
+
+				if($runtime_string == "0s" || !$runtime_string) {
+					$runtime_string = "";
+				} else {
+					$runtime_string = " ($runtime_string) ";
+				}
+
+				$tabname = "$nr$runtime_string$checkmark";
+
+				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
+					$i == 0 ? 'aria-selected="true"' : ''
+				).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
+				$i++;
 			}
-
-			$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
-
-			if($runtime_string == "0s" || !$runtime_string) {
-				$runtime_string = "";
-			} else {
-				$runtime_string = " ($runtime_string) ";
-			}
-
-			$tabname = "$nr$runtime_string$checkmark";
-
-			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
-				$i == 0 ? 'aria-selected="true"' : ''
-			).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
-			$i++;
 		}
 
 		$output .= '</menu>';

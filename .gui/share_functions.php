@@ -2070,31 +2070,40 @@
 			return false;
 		}
 
-		$stack = [$directory];
-		$dirs = [];
-
-		while (!empty($stack)) {
-			$current = array_pop($stack);
-			$dirs[] = $current;
-
-			$files = array_diff(scandir($current), ['.', '..']);
-
-			foreach ($files as $file) {
-				$path = $current . DIRECTORY_SEPARATOR . $file;
-				if (is_dir($path)) {
-					$stack[] = $path;
-				}
-			}
-		}
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$directory,
+				FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_SELF
+			),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
 
 		$anyDeleted = false;
+		$now = time();
 
-		// Verzeichnisse in umgekehrter Reihenfolge prüfen (tiefste zuerst)
-		for ($i = count($dirs) - 1; $i >= 0; $i--) {
-			$dir = $dirs[$i];
-			$files = array_diff(scandir($dir), ['.', '..']);
-			if (empty($files) && filemtime($dir) < time() - 86400) {
-				if (@rmdir($dir)) {
+		foreach ($iterator as $fileInfo) {
+			if (!$fileInfo->isDir()) {
+				continue;
+			}
+
+			$path = $fileInfo->getPathname();
+
+			// Schnell prüfen, ob leer
+			$isEmpty = true;
+			$handle = @opendir($path);
+			if ($handle !== false) {
+				while (($entry = readdir($handle)) !== false) {
+					if ($entry !== '.' && $entry !== '..') {
+						$isEmpty = false;
+						break;
+					}
+				}
+				closedir($handle);
+			}
+
+			// Wenn leer und älter als 1 Tag, löschen
+			if ($isEmpty && $fileInfo->getMTime() < $now - 86400) {
+				if (@rmdir($path)) {
 					$anyDeleted = true;
 				}
 			}

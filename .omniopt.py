@@ -4971,7 +4971,7 @@ def get_ax_param_representation(data: dict) -> dict:
             "upper": data["bounds"][1],
             "log_scale": False,
             "logit_scale": False,
-            "digits": 8,
+            "digits": 32,
             "is_fidelity": False,
             "target_value": None
         }

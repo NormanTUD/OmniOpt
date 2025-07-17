@@ -7639,10 +7639,9 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     start_time = time.time()
     cnt = 0
     retries = 0
-    max_retries = args.max_abandoned_retrial
 
     try:
-        while cnt < n and retries < max_retries:
+        while cnt < n and retries < args.max_abandoned_retrial:
             for arm in get_batched_arms(n - cnt):
                 if cnt >= n:
                     break

@@ -227,7 +227,7 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 			continue;
 		}
 
-		$html = "<h3>Interpretation for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
+		$html = "<h3>Visualization for result: <code>$result</code> (goal: <b>$goal</b>)</h3>";
 		$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
 		foreach ($paramInfos as $info) {
 			$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";
@@ -258,7 +258,7 @@ function bring_insights_data_together(string $csvPath, array $stats, array $corr
 		$influences = compute_csv_insights($csvPath, array_combine($result_names, $resultMinMax), $dont_show_col_overview, $custom_params);
 
 		if (!empty($influences)) {
-			$md .= "\n## <span class='invert_in_dark_mode'>🔁</span> Parameter Influence on Result Quality\n\n";
+			$md .= "\n## <span class='invert_in_dark_mode'>🔁</span> Parameter\n\n";
 			foreach ($influences as $info) {
 				$md .= $info['html'] . "";
 			}

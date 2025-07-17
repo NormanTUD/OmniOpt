@@ -1494,25 +1494,25 @@
 
 		$output .= '</menu>';
 
-		$i = 0;
+		$j = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
-			if($i != 0) {
-				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
+			$output .= '<article role="tabpanel" id="single_run_' . $j . '">';
+			if($j != 0) {
+				$output .= "<div id='spinner_log_$j' class='spinner'></div>";
 			}
 
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
 
-			if ($i == 0) {
+			if ($j == 0) {
 				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
+				$output .= '<pre id="single_run_'.$j.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
-				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
+				$output .= '<pre id="single_run_'.$j.'_pre"></pre>';
 			}
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
 			$output .= '</article>';
-			$i++;
+			$j++;
 		}
 
 		$output .= '</section>';

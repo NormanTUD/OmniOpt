@@ -4782,12 +4782,12 @@ def show_end_table_and_save_end_files() -> int:
     return _exit
 
 @beartype
-def abandon_job(job: Job, trial_index: int) -> bool:
+def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
     if job:
         try:
             if ax_client:
                 _trial = ax_client.get_trial(trial_index)
-                _trial.mark_abandoned()
+                _trial.mark_abandoned(reason=reason)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
@@ -4804,7 +4804,7 @@ def abandon_job(job: Job, trial_index: int) -> bool:
 @beartype
 def abandon_all_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]:
-        abandoned = abandon_job(job, trial_index)
+        abandoned = abandon_job(job, trial_index, "abandon_all_jobs was called")
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
@@ -7701,7 +7701,7 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
         print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned.")
-        trial.mark_abandoned()
+        trial.mark_abandoned(reason="Post-Generation-Constraint failed")
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")
 

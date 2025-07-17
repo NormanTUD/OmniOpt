@@ -1191,8 +1191,7 @@
 				}
 			}
 		} catch (Exception $e) {
-			// Fehler behandeln, z.B. Permission denied oder Pfad nicht lesbar
-			error_log("Fehler beim Lesen von '$folderPath': " . $e->getMessage());
+			error_log("Error at reading '$folderPath': " . $e->getMessage());
 		}
 
 		$GLOBALS["modificationCache"][$folderPath] = $latestTime;

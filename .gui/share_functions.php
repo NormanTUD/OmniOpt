@@ -2065,27 +2065,42 @@
 		}
 	}
 
-	function delete_empty_directories(string $directory, bool $is_recursive_call): bool {
+	function delete_empty_directories(string $directory): bool {
 		if (!is_dir($directory)) {
 			return false;
 		}
 
-		$files = array_diff(scandir($directory), ['.', '..']);
+		$stack = [$directory];
+		$dirs = [];
 
-		foreach ($files as $file) {
-			$path = $directory . DIRECTORY_SEPARATOR . $file;
-			if (is_dir($path)) {
-				delete_empty_directories($path, true);
+		while (!empty($stack)) {
+			$current = array_pop($stack);
+			$dirs[] = $current;
+
+			$files = array_diff(scandir($current), ['.', '..']);
+
+			foreach ($files as $file) {
+				$path = $current . DIRECTORY_SEPARATOR . $file;
+				if (is_dir($path)) {
+					$stack[] = $path;
+				}
 			}
 		}
 
-		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
+		$anyDeleted = false;
 
-		if ($is_recursive_call && empty($filesAfterCheck) && filemtime($directory) < time() - 86400) {
-			rmdir($directory);
-			return true;
+		// Verzeichnisse in umgekehrter Reihenfolge prüfen (tiefste zuerst)
+		for ($i = count($dirs) - 1; $i >= 0; $i--) {
+			$dir = $dirs[$i];
+			$files = array_diff(scandir($dir), ['.', '..']);
+			if (empty($files) && filemtime($dir) < time() - 86400) {
+				if (@rmdir($dir)) {
+					$anyDeleted = true;
+				}
+			}
 		}
-		return false;
+
+		return $anyDeleted;
 	}
 
 	function _delete_old_shares($dir) {

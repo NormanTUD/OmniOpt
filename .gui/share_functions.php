@@ -1175,22 +1175,27 @@
 		}
 
 		$latestTime = 0;
-		$dir = opendir($folderPath);
 
-		while (($file = readdir($dir)) !== false) {
-			$filePath = $folderPath . '/' . $file;
-			if ($file != "." && $file != "..") {
-				if (is_dir($filePath)) {
-					$latestTime = max($latestTime, get_latest_modification_time($filePath));
-				} else {
-					$latestTime = max($latestTime, filemtime($filePath));
+		try {
+			$iterator = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($folderPath, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::SELF_FIRST
+			);
+
+			foreach ($iterator as $fileInfo) {
+				if ($fileInfo->isFile()) {
+					$mtime = $fileInfo->getMTime();
+					if ($mtime > $latestTime) {
+						$latestTime = $mtime;
+					}
 				}
 			}
+		} catch (Exception $e) {
+			// Fehler behandeln, z.B. Permission denied oder Pfad nicht lesbar
+			error_log("Fehler beim Lesen von '$folderPath': " . $e->getMessage());
 		}
 
-		closedir($dir);
 		$GLOBALS["modificationCache"][$folderPath] = $latestTime;
-
 		return $latestTime;
 	}
 

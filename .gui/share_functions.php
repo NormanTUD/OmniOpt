@@ -2997,7 +2997,7 @@ $onclick_string
 
 		foreach ($files as $file) {
 			$basename = basename($file);
-			if (preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
+			if (is_file($file) && is_ascii_or_utf8($file) && preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
 				$index = $matches[1];
 				$gpu_usage_data[$index] = [];
 

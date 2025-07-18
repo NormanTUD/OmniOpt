@@ -1891,6 +1891,7 @@ function _colorize_table_entries_by_trial_status () {
 		let color = el.textContent.includes("COMPLETED") ? "lightgreen" :
 			el.textContent.includes("RUNNING") ? "orange" :
 			el.textContent.includes("FAILED") ? "red" :
+			el.textContent.includes("CANDIDATE") ? "lightblue" :
 			el.textContent.includes("ABANDONED") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
 		el.classList.add("invert_in_dark_mode");

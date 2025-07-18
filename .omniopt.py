@@ -17,6 +17,7 @@ import random
 import tempfile
 import threading
 
+arms_by_signature_for_deduplication: dict = {}
 initialized_storage: bool = False
 prepared_setting_to_custom: bool = False
 whole_start_time: float = time.time()
@@ -7574,6 +7575,13 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
         _fatal_error("Error: global_gs is not defined", 101)
 
 @beartype
+def deduplicated_arm(arm: Any) -> bool:
+    if arm.signature in arms_by_signature_for_deduplication:
+        return True
+
+    return False
+
+@beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     batched_arms: list = []
     attempts = 0
@@ -7697,6 +7705,15 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     )
 
     trial = ax_client.experiment.new_trial(generator_run)
+
+    arm = trial.arms[0]
+    if deduplicated_arm(arm):
+        print_debug(f"Duplicated arm: {arm}")
+        trial.mark_abandoned(reason="Duplication detected")
+        return None
+
+    arms_by_signature_for_deduplication[arm.signature] = arm
+
     params = arm.parameters
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):

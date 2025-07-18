@@ -7710,7 +7710,7 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if deduplicated_arm(arm):
         print_debug(f"Duplicated arm: {arm}")
         trial.mark_abandoned(reason="Duplication detected")
-        return None
+        raise TrialRejected("Duplicate arm.")
 
     arms_by_name_for_deduplication[arm.name] = arm
 

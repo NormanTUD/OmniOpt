@@ -17,7 +17,7 @@ import random
 import tempfile
 import threading
 
-arms_by_signature_for_deduplication: dict = {}
+arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
 prepared_setting_to_custom: bool = False
 whole_start_time: float = time.time()
@@ -7576,7 +7576,7 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
 
 @beartype
 def deduplicated_arm(arm: Any) -> bool:
-    if arm.signature in arms_by_signature_for_deduplication:
+    if arm.name in arms_by_name_for_deduplication:
         return True
 
     return False
@@ -7712,7 +7712,7 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
         trial.mark_abandoned(reason="Duplication detected")
         return None
 
-    arms_by_signature_for_deduplication[arm.signature] = arm
+    arms_by_name_for_deduplication[arm.name] = arm
 
     params = arm.parameters
 

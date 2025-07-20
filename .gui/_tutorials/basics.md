@@ -24,7 +24,7 @@ OmniOpt2 is self-installing and does not require any additional manual setup. Si
 ## Usage
 
 ```bash
-./omniopt \
+omniopt \
 	--partition=alpha \
 	--experiment_name=my_experiment \
 	--mem_gb=1 \
@@ -100,12 +100,12 @@ To run OmniOpt2 locally, simply fill the GUI, copy the curl-command, and run it 
 
 ### Run in docker
 
-To build a docker container, simply run `./omniopt_docker` in the main folder. Docker is not supported on the HPC system, though. If you have Debian or systems based on it, it will automatically install docker if it's not installed. For other systems, you need to install docker yourself.
+To build a docker container, simply run `omniopt_docker` in the main folder. Docker is not supported on the HPC system, though. If you have Debian or systems based on it, it will automatically install docker if it's not installed. For other systems, you need to install docker yourself.
 
-The `./omniopt_docker` command will build the container. You can also run several commands directly from the `./omniopt_docker` command like this:
+The `omniopt_docker` command will build the container. You can also run several commands directly from the `omniopt_docker` command like this:
 
 ```bash
-./omniopt_docker omniopt --tests
+omniopt_docker omniopt --tests
 ```
 
 For example, this will install docker (on Debian), build the container, and run OmniOpt2 with the `--tests` parameter.

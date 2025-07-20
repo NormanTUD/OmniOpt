@@ -121,7 +121,7 @@ It is important that you run these commands before you run OmniOpt2, and also th
 		<td>Show <samp>omniopt_plot</samp>-commands before executing them</td>
 	</tr>
 	<tr>
-		<td><pre class="invert_in_dark_mode"><code class="language-bash">export OMNIOPT_CALL="./omniopt"</code></pre></td>
+		<td><pre class="invert_in_dark_mode"><code class="language-bash">export OMNIOPT_CALL="omniopt"</code></pre></td>
 		<td>How to call OmniOpt2. Is useful to differentiate between pip installs and installs via git.</td>
 	</tr>
 </table>

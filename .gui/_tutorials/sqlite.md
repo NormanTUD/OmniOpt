@@ -229,7 +229,7 @@ Using this option disables the saving into the SQLite3 database.
 This command was run:
 
 ```bash
-./omniopt \
+omniopt \
 	--live_share \
 	--send_anonymized_usage_stats \
 	--partition alpha \

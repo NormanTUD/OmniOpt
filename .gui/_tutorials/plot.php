@@ -20,7 +20,7 @@ To plot over X11, make sure you are connected with <samp>ssh -X user@login2.barn
 
 Then, <samp>cd</samp> into your OmniOpt2 directory. Assuming you have already ran an OmniOpt2-run and the results are in <samp>runs/my_experiment/0</samp> (adapt this to your experiment folder!), run this:
 
-<pre class="invert_in_dark_mode"><code class="language-bash">./omniopt_plot runs/my_experiment/0</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">omniopt_plot runs/my_experiment/0</code></pre>
 
 You will be presented by a menu like this:<br>
 
@@ -30,11 +30,11 @@ Use your arrow keys to navigate to the plot type you like, and then press enter.
 
 <h3 id="plot-directly">Plot directly</h3>
 If you know what plot you want, you can directly plot it by using:
-<pre class="invert_in_dark_mode"><code class="language-bash">./omniopt_plot runs/my_experiment/0 scatter # change plot_type accordingly</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">omniopt_plot runs/my_experiment/0 scatter # change plot_type accordingly</code></pre>
 
 <h3 id="plot_to_file">Plot to file</h3>
 All plot scripts support to export your plot to a file.
-<pre class="invert_in_dark_mode"><code class="language-bash">./omniopt_plot runs/my_experiment/0 scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
+<pre class="invert_in_dark_mode"><code class="language-bash">omniopt_plot runs/my_experiment/0 scatter --save_to_file filename.svg # change plot_type and file name accordingly. Allowed are svg and png.</code></pre>
 
 <h2 id="plot-types">Plot types</h2>
 <p>There are many different plot types, some of which can only be shown on jobs that ran on Taurus, or jobs with more than a specific number of results or parameters. If you run the <samp>omniopt_plot</samp>-script, it will automatically show you plots that are readily available.</p>
@@ -64,7 +64,7 @@ All plot scripts support to export your plot to a file.
 
 			echo "<h3 id='$plot_type'>$title</h3>\n";
 
-			echo "<pre class='invert_in_dark_mode'><code class='language-bash'>./omniopt_plot runs/my_experiment/0 $plot_type</code></pre>\n";
+			echo "<pre class='invert_in_dark_mode'><code class='language-bash'>omniopt_plot runs/my_experiment/0 $plot_type</code></pre>\n";
 
 			echo "<p>$desc</p>\n";
 

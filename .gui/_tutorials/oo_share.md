@@ -11,7 +11,7 @@
 OmniOpt2-Share allows you to Share your results with others, online. You can simply submit a job by
 
 ```bash
-./omniopt_share runs/my_experiment/0
+omniopt_share runs/my_experiment/0
 ```
 
 The program will upload the

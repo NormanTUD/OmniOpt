@@ -15,7 +15,7 @@ Dry-Runs allow you to test your OmniOpt2-configuration by running very quick job
 Simply attach `--dryrun` to your OmniOpt2-call, like this, or chose the dry-run-Option in the GUI:
 
 ```bash
-./omniopt \
+omniopt \
 	--live_share \
 	--send_anonymized_usage_stats \
 	--partition alpha \

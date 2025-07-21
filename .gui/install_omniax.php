@@ -78,15 +78,8 @@
 	    $bash_lines[] = '  clear_line';
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = 'else';
-	    $bash_lines[] = '  i=0';
-	    $bash_lines[] = '  while true; do';
-	    $bash_lines[] = '    clear_line';
-	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
-	    $bash_lines[] = '    sleep 0.25';
-	    $bash_lines[] = '    i=$((i+1))';
-	    $bash_lines[] = '    if [ $i -ge 4 ]; then break; fi';
-	    $bash_lines[] = '  done';
 	    $bash_lines[] = '  clear_line';
+	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
 	    $bash_lines[] = '  if pip install -q ' . escapeshellarg($req) . '; then';
 	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = '  else';

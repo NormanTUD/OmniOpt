@@ -22,6 +22,20 @@
 		return $cleaned_lines;
 	}
 
+	function getMd5HashOfFile(string $filePath): string {
+		if (!is_readable($filePath)) {
+			throw new Exception("File '$filePath' does not exist or is not readable.");
+		}
+
+		$hash = md5_file($filePath);
+
+		if ($hash === false) {
+			throw new Exception("Error at calculating the MD5 hash of the file '$filePath'.");
+		}
+
+		return $hash;
+	}
+
 	$pip_requirements = read_requirements_file("../requirements.txt");
 	$pip_requirements[] = "omniopt2";
 
@@ -37,7 +51,7 @@
 	$total = count($pip_requirements);
 	$bash_lines = array();
 
-	$bash_lines[] = 'spin=("⠇" "⠏" "⠋" "⠙" "⠹" "⠸" "⠴" "⠦" "⠧")';
+	$bash_lines[] = 'hash_requirements="'.getMd5HashOfFile("../requirements.txt").'"';
 	$bash_lines[] = 'GREEN="\033[0;32m"';
 	$bash_lines[] = 'RED="\033[0;31m"';
 	$bash_lines[] = 'YELLOW="\033[1;33m"';
@@ -88,10 +102,11 @@
 	    $bash_lines[] = 'fi';
 	}
 
-	$bash_lines[] = 'echo ""';
 	$bash_lines[] = 'if [ ${#failed[@]} -eq 0 ]; then';
-	$bash_lines[] = '  echo -e "${GREEN}✔ All packages installed successfully.${NC}"';
+	$bash_lines[] = '  clear_line';
+	$bash_lines[] = '  echo $hash_requirements > "$omniopt_venv/hash"';
 	$bash_lines[] = 'else';
+	$bash_lines[] = '  echo ""';
 	$bash_lines[] = '  echo -e "${RED}✘ The following packages failed to install:${NC}"';
 	$bash_lines[] = '  for pkg in "${failed[@]}"; do echo -e "  ${RED}- $pkg${NC}"; done';
 	$bash_lines[] = 'fi';

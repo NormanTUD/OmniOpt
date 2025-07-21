@@ -74,11 +74,10 @@
 	    $bash_lines[] = 'current=' . ($index + 1);
 	    $bash_lines[] = 'pkgname="' . strtolower(preg_replace('/[^a-zA-Z0-9_\[\]-]/', '', $req)) . '"';
 	    $bash_lines[] = 'pkgname_without_brackets="' . strtolower(preg_replace('/\[.*/', '', $req)) . '"';
+	    $bash_lines[] = 'clear_line';
 	    $bash_lines[] = 'if echo "$installed" | grep -qx "$pkgname_without_brackets"; then';
-	    $bash_lines[] = '  clear_line';
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = 'else';
-	    $bash_lines[] = '  clear_line';
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
 	    $bash_lines[] = '  if pip install -q ' . escapeshellarg($req) . '; then';
 	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
@@ -88,7 +87,6 @@
 	    $bash_lines[] = '    exit 1';
 	    $bash_lines[] = '  fi';
 	    $bash_lines[] = 'fi';
-	    $bash_lines[] = 'echo ""';
 	}
 
 	$bash_lines[] = 'echo ""';

@@ -51,10 +51,6 @@
 	$bash_lines[] = '';
 	$bash_lines[] = 'clear_line() { echo -ne "\r\033[K"; }';
 	$bash_lines[] = 'cursor_up() { echo -ne "\033[A"; }';
-	$bash_lines[] = 'show_spinner() {';
-	$bash_lines[] = '  printf "%s" "${spin[$spin_index]}"';
-	$bash_lines[] = '  spin_index=$(( (spin_index + 1) % ${#spin[@]} ))';
-	$bash_lines[] = '}';
 	$bash_lines[] = 'progress_bar() {';
 	$bash_lines[] = '  local filled=$(( ($current * 40) / $total ))';
 	$bash_lines[] = '  local empty=$(( 40 - filled ))';
@@ -79,13 +75,12 @@
 	    $bash_lines[] = 'pkgname="' . strtolower(preg_replace('/[^a-zA-Z0-9_\[\]-]/', '', $req)) . '"';
 	    $bash_lines[] = 'if echo "$installed" | grep -qx "$pkgname"; then';
 	    $bash_lines[] = '  clear_line';
-	    $bash_lines[] = '  echo -ne "$(progress_bar) ${YELLOW}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = 'else';
 	    $bash_lines[] = '  i=0';
 	    $bash_lines[] = '  while true; do';
 	    $bash_lines[] = '    clear_line';
-	    $bash_lines[] = '    show_spinner';
-	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
+	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
 	    $bash_lines[] = '    sleep 0.25';
 	    $bash_lines[] = '    i=$((i+1))';
 	    $bash_lines[] = '    if [ $i -ge 4 ]; then break; fi';
@@ -96,6 +91,7 @@
 	    $bash_lines[] = '  else';
 	    $bash_lines[] = '    echo -e "${RED}✘ Failed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = '    failed+=(' . escapeshellarg($req) . ')';
+	    $bash_lines[] = '    exit 1';
 	    $bash_lines[] = '  fi';
 	    $bash_lines[] = 'fi';
 	    $bash_lines[] = 'echo ""';

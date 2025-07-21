@@ -44,7 +44,7 @@
 	foreach ($pip_requirements as $requirement) {
 		$requirement = trim($requirement);
 		if ($requirement !== '') {
-			$pip_commands[] = 'pip install -q --upgrade ' . escapeshellarg($requirement);
+			$pip_commands[] = 'pip install --use-pep517 -q --upgrade ' . escapeshellarg($requirement);
 		}
 	}
 
@@ -394,7 +394,7 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			pip install --upgrade -q pip
+			pip install --use-pep517 --upgrade -q pip
 
 <?php
 			echo $bash_script;
@@ -408,7 +408,7 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			pip install --upgrade -q pip
+			pip install --use-pep517 --upgrade -q pip
 
 <?php
 			echo $bash_script;

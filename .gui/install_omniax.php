@@ -78,10 +78,9 @@
 	$bash_lines[] = '  local remaining=$((avg * (total - current)))';
 	$bash_lines[] = '  local min=$((remaining / 60))';
 	$bash_lines[] = '  local sec=$((remaining % 60))';
-	$bash_lines[] = '  printf "%02d:%02d" $min $sec';
-	$bash_lines[] = '}';
-	$bash_lines[] = 'show_eta() {';
-	$bash_lines[] = '  echo -ne " (ETA: $(estimate_time))${NC}"';
+	$bash_lines[] = '  if [[ $remaining -gt 10 ]]; then';
+	$bash_lines[] = '    printf "%02d:%02d" $min $sec';
+	$bash_lines[] = '  fi';
 	$bash_lines[] = '}';
 	$bash_lines[] = '';
 	$bash_lines[] = '';
@@ -94,7 +93,7 @@
 	    $bash_lines[] = 'if echo "$installed" | grep -qx "$pkgname_without_brackets"; then';
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = 'else';
-	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total)$(show_eta)"';
+	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total)$(estimate_time)"';
 	    $bash_lines[] = '  if PYTHONWARNINGS="ignore::DeprecationWarning" pip install -q ' . escapeshellarg($req) . '; then';
 	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = '  else';

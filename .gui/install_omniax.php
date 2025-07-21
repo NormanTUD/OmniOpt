@@ -98,8 +98,6 @@
 
 	$bash_script = implode("\n", $bash_lines);
 
-	#dier($bash_script);
-
 	header('Content-Type: application/bash');
 ?>
 #!/usr/bin/env bash -i

@@ -117,7 +117,8 @@ is_interactive=1
 depth=1
 debug=0
 reservation=""
-omniopt_venv=omniopt_venv
+omniopt_venv="$HOME/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
+
 no_whiptail=0
 installation_method="clone"
 dryrun=0

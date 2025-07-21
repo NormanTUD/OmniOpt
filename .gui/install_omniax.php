@@ -1,3 +1,90 @@
+<?php
+	include_once("_functions.php");
+
+	function read_requirements_file($file_path) {
+		if (!file_exists($file_path)) {
+			trigger_error("File not found: " . $file_path, E_USER_ERROR);
+		}
+
+		$lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+		if ($lines === false) {
+			trigger_error("Error reading the file: " . $file_path, E_USER_ERROR);
+		}
+
+		$cleaned_lines = array();
+		foreach ($lines as $line) {
+			$trimmed = trim($line);
+			if ($trimmed !== '' && $trimmed[0] !== '#') {
+				$cleaned_lines[] = $trimmed;
+			}
+		}
+
+		return $cleaned_lines;
+	}
+
+	$pip_requirements = read_requirements_file("../requirements.txt");
+	$pip_requirements[] = "omniopt2";
+
+	$pip_commands = array();
+
+	foreach ($pip_requirements as $requirement) {
+		$requirement = trim($requirement);
+		if ($requirement !== '') {
+			$pip_commands[] = 'pip install -q ' . escapeshellarg($requirement);
+		}
+	}
+
+	$total = count($pip_requirements);
+	$bash_lines = array();
+
+	$bash_lines[] = 'spin=("⠇" "⠏" "⠋" "⠙" "⠹" "⠸" "⠴" "⠦" "⠧")';
+	$bash_lines[] = 'GREEN="\033[0;32m"';
+	$bash_lines[] = 'NC="\033[0m"';
+	$bash_lines[] = 'total=' . $total;
+	$bash_lines[] = 'current=0';
+	$bash_lines[] = 'spin_index=0';
+	$bash_lines[] = 'clear_line() { echo -ne "\r\033[K"; }';
+	$bash_lines[] = 'show_spinner() {';
+	$bash_lines[] = '  printf "\r%s" "${spin[$spin_index]}"';
+	$bash_lines[] = '  spin_index=$(( (spin_index + 1) % ${#spin[@]} ))';
+	$bash_lines[] = '}';
+	$bash_lines[] = 'progress_bar() {';
+	$bash_lines[] = '  local filled=$(( ($current * 40) / $total ))';
+	$bash_lines[] = '  local empty=$(( 40 - filled ))';
+	$bash_lines[] = '  printf "[%s%s]" "$(printf "#%.0s" $(seq 1 $filled))" "$(printf " %.0s" $(seq 1 $empty))"';
+	$bash_lines[] = '}';
+	$bash_lines[] = 'echo ""';
+	$bash_lines[] = 'echo ""';
+
+	foreach ($pip_requirements as $index => $req) {
+		$escaped = escapeshellarg($req);
+		$bash_lines[] = '';
+		$bash_lines[] = 'current=' . ($index + 1);
+		$bash_lines[] = 'i=0';
+		$bash_lines[] = 'while true; do';
+		$bash_lines[] = '  clear_line';
+		$bash_lines[] = '  show_spinner';
+		$bash_lines[] = '  echo -n " Installing ' . $escaped . ' [" $current / $total "] "; progress_bar;';
+		$bash_lines[] = '  sleep 0.25';
+		$bash_lines[] = '  i=$((i+1))';
+		$bash_lines[] = '  if [ $i -ge 4 ]; then break; fi';  // ca. 1 Sekunde animierter Spinner vor Installation
+		$bash_lines[] = 'done';
+		$bash_lines[] = 'clear_line';
+		$bash_lines[] = 'pip install -q ' . $escaped;
+		$bash_lines[] = 'clear_line';
+		$bash_lines[] = 'echo -e "${GREEN}✔ Installed ' . $req . ' ($current/$total)${NC}"';
+		$bash_lines[] = 'sleep 0.2';
+	}
+
+	$bash_lines[] = 'echo ""';
+	$bash_lines[] = 'echo -e "${GREEN}OmniOpt2 installed.${NC}"';
+
+	$bash_script = implode("\n", $bash_lines);
+
+	#dier($bash_script);
+
+	header('Content-Type: application/bash');
+?>
 #!/usr/bin/env bash -i
 
 {
@@ -274,8 +361,9 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip install omniopt2"
-			pip install omniopt2
+<?php
+			echo $bash_script;
+?>
 		else
 			red_text "Could not find $venv_activate_file. Cannot activate environment. OmniOpt2 installation cancelled."
 			exit 14
@@ -285,8 +373,9 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip install omniopt2"
-			pip install omniopt2
+<?php
+			echo $bash_script;
+?>
 
 			run_command=$(echo "$start_command" | sed -e 's#^\./##')
 

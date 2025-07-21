@@ -10,7 +10,6 @@
 	$filename = preg_replace($pattern, '', $requested_file);
 
 	if($filename == "install_omniax.sh" || $filename == "install_omniopt.sh" || $filename == "install_omniopt2.sh") {
-		//header('Content-Type: application/bash');
 		include("install_omniax.php");
 		exit(0);
 	}

@@ -79,7 +79,7 @@
 	$bash_lines[] = '  local min=$((remaining / 60))';
 	$bash_lines[] = '  local sec=$((remaining % 60))';
 	$bash_lines[] = '  if [[ $remaining -gt 10 ]]; then';
-	$bash_lines[] = '    printf "%02d:%02d" $min $sec';
+	$bash_lines[] = '    printf " (ETA: %02d:%02d)" $min $sec';
 	$bash_lines[] = '  fi';
 	$bash_lines[] = '}';
 	$bash_lines[] = '';

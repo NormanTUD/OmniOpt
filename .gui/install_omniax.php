@@ -54,7 +54,7 @@
 	$bash_lines[] = 'progress_bar() {';
 	$bash_lines[] = '  local filled=$(( ($current * 40) / $total ))';
 	$bash_lines[] = '  local empty=$(( 40 - filled ))';
-	$bash_lines[] = '  printf "[%s%s]" "$(printf "#%.0s" $(seq 1 $filled))" "$(printf " %.0s" $(seq 1 $empty))"';
+	$bash_lines[] = '  printf "[%s%s]" "$(printf "━%.0s" $(seq 1 $filled))" "$(printf " %.0s" $(seq 1 $empty))"';
 	$bash_lines[] = '}';
 	$bash_lines[] = 'estimate_time() {';
 	$bash_lines[] = '  local now=$(date +%s)';

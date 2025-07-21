@@ -274,8 +274,8 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip3 install omniopt2"
-			pip3 install omniopt2
+			dbg "pip install omniopt2"
+			pip install omniopt2
 		else
 			red_text "Could not find $venv_activate_file. Cannot activate environment. OmniOpt2 installation cancelled."
 			exit 14
@@ -285,8 +285,8 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip3 install omniopt2"
-			pip3 install omniopt2
+			dbg "pip install omniopt2"
+			pip install omniopt2
 
 			run_command=$(echo "$start_command" | sed -e 's#^\./##')
 

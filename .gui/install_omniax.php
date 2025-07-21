@@ -39,13 +39,20 @@
 
 	$bash_lines[] = 'spin=("⠇" "⠏" "⠋" "⠙" "⠹" "⠸" "⠴" "⠦" "⠧")';
 	$bash_lines[] = 'GREEN="\033[0;32m"';
+	$bash_lines[] = 'RED="\033[0;31m"';
+	$bash_lines[] = 'YELLOW="\033[1;33m"';
 	$bash_lines[] = 'NC="\033[0m"';
 	$bash_lines[] = 'total=' . $total;
 	$bash_lines[] = 'current=0';
 	$bash_lines[] = 'spin_index=0';
+	$bash_lines[] = 'start_time=$(date +%s)';
+	$bash_lines[] = 'declare -a failed=()';
+	$bash_lines[] = 'installed=$(pip freeze --all | cut -d "=" -f 1 | tr "[:upper:]" "[:lower:]")';
+	$bash_lines[] = '';
 	$bash_lines[] = 'clear_line() { echo -ne "\r\033[K"; }';
+	$bash_lines[] = 'cursor_up() { echo -ne "\033[A"; }';
 	$bash_lines[] = 'show_spinner() {';
-	$bash_lines[] = '  printf "\r%s" "${spin[$spin_index]}"';
+	$bash_lines[] = '  printf "%s" "${spin[$spin_index]}"';
 	$bash_lines[] = '  spin_index=$(( (spin_index + 1) % ${#spin[@]} ))';
 	$bash_lines[] = '}';
 	$bash_lines[] = 'progress_bar() {';
@@ -53,31 +60,54 @@
 	$bash_lines[] = '  local empty=$(( 40 - filled ))';
 	$bash_lines[] = '  printf "[%s%s]" "$(printf "#%.0s" $(seq 1 $filled))" "$(printf " %.0s" $(seq 1 $empty))"';
 	$bash_lines[] = '}';
+	$bash_lines[] = 'estimate_time() {';
+	$bash_lines[] = '  local now=$(date +%s)';
+	$bash_lines[] = '  local elapsed=$((now - start_time))';
+	$bash_lines[] = '  if [ $current -eq 0 ]; then echo "--:--"; return; fi';
+	$bash_lines[] = '  local avg=$((elapsed / current))';
+	$bash_lines[] = '  local remaining=$((avg * (total - current)))';
+	$bash_lines[] = '  local min=$((remaining / 60))';
+	$bash_lines[] = '  local sec=$((remaining % 60))';
+	$bash_lines[] = '  printf "%02d:%02d" $min $sec';
+	$bash_lines[] = '}';
+	$bash_lines[] = '';
 	$bash_lines[] = 'echo ""';
-	$bash_lines[] = 'echo ""';
+	$bash_lines[] = '';
 
 	foreach ($pip_requirements as $index => $req) {
-		$escaped = escapeshellarg($req);
-		$bash_lines[] = '';
-		$bash_lines[] = 'current=' . ($index + 1);
-		$bash_lines[] = 'i=0';
-		$bash_lines[] = 'while true; do';
-		$bash_lines[] = '  clear_line';
-		$bash_lines[] = '  show_spinner';
-		$bash_lines[] = '  echo -n " Installing ' . $escaped . ' [" $current / $total "] "; progress_bar;';
-		$bash_lines[] = '  sleep 0.25';
-		$bash_lines[] = '  i=$((i+1))';
-		$bash_lines[] = '  if [ $i -ge 4 ]; then break; fi';  // ca. 1 Sekunde animierter Spinner vor Installation
-		$bash_lines[] = 'done';
-		$bash_lines[] = 'clear_line';
-		$bash_lines[] = 'pip install -q ' . $escaped;
-		$bash_lines[] = 'clear_line';
-		$bash_lines[] = 'echo -e "${GREEN}✔ Installed ' . $req . ' ($current/$total)${NC}"';
-		$bash_lines[] = 'sleep 0.2';
+	    $bash_lines[] = 'current=' . ($index + 1);
+	    $bash_lines[] = 'pkgname="' . strtolower(preg_replace('/[^a-zA-Z0-9_\[\]-]/', '', $req)) . '"';
+	    $bash_lines[] = 'if echo "$installed" | grep -qx "$pkgname"; then';
+	    $bash_lines[] = '  clear_line';
+	    $bash_lines[] = '  echo -e "${YELLOW}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = 'else';
+	    $bash_lines[] = '  i=0';
+	    $bash_lines[] = '  while true; do';
+	    $bash_lines[] = '    clear_line';
+	    $bash_lines[] = '    show_spinner';
+	    $bash_lines[] = '    echo -ne " Installing ' . $req . ' ($current/$total) "; progress_bar; echo -n " ETA: $(estimate_time)"';
+	    $bash_lines[] = '    sleep 0.25';
+	    $bash_lines[] = '    i=$((i+1))';
+	    $bash_lines[] = '    if [ $i -ge 4 ]; then break; fi';
+	    $bash_lines[] = '  done';
+	    $bash_lines[] = '  clear_line';
+	    $bash_lines[] = '  if pip install -q ' . escapeshellarg($req) . '; then';
+	    $bash_lines[] = '    echo -e "${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = '  else';
+	    $bash_lines[] = '    echo -e "${RED}✘ Failed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = '    failed+=(' . escapeshellarg($req) . ')';
+	    $bash_lines[] = '  fi';
+	    $bash_lines[] = 'fi';
+	    $bash_lines[] = 'echo ""';
 	}
 
 	$bash_lines[] = 'echo ""';
-	$bash_lines[] = 'echo -e "${GREEN}OmniOpt2 installed.${NC}"';
+	$bash_lines[] = 'if [ ${#failed[@]} -eq 0 ]; then';
+	$bash_lines[] = '  echo -e "${GREEN}✔ All packages installed successfully.${NC}"';
+	$bash_lines[] = 'else';
+	$bash_lines[] = '  echo -e "${RED}✘ The following packages failed to install:${NC}"';
+	$bash_lines[] = '  for pkg in "${failed[@]}"; do echo -e "  ${RED}- $pkg${NC}"; done';
+	$bash_lines[] = 'fi';
 
 	$bash_script = implode("\n", $bash_lines);
 

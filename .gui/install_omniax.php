@@ -78,7 +78,7 @@
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = 'else';
 	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total) (ETA: $(estimate_time))${NC}"';
-	    $bash_lines[] = '  if pip install -q ' . escapeshellarg($req) . '; then';
+	    $bash_lines[] = '  if PYTHONWARNINGS="ignore::DeprecationWarning" pip install -q ' . escapeshellarg($req) . '; then';
 	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
 	    $bash_lines[] = '  else';
 	    $bash_lines[] = '    echo -e "${RED}✘ Failed: ' . $req . ' ($current/$total)${NC}"';
@@ -377,6 +377,8 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
+			pip install --upgrade -q pip
+
 <?php
 			echo $bash_script;
 ?>
@@ -388,6 +390,8 @@ function install_and_run {
 		if [[ -e "$venv_activate_file" ]]; then
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
+
+			pip install --upgrade -q pip
 
 <?php
 			echo $bash_script;

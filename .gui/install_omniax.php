@@ -67,7 +67,6 @@
 	$bash_lines[] = '  printf "%02d:%02d" $min $sec';
 	$bash_lines[] = '}';
 	$bash_lines[] = '';
-	$bash_lines[] = 'echo ""';
 	$bash_lines[] = '';
 
 	foreach ($pip_requirements as $index => $req) {

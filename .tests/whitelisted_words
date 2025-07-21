@@ -2839,3 +2839,13 @@ mvenv
 ncyellow
 op
 pkg
+dateutil
+emoji
+multidict
+mypydie
+pymysql
+pyspellchecker
+qrcode
+qx
+scikit
+tzlocal

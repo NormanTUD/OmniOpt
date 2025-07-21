@@ -44,7 +44,7 @@
 	foreach ($pip_requirements as $requirement) {
 		$requirement = trim($requirement);
 		if ($requirement !== '') {
-			$pip_commands[] = 'pip install -q ' . escapeshellarg($requirement);
+			$pip_commands[] = 'pip install -q --upgrade ' . escapeshellarg($requirement);
 		}
 	}
 

@@ -128,7 +128,7 @@
 				red_text "Cannot share $arg: folder not found"
 			fi
 		else
-			red_text "Invalid option $arg, is this supposed to be your run folder? If so, it doesn't exist."
+			red_text "Invalid option $arg, is this supposed to be your run folder? If so, it doesn't exist.\n"
 			help 1
 		fi
 	done

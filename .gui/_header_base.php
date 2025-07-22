@@ -36,7 +36,9 @@
 		$script_name = $_SERVER["SCRIPT_NAME"];
 		$main_script_dir = preg_replace("/(\/.*)\/.*/", "\\1/", $script_name);
 		$main_script_dir = preg_replace("/\/+/", "/", $main_script_dir);
-		return remove_php_script_from_path($main_script_dir);
+		$GLOBALS["main_script_dir"] = remove_php_script_from_path($main_script_dir);
+
+		return $GLOBALS["main_script_dir"];
 	}
 
 	function get_dir_path () {

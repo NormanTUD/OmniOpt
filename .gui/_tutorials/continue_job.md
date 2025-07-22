@@ -12,7 +12,7 @@ Continuing an old job with the same options as previously, but with awareness of
 that have already been tested, is as simple as this, assuming your job is in `runs/my_experiment/0`:
 
 ```bash
-./omniopt --continue runs/my_experiment/0
+omniopt --continue runs/my_experiment/0
 ```
 
 This will start a new run with the same settings as the old one, but load all already tried out data points, and
@@ -23,7 +23,7 @@ continue the search from there.
 In continued runs, some options can be changed. For example,
 
 ```bash
-./omniopt --continue runs/my_experiment/0 --time=360
+omniopt --continue runs/my_experiment/0 --time=360
 ```
 
 Will run the continuation for 6 hours ( = 360 minutes), independent of how long the old job ran.
@@ -37,7 +37,7 @@ the `epochs` parameter that was previously defined and could have been, for exam
 this new run, all old values will be considered, but new values of epochs can be between 0 and 1000.
 
 ```bash
-./omniopt --continue runs/my_experiment/0 --parameter epochs range 0 1000 int
+omniopt --continue runs/my_experiment/0 --parameter epochs range 0 1000 int
 ```
 
 All parameters that are not specified here are taken out of the old run, and thus stay in the same borders.

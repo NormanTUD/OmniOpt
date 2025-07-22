@@ -16,7 +16,7 @@ The external generator works by putting a JSON file that contains all previously
 You can specify your program with the `--external_generator` parameter, though it must be in base64. To take effect, the `--model` must be set to `EXTERNAL_GENERATOR`. See the last parameters here:
 
 ```bash
-./omniopt \
+omniopt \
     --partition=alpha \
     --experiment_name=EXTERNAL_GENERATOR_test \
     --mem_gb=1 \
@@ -127,7 +127,7 @@ For each new hyperparameter (after the SOBOL-phase), the program will be invoked
 ## Another example run code and `input.json`-file
 
 ```bash
-./omniopt \
+omniopt \
 	--partition=alpha \
 	--experiment_name=EXTERNAL_GENERATOR_test \
 	--mem_gb=1 \

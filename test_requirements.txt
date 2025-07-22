@@ -39,7 +39,6 @@ coverage
 cowsay
 beautifulsoup4
 emoji
-hiplot
 html5lib
 lxml
 toml

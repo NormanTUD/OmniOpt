@@ -215,13 +215,6 @@ var tableData = [
 		help: "This contains the time the job was started and ended, it's exit code, and runtime-uuid to count the number of unique runs and a 'user-id', which is a hashed output of the aes256 encrypted username/groups combination and some other values, but cannot be traced back to any specific user."
 	},
 	{
-		label: "Automatically checkout to latest checked version",
-		id: "checkout_to_latest_tested_version",
-		type: "checkbox",
-		value: 1,
-		help: "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs."
-	},
-	{
 		label: "Constraints",
 		id: "constraints",
 		type: "text",
@@ -346,17 +339,17 @@ var hiddenTableData = [
 		value: "",
 		options: [
 			{
-				text: "Use git clone to clone OmniOpt2",
-				value: "clone"
-			},
-			{
 				text: "Use pip and install OmniOpt2 from pypi (may not be the latest version)",
 				value: "pip"
+			},
+			{
+				text: "Use git clone to clone OmniOpt2",
+				value: "clone"
 			}
 		],
 		required: true,
 		info: "Changes the way OmniOpt2 is installed.",
-		help: "If you want to install OmniOpt2 via pip, chose it here. It may not always have the latest version.",
+		help: "Pip has the latest fully tested version, while Github may be more cutting edge, but may has avoidable bugs",
 		use_in_curl_bash: true
 	},
 	{
@@ -714,4 +707,11 @@ var hiddenTableData = [
 		value: 0,
 		help: "Enable flame-graphing. Makes everything slower, but creates a flame graph"
 	},
+	{
+		label: "Automatically checkout to latest checked version",
+		id: "checkout_to_latest_tested_version",
+		type: "checkbox",
+		value: 0,
+		help: "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs."
+	}
 ];

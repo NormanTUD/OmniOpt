@@ -27,7 +27,7 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 <p>This example runs OmniOpt2 and, depending on the exit-code, does something else.</p>
 
 <pre class="invert_in_dark_mode"><code class="language-bash">#!/bin/bash
-./omniopt \
+omniopt \
 	--partition=alpha \
 	--experiment_name=my_experiment \
 	--mem_gb=1 \
@@ -49,7 +49,7 @@ to one exit code. This is what OmniOpt2 extensively does, to make scripting it e
 exit_code=$? # Special bash variable
 
 if [[ $exit_code -eq 0 ]]; then
-    ./omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
+    omniopt --continue runs/my_experiment/0 # Run again with the same parameters, but load previous data
 elif [[ $exit_code -eq 87 ]]; then # 87 = Search space exhausted
     echo "The search space was exhausted. Trying further will not find new points."
     # OmniOpt2 call for expanded search space here

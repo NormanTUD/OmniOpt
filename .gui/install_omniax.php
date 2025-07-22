@@ -1,3 +1,122 @@
+<?php
+	include_once("_functions.php");
+
+	function read_requirements_file($file_path) {
+		if (!file_exists($file_path)) {
+			trigger_error("File not found: " . $file_path, E_USER_ERROR);
+		}
+
+		$lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+		if ($lines === false) {
+			trigger_error("Error reading the file: " . $file_path, E_USER_ERROR);
+		}
+
+		$cleaned_lines = array();
+		foreach ($lines as $line) {
+			$trimmed = trim($line);
+			if ($trimmed !== '' && $trimmed[0] !== '#') {
+				$cleaned_lines[] = $trimmed;
+			}
+		}
+
+		return $cleaned_lines;
+	}
+
+	function getMd5HashOfFile(string $filePath): string {
+		if (!is_readable($filePath)) {
+			throw new Exception("File '$filePath' does not exist or is not readable.");
+		}
+
+		$hash = md5_file($filePath);
+
+		if ($hash === false) {
+			throw new Exception("Error at calculating the MD5 hash of the file '$filePath'.");
+		}
+
+		return $hash;
+	}
+
+	$pip_requirements = read_requirements_file("../requirements.txt");
+	$pip_requirements[] = "omniopt2";
+
+	$pip_commands = array();
+
+	foreach ($pip_requirements as $requirement) {
+		$requirement = trim($requirement);
+		if ($requirement !== '') {
+			$pip_commands[] = 'pip install --use-pep517 -q --upgrade ' . escapeshellarg($requirement);
+		}
+	}
+
+	$total = count($pip_requirements);
+	$bash_lines = array();
+
+	$bash_lines[] = 'hash_requirements="'.getMd5HashOfFile("../requirements.txt").'"';
+	$bash_lines[] = 'GREEN="\033[0;32m"';
+	$bash_lines[] = 'RED="\033[0;31m"';
+	$bash_lines[] = 'YELLOW="\033[1;33m"';
+	$bash_lines[] = 'NC="\033[0m"';
+	$bash_lines[] = 'total=' . $total;
+	$bash_lines[] = 'current=0';
+	$bash_lines[] = 'spin_index=0';
+	$bash_lines[] = 'start_time=$(date +%s)';
+	$bash_lines[] = 'declare -a failed=()';
+	$bash_lines[] = 'installed=$(pip freeze --all | cut -d "=" -f 1 | tr "[:upper:]" "[:lower:]")';
+	$bash_lines[] = '';
+	$bash_lines[] = 'clear_line() { echo -ne "\r\033[K"; }';
+	$bash_lines[] = 'cursor_up() { echo -ne "\033[A"; }';
+	$bash_lines[] = 'progress_bar() {';
+	$bash_lines[] = '  local filled=$(( ($current * 40) / $total ))';
+	$bash_lines[] = '  local empty=$(( 40 - filled ))';
+	$bash_lines[] = '  printf "[%s%s]" "$(printf "━%.0s" $(seq 1 $filled))" "$(printf " %.0s" $(seq 1 $empty))"';
+	$bash_lines[] = '}';
+	$bash_lines[] = 'estimate_time() {';
+	$bash_lines[] = '  local now=$(date +%s)';
+	$bash_lines[] = '  local elapsed=$((now - start_time))';
+	$bash_lines[] = '  if [ $current -eq 0 ]; then echo "--:--"; return; fi';
+	$bash_lines[] = '  local avg=$((elapsed / current))';
+	$bash_lines[] = '  local remaining=$((avg * (total - current)))';
+	$bash_lines[] = '  local min=$((remaining / 60))';
+	$bash_lines[] = '  local sec=$((remaining % 60))';
+	$bash_lines[] = '  if [[ $remaining -gt 10 ]]; then';
+	$bash_lines[] = '    printf " (ETA: %02d:%02d)" $min $sec';
+	$bash_lines[] = '  fi';
+	$bash_lines[] = '}';
+	$bash_lines[] = '';
+	$bash_lines[] = '';
+
+	foreach ($pip_requirements as $index => $req) {
+	    $bash_lines[] = 'current=' . ($index + 1);
+	    $bash_lines[] = 'pkgname="' . strtolower(preg_replace('/[^a-zA-Z0-9_\[\]-]/', '', $req)) . '"';
+	    $bash_lines[] = 'pkgname_without_brackets="' . strtolower(preg_replace('/\[.*/', '', $req)) . '"';
+	    $bash_lines[] = 'clear_line';
+	    $bash_lines[] = 'if echo "$installed" | grep -qx "$pkgname_without_brackets"; then';
+	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}✔ Already installed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = 'else';
+	    $bash_lines[] = '  echo -ne "$(progress_bar) ${GREEN}→ Installing ' . $req . ' ($current/$total)$(estimate_time)"';
+	    $bash_lines[] = '  if PYTHONWARNINGS="ignore::DeprecationWarning" pip install -q ' . escapeshellarg($req) . '; then';
+	    $bash_lines[] = '    echo -ne "$(progress_bar) ${GREEN}✔ Installed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = '  else';
+	    $bash_lines[] = '    echo -e "${RED}✘ Failed: ' . $req . ' ($current/$total)${NC}"';
+	    $bash_lines[] = '    failed+=(' . escapeshellarg($req) . ')';
+	    $bash_lines[] = '    exit 1';
+	    $bash_lines[] = '  fi';
+	    $bash_lines[] = 'fi';
+	}
+
+	$bash_lines[] = 'if [ ${#failed[@]} -eq 0 ]; then';
+	$bash_lines[] = '  clear_line';
+	$bash_lines[] = '  echo $hash_requirements > "$omniopt_venv/hash"';
+	$bash_lines[] = 'else';
+	$bash_lines[] = '  echo ""';
+	$bash_lines[] = '  echo -e "${RED}✘ The following packages failed to install:${NC}"';
+	$bash_lines[] = '  for pkg in "${failed[@]}"; do echo -e "  ${RED}- $pkg${NC}"; done';
+	$bash_lines[] = 'fi';
+
+	$bash_script = implode("\n", $bash_lines);
+
+	header('Content-Type: application/bash');
+?>
 #!/usr/bin/env bash -i
 
 {
@@ -15,7 +134,8 @@ is_interactive=1
 depth=1
 debug=0
 reservation=""
-omniopt_venv=omniopt_venv
+omniopt_venv="$HOME/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
+
 no_whiptail=0
 installation_method="clone"
 dryrun=0
@@ -274,8 +394,11 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip3 install omniopt2"
-			pip3 install omniopt2
+			pip install --use-pep517 --upgrade -q pip
+
+<?php
+			echo $bash_script;
+?>
 		else
 			red_text "Could not find $venv_activate_file. Cannot activate environment. OmniOpt2 installation cancelled."
 			exit 14
@@ -285,8 +408,11 @@ function install_and_run {
 			dbg "Activating venv $venv_activate_file"
 			source "$venv_activate_file"
 
-			dbg "pip3 install omniopt2"
-			pip3 install omniopt2
+			pip install --use-pep517 --upgrade -q pip
+
+<?php
+			echo $bash_script;
+?>
 
 			run_command=$(echo "$start_command" | sed -e 's#^\./##')
 

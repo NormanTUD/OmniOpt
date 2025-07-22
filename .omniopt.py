@@ -17,6 +17,7 @@ import random
 import tempfile
 import threading
 
+arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
 prepared_setting_to_custom: bool = False
 whole_start_time: float = time.time()
@@ -3814,7 +3815,7 @@ def print_evaluate_times() -> None:
         median_time = statistics.median(time_values)
 
         if min_time != max_time or max_time != 0:
-            headers = ["Number of values", "Min time", "Max time", "Average time", "Median time"]
+            headers = ["Number of evaluations", "Min time", "Max time", "Average time", "Median time"]
 
             cols = [
                 str(len(time_values)),
@@ -3834,7 +3835,7 @@ def print_evaluate_times() -> None:
 
             overview_file = f"{get_current_run_folder()}/time_overview.txt"
             with open(overview_file, mode='w', encoding='utf-8') as overview:
-                overview.write(f"Number of values: {len(time_values)} sec\n")
+                overview.write(f"Number of evaluations: {len(time_values)} sec\n")
                 overview.write(f"Min Time: {min_time:.2f} sec\n")
                 overview.write(f"Max Time: {max_time:.2f} sec\n")
                 overview.write(f"Average Time: {avg_time:.2f} sec\n")
@@ -4782,12 +4783,12 @@ def show_end_table_and_save_end_files() -> int:
     return _exit
 
 @beartype
-def abandon_job(job: Job, trial_index: int) -> bool:
+def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
     if job:
         try:
             if ax_client:
                 _trial = ax_client.get_trial(trial_index)
-                _trial.mark_abandoned()
+                _trial.mark_abandoned(reason=reason)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
@@ -4804,7 +4805,7 @@ def abandon_job(job: Job, trial_index: int) -> bool:
 @beartype
 def abandon_all_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]:
-        abandoned = abandon_job(job, trial_index)
+        abandoned = abandon_job(job, trial_index, "abandon_all_jobs was called")
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
@@ -4971,7 +4972,7 @@ def get_ax_param_representation(data: dict) -> dict:
             "upper": data["bounds"][1],
             "log_scale": False,
             "logit_scale": False,
-            "digits": None,
+            "digits": 32,
             "is_fidelity": False,
             "target_value": None
         }
@@ -7574,6 +7575,13 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
         _fatal_error("Error: global_gs is not defined", 101)
 
 @beartype
+def deduplicated_arm(arm: Any) -> bool:
+    if arm.name in arms_by_name_for_deduplication:
+        return True
+
+    return False
+
+@beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     batched_arms: list = []
     attempts = 0
@@ -7639,10 +7647,9 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     start_time = time.time()
     cnt = 0
     retries = 0
-    max_retries = args.max_abandoned_retrial
 
     try:
-        while cnt < n and retries < max_retries:
+        while cnt < n and retries < args.max_abandoned_retrial:
             for arm in get_batched_arms(n - cnt):
                 if cnt >= n:
                     break
@@ -7698,11 +7705,20 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     )
 
     trial = ax_client.experiment.new_trial(generator_run)
+
+    arm = trial.arms[0]
+    if deduplicated_arm(arm):
+        print_debug(f"Duplicated arm: {arm}")
+        trial.mark_abandoned(reason="Duplication detected")
+        raise TrialRejected("Duplicate arm.")
+
+    arms_by_name_for_deduplication[arm.name] = arm
+
     params = arm.parameters
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
         print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned.")
-        trial.mark_abandoned()
+        trial.mark_abandoned(reason="Post-Generation-Constraint failed")
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")
 

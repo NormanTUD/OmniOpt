@@ -53,7 +53,7 @@ This way, LOSS is minimized, while PREDICTION_TIME is maximized.
 When you have a job that was cancelled for whatever reason (i.e. time limit, memory limit, ...), but you still had results and want to calculate the Pareto-Front afterward, you can do that by simply calling:
 
 ```bash
-./omniopt --calculate_pareto_front_of_job runs/yourproject/0
+omniopt --calculate_pareto_front_of_job runs/yourproject/0
 ```
 
 This will calculate the pareto fronts, and, when you had `--live_share` enabled, will automatically push these results to the OmniOpt2-[Share](tutorials?tutorial=oo_share) server. This can also be done manually, by calling `omniopt_share` on the run folder.

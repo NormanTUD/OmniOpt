@@ -13,7 +13,7 @@
 
 <h1 id="available_parameters_help"><span class="tutorial_icon invert_in_dark_mode">📘</span> Available Parameters (--help)</h1>
 
-<p>An overview table of all arguments that OmniOpt2 accepts via the Command line. Same data as in <tt>./omniopt --help</tt>.</p>
+<p>An overview table of all arguments that OmniOpt2 accepts via the Command line. Same data as in <tt>omniopt --help</tt>.</p>
 
 <?php
 	$file_path = "../.omniopt.py";

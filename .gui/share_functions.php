@@ -30,7 +30,7 @@
 			if ($enable_html) {
 				$print .= $buffer;
 			} else {
-				$print .= htmlentities($buffer);
+				$print .= my_htmlentities($buffer);
 			}
 			$print .= "</pre>\n";
 
@@ -40,7 +40,7 @@
 				$file = array_key_exists('file', $trace) ? $trace['file'] : '[internal function]';
 				$line = array_key_exists('line', $trace) ? $trace['line'] : '?';
 				$function = array_key_exists('function', $trace) ? $trace['function'] : '[unknown]';
-				$print .= htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
+				$print .= my_htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
 			}
 			$print .= "</pre>\n";
 
@@ -363,7 +363,7 @@
 		$filename = basename($filename);
 
 		$str = "<button class='copy_clipboard_button' onclick='copy_to_clipboard_from_id(\"".$id."\")'><img src='i/clipboard.svg' style='height: 1em'> Copy raw data to clipboard</button>\n";
-		$str .= "<button onclick='download_as_file(\"".$id."\", \"".htmlentities($filename)."\")'><img src='i/download.svg' style='height: 1em'> Download &raquo;".htmlentities($filename)."&laquo; as file</button>\n";
+		$str .= "<button onclick='download_as_file(\"".$id."\", \"".my_htmlentities($filename)."\")'><img src='i/download.svg' style='height: 1em'> Download &raquo;".my_htmlentities($filename)."&laquo; as file</button>\n";
 
 		return $str;
 	}
@@ -374,7 +374,7 @@
 			$min_max_table = extract_min_max_ram_cpu_from_worker_info($worker_info);
 
 			if($min_max_table) {
-				$warnings[] = htmlentities($filename)." does not contain valid worker info";
+				$warnings[] = my_htmlentities($filename)." does not contain valid worker info";
 				return [$tabs, $warnings];
 			}
 
@@ -382,7 +382,7 @@
 			$html .= "<button onclick='plot_worker_cpu_ram()' id='plot_worker_cpu_ram_button'>Plot this data (may be slow)</button>\n";
 			$html .= '<div class="invert_in_dark_mode" id="cpuRamWorkerChartContainer"></div><br>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
-			$html .= '<pre id="worker_cpu_ram_pre">'.htmlentities($worker_info).'</pre>';
+			$html .= '<pre id="worker_cpu_ram_pre">'.my_htmlentities($worker_info).'</pre>';
 			$html .= copy_id_to_clipboard_string("worker_cpu_ram_pre", $filename);
 
 			$svg_icon = get_icon_html("plot.svg");
@@ -431,7 +431,7 @@
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_' . $id . '">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_' . $id . '">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
@@ -501,7 +501,7 @@
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_'.$id.'">'.htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_'.$id.'">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
@@ -540,7 +540,7 @@
 			}
 
 			if(!$remove_ansi_colors) {
-				$contents = htmlentities($contents);
+				$contents = my_htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
 			}
@@ -747,7 +747,7 @@
 
 			$html = copy_id_to_clipboard_string("simple_pre_tab_$id", $filename);
 			if(!$remove_ansi_colors) {
-				$contents = htmlentities($contents);
+				$contents = my_htmlentities($contents);
 			} else {
 				$contents = convert_sixel($contents);
 			}
@@ -1004,7 +1004,7 @@
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 
-			$content = htmlentities(file_get_contents($filename));
+			$content = my_htmlentities(file_get_contents($filename));
 
 			if($content && $header_line) {
 				$content = implode(",", $header_line)."\n$content";
@@ -1175,22 +1175,26 @@
 		}
 
 		$latestTime = 0;
-		$dir = opendir($folderPath);
 
-		while (($file = readdir($dir)) !== false) {
-			$filePath = $folderPath . '/' . $file;
-			if ($file != "." && $file != "..") {
-				if (is_dir($filePath)) {
-					$latestTime = max($latestTime, get_latest_modification_time($filePath));
-				} else {
-					$latestTime = max($latestTime, filemtime($filePath));
+		try {
+			$iterator = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($folderPath, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::SELF_FIRST
+			);
+
+			foreach ($iterator as $fileInfo) {
+				if ($fileInfo->isFile()) {
+					$mtime = $fileInfo->getMTime();
+					if ($mtime > $latestTime) {
+						$latestTime = $mtime;
+					}
 				}
 			}
+		} catch (Exception $e) {
+			error_log("Error at reading '$folderPath': " . $e->getMessage());
 		}
 
-		closedir($dir);
 		$GLOBALS["modificationCache"][$folderPath] = $latestTime;
-
 		return $latestTime;
 	}
 
@@ -1382,22 +1386,43 @@
 
 	$tabs = [];
 
-	function file_contains_results($filename, $names) {
-		if (!file_exists($filename) || !is_readable($filename)) {
+	function file_string_contains_results($file_as_string, $names) {
+		if (!is_string($file_as_string) || strlen($file_as_string) === 0) {
 			return false;
 		}
 
-		$file_content = file_get_contents($filename);
+		$names = array_map('strtolower', $names);
+		$remaining = array_flip($names);
 
-		foreach ($names as $name) {
-			$pattern = '/(^|\s)\s*' . preg_quote($name, '/') . ':\s*[-+]?\d+(?:\.\d+)?\s*/mi';
+		$length = strlen($file_as_string);
+		$pos = $length - 1;
+		$buffer = '';
 
-			if (!preg_match($pattern, $file_content)) {
-				return false;
+		while ($pos >= 0 && count($remaining) > 0) {
+			$char = $file_as_string[$pos];
+			$buffer = $char . $buffer;
+			$pos--;
+
+			if ($char === "\n" || ($length - $pos >= 8192) || $pos < 0) {
+				$lines = explode("\n", $buffer);
+				foreach ($lines as $line) {
+					$line_lc = strtolower($line);
+					foreach ($remaining as $name => $_) {
+						if (strpos($line_lc, $name . ':') !== false) {
+							if (preg_match('/\b' . preg_quote($name, '/') . '\s*:\s*[-+]?\d+(?:\.\d+)?/i', $line)) {
+								unset($remaining[$name]);
+								if (count($remaining) === 0) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+				$buffer = '';
 			}
 		}
 
-		return true;
+		return count($remaining) === 0;
 	}
 
 	function ends_with_submitit_info($string) {
@@ -1433,62 +1458,65 @@
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 
 		$i = 0;
+
 		foreach ($log_files as $nr => $file) {
 			$file_path = "$run_dir/$file";
 			$checkmark = $red_cross;
-			if (file_contains_results($file_path, $result_names)) {
-				$checkmark = $green_checkmark;
-			} else {
+			if(is_file($file_path) && is_readable($file_path) && is_ascii_or_utf8($file_path)) {
 				$file_as_string = file_get_contents($file_path);
 
-				if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
-					$checkmark = $memory;
-				} else if(ends_with_submitit_info($file_as_string)) {
-					$checkmark = $red_cross;
-				} else if(contains_slurm_time_limit_error($file_as_string)) {
-					$checkmark = $time_warning;
+				if (file_string_contains_results($file_as_string, $result_names)) {
+					$checkmark = $green_checkmark;
 				} else {
-					$checkmark = $gear;
+					if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
+						$checkmark = $memory;
+					} else if(ends_with_submitit_info($file_as_string)) {
+						$checkmark = $red_cross;
+					} else if(contains_slurm_time_limit_error($file_as_string)) {
+						$checkmark = $time_warning;
+					} else {
+						$checkmark = $gear;
+					}
 				}
+
+				$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
+
+				if($runtime_string == "0s" || !$runtime_string) {
+					$runtime_string = "";
+				} else {
+					$runtime_string = " ($runtime_string) ";
+				}
+
+				$tabname = "$nr$runtime_string$checkmark";
+
+				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
+					$i == 0 ? 'aria-selected="true"' : ''
+				).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
+				$i++;
 			}
-
-			$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
-
-			if($runtime_string == "0s" || !$runtime_string) {
-				$runtime_string = "";
-			} else {
-				$runtime_string = " ($runtime_string) ";
-			}
-
-			$tabname = "$nr$runtime_string$checkmark";
-
-			$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
-				$i == 0 ? 'aria-selected="true"' : ''
-			).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
-			$i++;
 		}
 
 		$output .= '</menu>';
 
-		$i = 0;
+		$j = 0;
 		foreach ($log_files as $nr => $file) {
 			$file_path = $run_dir . '/' . $file;
-			$output .= '<article role="tabpanel" id="single_run_' . $i . '">';
-			if($i != 0) {
-				$output .= "<div id='spinner_log_$i' class='spinner'></div>";
+			$output .= '<article role="tabpanel" id="single_run_' . $j . '">';
+			if($j != 0) {
+				$output .= "<div id='spinner_log_$j' class='spinner'></div>";
 			}
 
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
 
-			if ($i == 0) {
+			if ($j == 0) {
 				$content = file_get_contents($file_path);
-				$output .= '<pre id="single_run_'.$i.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
+				$output .= '<pre id="single_run_'.$j.'_pre" data-loaded="true">' . highlight_debug_info(ansi_to_html(htmlspecialchars($content))) . '</pre>';
 			} else {
-				$output .= '<pre id="single_run_'.$i.'_pre"></pre>';
+				$output .= '<pre id="single_run_'.$j.'_pre"></pre>';
 			}
-			$output .= copy_id_to_clipboard_string("single_run_{$i}_pre", $file_path);
+			$output .= copy_id_to_clipboard_string("single_run_{$j}_pre", $file_path);
 			$output .= '</article>';
-			$i++;
+			$j++;
 		}
 
 		$output .= '</section>';
@@ -2041,27 +2069,51 @@
 		}
 	}
 
-	function delete_empty_directories(string $directory, bool $is_recursive_call): bool {
+	function delete_empty_directories(string $directory): bool {
 		if (!is_dir($directory)) {
 			return false;
 		}
 
-		$files = array_diff(scandir($directory), ['.', '..']);
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$directory,
+				FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_SELF
+			),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
 
-		foreach ($files as $file) {
-			$path = $directory . DIRECTORY_SEPARATOR . $file;
-			if (is_dir($path)) {
-				delete_empty_directories($path, true);
+		$anyDeleted = false;
+		$now = time();
+
+		foreach ($iterator as $fileInfo) {
+			if (!$fileInfo->isDir()) {
+				continue;
+			}
+
+			$path = $fileInfo->getPathname();
+
+			// Schnell prüfen, ob leer
+			$isEmpty = true;
+			$handle = @opendir($path);
+			if ($handle !== false) {
+				while (($entry = readdir($handle)) !== false) {
+					if ($entry !== '.' && $entry !== '..') {
+						$isEmpty = false;
+						break;
+					}
+				}
+				closedir($handle);
+			}
+
+			// Wenn leer und älter als 1 Tag, löschen
+			if ($isEmpty && $fileInfo->getMTime() < $now - 86400) {
+				if (@rmdir($path)) {
+					$anyDeleted = true;
+				}
 			}
 		}
 
-		$filesAfterCheck = array_diff(scandir($directory), ['.', '..']);
-
-		if ($is_recursive_call && empty($filesAfterCheck) && filemtime($directory) < time() - 86400) {
-			rmdir($directory);
-			return true;
-		}
-		return false;
+		return $anyDeleted;
 	}
 
 	function _delete_old_shares($dir) {
@@ -2226,7 +2278,7 @@
 		} else if(file_exists($pareto_front_json_file) && file_exists($pareto_front_txt_file) && filesize($pareto_front_json_file) && filesize($pareto_front_txt_file)) {
 			$pareto_front_html = "";
 
-			$pareto_front_text = remove_ansi_colors(htmlentities(file_get_contents($pareto_front_txt_file)));
+			$pareto_front_text = remove_ansi_colors(my_htmlentities(file_get_contents($pareto_front_txt_file)));
 
 			if($pareto_front_text) {
 				$pareto_front_html .= "<pre>$pareto_front_text</pre>";
@@ -2344,18 +2396,6 @@
 		return $cssContent;
 	}
 
-	function remove_img_tags_from_html($html) {
-		$pattern = '/<img\b[^>]*>/i';
-		$cleaned = preg_replace($pattern, '', $html);
-
-		if ($cleaned === null) {
-			error_log("Error removing <img>-tags.");
-			return $html;
-		}
-
-		return $cleaned;
-	}
-
 	function get_export_tab ($tabs, $warnings, $run_dir) {
 		if(!file_exists("js/share_functions.js")) {
 			$warnings[] = "js/share_functions not found!";
@@ -2460,8 +2500,6 @@ $onclick_string
 </html>
 ";
 
-		$export_content = remove_img_tags_from_html($export_content);
-
 		$buttons = copy_id_to_clipboard_string("export_tab_content", 'export.html');
 
 		ini_set('memory_limit', '1024M');
@@ -2472,7 +2510,7 @@ $onclick_string
 		}
 
 		if(!isset($_GET["export_and_exit"])) {
-			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
+			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".my_htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
 		}
 
 		$tabs["{$svg_icon}Export"] = [
@@ -2547,7 +2585,7 @@ $onclick_string
 	function add_constraints_to_overview ($run_dir, $overview_html, $warnings) {
 		$constraints = "$run_dir/constraints.txt";
 		if(file_exists($constraints) && filesize($constraints) && is_ascii_or_utf8($constraints)) {
-			$constraints_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($constraints))));
+			$constraints_table = ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($constraints))));
 			if($constraints_table) {
 				$constraints .= $constraints_table;
 
@@ -2610,7 +2648,7 @@ $onclick_string
 	function add_experiment_overview_to_overview ($run_dir, $overview_html, $warnings) {
 		$experiment_overview = "$run_dir/experiment_overview.txt";
 		if(file_exists($experiment_overview) && filesize($experiment_overview) && is_ascii_or_utf8($experiment_overview)) {
-			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($experiment_overview))));
+			$experiment_overview_table = ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($experiment_overview))));
 			if($experiment_overview_table) {
 				$experiment_overview .= $experiment_overview_table;
 
@@ -2634,7 +2672,7 @@ $onclick_string
 	function add_best_results_to_overview ($run_dir, $overview_html, $warnings) {
 		$best_results_txt = "$run_dir/best_result.txt";
 		if(is_file($best_results_txt) && filesize($best_results_txt) && is_ascii_or_utf8($best_results_txt)) {
-			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents($best_results_txt))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents($best_results_txt))));
 		} else {
 			if(!is_file($best_results_txt)) {
 				$warnings[] = "$best_results_txt not found";
@@ -2651,7 +2689,7 @@ $onclick_string
 	function add_parameters_to_overview ($run_dir, $overview_html, $warnings) {
 		$parameters_txt_file = "$run_dir/parameters.txt";
 		if(is_file($parameters_txt_file) && filesize($parameters_txt_file) && is_ascii_or_utf8($parameters_txt_file)) {
-			$overview_html .= ascii_table_to_html(remove_ansi_colors(htmlentities(file_get_contents("$run_dir/parameters.txt"))));
+			$overview_html .= ascii_table_to_html(remove_ansi_colors(my_htmlentities(file_get_contents("$run_dir/parameters.txt"))));
 		} else {
 			if(!is_file($parameters_txt_file)) {
 				$warnings[] = "$run_dir/parameters.txt not found";
@@ -2671,7 +2709,7 @@ $onclick_string
 			$lastLine = trim(array_slice(file($progressbar_file), -1)[0]);
 
 			$overview_html .= "<h2>Last progressbar status</h2>\n";
-			$overview_html .= "<tt>".htmlentities(remove_ansi_colors($lastLine))."</tt>";
+			$overview_html .= "<tt>".my_htmlentities(remove_ansi_colors($lastLine))."</tt>";
 		} else {
 			if(!is_file($progressbar_file)) {
 				$warnings[] = "$progressbar_file not found";
@@ -2791,7 +2829,6 @@ $onclick_string
 
 		fclose($handle);
 
-		// Sort status columns alphabetically
 		$status_columns = array_keys($all_statuses);
 		sort($status_columns, SORT_STRING | SORT_FLAG_CASE);
 
@@ -2827,11 +2864,11 @@ $onclick_string
 	function add_git_version_to_overview ($run_dir, $overview_html, $warnings) {
 		$git_version_file = "$run_dir/git_version";
 		if(file_exists($git_version_file) && filesize($git_version_file) && is_ascii_or_utf8($git_version_file)) {
-			$lastLine = htmlentities(file_get_contents($git_version_file));
+			$lastLine = my_htmlentities(file_get_contents($git_version_file));
 
 			$overview_html .= "<br>\n";
 			$overview_html .= "<h2>Git-Version</h2>\n";
-			$overview_html .= "<tt>".htmlentities($lastLine)."</tt>";
+			$overview_html .= "<tt>".my_htmlentities($lastLine)."</tt>";
 		} else {
 			if(!is_file($git_version_file)) {
 				$warnings[] = "$git_version_file not found";
@@ -2859,7 +2896,8 @@ $onclick_string
 
 				$tabs["{$svg_icon}Insights"] = [
 					'id' => 'tab_insights',
-					'content' => $html
+					'content' => $html,
+					"onclick" => "initializeResultParameterVisualizations()"
 				];
 
 
@@ -2976,50 +3014,41 @@ $onclick_string
 			"memory.free", "memory.used"
 		];
 
-		$ignore_cols = [
-			"name", "pcie.link.gen.max", "pcie.link.gen.current", "pstate",
-			"driver_version", "memory.total", "memory.free", "memory.used",
-			"utilization.memory", "memory.free", "memory.used", "timestamp",
-			"pci.bus_id", "utilization.gpu", "temperature.gpu"
-		];
+		$keep_cols = ['timestamp', 'utilization.gpu', 'temperature.gpu'];
+
+		$headerIndexes = [];
+		foreach ($headers as $idx => $colName) {
+			if (in_array($colName, $keep_cols)) {
+				$headerIndexes[$colName] = $idx;
+			}
+		}
 
 		foreach ($files as $file) {
 			$basename = basename($file);
-			if (preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
+			if (is_file($file) && is_ascii_or_utf8($file) && preg_match('/gpu_usage__i(\d+)\.csv/', $basename, $matches)) {
 				$index = $matches[1];
 				$gpu_usage_data[$index] = [];
 
 				$handle = fopen($file, "r");
 				if ($handle !== false) {
-					while (($line = fgets($handle)) !== false) {
-						$data = str_getcsv($line, ",", "\"", "\\");
-
+					while (($data = fgetcsv($handle, 0, ",", '"', "\\")) !== false) {
 						if (count($data) !== count($headers)) {
 							continue;
 						}
 
-						$data = array_map(function ($item) {
-							$item = trim(str_replace(["MiB", "%"], "", $item));
-							return trim($item);
-						}, $data);
+						$timestampRaw = trim($data[$headerIndexes['timestamp']]);
+						$utilGpuRaw = str_replace('%', '', trim($data[$headerIndexes['utilization.gpu']]));
+						$tempGpuRaw = str_replace('MiB', '', trim($data[$headerIndexes['temperature.gpu']]));
 
-						$entry = array_combine($headers, $data);
-						if ($entry === false) {
+						$ts = strtotime($timestampRaw);
+						if ($ts === false) {
 							continue;
 						}
 
-						$entry['ts'] = strtotime($entry['timestamp']);
+						$utilGpu = intval($utilGpuRaw);
+						$tempGpu = intval($tempGpuRaw);
 
-						if(count($entry)) {
-							$entry["gpu"] = intval($entry["utilization.gpu"]);
-							$entry["gputemp"] = intval($entry["temperature.gpu"]);
-
-							foreach ($ignore_cols as $ignore_colname) {
-								unset($entry[$ignore_colname]);
-							}
-
-							$gpu_usage_data[$index][] = array($entry["ts"], $entry["gpu"], $entry["gputemp"]);
-						}
+						$gpu_usage_data[$index][] = [$ts, $utilGpu, $tempGpu];
 					}
 					fclose($handle);
 				} else {
@@ -3212,5 +3241,9 @@ $onclick_string
 		}
 
 		echo '</ul>';
+	}
+
+	function my_htmlentities ($str) {
+		return htmlentities($str, ENT_QUOTES, 'utf-8');
 	}
 ?>

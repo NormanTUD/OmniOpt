@@ -2609,7 +2609,7 @@ $onclick_string
 	}
 
 	function is_ascii_or_utf8($filepath) {
-		if(isset($GLOBALS["ascii_or_utf8_cache"][$filepath])) {
+		if (isset($GLOBALS["ascii_or_utf8_cache"][$filepath])) {
 			return $GLOBALS["ascii_or_utf8_cache"][$filepath];
 		}
 
@@ -2617,28 +2617,12 @@ $onclick_string
 			return false;
 		}
 
-		$handle = fopen($filepath, 'rb');
-		if ($handle === false) {
+		$content = file_get_contents($filepath);
+		if ($content === false) {
 			return false;
 		}
 
-		$chunkSize = 4096;
-		$valid = true;
-
-		while (!feof($handle)) {
-			$chunk = fread($handle, $chunkSize);
-			if ($chunk === false) {
-				fclose($handle);
-				return false;
-			}
-
-			if (!mb_check_encoding($chunk, 'UTF-8')) {
-				$valid = false;
-				break;
-			}
-		}
-
-		fclose($handle);
+		$valid = mb_check_encoding($content, 'UTF-8');
 
 		$GLOBALS["ascii_or_utf8_cache"][$filepath] = $valid;
 

@@ -131,6 +131,8 @@ class SimpleMLP(nn.Module):
             in_features = hidden_size
 
         layers.add_module("output", nn.Linear(in_features, num_classes))
+        layers.add_module("softmax", nn.Softmax(dim=1))
+
         self.classifier = layers
 
         # Initialisierung (optional)

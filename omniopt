@@ -405,7 +405,8 @@
 			fi
 
 			set +e
-			curl -s "$BASEURL/exit_code_table.php?exit_code=$CODE"
+			#curl -s "$BASEURL/exit_code_table.php?exit_code=$CODE"
+			wget -q -O - "$BASEURL/exit_code_table.php?exit_code=$CODE"
 
 			echo ""
 			set -e
@@ -484,7 +485,8 @@
 			stats_params="anon_user=$anon_user&has_sbatch=$has_sbatch&run_uuid=$RUN_UUID&git_hash=$git_hash&exit_code=$exit_code&runtime=$SECONDS"
 			url="$BASEURL/usage_stats.php?$stats_params"
 
-			curl -s "$url" 2>/dev/null >/dev/null
+			#curl -s "$url" 2>/dev/null >/dev/null
+			wget -q --spider "$url" >/dev/null 2>&1
 
 			if [[ "$debug" -eq "1" ]]; then
 				yellow_text "Curling $url"

@@ -51,27 +51,58 @@ const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
 function wrapEmojisInSpans() {
   function processNode(node) {
     if (node.nodeType === Node.TEXT_NODE) {
-      if (emojiRegex.test(node.textContent)) {
-        const frag = document.createDocumentFragment();
-        let lastIndex = 0;
-        node.textContent.replace(emojiRegex, (match, offset) => {
-          if (offset > lastIndex) {
-            frag.appendChild(document.createTextNode(node.textContent.slice(lastIndex, offset)));
-          }
-          const span = document.createElement('span');
-          span.className = 'tutorial_icon invert_in_dark_mode no_cursive';
-          span.textContent = match;
-          frag.appendChild(span);
-          lastIndex = offset + match.length;
-        });
-        if (lastIndex < node.textContent.length) {
-          frag.appendChild(document.createTextNode(node.textContent.slice(lastIndex)));
-        }
-        node.parentNode.replaceChild(frag, node);
+      const text = node.textContent;
+      const matches = [...text.matchAll(emojiRegex)];
+      if (matches.length === 0) return;
+
+      // Verhindere doppelte Umwandlung
+      if (
+        node.parentNode &&
+        node.parentNode.nodeType === Node.ELEMENT_NODE &&
+        node.parentNode.classList.contains('tutorial_icon')
+      ) {
+        return;
       }
+
+      const frag = document.createDocumentFragment();
+      let lastIndex = 0;
+
+      for (const match of matches) {
+        const emoji = match[0];
+        const index = match.index;
+
+        if (index > lastIndex) {
+          frag.appendChild(document.createTextNode(text.slice(lastIndex, index)));
+        }
+
+        const span = document.createElement('span');
+        span.className = 'tutorial_icon invert_in_dark_mode no_cursive';
+        span.textContent = emoji;
+        frag.appendChild(span);
+
+        lastIndex = index + emoji.length;
+      }
+
+      if (lastIndex < text.length) {
+        frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+
+      node.parentNode.replaceChild(frag, node);
+
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       const forbiddenTags = ['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'];
       if (!forbiddenTags.includes(node.tagName)) {
+        // Emoji-Span prüfen und ggf. korrigieren
+        if (node.classList.contains('tutorial_icon')) {
+          const requiredClasses = ['tutorial_icon', 'invert_in_dark_mode', 'no_cursive'];
+          for (const cls of requiredClasses) {
+            if (!node.classList.contains(cls)) {
+              node.classList.add(cls);
+            }
+          }
+          return; // keine weiteren Kinder prüfen
+        }
+
         for (let child of Array.from(node.childNodes)) {
           processNode(child);
         }
@@ -81,5 +112,6 @@ function wrapEmojisInSpans() {
 
   processNode(document.body);
 }
+
 
 window.addEventListener('DOMContentLoaded', wrapEmojisInSpans);

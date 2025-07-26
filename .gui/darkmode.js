@@ -141,6 +141,8 @@ function enable_light_mode(set_theme_cookie=true) {
 }
 
 function apply_theme_based_on_system_preferences() {
+	wrapEmojisInSpans();
+
 	if(get_cookie("theme")) {
 		if(get_cookie("theme") == "dark") {
 			enable_dark_mode();

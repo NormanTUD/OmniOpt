@@ -44,8 +44,3 @@ echo "Done ✅"
 - Great for setup work you don’t want repeated.
 - You can call any Bash-compatible command or script.
 </div>
-
-```bash
-# Example with absolute path and custom args
-bash /my/install.sh --batch-size=%(batch_size)
-```

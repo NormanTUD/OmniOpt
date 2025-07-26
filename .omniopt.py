@@ -1229,7 +1229,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     @beartype
     def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
         choice_value_map = {}
-        for name, param in choice_parameters.items():
+        for _, param in choice_parameters.items():
             for value, idx in param.items():
                 choice_value_map[value] = idx
         return {idx: value for value, idx in choice_value_map.items()}
@@ -1795,6 +1795,9 @@ def live_share(force: bool = False) -> bool:
                 print_green(stderr)
 
                 extract_and_print_qr(stderr)
+
+            if stdout:
+                print_debug(f"live_share stdout: {stdout}")
         else:
             stdout, stderr = run_live_share_command(force)
 

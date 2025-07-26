@@ -140,7 +140,7 @@ def plot_single_graph(_params: list) -> Any:
 @beartype
 def plot_graphs(_params: list) -> None:
     global fig
-    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path = _params
+    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, _, csv_file_path = _params
 
     cmap, norm, colors = helpers.get_color_list(df, args, plt, csv_file_path)
 

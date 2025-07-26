@@ -86,7 +86,7 @@ def analyze_file(filepath, progress, task_id):
     # Process the strings
     possibly_incorrect_words = []
     strings = list(set(strings))
-    for i, string in enumerate(strings):
+    for _, string in enumerate(strings):
         words = string.split()
         for word in words:
             word = clean_word(word)

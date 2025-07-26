@@ -794,9 +794,9 @@ class ConfigLoader:
 
         validated_config = self.validate_and_convert(config, arg_defaults)
 
-        for key, value in vars(cli_args).items():
+        for key, value in vars(validated_config).items():
             if key in validated_config:
-                setattr(cli_args, key, validated_config[key])
+                setattr(cli_args, key, value)
 
         return cli_args
 
@@ -1229,7 +1229,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     @beartype
     def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
         choice_value_map = {}
-        for name, param in choice_parameters.items():
+        for _, param in choice_parameters.items():
             for value, idx in param.items():
                 choice_value_map[value] = idx
         return {idx: value for value, idx in choice_value_map.items()}
@@ -1795,6 +1795,8 @@ def live_share(force: bool = False) -> bool:
                 print_green(stderr)
 
                 extract_and_print_qr(stderr)
+
+            print_debug(f"stdout of live-share: {stdout}")
         else:
             stdout, stderr = run_live_share_command(force)
 
@@ -3063,7 +3065,7 @@ def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, 
     params = list({p['name']: p for p in params}.values())
     classic_params = list({p['name']: p for p in classic_params}.values())
 
-    return params, classic_params
+    return params
 
 @beartype
 def check_factorial_range() -> None:
@@ -7297,7 +7299,7 @@ def save_state_files() -> None:
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
-    trial_index, parameters, trial_counter, next_nr_steps, phase = _params
+    trial_index, parameters, trial_counter, phase = _params
     if not ax_client:
         _fatal_error("Failed to get ax_client", 9)
 
@@ -8555,7 +8557,6 @@ def handle_optimization_completion(optimization_complete: bool) -> bool:
 @beartype
 def execute_trials(
     trial_index_to_param: dict,
-    next_nr_steps: int,
     phase: Optional[str],
     _max_eval: Optional[int],
     _progress_bar: Any
@@ -8571,7 +8572,7 @@ def execute_trials(
             break
 
         progressbar_description([f"eval #{i}/{len(trial_index_to_param.items())} start"])
-        _args = [trial_index, parameters, i, next_nr_steps, phase]
+        _args = [trial_index, parameters, i, phase]
         index_param_list.append(_args)
         i += 1
 
@@ -8584,7 +8585,7 @@ def execute_trials(
     nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
 
     with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
-        future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
+        future_to_args = {tp_executor.submit(execute_evaluation, _args): _args for _args in index_param_list}
 
         for future in as_completed(future_to_args):
             cnt = cnt + 1
@@ -8625,17 +8626,12 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     return 0
 
 @beartype
-def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
-    if next_nr_steps == 0:
-        print_debug(f"Warning: create_and_execute_next_runs(next_nr_steps: {next_nr_steps}, phase: {phase}, _max_eval: {_max_eval}, progress_bar)")
-        return 0
-
+def create_and_execute_next_runs(phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     trial_index_to_param: Optional[Dict] = None
     done_optimizing: bool = False
-    results: List = []
 
     try:
-        done_optimizing, trial_index_to_param, results = _create_and_execute_next_runs_run_loop(next_nr_steps, _max_eval, phase, _progress_bar)
+        done_optimizing, trial_index_to_param = _create_and_execute_next_runs_run_loop(_max_eval, phase, _progress_bar)
         _create_and_execute_next_runs_finish(done_optimizing)
     except Exception as e:
         stacktrace = traceback.format_exc()
@@ -8645,10 +8641,9 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     return _create_and_execute_next_runs_return_value(trial_index_to_param)
 
 @beartype
-def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict], List]:
+def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict], List]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
-    results: List = []
 
     nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
@@ -8674,7 +8669,9 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
             filtered_trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
 
             if len(filtered_trial_index_to_param):
-                results.extend(execute_trials(filtered_trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+                result = execute_trials(filtered_trial_index_to_param, phase, _max_eval, _progress_bar)
+
+                print_debug(f"_create_and_execute_next_runs_run_loop, result: {result}")
             else:
                 if nr_jobs_before_removing_abandoned > 0:
                     print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
@@ -8683,7 +8680,7 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
 
             trial_index_to_param = filtered_trial_index_to_param
 
-    return done_optimizing, trial_index_to_param, results
+    return done_optimizing, trial_index_to_param
 
 @beartype
 def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
@@ -8724,20 +8721,9 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
         if _random_steps > _max_eval:
             set_max_eval(_random_steps)
 
-        original_second_steps = _max_eval - _random_steps
-        second_step_steps = max(0, original_second_steps)
-        if second_step_steps != original_second_steps:
-            original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
-        if second_step_steps == 0:
-            if not args.dryrun:
-                print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
+        return _random_steps
 
-        second_step_steps = second_step_steps - already_done_random_steps
-
-        if args.continue_previous_job:
-            second_step_steps = _max_eval
-
-        return _random_steps, second_step_steps
+    return 0
 
 @beartype
 def _set_global_executor() -> None:
@@ -8875,7 +8861,7 @@ def should_break_search(_progress_bar: Any) -> bool:
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
-        nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+        nr_of_items = create_and_execute_next_runs("systematic", max_eval, _progress_bar)
         return nr_of_items
     return 0
 
@@ -9047,12 +9033,11 @@ def check_max_eval(_max_eval: int) -> None:
 def parse_parameters() -> Any:
     experiment_parameters = None
     cli_params_experiment_parameters = None
-    classic_params = None
     if args.parameter:
-        experiment_parameters, classic_params = parse_experiment_parameters()
+        experiment_parameters = parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
-    return experiment_parameters, cli_params_experiment_parameters, classic_params
+    return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
@@ -10155,7 +10140,7 @@ def main() -> None:
     write_ui_url_if_present()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
-    experiment_parameters, cli_params_experiment_parameters, classic_params = parse_parameters()
+    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
     write_live_share_file_if_needed()
 
@@ -10165,7 +10150,7 @@ def main() -> None:
 
     check_max_eval(max_eval)
 
-    _random_steps, second_step_steps = get_number_of_steps(max_eval)
+    _random_steps = get_number_of_steps(max_eval)
 
     set_random_steps(_random_steps)
 
@@ -10659,7 +10644,7 @@ Exit-Code: 159
         ["get_program_code_from_out_file('/etc/doesntexist')", ""],
         ["get_type_short('RangeParameter')", "range"],
         ["get_type_short('ChoiceParameter')", "choice"],
-        ["create_and_execute_next_runs(0, None, None, None)", 0]
+        ["create_and_execute_next_runs(None, None, None)", 0]
     ]
 
     for _item in equal:

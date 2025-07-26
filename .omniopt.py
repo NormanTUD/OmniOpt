@@ -10082,6 +10082,8 @@ def run_program_once(params=None):
             else:
                 console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
+                my_exit(57)
+
     elif isinstance(args.run_program_once, (list, tuple)):
         with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots") as __status:
             console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
@@ -10091,8 +10093,12 @@ def run_program_once(params=None):
             else:
                 console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
+                my_exit(57)
+
     else:
         console.print(f"[red]Invalid type for run_program_once: {type(args.run_program_once)}[/red]")
+
+        my_exit(57)
 
 @beartype
 def main() -> None:

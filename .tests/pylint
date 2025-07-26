@@ -38,7 +38,9 @@ fi
 
 VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+if [[ -z $SCRIPT_DIR ]]; then
+	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+fi
 
 cd $SCRIPT_DIR
 
@@ -56,7 +58,6 @@ PYLINTRC_DEST_FILE="$HOME/.pylintrc"
 # Temp backup filename
 TEMP_BACKUP_FILE=""
 
-# Check if destination file exists
 if [ -f "$PYLINTRC_DEST_FILE" ]; then
 	if cmp -s "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"; then
 		true

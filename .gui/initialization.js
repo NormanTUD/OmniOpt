@@ -95,7 +95,6 @@ function wrapEmojisInSpans() {
 		} else if (node.nodeType === Node.ELEMENT_NODE) {
 			const forbiddenTags = ['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'];
 			if (!forbiddenTags.includes(node.tagName)) {
-				// Emoji-Span prüfen und ggf. korrigieren
 				if (node.classList.contains('tutorial_icon')) {
 					const requiredClasses = ['tutorial_icon', 'invert_in_dark_mode', 'no_cursive'];
 					for (const cls of requiredClasses) {
@@ -103,7 +102,7 @@ function wrapEmojisInSpans() {
 							node.classList.add(cls);
 						}
 					}
-					return; // keine weiteren Kinder prüfen
+					return;
 				}
 
 				for (let child of Array.from(node.childNodes)) {

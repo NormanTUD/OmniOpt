@@ -44,8 +44,6 @@ cd $SCRIPT_DIR
 
 cd ..
 
-pwd
-
 source .shellscript_functions
 
 if ! command -v pylint 2>/dev/null >/dev/null; then
@@ -71,8 +69,8 @@ if [ -f "$PYLINTRC_DEST_FILE" ]; then
 		TEMP_BACKUP_FILE="$HOME/.pylintrc_$i"
 		mv "$PYLINTRC_DEST_FILE" "$TEMP_BACKUP_FILE"
 
-	# Copy the new file to destination
-	cp "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"
+		# Copy the new file to destination
+		cp "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"
 	fi
 else
 	cp "$PYLINTRC_FILE" "$PYLINTRC_DEST_FILE"

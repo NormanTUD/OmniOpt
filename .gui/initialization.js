@@ -59,7 +59,6 @@ function wrapEmojisInSpans() {
 			const matches = [...text.matchAll(emojiRegex)];
 			if (matches.length === 0) return;
 
-			// Verhindere doppelte Umwandlung
 			if (
 				node.parentNode &&
 				node.parentNode.nodeType === Node.ELEMENT_NODE &&

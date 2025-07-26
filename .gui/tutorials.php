@@ -86,7 +86,7 @@ function list_tutorials() {
 
 	foreach ($categories as $cat => $entries) {
 		$icon = $category_icons[$cat] ?? "📚"; // Fallback-Icon
-		echo "<h3><span  class='invert_in_dark_mode'>" . $icon . "</span> " . $cat . "</h3>\n";
+		echo "<h3><span>" . $icon . "</span> " . $cat . "</h3>\n";
 
 		if (count($entries) === 1) {
 			$e = $entries[0];

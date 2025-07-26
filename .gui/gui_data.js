@@ -244,12 +244,22 @@ var tableData = [
 		placeholder: "Your program with parameters",
 		required: true,
 		info: "Use Variable names like this: <br><code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(lr) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=run_sh\">this tutorial</a> to learn about the <code>run.sh</code>-file",
-		help: "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled.",
-		class: "gui_program_textareas"
+		help: "This is the program that will be optimized. Use placeholder names for places where your hyperparameters should be, like '%(epochs)'. The GUI will warn you about missing parameter definitions, that need to be there in the parameter selection menu, and will not allow you to run OmniOpt2 unless all parameters are filled."
 	}
 ];
 
 var hiddenTableData = [
+	{
+		label: "Run a program once",
+		id: "run_program_once",
+		type: "textarea",
+		value: "",
+		placeholder: "The program you want to run to, e.g. download stuff or install stuff once, before the main script starts",
+		required: false,
+		info: "Use Variable names like this: <br><code style=\"white-space: pre\" class=\"highlight_me dark_code_bg invert_in_dark_mode\">bash /absolute/path/to/run.sh --lr=%(lr) --epochs=%(epochs)</code>. See <a target=\"_blank\" href=\"tutorials.php?tutorial=prepare_and_install_once\">this tutorial</a> to learn about the <code>install.sh</code>-file",
+		help: "This program will be run exactly once before you run your main program and can run installation stuff for your program, preparing environments, downloading data and so on"
+	},
+
 	{
 		label: "CPUs per Task",
 		id: "cpus_per_task",

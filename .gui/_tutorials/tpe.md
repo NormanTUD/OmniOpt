@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">🌳</span> Tree-structured Parzen Estimator (TPE)
+# 🌳 Tree-structured Parzen Estimator (TPE)
 
 <div id="toc"></div>
 

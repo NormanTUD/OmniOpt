@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">♻️</span> Using external generators
+# ♻️ Using external generators
 
 <!-- How to use your own programs to generate new points and include them easily in OmniOpt2 -->
 

@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">🗃️</span> Using the SQLite3 store
+# 🗃️ Using the SQLite3 store
 
 <!-- What is SQLite3 and how to use it? -->
 

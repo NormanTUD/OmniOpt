@@ -692,6 +692,8 @@ class ConfigLoader:
         optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
         optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
         optional.add_argument('--db_url', type=str, default=None, help='Database URL (e.g., mysql+pymysql://user:pass@host/db), disables sqlite3 storage')
+        optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts. Supports placeholders like %(lr), %(epochs), etc.')
+
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -10058,6 +10060,46 @@ def write_result_names_file() -> None:
             print_red(f"Error trying to open file '{fn}': {e}")
 
 @beartype
+def run_program_once(params=None):
+    if not args.run_program_once:
+        print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
+        return
+
+    # Falls params nicht übergeben wurden, default leeres dict
+    if params is None:
+        params = {}
+
+    # Ersetze Platzhalter %(lr), %(epochs) etc. im String (falls args.run_program_once String ist)
+    if isinstance(args.run_program_once, str):
+        command_str = args.run_program_once
+        for k, v in params.items():
+            placeholder = f"%({k})"
+            command_str = command_str.replace(placeholder, str(v))
+        
+        # Kommando ausführen mit subprocess und rich Status
+        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots") as status:
+            console.log(f"Executing command: [cyan]{command_str}[/cyan]")
+            result = subprocess.run(command_str, shell=True)
+            if result.returncode == 0:
+                console.log("[bold green]Setup script completed successfully ✅[/bold green]")
+            else:
+                console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
+                # Hier kannst du evtl. Exception werfen oder Programm abbrechen
+
+    # Falls es eine Liste ist, führe als Liste aus (ohne shell=True)
+    elif isinstance(args.run_program_once, (list, tuple)):
+        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots") as status:
+            console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
+            result = subprocess.run(args.run_program_once)
+            if result.returncode == 0:
+                console.log("[bold green]Setup script completed successfully ✅[/bold green]")
+            else:
+                console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
+
+    else:
+        console.print(f"[red]Invalid type for run_program_once: {type(args.run_program_once)}[/red]")
+
+@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -10090,6 +10132,8 @@ def main() -> None:
 
     if args.dryrun:
         set_max_eval(1)
+
+    run_program_once()
 
     if os.getenv("CI"):
         data_dict: dict = {

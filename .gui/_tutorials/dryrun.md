@@ -1,4 +1,4 @@
-# <span class='tutorial_icon invert_in_dark_mode'>🧪</span> Dry-Runs
+# 🧪 Dry-Runs
 
 <!-- How to quickly test if your configuration works properly -->
 

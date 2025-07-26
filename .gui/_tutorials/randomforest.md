@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">🌲</span> Random Forest
+# 🌲 Random Forest
 
 <div id="toc"></div>
 

@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">📄</span> `config.{json,yaml,toml}`
+# 📄 `config.{json,yaml,toml}`
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 

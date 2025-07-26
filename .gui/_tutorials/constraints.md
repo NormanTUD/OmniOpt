@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">⚖️</span> Constraints
+# ⚖️ Constraints
 
 <!-- What are Constraints and how to use them? -->
 

@@ -45,3 +45,41 @@ $(document).ready(function() {
 	Prism.highlightAll();
 	generateTOC();
 });
+
+const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+function wrapEmojisInSpans() {
+  function processNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (emojiRegex.test(node.textContent)) {
+        const frag = document.createDocumentFragment();
+        let lastIndex = 0;
+        node.textContent.replace(emojiRegex, (match, offset) => {
+          if (offset > lastIndex) {
+            frag.appendChild(document.createTextNode(node.textContent.slice(lastIndex, offset)));
+          }
+          const span = document.createElement('span');
+          span.className = 'tutorial_icon invert_in_dark_mode';
+          span.textContent = match;
+          frag.appendChild(span);
+          lastIndex = offset + match.length;
+        });
+        if (lastIndex < node.textContent.length) {
+          frag.appendChild(document.createTextNode(node.textContent.slice(lastIndex)));
+        }
+        node.parentNode.replaceChild(frag, node);
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const forbiddenTags = ['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'];
+      if (!forbiddenTags.includes(node.tagName)) {
+        for (let child of Array.from(node.childNodes)) {
+          processNode(child);
+        }
+      }
+    }
+  }
+
+  processNode(document.body);
+}
+
+window.addEventListener('DOMContentLoaded', wrapEmojisInSpans);

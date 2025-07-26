@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">⌨️</span> Shell-Extensions (`bash`, `zsh`)
+# ⌨️ Shell-Extensions (`bash`, `zsh`)
 
 <!-- Extensions for tab-completion for ZSH and Bash-Shells -->
 

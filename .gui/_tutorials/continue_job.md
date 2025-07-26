@@ -1,4 +1,4 @@
-# <span class="tutorial_icon invert_in_dark_mode">🔁</span> Continue jobs
+# 🔁 Continue jobs
 
 <!-- How to continue jobs after they have been run already -->
 

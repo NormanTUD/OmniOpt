@@ -10074,7 +10074,7 @@ def run_program_once(params=None):
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
 
-        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots") as __status:
+        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots"):
             console.log(f"Executing command: [cyan]{command_str}[/cyan]")
             result = subprocess.run(command_str, shell=True, check=True)
             if result.returncode == 0:
@@ -10085,7 +10085,7 @@ def run_program_once(params=None):
                 my_exit(57)
 
     elif isinstance(args.run_program_once, (list, tuple)):
-        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots") as __status:
+        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots"):
             console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
             result = subprocess.run(args.run_program_once, check=True)
             if result.returncode == 0:

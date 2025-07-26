@@ -570,7 +570,7 @@ class ConfigLoader:
     no_sleep: bool
     username: Optional[str]
     max_nr_of_zero_results: int
-    run_program_once: Optional[List[str]]
+    run_program_once: str
     mem_gb: int
     flame_graph: bool
     continue_previous_job: Optional[str]

@@ -59,7 +59,7 @@ function wrapEmojisInSpans() {
             frag.appendChild(document.createTextNode(node.textContent.slice(lastIndex, offset)));
           }
           const span = document.createElement('span');
-          span.className = 'tutorial_icon invert_in_dark_mode';
+          span.className = 'tutorial_icon invert_in_dark_mode no_cursive';
           span.textContent = match;
           frag.appendChild(span);
           lastIndex = offset + match.length;

@@ -3699,7 +3699,7 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     values = _write_job_infos_csv_replace_none_with_str(values)
 
     headline = ["trial_index", "submit_time", "queue_time", *headline]
-    values = [str(trial_index), submit_time, queue_time, *values]
+    values = [str(trial_index), str(submit_time), str(queue_time), *values]
 
     run_folder = get_current_run_folder()
     if run_folder is not None and os.path.exists(run_folder):
@@ -10041,7 +10041,7 @@ def write_result_names_file() -> None:
             print_red(f"Error trying to open file '{fn}': {e}")
 
 @beartype
-def run_program_once(params=None):
+def run_program_once(params=None) -> None:
     if not args.run_program_once:
         print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
         return

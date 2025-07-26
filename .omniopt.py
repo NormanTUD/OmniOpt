@@ -3040,7 +3040,7 @@ def _parse_experiment_parameters_parse_this_args(
     return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def parse_experiment_parameters() -> List[Dict[str, Any]]:
     params: List[Dict[str, Any]] = []
     classic_params: List[Dict[str, Any]] = []
     param_names: List[str] = []
@@ -3064,9 +3064,8 @@ def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, 
 
     # Remove duplicates by 'name' key preserving order
     params = list({p['name']: p for p in params}.values())
-    classic_params = list({p['name']: p for p in classic_params}.values())
 
-    return params, classic_params
+    return params
 
 @beartype
 def check_factorial_range() -> None:
@@ -8558,12 +8557,10 @@ def handle_optimization_completion(optimization_complete: bool) -> bool:
 @beartype
 def execute_trials(
     trial_index_to_param: dict,
-    next_nr_steps: int,
     phase: Optional[str],
     _max_eval: Optional[int],
     _progress_bar: Any
-) -> List[Optional[int]]:
-    results: List[Optional[int]] = []
+) -> None:
     index_param_list: List[List[Any]] = []
     i: int = 1
 
@@ -8593,18 +8590,15 @@ def execute_trials(
             cnt = cnt + 1
             try:
                 result = future.result()
-                results.append(result)
+                print_debug(f"result in execute_trials: {result}")
             except Exception as exc:
                 print_red(f"execute_trials: Error at executing a trial: {exc}")
-                results.append(None)
 
     end_time = time.time()
 
     duration = float(end_time - start_time)
     job_submit_durations.append(duration)
     job_submit_nrs.append(cnt)
-
-    return results
 
 @beartype
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
@@ -8635,10 +8629,9 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
     trial_index_to_param: Optional[Dict] = None
     done_optimizing: bool = False
-    results: List = []
 
     try:
-        done_optimizing, trial_index_to_param, results = _create_and_execute_next_runs_run_loop(next_nr_steps, _max_eval, phase, _progress_bar)
+        done_optimizing, trial_index_to_param = _create_and_execute_next_runs_run_loop(_max_eval, phase, _progress_bar)
         _create_and_execute_next_runs_finish(done_optimizing)
     except Exception as e:
         stacktrace = traceback.format_exc()
@@ -8648,10 +8641,9 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     return _create_and_execute_next_runs_return_value(trial_index_to_param)
 
 @beartype
-def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict], List]:
+def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict]]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
-    results: List = []
 
     nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
@@ -8677,7 +8669,7 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
             filtered_trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
 
             if len(filtered_trial_index_to_param):
-                results.extend(execute_trials(filtered_trial_index_to_param, next_nr_steps, phase, _max_eval, _progress_bar))
+                execute_trials(filtered_trial_index_to_param, phase, _max_eval, _progress_bar)
             else:
                 if nr_jobs_before_removing_abandoned > 0:
                     print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
@@ -8686,7 +8678,7 @@ def _create_and_execute_next_runs_run_loop(next_nr_steps: int, _max_eval: Option
 
             trial_index_to_param = filtered_trial_index_to_param
 
-    return done_optimizing, trial_index_to_param, results
+    return done_optimizing, trial_index_to_param
 
 @beartype
 def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
@@ -8709,7 +8701,7 @@ def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Di
         return 0
 
 @beartype
-def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
+def get_number_of_steps(_max_eval: int) -> int:
     with console.status("[bold green]Calculating number of steps..."):
         _random_steps = args.num_random_steps
 
@@ -8727,20 +8719,7 @@ def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
         if _random_steps > _max_eval:
             set_max_eval(_random_steps)
 
-        original_second_steps = _max_eval - _random_steps
-        second_step_steps = max(0, original_second_steps)
-        if second_step_steps != original_second_steps:
-            original_print(f"? original_second_steps: {original_second_steps} = max_eval {_max_eval} - _random_steps {_random_steps}")
-        if second_step_steps == 0:
-            if not args.dryrun:
-                print_yellow("This is basically a random search. Increase --max_eval or reduce --num_random_steps")
-
-        second_step_steps = second_step_steps - already_done_random_steps
-
-        if args.continue_previous_job:
-            second_step_steps = _max_eval
-
-        return _random_steps, second_step_steps
+        return _random_steps
 
 @beartype
 def _set_global_executor() -> None:
@@ -9050,12 +9029,11 @@ def check_max_eval(_max_eval: int) -> None:
 def parse_parameters() -> Any:
     experiment_parameters = None
     cli_params_experiment_parameters = None
-    classic_params = None
     if args.parameter:
-        experiment_parameters, classic_params = parse_experiment_parameters()
+        experiment_parameters = parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
-    return experiment_parameters, cli_params_experiment_parameters, classic_params
+    return experiment_parameters, cli_params_experiment_parameters
 
 @beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
@@ -10158,7 +10136,7 @@ def main() -> None:
     write_ui_url_if_present()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
-    experiment_parameters, cli_params_experiment_parameters, classic_params = parse_parameters()
+    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
 
     write_live_share_file_if_needed()
 
@@ -10168,7 +10146,7 @@ def main() -> None:
 
     check_max_eval(max_eval)
 
-    _random_steps, second_step_steps = get_number_of_steps(max_eval)
+    _random_steps = get_number_of_steps(max_eval)
 
     set_random_steps(_random_steps)
 

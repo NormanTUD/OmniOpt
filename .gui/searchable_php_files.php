@@ -3,12 +3,12 @@
 
 	$GLOBALS["files"] = array(
 		"tutorials" => array(
-			"name" => "<span class='no_cursive invert_in_dark_mode'>📚</span> Tutorials&Help",
+			"name" => "<span class='no_cursive'>📚</span> Tutorials&Help",
 			"entries" => array()
 		),
-		"gui" => "<span class='no_cursive invert_in_dark_mode'>⚙️</span> GUI",
-		"share" => "<span class='no_cursive invert_in_dark_mode'>🌍</span> Share",
-		"usage_stats" => "<span class='no_cursive invert_in_dark_mode'>📊</span> Statistics"
+		"gui" => "<span class='no_cursive'>⚙️</span> GUI",
+		"share" => "<span class='no_cursive'>🌍</span> Share",
+		"usage_stats" => "<span class='no_cursive'>📊</span> Statistics"
 	);
 
 	if (isset($GLOBALS["index_tutorials"])) {

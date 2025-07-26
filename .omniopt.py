@@ -793,9 +793,9 @@ class ConfigLoader:
 
         validated_config = self.validate_and_convert(config, arg_defaults)
 
-        for key, value in vars(validated_config).items():
+        for key, _ in vars(cli_args).items():
             if key in validated_config:
-                setattr(cli_args, key, value)
+                setattr(cli_args, key, validated_config[key])
 
         return cli_args
 

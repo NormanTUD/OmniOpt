@@ -7297,7 +7297,7 @@ def save_state_files() -> None:
 @beartype
 def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
-    trial_index, parameters, trial_counter, next_nr_steps, phase = _params
+    trial_index, parameters, trial_counter, phase = _params
     if not ax_client:
         _fatal_error("Failed to get ax_client", 9)
 
@@ -8571,7 +8571,7 @@ def execute_trials(
             break
 
         progressbar_description([f"eval #{i}/{len(trial_index_to_param.items())} start"])
-        _args = [trial_index, parameters, i, next_nr_steps, phase]
+        _args = [trial_index, parameters, i, phase]
         index_param_list.append(_args)
         i += 1
 
@@ -8584,7 +8584,7 @@ def execute_trials(
     nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
 
     with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
-        future_to_args = {tp_executor.submit(execute_evaluation, args): args for args in index_param_list}
+        future_to_args = {tp_executor.submit(execute_evaluation, _args): _args for _args in index_param_list}
 
         for future in as_completed(future_to_args):
             cnt = cnt + 1

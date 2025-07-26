@@ -694,7 +694,6 @@ class ConfigLoader:
         optional.add_argument('--db_url', type=str, default=None, help='Database URL (e.g., mysql+pymysql://user:pass@host/db), disables sqlite3 storage')
         optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts. Supports placeholders like %(lr), %(epochs), etc.')
 
-
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
         speed.add_argument('--fit_out_of_design', help='Ignore data points outside of the design while creating new points', action='store_true', default=False)

@@ -1,5 +1,7 @@
 # 📝 The `--run_program_once` parameter
 
+<div id="toc"></div>
+
 <!-- Install programs and prepare environment before you install OmniOpt2 -->
 <!-- Category: Preparations, Basics and Setup -->
 

@@ -102,7 +102,7 @@ run_linter() {
 			}
 		fi
 	else
-		yellow_text "Skipping linter test because there were previous errors..."
+		yellow_text "Skipping linter $linter because there were previous errors..."
 	fi
 }
 

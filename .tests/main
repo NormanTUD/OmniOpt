@@ -740,7 +740,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "Non-unique parameter names" "$OMNIOPT_CALL --run_program 'echo' --experiment_name=asdf --time=12 --max_eval 123 --parameter x choice 123 --parameter x choice 1234 --mem_gb=4 --follow --gpus=$NUM_GPUS" 181 104
 
-	_test "External generator" ".tests/external_generator" 0
+	_test "External generator" ".tests/external_generator" 0 87
 
 	_test "External generator with constraint" ".tests/external_generator_with_constraint" 0
 

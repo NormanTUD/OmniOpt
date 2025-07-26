@@ -3038,7 +3038,7 @@ def _parse_experiment_parameters_parse_this_args(
     return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def parse_experiment_parameters() -> List[Dict[str, Any]]:
     params: List[Dict[str, Any]] = []
     classic_params: List[Dict[str, Any]] = []
     param_names: List[str] = []

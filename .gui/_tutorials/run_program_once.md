@@ -13,13 +13,17 @@ Use it to:
 - 🧹 prepare folders  
 - 🔧 configure environments
 
-## 💡 How to use variables
+```bash
+bash /absolute/path/to/install.sh
+```
 
-You can use variable placeholders like `%(lr)` or `%(epochs)` that will be replaced with actual values during the run.
+or
 
 ```bash
-bash /absolute/path/to/install.sh --lr=%(lr) --epochs=%(epochs)
+bash relative/path/to/install.sh
 ```
+
+The path is relative to your current pwd when starting this job.
 
 ## 📁 Example: `install.sh`
 

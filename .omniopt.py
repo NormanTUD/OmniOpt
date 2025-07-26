@@ -10065,32 +10065,27 @@ def run_program_once(params=None):
         print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
         return
 
-    # Falls params nicht übergeben wurden, default leeres dict
     if params is None:
         params = {}
 
-    # Ersetze Platzhalter %(lr), %(epochs) etc. im String (falls args.run_program_once String ist)
     if isinstance(args.run_program_once, str):
         command_str = args.run_program_once
         for k, v in params.items():
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
-        
-        # Kommando ausführen mit subprocess und rich Status
-        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots") as status:
+
+        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots") as __status:
             console.log(f"Executing command: [cyan]{command_str}[/cyan]")
-            result = subprocess.run(command_str, shell=True)
+            result = subprocess.run(command_str, shell=True, check=True)
             if result.returncode == 0:
                 console.log("[bold green]Setup script completed successfully ✅[/bold green]")
             else:
                 console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
-                # Hier kannst du evtl. Exception werfen oder Programm abbrechen
 
-    # Falls es eine Liste ist, führe als Liste aus (ohne shell=True)
     elif isinstance(args.run_program_once, (list, tuple)):
-        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots") as status:
+        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots") as __status:
             console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
-            result = subprocess.run(args.run_program_once)
+            result = subprocess.run(args.run_program_once, check=True)
             if result.returncode == 0:
                 console.log("[bold green]Setup script completed successfully ✅[/bold green]")
             else:

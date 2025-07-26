@@ -8702,7 +8702,7 @@ def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Di
         return 0
 
 @beartype
-def get_number_of_steps(_max_eval: int) -> Tuple[int, int]:
+def get_number_of_steps(_max_eval: int) -> int:
     with console.status("[bold green]Calculating number of steps..."):
         _random_steps = args.num_random_steps
 

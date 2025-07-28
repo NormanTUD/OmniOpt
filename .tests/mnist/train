@@ -63,6 +63,12 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
+
+if args.device.startswith('cuda'):
+    print(f"Available GPU memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB reserved")
+    print(f"Free GPU memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB allocated")
+    print(f"Max GPU memory allocated: {torch.cuda.max_memory_allocated() / 1024**2:.2f} MB")
+
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 

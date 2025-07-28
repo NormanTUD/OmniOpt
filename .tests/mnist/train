@@ -15,7 +15,7 @@ except ModuleNotFoundError:
     print("venv not found. Is python3-venv installed?")
     sys.exit(1)
 
-VENV_PATH = Path(".tests/mnist/.torch_venv")
+VENV_PATH = Path(f".tests/mnist/.torch_venv_{__import__('hashlib').sha256(os.environ.get('CLUSTERHOST', '').encode()).hexdigest()[:10]}")
 
 if platform.system() == "Windows":
     PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"

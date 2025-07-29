@@ -693,7 +693,7 @@ class ConfigLoader:
         optional.add_argument('--share_password', help='Use this as a password for share. Default is none.', default=None, type=str)
         optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
         optional.add_argument('--db_url', type=str, default=None, help='Database URL (e.g., mysql+pymysql://user:pass@host/db), disables sqlite3 storage')
-        optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts. Supports placeholders like %(lr), %(epochs), etc.')
+        optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts.')
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)

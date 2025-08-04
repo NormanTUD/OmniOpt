@@ -95,7 +95,6 @@ def parse_args():
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training and testing.")
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Learning rate for optimizer.")
     parser.add_argument("--hidden_size", type=int, default=128, help="Number of neurons in the hidden layer.")
-    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device to train on: 'cuda' or 'cpu'. Default is 'cuda' if available.")
     parser.add_argument("--dropout", type=float, default=0.0, help="Dropout probability (0.0 = no dropout).")
     parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="adam", help="Optimizer to use.")
     parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
@@ -184,7 +183,6 @@ def show_hyperparams(args):
     table.add_column("Parameter", style="bold cyan")
     table.add_column("Value", style="bold green")
 
-    table.add_row("Device", args.device)
     table.add_row("Epochs", str(args.epochs))
     table.add_row("Num Dense Layers", str(args.num_dense_layers))
     table.add_row("Batch size", str(args.batch_size))
@@ -272,9 +270,8 @@ def main():
     try:
         args = parse_args()
         show_hyperparams(args)
-        console.print(f"[bold green]Using device:[/] {args.device}")
 
-        device = torch.device(args.device if torch.cuda.is_available() or args.device == "cpu" else "cpu")
+        device = torch.device("gpu" if torch.cuda.is_available() else "cpu")
 
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -300,7 +297,7 @@ def main():
             activation=args.activation,
             init_mode=args.init,
             num_dense_layers=args.num_dense_layers
-        ).to(args.device)
+        ).to(device)
 
         if args.learning_rate == 0:
             console.print("[red]Learning Rate cannot be 0[/red]")

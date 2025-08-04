@@ -1625,15 +1625,13 @@
 
 	function get_exit_code_from_outfile(string $input): ?int {
 		// Pattern sucht nach "EXIT_CODE: " gefolgt von einer oder mehreren Ziffern am Ende des Strings
-		$pattern = '/EXIT_CODE:\s*(\d+)\s*$/';
+		$pattern = '/EXIT_CODE:\s*(\d+)\s*/';
 
 		if (preg_match($pattern, $input, $matches) === 1) {
-			// $matches[1] enthält den Exit-Code als String, wir wandeln ihn in int um
 			$exitCode = intval($matches[1]);
 			return $exitCode;
 		}
 
-		// Wenn kein Exit-Code gefunden wird, geben wir null zurück
 		return null;
 	}
 

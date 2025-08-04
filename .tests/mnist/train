@@ -9,6 +9,8 @@ import signal
 import traceback
 from pathlib import Path
 
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
 try:
     import venv
 except ModuleNotFoundError:

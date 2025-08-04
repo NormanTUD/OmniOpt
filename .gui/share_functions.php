@@ -1449,11 +1449,11 @@
 	}
 
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
-		$red_cross = "<span class='invert_in_dark_mode'>&#10060;</span>";
-		$green_checkmark = "<span class='invert_in_dark_mode'>&#9989;</span>";
-		$gear = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/gear.svg' /></span>";
-		$memory = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/memory.svg' /></span>";
-		$time_warning = "<span class='invert_in_dark_mode'><img style='height: 1em' src='i/timeout.svg' /></span>";
+		$red_cross = "<span>&#10060;</span>";
+		$green_checkmark = "<span>&#9989;</span>";
+		$gear = "<span><img style='height: 1em' src='i/gear.svg' /></span>";
+		$memory = "<span><img style='height: 1em' src='i/memory.svg' /></span>";
+		$time_warning = "<span><img style='height: 1em' src='i/timeout.svg' /></span>";
 
 		$output = '<section class="tabs" style="width: 100%"><menu role="tablist" aria-label="Single-Runs">';
 

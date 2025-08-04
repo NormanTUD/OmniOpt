@@ -1487,7 +1487,15 @@
 					$runtime_string = " ($runtime_string) ";
 				}
 
-				$tabname = "$nr$runtime_string$checkmark";
+				$exit_code_from_file = get_exit_code_from_outfile(file_get_contents($file_path));
+
+				$exit_code = "";
+
+				if($exit_code_from_file != 0 && $exit_code_from_file != "") {
+					$exit_code = " (exit-code: $exit_code_from_file)"
+				}
+
+				$tabname = "$nr$runtime_string$exit_code$checkmark";
 
 				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
 					$i == 0 ? 'aria-selected="true"' : ''
@@ -1613,6 +1621,20 @@
 		$log = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})/', '<span style="color:blue;">$1</span>', $log);
 
 		return $log;
+	}
+
+	function get_exit_code_from_outfile(string $input): ?int {
+		// Pattern sucht nach "EXIT_CODE: " gefolgt von einer oder mehreren Ziffern am Ende des Strings
+		$pattern = '/EXIT_CODE:\s*(\d+)\s*$/';
+
+		if (preg_match($pattern, $input, $matches) === 1) {
+			// $matches[1] enthält den Exit-Code als String, wir wandeln ihn in int um
+			$exitCode = intval($matches[1]);
+			return $exitCode;
+		}
+
+		// Wenn kein Exit-Code gefunden wird, geben wir null zurück
+		return null;
 	}
 
 	function get_runtime_from_outfile ($string) {

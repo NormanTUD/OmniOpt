@@ -1492,7 +1492,7 @@
 				$exit_code = "";
 
 				if($exit_code_from_file != 0 && $exit_code_from_file != "") {
-					$exit_code = " (exit-code: $exit_code_from_file)"
+					$exit_code = " (exit-code: $exit_code_from_file)";
 				}
 
 				$tabname = "$nr$runtime_string$exit_code$checkmark";

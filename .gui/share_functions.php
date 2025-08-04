@@ -1481,21 +1481,27 @@
 
 				$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
 
+				$brackets = [];
+
 				if($runtime_string == "0s" || !$runtime_string) {
 					$runtime_string = "";
 				} else {
-					$runtime_string = " ($runtime_string) ";
+					$brackets[] = $runtime_string;
 				}
 
 				$exit_code_from_file = get_exit_code_from_outfile(file_get_contents($file_path));
 
-				$exit_code = "";
-
 				if($exit_code_from_file != 0 && $exit_code_from_file != "") {
-					$exit_code = " (exit-code: $exit_code_from_file)";
+					$brackets[] = "exit-code: $exit_code_from_file";
 				}
 
-				$tabname = "$nr$runtime_string$exit_code$checkmark";
+				$bracket_string = "";
+
+				if(count($brackets)) {
+					$brackets_string = " (".implode(", ", $brackets).")";
+				}
+
+				$tabname = "$nr$brackets_string$checkmark";
 
 				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
 					$i == 0 ? 'aria-selected="true"' : ''

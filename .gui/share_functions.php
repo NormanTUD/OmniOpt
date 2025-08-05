@@ -1501,7 +1501,7 @@
 					$brackets_string = " (".implode(", ", $brackets).")";
 				}
 
-				$tabname = "$nr$brackets_string$checkmark";
+				$tabname = "$nr$brackets_string $checkmark";
 
 				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
 					$i == 0 ? 'aria-selected="true"' : ''

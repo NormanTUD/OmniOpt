@@ -2583,19 +2583,21 @@ function plotParameterDistributionsByStatus() {
 
 		if (traces.length > 0) {
 			const h2 = document.createElement('h2');
-			h2.textContent = `KDE: ${param}`;
-			container.appendChild(h2);
+			if(!param.startsWith("OO_Info_")) {
+				h2.textContent = `KDE: ${param}`;
+				container.appendChild(h2);
 
-			const plotDiv = document.createElement('div');
-			plotDiv.style.marginBottom = '30px';
-			container.appendChild(plotDiv);
+				const plotDiv = document.createElement('div');
+				plotDiv.style.marginBottom = '30px';
+				container.appendChild(plotDiv);
 
-			Plotly.newPlot(plotDiv, traces, {
-			// hier kannst du den Titel aus den Plotly-Optionen rausnehmen, weil wir ihn schon als h2 haben
-			xaxis: { title: param },
-			yaxis: { title: 'Dichte' },
-			legend: { orientation: "h" }
-			}, {responsive: true});
+				Plotly.newPlot(plotDiv, traces, {
+				// hier kannst du den Titel aus den Plotly-Optionen rausnehmen, weil wir ihn schon als h2 haben
+				xaxis: { title: param },
+				yaxis: { title: 'Dichte' },
+				legend: { orientation: "h" }
+				}, {responsive: true});
+			}
 		}
 	}
 

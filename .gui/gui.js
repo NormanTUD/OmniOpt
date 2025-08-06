@@ -601,6 +601,16 @@ function update_command() {
 					is_ok = false;
 				}
 
+				if(maxValue == "") {
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /><i>maxValue</i> for parameter <i>" + parameterName + "</i> is empty.");
+					is_ok = false;
+				}
+
+				if(minValue == "") {
+					warn_msg.push("<img src='i/warning.svg' style='height: 1em' /><i>minValue</i> for parameter <i>" + parameterName + "</i> is empty.");
+					is_ok = false;
+				}
+
 				if (numberType == "int") {
 					var parsed_int_max = parseInt(maxValue);
 					if (parsed_int_max != maxValue) {

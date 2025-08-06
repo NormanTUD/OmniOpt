@@ -1519,7 +1519,7 @@
 					$brackets[] = "exit-code: $exit_code_from_file";
 				}
 
-				$bracket_string = "";
+				$brackets_string = "";
 
 				if(count($brackets)) {
 					$brackets_string = " (".implode(", ", $brackets).")";

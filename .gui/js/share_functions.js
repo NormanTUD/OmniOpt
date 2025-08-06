@@ -2500,6 +2500,162 @@ function initializeResultParameterVisualizations() {
         }
 }
 
+function plotParameterDistributionsByStatus() {
+	const container = document.getElementById('parameter_by_status_distribution');
+	if (!container) {
+		console.error("Kein Container mit id 'parameter_by_status_distribution' gefunden.");
+		return null;
+	}
+
+	// Prüfen, ob schon geladen/gecached
+	if ($(container).data("loaded") === "true") {
+		// console.log("Plot ist bereits geladen (gecached).");
+		return;  // Nichts tun, weil schon gezeichnet
+	}
+
+	// Prüfen, ob alle globalen Variablen definiert und Arrays sind
+	if (
+		typeof special_col_names === "undefined" ||
+		typeof result_names === "undefined" ||
+		typeof result_min_max === "undefined" ||
+		typeof tab_results_headers_json === "undefined" ||
+		typeof tab_results_csv_json === "undefined"
+	) {
+		console.error("Missing one or more required global variables.");
+		return null;
+	}
+
+	if (
+		!Array.isArray(special_col_names) ||
+		!Array.isArray(result_names) ||
+		!Array.isArray(result_min_max) ||
+		!Array.isArray(tab_results_headers_json) ||
+		!Array.isArray(tab_results_csv_json)
+	) {
+		console.error("All inputs must be arrays.");
+		return null;
+	}
+
+	container.innerHTML = "";
+
+	const statusIndex = tab_results_headers_json.indexOf("trial_status");
+	if (statusIndex < 0) {
+		container.textContent = "Kein 'trial_status' in den Daten gefunden.";
+		return null;
+	}
+
+	const trialStatuses = [...new Set(tab_results_csv_json.map(row => row[statusIndex]))].filter(s => s != null);
+	const paramCols = tab_results_headers_json.filter(col =>
+		!special_col_names.includes(col) &&
+		!result_names.includes(col)
+	);
+
+	for (const param of paramCols) {
+		const paramIndex = tab_results_headers_json.indexOf(param);
+		if (paramIndex < 0) continue;
+
+		const traces = [];
+
+		trialStatuses.forEach((status) => {
+			const filteredValues = tab_results_csv_json
+				.filter(row => row[statusIndex] === status)
+				.map(row => row[paramIndex])
+				.filter(val => val !== "" && val != null && !isNaN(val))
+				.map(Number);
+
+			if (filteredValues.length > 1) {
+				const bandwidth = 1.06 * std(filteredValues) * Math.pow(filteredValues.length, -1 / 5);
+				if (bandwidth <= 0) return;
+				const kde = kernelDensityEstimator(filteredValues, bandwidth);
+
+				traces.push({
+					type: 'scatter',
+					mode: 'lines',
+					x: kde.x,
+					y: kde.y,
+					name: status,
+					line: { width: 1 },
+					fill: 'tozeroy',
+					fillcolor: getColorForStatus(status)
+				});
+			}
+		});
+
+		if (traces.length > 0) {
+			const plotDiv = document.createElement('div');
+			plotDiv.style.marginBottom = '30px';
+			container.appendChild(plotDiv);
+
+			Plotly.newPlot(plotDiv, traces, {
+				title: `KDE: ${param}`,
+				xaxis: { title: param },
+				yaxis: { title: 'Dichte' },
+				legend: { orientation: "h" }
+			}, {responsive: true});
+		}
+	}
+
+	// Flag setzen, dass geladen/gecached
+	$(container).data("loaded", "true");
+
+	// Hilfsfunktion std (falls nicht global)
+	function std(arr) {
+		if (arr.length < 2) return 0;
+		const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+		const variance = arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (arr.length - 1);
+		return Math.sqrt(variance);
+	}
+
+	// Color mapping (falls nicht global)
+	function getColorForStatus(status) {
+		const baseAlpha = 0.5;
+		switch(status.toUpperCase()) {
+			case 'FAILED':      return `rgba(214, 39, 40, ${baseAlpha})`;      // rot
+			case 'COMPLETED':   return `rgba(44, 160, 44, ${baseAlpha})`;       // grün
+			case 'ABANDONED':   return `rgba(255, 215, 0, ${baseAlpha})`;       // gelb
+			case 'RUNNING':     return `rgba(50, 50, 44, ${baseAlpha})`;
+			default:
+				const otherColors = [
+					`rgba(31, 119, 180, ${baseAlpha})`,  // blau
+					`rgba(255, 127, 14, ${baseAlpha})`,  // orange
+					`rgba(148, 103, 189, ${baseAlpha})`, // lila
+					`rgba(140, 86, 75, ${baseAlpha})`,   // braun
+					`rgba(227, 119, 194, ${baseAlpha})`, // rosa
+					`rgba(127, 127, 127, ${baseAlpha})`, // grau
+					`rgba(188, 189, 34, ${baseAlpha})`,  // oliv
+					`rgba(23, 190, 207, ${baseAlpha})`   // türkis
+				];
+				let hash = 0;
+				for (let i = 0; i < status.length; i++) {
+					hash = status.charCodeAt(i) + ((hash << 5) - hash);
+				}
+				const index = Math.abs(hash) % otherColors.length;
+				return otherColors[index];
+		}
+	}
+
+	function kernelDensityEstimator(values, bandwidth, numPoints = 100) {
+		if (values.length === 0) return {x: [], y: []};
+		const min = Math.min(...values);
+		const max = Math.max(...values);
+		const step = (max - min) / numPoints;
+
+		const x = Array.from({length: numPoints}, (_, i) => min + i * step);
+		const y = x.map(xi => {
+			const sum = values.reduce((acc, v) => acc + gaussianKernel((xi - v) / bandwidth), 0);
+			return sum / (values.length * bandwidth);
+		});
+
+		return {x, y};
+	}
+
+	function gaussianKernel(u) {
+		return Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
+	}
+
+	resizePlotlyCharts();
+}
+
 window.addEventListener('load', updatePreWidths);
 window.addEventListener('resize', updatePreWidths);
 

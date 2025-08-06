@@ -497,6 +497,30 @@
 		return $tabs;
 	}
 
+	function add_parameter_distribution_by_type_plot($tabs, $warnings, $filename, $name, $id) {
+		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
+			$html = "<div class='invert_in_dark_mode' id='parameter_by_status_distribution'></div>";
+
+			$svg_icon = get_icon_html("plot.svg");
+
+			$tabs["$svg_icon$name"] = [
+				'id' => $id,
+				'content' => $html,
+				"onclick" => "plotParameterDistributionsByStatus();"
+			];
+		} else {
+			if(!is_file($filename)) {
+				$warnings[] = "$filename does not exist";
+			} else if(!filesize($filename)) {
+				$warnings[] = "$filename is empty";
+			} else if(!is_ascii_or_utf8($filename)) {
+				$warnings[] = "$filename is not Ascii or UTF8";
+			}
+		}
+
+		return [$tabs, $warnings];
+	}
+
 	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";

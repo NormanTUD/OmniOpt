@@ -2592,11 +2592,11 @@ function plotParameterDistributionsByStatus() {
 				container.appendChild(plotDiv);
 
 				Plotly.newPlot(plotDiv, traces, {
-				// hier kannst du den Titel aus den Plotly-Optionen rausnehmen, weil wir ihn schon als h2 haben
-				xaxis: { title: param },
-				yaxis: { title: 'Dichte' },
-				legend: { orientation: "h" }
-				}, {responsive: true});
+					xaxis: { title: { text: param }, automargin: true },
+					yaxis: { title: { text: 'Density' }, automargin: true },
+					legend: { orientation: "h" }
+				}, { responsive: true });
+
 			}
 		}
 	}

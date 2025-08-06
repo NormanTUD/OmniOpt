@@ -2507,13 +2507,10 @@ function plotParameterDistributionsByStatus() {
 		return null;
 	}
 
-	// Prüfen, ob schon geladen/gecached
 	if ($(container).data("loaded") === "true") {
-		// console.log("Plot ist bereits geladen (gecached).");
-		return;  // Nichts tun, weil schon gezeichnet
+		return;
 	}
 
-	// Prüfen, ob alle globalen Variablen definiert und Arrays sind
 	if (
 		typeof special_col_names === "undefined" ||
 		typeof result_names === "undefined" ||
@@ -2564,19 +2561,21 @@ function plotParameterDistributionsByStatus() {
 				.map(Number);
 
 			if (filteredValues.length > 1) {
-				const bandwidth = 1.06 * std(filteredValues) * Math.pow(filteredValues.length, -1 / 5);
-				if (bandwidth <= 0) return;
-				const kde = kernelDensityEstimator(filteredValues, bandwidth);
-
+				// Histogramm-Bins automatisch mit Plotly bestimmen lassen oder eigene
+				// Hier: bins in 20 Stück
+				const nbins = 20;
 				traces.push({
-					type: 'scatter',
-					mode: 'lines',
-					x: kde.x,
-					y: kde.y,
+					type: 'histogram',
+					x: filteredValues,
 					name: status,
-					line: { width: 1 },
-					fill: 'tozeroy',
-					fillcolor: getColorForStatus(status)
+					opacity: 0.6,
+					xbingroup: 0,
+					marker: {color: getColorForStatus(status)},
+					nbinsx: nbins,
+					// für Overlay-Stil:
+					// histfunc: 'count', // default
+					// autobinx: false,
+					// xbins: {start: Math.min(...filteredValues), end: Math.max(...filteredValues), size: (Math.max(...filteredValues) - Math.min(...filteredValues)) / nbins}
 				});
 			}
 		});
@@ -2584,7 +2583,7 @@ function plotParameterDistributionsByStatus() {
 		if (traces.length > 0) {
 			const h2 = document.createElement('h2');
 			if(!param.startsWith("OO_Info_")) {
-				h2.textContent = `KDE: ${param}`;
+				h2.textContent = `Histogram: ${param}`;
 				container.appendChild(h2);
 
 				const plotDiv = document.createElement('div');
@@ -2592,44 +2591,35 @@ function plotParameterDistributionsByStatus() {
 				container.appendChild(plotDiv);
 
 				Plotly.newPlot(plotDiv, traces, {
-					xaxis: { title: { text: param }, automargin: true },
-					yaxis: { title: { text: 'Density' }, automargin: true },
+					barmode: 'overlay',  // 'stack' oder 'overlay'
+					xaxis: { title: param, automargin: true },
+					yaxis: { title: 'Count', automargin: true },
 					legend: { orientation: "h" }
 				}, { responsive: true });
-
 			}
 		}
 	}
 
-	// Flag setzen, dass geladen/gecached
 	$(container).data("loaded", "true");
-
-	// Hilfsfunktion std (falls nicht global)
-	function std(arr) {
-		if (arr.length < 2) return 0;
-		const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
-		const variance = arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (arr.length - 1);
-		return Math.sqrt(variance);
-	}
 
 	// Color mapping (falls nicht global)
 	function getColorForStatus(status) {
 		const baseAlpha = 0.5;
 		switch(status.toUpperCase()) {
-			case 'FAILED':      return `rgba(214, 39, 40, ${baseAlpha})`;      // rot
-			case 'COMPLETED':   return `rgba(44, 160, 44, ${baseAlpha})`;       // grün
-			case 'ABANDONED':   return `rgba(255, 215, 0, ${baseAlpha})`;       // gelb
+			case 'FAILED':      return `rgba(214, 39, 40, ${baseAlpha})`;
+			case 'COMPLETED':   return `rgba(44, 160, 44, ${baseAlpha})`;
+			case 'ABANDONED':   return `rgba(255, 215, 0, ${baseAlpha})`;
 			case 'RUNNING':     return `rgba(50, 50, 44, ${baseAlpha})`;
 			default:
 				const otherColors = [
-					`rgba(31, 119, 180, ${baseAlpha})`,  // blau
-					`rgba(255, 127, 14, ${baseAlpha})`,  // orange
-					`rgba(148, 103, 189, ${baseAlpha})`, // lila
-					`rgba(140, 86, 75, ${baseAlpha})`,   // braun
-					`rgba(227, 119, 194, ${baseAlpha})`, // rosa
-					`rgba(127, 127, 127, ${baseAlpha})`, // grau
-					`rgba(188, 189, 34, ${baseAlpha})`,  // oliv
-					`rgba(23, 190, 207, ${baseAlpha})`   // türkis
+					`rgba(31, 119, 180, ${baseAlpha})`,
+					`rgba(255, 127, 14, ${baseAlpha})`,
+					`rgba(148, 103, 189, ${baseAlpha})`,
+					`rgba(140, 86, 75, ${baseAlpha})`,
+					`rgba(227, 119, 194, ${baseAlpha})`,
+					`rgba(127, 127, 127, ${baseAlpha})`,
+					`rgba(188, 189, 34, ${baseAlpha})`,
+					`rgba(23, 190, 207, ${baseAlpha})`
 				];
 				let hash = 0;
 				for (let i = 0; i < status.length; i++) {
@@ -2638,25 +2628,6 @@ function plotParameterDistributionsByStatus() {
 				const index = Math.abs(hash) % otherColors.length;
 				return otherColors[index];
 		}
-	}
-
-	function kernelDensityEstimator(values, bandwidth, numPoints = 100) {
-		if (values.length === 0) return {x: [], y: []};
-		const min = Math.min(...values);
-		const max = Math.max(...values);
-		const step = (max - min) / numPoints;
-
-		const x = Array.from({length: numPoints}, (_, i) => min + i * step);
-		const y = x.map(xi => {
-			const sum = values.reduce((acc, v) => acc + gaussianKernel((xi - v) / bandwidth), 0);
-			return sum / (values.length * bandwidth);
-		});
-
-		return {x, y};
-	}
-
-	function gaussianKernel(u) {
-		return Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
 	}
 
 	resizePlotlyCharts();

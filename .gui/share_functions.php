@@ -804,7 +804,7 @@
 	function add_exit_codes_pie_plot($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotExitCodesPieChart"></div>';
 
-		$svg_icon = get_icon_html("plot.svg");
+		$svg_icon = get_icon_html("piechart.svg");
 
 		$tabs["{$svg_icon}Exit-Codes"] = [
 			'id' => 'tab_exit_codes_plot',

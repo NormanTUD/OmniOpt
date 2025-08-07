@@ -2592,10 +2592,30 @@ function plotParameterDistributionsByStatus() {
 
 				Plotly.newPlot(plotDiv, traces, {
 					barmode: 'overlay',  // 'stack' oder 'overlay'
-					xaxis: { title: param, automargin: true },
-					yaxis: { title: 'Count', automargin: true },
-					legend: { orientation: "h" }
-				}, { responsive: true });
+					xaxis: {
+						title: { text: String(param) },  // Sicherstellen, dass es ein Textobjekt ist
+						automargin: true,
+						tickangle: -45,                  // Optional: bessere Lesbarkeit
+						titlefont: { size: 16 }          // Optional: größerer Titel
+					},
+					yaxis: {
+						title: { text: 'Count' },        // Titel explizit als Objekt angeben
+						automargin: true,
+						titlefont: { size: 16 }          // Optional: größerer Titel
+					},
+					margin: {
+						l: 60,
+						r: 30,
+						t: 30,
+						b: 80                            // genug Platz für x-Achsentitel
+					},
+					legend: {
+						orientation: "h"
+					}
+				}, {
+					responsive: true
+				});
+
 			}
 		}
 	}

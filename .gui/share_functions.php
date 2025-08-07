@@ -1015,6 +1015,47 @@
 		return file_exists($filename) && preg_match('/\S/', file_get_contents($filename));
 	}
 
+	function normalize_csv_value($field) {
+		if (trim($field) === '') {
+			return '';
+		}
+
+		if (is_numeric($field)) {
+			if (strpos($field, '.') !== false) {
+				$number = floatval($field);
+
+				if (fmod($number, 1.0) === 0.0) {
+					return strval(intval($number));
+				} else {
+					$normalized = rtrim(rtrim(number_format($number, 30, '.', ''), '0'), '.');
+					return $normalized;
+				}
+			} else {
+				return strval(intval($field));
+			}
+		}
+
+		return $field;
+	}
+
+	function normalize_csv_file_contents($contents) {
+		$lines = explode("\n", $contents);
+		$normalized_lines = [];
+
+		foreach ($lines as $line) {
+			// Skip completely empty lines
+			if (trim($line) === '') {
+				continue;
+			}
+
+			$fields = str_getcsv($line);
+			$normalized_fields = array_map('normalize_csv_value', $fields);
+			$normalized_lines[] = implode(',', $normalized_fields);
+		}
+
+		return implode("\n", $normalized_lines);
+	}
+
 	function add_simple_csv_tab_from_file ($tabs, $warnings, $filename, $name, $id, $header_line = null) {
 		if(is_file($filename) && filesize($filename) && has_real_char($filename) && is_ascii_or_utf8($filename)) {
 			$csv_contents = get_csv_data_as_array($filename, ",", $header_line);
@@ -1028,7 +1069,12 @@
 			$GLOBALS["json_data"]["{$id}_headers_json"] = $headers_json;
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_json;
 
-			$content = my_htmlentities(file_get_contents($filename));
+
+			$content = file_get_contents($filename);
+
+			$content = normalize_csv_file_contents($content);
+
+			$content = my_htmlentities($content);
 
 			if($content && $header_line) {
 				$content = implode(",", $header_line)."\n$content";

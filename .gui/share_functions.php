@@ -818,7 +818,7 @@
 	function add_violin_plot ($tabs) {
 		$html = '<div class="invert_in_dark_mode" id="plotViolin"></div>';
 
-		$svg_icon = get_icon_html("plot.svg");
+		$svg_icon = get_icon_html("violin.svg");
 
 		$tabs["{$svg_icon}Violin"] = [
 			'id' => 'tab_violin',

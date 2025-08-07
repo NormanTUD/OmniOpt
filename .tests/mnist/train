@@ -8,6 +8,9 @@ import subprocess
 import signal
 import traceback
 from pathlib import Path
+import time
+
+start_time = time.time()
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
@@ -320,6 +323,11 @@ def main():
 
         print(f"VAL_LOSS: {val_loss}")
         print(f"VAL_ACC: {val_acc}")
+
+        end_time = time.time()
+        runtime_seconds = end_time - start_time
+
+        print(f"RUNTIME: {runtime_seconds:.3f}")
 
     except KeyboardInterrupt:
         graceful_exit(None, None)

@@ -518,6 +518,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 
 class ConfigLoader:
     disable_previous_job_constraint: bool
+    dependency: str
     run_tests_that_fail_on_taurus: bool
     num_random_steps: int
     verbose: bool

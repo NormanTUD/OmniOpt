@@ -592,7 +592,7 @@ var hiddenTableData = [
 		value: "",
 		info: "A string like afterok:<job_id>, afternotok:<job_id>, after:<job_id>, afterany:<job_id>, or singleton. Multiple dependencies can be separated by commas.",
 		required: false,
-		regex: "^(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton)(,(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton))*$",
+		regex: "^((afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton)(,(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton))*)*$",
 		regex_does_not_match_text: "The value must be a valid Slurm dependency string, e.g., afterok:12345, afterany:67890, or singleton. Multiple dependencies must be separated by commas without spaces.",
 	},
 	{

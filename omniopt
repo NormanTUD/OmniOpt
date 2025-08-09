@@ -1667,15 +1667,26 @@ EOF
 		fi
 
 		if [[ $dependency == "omniopt_singleton" ]]; then
-			deps=$(for job_id in $(squeue -h -o "%A"); do
-				if scontrol show job "$job_id" | grep -q omniopt; then
-					echo "after:$job_id"
+			k=0
+			deps=""
+			while read -r job_id; do
+				if scontrol show job "$job_id" 2>/dev/null | grep -qi omniopt; then
+					[[ -n $deps ]] && deps+=","
+					deps+="after:$job_id"
+					k=$((k+1))
 				fi
-			done | paste -sd,)
-			[ -n "$deps" ] && dependency=$deps
+			done < <(squeue -h -u "$USER" -o "%A")
+
+			if (( k > 0 )); then
+				dependency="$deps"
+
+				echo "Automatic dependencies: $dependency"
+			else
+				dependency=""
+			fi
 		fi
 
-		if [[ $dependency ]]; then
+		if [[ -n $dependency ]]; then
 			if [[ $dependency =~ ^(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton)(,(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton))*$ ]]; then
 				if [[ $debug -eq 1 ]]; then
 					yellow_text "Valid dependency found: $dependency. Adding it it to sbatch command."

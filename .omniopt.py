@@ -721,7 +721,7 @@ class ConfigLoader:
         slurm.add_argument('--account', help='Account to be used for SLURM', type=str, default=None)
         slurm.add_argument('--gpus', help='Number of GPUs per worker', type=int, default=0)
         #slurm.add_ argument('--tasks_per_node', help='ntasks', type=int, default=1)
-        slurm.add_argument('--dependency', type=str, help='Allows slurm-dependencies, like --dependency=afterok:<slurm id> or --dependency:after:<slurm_id> or --dependency=singleton, the latter one allows to let only run job running as long as they have the same job name')
+        slurm.add_argument('--dependency', type=str, help='Allows slurm-dependencies, like --dependency=afterok:<slurm id> or --dependency:after:<slurm_id> or --dependency=singleton, the latter one allows to let only run job running as long as they have the same job name, and --dependency=omniopt_singleton, which allows only one OmniOpt job to be running and puts all running once into the dependency string automatically')
 
         installing.add_argument('--run_mode', help='Either local or docker', default='local', type=str)
 

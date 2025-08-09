@@ -1666,6 +1666,15 @@ EOF
 			fi
 		fi
 
+		if [[ $dependency == "omniopt_singleton" ]]; then
+			deps=$(for job_id in $(squeue -h -o "%A"); do
+				if scontrol show job "$job_id" | grep -q omniopt; then
+					echo "after:$job_id"
+				fi
+			done | paste -sd,)
+			[ -n "$deps" ] && dependency=$deps
+		fi
+
 		if [[ $dependency ]]; then
 			if [[ $dependency =~ ^(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton)(,(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton))*$ ]]; then
 				if [[ $debug -eq 1 ]]; then

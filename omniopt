@@ -721,6 +721,7 @@
 		continue_previous_job=""
 		calculate_pareto_front_of_job=""
 		mem_gb=
+		dependency=
 		gpus=
 		time=
 		if [[ -z $root_venv_dir ]]; then
@@ -862,6 +863,7 @@ EOF
 		"experiment_name"
 		"reservation"
 		"time"
+		"dependency"
 	)
 
 	complex_options_str=""
@@ -1348,6 +1350,14 @@ EOF
 	trap - ERR
 	set +e
 
+	if [[ -z $dependency ]]; then
+		_dependency=$(get_config_from_config_file "dependency" 0 2>/dev/null)
+		retcode=$?
+		if [[ $retcode -ne 0 ]] && [[ -n $_dependency ]]; then
+			dependency=$_dependency
+		fi
+	fi
+
 	if [[ -z $reservation ]]; then
 		_reservation=$(get_config_from_config_file "reservation" 0 2>/dev/null)
 		retcode=$?
@@ -1656,11 +1666,23 @@ EOF
 			fi
 		fi
 
+		if [[ $dependency ]]; then
+			if [[ $dependency =~ ^(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton)(,(afterok:[0-9]+|afternotok:[0-9]+|after:[0-9]+|afterany:[0-9]+|singleton))*$ ]]; then
+				if [[ $debug -eq 1 ]]; then
+					yellow_text "Valid dependency found: $dependency. Adding it it to sbatch command."
+				fi
+				sbatch_command="$sbatch_command --dependency $dependency"
+			else
+				echo "Invalid dependency format: $dependency"
+			fi
+		fi
+
 		sbatch_command+=" $SCRIPT_DIR/omniopt $args_string"
 
 		if [[ "$debug" -eq "1" ]] || [[ -n $PRINT_SBATCH_COMMAND ]]; then
 			yellow_text "$sbatch_command"
 		fi
+
 
 		set +e
 

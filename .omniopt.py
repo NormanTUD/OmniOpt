@@ -10301,7 +10301,7 @@ def main() -> None:
             original_print(f"External-Generator: {decode_if_base64(args.external_generator)}")
 
         checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
-        save_experiment_parameters(checkpoint_parameters_filepath, experiment_parameters)
+        save_experiment_parameters(checkpoint_parameters_filepath)
 
         print_overview_tables(experiment_parameters, experiment_args)
 
@@ -10431,7 +10431,7 @@ class NpEncoder(json.JSONEncoder):
         return super(NpEncoder, self).default(obj)
 
 @beartype
-def save_experiment_parameters(filepath: str, experiment_parameters: Union[list, dict]) -> None:
+def save_experiment_parameters(filepath: str) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 

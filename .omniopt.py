@@ -5459,9 +5459,11 @@ def load_original_generation_strategy(experiment_parameters: dict, original_ax_c
 
 @beartype
 def wait_for_checkpoint_file(checkpoint_file: str) -> None:
+    start_time = time.time()
+
     while not os.path.exists(checkpoint_file):
         elapsed = int(time.time() - start_time)
-        console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
+        console.print(f"[yellow]Waiting for file {checkpoint_file}... {elapsed} seconds[/yellow]", end="\r")
         time.sleep(1)
 from beartype import beartype
 from typing import Any, Optional, Tuple, Union
@@ -5479,11 +5481,13 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
     original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
 
+    if args.worker_generator_path:
+        wait_for_checkpoint_file(checkpoint_parameters_filepath)
+
     die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
-    start_time = time.time()
 
     if args.worker_generator_path:
-        wait_for_checkpoint_file(args.worker_generator_path)
+        wait_for_checkpoint_file(checkpoint_file)
         elapsed = int(time.time() - start_time)
         console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
 

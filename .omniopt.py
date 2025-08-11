@@ -44,7 +44,8 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "trial_index", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time"]
+special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem"]
+
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
 uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM"]
@@ -5486,6 +5487,18 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
         original_ax_client_file: str = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
 
         die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+        start_time = time.time()
+
+        if args.worker_generator_path:
+            while not os.path.exists(checkpoint_file):
+                elapsed = int(time.time() - start_time)
+                console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
+                time.sleep(1)
+
+            # Falls am Ende die Zeile "sauber" ausgegeben werden soll
+            elapsed = int(time.time() - start_time)
+            console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
+
         die_with_47_if_file_doesnt_exists(checkpoint_file)
 
         experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)

@@ -5455,6 +5455,10 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
     cli_params_experiment_parameters, experiment_parameters = _params
 
     continue_previous_job = args.continue_previous_job
+
+    if args.worker_generator_path:
+        continue_previous_job = args.worker_generator_path
+
     parameter = args.parameter
 
     experiment_constraints = get_constraints()

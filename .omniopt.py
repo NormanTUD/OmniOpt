@@ -1940,7 +1940,7 @@ def save_results_csv() -> Optional[str]:
     makedirs(state_files_folder)
 
     lock_path = pd_csv + ".lock"
-    with FileLock(lock_path, timeout=300):  # wait max 5 min
+    with FileLock(lock_path, timeout=30):  # wait max 5 min
         if ax_client is None:
             return None
 

@@ -5477,7 +5477,7 @@ def __get_experiment_parameters__check_ax_client() -> None:
         _fatal_error("Something went wrong with the ax_client", 9)
 
 @beartype
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: dict) -> Tuple[dict, Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[dict, Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -8762,7 +8762,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
     range_nr = new_nr_of_jobs_to_get
     get_next_trials_nr = 1
 
-    if getattr(args, "generate_all_jobs_at_once", False):
+    if getattr(args, "generate_all_jobs_at_once", False) or args.worker_generator_path:
         range_nr = 1
         get_next_trials_nr = new_nr_of_jobs_to_get
 

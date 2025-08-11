@@ -16,10 +16,6 @@
 		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
 	}
 
-	function unset_debug {
-		trap - DEBUG
-	}
-
 	RUN_VIA_RUNSH=1
 	export RUN_VIA_RUNSH
 

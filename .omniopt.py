@@ -5463,114 +5463,119 @@ def wait_for_checkpoint_file(checkpoint_file: str) -> None:
         elapsed = int(time.time() - start_time)
         console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
         time.sleep(1)
+from beartype import beartype
+from typing import Any, Optional, Tuple, Union
+
+@beartype
+def __get_experiment_parameters__check_ax_client() -> None:
+    if not ax_client:
+        _fatal_error("Something went wrong with the ax_client", 9)
+
+@beartype
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str) -> Tuple[dict, Any, str, str]:
+    print_debug(f"Load from checkpoint: {continue_previous_job}")
+
+    checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
+    checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
+    original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
+
+    die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+    start_time = time.time()
+
+    if args.worker_generator_path:
+        wait_for_checkpoint_file(args.worker_generator_path)
+        elapsed = int(time.time() - start_time)
+        console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
+
+    die_with_47_if_file_doesnt_exists(checkpoint_file)
+
+    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+    experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(None)
+
+    copy_state_files_from_previous_job(continue_previous_job)
+
+    if (
+        experiment_parameters is None
+        or "experiment" not in experiment_parameters
+        or "search_space" not in experiment_parameters["experiment"]
+        or "parameters" not in experiment_parameters["experiment"]["search_space"]
+    ):
+        print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
+        my_exit(95)
+
+    replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters, experiment_parameters)
+    ax_client.save_to_json_file(filepath=original_ax_client_file)
+
+    experiment_parameters = load_original_generation_strategy(experiment_parameters, original_ax_client_file)
+    load_ax_client_from_experiment_parameters(experiment_parameters)
+    save_checkpoint_for_continued(experiment_parameters)
+
+    with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+        print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+
+    if not args.worker_generator_path:
+        copy_continue_uuid()
+    else:
+        print_debug(f"Not copying continue uuid because this is not a new job, because --worker_generator_path {args.worker_generator_path} is not a new job")
+
+    experiment_constraints = get_constraints()
+    if experiment_constraints:
+        experiment_args = set_experiment_constraints(
+            experiment_constraints,
+            experiment_args,
+            experiment_parameters["experiment"]["search_space"]["parameters"]
+        )
+
+    return experiment_parameters, experiment_args, gpu_string, gpu_color
+
+@beartype
+def __get_experiment_parameters__create_new_experiment(experiment_parameters: dict) -> Tuple[dict, Any, str, str]:
+    objectives = set_objectives()
+    experiment_args = {
+        "name": global_vars["experiment_name"],
+        "parameters": experiment_parameters,
+        "objectives": objectives,
+        "choose_generation_strategy_kwargs": {
+            "num_trials": max_eval,
+            "num_initialization_trials": num_parallel_jobs,
+            "use_batch_trials": True,
+            "max_parallelism_override": -1,
+            "random_seed": args.seed
+        },
+    }
+
+    if args.seed:
+        experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
+
+    experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
+    experiment_args = set_experiment_constraints(get_constraints(), experiment_args, experiment_parameters)
+
+    try:
+        ax_client.create_experiment(**experiment_args)
+        new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
+        ax_client.experiment.add_tracking_metrics(new_metrics)
+    except AssertionError as error:
+        _fatal_error(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.", 102)
+    except ValueError as error:
+        _fatal_error(f"An error has occurred while creating the experiment (1): {error}", 49)
+    except TypeError as error:
+        _fatal_error(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.", 49)
+    except ax.exceptions.core.UserInputError as error:
+        _fatal_error(f"An error occurred while creating the experiment (3): {error}", 49)
+
+    return experiment_parameters, experiment_args, gpu_string, gpu_color
 
 @beartype
 def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[list, dict], dict, str, str]]:
     cli_params_experiment_parameters, experiment_parameters = _params
+    continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
-    continue_previous_job = args.continue_previous_job
-
-    if args.worker_generator_path:
-        continue_previous_job = args.worker_generator_path
-
-    parameter = args.parameter
-
-    experiment_constraints = get_constraints()
-
-    if not ax_client:
-        _fatal_error("Something went wrong with the ax_client", 9)
-        return None
-
-    gpu_string = ""
-    gpu_color = "green"
-
-    experiment_args = None
+    __get_experiment_parameters__check_ax_client()
 
     if continue_previous_job:
-        print_debug(f"Load from checkpoint: {continue_previous_job}")
-
-        checkpoint_file: str = f"{continue_previous_job}/state_files/checkpoint.json"
-        checkpoint_parameters_filepath: str = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
-        original_ax_client_file: str = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
-
-        die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
-        start_time = time.time()
-
-        if args.worker_generator_path:
-            wait_for_checkpoint_file(args.worker_generator_path)
-
-            # Falls am Ende die Zeile "sauber" ausgegeben werden soll
-            elapsed = int(time.time() - start_time)
-            console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
-
-        die_with_47_if_file_doesnt_exists(checkpoint_file)
-
-        experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
-
-        experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
-
-        copy_state_files_from_previous_job(continue_previous_job)
-
-        if experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]:
-            print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
-            my_exit(95)
-        else:
-            replace_parameters_for_continued_jobs(parameter, cli_params_experiment_parameters, experiment_parameters)
-
-            ax_client.save_to_json_file(filepath=original_ax_client_file)
-
-            experiment_parameters = load_original_generation_strategy(experiment_parameters, original_ax_client_file)
-
-            load_ax_client_from_experiment_parameters(experiment_parameters)
-
-            save_checkpoint_for_continued(experiment_parameters)
-
-            with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
-                print(f"Continuation from checkpoint {continue_previous_job}", file=f)
-
-            if not args.worker_generator_path:
-                copy_continue_uuid()
-            else:
-                print_debug(f"Not copying continue uuid because this is not a new job, because --worker_generator_path {args.worker_generator_path} is not a new job")
-
-            if experiment_constraints:
-                experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
+        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job)
     else:
-        objectives = set_objectives()
-
-        experiment_args = {
-            "name": global_vars["experiment_name"],
-            "parameters": experiment_parameters,
-            "objectives": objectives,
-            "choose_generation_strategy_kwargs": {
-                "num_trials": max_eval,
-                "num_initialization_trials": num_parallel_jobs,
-                "use_batch_trials": True,
-                "max_parallelism_override": -1,
-                "random_seed": args.seed
-            },
-        }
-
-        if args.seed:
-            experiment_args["choose_generation_strategy_kwargs"]["random_seed"] = args.seed
-
-        experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
-
-        experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters)
-
-        try:
-            ax_client.create_experiment(**experiment_args)
-
-            new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
-            ax_client.experiment.add_tracking_metrics(new_metrics)
-        except AssertionError as error:
-            _fatal_error(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.", 102)
-        except ValueError as error:
-            _fatal_error(f"An error has occurred while creating the experiment (1): {error}", 49)
-        except TypeError as error:
-            _fatal_error(f"An error has occurred while creating the experiment (2): {error}. This is probably a bug in OmniOpt2.", 49)
-        except ax.exceptions.core.UserInputError as error:
-            _fatal_error(f"An error occurred while creating the experiment (3): {error}", 49)
+        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__create_new_experiment(experiment_parameters)
 
     return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color
 
@@ -6392,76 +6397,110 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     set_max_eval(max_eval + cnt)
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 
-@beartype
-def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str = "MANUAL", __status: Optional[Any] = None, base_str: str = None) -> bool:
-    done_converting = False
 
+
+@beartype
+def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
+    if __status and base_str:
+        __status.update(f"{base_str}: {new_text}")
+
+@beartype
+def __insert_job_into_ax_client__check_ax_client() -> None:
     if ax_client is None or not ax_client:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
-    def __update_text__ (new_text):
-        if __status and base_str:
-            __status.update(f"{base_str}: {new_text}")
+@beartype
+def __insert_job_into_ax_client__attach_trial(arm_params: dict) -> Tuple[Any, int]:
+    new_trial = ax_client.attach_trial(arm_params)
+    if not isinstance(new_trial, tuple) or len(new_trial) < 2:
+        raise RuntimeError("attach_trial didn't return the expected tuple")
+    return new_trial
 
+@beartype
+def __insert_job_into_ax_client__get_trial(trial_idx: int) -> Any:
+    trial = ax_client.experiment.trials.get(trial_idx)
+    if trial is None:
+        raise RuntimeError(f"Trial with index {trial_idx} not found")
+    return trial
+
+@beartype
+def __insert_job_into_ax_client__create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> GeneratorRun:
+    arm = Arm(parameters=arm_params, name=f'{trial_idx}_0')
+    return GeneratorRun(arms=[arm], generation_node_name=new_job_type)
+
+@beartype
+def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
+    if result != "" and result:
+        __insert_job_into_ax_client__update_status(__status, base_str, "Completing trial")
+        ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
+        __insert_job_into_ax_client__update_status(__status, base_str, "Completed trial")
+    else:
+        __insert_job_into_ax_client__update_status(__status, base_str, "Found trial without result. Not adding it.")
+
+@beartype
+def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
+    if not args.worker_generator_path:
+        __insert_job_into_ax_client__update_status(__status, base_str, "Saving results.csv")
+        save_results_csv()
+        __insert_job_into_ax_client__update_status(__status, base_str, "Saved results.csv")
+
+@beartype
+def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
+    parsed_error = parse_parameter_type_error(e)
+    if parsed_error is not None:
+        param = parsed_error["parameter_name"]
+        expected_type = parsed_error["expected_type"]
+        current_type = parsed_error["current_type"]
+
+        if expected_type == "int" and type(arm_params[param]).__name__ != "int":
+            print_yellow(f"converted parameter {param} type {current_type} to {expected_type}")
+            arm_params[param] = int(arm_params[param])
+        elif expected_type == "float" and type(arm_params[param]).__name__ != "float":
+            print_yellow(f"converted parameter {param} type {current_type} to {expected_type}")
+            arm_params[param] = float(arm_params[param])
+        return True
+    else:
+        print_red("Could not parse error while trying to insert_job_into_ax_client")
+        return False
+
+@beartype
+def insert_job_into_ax_client(
+    arm_params: dict,
+    result: dict,
+    new_job_type: str = "MANUAL",
+    __status: Optional[Any] = None,
+    base_str: str = None
+) -> bool:
+    __insert_job_into_ax_client__check_ax_client()
+
+    done_converting = False
     while not done_converting:
         try:
-            __update_text__("Checking ax client")
+            __insert_job_into_ax_client__update_status(__status, base_str, "Checking ax client")
             if ax_client is None:
                 return False
 
-            __update_text__("attaching new trial")
-            new_trial = ax_client.attach_trial(arm_params)
-            if not isinstance(new_trial, tuple) or len(new_trial) < 2:
-                raise RuntimeError("attach_trial didn't return the expected tuple")
+            __insert_job_into_ax_client__update_status(__status, base_str, "Attaching new trial")
+            _, new_trial_idx = __insert_job_into_ax_client__attach_trial(arm_params)
 
-            new_trial_idx = new_trial[1]
+            __insert_job_into_ax_client__update_status(__status, base_str, "Getting new trial")
+            trial = __insert_job_into_ax_client__get_trial(new_trial_idx)
+            __insert_job_into_ax_client__update_status(__status, base_str, "Got new trial")
 
-            __update_text__("get new trial")
-            trial = ax_client.experiment.trials.get(new_trial_idx)
-            __update_text__("got new trial")
-            if trial is None:
-                raise RuntimeError(f"Trial with index {new_trial_idx} not found")
-
-            __update_text__("Creating new arm")
-            arm = Arm(parameters=arm_params, name=f'{new_trial_idx}_0')
-            __update_text__("setting arm with trial_idx {new_trial_idx}_0")
-            manual_generator_run = GeneratorRun(arms=[arm], generation_node_name=new_job_type)
-            __update_text__("Got manual generator run")
-
+            __insert_job_into_ax_client__update_status(__status, base_str, "Creating new arm")
+            manual_generator_run = __insert_job_into_ax_client__create_generator_run(arm_params, new_trial_idx, new_job_type)
             trial._generator_run = manual_generator_run
-
             fool_linter(trial._generator_run)
 
-            if result != "" and result:
-                __update_text__(" Completing trial")
-                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
-                __update_text__("Completed trial")
-            else:
-                __update_text__("Found trial without result. Not adding it.")
-
+            __insert_job_into_ax_client__complete_trial_if_result(new_trial_idx, result, __status, base_str)
             done_converting = True
-            if not args.worker_generator_path:
-                __update_text__("Saving results.csv")
-                save_results_csv()
-                __update_text__("Saved results.csv")
 
+            __insert_job_into_ax_client__save_results_if_needed(__status, base_str)
             return True
+
         except ax.exceptions.core.UnsupportedError as e:
-            parsed_error = parse_parameter_type_error(e)
-
-            if parsed_error is not None:
-                error_expected_type = parsed_error["expected_type"]
-                error_current_type = parsed_error["current_type"]
-                error_param_name = parsed_error["parameter_name"]
-
-                if error_expected_type == "int" and type(arm_params[error_param_name]).__name__ != "int":
-                    print_yellow(f"converted parameter {error_param_name} type {error_current_type} to {error_expected_type}")
-                    arm_params[error_param_name] = int(arm_params[error_param_name])
-                elif error_expected_type == "float" and type(arm_params[error_param_name]).__name__ != "float":
-                    print_yellow(f"converted parameter {error_param_name} type {error_current_type} to {error_expected_type}")
-                    arm_params[error_param_name] = float(arm_params[error_param_name])
-            else:
-                print_red("Could not parse error while trying to insert_job_into_ax_client")
+            if not __insert_job_into_ax_client__handle_type_error(e, arm_params):
+                break
 
     return False
 

@@ -592,7 +592,7 @@ class ConfigLoader:
     max_num_of_parallel_sruns: int
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: List[str]
-    worker_generator_path: Optional[str]
+    worker_generator_path: str
     time: str
     share_password: Optional[str]
     prettyprint: bool

@@ -6328,7 +6328,7 @@ def _get_generation_node_for_index_floats_match(
     return abs(row_val_num - val) <= tolerance
 
 @beartype
-def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optional[Union[List[Any], dict]]) -> None:
+def insert_jobs_from_csv(this_csv_file_path: str) -> None:
     if not os.path.exists(this_csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
 

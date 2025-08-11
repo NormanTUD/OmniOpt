@@ -6316,10 +6316,6 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
         if experiment_parameters is not None:
             for param in experiment_parameters:
-                print("===================================")
-                print(f"param: {param}")
-                print("===================================")
-
                 name = param["name"]
                 expected_type = param.get("value_type", "str")
 
@@ -6356,11 +6352,9 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
             try:
                 gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i)
-                print(f"gen_node_name: {gen_node_name}")
 
                 if len(result):
                     if insert_job_into_ax_client(arm_params, result, gen_node_name):
-                        print(f"insert_job_into_ax_client: {arm_params}, {result}, {gen_node_name}")
                         cnt += 1
 
                         print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")

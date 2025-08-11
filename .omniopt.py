@@ -16,6 +16,7 @@ import time
 import random
 import tempfile
 import threading
+from filelock import FileLock
 
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
@@ -1887,66 +1888,102 @@ def merge_with_job_infos(pd_frame: pd.DataFrame) -> pd.DataFrame:
 
     return merged
 
+def reindex_trials(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure trial_index is sequential and arm_name unique.
+    Keep arm_name unless all parameters except 'order', 'hostname', 'queue_time' match.
+    """
+    if "trial_index" not in df.columns or "arm_name" not in df.columns:
+        return df
+
+    # Sort by something stable (queue_time if available)
+    sort_cols = ["queue_time"] if "queue_time" in df.columns else df.columns.tolist()
+    df = df.sort_values(by=sort_cols, ignore_index=True)
+
+    # Mapping from "parameter signature" to assigned arm_name
+    seen_signatures = {}
+    new_arm_names = []
+
+    for new_idx, row in df.iterrows():
+        # Create signature without 'order', 'hostname', 'queue_time', 'trial_index', 'arm_name'
+        ignore_cols = {"order", "hostname", "queue_time", "trial_index", "arm_name"}
+        signature = tuple((col, row[col]) for col in df.columns if col not in ignore_cols)
+
+        if signature in seen_signatures:
+            # Collision → make a unique name
+            base_name = seen_signatures[signature]
+            suffix = 1
+            new_name = f"{base_name}_{suffix}"
+            while new_name in new_arm_names:
+                suffix += 1
+                new_name = f"{base_name}_{suffix}"
+            new_arm_names.append(new_name)
+        else:
+            # First occurrence → use new_idx as trial index in name
+            new_name = f"{new_idx}_0"
+            seen_signatures[signature] = f"{new_idx}_0"
+            new_arm_names.append(new_name)
+
+        df.at[new_idx, "trial_index"] = new_idx
+        df.at[new_idx, "arm_name"] = new_name
+
+    return df
+
 @beartype
 def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
 
-    pd_csv: str = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
-    pd_json: str = f'{get_current_run_folder()}/state_files/pd.json'
-    state_files_folder: str = f"{get_current_run_folder()}/state_files/"
-
+    pd_csv = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
+    pd_json = f'{get_current_run_folder()}/state_files/pd.json'
+    state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
 
-    if ax_client is None:
-        return None
+    lock_path = pd_csv + ".lock"
+    with FileLock(lock_path, timeout=300):  # wait max 5 min
+        if ax_client is None:
+            return None
 
-    old_hash: Optional[str] = compute_md5_hash(pd_csv)
+        old_hash = compute_md5_hash(pd_csv)
+        save_checkpoint()
 
-    save_checkpoint()
+        try:
+            ax_client.experiment.fetch_data()
+            pd_frame = ax_client.get_trials_data_frame()
+            pd_frame = merge_with_job_infos(pd_frame)
 
-    try:
-        ax_client.experiment.fetch_data()
+            # === Fix trial_index and arm_name uniqueness ===
+            pd_frame = reindex_trials(pd_frame)
 
-        pd_frame = ax_client.get_trials_data_frame()
+            pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
-        pd_frame = merge_with_job_infos(pd_frame)
+            json_snapshot = ax_client.to_json_snapshot()
+            with open(pd_json, "w", encoding="utf-8") as json_file:
+                json.dump(json_snapshot, json_file, indent=4)
 
-        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
+            save_experiment(
+                ax_client.experiment,
+                f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
+            )
 
-        json_snapshot = ax_client.to_json_snapshot()
-
-        with open(pd_json, mode='w', encoding="utf-8") as json_file:
-            json.dump(json_snapshot, json_file, indent=4)
-
-        save_experiment(
-            ax_client.experiment,
-            f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
-        )
-
-        if args.model not in uncontinuable_models and args.save_to_database:
-            try_saving_to_db()
-        else:
-            if args.save_to_database:
-                print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+            if args.model not in uncontinuable_models and args.save_to_database:
+                try_saving_to_db()
             else:
-                print_debug("Not saving to database because --save_to_database was not set")
-    except SignalUSR as e:
-        raise SignalUSR(str(e)) from e
-    except SignalCONT as e:
-        raise SignalCONT(str(e)) from e
-    except SignalINT as e:
-        raise SignalINT(str(e)) from e
-    except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+                if args.save_to_database:
+                    print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+                else:
+                    print_debug("Not saving to database because --save_to_database was not set")
 
-    new_hash: Optional[str] = compute_md5_hash(pd_csv)
+        except (SignalUSR, SignalCONT, SignalINT) as e:
+            raise type(e)(str(e)) from e
+        except Exception as e:
+            print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
-    if old_hash != new_hash:
-        live_share()
+        new_hash = compute_md5_hash(pd_csv)
+        if old_hash != new_hash:
+            live_share()
 
     return pd_csv
-
 @beartype
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
@@ -5430,6 +5467,7 @@ def copy_continue_uuid() -> None:
 
 @beartype
 def load_ax_client_from_experiment_parameters() -> None:
+    #pprint(experiment_parameters)
     global ax_client
 
     tmp_file_path = get_tmp_file_from_json(experiment_parameters)

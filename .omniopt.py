@@ -1902,6 +1902,8 @@ def save_results_csv() -> Optional[str]:
 
     old_hash: Optional[str] = compute_md5_hash(pd_csv)
 
+    save_checkpoint()
+
     try:
         ax_client.experiment.fetch_data()
 
@@ -5465,8 +5467,9 @@ def wait_for_checkpoint_file(checkpoint_file: str) -> None:
         elapsed = int(time.time() - start_time)
         console.print(f"[yellow]Waiting for file {checkpoint_file}... {elapsed} seconds[/yellow]", end="\r")
         time.sleep(1)
-from beartype import beartype
-from typing import Any, Optional, Tuple, Union
+
+    elapsed = int(time.time() - start_time)
+    console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
 
 @beartype
 def __get_experiment_parameters__check_ax_client() -> None:
@@ -5488,8 +5491,6 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     if args.worker_generator_path:
         wait_for_checkpoint_file(checkpoint_file)
-        elapsed = int(time.time() - start_time)
-        console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
 
     die_with_47_if_file_doesnt_exists(checkpoint_file)
 
@@ -7522,7 +7523,6 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         print_debug(f"cancel_failed_job: removing job {new_job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
-        save_checkpoint()
         save_results_csv()
     else:
         print_debug("cancel_failed_job: new_job was undefined")

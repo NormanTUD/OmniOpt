@@ -10346,9 +10346,12 @@ def main() -> None:
 
             set_global_generation_strategy()
 
+        print("Loading existing data for worker generation path:")
         load_existing_data_for_worker_generation_path()
+        print("Done loading existing data for worker generation path")
 
         try:
+            print("run_search_with_progress_bar")
             run_search_with_progress_bar()
 
             live_share()

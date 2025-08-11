@@ -6430,10 +6430,19 @@ def __insert_job_into_ax_client__create_generator_run(arm_params: dict, trial_id
 
 @beartype
 def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
-    if result != "" and result:
+    if f"{result}" != "":
         __insert_job_into_ax_client__update_status(__status, base_str, "Completing trial")
-        ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
-        __insert_job_into_ax_client__update_status(__status, base_str, "Completed trial")
+        is_ok = True
+
+        for keyname in result.keys():
+            if result[keyname] == "":
+                is_ok = False
+
+        if is_ok:
+            ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
+            __insert_job_into_ax_client__update_status(__status, base_str, "Completed trial")
+        else:
+            print_yellow("Empty job encountered")
     else:
         __insert_job_into_ax_client__update_status(__status, base_str, "Found trial without result. Not adding it.")
 

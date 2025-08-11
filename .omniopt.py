@@ -5398,6 +5398,9 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
 @beartype
 def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> None:
+    if args.worker_generator_path:
+        return None
+
     def get_name(obj) -> Optional[str]:
         """Extract a parameter name from dict, list, or tuple safely."""
         if isinstance(obj, dict):
@@ -5437,6 +5440,8 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
                     "It will be ignored instead. You cannot change the number of parameters "
                     "or their names when continuing a job, only update their values."
                 )
+
+    return None
 
 @beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:
@@ -5558,8 +5563,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
         print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
         my_exit(95)
 
-    if not args.worker_generator_path:
-        replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
+    replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
 
     ax_client.save_to_json_file(filepath=original_ax_client_file)
 

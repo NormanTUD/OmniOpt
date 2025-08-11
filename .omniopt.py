@@ -6432,9 +6432,12 @@ def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str 
 
             fool_linter(trial._generator_run)
 
-            __update_text__(" Completing trial")
-            ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
-            __update_text__("Completed trial")
+            if result != "" and result:
+                __update_text__(" Completing trial")
+                ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
+                __update_text__("Completed trial")
+            else:
+                __update_text__("Found trial without result. Not adding it.")
 
             done_converting = True
             if not args.worker_generator_path:

@@ -7603,12 +7603,12 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
-            print_debug(f"_fetch_next_trials: Stopped after {attempts} attempts: could not generate enough arms "
+            print_debug(f"get_batched_arms: Stopped after {attempts} attempts: could not generate enough arms "
                         f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
             break
 
         remaining = nr_of_jobs_to_get - len(batched_arms)
-        print_debug(f"_fetch_next_trials: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
+        print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
 
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
 
@@ -7620,14 +7620,14 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         new_arms = batched_generator_run.arms
         if not new_arms:
-            print_debug("_fetch_next_trials: No new arms were generated in this attempt.")
+            print_debug("get_batched_arms: No new arms were generated in this attempt.")
         else:
-            print_debug(f"_fetch_next_trials: Generated {len(new_arms)} new arm(s), wanted {nr_of_jobs_to_get}.")
+            print_debug(f"get_batched_arms: Generated {len(new_arms)} new arm(s), wanted {nr_of_jobs_to_get}.")
 
         batched_arms.extend(new_arms)
         attempts += 1
 
-    print_debug(f"_fetch_next_trials: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
+    print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
     save_results_csv()
 

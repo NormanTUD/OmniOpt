@@ -5503,7 +5503,9 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
         print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
         my_exit(95)
 
-    replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters, experiment_parameters)
+    if not args.worker_generator_path:
+        replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters, experiment_parameters)
+
     ax_client.save_to_json_file(filepath=original_ax_client_file)
 
     experiment_parameters = load_original_generation_strategy(experiment_parameters, original_ax_client_file)

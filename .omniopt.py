@@ -5397,7 +5397,7 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
     return experiment_args
 
 @beartype
-def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> dict:
+def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> None:
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False

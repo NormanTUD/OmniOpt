@@ -5458,6 +5458,13 @@ def load_original_generation_strategy(experiment_parameters: dict, original_ax_c
     return experiment_parameters
 
 @beartype
+def wait_for_checkpoint_file() -> None:
+    while not os.path.exists(checkpoint_file):
+        elapsed = int(time.time() - start_time)
+        console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
+        time.sleep(1)
+
+@beartype
 def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[list, dict], dict, str, str]]:
     cli_params_experiment_parameters, experiment_parameters = _params
 
@@ -5490,10 +5497,7 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
         start_time = time.time()
 
         if args.worker_generator_path:
-            while not os.path.exists(checkpoint_file):
-                elapsed = int(time.time() - start_time)
-                console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
-                time.sleep(1)
+            wait_for_checkpoint_file(args.worker_generator_path)
 
             # Falls am Ende die Zeile "sauber" ausgegeben werden soll
             elapsed = int(time.time() - start_time)

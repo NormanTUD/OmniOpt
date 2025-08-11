@@ -1679,7 +1679,6 @@ EOF
 
 			if (( k > 0 )); then
 				dependency="$deps"
-
 				echo "Automatic dependencies: $dependency"
 			else
 				dependency=""

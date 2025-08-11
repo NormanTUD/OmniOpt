@@ -5458,7 +5458,7 @@ def load_original_generation_strategy(experiment_parameters: dict, original_ax_c
     return experiment_parameters
 
 @beartype
-def wait_for_checkpoint_file() -> None:
+def wait_for_checkpoint_file(checkpoint_file: str) -> None:
     while not os.path.exists(checkpoint_file):
         elapsed = int(time.time() - start_time)
         console.print(f"[yellow]Waiting for checkpoint file... {elapsed} seconds[/yellow]", end="\r")
@@ -6226,8 +6226,11 @@ def get_generation_node_for_index(
     this_csv_file_path: str,
     arm_params_list: List[Dict[str, Any]],
     results_list: List[Dict[str, Any]],
-    index: int
+    index: int,
+    __status: Any,
+    base_str: str
 ) -> str:
+    __status.update(f"{base_str}: Getting generation node")
     try:
         if not _get_generation_node_for_index_index_valid(index, arm_params_list, results_list):
             return "MANUAL"
@@ -6235,9 +6238,14 @@ def get_generation_node_for_index(
         target_arm_params = arm_params_list[index]
         target_result = results_list[index]
 
+        __status.update(f"{base_str}: Getting generation node and combining dictionaries")
         target_combined = _get_generation_node_for_index_combine_dicts(target_arm_params, target_result)
 
+        __status.update(f"{base_str}: Getting generation node and finding index for generation node")
         generation_node = _get_generation_node_for_index_find_generation_node(this_csv_file_path, target_combined)
+
+        __status.update(f"{base_str}: Got generation node")
+
         return generation_node
     except Exception as e:
         print(f"Error while get_generation_node_for_index: {e}")
@@ -6350,15 +6358,16 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
-            __status.update(f"[bold green]Loading existing job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}")
+            base_str = f"[bold green]Loading existing job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}"
+            __status.update(base_str)
             if not args.worker_generator_path:
                 arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
             try:
-                gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i)
+                gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i, __status, base_str)
 
                 if len(result):
-                    if insert_job_into_ax_client(arm_params, result, gen_node_name):
+                    if insert_job_into_ax_client(arm_params, result, gen_node_name, __status, base_str):
                         cnt += 1
 
                         print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
@@ -6384,38 +6393,54 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 
 @beartype
-def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str = "MANUAL") -> bool:
+def insert_job_into_ax_client(arm_params: dict, result: dict, new_job_type: str = "MANUAL", __status: Optional[Any] = None, base_str: str = None) -> bool:
     done_converting = False
 
     if ax_client is None or not ax_client:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
+    def __update_text__ (new_text):
+        if __status and base_str:
+            __status.update(f"{base_str}: {new_text}")
+
     while not done_converting:
         try:
+            __update_text__("Checking ax client")
             if ax_client is None:
                 return False
 
+            __update_text__("attaching new trial")
             new_trial = ax_client.attach_trial(arm_params)
             if not isinstance(new_trial, tuple) or len(new_trial) < 2:
                 raise RuntimeError("attach_trial didn't return the expected tuple")
 
             new_trial_idx = new_trial[1]
 
+            __update_text__("get new trial")
             trial = ax_client.experiment.trials.get(new_trial_idx)
+            __update_text__("got new trial")
             if trial is None:
                 raise RuntimeError(f"Trial with index {new_trial_idx} not found")
 
+            __update_text__("Creating new arm")
             arm = Arm(parameters=arm_params, name=f'{new_trial_idx}_0')
+            __update_text__("setting arm with trial_idx {new_trial_idx}_0")
             manual_generator_run = GeneratorRun(arms=[arm], generation_node_name=new_job_type)
+            __update_text__("Got manual generator run")
 
             trial._generator_run = manual_generator_run
 
             fool_linter(trial._generator_run)
 
+            __update_text__(" Completing trial")
             ax_client.complete_trial(trial_index=new_trial_idx, raw_data=result)
+            __update_text__("Completed trial")
 
             done_converting = True
-            save_results_csv()
+            if not args.worker_generator_path:
+                __update_text__("Saving results.csv")
+                save_results_csv()
+                __update_text__("Saved results.csv")
 
             return True
         except ax.exceptions.core.UnsupportedError as e:

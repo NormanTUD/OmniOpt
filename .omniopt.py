@@ -5398,31 +5398,25 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
 @beartype
 def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> None:
+    def get_name(obj) -> Optional[str]:
+        """Extract a parameter name from dict, list, or tuple safely."""
+        if isinstance(obj, dict):
+            return obj.get("name")
+        if isinstance(obj, (list, tuple)) and len(obj) > 0 and isinstance(obj[0], str):
+            return obj[0]
+        return None
+
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
-
-            # --- Get _item name robustly ---
-            if isinstance(_item, dict):
-                item_name = _item.get("name")
-            elif isinstance(_item, (list, tuple)) and len(_item) > 0:
-                item_name = _item[0] if isinstance(_item[0], str) else None
-            else:
-                item_name = None
+            item_name = get_name(_item)
 
             for _item_id_to_overwrite, param_entry in enumerate(
                 experiment_parameters["experiment"]["search_space"]["parameters"]
             ):
-                # --- Get parameter name robustly ---
-                if isinstance(param_entry, dict):
-                    param_name = param_entry.get("name")
-                elif isinstance(param_entry, (list, tuple)) and len(param_entry) > 0:
-                    param_name = param_entry[0] if isinstance(param_entry[0], str) else None
-                else:
-                    param_name = None
+                param_name = get_name(param_entry)
 
-                # --- Compare and replace ---
-                if param_name and item_name and item_name == param_name:
+                if item_name and param_name and item_name == param_name:
                     old_param_json = json.dumps(param_entry)
 
                     experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)

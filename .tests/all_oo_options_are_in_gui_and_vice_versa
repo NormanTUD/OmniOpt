@@ -46,6 +46,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		RANDOMFOREST
 		BO_MIXED
 		TPE
+		worker_generator_path
 	)
 
 	declare -a help_exceptions=(
@@ -75,6 +76,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		minkowski_p
 		max_parallelism
 		show_ram_every_n_seconds
+		worker_generator_path
 	)
 
 	for gui_option in $gui_options; do

@@ -589,6 +589,7 @@ class ConfigLoader:
     max_num_of_parallel_sruns: int
     checkout_to_latest_tested_version: bool
     load_data_from_existing_jobs: List[str]
+    worker_generator_path: Optional[str]
     time: str
     share_password: Optional[str]
     prettyprint: bool
@@ -695,6 +696,7 @@ class ConfigLoader:
         optional.add_argument('--dryrun', help='Try to do a dry run, i.e. a run for very short running jobs to test the installation of OmniOpt2 and check if environment stuff and paths and so on works properly', action='store_true', default=False)
         optional.add_argument('--db_url', type=str, default=None, help='Database URL (e.g., mysql+pymysql://user:pass@host/db), disables sqlite3 storage')
         optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts.')
+        optional.add_argument('--worker_generator_path', type=str, help='Path of the run folder where this script should plug itself in as a worker points generator')
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -10193,6 +10195,17 @@ def main() -> None:
 
             set_global_generation_strategy()
 
+        if args.worker_generator_path:
+            if not os.path.exists(args.worker_generator_path):
+                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+                my_exit(96)
+
+            if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
+                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+                my_exit(96)
+
+            insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"), experiment_parameters)
+
         try:
             run_search_with_progress_bar()
 
@@ -10220,6 +10233,11 @@ def set_run_folder() -> None:
         run_dir = args.run_dir
         if not os.path.isabs(run_dir):
             run_dir = os.path.abspath(run_dir)
+
+        if args.worker_generator_path:
+            print_yellow(f"set_run_folder: Using {args.worker_generator_path} as worker-generation path, will append additional worker to it")
+
+            return args.worker_generator_path
 
         RUN_FOLDER_NUMBER: int = 0
         CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"

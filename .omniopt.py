@@ -5499,12 +5499,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     copy_state_files_from_previous_job(continue_previous_job)
 
-    if (
-        experiment_parameters is None
-        or "experiment" not in experiment_parameters
-        or "search_space" not in experiment_parameters["experiment"]
-        or "parameters" not in experiment_parameters["experiment"]["search_space"]
-    ):
+    if (experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]):
         print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
         my_exit(95)
 

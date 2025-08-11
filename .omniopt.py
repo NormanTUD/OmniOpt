@@ -8148,7 +8148,7 @@ def plot_times_vs_jobs_sixel(
     title: str = "Times vs Jobs"
 ) -> None:
     if not times or not job_counts or len(times) != len(job_counts):
-        print("[italic yellow]No valid data or mismatched lengths to plot.[/]")
+        print("[italic yellow]plot_times_vs_jobs_sixel: No valid data or mismatched lengths to plot.[/]")
         return
 
     if not supports_sixel():

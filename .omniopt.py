@@ -6372,7 +6372,7 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
             base_str = f"[bold green]Loading existing job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}"
             __status.update(base_str)
             if not args.worker_generator_path:
-                arm_params = validate_and_convert_params(experiment_parameters, arm_params)
+                arm_params = validate_and_convert_params(arm_params)
 
             try:
                 gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i, __status, base_str)

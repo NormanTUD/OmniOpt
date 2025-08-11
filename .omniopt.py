@@ -6356,13 +6356,18 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
             try:
                 gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i)
+                print(f"gen_node_name: {gen_node_name}")
 
-                if insert_job_into_ax_client(arm_params, result, gen_node_name):
-                    cnt += 1
+                if len(result):
+                    if insert_job_into_ax_client(arm_params, result, gen_node_name):
+                        print(f"insert_job_into_ax_client: {arm_params}, {result}, {gen_node_name}")
+                        cnt += 1
 
-                    print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
+                        print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
+                    else:
+                        print_red(f"Failed to insert one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
                 else:
-                    print_red(f"Failed to insert one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
+                    print_yellow(f"Encountered job without a result")
             except ValueError as e:
                 err_msg = f"Failed to insert job(s) from {this_csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
                 if err_msg not in err_msgs:

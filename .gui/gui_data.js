@@ -722,6 +722,13 @@ var hiddenTableData = [
 		help: "This generates all hyperparameter sets for the set of workers at once."
 	},
 	{
+		label: "Save sqlite3 database",
+		id: "save_to_database",
+		type: "checkbox",
+		value: 0,
+		help: "Saves your data in a SQLite3 database, useful but makes OmniOpt2 slower"
+	},
+	{
 		label: "Flame-Graph",
 		id: "flame_graph",
 		type: "checkbox",

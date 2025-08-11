@@ -2853,3 +2853,6 @@ greenSetup
 redSetup
 greenRunning
 omniopt_singleton
+SQLite3
+sqlite
+sqlite3

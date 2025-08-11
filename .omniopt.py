@@ -518,6 +518,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 
 class ConfigLoader:
     disable_previous_job_constraint: bool
+    save_to_database: bool
     dependency: str
     run_tests_that_fail_on_taurus: bool
     num_random_steps: int
@@ -697,6 +698,7 @@ class ConfigLoader:
         optional.add_argument('--db_url', type=str, default=None, help='Database URL (e.g., mysql+pymysql://user:pass@host/db), disables sqlite3 storage')
         optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts.')
         optional.add_argument('--worker_generator_path', type=str, help='Path of the run folder where this script should plug itself in as a worker points generator')
+        optional.add_argument('--save_to_database', help='Save all entries into a sqlite3 database', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -1918,10 +1920,13 @@ def save_results_csv() -> Optional[str]:
             f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
         )
 
-        if args.model not in uncontinuable_models:
+        if args.model not in uncontinuable_models and args.save_to_database:
             try_saving_to_db()
         else:
-            print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+            if args.save_to_database:
+                print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+            else:
+                print_debug("Not saving to database because --save_to_database was not set")
     except SignalUSR as e:
         raise SignalUSR(str(e)) from e
     except SignalCONT as e:
@@ -6332,7 +6337,7 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
     with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
-            __status.update(f"[bold green]Loading existing jobs from {this_csv_file_path} into ax_client")
+            __status.update(f"[bold green]Loading existing job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}")
             if not args.worker_generator_path:
                 arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 

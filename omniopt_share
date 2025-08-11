@@ -51,10 +51,6 @@
 		true
 	}
 
-	function unset_debug {
-		trap - DEBUG
-	}
-
 	no_color=0
 	force=0
 	DEBUG=0
@@ -64,13 +60,6 @@
 	password=""
 	outfile=
 	send_single_runs=1
-
-	function join_by {
-		local d=${1-} f=${2-}
-		if shift 2; then
-			printf %s "$f" "${@/#/$d}"
-		fi
-	}
 
 	RUN_DIR=$1
 

@@ -181,8 +181,6 @@
 		trap - DEBUG
 	}
 
-	MAIN_PID=$$
-
 	checkout_to_latest_tested_version=0
 	debug=0
 	main_process_gb=

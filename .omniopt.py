@@ -5477,7 +5477,7 @@ def __get_experiment_parameters__check_ax_client() -> None:
         _fatal_error("Something went wrong with the ax_client", 9)
 
 @beartype
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str) -> Tuple[dict, Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: dict) -> Tuple[dict, Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -5580,7 +5580,7 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
     __get_experiment_parameters__check_ax_client()
 
     if continue_previous_job:
-        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job)
+        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters)
     else:
         experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__create_new_experiment(experiment_parameters)
 
@@ -6386,7 +6386,7 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
                     else:
                         print_red(f"Failed to insert one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
                 else:
-                    print_yellow(f"Encountered job without a result")
+                    print_yellow("Encountered job without a result")
             except ValueError as e:
                 err_msg = f"Failed to insert job(s) from {this_csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
                 if err_msg not in err_msgs:
@@ -6403,8 +6403,6 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
     set_max_eval(max_eval + cnt)
     set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
-
-
 
 @beartype
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
@@ -6466,9 +6464,9 @@ def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dic
             print_yellow(f"converted parameter {param} type {current_type} to {expected_type}")
             arm_params[param] = float(arm_params[param])
         return True
-    else:
-        print_red("Could not parse error while trying to insert_job_into_ax_client")
-        return False
+
+    print_red("Could not parse error while trying to insert_job_into_ax_client")
+    return False
 
 @beartype
 def insert_job_into_ax_client(

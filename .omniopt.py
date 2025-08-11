@@ -5401,24 +5401,35 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
-            for _item_id_to_overwrite, param_entry in enumerate(experiment_parameters["experiment"]["search_space"]["parameters"]):
 
+            # --- Get _item name robustly ---
+            if isinstance(_item, dict):
+                item_name = _item.get("name")
+            elif isinstance(_item, (list, tuple)) and len(_item) > 0:
+                item_name = _item[0] if isinstance(_item[0], str) else None
+            else:
+                item_name = None
+
+            for _item_id_to_overwrite, param_entry in enumerate(
+                experiment_parameters["experiment"]["search_space"]["parameters"]
+            ):
                 # --- Get parameter name robustly ---
                 if isinstance(param_entry, dict):
                     param_name = param_entry.get("name")
                 elif isinstance(param_entry, (list, tuple)) and len(param_entry) > 0:
-                    # If first element looks like a name, take it
                     param_name = param_entry[0] if isinstance(param_entry[0], str) else None
                 else:
                     param_name = None
 
                 # --- Compare and replace ---
-                if param_name and _item.get("name") == param_name:
+                if param_name and item_name and item_name == param_name:
                     old_param_json = json.dumps(param_entry)
 
                     experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
 
-                    new_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+                    new_param_json = json.dumps(
+                        experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]
+                    )
 
                     _replaced = True
 
@@ -5428,7 +5439,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 
             if not _replaced:
                 print_yellow(
-                    f"--parameter named {_item.get('name')} could not be replaced. "
+                    f"--parameter named {item_name} could not be replaced. "
                     "It will be ignored instead. You cannot change the number of parameters "
                     "or their names when continuing a job, only update their values."
                 )

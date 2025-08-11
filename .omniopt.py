@@ -5537,6 +5537,27 @@ def __get_experiment_parameters__check_ax_client() -> None:
         _fatal_error("Something went wrong with the ax_client", 9)
 
 @beartype
+def validate_experiment_parameters() -> None:
+    if experiment_parameters is None:
+        print_red("Error: experiment_parameters is None.")
+        my_exit(95)
+
+    if not isinstance(experiment_parameters, dict):
+        print_red(f"Error: experiment_parameters is not a dict: {type(experiment_parameters).__name__}")
+        my_exit(95)
+
+    path_checks = [
+        ("experiment", experiment_parameters),
+        ("search_space", experiment_parameters.get("experiment")),
+        ("parameters", experiment_parameters.get("experiment", {}).get("search_space")),
+    ]
+
+    for key, current_level in path_checks:
+        if not isinstance(current_level, dict) or key not in current_level:
+            print_red(f"Error: Missing key '{key}' at level: {current_level}")
+            my_exit(95)
+
+@beartype
 def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
@@ -5559,9 +5580,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     copy_state_files_from_previous_job(continue_previous_job)
 
-    if (experiment_parameters is None or "experiment" not in experiment_parameters or "search_space" not in experiment_parameters["experiment"] or "parameters" not in experiment_parameters["experiment"]["search_space"]):
-        print_red(f"Either, experiment_parameters was empty or it had no path to experiment/search_space/parameters: {experiment_parameters}")
-        my_exit(95)
+    validate_experiment_parameters()
 
     replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
 

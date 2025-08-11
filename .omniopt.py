@@ -6334,7 +6334,7 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
         return
 
-    def validate_and_convert_params(experiment_parameters: Optional[Union[List[Any], Dict[Any, Any]]], arm_params: Dict) -> Dict:
+    def validate_and_convert_params(arm_params: Dict) -> Dict:
         corrected_params: Dict[Any, Any] = {}
 
         if experiment_parameters is not None:
@@ -10308,7 +10308,7 @@ def main() -> None:
         write_files_and_show_overviews()
 
         for existing_run in args.load_data_from_existing_jobs:
-            insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"), experiment_parameters)
+            insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"))
 
             set_global_generation_strategy()
 
@@ -10338,7 +10338,7 @@ def load_existing_data_for_worker_generation_path() -> None:
             print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
             my_exit(96)
 
-        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"), experiment_parameters)
+        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"))
 
 @beartype
 def log_worker_creation() -> None:

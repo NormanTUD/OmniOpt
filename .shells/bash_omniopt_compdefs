@@ -19,7 +19,6 @@ _omniopt() {
     "--stderr_to_stdout"
     "--run_dir"
     "--seed"
-    "--decimalrounding"
     "--enforce_sequential_optimization"
     "--verbose_tqdm"
     "--model"

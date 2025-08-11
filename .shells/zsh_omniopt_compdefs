@@ -20,7 +20,6 @@ _omniopt() {
     '--stderr_to_stdout[Redirect stderr to stdout for subjobs]' \
     '--run_dir=[Directory for runs]:RUN_DIR:_files' \
     '--seed=[Seed for random number generator]:SEED:' \
-    '--decimalrounding=[Decimal places for rounding]:DECIMALROUNDING:' \
     '--enforce_sequential_optimization[Enforce sequential optimization]' \
     '--verbose_tqdm[Show verbose tqdm messages]' \
     '--model=[Use special models]:MODEL:(SOBOL GPEI FACTORIAL SAASBO LEGACY_BOTORCH BOTORCH_MODULAR UNIFORM BO_MIXED)' \

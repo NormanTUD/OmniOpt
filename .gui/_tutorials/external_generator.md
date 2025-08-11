@@ -36,7 +36,6 @@ omniopt \
     --generate_all_jobs_at_once \
     --revert_to_random_when_seemingly_exhausted \
     --run_mode=local \
-    --decimalrounding=4 \
     --occ_type=euclid \
     --main_process_gb=8 \
     --max_nr_of_zero_results=1 \
@@ -147,7 +146,6 @@ omniopt \
 	--generate_all_jobs_at_once \
 	--revert_to_random_when_seemingly_exhausted \
 	--run_mode=local \
-	--decimalrounding=4 \
 	--occ_type=euclid \
 	--main_process_gb=8 \
 	--max_nr_of_zero_results=1 \

@@ -5531,7 +5531,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     return experiment_parameters, experiment_args, gpu_string, gpu_color
 
 @beartype
-def __get_experiment_parameters__create_new_experiment(experiment_parameters: dict) -> Tuple[dict, Any, str, str]:
+def __get_experiment_parameters__create_new_experiment(experiment_parameters: list) -> Tuple[list, Any, str, str]:
     objectives = set_objectives()
     experiment_args = {
         "name": global_vars["experiment_name"],

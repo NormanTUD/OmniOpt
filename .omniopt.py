@@ -5398,8 +5398,6 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
 @beartype
 def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> dict:
-    global experiment_parameters
-
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
@@ -5490,8 +5488,6 @@ def save_checkpoint_for_continued() -> None:
 
 @beartype
 def load_original_generation_strategy(original_ax_client_file: str) -> None:
-    global experiment_parameters
-
     with open(original_ax_client_file, encoding="utf-8") as f:
         loaded_original_ax_client_json = json.load(f)
         original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
@@ -5610,8 +5606,6 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
 
 @beartype
 def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, dict, str, str]]:
-    global experiment_parameters
-
     cli_params_experiment_parameters = _params
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 

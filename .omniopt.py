@@ -5401,9 +5401,20 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
-            for _item_id_to_overwrite in range(len(experiment_parameters["experiment"]["search_space"]["parameters"])):
-                if _item["name"] == experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite]["name"]:
-                    old_param_json = json.dumps(experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite])
+            for _item_id_to_overwrite, param_entry in enumerate(experiment_parameters["experiment"]["search_space"]["parameters"]):
+
+                # --- Get parameter name robustly ---
+                if isinstance(param_entry, dict):
+                    param_name = param_entry.get("name")
+                elif isinstance(param_entry, (list, tuple)) and len(param_entry) > 0:
+                    # If first element looks like a name, take it
+                    param_name = param_entry[0] if isinstance(param_entry[0], str) else None
+                else:
+                    param_name = None
+
+                # --- Compare and replace ---
+                if param_name and _item.get("name") == param_name:
+                    old_param_json = json.dumps(param_entry)
 
                     experiment_parameters["experiment"]["search_space"]["parameters"][_item_id_to_overwrite] = get_ax_param_representation(_item)
 
@@ -5412,12 +5423,15 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
                     _replaced = True
 
                     compared_params = compare_parameters(old_param_json, new_param_json)
-                    if compared_params:
-                        if not args.worker_generator_path:
-                            print_yellow(compared_params)
+                    if compared_params and not args.worker_generator_path:
+                        print_yellow(compared_params)
 
             if not _replaced:
-                print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
+                print_yellow(
+                    f"--parameter named {_item.get('name')} could not be replaced. "
+                    "It will be ignored instead. You cannot change the number of parameters "
+                    "or their names when continuing a job, only update their values."
+                )
 
 @beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:

@@ -5367,7 +5367,8 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 
                     compared_params = compare_parameters(old_param_json, new_param_json)
                     if compared_params:
-                        print_yellow(compared_params)
+                        if not args.worker_generator_path:
+                            print_yellow(compared_params)
 
             if not _replaced:
                 print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
@@ -5505,7 +5506,10 @@ def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[l
             with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
                 print(f"Continuation from checkpoint {continue_previous_job}", file=f)
 
-            copy_continue_uuid()
+            if not args.worker_generator_path:
+                copy_continue_uuid()
+            else:
+                print_debug(f"Not copying continue uuid because this is not a new job, because --worker_generator_path {args.worker_generator_path} is not a new job")
 
             if experiment_constraints:
                 experiment_args = set_experiment_constraints(experiment_constraints, experiment_args, experiment_parameters["experiment"]["search_space"]["parameters"])
@@ -6182,7 +6186,7 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
                 results = {}
 
                 for col, value in row.items():
-                    if col in special_col_names:
+                    if col in special_col_names or col.startswith("OO_Info_"):
                         continue
 
                     if col in arg_result_names:
@@ -6294,6 +6298,10 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
 
         if experiment_parameters is not None:
             for param in experiment_parameters:
+                print("===================================")
+                print(f"param: {param}")
+                print("===================================")
+
                 name = param["name"]
                 expected_type = param.get("value_type", "str")
 
@@ -6325,7 +6333,8 @@ def insert_jobs_from_csv(this_csv_file_path: str, experiment_parameters: Optiona
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
             __status.update(f"[bold green]Loading existing jobs from {this_csv_file_path} into ax_client")
-            arm_params = validate_and_convert_params(experiment_parameters, arm_params)
+            if not args.worker_generator_path:
+                arm_params = validate_and_convert_params(experiment_parameters, arm_params)
 
             try:
                 gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i)
@@ -10241,14 +10250,20 @@ def set_run_folder() -> None:
         if args.worker_generator_path:
             print_yellow(f"set_run_folder: Using {args.worker_generator_path} as worker-generation path, will append additional worker to it")
 
-            return args.worker_generator_path
+            CURRENT_RUN_FOLDER = args.worker_generator_path
 
-        RUN_FOLDER_NUMBER: int = 0
-        CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+            if not os.path.exists(CURRENT_RUN_FOLDER):
+                print_red(f"Cannot join worker generator: --worker_generator_path {args.worker_generator_path} is not a valid directory")
 
-        while os.path.exists(CURRENT_RUN_FOLDER):
-            RUN_FOLDER_NUMBER += 1
+                my_exit(96)
+
+        else:
+            RUN_FOLDER_NUMBER: int = 0
             CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
+
+            while os.path.exists(CURRENT_RUN_FOLDER):
+                RUN_FOLDER_NUMBER += 1
+                CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 @beartype
 def print_run_info() -> None:

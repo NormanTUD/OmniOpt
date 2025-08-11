@@ -183,38 +183,6 @@
 
 	MAIN_PID=$$
 
-	log_cpu_usage() {
-		if [[ -n "$RUN_UUID" ]]; then
-			if command -v ps 2>/dev/null >/dev/null; then
-				mkdir -p logs
-
-				LOG_FILE="logs/${RUN_UUID}_cpu_log"
-
-				[[ ! -f "$LOG_FILE" ]] && echo "timestamp,process,command,cpu_usage" > "$LOG_FILE"
-				
-				_continue=1
-
-				while [[ $_continue -eq 1 ]]; do
-					if ! kill -0 "$MAIN_PID" 2>/dev/null; then
-						_continue=0
-					fi
-
-					TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-
-					if [[ -e "$LOG_FILE" ]]; then
-						ps -eo ppid,pid,pcpu,comm,args | awk -v ts="$TIMESTAMP" -v ppid=$$ 'NR>1 && $1 == ppid {print ts "," $4 "," substr($0, index($0,$5)) "," $3}' >> "$LOG_FILE"
-					else
-						_continue=0
-					fi
-
-					sleep 1
-				done &
-			fi
-		fi
-	}
-
-	#log_cpu_usage &
-
 	checkout_to_latest_tested_version=0
 	debug=0
 	main_process_gb=

@@ -6484,7 +6484,7 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
             ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
             __insert_job_into_ax_client__update_status(__status, base_str, "Completed trial")
         else:
-            print_yellow("Empty job encountered")
+            print_debug("Empty job encountered")
     else:
         __insert_job_into_ax_client__update_status(__status, base_str, "Found trial without result. Not adding it.")
 

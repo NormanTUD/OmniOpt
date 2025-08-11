@@ -17,6 +17,7 @@ import random
 import tempfile
 import threading
 
+experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
 prepared_setting_to_custom: bool = False
@@ -5327,14 +5328,14 @@ def set_objectives() -> dict:
     return objectives
 
 @beartype
-def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, experiment_parameters: Union[dict, list]) -> dict:
+def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, _experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
 
         experiment_args["parameter_constraints"] = []
 
         if experiment_constraints:
             for _l in range(len(experiment_constraints)):
-                variables = [item['name'] for item in experiment_parameters]
+                variables = [item['name'] for item in _experiment_parameters]
 
                 constraints_string = experiment_constraints[_l]
 
@@ -5359,7 +5360,9 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
     return experiment_args
 
 @beartype
-def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list], experiment_parameters: dict) -> dict:
+def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> dict:
+    global experiment_parameters
+
     if parameter and cli_params_experiment_parameters:
         for _item in cli_params_experiment_parameters:
             _replaced = False
@@ -5381,10 +5384,10 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
             if not _replaced:
                 print_yellow(f"--parameter named {_item['name']} could not be replaced. It will be ignored, instead. You cannot change the number of parameters or their names when continuing a job, only update their values.")
 
-    return experiment_parameters
-
 @beartype
-def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> Optional[dict]:
+def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:
+    global experiment_parameters
+
     experiment_parameters = None
 
     try:
@@ -5398,8 +5401,6 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: 
         print_red(f"Error parsing checkpoint_file {checkpoint_file}")
         if _die:
             my_exit(47)
-
-    return experiment_parameters
 
 @beartype
 def get_username() -> str:
@@ -5428,15 +5429,16 @@ def copy_continue_uuid() -> None:
         print_debug(f"copy_continue_uuid: Source file does not exist: {source_file}")
 
 @beartype
-def load_ax_client_from_experiment_parameters(experiment_parameters: dict) -> None:
+def load_ax_client_from_experiment_parameters() -> None:
     global ax_client
+
     tmp_file_path = get_tmp_file_from_json(experiment_parameters)
     ax_client = AxClient.load_from_json_file(tmp_file_path)
     ax_client = cast(AxClient, ax_client)
     os.unlink(tmp_file_path)
 
 @beartype
-def save_checkpoint_for_continued(experiment_parameters: dict) -> None:
+def save_checkpoint_for_continued() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
 
@@ -5449,15 +5451,15 @@ def save_checkpoint_for_continued(experiment_parameters: dict) -> None:
         _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
 
 @beartype
-def load_original_generation_strategy(experiment_parameters: dict, original_ax_client_file: str) -> dict:
+def load_original_generation_strategy(original_ax_client_file: str) -> None:
+    global experiment_parameters
+
     with open(original_ax_client_file, encoding="utf-8") as f:
         loaded_original_ax_client_json = json.load(f)
         original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 
         if original_generation_strategy:
             experiment_parameters["generation_strategy"] = original_generation_strategy
-
-    return experiment_parameters
 
 @beartype
 def wait_for_checkpoint_file(checkpoint_file: str) -> None:
@@ -5477,7 +5479,7 @@ def __get_experiment_parameters__check_ax_client() -> None:
         _fatal_error("Something went wrong with the ax_client", 9)
 
 @beartype
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[dict, Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -5494,7 +5496,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     die_with_47_if_file_doesnt_exists(checkpoint_file)
 
-    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+    load_experiment_parameters_from_checkpoint_file(checkpoint_file)
     experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(None)
 
     copy_state_files_from_previous_job(continue_previous_job)
@@ -5504,13 +5506,13 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
         my_exit(95)
 
     if not args.worker_generator_path:
-        replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters, experiment_parameters)
+        replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
 
     ax_client.save_to_json_file(filepath=original_ax_client_file)
 
-    experiment_parameters = load_original_generation_strategy(experiment_parameters, original_ax_client_file)
-    load_ax_client_from_experiment_parameters(experiment_parameters)
-    save_checkpoint_for_continued(experiment_parameters)
+    load_original_generation_strategy(original_ax_client_file)
+    load_ax_client_from_experiment_parameters()
+    save_checkpoint_for_continued()
 
     with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
         print(f"Continuation from checkpoint {continue_previous_job}", file=f)
@@ -5528,10 +5530,10 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
             experiment_parameters["experiment"]["search_space"]["parameters"]
         )
 
-    return experiment_parameters, experiment_args, gpu_string, gpu_color
+    return experiment_args, gpu_string, gpu_color
 
 @beartype
-def __get_experiment_parameters__create_new_experiment(experiment_parameters: list) -> Tuple[list, Any, str, str]:
+def __get_experiment_parameters__create_new_experiment() -> Tuple[list, Any, str, str]:
     objectives = set_objectives()
     experiment_args = {
         "name": global_vars["experiment_name"],
@@ -5565,21 +5567,23 @@ def __get_experiment_parameters__create_new_experiment(experiment_parameters: li
     except ax.exceptions.core.UserInputError as error:
         _fatal_error(f"An error occurred while creating the experiment (3): {error}", 49)
 
-    return experiment_parameters, experiment_args, gpu_string, gpu_color
+    return experiment_args, gpu_string, gpu_color
 
 @beartype
-def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, Union[list, dict], dict, str, str]]:
-    cli_params_experiment_parameters, experiment_parameters = _params
+def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, dict, str, str]]:
+    global experiment_parameters
+
+    cli_params_experiment_parameters = _params
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     __get_experiment_parameters__check_ax_client()
 
     if continue_previous_job:
-        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters)
+        experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters)
     else:
-        experiment_parameters, experiment_args, gpu_string, gpu_color = __get_experiment_parameters__create_new_experiment(experiment_parameters)
+        experiment_args, gpu_string, gpu_color = __get_experiment_parameters__create_new_experiment()
 
-    return ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color
+    return ax_client, experiment_args, gpu_string, gpu_color
 
 @beartype
 def get_type_short(typename: str) -> str:
@@ -7712,6 +7716,8 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         print_red("get_batched_arms: ax_client was None")
         return []
 
+    load_existing_data_for_worker_generation_path()
+
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
             print_debug(f"get_batched_arms: Stopped after {attempts} attempts: could not generate enough arms "
@@ -9140,13 +9146,15 @@ def check_max_eval(_max_eval: int) -> None:
 
 @beartype
 def parse_parameters() -> Any:
+    global experiment_parameters
+
     experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:
         experiment_parameters = parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
-    return experiment_parameters, cli_params_experiment_parameters
+    return cli_params_experiment_parameters
 
 @beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
@@ -10104,7 +10112,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     arg_result_names = res_names
 
-    experiment_parameters = load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
+    load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
 
     if experiment_parameters is None:
         return False
@@ -10249,7 +10257,7 @@ def main() -> None:
     write_ui_url_if_present()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
-    experiment_parameters, cli_params_experiment_parameters = parse_parameters()
+    cli_params_experiment_parameters = parse_parameters()
 
     write_live_share_file_if_needed()
 
@@ -10280,7 +10288,7 @@ def main() -> None:
     ])
 
     if exp_params is not None:
-        ax_client, experiment_parameters, experiment_args, gpu_string, gpu_color = exp_params
+        ax_client, experiment_args, gpu_string, gpu_color = exp_params
         print_debug(f"experiment_parameters: {experiment_parameters}")
 
         set_orchestrator()
@@ -10304,16 +10312,7 @@ def main() -> None:
 
             set_global_generation_strategy()
 
-        if args.worker_generator_path:
-            if not os.path.exists(args.worker_generator_path):
-                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
-                my_exit(96)
-
-            if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
-                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
-                my_exit(96)
-
-            insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"), experiment_parameters)
+        load_existing_data_for_worker_generation_path()
 
         try:
             run_search_with_progress_bar()
@@ -10327,6 +10326,19 @@ def main() -> None:
         end_program()
     else:
         print_red("exp_params is None!")
+
+@beartype
+def load_existing_data_for_worker_generation_path() -> None:
+    if args.worker_generator_path:
+        if not os.path.exists(args.worker_generator_path):
+            print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+            my_exit(96)
+
+        if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
+            print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+            my_exit(96)
+
+        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"), experiment_parameters)
 
 @beartype
 def log_worker_creation() -> None:

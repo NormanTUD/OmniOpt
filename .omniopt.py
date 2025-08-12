@@ -1117,8 +1117,8 @@ try:
     with spinner("Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
 
-    with spinner("Importing Cont_X_trans and Y_trans from ax.modelbridge.registry..."):
-        from ax.modelbridge.registry import Cont_X_trans, Y_trans
+    with spinner("Importing Cont_X_trans and Y_trans from ax.adapter.registry..."):
+        from ax.adapter.registry import Cont_X_trans, Y_trans
 
     with spinner("Importing ax.core.arm..."):
         from ax.core.arm import Arm
@@ -1158,7 +1158,7 @@ try:
             from ax.generation_strategy.model_spec import GeneratorSpec
 
     except Exception:
-        with spinner("Fallback: Importing ax.modelbridge.generation_node..."):
+        with spinner("Fallback: Importing ax.adapter.generation_node..."):
             import ax.modelbridge.generation_node
 
         with spinner("Fallback: Importing GenerationStep, GenerationStrategy from modelbridge..."):

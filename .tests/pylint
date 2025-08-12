@@ -109,11 +109,6 @@ else
 	fi
 fi
 
-if [ -n "$TEMP_BACKUP_FILE" ]; then
-	mv "$PYLINTRC_DEST_FILE" "${PYLINTRC_DEST_FILE}.new"
-	mv "$TEMP_BACKUP_FILE" "$PYLINTRC_DEST_FILE"
-fi
-
 secs=$SECONDS
 hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
 printf 'pylint test took: %02d:%02d:%02d\n' $hrs $mins $secs

@@ -1896,10 +1896,12 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     stdout, stderr = run_live_share_command(force)
 
-    if stderr:
-        if text_and_qr:
+    if text_and_qr:
+        if stderr:
             print_green(stderr)
             extract_and_print_qr(stderr)
+        else:
+            print_red("This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 
@@ -1923,16 +1925,16 @@ def _start_event_loop():
         _loop = asyncio.new_event_loop()
         threading.Thread(target=_loop.run_forever, daemon=True).start()
 
-def init_live_share() -> bool:
+async def init_live_share() -> bool:
     print("TRYING LIVE SHARE NOW")
-    ret = live_share(True, True)
+    ret = await live_share(True, True)
     print("ENDED LIVE SHARE")
 
     return ret
 
-def start_periodic_live_share(interval=30):
+async def start_periodic_live_share(interval=30):
     if args.live_share:
-        init_live_share()
+        await init_live_share()
 
         print_debug(f"Started periodic live share every {interval} seconds")
         _start_event_loop()
@@ -10107,7 +10109,7 @@ def run_program_once(params=None) -> None:
 
         my_exit(57)
 
-def main() -> None:
+async def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
     check_if_has_random_steps()
@@ -10194,7 +10196,7 @@ def main() -> None:
 
         set_orchestrator()
 
-        start_periodic_live_share()
+        await start_periodic_live_share()
 
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
@@ -10803,7 +10805,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-def main_outside() -> None:
+async def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
     if args.runtime_debug:
@@ -10821,7 +10823,7 @@ def main_outside() -> None:
             run_tests()
 
         try:
-            main()
+            await main()
         except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
@@ -10861,7 +10863,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
 if __name__ == "__main__":
     try:
-        main_outside()
+        asyncio.run(main_outside())
     except (SignalUSR, SignalINT, SignalCONT) as e:
         print_red(f"main_outside failed with exception {e}")
         end_program(True)

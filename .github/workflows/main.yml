@@ -51,7 +51,7 @@ jobs:
       run: |
         ./.tests/linter
   install-via-pip:
-    needs: [Linter, todo-to-issue]
+    #needs: [Linter, todo-to-issue]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -80,7 +80,7 @@ jobs:
       run: |
         .tests/install_via_pip
   docker-test:
-    needs: [Linter, todo-to-issue]
+    #needs: [Linter, todo-to-issue]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -111,7 +111,7 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
-    needs: [Linter, todo-to-issue, docker-test, install-via-pip]
+    #needs: [Linter, todo-to-issue, docker-test, install-via-pip]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:
@@ -192,7 +192,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [main-test]
+    needs: [main-test, Linter, todo-to-issue, docker-test, install-via-pip]
     permissions:
       contents: read
     environment: Production

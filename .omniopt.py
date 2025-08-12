@@ -520,7 +520,7 @@ def my_exit(_code: int = 0) -> None:
 
     try:
         if (is_slurm_job() and not args.force_local_execution) and not (args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_trial_index_result):
-            _sleep(5)
+            _sleep(2)
         else:
             time.sleep(2)
     except KeyboardInterrupt:
@@ -7383,9 +7383,6 @@ def execute_evaluation(_params: list) -> Optional[int]:
         print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
         global_vars["jobs"].append((new_job, trial_index))
 
-        if is_slurm_job() and not args.force_local_execution:
-            _sleep(1)
-
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
@@ -8545,7 +8542,7 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
             return True
 
         if is_slurm_job() and not args.force_local_execution:
-            _sleep(5)
+            _sleep(1)
 
     if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
         return True
@@ -8912,7 +8909,7 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
         progressbar_description([f"waiting for {nr_jobs_left} jobs"])
 
     if is_slurm_job() and not args.force_local_execution:
-        _sleep(5)
+        _sleep(0.5)
 
     jobs_left = len(global_vars['jobs'])
 

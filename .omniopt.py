@@ -4179,6 +4179,8 @@ def disable_logging() -> None:
             "ax.core.parameter",
             "ax.core.experiment",
 
+            "ax.service.ax_client",
+
             "ax.models.torch.botorch_modular.acquisition",
 
             "ax.modelbridge"

@@ -903,6 +903,8 @@ def start_worker_generators() -> None:
 
             # Übergabe des Skripts an sbatch via stdin
             cmd = ["sbatch", "-N", "1"]
+            if args.gpus:
+                cmd = cmd + ["--gres", f"gpu:{args.gpus}"]
             result = subprocess.run(
                 cmd,
                 input=batch_script,

@@ -7783,8 +7783,6 @@ def deduplicated_arm(arm: Any) -> bool:
 
 @beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
-    global ax_client, global_gs, args
-
     batched_arms: list = []
     attempts = 0
 
@@ -9232,8 +9230,6 @@ def check_max_eval(_max_eval: int) -> None:
 
 @beartype
 def parse_parameters() -> Any:
-    global experiment_parameters
-
     cli_params_experiment_parameters = None
     if args.parameter:
         parse_experiment_parameters()
@@ -9591,7 +9587,6 @@ def get_state_path() -> str:
 
 @beartype
 def save_experiment_state() -> None:
-    global ax_client
     try:
         if ax_client is None or ax_client.experiment is None:
             print_red("save_experiment_state: ax_client or ax_client.experiment is None, cannot save.")

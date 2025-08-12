@@ -1876,6 +1876,8 @@ def force_live_share() -> bool:
     if args.live_share:
         return live_share(True)
 
+    return False
+
 def start_live_share_if_enabled() -> None:
     if not getattr(args, "live_share", False):
         return
@@ -1905,8 +1907,6 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 
-    now = time.time()
-
     return True
 
 
@@ -1926,9 +1926,10 @@ def _start_event_loop():
         threading.Thread(target=_loop.run_forever, daemon=True).start()
 
 async def init_live_share() -> bool:
-    ret = await live_share(True, True)
+    with console.status("[bold green]Initializing live share..."):
+        ret = await live_share(True, True)
 
-    return ret
+        return ret
 
 async def start_periodic_live_share(interval=30):
     if args.live_share:
@@ -1938,19 +1939,6 @@ async def start_periodic_live_share(interval=30):
         _start_event_loop()
         asyncio.run_coroutine_threadsafe(periodic_live_share(interval), _loop)
 
-
-def compute_md5_hash(filepath: str) -> Optional[str]:
-    if not os.path.exists(filepath):
-        return None
-    try:
-        hasher = hashlib.new('md5', usedforsecurity=False)
-        with open(filepath, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
-    except Exception as e:
-        print_red(f"Error computing MD5 for {filepath}: {e}")
-        return None
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
@@ -2061,7 +2049,6 @@ def save_results_csv() -> Optional[str]:
     if ax_client is None:
         return None
 
-    old_hash = compute_md5_hash(pd_csv)
     save_checkpoint()
 
     try:

@@ -870,6 +870,9 @@ class ConfigLoader:
 
 @beartype
 def start_worker_generators() -> None:
+    if args.worker_generator_path:
+        return
+
     if shutil.which("sbatch") is None:
         print_yellow("no sbatch, cannot start multiple generation workers")
         return

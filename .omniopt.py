@@ -99,11 +99,14 @@ try:
         width=max(200, terminal_width)
     )
 
-    with console.status("[bold green]Importing logging..."):
+    def spinner(text):
+        return console.status(f"[bold green]{text}")
+
+    with spinner("Importing logging..."):
         import logging
         logging.basicConfig(level=logging.CRITICAL)
 
-    with console.status("[bold green]Importing warnings..."):
+    with spinner("Importing warnings..."):
         import warnings
 
         warnings.filterwarnings(
@@ -112,130 +115,130 @@ try:
             module="ax.modelbridge.best_model_selector"
         )
 
-    with console.status("[bold green]Importing argparse..."):
+    with spinner("Importing argparse..."):
         import argparse
 
-    with console.status("[bold green]Importing datetime..."):
+    with spinner("Importing datetime..."):
         import datetime
 
-    with console.status("[bold green]Importing dataclass..."):
+    with spinner("Importing dataclass..."):
         from dataclasses import dataclass
 
-    with console.status("[bold green]Importing socket..."):
+    with spinner("Importing socket..."):
         import socket
 
-    with console.status("[bold green]Importing stat..."):
+    with spinner("Importing stat..."):
         import stat
 
-    with console.status("[bold green]Importing pwd..."):
+    with spinner("Importing pwd..."):
         import pwd
 
-    with console.status("[bold green]Importing signal..."):
+    with spinner("Importing signal..."):
         import signal
 
-    with console.status("[bold green]Importing base64..."):
+    with spinner("Importing base64..."):
         import base64
 
-    with console.status("[bold green]Importing json..."):
+    with spinner("Importing json..."):
         import json
 
-    with console.status("[bold green]Importing yaml..."):
+    with spinner("Importing yaml..."):
         import yaml
 
-    with console.status("[bold green]Importing toml..."):
+    with spinner("Importing toml..."):
         import toml
 
-    with console.status("[bold green]Importing csv..."):
+    with spinner("Importing csv..."):
         import csv
 
-    with console.status("[bold green]Importing ast..."):
+    with spinner("Importing ast..."):
         import ast
 
-    with console.status("[bold green]Importing rich.table..."):
+    with spinner("Importing rich.table..."):
         from rich.table import Table
 
-    with console.status("[bold green]Importing rich print..."):
+    with spinner("Importing rich print..."):
         from rich import print
 
-    with console.status("[bold green]Importing rich.pretty..."):
+    with spinner("Importing rich.pretty..."):
         from rich.pretty import pprint
 
-    with console.status("[bold green]Importing rich.prompt..."):
+    with spinner("Importing rich.prompt..."):
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
 
-    with console.status("[bold green]Importing types.FunctionType..."):
+    with spinner("Importing types.FunctionType..."):
         from types import FunctionType
 
-    with console.status("[bold green]Importing typing..."):
+    with spinner("Importing typing..."):
         from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
 
-    with console.status("[bold green]Importing ThreadPoolExecutor..."):
+    with spinner("Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    with console.status("[bold green]Importing submitit.LocalExecutor..."):
+    with spinner("Importing submitit.LocalExecutor..."):
         from submitit import LocalExecutor, AutoExecutor
 
-    with console.status("[bold green]Importing submitit.Job..."):
+    with spinner("Importing submitit.Job..."):
         from submitit import Job
 
-    with console.status("[bold green]Importing importlib.util..."):
+    with spinner("Importing importlib.util..."):
         import importlib.util
 
-    with console.status("[bold green]Importing inspect..."):
+    with spinner("Importing inspect..."):
         import inspect
 
-    with console.status("[bold green]Importing platform..."):
+    with spinner("Importing platform..."):
         import platform
 
-    with console.status("[bold green]Importing inspect frame info..."):
+    with spinner("Importing inspect frame info..."):
         from inspect import currentframe, getframeinfo
 
-    with console.status("[bold green]Importing pathlib.Path..."):
+    with spinner("Importing pathlib.Path..."):
         from pathlib import Path
 
-    with console.status("[bold green]Importing uuid..."):
+    with spinner("Importing uuid..."):
         import uuid
 
-    with console.status("[bold green]Importing traceback..."):
+    with spinner("Importing traceback..."):
         import traceback
 
-    with console.status("[bold green]Importing cowsay..."):
+    with spinner("Importing cowsay..."):
         import cowsay
 
-    with console.status("[bold green]Importing psutil..."):
+    with spinner("Importing psutil..."):
         import psutil
 
-    with console.status("[bold green]Importing shutil..."):
+    with spinner("Importing shutil..."):
         import shutil
 
-    with console.status("[bold green]Importing itertools.combinations..."):
+    with spinner("Importing itertools.combinations..."):
         from itertools import combinations
 
-    with console.status("[bold green]Importing os.listdir..."):
+    with spinner("Importing os.listdir..."):
         from os import listdir
 
-    with console.status("[bold green]Importing os.path..."):
+    with spinner("Importing os.path..."):
         from os.path import isfile, join
 
-    with console.status("[bold green]Importing PIL.Image..."):
+    with spinner("Importing PIL.Image..."):
         from PIL import Image
 
-    with console.status("[bold green]Importing sixel..."):
+    with spinner("Importing sixel..."):
         import sixel
 
-    with console.status("[bold green]Importing subprocess..."):
+    with spinner("Importing subprocess..."):
         import subprocess
 
-    with console.status("[bold green]Importing tqdm..."):
+    with spinner("Importing tqdm..."):
         from tqdm import tqdm
 
-    with console.status("[bold green]Importing beartype..."):
+    with spinner("Importing beartype..."):
         from beartype import beartype
 
-    with console.status("[bold green]Importing statistics..."):
+    with spinner("Importing statistics..."):
         import statistics
 
-    with console.status("[bold green]Trying to import pyfiglet..."):
+    with spinner("Trying to import pyfiglet..."):
         try:
             from pyfiglet import Figlet
             figlet_loaded = True
@@ -353,7 +356,7 @@ def get_current_run_folder() -> str:
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 try:
-    with console.status("[bold green]Importing helpers..."):
+    with spinner("Importing helpers..."):
         helpers_file: str = f"{script_dir}/.helpers.py"
         spec = importlib.util.spec_from_file_location(
             name="helpers",
@@ -927,56 +930,57 @@ class ConfigLoader:
         return _args
 
 def start_worker_generators() -> None:
-    if args.worker_generator_path:
-        return
+    with spinner("Starting generator workers"):
+        if args.worker_generator_path:
+            return
 
-    num_workers = max(0, args.number_of_generators - 1)
+        num_workers = max(0, args.number_of_generators - 1)
 
-    if shutil.which("sbatch") is None:
-        if num_workers > 1:
-            print_yellow("No sbatch, cannot start multiple generation workers")
-        return
+        if shutil.which("sbatch") is None:
+            if num_workers > 1:
+                print_yellow("No sbatch, cannot start multiple generation workers")
+            return
 
-    omniopt_path = os.path.join(script_dir, "omniopt")
-    if not os.path.isfile(omniopt_path):
-        print_yellow(f"Cannot find omniopt script at {omniopt_path}")
-        return
+        omniopt_path = os.path.join(script_dir, "omniopt")
+        if not os.path.isfile(omniopt_path):
+            print_yellow(f"Cannot find omniopt script at {omniopt_path}")
+            return
 
-    base_command = ["bash", omniopt_path] + sys.argv[1:]
-    worker_arg = f"--worker_generator_path={get_current_run_folder()}"
+        base_command = ["bash", omniopt_path] + sys.argv[1:]
+        worker_arg = f"--worker_generator_path={get_current_run_folder()}"
 
-    clean_env = copy.deepcopy(os.environ)
-    slurm_keys = [key for key in clean_env if key.upper().startswith("SLURM_")]
-    for key in slurm_keys:
-        del clean_env[key]
+        clean_env = copy.deepcopy(os.environ)
+        slurm_keys = [key for key in clean_env if key.upper().startswith("SLURM_")]
+        for key in slurm_keys:
+            del clean_env[key]
 
-    for i in range(num_workers):
-        try:
-            batch_script = f"""#!/bin/bash
+        for i in range(num_workers):
+            try:
+                batch_script = f"""#!/bin/bash
 #SBATCH -J worker_generator_{run_uuid}
 
 {" ".join(base_command + [worker_arg])}
 """
 
-            cmd = ["sbatch", "-N", "1"]
-            if args.gpus:
-                cmd = cmd + ["--gres", f"gpu:{args.gpus}"]
-            result = subprocess.run(
-                cmd,
-                input=batch_script,
-                env=clean_env,
-                check=False,
-                capture_output=True,
-                text=True
-            )
+                cmd = ["sbatch", "-N", "1"]
+                if args.gpus:
+                    cmd = cmd + ["--gres", f"gpu:{args.gpus}"]
+                result = subprocess.run(
+                    cmd,
+                    input=batch_script,
+                    env=clean_env,
+                    check=False,
+                    capture_output=True,
+                    text=True
+                )
 
-            if result.returncode != 0:
-                print_yellow(f"Failed to start worker {i + 1}: {result.stderr.strip()}")
-            else:
-                print(f"Started worker {i + 1} via sbatch: {result.stdout.strip()}")
+                if result.returncode != 0:
+                    print_yellow(f"Failed to start worker {i + 1}: {result.stderr.strip()}")
+                else:
+                    print(f"Started worker {i + 1} via sbatch: {result.stdout.strip()}")
 
-        except Exception as e:
-            print_yellow(f"Error starting worker {i + 1}: {e}")
+            except Exception as e:
+                print_yellow(f"Error starting worker {i + 1}: {e}")
 
     return
 
@@ -996,14 +1000,14 @@ def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
         nodes=[node]
     )
 
-with console.status("[bold green]Parsing arguments...") as parsing_arguments_loader:
+with spinner("Parsing arguments...") as parsing_arguments_loader:
     loader = ConfigLoader(parsing_arguments_loader)
     args = loader.parse_arguments()
 
 original_result_names = args.result_names
 
 if args.seed is not None:
-    with console.status("[bold green]Importing ax random seed..."):
+    with spinner("Importing ax random seed..."):
         from ax.utils.common.random import set_rng_seed
 
     set_rng_seed(args.seed)
@@ -1094,117 +1098,117 @@ if args.continue_previous_job is not None:
         args.force_choice_for_ranges = True
 
 try:
-    with console.status("[bold green]Importing torch...") as status:
+    with spinner("Importing torch...") as status:
         import torch
-    with console.status("[bold green]Importing numpy...") as status:
+    with spinner("Importing numpy...") as status:
         import numpy as np
-    with console.status("[bold green]Importing ax..."):
+    with spinner("Importing ax..."):
         import ax
 
-    with console.status("[bold green]Importing ax.core.generator_run..."):
+    with spinner("Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
 
-    with console.status("[bold green]Importing Cont_X_trans and Y_trans from ax.modelbridge.registry..."):
+    with spinner("Importing Cont_X_trans and Y_trans from ax.modelbridge.registry..."):
         from ax.modelbridge.registry import Cont_X_trans, Y_trans
 
-    with console.status("[bold green]Importing ax.core.arm..."):
+    with spinner("Importing ax.core.arm..."):
         from ax.core.arm import Arm
 
-    with console.status("[bold green]Importing ax.core.objective..."):
+    with spinner("Importing ax.core.objective..."):
         from ax.core.objective import MultiObjective
 
-    with console.status("[bold green]Importing ax.core.Metric..."):
+    with spinner("Importing ax.core.Metric..."):
         from ax.core import Metric
 
-    with console.status("[bold green]Importing ax.exceptions.core..."):
+    with spinner("Importing ax.exceptions.core..."):
         import ax.exceptions.core
 
-    with console.status("[bold green]Importing ax.exceptions.generation_strategy..."):
+    with spinner("Importing ax.exceptions.generation_strategy..."):
         import ax.exceptions.generation_strategy
 
-    with console.status("[bold green]Importing CORE_DECODER_REGISTRY..."):
+    with spinner("Importing CORE_DECODER_REGISTRY..."):
         from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
 
     try:
-        with console.status("[bold green]Trying ax.generation_strategy.generation_node..."):
+        with spinner("Trying ax.generation_strategy.generation_node..."):
             import ax.generation_strategy.generation_node
 
-        with console.status("[bold green]Importing GenerationStep, GenerationStrategy from generation_strategy..."):
+        with spinner("Importing GenerationStep, GenerationStrategy from generation_strategy..."):
             from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
 
-        with console.status("[bold green]Importing GenerationNode from generation_node..."):
+        with spinner("Importing GenerationNode from generation_node..."):
             from ax.generation_strategy.generation_node import GenerationNode
 
-        with console.status("[bold green]Importing ExternalGenerationNode..."):
+        with spinner("Importing ExternalGenerationNode..."):
             from ax.generation_strategy.external_generation_node import ExternalGenerationNode
 
-        with console.status("[bold green]Importing MaxTrials..."):
+        with spinner("Importing MaxTrials..."):
             from ax.generation_strategy.transition_criterion import MaxTrials
 
-        with console.status("[bold green]Importing GeneratorSpec..."):
+        with spinner("Importing GeneratorSpec..."):
             from ax.generation_strategy.model_spec import GeneratorSpec
 
     except Exception:
-        with console.status("[bold green]Fallback: Importing ax.modelbridge.generation_node..."):
+        with spinner("Fallback: Importing ax.modelbridge.generation_node..."):
             import ax.modelbridge.generation_node
 
-        with console.status("[bold green]Fallback: Importing GenerationStep, GenerationStrategy from modelbridge..."):
+        with spinner("Fallback: Importing GenerationStep, GenerationStrategy from modelbridge..."):
             from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
 
-        with console.status("[bold green]Fallback: Importing GenerationNode..."):
+        with spinner("Fallback: Importing GenerationNode..."):
             from ax.modelbridge.generation_node import GenerationNode
 
-        with console.status("[bold green]Fallback: Importing ExternalGenerationNode..."):
+        with spinner("Fallback: Importing ExternalGenerationNode..."):
             from ax.modelbridge.external_generation_node import ExternalGenerationNode
 
-        with console.status("[bold green]Fallback: Importing MaxTrials..."):
+        with spinner("Fallback: Importing MaxTrials..."):
             from ax.modelbridge.transition_criterion import MaxTrials
 
-        with console.status("[bold green]Fallback: Importing GeneratorSpec..."):
+        with spinner("Fallback: Importing GeneratorSpec..."):
             from ax.modelbridge.model_spec import GeneratorSpec
 
-    with console.status("[bold green]Importing Models from ax.modelbridge.registry..."):
+    with spinner("Importing Models from ax.modelbridge.registry..."):
         from ax.modelbridge.registry import Models
 
-    with console.status("[bold green]Importing get_pending_observation_features..."):
+    with spinner("Importing get_pending_observation_features..."):
         from ax.modelbridge.modelbridge_utils import get_pending_observation_features
 
-    with console.status("[bold green]Importing load_experiment..."):
+    with spinner("Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment
 
-    with console.status("[bold green]Importing save_experiment..."):
+    with spinner("Importing save_experiment..."):
         from ax.storage.json_store.save import save_experiment
 
-    with console.status("[bold green]Importing save_experiment_to_db..."):
+    with spinner("Importing save_experiment_to_db..."):
         from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
 
-    with console.status("[bold green]Importing TrialStatus..."):
+    with spinner("Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
 
-    with console.status("[bold green]Importing Data..."):
+    with spinner("Importing Data..."):
         from ax.core.data import Data
 
-    with console.status("[bold green]Importing Experiment..."):
+    with spinner("Importing Experiment..."):
         from ax.core.experiment import Experiment
 
-    with console.status("[bold green]Importing parameter types..."):
+    with spinner("Importing parameter types..."):
         from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
 
-    with console.status("[bold green]Importing TParameterization..."):
+    with spinner("Importing TParameterization..."):
         from ax.core.types import TParameterization
 
-    with console.status("[bold green]Importing pandas..."):
+    with spinner("Importing pandas..."):
         import pandas as pd
 
-    with console.status("[bold green]Importing AxClient and ObjectiveProperties..."):
+    with spinner("Importing AxClient and ObjectiveProperties..."):
         from ax.service.ax_client import AxClient, ObjectiveProperties
 
-    with console.status("[bold green]Importing RandomForestRegressor..."):
+    with spinner("Importing RandomForestRegressor..."):
         from sklearn.ensemble import RandomForestRegressor
 
-    with console.status("[bold green]Importing botorch...") as status:
+    with spinner("Importing botorch...") as status:
         import botorch
-    with console.status("[bold green]Importing submitit...") as status:
+    with spinner("Importing submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
 except ModuleNotFoundError as ee:
@@ -1232,10 +1236,10 @@ except ImportError as e:
     print(f"Failed to load module: {e}")
     my_exit(93)
 
-with console.status("[bold green]Importing ax logger...") as status:
+with spinner("Importing ax logger...") as status:
     from ax.utils.common.logger import disable_loggers
 
-with console.status("[bold green]Importing SQL-Storage-Stuff...") as status:
+with spinner("Importing SQL-Storage-Stuff...") as status:
     from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
 
     disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
@@ -1923,7 +1927,7 @@ def _start_event_loop():
         threading.Thread(target=_loop.run_forever, daemon=True).start()
 
 async def init_live_share() -> bool:
-    with console.status("[bold green]Initializing live share..."):
+    with spinner("Initializing live share..."):
         ret = await live_share(True, True)
 
         return ret
@@ -4152,7 +4156,7 @@ def disable_logging() -> None:
     if args.verbose:
         return
 
-    with console.status("[bold green]Disabling logging..."):
+    with spinner("Disabling logging..."):
         logging.basicConfig(level=logging.CRITICAL)
         logging.getLogger().setLevel(logging.CRITICAL)
         logging.getLogger().disabled = True
@@ -6329,7 +6333,7 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
 
     err_msgs = []
 
-    with console.status("[bold green]Loading existing jobs into ax_client...") as __status:
+    with spinner("Loading existing jobs into ax_client...") as __status:
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
             base_str = f"[bold green]Loading job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}"
@@ -7314,7 +7318,7 @@ def write_continue_run_uuid_to_file() -> None:
 
 def save_state_files() -> None:
     if len(args.calculate_pareto_front_of_job) == 0:
-        with console.status("[bold green]Saving state files..."):
+        with spinner("Saving state files..."):
             write_state_file("joined_run_program", global_vars["joined_run_program"])
             write_state_file("experiment_name", global_vars["experiment_name"])
             write_state_file("mem_gb", str(global_vars["mem_gb"]))
@@ -8683,7 +8687,7 @@ def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Di
         return 0
 
 def get_number_of_steps(_max_eval: int) -> int:
-    with console.status("[bold green]Calculating number of steps..."):
+    with spinner("Calculating number of steps..."):
         _random_steps = args.num_random_steps
 
         already_done_random_steps = get_random_steps_from_prev_job()
@@ -8965,7 +8969,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     return None
 
 def set_orchestrator() -> None:
-    with console.status("[bold green]Setting orchestrator..."):
+    with spinner("Setting orchestrator..."):
         global orchestrator
 
         if args.orchestrator_file:
@@ -8979,7 +8983,7 @@ def check_if_has_random_steps() -> None:
         _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
 def add_exclude_to_defective_nodes() -> None:
-    with console.status("[bold green]Adding excluded nodes..."):
+    with spinner("Adding excluded nodes..."):
         if args.exclude:
             entries = [entry.strip() for entry in args.exclude.split(',')]
 
@@ -8987,7 +8991,7 @@ def add_exclude_to_defective_nodes() -> None:
                 count_defective_nodes(None, entry)
 
 def check_max_eval(_max_eval: int) -> None:
-    with console.status("[bold green]Checking max_eval..."):
+    with spinner("Checking max_eval..."):
         if not _max_eval:
             _fatal_error("--max_eval needs to be set!", 19)
 
@@ -9746,7 +9750,7 @@ async def write_git_version() -> None:
         pass
 
 def write_job_start_file() -> None:
-    with console.status("[bold green]Writing job_start_time file..."):
+    with spinner("Writing job_start_time file..."):
         fn = f'{get_current_run_folder()}/job_start_time.txt'
         try:
             with open(fn, mode='w', encoding="utf-8") as f:
@@ -9755,12 +9759,12 @@ def write_job_start_file() -> None:
             print_red(f"Error trying to write {fn}: {e}")
 
 def write_live_share_file_if_needed() -> None:
-    with console.status("[bold green]Writing live_share file if it is present..."):
+    with spinner("Writing live_share file if it is present..."):
         if args.live_share:
             write_state_file("live_share", "1\n")
 
 def write_username_statefile() -> None:
-    with console.status("[bold green]Writing username state file..."):
+    with spinner("Writing username state file..."):
         _path = get_current_run_folder()
         if args.username:
             file_path = f"{_path}/state_files/username"
@@ -9773,7 +9777,7 @@ def write_username_statefile() -> None:
                 print_red(f"Error writing to file: {e}")
 
 def write_revert_to_random_when_seemingly_exhausted_file() -> None:
-    with console.status("[bold green]Writing revert_to_random_when_seemingly_exhausted file ..."):
+    with spinner("Writing revert_to_random_when_seemingly_exhausted file ..."):
         _path = get_current_run_folder()
         file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
 
@@ -9911,7 +9915,7 @@ def find_results_paths(base_path: str) -> list:
     found_paths = []
 
     if "DO_NOT_SEARCH_FOLDERS_FOR_RESULTS_CSV" not in os.environ:
-        with console.status("[bold green]Searching for subfolders with results.csv..."):
+        with spinner("Searching for subfolders with results.csv..."):
             for root, _, files in os.walk(base_path):
                 if "results.csv" in files:
                     found_paths.append(root)
@@ -10038,7 +10042,7 @@ def set_arg_states_from_continue() -> None:
             args.revert_to_random_when_seemingly_exhausted = True
 
 def write_result_min_max_file() -> None:
-    with console.status("[bold green]Writing result min/max file..."):
+    with spinner("Writing result min/max file..."):
         try:
             fn = f"{get_current_run_folder()}/result_min_max.txt"
             with open(fn, mode="a", encoding="utf-8") as myfile:
@@ -10048,7 +10052,7 @@ def write_result_min_max_file() -> None:
             print_red(f"Error trying to open file '{fn}': {e}")
 
 def write_result_names_file() -> None:
-    with console.status("[bold green]Writing result names file..."):
+    with spinner("Writing result names file..."):
         try:
             fn = f"{get_current_run_folder()}/result_names.txt"
             with open(fn, mode="a", encoding="utf-8") as myfile:
@@ -10071,7 +10075,7 @@ def run_program_once(params=None) -> None:
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
 
-        with console.status("[bold green]Running setup script...[/bold green]", spinner="dots"):
+        with spinner("", spinner="dots"):
             console.log(f"Executing command: [cyan]{command_str}[/cyan]")
             result = subprocess.run(command_str, shell=True, check=True)
             if result.returncode == 0:
@@ -10082,7 +10086,7 @@ def run_program_once(params=None) -> None:
                 my_exit(57)
 
     elif isinstance(args.run_program_once, (list, tuple)):
-        with console.status("[bold green]Running setup script (list)...[/bold green]", spinner="dots"):
+        with spinner("", spinner="dots"):
             console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
             result = subprocess.run(args.run_program_once, check=True)
             if result.returncode == 0:
@@ -10233,11 +10237,11 @@ def load_existing_data_for_worker_generation_path() -> None:
         insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"))
 
 def log_worker_creation() -> None:
-    with console.status("[bold green]Writing worker creation log..."):
+    with spinner("Writing worker creation log..."):
         _debug_worker_creation("time, nr_workers, got, requested, phase")
 
 def set_run_folder() -> None:
-    with console.status("[bold green]Setting run folder..."):
+    with spinner("Setting run folder..."):
         global CURRENT_RUN_FOLDER
 
         # Ensure run_dir is an absolute path
@@ -10264,24 +10268,24 @@ def set_run_folder() -> None:
                 CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 def print_run_info() -> None:
-    with console.status("[bold green]Printing run info..."):
+    with spinner("Printing run info..."):
         console.print(f"[bold]Run-folder[/bold]: [underline]{get_current_run_folder()}[/underline]")
         if args.continue_previous_job:
             original_print(f"Continuation from {args.continue_previous_job}")
 
 def initialize_nvidia_logs() -> None:
-    with console.status("[bold green]Initializing NVIDIA-Logs..."):
+    with spinner("Initializing NVIDIA-Logs..."):
         global NVIDIA_SMI_LOGS_BASE
         NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
 def write_ui_url_if_present() -> None:
-    with console.status("[bold green]Writing ui_url file if it is present..."):
+    with spinner("Writing ui_url file if it is present..."):
         if args.ui_url:
             with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(decode_if_base64(args.ui_url))
 
 def handle_random_steps() -> None:
-    with console.status("[bold green]Handling random steps..."):
+    with spinner("Handling random steps..."):
         if args.parameter and args.continue_previous_job and random_steps <= 0:
             print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
             set_random_steps(args.num_random_steps)
@@ -10289,7 +10293,7 @@ def handle_random_steps() -> None:
 def initialize_ax_client() -> None:
     global ax_client
 
-    with console.status("[bold green]Initializing ax_client..."):
+    with spinner("Initializing ax_client..."):
         ax_client = AxClient(
             verbose_logging=args.verbose,
             enforce_sequential_optimization=False,

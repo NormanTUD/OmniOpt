@@ -6302,6 +6302,8 @@ def _get_generation_node_for_index_floats_match(
     return abs(row_val_num - val) <= tolerance
 
 def insert_jobs_from_csv(this_csv_file_path: str) -> None:
+    this_csv_file_path = this_csv_file_path.replace("//", "/")
+
     if not os.path.exists(this_csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
 
@@ -10215,7 +10217,7 @@ async def main() -> None:
         write_files_and_show_overviews()
 
         for existing_run in args.load_data_from_existing_jobs:
-            insert_jobs_from_csv(f"{existing_run}/results.csv".replace("//", "/"))
+            insert_jobs_from_csv(f"{existing_run}/results.csv")
 
             set_global_generation_strategy()
 
@@ -10244,7 +10246,7 @@ def load_existing_data_for_worker_generation_path() -> None:
             print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
             my_exit(96)
 
-        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"))
+        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv")
 
 def log_worker_creation() -> None:
     with spinner("Writing worker creation log..."):

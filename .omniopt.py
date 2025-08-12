@@ -6913,8 +6913,6 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
 
     save_results_csv()
 
-    force_live_share()
-
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
     if ax_client is None:
         print_red("ax_client is not defined in _finish_job_core_helper_mark_failure")
@@ -6967,6 +6965,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
     print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
+
+    force_live_share()
 
     return this_jobs_finished
 

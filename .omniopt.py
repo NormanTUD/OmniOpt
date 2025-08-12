@@ -20,6 +20,7 @@ import copy
 import functools
 from collections import Counter, defaultdict
 import types
+import asyncio
 
 from typing import TypeVar, Callable
 F = TypeVar("F", bound=Callable[..., object])
@@ -7056,7 +7057,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
-    save_results_csv(True if this_jobs_finished > 0 else False)
+    save_results_csv(this_jobs_finished > 0)
 
     save_checkpoint()
 

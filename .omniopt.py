@@ -2018,7 +2018,7 @@ class FileLockSimple:
                 os.unlink(self.lock_path)
                 self.lock_acquired = False
             except FileNotFoundError:
-                pass  # Lock wurde schon gelöscht
+                pass
 
 @beartype
 def save_results_csv() -> Optional[str]:

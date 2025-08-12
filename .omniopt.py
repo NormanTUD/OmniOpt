@@ -2691,7 +2691,7 @@ def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
 @beartype
 def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
+    msg = f"{time_str} ({worker_generator_uuid}): {msg}"
 
     _debug_progressbar(msg)
 

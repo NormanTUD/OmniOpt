@@ -7968,8 +7968,7 @@ def _handle_generation_failure(
             set_global_gs_to_random()
             return _fetch_next_trials(requested, True)
 
-    #print_red(f"_handle_generation_failure: General Exception: {e}")
-    raise Exception from e
+    print_red(f"_handle_generation_failure: General Exception: {e}")
 
     return {}, True
 

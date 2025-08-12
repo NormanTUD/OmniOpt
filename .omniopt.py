@@ -2000,7 +2000,6 @@ class FileLockSimple:
         start_time = time.time()
         while True:
             try:
-                # Atomar: Datei anlegen, Fehler wenn existiert
                 fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
                 pid_str = str(os.getpid()).encode('utf-8')
                 os.write(fd, pid_str)
@@ -2010,7 +2009,7 @@ class FileLockSimple:
             except FileExistsError as __e:
                 # Lock-Datei existiert schon -> warten
                 if time.time() - start_time > self.timeout:
-                    raise TimeoutError(f"Timeout ({self.timeout}s) beim Warten auf Lock {self.lock_path}") from __e
+                    raise TimeoutError(f"Timeout ({self.timeout}s) while waiting for lock {self.lock_path}") from __e
                 time.sleep(0.5)
 
     def __exit__(self, exc_type, exc_value, _traceback):

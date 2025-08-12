@@ -9649,7 +9649,7 @@ def load_experiment_state() -> None:
             my_exit(188)
 
     try:
-        with open(state_path, "r") as f:
+        with open(state_path, encoding="utf-8", mode="r") as f:
             data = json.load(f)
     except Exception as e:
         print(f"Could not read valid JSON from {state_path}: {e}")
@@ -9670,7 +9670,7 @@ def load_experiment_state() -> None:
 
         # Gefilterten Zustand speichern und laden
         temp_path = state_path + ".no_conflicts.json"
-        with open(temp_path, "w") as f:
+        with open(temp_path, encoding="utf-8", mode="w") as f:
             json.dump(data, f)
 
         ax_client = AxClient.load_from_json_file(temp_path)

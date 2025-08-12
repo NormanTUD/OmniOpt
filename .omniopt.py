@@ -121,9 +121,6 @@ try:
     with console.status("[bold green]Importing dataclass..."):
         from dataclasses import dataclass
 
-    with console.status("[bold green]Importing hashlib..."):
-        import hashlib
-
     with console.status("[bold green]Importing socket..."):
         import socket
 

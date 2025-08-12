@@ -7435,9 +7435,23 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
     return False
 
 @beartype
+def submit_new_job(params: Union[dict, str], trial_index: int):
+    print_debug(f"Submitting new job for trial_index {trial_index}, params {params}")
+
+    start = time.time()
+
+    new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+
+    elapsed = time.time() - start
+
+    print_debug(f"Done submitting new job, took {elapsed} seconds")
+
+    return new_job
+
+@beartype
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if executor and ax_client:
-        new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+        new_job = submit_new_job(parameters, trial_index)
         submitted_jobs(1)
 
         _trial = ax_client.get_trial(trial_index)
@@ -7587,7 +7601,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
     try:
         initialize_job_environment()
-        new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+        new_job = submit_new_job(parameters, trial_index)
         submitted_jobs(1)
 
         print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")

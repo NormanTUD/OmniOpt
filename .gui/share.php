@@ -7,6 +7,7 @@
 
 	$GLOBALS["SPECIAL_COL_NAMES"] = [
 		"trial_index",
+		"worker_generator_uuid",
 		"arm_name",
 		"trial_status",
 		"generation_method",

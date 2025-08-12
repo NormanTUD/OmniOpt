@@ -70,6 +70,7 @@
 			144 => "Error with Slurm-Config. See Stdout.",
 			146 => "CONT-Signal detected",
 			181 => "Error parsing --parameter. Check output for more details",
+			188 => "Error while waiting for Experiment-State",
 			191 => "Could not create workdir ",
 			193 => "Error in printing logs. You may be on a read only file system or your hard disk is full",
 			199 => "This happens on unstable file systems when trying to write a file",

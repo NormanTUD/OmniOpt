@@ -250,7 +250,7 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 function bring_insights_data_together(string $csvPath, array $stats, array $correlations, array $result_names, array $resultMinMax): string {
 	$md = "";
 
-	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID"];
+	$dont_show_col_overview = ["trial_index", "start_time", "end_time", "program_string", "exit_code", "hostname", "arm_name", "generation_node", "trial_status", "submit_time", "queue_time", "OO_Info_SLURM_JOB_ID", "worker_generator_uuid"];
 
 	$custom_params = [];
 

@@ -16,7 +16,7 @@ import time
 import random
 import tempfile
 import threading
-from filelock import FileLock
+import copy
 
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
@@ -46,7 +46,7 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem"]
+special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem", "worker_generator_uuid"]
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
@@ -257,6 +257,8 @@ RESET: str = "\033[0m"
 
 uuid_regex: Pattern = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
 
+worker_generator_uuid: str = uuid.uuid4()
+
 new_uuid: str = str(uuid.uuid4())
 run_uuid: str = os.getenv("RUN_UUID", new_uuid)
 
@@ -283,8 +285,9 @@ error_8_saved: List[str] = []
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 with console.status("[bold green]Importing helpers..."):
-    script_dir = os.path.dirname(os.path.realpath(__file__))
     helpers_file: str = f"{script_dir}/.helpers.py"
     spec = importlib.util.spec_from_file_location(
         name="helpers",
@@ -520,6 +523,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 }
 
 class ConfigLoader:
+    number_of_generators: int
     disable_previous_job_constraint: bool
     save_to_database: bool
     dependency: str
@@ -714,6 +718,7 @@ class ConfigLoader:
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
         speed.add_argument('--transforms', nargs='*', choices=['Cont_X_trans', 'Cont_X_trans_Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_trans, Cont_X_trans_Y_trans)')
+        speed.add_argument('--number_of_generators', help='Number of generator main scripts, only works with Slurm', type=int, default=1)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -860,6 +865,62 @@ class ConfigLoader:
                 _args.live_share = False
 
         return _args
+
+@beartype
+def start_worker_generators() -> None:
+    if args.worker_generator_path:
+        return
+
+    if shutil.which("sbatch") is None:
+        print_yellow("no sbatch, cannot start multiple generation workers")
+        return
+
+    omniopt_path = os.path.join(script_dir, "omniopt")
+    if not os.path.isfile(omniopt_path):
+        print_yellow(f"Cannot find omniopt script at {omniopt_path}")
+        return
+
+    base_command = ["bash", omniopt_path] + sys.argv[1:]
+    worker_arg = f"--worker_generator_path={get_current_run_folder()}"
+
+    clean_env = copy.deepcopy(os.environ)
+    slurm_keys = [key for key in clean_env if key.upper().startswith("SLURM_")]
+    for key in slurm_keys:
+        del clean_env[key]
+
+    num_workers = max(0, args.number_of_generators - 1)
+
+    for i in range(num_workers):
+        try:
+            # Baue das Batch-Skript als String
+            batch_script = f"""#!/bin/bash
+#SBATCH -J worker_generator_{run_uuid}
+
+{" ".join(base_command + [worker_arg])}
+"""
+
+            # Übergabe des Skripts an sbatch via stdin
+            cmd = ["sbatch", "-N", "1"]
+            if args.gpus:
+                cmd = cmd + ["--gres", f"gpu:{args.gpus}"]
+            result = subprocess.run(
+                cmd,
+                input=batch_script,
+                env=clean_env,
+                check=False,
+                capture_output=True,
+                text=True
+            )
+
+            if result.returncode != 0:
+                print_yellow(f"Failed to start worker {i + 1}: {result.stderr.strip()}")
+            else:
+                print(f"Started worker {i + 1} via sbatch: {result.stdout.strip()}")
+
+        except Exception as e:
+            print_yellow(f"Error starting worker {i + 1}: {e}")
+
+    return
 
 @beartype
 def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
@@ -1940,7 +2001,10 @@ def save_results_csv() -> Optional[str]:
     makedirs(state_files_folder)
 
     lock_path = pd_csv + ".lock"
-    with FileLock(lock_path, timeout=30):  # wait max 5 min
+
+    try:
+        save_experiment_state()
+
         if ax_client is None:
             return None
 
@@ -1951,8 +2015,6 @@ def save_results_csv() -> Optional[str]:
             ax_client.experiment.fetch_data()
             pd_frame = ax_client.get_trials_data_frame()
             pd_frame = merge_with_job_infos(pd_frame)
-
-            # === Fix trial_index and arm_name uniqueness ===
             pd_frame = reindex_trials(pd_frame)
 
             pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
@@ -1983,7 +2045,15 @@ def save_results_csv() -> Optional[str]:
         if old_hash != new_hash:
             live_share()
 
+    except TimeoutError as e:
+        print_red(f"Timeout beim Erwerb des Datei-Locks: {e}")
+        return None
+    except Exception as e:
+        print_red(f"Unbekannter Fehler beim Datei-Lock: {e}")
+        return None
+
     return pd_csv
+
 @beartype
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
@@ -2590,7 +2660,7 @@ def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
 @beartype
 def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    msg = f"{time_str}: {msg}"
+    msg = f"{time_str} ({worker_generator_uuid}): {msg}"
 
     _debug_progressbar(msg)
 
@@ -3090,7 +3160,9 @@ def _parse_experiment_parameters_parse_this_args(
     return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> List[Dict[str, Any]]:
+def parse_experiment_parameters() -> None:
+    global experiment_parameters
+
     params: List[Dict[str, Any]] = []
     classic_params: List[Dict[str, Any]] = []
     param_names: List[str] = []
@@ -3115,7 +3187,7 @@ def parse_experiment_parameters() -> List[Dict[str, Any]]:
     # Remove duplicates by 'name' key preserving order
     params = list({p['name']: p for p in params}.values())
 
-    return params
+    experiment_parameters = params
 
 @beartype
 def check_factorial_range() -> None:
@@ -3748,8 +3820,8 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     headline = _write_job_infos_csv_replace_none_with_str(headline)
     values = _write_job_infos_csv_replace_none_with_str(values)
 
-    headline = ["trial_index", "submit_time", "queue_time", *headline]
-    values = [str(trial_index), str(submit_time), str(queue_time), *values]
+    headline = ["trial_index", "submit_time", "queue_time", "worker_generator_uuid", *headline]
+    values = [str(trial_index), str(submit_time), str(queue_time), worker_generator_uuid, *values]
 
     run_folder = get_current_run_folder()
     if run_folder is not None and os.path.exists(run_folder):
@@ -5447,8 +5519,6 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:
     global experiment_parameters
 
-    experiment_parameters = None
-
     try:
         f = open(checkpoint_file, encoding="utf-8")
         experiment_parameters = json.load(f)
@@ -5558,7 +5628,7 @@ def validate_experiment_parameters() -> None:
             my_exit(95)
 
 @beartype
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[list]) -> Tuple[Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -5647,8 +5717,7 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
     return experiment_args, gpu_string, gpu_color
 
 @beartype
-def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, dict, str, str]]:
-    cli_params_experiment_parameters = _params
+def get_experiment_parameters(cli_params_experiment_parameters: Optional[list]) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     __get_experiment_parameters__check_ax_client()
@@ -7785,14 +7854,14 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     if global_gs is None:
         _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
-
         return []
 
     if ax_client is None:
         print_red("get_batched_arms: ax_client was None")
         return []
 
-    load_existing_data_for_worker_generation_path()
+    # Experiment-Status laden
+    load_experiment_state()
 
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
@@ -7822,7 +7891,8 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
-    save_results_csv()
+    # Experiment-Status speichern
+    save_results_csv()  # Bestehender Aufruf
 
     return batched_arms
 
@@ -7852,6 +7922,14 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
             for arm in get_batched_arms(n - cnt):
                 if cnt >= n:
                     break
+
+                # 🔹 Erzeuge einen komplett neuen Arm, damit Ax den Namen vergibt
+                try:
+                    arm = Arm(parameters=arm.parameters)
+                except Exception as arm_err:
+                    print_red(f"Error while creating new Arm: {arm_err}")
+                    retries += 1
+                    continue
 
                 print_debug(f"Fetching trial {cnt + 1}/{n}...")
                 progressbar_description([_get_trials_message(cnt + 1, n, trial_durations)])
@@ -7961,6 +8039,8 @@ def _handle_generation_failure(
             print_debug("Switching to random search strategy.")
             set_global_gs_to_random()
             return _fetch_next_trials(requested, True)
+
+    print_red(f"_handle_generation_failure: General Exception: {e}")
 
     return {}, True
 
@@ -8744,12 +8824,6 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
     return False
 
 @beartype
-def handle_optimization_completion(optimization_complete: bool) -> bool:
-    if optimization_complete:
-        return True
-    return False
-
-@beartype
 def execute_trials(
     trial_index_to_param: dict,
     phase: Optional[str],
@@ -8853,8 +8927,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
         get_next_trials_nr = new_nr_of_jobs_to_get
 
     for _ in range(range_nr):
-        trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
-        done_optimizing = handle_optimization_completion(optimization_complete)
+        trial_index_to_param, done_optimizing = _get_next_trials(get_next_trials_nr)
         if done_optimizing:
             continue
 
@@ -9046,7 +9119,16 @@ def run_search(_progress_bar: Any) -> bool:
 
 @beartype
 def should_break_search(_progress_bar: Any) -> bool:
-    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+    ret = False
+
+    if not args.worker_generator_path:
+        ret = (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+    else:
+        print_debug("should_break_search: False because --worker_generator_path was set")
+
+    print_debug(f"should_break_search: {ret}")
+
+    return ret
 
 @beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
@@ -9222,12 +9304,9 @@ def check_max_eval(_max_eval: int) -> None:
 
 @beartype
 def parse_parameters() -> Any:
-    global experiment_parameters
-
-    experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
+        parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
     return cli_params_experiment_parameters
@@ -9575,6 +9654,117 @@ def get_pareto_frontier_points(
     result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
 
     return result
+
+@beartype
+def get_state_path() -> str:
+    return f"{get_current_run_folder()}/experiment_state.json"
+
+@beartype
+def save_experiment_state() -> None:
+    try:
+        if ax_client is None or ax_client.experiment is None:
+            print_red("save_experiment_state: ax_client or ax_client.experiment is None, cannot save.")
+            return
+        state_path = get_state_path()
+        ax_client.save_to_json_file(state_path)
+    except Exception as e:
+        print(f"Error saving experiment state: {e}")
+
+@beartype
+def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60):
+    try:
+        if not os.path.exists(state_path):
+            print(f"[ERROR] File '{state_path}' does not exist.")
+            return False
+
+        i = 0
+        while True:
+            try:
+                file_size = os.path.getsize(state_path)
+            except OSError as e:
+                print_debug(f"[ERROR] File '{state_path}' cannot be read: {e}")
+                return False
+
+            if file_size >= min_size:
+                print_debug(f"[INFO] File '{state_path}' is now large enough ({file_size} Bytes).")
+                return True
+
+            if i >= max_wait_seconds:
+                print_debug(f"[ERROR] Timeout: File '{state_path}' was not larger than {min_size} bytes after waiting for {max_wait_seconds} seconds.")
+                return False
+
+            print_debug(f"\r[yellow] File '{state_path}' is too small ({file_size} Bytes), waiting ... {i}s")
+            sys.stdout.flush()
+            time.sleep(1)
+            i += 1
+
+    except Exception as e:
+        print_red(f"[ERROR] Unexpected error: {e}")
+        return False
+
+@beartype
+def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int = 1) -> Optional[dict]:
+    start_time = time.time()
+
+    while True:
+        if not os.path.exists(state_path):
+            print_debug(f"load_json_with_retry(state_path = {state_path}, timeout = {timeout}, retry_interval: {retry_interval}): File does not exist: {state_path}")
+
+        try:
+            with open(state_path, mode="r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data
+        except Exception as e:
+            elapsed = time.time() - start_time
+            if elapsed >= timeout:
+                print_debug(f"\nCould not load valid JSON after {elapsed} second of trying on path {state_path}: {e}")
+                return None
+
+            print_debug(f"Wait for valid JSON {state_path}... error: {e}")
+            time.sleep(retry_interval)
+
+    return None
+
+@beartype
+def load_experiment_state() -> None:
+    global ax_client
+    state_path = get_state_path()
+
+    if not os.path.exists(state_path):
+        print(f"State file {state_path} does not exist, starting fresh")
+        return
+
+    if args.worker_generator_path:
+        if not wait_for_state_file(state_path):
+            my_exit(188)
+
+    data = load_json_with_retry(state_path)
+
+    if data is None:
+        print(f"Could not read valid JSON from {state_path}")
+        return
+
+    try:
+        arms_seen = {}
+        for arm in data.get("arms", []):
+            name = arm.get("name")
+            sig = arm.get("parameters")  # grobe Signatur
+            if not name:
+                continue
+            if name in arms_seen and arms_seen[name] != sig:
+                new_name = f"{name}_{uuid.uuid4().hex[:6]}"
+                print(f"Renaming conflicting arm '{name}' -> '{new_name}'")
+                arm["name"] = new_name
+            arms_seen[name] = sig
+
+        # Gefilterten Zustand speichern und laden
+        temp_path = state_path + ".no_conflicts.json"
+        with open(temp_path, encoding="utf-8", mode="w") as f:
+            json.dump(data, f)
+
+        ax_client = AxClient.load_from_json_file(temp_path)
+    except Exception as e:
+        print(f"Error loading experiment state: {e}")
 
 @beartype
 def sanitize_json(obj: Any) -> Any:
@@ -10358,10 +10548,7 @@ def main() -> None:
 
     initialize_ax_client()
 
-    exp_params = get_experiment_parameters([
-        cli_params_experiment_parameters,
-        experiment_parameters,
-    ])
+    exp_params = get_experiment_parameters(cli_params_experiment_parameters)
 
     if exp_params is not None:
         ax_client, experiment_args, gpu_string, gpu_color = exp_params
@@ -10389,6 +10576,8 @@ def main() -> None:
             set_global_generation_strategy()
 
         load_existing_data_for_worker_generation_path()
+
+        start_worker_generators()
 
         try:
             run_search_with_progress_bar()
@@ -10513,6 +10702,8 @@ def save_experiment_parameters(filepath: str) -> None:
 
 @beartype
 def run_search_with_progress_bar() -> None:
+    global progress_bar
+
     live_share()
 
     disable_tqdm = args.disable_tqdm or ci_env
@@ -10521,7 +10712,6 @@ def run_search_with_progress_bar() -> None:
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
-        global progress_bar
         progress_bar = _progress_bar
 
         progressbar_description(["Started OmniOpt2 run..."])

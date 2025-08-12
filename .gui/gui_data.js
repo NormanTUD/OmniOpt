@@ -680,6 +680,14 @@ var hiddenTableData = [
 		min: 1,
 	},
 	{
+		label: "Number of parallel worker generators",
+		id: "number_of_generators",
+		type: "number",
+		value: 1,
+		placeholder: "Number of automatic worker generators",
+		min: 1
+	},
+	{
 		label: "Force float ranges to be converted to choice",
 		id: "force_choice_for_ranges",
 		type: "checkbox",

@@ -10508,6 +10508,8 @@ def save_experiment_parameters(filepath: str) -> None:
 
 @beartype
 def run_search_with_progress_bar() -> None:
+    global progress_bar
+
     live_share()
 
     disable_tqdm = args.disable_tqdm or ci_env
@@ -10516,13 +10518,16 @@ def run_search_with_progress_bar() -> None:
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
         write_process_info()
-        global progress_bar
         progress_bar = _progress_bar
 
+        print("CCCCCCCCC")
         progressbar_description(["Started OmniOpt2 run..."])
+        print("DDDDDDDDD")
         update_progress_bar(progress_bar, count_done_jobs() + NR_INSERTED_JOBS)
+        print("EEEEEEEEE")
 
         run_search(progress_bar)
+        print("FFFFFFFFF")
 
     wait_for_jobs_to_complete()
 

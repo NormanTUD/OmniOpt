@@ -9629,7 +9629,6 @@ def load_experiment_state() -> None:
             json.dump(data, f)
 
         ax_client = AxClient.load_from_json_file(temp_path)
-        print(f"Experiment state loaded from {temp_path} (conflicts removed)")
     except Exception as e:
         print(f"Error loading experiment state: {e}")
 

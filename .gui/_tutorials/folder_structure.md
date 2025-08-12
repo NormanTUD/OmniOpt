@@ -207,6 +207,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `time`: The time this job-sbatch has allocated
 - `ui_url.txt`: Contains the URL that this run was started by
 - `experiment_state.json`: A file containing the state singleton of the current experiment
+- `experiment_state.json.no_conflicts.json`: An experiment state without conflicting entries
 - `uuid_of_continued_run`: A file containing a [UUID](https://de.wikipedia.org/wiki/Universally_Unique_Identifier) from the job it has been continued from
 - `force_choice_for_ranges`: Saved if `--force_choice_for_ranges` was set, used in continued jobs
 - `generation_times.txt`: The generation times table

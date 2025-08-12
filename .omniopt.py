@@ -946,7 +946,13 @@ def start_worker_generators() -> None:
             print_yellow(f"Cannot find omniopt script at {omniopt_path}")
             return
 
-        base_command = ["bash", omniopt_path] + sys.argv[1:]
+        def filter_args(args, exclude_params):
+            return [arg for arg in args if all(not arg.startswith(excl) for excl in exclude_params)]
+
+        exclude_params = ["--generate_all_jobs_at_once"]
+        filtered_args = filter_args(sys.argv[1:], exclude_params)
+
+        base_command = ["bash", omniopt_path] + filtered_args
         worker_arg = f"--worker_generator_path={get_current_run_folder()}"
 
         clean_env = copy.deepcopy(os.environ)
@@ -10101,6 +10107,9 @@ def run_program_once(params=None) -> None:
 
         my_exit(57)
 
+def show_omniopt_call():
+    original_print(oo_call + " " + " ".join(sys.argv[1:]))
+
 async def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -10108,7 +10117,8 @@ async def main() -> None:
 
     log_worker_creation()
 
-    original_print(oo_call + " " + " ".join(sys.argv[1:]))
+    show_omniopt_call()
+
     check_slurm_job_id()
 
     debug_vars_unused_by_python_for_linter()

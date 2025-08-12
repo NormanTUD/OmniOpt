@@ -902,7 +902,7 @@ def start_worker_generators() -> None:
 """
 
             # Übergabe des Skripts an sbatch via stdin
-            cmd = ["sbatch"]
+            cmd = ["sbatch", "-N", "1"]
             result = subprocess.run(
                 cmd,
                 input=batch_script,

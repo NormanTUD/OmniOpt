@@ -7904,14 +7904,16 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 if cnt >= n:
                     break
 
+                # 🔹 Arm-Name um eindeutigen Worker-Prefix erweitern (direkt _name setzen)
                 try:
-                    current_name = getattr(arm, "name", None)
+                    current_name = getattr(arm, "_name", None)
                     if not isinstance(current_name, str) or not current_name.strip():
                         new_name = f"{worker_generator_uuid}_{cnt}"
                     else:
                         new_name = f"{worker_generator_uuid}_{current_name}"
 
-                    object.__setattr__(arm, "name", new_name)
+                    # Direkt das interne Attribut setzen, ohne Setter zu triggern
+                    object.__setattr__(arm, "_name", new_name)
 
                 except Exception as name_err:
                     print_red(f"Error while setting the arm name: {name_err}")

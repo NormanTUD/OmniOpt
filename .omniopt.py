@@ -9623,8 +9623,7 @@ def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: in
                 print_debug(f"[ERROR] Timeout: File '{state_path}' was not larger than {min_size} bytes after waiting for {max_wait_seconds} seconds.")
                 return False
 
-            # Statusanzeige im Terminal (ohne Zeilenumbruch)
-            print(f"\r[yellow] File '{state_path}' is too small ({file_size} Bytes), waiting ... {i}s", end="")
+            print_debug(f"\r[yellow] File '{state_path}' is too small ({file_size} Bytes), waiting ... {i}s", end="")
             sys.stdout.flush()
             time.sleep(1)
             i += 1

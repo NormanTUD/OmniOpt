@@ -9604,26 +9604,38 @@ def save_experiment_state() -> None:
 def load_experiment_state() -> None:
     global ax_client
     state_path = get_state_path()
+
     if not os.path.exists(state_path):
         print(f"State file {state_path} does not exist, starting fresh")
+        return
+
+    # Datei-Größe prüfen, um leere/kaputte Dateien zu vermeiden
+    if os.path.getsize(state_path) < 5:
+        print_debug(f"State file {state_path} is empty or too small, ignoring")
         return
 
     try:
         with open(state_path, "r") as f:
             data = json.load(f)
+    except Exception as e:
+        print(f"Could not read valid JSON from {state_path}: {e}")
+        return
 
+    try:
         # Konflikte in arms_by_name auflösen
         arms_seen = {}
         for arm in data.get("arms", []):
-            name = arm["name"]
-            sig = arm["parameters"]  # Signatur grob über Parameter
+            name = arm.get("name")
+            sig = arm.get("parameters")  # grobe Signatur
+            if not name:
+                continue
             if name in arms_seen and arms_seen[name] != sig:
                 new_name = f"{name}_{uuid.uuid4().hex[:6]}"
                 print(f"Renaming conflicting arm '{name}' -> '{new_name}'")
                 arm["name"] = new_name
             arms_seen[name] = sig
 
-        # Gefilterten Zustand wieder zu JSON machen
+        # Gefilterten Zustand speichern und laden
         temp_path = state_path + ".no_conflicts.json"
         with open(temp_path, "w") as f:
             json.dump(data, f)

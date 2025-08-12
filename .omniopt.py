@@ -4878,6 +4878,8 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     if succeeded_jobs() == 0 and failed_jobs() > 0:
         _exit = 89
 
+    force_live_share()
+
     my_exit(_exit)
 
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:

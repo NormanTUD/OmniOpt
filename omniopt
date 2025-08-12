@@ -1886,34 +1886,18 @@ EOF
 							exec 2> >(tee -ia $bash_logname >& 2)
 						fi
 
-						
 						exit_code=$(grep -i "exit-code:*" "$LOG_PATH" \
 							| sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' \
 							| tail -n1 \
 							| tr -d '\r')
 
 						if ! [[ "$exit_code" =~ ^[0-9]+$ ]]; then
+							echo "WARN: exit_code invalid or empty, setting it to 3"
 							exit_code=3
 						fi
 
-						if ! content=$(cat "$LOG_PATH"); then
-							echo "Error: Could not read file '$LOG_PATH'."
-							myexit 3
-						fi
-
-						if ! filtered=$(echo "$content" | grep -i "exit-code:*"); then
-							echo "Error: grep did not find any matching lines."
-							myexit 3
-						fi
-
-						if ! cleaned=$(echo "$filtered" | sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##'); then
-							echo "Error: sed failed to process the data."
-							myexit 3
-						fi
-
-						if ! exit_code=$(echo "$cleaned" | tail -n1); then
-							echo "Error: tail returned no result."
-							myexit 3
+						if (( exit_code != 0 )); then
+							myexit $exit_code
 						fi
 					else
 						red_text "$LOG_PATH could not be found\n"

@@ -9612,15 +9612,15 @@ def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: in
             try:
                 file_size = os.path.getsize(state_path)
             except OSError as e:
-                print(f"[ERROR] File '{state_path}' cannot be read: {e}")
+                print_debug(f"[ERROR] File '{state_path}' cannot be read: {e}")
                 return False
 
             if file_size >= min_size:
-                print(f"[INFO] File '{state_path}' is now large enough ({file_size} Bytes).")
+                print_debug(f"[INFO] File '{state_path}' is now large enough ({file_size} Bytes).")
                 return True
 
             if i >= max_wait_seconds:
-                print(f"[ERROR] Timeout: File '{state_path}' was not larger than {min_size} bytes after waiting for {max_wait_seconds} seconds.")
+                print_debug(f"[ERROR] Timeout: File '{state_path}' was not larger than {min_size} bytes after waiting for {max_wait_seconds} seconds.")
                 return False
 
             # Statusanzeige im Terminal (ohne Zeilenumbruch)

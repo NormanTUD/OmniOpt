@@ -246,36 +246,6 @@ except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
-@beartype
-def _print_stats() -> None:
-    if _total_time == 0:
-        return
-
-    def color_bg(r: int, g: int, b: int, text: str) -> str:
-        return f"\033[48;2;{r};{g};{b}m\033[38;2;255;255;255m{text}\033[0m"
-
-    print("=== Time Stats ===")
-    items = sorted(_func_times.items(), key=lambda x: -x[1])
-    max_t = max(t for _, t in items)
-    min_t = min(t for _, t in items)
-
-    for name, t in items:
-        percent_total = t / _total_time * 100
-        if max_t == min_t:
-            ratio = 0.0
-        else:
-            ratio = (t - min_t) / (max_t - min_t)
-
-        r = int(255 * ratio)
-        g = int(255 * (1 - ratio))
-        b = 0
-
-        time_str = f"{name}: {t:.4f}s ({percent_total:.1f}%)"
-        print(color_bg(r, g, b, time_str))
-
-    print("==================")
-
-@beartype
 def logmytime(func: F) -> F:
     @functools.wraps(func)
     def wrapper(*func_args, **kwargs):
@@ -284,7 +254,7 @@ def logmytime(func: F) -> F:
         result = func(*func_args, **kwargs)
         elapsed = time.perf_counter() - start
 
-        if elapsed >= 0.001:
+        if elapsed >= 0.01:
             _func_times[func.__name__] += elapsed
             _total_time += elapsed
 
@@ -300,13 +270,9 @@ def logmytime(func: F) -> F:
         return result
     return wrapper
 
-@beartype
 def _print_stats() -> None:
     if _total_time == 0:
         return
-
-    def color_bg(r: int, g: int, b: int, text: str) -> str:
-        return f"\033[48;2;{r};{g};{b}m{text}\033[0m"
 
     print("=== Time Stats ===")
     items = sorted(_func_times.items(), key=lambda x: -x[1])
@@ -314,29 +280,21 @@ def _print_stats() -> None:
     min_t = min(t for _, t in items)
 
     for name, t in items:
-        # Anteil an der Gesamtzeit
         percent_total = t / _total_time * 100
-        # Normierung zwischen 0 und 1
         if max_t == min_t:
             ratio = 0.0
         else:
             ratio = (t - min_t) / (max_t - min_t)
 
-        # Interpolation: 0.0 → Grün (0,255,0), 1.0 → Rot (255,0,0)
-        r = int(255 * ratio)
-        g = int(255 * (1 - ratio))
-        b = 0
-
         time_str = f"{name}: {t:.4f}s ({percent_total:.1f}%)"
-        print(color_bg(r, g, b, time_str))
+        print(time_str)
 
     print("==================")
 
-@beartype
+
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args
 
-@beartype
 def makedirs(p: str) -> bool:
     if not os.path.exists(p):
         try:
@@ -378,7 +336,6 @@ random_steps: int = 1
 progress_bar: Optional[tqdm] = None
 error_8_saved: List[str] = []
 
-@beartype
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
@@ -414,13 +371,11 @@ class SignalTERM (Exception):
 class SignalCONT (Exception):
     pass
 
-@beartype
 def is_slurm_job() -> bool:
     if os.environ.get('SLURM_JOB_ID') is not None:
         return True
     return False
 
-@beartype
 def _sleep(t: int) -> int:
     if args is not None and not args.no_sleep:
         try:
@@ -442,7 +397,6 @@ logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
-@beartype
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
 
@@ -456,7 +410,6 @@ def print_red(text: str) -> None:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
 
-@beartype
 def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if _lvl > 3:
         original_print(f"Cannot write _debug, error: {eee}")
@@ -474,7 +427,6 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
 
         _debug(msg, _lvl + 1, e)
 
-@beartype
 def _get_debug_json(time_str: str, msg: str) -> str:
     function_stack = []
     try:
@@ -500,7 +452,6 @@ def _get_debug_json(time_str: str, msg: str) -> str:
         separators=(",", ":")  # no pretty indent → smaller, faster
     ).replace('\r', '').replace('\n', '')
 
-@beartype
 def print_debug(msg: str) -> None:
     original_msg = msg
 
@@ -521,7 +472,6 @@ def print_debug(msg: str) -> None:
     except Exception as e:
         original_print(f"_debug: Error trying to write log file: {e}")
 
-@beartype
 def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
     total_seconds = int(seconds)
 
@@ -539,7 +489,6 @@ def human_time_when_larger_than_a_min(seconds: Union[int, float]) -> str:
         parts.append(f"{secs}s")
     return f"({''.join(parts)})"
 
-@beartype
 def my_exit(_code: int = 0) -> None:
     tb = traceback.format_exc()
 
@@ -569,19 +518,16 @@ def my_exit(_code: int = 0) -> None:
 
     sys.exit(_code)
 
-@beartype
 def print_green(text: str) -> None:
     helpers.print_color("green", text)
 
     print_debug(text)
 
-@beartype
 def print_yellow(text: str) -> None:
     helpers.print_color("yellow", f"{text}")
 
     print_debug(text)
 
-@beartype
 def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> str:
     path = f"{continue_path}/result_min_max.txt"
 
@@ -600,7 +546,6 @@ def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> 
     print_yellow(f"Line {n} did not contain min/max, will be set to {_default_min_max}")
     return _default_min_max
 
-@beartype
 def set_max_eval(new_max_eval: int) -> None:
     global max_eval
 
@@ -608,7 +553,6 @@ def set_max_eval(new_max_eval: int) -> None:
 
     max_eval = new_max_eval
 
-@beartype
 def set_random_steps(new_steps: int) -> None:
     global random_steps
 
@@ -728,7 +672,6 @@ class ConfigLoader:
     just_return_defaults: bool
     run_mode: str
 
-    @beartype
     def __init__(self: Any, _parsing_arguments_loader: Any) -> None:
         self.parser = argparse.ArgumentParser(
             prog="omniopt",
@@ -744,7 +687,6 @@ class ConfigLoader:
 
         self.add_arguments()
 
-    @beartype
     def add_arguments(self: Any) -> None:
         required = self.parser.add_argument_group('Required arguments', 'These options have to be set')
         required_but_choice = self.parser.add_argument_group('Required arguments that allow a choice', 'Of these arguments, one has to be set to continue')
@@ -858,7 +800,6 @@ class ConfigLoader:
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
 
-    @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
             self._parsing_arguments_loader.stop()
@@ -883,7 +824,6 @@ class ConfigLoader:
 
         return {}
 
-    @beartype
     def validate_and_convert(self: Any, config: dict, arg_defaults: dict) -> dict:
         """
         Validates the config data and converts them to the right types based on argparse defaults.
@@ -907,7 +847,6 @@ class ConfigLoader:
 
         return converted_config
 
-    @beartype
     def merge_args_with_config(self: Any, config: Any, cli_args: Any) -> argparse.Namespace:
         """ Merge CLI args with config file args (CLI takes precedence) """
         arg_defaults = {arg.dest: arg.default for arg in self.parser._actions if arg.default is not argparse.SUPPRESS}
@@ -920,7 +859,6 @@ class ConfigLoader:
 
         return cli_args
 
-    @beartype
     def parse_arguments(self: Any) -> argparse.Namespace:
         _args = self.parser.parse_args()
 
@@ -972,7 +910,6 @@ class ConfigLoader:
 
         return _args
 
-@beartype
 def start_worker_generators() -> None:
     if args.worker_generator_path:
         return
@@ -1028,7 +965,6 @@ def start_worker_generators() -> None:
 
     return
 
-@beartype
 def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
     global prepared_setting_to_custom
 
@@ -1057,7 +993,6 @@ if args.seed is not None:
 
     set_rng_seed(args.seed)
 
-@beartype
 def _fatal_error(message: str, code: int) -> None:
     print_red(message)
     my_exit(code)
@@ -1295,7 +1230,6 @@ global_gs: Optional[GenerationStrategy] = None
 
 @dataclass(init=False)
 class RandomForestGenerationNode(ExternalGenerationNode):
-    @beartype
     def __init__(self: Any, regressor_options: Dict[str, Any] = {}, seed: Optional[int] = None, num_samples: int = 1) -> None:
         print_debug("Initializing RandomForestGenerationNode...")
         t_init_start = time.monotonic()
@@ -1316,7 +1250,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         print_debug("Initialized RandomForestGenerationNode")
 
-    @beartype
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
@@ -1345,7 +1278,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         else:
             self.minimize = experiment.optimization_config.objective.minimize
 
-    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> TParameterization:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1368,7 +1300,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         raise RuntimeError("No valid candidate found within constraints.")
 
-    @beartype
     def _is_within_constraints(self: Any, params_list: list) -> bool:
         if self.experiment.search_space.parameter_constraints:
             param_names = list(self.parameters.keys())
@@ -1382,7 +1313,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return True
 
-    @beartype
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:
         ranged_parameters = []
         fixed_values = {}
@@ -1400,7 +1330,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return ranged_parameters, fixed_values, choice_parameters
 
-    @beartype
     def _build_reverse_choice_map(self: Any, choice_parameters: dict) -> dict:
         choice_value_map = {}
         for _, param in choice_parameters.items():
@@ -1408,13 +1337,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 choice_value_map[value] = idx
         return {idx: value for value, idx in choice_value_map.items()}
 
-    @beartype
     def _generate_ranged_samples(self: Any, ranged_parameters: list) -> np.ndarray:
         ranged_bounds = np.array([[low, high] for _, low, high in ranged_parameters])
         unit_samples = np.random.random_sample([self.num_samples, len(ranged_bounds)])
         return ranged_bounds[:, 0] + (ranged_bounds[:, 1] - ranged_bounds[:, 0]) * unit_samples
 
-    @beartype
     def _build_all_samples(self: Any, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> list:
         all_samples = []
         for sample_idx in range(self.num_samples):
@@ -1422,7 +1349,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             all_samples.append(sample)
         return all_samples
 
-    @beartype
     def _build_single_sample(self: Any, sample_idx: int, ranged_parameters: list, ranged_samples: np.ndarray, fixed_values: dict, choice_parameters: dict) -> dict:
         sample = {}
 
@@ -1454,7 +1380,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return sample
 
-    @beartype
     def _cast_value(self: Any, param: Any, name: Any, value: Any) -> Union[int, float]:
         if isinstance(param, RangeParameter) and param.parameter_type == "INT":
             return int(round(value))
@@ -1463,14 +1388,12 @@ class RandomForestGenerationNode(ExternalGenerationNode):
 
         return self._try_convert_to_float(value, name)
 
-    @beartype
     def _try_convert_to_float(self: Any, value: Any, name: str) -> float:
         try:
             return float(value)
         except ValueError as e:
             raise ValueError(f"Parameter '{name}' has a non-numeric value: {value}") from e
 
-    @beartype
     def _build_prediction_matrix(self: Any, all_samples: list) -> np.ndarray:
         x_pred = np.zeros([self.num_samples, len(self.parameters)])
         for sample_idx, sample in enumerate(all_samples):
@@ -1478,7 +1401,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 x_pred[sample_idx, dim] = sample[name]
         return x_pred
 
-    @beartype
     def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:
         for name in best_sample.keys():
             param = self.parameters.get(name)
@@ -1487,7 +1409,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
 
-@beartype
 def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) -> None:
     if param["parameter_type"] == "RANGE":
         _min = param["range"][0]
@@ -1530,7 +1451,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     constraints: Optional[Any]
     fit_time_since_gen: float
 
-    @beartype
     def __init__(                  # identical signature to the original class
         self: Any,
         node_name: str = "INTERACTIVE_GENERATOR",
@@ -1544,7 +1464,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         self.seed = int(time.time())  # deterministic seeds are pointless here
         self.fit_time_since_gen = time.monotonic() - t0
 
-    @beartype
     def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
         self.data = data
         search_space = experiment.search_space
@@ -1559,7 +1478,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
             ParameterType.STRING: "STRING",
         }.get(param_type, "<UNKNOWN>")
 
-    @beartype
     def _default_for_param(self: Any, name: str, param: Any) -> Any:
         # 1. explicit override
         if name.lower() in _DEFAULT_SPECIALS:
@@ -1582,7 +1500,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         # fall back
         return None
 
-    @beartype
     def _ask_user(self: Any, name: str, param: Any, default: Any) -> Any:
         if args.just_return_defaults:
             print_yellow(f"Returning defaults for '{name}' in dry-mode with --just_return_defaults")
@@ -1614,18 +1531,15 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         return self._handle_fallback(prompt_msg, default, param)
 
-    @beartype
     def _handle_fixed(self, param: Any) -> Any:
         return param.value
 
-    @beartype
     def _handle_choice(self, param: Any, default: Any, prompt_msg: str) -> Any:
         choices_str = ", ".join(f"{v}" for v in param.values)
         console.print(f"{prompt_msg} choices → {choices_str}")
         user_val = Prompt.ask("Pick choice", default=str(default))
         return param.values[int(user_val)] if user_val.isdigit() else user_val
 
-    @beartype
     def _handle_range(self, param: Any, default: Any, prompt_msg: str) -> Any:
         low, high = param.lower, param.upper
         console.print(f"{prompt_msg} range → [{low}, {high}]")
@@ -1645,12 +1559,10 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
         return min(max(val, low), high)
 
-    @beartype
     def _handle_fallback(self, prompt_msg: str, default: Any, param: Any) -> Any:
         print_red(f"Unknown type detected: {param}")
         return Prompt.ask(prompt_msg, default=str(default))
 
-    @beartype
     def get_next_candidate(
         self: Any,
         pending_parameters: List[TParameterization],
@@ -1700,7 +1612,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
-    @beartype
     def __init__(self: Any, external_generator: str = args.external_generator, node_name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
@@ -1716,7 +1627,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         print_debug(f"Initialized ExternalProgramGenerationNode in {self.fit_time_since_gen:.4f} seconds")
 
-    @beartype
     def update_generator_state(self: Any, experiment: Any, data: Any) -> None:
         print_debug("Updating generator state...")
 
@@ -1727,7 +1637,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         print_debug("Generator state updated successfully.")
 
-    @beartype
     def _parameter_type_to_string(self: Any, param_type: Any) -> str:
         if param_type == ParameterType.INT:
             return "INT"
@@ -1742,7 +1651,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return ""
 
-    @beartype
     def _serialize_parameters(self: Any, params: dict) -> dict:
         serialized = {}
         for key in params.keys():
@@ -1771,7 +1679,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return serialized
 
-    @beartype
     def _serialize_constraints(self: Any, constraints: Optional[list]) -> Optional[list]:
         parsed_constraints = []
         if constraints and len(constraints):
@@ -1796,7 +1703,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         return temp_dir
 
-    @beartype
     def get_next_candidate(self: Any, pending_parameters: List[TParameterization]) -> Any:
         if self.parameters is None:
             raise RuntimeError("Parameters are not initialized. Call update_generator_state first.")
@@ -1878,7 +1784,6 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
         except Exception as e:
             raise RuntimeError(f"Error getting next candidate: {e}") from e
 
-@beartype
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     try:
         with open(file, mode='a+', encoding="utf-8") as f:
@@ -1905,7 +1810,6 @@ def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
 
     return 0
 
-@beartype
 def run_live_share_command(force: bool = False) -> Tuple[str, str]:
     global shown_run_live_share_command
 
@@ -1939,7 +1843,6 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
 
     return "", ""
 
-@beartype
 def extract_and_print_qr(text: str) -> None:
     match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
     if match:
@@ -1951,7 +1854,6 @@ def extract_and_print_qr(text: str) -> None:
         qr.make()
         qr.print_ascii(out=sys.stdout)
 
-@beartype
 def live_share(force: bool = False) -> bool:
     global SHOWN_LIVE_SHARE_COUNTER
 
@@ -1981,7 +1883,6 @@ def live_share(force: bool = False) -> bool:
 
     return True
 
-@beartype
 def compute_md5_hash(filepath: str) -> Optional[str]:
     if not os.path.exists(filepath):
         return None
@@ -1995,13 +1896,11 @@ def compute_md5_hash(filepath: str) -> Optional[str]:
         print_red(f"Error computing MD5 for {filepath}: {e}")
         return None
 
-@beartype
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
     engine = get_engine()
     create_all_tables(engine)
 
-@beartype
 def try_saving_to_db() -> None:
     try:
         global initialized_storage
@@ -2025,8 +1924,6 @@ def try_saving_to_db() -> None:
     except Exception as e:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
 
-@beartype
-@beartype
 def merge_with_job_infos(pd_frame: pd.DataFrame) -> pd.DataFrame:
     job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
     if not os.path.exists(job_infos_path):
@@ -2094,8 +1991,7 @@ def reindex_trials(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-@beartype
-def save_results_csv() -> Optional[str]:
+def save_results_csv(enable_liveshare=True) -> Optional[str]:
     if args.dryrun:
         return None
 
@@ -2142,13 +2038,13 @@ def save_results_csv() -> Optional[str]:
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
-    new_hash = compute_md5_hash(pd_csv)
-    if old_hash != new_hash:
-        live_share()
+    if enable_liveshare:
+        new_hash = compute_md5_hash(pd_csv)
+        if old_hash != new_hash:
+            live_share()
 
     return pd_csv
 
-@beartype
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
         run_folder = get_current_run_folder()
@@ -2174,7 +2070,6 @@ NR_OF_0_RESULTS: int = 0
 
 orchestrator = None
 
-@beartype
 def print_logo() -> None:
     if os.environ.get('NO_OO_LOGO') is not None:
         return
@@ -2325,7 +2220,6 @@ global_vars["parameter_names"] = []
 
 main_pid = os.getpid()
 
-@beartype
 def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
     global NR_INSERTED_JOBS
 
@@ -2333,7 +2227,6 @@ def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
 
     NR_INSERTED_JOBS = new_nr_inserted_jobs
 
-@beartype
 def write_worker_usage() -> None:
     if len(WORKER_PERCENTAGE_USAGE):
         csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
@@ -2348,7 +2241,6 @@ def write_worker_usage() -> None:
         if is_slurm_job():
             print_debug("WORKER_PERCENTAGE_USAGE seems to be empty. Not writing worker_usage.csv")
 
-@beartype
 def log_system_usage() -> None:
     if not get_current_run_folder():
         return
@@ -2377,14 +2269,12 @@ def log_system_usage() -> None:
 
                     writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
 
-@beartype
 def write_process_info() -> None:
     try:
         log_system_usage()
     except Exception as e:
         print_debug(f"Error retrieving process information: {str(e)}")
 
-@beartype
 def log_nr_of_workers() -> None:
     try:
         write_process_info()
@@ -2415,7 +2305,6 @@ def log_nr_of_workers() -> None:
 
     return None
 
-@beartype
 def log_what_needs_to_be_logged() -> None:
     try:
         log_worker_numbers()
@@ -2440,7 +2329,6 @@ def log_what_needs_to_be_logged() -> None:
         except Exception as e:
             print_debug(f"Error in log_nr_of_workers: {e}")
 
-@beartype
 def get_line_info() -> Any:
     try:
         stack = inspect.stack()
@@ -2471,7 +2359,6 @@ def get_line_info() -> Any:
     except Exception as e:
         return ("<exception in get_line_info>", ":", -1, ":", str(e))
 
-@beartype
 def print_image_to_cli(image_path: str, width: int) -> bool:
     print("")
 
@@ -2502,7 +2389,6 @@ def print_image_to_cli(image_path: str, width: int) -> bool:
 
     return False
 
-@beartype
 def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if not _logfile:
         return None
@@ -2524,27 +2410,21 @@ def log_message_to_file(_logfile: Union[str, None], message: str, _lvl: int = 0,
 
     return None
 
-@beartype
 def _log_trial_index_to_param(trial_index: dict, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_trial_index_to_param_logs, str(trial_index), _lvl, str(eee))
 
-@beartype
 def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_worker_creation_logs, msg, _lvl, str(eee))
 
-@beartype
 def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(_file, result, _lvl, str(eee))
 
-@beartype
 def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, str(eee))
 
-@beartype
 def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
 
-@beartype
 def decode_if_base64(input_str: str) -> str:
     try:
         decoded_bytes = base64.b64decode(input_str)
@@ -2553,7 +2433,6 @@ def decode_if_base64(input_str: str) -> str:
     except Exception:
         return input_str
 
-@beartype
 def get_file_as_string(f: str) -> str:
     datafile: str = ""
     if not os.path.exists(f):
@@ -2593,7 +2472,6 @@ if not args.tests and len(global_vars["joined_run_program"]) == 0 and not args.c
 
 global_vars["experiment_name"] = args.experiment_name
 
-@beartype
 def load_global_vars(_file: str) -> None:
     global global_vars
 
@@ -2605,22 +2483,18 @@ def load_global_vars(_file: str) -> None:
     except Exception as e:
         _fatal_error(f"Error while loading old global_vars: {e}, trying to load {_file}", 44)
 
-@beartype
 def load_or_exit(filepath: str, error_msg: str, exit_code: int) -> None:
     if not os.path.exists(filepath):
         _fatal_error(error_msg, exit_code)
 
-@beartype
 def get_file_content_or_exit(filepath: str, error_msg: str, exit_code: int) -> str:
     load_or_exit(filepath, error_msg, exit_code)
     return get_file_as_string(filepath).strip()
 
-@beartype
 def check_param_or_exit(param: Any, error_msg: str, exit_code: int) -> None:
     if param is None:
         _fatal_error(error_msg, exit_code)
 
-@beartype
 def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
     if continue_previous_job:
         load_global_vars(f"{continue_previous_job}/state_files/global_vars.json")
@@ -2634,7 +2508,6 @@ def check_continue_previous_job(continue_previous_job: Optional[str]) -> dict:
             )
     return global_vars
 
-@beartype
 def check_required_parameters(_args: Any) -> None:
     check_param_or_exit(
         _args.parameter or _args.continue_previous_job or args.calculate_pareto_front_of_job is None or len(args.calculate_pareto_front_of_job) == 0,
@@ -2652,7 +2525,6 @@ def check_required_parameters(_args: Any) -> None:
         19
     )
 
-@beartype
 def load_time_or_exit(_args: Any) -> None:
     if _args.time:
         global_vars["_time"] = _args.time
@@ -2670,7 +2542,6 @@ def load_time_or_exit(_args: Any) -> None:
         if len(args.calculate_pareto_front_of_job) == 0:
             _fatal_error("Missing --time parameter. Cannot continue.", 19)
 
-@beartype
 def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
     if _args.mem_gb:
         return int(_args.mem_gb)
@@ -2690,7 +2561,6 @@ def load_mem_gb_or_exit(_args: Any) -> Optional[int]:
 
     return None
 
-@beartype
 def load_gpus_or_exit(_args: Any) -> Optional[int]:
     if _args.continue_previous_job and not _args.gpus:
         gpus_file = f"{_args.continue_previous_job}/state_files/gpus"
@@ -2703,7 +2573,6 @@ def load_gpus_or_exit(_args: Any) -> Optional[int]:
         print_yellow(f"--gpus: The contents of {gpus_file} do not contain a single number")
     return _args.gpus
 
-@beartype
 def load_max_eval_or_exit(_args: Any) -> None:
     if _args.max_eval:
         set_max_eval(_args.max_eval)
@@ -2744,21 +2613,18 @@ except KeyboardInterrupt:
     print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
     my_exit(0)
 
-@beartype
 def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg: str = f"{time_str}, {got}, {requested}"
 
     _debug_get_next_trials(msg)
 
-@beartype
 def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{time_str} ({worker_generator_uuid}): {msg}"
 
     _debug_progressbar(msg)
 
-@beartype
 def get_process_info(pid: Any) -> str:
     try:
         proc: Optional[psutil.Process] = psutil.Process(pid)
@@ -2784,7 +2650,6 @@ def get_process_info(pid: Any) -> str:
     except Exception as e:
         return f"An unexpected error occurred while retrieving process info: {str(e)}"
 
-@beartype
 def receive_usr_signal(signum: int, stack: Any) -> None:
     """Handle SIGUSR1 signal."""
     siginfo = signal.sigwaitinfo({signum})
@@ -2796,7 +2661,6 @@ def receive_usr_signal(signum: int, stack: Any) -> None:
 
     raise SignalUSR(f"USR1-signal received ({signum})")
 
-@beartype
 def receive_usr_signal_term(signum: int, stack: Any) -> None:
     """Handle SIGTERM signal (termination)."""
     siginfo = signal.sigwaitinfo({signum})
@@ -2808,7 +2672,6 @@ def receive_usr_signal_term(signum: int, stack: Any) -> None:
 
     raise SignalTERM(f"TERM-signal received ({signum})")
 
-@beartype
 def receive_signal_cont(signum: int, stack: Any) -> None:
     """Handle SIGCONT signal (continue)."""
     siginfo = signal.sigwaitinfo({signum})
@@ -2827,7 +2690,6 @@ signal.signal(signal.SIGCONT, receive_signal_cont)
 
 print_debug(f"Current PID: {os.getpid()}")
 
-@beartype
 def is_executable_in_path(executable_name: str) -> bool:
     for path in os.environ.get('PATH', '').split(':'):
         executable_path = os.path.join(path, executable_name)
@@ -2849,7 +2711,6 @@ if not SYSTEM_HAS_SBATCH:
 if SYSTEM_HAS_SBATCH and not args.force_local_execution and args.raw_samples < args.num_parallel_jobs:
     _fatal_error(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.", 48)
 
-@beartype
 def save_global_vars() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     makedirs(state_files_folder)
@@ -2857,7 +2718,6 @@ def save_global_vars() -> None:
     with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
-@beartype
 def check_slurm_job_id() -> None:
     if SYSTEM_HAS_SBATCH:
         slurm_job_id = os.environ.get('SLURM_JOB_ID')
@@ -2869,7 +2729,6 @@ def check_slurm_job_id() -> None:
                 "This may cause the system to slow down for all other users. It is recommended you run the main script in a SLURM-job."
             )
 
-@beartype
 def create_folder_and_file(folder: str) -> str:
     with console.status(f"[bold green]Creating folder {folder}..."):
         print_debug(f"create_folder_and_file({folder})")
@@ -2880,7 +2739,6 @@ def create_folder_and_file(folder: str) -> str:
 
         return file_path
 
-@beartype
 def get_program_code_from_out_file(f: str) -> str:
     if not os.path.exists(f):
         if f.endswith(".err"):
@@ -2904,7 +2762,6 @@ def get_program_code_from_out_file(f: str) -> str:
 
     return ""
 
-@beartype
 def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, int, float], _type: str = "min") -> Optional[Union[np.int64, float]]:
     if not os.path.exists(pd_csv):
         raise FileNotFoundError(f"CSV file {pd_csv} not found")
@@ -2932,7 +2789,6 @@ def get_min_or_max_column_value(pd_csv: str, column: str, _default: Union[None, 
 
     return None
 
-@beartype
 def _get_column_value(pd_csv: str, column: str, default: Union[None, float, int], mode: str) -> Tuple[Optional[Union[int, float]], bool]:
     found_in_file = False
     column_value = get_min_or_max_column_value(pd_csv, column, default, mode)
@@ -2944,7 +2800,6 @@ def _get_column_value(pd_csv: str, column: str, default: Union[None, float, int]
                 return column_value, found_in_file
     return default, found_in_file
 
-@beartype
 def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: Union[None, float, int]) -> Tuple[Optional[Union[int, float]], bool]:
     if not helpers.file_exists(pd_csv):
         print_red(f"'{pd_csv}' was not found")
@@ -2953,7 +2808,6 @@ def get_ret_value_from_pd_csv(pd_csv: str, _type: str, _column: str, _default: U
     mode: str = "min" if _type == "lower" else "max"
     return _get_column_value(pd_csv, _column, _default, mode)
 
-@beartype
 def get_bound_if_prev_data(_type: str, name: str, _default: Union[None, float, int]) -> Union[Tuple[Union[float, int], bool], Any]:
     ret_val = _default
 
@@ -2969,7 +2823,6 @@ def get_bound_if_prev_data(_type: str, name: str, _default: Union[None, float, i
 
     return ret_val, False
 
-@beartype
 def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[Union[int, float], Union[int, float]]:
     if lower_bound > upper_bound:
         print_yellow(f"Lower bound ({lower_bound}) was larger than upper bound ({upper_bound}) for parameter '{name}'. Switched them.")
@@ -2977,7 +2830,6 @@ def switch_lower_and_upper_if_needed(name: Union[list, str], lower_bound: Union[
 
     return lower_bound, upper_bound
 
-@beartype
 def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Tuple[Union[int, float], Union[int, float]]:
     if value_type == "int":
         if not helpers.looks_like_int(lower_bound):
@@ -2992,7 +2844,6 @@ def round_lower_and_upper_if_type_is_int(value_type: str, lower_bound: Union[int
 
     return lower_bound, upper_bound
 
-@beartype
 def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
     try:
         lower_bound = float(this_args[j + 2])
@@ -3006,7 +2857,6 @@ def get_bounds(this_args: Union[str, list], j: int) -> Tuple[float, float]:
 
     return lower_bound, upper_bound
 
-@beartype
 def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> Union[Tuple[float, float], Tuple[int, int]]:
     lower_bound, upper_bound = round_lower_and_upper_if_type_is_int(value_type, lower_bound, upper_bound)
 
@@ -3016,7 +2866,6 @@ def adjust_bounds_for_value_type(value_type: str, lower_bound: Union[int, float]
 
     return lower_bound, upper_bound
 
-@beartype
 def generate_values(name: str, value_type: str, lower_bound: Union[int, float], upper_bound: Union[int, float]) -> list:
     if value_type == "int":
         return [str(i) for i in range(int(lower_bound), int(upper_bound) + 1)] if int(upper_bound) - int(lower_bound) + 1 <= 999 else list(dict.fromkeys([str(round(int(lower_bound) + i * (int(upper_bound) - int(lower_bound)) / 998)) for i in range(999)]))
@@ -3030,7 +2879,6 @@ def generate_values(name: str, value_type: str, lower_bound: Union[int, float], 
 
     raise ValueError("Unsupported value_type")
 
-@beartype
 def create_range_param(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str, log_scale: bool, force_classic: bool = False) -> dict:
     if args.force_choice_for_ranges and not force_classic:
         return {
@@ -3048,7 +2896,6 @@ def create_range_param(name: str, lower_bound: Union[float, int], upper_bound: U
         "log_scale": log_scale
     }
 
-@beartype
 def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], value_type: str) -> dict:
     if lower_bound is None or upper_bound is None:
         _fatal_error("handle_grid_search: lower_bound or upper_bound is None", 91)
@@ -3071,13 +2918,11 @@ def handle_grid_search(name: Union[list, str], lower_bound: Union[float, int], u
         "values": values_str
     }
 
-@beartype
 def get_bounds_from_previous_data(name: str, lower_bound: Union[float, int], upper_bound: Union[float, int]) -> Tuple[Union[float, int], Union[float, int]]:
     lower_bound, _ = get_bound_if_prev_data("lower", name, lower_bound)
     upper_bound, _ = get_bound_if_prev_data("upper", name, upper_bound)
     return lower_bound, upper_bound
 
-@beartype
 def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound: Union[float, int], upper_bound: Union[float, int], search_space_reduction_warning: bool) -> bool:
     old_lower_bound = lower_bound
     old_upper_bound = upper_bound
@@ -3093,7 +2938,6 @@ def check_bounds_change_due_to_previous_job(name: Union[list, str], lower_bound:
 
     return search_space_reduction_warning
 
-@beartype
 def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[int, str, bool]:
     skip = 5
     try:
@@ -3110,7 +2954,6 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
 
     return skip, value_type, log_scale
 
-@beartype
 def parse_range_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
@@ -3147,12 +2990,10 @@ def parse_range_param(classic_params: list, params: list, j: int, this_args: Uni
     j += skip
     return j, params, classic_params, search_space_reduction_warning
 
-@beartype
 def validate_value_type(value_type: str) -> None:
     valid_value_types = ["int", "float"]
     check_if_range_types_are_invalid(value_type, valid_value_types)
 
-@beartype
 def parse_fixed_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
         _fatal_error("⚠ --parameter for type fixed must have 3 parameters: <NAME> fixed <VALUE>", 181)
@@ -3175,7 +3016,6 @@ def parse_fixed_param(classic_params: list, params: list, j: int, this_args: Uni
 
     return j, params, classic_params, search_space_reduction_warning
 
-@beartype
 def parse_choice_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: Union[list, str], search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     if len(this_args) != 3:
         _fatal_error("⚠ --parameter for type choice must have 3 parameters: <NAME> choice <VALUE,VALUE,VALUE,...>", 181)
@@ -3200,14 +3040,12 @@ def parse_choice_param(classic_params: list, params: list, j: int, this_args: Un
 
     return j, params, classic_params, search_space_reduction_warning
 
-@beartype
 def _parse_experiment_parameters_validate_name(name: str, invalid_names: List[str], param_names: List[str]) -> None:
     if name in invalid_names:
         _fatal_error(f"\n⚠ Name for argument is invalid: {name}. Invalid names are: {', '.join(invalid_names)}", 181)
     if name in param_names:
         _fatal_error(f"\n⚠ Parameter name '{name}' is not unique. Names for parameters must be unique!", 181)
 
-@beartype
 def _parse_experiment_parameters_get_param_type(this_args: List[Any], j: int) -> str:
     try:
         return this_args[j + 1]
@@ -3216,7 +3054,6 @@ def _parse_experiment_parameters_get_param_type(this_args: List[Any], j: int) ->
 
     return ""
 
-@beartype
 def _parse_experiment_parameters_parse_this_args(
     this_args: List[Any],
     invalid_names: List[str],
@@ -3253,7 +3090,6 @@ def _parse_experiment_parameters_parse_this_args(
 
     return j, params, classic_params, search_space_reduction_warning
 
-@beartype
 def parse_experiment_parameters() -> None:
     global experiment_parameters
 
@@ -3283,23 +3119,19 @@ def parse_experiment_parameters() -> None:
 
     experiment_parameters = params
 
-@beartype
 def check_factorial_range() -> None:
     if args.model and args.model == "FACTORIAL":
         _fatal_error("\n⚠ --model FACTORIAL cannot be used with range parameter", 181)
 
-@beartype
 def check_if_range_types_are_invalid(value_type: str, valid_value_types: list) -> None:
     if value_type not in valid_value_types:
         valid_value_types_string = ", ".join(valid_value_types)
         _fatal_error(f"⚠ {value_type} is not a valid value type. Valid types for range are: {valid_value_types_string}", 181)
 
-@beartype
 def check_range_params_length(this_args: Union[str, list]) -> None:
     if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
         _fatal_error("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)", 181)
 
-@beartype
 def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
     if upper_bound is None or lower_bound is None:
         _fatal_error("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.", 91)
@@ -3310,7 +3142,6 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
         if upper_bound is not None:
             lower_bound = -upper_bound
 
-@beartype
 def format_value(value: Any, float_format: str = '.80f') -> str:
     try:
         if isinstance(value, float):
@@ -3322,7 +3153,6 @@ def format_value(value: Any, float_format: str = '.80f') -> str:
         print_red(f"⚠ Error formatting the number {value}: {e}")
         return str(value)
 
-@beartype
 def replace_parameters_in_string(
     parameters: dict,
     input_string: str,
@@ -3348,7 +3178,6 @@ def replace_parameters_in_string(
         print_red(f"\n⚠ Error: {e}")
         return ""
 
-@beartype
 def get_memory_usage() -> float:
     user_uid = os.getuid()
 
@@ -3408,7 +3237,6 @@ class MonitorProcess:
         self.running = False
         self.thread.join()
 
-@beartype
 def execute_bash_code_log_time(code: str) -> list:
     process_item = subprocess.Popen(code, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
@@ -3427,7 +3255,6 @@ def execute_bash_code_log_time(code: str) -> list:
                 real_exit_code = 1
             return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-@beartype
 def execute_bash_code(code: str) -> list:
     try:
         result = subprocess.run(
@@ -3472,7 +3299,6 @@ def execute_bash_code(code: str) -> list:
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
-@beartype
 def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[str, Optional[float]], List[float]]]:
     if input_string is None:
         if not args.tests:
@@ -3510,20 +3336,17 @@ def get_results(input_string: Optional[Union[int, str]]) -> Optional[Union[Dict[
 
     return None
 
-@beartype
 def add_to_csv(file_path: str, new_heading: list, new_data: list) -> None:
     new_data = [helpers.to_int_when_possible(x) for x in new_data]
     formatted_data = _add_to_csv_format_data(new_data)
     _add_to_csv_with_lock(file_path, new_heading, formatted_data)
 
-@beartype
 def _add_to_csv_format_data(new_data: List[object]) -> List[object]:
     return [
         ("{:.20f}".format(x).rstrip('0').rstrip('.')) if isinstance(x, float) else x
         for x in new_data
     ]
 
-@beartype
 def _add_to_csv_with_lock(file_path: str, new_heading: list, formatted_data: list) -> None:
     lockfile = file_path + ".lock"
     if not _add_to_csv_acquire_lock(lockfile, os.path.dirname(file_path)):
@@ -3533,7 +3356,6 @@ def _add_to_csv_with_lock(file_path: str, new_heading: list, formatted_data: lis
     finally:
         _add_to_csv_release_lock(lockfile)
 
-@beartype
 def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
     wait_time = 0.01
     max_wait = 30.0  # seconds
@@ -3552,14 +3374,12 @@ def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
             return False
     return False
 
-@beartype
 def _add_to_csv_release_lock(lockfile: str) -> None:
     try:
         os.unlink(lockfile)
     except FileNotFoundError:
         pass
 
-@beartype
 def _add_to_csv_handle_file(file_path: str, new_heading: list, formatted_data: list) -> None:
     if not os.path.exists(file_path):
         _add_to_csv_create_new_file(file_path, new_heading, formatted_data)
@@ -3576,14 +3396,12 @@ def _add_to_csv_handle_file(file_path: str, new_heading: list, formatted_data: l
     else:
         _add_to_csv_append_row(file_path, existing_heading, new_heading, formatted_data)
 
-@beartype
 def _add_to_csv_create_new_file(file_path: str, heading: list, data: list) -> None:
     with open(file_path, 'w', encoding="utf-8", newline='') as f:
         writer = csv.writer(f)
         writer.writerow(heading)
         writer.writerow(data)
 
-@beartype
 def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading: list, all_headings: list, new_heading: list, formatted_data: list) -> None:
     tmp_fd, tmp_path = tempfile.mkstemp(dir=os.path.dirname(file_path), suffix=".csv")
     with os.fdopen(tmp_fd, 'w', encoding="utf-8", newline='') as tmp_file:
@@ -3600,7 +3418,6 @@ def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading:
         ])
     shutil.move(tmp_path, file_path)
 
-@beartype
 def _add_to_csv_append_row(file_path: str, existing_heading: list, new_heading: list, formatted_data: list) -> None:
     with open(file_path, 'a', encoding="utf-8", newline='') as f:
         writer = csv.writer(f)
@@ -3609,7 +3426,6 @@ def _add_to_csv_append_row(file_path: str, existing_heading: list, new_heading: 
             for h in existing_heading
         ])
 
-@beartype
 def find_file_paths(_text: str) -> List[str]:
     file_paths = []
 
@@ -3624,7 +3440,6 @@ def find_file_paths(_text: str) -> List[str]:
 
     return []
 
-@beartype
 def check_file_info(file_path: str) -> str:
     if not os.path.exists(file_path):
         if not args.tests:
@@ -3667,7 +3482,6 @@ def check_file_info(file_path: str) -> str:
 
     return string
 
-@beartype
 def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
     file_paths = find_file_paths(_text)
 
@@ -3685,7 +3499,6 @@ def find_file_paths_and_print_infos(_text: str, program_code: str) -> str:
 
     return string
 
-@beartype
 def write_failed_logs(data_dict: Optional[dict], error_description: str = "") -> None:
     headers = []
     data = []
@@ -3729,7 +3542,6 @@ def write_failed_logs(data_dict: Optional[dict], error_description: str = "") ->
     except Exception as e:
         print_red(f"Unexpected error: {e}")
 
-@beartype
 def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None) -> list:
     if file_path is None:
         file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
@@ -3753,7 +3565,6 @@ def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None)
         print(f"An error has occurred: {e}")
         return []
 
-@beartype
 def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]:
     if SYSTEM_HAS_SBATCH and args.gpus >= 1 and args.auto_exclude_defective_hosts and not args.force_local_execution:
         try:
@@ -3770,7 +3581,6 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
 
     return None
 
-@beartype
 def extract_info(data: Optional[str]) -> Tuple[List[str], List[str]]:
     if data is None:
         return [], []
@@ -3788,7 +3598,6 @@ def extract_info(data: Optional[str]) -> Tuple[List[str], List[str]]:
 
     return names, values
 
-@beartype
 def ignore_signals() -> None:
     signal.signal(signal.SIGUSR1, signal.SIG_IGN)
     signal.signal(signal.SIGUSR2, signal.SIG_IGN)
@@ -3796,7 +3605,6 @@ def ignore_signals() -> None:
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
 
-@beartype
 def calculate_signed_harmonic_distance(_args: Union[dict, List[Union[int, float]]]) -> Union[int, float]:
     if not _args or len(_args) == 0:
         return 0
@@ -3809,13 +3617,11 @@ def calculate_signed_harmonic_distance(_args: Union[dict, List[Union[int, float]
 
     return sign * harmonic_mean
 
-@beartype
 def calculate_signed_euclidean_distance(_args: Union[dict, List[float]]) -> float:
     _sum = sum(a ** 2 for a in _args)
     sign = -1 if any(a < 0 for a in _args) else 1
     return sign * math.sqrt(_sum)
 
-@beartype
 def calculate_signed_geometric_distance(_args: Union[dict, List[float]]) -> float:
     product: float = 1
     for a in _args:
@@ -3827,7 +3633,6 @@ def calculate_signed_geometric_distance(_args: Union[dict, List[float]]) -> floa
     geometric_mean: float = product ** (1 / len(_args)) if _args else 0
     return sign * geometric_mean
 
-@beartype
 def calculate_signed_minkowski_distance(_args: Union[dict, List[float]], p: Union[int, float] = 2) -> float:
     if p <= 0:
         raise ValueError("p must be greater than 0.")
@@ -3836,7 +3641,6 @@ def calculate_signed_minkowski_distance(_args: Union[dict, List[float]], p: Unio
     minkowski_sum: float = sum(abs(a) ** p for a in _args) ** (1 / p)
     return sign * minkowski_sum
 
-@beartype
 def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]], weights_string: str) -> float:
     pattern = r'^\s*-?\d+(\.\d+)?\s*(,\s*-?\d+(\.\d+)?\s*)*$'
 
@@ -3865,7 +3669,6 @@ def calculate_signed_weighted_euclidean_distance(_args: Union[dict, List[float]]
 class invalidOccType(Exception):
     pass
 
-@beartype
 def calculate_occ(_args: Optional[Union[dict, List[Union[int, float]]]]) -> Union[int, float]:
     if _args is None or len(_args) == 0:
         return VAL_IF_NOTHING_FOUND
@@ -3883,7 +3686,6 @@ def calculate_occ(_args: Optional[Union[dict, List[Union[int, float]]]]) -> Unio
 
     raise invalidOccType(f"Invalid OCC (optimization with combined criteria) type {args.occ_type}. Valid types are: {joined_valid_occ_types}")
 
-@beartype
 def get_return_in_case_of_errors() -> dict:
     return_in_case_of_error = {}
 
@@ -3898,7 +3700,6 @@ def get_return_in_case_of_errors() -> dict:
 
     return return_in_case_of_error
 
-@beartype
 def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     str_parameters_values = _write_job_infos_csv_parameters_to_str(parameters)
     extra_vars_names, extra_vars_values = _write_job_infos_csv_extract_extra_vars(stdout)
@@ -3926,15 +3727,12 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     else:
         print_debug(f"evaluate: get_current_run_folder() {run_folder} could not be found")
 
-@beartype
 def _write_job_infos_csv_parameters_to_str(parameters: dict) -> List[str]:
     return [str(v) for v in list(parameters.values())]
 
-@beartype
 def _write_job_infos_csv_extract_extra_vars(stdout: Optional[str]) -> Tuple[List[str], List[str]]:
     return extract_info(stdout)
 
-@beartype
 def _write_job_infos_csv_add_slurm_job_id(extra_vars_names: List[str], extra_vars_values: List[str]) -> Tuple[List[str], List[str]]:
     _SLURM_JOB_ID = os.getenv('SLURM_JOB_ID')
     if _SLURM_JOB_ID:
@@ -3942,7 +3740,6 @@ def _write_job_infos_csv_add_slurm_job_id(extra_vars_names: List[str], extra_var
         extra_vars_values.append(str(_SLURM_JOB_ID))
     return extra_vars_names, extra_vars_values
 
-@beartype
 def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_names: List[str]) -> List[str]:
     return [
         "start_time",
@@ -3957,7 +3754,6 @@ def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_n
         *extra_vars_names
     ]
 
-@beartype
 def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]]) -> List[str]:
     result_values: List[str] = []
 
@@ -3972,7 +3768,6 @@ def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Opti
 
     return result_values
 
-@beartype
 def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], program_string_with_params: str, str_parameters_values: List[str], result_values: List[str], exit_code: Optional[int], _signal: Optional[int], extra_vars_values: List[str]) -> List[str]:
     return [
         str(int(start_time)),
@@ -3987,7 +3782,6 @@ def _write_job_infos_csv_build_values(start_time: Union[int, float], end_time: U
         *extra_vars_values
     ]
 
-@beartype
 def _write_job_infos_csv_replace_none_with_str(elements: Optional[List[str]]) -> List[str]:
     if elements is None:
         return []
@@ -3999,7 +3793,6 @@ def _write_job_infos_csv_replace_none_with_str(elements: Optional[List[str]]) ->
             result.append(element)
     return result
 
-@beartype
 def print_evaluate_times() -> None:
     file_path = f"{get_current_run_folder()}/job_infos.csv"
 
@@ -4061,14 +3854,12 @@ def print_evaluate_times() -> None:
                 overview.write(f"Average Time: {avg_time:.2f} sec\n")
                 overview.write(f"Median Time: {median_time:.2f} sec\n")
 
-@beartype
 def print_debug_infos(program_string_with_params: str) -> None:
     string = find_file_paths_and_print_infos(program_string_with_params, program_string_with_params)
 
     if not args.tests:
         original_print("Debug-Infos:", string)
 
-@beartype
 def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> None:
     if not args.tests:
         if stdout:
@@ -4081,7 +3872,6 @@ def print_stdout_and_stderr(stdout: Optional[str], stderr: Optional[str]) -> Non
         else:
             original_print("stderr was empty")
 
-@beartype
 def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, stdout: Optional[str], stderr: Optional[str], exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[float, int], end_time: Union[float, int], run_time: Union[float, int], final_result: dict, trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     if not args.tests:
         original_print(f"Parameters: {json.dumps(parameters)}")
@@ -4102,7 +3892,6 @@ def _evaluate_print_stuff(parameters: dict, program_string_with_params: str, std
     if not args.tests:
         original_print(f"EXIT_CODE: {exit_code}")
 
-@beartype
 def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]:
     result = get_results(stdout)
 
@@ -4114,7 +3903,6 @@ def get_results_with_occ(stdout: str) -> Union[int, float, Optional[Union[Dict[s
 
     return result
 
-@beartype
 def get_signal_name(sig: BaseException, signal_messages: dict) -> str:
     try:
         signal_name_candidates = [k for k, v in signal_messages.items() if isinstance(sig, v)]
@@ -4126,7 +3914,6 @@ def get_signal_name(sig: BaseException, signal_messages: dict) -> str:
         signal_name = f"ERROR_IDENTIFYING_SIGNAL({e})"
     return signal_name
 
-@beartype
 def get_result_sem(stdout: Optional[str], name: str) -> Optional[float]:
     if stdout is None:
         print_red("get_result_sem: stdout is None")
@@ -4149,7 +3936,6 @@ def get_result_sem(stdout: Optional[str], name: str) -> Optional[float]:
 
     return None
 
-@beartype
 def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None, list]) -> Optional[Union[tuple, int, float, list]]:
     sem = get_result_sem(stdout, name)
     if sem:
@@ -4157,7 +3943,6 @@ def attach_sem_to_result(stdout: str, name: str, value: Union[int, float, None, 
 
     return value
 
-@beartype
 def die_for_debug_reasons() -> None:
     max_done_str = os.getenv("DIE_AFTER_THIS_NR_OF_DONE_JOBS")
     if max_done_str is not None:
@@ -4168,14 +3953,12 @@ def die_for_debug_reasons() -> None:
         except ValueError:
             print_red(f"Invalid value for DIE_AFTER_THIS_NR_OF_DONE_JOBS: '{max_done_str}', cannot be converted to int")
 
-@beartype
 def _evaluate_preprocess_parameters(parameters: dict) -> dict:
     return {
         k: (int(float(v)) if isinstance(v, (int, float, str)) and re.fullmatch(r'^\d+(\.0+)?$', str(v)) else v)
         for k, v in parameters.items()
     }
 
-@beartype
 def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
     return {
         "USR1-signal": SignalUSR,
@@ -4183,7 +3966,6 @@ def _evaluate_create_signal_map() -> Dict[str, type[BaseException]]:
         "INT-signal": SignalINT
     }
 
-@beartype
 def sanitize_for_evaluate_handle_result(val: Optional[Union[int, float, list, tuple]]) -> Optional[Union[float, Tuple]]:
     if val is None:
         return None
@@ -4197,7 +3979,6 @@ def sanitize_for_evaluate_handle_result(val: Optional[Union[int, float, list, tu
         return val
     raise TypeError(f"Unexpected result type: {type(val)}")
 
-@beartype
 def _evaluate_handle_result(
     stdout: str,
     result: Optional[Union[int, float, dict, list]],
@@ -4226,11 +4007,9 @@ def _evaluate_handle_result(
 
     return final_result
 
-@beartype
 def is_valid_result(result: Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]) -> bool:
     return result is not None and (isinstance(result, (int, float)) or (isinstance(result, list) and all(isinstance(x, (int, float)) and x is not None for x in result)) or (isinstance(result, dict) and all(isinstance(v, (int, float)) and v is not None for v in result.values())))
 
-@beartype
 def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optional[int], result: Union[int, float, Optional[Union[Dict[str, Optional[float]], List[float]]]]) -> None:
     stdout_txt = get_file_as_string(stdout_path)
     stderr_txt = get_file_as_string(stderr_path)
@@ -4260,7 +4039,6 @@ def pretty_process_output(stdout_path: str, stderr_path: str, exit_code: Optiona
         print("\n")
         console.print("[dim]No output captured.[/dim]")
 
-@beartype
 def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     parameters = parameters_with_trial_index["params"]
     trial_index = parameters_with_trial_index["trial_idx"]
@@ -4324,7 +4102,6 @@ def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Di
 
     return final_result
 
-@beartype
 def custom_warning_handler(
     message: Union[Warning, str],
     category: Type[Warning],
@@ -4336,7 +4113,6 @@ def custom_warning_handler(
     warning_message = f"{category.__name__}: {message} (in {filename}, line {lineno})"
     print_debug(f"{file}:{line}: {warning_message}")
 
-@beartype
 def disable_logging() -> None:
     if args.verbose:
         return
@@ -4421,7 +4197,6 @@ def disable_logging() -> None:
 
         fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 
-@beartype
 def display_failed_jobs_table() -> None:
     failed_jobs_file = f"{get_current_run_folder()}/failed_logs"
     header_file = os.path.join(failed_jobs_file, "headers.csv")
@@ -4468,7 +4243,6 @@ def display_failed_jobs_table() -> None:
     except Exception as e:
         print_red(f"Error: {str(e)}")
 
-@beartype
 def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None:
     if not helpers.looks_like_int(_width):
         print_red(f"Error: {_width} does not look like an int")
@@ -4494,7 +4268,6 @@ def plot_command(_command: str, tmp_file: str, _width: str = "1300") -> None:
     else:
         print_debug(f"{tmp_file} not found, error: {str(error)}")
 
-@beartype
 def replace_string_with_params(input_string: str, params: list) -> str:
     try:
         replaced_string = input_string
@@ -4511,7 +4284,6 @@ def replace_string_with_params(input_string: str, params: list) -> str:
 
     return ""
 
-@beartype
 def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize: bool) -> Tuple[Optional[Union[str, np.ndarray]], Optional[Union[str, np.ndarray, int, float]]]:
     best_line: Optional[str] = None
     best_result: Optional[str] = None
@@ -4535,7 +4307,6 @@ def get_best_line_and_best_result(nparray: np.ndarray, result_idx: int, maximize
 
     return best_line, best_result
 
-@beartype
 def get_res_name_is_maximized(res_name: str) -> bool:
     idx = -1
 
@@ -4559,7 +4330,6 @@ def get_res_name_is_maximized(res_name: str) -> bool:
 
     return maximize
 
-@beartype
 def get_best_params_from_csv(res_name: str = "RESULT") -> Optional[dict]:
     maximize = get_res_name_is_maximized(res_name)
 
@@ -4604,14 +4374,12 @@ def get_best_params_from_csv(res_name: str = "RESULT") -> Optional[dict]:
 
     return results
 
-@beartype
 def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
     if os.path.exists(RESULT_CSV_FILE):
         return get_best_params_from_csv(res_name)
 
     return None
 
-@beartype
 def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED", "SOBOL"]:
         print_red(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
@@ -4658,22 +4426,18 @@ def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
 
     return count
 
-@beartype
 def _count_sobol_steps(this_csv_file_path: str) -> int:
     return _count_sobol_or_completed(this_csv_file_path, "SOBOL")
 
-@beartype
 def _count_done_jobs(this_csv_file_path: str) -> int:
     return _count_sobol_or_completed(this_csv_file_path, "COMPLETED")
 
-@beartype
 def count_sobol_steps() -> int:
     if os.path.exists(RESULT_CSV_FILE):
         return _count_sobol_steps(RESULT_CSV_FILE)
 
     return 0
 
-@beartype
 def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
@@ -4685,7 +4449,6 @@ def get_random_steps_from_prev_job() -> int:
 
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
 
-@beartype
 def failed_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
 
@@ -4693,14 +4456,12 @@ def failed_jobs(nr: int = 0) -> int:
 
     return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
 
-@beartype
 def count_done_jobs() -> int:
     if os.path.exists(RESULT_CSV_FILE):
         return _count_done_jobs(RESULT_CSV_FILE)
 
     return 0
 
-@beartype
 def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
     plot_types: list = []
 
@@ -4732,11 +4493,9 @@ def get_plot_types(x_y_combinations: list, _force: bool = False) -> list:
 
     return plot_types
 
-@beartype
 def get_x_y_combinations_parameter_names() -> list:
     return list(combinations(global_vars["parameter_names"], 2))
 
-@beartype
 def get_plot_filename(plot: dict, _tmp: str) -> str:
     j = 0
     _fn = plot.get("filename", plot["type"])
@@ -4748,7 +4507,6 @@ def get_plot_filename(plot: dict, _tmp: str) -> str:
 
     return tmp_file
 
-@beartype
 def build_command(plot_type: str, plot: dict, _force: bool) -> str:
     maindir = os.path.dirname(os.path.realpath(__file__))
     base_command = "bash omniopt_plot" if _force else f"bash {maindir}/omniopt_plot"
@@ -4759,7 +4517,6 @@ def build_command(plot_type: str, plot: dict, _force: bool) -> str:
 
     return command
 
-@beartype
 def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
     _show_sixel_graphics = args.show_sixel_scatter or args.show_sixel_general or args.show_sixel_scatter or args.show_sixel_trial_index_result
 
@@ -4809,7 +4566,6 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
 
     return data
 
-@beartype
 def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_file: str, _width: str) -> List[List[str]]:
     plot_commands: List[List[str]] = []
     if "params" in plot.keys():
@@ -4845,7 +4601,6 @@ def get_plot_commands(_command: str, plot: dict, _tmp: str, plot_type: str, tmp_
 
     return plot_commands
 
-@beartype
 def plot_sixel_imgs() -> None:
     if ci_env:
         print("Not printing sixel graphics in CI")
@@ -4863,7 +4618,6 @@ def plot_sixel_imgs() -> None:
         for command in commands:
             plot_command(*command)
 
-@beartype
 def get_crf() -> str:
     crf = get_current_run_folder()
     if crf in ["", None]:
@@ -4872,12 +4626,10 @@ def get_crf() -> str:
         return ""
     return crf
 
-@beartype
 def write_to_file(file_path: str, content: str) -> None:
     with open(file_path, mode="a+", encoding="utf-8") as text_file:
         text_file.write(content)
 
-@beartype
 def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], total_str: str, failed_error_str: str) -> Optional[Table]:
     arg_result_min_or_max_index = arg_result_names.index(res_name)
 
@@ -4906,14 +4658,12 @@ def create_result_table(res_name: str, best_params: Optional[Dict[str, Any]], to
         print_red(f"create_result_table: Error {e}")
     return None
 
-@beartype
 def print_and_write_table(table: Table, print_to_file: bool, file_path: str) -> None:
     with console.capture() as capture:
         console.print(table)
     if print_to_file:
         write_to_file(file_path, capture.get())
 
-@beartype
 def process_best_result(res_name: str, print_to_file: bool) -> int:
     best_params = get_best_params_from_csv(res_name)
     best_result = best_params.get(res_name, NO_RESULT) if best_params else NO_RESULT
@@ -4938,7 +4688,6 @@ def process_best_result(res_name: str, print_to_file: bool) -> int:
 
     return 0
 
-@beartype
 def _print_best_result(print_to_file: bool = True) -> int:
     global SHOWN_END_TABLE
 
@@ -4958,14 +4707,12 @@ def _print_best_result(print_to_file: bool = True) -> int:
 
     return 0
 
-@beartype
 def print_best_result() -> int:
     if os.path.exists(RESULT_CSV_FILE):
         return _print_best_result(True)
 
     return 0
 
-@beartype
 def show_end_table_and_save_end_files() -> int:
     print_debug("show_end_table_and_save_end_files()")
 
@@ -5002,7 +4749,6 @@ def show_end_table_and_save_end_files() -> int:
 
     return _exit
 
-@beartype
 def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
     if job:
         try:
@@ -5022,14 +4768,12 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
 
     return False
 
-@beartype
 def abandon_all_jobs() -> None:
     for job, trial_index in global_vars["jobs"][:]:
         abandoned = abandon_job(job, trial_index, "abandon_all_jobs was called")
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
-@beartype
 def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
     if args.dryrun:
         print_debug("Not showing Pareto-frontier data with --dryrun")
@@ -5044,7 +4788,6 @@ def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_resul
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
     return None
 
-@beartype
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
 
@@ -5104,7 +4847,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     my_exit(_exit)
 
-@beartype
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3:
         if eee:
@@ -5126,7 +4868,6 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
-@beartype
 def get_tmp_file_from_json(experiment_args: dict) -> str:
     _tmp_dir = "/tmp"
 
@@ -5143,7 +4884,6 @@ def get_tmp_file_from_json(experiment_args: dict) -> str:
 
     return f"/{_tmp_dir}/{k}"
 
-@beartype
 def extract_differences(old: Dict[str, Any], new: Dict[str, Any], prefix: str = "") -> List[str]:
     differences = []
     for key in old:
@@ -5159,7 +4899,6 @@ def extract_differences(old: Dict[str, Any], new: Dict[str, Any], prefix: str = 
                 differences.append(f"{prefix}{key} from {old_value} to {new_value}")
     return differences
 
-@beartype
 def compare_parameters(old_param_json: str, new_param_json: str) -> str:
     try:
         old_param = json.loads(old_param_json)
@@ -5177,7 +4916,6 @@ def compare_parameters(old_param_json: str, new_param_json: str) -> str:
     except Exception as e:
         return f"Error: {str(e)}"
 
-@beartype
 def get_ax_param_representation(data: dict) -> dict:
     if data["type"] == "range":
         parameter_type = data["value_type"].upper()
@@ -5222,7 +4960,6 @@ def get_ax_param_representation(data: dict) -> dict:
 
     return {}
 
-@beartype
 def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> Tuple[dict, str, str]:
     gpu_string = ""
     gpu_color = "green"
@@ -5264,12 +5001,10 @@ def set_torch_device_to_experiment_args(experiment_args: Union[None, dict]) -> T
 
     return {}, gpu_string, gpu_color
 
-@beartype
 def die_with_47_if_file_doesnt_exists(_file: str) -> None:
     if not os.path.exists(_file):
         _fatal_error(f"Cannot find {_file}", 47)
 
-@beartype
 def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
@@ -5279,7 +5014,6 @@ def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
         if not os.path.exists(new_state_file):
             shutil.copy(old_state_file, new_state_file)
 
-@beartype
 def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_order: list, variables: list, equation: str) -> Tuple[bool, bool, list, list]:
     return_totally = False
 
@@ -5318,7 +5052,6 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
 
     return return_totally, comparer_found, parsed, parsed_order
 
-@beartype
 def is_valid_equation(expr: str, allowed_vars: list) -> bool:
     try:
         node = ast.parse(expr, mode='eval')
@@ -5384,7 +5117,6 @@ def is_valid_equation(expr: str, allowed_vars: list) -> bool:
 
     return True
 
-@beartype
 def is_ax_compatible_constraint(equation: str, variables: List[str]) -> Union[str, bool]:
     equation = equation.replace("\\*", "*")
     equation = equation.replace(" * ", "*")
@@ -5439,7 +5171,6 @@ def is_ax_compatible_constraint(equation: str, variables: List[str]) -> Union[st
 
     return True
 
-@beartype
 def check_equation(variables: list, equation: str) -> Union[str, bool]:
     print_debug(f"check_equation({variables}, {equation})")
 
@@ -5502,7 +5233,6 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
 
     return False
 
-@beartype
 def set_objectives() -> dict:
     objectives = {}
 
@@ -5530,7 +5260,6 @@ def set_objectives() -> dict:
 
     return objectives
 
-@beartype
 def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, _experiment_parameters: Union[dict, list]) -> dict:
     if experiment_constraints and len(experiment_constraints):
 
@@ -5562,7 +5291,6 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
     return experiment_args
 
-@beartype
 def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> None:
     if args.worker_generator_path:
         return None
@@ -5609,7 +5337,6 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 
     return None
 
-@beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:
     global experiment_parameters
 
@@ -5625,7 +5352,6 @@ def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: 
         if _die:
             my_exit(47)
 
-@beartype
 def get_username() -> str:
     _user = os.getenv('USER')
 
@@ -5637,7 +5363,6 @@ def get_username() -> str:
 
     return _user
 
-@beartype
 def copy_continue_uuid() -> None:
     source_file = os.path.join(args.continue_previous_job, "state_files", "run_uuid")
     destination_file = os.path.join(get_current_run_folder(), "state_files", "continue_from_run_uuid")
@@ -5651,7 +5376,6 @@ def copy_continue_uuid() -> None:
     else:
         print_debug(f"copy_continue_uuid: Source file does not exist: {source_file}")
 
-@beartype
 def load_ax_client_from_experiment_parameters() -> None:
     #pprint(experiment_parameters)
     global ax_client
@@ -5661,7 +5385,6 @@ def load_ax_client_from_experiment_parameters() -> None:
     ax_client = cast(AxClient, ax_client)
     os.unlink(tmp_file_path)
 
-@beartype
 def save_checkpoint_for_continued() -> None:
     state_files_folder = f"{get_current_run_folder()}/state_files"
     checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
@@ -5674,7 +5397,6 @@ def save_checkpoint_for_continued() -> None:
     if not os.path.exists(checkpoint_filepath):
         _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
 
-@beartype
 def load_original_generation_strategy(original_ax_client_file: str) -> None:
     with open(original_ax_client_file, encoding="utf-8") as f:
         loaded_original_ax_client_json = json.load(f)
@@ -5683,7 +5405,6 @@ def load_original_generation_strategy(original_ax_client_file: str) -> None:
         if original_generation_strategy:
             experiment_parameters["generation_strategy"] = original_generation_strategy
 
-@beartype
 def wait_for_checkpoint_file(checkpoint_file: str) -> None:
     start_time = time.time()
 
@@ -5695,12 +5416,10 @@ def wait_for_checkpoint_file(checkpoint_file: str) -> None:
     elapsed = int(time.time() - start_time)
     console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
 
-@beartype
 def __get_experiment_parameters__check_ax_client() -> None:
     if not ax_client:
         _fatal_error("Something went wrong with the ax_client", 9)
 
-@beartype
 def validate_experiment_parameters() -> None:
     if experiment_parameters is None:
         print_red("Error: experiment_parameters is None.")
@@ -5721,7 +5440,6 @@ def validate_experiment_parameters() -> None:
             print_red(f"Error: Missing key '{key}' at level: {current_level}")
             my_exit(95)
 
-@beartype
 def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[list]) -> Tuple[Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
@@ -5772,7 +5490,6 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     return experiment_args, gpu_string, gpu_color
 
-@beartype
 def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str]:
     objectives = set_objectives()
 
@@ -5810,7 +5527,6 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
 
     return experiment_args, gpu_string, gpu_color
 
-@beartype
 def get_experiment_parameters(cli_params_experiment_parameters: Optional[list]) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
@@ -5823,7 +5539,6 @@ def get_experiment_parameters(cli_params_experiment_parameters: Optional[list]) 
 
     return ax_client, experiment_args, gpu_string, gpu_color
 
-@beartype
 def get_type_short(typename: str) -> str:
     if typename == "RangeParameter":
         return "range"
@@ -5833,7 +5548,6 @@ def get_type_short(typename: str) -> str:
 
     return typename
 
-@beartype
 def parse_single_experiment_parameter_table(classic_params: Optional[Union[list, dict]]) -> list:
     rows: list = []
 
@@ -5900,7 +5614,6 @@ def parse_single_experiment_parameter_table(classic_params: Optional[Union[list,
 
     return rows
 
-@beartype
 def print_non_ax_parameter_constraints_table() -> None:
     if not post_generation_constraints:
         return None
@@ -5930,7 +5643,6 @@ def print_non_ax_parameter_constraints_table() -> None:
 
     return None
 
-@beartype
 def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
     if not (experiment_args is not None and "parameter_constraints" in experiment_args and len(experiment_args["parameter_constraints"])):
         return None
@@ -5961,7 +5673,6 @@ def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
 
     return None
 
-@beartype
 def print_result_names_overview_table() -> None:
     if not ax_client:
         _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
@@ -6007,7 +5718,6 @@ def print_result_names_overview_table() -> None:
 
     return None
 
-@beartype
 def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: list) -> None:
     table = Table(header_style="bold", title="Experiment parameters")
     for column in filtered_columns:
@@ -6031,7 +5741,6 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
     except FileNotFoundError as e:
         print_red(f"Error trying to write file {fn}: {e}")
 
-@beartype
 def print_experiment_parameters_table(classic_param: Optional[Union[list, dict]]) -> None:
     if not classic_param:
         print_red("Cannot determine classic_param. No parameter table will be shown.")
@@ -6062,7 +5771,6 @@ def print_experiment_parameters_table(classic_param: Optional[Union[list, dict]]
 
     print_experiment_param_table_to_file(filtered_columns, filtered_data)
 
-@beartype
 def print_overview_tables(classic_params: Optional[Union[list, dict]], experiment_args: dict) -> None:
     print_experiment_parameters_table(classic_params)
 
@@ -6071,14 +5779,12 @@ def print_overview_tables(classic_params: Optional[Union[list, dict]], experimen
 
     print_result_names_overview_table()
 
-@beartype
 def update_progress_bar(_progress_bar: Any, nr: int) -> None:
     #print(f"update_progress_bar(_progress_bar, {nr})")
     #traceback.print_stack()
 
     _progress_bar.update(nr)
 
-@beartype
 def get_current_model() -> str:
     if overwritten_to_random:
         return "Random*"
@@ -6096,7 +5802,6 @@ def get_current_model() -> str:
 
     return "initializing model"
 
-@beartype
 def get_best_params_str(res_name: str = "RESULT") -> str:
     if count_done_jobs() >= 0:
         best_params = get_best_params(res_name)
@@ -6109,7 +5814,6 @@ def get_best_params_str(res_name: str = "RESULT") -> str:
                     return f"{res_name}: {best_result_int_if_possible}"
     return ""
 
-@beartype
 def state_from_job(job: Union[str, Job]) -> str:
     job_string = f'{job}'
     match = re.search(r'state="([^"]+)"', job_string)
@@ -6123,7 +5827,6 @@ def state_from_job(job: Union[str, Job]) -> str:
 
     return state
 
-@beartype
 def get_workers_string() -> str:
     string = ""
 
@@ -6171,13 +5874,11 @@ def get_workers_string() -> str:
 
     return string
 
-@beartype
 def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
-@beartype
 def count_jobs_in_squeue() -> Tuple[int, str]:
     _len = len(global_vars["jobs"])
 
@@ -6213,7 +5914,6 @@ def count_jobs_in_squeue() -> Tuple[int, str]:
 
     return -1, err_msg
 
-@beartype
 def log_worker_numbers() -> None:
     if is_slurm_job():
         nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
@@ -6234,7 +5934,6 @@ def log_worker_numbers() -> None:
         if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
             WORKER_PERCENTAGE_USAGE.append(this_values)
 
-@beartype
 def get_slurm_in_brackets(in_brackets: list) -> list:
     if is_slurm_job():
         log_worker_numbers()
@@ -6245,7 +5944,6 @@ def get_slurm_in_brackets(in_brackets: list) -> list:
 
     return in_brackets
 
-@beartype
 def get_types_of_errors_string() -> str:
     types_of_errors_str = ""
 
@@ -6256,11 +5954,9 @@ def get_types_of_errors_string() -> str:
 
     return types_of_errors_str
 
-@beartype
 def capitalized_string(s: str) -> str:
     return s[0].upper() + s[1:] if s else ""
 
-@beartype
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     global progress_bar_length
 
@@ -6293,13 +5989,11 @@ def get_desc_progress_text(new_msgs: List[str] = []) -> str:
 
     return capitalized
 
-@beartype
 def _get_desc_progress_text_failed_jobs() -> List[str]:
     if failed_jobs():
         return [f"{helpers.bcolors.red}failed: {failed_jobs()}{get_types_of_errors_string()}{helpers.bcolors.endc}"]
     return []
 
-@beartype
 def _get_desc_progress_text_best_params() -> List[str]:
     best_params_res = [
         get_best_params_str(res_name) for res_name in arg_result_names if get_best_params_str(res_name)
@@ -6311,7 +6005,6 @@ def _get_desc_progress_text_best_params() -> List[str]:
 
     return []
 
-@beartype
 def _get_desc_progress_text_submitted_jobs() -> List[str]:
     result = []
     if submitted_jobs():
@@ -6320,11 +6013,9 @@ def _get_desc_progress_text_submitted_jobs() -> List[str]:
             result.append(f"max_eval: {max_eval}")
     return result
 
-@beartype
 def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
     return [msg for msg in new_msgs if msg]
 
-@beartype
 def progressbar_description(new_msgs: List[str] = []) -> None:
     global last_progress_bar_desc
 
@@ -6338,7 +6029,6 @@ def progressbar_description(new_msgs: List[str] = []) -> None:
 
             last_progress_bar_desc = desc
 
-@beartype
 def clean_completed_jobs() -> None:
     job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "failed", "preempted", "node_fail", "boot_fail"]
     job_states_to_be_ignored = ["ready", "completed", "unknown", "pending", "running", "completing", "out_of_memory", "requeued", "resv_del_hold"]
@@ -6357,7 +6047,6 @@ def clean_completed_jobs() -> None:
 
             print_red(f"Job {job}, state not in ['{job_states_to_be_removed_string}'], which would be removed from the job list, or ['{job_states_to_be_ignored_string}'], which would be ignored: {_state}")
 
-@beartype
 def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0
 
@@ -6392,7 +6081,6 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
 
     return _counter
 
-@beartype
 def get_nr_of_imported_jobs() -> int:
     nr_jobs: int = 0
 
@@ -6401,12 +6089,10 @@ def get_nr_of_imported_jobs() -> int:
 
     return nr_jobs
 
-@beartype
 def load_existing_job_data_into_ax_client() -> None:
     nr_of_imported_jobs = get_nr_of_imported_jobs()
     set_nr_inserted_jobs(NR_INSERTED_JOBS + nr_of_imported_jobs)
 
-@beartype
 def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:
     if not _error_message:
         return None
@@ -6468,7 +6154,6 @@ def parse_csv(csv_path: str) -> Tuple[List, List]:
 
     return arm_params_list, results_list
 
-@beartype
 def get_generation_node_for_index(
     this_csv_file_path: str,
     arm_params_list: List[Dict[str, Any]],
@@ -6498,7 +6183,6 @@ def get_generation_node_for_index(
         print(f"Error while get_generation_node_for_index: {e}")
         return "MANUAL"
 
-@beartype
 def _get_generation_node_for_index_index_valid(
     index: int,
     arm_params_list: List[Dict[str, Any]],
@@ -6506,7 +6190,6 @@ def _get_generation_node_for_index_index_valid(
 ) -> bool:
     return 0 <= index < len(arm_params_list) and index < len(results_list)
 
-@beartype
 def _get_generation_node_for_index_combine_dicts(
     dict1: Dict[str, Any],
     dict2: Dict[str, Any]
@@ -6516,7 +6199,6 @@ def _get_generation_node_for_index_combine_dicts(
     combined.update(dict2)
     return combined
 
-@beartype
 def _get_generation_node_for_index_find_generation_node(
     csv_file_path: str,
     target_combined: Dict[str, Any]
@@ -6532,7 +6214,6 @@ def _get_generation_node_for_index_find_generation_node(
 
     return "MANUAL"
 
-@beartype
 def _get_generation_node_for_index_row_matches(
     row: Dict[str, str],
     target_combined: Dict[str, Any]
@@ -6551,7 +6232,6 @@ def _get_generation_node_for_index_row_matches(
 
     return True
 
-@beartype
 def _get_generation_node_for_index_floats_match(
     val: Union[int, float],
     row_val_str: str,
@@ -6563,7 +6243,6 @@ def _get_generation_node_for_index_floats_match(
         return False
     return abs(row_val_num - val) <= tolerance
 
-@beartype
 def insert_jobs_from_csv(this_csv_file_path: str) -> None:
     if not os.path.exists(this_csv_file_path):
         print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
@@ -6640,36 +6319,30 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
         set_max_eval(max_eval + cnt)
         set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 
-@beartype
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
     if __status and base_str:
         __status.update(f"{base_str}: {new_text}")
 
-@beartype
 def __insert_job_into_ax_client__check_ax_client() -> None:
     if ax_client is None or not ax_client:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
-@beartype
 def __insert_job_into_ax_client__attach_trial(arm_params: dict) -> Tuple[Any, int]:
     new_trial = ax_client.attach_trial(arm_params)
     if not isinstance(new_trial, tuple) or len(new_trial) < 2:
         raise RuntimeError("attach_trial didn't return the expected tuple")
     return new_trial
 
-@beartype
 def __insert_job_into_ax_client__get_trial(trial_idx: int) -> Any:
     trial = ax_client.experiment.trials.get(trial_idx)
     if trial is None:
         raise RuntimeError(f"Trial with index {trial_idx} not found")
     return trial
 
-@beartype
 def __insert_job_into_ax_client__create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> GeneratorRun:
     arm = Arm(parameters=arm_params, name=f'{trial_idx}_0')
     return GeneratorRun(arms=[arm], generation_node_name=new_job_type)
 
-@beartype
 def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
     if f"{result}" != "":
         __insert_job_into_ax_client__update_status(__status, base_str, "Completing trial")
@@ -6687,14 +6360,12 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
     else:
         __insert_job_into_ax_client__update_status(__status, base_str, "Found trial without result. Not adding it.")
 
-@beartype
 def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
     if not args.worker_generator_path:
         __insert_job_into_ax_client__update_status(__status, base_str, "Saving results.csv")
-        save_results_csv()
+        save_results_csv(False)
         __insert_job_into_ax_client__update_status(__status, base_str, "Saved results.csv")
 
-@beartype
 def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
     parsed_error = parse_parameter_type_error(e)
     if parsed_error is not None:
@@ -6713,7 +6384,6 @@ def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dic
     print_red("Could not parse error while trying to insert_job_into_ax_client")
     return False
 
-@beartype
 def insert_job_into_ax_client(
     arm_params: dict,
     result: dict,
@@ -6754,7 +6424,6 @@ def insert_job_into_ax_client(
 
     return False
 
-@beartype
 def get_first_line_of_file(file_paths: List[str]) -> str:
     first_line: str = ""
     if len(file_paths):
@@ -6771,7 +6440,6 @@ def get_first_line_of_file(file_paths: List[str]) -> str:
 
     return first_line
 
-@beartype
 def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[str]) -> List[str]:
     if "Exec format error" in file_as_string:
         current_platform = platform.machine()
@@ -6787,7 +6455,6 @@ def find_exec_errors(errors: List[str], file_as_string: str, file_paths: List[st
 
     return errors
 
-@beartype
 def check_for_basic_string_errors(file_as_string: str, first_line: str, file_paths: List[str], program_code: str) -> List[str]:
     errors: List[str] = []
 
@@ -6813,7 +6480,6 @@ def check_for_basic_string_errors(file_as_string: str, first_line: str, file_pat
 
     return errors
 
-@beartype
 def get_base_errors() -> list:
     base_errors: list = [
         "Segmentation fault",
@@ -6824,7 +6490,6 @@ def get_base_errors() -> list:
 
     return base_errors
 
-@beartype
 def check_for_base_errors(file_as_string: str) -> list:
     errors: list = []
     for err in get_base_errors():
@@ -6838,7 +6503,6 @@ def check_for_base_errors(file_as_string: str) -> list:
             print_red(f"Wrong type, should be list or string, is {type(err)}")
     return errors
 
-@beartype
 def get_exit_codes() -> dict:
     return {
         "3": "Command Invoked Cannot Execute - Permission problem or command is not an executable",
@@ -6878,7 +6542,6 @@ def get_exit_codes() -> dict:
         "159": "Terminated by SIGSYS - Termination by the SIGSYS signal"
     }
 
-@beartype
 def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
     errors: List[str] = []
     for r in range(1, 255):
@@ -6891,7 +6554,6 @@ def check_for_non_zero_exit_codes(file_as_string: str) -> List[str]:
             errors.append(_error)
     return errors
 
-@beartype
 def get_python_errors() -> List[List[str]]:
     synerr: str = "Python syntax error detected. Check log file."
 
@@ -6964,7 +6626,6 @@ def get_python_errors() -> List[List[str]]:
         ["fatal error", "A general fatal error occurred (non-specific). See logs."],
     ]
 
-@beartype
 def get_first_line_of_file_that_contains_string(stdout_path: str, s: str) -> str:
     stdout_path = check_alternate_path(stdout_path)
     if not os.path.exists(stdout_path):
@@ -6992,7 +6653,6 @@ def get_first_line_of_file_that_contains_string(stdout_path: str, s: str) -> str
 
     return ""
 
-@beartype
 def check_for_python_errors(stdout_path: str, file_as_string: str) -> List[str]:
     stdout_path = check_alternate_path(stdout_path)
     errors: List[str] = []
@@ -7010,7 +6670,6 @@ def check_for_python_errors(stdout_path: str, file_as_string: str) -> List[str]:
 
     return errors
 
-@beartype
 def get_errors_from_outfile(stdout_path: str) -> List[str]:
     stdout_path = check_alternate_path(stdout_path)
     file_as_string = get_file_as_string(stdout_path)
@@ -7047,7 +6706,6 @@ def get_errors_from_outfile(stdout_path: str) -> List[str]:
 
     return errors
 
-@beartype
 def print_outfile_analyzed(stdout_path: str) -> None:
     stdout_path = check_alternate_path(stdout_path)
     errors = get_errors_from_outfile(stdout_path)
@@ -7079,7 +6737,6 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
         print_red(out_files_string)
 
-@beartype
 def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
     stdout_path = check_alternate_path(stdout_path)
     try:
@@ -7097,7 +6754,6 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
 
     return None
 
-@beartype
 def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
     if stdout_path is None:
         return None
@@ -7115,7 +6771,6 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
         print(f"There was an error: {e}")
         return None
 
-@beartype
 def add_to_global_error_list(msg: str) -> None:
     crf = get_current_run_folder()
 
@@ -7133,7 +6788,6 @@ def add_to_global_error_list(msg: str) -> None:
             with open(error_file_path, mode='w', encoding="utf-8") as file:
                 file.write(f"{msg}\n")
 
-@beartype
 def read_errors_from_file() -> list:
     error_file_path = f'{get_current_run_folder()}/result_errors.log'
     if os.path.exists(error_file_path):
@@ -7142,7 +6796,6 @@ def read_errors_from_file() -> list:
         return [error.strip() for error in errors]
     return []
 
-@beartype
 def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
     print_debug(f"Marking trial {_trial} as failed")
     try:
@@ -7158,7 +6811,6 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 
     return None
 
-@beartype
 def _finish_job_core_helper_check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
     possible_val_not_found_values = [
         VAL_IF_NOTHING_FOUND,
@@ -7169,7 +6821,6 @@ def _finish_job_core_helper_check_valid_result(result: Union[None, list, int, fl
     values_to_check = result if isinstance(result, list) else [result]
     return result is not None and all(r not in possible_val_not_found_values for r in values_to_check)
 
-@beartype
 def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -> None:
     if ax_client is None:
         print_red("ax_client is not defined in _finish_job_core_helper_complete_trial")
@@ -7189,7 +6840,6 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
 
     return None
 
-@beartype
 def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Union[float, int, tuple]) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
@@ -7201,11 +6851,10 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
 
     log_what_needs_to_be_logged()
 
-    save_results_csv()
+    save_results_csv(False)
 
     live_share()
 
-@beartype
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
     if ax_client is None:
         print_red("ax_client is not defined in _finish_job_core_helper_mark_failure")
@@ -7227,7 +6876,6 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
 
     return None
 
-@beartype
 def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     die_for_debug_reasons()
 
@@ -7262,7 +6910,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
 
     return this_jobs_finished
 
-@beartype
 def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -> None:
     if ax_client is None:
         print_red("ax_client is not defined in _finish_job_core_helper_mark_failure")
@@ -7288,7 +6935,6 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
 
     return None
 
-@beartype
 def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:
     if "None for metric" in str(error):
         print_red(
@@ -7301,7 +6947,6 @@ def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, er
     _finish_previous_jobs_helper_handle_failed_job(job, trial_index)
     return 1
 
-@beartype
 def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     try:
         this_jobs_finished = finish_job_core(job, trial_index, this_jobs_finished)
@@ -7314,7 +6959,6 @@ def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jo
         this_jobs_finished += _finish_previous_jobs_helper_handle_exception(job, trial_index, error)
     return this_jobs_finished
 
-@beartype
 def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if job is None:
         print_debug(f"finish_previous_jobs: job {job} is None")
@@ -7328,12 +6972,10 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
 
     return this_jobs_finished
 
-@beartype
 def _finish_previous_jobs_helper_wrapper(__args: Tuple[Any, int]) -> int:
     job, trial_index = __args
     return _finish_previous_jobs_helper_check_and_process(job, trial_index, 0)
 
-@beartype
 def finish_previous_jobs(new_msgs: List[str] = []) -> None:
     global JOBS_FINISHED
 
@@ -7366,7 +7008,8 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
-    save_results_csv()
+    save_results_csv(True if this_jobs_finished > 0 else False)
+
     save_checkpoint()
 
     if this_jobs_finished > 0:
@@ -7376,7 +7019,6 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
     clean_completed_jobs()
     return None
 
-@beartype
 def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
     stdout_path = check_alternate_path(stdout_path)
     alt_path = None
@@ -7387,7 +7029,6 @@ def get_alt_path_for_orchestrator(stdout_path: str) -> Optional[str]:
 
     return alt_path
 
-@beartype
 def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]]:
     stdout_path = check_alternate_path(stdout_path)
     if not orchestrator or "errors" not in orchestrator:
@@ -7399,7 +7040,6 @@ def check_orchestrator(stdout_path: str, trial_index: int) -> Optional[List[str]
 
     return _check_orchestrator_find_behaviors(stdout, orchestrator["errors"])
 
-@beartype
 def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index: int) -> Optional[str]:
     stdout_path = check_alternate_path(stdout_path)
     try:
@@ -7416,7 +7056,6 @@ def _check_orchestrator_read_stdout_with_fallback(stdout_path: str, trial_index:
         _check_orchestrator_register_missing_file(stdout_path, trial_index)
         return None
 
-@beartype
 def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int) -> None:
     stdout_path = check_alternate_path(stdout_path)
     if stdout_path not in ORCHESTRATE_TODO:
@@ -7425,7 +7064,6 @@ def _check_orchestrator_register_missing_file(stdout_path: str, trial_index: int
     else:
         print_red(f"File not found: {stdout_path}, not trying again")
 
-@beartype
 def _check_orchestrator_find_behaviors(stdout: str, errors: List[Dict[str, Any]]) -> List[str]:
     behaviors: List[str] = []
     stdout_lower = stdout.lower()
@@ -7443,7 +7081,6 @@ def _check_orchestrator_find_behaviors(stdout: str, errors: List[Dict[str, Any]]
 
     return behaviors
 
-@beartype
 def get_exit_code_from_stderr_or_stdout_path(stderr_path: str, stdout_path: str) -> Optional[int]:
     def extract_last_exit_code(path: str) -> Optional[int]:
         try:
@@ -7461,7 +7098,6 @@ def get_exit_code_from_stderr_or_stdout_path(stderr_path: str, stdout_path: str)
 
     return extract_last_exit_code(stderr_path)
 
-@beartype
 def pretty_print_job_output(job: Job) -> None:
     stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
     stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
@@ -7470,7 +7106,6 @@ def pretty_print_job_output(job: Job) -> None:
 
     pretty_process_output(stdout_path, stderr_path, exit_code, result)
 
-@beartype
 def get_stderr_or_stdout_from_job(job: Job, path_type: str) -> str:
     if path_type == "stderr":
         _path = str(job.paths.stderr.resolve())
@@ -7488,7 +7123,6 @@ def get_stderr_or_stdout_from_job(job: Job, path_type: str) -> str:
 
     return _path
 
-@beartype
 def orchestrate_job(job: Job, trial_index: int) -> None:
     stdout_path = get_stderr_or_stdout_from_job(job, "stdout")
     stderr_path = get_stderr_or_stdout_from_job(job, "stderr")
@@ -7505,7 +7139,6 @@ def orchestrate_job(job: Job, trial_index: int) -> None:
         if old_behavs is not None:
             del ORCHESTRATE_TODO[todo_stdout_file]
 
-@beartype
 def is_already_in_defective_nodes(hostname: str) -> bool:
     file_path = os.path.join(get_current_run_folder(), "state_files", "defective_nodes")
 
@@ -7526,7 +7159,6 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
 
     return False
 
-@beartype
 def submit_new_job(parameters: Union[dict, str], trial_index: int):
     print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
@@ -7540,7 +7172,6 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int):
 
     return new_job
 
-@beartype
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if executor and ax_client:
         new_job = submit_new_job(parameters, trial_index)
@@ -7559,7 +7190,6 @@ def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> 
     else:
         _fatal_error("executor or ax_client could not be found properly", 9)
 
-@beartype
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     stdout_path = check_alternate_path(stdout_path)
     if hostname_from_out_file:
@@ -7571,7 +7201,6 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
     else:
         print_red(f"Cannot do ExcludeNode because the host could not be determined from {stdout_path}")
 
-@beartype
 def handle_restart(stdout_path: str, trial_index: int) -> None:
     stdout_path = check_alternate_path(stdout_path)
     parameters = get_parameters_from_outfile(stdout_path)
@@ -7580,7 +7209,6 @@ def handle_restart(stdout_path: str, trial_index: int) -> None:
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
-@beartype
 def check_alternate_path(path: str) -> str:
     if os.path.exists(path):
         return path
@@ -7594,7 +7222,6 @@ def check_alternate_path(path: str) -> str:
         return alt_path
     return path
 
-@beartype
 def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: Union[None, str], trial_index: int) -> None:
     stdout_path = check_alternate_path(stdout_path)
     if hostname_from_out_file:
@@ -7607,7 +7234,6 @@ def handle_restart_on_different_node(stdout_path: str, hostname_from_out_file: U
     else:
         print_red(f"Cannot do RestartOnDifferentNode because the host could not be determined from {stdout_path}")
 
-@beartype
 def _orchestrate(stdout_path: str, trial_index: int) -> None:
     stdout_path = check_alternate_path(stdout_path)
 
@@ -7631,7 +7257,6 @@ def _orchestrate(stdout_path: str, trial_index: int) -> None:
         else:
             _fatal_error(f"Orchestrator: {behav} not yet implemented!", 210)
 
-@beartype
 def write_continue_run_uuid_to_file() -> None:
     if args.continue_previous_job:
         continue_dir = args.continue_previous_job
@@ -7641,7 +7266,6 @@ def write_continue_run_uuid_to_file() -> None:
 
             write_state_file("uuid_of_continued_run", str(continue_from_uuid))
 
-@beartype
 def save_state_files() -> None:
     if len(args.calculate_pareto_front_of_job) == 0:
         with console.status("[bold green]Saving state files..."):
@@ -7665,7 +7289,6 @@ def save_state_files() -> None:
             if args.force_choice_for_ranges:
                 write_state_file("force_choice_for_ranges", str(args.main_process_gb))
 
-@beartype
 def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, phase = _params
@@ -7707,7 +7330,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
         progressbar_description(["started new job"])
 
-        save_results_csv()
+        save_results_csv(False)
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -7719,20 +7342,17 @@ def execute_evaluation(_params: list) -> Optional[int]:
     add_to_phase_counter(phase, 1)
     return trial_counter
 
-@beartype
 def initialize_job_environment() -> None:
     progressbar_description(["starting new job"])
     set_sbatch_environment()
     exclude_defective_nodes()
 
-@beartype
 def set_sbatch_environment() -> None:
     if args.reservation:
         os.environ['SBATCH_RESERVATION'] = args.reservation
     if args.account:
         os.environ['SBATCH_ACCOUNT'] = args.account
 
-@beartype
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
@@ -7741,7 +7361,6 @@ def exclude_defective_nodes() -> None:
         else:
             _fatal_error("executor could not be found", 9)
 
-@beartype
 def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Optional[Job]) -> None:
     if "QOSMinGRES" in str(error) and args.gpus == 0:
         print_red("\n⚠ It seems like, on the chosen partition, you need at least one GPU. Use --gpus=1 (or more) as parameter.")
@@ -7764,7 +7383,6 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
 
     return None
 
-@beartype
 def cancel_failed_job(trial_index: int, new_job: Job) -> None:
     print_debug("Trying to cancel job that failed")
     if new_job:
@@ -7780,28 +7398,24 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         print_debug(f"cancel_failed_job: removing job {new_job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
-        save_results_csv()
+        save_results_csv(False)
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
-@beartype
 def handle_exit_signal() -> None:
     print_red("\n⚠ Detected signal. Will exit.")
     end_program(False, 1)
 
-@beartype
 def handle_generic_error(e: Union[Exception, str]) -> None:
     tb = traceback.format_exc()
     print(tb)
     print_red(f"\n⚠ Starting job failed with error: {e}")
 
-@beartype
 def succeeded_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-@beartype
 def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None:
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
@@ -7826,7 +7440,6 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
 
     console.print(table)
 
-@beartype
 def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
     _ret = False
 
@@ -7861,7 +7474,6 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
 
     return _ret
 
-@beartype
 def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
@@ -7870,13 +7482,11 @@ def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: in
         num_parallel_jobs - currently_running_jobs
     )
 
-@beartype
 def remove_extra_spaces(text: str) -> str:
     if not isinstance(text, str):
         raise ValueError("Input must be a string")
     return re.sub(r'\s+', ' ', text).strip()
 
-@beartype
 def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: List[float]) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     ret = ""
@@ -7914,7 +7524,6 @@ def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, tri
 
     return ret
 
-@beartype
 def has_no_post_generation_constraints_or_matches_constraints(_post_generation_constraints: list, params: dict) -> bool:
     if not _post_generation_constraints or len(_post_generation_constraints) == 0:
         return True
@@ -7937,7 +7546,6 @@ def has_no_post_generation_constraints_or_matches_constraints(_post_generation_c
 
     return True
 
-@beartype
 def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
     if ax_client is None:
         _fatal_error("Error: ax_client is not defined", 101)
@@ -7946,14 +7554,12 @@ def die_101_if_no_ax_client_or_experiment_or_gs() -> None:
     elif global_gs is None:
         _fatal_error("Error: global_gs is not defined", 101)
 
-@beartype
 def deduplicated_arm(arm: Any) -> bool:
     if arm.name in arms_by_name_for_deduplication:
         return True
 
     return False
 
-@beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
     batched_arms: list = []
     attempts = 0
@@ -7997,12 +7603,10 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
-    # Experiment-Status speichern
-    save_results_csv()  # Bestehender Aufruf
+    save_results_csv()
 
     return batched_arms
 
-@beartype
 def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[Dict[int, Any], bool]:
     die_101_if_no_ax_client_or_experiment_or_gs()
 
@@ -8014,7 +7618,6 @@ def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple
 
     return _generate_trials(nr_of_jobs_to_get, recursion)
 
-@beartype
 def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     trials_dict: Dict[int, Any] = {}
     trial_durations: List[float] = []
@@ -8066,7 +7669,6 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
 class TrialRejected(Exception):
     pass
 
-@beartype
 def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:
         print_red("ax_client is None in _create_and_handle_trial")
@@ -8109,7 +7711,6 @@ def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     end = time.time()
     return trial_index, float(end - start), True
 
-@beartype
 def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float) -> Tuple[Dict[int, Any], bool]:
     total_time = time.time() - start_time
 
@@ -8121,7 +7722,6 @@ def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, 
 
     return trials_dict, False
 
-@beartype
 def _handle_generation_failure(
     e: Exception,
     requested: int,
@@ -8150,14 +7750,12 @@ def _handle_generation_failure(
 
     return {}, True
 
-@beartype
 def _print_exhaustion_warning(e: Exception, recursion: bool) -> None:
     if not recursion and args.revert_to_random_when_seemingly_exhausted:
         print_yellow(f"\n⚠Error 8: {e} From now (done jobs: {count_done_jobs()}) on, random points will be generated.")
     else:
         print_red(f"\n⚠Error 8: {e}")
 
-@beartype
 def get_model_kwargs() -> dict:
     if 'Cont_X_trans_Y_trans' in args.transforms:
         return {
@@ -8171,7 +7769,6 @@ def get_model_kwargs() -> dict:
 
     return {}
 
-@beartype
 def get_model_gen_kwargs() -> dict:
     return {
         "model_gen_options": {
@@ -8198,7 +7795,6 @@ def get_model_gen_kwargs() -> dict:
         "fit_out_of_design": args.fit_out_of_design
     }
 
-@beartype
 def set_global_gs_to_random() -> None:
     global global_gs
     global overwritten_to_random
@@ -8222,7 +7818,6 @@ def set_global_gs_to_random() -> None:
 
     print_debug(f"New global_gs: {global_gs}")
 
-@beartype
 def save_table_as_text(table: Table, filepath: str) -> None:
     try:
         with open(filepath, "w", encoding="utf-8") as file:
@@ -8235,7 +7830,6 @@ def save_table_as_text(table: Table, filepath: str) -> None:
     except Exception as e:
         print_debug(f"save_table_as_text: error at writing the file '{filepath}': {e}")
 
-@beartype
 def show_time_debugging_table() -> None:
     if not args.dryrun:
         generate_time_table_rich()
@@ -8244,7 +7838,6 @@ def show_time_debugging_table() -> None:
 
         live_share()
 
-@beartype
 def generate_time_table_rich() -> None:
     if not isinstance(log_gen_times, list):
         print_debug("generate_time_table_rich: Error: log_gen_times is not a list.")
@@ -8303,7 +7896,6 @@ def generate_time_table_rich() -> None:
     filepath = os.path.join(folder, filename)
     save_table_as_text(table, filepath)
 
-@beartype
 def validate_job_submit_data(durations: List[float], job_counts: List[int]) -> bool:
     if not durations or not job_counts:
         print_debug("No durations or job counts to display.")
@@ -8315,7 +7907,6 @@ def validate_job_submit_data(durations: List[float], job_counts: List[int]) -> b
 
     return True
 
-@beartype
 def convert_durations_to_float(raw_durations: List) -> List[float] | None:
     try:
         return [float(val) for val in raw_durations]
@@ -8323,7 +7914,6 @@ def convert_durations_to_float(raw_durations: List) -> List[float] | None:
         print_debug(f"Invalid float in durations: {e}")
         return None
 
-@beartype
 def convert_job_counts_to_int(raw_counts: List) -> List[int] | None:
     try:
         return [int(val) for val in raw_counts]
@@ -8331,7 +7921,6 @@ def convert_job_counts_to_int(raw_counts: List) -> List[int] | None:
         print_debug(f"Invalid int in job counts: {e}")
         return None
 
-@beartype
 def build_job_submission_table(durations: List[float], job_counts: List[int]) -> Table:
     table = Table(show_header=True, header_style="bold", title="Job submission durations")
     table.add_column("Batch", justify="right")
@@ -8352,13 +7941,11 @@ def build_job_submission_table(durations: List[float], job_counts: List[int]) ->
 
     return table
 
-@beartype
 def export_table_to_file(table: Table, filename: str) -> None:
     folder = get_current_run_folder()
     filepath = os.path.join(folder, filename)
     save_table_as_text(table, filepath)
 
-@beartype
 def generate_job_submit_table_rich() -> None:
     if not isinstance(job_submit_durations, list) or not isinstance(job_submit_nrs, list):
         print_debug("job_submit_durations or job_submit_nrs is not a list.")
@@ -8380,7 +7967,6 @@ def generate_job_submit_table_rich() -> None:
 
     export_table_to_file(table, "job_submit_durations.txt")
 
-@beartype
 def plot_times_for_creation_and_submission() -> None:
     if not args.show_generation_and_submission_sixel:
         return
@@ -8401,7 +7987,6 @@ def plot_times_for_creation_and_submission() -> None:
         title="Model Generation Times vs Number of Jobs"
     )
 
-@beartype
 def plot_times_vs_jobs_sixel(
     times: List[float],
     job_counts: List[int],
@@ -8440,7 +8025,6 @@ def plot_times_vs_jobs_sixel(
 
     plt.close(fig)
 
-@beartype
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
     """Handles the np.linalg.LinAlgError based on the model being used."""
     if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
@@ -8448,7 +8032,6 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
     else:
         print_red(f"Error: {error}")
 
-@beartype
 def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
@@ -8480,7 +8063,6 @@ def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
 
         return None, True
 
-@beartype
 def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
     if not SYSTEM_HAS_SBATCH:
         return 1
@@ -8557,7 +8139,6 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     return requested
 
-@beartype
 def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
     available_models = list(ax.modelbridge.registry.Generators.__members__.keys())
@@ -8575,7 +8156,6 @@ def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
 
     return chosen_model
 
-@beartype
 def get_matching_model_name(model_name: str) -> Optional[str]:
     if not isinstance(model_name, str):
         return None
@@ -8587,7 +8167,6 @@ def get_matching_model_name(model_name: str) -> Optional[str]:
 
     return model_map.get(model_name_lower, None)
 
-@beartype
 def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
     gen_strat_list = []
 
@@ -8620,7 +8199,6 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
 
     return gen_strat_list, sum_nr
 
-@beartype
 def print_generation_strategy(generation_strategy_array: list) -> None:
     table = Table(header_style="bold", title="Generation Strategy")
 
@@ -8633,7 +8211,6 @@ def print_generation_strategy(generation_strategy_array: list) -> None:
 
     console.print(table)
 
-@beartype
 def write_state_file(name: str, var: str) -> None:
     file_path = f"{get_current_run_folder()}/state_files/{name}"
 
@@ -8648,7 +8225,6 @@ def write_state_file(name: str, var: str) -> None:
     except Exception as e:
         print_red(f"Failed writing '{file_path}': {e}")
 
-@beartype
 def get_chosen_model() -> str:
     chosen_model = args.model
 
@@ -8679,7 +8255,6 @@ def get_chosen_model() -> str:
 
     return chosen_model
 
-@beartype
 def continue_not_supported_on_custom_generation_strategy() -> None:
     if args.continue_previous_job:
         generation_strategy_file = f"{args.continue_previous_job}/state_files/custom_generation_strategy"
@@ -8687,7 +8262,6 @@ def continue_not_supported_on_custom_generation_strategy() -> None:
         if os.path.exists(generation_strategy_file):
             _fatal_error("Trying to continue a job which was started with --generation_strategy. This is currently not possible.", 247)
 
-@beartype
 def get_step_name(model_name: str, nr: int) -> str:
     this_step_name = f"{model_name} for {nr} step"
     if nr != 1:
@@ -8695,7 +8269,6 @@ def get_step_name(model_name: str, nr: int) -> str:
 
     return this_step_name
 
-@beartype
 def join_with_comma_and_then(items: list) -> str:
     length = len(items)
 
@@ -8710,7 +8283,6 @@ def join_with_comma_and_then(items: list) -> str:
 
     return ", ".join(items[:-1]) + " and then " + items[-1]
 
-@beartype
 def get_torch_device_str() -> str:
     try:
         if torch.cuda.is_available():
@@ -8723,7 +8295,6 @@ def get_torch_device_str() -> str:
         print_debug(f"Error detecting device: {e}")
         return "cpu"
 
-@beartype
 def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
@@ -8805,13 +8376,11 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     return res
 
-@beartype
 def get_optimizer_kwargs() -> dict:
     return {
         "sequential": False
     }
 
-@beartype
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     step = GenerationStep(
         model=model,
@@ -8826,7 +8395,6 @@ def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[in
 
     return step
 
-@beartype
 def set_global_generation_strategy() -> None:
     global global_gs, generation_strategy_human_readable
 
@@ -8910,7 +8478,6 @@ def set_global_generation_strategy() -> None:
 
         generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
-@beartype
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
@@ -8929,7 +8496,6 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
 
     return False
 
-@beartype
 def execute_trials(
     trial_index_to_param: dict,
     phase: Optional[str],
@@ -8950,7 +8516,9 @@ def execute_trials(
         index_param_list.append(_args)
         i += 1
 
-        save_results_csv()
+        save_results_csv(False)
+
+    save_results_csv()
 
     start_time = time.time()
 
@@ -8975,7 +8543,6 @@ def execute_trials(
     job_submit_durations.append(duration)
     job_submit_nrs.append(cnt)
 
-@beartype
 def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
     if isinstance(e, TypeError):
         print_red(f"Error 1: {e}")
@@ -8996,7 +8563,6 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
         end_program(False, 87)
     return 0
 
-@beartype
 def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
     if next_nr_steps == 0:
         print_debug(f"Warning: create_and_execute_next_runs(next_nr_steps: {next_nr_steps}, phase: {phase}, _max_eval: {_max_eval}, progress_bar)")
@@ -9015,7 +8581,6 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
     return _create_and_execute_next_runs_return_value(trial_index_to_param)
 
-@beartype
 def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict]]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
@@ -9054,14 +8619,12 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
 
     return done_optimizing, trial_index_to_param
 
-@beartype
 def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
     finish_previous_jobs(["finishing jobs"])
 
     if done_optimizing:
         end_program(False, 0)
 
-@beartype
 def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Dict]) -> int:
     try:
         if trial_index_to_param:
@@ -9075,7 +8638,6 @@ def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Di
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}. Returning 0.")
         return 0
 
-@beartype
 def get_number_of_steps(_max_eval: int) -> int:
     with console.status("[bold green]Calculating number of steps..."):
         _random_steps = args.num_random_steps
@@ -9096,7 +8658,6 @@ def get_number_of_steps(_max_eval: int) -> int:
 
         return _random_steps
 
-@beartype
 def _set_global_executor() -> None:
     global executor
 
@@ -9131,7 +8692,6 @@ def _set_global_executor() -> None:
     else:
         _fatal_error("executor could not be found", 9)
 
-@beartype
 def set_global_executor() -> None:
     try:
         _set_global_executor()
@@ -9141,7 +8701,6 @@ def set_global_executor() -> None:
     except (IsADirectoryError, PermissionError, FileNotFoundError) as e:
         print_red(f"Error trying to set_global_executor: {e}")
 
-@beartype
 def execute_nvidia_smi() -> None:
     if not IS_NVIDIA_SMI_SYSTEM:
         print_debug("Cannot find nvidia-smi. Cannot take GPU logs")
@@ -9181,13 +8740,11 @@ def execute_nvidia_smi() -> None:
         if is_slurm_job() and not args.force_local_execution:
             _sleep(30)
 
-@beartype
 def start_nvidia_smi_thread() -> None:
     if IS_NVIDIA_SMI_SYSTEM:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
 
-@beartype
 def run_search(_progress_bar: Any) -> bool:
     global NR_OF_0_RESULTS
     NR_OF_0_RESULTS = 0
@@ -9224,7 +8781,6 @@ def run_search(_progress_bar: Any) -> bool:
 
     return False
 
-@beartype
 def should_break_search(_progress_bar: Any) -> bool:
     ret = False
 
@@ -9237,7 +8793,6 @@ def should_break_search(_progress_bar: Any) -> bool:
 
     return ret
 
-@beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
@@ -9245,19 +8800,16 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
         return nr_of_items
     return 0
 
-@beartype
 def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
     nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
     if nr_current_workers_errmsg:
         print_debug(f"log_worker_status: {nr_current_workers_errmsg}")
     _debug_worker_creation(f"{int(time.time())}, {nr_current_workers}, {nr_of_items}, {next_nr_steps}")
 
-@beartype
 def handle_slurm_execution() -> None:
     if is_slurm_job() and not args.force_local_execution:
         _sleep(1)
 
-@beartype
 def check_search_space_exhaustion(nr_of_items: int) -> bool:
     global NR_OF_0_RESULTS
 
@@ -9280,7 +8832,6 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
 
     return False
 
-@beartype
 def finalize_jobs() -> None:
     while len(global_vars["jobs"]):
         wait_for_jobs_to_complete()
@@ -9291,7 +8842,6 @@ def finalize_jobs() -> None:
 
         handle_slurm_execution()
 
-@beartype
 def go_through_jobs_that_are_not_completed_yet() -> None:
     print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
 
@@ -9310,19 +8860,16 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
 
     clean_completed_jobs()
 
-@beartype
 def wait_for_jobs_to_complete() -> None:
     while len(global_vars["jobs"]):
         go_through_jobs_that_are_not_completed_yet()
 
-@beartype
 def die_orchestrator_exit_code_206(_test: bool) -> None:
     if _test:
         print_yellow("Not exiting, because _test was True")
     else:
         my_exit(206)
 
-@beartype
 def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
     if os.path.exists(_f):
         with open(_f, mode='r', encoding="utf-8") as file:
@@ -9372,7 +8919,6 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
 
     return None
 
-@beartype
 def set_orchestrator() -> None:
     with console.status("[bold green]Setting orchestrator..."):
         global orchestrator
@@ -9383,12 +8929,10 @@ def set_orchestrator() -> None:
             else:
                 print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
-@beartype
 def check_if_has_random_steps() -> None:
     if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
         _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
-@beartype
 def add_exclude_to_defective_nodes() -> None:
     with console.status("[bold green]Adding excluded nodes..."):
         if args.exclude:
@@ -9397,13 +8941,11 @@ def add_exclude_to_defective_nodes() -> None:
             for entry in entries:
                 count_defective_nodes(None, entry)
 
-@beartype
 def check_max_eval(_max_eval: int) -> None:
     with console.status("[bold green]Checking max_eval..."):
         if not _max_eval:
             _fatal_error("--max_eval needs to be set!", 19)
 
-@beartype
 def parse_parameters() -> Any:
     cli_params_experiment_parameters = None
     if args.parameter:
@@ -9412,7 +8954,6 @@ def parse_parameters() -> Any:
 
     return cli_params_experiment_parameters
 
-@beartype
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
@@ -9433,12 +8974,10 @@ def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> 
 
     return table
 
-@beartype
 def _pareto_front_table_read_csv() -> List[Dict[str, str]]:
     with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
 
-@beartype
 def _pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int]) -> List[Dict[str, str]]:
     result = []
     for row in rows:
@@ -9451,7 +8990,6 @@ def _pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int])
             result.append(row)
     return result
 
-@beartype
 def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
     all_columns = list(first_row.keys())
     ignored_cols = set(special_col_names) - {"trial_index"}
@@ -9460,21 +8998,18 @@ def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str
     result_cols = [col for col in arg_result_names if col in all_columns]
     return param_cols, result_cols
 
-@beartype
 def _pareto_front_table_add_headers(table: Table, param_cols: List[str], result_cols: List[str]) -> None:
     for col in param_cols:
         table.add_column(col, justify="center")
     for col in result_cols:
         table.add_column(Text(f"{col}", style="cyan"), justify="center")
 
-@beartype
 def _pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]], param_cols: List[str], result_cols: List[str]) -> None:
     for row in rows:
         values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
         result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]
         table.add_row(*values, *result_values, style="bold green")
 
-@beartype
 def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Optional[Table]:
     if not os.path.exists(RESULT_CSV_FILE):
         print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
@@ -9482,7 +9017,6 @@ def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Opti
 
     return create_pareto_front_table(idxs, metric_x, metric_y)
 
-@beartype
 def supports_sixel() -> bool:
     term = os.environ.get("TERM", "").lower()
     if "xterm" in term or "mlterm" in term:
@@ -9497,7 +9031,6 @@ def supports_sixel() -> bool:
 
     return False
 
-@beartype
 def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
     if data is None:
         print("[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
@@ -9532,12 +9065,10 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
 
     plt.close(fig)
 
-@beartype
 def _pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
     if x.shape != y.shape:
         raise ValueError("Input arrays x and y must have the same shape.")
 
-@beartype
 def _pareto_front_general_compare(
     xi: float, yi: float, xj: float, yj: float,
     x_minimize: bool, y_minimize: bool
@@ -9549,7 +9080,6 @@ def _pareto_front_general_compare(
 
     return bool(x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better))
 
-@beartype
 def _pareto_front_general_find_dominated(
     x: np.ndarray, y: np.ndarray, x_minimize: bool, y_minimize: bool
 ) -> np.ndarray:
@@ -9567,7 +9097,6 @@ def _pareto_front_general_find_dominated(
 
     return is_dominated
 
-@beartype
 def pareto_front_general(
     x: np.ndarray,
     y: np.ndarray,
@@ -9582,7 +9111,6 @@ def pareto_front_general(
         print("Error in pareto_front_general:", str(e))
         return np.array([], dtype=int)
 
-@beartype
 def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
     results_csv_file = f"{path_to_calculate}/results.csv"
     result_names_file = f"{path_to_calculate}/result_names.txt"
@@ -9611,7 +9139,6 @@ def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[
 
     return records
 
-@beartype
 def _pareto_front_filter_complete_points(
     path_to_calculate: str,
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
@@ -9629,7 +9156,6 @@ def _pareto_front_filter_complete_points(
         raise ValueError(f"No full data points with both objectives found in {path_to_calculate}.")
     return points
 
-@beartype
 def _pareto_front_transform_objectives(
     points: List[Tuple[Any, float, float]],
     primary_name: str,
@@ -9653,7 +9179,6 @@ def _pareto_front_transform_objectives(
 
     return x, y
 
-@beartype
 def _pareto_front_select_pareto_points(
     x: np.ndarray,
     y: np.ndarray,
@@ -9734,7 +9259,6 @@ def _pareto_front_build_return_structure(
 
     return ret
 
-@beartype
 def get_pareto_frontier_points(
     path_to_calculate: str,
     primary_objective: str,
@@ -9756,11 +9280,9 @@ def get_pareto_frontier_points(
 
     return result
 
-@beartype
 def get_state_path() -> str:
     return f"{get_current_run_folder()}/experiment_state.json"
 
-@beartype
 def save_experiment_state() -> None:
     try:
         if ax_client is None or ax_client.experiment is None:
@@ -9771,7 +9293,6 @@ def save_experiment_state() -> None:
     except Exception as e:
         print(f"Error saving experiment state: {e}")
 
-@beartype
 def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60):
     try:
         if not os.path.exists(state_path):
@@ -9803,7 +9324,6 @@ def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: in
         print_red(f"[ERROR] Unexpected error: {e}")
         return False
 
-@beartype
 def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int = 1) -> Optional[dict]:
     start_time = time.time()
 
@@ -9826,7 +9346,6 @@ def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int
 
     return None
 
-@beartype
 def load_experiment_state() -> None:
     global ax_client
     state_path = get_state_path()
@@ -9867,7 +9386,6 @@ def load_experiment_state() -> None:
     except Exception as e:
         print(f"Error loading experiment state: {e}")
 
-@beartype
 def sanitize_json(obj: Any) -> Any:
     if isinstance(obj, float):
         if math.isnan(obj) or math.isinf(obj):
@@ -9879,7 +9397,6 @@ def sanitize_json(obj: Any) -> Any:
         return [sanitize_json(x) for x in obj]
     return obj
 
-@beartype
 def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
     global arg_result_names
     global arg_result_min_or_max
@@ -9915,7 +9432,6 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
         arg_result_names = _found_result_names
         arg_result_min_or_max = _found_result_min_max
 
-@beartype
 def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str, x_minimize: bool, y_minimize: bool, res_names: list) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
@@ -9953,7 +9469,6 @@ def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str
         print_red(f"Error in get_calculated_frontier: {str(e)}")
         return None
 
-@beartype
 def live_share_after_pareto() -> None:
     if args.calculate_pareto_front_of_job is not None or args.live_share:
         if not args.live_share:
@@ -10006,7 +9521,6 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
 
     return minmax[index] == "min"
 
-@beartype
 def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
     pareto_front_data: dict = {}
 
@@ -10035,7 +9549,6 @@ def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
 
     return pareto_front_data
 
-@beartype
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
@@ -10086,7 +9599,6 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
 
     live_share_after_pareto()
 
-@beartype
 def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_color: str) -> None:
     cpu_count = os.cpu_count()
 
@@ -10102,7 +9614,6 @@ def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_
     else:
         print_green(f"You have {cpu_count} CPUs available for the main process. {gs_string}")
 
-@beartype
 def write_args_overview_table() -> None:
     table = Table(title="Arguments Overview")
     table.add_column("Key", justify="left", style="bold")
@@ -10121,7 +9632,6 @@ def write_args_overview_table() -> None:
     with open(f"{get_current_run_folder()}/args_overview.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
-@beartype
 def show_experiment_overview_table() -> None:
     table = Table(title="Experiment overview", show_header=True)
 
@@ -10161,7 +9671,6 @@ def show_experiment_overview_table() -> None:
     with open(f"{get_current_run_folder()}/experiment_overview.txt", mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
-@beartype
 def write_files_and_show_overviews() -> None:
     write_state_file("num_random_steps", str(args.num_random_steps))
     set_global_executor()
@@ -10172,7 +9681,6 @@ def write_files_and_show_overviews() -> None:
     write_process_info()
     write_continue_run_uuid_to_file()
 
-@beartype
 def write_git_version() -> None:
     with console.status("[bold green]Writing git info file..."):
         folder = f"{get_current_run_folder()}/"
@@ -10197,7 +9705,6 @@ def write_git_version() -> None:
         except subprocess.CalledProcessError:
             pass
 
-@beartype
 def write_job_start_file() -> None:
     with console.status("[bold green]Writing job_start_time file..."):
         fn = f'{get_current_run_folder()}/job_start_time.txt'
@@ -10207,13 +9714,11 @@ def write_job_start_file() -> None:
         except Exception as e:
             print_red(f"Error trying to write {fn}: {e}")
 
-@beartype
 def write_live_share_file_if_needed() -> None:
     with console.status("[bold green]Writing live_share file if it is present..."):
         if args.live_share:
             write_state_file("live_share", "1\n")
 
-@beartype
 def write_username_statefile() -> None:
     with console.status("[bold green]Writing username state file..."):
         _path = get_current_run_folder()
@@ -10227,7 +9732,6 @@ def write_username_statefile() -> None:
             except Exception as e:
                 print_red(f"Error writing to file: {e}")
 
-@beartype
 def write_revert_to_random_when_seemingly_exhausted_file() -> None:
     with console.status("[bold green]Writing revert_to_random_when_seemingly_exhausted file ..."):
         _path = get_current_run_folder()
@@ -10240,7 +9744,6 @@ def write_revert_to_random_when_seemingly_exhausted_file() -> None:
         except Exception as e:
             print_red(f"Error writing to file: {e}")
 
-@beartype
 def debug_vars_unused_by_python_for_linter() -> None:
     print_debug(
         f"partition: {args.partition}, "
@@ -10252,7 +9755,6 @@ def debug_vars_unused_by_python_for_linter() -> None:
         f"run_mode: {args.run_mode}"
     )
 
-@beartype
 def get_constraints() -> list:
     constraints_list: List[str] = []
 
@@ -10267,15 +9769,12 @@ def get_constraints() -> list:
 
     return constraints_list
 
-@beartype
 def _has_explicit_constraints() -> bool:
     return bool(args.experiment_constraints)
 
-@beartype
 def _should_load_previous_constraints() -> bool:
     return bool(args.continue_previous_job and not args.disable_previous_job_constraint and (args.experiment_constraints is None or not len(args.experiment_constraints)))
 
-@beartype
 def _load_previous_constraints(job_path: str) -> list:
     constraint_file = os.path.join(job_path, "state_files", "constraints")
 
@@ -10291,13 +9790,11 @@ def _load_previous_constraints(job_path: str) -> list:
 
     return [encoded_constraints]
 
-@beartype
 def _normalize_constraints_list(constraints_list: list) -> List[str]:
     if isinstance(constraints_list, list) and len(constraints_list) == 1 and isinstance(constraints_list[0], list):
         return constraints_list[0]
     return constraints_list
 
-@beartype
 def _load_experiment_json(continue_previous_job_path: str) -> dict:
     experiment_json_data = {}
 
@@ -10314,7 +9811,6 @@ def _load_experiment_json(continue_previous_job_path: str) -> dict:
 
     return experiment_json_data
 
-@beartype
 def _filter_valid_constraints(constraints: List[str]) -> List[str]:
     global global_param_names
 
@@ -10349,7 +9845,6 @@ def _filter_valid_constraints(constraints: List[str]) -> List[str]:
 
     return final_constraints_list
 
-@beartype
 def load_username_to_args(path_to_calculate: str) -> None:
     if not path_to_calculate:
         return
@@ -10362,7 +9857,6 @@ def load_username_to_args(path_to_calculate: str) -> None:
         except Exception as e:
             print_red(f"Error reading from file: {e}")
 
-@beartype
 def find_results_paths(base_path: str) -> list:
     if not os.path.exists(base_path):
         raise FileNotFoundError(f"Path not found: {base_path}")
@@ -10384,7 +9878,6 @@ def find_results_paths(base_path: str) -> list:
 
     return list(set(found_paths))
 
-@beartype
 def post_job_calculate_pareto_front() -> None:
     if not args.calculate_pareto_front_of_job:
         return
@@ -10415,7 +9908,6 @@ def post_job_calculate_pareto_front() -> None:
 
     my_exit(0)
 
-@beartype
 def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
     pf_start_time = time.time()
 
@@ -10492,7 +9984,6 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
 
     return True
 
-@beartype
 def set_arg_states_from_continue() -> None:
     if args.continue_previous_job and not args.num_random_steps:
         num_random_steps_file = f"{args.continue_previous_job}/state_files/num_random_steps"
@@ -10506,7 +9997,6 @@ def set_arg_states_from_continue() -> None:
         if os.path.exists(f"{args.continue_previous_job}/state_files/revert_to_random_when_seemingly_exhausted"):
             args.revert_to_random_when_seemingly_exhausted = True
 
-@beartype
 def write_result_min_max_file() -> None:
     with console.status("[bold green]Writing result min/max file..."):
         try:
@@ -10517,7 +10007,6 @@ def write_result_min_max_file() -> None:
         except Exception as e:
             print_red(f"Error trying to open file '{fn}': {e}")
 
-@beartype
 def write_result_names_file() -> None:
     with console.status("[bold green]Writing result names file..."):
         try:
@@ -10528,7 +10017,6 @@ def write_result_names_file() -> None:
         except Exception as e:
             print_red(f"Error trying to open file '{fn}': {e}")
 
-@beartype
 def run_program_once(params=None) -> None:
     if not args.run_program_once:
         print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
@@ -10569,7 +10057,6 @@ def run_program_once(params=None) -> None:
 
         my_exit(57)
 
-@beartype
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
@@ -10693,7 +10180,6 @@ def main() -> None:
     else:
         print_red("exp_params is None!")
 
-@beartype
 def load_existing_data_for_worker_generation_path() -> None:
     if args.worker_generator_path:
         if not os.path.exists(args.worker_generator_path):
@@ -10706,12 +10192,10 @@ def load_existing_data_for_worker_generation_path() -> None:
 
         insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv".replace("//", "/"))
 
-@beartype
 def log_worker_creation() -> None:
     with console.status("[bold green]Writing worker creation log..."):
         _debug_worker_creation("time, nr_workers, got, requested, phase")
 
-@beartype
 def set_run_folder() -> None:
     with console.status("[bold green]Setting run folder..."):
         global CURRENT_RUN_FOLDER
@@ -10739,34 +10223,29 @@ def set_run_folder() -> None:
                 RUN_FOLDER_NUMBER += 1
                 CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
-@beartype
 def print_run_info() -> None:
     with console.status("[bold green]Printing run info..."):
         console.print(f"[bold]Run-folder[/bold]: [underline]{get_current_run_folder()}[/underline]")
         if args.continue_previous_job:
             original_print(f"Continuation from {args.continue_previous_job}")
 
-@beartype
 def initialize_nvidia_logs() -> None:
     with console.status("[bold green]Initializing NVIDIA-Logs..."):
         global NVIDIA_SMI_LOGS_BASE
         NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
 
-@beartype
 def write_ui_url_if_present() -> None:
     with console.status("[bold green]Writing ui_url file if it is present..."):
         if args.ui_url:
             with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
                 myfile.write(decode_if_base64(args.ui_url))
 
-@beartype
 def handle_random_steps() -> None:
     with console.status("[bold green]Handling random steps..."):
         if args.parameter and args.continue_previous_job and random_steps <= 0:
             print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
             set_random_steps(args.num_random_steps)
 
-@beartype
 def initialize_ax_client() -> None:
     global ax_client
 
@@ -10779,7 +10258,6 @@ def initialize_ax_client() -> None:
 
         ax_client = cast(AxClient, ax_client)
 
-@beartype
 def get_generation_strategy_string() -> str:
     if generation_strategy_human_readable:
         return f"Generation strategy: {generation_strategy_human_readable}."
@@ -10796,12 +10274,10 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
-@beartype
 def save_experiment_parameters(filepath: str) -> None:
     with open(filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
-@beartype
 def run_search_with_progress_bar() -> None:
     global progress_bar
 
@@ -10822,7 +10298,6 @@ def run_search_with_progress_bar() -> None:
 
     wait_for_jobs_to_complete()
 
-@beartype
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
     #print_yellow(f"Test suite: {_program_name}")
 
@@ -10870,14 +10345,12 @@ def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int,
 
         return 1
 
-@beartype
 def get_files_in_dir(mypath: str) -> list:
     print_debug("get_files_in_dir")
     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
     return [f"{mypath}/{s}" for s in onlyfiles]
 
-@beartype
 def test_find_paths(program_code: str) -> int:
     print_debug(f"test_find_paths({program_code})")
     nr_errors: int = 0
@@ -10906,7 +10379,6 @@ def test_find_paths(program_code: str) -> int:
 
     return nr_errors
 
-@beartype
 def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
@@ -11283,10 +10755,8 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-@beartype
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
-
 
     if args.runtime_debug:
         auto_wrap_namespace(globals())
@@ -11326,14 +10796,13 @@ def main_outside() -> None:
             else:
                 end_program(True)
 
-@beartype
 def auto_wrap_namespace(namespace: Any) -> Any:
     for name, obj in list(namespace.items()):
         if (
             isinstance(obj, types.FunctionType)
             and name not in {"logmytime", "_print_stats", "print"}
         ):
-            namespace[name] = logmytime(obj)
+            namespace[name] = beartype(logmytime(obj))
 
 if __name__ == "__main__":
     try:

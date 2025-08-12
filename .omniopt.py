@@ -2083,8 +2083,6 @@ def save_results_csv() -> Optional[str]:
         else:
             if args.save_to_database:
                 print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
-            else:
-                print_debug("Not saving to database because --save_to_database was not set")
 
     except (SignalUSR, SignalCONT, SignalINT) as e:
         raise type(e)(str(e)) from e

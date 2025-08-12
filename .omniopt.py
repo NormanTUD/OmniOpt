@@ -8421,11 +8421,11 @@ def get_optimizer_kwargs() -> dict:
 
 def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     step = GenerationStep(
-        model=model,
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
         model_kwargs=get_model_kwargs(),
         model_gen_kwargs=get_model_gen_kwargs(),
+        generator=global_gs,
         should_deduplicate=True,
         enforce_num_trials=True,
         index=index

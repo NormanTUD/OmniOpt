@@ -6477,10 +6477,6 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
     if not args.worker_generator_path:
         set_max_eval(max_eval + cnt)
         set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
-    else:
-        print("=============================")
-        print("=============================")
-        print("=============================")
 
 @beartype
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:

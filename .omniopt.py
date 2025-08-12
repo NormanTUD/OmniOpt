@@ -17,6 +17,15 @@ import random
 import tempfile
 import threading
 import copy
+import functools
+from collections import defaultdict
+import types
+
+from typing import TypeVar, Callable
+F = TypeVar("F", bound=Callable[..., object])
+
+_total_time = 0.0
+_func_times = defaultdict(float)
 
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
@@ -234,6 +243,40 @@ except ImportError as e:
 except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
+
+@beartype
+def logmytime(func: F) -> F:
+    @functools.wraps(func)
+    def wrapper(*func_args, **kwargs):
+        global _total_time
+        start = time.perf_counter()
+        result = func(*func_args, **kwargs)
+        elapsed = time.perf_counter() - start
+
+        _func_times[func.__name__] += elapsed
+        _total_time += elapsed
+
+        percent = (_func_times[func.__name__] / _total_time) * 100
+        print(
+            f"Function '{func.__name__}' took {elapsed:.4f}s "
+            f"(total {percent:.1f}% of tracked time)"
+        )
+
+        #_print_stats()
+
+        return result
+    return wrapper
+
+@beartype
+def _print_stats() -> None:
+    if _total_time == 0:
+        return
+
+    print("=== Time Stats ===")
+    for name, t in sorted(_func_times.items(), key=lambda x: -x[1]):
+        print(f"{name}: {t:.4f}s ({t/_total_time*100:.1f}%)")
+
+    print("==================")
 
 @beartype
 def fool_linter(*fool_linter_args: Any) -> Any:
@@ -751,6 +794,7 @@ class ConfigLoader:
         debug.add_argument('--show_generation_and_submission_sixel', help='Show sixel plots for generation and submission times', action='store_true', default=False)
         debug.add_argument('--just_return_defaults', help='Just return defaults in dryrun', action='store_true', default=False)
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
+        debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
 
     @beartype
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
@@ -1042,8 +1086,6 @@ try:
         import torch
     with console.status("[bold green]Importing numpy...") as status:
         import numpy as np
-    with console.status("[bold green]Importing collections...") as status:
-        from collections import defaultdict
     with console.status("[bold green]Importing ax..."):
         import ax
 
@@ -2000,57 +2042,47 @@ def save_results_csv() -> Optional[str]:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
 
-    lock_path = pd_csv + ".lock"
+    save_experiment_state()
+
+    if ax_client is None:
+        return None
+
+    old_hash = compute_md5_hash(pd_csv)
+    save_checkpoint()
 
     try:
-        save_experiment_state()
+        ax_client.experiment.fetch_data()
+        pd_frame = ax_client.get_trials_data_frame()
+        pd_frame = merge_with_job_infos(pd_frame)
+        pd_frame = reindex_trials(pd_frame)
 
-        if ax_client is None:
-            return None
+        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
-        old_hash = compute_md5_hash(pd_csv)
-        save_checkpoint()
+        json_snapshot = ax_client.to_json_snapshot()
+        with open(pd_json, "w", encoding="utf-8") as json_file:
+            json.dump(json_snapshot, json_file, indent=4)
 
-        try:
-            ax_client.experiment.fetch_data()
-            pd_frame = ax_client.get_trials_data_frame()
-            pd_frame = merge_with_job_infos(pd_frame)
-            pd_frame = reindex_trials(pd_frame)
+        save_experiment(
+            ax_client.experiment,
+            f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
+        )
 
-            pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
-
-            json_snapshot = ax_client.to_json_snapshot()
-            with open(pd_json, "w", encoding="utf-8") as json_file:
-                json.dump(json_snapshot, json_file, indent=4)
-
-            save_experiment(
-                ax_client.experiment,
-                f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
-            )
-
-            if args.model not in uncontinuable_models and args.save_to_database:
-                try_saving_to_db()
+        if args.model not in uncontinuable_models and args.save_to_database:
+            try_saving_to_db()
+        else:
+            if args.save_to_database:
+                print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
             else:
-                if args.save_to_database:
-                    print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
-                else:
-                    print_debug("Not saving to database because --save_to_database was not set")
+                print_debug("Not saving to database because --save_to_database was not set")
 
-        except (SignalUSR, SignalCONT, SignalINT) as e:
-            raise type(e)(str(e)) from e
-        except Exception as e:
-            print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
-
-        new_hash = compute_md5_hash(pd_csv)
-        if old_hash != new_hash:
-            live_share()
-
-    except TimeoutError as e:
-        print_red(f"Timeout beim Erwerb des Datei-Locks: {e}")
-        return None
+    except (SignalUSR, SignalCONT, SignalINT) as e:
+        raise type(e)(str(e)) from e
     except Exception as e:
-        print_red(f"Unbekannter Fehler beim Datei-Lock: {e}")
-        return None
+        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+
+    new_hash = compute_md5_hash(pd_csv)
+    if old_hash != new_hash:
+        live_share()
 
     return pd_csv
 
@@ -7435,8 +7467,8 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
     return False
 
 @beartype
-def submit_new_job(params: Union[dict, str], trial_index: int):
-    print_debug(f"Submitting new job for trial_index {trial_index}, params {params}")
+def submit_new_job(parameters: Union[dict, str], trial_index: int):
+    print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
     start = time.time()
 
@@ -11200,6 +11232,10 @@ Exit-Code: 159
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
+
+    if args.runtime_debug:
+        auto_wrap_namespace(globals())
+
     print_logo()
 
     fool_linter(args.num_cpus_main_job)
@@ -11234,6 +11270,15 @@ def main_outside() -> None:
                 end_program(True, 87)
             else:
                 end_program(True)
+
+@beartype
+def auto_wrap_namespace(namespace: Any) -> Any:
+    for name, obj in list(namespace.items()):
+        if (
+            isinstance(obj, types.FunctionType)
+            and name not in {"logmytime", "_print_stats", "print"}
+        ):
+            namespace[name] = logmytime(obj)
 
 if __name__ == "__main__":
     try:

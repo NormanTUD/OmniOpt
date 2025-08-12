@@ -27,6 +27,8 @@ F = TypeVar("F", bound=Callable[..., object])
 _total_time = 0.0
 _func_times = defaultdict(float)
 
+_function_name_cache: dict = {}
+
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
@@ -245,6 +247,35 @@ except KeyboardInterrupt:
     sys.exit(17)
 
 @beartype
+def _print_stats() -> None:
+    if _total_time == 0:
+        return
+
+    def color_bg(r: int, g: int, b: int, text: str) -> str:
+        return f"\033[48;2;{r};{g};{b}m\033[38;2;255;255;255m{text}\033[0m"
+
+    print("=== Time Stats ===")
+    items = sorted(_func_times.items(), key=lambda x: -x[1])
+    max_t = max(t for _, t in items)
+    min_t = min(t for _, t in items)
+
+    for name, t in items:
+        percent_total = t / _total_time * 100
+        if max_t == min_t:
+            ratio = 0.0
+        else:
+            ratio = (t - min_t) / (max_t - min_t)
+
+        r = int(255 * ratio)
+        g = int(255 * (1 - ratio))
+        b = 0
+
+        time_str = f"{name}: {t:.4f}s ({percent_total:.1f}%)"
+        print(color_bg(r, g, b, time_str))
+
+    print("==================")
+
+@beartype
 def logmytime(func: F) -> F:
     @functools.wraps(func)
     def wrapper(*func_args, **kwargs):
@@ -253,16 +284,18 @@ def logmytime(func: F) -> F:
         result = func(*func_args, **kwargs)
         elapsed = time.perf_counter() - start
 
-        _func_times[func.__name__] += elapsed
-        _total_time += elapsed
+        if elapsed >= 0.001:
+            _func_times[func.__name__] += elapsed
+            _total_time += elapsed
 
-        percent = (_func_times[func.__name__] / _total_time) * 100
-        print(
-            f"Function '{func.__name__}' took {elapsed:.4f}s "
-            f"(total {percent:.1f}% of tracked time)"
-        )
+            percent = (_func_times[func.__name__] / _total_time) * 100
+            if percent > 0.1:
+                print(
+                    f"Function '{func.__name__}' took {elapsed:.4f}s "
+                    f"(total {percent:.1f}% of tracked time)"
+                )
 
-        #_print_stats()
+            _print_stats()
 
         return result
     return wrapper
@@ -272,9 +305,30 @@ def _print_stats() -> None:
     if _total_time == 0:
         return
 
+    def color_bg(r: int, g: int, b: int, text: str) -> str:
+        return f"\033[48;2;{r};{g};{b}m{text}\033[0m"
+
     print("=== Time Stats ===")
-    for name, t in sorted(_func_times.items(), key=lambda x: -x[1]):
-        print(f"{name}: {t:.4f}s ({t/_total_time*100:.1f}%)")
+    items = sorted(_func_times.items(), key=lambda x: -x[1])
+    max_t = max(t for _, t in items)
+    min_t = min(t for _, t in items)
+
+    for name, t in items:
+        # Anteil an der Gesamtzeit
+        percent_total = t / _total_time * 100
+        # Normierung zwischen 0 und 1
+        if max_t == min_t:
+            ratio = 0.0
+        else:
+            ratio = (t - min_t) / (max_t - min_t)
+
+        # Interpolation: 0.0 → Grün (0,255,0), 1.0 → Rot (255,0,0)
+        r = int(255 * ratio)
+        g = int(255 * (1 - ratio))
+        b = 0
+
+        time_str = f"{name}: {t:.4f}s ({percent_total:.1f}%)"
+        print(color_bg(r, g, b, time_str))
 
     print("==================")
 
@@ -423,20 +477,28 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
 @beartype
 def _get_debug_json(time_str: str, msg: str) -> str:
     function_stack = []
-
     try:
-        stack = inspect.stack()
+        frame = inspect.currentframe().f_back  # skip _get_debug_json
+        while frame:
+            func_name = _function_name_cache.get(frame.f_code)
+            if func_name is None:
+                func_name = frame.f_code.co_name
+                _function_name_cache[frame.f_code] = func_name
 
-        for frame_info in stack[1:]:
-            if str(frame_info.function) != "<module>" and str(frame_info.function) != "print_debug":
-                if frame_info.function != "wrapper":
-                    function_stack.append({
-                        "function": frame_info.function,
-                        "line_number": frame_info.lineno
-                    })
+            if func_name not in ("<module>", "print_debug", "wrapper"):
+                function_stack.append({
+                    "function": func_name,
+                    "line_number": frame.f_lineno
+                })
+
+            frame = frame.f_back
     except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ You pressed CTRL-C. This is ignored in _get_debug_json.")
-    return json.dumps({"function_stack": function_stack, "time": time_str, "msg": msg}, indent=0).replace('\r', '').replace('\n', '')
+
+    return json.dumps(
+        {"function_stack": function_stack, "time": time_str, "msg": msg},
+        separators=(",", ":")  # no pretty indent → smaller, faster
+    ).replace('\r', '').replace('\n', '')
 
 @beartype
 def print_debug(msg: str) -> None:

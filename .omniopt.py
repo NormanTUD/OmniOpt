@@ -9734,28 +9734,27 @@ def write_files_and_show_overviews() -> None:
     write_continue_run_uuid_to_file()
 
 async def write_git_version() -> None:
-    with console.status("[bold green]Writing git info file..."):
-        folder = f"{get_current_run_folder()}/"
-        os.makedirs(folder, exist_ok=True)
-        file_path = os.path.join(folder, "git_version")
+    folder = f"{get_current_run_folder()}/"
+    os.makedirs(folder, exist_ok=True)
+    file_path = os.path.join(folder, "git_version")
+
+    try:
+        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+
+        git_tag = ""
 
         try:
-            commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-
-            git_tag = ""
-
-            try:
-                git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
-                git_tag = f" ({git_tag})"
-            except subprocess.CalledProcessError:
-                pass
-
-            if commit_hash:
-                with open(file_path, mode="w", encoding="utf-8") as f:
-                    f.write(f"Commit: {commit_hash}{git_tag}\n")
-
+            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
+            git_tag = f" ({git_tag})"
         except subprocess.CalledProcessError:
             pass
+
+        if commit_hash:
+            with open(file_path, mode="w", encoding="utf-8") as f:
+                f.write(f"Commit: {commit_hash}{git_tag}\n")
+
+    except subprocess.CalledProcessError:
+        pass
 
 def write_job_start_file() -> None:
     with console.status("[bold green]Writing job_start_time file..."):

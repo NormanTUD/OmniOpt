@@ -901,11 +901,11 @@ def start_worker_generators() -> None:
                 text=True
             )
             if result.returncode != 0:
-                print_yellow(f"Failed to start worker {i+1}: {result.stderr.strip()}")
+                print_yellow(f"Failed to start worker {i + 1}: {result.stderr.strip()}")
             else:
-                print(f"Started worker {i+1} via sbatch: {result.stdout.strip()}")
+                print(f"Started worker {i + 1} via sbatch: {result.stdout.strip()}")
         except Exception as e:
-            print_yellow(f"Error starting worker {i+1}: {e}")
+            print_yellow(f"Error starting worker {i + 1}: {e}")
 
 @beartype
 def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:

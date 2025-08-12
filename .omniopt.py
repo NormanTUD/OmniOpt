@@ -16,6 +16,8 @@ import time
 import random
 import tempfile
 import threading
+import copy
+
 from filelock import FileLock
 
 experiment_parameters: dict | None = None
@@ -285,8 +287,9 @@ error_8_saved: List[str] = []
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 with console.status("[bold green]Importing helpers..."):
-    script_dir = os.path.dirname(os.path.realpath(__file__))
     helpers_file: str = f"{script_dir}/.helpers.py"
     spec = importlib.util.spec_from_file_location(
         name="helpers",
@@ -522,6 +525,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 }
 
 class ConfigLoader:
+    number_of_generators: int
     disable_previous_job_constraint: bool
     save_to_database: bool
     dependency: str
@@ -716,6 +720,7 @@ class ConfigLoader:
         speed.add_argument('--no_transform_inputs', help='Disable input transformations', action='store_true', default=False)
         speed.add_argument('--no_normalize_y', help='Disable target normalization', action='store_true', default=False)
         speed.add_argument('--transforms', nargs='*', choices=['Cont_X_trans', 'Cont_X_trans_Y_trans'], default=[], help='Enable input/target transformations (choose one or both: Cont_X_trans, Cont_X_trans_Y_trans)')
+        speed.add_argument('--number_of_generators', help='Number of generator main scripts, only works with Slurm', type=int, default=1)
 
         slurm.add_argument('--num_parallel_jobs', help='Number of parallel SLURM jobs (default: 20)', type=int, default=20)
         slurm.add_argument('--worker_timeout', help='Timeout for SLURM jobs (i.e. for each single point to be optimized)', type=int, default=30)
@@ -862,6 +867,45 @@ class ConfigLoader:
                 _args.live_share = False
 
         return _args
+
+@beartype
+def start_worker_generators() -> None:
+    if shutil.which("sbatch") is None:
+        print_yellow("no sbatch, cannot start multiple generation workers")
+        return
+
+    omniopt_path = os.path.join(script_dir, "omniopt")
+
+    if not os.path.isfile(omniopt_path):
+        print_yellow(f"Cannot find omniopt script at {omniopt_path}")
+        return
+
+    base_command = ["bash", omniopt_path] + sys.argv[1:]
+    worker_arg = f"--worker_generation_path={get_current_run_folder()}"
+
+    clean_env = copy.deepcopy(os.environ)
+    slurm_keys = [key for key in clean_env if key.upper().startswith("SLURM_")]
+    for key in slurm_keys:
+        del clean_env[key]
+
+    num_workers = max(0, args.number_of_generators - 1)
+
+    for i in range(num_workers):
+        try:
+            cmd = ["sbatch", "--wrap", " ".join(base_command + [worker_arg])]
+            result = subprocess.run(
+                cmd,
+                env=clean_env,
+                check=False,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                print_yellow(f"Failed to start worker {i+1}: {result.stderr.strip()}")
+            else:
+                print(f"Started worker {i+1} via sbatch: {result.stdout.strip()}")
+        except Exception as e:
+            print_yellow(f"Error starting worker {i+1}: {e}")
 
 @beartype
 def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
@@ -10502,6 +10546,8 @@ def main() -> None:
             set_global_generation_strategy()
 
         load_existing_data_for_worker_generation_path()
+
+        start_worker_generators()
 
         try:
             run_search_with_progress_bar()

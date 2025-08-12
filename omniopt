@@ -1886,18 +1886,45 @@ EOF
 							exec 2> >(tee -ia $bash_logname >& 2)
 						fi
 
-						exit_code=$(grep -i "exit-code:*" "$LOG_PATH" \
-							| sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' \
-							| tail -n1 \
-							| tr -d '\r')
+
+						exit_code_lines=$(grep -i "exit-code:*" "$LOG_PATH" 2>/dev/null)
+						if [ $? -ne 0 ] || [ -z "$exit_code_lines" ]; then
+							echo "WARN: grep failed or no exit-code line found."
+							exit_code_lines=""
+						fi
+
+						exit_code_sed=$(echo "$exit_code_lines" | sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##')
+						if [ $? -ne 0 ] || [ -z "$exit_code_sed" ]; then
+							echo "WARN: sed failed or no data after sed."
+							exit_code_sed=""
+						fi
+
+						exit_code_tail=$(echo "$exit_code_sed" | tail -n1)
+						if [ $? -ne 0 ] || [ -z "$exit_code_tail" ]; then
+							echo "WARN: tail failed or no data after tail."
+							exit_code_tail=""
+						fi
+
+						exit_code_only_digits=$(echo "$exit_code_tail" | grep -o '[0-9]\+')
+						if [ -z "$exit_code_only_digits" ]; then
+							echo "WARN: Kein gültiger Exit-Code gefunden, setze auf 3"
+							exit_code_only_digits=3
+						fi
+
+						exit_code="$exit_code_only_digits"
 
 						if ! [[ "$exit_code" =~ ^[0-9]+$ ]]; then
-							echo "WARN: exit_code invalid or empty, setting it to 3"
+							echo "WARN: exit_code invalid ('$exit_code'), setting to 3"
 							exit_code=3
 						fi
 
 						if (( exit_code != 0 )); then
-							myexit $exit_code
+							if declare -f myexit > /dev/null; then
+								myexit "$exit_code"
+							else
+								echo "WARN: myexit function not found, exiting with code $exit_code"
+								exit "$exit_code"
+							fi
 						fi
 					else
 						red_text "$LOG_PATH could not be found\n"

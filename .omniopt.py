@@ -29,6 +29,9 @@ _has_run_once = False
 _loop = None
 _current_live_share_future = None
 
+last_progress_bar_refresh_time = 0.0
+MIN_REFRESH_INTERVAL = 1.0
+
 _last_count_time = 0
 _last_count_result = (0, "")
 
@@ -5994,8 +5997,6 @@ def log_worker_numbers() -> None:
 
 def get_slurm_in_brackets(in_brackets: list) -> list:
     if is_slurm_job():
-        log_worker_numbers()
-
         workers_strings = get_workers_string()
         if workers_strings:
             in_brackets.append(workers_strings)
@@ -6076,16 +6077,18 @@ def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
 
 def progressbar_description(new_msgs: List[str] = []) -> None:
     global last_progress_bar_desc
+    global last_progress_bar_refresh_time
 
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
 
     if progress_bar is not None:
-        if last_progress_bar_desc != desc:
+        now = time.time()
+        if last_progress_bar_desc != desc and (now - last_progress_bar_refresh_time) >= MIN_REFRESH_INTERVAL:
             progress_bar.set_description_str(desc)
             progress_bar.refresh()
-
             last_progress_bar_desc = desc
+            last_progress_bar_refresh_time = now
 
 def clean_completed_jobs() -> None:
     job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "failed", "preempted", "node_fail", "boot_fail"]
@@ -10083,8 +10086,8 @@ def run_program_once(params=None) -> None:
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
 
-        with spinner("", spinner="dots"):
-            console.log(f"Executing command: [cyan]{command_str}[/cyan]")
+        with spinner(f"Executing command: [cyan]{command_str}[/cyan]"):
+            console.log()
             result = subprocess.run(command_str, shell=True, check=True)
             if result.returncode == 0:
                 console.log("[bold green]Setup script completed successfully ✅[/bold green]")
@@ -10094,8 +10097,7 @@ def run_program_once(params=None) -> None:
                 my_exit(57)
 
     elif isinstance(args.run_program_once, (list, tuple)):
-        with spinner("", spinner="dots"):
-            console.log(f"Executing command list: [cyan]{args.run_program_once}[/cyan]")
+        with spinner("run_program_once: Executing command list: [cyan]{args.run_program_once}[/cyan]"):
             result = subprocess.run(args.run_program_once, check=True)
             if result.returncode == 0:
                 console.log("[bold green]Setup script completed successfully ✅[/bold green]")

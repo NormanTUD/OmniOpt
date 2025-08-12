@@ -3090,7 +3090,9 @@ def _parse_experiment_parameters_parse_this_args(
     return j, params, classic_params, search_space_reduction_warning
 
 @beartype
-def parse_experiment_parameters() -> List[Dict[str, Any]]:
+def parse_experiment_parameters() -> None:
+    global experiment_parameters
+
     params: List[Dict[str, Any]] = []
     classic_params: List[Dict[str, Any]] = []
     param_names: List[str] = []
@@ -3115,7 +3117,7 @@ def parse_experiment_parameters() -> List[Dict[str, Any]]:
     # Remove duplicates by 'name' key preserving order
     params = list({p['name']: p for p in params}.values())
 
-    return params
+    experiment_parameters = params
 
 @beartype
 def check_factorial_range() -> None:
@@ -5446,8 +5448,6 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
 @beartype
 def load_experiment_parameters_from_checkpoint_file(checkpoint_file: str, _die: bool = True) -> None:
     global experiment_parameters
-
-    experiment_parameters = None
 
     try:
         f = open(checkpoint_file, encoding="utf-8")
@@ -9223,10 +9223,9 @@ def check_max_eval(_max_eval: int) -> None:
 def parse_parameters() -> Any:
     global experiment_parameters
 
-    experiment_parameters = None
     cli_params_experiment_parameters = None
     if args.parameter:
-        experiment_parameters = parse_experiment_parameters()
+        parse_experiment_parameters()
         cli_params_experiment_parameters = experiment_parameters
 
     return cli_params_experiment_parameters

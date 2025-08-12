@@ -115,7 +115,7 @@ try:
         warnings.filterwarnings(
             "ignore",
             category=FutureWarning,
-            module="ax.modelbridge.best_model_selector"
+            module="ax.adapter.best_model_selector"
         )
 
     with spinner("Importing argparse..."):
@@ -1155,32 +1155,26 @@ try:
             from ax.generation_strategy.transition_criterion import MaxTrials
 
         with spinner("Importing GeneratorSpec..."):
-            from ax.generation_strategy.model_spec import GeneratorSpec
+            from ax.generation_strategy.generator_spec import GeneratorSpec
 
     except Exception:
-        with spinner("Fallback: Importing ax.adapter.generation_node..."):
-            import ax.modelbridge.generation_node
+        with spinner("Fallback: Importing ax.generation_strategy.generation_node..."):
+            import ax.generation_strategy.generation_node
 
-        with spinner("Fallback: Importing GenerationStep, GenerationStrategy from modelbridge..."):
-            from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
-
-        with spinner("Fallback: Importing GenerationNode..."):
-            from ax.modelbridge.generation_node import GenerationNode
+        with spinner("Fallback: Importing GenerationStep, GenerationStrategy from ax.generation_strategy..."):
+            from ax.generation_strategy.generation_node import GenerationNode, GenerationStep
 
         with spinner("Fallback: Importing ExternalGenerationNode..."):
-            from ax.modelbridge.external_generation_node import ExternalGenerationNode
+            from ax.generation_strategy.external_generation_node import ExternalGenerationNode
 
         with spinner("Fallback: Importing MaxTrials..."):
-            from ax.modelbridge.transition_criterion import MaxTrials
+            from ax.generation_strategy.transition_criterion import MaxTrials
 
-        with spinner("Fallback: Importing GeneratorSpec..."):
-            from ax.modelbridge.model_spec import GeneratorSpec
-
-    with spinner("Importing Models from ax.modelbridge.registry..."):
-        from ax.modelbridge.registry import Models
+    with spinner("Importing Models from ax.generation_strategy.registry..."):
+        from ax.adapter.registry import Models
 
     with spinner("Importing get_pending_observation_features..."):
-        from ax.modelbridge.modelbridge_utils import get_pending_observation_features
+        from ax.core.utils import get_pending_observation_features
 
     with spinner("Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment
@@ -1251,7 +1245,7 @@ with spinner("Importing ax logger...") as status:
 with spinner("Importing SQL-Storage-Stuff...") as status:
     from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
 
-    disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
+    disable_loggers(names=["ax.adapter.base"], level=logging.CRITICAL)
 
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
@@ -4184,17 +4178,17 @@ def disable_logging() -> None:
 
             "ax.models.torch.botorch_modular.acquisition",
 
-            "ax.modelbridge"
-            "ax.modelbridge.base",
-            "ax.modelbridge.standardize_y",
-            "ax.modelbridge.transforms",
-            "ax.modelbridge.transforms.standardize_y",
-            "ax.modelbridge.transforms.int_to_float",
-            "ax.modelbridge.cross_validation",
-            "ax.modelbridge.dispatch_utils",
-            "ax.modelbridge.torch",
-            "ax.modelbridge.generation_node",
-            "ax.modelbridge.best_model_selector",
+            "ax.adapter"
+            "ax.adapter.base",
+            "ax.adapter.standardize_y",
+            "ax.adapter.transforms",
+            "ax.adapter.transforms.standardize_y",
+            "ax.adapter.transforms.int_to_float",
+            "ax.adapter.cross_validation",
+            "ax.adapter.dispatch_utils",
+            "ax.adapter.torch",
+            "ax.adapter.generation_node",
+            "ax.adapter.best_model_selector",
 
             "ax.generation_strategy.generation_strategy",
             "ax.generation_strategy.generation_node",
@@ -5828,10 +5822,14 @@ def get_current_model() -> str:
         return "Random*"
 
     if ax_client:
-        gs_model = ax_client.generation_strategy.model
+        print("================")
+        print(ax_client.generation_strategy.current_node_name)
+        print("================")
+
+        gs_model = ax_client.generation_strategy.current_node_name
 
         if gs_model:
-            return str(gs_model.model)
+            return str(gs_model)
 
         gs_model = ax_client.generation_strategy.current_node_name
 
@@ -7850,7 +7848,7 @@ def set_global_gs_to_random() -> None:
         nodes=[
             GenerationNode(
                 node_name="Sobol",
-                model_specs=[
+                generator_specs=[
                     GeneratorSpec(
                         Models.SOBOL,
                         model_gen_kwargs=get_model_gen_kwargs()
@@ -8183,15 +8181,15 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     return requested
 
-def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
+def select_model(model_arg: Any) -> ax.adapter.registry.Generators:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
-    available_models = list(ax.modelbridge.registry.Generators.__members__.keys())
-    chosen_model = ax.modelbridge.registry.Generators.BOTORCH_MODULAR
+    available_models = list(ax.adapter.registry.Generators.__members__.keys())
+    chosen_model = ax.adapter.registry.Generators.BOTORCH_MODULAR
 
     if model_arg:
         model_upper = str(model_arg).upper()
         if model_upper in available_models:
-            chosen_model = ax.modelbridge.registry.Generators.__members__[model_upper]
+            chosen_model = ax.adapter.registry.Generators.__members__[model_upper]
         else:
             print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
@@ -8414,7 +8412,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     res = GenerationNode(
         node_name=model_name,
-        model_specs=model_spec,
+        generator_specs=model_spec,
         transition_criteria=trans_crit
     )
 

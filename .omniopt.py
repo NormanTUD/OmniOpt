@@ -25,6 +25,10 @@ import asyncio
 from typing import TypeVar, Callable
 F = TypeVar("F", bound=Callable[..., object])
 
+_has_run_once = False
+_loop = None
+_current_live_share_future = None
+
 _last_count_time = 0
 _last_count_result = (0, "")
 
@@ -34,7 +38,6 @@ _func_call_paths = defaultdict(Counter)
 
 _function_name_cache: dict = {}
 
-LAST_LIVE_SHARE_TIME: int | None = None
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
@@ -334,7 +337,6 @@ if not uuid_regex.match(run_uuid):
     run_uuid = new_uuid
 
 JOBS_FINISHED: int = 0
-SHOWN_LIVE_SHARE_COUNTER: int = 0
 PD_CSV_FILENAME: str = "results.csv"
 WORKER_PERCENTAGE_USAGE: list = []
 END_PROGRAM_RAN: bool = False
@@ -353,21 +355,25 @@ def get_current_run_folder() -> str:
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
-with console.status("[bold green]Importing helpers..."):
-    helpers_file: str = f"{script_dir}/.helpers.py"
-    spec = importlib.util.spec_from_file_location(
-        name="helpers",
-        location=helpers_file,
-    )
-    if spec is not None and spec.loader is not None:
-        helpers = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(helpers)
-    else:
-        raise ImportError(f"Could not load module from {helpers_file}")
+try:
+    with console.status("[bold green]Importing helpers..."):
+        helpers_file: str = f"{script_dir}/.helpers.py"
+        spec = importlib.util.spec_from_file_location(
+            name="helpers",
+            location=helpers_file,
+        )
+        if spec is not None and spec.loader is not None:
+            helpers = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(helpers)
+        else:
+            raise ImportError(f"Could not load module from {helpers_file}")
 
-    dier: FunctionType = helpers.dier
-    is_equal: FunctionType = helpers.is_equal
-    is_not_equal: FunctionType = helpers.is_not_equal
+        dier: FunctionType = helpers.dier
+        is_equal: FunctionType = helpers.is_equal
+        is_not_equal: FunctionType = helpers.is_not_equal
+except KeyboardInterrupt:
+    print("You pressed CTRL-c while importing the helpers file")
+    sys.exit(0)
 
 ORCHESTRATE_TODO: dict = {}
 
@@ -1870,57 +1876,68 @@ def extract_and_print_qr(text: str) -> None:
 def force_live_share() -> bool:
     return live_share(True)
 
-async def _live_share(force: bool = False) -> bool:
-    global SHOWN_LIVE_SHARE_COUNTER, LAST_LIVE_SHARE_TIME
+def start_live_share_if_enabled() -> None:
+    if not getattr(args, "live_share", False):
+        return
+
+    def periodic_call():
+        live_share()
+        threading.Timer(30, periodic_call).start()
+
+    periodic_call()
+
+async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
+    if not get_current_run_folder():
+        print(f"live_share: get_current_run_folder was empty or false: {get_current_run_folder()}")
+        return False
 
     if not args.live_share or not get_current_run_folder():
         return False
 
-
     stdout, stderr = run_live_share_command(force)
+
     if stderr:
-        print_green(stderr)
-        if SHOWN_LIVE_SHARE_COUNTER == 0:
+        if text_and_qr:
+            print_green(stderr)
             extract_and_print_qr(stderr)
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 
     now = time.time()
-    if not force and LAST_LIVE_SHARE_TIME is None or (now - LAST_LIVE_SHARE_TIME) < 30:
-        return True
-
-    SHOWN_LIVE_SHARE_COUNTER += 1
-    LAST_LIVE_SHARE_TIME = now
 
     return True
 
-_has_run_once = False
-_loop = None
 
-def live_share(force: bool = False) -> bool:
-    global _has_run_once, _loop
+async def periodic_live_share(interval=30):
+    while True:
+        try:
+            await live_share(force=False)
+        except asyncio.CancelledError:
+            break
+        await asyncio.sleep(interval)
 
-    if not _has_run_once:
-        _has_run_once = True
-        # For first call: run async function synchronously (blocking)
-        try:
-            if _loop is None:
-                _loop = asyncio.new_event_loop()
-                threading.Thread(target=_loop.run_forever, daemon=True).start()
-            future = asyncio.run_coroutine_threadsafe(_live_share(force), _loop)
-            return future.result()  # blocks until done
-        except KeyboardInterrupt:
-            return False
-    else:
-        # Subsequent calls: schedule async task on running loop, return immediately
-        try:
-            if _loop is None:
-                _loop = asyncio.new_event_loop()
-                threading.Thread(target=_loop.run_forever, daemon=True).start()
-            asyncio.run_coroutine_threadsafe(_live_share(force), _loop)
-        except Exception:
-            pass
-        return True
+
+def _start_event_loop():
+    global _loop
+    if _loop is None:
+        _loop = asyncio.new_event_loop()
+        threading.Thread(target=_loop.run_forever, daemon=True).start()
+
+def init_live_share() -> bool:
+    print("TRYING LIVE SHARE NOW")
+    ret = live_share(True, True)
+    print("ENDED LIVE SHARE")
+
+    return ret
+
+def start_periodic_live_share(interval=30):
+    if args.live_share:
+        init_live_share()
+
+        print_debug(f"Started periodic live share every {interval} seconds")
+        _start_event_loop()
+        asyncio.run_coroutine_threadsafe(periodic_live_share(interval), _loop)
+
 
 def compute_md5_hash(filepath: str) -> Optional[str]:
     if not os.path.exists(filepath):
@@ -2030,7 +2047,7 @@ def reindex_trials(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def save_results_csv(enable_liveshare=True) -> Optional[str]:
+def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
 
@@ -2076,11 +2093,6 @@ def save_results_csv(enable_liveshare=True) -> Optional[str]:
         raise type(e)(str(e)) from e
     except Exception as e:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
-
-    if enable_liveshare:
-        new_hash = compute_md5_hash(pd_csv)
-        if old_hash != new_hash:
-            live_share()
 
     return pd_csv
 
@@ -4879,8 +4891,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     show_time_debugging_table()
 
-    live_share()
-
     if succeeded_jobs() == 0 and failed_jobs() > 0:
         _exit = 89
 
@@ -6413,7 +6423,7 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
 def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
     if not args.worker_generator_path:
         __insert_job_into_ax_client__update_status(__status, base_str, "Saving results.csv")
-        save_results_csv(False)
+        save_results_csv()
         __insert_job_into_ax_client__update_status(__status, base_str, "Saved results.csv")
 
 def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
@@ -6901,9 +6911,7 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
 
     log_what_needs_to_be_logged()
 
-    save_results_csv(False)
-
-    live_share()
+    save_results_csv()
 
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
     if ax_client is None:
@@ -7058,7 +7066,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
-    save_results_csv(this_jobs_finished > 0)
+    save_results_csv()
 
     save_checkpoint()
 
@@ -7380,7 +7388,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
         progressbar_description(["started new job"])
 
-        save_results_csv(False)
+        save_results_csv()
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -7448,7 +7456,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
         print_debug(f"cancel_failed_job: removing job {new_job}, trial_index: {trial_index}")
         global_vars["jobs"].remove((new_job, trial_index))
         print_debug("Removed failed job")
-        save_results_csv(False)
+        save_results_csv()
     else:
         print_debug("cancel_failed_job: new_job was undefined")
 
@@ -7885,8 +7893,6 @@ def show_time_debugging_table() -> None:
         generate_time_table_rich()
         generate_job_submit_table_rich()
         plot_times_for_creation_and_submission()
-
-        live_share()
 
 def generate_time_table_rich() -> None:
     if not isinstance(log_gen_times, list):
@@ -8566,7 +8572,7 @@ def execute_trials(
         index_param_list.append(_args)
         i += 1
 
-        save_results_csv(False)
+        save_results_csv()
 
     save_results_csv()
 
@@ -8875,8 +8881,6 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         _wrn = f"{NR_OF_0_RESULTS} empty jobs (>= {args.max_nr_of_zero_results})"
         print_debug(_wrn)
         progressbar_description([_wrn])
-
-        live_share()
 
         return True
 
@@ -9532,10 +9536,6 @@ def live_share_after_pareto() -> None:
                 except Exception as e:
                     print_debug(f"Error reading {live_share_file}: {e}")
                     args.live_share = False
-
-        global SHOWN_LIVE_SHARE_COUNTER
-
-        SHOWN_LIVE_SHARE_COUNTER = 1
 
         force_live_share()
 
@@ -10194,6 +10194,8 @@ def main() -> None:
 
         set_orchestrator()
 
+        start_periodic_live_share()
+
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
         original_print(f"Run-Program: {global_vars['joined_run_program']}")
@@ -10219,8 +10221,6 @@ def main() -> None:
 
         try:
             run_search_with_progress_bar()
-
-            live_share()
 
             time.sleep(2)
         except ax.exceptions.core.UnsupportedError:
@@ -10330,8 +10330,6 @@ def save_experiment_parameters(filepath: str) -> None:
 
 def run_search_with_progress_bar() -> None:
     global progress_bar
-
-    live_share()
 
     disable_tqdm = args.disable_tqdm or ci_env
 

@@ -24,8 +24,6 @@ import types
 from typing import TypeVar, Callable
 F = TypeVar("F", bound=Callable[..., object])
 
-LAST_LIVE_SHARE_TIME = 0
-
 _last_count_time = 0
 _last_count_result = (0, "")
 
@@ -35,6 +33,7 @@ _func_call_paths = defaultdict(Counter)
 
 _function_name_cache: dict = {}
 
+LAST_LIVE_SHARE_TIME: int | None = None
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
@@ -584,6 +583,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 }
 
 class ConfigLoader:
+    runtime_debug: bool
     number_of_generators: int
     disable_previous_job_constraint: bool
     save_to_database: bool
@@ -1884,7 +1884,7 @@ async def _live_share(force: bool = False) -> bool:
         print_debug(f"live_share stdout: {stdout}")
 
     now = time.time()
-    if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
+    if not force and LAST_LIVE_SHARE_TIME is None or (now - LAST_LIVE_SHARE_TIME) < 30:
         return True
 
     SHOWN_LIVE_SHARE_COUNTER += 1
@@ -1892,11 +1892,33 @@ async def _live_share(force: bool = False) -> bool:
 
     return True
 
-async def live_share(force: bool = False) -> bool:
-    try:
-        return await _live_share(force)
-    except KeyboardInterrupt:
-        return False
+_has_run_once = False
+_loop = None
+
+def live_share(force: bool = False) -> bool:
+    global _has_run_once, _loop
+
+    if not _has_run_once:
+        _has_run_once = True
+        # For first call: run async function synchronously (blocking)
+        try:
+            if _loop is None:
+                _loop = asyncio.new_event_loop()
+                threading.Thread(target=_loop.run_forever, daemon=True).start()
+            future = asyncio.run_coroutine_threadsafe(_live_share(force), _loop)
+            return future.result()  # blocks until done
+        except KeyboardInterrupt:
+            return False
+    else:
+        # Subsequent calls: schedule async task on running loop, return immediately
+        try:
+            if _loop is None:
+                _loop = asyncio.new_event_loop()
+                threading.Thread(target=_loop.run_forever, daemon=True).start()
+            asyncio.run_coroutine_threadsafe(_live_share(force), _loop)
+        except Exception:
+            pass
+        return True
 
 def compute_md5_hash(filepath: str) -> Optional[str]:
     if not os.path.exists(filepath):

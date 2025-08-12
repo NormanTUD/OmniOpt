@@ -1875,9 +1875,6 @@ async def _live_share(force: bool = False) -> bool:
     if not args.live_share or not get_current_run_folder():
         return False
 
-    now = time.time()
-    if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
-        return True
 
     stdout, stderr = run_live_share_command(force)
     if stderr:
@@ -1885,6 +1882,10 @@ async def _live_share(force: bool = False) -> bool:
         extract_and_print_qr(stderr)
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
+
+    now = time.time()
+    if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
+        return True
 
     SHOWN_LIVE_SHARE_COUNTER += 1
     LAST_LIVE_SHARE_TIME = now

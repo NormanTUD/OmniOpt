@@ -936,7 +936,7 @@ def start_worker_generators() -> None:
     num_workers = max(0, args.number_of_generators - 1)
 
     if shutil.which("sbatch") is None:
-        if args.num_workers > 1:
+        if num_workers > 1:
             print_yellow("No sbatch, cannot start multiple generation workers")
         return
 

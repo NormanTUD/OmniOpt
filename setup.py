@@ -117,6 +117,7 @@ all_needed_files.append("test_requirements.txt")
 all_needed_files.append("apt-dependencies.txt")
 all_needed_files.append(".colorfunctions.sh")
 all_needed_files.append(".shellscript_functions")
+all_needed_files.append(".tests/pylint.rc")
 
 setup(
     long_description=open('README.md', encoding="utf-8").read(),

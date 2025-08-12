@@ -1926,9 +1926,7 @@ def _start_event_loop():
         threading.Thread(target=_loop.run_forever, daemon=True).start()
 
 async def init_live_share() -> bool:
-    print("TRYING LIVE SHARE NOW")
     ret = await live_share(True, True)
-    print("ENDED LIVE SHARE")
 
     return ret
 

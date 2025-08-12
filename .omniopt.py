@@ -8419,7 +8419,7 @@ def get_optimizer_kwargs() -> dict:
         "sequential": False
     }
 
-def create_systematic_step(model: Any, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
+def create_systematic_step(_num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
     step = GenerationStep(
         num_trials=_num_trials,
         max_parallelism=(1000 * max_eval + 1000),
@@ -8503,7 +8503,7 @@ def set_global_generation_strategy() -> None:
 
             nr = int(gs_element[model_name])
 
-            gs_elem = create_systematic_step(select_model(model_name), nr, start_index)
+            gs_elem = create_systematic_step(nr, start_index)
             steps.append(gs_elem)
 
             gs_names.append(get_step_name(model_name, nr))

@@ -26,6 +26,9 @@ F = TypeVar("F", bound=Callable[..., object])
 
 LAST_LIVE_SHARE_TIME = 0
 
+_last_count_time = 0
+_last_count_result = (0, "")
+
 _total_time = 0.0
 _func_times = defaultdict(float)
 _func_call_paths = defaultdict(Counter)
@@ -5890,16 +5893,22 @@ def submitted_jobs(nr: int = 0) -> int:
     makedirs(state_files_folder)
     return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
 
-def count_jobs_in_squeue() -> Tuple[int, str]:
+def count_jobs_in_squeue() -> tuple[int, str]:
+    global _last_count_time, _last_count_result
+
+    now = time.time()
+    if now - _last_count_time < 10:
+        return _last_count_result
+
     _len = len(global_vars["jobs"])
 
     if shutil.which('squeue') is None:
-        return _len, "count_jobs_in_squeue: squeue not found"
+        _last_count_result = (_len, "count_jobs_in_squeue: squeue not found")
+        _last_count_time = now
+        return _last_count_result
 
     experiment_name = global_vars["experiment_name"]
-
     job_pattern = re.compile(rf"{experiment_name}_{run_uuid}_[a-f0-9-]+")
-
     err_msg = ""
 
     try:
@@ -5910,20 +5919,25 @@ def count_jobs_in_squeue() -> Tuple[int, str]:
             check=True,
             text=True
         )
-
         if "slurm_load_jobs error" in result.stderr:
-            return _len, "Detected slurm_load_jobs error in stderr."
+            _last_count_result = (_len, "Detected slurm_load_jobs error in stderr.")
+            _last_count_time = now
+            return _last_count_result
 
         jobs = result.stdout.splitlines()
         job_count = sum(1 for job in jobs if job_pattern.match(job))
-        return job_count, ""
+        _last_count_result = (job_count, "")
+        _last_count_time = now
+        return _last_count_result
 
     except subprocess.CalledProcessError:
         err_msg = "count_jobs_in_squeue: Error while executing squeue."
     except FileNotFoundError:
         err_msg = "count_jobs_in_squeue: squeue is not available on this host."
 
-    return -1, err_msg
+    _last_count_result = (-1, err_msg)
+    _last_count_time = now
+    return _last_count_result
 
 def log_worker_numbers() -> None:
     if is_slurm_job():

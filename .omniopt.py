@@ -7399,9 +7399,9 @@ def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, st
 @beartype
 def handle_restart(stdout_path: str, trial_index: int) -> None:
     stdout_path = check_alternate_path(stdout_path)
-    params_from_out_file = get_parameters_from_outfile(stdout_path)
-    if params_from_out_file:
-        orchestrator_start_trial(params_from_out_file, trial_index)
+    parameters = get_parameters_from_outfile(stdout_path)
+    if parameters:
+        orchestrator_start_trial(parameters, trial_index)
     else:
         print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 

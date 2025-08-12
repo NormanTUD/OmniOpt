@@ -7334,7 +7334,7 @@ def _finish_previous_jobs_helper_wrapper(__args: Tuple[Any, int]) -> int:
     return _finish_previous_jobs_helper_check_and_process(job, trial_index, 0)
 
 @beartype
-def finish_previous_jobs(new_msgs: List[str]) -> None:
+def finish_previous_jobs(new_msgs: List[str] = []) -> None:
     global JOBS_FINISHED
 
     if not ax_client:
@@ -9198,7 +9198,7 @@ def run_search(_progress_bar: Any) -> bool:
     while (submitted_jobs() - failed_jobs()) <= max_eval:
         log_what_needs_to_be_logged()
         wait_for_jobs_to_complete()
-        finish_previous_jobs([])
+        finish_previous_jobs()
 
         if should_break_search(_progress_bar):
             break
@@ -9286,7 +9286,6 @@ def finalize_jobs() -> None:
         wait_for_jobs_to_complete()
 
         jobs_left = len(global_vars['jobs'])
-
 
         finish_previous_jobs([f"waiting for {jobs_left} job{'' if jobs_left == 1 else 's'})"])
 

@@ -18,8 +18,6 @@ import tempfile
 import threading
 import copy
 
-from filelock import FileLock
-
 experiment_parameters: dict | None = None
 arms_by_name_for_deduplication: dict = {}
 initialized_storage: bool = False
@@ -1992,6 +1990,37 @@ def reindex_trials(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+class FileLockSimple:
+    def __init__(self, lock_path: str, timeout: int = 300):
+        self.lock_path = lock_path
+        self.timeout = timeout
+        self.lock_acquired = False
+
+    def __enter__(self):
+        start_time = time.time()
+        while True:
+            try:
+                # Atomar: Datei anlegen, Fehler wenn existiert
+                fd = os.open(self.lock_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+                pid_str = str(os.getpid()).encode('utf-8')
+                os.write(fd, pid_str)
+                os.close(fd)
+                self.lock_acquired = True
+                return self
+            except FileExistsError as __e:
+                # Lock-Datei existiert schon -> warten
+                if time.time() - start_time > self.timeout:
+                    raise TimeoutError(f"Timeout ({self.timeout}s) beim Warten auf Lock {self.lock_path}") from __e
+                time.sleep(0.5)
+
+    def __exit__(self, exc_type, exc_value, _traceback):
+        if self.lock_acquired:
+            try:
+                os.unlink(self.lock_path)
+                self.lock_acquired = False
+            except FileNotFoundError:
+                pass  # Lock wurde schon gelöscht
+
 @beartype
 def save_results_csv() -> Optional[str]:
     if args.dryrun:
@@ -2003,52 +2032,60 @@ def save_results_csv() -> Optional[str]:
     makedirs(state_files_folder)
 
     lock_path = pd_csv + ".lock"
-    with FileLock(lock_path, timeout=30):  # wait max 5 min
-        save_experiment_state()
 
-        if ax_client is None:
-            return None
+    try:
+        with FileLockSimple(lock_path, timeout=300):
+            save_experiment_state()
 
-        old_hash = compute_md5_hash(pd_csv)
-        save_checkpoint()
+            if ax_client is None:
+                return None
 
-        try:
-            ax_client.experiment.fetch_data()
-            pd_frame = ax_client.get_trials_data_frame()
-            pd_frame = merge_with_job_infos(pd_frame)
+            old_hash = compute_md5_hash(pd_csv)
+            save_checkpoint()
 
-            # === Fix trial_index and arm_name uniqueness ===
-            pd_frame = reindex_trials(pd_frame)
+            try:
+                ax_client.experiment.fetch_data()
+                pd_frame = ax_client.get_trials_data_frame()
+                pd_frame = merge_with_job_infos(pd_frame)
+                pd_frame = reindex_trials(pd_frame)
 
-            pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
+                pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
 
-            json_snapshot = ax_client.to_json_snapshot()
-            with open(pd_json, "w", encoding="utf-8") as json_file:
-                json.dump(json_snapshot, json_file, indent=4)
+                json_snapshot = ax_client.to_json_snapshot()
+                with open(pd_json, "w", encoding="utf-8") as json_file:
+                    json.dump(json_snapshot, json_file, indent=4)
 
-            save_experiment(
-                ax_client.experiment,
-                f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
-            )
+                save_experiment(
+                    ax_client.experiment,
+                    f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
+                )
 
-            if args.model not in uncontinuable_models and args.save_to_database:
-                try_saving_to_db()
-            else:
-                if args.save_to_database:
-                    print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+                if args.model not in uncontinuable_models and args.save_to_database:
+                    try_saving_to_db()
                 else:
-                    print_debug("Not saving to database because --save_to_database was not set")
+                    if args.save_to_database:
+                        print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+                    else:
+                        print_debug("Not saving to database because --save_to_database was not set")
 
-        except (SignalUSR, SignalCONT, SignalINT) as e:
-            raise type(e)(str(e)) from e
-        except Exception as e:
-            print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+            except (SignalUSR, SignalCONT, SignalINT) as e:
+                raise type(e)(str(e)) from e
+            except Exception as e:
+                print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
-        new_hash = compute_md5_hash(pd_csv)
-        if old_hash != new_hash:
-            live_share()
+            new_hash = compute_md5_hash(pd_csv)
+            if old_hash != new_hash:
+                live_share()
+
+    except TimeoutError as e:
+        print_red(f"Timeout beim Erwerb des Datei-Locks: {e}")
+        return None
+    except Exception as e:
+        print_red(f"Unbekannter Fehler beim Datei-Lock: {e}")
+        return None
 
     return pd_csv
+
 @beartype
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":

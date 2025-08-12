@@ -10834,11 +10834,10 @@ async def main_outside() -> None:
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
 
+    excluded_functions = {"logmytime", "_print_stats", "print"}
+
     for name, obj in list(namespace.items()):
-        if (
-            isinstance(obj, types.FunctionType)
-            and name not in {"logmytime", "_print_stats", "print"}
-        ):
+        if (isinstance(obj, types.FunctionType) and name not in excluded_functions):
             wrapped = obj
             if enable_beartype:
                 wrapped = beartype(wrapped)

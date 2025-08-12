@@ -1874,7 +1874,8 @@ def extract_and_print_qr(text: str) -> None:
         qr.print_ascii(out=sys.stdout)
 
 def force_live_share() -> bool:
-    return live_share(True)
+    if args.live_share:
+        return live_share(True)
 
 def start_live_share_if_enabled() -> None:
     if not getattr(args, "live_share", False):
@@ -6912,6 +6913,8 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
     log_what_needs_to_be_logged()
 
     save_results_csv()
+
+    force_live_share()
 
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
     if ax_client is None:

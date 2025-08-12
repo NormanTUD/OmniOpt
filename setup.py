@@ -123,7 +123,7 @@ setup(
     long_description=open('README.md', encoding="utf-8").read(),
     long_description_content_type='text/markdown',
     name='omniopt2',
-    version='0.95',
+    version='0.96',
     description='Automatic hyperparameter optimizer based on Ax/Botorch',
     author='Norman Koch',
     author_email='norman.koch@tu-dresden.de',

@@ -9045,7 +9045,16 @@ def run_search(_progress_bar: Any) -> bool:
 
 @beartype
 def should_break_search(_progress_bar: Any) -> bool:
-    return (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+    ret = False
+
+    if not args.worker_generator_path:
+        ret = (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+    else:
+        print_debug(f"should_break_search: False because --worker_generator_path was set")
+
+    print_debug(f"should_break_search: {ret}")
+
+    return ret
 
 @beartype
 def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:

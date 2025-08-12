@@ -1886,10 +1886,15 @@ EOF
 							exec 2> >(tee -ia $bash_logname >& 2)
 						fi
 
-						exit_code=$(grep -i "exit-code:*" "$LOG_PATH" | sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' | tail -n1)
-						exit_code=${exit_code:-3}
+						
+						exit_code=$(grep -i "exit-code:*" "$LOG_PATH" \
+							| sed -e 's#Exit-Code:*[[:space:]]*##i' -e 's#,.*##' \
+							| tail -n1 \
+							| tr -d '\r')
 
-
+						if ! [[ "$exit_code" =~ ^[0-9]+$ ]]; then
+							exit_code=3
+						fi
 
 						if ! content=$(cat "$LOG_PATH"); then
 							echo "Error: Could not read file '$LOG_PATH'."

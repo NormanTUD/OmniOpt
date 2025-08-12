@@ -7904,7 +7904,6 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 if cnt >= n:
                     break
 
-                # 🔹 Arm-Name um eindeutigen Worker-Prefix erweitern (robust gegen None)
                 try:
                     current_name = getattr(arm, "name", None)
                     if not isinstance(current_name, str) or not current_name.strip():
@@ -7912,7 +7911,6 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     else:
                         new_name = f"{worker_generator_uuid}_{current_name}"
 
-                    # Setter der Arm-Klasse umgehen, um None-Fehler zu verhindern
                     object.__setattr__(arm, "name", new_name)
 
                 except Exception as name_err:

@@ -9601,6 +9601,40 @@ def save_experiment_state() -> None:
         print(f"Error saving experiment state: {e}")
 
 @beartype
+def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60):
+    try:
+        if not os.path.exists(state_path):
+            print(f"[ERROR] File '{state_path}' does not exist.")
+            return False
+
+        i = 0
+        while True:
+            try:
+                file_size = os.path.getsize(state_path)
+            except OSError as e:
+                print(f"[ERROR] File '{state_path}' cannot be read: {e}")
+                return False
+
+            if file_size >= min_size:
+                print(f"[INFO] File '{state_path}' is now large enough ({file_size} Bytes).")
+                return True
+
+            if i >= max_wait_seconds:
+                print(f"[ERROR] Timeout: File '{state_path}' was not larger than {min_size} bytes after waiting for {max_wait_seconds} seconds.")
+                return False
+
+            # Statusanzeige im Terminal (ohne Zeilenumbruch)
+            print(f"\r[yellow] File '{state_path}' is too small ({file_size} Bytes), waiting ... {i}s", end="")
+            sys.stdout.flush()
+            time.sleep(1)
+            i += 1
+
+    except Exception as e:
+        print_red(f"[ERROR] Unexpected error: {e}")
+        return False
+
+
+@beartype
 def load_experiment_state() -> None:
     global ax_client
     state_path = get_state_path()
@@ -9609,10 +9643,9 @@ def load_experiment_state() -> None:
         print(f"State file {state_path} does not exist, starting fresh")
         return
 
-    # Datei-Größe prüfen, um leere/kaputte Dateien zu vermeiden
-    if os.path.getsize(state_path) < 5:
-        print_debug(f"State file {state_path} is empty or too small, ignoring")
-        return
+    if args.worker_generator_path:
+        if not wait_for_state_file(state_path):
+            my_exit(188)
 
     try:
         with open(state_path, "r") as f:
@@ -9622,7 +9655,6 @@ def load_experiment_state() -> None:
         return
 
     try:
-        # Konflikte in arms_by_name auflösen
         arms_seen = {}
         for arm in data.get("arms", []):
             name = arm.get("name")

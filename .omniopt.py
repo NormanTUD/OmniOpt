@@ -5562,7 +5562,7 @@ def validate_experiment_parameters() -> None:
             my_exit(95)
 
 @beartype
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: list) -> Tuple[Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[list]) -> Tuple[Any, str, str]:
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -5651,7 +5651,7 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
     return experiment_args, gpu_string, gpu_color
 
 @beartype
-def get_experiment_parameters(cli_params_experiment_parameters: list) -> Optional[Tuple[AxClient, dict, str, str]]:
+def get_experiment_parameters(cli_params_experiment_parameters: Optional[list]) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     __get_experiment_parameters__check_ax_client()

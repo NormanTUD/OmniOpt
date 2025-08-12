@@ -878,7 +878,6 @@ def start_worker_generators() -> None:
         return
 
     omniopt_path = os.path.join(script_dir, "omniopt")
-
     if not os.path.isfile(omniopt_path):
         print_yellow(f"Cannot find omniopt script at {omniopt_path}")
         return
@@ -895,20 +894,33 @@ def start_worker_generators() -> None:
 
     for i in range(num_workers):
         try:
-            cmd = ["srun", "-J", f"worker_generator_{run_uuid}", " ".join(base_command + [worker_arg])]
+            # Baue das Batch-Skript als String
+            batch_script = f"""#!/bin/bash
+#SBATCH -J worker_generator_{run_uuid}
+
+{" ".join(base_command + [worker_arg])}
+"""
+
+            # Übergabe des Skripts an sbatch via stdin
+            cmd = ["sbatch"]
             result = subprocess.run(
                 cmd,
+                input=batch_script,
                 env=clean_env,
                 check=False,
                 capture_output=True,
                 text=True
             )
+
             if result.returncode != 0:
                 print_yellow(f"Failed to start worker {i + 1}: {result.stderr.strip()}")
             else:
                 print(f"Started worker {i + 1} via sbatch: {result.stdout.strip()}")
+
         except Exception as e:
             print_yellow(f"Error starting worker {i + 1}: {e}")
+
+    return
 
 @beartype
 def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:

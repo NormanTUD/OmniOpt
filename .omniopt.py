@@ -1888,16 +1888,6 @@ def force_live_share() -> bool:
 
     return False
 
-def start_live_share_if_enabled() -> None:
-    if not getattr(args, "live_share", False):
-        return
-
-    def periodic_call():
-        live_share()
-        threading.Timer(30, periodic_call).start()
-
-    periodic_call()
-
 async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     if not get_current_run_folder():
         print(f"live_share: get_current_run_folder was empty or false: {get_current_run_folder()}")

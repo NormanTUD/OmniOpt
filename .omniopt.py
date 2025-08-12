@@ -7366,9 +7366,9 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
     return False
 
 @beartype
-def orchestrator_start_trial(params_from_out_file: Union[dict, str], trial_index: int) -> None:
+def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if executor and ax_client:
-        new_job = executor.submit(evaluate, {"params": params_from_out_file, "trial_idx": trial_index, "submit_time": int(time.time())})
+        new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
         submitted_jobs(1)
 
         _trial = ax_client.get_trial(trial_index)

@@ -1866,37 +1866,33 @@ def extract_and_print_qr(text: str) -> None:
 def force_live_share() -> bool:
     return live_share(True)
 
-async def live_share(force: bool = False) -> bool:
+async def _live_share(force: bool = False) -> bool:
     global SHOWN_LIVE_SHARE_COUNTER, LAST_LIVE_SHARE_TIME
 
-    try:
-        if not args.live_share:
-            return False
-
-        if not get_current_run_folder():
-            return False
-
-        now = time.time()
-        if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
-            return True
-
-        if SHOWN_LIVE_SHARE_COUNTER == 0:
-            stdout, stderr = run_live_share_command(force)
-            if stderr:
-                print_green(stderr)
-                extract_and_print_qr(stderr)
-            if stdout:
-                print_debug(f"live_share stdout: {stdout}")
-        else:
-            stdout, stderr = run_live_share_command(force)
-
-        SHOWN_LIVE_SHARE_COUNTER += 1
-        LAST_LIVE_SHARE_TIME = now
-
-    except KeyboardInterrupt:
+    if not args.live_share or not get_current_run_folder():
         return False
 
+    now = time.time()
+    if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
+        return True
+
+    stdout, stderr = run_live_share_command(force)
+    if stderr:
+        print_green(stderr)
+        extract_and_print_qr(stderr)
+    if stdout:
+        print_debug(f"live_share stdout: {stdout}")
+
+    SHOWN_LIVE_SHARE_COUNTER += 1
+    LAST_LIVE_SHARE_TIME = now
+
     return True
+
+async def live_share(force: bool = False) -> bool:
+    try:
+        return await _live_share(force)
+    except KeyboardInterrupt:
+        return False
 
 def compute_md5_hash(filepath: str) -> Optional[str]:
     if not os.path.exists(filepath):

@@ -273,6 +273,9 @@ def logmytime(func: F) -> F:
                         f"Function '{func.__name__}' took {elapsed:.4f}s "
                         f"(total {percent_if_added:.1f}% of tracked time)"
                     )
+
+                print(f"!!! '{func.__name__}' added {percent_if_added}% of the total runtime. Because of that:  !!!")
+
                 _print_stats()
 
         return result
@@ -298,7 +301,6 @@ def _print_stats() -> None:
         print(time_str)
 
     print("==================")
-
 
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args

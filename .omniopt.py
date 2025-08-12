@@ -9733,7 +9733,7 @@ def write_files_and_show_overviews() -> None:
     write_process_info()
     write_continue_run_uuid_to_file()
 
-def write_git_version() -> None:
+async def write_git_version() -> None:
     with console.status("[bold green]Writing git info file..."):
         folder = f"{get_current_run_folder()}/"
         os.makedirs(folder, exist_ok=True)

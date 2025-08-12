@@ -933,8 +933,11 @@ def start_worker_generators() -> None:
     if args.worker_generator_path:
         return
 
+    num_workers = max(0, args.number_of_generators - 1)
+
     if shutil.which("sbatch") is None:
-        print_yellow("no sbatch, cannot start multiple generation workers")
+        if args.num_workers > 1:
+            print_yellow("No sbatch, cannot start multiple generation workers")
         return
 
     omniopt_path = os.path.join(script_dir, "omniopt")
@@ -950,18 +953,14 @@ def start_worker_generators() -> None:
     for key in slurm_keys:
         del clean_env[key]
 
-    num_workers = max(0, args.number_of_generators - 1)
-
     for i in range(num_workers):
         try:
-            # Baue das Batch-Skript als String
             batch_script = f"""#!/bin/bash
 #SBATCH -J worker_generator_{run_uuid}
 
 {" ".join(base_command + [worker_arg])}
 """
 
-            # Übergabe des Skripts an sbatch via stdin
             cmd = ["sbatch", "-N", "1"]
             if args.gpus:
                 cmd = cmd + ["--gres", f"gpu:{args.gpus}"]

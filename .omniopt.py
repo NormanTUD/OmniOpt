@@ -5822,10 +5822,6 @@ def get_current_model() -> str:
         return "Random*"
 
     if ax_client:
-        print("================")
-        print(ax_client.generation_strategy.current_node_name)
-        print("================")
-
         gs_model = ax_client.generation_strategy.current_node_name
 
         if gs_model:

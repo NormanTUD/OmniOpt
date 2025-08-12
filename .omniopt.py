@@ -18,7 +18,7 @@ import tempfile
 import threading
 import copy
 import functools
-from collections import defaultdict
+from collections import Counter, defaultdict
 import types
 
 from typing import TypeVar, Callable
@@ -28,6 +28,7 @@ LAST_LIVE_SHARE_TIME = 0
 
 _total_time = 0.0
 _func_times = defaultdict(float)
+_func_call_paths = defaultdict(Counter)
 
 _function_name_cache: dict = {}
 
@@ -253,7 +254,6 @@ def logmytime(func: F) -> F:
     def wrapper(*func_args, **kwargs):
         global _total_time
         start = time.perf_counter()
-        print(f"Executing {func.__name__}...")
         result = func(*func_args, **kwargs)
         elapsed = time.perf_counter() - start
 
@@ -268,16 +268,19 @@ def logmytime(func: F) -> F:
                 _func_times[func.__name__] = simulated_func_total
                 _total_time = simulated_total
 
-                if percent_if_added > 0.1:  # falls du diese Schwelle behalten willst
-                    print(
-                        f"Function '{func.__name__}' took {elapsed:.4f}s "
-                        f"(total {percent_if_added:.1f}% of tracked time)"
-                    )
+                # Stack erfassen (ohne Decorator-Aufruf selbst)
+                stack = traceback.extract_stack()[:-1]
+                # Nur relevante Zeilen: Datei:Zeile:Funktion
+                short_stack = [f"{f.filename.split('/')[-1]}:{f.lineno} in {f.name}" for f in stack[-5:]]
+                call_path_str = " -> ".join(short_stack)
+                _func_call_paths[func.__name__][call_path_str] += 1
 
-                print(f"!!! '{func.__name__}' added {percent_if_added}% of the total runtime. Because of that:  !!!")
-
+                print(
+                    f"Function '{func.__name__}' took {elapsed:.4f}s "
+                    f"(total {percent_if_added:.1f}% of tracked time)"
+                )
+                print(f"!!! '{func.__name__}' added {percent_if_added:.1f}% of the total runtime. !!!")
                 _print_stats()
-
         return result
     return wrapper
 
@@ -287,19 +290,15 @@ def _print_stats() -> None:
 
     print("=== Time Stats ===")
     items = sorted(_func_times.items(), key=lambda x: -x[1])
-    max_t = max(t for _, t in items)
-    min_t = min(t for _, t in items)
-
-    for name, t in items:
+    for i, (name, t) in enumerate(items, 1):
         percent_total = t / _total_time * 100
-        if max_t == min_t:
-            ratio = 0.0
-        else:
-            ratio = (t - min_t) / (max_t - min_t)
+        print(f"{i}. {name}: {t:.4f}s ({percent_total:.1f}%)")
 
-        time_str = f"{name}: {t:.4f}s ({percent_total:.1f}%)"
-        print(time_str)
-
+    print("\n=== Top 5 slowest call origins ===")
+    for name, _ in items[:5]:
+        print(f"\n{name}:")
+        for call_path, count in _func_call_paths[name].most_common(3):
+            print(f"  {count}×  {call_path}")
     print("==================")
 
 def fool_linter(*fool_linter_args: Any) -> Any:

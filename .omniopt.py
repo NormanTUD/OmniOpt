@@ -895,7 +895,7 @@ def start_worker_generators() -> None:
 
     for i in range(num_workers):
         try:
-            cmd = ["sbatch", "-J", f"worker_generator_{run_uuid}", "--wrap", " ".join(base_command + [worker_arg])]
+            cmd = ["srun", "-J", f"worker_generator_{run_uuid}", " ".join(base_command + [worker_arg])]
             result = subprocess.run(
                 cmd,
                 env=clean_env,

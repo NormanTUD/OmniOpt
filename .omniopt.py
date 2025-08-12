@@ -7634,7 +7634,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             experiment=ax_client.experiment,
             n=remaining,
             pending_observations=pending_observations
-        )
+        )[0][0]
 
         new_arms = batched_generator_run.arms
         if not new_arms:

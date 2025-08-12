@@ -9633,6 +9633,28 @@ def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: in
         print_red(f"[ERROR] Unexpected error: {e}")
         return False
 
+@beartype
+def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int = 1) -> Optional[dict]:
+    start_time = time.time()
+
+    while True:
+        if not os.path.exists(state_path):
+            print_debug(f"load_json_with_retry(state_path = {state_path}, timeout = {timeout}, retry_interval: {retry_interval}): File does not exist: {state_path}")
+
+        try:
+            with open(state_path, mode="r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data
+        except Exception as e:
+            elapsed = time.time() - start_time
+            if elapsed >= timeout:
+                print_debug(f"\nCould not load valid JSON after {elapsed} second of trying on path {state_path}: {e}")
+                return None
+            else:
+                print_debug(f"Wait for valid JSON {state_path}... error: {e}")
+                time.sleep(retry_interval)
+
+    return None
 
 @beartype
 def load_experiment_state() -> None:
@@ -9647,11 +9669,10 @@ def load_experiment_state() -> None:
         if not wait_for_state_file(state_path):
             my_exit(188)
 
-    try:
-        with open(state_path, encoding="utf-8", mode="r") as f:
-            data = json.load(f)
-    except Exception as e:
-        print(f"Could not read valid JSON from {state_path}: {e}")
+    data = load_json_with_retry(state_path)
+
+    if data is None:
+        print(f"\nCould not read valid JSON from {state_path}: {e}")
         return
 
     try:

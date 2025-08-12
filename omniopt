@@ -1907,7 +1907,7 @@ EOF
 
 						exit_code_only_digits=$(echo "$exit_code_tail" | grep -o '[0-9]\+')
 						if [ -z "$exit_code_only_digits" ]; then
-							echo "WARN: Kein gültiger Exit-Code gefunden, setze auf 3"
+							echo "WARN: No valid exit code found, setting it to 3"
 							exit_code_only_digits=3
 						fi
 

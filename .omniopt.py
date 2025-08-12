@@ -881,7 +881,7 @@ def start_worker_generators() -> None:
         return
 
     base_command = ["bash", omniopt_path] + sys.argv[1:]
-    worker_arg = f"--worker_generation_path={get_current_run_folder()}"
+    worker_arg = f"--worker_generator_path={get_current_run_folder()}"
 
     clean_env = copy.deepcopy(os.environ)
     slurm_keys = [key for key in clean_env if key.upper().startswith("SLURM_")]

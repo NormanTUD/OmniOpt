@@ -10802,7 +10802,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
             isinstance(obj, types.FunctionType)
             and name not in {"logmytime", "_print_stats", "print"}
         ):
-            namespace[name] = beartype(logmytime(obj))
+            namespace[name] = logmytime(beartype(obj))
 
 if __name__ == "__main__":
     try:

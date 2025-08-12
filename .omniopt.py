@@ -9650,9 +9650,9 @@ def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int
             if elapsed >= timeout:
                 print_debug(f"\nCould not load valid JSON after {elapsed} second of trying on path {state_path}: {e}")
                 return None
-            else:
-                print_debug(f"Wait for valid JSON {state_path}... error: {e}")
-                time.sleep(retry_interval)
+
+            print_debug(f"Wait for valid JSON {state_path}... error: {e}")
+            time.sleep(retry_interval)
 
     return None
 
@@ -9672,7 +9672,7 @@ def load_experiment_state() -> None:
     data = load_json_with_retry(state_path)
 
     if data is None:
-        print(f"\nCould not read valid JSON from {state_path}: {e}")
+        print(f"Could not read valid JSON from {state_path}")
         return
 
     try:

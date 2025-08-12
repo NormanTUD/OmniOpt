@@ -9057,6 +9057,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
 @beartype
 def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
     finish_previous_jobs(["finishing jobs"])
+
     if done_optimizing:
         end_program(False, 0)
 
@@ -9286,10 +9287,8 @@ def finalize_jobs() -> None:
 
         jobs_left = len(global_vars['jobs'])
 
-        if jobs_left == 1:
-            finish_previous_jobs([f"waiting for {jobs_left} job)"])
-        else:
-            finish_previous_jobs([f"waiting for {jobs_left} jobs)"])
+
+        finish_previous_jobs([f"waiting for {jobs_left} job{'' if jobs_left == 1 else 's'})"])
 
         handle_slurm_execution()
 
@@ -9308,10 +9307,7 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
 
     jobs_left = len(global_vars['jobs'])
 
-    if jobs_left == 1:
-        finish_previous_jobs([f"waiting for {jobs_left} job"])
-    else:
-        finish_previous_jobs([f"waiting for {jobs_left} jobs"])
+    finish_previous_jobs([f"waiting for {jobs_left} job{'s' if jobs_left != 1 else ''}"])
 
     clean_completed_jobs()
 

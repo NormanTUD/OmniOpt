@@ -5647,8 +5647,7 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
     return experiment_args, gpu_string, gpu_color
 
 @beartype
-def get_experiment_parameters(_params: list) -> Optional[Tuple[AxClient, dict, str, str]]:
-    cli_params_experiment_parameters = _params
+def get_experiment_parameters(cli_params_experiment_parameters: list) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     __get_experiment_parameters__check_ax_client()
@@ -6478,6 +6477,10 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
     if not args.worker_generator_path:
         set_max_eval(max_eval + cnt)
         set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
+    else:
+        print("=============================")
+        print("=============================")
+        print("=============================")
 
 @beartype
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
@@ -10358,10 +10361,7 @@ def main() -> None:
 
     initialize_ax_client()
 
-    exp_params = get_experiment_parameters([
-        cli_params_experiment_parameters,
-        experiment_parameters,
-    ])
+    exp_params = get_experiment_parameters(cli_params_experiment_parameters)
 
     if exp_params is not None:
         ax_client, experiment_args, gpu_string, gpu_color = exp_params

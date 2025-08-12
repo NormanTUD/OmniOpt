@@ -7872,7 +7872,7 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     cnt += 1
                     trials_dict[trial_index] = arm.parameters
 
-                save_results_csv()
+        save_results_csv()
 
         return _finalize_generation(trials_dict, cnt, n, start_time)
 

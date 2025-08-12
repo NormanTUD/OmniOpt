@@ -2340,7 +2340,7 @@ def log_nr_of_workers() -> None:
 
     return None
 
-def log_what_needs_to_be_logged() -> None:
+def log_data() -> None:
     try:
         log_worker_numbers()
     except Exception as e:
@@ -6895,8 +6895,6 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
     progressbar_description([f"new result: {result}"])
     update_progress_bar(progress_bar, 1)
 
-    log_what_needs_to_be_logged()
-
     save_results_csv()
 
 def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any) -> None:
@@ -8793,11 +8791,9 @@ def run_search(_progress_bar: Any) -> bool:
     global NR_OF_0_RESULTS
     NR_OF_0_RESULTS = 0
 
-    log_what_needs_to_be_logged()
     write_process_info()
 
     while (submitted_jobs() - failed_jobs()) <= max_eval:
-        log_what_needs_to_be_logged()
         wait_for_jobs_to_complete()
         finish_previous_jobs()
 
@@ -8818,12 +8814,17 @@ def run_search(_progress_bar: Any) -> bool:
             wait_for_jobs_to_complete()
             raise SearchSpaceExhausted("Search space exhausted")
 
-        log_what_needs_to_be_logged()
-
     finalize_jobs()
-    log_what_needs_to_be_logged()
 
     return False
+
+
+async def start_logging_daemon() -> None:
+    await log_data()
+
+    while True:
+        await asyncio.sleep(30)
+        await log_data()
 
 def should_break_search(_progress_bar: Any) -> bool:
     ret = False
@@ -10797,6 +10798,8 @@ async def main_outside() -> None:
         auto_wrap_namespace(globals())
 
     print_logo()
+
+    start_logging_daemon()
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

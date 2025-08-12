@@ -1941,6 +1941,8 @@ def save_results_csv() -> Optional[str]:
 
     lock_path = pd_csv + ".lock"
     with FileLock(lock_path, timeout=30):  # wait max 5 min
+        save_experiment_state()
+
         if ax_client is None:
             return None
 
@@ -7779,19 +7781,21 @@ def deduplicated_arm(arm: Any) -> bool:
 
 @beartype
 def get_batched_arms(nr_of_jobs_to_get: int) -> list:
+    global ax_client, global_gs, args
+
     batched_arms: list = []
     attempts = 0
 
     if global_gs is None:
         _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
-
         return []
 
     if ax_client is None:
         print_red("get_batched_arms: ax_client was None")
         return []
 
-    load_existing_data_for_worker_generation_path()
+    # Experiment-Status laden
+    load_experiment_state()
 
     while len(batched_arms) != nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
@@ -7821,7 +7825,8 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
-    save_results_csv()
+    # Experiment-Status speichern
+    save_results_csv()  # Bestehender Aufruf
 
     return batched_arms
 
@@ -7960,6 +7965,9 @@ def _handle_generation_failure(
             print_debug("Switching to random search strategy.")
             set_global_gs_to_random()
             return _fetch_next_trials(requested, True)
+
+    #print_red(f"_handle_generation_failure: General Exception: {e}")
+    raise Exception from e
 
     return {}, True
 
@@ -8743,12 +8751,6 @@ def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool
     return False
 
 @beartype
-def handle_optimization_completion(optimization_complete: bool) -> bool:
-    if optimization_complete:
-        return True
-    return False
-
-@beartype
 def execute_trials(
     trial_index_to_param: dict,
     phase: Optional[str],
@@ -8852,8 +8854,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
         get_next_trials_nr = new_nr_of_jobs_to_get
 
     for _ in range(range_nr):
-        trial_index_to_param, optimization_complete = _get_next_trials(get_next_trials_nr)
-        done_optimizing = handle_optimization_completion(optimization_complete)
+        trial_index_to_param, done_optimizing = _get_next_trials(get_next_trials_nr)
         if done_optimizing:
             continue
 
@@ -9050,7 +9051,7 @@ def should_break_search(_progress_bar: Any) -> bool:
     if not args.worker_generator_path:
         ret = (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
     else:
-        print_debug(f"should_break_search: False because --worker_generator_path was set")
+        print_debug("should_break_search: False because --worker_generator_path was set")
 
     print_debug(f"should_break_search: {ret}")
 
@@ -9582,6 +9583,37 @@ def get_pareto_frontier_points(
     result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
 
     return result
+
+@beartype
+def get_state_path() -> str:
+    return f"{get_current_run_folder()}/experiment_state.json"
+
+@beartype
+def save_experiment_state() -> None:
+    global ax_client
+    try:
+        if ax_client is None or ax_client.experiment is None:
+            print("save_experiment_state: ax_client oder ax_client.experiment ist None, kann nicht speichern.")
+            return
+        state_path = get_state_path()
+        ax_client.experiment.save_to_json_file(state_path)
+        print(f"Experiment state saved to {state_path}")
+    except Exception as e:
+        print(f"Error saving experiment state: {e}")
+
+@beartype
+def load_experiment_state() -> None:
+    global ax_client
+    try:
+        state_path = get_state_path()
+        if os.path.exists(state_path):
+            # Hier wird das Experiment im ax_client neu geladen
+            ax_client.load_experiment_from_json(state_path)
+            print(f"Experiment state loaded from {state_path}")
+        else:
+            print(f"State file {state_path} does not exist, starting fresh")
+    except Exception as e:
+        print(f"Error loading experiment state: {e}")
 
 @beartype
 def sanitize_json(obj: Any) -> Any:

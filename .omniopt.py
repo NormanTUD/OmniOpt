@@ -24,6 +24,8 @@ import types
 from typing import TypeVar, Callable
 F = TypeVar("F", bound=Callable[..., object])
 
+LAST_LIVE_SHARE_TIME = 0
+
 _total_time = 0.0
 _func_times = defaultdict(float)
 
@@ -251,21 +253,27 @@ def logmytime(func: F) -> F:
     def wrapper(*func_args, **kwargs):
         global _total_time
         start = time.perf_counter()
+        print(f"Executing {func.__name__}...")
         result = func(*func_args, **kwargs)
         elapsed = time.perf_counter() - start
 
-        if elapsed >= 0.01:
-            _func_times[func.__name__] += elapsed
-            _total_time += elapsed
+        if elapsed >= 0.05:
+            current_total = _total_time
+            current_func_total = _func_times[func.__name__]
+            simulated_total = current_total + elapsed
+            simulated_func_total = current_func_total + elapsed
+            percent_if_added = (simulated_func_total / simulated_total) * 100 if simulated_total else 100
 
-            percent = (_func_times[func.__name__] / _total_time) * 100
-            if percent > 0.1:
-                print(
-                    f"Function '{func.__name__}' took {elapsed:.4f}s "
-                    f"(total {percent:.1f}% of tracked time)"
-                )
+            if percent_if_added >= 1.0:
+                _func_times[func.__name__] = simulated_func_total
+                _total_time = simulated_total
 
-            _print_stats()
+                if percent_if_added > 0.1:  # falls du diese Schwelle behalten willst
+                    print(
+                        f"Function '{func.__name__}' took {elapsed:.4f}s "
+                        f"(total {percent_if_added:.1f}% of tracked time)"
+                    )
+                _print_stats()
 
         return result
     return wrapper
@@ -1854,8 +1862,11 @@ def extract_and_print_qr(text: str) -> None:
         qr.make()
         qr.print_ascii(out=sys.stdout)
 
+def force_live_share() -> bool:
+    return live_share(True)
+
 def live_share(force: bool = False) -> bool:
-    global SHOWN_LIVE_SHARE_COUNTER
+    global SHOWN_LIVE_SHARE_COUNTER, LAST_LIVE_SHARE_TIME
 
     try:
         if not args.live_share:
@@ -1864,20 +1875,23 @@ def live_share(force: bool = False) -> bool:
         if not get_current_run_folder():
             return False
 
+        now = time.time()
+        if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
+            return True  # zu früh, nichts tun
+
         if SHOWN_LIVE_SHARE_COUNTER == 0:
             stdout, stderr = run_live_share_command(force)
-
             if stderr:
                 print_green(stderr)
-
                 extract_and_print_qr(stderr)
-
             if stdout:
                 print_debug(f"live_share stdout: {stdout}")
         else:
             stdout, stderr = run_live_share_command(force)
 
-        SHOWN_LIVE_SHARE_COUNTER = SHOWN_LIVE_SHARE_COUNTER + 1
+        SHOWN_LIVE_SHARE_COUNTER += 1
+        LAST_LIVE_SHARE_TIME = now
+
     except KeyboardInterrupt:
         return False
 
@@ -9487,7 +9501,7 @@ def live_share_after_pareto() -> None:
 
         SHOWN_LIVE_SHARE_COUNTER = 1
 
-        live_share(True)
+        force_live_share()
 
 def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
     result_names_path = os.path.join(path_to_calculate, "result_names.txt")
@@ -10797,12 +10811,19 @@ def main_outside() -> None:
                 end_program(True)
 
 def auto_wrap_namespace(namespace: Any) -> Any:
+    enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
+
     for name, obj in list(namespace.items()):
         if (
             isinstance(obj, types.FunctionType)
             and name not in {"logmytime", "_print_stats", "print"}
         ):
-            namespace[name] = logmytime(beartype(obj))
+            wrapped = obj
+            if enable_beartype:
+                wrapped = beartype(wrapped)
+            namespace[name] = logmytime(wrapped)
+
+    return namespace
 
 if __name__ == "__main__":
     try:

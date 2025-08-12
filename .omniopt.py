@@ -1866,7 +1866,7 @@ def extract_and_print_qr(text: str) -> None:
 def force_live_share() -> bool:
     return live_share(True)
 
-def live_share(force: bool = False) -> bool:
+async def live_share(force: bool = False) -> bool:
     global SHOWN_LIVE_SHARE_COUNTER, LAST_LIVE_SHARE_TIME
 
     try:
@@ -1878,7 +1878,7 @@ def live_share(force: bool = False) -> bool:
 
         now = time.time()
         if not force and (now - LAST_LIVE_SHARE_TIME) < 30:
-            return True  # zu früh, nichts tun
+            return True
 
         if SHOWN_LIVE_SHARE_COUNTER == 0:
             stdout, stderr = run_live_share_command(force)

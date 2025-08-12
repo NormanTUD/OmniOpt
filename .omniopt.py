@@ -46,7 +46,7 @@ joined_valid_occ_types: str = ", ".join(valid_occ_types)
 SUPPORTED_MODELS: list = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
-special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem"]
+special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem", "worker_generator_uuid"]
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 
@@ -256,6 +256,8 @@ YELLOW: str = "\033[93m"
 RESET: str = "\033[0m"
 
 uuid_regex: Pattern = re.compile(r"^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89aAbB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+
+worker_generator_uuid: str = uuid.uuid4()
 
 new_uuid: str = str(uuid.uuid4())
 run_uuid: str = os.getenv("RUN_UUID", new_uuid)
@@ -3752,8 +3754,8 @@ def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_
     headline = _write_job_infos_csv_replace_none_with_str(headline)
     values = _write_job_infos_csv_replace_none_with_str(values)
 
-    headline = ["trial_index", "submit_time", "queue_time", *headline]
-    values = [str(trial_index), str(submit_time), str(queue_time), *values]
+    headline = ["trial_index", "submit_time", "queue_time", "worker_generator_uuid", *headline]
+    values = [str(trial_index), str(submit_time), str(queue_time), worker_generator_uuid, *values]
 
     run_folder = get_current_run_folder()
     if run_folder is not None and os.path.exists(run_folder):

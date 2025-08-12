@@ -9593,25 +9593,43 @@ def save_experiment_state() -> None:
     global ax_client
     try:
         if ax_client is None or ax_client.experiment is None:
-            print("save_experiment_state: ax_client oder ax_client.experiment ist None, kann nicht speichern.")
+            print_red("save_experiment_state: ax_client or ax_client.experiment is None, cannot save.")
             return
         state_path = get_state_path()
-        ax_client.experiment.save_to_json_file(state_path)
-        print(f"Experiment state saved to {state_path}")
+        ax_client.save_to_json_file(state_path)
     except Exception as e:
         print(f"Error saving experiment state: {e}")
 
 @beartype
 def load_experiment_state() -> None:
     global ax_client
+    state_path = get_state_path()
+    if not os.path.exists(state_path):
+        print(f"State file {state_path} does not exist, starting fresh")
+        return
+
     try:
-        state_path = get_state_path()
-        if os.path.exists(state_path):
-            # Hier wird das Experiment im ax_client neu geladen
-            ax_client.load_experiment_from_json(state_path)
-            print(f"Experiment state loaded from {state_path}")
-        else:
-            print(f"State file {state_path} does not exist, starting fresh")
+        with open(state_path, "r") as f:
+            data = json.load(f)
+
+        # Konflikte in arms_by_name auflösen
+        arms_seen = {}
+        for arm in data.get("arms", []):
+            name = arm["name"]
+            sig = arm["parameters"]  # Signatur grob über Parameter
+            if name in arms_seen and arms_seen[name] != sig:
+                new_name = f"{name}_{uuid.uuid4().hex[:6]}"
+                print(f"Renaming conflicting arm '{name}' -> '{new_name}'")
+                arm["name"] = new_name
+            arms_seen[name] = sig
+
+        # Gefilterten Zustand wieder zu JSON machen
+        temp_path = state_path + ".no_conflicts.json"
+        with open(temp_path, "w") as f:
+            json.dump(data, f)
+
+        ax_client = AxClient.load_from_json_file(temp_path)
+        print(f"Experiment state loaded from {temp_path} (conflicts removed)")
     except Exception as e:
         print(f"Error loading experiment state: {e}")
 

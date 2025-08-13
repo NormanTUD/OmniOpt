@@ -8849,12 +8849,6 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
         return nr_of_items
     return 0
 
-def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
-    nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
-    if nr_current_workers_errmsg:
-        print_debug(f"log_worker_status: {nr_current_workers_errmsg}")
-    _debug_worker_creation(f"{int(time.time())}, {nr_current_workers}, {nr_of_items}, {next_nr_steps}")
-
 def handle_slurm_execution() -> None:
     if is_slurm_job() and not args.force_local_execution:
         _sleep(1)

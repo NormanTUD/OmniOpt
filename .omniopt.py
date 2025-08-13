@@ -10925,6 +10925,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         if (isinstance(obj, types.FunctionType) and name not in excluded_functions):
             wrapped = obj
             if enable_beartype:
+                print(f"Wrapping function '{name}' in @beartype")
                 wrapped = beartype(wrapped)
             namespace[name] = log_time_and_memory_wrapper(wrapped)
 

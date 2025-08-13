@@ -10276,7 +10276,7 @@ def main() -> None:
 
         init_live_share()
 
-        start_periodic_live_share()
+        #start_periodic_live_share()
 
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
@@ -10891,7 +10891,7 @@ def main_outside() -> None:
 
     print_logo()
 
-    start_logging_daemon()
+    #start_logging_daemon()
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

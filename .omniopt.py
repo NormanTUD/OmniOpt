@@ -9732,7 +9732,7 @@ def write_files_and_show_overviews() -> None:
         write_continue_run_uuid_to_file()
 
 async def write_git_version() -> None:
-    with spinner("Writing git information")
+    with spinner("Writing git information"):
         folder = f"{get_current_run_folder()}/"
         os.makedirs(folder, exist_ok=True)
         file_path = os.path.join(folder, "git_version")

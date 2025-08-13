@@ -18,10 +18,11 @@ import tempfile
 import threading
 import copy
 import functools
-import psutil
 from collections import Counter, defaultdict
 import types
 import asyncio
+
+import psutil
 
 from typing import TypeVar, Callable, Any
 F = TypeVar("F", bound=Callable[..., object])
@@ -209,9 +210,6 @@ try:
 
     with spinner("Importing cowsay..."):
         import cowsay
-
-    with spinner("Importing psutil..."):
-        import psutil
 
     with spinner("Importing shutil..."):
         import shutil

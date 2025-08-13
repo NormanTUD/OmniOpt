@@ -145,6 +145,11 @@ try:
 
         warnings.filterwarnings(
             "ignore",
+            message="Ax currently requires a sqlalchemy version below 2.0.*",
+        )
+
+        warnings.filterwarnings(
+            "ignore",
             category=RuntimeWarning,
             message="coroutine 'start_logging_daemon' was never awaited"
         )

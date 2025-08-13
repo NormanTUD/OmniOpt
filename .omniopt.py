@@ -20,7 +20,6 @@ import copy
 import functools
 from collections import Counter, defaultdict
 import types
-import atexit
 from typing import TypeVar, Callable, Any
 import traceback
 import inspect
@@ -5894,7 +5893,7 @@ def update_progress_bar(nr: int) -> None:
     try:
         progress_bar.update(nr)
     except Exception as e:
-        print("Error updating progress bar: {e}")
+        print(f"Error updating progress bar: {e}")
 
 def get_current_model_name() -> str:
     if overwritten_to_random:
@@ -7565,8 +7564,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int]) 
         ("count_done_jobs()", count_done_jobs()),
         ("_max_eval", _max_eval),
         ("progress_bar.total", progress_bar.total),
-        ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
-        ("_ret", _ret)
+        ("NR_INSERTED_JOBS", NR_INSERTED_JOBS)
     ]
 
     for row in rows:

@@ -1,13 +1,11 @@
 mypydie
-pymysql
 sqlalchemy
 setuptools
 wheel
 multidict
 numpy
 python-dateutil
-ax-platform[mysql]
-art
+ax-platformart
 tzlocal
 Rich
 sixel

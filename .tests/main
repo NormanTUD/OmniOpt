@@ -393,41 +393,10 @@ function run_tests {
                         _green_text_bold_underline "$_running_string"
                 fi
 
-                local cpu_before=$(get_cpu_usage_percent)
-                local mem_before=$(get_memory_usage_mb)
-
                 eval "$test_case"
 
                 local end_time=$(date +%s)
                 local duration=$((end_time - start_time))
-
-                sleep 1
-                local cpu_after=$(get_cpu_usage_percent)
-                local mem_after=$(get_memory_usage_mb)
-
-                cpu_before=${cpu_before:-0}
-                cpu_after=${cpu_after:-0}
-                mem_before=${mem_before:-0}
-                mem_after=${mem_after:-0}
-
-		local cpu_diff=$(echo "scale=0; ($cpu_after - $cpu_before)/1" | bc -l)
-                local mem_diff=$((mem_after - mem_before))
-
-                if ((cpu_diff > 0)); then
-                        echo "🔺 CPU usage increased by ${cpu_diff}% (from ${cpu_before}% to ${cpu_after}%)"
-                elif ((cpu_diff < 0)); then
-                        echo "🔻 CPU usage decreased by $((-cpu_diff))% (from ${cpu_before}% to ${cpu_after}%)"
-                else
-                        echo "CPU usage unchanged at ${cpu_before}%"
-                fi
-
-                if ((mem_diff > 0)); then
-                        echo "🔺 Memory usage increased by ${mem_diff} MB (from ${mem_before} MB to ${mem_after} MB)"
-                elif ((mem_diff < 0)); then
-                        echo "🔻 Memory usage decreased by $((-mem_diff)) MB (from ${mem_before} MB to ${mem_after} MB)"
-                else
-                        echo "Memory usage unchanged at ${mem_before} MB"
-                fi
 
                 if [[ $duration -gt 10 ]]; then
                         RUN_TIMES+=("$duration")

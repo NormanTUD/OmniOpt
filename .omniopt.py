@@ -8938,11 +8938,9 @@ def run_search(_progress_bar: Any) -> bool:
     return False
 
 async def start_logging_daemon() -> None:
-    await log_data()
-
     while True:
-        await asyncio.sleep(30)
         await log_data()
+        await asyncio.sleep(30)
 
 def should_break_search(_progress_bar: Any) -> bool:
     ret = False
@@ -10925,7 +10923,7 @@ def main_outside() -> None:
 
     print_logo()
 
-    asyncio.get_event_loop().create_task(start_logging_daemon())
+    start_logging_daemon()
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

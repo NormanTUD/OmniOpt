@@ -683,6 +683,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 
 class ConfigLoader:
     runtime_debug: bool
+    show_func_name: bool
     number_of_generators: int
     disable_previous_job_constraint: bool
     save_to_database: bool

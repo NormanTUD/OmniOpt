@@ -9,6 +9,7 @@
 
 import sys
 import os
+import signal
 import pickle
 import re
 import math
@@ -25,6 +26,12 @@ import traceback
 import inspect
 import tracemalloc
 import resource
+
+
+def force_exit(signal_number, frame):
+    os._exit(1)
+
+signal.signal(signal.SIGINT, force_exit)
 
 import psutil
 
@@ -143,9 +150,6 @@ try:
 
     with spinner("Importing pwd..."):
         import pwd
-
-    with spinner("Importing signal..."):
-        import signal
 
     with spinner("Importing base64..."):
         import base64
@@ -8398,7 +8402,7 @@ def get_state_file_content(name: str, run_folder: str = get_current_run_folder()
 
     try:
         with open(file_path, mode="r", encoding="utf-8") as f:
-            return f.read()
+            return f.read().trim()
     except Exception as e:
         print_red(f"Failed reading '{file_path}': {e}")
         return ""
@@ -11036,6 +11040,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
     return namespace
 
 if __name__ == "__main__":
+
     try:
         main_outside()
     except (SignalUSR, SignalINT, SignalCONT) as e:

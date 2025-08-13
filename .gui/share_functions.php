@@ -2286,7 +2286,7 @@
 
 		foreach ($lines as $line) {
 			$cells = preg_split('/\s*[┃│]\s*/u', trim($line, "┃│"));
-			if (count($cells) === count($headerCells)) {
+			if ($cells !== false && count($cells) === count($headerCells)) {
 				$html .= '<tr>';
 				foreach ($cells as $cell) {
 					$html .= '<td>' . $cell . '</td>';

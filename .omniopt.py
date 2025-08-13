@@ -949,7 +949,7 @@ def start_worker_generators() -> None:
             print_yellow(f"Cannot find omniopt script at {omniopt_path}")
             return
 
-        def filter_args(_args_ list, exclude_params: list) -> list:
+        def filter_args(_args: list, exclude_params: list) -> list:
             return [arg for arg in _args if all(not arg.startswith(excl) for excl in exclude_params)]
 
         exclude_params = ["--generate_all_jobs_at_once"]

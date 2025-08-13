@@ -5,7 +5,8 @@ wheel
 multidict
 numpy
 python-dateutil
-ax-platformart
+ax-platform
+art
 tzlocal
 Rich
 sixel

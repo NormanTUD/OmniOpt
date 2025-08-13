@@ -8615,7 +8615,6 @@ def set_global_generation_strategy() -> None:
                 print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
                 set_max_eval(new_max_eval_plus_inserted_jobs)
 
-            print(generation_strategy_array)
             print_generation_strategy(generation_strategy_array)
 
             start_index = int(len(generation_strategy_array) / 2)
@@ -8626,8 +8625,6 @@ def set_global_generation_strategy() -> None:
                 model_name = list(gs_element.keys())[0]
 
                 _num_trials = int(gs_element[model_name])
-
-                print(f"Model: {model_name}, num trials: {_num_trials}, creating element...")
 
                 gs_elem = create_step(model_name, _num_trials, start_index)
                 step_name = get_step_name(model_name, _num_trials)

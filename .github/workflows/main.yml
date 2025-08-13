@@ -27,7 +27,7 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux free bc top
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
           else
@@ -68,7 +68,7 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux python3-venv
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux python3-venv free bc top
           else
             echo "Invalid OS for pipeline. Only works with Ubuntu"
             exit 1
@@ -96,7 +96,7 @@ jobs:
         if [[ $RUNNER_OS == 'Linux' ]]; then
           if grep -q '^ID=ubuntu' /etc/os-release; then
             sudo apt-get update || sudo apt-get update || sudo apt-get update
-            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux
+            sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux free bc top
             curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
             sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
           else
@@ -129,7 +129,7 @@ jobs:
       run: |
         if grep -q '^ID=ubuntu' /etc/os-release; then
           sudo apt-get update || sudo apt-get update || sudo apt-get update
-          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux
+          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring bc util-linux free bc top
           curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
           sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
         else
@@ -207,7 +207,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring git
+        sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring git free bc top
         pip install build
         pip install setuptools
     - name: Creating pyproject.toml

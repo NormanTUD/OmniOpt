@@ -1231,37 +1231,37 @@ try:
     with spinner("Importing CORE_DECODER_REGISTRY..."):
         from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
 
-    try:
-        with spinner("Trying ax.generation_strategy.generation_node..."):
-            import ax.generation_strategy.generation_node
+    #try:
+    with spinner("Trying ax.generation_strategy.generation_node..."):
+        import ax.generation_strategy.generation_node
 
-        with spinner("Importing GenerationStep, GenerationStrategy from generation_strategy..."):
-            from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
+    with spinner("Importing GenerationStep, GenerationStrategy from generation_strategy..."):
+        from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
 
-        with spinner("Importing GenerationNode from generation_node..."):
-            from ax.generation_strategy.generation_node import GenerationNode
+    with spinner("Importing GenerationNode from generation_node..."):
+        from ax.generation_strategy.generation_node import GenerationNode
 
-        with spinner("Importing ExternalGenerationNode..."):
-            from ax.generation_strategy.external_generation_node import ExternalGenerationNode
+    with spinner("Importing ExternalGenerationNode..."):
+        from ax.generation_strategy.external_generation_node import ExternalGenerationNode
 
-        with spinner("Importing MaxTrials..."):
-            from ax.generation_strategy.transition_criterion import MaxTrials
+    with spinner("Importing MaxTrials..."):
+        from ax.generation_strategy.transition_criterion import MaxTrials
 
-        with spinner("Importing GeneratorSpec..."):
-            from ax.generation_strategy.generator_spec import GeneratorSpec
+    with spinner("Importing GeneratorSpec..."):
+        from ax.generation_strategy.generator_spec import GeneratorSpec
 
-    except Exception:
-        with spinner("Fallback: Importing ax.generation_strategy.generation_node..."):
-            import ax.generation_strategy.generation_node
+    #except Exception:
+    #    with spinner("Fallback: Importing ax.generation_strategy.generation_node..."):
+    #        import ax.generation_strategy.generation_node
 
-        with spinner("Fallback: Importing GenerationStep, GenerationStrategy from ax.generation_strategy..."):
-            from ax.generation_strategy.generation_node import GenerationNode, GenerationStep
+    #    with spinner("Fallback: Importing GenerationStep, GenerationStrategy from ax.generation_strategy..."):
+    #        from ax.generation_strategy.generation_node import GenerationNode, GenerationStep
 
-        with spinner("Fallback: Importing ExternalGenerationNode..."):
-            from ax.generation_strategy.external_generation_node import ExternalGenerationNode
+    #    with spinner("Fallback: Importing ExternalGenerationNode..."):
+    #        from ax.generation_strategy.external_generation_node import ExternalGenerationNode
 
-        with spinner("Fallback: Importing MaxTrials..."):
-            from ax.generation_strategy.transition_criterion import MaxTrials
+    #    with spinner("Fallback: Importing MaxTrials..."):
+    #        from ax.generation_strategy.transition_criterion import MaxTrials
 
     with spinner("Importing Models from ax.generation_strategy.registry..."):
         from ax.adapter.registry import Models
@@ -8298,16 +8298,12 @@ def select_model(model_arg: Any) -> ax.adapter.registry.Generators:
 
     return chosen_model
 
-def get_matching_model_name(model_name: str) -> Optional[str]:
-    if not isinstance(model_name, str):
-        return None
-    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
-        return None
-
-    model_name_lower = model_name.lower()
-    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
-
-    return model_map.get(model_name_lower, None)
+def get_model_from_name(name: str):
+    name = name.lower()
+    for gen in ax.adapter.registry.Generators:
+        if gen.name.lower() == name:
+            return gen
+    raise ValueError(f"Unknown or unsupported model: {name}")
 
 def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
     gen_strat_list = []
@@ -8321,7 +8317,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
         if "=" in s:
             if s.count("=") == 1:
                 model_name, nr = s.split("=")
-                matching_model = get_matching_model_name(model_name)
+                matching_model = get_model_from_name(model_name)
 
                 if matching_model in uncontinuable_models:
                     _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
@@ -8343,12 +8339,12 @@ def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
 
 def print_generation_strategy(generation_strategy_array: list) -> None:
     table = Table(header_style="bold", title="Generation Strategy")
-
     table.add_column("Generation Strategy")
     table.add_column("Number of Generations")
 
     for gs_element in generation_strategy_array:
-        model_name, num_generations = next(iter(gs_element.items()))
+        model_enum, num_generations = next(iter(gs_element.items()))
+        model_name = model_enum.value  # oder model_enum.name
         table.add_row(model_name, str(num_generations))
 
     console.print(table)
@@ -8523,19 +8519,18 @@ def get_optimizer_kwargs() -> dict:
         "sequential": False
     }
 
-def create_systematic_step(_num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    step = GenerationStep(
+def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
+    model_enum = get_model_from_name(model_name)
+    return GenerationStep(
+        generator=model_enum,   # ✅ neue API
         num_trials=_num_trials,
-        max_parallelism=(1000 * max_eval + 1000),
+        max_parallelism=1000 * max_eval + 1000,
         model_kwargs=get_model_kwargs(),
         model_gen_kwargs=get_model_gen_kwargs(),
-        generator=global_gs,
         should_deduplicate=True,
         enforce_num_trials=True,
         index=index
     )
-
-    return step
 
 def set_global_generation_strategy() -> None:
     global global_gs, generation_strategy_human_readable
@@ -8597,6 +8592,7 @@ def set_global_generation_strategy() -> None:
                 print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
                 set_max_eval(new_max_eval_plus_inserted_jobs)
 
+            print(generation_strategy_array)
             print_generation_strategy(generation_strategy_array)
 
             start_index = int(len(generation_strategy_array) / 2)
@@ -8606,12 +8602,15 @@ def set_global_generation_strategy() -> None:
             for gs_element in generation_strategy_array:
                 model_name = list(gs_element.keys())[0]
 
-                nr = int(gs_element[model_name])
+                _num_trials = int(gs_element[model_name])
 
-                gs_elem = create_systematic_step(nr, start_index)
+                print(f"Model: {model_name}, num trials: {_num_trials}, creating element...")
+
+                gs_elem = create_step(model_name, _num_trials, start_index)
+                step_name = get_step_name(model_name, _num_trials)
+
                 steps.append(gs_elem)
-
-                gs_names.append(get_step_name(model_name, nr))
+                gs_names.append(step_name)
 
                 start_index = start_index + 1
 
@@ -8619,7 +8618,13 @@ def set_global_generation_strategy() -> None:
 
             global_gs = GenerationStrategy(steps=steps)
 
+            dier(global_gs)
+
             generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+
+    if global_gs is None:
+        print_red("global_gs is None!")
+        my_exit(107)
 
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:

@@ -910,6 +910,7 @@ class ConfigLoader:
         debug.add_argument('--just_return_defaults', help='Just return defaults in dryrun', action='store_true', default=False)
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
+        debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
@@ -10944,6 +10945,9 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
             if args.runtime_debug:
                 wrapped = log_time_and_memory_wrapper(wrapped)
+
+            if args.show_func_name:
+                wrapped = show_func_name_wrapper(wrapped)
 
             namespace[name] = show_func_name_wrapper(wrapped)
 

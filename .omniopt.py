@@ -8065,10 +8065,7 @@ def plot_times_vs_jobs_sixel(
 
 def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
     """Handles the np.linalg.LinAlgError based on the model being used."""
-    if args.model and args.model.upper() in ["THOMPSON", "EMPIRICAL_BAYES_THOMPSON"]:
-        print_red(f"Error: {error}. This may happen because the THOMPSON model is used. Try another one.")
-    else:
-        print_red(f"Error: {error}")
+    print_red(f"Error: {error}")
 
 def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])

@@ -33,7 +33,7 @@ last_progress_bar_refresh_time = 0.0
 MIN_REFRESH_INTERVAL = 1.0
 
 _last_count_time = 0
-_last_count_result = (0, "")
+_last_count_result = ()
 
 _total_time = 0.0
 _func_times = defaultdict(float)
@@ -1903,7 +1903,6 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     return True
 
-
 async def periodic_live_share(interval=30):
     while True:
         try:
@@ -1911,7 +1910,6 @@ async def periodic_live_share(interval=30):
         except asyncio.CancelledError:
             break
         await asyncio.sleep(interval)
-
 
 def _start_event_loop():
     global _loop
@@ -1932,7 +1930,6 @@ async def start_periodic_live_share(interval=30):
         print_debug(f"Started periodic live share every {interval} seconds")
         _start_event_loop()
         asyncio.run_coroutine_threadsafe(periodic_live_share(interval), _loop)
-
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
@@ -5879,14 +5876,12 @@ def get_workers_string() -> str:
             nr_current_workers_errmsg
         )
 
-
 def _get_workers_string_collect_stats() -> dict:
     stats = {}
     for job, _ in global_vars["jobs"][:]:
         state = state_from_job(job)
         stats[state] = stats.get(state, 0) + 1
     return stats
-
 
 def _get_workers_string_format_keys_values(stats: dict) -> tuple[list, list, int]:
     string_keys = []
@@ -5900,12 +5895,10 @@ def _get_workers_string_format_keys_values(stats: dict) -> tuple[list, list, int
 
     return string_keys, string_values, total_sum
 
-
 def _get_workers_string_all_at_once(keys: list, values: list, total_sum: int) -> str:
     _keys = "/".join(keys)
     _values = "/".join(values)
     return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
-
 
 def _get_workers_string_dynamic(
     keys: list,
@@ -5936,7 +5929,7 @@ def count_jobs_in_squeue() -> tuple[int, str]:
     global _last_count_time, _last_count_result
 
     now = time.time()
-    if now - _last_count_time < 10:
+    if len(_last_count_result) != 0 and now - _last_count_time < 15:
         return _last_count_result
 
     _len = len(global_vars["jobs"])
@@ -8818,8 +8811,6 @@ def run_search(_progress_bar: Any) -> bool:
 
         nr_of_items = execute_next_steps(next_nr_steps, _progress_bar)
 
-        log_worker_status(nr_of_items, next_nr_steps)
-
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
         handle_slurm_execution()
@@ -8831,7 +8822,6 @@ def run_search(_progress_bar: Any) -> bool:
     finalize_jobs()
 
     return False
-
 
 async def start_logging_daemon() -> None:
     await log_data()

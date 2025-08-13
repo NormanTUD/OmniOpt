@@ -1922,7 +1922,7 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     return True
 
-async def periodic_live_share(interval: int = 30) -> None:
+async def periodic_live_share(interval: int = 60) -> None:
     while True:
         try:
             await live_share(force=False)
@@ -1942,7 +1942,7 @@ async def init_live_share() -> bool:
 
         return ret
 
-async def start_periodic_live_share(interval: int = 30) -> None:
+async def start_periodic_live_share(interval: int = 60) -> None:
     if args.live_share:
         await init_live_share()
 

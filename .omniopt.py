@@ -10883,7 +10883,6 @@ Exit-Code: 159
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
-    if args.runtime_debug:
         auto_wrap_namespace(globals())
 
     print_logo()
@@ -10945,7 +10944,11 @@ def auto_wrap_namespace(namespace: Any) -> Any:
             if enable_beartype:
                 print(f"Wrapping function '{name}' in @beartype")
                 wrapped = beartype(wrapped)
-            namespace[name] = log_time_and_memory_wrapper(show_func_name_wrapper(wrapped))
+
+            if args.runtime_debug:
+                wrapped = log_time_and_memory_wrapper(wrapped)
+
+            namespace[name] = show_func_name_wrapper(wrapped)
 
     return namespace
 

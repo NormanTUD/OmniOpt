@@ -10883,7 +10883,7 @@ Exit-Code: 159
 def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
-        auto_wrap_namespace(globals())
+    auto_wrap_namespace(globals())
 
     print_logo()
 

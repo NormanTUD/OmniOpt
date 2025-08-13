@@ -2015,13 +2015,14 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     return True
 
-async def periodic_live_share(interval: int = 60) -> None:
+def periodic_live_share(interval: int = 60) -> None:
     while True:
         try:
             live_share(force=False)
         except asyncio.CancelledError:
             break
-        await asyncio.sleep(interval)
+
+        asyncio.sleep(interval)
 
 def _start_event_loop() -> None:
     global _loop
@@ -9841,7 +9842,7 @@ def write_files_and_show_overviews() -> None:
         write_process_info()
         write_continue_run_uuid_to_file()
 
-async def write_git_version() -> None:
+def write_git_version() -> None:
     with spinner("Writing git information"):
         folder = f"{get_current_run_folder()}/"
         os.makedirs(folder, exist_ok=True)

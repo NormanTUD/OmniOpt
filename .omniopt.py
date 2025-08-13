@@ -7724,12 +7724,18 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             n=remaining,
             pending_observations=pending_observations
         )
-
         print(f"got global_gs.gen(): {batched_generator_run}")
 
-        batched_generator_run = batched_generator_run[0][0]
+        # Inline rekursiv entpacken bis flach
+        depth = 0
+        path = "batched_generator_run"
+        while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
+            print(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
+            batched_generator_run = batched_generator_run[0]
+            path += "[0]"
+            depth += 1
 
-        print("got global_gs.gen(), made it [0][0]")
+        print(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
 
         print("got new arms")
         new_arms = batched_generator_run.arms

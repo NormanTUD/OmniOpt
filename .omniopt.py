@@ -8315,25 +8315,12 @@ def print_generation_strategy(generation_strategy_array: list[dict[str, int]]) -
 
     console.print(table)
 
-def get_model_from_name_in_registry(name: str):
+def get_model_from_name(name: str):
     name = name.lower()
     for gen in ax.adapter.registry.Generators:
         if gen.name.lower() == name:
             return gen
     raise ValueError(f"Unknown or unsupported model: {name}")
-
-
-def get_model_from_name(model_name: str) -> Optional[str]:
-    if not isinstance(model_name, str):
-        return None
-
-    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
-        return None
-
-    model_name_lower = model_name.lower()
-    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
-
-    return model_map.get(model_name_lower, None)
 
 def get_name_from_model(model) -> Optional[str]:
     if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
@@ -8553,7 +8540,7 @@ def get_optimizer_kwargs() -> dict:
     }
 
 def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    model_enum = get_model_from_name_in_registry(model_name)
+    model_enum = get_model_from_name(model_name)
 
     return GenerationStep(
         generator=model_enum,   # ✅ neue API

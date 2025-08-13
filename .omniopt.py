@@ -10972,7 +10972,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
                 wrapped = show_func_name_wrapper(wrapped)
 
             namespace[name] = wrapped
-
     return namespace
 
 if __name__ == "__main__":

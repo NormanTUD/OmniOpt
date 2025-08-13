@@ -5860,51 +5860,72 @@ def state_from_job(job: Union[str, Job]) -> str:
     return state
 
 def get_workers_string() -> str:
-    string = ""
+    stats = _get_workers_string_collect_stats()
+    string_keys, string_values, total_sum = _get_workers_string_format_keys_values(stats)
 
-    string_keys: list = []
-    string_values: list = []
+    if not (string_keys and string_values):
+        return ""
 
-    stats: dict = {}
+    nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
 
+    if args.generate_all_jobs_at_once:
+        return _get_workers_string_all_at_once(string_keys, string_values, total_sum)
+    else:
+        return _get_workers_string_dynamic(
+            string_keys,
+            string_values,
+            total_sum,
+            nr_current_workers,
+            nr_current_workers_errmsg
+        )
+
+
+def _get_workers_string_collect_stats() -> dict:
+    stats = {}
     for job, _ in global_vars["jobs"][:]:
         state = state_from_job(job)
+        stats[state] = stats.get(state, 0) + 1
+    return stats
 
-        if state not in stats.keys():
-            stats[state] = 0
-        stats[state] += 1
 
-    _sum = 0
+def _get_workers_string_format_keys_values(stats: dict) -> tuple[list, list, int]:
+    string_keys = []
+    string_values = []
+    total_sum = 0
 
-    for key in stats.keys():
-        if args.abbreviate_job_names:
-            string_keys.append(key.lower()[0])
-        else:
-            string_keys.append(key.lower())
-        string_values.append(str(stats[key]))
+    for key, value in stats.items():
+        string_keys.append(key.lower()[0] if args.abbreviate_job_names else key.lower())
+        string_values.append(str(value))
+        total_sum += int(value)
 
-        _sum = _sum + int(stats[key])
+    return string_keys, string_values, total_sum
 
-    if len(string_keys) and len(string_values):
-        _keys = "/".join(string_keys)
-        _values = "/".join(string_values)
 
-        if len(_keys):
-            nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
-            if args.generate_all_jobs_at_once:
-                string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
-            else:
-                if nr_current_workers_errmsg == "":
-                    percentage = round((nr_current_workers / num_parallel_jobs) * 100)
-                    _sum_and_percentage = ""
-                    if num_parallel_jobs > 1:
-                        _sum_and_percentage = f"∑{_sum} ({percentage}%/{num_parallel_jobs})"
-                    string = f"{_keys} {_values}{_sum_and_percentage}"
-                else:
-                    print_debug(f"get_workers_string: {nr_current_workers_errmsg}")
-                    string = f"{_keys} {_values} = ∑{_sum}/{num_parallel_jobs}"
+def _get_workers_string_all_at_once(keys: list, values: list, total_sum: int) -> str:
+    _keys = "/".join(keys)
+    _values = "/".join(values)
+    return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
 
-    return string
+
+def _get_workers_string_dynamic(
+    keys: list,
+    values: list,
+    total_sum: int,
+    nr_current_workers: int,
+    nr_current_workers_errmsg: str
+) -> str:
+    _keys = "/".join(keys)
+    _values = "/".join(values)
+
+    if nr_current_workers_errmsg == "":
+        percentage = round((nr_current_workers / num_parallel_jobs) * 100)
+        _sum_and_percentage = ""
+        if num_parallel_jobs > 1:
+            _sum_and_percentage = f"∑{total_sum} ({percentage}%/{num_parallel_jobs})"
+        return f"{_keys} {_values}{_sum_and_percentage}"
+    else:
+        print_debug(f"get_workers_string: {nr_current_workers_errmsg}")
+        return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
 
 def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"

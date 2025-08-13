@@ -10218,7 +10218,7 @@ def run_program_once(params=None) -> None:
 def show_omniopt_call() -> None:
     original_print(oo_call + " " + " ".join(sys.argv[1:]))
 
-async def main() -> None:
+def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
     check_if_has_random_steps()
@@ -10936,7 +10936,7 @@ def main_outside() -> None:
             run_tests()
 
         try:
-            await main()
+            main()
         except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 

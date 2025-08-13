@@ -366,7 +366,7 @@ def _print_time_and_memory_functions_wrapper_stats() -> None:
 def _check_memory_leak(func_name: str, current_mem: float) -> None:
     last_mem = _last_mem[func_name]
     if current_mem - last_mem > _leak_threshold_mb:
-        print(f"⚠️ Possible memory leak detected in '{func_name}': +{current_mem - last_mem:.2f} MB since last call")
+        print(f"⚠ Possible memory leak detected in '{func_name}': +{current_mem - last_mem:.2f} MB since last call")
     _last_mem[func_name] = current_mem
 
 def fool_linter(*fool_linter_args: Any) -> Any:

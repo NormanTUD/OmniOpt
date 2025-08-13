@@ -933,6 +933,8 @@ class ConfigLoader:
         return _args
 
 def start_worker_generators() -> None:
+    load_existing_data_for_worker_generation_path()
+
     with spinner("Starting generator workers"):
         if args.worker_generator_path:
             return
@@ -6301,46 +6303,46 @@ def _get_generation_node_for_index_floats_match(
     return abs(row_val_num - val) <= tolerance
 
 def insert_jobs_from_csv(this_csv_file_path: str) -> None:
-    this_csv_file_path = this_csv_file_path.replace("//", "/")
+    with spinner(f"Inserting job into CSV from {this_csv_file_path}"):
+        this_csv_file_path = this_csv_file_path.replace("//", "/")
 
-    if not os.path.exists(this_csv_file_path):
-        print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
+        if not os.path.exists(this_csv_file_path):
+            print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
 
-        return
+            return
 
-    def validate_and_convert_params(arm_params: Dict) -> Dict:
-        corrected_params: Dict[Any, Any] = {}
+        def validate_and_convert_params(arm_params: Dict) -> Dict:
+            corrected_params: Dict[Any, Any] = {}
 
-        if experiment_parameters is not None:
-            for param in experiment_parameters:
-                name = param["name"]
-                expected_type = param.get("value_type", "str")
+            if experiment_parameters is not None:
+                for param in experiment_parameters:
+                    name = param["name"]
+                    expected_type = param.get("value_type", "str")
 
-                if name not in arm_params:
-                    continue
+                    if name not in arm_params:
+                        continue
 
-                value = arm_params[name]
+                    value = arm_params[name]
 
-                try:
-                    if param["type"] == "range":
-                        if expected_type == "int":
-                            corrected_params[name] = int(value)
-                        elif expected_type == "float":
-                            corrected_params[name] = float(value)
-                    elif param["type"] == "choice":
-                        corrected_params[name] = str(value)
-                except (ValueError, TypeError):
-                    corrected_params[name] = None
+                    try:
+                        if param["type"] == "range":
+                            if expected_type == "int":
+                                corrected_params[name] = int(value)
+                            elif expected_type == "float":
+                                corrected_params[name] = float(value)
+                        elif param["type"] == "choice":
+                            corrected_params[name] = str(value)
+                    except (ValueError, TypeError):
+                        corrected_params[name] = None
 
-        return corrected_params
+            return corrected_params
 
-    arm_params_list, results_list = parse_csv(this_csv_file_path)
+        arm_params_list, results_list = parse_csv(this_csv_file_path)
 
-    cnt = 0
+        cnt = 0
 
-    err_msgs = []
+        err_msgs = []
 
-    with spinner("Loading existing jobs into ax_client...") as __status:
         i = 0
         for arm_params, result in zip(arm_params_list, results_list):
             base_str = f"[bold green]Loading job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}"
@@ -6368,15 +6370,15 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
 
             i = i + 1
 
-    if cnt:
-        if cnt == 1:
-            print_yellow(f"Inserted one job from {this_csv_file_path}")
-        else:
-            print_yellow(f"Inserted {cnt} jobs from {this_csv_file_path}")
+        if cnt:
+            if cnt == 1:
+                print_yellow(f"Inserted one job from {this_csv_file_path}")
+            else:
+                print_yellow(f"Inserted {cnt} jobs from {this_csv_file_path}")
 
-    if not args.worker_generator_path:
-        set_max_eval(max_eval + cnt)
-        set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
+        if not args.worker_generator_path:
+            set_max_eval(max_eval + cnt)
+            set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
     if __status and base_str:
@@ -8447,85 +8449,86 @@ def create_systematic_step(_num_trials: int = -1, index: Optional[int] = None) -
 def set_global_generation_strategy() -> None:
     global global_gs, generation_strategy_human_readable
 
-    args_generation_strategy = args.generation_strategy
+    with spinner("Setting global generation strategy"):
+        args_generation_strategy = args.generation_strategy
 
-    continue_not_supported_on_custom_generation_strategy()
+        continue_not_supported_on_custom_generation_strategy()
 
-    gs_names: list = []
-    gs_nodes: list = []
+        gs_names: list = []
+        gs_nodes: list = []
 
-    if args_generation_strategy is None:
-        num_imported_jobs: int = get_nr_of_imported_jobs()
-        set_max_eval(max_eval + num_imported_jobs)
-        set_random_steps(random_steps or 0)
+        if args_generation_strategy is None:
+            num_imported_jobs: int = get_nr_of_imported_jobs()
+            set_max_eval(max_eval + num_imported_jobs)
+            set_random_steps(random_steps or 0)
 
-        if max_eval is None:
-            set_max_eval(max(1, random_steps))
+            if max_eval is None:
+                set_max_eval(max(1, random_steps))
 
-        chosen_model = get_chosen_model()
+            chosen_model = get_chosen_model()
 
-        if chosen_model == "SOBOL":
-            set_random_steps(max_eval)
+            if chosen_model == "SOBOL":
+                set_random_steps(max_eval)
 
-        if random_steps >= 1:
-            next_node_name = None
-            if max_eval - random_steps and chosen_model:
-                next_node_name = chosen_model
+            if random_steps >= 1:
+                next_node_name = None
+                if max_eval - random_steps and chosen_model:
+                    next_node_name = chosen_model
 
-            gs_names.append(get_step_name("SOBOL", random_steps))
-            gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
+                gs_names.append(get_step_name("SOBOL", random_steps))
+                gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
 
-        write_state_file("model", str(chosen_model))
+            write_state_file("model", str(chosen_model))
 
-        if chosen_model != "SOBOL" and max_eval > random_steps:
-            this_node = create_node(chosen_model, max_eval - random_steps, None)
+            if chosen_model != "SOBOL" and max_eval > random_steps:
+                this_node = create_node(chosen_model, max_eval - random_steps, None)
 
-            gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
-            gs_nodes.append(this_node)
+                gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
+                gs_nodes.append(this_node)
 
-        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
-        try:
-            global_gs = GenerationStrategy(
-                name="+".join(gs_names),
-                nodes=gs_nodes
-            )
-        except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
-            print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
+            try:
+                global_gs = GenerationStrategy(
+                    name="+".join(gs_names),
+                    nodes=gs_nodes
+                )
+            except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
+                print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
 
-            my_exit(55)
-    else:
-        generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
+                my_exit(55)
+        else:
+            generation_strategy_array, new_max_eval = parse_generation_strategy_string(args_generation_strategy)
 
-        new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
+            new_max_eval_plus_inserted_jobs = new_max_eval + get_nr_of_imported_jobs()
 
-        if max_eval < new_max_eval_plus_inserted_jobs:
-            print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
-            set_max_eval(new_max_eval_plus_inserted_jobs)
+            if max_eval < new_max_eval_plus_inserted_jobs:
+                print_yellow(f"--generation_strategy {args_generation_strategy.upper()} has, in sum, more tasks than --max_eval {max_eval}. max_eval will be set to {new_max_eval_plus_inserted_jobs}.")
+                set_max_eval(new_max_eval_plus_inserted_jobs)
 
-        print_generation_strategy(generation_strategy_array)
+            print_generation_strategy(generation_strategy_array)
 
-        start_index = int(len(generation_strategy_array) / 2)
+            start_index = int(len(generation_strategy_array) / 2)
 
-        steps: list = []
+            steps: list = []
 
-        for gs_element in generation_strategy_array:
-            model_name = list(gs_element.keys())[0]
+            for gs_element in generation_strategy_array:
+                model_name = list(gs_element.keys())[0]
 
-            nr = int(gs_element[model_name])
+                nr = int(gs_element[model_name])
 
-            gs_elem = create_systematic_step(nr, start_index)
-            steps.append(gs_elem)
+                gs_elem = create_systematic_step(nr, start_index)
+                steps.append(gs_elem)
 
-            gs_names.append(get_step_name(model_name, nr))
+                gs_names.append(get_step_name(model_name, nr))
 
-            start_index = start_index + 1
+                start_index = start_index + 1
 
-        write_state_file("custom_generation_strategy", args_generation_strategy)
+            write_state_file("custom_generation_strategy", args_generation_strategy)
 
-        global_gs = GenerationStrategy(steps=steps)
+            global_gs = GenerationStrategy(steps=steps)
 
-        generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 
 def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:
@@ -9718,37 +9721,39 @@ def show_experiment_overview_table() -> None:
         text_file.write(table_str)
 
 def write_files_and_show_overviews() -> None:
-    write_state_file("num_random_steps", str(args.num_random_steps))
-    set_global_executor()
-    load_existing_job_data_into_ax_client()
-    write_args_overview_table()
-    show_experiment_overview_table()
-    save_global_vars()
-    write_process_info()
-    write_continue_run_uuid_to_file()
+    with spinner("Write files and show overview"):
+        write_state_file("num_random_steps", str(args.num_random_steps))
+        set_global_executor()
+        load_existing_job_data_into_ax_client()
+        write_args_overview_table()
+        show_experiment_overview_table()
+        save_global_vars()
+        write_process_info()
+        write_continue_run_uuid_to_file()
 
 async def write_git_version() -> None:
-    folder = f"{get_current_run_folder()}/"
-    os.makedirs(folder, exist_ok=True)
-    file_path = os.path.join(folder, "git_version")
-
-    try:
-        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-
-        git_tag = ""
+    with spinner("Writing git information")
+        folder = f"{get_current_run_folder()}/"
+        os.makedirs(folder, exist_ok=True)
+        file_path = os.path.join(folder, "git_version")
 
         try:
-            git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
-            git_tag = f" ({git_tag})"
+            commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+
+            git_tag = ""
+
+            try:
+                git_tag = subprocess.check_output(["git", "describe", "--tags"], text=True, stderr=subprocess.DEVNULL).strip()
+                git_tag = f" ({git_tag})"
+            except subprocess.CalledProcessError:
+                pass
+
+            if commit_hash:
+                with open(file_path, mode="w", encoding="utf-8") as f:
+                    f.write(f"Commit: {commit_hash}{git_tag}\n")
+
         except subprocess.CalledProcessError:
             pass
-
-        if commit_hash:
-            with open(file_path, mode="w", encoding="utf-8") as f:
-                f.write(f"Commit: {commit_hash}{git_tag}\n")
-
-    except subprocess.CalledProcessError:
-        pass
 
 def write_job_start_file() -> None:
     with spinner("Writing job_start_time file..."):
@@ -10213,8 +10218,6 @@ async def main() -> None:
 
             set_global_generation_strategy()
 
-        load_existing_data_for_worker_generation_path()
-
         start_worker_generators()
 
         try:
@@ -10230,15 +10233,16 @@ async def main() -> None:
 
 def load_existing_data_for_worker_generation_path() -> None:
     if args.worker_generator_path:
-        if not os.path.exists(args.worker_generator_path):
-            print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
-            my_exit(96)
+        with spinner("Loading existing data for worker generators"):
+            if not os.path.exists(args.worker_generator_path):
+                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+                my_exit(96)
 
-        if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
-            print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
-            my_exit(96)
+            if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
+                print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
+                my_exit(96)
 
-        insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv")
+            insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv")
 
 def log_worker_creation() -> None:
     with spinner("Writing worker creation log..."):

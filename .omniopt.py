@@ -269,7 +269,7 @@ def log_time_and_memory_wrapper(func: F) -> F:
             result = await func(*func_args, **kwargs)
             elapsed = time.perf_counter() - start
 
-            current, peak = tracemalloc.get_traced_memory()
+            _, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
 
             mem_after = process.memory_info().rss / (1024 * 1024)
@@ -284,32 +284,32 @@ def log_time_and_memory_wrapper(func: F) -> F:
             return result
 
         return async_wrapper  # type: ignore
-    else:
-        @functools.wraps(func)
-        def wrapper(*func_args: Any, **kwargs: Any) -> Any:
-            process = psutil.Process()
-            mem_before = process.memory_info().rss / (1024 * 1024)
 
-            tracemalloc.start()
-            start = time.perf_counter()
-            result = func(*func_args, **kwargs)
-            elapsed = time.perf_counter() - start
+    @functools.wraps(func)
+    def wrapper(*func_args: Any, **kwargs: Any) -> Any:
+        process = psutil.Process()
+        mem_before = process.memory_info().rss / (1024 * 1024)
 
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
+        tracemalloc.start()
+        start = time.perf_counter()
+        result = func(*func_args, **kwargs)
+        elapsed = time.perf_counter() - start
 
-            mem_after = process.memory_info().rss / (1024 * 1024)
-            mem_diff = mem_after - mem_before
-            mem_peak_mb = peak / (1024 * 1024)
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
 
-            if elapsed >= 0.05:
-                _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
+        mem_after = process.memory_info().rss / (1024 * 1024)
+        mem_diff = mem_after - mem_before
+        mem_peak_mb = peak / (1024 * 1024)
 
-            _check_memory_leak(func.__name__, mem_peak_mb)
+        if elapsed >= 0.05:
+            _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 
-            return result
+        _check_memory_leak(func.__name__, mem_peak_mb)
 
-        return wrapper  # type: ignore
+        return result
+
+    return wrapper  # type: ignore
 
 def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float):
     global _total_time

@@ -32,6 +32,7 @@ for install_type in omniopt git; do
 			omniopt \
 				--partition=alpha \
 				--runtime_debug \
+				--live_share \
 				--experiment_name=pip_test_experiment \
 				--mem_gb=1 \
 				--time=60 \

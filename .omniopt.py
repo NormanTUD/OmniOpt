@@ -258,7 +258,7 @@ except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
-def logmytime(func: F) -> F:
+def log_time_and_memory_wrapper(func: F) -> F:
     @functools.wraps(func)
     def wrapper(*func_args, **kwargs):
         global _total_time
@@ -300,12 +300,12 @@ def logmytime(func: F) -> F:
                 )
                 print(f"Memory before: {mem_before:.2f} MB, after: {mem_after:.2f} MB, diff: {mem_diff:+.2f} MB")
                 print(f"!!! '{func.__name__}' added {percent_if_added:.1f}% of the total runtime. !!!")
-                _print_stats()
+                _print_time_and_memory_functions_wrapper_stats()
         return result
     return wrapper
 
 
-def _print_stats() -> None:
+def _print_time_and_memory_functions_wrapper_stats() -> None:
     if _total_time == 0:
         return
 
@@ -10868,14 +10868,14 @@ async def main_outside() -> None:
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
 
-    excluded_functions = {"logmytime", "_print_stats", "print"}
+    excluded_functions = {"log_time_and_memory_wrapper", "_print_time_and_memory_functions_wrapper_stats", "print"}
 
     for name, obj in list(namespace.items()):
         if (isinstance(obj, types.FunctionType) and name not in excluded_functions):
             wrapped = obj
             if enable_beartype:
                 wrapped = beartype(wrapped)
-            namespace[name] = logmytime(wrapped)
+            namespace[name] = log_time_and_memory_wrapper(wrapped)
 
     return namespace
 

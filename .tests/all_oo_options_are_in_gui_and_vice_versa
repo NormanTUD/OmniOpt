@@ -76,6 +76,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		minkowski_p
 		max_parallelism
 		show_ram_every_n_seconds
+		runtime_debug
 		worker_generator_path
 	)
 

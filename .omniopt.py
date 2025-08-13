@@ -7173,6 +7173,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
                 this_jobs_finished += future.result()
             except Exception as e:
                 print_red(f"⚠ Exception in parallel job handling: {e}")
+    print("Done trying to parallelly finish jobs!")
 
     finishing_jobs_end_time = time.time()
 

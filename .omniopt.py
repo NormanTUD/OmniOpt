@@ -5890,11 +5890,11 @@ def print_overview_tables(classic_params: Optional[Union[list, dict]], experimen
 
     print_result_names_overview_table()
 
-def update_progress_bar(_progress_bar: Any, nr: int) -> None:
-    #print(f"update_progress_bar(_progress_bar, {nr})")
-    #traceback.print_stack()
-
-    _progress_bar.update(nr)
+def update_progress_bar(nr: int) -> None:
+    try:
+        progress_bar.update(nr)
+    except Exception as e:
+        print("Error updating progress bar: {e}")
 
 def get_current_model_name() -> str:
     if overwritten_to_random:
@@ -6148,9 +6148,12 @@ def _get_desc_progress_text_submitted_jobs() -> List[str]:
 def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
     return [msg for msg in new_msgs if msg]
 
-def progressbar_description(new_msgs: List[str] = []) -> None:
+def progressbar_description(new_msgs: Union[str, List[str]] = []) -> None:
     global last_progress_bar_desc
     global last_progress_bar_refresh_time
+
+    if isinstance(new_msgs, str):
+        new_msgs = [new_msgs]
 
     desc = get_desc_progress_text(new_msgs)
     print_debug_progressbar(desc)
@@ -6977,8 +6980,8 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Un
 
     succeeded_jobs(1)
 
-    progressbar_description([f"new result: {result}"])
-    update_progress_bar(progress_bar, 1)
+    progressbar_description(f"new result: {result}")
+    update_progress_bar(1)
 
     save_results_csv()
 
@@ -6990,7 +6993,7 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
     print_debug(f"Counting job {job} as failed, because the result is {job.result() if job else 'None'}")
     if job:
         try:
-            progressbar_description(["job_failed"])
+            progressbar_description("job_failed")
             ax_client.log_trial_failure(trial_index=trial_index)
             _trial.mark_failed(unsafe=True)
         except Exception as e:
@@ -7046,7 +7049,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
 
     if job:
         try:
-            progressbar_description(["job_failed"])
+            progressbar_description("job_failed")
             _trial = ax_client.get_trial(trial_index)
             ax_client.log_trial_failure(trial_index=trial_index)
             mark_trial_as_failed(trial_index, _trial)
@@ -7454,7 +7457,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
         mark_trial_stage("mark_running", "Marking the trial as running failed")
         trial_counter += 1
 
-        progressbar_description(["started new job"])
+        progressbar_description("started new job")
 
         save_results_csv()
     except submitit.core.utils.FailedJobError as error:
@@ -7469,7 +7472,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
     return trial_counter
 
 def initialize_job_environment() -> None:
-    progressbar_description(["starting new job"])
+    progressbar_description("starting new job")
     set_sbatch_environment()
     exclude_defective_nodes()
 
@@ -7542,7 +7545,7 @@ def succeeded_jobs(nr: int = 0) -> int:
     makedirs(state_files_folder)
     return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
 
-def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any, _ret: Any) -> None:
+def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int]) -> None:
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
 
     headers = ["Variable", "Value"]
@@ -7556,7 +7559,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
         ("failed_jobs()", failed_jobs()),
         ("count_done_jobs()", count_done_jobs()),
         ("_max_eval", _max_eval),
-        ("_progress_bar.total", _progress_bar.total),
+        ("progress_bar.total", progress_bar.total),
         ("NR_INSERTED_JOBS", NR_INSERTED_JOBS),
         ("_ret", _ret)
     ]
@@ -7566,7 +7569,7 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int], 
 
     console.print(table)
 
-def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -> bool:
+def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
     _ret = False
 
     _counted_done_jobs = count_done_jobs()
@@ -7580,7 +7583,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
 
     conditions = [
         (lambda: (_counted_done_jobs - _failed_jobs) >= max_eval, f"1. _counted_done_jobs {_counted_done_jobs} - (_failed_jobs {_failed_jobs}) >= max_eval {max_eval}"),
-        (lambda: (_submitted_jobs - _failed_jobs) >= _progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= _progress_bar.total {_progress_bar.total} + 1"),
+        (lambda: (_submitted_jobs - _failed_jobs) >= progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= progress_bar.total {progress_bar.total} + 1"),
         (lambda: max_failed_jobs < _failed_jobs, f"3. max_failed_jobs {max_failed_jobs} < failed_jobs {_failed_jobs}"),
     ]
 
@@ -7596,7 +7599,7 @@ def break_run_search(_name: str, _max_eval: Optional[int], _progress_bar: Any) -
             _ret = True
 
     if args.verbose_break_run_search_table:
-        show_debug_table_for_break_run_search(_name, _max_eval, _progress_bar, _ret)
+        show_debug_table_for_break_run_search(_name, _max_eval, progress_bar, _ret)
 
     return _ret
 
@@ -7784,7 +7787,7 @@ def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     continue
 
                 print_debug(f"Fetching trial {cnt + 1}/{n}...")
-                progressbar_description([_get_trials_message(cnt + 1, n, trial_durations)])
+                progressbar_description(_get_trials_message(cnt + 1, n, trial_durations))
 
                 try:
                     result = _create_and_handle_trial(arm)
@@ -7861,7 +7864,7 @@ def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, 
     log_nr_gen_jobs.append(cnt)
 
     avg_time_str = f"{total_time / cnt:.2f} s/job" if cnt else "n/a"
-    progressbar_description([f"requested {requested} jobs, got {cnt}, {avg_time_str}"])
+    progressbar_description(f"requested {requested} jobs, got {cnt}, {avg_time_str}")
 
     return trials_dict, False
 
@@ -8673,17 +8676,17 @@ def setup_custom_generation_strategy(strategy_str: str) -> None:
         my_exit(39)
 
 
-def wait_for_jobs_or_break(_max_eval: Optional[int], _progress_bar: Any) -> bool:
+def wait_for_jobs_or_break(_max_eval: Optional[int]) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
-        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+        if break_run_search("create_and_execute_next_runs", _max_eval):
             return True
 
         if is_slurm_job() and not args.force_local_execution:
             _sleep(1)
 
-    if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+    if break_run_search("create_and_execute_next_runs", _max_eval):
         return True
 
     if _max_eval is not None and (JOBS_FINISHED - NR_INSERTED_JOBS) >= _max_eval:
@@ -8695,18 +8698,17 @@ def execute_trials(
     trial_index_to_param: dict,
     phase: Optional[str],
     _max_eval: Optional[int],
-    _progress_bar: Any
 ) -> None:
     index_param_list: List[List[Any]] = []
     i: int = 1
 
     for trial_index, parameters in trial_index_to_param.items():
-        if wait_for_jobs_or_break(_max_eval, _progress_bar):
+        if wait_for_jobs_or_break(_max_eval):
             break
-        if break_run_search("create_and_execute_next_runs", _max_eval, _progress_bar):
+        if break_run_search("create_and_execute_next_runs", _max_eval):
             break
 
-        progressbar_description([f"eval #{i}/{len(trial_index_to_param.items())} start"])
+        progressbar_description(f"eval #{i}/{len(trial_index_to_param.items())} start")
         _args = [trial_index, parameters, i, phase]
         index_param_list.append(_args)
         i += 1
@@ -8758,7 +8760,7 @@ def handle_exceptions_create_and_execute_next_runs(e: Exception) -> int:
         end_program(False, 87)
     return 0
 
-def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int], _progress_bar: Any) -> int:
+def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_eval: Optional[int]) -> int:
     if next_nr_steps == 0:
         print_debug(f"Warning: create_and_execute_next_runs(next_nr_steps: {next_nr_steps}, phase: {phase}, _max_eval: {_max_eval}, progress_bar)")
         return 0
@@ -8767,7 +8769,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     done_optimizing: bool = False
 
     try:
-        done_optimizing, trial_index_to_param = _create_and_execute_next_runs_run_loop(_max_eval, phase, _progress_bar)
+        done_optimizing, trial_index_to_param = _create_and_execute_next_runs_run_loop(_max_eval, phase)
         _create_and_execute_next_runs_finish(done_optimizing)
     except Exception as e:
         stacktrace = traceback.format_exc()
@@ -8776,7 +8778,7 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
 
     return _create_and_execute_next_runs_return_value(trial_index_to_param)
 
-def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str], _progress_bar: Any) -> Tuple[bool, Optional[Dict]]:
+def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str]) -> Tuple[bool, Optional[Dict]]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
 
@@ -8803,7 +8805,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
             filtered_trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
 
             if len(filtered_trial_index_to_param):
-                execute_trials(filtered_trial_index_to_param, phase, _max_eval, _progress_bar)
+                execute_trials(filtered_trial_index_to_param, phase, _max_eval)
             else:
                 if nr_jobs_before_removing_abandoned > 0:
                     print_debug(f"Could not get jobs. They've been deleted by abandoned_trial_indices: {abandoned_trial_indices}")
@@ -8940,7 +8942,7 @@ def start_nvidia_smi_thread() -> None:
         nvidia_smi_thread = threading.Thread(target=execute_nvidia_smi, daemon=True)
         nvidia_smi_thread.start()
 
-def run_search(_progress_bar: Any) -> bool:
+def run_search() -> bool:
     global NR_OF_0_RESULTS
     NR_OF_0_RESULTS = 0
 
@@ -8950,12 +8952,12 @@ def run_search(_progress_bar: Any) -> bool:
         wait_for_jobs_to_complete()
         finish_previous_jobs()
 
-        if should_break_search(_progress_bar):
+        if should_break_search():
             break
 
         next_nr_steps: int = get_next_nr_steps(num_parallel_jobs, max_eval)
 
-        nr_of_items = execute_next_steps(next_nr_steps, _progress_bar)
+        nr_of_items = execute_next_steps(next_nr_steps)
 
         finish_previous_jobs([f"finishing previous jobs ({len(global_vars['jobs'])})"])
 
@@ -8974,11 +8976,11 @@ async def start_logging_daemon() -> None:
         log_data()
         time.sleep(30)
 
-def should_break_search(_progress_bar: Any) -> bool:
+def should_break_search() -> bool:
     ret = False
 
     if not args.worker_generator_path:
-        ret = (break_run_search("run_search", max_eval, _progress_bar) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
+        ret = (break_run_search("run_search", max_eval) or (JOBS_FINISHED - NR_INSERTED_JOBS) >= max_eval)
     else:
         print_debug("should_break_search: False because --worker_generator_path was set")
 
@@ -8986,10 +8988,10 @@ def should_break_search(_progress_bar: Any) -> bool:
 
     return ret
 
-def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
+def execute_next_steps(next_nr_steps: int) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
-        nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+        nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval)
 
         log_worker_status(nr_of_items, next_nr_steps)
 
@@ -9012,7 +9014,7 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
     if nr_of_items == 0 and len(global_vars["jobs"]) == 0:
         NR_OF_0_RESULTS += 1
         _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
-        progressbar_description([_wrn])
+        progressbar_description(_wrn)
         print_debug(_wrn)
     else:
         NR_OF_0_RESULTS = 0
@@ -9020,7 +9022,7 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
     if NR_OF_0_RESULTS >= args.max_nr_of_zero_results:
         _wrn = f"{NR_OF_0_RESULTS} empty jobs (>= {args.max_nr_of_zero_results})"
         print_debug(_wrn)
-        progressbar_description([_wrn])
+        progressbar_description(_wrn)
 
         return True
 
@@ -9041,9 +9043,9 @@ def go_through_jobs_that_are_not_completed_yet() -> None:
 
     nr_jobs_left = len(global_vars['jobs'])
     if nr_jobs_left == 1:
-        progressbar_description([f"waiting for {nr_jobs_left} job"])
+        progressbar_description(f"waiting for {nr_jobs_left} job")
     else:
-        progressbar_description([f"waiting for {nr_jobs_left} jobs"])
+        progressbar_description(f"waiting for {nr_jobs_left} jobs")
 
     if is_slurm_job() and not args.force_local_execution:
         _sleep(0.5)
@@ -10473,20 +10475,27 @@ def save_experiment_parameters(filepath: str) -> None:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
 def run_search_with_progress_bar() -> None:
-    global progress_bar
+    print("AA")
 
     disable_tqdm = args.disable_tqdm or ci_env
 
     total_jobs = max_eval
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
+        print("write_process_info starts")
         write_process_info()
-        progress_bar = _progress_bar
 
-        progressbar_description(["Started OmniOpt2 run..."])
-        update_progress_bar(progress_bar, count_done_jobs() + NR_INSERTED_JOBS)
+        print("setting descs")
+        progressbar_description("Started OmniOpt2 run...")
+        print("setting descs")
 
-        run_search(progress_bar)
+        print("updating progress bar")
+        update_progress_bar(count_done_jobs() + NR_INSERTED_JOBS)
+        print("updating progress bar")
+
+        print("\nrun_search starts\n")
+        run_search()
+        print("\nrun_search ends\n")
 
     wait_for_jobs_to_complete()
 

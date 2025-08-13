@@ -311,7 +311,6 @@ def log_time_and_memory_wrapper(func: F) -> F:
 
         return wrapper  # type: ignore
 
-
 def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float):
     global _total_time
 
@@ -342,7 +341,6 @@ def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: fl
         print(f"!!! '{func_name}' added {percent_if_added:.1f}% of the total runtime. !!!")
         _print_time_and_memory_functions_wrapper_stats()
 
-
 def _print_time_and_memory_functions_wrapper_stats() -> None:
     if _total_time == 0:
         return
@@ -364,7 +362,6 @@ def _print_time_and_memory_functions_wrapper_stats() -> None:
         for call_path, count in _func_call_paths[name].most_common(3):
             print(f"  {count}×  {call_path}")
     print("==================")
-
 
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args

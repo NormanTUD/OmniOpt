@@ -7714,32 +7714,32 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         remaining = nr_of_jobs_to_get - len(batched_arms)
         print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
 
-        print("get pending observations")
+        #print("get pending observations")
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
-        print("got pending observations")
+        #print("got pending observations")
 
-        print("getting global_gs.gen()")
+        #print("getting global_gs.gen()")
         batched_generator_run = global_gs.gen(
             experiment=ax_client.experiment,
             n=remaining,
             pending_observations=pending_observations
         )
-        print(f"got global_gs.gen(): {batched_generator_run}")
+        #print(f"got global_gs.gen(): {batched_generator_run}")
 
         # Inline rekursiv entpacken bis flach
         depth = 0
         path = "batched_generator_run"
         while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
-            print(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
+            #print(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
             batched_generator_run = batched_generator_run[0]
             path += "[0]"
             depth += 1
 
-        print(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
+        #print(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
 
-        print("got new arms")
+        #print("got new arms")
         new_arms = batched_generator_run.arms
-        print(f"new_arms: {new_arms}")
+        #print(f"new_arms: {new_arms}")
         if not new_arms:
             print_debug("get_batched_arms: No new arms were generated in this attempt.")
         else:

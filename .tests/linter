@@ -83,7 +83,9 @@ run_linter() {
 	local file_args=("$@")
 
 	if ! command -v $linter 2>/dev/null >/dev/null; then
-		pip install -q $linter
+		if [[ $linter != "shellcheck" ]]; then
+			pip install -q $linter
+		fi
 	fi
 
 	if [[ ${#errors[@]} -eq 0 ]] || [[ "$fail_on_error" -eq "0" ]]; then

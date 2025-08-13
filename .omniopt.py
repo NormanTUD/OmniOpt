@@ -260,7 +260,7 @@ except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
-def collect_runtime_stats():
+def collect_runtime_stats() -> dict:
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
 
@@ -8315,7 +8315,7 @@ def print_generation_strategy(generation_strategy_array: list[dict[str, int]]) -
 
     console.print(table)
 
-def get_model_from_name(name: str):
+def get_model_from_name(name: str) -> Any:
     name = name.lower()
     for gen in ax.adapter.registry.Generators:
         if gen.name.lower() == name:
@@ -8569,11 +8569,11 @@ def set_global_generation_strategy() -> None:
                 setup_custom_generation_strategy(args_generation_strategy)
         except Exception as e:
             print_red(f"Unexpected error in generation strategy setup: {e}")
-            my_exit(39)
+            my_exit(111)
 
     if global_gs is None:
         print_red("global_gs is None after setup!")
-        my_exit(39)
+        my_exit(111)
 
 
 def setup_default_generation_strategy() -> None:
@@ -8607,7 +8607,7 @@ def setup_default_generation_strategy() -> None:
         )
     except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
         print_red(f"Error creating GenerationStrategy: {e}\nnames: {generation_strategy_names}\nnodes: {generation_strategy_nodes}")
-        my_exit(39)
+        my_exit(111)
 
 
 def add_sobol_node_if_needed(nodes: list, names: list, chosen_model: str) -> None:
@@ -8657,7 +8657,7 @@ def setup_custom_generation_strategy(strategy_str: str) -> None:
             start_index += 1
         except Exception as e:
             print_red(f"Error creating step for {gs_element}: {e}")
-            my_exit(39)
+            my_exit(111)
 
     write_state_file("custom_generation_strategy", strategy_str)
 
@@ -8667,7 +8667,7 @@ def setup_custom_generation_strategy(strategy_str: str) -> None:
         generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")
-        my_exit(39)
+        my_exit(111)
 
 
 def wait_for_jobs_or_break(_max_eval: Optional[int]) -> bool:

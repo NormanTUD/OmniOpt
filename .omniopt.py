@@ -10815,7 +10815,7 @@ Exit-Code: 159
         ["get_program_code_from_out_file('/etc/doesntexist')", ""],
         ["get_type_short('RangeParameter')", "range"],
         ["get_type_short('ChoiceParameter')", "choice"],
-        ["create_and_execute_next_runs(0, None, None, None)", 0]
+        ["create_and_execute_next_runs(0, None, None)", 0]
     ]
 
     for _item in equal:

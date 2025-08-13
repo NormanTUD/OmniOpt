@@ -7714,9 +7714,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         remaining = nr_of_jobs_to_get - len(batched_arms)
         print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
 
-        print("TRYING TO GET PENDING OBSERVATIONS")
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
-        print("GOT PENDING OBSERVATIONS")
 
         batched_generator_run = global_gs.gen(
             experiment=ax_client.experiment,
@@ -10952,7 +10950,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
             if args.show_func_name:
                 wrapped = show_func_name_wrapper(wrapped)
 
-            namespace[name] = show_func_name_wrapper(wrapped)
+            namespace[name] = wrapped
 
     return namespace
 

@@ -10194,7 +10194,6 @@ def run_program_once(params=None) -> None:
             command_str = command_str.replace(placeholder, str(v))
 
         with spinner(f"Executing command: [cyan]{command_str}[/cyan]"):
-            console.log()
             result = subprocess.run(command_str, shell=True, check=True)
             if result.returncode == 0:
                 console.log("[bold green]Setup script completed successfully ✅[/bold green]")

@@ -5867,14 +5867,14 @@ def get_workers_string() -> str:
 
     if args.generate_all_jobs_at_once:
         return _get_workers_string_all_at_once(string_keys, string_values, total_sum)
-    else:
-        return _get_workers_string_dynamic(
-            string_keys,
-            string_values,
-            total_sum,
-            nr_current_workers,
-            nr_current_workers_errmsg
-        )
+
+    return _get_workers_string_dynamic(
+        string_keys,
+        string_values,
+        total_sum,
+        nr_current_workers,
+        nr_current_workers_errmsg
+    )
 
 def _get_workers_string_collect_stats() -> dict:
     stats = {}
@@ -5916,9 +5916,9 @@ def _get_workers_string_dynamic(
         if num_parallel_jobs > 1:
             _sum_and_percentage = f"∑{total_sum} ({percentage}%/{num_parallel_jobs})"
         return f"{_keys} {_values}{_sum_and_percentage}"
-    else:
-        print_debug(f"get_workers_string: {nr_current_workers_errmsg}")
-        return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
+
+    print_debug(f"get_workers_string: {nr_current_workers_errmsg}")
+    return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
 
 def submitted_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"

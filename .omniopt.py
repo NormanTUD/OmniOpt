@@ -294,34 +294,18 @@ def collect_runtime_stats():
         "cpu_percent": process.cpu_percent(interval=0.05),
     }
 
+def show_func_name_wrapper(func: F) -> F:
+    @functools.wraps(func)
+    def wrapper(*func_args: Any, **kwargs: Any) -> Any:
+        print(f"==== {func.__name__} START ====")
+        result = func(*func_args, **kwargs)
+        print(f"==== {func.__name__} END   ====")
+
+        return result
+
+    return wrapper  # type: ignore
+
 def log_time_and_memory_wrapper(func: F) -> F:
-    if inspect.iscoroutinefunction(func):
-        @functools.wraps(func)
-        async def async_wrapper(*func_args: Any, **kwargs: Any) -> Any:
-            process = psutil.Process()
-            mem_before = process.memory_info().rss / (1024 * 1024)
-
-            tracemalloc.start()
-            start = time.perf_counter()
-            result = await func(*func_args, **kwargs)
-            elapsed = time.perf_counter() - start
-
-            _, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-
-            mem_after = process.memory_info().rss / (1024 * 1024)
-            mem_diff = mem_after - mem_before
-            mem_peak_mb = peak / (1024 * 1024)
-
-            if elapsed >= 0.05:
-                _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
-
-            _check_memory_leak(func.__name__, mem_peak_mb)
-
-            return result
-
-        return async_wrapper  # type: ignore
-
     @functools.wraps(func)
     def wrapper(*func_args: Any, **kwargs: Any) -> Any:
         process = psutil.Process()
@@ -10952,6 +10936,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         "_check_memory_leak",
         "start_periodic_live_share",
         "start_logging_daemon",
+        "get_current_run_folder"
     }
 
     for name, obj in list(namespace.items()):
@@ -10960,7 +10945,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
             if enable_beartype:
                 print(f"Wrapping function '{name}' in @beartype")
                 wrapped = beartype(wrapped)
-            namespace[name] = log_time_and_memory_wrapper(wrapped)
+            namespace[name] = log_time_and_memory_wrapper(show_func_name_wrapper(wrapped))
 
     return namespace
 

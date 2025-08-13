@@ -1998,21 +1998,17 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     return True
 
-def periodic_live_share(interval: int = 60) -> None:
-    while True:
-        live_share(force=False)
-        time.sleep(30)
-
 def init_live_share() -> bool:
     with spinner("Initializing live share..."):
         ret = live_share(True, True)
 
         return ret
 
-async def start_periodic_live_share(interval: int = 60) -> None:
+async def start_periodic_live_share() -> None:
     if args.live_share and not os.environ.get("CI"):
-        print_debug(f"Started periodic live share every {interval} seconds")
-        periodic_live_share(interval)
+        while True:
+            live_share(force=False)
+            time.sleep(30)
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)

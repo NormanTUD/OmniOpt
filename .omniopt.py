@@ -20,6 +20,7 @@ import copy
 import functools
 from collections import Counter, defaultdict
 import types
+import atexit
 from typing import TypeVar, Callable, Any
 import traceback
 import inspect
@@ -122,7 +123,7 @@ try:
         warnings.filterwarnings(
             "ignore",
             category=FutureWarning,
-            module="ax.modelbridge.best_model_selector"
+            module="ax.adapter.best_model_selector"
         )
 
     with spinner("Importing argparse..."):
@@ -1209,8 +1210,8 @@ try:
     with spinner("Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
 
-    with spinner("Importing Cont_X_trans and Y_trans from ax.modelbridge.registry..."):
-        from ax.modelbridge.registry import Cont_X_trans, Y_trans
+    with spinner("Importing Cont_X_trans and Y_trans from ax.adapter.registry..."):
+        from ax.adapter.registry import Cont_X_trans, Y_trans
 
     with spinner("Importing ax.core.arm..."):
         from ax.core.arm import Arm
@@ -1231,13 +1232,6 @@ try:
         from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
 
     try:
-        with spinner("Importing GeneratorSpec..."):
-            from ax.core.generator import GeneratorSpec
-    except Exception:
-        with spinner("Importing GeneratorSpec..."):
-            from ax.generation_strategy.model_spec import GeneratorSpec
-
-    try:
         with spinner("Trying ax.generation_strategy.generation_node..."):
             import ax.generation_strategy.generation_node
 
@@ -1253,6 +1247,9 @@ try:
         with spinner("Importing MaxTrials..."):
             from ax.generation_strategy.transition_criterion import MaxTrials
 
+        with spinner("Importing GeneratorSpec..."):
+            from ax.generation_strategy.generator_spec import GeneratorSpec
+
     except Exception:
         with spinner("Fallback: Importing ax.generation_strategy.generation_node..."):
             import ax.generation_strategy.generation_node
@@ -1267,7 +1264,7 @@ try:
             from ax.generation_strategy.transition_criterion import MaxTrials
 
     with spinner("Importing Models from ax.generation_strategy.registry..."):
-        from ax.modelbridge.registry import Models
+        from ax.adapter.registry import Models
 
     with spinner("Importing get_pending_observation_features..."):
         from ax.core.utils import get_pending_observation_features
@@ -1341,7 +1338,7 @@ with spinner("Importing ax logger...") as status:
 with spinner("Importing SQL-Storage-Stuff...") as status:
     from ax.storage.sqa_store.db import init_engine_and_session_factory, get_engine, create_all_tables
 
-    disable_loggers(names=["ax.modelbridge.base"], level=logging.CRITICAL)
+    disable_loggers(names=["ax.adapter.base"], level=logging.CRITICAL)
 
 decoder_registry = CORE_DECODER_REGISTRY
 
@@ -4259,17 +4256,17 @@ def disable_logging() -> None:
 
             "ax.models.torch.botorch_modular.acquisition",
 
-            "ax.modelbridge"
-            "ax.modelbridge.base",
-            "ax.modelbridge.standardize_y",
-            "ax.modelbridge.transforms",
-            "ax.modelbridge.transforms.standardize_y",
-            "ax.modelbridge.transforms.int_to_float",
-            "ax.modelbridge.cross_validation",
-            "ax.modelbridge.dispatch_utils",
-            "ax.modelbridge.torch",
-            "ax.modelbridge.generation_node",
-            "ax.modelbridge.best_model_selector",
+            "ax.adapter"
+            "ax.adapter.base",
+            "ax.adapter.standardize_y",
+            "ax.adapter.transforms",
+            "ax.adapter.transforms.standardize_y",
+            "ax.adapter.transforms.int_to_float",
+            "ax.adapter.cross_validation",
+            "ax.adapter.dispatch_utils",
+            "ax.adapter.torch",
+            "ax.adapter.generation_node",
+            "ax.adapter.best_model_selector",
 
             "ax.generation_strategy.generation_strategy",
             "ax.generation_strategy.generation_node",
@@ -7717,23 +7714,32 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         remaining = nr_of_jobs_to_get - len(batched_arms)
         print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
 
+        print("get pending observations")
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
+        print("got pending observations")
 
+        print("getting global_gs.gen()")
         batched_generator_run = global_gs.gen(
             experiment=ax_client.experiment,
             n=remaining,
             pending_observations=pending_observations
         )
+        print(f"got global_gs.gen(): {batched_generator_run}")
 
+        # Inline rekursiv entpacken bis flach
         depth = 0
         path = "batched_generator_run"
         while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
+            print(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
             batched_generator_run = batched_generator_run[0]
             path += "[0]"
             depth += 1
 
-        new_arms = batched_generator_run.arms
+        print(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
 
+        print("got new arms")
+        new_arms = batched_generator_run.arms
+        print(f"new_arms: {new_arms}")
         if not new_arms:
             print_debug("get_batched_arms: No new arms were generated in this attempt.")
         else:
@@ -8275,15 +8281,15 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     return requested
 
-def select_model(model_arg: Any) -> ax.modelbridge.registry.Generators:
+def select_model(model_arg: Any) -> ax.adapter.registry.Generators:
     """Selects the model based on user input or defaults to BOTORCH_MODULAR."""
-    available_models = list(ax.modelbridge.registry.Generators.__members__.keys())
-    chosen_model = ax.modelbridge.registry.Generators.BOTORCH_MODULAR
+    available_models = list(ax.adapter.registry.Generators.__members__.keys())
+    chosen_model = ax.adapter.registry.Generators.BOTORCH_MODULAR
 
     if model_arg:
         model_upper = str(model_arg).upper()
         if model_upper in available_models:
-            chosen_model = ax.modelbridge.registry.Generators.__members__[model_upper]
+            chosen_model = ax.adapter.registry.Generators.__members__[model_upper]
         else:
             print_red(f"⚠ Cannot use {model_arg}. Available models are: {', '.join(available_models)}. Using BOTORCH_MODULAR instead.")
 
@@ -8506,7 +8512,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     res = GenerationNode(
         node_name=model_name,
-        model_specs=model_spec,
+        generator_specs=model_spec,
         transition_criteria=trans_crit
     )
 
@@ -10962,6 +10968,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
                 wrapped = show_func_name_wrapper(wrapped)
 
             namespace[name] = wrapped
+
     return namespace
 
 if __name__ == "__main__":

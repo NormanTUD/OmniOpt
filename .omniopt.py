@@ -7723,8 +7723,13 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             experiment=ax_client.experiment,
             n=remaining,
             pending_observations=pending_observations
-        )[0][0]
-        print("got global_gs.gen()")
+        )
+
+        print(f"got global_gs.gen(): {batched_generator_run}")
+
+        batched_generator_run = batched_generator_run[0][0]
+
+        print("got global_gs.gen(), made it [0][0]")
 
         print("got new arms")
         new_arms = batched_generator_run.arms
@@ -10276,7 +10281,7 @@ def main() -> None:
 
         init_live_share()
 
-        #start_periodic_live_share()
+        start_periodic_live_share()
 
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
@@ -10891,7 +10896,7 @@ def main_outside() -> None:
 
     print_logo()
 
-    #start_logging_daemon()
+    start_logging_daemon()
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

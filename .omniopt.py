@@ -8383,23 +8383,38 @@ def write_state_file(name: str, var: str) -> None:
     except Exception as e:
         print_red(f"Failed writing '{file_path}': {e}")
 
+def get_state_file_content(name: str, run_folder: str = get_current_run_folder()) -> str:
+    if args.continue_previous_job:
+        run_folder = args.continue_previous_job
+
+    file_path = f"{run_folder}/state_files/{name}"
+
+    if os.path.isdir(file_path):
+        _fatal_error(f"{file_path} is a dir. Must be a file.", 247)
+
+    if not os.path.exists(file_path):
+        print_red(f"State file '{file_path}' does not exist.")
+        return ""
+
+    try:
+        with open(file_path, mode="r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print_red(f"Failed reading '{file_path}': {e}")
+        return ""
+
 def get_chosen_model() -> str:
     chosen_model = args.model
 
     if args.continue_previous_job and chosen_model is None:
-        continue_model_file = f"{args.continue_previous_job}/state_files/model"
+        chosen_model = get_state_file_content("model")
 
         found_model = False
 
-        if os.path.exists(continue_model_file):
-            chosen_model = open(continue_model_file, mode="r", encoding="utf-8").readline().strip()
-
-            if chosen_model not in SUPPORTED_MODELS:
-                print_red(f"Wrong model >{chosen_model}< in {continue_model_file}.")
-            else:
-                found_model = True
+        if chosen_model not in SUPPORTED_MODELS:
+            print_red(f"Wrong model >{chosen_model}<.")
         else:
-            print_red(f"Cannot find model under >{continue_model_file}<.")
+            found_model = True
 
         if not found_model:
             if args.model is not None:

@@ -1,144 +1,115 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Test multi-objective-optimization with different models.
+function echoerr { echo "$@" 1>&2; }
 
-function echoerr {
-	echo "$@" 1>&2
-}
+function yellow_text { echoerr -e "\033[0;33m$1\033[0m"; }
+function green_text  { echoerr -e "\033[0;32m$1\033[0m"; }
+function red_text    { echoerr -e "\033[0;31m$1\033[0m"; }
 
-function yellow_text {
-	echoerr -e "\e\033[0;33m$1\e[0m"
-}
+OMNIOPT_CALL="${OMNIOPT_CALL:-./omniopt}"
 
-function green_text {
-	echoerr -e "\033[0;32m$1\e[0m"
-}
-
-function red_text {
-	echoerr -e "\e[31m$1\e[0m"
-}
-
-if [[ -z $OMNIOPT_CALL ]]; then
-	OMNIOPT_CALL="./omniopt"
-fi
-export OMNIOPT_CALL
-
-{
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-cd $SCRIPT_DIR
-
-cd ..
-
-failed=0
-
-models=($(cat .omniopt.py | grep "^SUPPORTED_MODELS" | sed -e 's#.*=\s##' -e 's#\[##' -e 's#\]##' -e 's#"##g' -e 's#,##g'))
-total_models=${#models[@]}
-current_model=0
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+cd "$SCRIPT_DIR/.."
 
 NUM_GPUS=0
-if command -v nvidia-smi 2>/dev/null >/dev/null; then
-	NUM_GPUS=1
+if command -v nvidia-smi &>/dev/null; then
+    NUM_GPUS=1
 fi
 
-for model in "${models[@]}"; do
-	((current_model++))
-	echo "===== $model ===== (Job $current_model of $total_models)";
-	if [[ $failed -eq 0 ]]; then
-		if [[ "$model" != "PSEUDORANDOM" ]] && [[ "$model" != "SOBOL" ]] && [[ "$model" != "FACTORIAL" ]] && [[ "$model" != "RANDOMFOREST" ]] && [[ "$model" != "TPE" ]] && [[ "$model" != "EXTERNAL_GENERATOR" ]]; then
-			run_name="multi_results_2_results_$model"
-			run_dir="runs/$run_name"
-			if [[ -d $run_dir ]]; then
-				rm -rf $run_dir
-			fi
+function get_supported_models {
+    grep "^SUPPORTED_MODELS" .omniopt.py | \
+        sed -e 's#.*=\s*##' -e 's#[][]##g' -e 's#"##g' -e 's#,##g'
+}
 
-			$OMNIOPT_CALL --live_share --send_anonymized_usage_stats --partition alpha \
-				--experiment_name $run_name \
-				--mem_gb=4 \
-				--time 60 \
-				--worker_timeout=5 \
-				--max_eval 2 \
-				--num_parallel_jobs 20 \
-				--gpus $NUM_GPUS \
-				--run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0y \
-				--parameter int_param range -100 10 int \
-				--parameter float_param range -100 10 float \
-				--parameter choice_param choice 1,2,4,8,16,hallo \
-				--parameter int_param_two range -100 10 int \
-				--follow \
-				--num_random_steps 1 \
-				--model BOTORCH_MODULAR \
-				--auto_exclude_defective_hosts \
-				--result_names RESULT1=min RESULT2=min \
-				--model=$model \
-				--generate_all_jobs_at_once
+function run_model_test {
+    local model="$1"
+    local run_name="multi_results_2_results_$model"
+    local run_dir="runs/$run_name"
 
-			exit_code=$?
+    [[ -d "$run_dir" ]] && rm -rf "$run_dir"
 
-			if [[ $exit_code -ne 0 ]]; then
-				failed=1
-			else
-				first_results_csv="$run_dir/0/results.csv"
+    $OMNIOPT_CALL \
+        --live_share --send_anonymized_usage_stats --partition alpha \
+        --experiment_name "$run_name" \
+        --mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 \
+        --num_parallel_jobs 20 --gpus $NUM_GPUS \
+        --run_program "Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUg--encoded_params" \
+        --parameter int_param range -100 10 int \
+        --parameter float_param range -100 10 float \
+        --parameter choice_param choice 1,2,4,8,16,hallo \
+        --parameter int_param_two range -100 10 int \
+        --follow --num_random_steps 1 --model BOTORCH_MODULAR \
+        --auto_exclude_defective_hosts \
+        --result_names RESULT1=min RESULT2=min \
+        --model="$model" --generate_all_jobs_at_once
 
-				if [[ -e $first_results_csv ]]; then
-					first_results_csv_nr_total=$(cat "$first_results_csv" | wc -l)
+    return $?
+}
 
-					if [[ $first_results_csv_nr_total -eq 3 ]]; then
-						echo "$OMNIOPT_CALL --continue $run_dir/0"
-						$OMNIOPT_CALL --continue $run_dir/0
-						exit_code=$?
-						if [[ $exit_code -ne 0 ]]; then
-							failed=1
-						fi
+function validate_results {
+    local run_dir="$1"
+    local model="$2"
 
-						second_results_csv="$run_dir/1/results.csv"
-						if [[ -e $second_results_csv ]]; then
-							second_results_csv_nr_total=$(cat "$second_results_csv" | wc -l)
-							if [[ $first_results_csv_nr_total -eq 5 ]]; then
-								red_text "$second_results_csv contains $second_results_csv_nr_total lines, but should be 5"
-								failed=1
-							else
-								sobol_jobs=$(cat $second_results_csv | tail -n4 | head -n1 | grep -i SOBOL | wc -l)
+    local first="$run_dir/0/results.csv"
+    local second="$run_dir/1/results.csv"
 
-								if [[ $sobol_jobs -eq 1 ]]; then
-									model_without_whats_after_underscore=$(echo "$model" | sed -e 's#_.*##')
-									systematic_jobs=$(cat $second_results_csv| tail -n3 | grep -i $model_without_whats_after_underscore | wc -l)
+    [[ ! -f "$first" ]] && { red_text "$first does not exist"; return 1; }
+    local first_lines
+    first_lines=$(wc -l < "$first")
+    [[ $first_lines -ne 3 ]] && { red_text "$first contains $first_lines lines, should be 3"; return 1; }
 
-									if [[ $sobol_jobs -eq 3 ]]; then
-										red_text "$second_results_csv does not contain the proper amount of non-SOBOL (model: $model, model_without_whats_after_underscore: $model_without_whats_after_underscore) jobs (3), has $systematic_jobs"
-										failed=1
-									fi
-								else
-									red_text "$second_results_csv does not contain the proper amount of SOBOL jobs (1), has $sobol_jobs"
-									failed=1
-								fi
-							fi
-						else
-							red_text "$second_results_csv not found"
-							failed=1
-						fi
-					else
-						red_text "$first_results_csv contains $first_results_csv_nr_total lines, but should be 3"
-						failed=1
-					fi
-				else
-					red_text "$first_results_csv does not exist. Something is wrong."
-					failed=1
-				fi
-			fi
-		else
-			yellow_text "Skipping model SOBOL, FACTORIAL and RANDOMFOREST. Incompatible with range"
-		fi
-	else
-		yellow_text "Skipping model $model because previous models have failed already"
-	fi
+    [[ ! -f "$second" ]] && { red_text "$second not found"; return 1; }
+    local second_lines
+    second_lines=$(wc -l < "$second")
+    [[ $second_lines -ne 5 ]] && { red_text "$second contains $second_lines lines, should be 5"; return 1; }
+
+    local sobol_jobs
+    sobol_jobs=$(tail -n4 "$second" | head -n1 | grep -i SOBOL | wc -l)
+    [[ $sobol_jobs -ne 1 ]] && { red_text "Incorrect SOBOL jobs count: $sobol_jobs"; return 1; }
+
+    local model_prefix
+    model_prefix="${model%%_*}"
+    local systematic_jobs
+    systematic_jobs=$(tail -n3 "$second" | grep -i "$model_prefix" | wc -l)
+    [[ $systematic_jobs -ne 3 ]] && { red_text "Incorrect systematic jobs count: $systematic_jobs"; return 1; }
+
+    return 0
+}
+
+models=($(get_supported_models))
+total_models=${#models[@]}
+failed=0
+
+for i in "${!models[@]}"; do
+    model="${models[i]}"
+    echo "===== $model ===== (Job $((i+1)) of $total_models)"
+
+    if [[ $failed -ne 0 ]]; then
+        yellow_text "Skipping model $model because previous models failed"
+        continue
+    fi
+
+    if [[ "$model" =~ ^(PSEUDORANDOM|SOBOL|FACTORIAL|RANDOMFOREST|TPE|EXTERNAL_GENERATOR)$ ]]; then
+        yellow_text "Skipping incompatible model $model"
+        continue
+    fi
+
+    run_model_test "$model"
+    if [[ $? -ne 0 ]]; then
+        failed=1
+        continue
+    fi
+
+    validate_results "runs/multi_results_2_results_$model" "$model"
+    if [[ $? -ne 0 ]]; then
+        failed=1
+    fi
 done
 
 if [[ $failed -eq 0 ]]; then
-	green_text "All Multi-Result model tests succeeded"
-	exit 0
+    green_text "All Multi-Result model tests succeeded"
+    exit 0
 else
-	red_text "Some of the tests failed. Check the logs for more details"
-	exit 1
+    red_text "Some tests failed. Check logs."
+    exit 1
 fi
-}

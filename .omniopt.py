@@ -22,6 +22,9 @@ from collections import Counter, defaultdict
 import types
 import asyncio
 from typing import TypeVar, Callable, Any
+import traceback
+import inspect
+import tracemalloc
 
 import psutil
 
@@ -190,9 +193,6 @@ try:
     with spinner("Importing importlib.util..."):
         import importlib.util
 
-    with spinner("Importing inspect..."):
-        import inspect
-
     with spinner("Importing platform..."):
         import platform
 
@@ -204,9 +204,6 @@ try:
 
     with spinner("Importing uuid..."):
         import uuid
-
-    with spinner("Importing traceback..."):
-        import traceback
 
     with spinner("Importing cowsay..."):
         import cowsay
@@ -259,50 +256,91 @@ except KeyboardInterrupt:
     sys.exit(17)
 
 def log_time_and_memory_wrapper(func: F) -> F:
-    @functools.wraps(func)
-    def wrapper(*func_args, **kwargs):
-        global _total_time
+    if inspect.iscoroutinefunction(func):
+        @functools.wraps(func)
+        async def async_wrapper(*func_args: Any, **kwargs: Any) -> Any:
+            process = psutil.Process()
 
-        process = psutil.Process()
+            # Speicher vorher
+            mem_before = process.memory_info().rss / (1024 * 1024)
 
-        # Speicher vorher messen
-        mem_before = process.memory_info().rss / (1024 * 1024)
+            tracemalloc.start()
 
-        start = time.perf_counter()
-        result = func(*func_args, **kwargs)
-        elapsed = time.perf_counter() - start
+            start = time.perf_counter()
+            result = await func(*func_args, **kwargs)
+            elapsed = time.perf_counter() - start
 
-        # Speicher nachher messen
-        mem_after = process.memory_info().rss / (1024 * 1024)
-        mem_diff = mem_after - mem_before
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
 
-        if elapsed >= 0.05:
-            current_total = _total_time
-            current_func_total = _func_times[func.__name__]
-            simulated_total = current_total + elapsed
-            simulated_func_total = current_func_total + elapsed
-            percent_if_added = (simulated_func_total / simulated_total) * 100 if simulated_total else 100
+            mem_after = process.memory_info().rss / (1024 * 1024)
+            mem_diff = mem_after - mem_before
+            mem_peak_mb = peak / (1024 * 1024)
 
-            if percent_if_added >= 1.0:
-                _func_times[func.__name__] = simulated_func_total
-                _func_mem[func.__name__] += mem_diff  # kumulieren
-                _total_time = simulated_total
+            if elapsed >= 0.05:
+                _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 
-                # Stack erfassen (ohne Decorator-Aufruf selbst)
-                stack = traceback.extract_stack()[:-1]
-                short_stack = [f"{f.filename.split('/')[-1]}:{f.lineno} in {f.name}" for f in stack[-5:]]
-                call_path_str = " -> ".join(short_stack)
-                _func_call_paths[func.__name__][call_path_str] += 1
+            return result
 
-                print(
-                    f"Function '{func.__name__}' took {elapsed:.4f}s "
-                    f"(total {percent_if_added:.1f}% of tracked time)"
-                )
-                print(f"Memory before: {mem_before:.2f} MB, after: {mem_after:.2f} MB, diff: {mem_diff:+.2f} MB")
-                print(f"!!! '{func.__name__}' added {percent_if_added:.1f}% of the total runtime. !!!")
-                _print_time_and_memory_functions_wrapper_stats()
-        return result
-    return wrapper
+        return async_wrapper  # type: ignore
+
+    else:
+        @functools.wraps(func)
+        def wrapper(*func_args: Any, **kwargs: Any) -> Any:
+            process = psutil.Process()
+
+            mem_before = process.memory_info().rss / (1024 * 1024)
+
+            tracemalloc.start()
+
+            start = time.perf_counter()
+            result = func(*func_args, **kwargs)
+            elapsed = time.perf_counter() - start
+
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+
+            mem_after = process.memory_info().rss / (1024 * 1024)
+            mem_diff = mem_after - mem_before
+            mem_peak_mb = peak / (1024 * 1024)
+
+            if elapsed >= 0.05:
+                _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
+
+            return result
+
+        return wrapper  # type: ignore
+
+
+def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float):
+    global _total_time
+
+    current_total = _total_time
+    current_func_total = _func_times[func_name]
+    simulated_total = current_total + elapsed
+    simulated_func_total = current_func_total + elapsed
+    percent_if_added = (simulated_func_total / simulated_total) * 100 if simulated_total else 100
+
+    if percent_if_added >= 1.0:
+        _func_times[func_name] = simulated_func_total
+        _func_mem[func_name] += mem_diff
+        _total_time = simulated_total
+
+        stack = traceback.extract_stack()[:-1]
+        short_stack = [f"{f.filename.split('/')[-1]}:{f.lineno} in {f.name}" for f in stack[-5:]]
+        call_path_str = " -> ".join(short_stack)
+        _func_call_paths[func_name][call_path_str] += 1
+
+        print(
+            f"Function '{func_name}' took {elapsed:.4f}s "
+            f"(total {percent_if_added:.1f}% of tracked time)"
+        )
+        print(
+            f"Memory before: {mem_after - mem_diff:.2f} MB, after: {mem_after:.2f} MB, "
+            f"diff: {mem_diff:+.2f} MB, peak during call: {mem_peak:.2f} MB"
+        )
+        print(f"!!! '{func_name}' added {percent_if_added:.1f}% of the total runtime. !!!")
+        _print_time_and_memory_functions_wrapper_stats()
 
 
 def _print_time_and_memory_functions_wrapper_stats() -> None:
@@ -315,8 +353,8 @@ def _print_time_and_memory_functions_wrapper_stats() -> None:
         percent_total = t / _total_time * 100
         print(f"{i}. {name}: {t:.4f}s ({percent_total:.1f}%)")
 
-    print("\n=== Memory Usage Stats (Top 10) ===")
-    items_mem = sorted(_func_mem.items(), key=lambda x: -x[1])
+    print("\n=== Memory Usage Stats (Top 10 by diff) ===")
+    items_mem = sorted(_func_mem.items(), key=lambda x: -abs(x[1]))
     for i, (name, mem) in enumerate(items_mem[:10], 1):
         print(f"{i}. {name}: {mem:+.2f} MB total change")
 
@@ -326,6 +364,7 @@ def _print_time_and_memory_functions_wrapper_stats() -> None:
         for call_path, count in _func_call_paths[name].most_common(3):
             print(f"  {count}×  {call_path}")
     print("==================")
+
 
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args
@@ -10868,7 +10907,7 @@ async def main_outside() -> None:
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
 
-    excluded_functions = {"log_time_and_memory_wrapper", "_print_time_and_memory_functions_wrapper_stats", "print"}
+    excluded_functions = {"log_time_and_memory_wrapper", "_print_time_and_memory_functions_wrapper_stats", "print", "_record_stats"}
 
     for name, obj in list(namespace.items()):
         if (isinstance(obj, types.FunctionType) and name not in excluded_functions):

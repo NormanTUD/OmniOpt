@@ -44,6 +44,8 @@ _total_time = 0.0
 _func_times = defaultdict(float)
 _func_mem = defaultdict(float)
 _func_call_paths = defaultdict(Counter)
+_last_mem = defaultdict(float)
+_leak_threshold_mb = 10.0
 
 _function_name_cache: dict = {}
 
@@ -260,12 +262,9 @@ def log_time_and_memory_wrapper(func: F) -> F:
         @functools.wraps(func)
         async def async_wrapper(*func_args: Any, **kwargs: Any) -> Any:
             process = psutil.Process()
-
-            # Speicher vorher
             mem_before = process.memory_info().rss / (1024 * 1024)
 
             tracemalloc.start()
-
             start = time.perf_counter()
             result = await func(*func_args, **kwargs)
             elapsed = time.perf_counter() - start
@@ -280,19 +279,18 @@ def log_time_and_memory_wrapper(func: F) -> F:
             if elapsed >= 0.05:
                 _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 
+            _check_memory_leak(func.__name__, mem_after)
+
             return result
 
         return async_wrapper  # type: ignore
-
     else:
         @functools.wraps(func)
         def wrapper(*func_args: Any, **kwargs: Any) -> Any:
             process = psutil.Process()
-
             mem_before = process.memory_info().rss / (1024 * 1024)
 
             tracemalloc.start()
-
             start = time.perf_counter()
             result = func(*func_args, **kwargs)
             elapsed = time.perf_counter() - start
@@ -306,6 +304,8 @@ def log_time_and_memory_wrapper(func: F) -> F:
 
             if elapsed >= 0.05:
                 _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
+
+            _check_memory_leak(func.__name__, mem_after)
 
             return result
 
@@ -362,6 +362,12 @@ def _print_time_and_memory_functions_wrapper_stats() -> None:
         for call_path, count in _func_call_paths[name].most_common(3):
             print(f"  {count}×  {call_path}")
     print("==================")
+
+def _check_memory_leak(func_name: str, current_mem: float) -> None:
+    last_mem = _last_mem[func_name]
+    if current_mem - last_mem > _leak_threshold_mb:
+        print(f"⚠️ Possible memory leak detected in '{func_name}': +{current_mem - last_mem:.2f} MB since last call")
+    _last_mem[func_name] = current_mem
 
 def fool_linter(*fool_linter_args: Any) -> Any:
     return fool_linter_args

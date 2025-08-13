@@ -1309,6 +1309,10 @@ with spinner("Importing SQL-Storage-Stuff...") as status:
 
     disable_loggers(names=["ax.adapter.base"], level=logging.CRITICAL)
 
+decoder_registry = CORE_DECODER_REGISTRY
+decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
+decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
+
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
 
@@ -6176,11 +6180,6 @@ def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
         if not os.path.exists(this_path_json):
             print_red(f"{this_path_json} does not exist, cannot load data from it")
             return 0
-
-        decoder_registry = CORE_DECODER_REGISTRY
-
-        decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
-        decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
 
         try:
             old_experiments = load_experiment(this_path_json, CORE_DECODER_REGISTRY)

@@ -1994,7 +1994,7 @@ def force_live_share() -> bool:
 
     return False
 
-async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
+def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     if not get_current_run_folder():
         print(f"live_share: get_current_run_folder was empty or false: {get_current_run_folder()}")
         return False
@@ -2018,7 +2018,7 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 async def periodic_live_share(interval: int = 60) -> None:
     while True:
         try:
-            await live_share(force=False)
+            live_share(force=False)
         except asyncio.CancelledError:
             break
         await asyncio.sleep(interval)
@@ -2036,16 +2036,14 @@ def stop_event_loop():
             task.cancel()
         _loop.call_soon_threadsafe(_loop.stop)
 
-async def init_live_share() -> bool:
+def init_live_share() -> bool:
     with spinner("Initializing live share..."):
-        ret = await live_share(True, True)
+        ret = live_share(True, True)
 
         return ret
 
 async def start_periodic_live_share(interval: int = 60) -> None:
     if args.live_share and not os.environ.get("CI"):
-        await init_live_share()
-
         print_debug(f"Started periodic live share every {interval} seconds")
         _start_event_loop()
         asyncio.run_coroutine_threadsafe(periodic_live_share(interval), _loop)
@@ -10308,7 +10306,9 @@ async def main() -> None:
 
         set_orchestrator()
 
-        await start_periodic_live_share()
+        init_live_share()
+
+        start_periodic_live_share()
 
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
@@ -10916,7 +10916,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-async def main_outside() -> None:
+def main_outside() -> None:
     print(f"Run-UUID: {run_uuid}")
 
     if args.runtime_debug:
@@ -11036,7 +11036,7 @@ signal.signal(signal.SIGTERM, sigterm_handler)
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main_outside())
+        main_outside()
     except (SignalUSR, SignalINT, SignalCONT) as e:
         print_red(f"main_outside failed with exception {e}")
         end_program(True)

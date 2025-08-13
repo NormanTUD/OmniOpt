@@ -396,7 +396,7 @@
 
 			green_reset_line "${PROGRESSBAR}➤Environment $VENV_DIR was not found. Creating it..."
 			python3 -mvenv "$VENV_DIR/" || {
-				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
+				red_text "❌Failed to create Virtual Environment in $VENV_DIR\n"
 				exit 20
 			}
 
@@ -423,7 +423,7 @@
 			rm -rf "$VENV_DIR"
 
 			python3 -mvenv "$VENV_DIR/" || {
-				red_text "❌Failed to create Virtual Environment in $VENV_DIR"
+				red_text "❌Failed to create Virtual Environment in $VENV_DIR\n"
 				rm -rf "$VENV_DIR"
 				exit 20
 			}
@@ -440,7 +440,7 @@
 		rm -rf "$VENV_DIR"
 
 		python3 -mvenv "$VENV_DIR/" || {
-			red_text "❌Failed to create Virtual Environment in $VENV_DIR"
+			red_text "❌Failed to create Virtual Environment in $VENV_DIR\n"
 			exit 20
 		}
 

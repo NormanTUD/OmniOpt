@@ -37,6 +37,7 @@ _last_count_result: tuple[int, str] = (0, "")
 
 _total_time = 0.0
 _func_times = defaultdict(float)
+_func_mem = defaultdict(float)
 _func_call_paths = defaultdict(Counter)
 
 _function_name_cache: dict = {}
@@ -262,9 +263,19 @@ def logmytime(func: F) -> F:
     @functools.wraps(func)
     def wrapper(*func_args, **kwargs):
         global _total_time
+
+        process = psutil.Process()
+
+        # Speicher vorher messen
+        mem_before = process.memory_info().rss / (1024 * 1024)
+
         start = time.perf_counter()
         result = func(*func_args, **kwargs)
         elapsed = time.perf_counter() - start
+
+        # Speicher nachher messen
+        mem_after = process.memory_info().rss / (1024 * 1024)
+        mem_diff = mem_after - mem_before
 
         if elapsed >= 0.05:
             current_total = _total_time
@@ -275,11 +286,11 @@ def logmytime(func: F) -> F:
 
             if percent_if_added >= 1.0:
                 _func_times[func.__name__] = simulated_func_total
+                _func_mem[func.__name__] += mem_diff  # kumulieren
                 _total_time = simulated_total
 
                 # Stack erfassen (ohne Decorator-Aufruf selbst)
                 stack = traceback.extract_stack()[:-1]
-                # Nur relevante Zeilen: Datei:Zeile:Funktion
                 short_stack = [f"{f.filename.split('/')[-1]}:{f.lineno} in {f.name}" for f in stack[-5:]]
                 call_path_str = " -> ".join(short_stack)
                 _func_call_paths[func.__name__][call_path_str] += 1
@@ -288,23 +299,30 @@ def logmytime(func: F) -> F:
                     f"Function '{func.__name__}' took {elapsed:.4f}s "
                     f"(total {percent_if_added:.1f}% of tracked time)"
                 )
+                print(f"Memory before: {mem_before:.2f} MB, after: {mem_after:.2f} MB, diff: {mem_diff:+.2f} MB")
                 print(f"!!! '{func.__name__}' added {percent_if_added:.1f}% of the total runtime. !!!")
                 _print_stats()
         return result
     return wrapper
+
 
 def _print_stats() -> None:
     if _total_time == 0:
         return
 
     print("=== Time Stats ===")
-    items = sorted(_func_times.items(), key=lambda x: -x[1])
-    for i, (name, t) in enumerate(items, 1):
+    items_time = sorted(_func_times.items(), key=lambda x: -x[1])
+    for i, (name, t) in enumerate(items_time, 1):
         percent_total = t / _total_time * 100
         print(f"{i}. {name}: {t:.4f}s ({percent_total:.1f}%)")
 
+    print("\n=== Memory Usage Stats (Top 10) ===")
+    items_mem = sorted(_func_mem.items(), key=lambda x: -x[1])
+    for i, (name, mem) in enumerate(items_mem[:10], 1):
+        print(f"{i}. {name}: {mem:+.2f} MB total change")
+
     print("\n=== Top 10 slowest call origins ===")
-    for name, _ in items[:10]:
+    for name, _ in items_time[:10]:
         print(f"\n{name}:")
         for call_path, count in _func_call_paths[name].most_common(3):
             print(f"  {count}×  {call_path}")

@@ -6,7 +6,7 @@ wheel
 multidict
 numpy
 python-dateutil
-ax-platform[mysql]
+ax-platform[mysql]==1.0.0
 art
 tzlocal
 Rich

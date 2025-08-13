@@ -33,7 +33,7 @@ last_progress_bar_refresh_time = 0.0
 MIN_REFRESH_INTERVAL = 1.0
 
 _last_count_time = 0
-_last_count_result = ()
+_last_count_result: tuple[int, str] = (0, "")
 
 _total_time = 0.0
 _func_times = defaultdict(float)
@@ -5929,7 +5929,7 @@ def count_jobs_in_squeue() -> tuple[int, str]:
     global _last_count_time, _last_count_result
 
     now = time.time()
-    if len(_last_count_result) != 0 and now - _last_count_time < 15:
+    if _last_count_result != (0, "") and now - _last_count_time < 15:
         return _last_count_result
 
     _len = len(global_vars["jobs"])

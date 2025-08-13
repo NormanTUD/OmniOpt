@@ -22,7 +22,7 @@ from collections import Counter, defaultdict
 import types
 import asyncio
 
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, Any
 F = TypeVar("F", bound=Callable[..., object])
 
 _has_run_once = False
@@ -173,7 +173,7 @@ try:
         from types import FunctionType
 
     with spinner("Importing typing..."):
-        from typing import Pattern, Optional, Tuple, Any, cast, Union, TextIO, List, Dict, Type
+        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
 
     with spinner("Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed

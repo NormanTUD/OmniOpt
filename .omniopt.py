@@ -1310,8 +1310,6 @@ with spinner("Importing SQL-Storage-Stuff...") as status:
     disable_loggers(names=["ax.adapter.base"], level=logging.CRITICAL)
 
 decoder_registry = CORE_DECODER_REGISTRY
-decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
-decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
 
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
@@ -1496,6 +1494,8 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 best_sample[name] = int(round(best_sample[name]))
             elif isinstance(param, ChoiceParameter):
                 best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
+
+decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
 
 def warn_if_param_outside_of_valid_params(param: dict, _res: Any, keyname: str) -> None:
     if param["parameter_type"] == "RANGE":
@@ -1871,6 +1871,8 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
 
         except Exception as e:
             raise RuntimeError(f"Error getting next candidate: {e}") from e
+
+decoder_registry["ExternalProgramGenerationNode"] = ExternalProgramGenerationNode
 
 def append_and_read(file: str, nr: int = 0, recursion: int = 0) -> int:
     try:

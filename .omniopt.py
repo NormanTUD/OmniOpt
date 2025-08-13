@@ -27,9 +27,19 @@ import inspect
 import tracemalloc
 import resource
 
+FORCE_EXIT: bool = False
 
 def force_exit(signal_number, frame):
-    os._exit(1)
+    global FORCE_EXIT
+
+    print("")
+    if FORCE_EXIT:
+        print("Exiting now")
+        os._exit(0)
+    else:
+        print("Shutting down")
+        FORCE_EXIT = True
+        sys.exit(0)
 
 signal.signal(signal.SIGINT, force_exit)
 

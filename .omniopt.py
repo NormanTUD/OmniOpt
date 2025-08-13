@@ -7430,6 +7430,7 @@ def save_state_files() -> None:
             write_state_file("mem_gb", str(global_vars["mem_gb"]))
             write_state_file("max_eval", str(max_eval))
             write_state_file("gpus", str(args.gpus))
+            write_state_file("model", str(args.model))
             write_state_file("time", str(global_vars["_time"]))
             write_state_file("run.sh", "omniopt '" + " ".join(sys.argv[1:]) + "'")
             write_state_file("run_uuid", str(run_uuid))

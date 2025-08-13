@@ -46,6 +46,7 @@ _func_mem = defaultdict(float)
 _func_call_paths = defaultdict(Counter)
 _last_mem = defaultdict(float)
 _leak_threshold_mb = 10.0
+generation_strategy_names: list = []
 
 _function_name_cache: dict = {}
 
@@ -5895,17 +5896,12 @@ def update_progress_bar(_progress_bar: Any, nr: int) -> None:
 
     _progress_bar.update(nr)
 
-def get_current_model() -> str:
+def get_current_model_name() -> str:
     if overwritten_to_random:
         return "Random*"
 
     if ax_client:
-        gs_model = ax_client.generation_strategy.current_node_name
-
-        if gs_model:
-            return str(gs_model)
-
-        gs_model = ax_client.generation_strategy.current_node_name
+        gs_model = generation_strategy_names[ax_client.generation_strategy.current_step_index]
 
         if gs_model:
             return str(gs_model)
@@ -6096,13 +6092,13 @@ def capitalized_string(s: str) -> str:
 def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     global progress_bar_length
 
-    current_model = get_current_model()
+    current_model_name = get_current_model_name()
 
-    if current_model == "SobolGenerator":
-        current_model = "Sobol"
+    if current_model_name == "SobolGenerator":
+        current_model_name = "Sobol"
 
     in_brackets = []
-    in_brackets.append(current_model)
+    in_brackets.append(current_model_name)
     in_brackets.extend(_get_desc_progress_text_failed_jobs())
     in_brackets.extend(_get_desc_progress_text_best_params())
     in_brackets = get_slurm_in_brackets(in_brackets)
@@ -8568,8 +8564,7 @@ def set_global_generation_strategy() -> None:
 
         continue_not_supported_on_custom_generation_strategy()
 
-        gs_names: list = []
-        gs_nodes: list = []
+        generation_strategy_nodes: list = []
 
         if args_generation_strategy is None:
             num_imported_jobs: int = get_nr_of_imported_jobs()
@@ -8589,26 +8584,26 @@ def set_global_generation_strategy() -> None:
                 if max_eval - random_steps and chosen_model:
                     next_node_name = chosen_model
 
-                gs_names.append(get_step_name("SOBOL", random_steps))
-                gs_nodes.append(create_node("SOBOL", random_steps, next_node_name))
+                generation_strategy_names.append(get_step_name("SOBOL", random_steps))
+                generation_strategy_nodes.append(create_node("SOBOL", random_steps, next_node_name))
 
             write_state_file("model", str(chosen_model))
 
             if chosen_model != "SOBOL" and max_eval > random_steps:
                 this_node = create_node(chosen_model, max_eval - random_steps, None)
 
-                gs_names.append(get_step_name(chosen_model, max_eval - random_steps))
-                gs_nodes.append(this_node)
+                generation_strategy_names.append(get_step_name(chosen_model, max_eval - random_steps))
+                generation_strategy_nodes.append(this_node)
 
-            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
 
             try:
                 global_gs = GenerationStrategy(
-                    name="+".join(gs_names),
-                    nodes=gs_nodes
+                    name="+".join(generation_strategy_names),
+                    nodes=generation_strategy_nodes
                 )
             except ax.exceptions.generation_strategy.GenerationStrategyMisconfiguredException as e:
-                print_red(f"Error: {e}\ngs_names: {gs_names}\ngs_nodes: {gs_nodes}")
+                print_red(f"Error: {e}\ngeneration_strategy_names: {generation_strategy_names}\ngeneration_strategy_nodes: {generation_strategy_nodes}")
 
                 my_exit(55)
         else:
@@ -8638,7 +8633,7 @@ def set_global_generation_strategy() -> None:
                 step_name = get_step_name(model_name, _num_trials)
 
                 steps.append(gs_elem)
-                gs_names.append(step_name)
+                generation_strategy_names.append(step_name)
 
                 start_index = start_index + 1
 
@@ -8646,7 +8641,7 @@ def set_global_generation_strategy() -> None:
 
             global_gs = GenerationStrategy(steps=steps)
 
-            generation_strategy_human_readable = join_with_comma_and_then(gs_names)
+            generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
 
     if global_gs is None:
         print_red("global_gs is None!")

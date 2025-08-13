@@ -143,6 +143,12 @@ try:
             module="ax.adapter.best_model_selector"
         )
 
+        warnings.filterwarnings(
+            "ignore",
+            category=RuntimeWarning,
+            message="coroutine 'start_logging_daemon' was never awaited"
+        )
+
     with spinner("Importing argparse..."):
         import argparse
 

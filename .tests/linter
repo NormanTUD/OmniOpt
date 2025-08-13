@@ -83,8 +83,7 @@ run_linter() {
 	local file_args=("$@")
 
 	if ! command -v $linter 2>/dev/null >/dev/null; then
-		red_text "Linter $linter not found\n"
-		return 1
+		pip install -q $linter
 	fi
 
 	if [[ ${#errors[@]} -eq 0 ]] || [[ "$fail_on_error" -eq "0" ]]; then

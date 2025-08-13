@@ -10985,15 +10985,6 @@ def kill_all_children():
 
 atexit.register(kill_all_children)
 
-def sigterm_handler(signum, frame):
-    print("Got SIGTERM!")
-    # Aktueller Stack-Frame ausgeben
-    print("Currently executing function:")
-    traceback.print_stack(frame)
-    sys.exit(143)
-
-signal.signal(signal.SIGTERM, sigterm_handler)
-
 if __name__ == "__main__":
     try:
         main_outside()

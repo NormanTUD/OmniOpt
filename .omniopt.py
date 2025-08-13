@@ -8298,56 +8298,83 @@ def select_model(model_arg: Any) -> ax.adapter.registry.Generators:
 
     return chosen_model
 
-def get_model_from_name(name: str):
+def print_generation_strategy(generation_strategy_array: list[dict[str, int]]) -> None:
+    table = Table(header_style="bold", title="Generation Strategy")
+    table.add_column("Generation Strategy")
+    table.add_column("Number of Generations")
+
+    for elem in generation_strategy_array:
+        model_name, num_generations = list(elem.items())[0]
+        table.add_row(model_name, str(num_generations))
+
+    console.print(table)
+
+def get_model_from_name_in_registry(name: str):
     name = name.lower()
     for gen in ax.adapter.registry.Generators:
         if gen.name.lower() == name:
             return gen
     raise ValueError(f"Unknown or unsupported model: {name}")
 
-def parse_generation_strategy_string(gen_strat_str: str) -> Tuple[list, int]:
+
+def get_model_from_name(model_name: str) -> Optional[str]:
+    if not isinstance(model_name, str):
+        return None
+
+    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
+        return None
+
+    model_name_lower = model_name.lower()
+    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
+
+    return model_map.get(model_name_lower, None)
+
+def get_name_from_model(model) -> Optional[str]:
+    if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
+        return None
+
+    model_str = model.value if hasattr(model, "value") else str(model)
+
+    model_str_lower = model_str.lower()
+    model_map = {m.lower(): m for m in SUPPORTED_MODELS}
+
+    return model_map.get(model_str_lower, None)
+
+def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str, int]], int]:
     gen_strat_list = []
+    sum_nr = 0
 
     cleaned_string = re.sub(r"\s+", "", gen_strat_str)
     splitted_by_comma = cleaned_string.split(",")
 
-    sum_nr = 0
-
     for s in splitted_by_comma:
-        if "=" in s:
-            if s.count("=") == 1:
-                model_name, nr = s.split("=")
-                matching_model = get_model_from_name(model_name)
-
-                if matching_model in uncontinuable_models:
-                    _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
-
-                if matching_model:
-                    gen_strat_list.append({matching_model: nr})
-                    sum_nr += int(nr)
-                else:
-                    print(f"'{model_name}' not found in SUPPORTED_MODELS")
-                    my_exit(123)
-            else:
-                print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
-                my_exit(123)
-        else:
+        if "=" not in s:
             print(f"'{s}' does not contain '='")
             my_exit(123)
+        if s.count("=") != 1:
+            print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
+            my_exit(123)
+
+        model_name, nr_str = s.split("=")
+        matching_model = get_name_from_model(model_name)
+
+        if matching_model in uncontinuable_models:
+            _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
+
+        if not matching_model:
+            print(f"'{model_name}' not found in SUPPORTED_MODELS")
+            my_exit(123)
+
+        try:
+            nr = int(nr_str)
+        except ValueError:
+            print(f"Invalid number of generations '{nr_str}' for model '{model_name}'")
+            my_exit(123)
+
+        gen_strat_list.append({matching_model: nr})
+        sum_nr += nr
 
     return gen_strat_list, sum_nr
-
-def print_generation_strategy(generation_strategy_array: list) -> None:
-    table = Table(header_style="bold", title="Generation Strategy")
-    table.add_column("Generation Strategy")
-    table.add_column("Number of Generations")
-
-    for gs_element in generation_strategy_array:
-        model_enum, num_generations = next(iter(gs_element.items()))
-        model_name = model_enum.value  # oder model_enum.name
-        table.add_row(model_name, str(num_generations))
-
-    console.print(table)
 
 def write_state_file(name: str, var: str) -> None:
     file_path = f"{get_current_run_folder()}/state_files/{name}"
@@ -8520,7 +8547,8 @@ def get_optimizer_kwargs() -> dict:
     }
 
 def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
-    model_enum = get_model_from_name(model_name)
+    model_enum = get_model_from_name_in_registry(model_name)
+
     return GenerationStep(
         generator=model_enum,   # ✅ neue API
         num_trials=_num_trials,
@@ -8617,8 +8645,6 @@ def set_global_generation_strategy() -> None:
             write_state_file("custom_generation_strategy", args_generation_strategy)
 
             global_gs = GenerationStrategy(steps=steps)
-
-            dier(global_gs)
 
             generation_strategy_human_readable = join_with_comma_and_then(gs_names)
 

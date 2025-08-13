@@ -33,7 +33,7 @@ FORCE_EXIT: bool = False
 def force_exit(signal_number: Any, frame: Any) -> Any:
     global FORCE_EXIT
 
-    print_debug("force_exit(signal_number = {signal_number}, frame = {frame})")
+    print_debug(f"force_exit(signal_number = {signal_number}, frame = {frame})")
     print("")
     if FORCE_EXIT:
         print("Exiting now")

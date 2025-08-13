@@ -8846,8 +8846,17 @@ def execute_next_steps(next_nr_steps: int, _progress_bar: Any) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
         nr_of_items = create_and_execute_next_runs(next_nr_steps, "systematic", max_eval, _progress_bar)
+
+        log_worker_status(nr_of_items, next_nr_steps)
+
         return nr_of_items
     return 0
+
+def log_worker_status(nr_of_items: int, next_nr_steps: int) -> None:
+    nr_current_workers, nr_current_workers_errmsg = count_jobs_in_squeue()
+    if nr_current_workers_errmsg:
+        print_debug(f"log_worker_status: {nr_current_workers_errmsg}")
+    _debug_worker_creation(f"{int(time.time())}, {nr_current_workers}, {nr_of_items}, {next_nr_steps}")
 
 def handle_slurm_execution() -> None:
     if is_slurm_job() and not args.force_local_execution:

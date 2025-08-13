@@ -208,6 +208,9 @@ try:
     with spinner("Importing uuid..."):
         import uuid
 
+    with spinner("Importing qrcode..."):
+        import qrcode
+
     with spinner("Importing cowsay..."):
         import cowsay
 
@@ -1980,7 +1983,6 @@ def extract_and_print_qr(text: str) -> None:
     match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
     if match:
         data = match.group(0)
-        import qrcode
 
         qr = qrcode.QRCode(box_size=1, error_correction=qrcode.constants.ERROR_CORRECT_L, border=0)
         qr.add_data(data)

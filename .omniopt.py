@@ -208,8 +208,8 @@ try:
     with spinner("Importing uuid..."):
         import uuid
 
-    with spinner("Importing qrcode..."):
-        import qrcode
+    #with spinner("Importing qrcode..."):
+    #    import qrcode
 
     with spinner("Importing cowsay..."):
         import cowsay
@@ -1979,15 +1979,14 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
 
     return "", ""
 
-def extract_and_print_qr(text: str) -> None:
-    match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
-    if match:
-        data = match.group(0)
-
-        qr = qrcode.QRCode(box_size=1, error_correction=qrcode.constants.ERROR_CORRECT_L, border=0)
-        qr.add_data(data)
-        qr.make()
-        qr.print_ascii(out=sys.stdout)
+#def extract_and_print_qr(text: str) -> None:
+#    match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
+#    if match:
+#        data = match.group(0)
+#        qr = qrcode.QRCode(box_size=1, error_correction=qrcode.constants.ERROR_CORRECT_L, border=0)
+#        qr.add_data(data)
+#        qr.make()
+#        qr.print_ascii(out=sys.stdout)
 
 def force_live_share() -> bool:
     if args.live_share:
@@ -2008,7 +2007,7 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     if text_and_qr:
         if stderr:
             print_green(stderr)
-            extract_and_print_qr(stderr)
+            #extract_and_print_qr(stderr)
         else:
             print_red("This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
     if stdout:

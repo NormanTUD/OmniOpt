@@ -51,7 +51,8 @@ jobs:
       run: |
         ./.tests/linter
   install-via-pip:
-    needs: [Linter, todo-to-issue]
+    #needs: [Linter, todo-to-issue]
+    needs: [todo-to-issue]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:

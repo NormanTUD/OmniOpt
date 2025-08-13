@@ -20,7 +20,6 @@ import copy
 import functools
 from collections import Counter, defaultdict
 import types
-import asyncio
 import atexit
 from typing import TypeVar, Callable, Any
 import traceback
@@ -2017,12 +2016,8 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
 def periodic_live_share(interval: int = 60) -> None:
     while True:
-        try:
-            live_share(force=False)
-        except asyncio.CancelledError:
-            break
-
-        asyncio.sleep(interval)
+        live_share(force=False)
+        time.sleep(30)
 
 def init_live_share() -> bool:
     with spinner("Initializing live share..."):
@@ -8925,8 +8920,8 @@ def run_search(_progress_bar: Any) -> bool:
 
 async def start_logging_daemon() -> None:
     while True:
-        await log_data()
-        await asyncio.sleep(30)
+        log_data()
+        time.sleep(30)
 
 def should_break_search(_progress_bar: Any) -> bool:
     ret = False
@@ -10954,7 +10949,9 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         "print",
         "_record_stats",
         "_open",
-        "_check_memory_leak"
+        "_check_memory_leak",
+        "start_periodic_live_share",
+        "start_logging_daemon",
     }
 
     for name, obj in list(namespace.items()):

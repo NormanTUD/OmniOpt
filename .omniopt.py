@@ -26,12 +26,14 @@ import traceback
 import inspect
 import tracemalloc
 import resource
+import psutil
 
 FORCE_EXIT: bool = False
 
-def force_exit(signal_number, frame):
+def force_exit(signal_number: Any, frame: Any) -> Any:
     global FORCE_EXIT
 
+    print_debug("force_exit(signal_number = {signal_number}, frame = {frame})")
     print("")
     if FORCE_EXIT:
         print("Exiting now")
@@ -42,8 +44,6 @@ def force_exit(signal_number, frame):
         sys.exit(0)
 
 signal.signal(signal.SIGINT, force_exit)
-
-import psutil
 
 F = TypeVar("F", bound=Callable[..., object])
 

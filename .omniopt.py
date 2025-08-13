@@ -277,8 +277,6 @@ def log_time_and_memory_wrapper(func: F) -> F:
             mem_diff = mem_after - mem_before
             mem_peak_mb = peak / (1024 * 1024)
 
-            print(f"-> -> -> Memory for {func.__name__}: {mem_diff}")
-
             if elapsed >= 0.05:
                 _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 

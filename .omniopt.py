@@ -303,8 +303,8 @@ def _print_stats() -> None:
         percent_total = t / _total_time * 100
         print(f"{i}. {name}: {t:.4f}s ({percent_total:.1f}%)")
 
-    print("\n=== Top 5 slowest call origins ===")
-    for name, _ in items[:5]:
+    print("\n=== Top 10 slowest call origins ===")
+    for name, _ in items[:10]:
         print(f"\n{name}:")
         for call_path, count in _func_call_paths[name].most_common(3):
             print(f"  {count}×  {call_path}")

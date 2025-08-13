@@ -1,7 +1,5 @@
 # OmniOpt2 - Hyperparameter Optimizer for SLURM-based Systems
 
-![Current build status](https://github.com/NormanTUD/OmniOpt/actions/workflows/main.yml/badge.svg?event=push)
-
 OmniOpt2 is a tool designed to assist researchers, engineers, and data
 scientists with hyperparameter optimization on SLURM-based clusters, even
 though it works without it as well. It simplifies large-scale optimization

@@ -10949,24 +10949,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
     return namespace
 
-def kill_all_children():
-    # Aktuellen Prozess
-    parent = psutil.Process(os.getpid())
-
-    # Alle subprocesses rekursiv
-    for child in parent.children(recursive=True):
-        try:
-            child.kill()   # SIGKILL
-        except Exception as e:
-            print(f"Error at killing child {child}: {e}")
-
-    # Threads kann man nur daemon-like behandeln
-    for t in threading.enumerate():
-        if t is not threading.main_thread():
-            print(f"Thread {t.name} not exiting cleanly (just info)")
-
-atexit.register(kill_all_children)
-
 if __name__ == "__main__":
     try:
         main_outside()

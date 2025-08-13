@@ -10933,11 +10933,12 @@ def _cancel_all_tasks_at_exit():
             task.cancel()
         if tasks:
             try:
-                # Alle Tasks abwarten (synchron, thread-sicher)
-                asyncio.run_coroutine_threadsafe(
-                    asyncio.gather(*tasks, return_exceptions=True),
+                # asyncio.wait funktioniert mit Tasks direkt
+                fut = asyncio.run_coroutine_threadsafe(
+                    asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED),
                     _loop
-                ).result()
+                )
+                fut.result()  # wartet synchron auf alle Tasks
             except Exception as e:
                 print("Exception while cancelling tasks:", e)
         _loop.call_soon_threadsafe(_loop.stop)

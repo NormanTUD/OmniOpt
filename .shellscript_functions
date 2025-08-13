@@ -119,7 +119,7 @@
 		exit 245
 	fi
 
-	VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')"
+	VENV_DIR_NAME=".omniax_venvs/$(python3 --version | sed -e 's# #_#g')/$(uname -m)/"
 
 	ROOT_VENV_DIR=$HOME
 

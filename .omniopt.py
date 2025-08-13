@@ -5901,7 +5901,10 @@ def get_current_model_name() -> str:
         return "Random*"
 
     if ax_client:
-        gs_model = generation_strategy_names[ax_client.generation_strategy.current_step_index]
+        if args.generation_strategy:
+            gs_model = generation_strategy_names[ax_client.generation_strategy.current_step_index]
+        else:
+            gs_model = ax_client.generation_strategy.current_node_name
 
         if gs_model:
             return str(gs_model)
@@ -6165,6 +6168,8 @@ def progressbar_description(new_msgs: Union[str, List[str]] = []) -> None:
             progress_bar.refresh()
             last_progress_bar_desc = desc
             last_progress_bar_refresh_time = now
+    else:
+        print_red("Cannot update progress bar! It is None.")
 
 def clean_completed_jobs() -> None:
     job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "failed", "preempted", "node_fail", "boot_fail"]
@@ -7583,9 +7588,13 @@ def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
 
     conditions = [
         (lambda: (_counted_done_jobs - _failed_jobs) >= max_eval, f"1. _counted_done_jobs {_counted_done_jobs} - (_failed_jobs {_failed_jobs}) >= max_eval {max_eval}"),
-        (lambda: (_submitted_jobs - _failed_jobs) >= progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= progress_bar.total {progress_bar.total} + 1"),
         (lambda: max_failed_jobs < _failed_jobs, f"3. max_failed_jobs {max_failed_jobs} < failed_jobs {_failed_jobs}"),
     ]
+
+    if progress_bar is not None:
+        conditions.append(
+            (lambda: (_submitted_jobs - _failed_jobs) >= progress_bar.total + 1, f"2. _submitted_jobs {_submitted_jobs} - _failed_jobs {_failed_jobs} >= progress_bar.total {progress_bar.total} + 1"),
+        )
 
     if _max_eval:
         conditions.append((lambda: succeeded_jobs() >= _max_eval + 1, f"4. succeeded_jobs() {succeeded_jobs()} >= _max_eval {_max_eval} + 1"),)
@@ -7599,7 +7608,7 @@ def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
             _ret = True
 
     if args.verbose_break_run_search_table:
-        show_debug_table_for_break_run_search(_name, _max_eval, progress_bar, _ret)
+        show_debug_table_for_break_run_search(_name, _max_eval, _ret)
 
     return _ret
 
@@ -8176,7 +8185,7 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
 def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
     finish_previous_jobs(["finishing jobs (_get_next_trials)"])
 
-    if break_run_search("_get_next_trials", max_eval, progress_bar) or nr_of_jobs_to_get == 0:
+    if break_run_search("_get_next_trials", max_eval) or nr_of_jobs_to_get == 0:
         return {}, True
 
     try:
@@ -10475,27 +10484,21 @@ def save_experiment_parameters(filepath: str) -> None:
         json.dump(experiment_parameters, outfile, cls=NpEncoder)
 
 def run_search_with_progress_bar() -> None:
-    print("AA")
+    global progress_bar
 
     disable_tqdm = args.disable_tqdm or ci_env
 
     total_jobs = max_eval
 
     with tqdm(total=total_jobs, disable=disable_tqdm, ascii="░▒█") as _progress_bar:
-        print("write_process_info starts")
+        progress_bar = _progress_bar
         write_process_info()
 
-        print("setting descs")
         progressbar_description("Started OmniOpt2 run...")
-        print("setting descs")
 
-        print("updating progress bar")
         update_progress_bar(count_done_jobs() + NR_INSERTED_JOBS)
-        print("updating progress bar")
 
-        print("\nrun_search starts\n")
         run_search()
-        print("\nrun_search ends\n")
 
     wait_for_jobs_to_complete()
 

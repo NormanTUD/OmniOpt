@@ -21,6 +21,7 @@ import functools
 from collections import Counter, defaultdict
 import types
 import asyncio
+import atexit
 from typing import TypeVar, Callable, Any
 import traceback
 import inspect
@@ -10920,6 +10921,30 @@ def auto_wrap_namespace(namespace: Any) -> Any:
             namespace[name] = log_time_and_memory_wrapper(wrapped)
 
     return namespace
+
+def _cancel_all_tasks_at_exit():
+    if _loop is None:
+        return
+
+    def stopper():
+        # Alle laufenden Tasks im Loop holen
+        tasks = asyncio.all_tasks(loop=_loop)
+        for task in tasks:
+            task.cancel()
+        # Sicherstellen, dass alle Tasks beendet werden
+        for task in tasks:
+            try:
+                task.result(timeout=5)
+            except asyncio.CancelledError:
+                pass
+            except Exception as e:
+                print("Background task ended with exception:", e)
+        # Eventloop stoppen
+        _loop.call_soon_threadsafe(_loop.stop)
+
+    stopper()
+
+atexit.register(_cancel_all_tasks_at_exit)
 
 if __name__ == "__main__":
     try:

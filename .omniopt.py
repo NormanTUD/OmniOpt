@@ -21,10 +21,10 @@ import functools
 from collections import Counter, defaultdict
 import types
 import asyncio
+from typing import TypeVar, Callable, Any
 
 import psutil
 
-from typing import TypeVar, Callable, Any
 F = TypeVar("F", bound=Callable[..., object])
 
 _has_run_once = False

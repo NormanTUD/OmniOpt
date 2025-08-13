@@ -369,58 +369,84 @@ function _test {
 declare -a RUN_TIMES=()
 
 function run_tests {
-        local total=${#TEST_CASES[@]}
-        local count=0
+	local total=${#TEST_CASES[@]}
+	local count=0
 
-        for test_case in "${TEST_CASES[@]}"; do
-                count=$((count + 1))
-                local percent=$((count * 100 / total))
-
-                local start_time=$(date +%s)
-
+	for test_case in "${TEST_CASES[@]}"; do
+		count=$((count + 1))
+		local percent=$((count * 100 / total))
+		local start_time=$(date +%s)
 
 		if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
 			true
 		else
 			_running_string="[$count/$total] (${percent}%) Running: $test_case"
-
 			_running_string=$(echo "$_running_string" | sed -e 's#[[:space:]]*$##')
-
-			_green_text_bold_underline $_running_string
+			_green_text_bold_underline "$_running_string"
 		fi
 
-                eval "$test_case"
+		# Vorher CPU & RAM messen
+		local cpu_before=$(top -bn1 | grep "Cpu(s)" | awk '{print 100 - $8}' | cut -d. -f1)
+		local mem_before=$(free -m | awk '/Mem:/ {print $3}') # in MB
 
-                local end_time=$(date +%s)
-                local duration=$((end_time - start_time))
+		eval "$test_case"
+
+		local end_time=$(date +%s)
+		local duration=$((end_time - start_time))
+
+		# 1 Sekunde warten und danach erneut messen
+		sleep 1
+		local cpu_after=$(top -bn1 | grep "Cpu(s)" | awk '{print 100 - $8}' | cut -d. -f1)
+		local mem_after=$(free -m | awk '/Mem:/ {print $3}') # in MB
+
+		# Unterschiede berechnen
+		local cpu_diff=$((cpu_after - cpu_before))
+		local mem_diff=$((mem_after - mem_before))
+
+		# Ausgabe der Unterschiede
+		if ((cpu_diff > 0)); then
+			echo "🔺 CPU usage increased by ${cpu_diff}% (from ${cpu_before}% to ${cpu_after}%)"
+		elif ((cpu_diff < 0)); then
+			echo "🔻 CPU usage decreased by $((-cpu_diff))% (from ${cpu_before}% to ${cpu_after}%)"
+		else
+			echo "CPU usage unchanged at ${cpu_before}%"
+		fi
+
+		if ((mem_diff > 0)); then
+			echo "🔺 Memory usage increased by ${mem_diff} MB (from ${mem_before} MB to ${mem_after} MB)"
+		elif ((mem_diff < 0)); then
+			echo "🔻 Memory usage decreased by $((-mem_diff)) MB (from ${mem_before} MB to ${mem_after} MB)"
+		else
+			echo "Memory usage unchanged at ${mem_before} MB"
+		fi
 
 		if [[ $duration -gt 10 ]]; then
 			RUN_TIMES+=("$duration")
 		fi
 
-                if ((${#RUN_TIMES[@]} > 1)); then
-                        local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))
-                        local mid_index=$((${#sorted_times[@]} / 2))
-                        local median=${sorted_times[$mid_index]}
-                        local remaining=$((median * (total - count)))
+		if ((${#RUN_TIMES[@]} > 1)); then
+			local sorted_times=($(printf "%s\n" "${RUN_TIMES[@]}" | sort -n))
+			local mid_index=$((${#sorted_times[@]} / 2))
+				local median=${sorted_times[$mid_index]}
+				local remaining=$((median * (total - count)))
 
-                        local readable_time
-                        if ((remaining >= 3600)); then
-                                readable_time="$(($remaining / 3600))h $(($remaining % 3600 / 60))m"
-                        elif ((remaining >= 60)); then
-                                readable_time="$(($remaining / 60))m $(($remaining % 60))s"
-                        else
-                                readable_time="${remaining}s"
-                        fi
-
-			if [[ $remaining -gt 0 ]]; then
-				if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
-					true
+				local readable_time
+				if ((remaining >= 3600)); then
+					readable_time="$(($remaining / 3600))h $(($remaining % 3600 / 60))m"
+				elif ((remaining >= 60)); then
+					readable_time="$(($remaining / 60))m $(($remaining % 60))s"
 				else
-					_green_text_bold_underline "-> Estimated time remaining: $readable_time"
+					readable_time="${remaining}s"
 				fi
-			fi
-                fi
+
+				if [[ $remaining -gt 0 ]]; then
+					if [[ $exit_on_first_error -eq 1 ]] && [[ ${#errors[@]} -gt 0 ]]; then
+						true
+					else
+						_green_text_bold_underline "-> Estimated time remaining: $readable_time"
+					fi
+				fi
+		fi
 
 		if [[ -d None ]]; then
 			red_text "None exists. Will fail."
@@ -431,7 +457,7 @@ function run_tests {
 			red_text "runs/None exists. Will fail."
 			exit 1
 		fi
-        done
+	done
 }
 
 # _test "NAME" "COMMAND" "WANTED_EXIT_CODE" "ERRORMSG"

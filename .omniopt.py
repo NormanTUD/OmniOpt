@@ -6303,7 +6303,7 @@ def _get_generation_node_for_index_floats_match(
     return abs(row_val_num - val) <= tolerance
 
 def insert_jobs_from_csv(this_csv_file_path: str) -> None:
-    with spinner(f"Inserting job into CSV from {this_csv_file_path}"):
+    with spinner(f"Inserting job into CSV from {this_csv_file_path}") as __status:
         this_csv_file_path = this_csv_file_path.replace("//", "/")
 
         if not os.path.exists(this_csv_file_path):

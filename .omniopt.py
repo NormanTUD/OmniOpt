@@ -8412,7 +8412,7 @@ def get_state_file_content(name: str, run_folder: str = get_current_run_folder()
 
     try:
         with open(file_path, mode="r", encoding="utf-8") as f:
-            return f.read().trim()
+            return f.read().replace("\n", "").replace("\r", "")
     except Exception as e:
         print_red(f"Failed reading '{file_path}': {e}")
         return ""

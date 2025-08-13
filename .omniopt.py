@@ -8555,8 +8555,6 @@ def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = N
 
 
 def set_global_generation_strategy() -> None:
-    global global_gs, generation_strategy_human_readable
-
     with spinner("Setting global generation strategy"):
         args_generation_strategy = args.generation_strategy
 
@@ -8577,6 +8575,8 @@ def set_global_generation_strategy() -> None:
 
 
 def setup_default_generation_strategy() -> None:
+    global generation_strategy_human_readable
+
     generation_strategy_nodes: list = []
     generation_strategy_names: list = []
 

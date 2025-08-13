@@ -10954,13 +10954,6 @@ async def main_outside() -> None:
             else:
                 end_program(True)
 
-def cleanup_threads():
-    print("Setting stop event for all threads...")
-    stop_event.set()
-    for t in threads:
-        t.join(timeout=2)
-    print("Alle Threads beendet")
-
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
 

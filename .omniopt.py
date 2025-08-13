@@ -10809,7 +10809,7 @@ async def main_outside() -> None:
 
     print_logo()
 
-    start_logging_daemon()
+    asyncio.get_event_loop().create_task(start_logging_daemon())
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

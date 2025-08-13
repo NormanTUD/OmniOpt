@@ -7164,7 +7164,6 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     finishing_jobs_start_time = time.time()
 
-    print("Trying to parallelly finish jobs...")
     with ThreadPoolExecutor() as finish_job_executor:
         futures = [finish_job_executor.submit(_finish_previous_jobs_helper_wrapper, (job, trial_index)) for job, trial_index in jobs_copy]
 
@@ -7173,7 +7172,6 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
                 this_jobs_finished += future.result()
             except Exception as e:
                 print_red(f"⚠ Exception in parallel job handling: {e}")
-    print("Done trying to parallelly finish jobs!")
 
     finishing_jobs_end_time = time.time()
 
@@ -8692,7 +8690,6 @@ def execute_trials(
 
     nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
 
-    print("Trying to parallelly submit jobs...")
     with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, _args): _args for _args in index_param_list}
 

@@ -102,7 +102,7 @@ try:
         width=max(200, terminal_width)
     )
 
-    def spinner(text):
+    def spinner(text: str) -> Any:
         return console.status(f"[bold green]{text}")
 
     with spinner("Importing logging..."):
@@ -949,8 +949,8 @@ def start_worker_generators() -> None:
             print_yellow(f"Cannot find omniopt script at {omniopt_path}")
             return
 
-        def filter_args(args, exclude_params):
-            return [arg for arg in args if all(not arg.startswith(excl) for excl in exclude_params)]
+        def filter_args(_args_ list, exclude_params: list) -> list:
+            return [arg for arg in _args if all(not arg.startswith(excl) for excl in exclude_params)]
 
         exclude_params = ["--generate_all_jobs_at_once"]
         filtered_args = filter_args(sys.argv[1:], exclude_params)
@@ -1903,7 +1903,7 @@ async def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
 
     return True
 
-async def periodic_live_share(interval=30):
+async def periodic_live_share(interval: int = 30) -> None:
     while True:
         try:
             await live_share(force=False)
@@ -1911,7 +1911,7 @@ async def periodic_live_share(interval=30):
             break
         await asyncio.sleep(interval)
 
-def _start_event_loop():
+def _start_event_loop() -> None:
     global _loop
     if _loop is None:
         _loop = asyncio.new_event_loop()
@@ -1923,7 +1923,7 @@ async def init_live_share() -> bool:
 
         return ret
 
-async def start_periodic_live_share(interval=30):
+async def start_periodic_live_share(interval: int = 30) -> None:
     if args.live_share:
         await init_live_share()
 
@@ -7216,7 +7216,7 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
 
     return False
 
-def submit_new_job(parameters: Union[dict, str], trial_index: int):
+def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
     print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
     start = time.time()
@@ -9343,7 +9343,7 @@ def save_experiment_state() -> None:
     except Exception as e:
         print(f"Error saving experiment state: {e}")
 
-def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60):
+def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60) -> bool:
     try:
         if not os.path.exists(state_path):
             print(f"[ERROR] File '{state_path}' does not exist.")
@@ -10101,7 +10101,7 @@ def run_program_once(params=None) -> None:
 
         my_exit(57)
 
-def show_omniopt_call():
+def show_omniopt_call() -> None:
     original_print(oo_call + " " + " ".join(sys.argv[1:]))
 
 async def main() -> None:

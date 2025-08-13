@@ -10931,7 +10931,8 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         "_check_memory_leak",
         "start_periodic_live_share",
         "start_logging_daemon",
-        "get_current_run_folder"
+        "get_current_run_folder",
+        "show_func_name_wrapper"
     }
 
     for name, obj in list(namespace.items()):

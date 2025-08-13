@@ -26,6 +26,7 @@ from typing import TypeVar, Callable, Any
 import traceback
 import inspect
 import tracemalloc
+import resource
 
 import psutil
 
@@ -258,6 +259,40 @@ except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
+def collect_runtime_stats():
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+
+    # RLIMIT_NOFILE
+    if hasattr(resource, "RLIMIT_NOFILE"):
+        try:
+            ulimit_nofile = resource.getrlimit(resource.RLIMIT_NOFILE)
+        except Exception:
+            ulimit_nofile = (0, 0)
+    else:
+        # Windows fallback: psutil provides open file limit approximately
+        ulimit_nofile = (process.num_fds() if hasattr(process, "num_fds") else 0, 0)
+
+    # RLIMIT_AS
+    if hasattr(resource, "RLIMIT_AS"):
+        try:
+            ulimit_as = resource.getrlimit(resource.RLIMIT_AS)
+        except Exception:
+            ulimit_as = (0, 0)
+    else:
+        # Windows fallback: set to total virtual memory
+        ulimit_as = (psutil.virtual_memory().total, psutil.virtual_memory().total)
+
+    return {
+        "rss_MB": mem_info.rss / (1024 * 1024),
+        "vms_MB": mem_info.vms / (1024 * 1024),
+        "threads": threading.active_count(),
+        "open_files": len(process.open_files()),
+        "ulimit_nofile": ulimit_nofile,
+        "ulimit_as": ulimit_as,
+        "cpu_percent": process.cpu_percent(interval=0.05),
+    }
+
 def log_time_and_memory_wrapper(func: F) -> F:
     if inspect.iscoroutinefunction(func):
         @functools.wraps(func)
@@ -339,6 +374,15 @@ def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: fl
             f"Memory before: {mem_after - mem_diff:.2f} MB, after: {mem_after:.2f} MB, "
             f"diff: {mem_diff:+.2f} MB, peak during call: {mem_peak:.2f} MB"
         )
+
+        # NEU: Runtime Stats
+        runtime_stats = collect_runtime_stats()
+        print("=== Runtime Stats ===")
+        print(f"RSS: {runtime_stats['rss_MB']:.2f} MB, VMS: {runtime_stats['vms_MB']:.2f} MB")
+        print(f"Threads: {runtime_stats['threads']}, Open files: {runtime_stats['open_files']}")
+        print(f"ulimit nofile: {runtime_stats['ulimit_nofile']}, ulimit as: {runtime_stats['ulimit_as']}")
+        print(f"CPU %: {runtime_stats['cpu_percent']:.1f}")
+
         print(f"!!! '{func_name}' added {percent_if_added:.1f}% of the total runtime. !!!")
         _print_time_and_memory_functions_wrapper_stats()
 
@@ -10915,6 +10959,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
     excluded_functions = {
         "log_time_and_memory_wrapper",
+        "collect_runtime_stats",
         "_print_time_and_memory_functions_wrapper_stats",
         "print",
         "_record_stats",

@@ -312,7 +312,7 @@ def log_time_and_memory_wrapper(func: F) -> F:
 
     return wrapper  # type: ignore
 
-def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float):
+def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float) -> None:
     global _total_time
 
     current_total = _total_time
@@ -1973,7 +1973,7 @@ async def periodic_live_share(interval: int = 60) -> None:
             break
         await asyncio.sleep(interval)
 
-def _start_event_loop():
+def _start_event_loop() -> None:
     global _loop
     if _loop is None:
         _loop = asyncio.new_event_loop()
@@ -10923,11 +10923,11 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
     return namespace
 
-def _cancel_all_tasks_at_exit():
+def _cancel_all_tasks_at_exit() -> None:
     if _loop is None:
         return
 
-    def stopper():
+    def stopper() -> None:
         tasks = asyncio.all_tasks(loop=_loop)
         for task in tasks:
             task.cancel()

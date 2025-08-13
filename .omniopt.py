@@ -1973,11 +1973,12 @@ async def periodic_live_share(interval: int = 60) -> None:
             break
         await asyncio.sleep(interval)
 
-def _start_event_loop() -> None:
+def _start_event_loop():
     global _loop
     if _loop is None:
         _loop = asyncio.new_event_loop()
-        threading.Thread(target=_loop.run_forever, daemon=True).start()
+        t = threading.Thread(target=_loop.run_forever, daemon=True)
+        t.start()
 
 async def init_live_share() -> bool:
     with spinner("Initializing live share..."):
@@ -10927,19 +10928,18 @@ def _cancel_all_tasks_at_exit():
         return
 
     def stopper():
-        # Alle laufenden Tasks im Loop holen
         tasks = asyncio.all_tasks(loop=_loop)
         for task in tasks:
             task.cancel()
-        # Sicherstellen, dass alle Tasks beendet werden
-        for task in tasks:
+        if tasks:
             try:
-                task.result(timeout=5)
-            except asyncio.CancelledError:
-                pass
+                # Alle Tasks abwarten (synchron, thread-sicher)
+                asyncio.run_coroutine_threadsafe(
+                    asyncio.gather(*tasks, return_exceptions=True),
+                    _loop
+                ).result()
             except Exception as e:
-                print("Background task ended with exception:", e)
-        # Eventloop stoppen
+                print("Exception while cancelling tasks:", e)
         _loop.call_soon_threadsafe(_loop.stop)
 
     stopper()

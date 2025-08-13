@@ -279,7 +279,6 @@ def log_time_and_memory_wrapper(func: F) -> F:
             if elapsed >= 0.05:
                 _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 
-            # Leakerkennung basierend auf Peak innerhalb der Funktion
             _check_memory_leak(func.__name__, mem_peak_mb)
 
             return result
@@ -306,7 +305,6 @@ def log_time_and_memory_wrapper(func: F) -> F:
             if elapsed >= 0.05:
                 _record_stats(func.__name__, elapsed, mem_diff, mem_after, mem_peak_mb)
 
-            # Leakerkennung basierend auf Peak innerhalb der Funktion
             _check_memory_leak(func.__name__, mem_peak_mb)
 
             return result

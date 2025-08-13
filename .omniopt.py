@@ -33,7 +33,6 @@ import psutil
 F = TypeVar("F", bound=Callable[..., object])
 
 _has_run_once = False
-_loop = None
 _current_live_share_future = None
 
 last_progress_bar_refresh_time = 0.0
@@ -2024,19 +2023,6 @@ def periodic_live_share(interval: int = 60) -> None:
 
         asyncio.sleep(interval)
 
-def _start_event_loop() -> None:
-    global _loop
-    if _loop is None:
-        _loop = asyncio.new_event_loop()
-        t = threading.Thread(target=_loop.run_forever, daemon=True)
-        t.start()
-
-def stop_event_loop():
-    if _loop is not None and _loop.is_running():
-        for task in asyncio.all_tasks(_loop):
-            task.cancel()
-        _loop.call_soon_threadsafe(_loop.stop)
-
 def init_live_share() -> bool:
     with spinner("Initializing live share..."):
         ret = live_share(True, True)
@@ -2046,8 +2032,7 @@ def init_live_share() -> bool:
 async def start_periodic_live_share(interval: int = 60) -> None:
     if args.live_share and not os.environ.get("CI"):
         print_debug(f"Started periodic live share every {interval} seconds")
-        _start_event_loop()
-        asyncio.run_coroutine_threadsafe(periodic_live_share(interval), _loop)
+        periodic_live_share(interval)
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
@@ -10981,28 +10966,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
     return namespace
 
-def _cancel_all_tasks_at_exit() -> None:
-    if _loop is None:
-        return
-
-    def stopper() -> None:
-        tasks = asyncio.all_tasks(loop=_loop)
-        for task in tasks:
-            task.cancel()
-        if tasks:
-            try:
-                # asyncio.wait funktioniert mit Tasks direkt
-                fut = asyncio.run_coroutine_threadsafe(
-                    asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED),
-                    _loop
-                )
-                fut.result()  # wartet synchron auf alle Tasks
-            except Exception as e:
-                print("Exception while cancelling tasks:", e)
-        _loop.call_soon_threadsafe(_loop.stop)
-
-    stopper()
-
 def kill_all_children():
     # Aktuellen Prozess
     parent = psutil.Process(os.getpid())
@@ -11019,10 +10982,7 @@ def kill_all_children():
         if t is not threading.main_thread():
             print(f"Thread {t.name} not exiting cleanly (just info)")
 
-atexit.register(stop_event_loop)
 atexit.register(kill_all_children)
-atexit.register(_cancel_all_tasks_at_exit)
-
 
 def sigterm_handler(signum, frame):
     print("Got SIGTERM!")

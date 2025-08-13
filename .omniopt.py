@@ -1985,7 +1985,7 @@ async def init_live_share() -> bool:
         return ret
 
 async def start_periodic_live_share(interval: int = 60) -> None:
-    if args.live_share:
+    if args.live_share and not os.environ.get("CI"):
         await init_live_share()
 
         print_debug(f"Started periodic live share every {interval} seconds")

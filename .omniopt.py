@@ -10954,6 +10954,13 @@ async def main_outside() -> None:
             else:
                 end_program(True)
 
+def cleanup_threads():
+    print("Setting stop event for all threads...")
+    stop_event.set()
+    for t in threads:
+        t.join(timeout=2)
+    print("Alle Threads beendet")
+
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
 
@@ -10999,6 +11006,23 @@ def _cancel_all_tasks_at_exit() -> None:
 
     stopper()
 
+def kill_all_children():
+    # Aktuellen Prozess
+    parent = psutil.Process(os.getpid())
+
+    # Alle subprocesses rekursiv
+    for child in parent.children(recursive=True):
+        try:
+            child.kill()   # SIGKILL
+        except Exception as e:
+            print(f"Error at killing child {child}: {e}")
+
+    # Threads kann man nur daemon-like behandeln
+    for t in threading.enumerate():
+        if t is not threading.main_thread():
+            print(f"Thread {t.name} not exiting cleanly (just info)")
+
+atexit.register(kill_all_children)
 atexit.register(_cancel_all_tasks_at_exit)
 
 if __name__ == "__main__":

@@ -31,7 +31,6 @@ for install_type in omniopt git; do
 		if [[ $exit_code -eq 0 ]]; then
 			omniopt \
 				--partition=alpha \
-				--runtime_debug \
 				--live_share \
 				--debug \
 				--experiment_name=pip_test_experiment \

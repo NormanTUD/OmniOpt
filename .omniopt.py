@@ -2030,6 +2030,12 @@ def _start_event_loop() -> None:
         t = threading.Thread(target=_loop.run_forever, daemon=True)
         t.start()
 
+def stop_event_loop():
+    if _loop is not None and _loop.is_running():
+        for task in asyncio.all_tasks(_loop):
+            task.cancel()
+        _loop.call_soon_threadsafe(_loop.stop)
+
 async def init_live_share() -> bool:
     with spinner("Initializing live share..."):
         ret = await live_share(True, True)
@@ -7158,6 +7164,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     finishing_jobs_start_time = time.time()
 
+    print("Trying to parallelly finish jobs...")
     with ThreadPoolExecutor() as finish_job_executor:
         futures = [finish_job_executor.submit(_finish_previous_jobs_helper_wrapper, (job, trial_index)) for job, trial_index in jobs_copy]
 
@@ -8684,6 +8691,7 @@ def execute_trials(
 
     nr_workers = max(1, min(len(index_param_list), args.max_num_of_parallel_sruns))
 
+    print("Trying to parallelly submit jobs...")
     with ThreadPoolExecutor(max_workers=nr_workers) as tp_executor:
         future_to_args = {tp_executor.submit(execute_evaluation, _args): _args for _args in index_param_list}
 
@@ -11015,6 +11023,7 @@ def kill_all_children():
         if t is not threading.main_thread():
             print(f"Thread {t.name} not exiting cleanly (just info)")
 
+atexit.register(stop_event_loop)
 atexit.register(kill_all_children)
 atexit.register(_cancel_all_tasks_at_exit)
 

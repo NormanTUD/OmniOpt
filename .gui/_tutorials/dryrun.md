@@ -42,3 +42,7 @@ omniopt \
 ```
 
 Dry-Runs allow you to chose the parameter of one job before it runs and run only that one job. It skips SLURM, so your job should run quickly with these parameters, or in debug-mode. You will be asked for parameters, but certain ones are suggested if named properly, i.e. `epochs` will be suggested to `1`. You will be able to change them before the run executes.
+
+<div class="caveat warning">
+On the login nodes, please make sure your program will not fully execute, but exit after testing the most minimal example you can think of. It is highly recommended to exit the script before doing any heavy calculations!
+</div>

@@ -207,7 +207,7 @@
 			bar="${bar} "
 		done
 
-		printf "[%s] %d%%\n" "$bar" "$percentage"
+		printf "[%s] %d%% \n" "$bar" "$percentage"
 	}
 
 	function ppip {

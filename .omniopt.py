@@ -8534,15 +8534,13 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     selected_model = select_model(model_name)
 
-    kwargs = dict(
-        selected_model,
-        model_gen_kwargs=get_model_gen_kwargs()
-    )
-
+    kwargs = {
+        "model_gen_kwargs": get_model_gen_kwargs()
+    }
     if model_name.lower() != "sobol":
         kwargs["model_kwargs"] = get_model_kwargs()
 
-    model_spec = [GeneratorSpec(**kwargs)]
+    model_spec = [GeneratorSpec(selected_model, **kwargs)]
 
     res = GenerationNode(
         node_name=model_name,

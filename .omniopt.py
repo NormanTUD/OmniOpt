@@ -10382,6 +10382,9 @@ def main() -> None:
 
         write_files_and_show_overviews()
 
+        #if args.continue_previous_job:
+        #    insert_jobs_from_csv(f"{args.continue_previous_job}/{PD_CSV_FILENAME}")
+
         for existing_run in args.load_data_from_existing_jobs:
             insert_jobs_from_csv(f"{existing_run}/{PD_CSV_FILENAME}")
 

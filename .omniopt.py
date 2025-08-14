@@ -469,7 +469,10 @@ random_steps: int = 1
 progress_bar: Optional[tqdm] = None
 error_8_saved: List[str] = []
 
-def get_current_run_folder() -> str:
+def get_current_run_folder(name: Optional[str] = None) -> str:
+    if name is not None:
+        return f"{CURRENT_RUN_FOLDER}/{name}"
+
     return CURRENT_RUN_FOLDER
 
 def get_state_file_name(name) -> str:
@@ -547,7 +550,7 @@ def print_red(text: str) -> None:
 
     if get_current_run_folder():
         try:
-            with open(f"{get_current_run_folder()}/oo_errors.txt", mode="a", encoding="utf-8") as myfile:
+            with open(get_current_run_folder("oo_errors.txt"), mode="a", encoding="utf-8") as myfile:
                 myfile.write(text + "\n\n")
         except (OSError, FileNotFoundError) as e:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
@@ -2144,7 +2147,7 @@ def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
 
-    pd_csv = f'{get_current_run_folder()}/{RESULTS_CSV_FILENAME}'
+    pd_csv = get_current_run_folder(RESULTS_CSV_FILENAME)
     pd_json = get_state_file_name('pd.json')
 
     save_experiment_state()
@@ -3930,7 +3933,7 @@ def _write_job_infos_csv_replace_none_with_str(elements: Optional[List[str]]) ->
     return result
 
 def print_evaluate_times() -> None:
-    file_path = f"{get_current_run_folder()}/job_infos.csv"
+    file_path = get_current_run_folder("job_infos.csv")
 
     if not Path(file_path).exists():
         print_debug(f"The file '{file_path}' was not found.")
@@ -3982,7 +3985,7 @@ def print_evaluate_times() -> None:
 
             console.print(table)
 
-            overview_file = f"{get_current_run_folder()}/time_overview.txt"
+            overview_file = get_current_run_folder("time_overview.txt")
             with open(overview_file, mode='w', encoding='utf-8') as overview:
                 overview.write(f"Number of evaluations: {len(time_values)} sec\n")
                 overview.write(f"Min Time: {min_time:.2f} sec\n")
@@ -4336,7 +4339,7 @@ def disable_logging() -> None:
         fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 
 def display_failed_jobs_table() -> None:
-    failed_jobs_file = f"{get_current_run_folder()}/failed_logs"
+    failed_jobs_file = get_current_run_folder("failed_logs")
     header_file = os.path.join(failed_jobs_file, "headers.csv")
     parameters_file = os.path.join(failed_jobs_file, "parameters.csv")
 
@@ -5139,7 +5142,7 @@ def die_with_47_if_file_doesnt_exists(_file: str) -> None:
 def copy_state_files_from_previous_job(continue_previous_job: str) -> None:
     for state_file in ["submitted_jobs"]:
         old_state_file = f"{continue_previous_job}/state_files/{state_file}"
-        new_state_file = f'{get_current_run_folder()}/state_files/{state_file}'
+        new_state_file = get_state_file_name(state_file)
         die_with_47_if_file_doesnt_exists(old_state_file)
 
         if not os.path.exists(new_state_file):
@@ -5600,7 +5603,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     load_ax_client_from_experiment_parameters()
     save_checkpoint_for_continued()
 
-    with open(f'{get_current_run_folder()}/checkpoint_load_source', mode='w', encoding="utf-8") as f:
+    with open(get_current_run_folder("checkpoint_load_source"), mode='w', encoding="utf-8") as f:
         print(f"Continuation from checkpoint {continue_previous_job}", file=f)
 
     if not args.worker_generator_path:
@@ -5792,7 +5795,7 @@ def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
 
     console.print(table)
 
-    fn = f"{get_current_run_folder()}/constraints.txt"
+    fn = get_current_run_folder("constraints.txt")
     try:
         with open(fn, mode="w", encoding="utf-8") as text_file:
             text_file.write(table_str)
@@ -5861,7 +5864,7 @@ def print_experiment_param_table_to_file(filtered_columns: list, filtered_data: 
 
     table_str = capture.get()
 
-    fn = f"{get_current_run_folder()}/parameters.txt"
+    fn = get_current_run_folder("parameters.txt")
 
     try:
         with open(fn, mode="w", encoding="utf-8") as text_file:
@@ -6896,7 +6899,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
     if len(_strs):
         try:
-            with open(f'{get_current_run_folder()}/evaluation_errors.log', mode="a+", encoding="utf-8") as error_file:
+            with open(get_current_run_folder('evaluation_errors.log'), mode="a+", encoding="utf-8") as error_file:
                 error_file.write(out_files_string)
         except Exception as e:
             print_debug(f"Error occurred while writing to evaluation_errors.log: {e}")
@@ -6955,7 +6958,7 @@ def add_to_global_error_list(msg: str) -> None:
                 file.write(f"{msg}\n")
 
 def read_errors_from_file() -> list:
-    error_file_path = f'{get_current_run_folder()}/result_errors.log'
+    error_file_path = get_current_run_folder('result_errors.log')
     if os.path.exists(error_file_path):
         with open(error_file_path, mode='r', encoding="utf-8") as file:
             errors = file.readlines()
@@ -8309,7 +8312,7 @@ def get_next_nr_steps(_num_parallel_jobs: int, _max_eval: int) -> int:
 
     table_str = capture.get()
 
-    with open(f"{get_current_run_folder()}/get_next_nr_steps_tables.txt", mode="a", encoding="utf-8") as text_file:
+    with open(get_current_run_folder("get_next_nr_steps_tables.txt"), mode="a", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
     return requested
@@ -8397,7 +8400,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str,
     return gen_strat_list, sum_nr
 
 def write_state_file(name: str, var: str) -> None:
-    file_path = get_state_path(name)
+    file_path = get_current_run_folder("experiment_state.json")
 
     if os.path.isdir(file_path):
         _fatal_error(f"{file_path} is a dir. Must be a file.", 246)
@@ -9490,15 +9493,12 @@ def get_pareto_frontier_points(
 
     return result
 
-def get_state_path() -> str:
-    return f"{get_current_run_folder()}/experiment_state.json"
-
 def save_experiment_state() -> None:
     try:
         if ax_client is None or ax_client.experiment is None:
             print_red("save_experiment_state: ax_client or ax_client.experiment is None, cannot save.")
             return
-        state_path = get_state_path()
+        state_path = get_current_run_folder("experiment_state.json")
         ax_client.save_to_json_file(state_path)
     except Exception as e:
         print(f"Error saving experiment state: {e}")
@@ -9558,7 +9558,7 @@ def load_json_with_retry(state_path: str, timeout: int = 30, retry_interval: int
 
 def load_experiment_state() -> None:
     global ax_client
-    state_path = get_state_path()
+    state_path = get_current_run_folder("experiment_state.json")
 
     if not os.path.exists(state_path):
         print(f"State file {state_path} does not exist, starting fresh")
@@ -9795,12 +9795,12 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     else:
                         print(f"Not showing Pareto-front-table for {path_to_calculate}")
 
-                with open(f"{get_current_run_folder()}/pareto_front_table.txt", mode="a", encoding="utf-8") as text_file:
+                with open(get_current_run_folder("pareto_front_table.txt"), mode="a", encoding="utf-8") as text_file:
                     with console.capture() as capture:
                         console.print(rich_table)
                     text_file.write(capture.get())
 
-    with open(f"{get_current_run_folder()}/pareto_idxs.json", mode="w", encoding="utf-8") as pareto_idxs_json_handle:
+    with open(get_current_run_folder("pareto_idxs.json"), mode="w", encoding="utf-8") as pareto_idxs_json_handle:
         json.dump(pareto_points, pareto_idxs_json_handle)
 
     live_share_after_pareto()
@@ -9835,7 +9835,7 @@ def write_args_overview_table() -> None:
 
     table_str = capture.get()
 
-    with open(f"{get_current_run_folder()}/args_overview.txt", mode="w", encoding="utf-8") as text_file:
+    with open(get_current_run_folder("args_overview.txt"), mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
 def show_experiment_overview_table() -> None:
@@ -9874,7 +9874,7 @@ def show_experiment_overview_table() -> None:
 
     table_str = capture.get()
 
-    with open(f"{get_current_run_folder()}/experiment_overview.txt", mode="w", encoding="utf-8") as text_file:
+    with open(get_current_run_folder("experiment_overview.txt"), mode="w", encoding="utf-8") as text_file:
         text_file.write(table_str)
 
 def write_files_and_show_overviews() -> None:
@@ -9890,7 +9890,7 @@ def write_files_and_show_overviews() -> None:
 
 def write_git_version() -> None:
     with spinner("Writing git information"):
-        folder = f"{get_current_run_folder()}/"
+        folder = get_current_run_folder()
         os.makedirs(folder, exist_ok=True)
         file_path = os.path.join(folder, "git_version")
 
@@ -9914,7 +9914,7 @@ def write_git_version() -> None:
 
 def write_job_start_file() -> None:
     with spinner("Writing job_start_time file..."):
-        fn = f'{get_current_run_folder()}/job_start_time.txt'
+        fn = get_current_run_folder("job_start_time.txt")
         try:
             with open(fn, mode='w', encoding="utf-8") as f:
                 f.write(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -10207,7 +10207,7 @@ def set_arg_states_from_continue() -> None:
 def write_result_min_max_file() -> None:
     with spinner("Writing result min/max file..."):
         try:
-            fn = f"{get_current_run_folder()}/result_min_max.txt"
+            fn = get_current_run_folder("result_min_max.txt")
             with open(fn, mode="a", encoding="utf-8") as myfile:
                 for rarg in arg_result_min_or_max:
                     original_print(rarg, file=myfile)
@@ -10217,7 +10217,7 @@ def write_result_min_max_file() -> None:
 def write_result_names_file() -> None:
     with spinner("Writing result names file..."):
         try:
-            fn = f"{get_current_run_folder()}/result_names.txt"
+            fn = get_current_run_folder("result_names.txt")
             with open(fn, mode="a", encoding="utf-8") as myfile:
                 for rarg in arg_result_names:
                     original_print(rarg, file=myfile)
@@ -10319,7 +10319,7 @@ def main() -> None:
     initialize_nvidia_logs()
     write_ui_url_if_present()
 
-    LOGFILE_DEBUG_GET_NEXT_TRIALS = f'{get_current_run_folder()}/get_next_trials.csv'
+    LOGFILE_DEBUG_GET_NEXT_TRIALS = get_current_run_folder('get_next_trials.csv')
     cli_params_experiment_parameters = parse_parameters()
 
     write_live_share_file_if_needed()
@@ -10445,12 +10445,12 @@ def print_run_info() -> None:
 def initialize_nvidia_logs() -> None:
     with spinner("Initializing NVIDIA-Logs..."):
         global NVIDIA_SMI_LOGS_BASE
-        NVIDIA_SMI_LOGS_BASE = f'{get_current_run_folder()}/gpu_usage_'
+        NVIDIA_SMI_LOGS_BASE = get_current_run_folder('gpu_usage_')
 
 def write_ui_url_if_present() -> None:
     with spinner("Writing ui_url file if it is present..."):
         if args.ui_url:
-            with open(f"{get_current_run_folder()}/ui_url.txt", mode="a", encoding="utf-8") as myfile:
+            with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
                 myfile.write(decode_if_base64(args.ui_url))
 
 def handle_random_steps() -> None:

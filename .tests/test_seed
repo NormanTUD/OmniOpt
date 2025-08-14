@@ -17,6 +17,7 @@ source .colorfunctions.sh
 seed=""
 gpus=""
 hash=""
+skip_search=""
 
 function help() {
 	echo "Usage: $0 --seed <int> --gpus <int> --hash <string>"
@@ -24,6 +25,7 @@ function help() {
 	echo "  --gpus=<int>    Number of GPUs"
 	echo "  --hash=<string> MD5 hash value"
 	echo "  --help          Displays this help message"
+	echo "  --skip_search   Skips search"
 	exit 0
 }
 
@@ -56,6 +58,9 @@ while [[ $# -gt 0 ]]; do
 				exit 1
 			fi
 			;;
+		--skip_search)
+			skip_search=" --skip_search"
+			;;
 		--help)
 			help
 			;;
@@ -83,7 +88,7 @@ if [[ -d $run_dir ]]; then
 	rm -rf $run_dir
 fi
 
-$OMNIOPT_CALL --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed
+$OMNIOPT_CALL --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed $skip_search
 
 exit_code=$?
 

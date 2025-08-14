@@ -8628,7 +8628,9 @@ def setup_default_generation_strategy() -> None:
     if random_steps > num_imported_jobs:
         add_sobol_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model)
 
-    add_main_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model)
+    remaining = max_eval - random_steps + num_imported_jobs
+
+    add_main_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model, remaining)
 
     generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     print_debug(f"Generation strategy human readable: {generation_strategy_human_readable}")
@@ -8655,8 +8657,7 @@ def add_sobol_node_if_needed(nodes: list, names: list, chosen_model: str) -> Non
         print_debug(f"Added SOBOL node: {step_name}")
 
 
-def add_main_node_if_needed(nodes: list, names: list, chosen_model: str) -> None:
-    remaining = max_eval - random_steps
+def add_main_node_if_needed(nodes: list, names: list, chosen_model: str, remaining: int) -> None:
     if chosen_model != "SOBOL" and remaining > 0:
         node = create_node(chosen_model, remaining, None)
         nodes.append(node)

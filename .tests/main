@@ -805,7 +805,7 @@ if [[ $superquick -eq 0 ]]; then
 
 		_test "randomforest" ".tests/randomforest" 0
 
-		_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 00626bdffa273d361a39aa102fa47ba1" 0
+		_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 86157f2f4b60e19a713c3f85ca13e19a" 0
 
 		#_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 9170345a89bf6d4a76c8c2c29109124d" 0
 

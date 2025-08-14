@@ -5930,10 +5930,7 @@ def get_current_model_name() -> str:
         try:
             if args.generation_strategy:
                 idx = getattr(ax_client.generation_strategy, "current_step_index", None)
-                if (
-                    isinstance(idx, int)
-                    and 0 <= idx < len(generation_strategy_names)
-                ):
+                if isinstance(idx, int) and 0 <= idx < len(generation_strategy_names):
                     gs_model = generation_strategy_names[idx]
                 else:
                     gs_model = "unknown model"

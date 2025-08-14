@@ -709,6 +709,8 @@ if [[ -z $CI ]]; then
 fi
 
 if [[ $superquick -eq 0 ]]; then
+	_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 00626bdffa273d361a39aa102fa47ba1" 0
+
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0
 
 	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --generate_all_jobs_at_once" 0
@@ -804,8 +806,6 @@ if [[ $superquick -eq 0 ]]; then
 		fi
 
 		_test "randomforest" ".tests/randomforest" 0
-
-		_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 86157f2f4b60e19a713c3f85ca13e19a" 0
 
 		#_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 9170345a89bf6d4a76c8c2c29109124d" 0
 

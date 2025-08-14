@@ -472,6 +472,11 @@ error_8_saved: List[str] = []
 def get_current_run_folder() -> str:
     return CURRENT_RUN_FOLDER
 
+def get_state_file_name(name) -> str:
+    state_files_folder = f"{get_current_run_folder()}/state_files/name"
+    makedirs(state_files_folder)
+    return f"{state_files_folder}/name"
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 try:
@@ -2139,9 +2144,7 @@ def save_results_csv() -> Optional[str]:
         return None
 
     pd_csv = f'{get_current_run_folder()}/{RESULTS_CSV_FILENAME}'
-    pd_json = f'{get_current_run_folder()}/state_files/pd.json'
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
-    makedirs(state_files_folder)
+    pd_json = get_state_file_name('pd.json')
 
     save_experiment_state()
 
@@ -2164,7 +2167,7 @@ def save_results_csv() -> Optional[str]:
 
         save_experiment(
             ax_client.experiment,
-            f"{get_current_run_folder()}/state_files/ax_client.experiment.json"
+            get_state_file_name("ax_client.experiment.json")
         )
 
         if args.model not in uncontinuable_models and args.save_to_database:
@@ -2847,10 +2850,7 @@ if SYSTEM_HAS_SBATCH and not args.force_local_execution and args.raw_samples < a
     _fatal_error(f"Has --raw_samples={args.raw_samples}, but --num_parallel_jobs={args.num_parallel_jobs}. Cannot continue, since --raw_samples must be larger or equal to --num_parallel_jobs.", 48)
 
 def save_global_vars() -> None:
-    state_files_folder = f"{get_current_run_folder()}/state_files"
-    makedirs(state_files_folder)
-
-    with open(f'{state_files_folder}/global_vars.json', mode="w", encoding="utf-8") as f:
+    with open(get_state_file_name('global_vars.json'), mode="w", encoding="utf-8") as f:
         json.dump(global_vars, f)
 
 def check_slurm_job_id() -> None:
@@ -4587,11 +4587,7 @@ def get_random_steps_from_prev_job() -> int:
     return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}"), args.continue_previous_job)
 
 def failed_jobs(nr: int = 0) -> int:
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
-
-    makedirs(state_files_folder)
-
-    return append_and_read(f'{get_current_run_folder()}/state_files/failed_jobs', nr)
+    return append_and_read(get_state_file_name('failed_jobs'), nr)
 
 def count_done_jobs() -> int:
     if os.path.exists(RESULT_CSV_FILE):
@@ -4993,11 +4989,8 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         return
 
     try:
-        state_files_folder = f"{get_current_run_folder()}/state_files/"
+        checkpoint_filepath = get_state_file_name('checkpoint.json')
 
-        makedirs(state_files_folder)
-
-        checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
         if ax_client:
             ax_client.save_to_json_file(filepath=checkpoint_filepath)
         else:
@@ -5523,10 +5516,7 @@ def load_ax_client_from_experiment_parameters() -> None:
     os.unlink(tmp_file_path)
 
 def save_checkpoint_for_continued() -> None:
-    state_files_folder = f"{get_current_run_folder()}/state_files"
-    checkpoint_filepath = f'{state_files_folder}/checkpoint.json'
-
-    makedirs(state_files_folder)
+    checkpoint_filepath = get_state_file_name('checkpoint.json')
 
     with open(checkpoint_filepath, mode="w", encoding="utf-8") as outfile:
         json.dump(experiment_parameters, outfile)
@@ -5582,7 +5572,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
     checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
-    original_ax_client_file = f"{get_current_run_folder()}/state_files/original_ax_client_before_loading_tmp_one.json"
+    original_ax_client_file = get_state_file_name("original_ax_client_before_loading_tmp_one.json")
 
     if args.worker_generator_path:
         wait_for_checkpoint_file(checkpoint_parameters_filepath)
@@ -6039,9 +6029,7 @@ def _get_workers_string_dynamic(
     return f"{_keys} {_values} = ∑{total_sum}/{num_parallel_jobs}"
 
 def submitted_jobs(nr: int = 0) -> int:
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
-    makedirs(state_files_folder)
-    return append_and_read(f'{get_current_run_folder()}/state_files/submitted_jobs', nr)
+    return append_and_read(get_state_file_name('submitted_jobs'), nr)
 
 def count_jobs_in_squeue() -> tuple[int, str]:
     global _last_count_time, _last_count_result
@@ -7585,9 +7573,7 @@ def handle_generic_error(e: Union[Exception, str]) -> None:
     print_red(f"\n⚠ Starting job failed with error: {e}")
 
 def succeeded_jobs(nr: int = 0) -> int:
-    state_files_folder = f"{get_current_run_folder()}/state_files/"
-    makedirs(state_files_folder)
-    return append_and_read(f'{get_current_run_folder()}/state_files/succeeded_jobs', nr)
+    return append_and_read(get_state_file_name('succeeded_jobs'), nr)
 
 def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int]) -> None:
     table = Table(show_header=True, header_style="bold", title=f"break_run_search for {_name}")
@@ -8410,7 +8396,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str,
     return gen_strat_list, sum_nr
 
 def write_state_file(name: str, var: str) -> None:
-    file_path = f"{get_current_run_folder()}/state_files/{name}"
+    file_path = get_state_path(name)
 
     if os.path.isdir(file_path):
         _fatal_error(f"{file_path} is a dir. Must be a file.", 246)
@@ -10377,7 +10363,7 @@ def main() -> None:
         if args.external_generator:
             original_print(f"External-Generator: {decode_if_base64(args.external_generator)}")
 
-        checkpoint_parameters_filepath = f"{get_current_run_folder()}/state_files/checkpoint.json.parameters.json"
+        checkpoint_parameters_filepath = get_state_file_name("checkpoint.json.parameters.json")
         save_experiment_parameters(checkpoint_parameters_filepath)
 
         print_overview_tables(experiment_parameters, experiment_args)

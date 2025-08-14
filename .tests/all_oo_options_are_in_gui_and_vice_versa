@@ -53,6 +53,8 @@ if command -v php 2>/dev/null >/dev/null; then
 		raise_in_eval
 		config_yaml
 		config_json
+		skip_search
+		range_max_difference
 		db_url
 		config_toml
 		show_generation_and_submission_sixel

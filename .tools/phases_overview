@@ -23,6 +23,11 @@ if [[ ! -e "$run_dir/results.csv" ]]; then
 	exit 2
 fi
 
+if [[ -n $skip_search ]]; then
+	green_text "Skipping the real test since, because of --skip_search, no real search was done
+	exit 0
+fi
+
 NR_RANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i sobol | grep COMPLETED | wc -l)
 NR_MANUAL=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -i manual | grep COMPLETED | wc -l)
 NR_NONRANDOM=$(cat $run_dir/results.csv | grep -v "trial_index,arm_name" | grep -iv sobol | grep -iv manual | grep -iv running | grep COMPLETED | wc -l)

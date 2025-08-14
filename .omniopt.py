@@ -824,6 +824,8 @@ class ConfigLoader:
     occ: bool
     force_choice_for_ranges: bool
     dryrun: bool
+    range_max_difference: int
+    skip_search: bool
     just_return_defaults: bool
     run_mode: str
 
@@ -1150,6 +1152,13 @@ def set_global_gs_to_HUMAN_INTERVENTION_MINIMUM() -> None:
 with spinner("Parsing arguments...") as parsing_arguments_loader:
     loader = ConfigLoader(parsing_arguments_loader)
     args = loader.parse_arguments()
+
+def is_skip_search() -> bool:
+    if args.skip_search:
+        return True
+
+    if os.getenv("SKIP_SEARCH"):
+        return True
 
 original_result_names = args.result_names
 
@@ -3109,13 +3118,6 @@ def check_for_too_high_differences(lower_bound: Union[int, float], upper_bound: 
         print_red(f"The difference between {lower_bound} and {upper_bound} was too high, these large numbers can cause memory leaks. Difference was: {bound_diff}, max difference is {args.range_max_difference}");
 
         sys.exit(235)
-
-def is_skip_search() -> bool:
-    if args.skip_search:
-        return True
-
-    if os.getenv("SKIP_SEARCH"):
-        return True
 
 def parse_range_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     check_factorial_range()

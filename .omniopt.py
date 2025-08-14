@@ -2371,7 +2371,7 @@ def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
 
 def write_worker_usage() -> None:
     if len(WORKER_PERCENTAGE_USAGE):
-        csv_filename = f'{get_current_run_folder()}/worker_usage.csv'
+        csv_filename = get_current_run_folder('worker_usage.csv')
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 

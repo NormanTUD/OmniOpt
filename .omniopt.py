@@ -8532,24 +8532,15 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
         return node
 
-    if next_model_name is not None:
-        trans_crit = [
-            MaxTrials(
-                threshold=threshold,
-                block_transition_if_unmet=True,
-                transition_to=next_model_name,
-                count_only_trials_with_data=True
-            )
-        ]
-    else:
-        trans_crit = [
-            MaxTrials(
-                threshold=threshold,
-                block_transition_if_unmet=True,
-                transition_to=model_name,
-                count_only_trials_with_data=True
-            )
-        ]
+    target_model = next_model_name if next_model_name is not None else model_name
+    trans_crit = [
+        MaxTrials(
+            threshold=threshold,
+            block_transition_if_unmet=True,
+            transition_to=target_model,
+            count_only_trials_with_data=True
+        )
+    ]
 
     selected_model = select_model(model_name)
 

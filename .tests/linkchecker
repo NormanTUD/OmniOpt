@@ -28,11 +28,11 @@ cd ..
 
 source .shellscript_functions
 
-if command -v linkchecker 2>/dev/null >/dev/null; then
-	linkchecker https://imageseg.scads.de/omniax/
-	exit $?
-else
-	red_text "linkchecker not found\n"
+if ! command -v linkchecker 2>/dev/null >/dev/null; then
+	pip install linkchecker
 fi
+
+linkchecker https://imageseg.scads.de/omniax/
+exit $?
 
 exit 0

@@ -10437,27 +10437,23 @@ def set_run_folder() -> None:
                 CURRENT_RUN_FOLDER = f"{run_dir}/{global_vars['experiment_name']}/{RUN_FOLDER_NUMBER}"
 
 def print_run_info() -> None:
-    with spinner("Printing run info..."):
-        console.print(f"[bold]Run-folder[/bold]: [underline]{get_current_run_folder()}[/underline]")
-        if args.continue_previous_job:
-            original_print(f"Continuation from {args.continue_previous_job}")
+    console.print(f"[bold]Run-folder[/bold]: [underline]{get_current_run_folder()}[/underline]")
+    if args.continue_previous_job:
+        original_print(f"Continuation from {args.continue_previous_job}")
 
 def initialize_nvidia_logs() -> None:
-    with spinner("Initializing NVIDIA-Logs..."):
-        global NVIDIA_SMI_LOGS_BASE
-        NVIDIA_SMI_LOGS_BASE = get_current_run_folder('gpu_usage_')
+    global NVIDIA_SMI_LOGS_BASE
+    NVIDIA_SMI_LOGS_BASE = get_current_run_folder('gpu_usage_')
 
 def write_ui_url_if_present() -> None:
-    with spinner("Writing ui_url file if it is present..."):
-        if args.ui_url:
-            with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
-                myfile.write(decode_if_base64(args.ui_url))
+    if args.ui_url:
+        with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
+            myfile.write(decode_if_base64(args.ui_url))
 
 def handle_random_steps() -> None:
-    with spinner("Handling random steps..."):
-        if args.parameter and args.continue_previous_job and random_steps <= 0:
-            print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
-            set_random_steps(args.num_random_steps)
+    if args.parameter and args.continue_previous_job and random_steps <= 0:
+        print(f"A parameter has been reset, but the earlier job already had its random phase. To look at the new search space, {args.num_random_steps} random steps will be executed.")
+        set_random_steps(args.num_random_steps)
 
 def initialize_ax_client() -> None:
     global ax_client

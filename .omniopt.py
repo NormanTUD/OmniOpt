@@ -11048,7 +11048,7 @@ def main_outside() -> None:
                 end_program(True)
 
 def auto_wrap_namespace(namespace: Any) -> Any:
-    enable_beartype = os.getenv("ENABLE_BEARTYPE") is not None
+    enable_beartype = any(os.getenv(v) for v in ("ENABLE_BEARTYPE", "CI"))
 
     excluded_functions = {
         "log_time_and_memory_wrapper",

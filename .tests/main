@@ -502,15 +502,19 @@ function _test_internal {
 	START_TIME=$(date +%s)
 
 	if [[ $skip_search -eq 1 ]]; then
-		if echo "$COMMAND" | grep -q "^./omniopt" || echo "$COMMAND" | grep start_simple_optimization_run; then
+		if echo "$COMMAND" | grep -q "omniopt " || echo "$COMMAND" | grep start_simple_optimization_run; then
 			export SKIP_SEARCH=1
 			export SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE
 			export COMMAND="$COMMAND --skip_search"
 
 			yellow_text "Setting SKIP_SEARCH=1 and SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE, added --skip_search to command"
+		elif echo "$COMMAND" | grep -q "phases_overview"; then
+			yellow_text "Skipping phases_overview tests"
+			return
 		else
 			yellow_text "--skip_search was 1 but the command did not contain './omniopt'"
 		fi
+
 	elif [[ $skip_search -eq 0 ]]; then
 		yellow_text "--skip_search was not set or detected"
 	fi

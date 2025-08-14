@@ -53,7 +53,7 @@ for bash_file in $(egrep -ri '^#!/bin/bash' * | sed -e 's#:.*##'); do
 			"no_color" "outfile" "OUTPUT" "&&" "==" "1" "a" "x" "y" "z" "FROZEN" "LOAD_MODULES"
 			"MYCLUSTER_HOST" "output" "specific_linter" "TEMP_BACKUP_FILE" "COMMAND" "run_folder"
 			"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG" "CLUSTERHOST" "VIRTUAL_ENV"
-			"FILTER_EXPERIMENT" "FILTER_USER"
+			"FILTER_EXPERIMENT" "FILTER_USER" "RUN_WITH_COVERAGE" "CI"
 		)
 
 		filtered_params=()

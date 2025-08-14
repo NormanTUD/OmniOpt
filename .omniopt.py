@@ -8613,7 +8613,6 @@ def setup_default_generation_strategy() -> None:
     global generation_strategy_human_readable
 
     generation_strategy_nodes: list = []
-    generation_strategy_names: list = []
 
     num_imported_jobs = get_nr_of_imported_jobs()
     set_max_eval(max_eval + num_imported_jobs)
@@ -8667,8 +8666,6 @@ def add_main_node_if_needed(nodes: list, names: list, chosen_model: str) -> None
 
 
 def setup_custom_generation_strategy(strategy_str: str) -> None:
-    generation_strategy_names: list = []
-
     generation_strategy_array, new_max_eval = parse_generation_strategy_string(strategy_str)
     new_max_eval_plus_jobs = new_max_eval + get_nr_of_imported_jobs()
 

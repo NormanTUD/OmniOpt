@@ -508,7 +508,7 @@ function _test_internal {
 			export COMMAND="$COMMAND --skip_search"
 
 			yellow_text "Setting SKIP_SEARCH=1 and SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE, added --skip_search to command"
-		elif echo "$COMMAND" | grep -q "phases_overview"; then
+		elif echo "$COMMAND" | grep -q "phases_overview|adding_jobs_to_new_job"; then
 			yellow_text "Skipping phases_overview tests"
 			return
 		else

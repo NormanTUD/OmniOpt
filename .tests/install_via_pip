@@ -55,7 +55,7 @@ for install_type in omniopt git; do
 				--main_process_gb=8 \
 				--max_nr_of_zero_results=50 \
 				--slurm_signal_delay_s=0 \
-				--parameter x range 123 100000000 int false \
+				--parameter x range 123 1000 int false \
 				--parameter y range 5431 1234 float false
 			exit_code=$?
 

@@ -456,7 +456,7 @@ if not uuid_regex.match(run_uuid):
     run_uuid = new_uuid
 
 JOBS_FINISHED: int = 0
-PD_CSV_FILENAME: str = "results.csv"
+RESULTS_CSV_FILENAME: str = "results.csv"
 WORKER_PERCENTAGE_USAGE: list = []
 END_PROGRAM_RAN: bool = False
 ALREADY_SHOWN_WORKER_USAGE_OVER_TIME: bool = False
@@ -2138,7 +2138,7 @@ def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
 
-    pd_csv = f'{get_current_run_folder()}/{PD_CSV_FILENAME}'
+    pd_csv = f'{get_current_run_folder()}/{RESULTS_CSV_FILENAME}'
     pd_json = f'{get_current_run_folder()}/state_files/pd.json'
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
@@ -2870,7 +2870,7 @@ def create_folder_and_file(folder: str) -> str:
 
         makedirs(folder)
 
-        file_path = os.path.join(folder, PD_CSV_FILENAME)
+        file_path = os.path.join(folder, RESULTS_CSV_FILENAME)
 
         return file_path
 
@@ -2949,7 +2949,7 @@ def get_bound_if_prev_data(_type: str, name: str, _default: Union[None, float, i
     found_in_file = False
 
     if args.continue_previous_job:
-        pd_csv = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
+        pd_csv = f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}"
 
         ret_val, found_in_file = get_ret_value_from_pd_csv(pd_csv, _type, name, _default)
 
@@ -4579,12 +4579,12 @@ def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
 
-    prev_step_file: str = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
+    prev_step_file: str = f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}"
 
     if not os.path.exists(prev_step_file):
         return _count_sobol_steps(prev_step_file)
 
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/{PD_CSV_FILENAME}"), args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}"), args.continue_previous_job)
 
 def failed_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
@@ -6539,9 +6539,9 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
 
 def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
     if not args.worker_generator_path:
-        __insert_job_into_ax_client__update_status(__status, base_str, f"Saving {PD_CSV_FILENAME}")
+        __insert_job_into_ax_client__update_status(__status, base_str, f"Saving {RESULTS_CSV_FILENAME}")
         save_results_csv()
-        __insert_job_into_ax_client__update_status(__status, base_str, f"Saved {PD_CSV_FILENAME}")
+        __insert_job_into_ax_client__update_status(__status, base_str, f"Saved {RESULTS_CSV_FILENAME}")
 
 def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
     parsed_error = parse_parameter_type_error(e)
@@ -9335,7 +9335,7 @@ def pareto_front_general(
         return np.array([], dtype=int)
 
 def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
-    results_csv_file = f"{path_to_calculate}/{PD_CSV_FILENAME}"
+    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
     if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
@@ -9424,7 +9424,7 @@ def _pareto_front_build_return_structure(
     primary_name: str,
     secondary_name: str
 ) -> dict:
-    results_csv_file = f"{path_to_calculate}/{PD_CSV_FILENAME}"
+    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
     with open(result_names_file, mode="r", encoding="utf-8") as f:
@@ -10084,16 +10084,16 @@ def find_results_paths(base_path: str) -> list:
     if not os.path.isdir(base_path):
         raise NotADirectoryError(f"No directory: {base_path}")
 
-    direct_result_file = os.path.join(base_path, PD_CSV_FILENAME)
+    direct_result_file = os.path.join(base_path, RESULTS_CSV_FILENAME)
     if os.path.isfile(direct_result_file):
         return [base_path]
 
     found_paths = []
 
     if "DO_NOT_SEARCH_FOLDERS_FOR_RESULTS_CSV" not in os.environ:
-        with spinner(f"Searching for subfolders with {PD_CSV_FILENAME}..."):
+        with spinner(f"Searching for subfolders with {RESULTS_CSV_FILENAME}..."):
             for root, _, files in os.walk(base_path):
-                if PD_CSV_FILENAME in files:
+                if RESULTS_CSV_FILENAME in files:
                     found_paths.append(root)
 
     return list(set(found_paths))
@@ -10157,7 +10157,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
         print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
         return False
 
-    RESULT_CSV_FILE = f"{path_to_calculate}/{PD_CSV_FILENAME}"
+    RESULT_CSV_FILE = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
     if not os.path.exists(RESULT_CSV_FILE):
         print_red(f"{RESULT_CSV_FILE} not found")
         return False
@@ -10385,10 +10385,10 @@ def main() -> None:
         write_files_and_show_overviews()
 
         #if args.continue_previous_job:
-        #    insert_jobs_from_csv(f"{args.continue_previous_job}/{PD_CSV_FILENAME}")
+        #    insert_jobs_from_csv(f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}")
 
         for existing_run in args.load_data_from_existing_jobs:
-            insert_jobs_from_csv(f"{existing_run}/{PD_CSV_FILENAME}")
+            insert_jobs_from_csv(f"{existing_run}/{RESULTS_CSV_FILENAME}")
 
             set_global_generation_strategy()
 
@@ -10412,11 +10412,11 @@ def load_existing_data_for_worker_generation_path() -> None:
                 print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
                 my_exit(96)
 
-            if not os.path.exists(f"{args.worker_generator_path}/{PD_CSV_FILENAME}"):
+            if not os.path.exists(f"{args.worker_generator_path}/{RESULTS_CSV_FILENAME}"):
                 print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
                 my_exit(96)
 
-            insert_jobs_from_csv(f"{args.worker_generator_path}/{PD_CSV_FILENAME}")
+            insert_jobs_from_csv(f"{args.worker_generator_path}/{RESULTS_CSV_FILENAME}")
 
 def log_worker_creation() -> None:
     with spinner("Writing worker creation log..."):
@@ -10614,7 +10614,7 @@ def run_tests() -> None:
     nr_errors: int = 0
 
     try:
-        ie = is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{PD_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{PD_CSV_FILENAME}", 'result', -123, "min")), '-123')
+        ie = is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{RESULTS_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{RESULTS_CSV_FILENAME}", 'result', -123, "min")), '-123')
 
         if not ie:
             nr_errors += 1
@@ -10704,8 +10704,8 @@ def run_tests() -> None:
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)
     nr_errors += is_equal("rounded_upper", rounded_upper, 124)
 
-    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", 'result', -123, "min")), '17143005390319.627')
-    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", "result", -123, "max")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", 'result', -123, "max")), '9.865416064838896e+29')
+    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{RESULTS_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{RESULTS_CSV_FILENAME}", 'result', -123, "min")), '17143005390319.627')
+    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{RESULTS_CSV_FILENAME}", "result", -123, "max")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{RESULTS_CSV_FILENAME}", 'result', -123, "max")), '9.865416064838896e+29')
 
     nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
 
@@ -10760,10 +10760,10 @@ def run_tests() -> None:
         "n_clusters"
     ]
 
-    got: str = json.dumps(get_sixel_graphics_data(f'.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{PD_CSV_FILENAME}', True))
+    got: str = json.dumps(get_sixel_graphics_data(f'.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{RESULTS_CSV_FILENAME}', True))
     expected: str = '[["bash omniopt_plot --run_dir  --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "/plots/", "trial_index_result", "/plots//trial_index_result.png", "1200"], ["bash omniopt_plot --run_dir  --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "/plots/", "scatter", "/plots//plot_%0_%1_%2.png", "1200"], ["bash omniopt_plot --run_dir  --plot_type=general", {"type": "general"}, "/plots/", "general", "/plots//general.png", "1200"]]'
 
-    nr_errors += is_equal(f'get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{PD_CSV_FILENAME}", True)', got, expected)
+    nr_errors += is_equal(f'get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{RESULTS_CSV_FILENAME}", True)', got, expected)
 
     nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
 

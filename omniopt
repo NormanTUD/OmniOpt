@@ -1954,7 +1954,7 @@ EOF
 			sbatch_command=$(echo "$sbatch_command" | sed -e 's#^[[:space:]]*##' -e 's#[[:space:]]*$##')
 			red_text "Failed to start sbatch job. Command:\n"
 			red_text "$sbatch_command\n"
-			red_text "Exit-Code: $exit_code\n"
+			red_text "Exit-Code (sbatch): $exit_code\n"
 
 			myexit $exit_code
 		fi

@@ -5944,7 +5944,7 @@ def get_current_model_name() -> str:
                 return str(gs_model)
 
         except Exception as e:
-            print(f"[WARN] Could not get current model name: {e}")
+            print_red(f"[WARN] Could not get current model name: {e}")
             return "error reading model name"
 
     return "initializing model"

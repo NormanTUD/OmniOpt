@@ -3114,6 +3114,11 @@ def parse_range_param(classic_params: list, params: list, j: int, this_args: Uni
 
     lower_bound, upper_bound = get_bounds_from_previous_data(name, lower_bound, upper_bound)
 
+
+    if lower_bound == upper_bound:
+        print_red(f"Lower bound {lower_bound} was equal to upper bound {upper_bound}. Please fix this. Cannot continue.")
+        my_exit(181)
+
     search_space_reduction_warning = check_bounds_change_due_to_previous_job(name, lower_bound, upper_bound, search_space_reduction_warning)
 
     param = create_range_param(name, lower_bound, upper_bound, value_type, log_scale)
@@ -3278,8 +3283,7 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
         if lower_bound == 0:
             _fatal_error(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)", 181)
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-        if upper_bound is not None:
-            lower_bound = -upper_bound
+        my_exit(181)
 
 def format_value(value: Any, float_format: str = '.80f') -> str:
     try:

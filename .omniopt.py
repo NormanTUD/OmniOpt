@@ -8500,37 +8500,27 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
             _fatal_error("Currently, RANDOMFOREST does not support Multi-Objective-Optimization", 251)
-
-        node = RandomForestGenerationNode(
+        return RandomForestGenerationNode(
             num_samples=threshold,
-            regressor_options={
-                "n_estimators": args.n_estimators_randomforest
-            },
+            regressor_options={"n_estimators": args.n_estimators_randomforest},
             seed=args.seed
         )
-
-        return node
 
     if model_name == "TPE":
         if len(arg_result_names) != 1:
             _fatal_error(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.", 108)
+        return ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
 
-        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
+    external_generators = {
+        "PSEUDORANDOM": f"python3 {script_dir}/.random_generator.py",
+        "EXTERNAL_GENERATOR": args.external_generator
+    }
 
-        return node
-
-    if model_name == "PSEUDORANDOM":
-        node = ExternalProgramGenerationNode(f"python3 {script_dir}/.random_generator.py", "PSEUDORANDOM")
-
-        return node
-
-    if model_name == "EXTERNAL_GENERATOR":
-        if args.external_generator is None or args.external_generator == "":
+    if model_name in external_generators:
+        cmd = external_generators[model_name]
+        if model_name == "EXTERNAL_GENERATOR" and not cmd:
             _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
-
-        node = ExternalProgramGenerationNode(args.external_generator)
-
-        return node
+        return ExternalProgramGenerationNode(cmd, model_name if model_name != "EXTERNAL_GENERATOR" else None)
 
     target_model = next_model_name if next_model_name is not None else model_name
     trans_crit = [
@@ -8544,21 +8534,15 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
 
     selected_model = select_model(model_name)
 
-    if model_name.lower() == "sobol":
-        model_spec = [
-            GeneratorSpec(
-                selected_model,
-                model_gen_kwargs=get_model_gen_kwargs()
-            )
-        ]
-    else:
-        model_spec = [
-            GeneratorSpec(
-                selected_model,
-                model_kwargs=get_model_kwargs(),
-                model_gen_kwargs=get_model_gen_kwargs()
-            )
-        ]
+    kwargs = dict(
+        selected_model=selected_model,
+        model_gen_kwargs=get_model_gen_kwargs()
+    )
+
+    if model_name.lower() != "sobol":
+        kwargs["model_kwargs"] = get_model_kwargs()
+
+    model_spec = [GeneratorSpec(**kwargs)]
 
     res = GenerationNode(
         node_name=model_name,

@@ -475,6 +475,7 @@ def get_current_run_folder() -> str:
 def get_state_file_name(name) -> str:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
+
     return f"{state_files_folder}/{name}"
 
 script_dir = os.path.dirname(os.path.realpath(__file__))

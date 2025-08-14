@@ -69,10 +69,8 @@ function validate_results {
 	sobol_jobs=$(cat "$second" | grep -v trial_index | grep -i SOBOL | wc -l)
 	[[ $sobol_jobs -ne 1 ]] && { red_text "Incorrect SOBOL jobs count: $sobol_jobs, expected 1"; return 1; }
 
-	local model_prefix
-	model_prefix="${model%%_*}"
 	local systematic_jobs
-	systematic_jobs=$(cat "$second" | grep -i "$model_prefix" | grep -v trial_index | wc -l)
+	systematic_jobs=$(cat "$second" | grep -i "$model" | grep -v trial_index | wc -l)
 	[[ $systematic_jobs -ne 3 ]] && { red_text "Incorrect systematic jobs count: $systematic_jobs, expected 3"; return 1; }
 
 	return 0

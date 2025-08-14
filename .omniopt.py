@@ -8590,15 +8590,13 @@ def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = N
 
 def set_global_generation_strategy() -> None:
     with spinner("Setting global generation strategy"):
-        args_generation_strategy = args.generation_strategy
-
         continue_not_supported_on_custom_generation_strategy()
 
         try:
-            if args_generation_strategy is None:
+            if args.generation_strategy is None:
                 setup_default_generation_strategy()
             else:
-                setup_custom_generation_strategy(args_generation_strategy)
+                setup_custom_generation_strategy()
         except Exception as e:
             print_red(f"Unexpected error in generation strategy setup: {e}")
             my_exit(111)
@@ -8664,12 +8662,12 @@ def add_main_node_if_needed(nodes: list, names: list, chosen_model: str) -> None
         print_debug(f"Added main node: {step_name}")
 
 
-def setup_custom_generation_strategy(strategy_str: str) -> None:
-    generation_strategy_array, new_max_eval = parse_generation_strategy_string(strategy_str)
+def setup_custom_generation_strategy() -> None:
+    generation_strategy_array, new_max_eval = parse_generation_strategy_string(args.generation_strategy)
     new_max_eval_plus_jobs = new_max_eval + get_nr_of_imported_jobs()
 
     if max_eval < new_max_eval_plus_jobs:
-        print_yellow(f"--generation_strategy {strategy_str.upper()} has more tasks than --max_eval {max_eval}. Updating max_eval to {new_max_eval_plus_jobs}.")
+        print_yellow(f"--generation_strategy {args.generation_strategy.upper()} has more tasks than --max_eval {max_eval}. Updating max_eval to {new_max_eval_plus_jobs}.")
         set_max_eval(new_max_eval_plus_jobs)
 
     print_generation_strategy(generation_strategy_array)
@@ -8690,7 +8688,7 @@ def setup_custom_generation_strategy(strategy_str: str) -> None:
             print_red(f"Error creating step for {gs_element}: {e}")
             my_exit(111)
 
-    write_state_file("custom_generation_strategy", strategy_str)
+    write_state_file("custom_generation_strategy", args.generation_strategy)
 
     global global_gs, generation_strategy_human_readable
     try:

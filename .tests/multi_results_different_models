@@ -43,6 +43,8 @@ function run_model_test {
 		--result_names RESULT1=min RESULT2=min \
 		--model="$model" --generate_all_jobs_at_once
 
+	$OMNIOPT_CALL --continue $run_dir/0
+
 	return $?
 }
 

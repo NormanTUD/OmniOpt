@@ -24,7 +24,7 @@ if [[ ! -e "$run_dir/results.csv" ]]; then
 fi
 
 if [[ -n $skip_search ]]; then
-	green_text "Skipping the real test since, because of --skip_search, no real search was done
+	green_text "Skipping the real test since, because of --skip_search, no real search was done"
 	exit 0
 fi
 

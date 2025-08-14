@@ -2870,7 +2870,7 @@ def create_folder_and_file(folder: str) -> str:
 
         makedirs(folder)
 
-        file_path = os.path.join(folder, "results.csv")
+        file_path = os.path.join(folder, PD_CSV_FILENAME)
 
         return file_path
 
@@ -4579,12 +4579,12 @@ def get_random_steps_from_prev_job() -> int:
     if not args.continue_previous_job:
         return count_sobol_steps()
 
-    prev_step_file: str = f"{args.continue_previous_job}/results.csv"
+    prev_step_file: str = f"{args.continue_previous_job}/{PD_CSV_FILENAME}"
 
     if not os.path.exists(prev_step_file):
         return _count_sobol_steps(prev_step_file)
 
-    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/results.csv"), args.continue_previous_job)
+    return add_to_phase_counter("random", count_sobol_steps() + _count_sobol_steps(f"{args.continue_previous_job}/{PD_CSV_FILENAME}"), args.continue_previous_job)
 
 def failed_jobs(nr: int = 0) -> int:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
@@ -6539,9 +6539,9 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
 
 def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
     if not args.worker_generator_path:
-        __insert_job_into_ax_client__update_status(__status, base_str, "Saving results.csv")
+        __insert_job_into_ax_client__update_status(__status, base_str, f"Saving {PD_CSV_FILENAME}")
         save_results_csv()
-        __insert_job_into_ax_client__update_status(__status, base_str, "Saved results.csv")
+        __insert_job_into_ax_client__update_status(__status, base_str, f"Saved {PD_CSV_FILENAME}")
 
 def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
     parsed_error = parse_parameter_type_error(e)
@@ -9333,7 +9333,7 @@ def pareto_front_general(
         return np.array([], dtype=int)
 
 def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
-    results_csv_file = f"{path_to_calculate}/results.csv"
+    results_csv_file = f"{path_to_calculate}/{PD_CSV_FILENAME}"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
     if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
@@ -9422,7 +9422,7 @@ def _pareto_front_build_return_structure(
     primary_name: str,
     secondary_name: str
 ) -> dict:
-    results_csv_file = f"{path_to_calculate}/results.csv"
+    results_csv_file = f"{path_to_calculate}/{PD_CSV_FILENAME}"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
     with open(result_names_file, mode="r", encoding="utf-8") as f:
@@ -10082,16 +10082,16 @@ def find_results_paths(base_path: str) -> list:
     if not os.path.isdir(base_path):
         raise NotADirectoryError(f"No directory: {base_path}")
 
-    direct_result_file = os.path.join(base_path, "results.csv")
+    direct_result_file = os.path.join(base_path, PD_CSV_FILENAME)
     if os.path.isfile(direct_result_file):
         return [base_path]
 
     found_paths = []
 
     if "DO_NOT_SEARCH_FOLDERS_FOR_RESULTS_CSV" not in os.environ:
-        with spinner("Searching for subfolders with results.csv..."):
+        with spinner(f"Searching for subfolders with {PD_CSV_FILENAME}..."):
             for root, _, files in os.walk(base_path):
-                if "results.csv" in files:
+                if PD_CSV_FILENAME in files:
                     found_paths.append(root)
 
     return list(set(found_paths))
@@ -10155,7 +10155,7 @@ def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: 
         print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
         return False
 
-    RESULT_CSV_FILE = f"{path_to_calculate}/results.csv"
+    RESULT_CSV_FILE = f"{path_to_calculate}/{PD_CSV_FILENAME}"
     if not os.path.exists(RESULT_CSV_FILE):
         print_red(f"{RESULT_CSV_FILE} not found")
         return False
@@ -10383,7 +10383,7 @@ def main() -> None:
         write_files_and_show_overviews()
 
         for existing_run in args.load_data_from_existing_jobs:
-            insert_jobs_from_csv(f"{existing_run}/results.csv")
+            insert_jobs_from_csv(f"{existing_run}/{PD_CSV_FILENAME}")
 
             set_global_generation_strategy()
 
@@ -10407,11 +10407,11 @@ def load_existing_data_for_worker_generation_path() -> None:
                 print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
                 my_exit(96)
 
-            if not os.path.exists(f"{args.worker_generator_path}/results.csv"):
+            if not os.path.exists(f"{args.worker_generator_path}/{PD_CSV_FILENAME}"):
                 print_red(f"Cannot continue. '--worker_generator_path {args.worker_generator_path}' does not exist.")
                 my_exit(96)
 
-            insert_jobs_from_csv(f"{args.worker_generator_path}/results.csv")
+            insert_jobs_from_csv(f"{args.worker_generator_path}/{PD_CSV_FILENAME}")
 
 def log_worker_creation() -> None:
     with spinner("Writing worker creation log..."):

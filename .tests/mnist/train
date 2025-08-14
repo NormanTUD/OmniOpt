@@ -106,6 +106,7 @@ def parse_args():
     parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="None", help="Weight initialization method.")
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
     parser.add_argument("--num_dense_layers", type=int, default=1, help="Number of dense (fully-connected) layers excluding the output layer.")
+    parser.add_argument("--install", action="store_true", help="Install required dependencies (default: False)")
 
     return parser.parse_args()
 
@@ -272,6 +273,11 @@ def test(model, device, test_loader, criterion, epoch, total_epochs):
 def main():
     try:
         args = parse_args()
+
+        if args.install:
+            print("Exiting, since the installation should now be done")
+            sys.exit(0)
+
         show_hyperparams(args)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

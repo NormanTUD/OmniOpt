@@ -1048,7 +1048,7 @@
 				continue;
 			}
 
-			$fields = str_getcsv($line);
+			$fields = str_getcsv($line, ",", "\"", "\\");
 			$normalized_fields = array_map('normalize_csv_value', $fields);
 			$normalized_lines[] = implode(',', $normalized_fields);
 		}

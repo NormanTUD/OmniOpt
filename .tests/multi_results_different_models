@@ -72,8 +72,8 @@ function validate_results {
 	local model_prefix
 	model_prefix="${model%%_*}"
 	local systematic_jobs
-	systematic_jobs=$(tail -n3 "$second" | grep -i "$model_prefix" | wc -l)
-	[[ $systematic_jobs -ne 3 ]] && { red_text "Incorrect systematic jobs count: $systematic_jobs"; return 1; }
+	systematic_jobs=$(cat "$second" | grep -i "$model_prefix" | wc -l)
+	[[ $systematic_jobs -ne 3 ]] && { red_text "Incorrect systematic jobs count: $systematic_jobs, expected 3"; return 1; }
 
 	return 0
 }

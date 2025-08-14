@@ -65,6 +65,7 @@ _func_call_paths = defaultdict(Counter)
 _last_mem = defaultdict(float)
 _leak_threshold_mb = 10.0
 generation_strategy_names: list = []
+default_max_range_difference: int = 100000
 
 _function_name_cache: dict = {}
 
@@ -662,6 +663,12 @@ def my_exit(_code: int = 0) -> None:
 
     print(f"Wallclock-Runtime: {whole_run_time} seconds {human_time}")
 
+    if is_skip_search() and os.getenv("SKIP_SEARCH_EXIT_CODE"):
+        try:
+            sys.exit(int(os.getenv("SKIP_SEARCH_EXIT_CODE")))
+        except:
+            sys.exit(_code)
+
     sys.exit(_code)
 
 def print_green(text: str) -> None:
@@ -901,6 +908,8 @@ class ConfigLoader:
         optional.add_argument('--run_program_once', type=str, help='Path to a setup script that will run once before the main program starts.')
         optional.add_argument('--worker_generator_path', type=str, help='Path of the run folder where this script should plug itself in as a worker points generator')
         optional.add_argument('--save_to_database', help='Save all entries into a sqlite3 database', action='store_true', default=False)
+        optional.add_argument('--range_max_difference', help=f'Max. difference for range, default is {default_max_range_difference}', default=default_max_range_difference, type=int)
+        optional.add_argument('--skip_search', help='Skips the actual search, uses exit code 0 if not the environment variable SKIP_SEARCH_EXIT_CODE is set', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -3093,6 +3102,21 @@ def get_value_type_and_log_scale(this_args: Union[str, list], j: int) -> Tuple[i
 
     return skip, value_type, log_scale
 
+def check_for_too_high_differences(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
+    bound_diff = abs(lower_bound - upper_bound)
+
+    if bound_diff > args.range_max_difference:
+        print_red(f"The difference between {lower_bound} and {upper_bound} was too high, these large numbers can cause memory leaks. Difference was: {bound_diff}, max difference is {args.range_max_difference}");
+
+        sys.exit(235)
+
+def is_skip_search() -> bool:
+    if args.skip_search:
+        return True
+
+    if os.getenv("SKIP_SEARCH"):
+        return True
+
 def parse_range_param(classic_params: list, params: list, j: int, this_args: Union[str, list], name: str, search_space_reduction_warning: bool) -> Tuple[int, list, list, bool]:
     check_factorial_range()
     check_range_params_length(this_args)
@@ -3102,7 +3126,7 @@ def parse_range_param(classic_params: list, params: list, j: int, this_args: Uni
 
     lower_bound, upper_bound = get_bounds(this_args, j)
 
-    die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
+    die_if_lower_and_upper_bound_equal_zero(lower_bound, upper_bound)
 
     lower_bound, upper_bound = switch_lower_and_upper_if_needed(name, lower_bound, upper_bound)
 
@@ -3114,6 +3138,7 @@ def parse_range_param(classic_params: list, params: list, j: int, this_args: Uni
 
     lower_bound, upper_bound = get_bounds_from_previous_data(name, lower_bound, upper_bound)
 
+    check_for_too_high_differences(lower_bound, upper_bound)
 
     if lower_bound == upper_bound:
         print_red(f"Lower bound {lower_bound} was equal to upper bound {upper_bound}. Please fix this. Cannot continue.")
@@ -3276,9 +3301,9 @@ def check_range_params_length(this_args: Union[str, list]) -> None:
     if len(this_args) != 5 and len(this_args) != 4 and len(this_args) != 6:
         _fatal_error("\n⚠ --parameter for type range must have 4 (or 5, the last one being optional and float by default, or 6, while the last one is true or false) parameters: <NAME> range <START> <END> (<TYPE (int or float)>, <log_scale: bool>)", 181)
 
-def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
+def die_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, float], upper_bound: Union[int, float]) -> None:
     if upper_bound is None or lower_bound is None:
-        _fatal_error("die_181_or_91_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.", 91)
+        _fatal_error("die_if_lower_and_upper_bound_equal_zero: upper_bound or lower_bound is None. Cannot continue.", 91)
     if upper_bound == lower_bound:
         if lower_bound == 0:
             _fatal_error(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)", 181)
@@ -8965,6 +8990,9 @@ def start_nvidia_smi_thread() -> None:
         nvidia_smi_thread.start()
 
 def run_search() -> bool:
+    if is_skip_search():
+        return True
+
     global NR_OF_0_RESULTS
     NR_OF_0_RESULTS = 0
 

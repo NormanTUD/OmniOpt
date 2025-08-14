@@ -8400,7 +8400,7 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str,
     return gen_strat_list, sum_nr
 
 def write_state_file(name: str, var: str) -> None:
-    file_path = get_current_run_folder(name)
+    file_path = get_state_file_name(name)
 
     if os.path.isdir(file_path):
         _fatal_error(f"{file_path} is a dir. Must be a file.", 246)

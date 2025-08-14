@@ -2224,7 +2224,7 @@ class SearchSpaceExhausted (Exception):
     pass
 
 NR_INSERTED_JOBS: int = 0
-executor: Union[LocalExecutor, AutoExecutor, None] = None
+submitit_executor: Union[LocalExecutor, AutoExecutor, None] = None
 
 NR_OF_0_RESULTS: int = 0
 
@@ -7363,7 +7363,7 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
     start = time.time()
 
-    new_job = executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+    new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
 
     elapsed = time.time() - start
 
@@ -7372,7 +7372,7 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
     return new_job
 
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
-    if executor and ax_client:
+    if submitit_executor and ax_client:
         new_job = submit_new_job(parameters, trial_index)
         submitted_jobs(1)
 
@@ -7387,7 +7387,7 @@ def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> 
         print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
         global_vars["jobs"].append((new_job, trial_index))
     else:
-        _fatal_error("executor or ax_client could not be found properly", 9)
+        _fatal_error("submitit_executor or ax_client could not be found properly", 9)
 
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     stdout_path = check_alternate_path(stdout_path)
@@ -7497,8 +7497,8 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
         return None
 
-    if not executor:
-        _fatal_error("executor could not be found", 9)
+    if not submitit_executor:
+        _fatal_error("submitit_executor could not be found", 9)
 
         return None
 
@@ -7553,10 +7553,10 @@ def set_sbatch_environment() -> None:
 def exclude_defective_nodes() -> None:
     excluded_string: str = ",".join(count_defective_nodes())
     if len(excluded_string) > 1:
-        if executor:
-            executor.update_parameters(exclude=excluded_string)
+        if submitit_executor:
+            submitit_executor.update_parameters(exclude=excluded_string)
         else:
-            _fatal_error("executor could not be found", 9)
+            _fatal_error("submitit_executor could not be found", 9)
 
 def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_job: Optional[Job]) -> None:
     if "QOSMinGRES" in str(error) and args.gpus == 0:
@@ -8905,17 +8905,17 @@ def get_number_of_steps(_max_eval: int) -> int:
         return _random_steps
 
 def _set_global_executor() -> None:
-    global executor
+    global submitit_executor
 
     log_folder: str = f'{get_current_run_folder()}/single_runs/%j'
     subjob_uuid = str(uuid.uuid4())
 
     if args.force_local_execution:
-        executor = LocalExecutor(folder=log_folder)
+        submitit_executor = LocalExecutor(folder=log_folder)
     else:
-        executor = AutoExecutor(folder=log_folder)
+        submitit_executor = AutoExecutor(folder=log_folder)
 
-    if executor:
+    if submitit_executor:
         params = {
             "name": f'{global_vars["experiment_name"]}_{run_uuid}_{subjob_uuid}',
             "timeout_min": args.worker_timeout,
@@ -8929,14 +8929,14 @@ def _set_global_executor() -> None:
             "exclude": args.exclude,
         }
 
-        executor.update_parameters(**params)
+        submitit_executor.update_parameters(**params)
 
-        print_debug("executor.update_parameters(\n" + json.dumps(params, indent=4) + "\n)")
+        print_debug("submitit_executor.update_parameters(\n" + json.dumps(params, indent=4) + "\n)")
 
         if args.exclude:
             print_yellow(f"Excluding the following nodes: {args.exclude}")
     else:
-        _fatal_error("executor could not be found", 9)
+        _fatal_error("submitit_executor could not be found", 9)
 
 def set_global_executor() -> None:
     try:
@@ -8992,9 +8992,6 @@ def start_nvidia_smi_thread() -> None:
         nvidia_smi_thread.start()
 
 def run_search() -> bool:
-    if is_skip_search():
-        return True
-
     global NR_OF_0_RESULTS
     NR_OF_0_RESULTS = 0
 

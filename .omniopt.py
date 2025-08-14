@@ -978,7 +978,7 @@ class ConfigLoader:
                 if file_format == 'json':
                     return json.load(file)
             except (Exception, json.decoder.JSONDecodeError) as e:
-                print_red(f"Error parsing {file_format} file '{config_path}': {e}")
+                print_red(f"Error parsing {file_format} file '{config_path}'")
                 self._parsing_arguments_loader.stop()
                 print("Exit-Code: 5")
                 sys.exit(5)

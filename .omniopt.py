@@ -8437,6 +8437,8 @@ def get_chosen_model() -> str:
     if args.continue_previous_job and chosen_model is None:
         chosen_model = get_state_file_content("model")
 
+        write_state_file("model", str(chosen_model))
+
         found_model = False
 
         if chosen_model not in SUPPORTED_MODELS:

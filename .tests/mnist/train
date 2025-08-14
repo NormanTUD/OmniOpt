@@ -274,10 +274,6 @@ def main():
     try:
         args = parse_args()
 
-        if args.install:
-            print("Exiting, since the installation should now be done")
-            sys.exit(0)
-
         show_hyperparams(args)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -289,6 +285,10 @@ def main():
 
         train_dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
         test_dataset = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+
+        if args.install:
+            print("Exiting, since the installation should now be done")
+            sys.exit(0)
 
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)

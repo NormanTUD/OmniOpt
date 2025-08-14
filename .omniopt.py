@@ -664,10 +664,12 @@ def my_exit(_code: int = 0) -> None:
     print(f"Wallclock-Runtime: {whole_run_time} seconds {human_time}")
 
     if is_skip_search() and os.getenv("SKIP_SEARCH_EXIT_CODE"):
+        skip_search_exit_code = os.getenv("SKIP_SEARCH_EXIT_CODE")
+
         try:
-            sys.exit(int(os.getenv("SKIP_SEARCH_EXIT_CODE")))
-        except Exception as e:
-            print(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code")
+            sys.exit(int(skip_search_exit_code))
+        except ValueError:
+            print(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code {_code}")
             sys.exit(_code)
 
     sys.exit(_code)

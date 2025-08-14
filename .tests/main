@@ -501,26 +501,56 @@ function _test_internal {
 
 	START_TIME=$(date +%s)
 
-	if [[ $skip_search -eq 1 ]]; then
-		if echo "$COMMAND" | grep -q "omniopt " || echo "$COMMAND" | grep start_simple_optimization_run; then
-			export SKIP_SEARCH=1
-			export SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE
-			export COMMAND="$COMMAND --skip_search"
 
-			yellow_text "Setting SKIP_SEARCH=1 and SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE, added --skip_search to command"
-		elif echo "$COMMAND" | grep -q "phases_overview|adding_jobs_to_new_job"; then
-			yellow_text "Skipping phases_overview tests"
-			return
-		else
-			yellow_text "--skip_search was 1 but the command did not contain './omniopt'"
+	declare -A ACTIONS=(
+		["omniopt "]='set_skip_search'
+		["start_simple_optimization_run"]='set_skip_search'
+		["phases_overview"]='_skip_job'
+		["adding_jobs_to_new_job"]='_skip_job'
+	)
+
+	set_skip_search() {
+		export SKIP_SEARCH=1
+		export SKIP_SEARCH_EXIT_CODE="$WANTED_EXIT_CODE"
+		export COMMAND="$COMMAND --skip_search"
+		yellow_text "Setting SKIP_SEARCH=1 and SKIP_SEARCH_EXIT_CODE=$WANTED_EXIT_CODE, added --skip_search to command"
+	}
+
+	skip_job=0
+
+	_skip_job() {
+		yellow_text "Totally skipping this test"
+		skip_job=1
+	}
+
+	process_command() {
+		local found=0
+		for pattern in "${!ACTIONS[@]}"; do
+			if echo "$COMMAND" | grep -q "$pattern"; then
+				"${ACTIONS[$pattern]}"
+				found=1
+				break
+			fi
+		done
+
+		if [[ $found -eq 0 ]]; then
+			yellow_text "--skip_search was 1 but the command did not match any rule"
 		fi
+	}
 
+	if [[ $skip_search -eq 1 ]]; then
+		process_command
 	elif [[ $skip_search -eq 0 ]]; then
 		yellow_text "--skip_search was not set or detected"
 	fi
 
-	eval "$COMMAND"
-	exit_code=$?
+	if [[ $skip_job -eq 1 ]]; then
+		exit_code=$wanted_exit_code
+	else
+		eval "$COMMAND"
+		exit_code=$?
+	fi
+
 	END_TIME=$(date +%s)
 	TEST_RUN_TIME=$(($END_TIME - $START_TIME))
 	

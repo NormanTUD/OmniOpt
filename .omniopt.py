@@ -8525,7 +8525,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         cmd = external_generators[model_name]
         if model_name == "EXTERNAL_GENERATOR" and not cmd:
             _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
-        return ExternalProgramGenerationNode(external_generator=cmd, node_name=(model_name if model_name != "EXTERNAL_GENERATOR" else None))
+        return ExternalProgramGenerationNode(external_generator=cmd, node_name="EXTERNAL_GENERATOR")
 
     trans_crit = [
         MaxTrials(

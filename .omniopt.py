@@ -5927,13 +5927,26 @@ def get_current_model_name() -> str:
         return "Random*"
 
     if ax_client:
-        if args.generation_strategy:
-            gs_model = generation_strategy_names[ax_client.generation_strategy.current_step_index]
-        else:
-            gs_model = ax_client.generation_strategy.current_node_name
+        try:
+            if args.generation_strategy:
+                idx = getattr(ax_client.generation_strategy, "current_step_index", None)
+                if (
+                    isinstance(idx, int)
+                    and 0 <= idx < len(generation_strategy_names)
+                ):
+                    gs_model = generation_strategy_names[idx]
+                else:
+                    gs_model = "unknown model"
+            else:
+                gs_model = getattr(ax_client.generation_strategy, "current_node_name", "unknown model")
 
-        if gs_model:
-            return str(gs_model)
+            if gs_model:
+                return str(gs_model)
+
+        except Exception as e:
+            # Optional: Logging, falls du den Fehler später sehen willst
+            print(f"[WARN] Could not get current model name: {e}")
+            return "error reading model name"
 
     return "initializing model"
 

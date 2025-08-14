@@ -10614,7 +10614,7 @@ def run_tests() -> None:
     nr_errors: int = 0
 
     try:
-        ie = is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", "result", -123, "min")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/results.csv", 'result', -123, "min")), '-123')
+        ie = is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{PD_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/IDONTEVENEXIST/{PD_CSV_FILENAME}", 'result', -123, "min")), '-123')
 
         if not ie:
             nr_errors += 1
@@ -10704,8 +10704,8 @@ def run_tests() -> None:
     nr_errors += is_equal("rounded_lower", rounded_lower, -124)
     nr_errors += is_equal("rounded_upper", rounded_upper, 124)
 
-    nr_errors += is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123, "min")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123, "min")), '17143005390319.627')
-    nr_errors += is_equal('get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", "result", -123, "max")', str(get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/results.csv", 'result', -123, "max")), '9.865416064838896e+29')
+    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", "result", -123, "min")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", 'result', -123, "min")), '17143005390319.627')
+    nr_errors += is_equal(f'get_min_or_max_column_value(".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", "result", -123, "max")', str(get_min_or_max_column_value(f".tests/_plot_example_runs/ten_params/0/{PD_CSV_FILENAME}", 'result', -123, "max")), '9.865416064838896e+29')
 
     nr_errors += is_equal('get_file_as_string("/i/do/not/exist/ANYWHERE/EVER")', get_file_as_string("/i/do/not/exist/ANYWHERE/EVER"), "")
 
@@ -10760,10 +10760,10 @@ def run_tests() -> None:
         "n_clusters"
     ]
 
-    got: str = json.dumps(get_sixel_graphics_data('.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv', True))
+    got: str = json.dumps(get_sixel_graphics_data(f'.gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{PD_CSV_FILENAME}', True))
     expected: str = '[["bash omniopt_plot --run_dir  --plot_type=trial_index_result", {"type": "trial_index_result", "min_done_jobs": 2}, "/plots/", "trial_index_result", "/plots//trial_index_result.png", "1200"], ["bash omniopt_plot --run_dir  --plot_type=scatter --dpi=76", {"type": "scatter", "params": "--bubblesize=50 --allow_axes %0 --allow_axes %1", "iterate_through": [["n_samples", "confidence"], ["n_samples", "feature_proportion"], ["n_samples", "n_clusters"], ["confidence", "feature_proportion"], ["confidence", "n_clusters"], ["feature_proportion", "n_clusters"]], "dpi": 76, "filename": "plot_%0_%1_%2"}, "/plots/", "scatter", "/plots//plot_%0_%1_%2.png", "1200"], ["bash omniopt_plot --run_dir  --plot_type=general", {"type": "general"}, "/plots/", "general", "/plots//general.png", "1200"]]'
 
-    nr_errors += is_equal('get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/results.csv", True)', got, expected)
+    nr_errors += is_equal(f'get_sixel_graphics_data(".gui/_share_test_case/test_user/ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather/0/{PD_CSV_FILENAME}", True)', got, expected)
 
     nr_errors += is_equal('get_hostname_from_outfile("")', get_hostname_from_outfile(''), None)
 

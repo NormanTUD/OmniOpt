@@ -66,7 +66,7 @@ function validate_results {
 	[[ $second_lines -ne 5 ]] && { red_text "$second contains $second_lines lines, should be 5"; return 1; }
 
 	local sobol_jobs
-	sobol_jobs=$(tail -n4 "$second" | head -n1 | grep -i SOBOL | wc -l)
+	sobol_jobs=$(cat "$second" | grep -i SOBOL | wc -l)
 	[[ $sobol_jobs -ne 1 ]] && { red_text "Incorrect SOBOL jobs count: $sobol_jobs"; return 1; }
 
 	local model_prefix

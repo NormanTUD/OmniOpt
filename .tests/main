@@ -506,6 +506,7 @@ function _test_internal {
 		["omniopt "]='set_skip_search'
 		["start_simple_optimization_run"]='set_skip_search'
 		["phases_overview"]='_skip_job'
+		["external_generator"]='_skip_job'
 		["adding_jobs_to_new_job"]='_skip_job'
 	)
 

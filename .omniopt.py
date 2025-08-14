@@ -1160,6 +1160,8 @@ def is_skip_search() -> bool:
     if os.getenv("SKIP_SEARCH"):
         return True
 
+    return False
+
 original_result_names = args.result_names
 
 if args.seed is not None:
@@ -8748,6 +8750,10 @@ def execute_trials(
     phase: Optional[str],
     _max_eval: Optional[int],
 ) -> None:
+    if is_skip_search():
+        print_yellow("Skipping search part")
+        return
+
     index_param_list: List[List[Any]] = []
     i: int = 1
 

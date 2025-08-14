@@ -73,6 +73,7 @@ function help () {
 	echo "  --testname=<str>                                                 Override testname"
 	echo "  --show_ram_every_n_seconds=<int>                                 Show ram usage every n seconds"
 	echo "  --random_sem                                                     Add random SEM to each result"
+	echo "  --skip_search                                                    Skip Search"
 	echo "  --help                                                           This help"
 	echo "  --debug                                                          Enable debug mode"
 	exit $1
@@ -114,7 +115,8 @@ alternate_min_max=0
 nr_results=1
 seed=""
 generate_all_jobs_at_once=0
-verbose=0
+verbose=0revert_to_random_when_seemingly_exhausted
+skip_search=0
 follow=0
 additional_parameter=
 revert_to_random_when_seemingly_exhausted=0
@@ -343,6 +345,9 @@ while [ $k -lt ${#args[@]} ]; do
 		--revert_to_random_when_seemingly_exhausted)
 			revert_to_random_when_seemingly_exhausted=1
 			;;
+		--skip_search)
+			skip_search=1
+			;;
 		--follow)
 			follow=1
 			;;
@@ -523,6 +528,10 @@ fi
 
 if [[ "$revert_to_random_when_seemingly_exhausted" -eq 1 ]]; then
 	omniopt_cmd="$omniopt_cmd --revert_to_random_when_seemingly_exhausted"
+fi
+
+if [[ $skip_search -eq 1 ]]; then
+	omniopt_cmd="$omniopt_cmd --skip_search"
 fi
 
 if [[ "$seed" != "" ]]; then

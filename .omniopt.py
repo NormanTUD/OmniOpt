@@ -8506,23 +8506,27 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             seed=args.seed
         )
 
+    target_model = next_model_name if next_model_name is not None else model_name
+
     if model_name == "TPE":
         if len(arg_result_names) != 1:
             _fatal_error(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.", 108)
-        return ExternalProgramGenerationNode(f"python3 {script_dir}/.tpe.py", "TPE")
+        return ExternalProgramGenerationNode(external_generator=f"python3 {script_dir}/.tpe.py", node_name="EXTERNAL_GENERATOR")
 
     external_generators = {
         "PSEUDORANDOM": f"python3 {script_dir}/.random_generator.py",
         "EXTERNAL_GENERATOR": args.external_generator
     }
 
+    if next_model_name in ["PSEUDORANDOM", "EXTERNAL_GENERATOR", "TPE"]:
+        target_model = "EXTERNAL_GENERATOR"
+
     if model_name in external_generators:
         cmd = external_generators[model_name]
         if model_name == "EXTERNAL_GENERATOR" and not cmd:
             _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
-        return ExternalProgramGenerationNode(cmd, model_name if model_name != "EXTERNAL_GENERATOR" else None)
+        return ExternalProgramGenerationNode(external_generator=cmd, node_name=(model_name if model_name != "EXTERNAL_GENERATOR" else None))
 
-    target_model = next_model_name if next_model_name is not None else model_name
     trans_crit = [
         MaxTrials(
             threshold=threshold,

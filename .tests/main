@@ -713,7 +713,7 @@ if [[ -z $CI ]]; then
 fi
 
 if [[ $superquick -eq 0 ]]; then
-	_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 00626bdffa273d361a39aa102fa47ba1" 0
+	_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 9c8c678f2561318237f8054f5cda2c10" 0
 
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0
 

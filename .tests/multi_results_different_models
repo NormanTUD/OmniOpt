@@ -67,7 +67,7 @@ function validate_results {
 
 	local sobol_jobs
 	sobol_jobs=$(cat "$second" | grep -v trial_index | grep -i SOBOL | wc -l)
-	[[ $sobol_jobs -ne 1 ]] && { red_text "Incorrect SOBOL jobs count: $sobol_jobs"; return 1; }
+	[[ $sobol_jobs -ne 1 ]] && { red_text "Incorrect SOBOL jobs count: $sobol_jobs, expected 1"; return 1; }
 
 	local model_prefix
 	model_prefix="${model%%_*}"

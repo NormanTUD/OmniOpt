@@ -666,7 +666,8 @@ def my_exit(_code: int = 0) -> None:
     if is_skip_search() and os.getenv("SKIP_SEARCH_EXIT_CODE"):
         try:
             sys.exit(int(os.getenv("SKIP_SEARCH_EXIT_CODE")))
-        except:
+        except Exception as e:
+            print(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code")
             sys.exit(_code)
 
     sys.exit(_code)
@@ -3117,7 +3118,7 @@ def check_for_too_high_differences(lower_bound: Union[int, float], upper_bound: 
     bound_diff = abs(lower_bound - upper_bound)
 
     if bound_diff > args.range_max_difference:
-        print_red(f"The difference between {lower_bound} and {upper_bound} was too high, these large numbers can cause memory leaks. Difference was: {bound_diff}, max difference is {args.range_max_difference}");
+        print_red(f"The difference between {lower_bound} and {upper_bound} was too high, these large numbers can cause memory leaks. Difference was: {bound_diff}, max difference is {args.range_max_difference}")
 
         sys.exit(235)
 
@@ -8750,10 +8751,6 @@ def execute_trials(
     phase: Optional[str],
     _max_eval: Optional[int],
 ) -> None:
-    if is_skip_search():
-        print_yellow("Skipping search part")
-        return
-
     index_param_list: List[List[Any]] = []
     i: int = 1
 
@@ -8858,6 +8855,10 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
             nr_jobs_before_removing_abandoned = len(list(trial_index_to_param.keys()))
 
             filtered_trial_index_to_param = {k: v for k, v in trial_index_to_param.items() if k not in abandoned_trial_indices}
+
+            if is_skip_search():
+                print_yellow("Skipping search part")
+                return True, {}
 
             if len(filtered_trial_index_to_param):
                 execute_trials(filtered_trial_index_to_param, phase, _max_eval)

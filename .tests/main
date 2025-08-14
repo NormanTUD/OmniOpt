@@ -671,6 +671,10 @@ _test_nr_jobs "$TESTNAME" 0 $num_random_steps $(($max_eval-$num_random_steps)) 0
 _test "Continued test run" "bash omniopt --continue runs/$TESTNAME/0 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --send_anonymized_usage_stats --generate_all_jobs_at_once" 0
 _test_nr_jobs "$TESTNAME" 1 $num_random_steps $(($(($max_eval*2))-$num_random_steps)) 0
 
+
+_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --generate_all_jobs_at_once" 0
+_test_nr_jobs "$TESTNAME" 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
+
 if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
 	if [[ $no_linkchecker -eq 0 ]]; then
 		_test "Linkchecker" ".tests/linkchecker" 0
@@ -712,9 +716,6 @@ if [[ $superquick -eq 0 ]]; then
 	_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 00626bdffa273d361a39aa102fa47ba1" 0
 
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0
-
-	_test "Continuing already continued job" "bash omniopt --continue runs/$TESTNAME/1 --num_parallel_jobs $num_parallel_jobs --worker_timeout 10 --follow --gpus $NUM_GPUS --mem_gb $mem_gb --num_random_steps=$num_random_steps --max_eval=$max_eval --parameter float_param range -1000 1000 float --send_anonymized_usage_stats --generate_all_jobs_at_once" 0
-	_test_nr_jobs "$TESTNAME" 2 $num_random_steps $(($(($max_eval*3))-$num_random_steps)) 0
 
 	_test "Single job fixed param" "$OMNIOPT_CALL --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --follow" 0
 

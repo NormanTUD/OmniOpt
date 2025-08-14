@@ -3283,7 +3283,8 @@ def die_181_or_91_if_lower_and_upper_bound_equal_zero(lower_bound: Union[int, fl
         if lower_bound == 0:
             _fatal_error(f"⚠ Lower bound and upper bound are equal: {lower_bound}, cannot automatically fix this, because they -0 = +0 (usually a quickfix would be to set lower_bound = -upper_bound)", 181)
         print_red(f"⚠ Lower bound and upper bound are equal: {lower_bound}, setting lower_bound = -upper_bound")
-        my_exit(181)
+        if upper_bound is not None:
+            lower_bound = -upper_bound
 
 def format_value(value: Any, float_format: str = '.80f') -> str:
     try:

@@ -8612,6 +8612,7 @@ def setup_default_generation_strategy() -> None:
     generation_strategy_nodes: list = []
 
     num_imported_jobs = get_nr_of_imported_jobs()
+
     set_max_eval(max_eval + num_imported_jobs)
     set_random_steps(random_steps or 0)
 
@@ -8624,7 +8625,9 @@ def setup_default_generation_strategy() -> None:
     if chosen_model == "SOBOL":
         set_random_steps(max_eval)
 
-    add_sobol_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model)
+    if random_steps > num_imported_jobs:
+        add_sobol_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model)
+
     add_main_node_if_needed(generation_strategy_nodes, generation_strategy_names, chosen_model)
 
     generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)

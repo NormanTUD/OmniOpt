@@ -41,7 +41,7 @@ def force_exit(signal_number: Any, frame: Any) -> Any:
         print("Exiting now")
         os._exit(0)
     else:
-        print("Shutting down")
+        print("Shutting down, this may take a while. Press CTRL-c again to force exit now.")
         FORCE_EXIT = True
         sys.exit(0)
 

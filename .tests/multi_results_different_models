@@ -100,11 +100,12 @@ for i in "${!models[@]}"; do
         continue
     fi
 
-    validate_results "runs/multi_results_2_results_$model" "$model"
     if [[ $? -ne 0 ]]; then
         failed=1
     fi
 done
+
+validate_results "runs/multi_results_2_results_$model" "$model"
 
 if [[ $failed -eq 0 ]]; then
     green_text "All Multi-Result model tests succeeded"

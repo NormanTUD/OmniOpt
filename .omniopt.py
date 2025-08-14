@@ -65,7 +65,7 @@ _func_call_paths = defaultdict(Counter)
 _last_mem = defaultdict(float)
 _leak_threshold_mb = 10.0
 generation_strategy_names: list = []
-default_max_range_difference: int = 100000
+default_max_range_difference: int = 1000000
 
 _function_name_cache: dict = {}
 

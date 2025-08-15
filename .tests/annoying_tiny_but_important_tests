@@ -20,6 +20,7 @@ tests=(
 	find_double_function_names
 	find_double_add_arguments_help
 	find_add_arguments_with_double_quotes
+	flake8
 )
 
 code=1

@@ -2875,3 +2875,4 @@ SKIP_SEARCH_EXIT_CODE
 SKIP_SEARCH
 skip_search
 Buildx
+Pyright

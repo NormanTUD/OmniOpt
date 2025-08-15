@@ -1,26 +1,26 @@
 #!/bin/bash
 
-.tests/find_unused_params || exit 1
+tests=(
+  single_quotes_in_configloader
+  find_untyped_cli_args
+  find_unused_params
+  all_oo_options_are_in_gui_and_vice_versa
+  lizard
+  doc_has_outdated_params
+  php_files
+  find_typos
+  check_state_file_documentation
+  find_missing_toc_in_md_files
+  find_double_function_names
+  find_double_add_arguments_help
+  find_add_arguments_with_double_quotes
+)
 
-.tests/all_oo_options_are_in_gui_and_vice_versa || exit 2
-
-.tests/lizard || exit 3
-
-.tests/doc_has_outdated_params || exit 4
-
-.tests/php_files || exit 5
-
-.tests/find_typos || exit 6
-
-.tests/check_state_file_documentation || exit 7
-
-.tests/find_missing_toc_in_md_files || exit 8
-
-.tests/find_double_function_names || exit 9
-
-.tests/find_double_add_arguments_help || exit 10
-
-.tests/find_add_arguments_with_double_quotes || exit 11
+code=1
+for t in "${tests[@]}"; do
+    .tests/$t || exit $code
+    code=$((code+1))
+done
 
 echo "Annoying tiny but important tests all OK"
 

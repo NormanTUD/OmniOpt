@@ -630,7 +630,7 @@ def print_debug(msg: str) -> None:
     if args.debug_stack_regex:
         matched = any(any(re.match(regex, func) for regex in args.debug_stack_regex) for func in stack_funcs)
         if matched:
-            print(f"DEBUG (--debug_stack_regex='{args.debug_stack_regex}' matched): {msg}")
+            print(f"DEBUG: {msg}")
             print_stack_paths()
 
     stack_trace_element = _get_debug_json(time_str, msg)

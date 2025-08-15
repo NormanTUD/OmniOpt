@@ -756,7 +756,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 class ConfigLoader:
     runtime_debug: bool
     show_func_name: bool
-    debug_stack_regex: Optional[str]
+    debug_stack_regex: str
     number_of_generators: int
     disable_previous_job_constraint: bool
     save_to_database: bool
@@ -988,7 +988,7 @@ class ConfigLoader:
         debug.add_argument('--just_return_defaults', help='Just return defaults in dryrun', action='store_true', default=False)
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
-        debug.add_argument('--debug_stack_regex', nargs='*', default=None, help='Only print debug messages if call stack matches any regex')
+        debug.add_argument('--debug_stack_regex', help='Only print debug messages if call stack matches any regex', type=str, default='')
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:

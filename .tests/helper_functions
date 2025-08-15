@@ -430,12 +430,14 @@ file_has_changed_since_last_tagged_version() {
 	local last_tag
 	last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 
+	echo "Got last tag: $last_tag"
+
 	if [[ -z "$last_tag" ]]; then
 		return 0
 	fi
 
 	for pattern in "${patterns[@]}"; do
-		for file in $(find . -path "$pattern" 2>/dev/null); do
+		for file in "$pattern"; do
 			if git diff --name-only "$last_tag" -- "$file" | grep -q .; then
 				return 0
 			fi

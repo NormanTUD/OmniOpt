@@ -151,7 +151,7 @@ jobs:
   #    run: |
   #      .tests/install_via_pip
   docker-test:
-    needs: [todo-to-issue]
+    needs: [todo-to-issue, SuperfastFailingTests]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:

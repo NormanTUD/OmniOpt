@@ -27,7 +27,6 @@ for t in "${tests[@]}"; do
     if .tests/"$t"; then
         end=$(date +%s)
         runtime=$((end - start))
-        printf "\033[32mOK\033[0m (%ds)\n" "$runtime"
     else
         end=$(date +%s)
         runtime=$((end - start))

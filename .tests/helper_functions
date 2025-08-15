@@ -340,8 +340,6 @@ function _test_internal {
 
 	if [[ $skip_search -eq 1 ]]; then
 		process_command
-	elif [[ $skip_search -eq 0 ]]; then
-		yellow_text "--skip_search was not set or detected"
 	fi
 
 	if [[ $skip_job -eq 1 ]]; then

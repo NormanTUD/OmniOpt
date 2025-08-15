@@ -1630,7 +1630,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     constraints: Optional[Any]
     fit_time_since_gen: float
 
-    def __init__(                  # identical signature to the original class
+    def __init__(
         self: Any,
         node_name: str = "INTERACTIVE_GENERATOR",
     ) -> None:
@@ -10305,7 +10305,13 @@ def run_program_once(params=None) -> None:
         my_exit(57)
 
 def show_omniopt_call() -> None:
-    original_print(oo_call + " " + " ".join(sys.argv[1:]))
+    def remove_ui_url(arg_str):
+        return re.sub(r'(?:--ui_url(?:=\S+)?(?:\s+\S+)?)', '', arg_str).strip()
+
+    original_argv = " ".join(sys.argv[1:])
+    cleaned = remove_ui_url(original_argv)
+
+    original_print(oo_call + " " + cleaned)
 
 def main() -> None:
     global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS

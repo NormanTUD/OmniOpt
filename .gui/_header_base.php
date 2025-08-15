@@ -151,14 +151,9 @@
 				// Check if 'Control' key and '*' key are pressed
 				var isControlPressed = event.ctrlKey;
 				var isAsteriskPressed = event.key === '*';
-				var isHashPressed = event.key === '#';
 
 				if (isControlPressed && isAsteriskPressed) {
 					open_url_in_new_tab();
-				}
-
-				if (isControlPressed && isHashPressed) {
-					open_url_in_new_tab_new();
 				}
 			}
 

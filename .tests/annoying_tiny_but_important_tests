@@ -4,14 +4,14 @@
 
 .tests/all_oo_options_are_in_gui_and_vice_versa || exit 2
 
-.tests/find_unused_params
+.tests/find_unused_params || exit 3
 
-.tests/lizard
+.tests/lizard || exit 4
 
-.tests/doc_has_outdated_params
+.tests/doc_has_outdated_params || exit 5
 
-.tests/php_files
+.tests/php_files || exit 6
 
-.tests/all_shellscripts_with_help_have_help_page
+.tests/all_shellscripts_with_help_have_help_page || exit 7
 
 exit 0

@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  SuperfastFailingTests:
+  smoke-tests:
     strategy:
       fail-fast: true
 
@@ -60,7 +60,7 @@ jobs:
         .tests/annoying_tiny_but_important_tests
 
   Linter:
-    needs: [SuperfastFailingTests]
+    needs: [smoke-tests]
 
     strategy:
       fail-fast: true
@@ -131,7 +131,7 @@ jobs:
   #    run: |
   #      .tests/install_via_pip
   docker-test:
-    needs: [todo-to-issue, SuperfastFailingTests]
+    needs: [todo-to-issue, smoke-tests]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -152,7 +152,7 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
 
   main-test:
-    needs: [SuperfastFailingTests, todo-to-issue] #, install-via-pip]
+    needs: [smoke-tests, todo-to-issue] #, install-via-pip]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:

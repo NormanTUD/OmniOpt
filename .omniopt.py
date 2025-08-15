@@ -7870,9 +7870,9 @@ def fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[
     if global_gs is None:
         _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)
 
-    return _generate_trials(nr_of_jobs_to_get, recursion)
+    return generate_trials(nr_of_jobs_to_get, recursion)
 
-def _generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
+def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     trials_dict: Dict[int, Any] = {}
     trial_durations: List[float] = []
 

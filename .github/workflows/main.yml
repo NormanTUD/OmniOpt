@@ -10,15 +10,15 @@ on:
 
 jobs:
   SuperfastFailingTests:
-    uses: ./.github/workflows/cache-venv.yml
-    with:
-      requirements: "requirements.txt,test_requirements.txt"
-
     strategy:
       fail-fast: true
 
     runs-on: "ubuntu-latest"
     environment: Production
+
+    uses: ./.github/workflows/cache-venv.yml
+    with:
+      requirements: "requirements.txt,test_requirements.txt"
 
     permissions:
       contents: write

@@ -4,6 +4,7 @@
 
 tests=(
 	shellcheck
+	find_functions_with_missing_types
 	find_wrongly_typed_cli_args
 	single_quotes_in_configloader
 	find_untyped_cli_args

@@ -2604,9 +2604,6 @@ def _debug_worker_creation(msg: str, _lvl: int = 0, eee: Union[None, str, Except
 def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(_file, result, _lvl, str(eee))
 
-def _debug_get_next_trials(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
-    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, str(eee))
-
 def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
 
@@ -2802,7 +2799,7 @@ def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg: str = f"{time_str}, {got}, {requested}"
 
-    _debug_get_next_trials(msg)
+    log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, _lvl, str(eee))
 
 def print_debug_progressbar(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

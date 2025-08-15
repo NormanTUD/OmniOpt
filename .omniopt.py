@@ -27,6 +27,29 @@ import inspect
 import tracemalloc
 import resource
 import psutil
+import importlib
+import argparse
+import warnings
+import logging
+
+warnings.filterwarnings(
+    "ignore",
+    category=FutureWarning,
+    module="ax.adapter.best_model_selector"
+)
+
+warnings.filterwarnings(
+    "ignore",
+    message="Ax currently requires a sqlalchemy version below 2.0.*",
+)
+
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    message="coroutine 'start_logging_daemon' was never awaited"
+)
+
+logging.basicConfig(level=logging.CRITICAL)
 
 FORCE_EXIT: bool = False
 
@@ -132,151 +155,11 @@ try:
 
     def spinner(text: str) -> Any:
         return console.status(f"[bold green]{text}", speed=0.2, refresh_per_second=6)
-
-    with spinner("Importing logging..."):
-        import logging
-        logging.basicConfig(level=logging.CRITICAL)
-
-    with spinner("Importing warnings..."):
-        import warnings
-
-        warnings.filterwarnings(
-            "ignore",
-            category=FutureWarning,
-            module="ax.adapter.best_model_selector"
-        )
-
-        warnings.filterwarnings(
-            "ignore",
-            message="Ax currently requires a sqlalchemy version below 2.0.*",
-        )
-
-        warnings.filterwarnings(
-            "ignore",
-            category=RuntimeWarning,
-            message="coroutine 'start_logging_daemon' was never awaited"
-        )
-
-    with spinner("Importing argparse..."):
-        import argparse
-
-    with spinner("Importing datetime..."):
-        import datetime
-
-    with spinner("Importing dataclass..."):
-        from dataclasses import dataclass
-
-    with spinner("Importing socket..."):
-        import socket
-
-    with spinner("Importing stat..."):
-        import stat
-
-    with spinner("Importing pwd..."):
-        import pwd
-
-    with spinner("Importing base64..."):
-        import base64
-
-    with spinner("Importing json..."):
-        import json
-
-    with spinner("Importing yaml..."):
-        import yaml
-
-    with spinner("Importing toml..."):
-        import toml
-
-    with spinner("Importing csv..."):
-        import csv
-
-    with spinner("Importing ast..."):
-        import ast
-
-    with spinner("Importing rich.table..."):
-        from rich.table import Table
-
-    with spinner("Importing rich print..."):
-        from rich import print
-
-    with spinner("Importing rich.pretty..."):
-        from rich.pretty import pprint
-
-    with spinner("Importing rich.prompt..."):
-        from rich.prompt import Prompt, FloatPrompt, IntPrompt
-
-    with spinner("Importing types.FunctionType..."):
-        from types import FunctionType
-
-    with spinner("Importing typing..."):
-        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
-
-    with spinner("Importing ThreadPoolExecutor..."):
-        from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    with spinner("Importing submitit.LocalExecutor..."):
-        from submitit import LocalExecutor, AutoExecutor
-
-    with spinner("Importing submitit.Job..."):
-        from submitit import Job
-
-    with spinner("Importing importlib.util..."):
-        import importlib.util
-
-    with spinner("Importing platform..."):
-        import platform
-
-    with spinner("Importing inspect frame info..."):
-        from inspect import currentframe, getframeinfo
-
-    with spinner("Importing pathlib.Path..."):
-        from pathlib import Path
-
-    with spinner("Importing uuid..."):
-        import uuid
-
-    #with spinner("Importing qrcode..."):
-    #    import qrcode
-
-    with spinner("Importing cowsay..."):
-        import cowsay
-
-    with spinner("Importing shutil..."):
-        import shutil
-
-    with spinner("Importing itertools.combinations..."):
-        from itertools import combinations
-
-    with spinner("Importing os.listdir..."):
-        from os import listdir
-
-    with spinner("Importing os.path..."):
-        from os.path import isfile, join
-
-    with spinner("Importing PIL.Image..."):
-        from PIL import Image
-
-    with spinner("Importing sixel..."):
-        import sixel
-
-    with spinner("Importing subprocess..."):
-        import subprocess
-
-    with spinner("Importing tqdm..."):
-        from tqdm import tqdm
-
-    with spinner("Importing beartype..."):
-        from beartype import beartype
-
-    with spinner("Importing statistics..."):
-        import statistics
-
-    with spinner("Trying to import pyfiglet..."):
-        try:
-            from pyfiglet import Figlet
-            figlet_loaded = True
-        except ModuleNotFoundError:
-            figlet_loaded = False
+    try:
+        from pyfiglet import Figlet
+        figlet_loaded = True
+    except ModuleNotFoundError:
+        figlet_loaded = False
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 4")
@@ -287,6 +170,96 @@ except ImportError as e:
 except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
+
+def dynamic_import(import_list):
+    for entry in import_list:
+        # Einträge, die nur ein Modul als String sind
+        if isinstance(entry, str):
+            try:
+                globals()[entry] = importlib.import_module(entry)
+            except ModuleNotFoundError as e:
+                print(f"Module not found: {e}", file=sys.stderr)
+            continue
+
+        for module_path, names in entry.items():
+            try:
+                module = importlib.import_module(module_path)
+
+                if isinstance(names, list):
+                    for name in names:
+                        globals()[name] = getattr(module, name)
+                elif isinstance(names, str):
+                    globals()[names] = getattr(module, names)
+                else:
+                    # falls names ein verschachteltes dict ist
+                    for submodule, subnames in names.items():
+                        submod = importlib.import_module(f"{module_path}.{submodule}")
+                        if isinstance(subnames, list):
+                            for name in subnames:
+                                globals()[name] = getattr(submod, name)
+                        else:
+                            globals()[subnames] = getattr(submod, subnames)
+            except ModuleNotFoundError as e:
+                print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
+                print("Exit-Code: 4")
+                sys.exit(4)
+            except ImportError as e:
+                print(f"Error loading modules: {e}\nThis may be caused by forgetting to 'module load' the right python version or missing the python virtual environment.")
+                sys.exit(4)
+            except KeyboardInterrupt:
+                print("You pressed CTRL-C while modules were loading.")
+                sys.exit(17)
+
+imports = [
+    {"ax.core": {"generator_run": "GeneratorRun"}},
+    {"ax.adapter.registry": ["Cont_X_trans", "Y_trans"]},
+    {"ax.core.arm": "Arm"},
+    {"ax.core.objective": "MultiObjective"},
+    {"ax.core": "Metric"},
+    {"ax.exceptions": ["core", "generation_strategy"]},
+    {"ax.storage.json_store.registry": "CORE_DECODER_REGISTRY"},
+    {"ax.generation_strategy": "generation_node"},
+    {"ax.generation_strategy.generation_strategy": ["GenerationStep", "GenerationStrategy"]},
+    {"ax.generation_strategy.generation_node": "GenerationNode"},
+    {"ax.generation_strategy.external_generation_node": "ExternalGenerationNode"},
+    "datetime",
+    {"dataclasses": "dataclass"},
+    "socket",
+    "stat",
+    "pwd",
+    "base64",
+    "json",
+    "yaml",
+    "toml",
+    "csv",
+    "ast",
+    {"rich.table": "Table"},
+    {"rich": "print"},
+    {"rich.pretty": "pprint"},
+    {"rich.prompt": ["Prompt", "FloatPrompt", "IntPrompt"]},
+    {"types": "FunctionType"},
+    {"typing": ["Pattern", "Optional", "Tuple", "cast", "Union", "TextIO", "List", "Dict", "Type"]},
+    {"concurrent.futures": ["ThreadPoolExecutor", "as_completed"]},
+    {"submitit": ["LocalExecutor", "AutoExecutor", "Job"]},
+    "importlib.util",
+    "platform",
+    {"inspect": ["currentframe", "getframeinfo"]},
+    {"pathlib": "Path"},
+    "uuid",
+    "cowsay",
+    "shutil",
+    {"itertools": "combinations"},
+    {"os": ["listdir"]},
+    {"os.path": ["isfile", "join"]},
+    {"PIL": "Image"},
+    "sixel",
+    "subprocess",
+    {"tqdm": "tqdm"},
+    {"beartype": "beartype"},
+    "statistics"
+]
+
+dynamic_import(imports)
 
 def collect_runtime_stats() -> dict:
     process = psutil.Process(os.getpid())

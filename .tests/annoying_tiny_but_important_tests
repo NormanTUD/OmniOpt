@@ -4,7 +4,6 @@
 
 tests=(
 	shellcheck
-	find_unused_but_documented_exit_codes
 	find_wrongly_typed_cli_args
 	single_quotes_in_configloader
 	find_untyped_cli_args

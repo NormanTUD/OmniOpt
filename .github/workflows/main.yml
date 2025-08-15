@@ -30,10 +30,10 @@ jobs:
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:
-        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        path: ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
+        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
-          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
+          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
 
     - name: Cache apt packages
       uses: actions/cache@v3
@@ -88,10 +88,10 @@ jobs:
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:
-        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        path: ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
+        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
-          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
+          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
 
     - name: Cache apt packages
       uses: actions/cache@v3
@@ -203,10 +203,10 @@ jobs:
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:
-        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        path: ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
+        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
-          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
+          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
 
     - name: Cache apt packages
       uses: actions/cache@v3

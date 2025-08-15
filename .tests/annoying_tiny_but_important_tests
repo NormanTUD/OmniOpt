@@ -1,25 +1,26 @@
 #!/bin/bash
 
 tests=(
-  single_quotes_in_configloader
-  find_untyped_cli_args
-  find_unused_params
-  all_oo_options_are_in_gui_and_vice_versa
-  lizard
-  doc_has_outdated_params
-  php_files
-  find_typos
-  check_state_file_documentation
-  find_missing_toc_in_md_files
-  find_double_function_names
-  find_double_add_arguments_help
-  find_add_arguments_with_double_quotes
+	/find_wrongly_typed_cli_args
+	single_quotes_in_configloader
+	find_untyped_cli_args
+	find_unused_params
+	all_oo_options_are_in_gui_and_vice_versa
+	lizard
+	doc_has_outdated_params
+	php_files
+	find_typos
+	check_state_file_documentation
+	find_missing_toc_in_md_files
+	find_double_function_names
+	find_double_add_arguments_help
+	find_add_arguments_with_double_quotes
 )
 
 code=1
 for t in "${tests[@]}"; do
-    .tests/$t || exit $code
-    code=$((code+1))
+	.tests/$t || exit $code
+	code=$((code+1))
 done
 
 echo "Annoying tiny but important tests all OK"

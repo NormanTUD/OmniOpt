@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Runs linter 'flake8' on python.
+# HELPPAGE: Runs linter 'pyright' on python.
 
 export install_tests=1
 
@@ -46,6 +46,7 @@ cd $SCRIPT_DIR
 cd ..
 
 source .shellscript_functions
+source .tests/helper_functions
 
 errors=()
 
@@ -54,12 +55,14 @@ if ! command -v pyright 2>/dev/null >/dev/null; then
 fi
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	echo "Pyright $i:"
-	pyright "$i" || {
-		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyright $i' to see details."
-		red_text "$ERRSTR\n"
-		errors+=("$ERRSTR")
-	}
+	if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+		echo "Pyright $i:"
+		pyright "$i" || {
+			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyright $i' to see details."
+			red_text "$ERRSTR\n"
+			errors+=("$ERRSTR")
+		}
+	fi
 done
 
 secs=$SECONDS
@@ -67,10 +70,10 @@ hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-min
 printf 'pyright test took: %02d:%02d:%02d\n' $hrs $mins $secs
 
 if [ ${#errors[@]} -eq 0 ]; then
-	green_text "No flake8 errors"
+	green_text "No pyright errors"
 	exit 0
 else
-	red_text "=> FLAKE8-ERRORS => FLAKE8-ERRORS => FLAKE8-ERRORS =>\n"
+	red_text "=> PYRIGHT-ERRORS => PYRIGHT-ERRORS => PYRIGHT-ERRORS =>\n"
 	for i in "${errors[@]}"; do
 		red_text "$i\n"
 	done

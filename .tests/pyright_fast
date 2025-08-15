@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# HELPPAGE: Runs linter 'flake8' on python.
+
+export install_tests=1
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+fi
+
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+source .tests/helper_functions
+
+export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
+
+.tests/pyright

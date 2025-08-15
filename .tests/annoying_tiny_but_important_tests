@@ -34,7 +34,7 @@ tests=(
 	missing_plot_metadata
 	share_tests
 	js_syntax
-	pyright
+	pyright_fast
 )
 
 code=1

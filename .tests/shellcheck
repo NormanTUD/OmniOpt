@@ -49,7 +49,7 @@ source .shellscript_functions
 errors=()
 
 if ! command -v shellcheck 2>/dev/null >/dev/null; then
-	pip install shellcheck
+	pip install shellcheck-py
 fi
 
 for i in omniopt*; do

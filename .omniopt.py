@@ -8281,10 +8281,10 @@ def _handle_linalg_error(error: Union[None, str, Exception]) -> None:
     """Handles the np.linalg.LinAlgError based on the model being used."""
     print_red(f"Error: {error}")
 
-def _get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
-    finish_previous_jobs(["finishing jobs (_get_next_trials)"])
+def get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
+    finish_previous_jobs(["finishing jobs (get_next_trials)"])
 
-    if break_run_search("_get_next_trials", max_eval) or nr_of_jobs_to_get == 0:
+    if break_run_search("get_next_trials", max_eval) or nr_of_jobs_to_get == 0:
         return {}, True
 
     try:
@@ -8877,7 +8877,7 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
         get_next_trials_nr = new_nr_of_jobs_to_get
 
     for _ in range(range_nr):
-        trial_index_to_param, done_optimizing = _get_next_trials(get_next_trials_nr)
+        trial_index_to_param, done_optimizing = get_next_trials(get_next_trials_nr)
         if done_optimizing:
             continue
 

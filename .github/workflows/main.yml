@@ -12,6 +12,7 @@ jobs:
   SuperfastFailingTests:
     strategy:
       fail-fast: true
+
     runs-on: "ubuntu-latest"
     environment: Production
 
@@ -61,7 +62,7 @@ jobs:
           pip install psycopg2-binary
         fi
 
-    - name: Run linter
+    - name: Run annoying tiny but important tests that often fail
       run: |
         .tests/annoying_tiny_but_important_tests
 

@@ -131,7 +131,7 @@ try:
     )
 
     def spinner(text: str) -> Any:
-        return console.status(f"[bold green]{text}")
+        return console.status(f"[bold green]{text}", speed=0.1, refresh_per_second=2)
 
     with spinner("Importing logging..."):
         import logging

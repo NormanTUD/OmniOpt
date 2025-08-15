@@ -18,11 +18,29 @@ tests=(
 )
 
 code=1
+total_start=$(date +%s)
+
 for t in "${tests[@]}"; do
-	.tests/$t || exit $code
-	code=$((code+1))
+    start=$(date +%s)
+    printf "Running %-20s ... \n" "$t"
+
+    if .tests/"$t"; then
+        end=$(date +%s)
+        runtime=$((end - start))
+        printf "\033[32mOK\033[0m (%ds)\n" "$runtime"
+    else
+        end=$(date +%s)
+        runtime=$((end - start))
+        printf "\033[31mFAIL\033[0m (%ds)\n" "$runtime"
+        exit $code
+    fi
+
+    code=$((code+1))
 done
 
-echo "Annoying tiny but important tests all OK"
+total_end=$(date +%s)
+total_runtime=$((total_end - total_start))
+
+echo "Annoying tiny but important tests all OK in $total_runtime seconds"
 
 exit 0

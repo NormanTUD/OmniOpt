@@ -20,14 +20,6 @@ jobs:
       contents: write
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
-
     - name: Ensure venv path exists
       run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
 
@@ -76,14 +68,6 @@ jobs:
       contents: write
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
-
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:
@@ -171,14 +155,6 @@ jobs:
       contents: write
 
     steps:
-    - name: Cache Python packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
-
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:

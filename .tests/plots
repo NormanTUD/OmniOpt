@@ -173,7 +173,8 @@ if [[ -n $test_types_regex ]]; then
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
 		if [[ -z "$test_types_regex" ]] || [[ "$possible_plot_type" =~ $test_types_regex ]]; then
 			if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
-				yellow_text "Skipping file $filename because it has not changed since the last commit\n"
+				filename=.omniopt_plot_${possible_plot_type}.py
+				yellow_text "Skipping file $filename because it has not changed since the last commit"
 				continue
 			fi
 
@@ -183,7 +184,8 @@ if [[ -n $test_types_regex ]]; then
 else
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
 		if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
-			yellow_text "Skipping file $filename because it has not changed since the last commit\n"
+			filename=.omniopt_plot_${possible_plot_type}.py
+			yellow_text "Skipping file $filename because it has not changed since the last commit"
 			continue
 		fi
 

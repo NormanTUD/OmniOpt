@@ -222,6 +222,8 @@ def render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode):
     lines = []
     lines.append("digraph callgraph {")
     lines.append(f'  rankdir={rankdir};')
+    lines.append(f'  overlap=false;')
+    #lines.append(f'  splines=ortho;')
     lines.append('  node [shape=box, style="rounded"];')
 
     cluster_map = defaultdict(list)

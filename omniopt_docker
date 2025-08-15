@@ -14,84 +14,85 @@ help_message() {
 }
 
 function _mkdir {
-mkdir -p $* || {
-	echo "mkdir -p $* failed. Exiting."
-		exit 12
+	mkdir -p $* || {
+		echo "mkdir -p $* failed. Exiting."
+			exit 12
+		}
 	}
-}
 
-while [[ "$#" -gt 0 ]]; do
-	case $1 in
-		--help)
-			help_message
-			exit 0
-			;;
-	esac
-	shift
-done
+	while [[ "$#" -gt 0 ]]; do
+		case $1 in
+			--help)
+				help_message
+				exit 0
+				;;
+		esac
+		shift
+	done
 
-UPDATED_PACKAGES=0
+	UPDATED_PACKAGES=0
 
-function apt_get_update () {
-	if command -v apt >/dev/null; then
-		if [[ $UPDATED_PACKAGES == 0 ]]; then
-			sudo apt update || {
-				echo "apt-get update failed. Are you online?"
-			exit 2
-		}
+	function apt_get_update () {
+		if command -v apt >/dev/null; then
+			if [[ $UPDATED_PACKAGES == 0 ]]; then
+				sudo apt update || {
+					echo "apt-get update failed. Are you online?"
+				exit 2
+			}
 
-		UPDATED_PACKAGES=1
+			UPDATED_PACKAGES=1
+			fi
+		else
+			echo "apt is not installed. You need to be on debian for auto-installing packages. Please install it manually."
+			exit 10
 		fi
+	}
+
+	install_if_missing() {
+		if ! command -v "$1" &>/dev/null; then
+			apt_get_update
+
+			[[ "$2" == "docker" ]] && curl -fsSL "https://get.docker.com" | bash || sudo apt-get install -y "$1" || {
+				echo "Failed to install $1"
+				exit $3
+			}
+		fi
+	}
+
+	install_if_missing docker docker 2
+	install_if_missing docker-compose "" 2
+	install_if_missing wget "" 2
+	install_if_missing git "" 2
+	install_if_missing docker "" 2
+
+	if ! groups | grep -q '\bdocker\b'; then
+		install_if_missing sudo "" 2
+	fi
+	[[ -n $DISPLAY ]] && install_if_missing xhost "" 2
+
+	echo "=== Current git hash before auto-pulling ==="
+	git rev-parse HEAD
+	echo "=== Current git hash before auto-pulling ==="
+
+	git pull
+
+	_mkdir runs
+	_mkdir logs
+
+	git rev-parse HEAD > git_hash
+
+	if groups | grep -q '\bdocker\b'; then
+		DOCKER_COMPOSE_CMD="docker-compose"
+		DOCKER_CMD="docker"
 	else
-		echo "apt is not installed. You need to be on debian for auto-installing packages. Please install it manually."
-		exit 10
+		DOCKER_COMPOSE_CMD="sudo docker-compose"
+		DOCKER_CMD="sudo docker"
 	fi
+
+$DOCKER_COMPOSE_CMD build --build-arg GetMyUsername=$(whoami) || {
+	echo "Failed composing container"
+	exit 1
 }
-
-install_if_missing() {
-	if ! command -v "$1" &>/dev/null; then
-		apt_get_update
-
-		[[ "$2" == "docker" ]] && curl -fsSL "https://get.docker.com" | bash || sudo apt-get install -y "$1" || {
-			echo "Failed to install $1"
-			exit $3
-		}
-	fi
-}
-
-install_if_missing docker docker 2
-install_if_missing docker-compose "" 2
-install_if_missing wget "" 2
-install_if_missing git "" 2
-install_if_missing docker "" 2
-
-if ! groups | grep -q '\bdocker\b'; then
-	install_if_missing sudo "" 2
-fi
-[[ -n $DISPLAY ]] && install_if_missing xhost "" 2
-
-echo "=== Current git hash before auto-pulling ==="
-git rev-parse HEAD
-echo "=== Current git hash before auto-pulling ==="
-
-git pull
-
-_mkdir runs
-_mkdir logs
-
-git rev-parse HEAD > git_hash
-
-if groups | grep -q '\bdocker\b'; then
-	DOCKER_COMPOSE_CMD="docker-compose"
-	DOCKER_CMD="docker"
-else
-	DOCKER_COMPOSE_CMD="sudo docker-compose"
-	DOCKER_CMD="sudo docker"
-fi
-
-BUILD_ARGS="--build-arg GetMyUsername=$(whoami)"
-
-docker build $BUILD_ARGS -t myimage:latest .
 
 $DOCKER_COMPOSE_CMD up -d || {
 	echo "Failed to build container"

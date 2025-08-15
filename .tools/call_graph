@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+import sys
+import os
+import ast
+import argparse
+import logging
+from pathlib import Path
+from collections import defaultdict, deque
+import subprocess
+
+def configure_logging(verbosity: int) -> None:
+    level = logging.WARNING
+    if verbosity == 1:
+        level = logging.INFO
+    elif verbosity >= 2:
+        level = logging.DEBUG
+    logging.basicConfig(stream=sys.stderr, level=level, format="%(levelname)s: %(message)s")
+
+def collect_python_files(paths):
+    for p in paths:
+        path = Path(p)
+        if not path.exists():
+            logging.error("path_not_found: %s", path)
+            continue
+        if path.is_file() and path.suffix == ".py":
+            yield path
+        elif path.is_dir():
+            for sub in path.rglob("*.py"):
+                yield sub
+        else:
+            logging.info("skipping_non_py_file: %s", path)
+
+def read_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception as e:
+        logging.error("failed_reading %s: %s", path, e)
+        return ""
+
+def dotted_attr_name(node: ast.AST) -> str:
+    parts = deque()
+    cur = node
+    while isinstance(cur, ast.Attribute):
+        parts.appendleft(cur.attr)
+        cur = cur.value
+    if isinstance(cur, ast.Name):
+        parts.appendleft(cur.id)
+    elif isinstance(cur, ast.Call):
+        parts.appendleft("<call>")
+    else:
+        parts.appendleft("?")
+    return ".".join(parts)
+
+def node_to_call_name(node: ast.AST) -> str:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return dotted_attr_name(node)
+    if isinstance(node, ast.Call):
+        return node_to_call_name(node.func)
+    return "<?>"
+
+def build_qualified_name(stack, name):
+    if stack and stack[-1]["kind"] == "class":
+        return f'{stack[-1]["name"]}.{name}'
+    return name
+
+class CallGraphVisitor(ast.NodeVisitor):
+    def __init__(self, module_name: str):
+        self.module_name = module_name
+        self.scope_stack = []  # list of dicts with keys: kind,name
+        self.defined_functions = set()  # fully qualified (maybe Class.func or func)
+        self.calls_by_function = defaultdict(set)  # caller -> set(callee_name_strings)
+        self.current_function = None
+
+    def push(self, kind, name):
+        self.scope_stack.append({"kind": kind, "name": name})
+
+    def pop(self):
+        self.scope_stack.pop()
+
+    def current_qualified(self, func_name):
+        return build_qualified_name(self.scope_stack, func_name)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        self._visit_function_like(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        self._visit_function_like(node)
+
+    def _visit_function_like(self, node):
+        fq = self.current_qualified(node.name)
+        logging.debug("function_def: %s::%s", self.module_name, fq)
+        self.defined_functions.add(fq)
+        prev = self.current_function
+        self.current_function = fq
+        self.push("func", node.name)
+        self.generic_visit(node)
+        self.pop()
+        self.current_function = prev
+
+    def visit_ClassDef(self, node: ast.ClassDef):
+        self.push("class", node.name)
+        self.generic_visit(node)
+        self.pop()
+
+    def visit_Call(self, node: ast.Call):
+        if self.current_function is not None:
+            callee = node_to_call_name(node.func)
+            if callee:
+                self.calls_by_function[self.current_function].add(callee)
+        self.generic_visit(node)
+
+def parse_ast(source: str, path: Path):
+    try:
+        return ast.parse(source, filename=str(path))
+    except SyntaxError as e:
+        logging.error("syntax_error %s:%s:%s %s", path, e.lineno, e.offset, e.msg)
+        return None
+    except Exception as e:
+        logging.error("parse_failure %s: %s", path, e)
+        return None
+
+def module_name_from_path(path: Path) -> str:
+    return path.stem
+
+def analyze_file(path: Path):
+    code = read_text(path)
+    if not code:
+        return None
+    tree = parse_ast(code, path)
+    if tree is None:
+        return None
+    visitor = CallGraphVisitor(module_name_from_path(path))
+    visitor.visit(tree)
+    return {
+        "module": visitor.module_name,
+        "file": str(path),
+        "defined": visitor.defined_functions,
+        "calls": dict(visitor.calls_by_function),
+    }
+
+def merge_results(results):
+    all_defined = defaultdict(set)  # module -> set(func)
+    all_calls = defaultdict(lambda: defaultdict(set))  # module -> caller -> {callees}
+    file_map = {}  # module -> file path
+    for r in results:
+        if not r:
+            continue
+        m = r["module"]
+        file_map[m] = r["file"]
+        for f in r["defined"]:
+            all_defined[m].add(f)
+        for caller, callees in r["calls"].items():
+            all_calls[m][caller].update(callees)
+    return {"defined": dict(all_defined), "calls": {m: dict(c) for m, c in all_calls.items()}, "files": file_map}
+
+def flatten_defined(merged):
+    defs = set()
+    for module, funcs in merged["defined"].items():
+        for f in funcs:
+            defs.add((module, f))
+    return defs
+
+def resolve_internal_edges(merged, include_external):
+    defined_names = set()
+    # map simple names and class-qualified names for loose matching
+    simple_index = defaultdict(set)  # name -> {(module, fq)}
+    dotted_index = defaultdict(set)  # dotted -> {(module, fq)}
+    for module, funcs in merged["defined"].items():
+        for fq in funcs:
+            defined_names.add((module, fq))
+            simple = fq.split(".")[-1]
+            simple_index[simple].add((module, fq))
+            dotted_index[fq].add((module, fq))
+
+    edges = set()
+    external_edges = set()
+    for module, calls_map in merged["calls"].items():
+        for caller, callees in calls_map.items():
+            caller_node = (module, caller)
+            for raw in callees:
+                target_nodes = set()
+                if raw in dotted_index:
+                    target_nodes |= dotted_index[raw]
+                simple = raw.split(".")[-1]
+                if simple in simple_index:
+                    target_nodes |= simple_index[simple]
+                # prefer nodes within same module if any
+                intra = {(m, f) for (m, f) in target_nodes if m == module}
+                chosen = intra if intra else target_nodes
+                if chosen:
+                    for tgt in chosen:
+                        edges.add((caller_node, tgt))
+                elif include_external:
+                    external_edges.add((caller_node, ("<external>", raw)))
+    return edges, external_edges
+
+def choose_cluster_key(cluster_by, module, func):
+    if cluster_by == "none":
+        return None
+    if cluster_by == "file":
+        return module
+    if cluster_by == "class":
+        if "." in func:
+            return f"{module}::{func.split('.')[0]}"
+        return f"{module}::<module>"
+    return module
+
+def sanitize_node_id(s: str) -> str:
+    # Remove anything that Graphviz might treat as special
+    return "".join(c if c.isalnum() or c == "_" else "_" for c in s)
+
+def node_id(module, func):
+    return sanitize_node_id(f"n__{module}__{func}")
+
+def external_node_id(raw):
+    return sanitize_node_id(f"ext__{raw}")
+
+
+def render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode):
+    lines = []
+    lines.append("digraph callgraph {")
+    lines.append(f'  rankdir={rankdir};')
+    lines.append('  node [shape=box, style="rounded"];')
+
+    cluster_map = defaultdict(list)
+    for (module, func) in flatten_defined(merged):
+        nid = node_id(module, func)
+        cluster_map[choose_cluster_key(cluster_by, module, func)].append((module, func, nid))
+
+    ext_nodes = set()
+    for (_, _caller), (_extmod, raw) in external_edges:
+        ext_nodes.add(raw)
+
+    cluster_counter = 0
+    for cluster_key, items in cluster_map.items():
+        if cluster_key is None:
+            for module, func, nid in items:
+                lines.append(f'  {nid} [label="{format_label(module, func, label_mode)}"];')
+        else:
+            cname = sanitize_node_id(f"cluster_{cluster_counter}_{cluster_key}")
+            lines.append(f'  subgraph {cname} {{')
+            lines.append('    style=filled; color="#f6f6f6";')
+            safe_label = cluster_key.replace('"', '\\"')
+            lines.append(f'    label="{safe_label}";')
+            for module, func, nid in items:
+                lines.append(f'    {nid} [label="{format_label(module, func, label_mode)}"];')
+            lines.append('  }')
+            cluster_counter += 1
+
+    # External nodes
+    for raw in ext_nodes:
+        lines.append(f'  {external_node_id(raw)} [label="{raw}", shape=ellipse, style=dashed];')
+
+    # Internal edges
+    for (src_mod, src_func), (dst_mod, dst_func) in edges:
+        lines.append(f'  {node_id(src_mod, src_func)} -> {node_id(dst_mod, dst_func)};')
+
+    # External edges
+    for (src_mod, src_func), (_, raw) in external_edges:
+        lines.append(f'  {node_id(src_mod, src_func)} -> {external_node_id(raw)} [style=dashed];')
+
+    lines.append("}")
+    return "\n".join(lines)
+
+def format_label(module, func, mode):
+    if mode == "short":
+        return func
+    if mode == "module":
+        return f"{module}:{func}"
+    return f"{func}\\n[{module}]"
+
+def write_output(text: str, out_path: str, fmt: str = "svg"):
+    try:
+        if fmt:
+            proc = subprocess.run(["dot", f"-T{fmt}"], input=text.encode("utf-8"), capture_output=True, check=True)
+            if out_path == "-":
+                sys.stdout.buffer.write(proc.stdout)
+            else:
+                Path(out_path).write_bytes(proc.stdout)
+                logging.info("wrote %s", out_path)
+        else:
+            if out_path == "-":
+                sys.stdout.write(text)
+                sys.stdout.flush()
+            else:
+                Path(out_path).write_text(text, encoding="utf-8")
+                logging.info("wrote %s", out_path)
+    except Exception as e:
+        logging.error("write_failure %s: %s", out_path, e)
+
+def build_arg_parser():
+    p = argparse.ArgumentParser(
+        description="Generate a function call graph from Python source using AST and output Graphviz DOT."
+    )
+    p.add_argument("paths", nargs="+", help="Python file(s) or directories to analyze")
+    p.add_argument("-o", "--output", default="-", help="Output DOT file path (default: stdout)")
+    p.add_argument("--rankdir", default="LR", choices=["LR", "TB", "BT", "RL"], help="Graph layout direction")
+    p.add_argument("--cluster-by", default="file", choices=["file", "class", "none"], help="Cluster nodes in DOT")
+    p.add_argument("--label-mode", default="full", choices=["full", "module", "short"], help="Node label verbosity")
+    p.add_argument("--include-external", action="store_true", help="Include dashed edges to external calls")
+    p.add_argument("-v", "--verbose", action="count", default=0, help="Increase verbosity (-v, -vv)")
+    return p
+
+def run(paths, out_path, rankdir, cluster_by, label_mode, include_external):
+    files = list(collect_python_files(paths))
+    if not files:
+        logging.error("no_python_files_found")
+        return 2
+    results = []
+    for f in files:
+        logging.info("analyzing %s", f)
+        results.append(analyze_file(f))
+    merged = merge_results(results)
+    edges, external_edges = resolve_internal_edges(merged, include_external)
+    dot = render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode)
+    write_output(dot, out_path)
+    return 0
+
+def main():
+    parser = build_arg_parser()
+    args = parser.parse_args()
+    configure_logging(args.verbose)
+    try:
+        rc = run(
+            paths=args.paths,
+            out_path=args.output,
+            rankdir=args.rankdir,
+            cluster_by=args.cluster_by,
+            label_mode=args.label_mode,
+            include_external=args.include_external,
+        )
+    except Exception as e:
+        logging.exception("fatal_error: %s", e)
+        rc = 1
+    sys.exit(rc)
+
+if __name__ == "__main__":
+    main()
+

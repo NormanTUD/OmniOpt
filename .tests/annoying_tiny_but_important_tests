@@ -1,0 +1,17 @@
+#!/bin/bash
+
+.tests/find_typos || exit 1
+
+.tests/all_oo_options_are_in_gui_and_vice_versa || exit 2
+
+.tests/find_unused_params
+
+.tests/lizard
+
+.tests/doc_has_outdated_params
+
+.tests/php_files
+
+.tests/all_shellscripts_with_help_have_help_page
+
+exit 0

@@ -332,10 +332,6 @@ function _test_internal {
 				break
 			fi
 		done
-
-		if [[ $found -eq 0 ]]; then
-			yellow_text "--skip_search was 1 but the command did not match any rule"
-		fi
 	}
 
 	if [[ $skip_search -eq 1 ]]; then

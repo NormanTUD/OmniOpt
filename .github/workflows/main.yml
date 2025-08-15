@@ -23,13 +23,18 @@ jobs:
     - name: Ensure venv path exists
       run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
 
-    - name: Cache virtualenv
+    - name: Extract date
+      id: date
+      run: echo "today=$(date -u +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache omniax_venvs
       uses: actions/cache@v3
       with:
-        path: ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
-        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        path: ~/.omniax_venvs
+        key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
         restore-keys: |
-          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
+          venv-${{ steps.date.outputs.today }}-
+          venv-
 
     - name: Make apt cache readable
       run: |

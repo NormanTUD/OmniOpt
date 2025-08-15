@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# HELPPAGE: Tests that run very quickly and are annoying when the fail fast too late
+
 tests=(
 	shellcheck
 	find_wrongly_typed_cli_args

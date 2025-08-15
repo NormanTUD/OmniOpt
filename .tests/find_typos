@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# HELPPAGE: Find all kinds of typos
+
 .tests/find_typos_in_bash || exit 1
 
 .tests/find_typos_in_gui || exit 2

@@ -599,7 +599,7 @@ def _get_debug_json(time_str: str, msg: str) -> str:
         separators=(",", ":")  # no pretty indent → smaller, faster
     ).replace('\r', '').replace('\n', '')
 
-def print_stack_paths():
+def print_stack_paths() -> None:
     stack = inspect.stack()[1:]  # skip current frame
     stack.reverse()  # vom Hauptprogramm zur tiefsten Funktion
 
@@ -6542,7 +6542,7 @@ def insert_jobs_from_lists(csv_path, arm_params_list, results_list, __status):
     summarize_insertions(csv_path, cnt)
     update_global_job_counters(cnt)
 
-def try_insert_job(csv_path, arm_params, result, i, arm_params_list, results_list, __status, base_str, cnt, err_msgs):
+def try_insert_job(csv_path: str, arm_params: Dict, result: Any, i: int, arm_params_list: Any, results_list: Any, __status: Any, base_str: Optional[str], cnt: int, err_msgs: Optional[Union[str, list[str]]]) -> int:
     try:
         gen_node_name = get_generation_node_for_index(csv_path, arm_params_list, results_list, i, __status, base_str)
 
@@ -6568,7 +6568,7 @@ def try_insert_job(csv_path, arm_params, result, i, arm_params_list, results_lis
 
     return cnt
 
-def summarize_insertions(csv_path, cnt):
+def summarize_insertions(csv_path: str, cnt: int) -> None:
     if cnt == 0:
         return
     if cnt == 1:
@@ -6576,7 +6576,7 @@ def summarize_insertions(csv_path, cnt):
     else:
         print_yellow(f"Inserted {cnt} jobs from {csv_path}")
 
-def update_global_job_counters(cnt):
+def update_global_job_counters(cnt: int) -> None:
     if not args.worker_generator_path:
         set_max_eval(max_eval + cnt)
         set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)

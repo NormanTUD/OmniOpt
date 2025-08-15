@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+.tests/find_typos_in_bash || exit 1
+
+.tests/find_typos_in_gui || exit 2
+
+.tests/find_typos_in_js || exit 3
+
+.tests/find_typos_in_md || exit 4
+
+.tests/find_typos_in_php || exit 5
+
+.tests/find_typos_in_python || exit 6
+
+exit 0

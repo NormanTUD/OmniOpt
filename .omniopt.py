@@ -627,7 +627,7 @@ def print_debug(msg: str) -> None:
     stack = traceback.extract_stack()[:-1]
     stack_funcs = [frame.name for frame in stack]
 
-    if args and hasattr(args, "debug_stack_regex") and args.debug_stack_regex:
+    if args in globals() and args and hasattr(args, "debug_stack_regex") and args.debug_stack_regex:
         matched = any(any(re.match(regex, func) for regex in args.debug_stack_regex) for func in stack_funcs)
         if matched:
             print(f"DEBUG: {msg}")

@@ -675,6 +675,11 @@ run_tests
 
 print_table
 
+if [[ "$RUN_WITH_COVERAGE" == "1" ]]; then
+	coverage xml
+	coverage html
+fi
+
 if [[ -n $GITHUB_STEP_SUMMARY ]]; then
 	print_table_markdown >> "$GITHUB_STEP_SUMMARY"
 fi

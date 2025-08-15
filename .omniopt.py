@@ -623,7 +623,7 @@ def print_stack_paths():
 
 def print_debug(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     stack = traceback.extract_stack()[:-1]
     stack_funcs = [frame.name for frame in stack]
 

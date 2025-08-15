@@ -437,9 +437,13 @@ file_has_changed_since_last_tagged_version() {
 
 	for pattern in "${patterns[@]}"; do
 		for file in "$pattern"; do
-			git_diff=$(git diff --name-only "$last_tag" -- "$file" >/dev/null)
-			if [[ $git_diff == "" ]] || git_diff | grep -q .; then
-				return 0
+			if [[ $pattern != "" ]]; then
+				git_diff=$(git diff --name-only "$last_tag" -- "$file" >/dev/null)
+				if [[ $git_diff == "" ]] || git_diff | grep -q .; then
+					return 0
+				fi
+
+				return 1
 			fi
 		done
 	done

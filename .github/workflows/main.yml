@@ -149,7 +149,7 @@ jobs:
         .tools/ci_dependency
     - name: main test script
       run: |
-        ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick
+        ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
     needs: [smoke-tests, todo-to-issue] #, install-via-pip]

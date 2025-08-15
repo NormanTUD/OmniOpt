@@ -2171,38 +2171,25 @@ def save_results_csv() -> Optional[str]:
     if args.dryrun:
         return None
 
-    pd_csv = get_current_run_folder(RESULTS_CSV_FILENAME)
-    pd_json = get_state_file_name('pd.json')
+    pd_csv, pd_json = get_results_paths()
 
     save_experiment_state()
 
-    if ax_client is None:
+    if not ax_client:
         return None
 
     save_checkpoint()
 
     try:
-        ax_client.experiment.fetch_data()
-        pd_frame = ax_client.get_trials_data_frame()
-        pd_frame = merge_with_job_infos(pd_frame)
-        pd_frame = reindex_trials(pd_frame)
+        pd_frame = fetch_and_prepare_trials()
+        write_csv(pd_frame, pd_csv)
+        write_json_snapshot(pd_json)
+        save_experiment_to_file()
 
-        pd_frame.to_csv(pd_csv, index=False, float_format="%.30f")
-
-        json_snapshot = ax_client.to_json_snapshot()
-        with open(pd_json, "w", encoding="utf-8") as json_file:
-            json.dump(json_snapshot, json_file, indent=4)
-
-        save_experiment(
-            ax_client.experiment,
-            get_state_file_name("ax_client.experiment.json")
-        )
-
-        if args.model not in uncontinuable_models and args.save_to_database:
+        if should_save_to_database():
             try_saving_to_db()
-        else:
-            if args.save_to_database:
-                print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
+        elif args.save_to_database:
+            print_debug(f"Model {args.model} is an uncontinuable model, so it will not be saved to a DB")
 
     except (SignalUSR, SignalCONT, SignalINT) as e:
         raise type(e)(str(e)) from e
@@ -2210,6 +2197,32 @@ def save_results_csv() -> Optional[str]:
         print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
+
+def get_results_paths() -> tuple[str, str]:
+    return (get_current_run_folder(RESULTS_CSV_FILENAME), get_state_file_name('pd.json'))
+
+def fetch_and_prepare_trials():
+    ax_client.experiment.fetch_data()
+    df = ax_client.get_trials_data_frame()
+    df = merge_with_job_infos(df)
+    return reindex_trials(df)
+
+def write_csv(df, path: str) -> None:
+    df.to_csv(path, index=False, float_format="%.30f")
+
+def write_json_snapshot(path: str) -> None:
+    json_snapshot = ax_client.to_json_snapshot()
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(json_snapshot, f, indent=4)
+
+def save_experiment_to_file() -> None:
+    save_experiment(
+        ax_client.experiment,
+        get_state_file_name("ax_client.experiment.json")
+    )
+
+def should_save_to_database() -> bool:
+    return args.model not in uncontinuable_models and args.save_to_database
 
 def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     if run_folder == "":
@@ -8615,7 +8628,6 @@ def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = N
         index=index
     )
 
-
 def set_global_generation_strategy() -> None:
     with spinner("Setting global generation strategy"):
         continue_not_supported_on_custom_generation_strategy()
@@ -8632,7 +8644,6 @@ def set_global_generation_strategy() -> None:
     if global_gs is None:
         print_red("global_gs is None after setup!")
         my_exit(111)
-
 
 def setup_default_generation_strategy() -> None:
     global generation_strategy_human_readable
@@ -8673,7 +8684,6 @@ def setup_default_generation_strategy() -> None:
         print_red(f"Error creating GenerationStrategy: {e}\nnames: {generation_strategy_names}\nnodes: {generation_strategy_nodes}")
         my_exit(111)
 
-
 def add_sobol_node_if_needed(nodes: list, names: list, chosen_model: str) -> None:
     if random_steps >= 1:
         next_node_name = None
@@ -8684,7 +8694,6 @@ def add_sobol_node_if_needed(nodes: list, names: list, chosen_model: str) -> Non
         names.append(step_name)
         print_debug(f"Added SOBOL node: {step_name}")
 
-
 def add_main_node_if_needed(nodes: list, names: list, chosen_model: str, remaining: int) -> None:
     if chosen_model != "SOBOL" and remaining > 0:
         node = create_node(chosen_model, remaining, None)
@@ -8692,7 +8701,6 @@ def add_main_node_if_needed(nodes: list, names: list, chosen_model: str, remaini
         step_name = get_step_name(chosen_model, remaining)
         names.append(step_name)
         print_debug(f"Added main node: {step_name}")
-
 
 def setup_custom_generation_strategy() -> None:
     generation_strategy_array, new_max_eval = parse_generation_strategy_string(args.generation_strategy)
@@ -8729,7 +8737,6 @@ def setup_custom_generation_strategy() -> None:
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")
         my_exit(111)
-
 
 def wait_for_jobs_or_break(_max_eval: Optional[int]) -> bool:
     while len(global_vars["jobs"]) > num_parallel_jobs:

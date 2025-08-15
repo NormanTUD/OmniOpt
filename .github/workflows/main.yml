@@ -15,18 +15,26 @@ jobs:
     runs-on: "ubuntu-latest"
     environment: Production
 
-    - name: Cache Python packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') }}-
-
     permissions:
       contents: write
 
     steps:
+    - name: Cache Python packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-
+
+    - name: Cache virtualenv
+      uses: actions/cache@v3
+      with:
+        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -126,7 +134,26 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04]
 
+    permissions:
+      contents: write
+
     steps:
+    - name: Cache Python packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-
+
+    - name: Cache virtualenv
+      uses: actions/cache@v3
+      with:
+        path: $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
+        key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt') . hashFiles('test_requirements.txt') }}-
+
     - name: Checkout code
       uses: actions/checkout@v4
 

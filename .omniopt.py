@@ -600,13 +600,26 @@ def _get_debug_json(time_str: str, msg: str) -> str:
     ).replace('\r', '').replace('\n', '')
 
 def print_stack_paths():
-    stack = inspect.stack()
-    for frame_info in stack[1:]:
+    stack = inspect.stack()[1:]  # skip current frame
+    stack.reverse()  # vom Hauptprogramm zur tiefsten Funktion
+
+    last_filename = None
+    for depth, frame_info in enumerate(stack):
         filename = frame_info.filename
         lineno = frame_info.lineno
         func_name = frame_info.function
-        if func_name not in [" <module>", "print_debug"]:
-            print(f"{filename}:{lineno} in {func_name}")
+
+        if func_name in ["<module>", "print_debug"]:
+            continue
+
+        if filename != last_filename:
+            print(filename)
+            last_filename = filename
+            indent = ""
+        else:
+            indent = " " * 4 * depth
+
+        print(f"{indent}↳ {func_name}:{lineno}")
 
 def print_debug(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

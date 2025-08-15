@@ -9,6 +9,8 @@ tests=(
 	single_quotes_in_configloader
 	find_untyped_cli_args
 	find_unused_params
+	unit_tests
+	find_unused_share_functions
 	all_oo_options_are_in_gui_and_vice_versa
 	lizard
 	doc_has_outdated_params

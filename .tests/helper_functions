@@ -426,11 +426,10 @@ function _test_nr_jobs {
 	fi
 }
 
+last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+
 file_has_changed_since_last_tagged_version() {
 	local patterns=("$@")
-
-	local last_tag
-	last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 
 	if [[ -z "$last_tag" ]]; then
 		return 0
@@ -438,7 +437,8 @@ file_has_changed_since_last_tagged_version() {
 
 	for pattern in "${patterns[@]}"; do
 		for file in "$pattern"; do
-			if git diff --name-only "$last_tag" -- "$file" | grep -q .; then
+			git_diff=$(git diff --name-only "$last_tag" -- "$file" >/dev/null)
+			if [[ $git_diff == "" ]] || git_diff | grep -q .; then
 				return 0
 			fi
 		done

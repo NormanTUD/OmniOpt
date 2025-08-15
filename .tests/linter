@@ -80,8 +80,6 @@ export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 
 errors=()
 
-export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
-
 # Function to run linters on specific files or generally
 run_linter() {
 	local linter="$1"

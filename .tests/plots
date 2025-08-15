@@ -14,8 +14,9 @@ cd $SCRIPT_DIR
 cd ..
 
 source .shellscript_functions
-
 source .colorfunctions.sh
+source .tests/helper_functions
+
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
@@ -108,6 +109,11 @@ while [ $k -lt ${#args[@]} ]; do
 			shift
 			;;
 
+		--check_only_changed_since_last_success)
+			export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
+			shift
+			;;
+
 		--help|-h)
 			help=1
 			shift
@@ -128,6 +134,7 @@ if [[ "$help" -eq "1" ]]; then
 	echo "--quick                                              Disables some slow tests"
 	echo "--exit_on_first_error                                Exits on first error"
 	echo "--run_with_coverage                                  Run every python script with coverage"
+	echo "--check_only_changed_since_last_success              Check only files that have changed since the last successful test"
 	exit 0
 fi
 
@@ -165,13 +172,28 @@ expected_plot_types=()
 if [[ -n $test_types_regex ]]; then
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
 		if [[ -z "$test_types_regex" ]] || [[ "$possible_plot_type" =~ $test_types_regex ]]; then
+			if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+				yellow_text "Skipping file $filename because it has not changed since the last commit\n"
+				continue
+			fi
+
 			expected_plot_types+=("$possible_plot_type")
 		fi
 	done
 else
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
+		if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+			yellow_text "Skipping file $filename because it has not changed since the last commit\n"
+			continue
+		fi
+
 		expected_plot_types+=("$possible_plot_type")
 	done
+fi
+
+if [[ $expected_plot_types == "" ]] && [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+	green_text "No plot-related files changed since last commit"
+	exit 0
 fi
 
 if [[ ${#expected_plot_types[@]} -eq 0 ]]; then
@@ -197,9 +219,11 @@ for projectname in "${test_projects[@]}"; do
 		errors+=("$run_dir could not be found\n")
 	else
 		for possible_plot_type in "${expected_plot_types[@]}"; do
-			if grep add_argument .omniopt_plot_${possible_plot_type}.py | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
+			filename=.omniopt_plot_${possible_plot_type}.py
+			if grep add_argument $filename | grep save_to_file | grep -v useless 2>&1 >/dev/null; then
 				expected_files=()
-				for expected_file in $(cat .omniopt_plot_${possible_plot_type}.py | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
+
+				for expected_file in $(cat $filename | grep "# EXPECTED FILES" | sed -e 's/# EXPECTED FILES: //'); do
 					expected_files+=("$expected_file")
 				done
 
@@ -230,8 +254,8 @@ for projectname in "${test_projects[@]}"; do
 						_commands+=("$_command")
 
 						if [[ $quick -eq 0 ]]; then
-							has_min=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--min" | wc -l)
-							has_max=$(cat ".omniopt_plot_$possible_plot_type.py" | grep "add.argument..--max" | wc -l)
+							has_min=$(cat $filename | grep "add.argument..--min" | wc -l)
+							has_max=$(cat $filename | grep "add.argument..--max" | wc -l)
 
 							if [[ $has_min -gt 0 ]] && [[ $has_max -gt 0 ]]; then
 								_commands+=("$_command --min=-99999999999999999999999999999999999999999999999999999999999 --max=99999999999999999999999999999999999999999999999999999999999")

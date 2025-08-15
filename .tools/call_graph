@@ -196,16 +196,8 @@ def resolve_internal_edges(merged, include_external):
                     external_edges.add((caller_node, ("<external>", raw)))
     return edges, external_edges
 
-def choose_cluster_key(cluster_by, module, func):
-    if cluster_by == "none":
-        return None
-    if cluster_by == "file":
-        return module
-    if cluster_by == "class":
-        if "." in func:
-            return f"{module}::{func.split('.')[0]}"
-        return f"{module}::<module>"
-    return module
+def choose_cluster_key(module, func):
+    return f"{module}::{func}"  # every function in its own cluster
 
 def sanitize_node_id(s: str) -> str:
     # Remove anything that Graphviz might treat as special
@@ -217,23 +209,60 @@ def node_id(module, func):
 def external_node_id(raw):
     return sanitize_node_id(f"ext__{raw}")
 
+import random
+
+def random_pastel():
+    r = lambda: random.randint(150, 255)
+    return f'#{r():02x}{r():02x}{r():02x}'
+
+def build_call_groups(edges):
+    groups = []
+    seen_nodes = set()
+    adj = defaultdict(set)
+    for (src_mod, src_func), (dst_mod, dst_func) in edges:
+        adj[(src_mod, src_func)].add((dst_mod, dst_func))
+
+    def dfs(start, visited):
+        for nxt in adj.get(start, []):
+            if nxt not in visited:
+                visited.add(nxt)
+                dfs(nxt, visited)
+
+    for node in list(adj.keys()):
+        if node in seen_nodes:
+            continue
+        if adj[node]:  # leader (has outgoing edges)
+            group = set([node])
+            dfs(node, group)
+            groups.append(group)
+            seen_nodes |= group
+    return groups
 
 def render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode):
     lines = []
     lines.append("digraph callgraph {")
     lines.append(f'  rankdir={rankdir};')
     lines.append(f'  overlap=false;')
-    #lines.append(f'  splines=ortho;')
     lines.append('  node [shape=box, style="rounded"];')
 
+    # Build mapping for file/class clustering
     cluster_map = defaultdict(list)
     for (module, func) in flatten_defined(merged):
         nid = node_id(module, func)
-        cluster_map[choose_cluster_key(cluster_by, module, func)].append((module, func, nid))
+        cluster_map[choose_cluster_key(module, func)].append((module, func, nid))
 
     ext_nodes = set()
     for (_, _caller), (_extmod, raw) in external_edges:
         ext_nodes.add(raw)
+
+    # Build call groups
+    call_groups = build_call_groups(edges)
+
+    group_colors = {i: random_pastel() for i in range(len(call_groups))}
+    node_to_group = {}
+    for i, group in enumerate(call_groups):
+        for node in group:
+            node_to_group[node] = i
 
     cluster_counter = 0
     for cluster_key, items in cluster_map.items():
@@ -242,8 +271,20 @@ def render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode):
                 lines.append(f'  {nid} [label="{format_label(module, func, label_mode)}"];')
         else:
             cname = sanitize_node_id(f"cluster_{cluster_counter}_{cluster_key}")
+            color = None
+            if all((m, f) in node_to_group for m, f, _ in items):
+                group_id = node_to_group[(items[0][0], items[0][1])]
+                color = group_colors[group_id]
+            elif any((m, f) in node_to_group for m, f, _ in items):
+                # Mixed group nodes, pick color of first
+                group_id = node_to_group.get((items[0][0], items[0][1]))
+                if group_id is not None:
+                    color = group_colors[group_id]
             lines.append(f'  subgraph {cname} {{')
-            lines.append('    style=filled; color="#f6f6f6";')
+            if color:
+                lines.append(f'    style=filled; color="{color}";')
+            else:
+                lines.append('    style=filled; color="#f6f6f6";')
             safe_label = cluster_key.replace('"', '\\"')
             lines.append(f'    label="{safe_label}";')
             for module, func, nid in items:
@@ -265,6 +306,7 @@ def render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode):
 
     lines.append("}")
     return "\n".join(lines)
+
 
 def format_label(module, func, mode):
     if mode == "short":

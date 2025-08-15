@@ -2201,7 +2201,7 @@ def save_results_csv() -> Optional[str]:
 def get_results_paths() -> tuple[str, str]:
     return (get_current_run_folder(RESULTS_CSV_FILENAME), get_state_file_name('pd.json'))
 
-def fetch_and_prepare_trials():
+def fetch_and_prepare_trials() -> pd.DataFrame:
     ax_client.experiment.fetch_data()
     df = ax_client.get_trials_data_frame()
     df = merge_with_job_infos(df)
@@ -10312,7 +10312,7 @@ def run_program_once(params=None) -> None:
         my_exit(57)
 
 def show_omniopt_call() -> None:
-    def remove_ui_url(arg_str):
+    def remove_ui_url(arg_str) -> str:
         return re.sub(r'(?:--ui_url(?:=\S+)?(?:\s+\S+)?)', '', arg_str).strip()
 
     original_argv = " ".join(sys.argv[1:])

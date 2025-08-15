@@ -4883,7 +4883,7 @@ def process_best_result(res_name: str, print_to_file: bool) -> int:
 
     if str(best_result) in [NO_RESULT, None, "None"]:
         print_red(f"Best {res_name} could not be determined")
-        return 87
+        return 87 #exit-code: 87
 
     total_str = f"total: {_count_done_jobs(RESULT_CSV_FILE) - NR_INSERTED_JOBS}"
     if NR_INSERTED_JOBS:

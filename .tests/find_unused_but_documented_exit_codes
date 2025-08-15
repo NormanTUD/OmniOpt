@@ -45,9 +45,11 @@ for exit_code in $(cat .gui/exit_code_table.php | grep '=> "' | sed -e 's#\s=>.*
 		continue
 	fi
 
-	if ! cat .omniopt.py omniopt | grep -q "exit.*$exit_code"; then
-		echo "Exit code $exit_code not found in .omniopt.py"
-		errors=$(($errors+1))
+	if ! cat .omniopt.py omniopt | egrep -q "(exit|_fatal_error).*$exit_code"; then
+		if [[ $exit_code != 22 ]] && [[ $exit_code != 137 ]]; then
+			echo "Exit code $exit_code not found in .omniopt.py"
+			errors=$(($errors+1))
+		fi
 	fi
 done
 

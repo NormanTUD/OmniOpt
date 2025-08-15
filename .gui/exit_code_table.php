@@ -16,7 +16,6 @@
 			13 => "Run folder already exists",
 			14 => "Error installing OmniOpt2 via install_omniax.sh",
 			15 => "Unimplemented error",
-			16 => "Wrongly called .py files: Probably you tried to call them directly instead of over the bash file",
 			17 => "Cancelled loading modules",
 			18 => "test_wronggoing_stuff program not found (only --tests)",
 			19 => "Something was wrong with your parameters. See output for details",
@@ -35,7 +34,6 @@
 			48 => "Error regarding raw samples and num_parallel_jobs",
 			49 => "Something went wrong while creating the experiment",
 			50 => "Something went wrong with the --result_names option (check output)",
-			55 => "Something went wrong defining the Generation strategy nodes. This is probably a bug in OmniOpt2.",
 			56 => "Trying to use a custom model like RANDOMFOREST in generation strategy. You must use the default models for your custom generation strategy.",
 			57 => "Something went wrong with  the --run_program_once parameter.",
 			87 => "Search space exhausted or search was cancelled",
@@ -45,7 +43,6 @@
 			91 => "Error creating the experiment_args",
 			92 => "Error loading torch: This can happen when your disk is full",
 			93 => "Failed loading module. See output for specific errors.",
-			94 => "Trying to continue an uncontinueable_models",
 			95 => "experiment_parameters was not defined where it should have been",
 			96 => "Error while joining new generation worker",
 			99 => "It seems like the run folder was deleted during the run",
@@ -58,7 +55,6 @@
 			106 => "--num_parallel_jobs must be equal to or larger than 1",
 			107 => "global_gs is not set",
 			108 => "Tried to to Multi-Objective-Optimization with TPE, which is currently not supported",
-			109 => "Error loading modules",
 			110 => "Failed to get LOG_PATH",
 			111 => "Generation of global_gs failed",
 			123 => "Something is wrong the the --generation_strategy",
@@ -89,7 +85,6 @@
 			246 => "A path that should have been a file is actually a folder. Check output for more details.",
 			247 => "Trying to continue a job which was started with --generation_strategy. This is currently not possible.",
 			251 => "Currently unsupported feature used. Please check stdout for more details",
-			254 => "Y_trans cannot be used alone; must be combined with Cont_X_trans",
 			255 => "sbatch error"
 		];
 

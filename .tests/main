@@ -332,17 +332,38 @@ export DONT_INSTALL_MODULES=1
 
 #_test "php linter" ".tests/phpcs" 0 255
 
-is_in_docker() {
-	if grep -qE '/docker|/lxc' /proc/1/cgroup 2>/dev/null; then
+is_in_container() {
+	if [ -f /.dockerenv ]; then
 		return 0
-	else
-		return 1
 	fi
+
+	if [ -f /run/.containerenv ]; then
+		return 0
+	fi
+
+	if grep -qE '/docker/|/lxc/|/kubepods/|/containerd/' /proc/1/cgroup 2>/dev/null; then
+		return 0
+	fi
+
+	if [ -n "$container" ] || [ -n "$KUBERNETES_SERVICE_HOST" ]; then
+		return 0
+	fi
+
+	if [ "$(awk 'NR==1{print $1}' /proc/1/sched 2>/dev/null)" != "1" ]; then
+		return 0
+	fi
+
+	if grep -q overlay /proc/self/mountinfo 2>/dev/null; then
+		return 0
+	fi
+
+	return 1
 }
+
 
 if [[ -n $CI ]]; then
 	_test "share" ".tests/share" 0 255
-elif ! is_in_docker; then
+elif ! is_in_container; then
 	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
 fi
 

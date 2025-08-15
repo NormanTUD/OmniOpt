@@ -6461,6 +6461,34 @@ def _get_generation_node_for_index_floats_match(
         return False
     return abs(row_val_num - val) <= tolerance
 
+def validate_and_convert_params_for_jobs_from_csv(arm_params: Dict) -> Dict:
+    corrected_params: Dict[Any, Any] = {}
+
+    if experiment_parameters is not None:
+        for param in experiment_parameters:
+            name = param["name"]
+            expected_type = param.get("value_type", "str")
+
+            if name not in arm_params:
+                continue
+
+            value = arm_params[name]
+
+            try:
+                if param["type"] == "range":
+                    if expected_type == "int":
+                        corrected_params[name] = int(value)
+                    elif expected_type == "float":
+                        corrected_params[name] = float(value)
+                elif param["type"] == "choice":
+                    corrected_params[name] = str(value)
+            except (ValueError, TypeError):
+                corrected_params[name] = None
+
+    return corrected_params
+
+
+
 def insert_jobs_from_csv(this_csv_file_path: str) -> None:
     with spinner(f"Inserting job into CSV from {this_csv_file_path}") as __status:
         this_csv_file_path = this_csv_file_path.replace("//", "/")
@@ -6469,32 +6497,6 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
             print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
 
             return
-
-        def validate_and_convert_params_for_jobs_from_csv(arm_params: Dict) -> Dict:
-            corrected_params: Dict[Any, Any] = {}
-
-            if experiment_parameters is not None:
-                for param in experiment_parameters:
-                    name = param["name"]
-                    expected_type = param.get("value_type", "str")
-
-                    if name not in arm_params:
-                        continue
-
-                    value = arm_params[name]
-
-                    try:
-                        if param["type"] == "range":
-                            if expected_type == "int":
-                                corrected_params[name] = int(value)
-                            elif expected_type == "float":
-                                corrected_params[name] = float(value)
-                        elif param["type"] == "choice":
-                            corrected_params[name] = str(value)
-                    except (ValueError, TypeError):
-                        corrected_params[name] = None
-
-            return corrected_params
 
         arm_params_list, results_list = parse_csv(this_csv_file_path)
 

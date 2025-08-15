@@ -35,6 +35,14 @@ jobs:
         restore-keys: |
           venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
 
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/apt
+        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          apt-${{ runner.os }}-
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -105,6 +113,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/apt
+        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          apt-${{ runner.os }}-
+
     - name: Install dependencies
       run: |
         if [[ $RUNNER_OS == 'Linux' ]]; then
@@ -153,6 +170,14 @@ jobs:
         key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
           venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
+
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/apt
+        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
+        restore-keys: |
+          apt-${{ runner.os }}-
 
     - name: Checkout code
       uses: actions/checkout@v4

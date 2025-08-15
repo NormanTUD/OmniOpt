@@ -91,21 +91,7 @@ fi
 
 BUILD_ARGS="--build-arg GetMyUsername=$(whoami)"
 
-DOCKER_CACHE_DIR="$HOME/.docker-build-cache"
-
-if [ "$CI" = "true" ]; then
-	echo "Running in CI, using Buildx with cache..."
-	docker buildx create --use || true
-
-	docker buildx build \
-		$BUILD_ARGS \
-		--cache-from=type=local,src="$DOCKER_CACHE_DIR" \
-		--cache-to=type=local,dest="$DOCKER_CACHE_DIR",mode=max \
-		-t myimage:latest .
-			else
-				echo "Running locally, normal docker build..."
-				docker build $BUILD_ARGS -t myimage:latest .
-fi
+docker build $BUILD_ARGS -t myimage:latest .
 
 $DOCKER_COMPOSE_CMD up -d || {
 	echo "Failed to build container"

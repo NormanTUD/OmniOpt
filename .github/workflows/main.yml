@@ -145,18 +145,6 @@ jobs:
         fetch-depth: 0
         tags: true
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Cache Docker layers
-      id: docker-cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ github.workspace }}/.docker-cache
-        key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile') }}
-        restore-keys: |
-          ${{ runner.os }}-docker-
-
     - name: Install dependencies
       run: |
         .tools/ci_dependency

@@ -601,12 +601,12 @@ def _get_debug_json(time_str: str, msg: str) -> str:
 
 def print_stack_paths():
     stack = inspect.stack()
-    # überspringe die aktuelle Funktion selbst
     for frame_info in stack[1:]:
         filename = frame_info.filename
         lineno = frame_info.lineno
         func_name = frame_info.function
-        print(f"{filename}:{lineno} in {func_name}")
+        if func_name not in [" <module>", "print_debug"]:
+            print(f"{filename}:{lineno} in {func_name}")
 
 def print_debug(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

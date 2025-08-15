@@ -600,19 +600,22 @@ def _get_debug_json(time_str: str, msg: str) -> str:
     ).replace('\r', '').replace('\n', '')
 
 def print_debug(msg: str) -> None:
-    original_msg = msg
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    stack = traceback.extract_stack()[:-1]
+    stack_funcs = [frame.name for frame in stack]
 
-    time_str: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if args.debug_stack_regex:
+        matched = any(any(re.match(regex, func) for regex in args.debug_stack_regex) for func in stack_funcs)
+        if matched:
+            print(f"DEBUG (--debug_stack_regex='{args.debug_stack_regex}' matched): {msg}")
 
     stack_trace_element = _get_debug_json(time_str, msg)
-
-    msg = f"{stack_trace_element}"
-
-    _debug(msg)
+    _debug(stack_trace_element)
 
     try:
         with open(logfile_bare, mode='a', encoding="utf-8") as f:
-            original_print(original_msg, file=f)
+            original_print(msg, file=f)
     except FileNotFoundError:
         print_red("It seems like the run's folder was deleted during the run. Cannot continue.")
         sys.exit(99)
@@ -728,6 +731,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 }
 
 class ConfigLoader:
+    debug_stack_regex: Optional[str]
     runtime_debug: bool
     show_func_name: bool
     number_of_generators: int
@@ -962,6 +966,8 @@ class ConfigLoader:
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
+        debug.add_argument("--debug_stack_regex", nargs="*", default=None, help="Only print debug messages if call stack matches any regex")
+
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):

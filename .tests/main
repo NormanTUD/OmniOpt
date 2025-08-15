@@ -333,7 +333,6 @@ export DONT_INSTALL_MODULES=1
 #_test "php linter" ".tests/phpcs" 0 255
 
 is_in_docker() {
-	# Prüft typische Docker-Umgebungen
 	if grep -qE '/docker|/lxc' /proc/1/cgroup 2>/dev/null; then
 		return 0
 	else

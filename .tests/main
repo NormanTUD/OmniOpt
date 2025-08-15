@@ -632,7 +632,7 @@ if [[ $superquick -eq 0 ]]; then
 
                 _test "Generation Strategy has the right amount of uniform jobs" '[[ -e runs/generation_strategy/0/results.csv ]] && [[ $(cat runs/generation_strategy/0/results.csv | grep  -i "GenerationStep_2" | wc -l) -eq 1 ]]' 0
 
-		#_test "Generation strategy" "$OMNIOPT_CALL --continue runs/generation_strategy/0" 0
+		_test "Generation strategy" "$OMNIOPT_CALL --continue runs/generation_strategy/0" 247
 
 		if [[ "$quick" -eq "0" ]]; then
 			#_test "Example Network" "bash .tests/train_example_network --max_epochs=$max_eval --max_eval=$max_eval --num_random_steps=$num_random_steps --follow" 0

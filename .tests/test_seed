@@ -108,6 +108,12 @@ if [[ $seed -eq 1234 ]]; then
 		echo "ERROR: The first line does not contain the string 5.15 exactly once. This can mean several things, like:";
 		echo "- ax changed an API call,";
 		echo "- there is a bug in OmniOpt, most likely in the save_results.csv or anything related to creating or getting jobs, or something with setting seeds";
+		echo "The $results_csv looks like this:"
+		echo "================================================="
+		echo "================================================="
+		cat $results_csv
+		echo "================================================="
+		echo "================================================="
 		exit 3
 	fi
 fi

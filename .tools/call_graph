@@ -8,6 +8,86 @@ from pathlib import Path
 from collections import defaultdict, deque
 import subprocess
 
+from rich.console import Console
+from rich.progress import Progress
+from rich.status import Status
+
+console = Console()
+
+class CallGraphVisitor(ast.NodeVisitor):
+    def __init__(self, module_name: str):
+        self.module_name = module_name
+        self.scope_stack = []
+        self.defined_functions = set()
+        self.calls_by_function = defaultdict(set)
+        self.call_stack_by_function = {}  # NEW: maps function -> tuple(stack)
+        self.current_function = None
+
+    def push(self, kind, name):
+        self.scope_stack.append({"kind": kind, "name": name})
+
+    def pop(self):
+        self.scope_stack.pop()
+
+    def current_qualified(self, func_name):
+        return build_qualified_name(self.scope_stack, func_name)
+
+    def _visit_function_like(self, node):
+        fq = self.current_qualified(node.name)
+        logging.debug("function_def: %s::%s", self.module_name, fq)
+        self.defined_functions.add(fq)
+        prev = self.current_function
+        self.current_function = fq
+        self.push("func", node.name)
+        # Save the current stack path for grouping later
+        self.call_stack_by_function[fq] = tuple(f['name'] for f in self.scope_stack)
+        self.generic_visit(node)
+        self.pop()
+        self.current_function = prev
+
+def find_leader_groups(merged, visitor_data):
+    leader_map = {}
+    for module, funcs in merged["defined"].items():
+        for f in funcs:
+            stack = visitor_data[module].get(f, ())
+            leader = stack[0] if stack else f
+            leader_map[(module, f)] = (module, leader)
+
+    groups = defaultdict(set)
+    for func, leader in leader_map.items():
+        groups[leader].add(func)
+    return list(groups.values())
+
+def run(paths, out_path, rankdir, cluster_by, label_mode, include_external):
+    with console.status("[bold cyan]Collecting Python files...") as status:
+        files = list(collect_python_files(paths))
+    if not files:
+        logging.error("no_python_files_found")
+        return 2
+
+    visitor_data = defaultdict(dict)
+    results = []
+    with Progress(console=console) as progress:
+        task = progress.add_task("[green]Analyzing files...", total=len(files))
+        for f in files:
+            progress.update(task, description=f"[yellow]Analyzing {f.name}")
+            result = analyze_file(f)
+            if result and "module" in result:
+                visitor_data[result["module"]] = result.get("stackmap", {})
+            results.append(result)
+            progress.advance(task)
+
+    merged = merge_results(results)
+    edges, external_edges = resolve_internal_edges(merged, include_external)
+
+    console.print("[cyan]Finding leader groups...")
+    leader_groups = find_leader_groups(merged, visitor_data)
+
+    dot = render_dot(merged, edges, external_edges, rankdir, cluster_by, label_mode)
+    write_output(dot, out_path)
+    console.print(f"[bold green]Call graph written to[/bold green] {out_path}")
+    return 0
+
 def configure_logging(verbosity: int) -> None:
     level = logging.WARNING
     if verbosity == 1:

@@ -103,7 +103,7 @@ jobs:
       run: |
         ./.tests/linter --check_only_changed_since_last_success
   #install-via-pip:
-  #  needs: [Linter]
+  #  needs: [linter]
   #  runs-on: ubuntu-24.04
   #  environment: Production
   #  strategy:
@@ -250,7 +250,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [docker-test, main-test]
+    needs: [linter, docker-test, main-test]
     permissions:
       contents: read
     environment: Production

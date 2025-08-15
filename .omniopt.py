@@ -991,7 +991,6 @@ class ConfigLoader:
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
         debug.add_argument("--debug_stack_regex", nargs="*", default=None, help="Only print debug messages if call stack matches any regex")
 
-
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
             self._parsing_arguments_loader.stop()

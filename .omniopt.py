@@ -7861,7 +7861,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     return batched_arms
 
-def _fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[Dict[int, Any], bool]:
+def fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[Dict[int, Any], bool]:
     die_101_if_no_ax_client_or_experiment_or_gs()
 
     if not ax_client:
@@ -7998,7 +7998,7 @@ def _handle_generation_failure(
         if not recursion and args.revert_to_random_when_seemingly_exhausted:
             print_debug("Switching to random search strategy.")
             set_global_gs_to_random()
-            return _fetch_next_trials(requested, True)
+            return fetch_next_trials(requested, True)
 
     print_red(f"_handle_generation_failure: General Exception: {e}")
 
@@ -8288,7 +8288,7 @@ def get_next_trials(nr_of_jobs_to_get: int) -> Tuple[Union[None, dict], bool]:
         return {}, True
 
     try:
-        trial_index_to_param, optimization_complete = _fetch_next_trials(nr_of_jobs_to_get)
+        trial_index_to_param, optimization_complete = fetch_next_trials(nr_of_jobs_to_get)
 
         cf = currentframe()
         if cf:

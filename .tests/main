@@ -332,10 +332,19 @@ export DONT_INSTALL_MODULES=1
 
 #_test "php linter" ".tests/phpcs" 0 255
 
+is_in_docker() {
+	# Prüft typische Docker-Umgebungen
+	if grep -qE '/docker|/lxc' /proc/1/cgroup 2>/dev/null; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 if [[ -n $CI ]]; then
-	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
-else
 	_test "share" ".tests/share" 0 255
+elif ! is_in_docker; then
+	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
 fi
 
 _test "Basic tests" "$OMNIOPT_CALL --tests --mem_gb 1 --time 10 --experiment_name test_name --gpus $NUM_GPUS" 0

@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Runs linter 'flake8' on python.
+
+export install_tests=1
+
+function echoerr() {
+        echo "$@" 1>&2
+}
+
+function yellow_text {
+        echoerr -e "\e\033[0;33m$1\e[0m"
+}
+
+function red_text {
+        echoerr -e "\e[31m$1\e[0m"
+}
+
+function green_text {
+        echoerr -e "\e\033[0;32m$1\e[0m"
+}
+
+_cluster=""
+
+if env | grep CLUSTERHOST | sed -e 's#.*\.##' 2>/dev/null >/dev/null; then
+	MYCLUSTER_HOST=$(env | grep CLUSTERHOST | sed -e 's#.*\.##')
+	if [[ -n $MYCLUSTER_HOST ]]; then
+		_cluster="_$MYCLUSTER_HOST"
+	fi
+fi
+
+VENV_DIR_NAME=".omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')$_cluster"
+
+ROOT_VENV_DIR=$HOME
+
+if [[ -n $root_venv_dir ]] && [[ -d $root_venv_dir ]]; then
+	ROOT_VENV_DIR=$root_venv_dir
+fi
+
+VENV_DIR=$ROOT_VENV_DIR/$VENV_DIR_NAME
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+source .shellscript_functions
+
+errors=()
+
+if ! command -v pyright 2>/dev/null >/dev/null; then
+	pip install pyright
+fi
+
+for i in $(ls .*.py | grep -v ".helpers.py"); do
+	echo "Pyright $i:"
+	pyright "$i" || {
+		ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyright $i' to see details."
+		red_text "$ERRSTR\n"
+		errors+=("$ERRSTR")
+	}
+done
+
+secs=$SECONDS
+hrs=$(( secs/3600 )); mins=$(( (secs-hrs*3600)/60 )); secs=$(( secs-hrs*3600-mins*60 ))
+printf 'pyright test took: %02d:%02d:%02d\n' $hrs $mins $secs
+
+if [ ${#errors[@]} -eq 0 ]; then
+	green_text "No flake8 errors"
+	exit 0
+else
+	red_text "=> FLAKE8-ERRORS => FLAKE8-ERRORS => FLAKE8-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i\n"
+	done
+
+	exit ${#errors[@]}
+fi

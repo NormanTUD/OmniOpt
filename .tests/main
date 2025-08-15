@@ -331,41 +331,11 @@ python3 --version
 export DONT_INSTALL_MODULES=1
 
 #_test "php linter" ".tests/phpcs" 0 255
-_test "Find missing metadata in plots" ".tests/missing_plot_metadata" 0
-_test "check_state_file_documentation" ".tests/check_state_file_documentation" 0
-_test "Find double defined js functions" ".tests/find_double_function_names" 0
-_test "php_search" ".tests/php_search" 0 255
-_test "share_tests" ".tests/share_tests" 0 255
-_test "js_syntax" ".tests/js_syntax" 0 255
-_test "Find unused OmniOpt functions" ".tests/find_unused_functions_in_omniopt" 0
+
 if [[ -n $CI ]]; then
 	_test "share" ".tests/share" 0 255
-fi
-_test "find_functions_that_are_defined_multiple_times" ".tests/find_functions_that_are_defined_multiple_times" 0
-_test "Unit tests" ".tests/unit_tests" 0 255
-_test "Find double functions that are in helpers and some other python script" ".tests/find_double_function_thats_already_in_helper" 0
-_test "Find unused parameters in main script" ".tests/find_unused_params" 0
-
-_test "folder structure Documentation" ".tests/folder_structure" 0
-_test "state_files Documentation" "./.tests/state_files" 0
-_test "php_files syntax check" ".tests/php_files" 0
-_test "find_unused_share_functions" ".tests/find_unused_share_functions" 0
-_test "Find typos in gui" ".tests/find_typos_in_gui .gui" 0
-_test "Find missing env vars documentation" ".tests/find_missing_env_vars_documentation" 0
-_test "Find typos in bash" ".tests/find_typos_in_bash" 0
-_test "Find typos in js" ".tests/find_typos_in_js" 0
-_test "Find typos in php" ".tests/find_typos_in_php" 0
-_test "Find typos in md" ".tests/find_typos_in_md" 0
-_test "Find double quoted add_arguments" ".tests/find_add_arguments_with_double_quotes" 0
-_test "Find untyped CLI args" ".tests/find_untyped_cli_args" 0
-_test "Find double add_arguments help" ".tests/find_double_add_arguments_help" 0
-_test "Find wrongly typed CLI args" ".tests/find_wrongly_typed_cli_args" 0
-_test "Find double quotes in ConfigLoader" ".tests/single_quotes_in_configloader" 0
-_test "all_oo_options_are_in_gui_and_vice_versa" ".tests/all_oo_options_are_in_gui_and_vice_versa" 0
-_test "Find missing TOC in md files" ".tests/find_missing_toc_in_md_files" 0
-
-if [[ -z $CI ]]; then
-	_test "Find typos in python" "bash .tests/find_typos_in_python" 0
+else
+	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
 fi
 
 _test "Basic tests" "$OMNIOPT_CALL --tests --mem_gb 1 --time 10 --experiment_name test_name --gpus $NUM_GPUS" 0
@@ -411,8 +381,6 @@ _test "Find undocumented exit codes" ".tests/find_undocumented_exit_codes" 0
 _test "Find wrong order definitions" ".tests/find_wrong_order_definitions" 0
 
 _test "find_functions_with_missing_types" ".tests/find_functions_with_missing_types" 0
-
-_test "Find outdated parameters in documentation" ".tests/doc_has_outdated_params" 0
 
 if command -v sbatch 2>/dev/null >/dev/null; then
 	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once --follow" 0

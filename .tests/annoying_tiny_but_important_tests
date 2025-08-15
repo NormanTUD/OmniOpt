@@ -13,6 +13,7 @@ tests=(
 	all_oo_options_are_in_gui_and_vice_versa
 	lizard
 	doc_has_outdated_params
+	find_functions_that_are_defined_multiple_times
 	php_files
 	find_typos
 	check_state_file_documentation
@@ -23,6 +24,16 @@ tests=(
 	flake8
 	deadcode
 	bandit
+	find_missing_env_vars_documentation
+	state_files
+	folder_structure
+	find_double_function_thats_already_in_helper
+	find_unused_functions_in_omniopt
+	php_search
+	missing_plot_metadata
+	share_tests
+	js_syntax
+	pyright
 )
 
 code=1

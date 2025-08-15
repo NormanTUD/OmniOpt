@@ -158,8 +158,9 @@ jobs:
 
     - name: main test script
       shell: bash
+      #  ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots
       run: |
-        ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots
+        ./.tests/main --num_random_steps=1 --max_eval=2 --no_plots
 
     - name: plot tests
       run: |

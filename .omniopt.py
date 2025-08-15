@@ -7898,7 +7898,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 progressbar_description(_get_trials_message(cnt + 1, n, trial_durations))
 
                 try:
-                    result = _create_and_handle_trial(arm)
+                    result = create_and_handle_trial(arm)
                     if result is not None:
                         trial_index, trial_duration, trial_successful = result
 
@@ -7923,9 +7923,9 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
 class TrialRejected(Exception):
     pass
 
-def _create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
+def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:
-        print_red("ax_client is None in _create_and_handle_trial")
+        print_red("ax_client is None in create_and_handle_trial")
         return None
 
     start = time.time()

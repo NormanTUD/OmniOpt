@@ -104,7 +104,7 @@ if command -v php 2>/dev/null >/dev/null; then
 	done
 
 	if [[ $errors -eq 0 ]]; then
-		green_text "No errors"
+		green_text "No errors in .tests/all_oo_options_are_in_gui_and_vice_versa"
 		exit 0
 	fi
 

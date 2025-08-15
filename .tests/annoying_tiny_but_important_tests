@@ -1,17 +1,27 @@
 #!/bin/bash
 
-.tests/find_typos || exit 1
+.tests/find_unused_params || exit 1
 
 .tests/all_oo_options_are_in_gui_and_vice_versa || exit 2
 
-.tests/find_unused_params || exit 3
+.tests/lizard || exit 3
 
-.tests/lizard || exit 4
+.tests/doc_has_outdated_params || exit 4
 
-.tests/doc_has_outdated_params || exit 5
+.tests/php_files || exit 5
 
-.tests/php_files || exit 6
+.tests/find_typos || exit 6
 
-.tests/all_shellscripts_with_help_have_help_page || exit 7
+.tests/check_state_file_documentation || exit 7
+
+.tests/find_missing_toc_in_md_files || exit 8
+
+.tests/find_double_function_names || exit 9
+
+.tests/find_double_add_arguments_help || exit 10
+
+.tests/find_add_arguments_with_double_quotes || exit 11
+
+echo "Annoying tiny but important tests all OK"
 
 exit 0

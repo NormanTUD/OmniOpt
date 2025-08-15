@@ -30,12 +30,15 @@ for f in .gui/_tutorials/*; do
 	for p in $(cat "$f" | grep -- "--" | grep -v '<!--' | grep "^\s*--" | sed -e 's#^\s*##' -e 's#=.*##' -e 's#\s.*##'); do
 		if ! grep -q "add_argument('$p" .omniopt.py; then
 			red_text "Parameter $p in $f was not found"
+			errors=$((errors+1))
 		fi
 	done
 done
 
 if [[ $errors -gt 0 ]]; then
+	red_text "$errors errors"
 	exit 1
 fi
 
+green_text "doc_has_outdated_params: No errors"
 exit 0

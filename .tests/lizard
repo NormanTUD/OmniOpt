@@ -15,8 +15,14 @@ source .shellscript_functions
 exit_code=0
 
 if command -v lizard 2>/dev/null >/dev/null; then
-	lizard .*.py
+	STD=$(lizard .*.py 2>&1)
 	exit_code=$?
+
+	if [[ $exit_code -ne 0 ]]; then
+		echo "$STD"
+	else
+		echo "Lizard: OK"
+	fi
 else
 	echo "Warning: lizard is not installed. Cannot run lizard"
 fi

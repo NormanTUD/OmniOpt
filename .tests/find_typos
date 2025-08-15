@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 .tests/find_typos_in_bash || exit 1
 
 .tests/find_typos_in_gui || exit 2
@@ -12,15 +11,5 @@
 .tests/find_typos_in_php || exit 5
 
 .tests/find_typos_in_python || exit 6
-
-.tests/check_state_file_documentation || exit 7
-
-.tests/find_missing_toc_in_md_files || exit 8
-
-.tests/find_double_function_names || exit 9
-
-.tests/find_double_add_arguments_help || exit 10
-
-.tests/find_add_arguments_with_double_quotes || exit 11
 
 exit 0

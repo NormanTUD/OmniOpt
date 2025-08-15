@@ -36,6 +36,11 @@ jobs:
         restore-keys: |
           venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
 
+    - name: Make apt cache readable
+      run: |
+        sudo chmod -R a+r /var/cache/apt/archives /var/lib/apt/lists
+        sudo chmod -R a+X /var/cache/apt/archives /var/lib/apt/lists
+
     - name: Cache apt packages
       uses: actions/cache@v3
       with:

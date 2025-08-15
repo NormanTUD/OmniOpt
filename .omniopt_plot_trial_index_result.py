@@ -118,6 +118,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.run_dir):
         logging.error("Specified --run_dir does not exist")
+
         sys.exit(1)
 
     update_graph()

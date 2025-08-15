@@ -106,7 +106,7 @@ jobs:
 
     - name: Run linter
       run: |
-        ./.tests/linter
+        ./.tests/linter --check_only_changed_since_last_success
   #install-via-pip:
   #  needs: [Linter, todo-to-issue]
   #  runs-on: ubuntu-24.04

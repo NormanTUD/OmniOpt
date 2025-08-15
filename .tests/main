@@ -333,9 +333,9 @@ export DONT_INSTALL_MODULES=1
 #_test "php linter" ".tests/phpcs" 0 255
 
 if [[ -n $CI ]]; then
-	_test "share" ".tests/share" 0 255
-else
 	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
+else
+	_test "share" ".tests/share" 0 255
 fi
 
 _test "Basic tests" "$OMNIOPT_CALL --tests --mem_gb 1 --time 10 --experiment_name test_name --gpus $NUM_GPUS" 0

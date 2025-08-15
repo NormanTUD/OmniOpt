@@ -11136,7 +11136,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
     return namespace
 
 if __name__ == "__main__":
-
     try:
         main_outside()
     except (SignalUSR, SignalINT, SignalCONT) as e:

@@ -599,6 +599,15 @@ def _get_debug_json(time_str: str, msg: str) -> str:
         separators=(",", ":")  # no pretty indent → smaller, faster
     ).replace('\r', '').replace('\n', '')
 
+def print_stack_paths():
+    stack = inspect.stack()
+    # überspringe die aktuelle Funktion selbst
+    for frame_info in stack[1:]:
+        filename = frame_info.filename
+        lineno = frame_info.lineno
+        func_name = frame_info.function
+        print(f"{filename}:{lineno} in {func_name}")
+
 def print_debug(msg: str) -> None:
     time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
@@ -609,6 +618,7 @@ def print_debug(msg: str) -> None:
         matched = any(any(re.match(regex, func) for regex in args.debug_stack_regex) for func in stack_funcs)
         if matched:
             print(f"DEBUG (--debug_stack_regex='{args.debug_stack_regex}' matched): {msg}")
+            print_stack_paths()
 
     stack_trace_element = _get_debug_json(time_str, msg)
     _debug(stack_trace_element)

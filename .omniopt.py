@@ -6461,83 +6461,77 @@ def _get_generation_node_for_index_floats_match(
         return False
     return abs(row_val_num - val) <= tolerance
 
-def insert_jobs_from_csv(this_csv_file_path: str) -> None:
-    with spinner(f"Inserting job into CSV from {this_csv_file_path}") as __status:
-        this_csv_file_path = this_csv_file_path.replace("//", "/")
+def insert_single_job(i: int, arm_params: dict, result: dict) -> bool:
+    base_str = f"[bold green]Loading job {i}/{len(results_list)} from {csv_path} into ax_client, result: {result}"
+    __status.update(base_str)
 
-        if not os.path.exists(this_csv_file_path):
-            print_red(f"--load_data_from_existing_jobs: Cannot find {this_csv_file_path}")
+    if not args.worker_generator_path:
+        arm_params = validate_and_convert_params(arm_params)
 
-            return
+    try:
+        gen_node_name = get_generation_node_for_index(csv_path, arm_params_list, results_list, i, __status, base_str)
 
-        def validate_and_convert_params(arm_params: Dict) -> Dict:
-            corrected_params: Dict[Any, Any] = {}
+        if not result:
+            print_yellow("Encountered job without a result")
+            return False
 
-            if experiment_parameters is not None:
-                for param in experiment_parameters:
-                    name = param["name"]
-                    expected_type = param.get("value_type", "str")
+        success = insert_job_into_ax_client(arm_params, result, gen_node_name, __status, base_str)
+        if success:
+            print_debug(f"Inserted job from {csv_path}, arm_params: {arm_params}, results: {result}")
+        else:
+            print_red(f"Failed to insert job from {csv_path}, arm_params: {arm_params}, results: {result}")
+        return success
+    except ValueError as e:
+        err_msg = f"Failed to insert job(s) from {csv_path} into ax_client. Error: {e}"
+        if err_msg not in err_msgs:
+            print_red(err_msg)
+            err_msgs.append(err_msg)
+        return False
 
-                    if name not in arm_params:
-                        continue
+def validate_and_convert_params(arm_params: dict) -> dict:
+    corrected = {}
+    if experiment_parameters is None:
+        return arm_params
 
-                    value = arm_params[name]
+    for param in experiment_parameters:
+        name = param["name"]
+        expected_type = param.get("value_type", "str")
+        if name not in arm_params:
+            continue
 
-                    try:
-                        if param["type"] == "range":
-                            if expected_type == "int":
-                                corrected_params[name] = int(value)
-                            elif expected_type == "float":
-                                corrected_params[name] = float(value)
-                        elif param["type"] == "choice":
-                            corrected_params[name] = str(value)
-                    except (ValueError, TypeError):
-                        corrected_params[name] = None
+        value = arm_params[name]
+        try:
+            if param["type"] == "range":
+                corrected[name] = int(value) if expected_type == "int" else float(value)
+            elif param["type"] == "choice":
+                corrected[name] = str(value)
+        except (ValueError, TypeError):
+            corrected[name] = None
+    return corrected
 
-            return corrected_params
+def insert_jobs_from_csv(csv_path: str) -> None:
+    csv_path = csv_path.replace("//", "/")
 
-        arm_params_list, results_list = parse_csv(this_csv_file_path)
+    if not os.path.exists(csv_path):
+        print_red(f"--load_data_from_existing_jobs: Cannot find {csv_path}")
+        return
 
-        cnt = 0
+    arm_params_list, results_list = parse_csv(csv_path)
+    err_msgs = []
+    inserted_count = 0
 
-        err_msgs = []
+    with spinner(f"Inserting jobs from {csv_path}") as __status:
+        for i, (arm_params, result) in enumerate(zip(arm_params_list, results_list)):
+            if insert_single_job(i, arm_params, result):
+                inserted_count += 1
 
-        i = 0
-        for arm_params, result in zip(arm_params_list, results_list):
-            base_str = f"[bold green]Loading job {i}/{len(results_list)} from {this_csv_file_path} into ax_client, result: {result}"
-            __status.update(base_str)
-            if not args.worker_generator_path:
-                arm_params = validate_and_convert_params(arm_params)
+    if inserted_count:
+        msg = f"Inserted {inserted_count} job{'s' if inserted_count > 1 else ''} from {csv_path}"
+        print_yellow(msg)
 
-            try:
-                gen_node_name = get_generation_node_for_index(this_csv_file_path, arm_params_list, results_list, i, __status, base_str)
-
-                if len(result):
-                    if insert_job_into_ax_client(arm_params, result, gen_node_name, __status, base_str):
-                        cnt += 1
-
-                        print_debug(f"Inserted one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
-                    else:
-                        print_red(f"Failed to insert one job from {this_csv_file_path}, arm_params: {arm_params}, results: {result}")
-                else:
-                    print_yellow("Encountered job without a result")
-            except ValueError as e:
-                err_msg = f"Failed to insert job(s) from {this_csv_file_path} into ax_client. This can happen when the csv file has different parameters or results as the main job one's or other imported jobs. Error: {e}"
-                if err_msg not in err_msgs:
-                    print_red(err_msg)
-                    err_msgs.append(err_msg)
-
-            i = i + 1
-
-        if cnt:
-            if cnt == 1:
-                print_yellow(f"Inserted one job from {this_csv_file_path}")
-            else:
-                print_yellow(f"Inserted {cnt} jobs from {this_csv_file_path}")
-
-        if not args.worker_generator_path:
-            set_max_eval(max_eval + cnt)
-            set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
+    if not args.worker_generator_path:
+        set_max_eval(max_eval + inserted_count)
+        set_nr_inserted_jobs(NR_INSERTED_JOBS + inserted_count)
 
 def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
     if __status and base_str:

@@ -21,6 +21,8 @@ tests=(
 	find_double_add_arguments_help
 	find_add_arguments_with_double_quotes
 	flake8
+	deadcode
+	bandit
 )
 
 code=1

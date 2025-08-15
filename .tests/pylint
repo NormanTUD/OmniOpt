@@ -47,6 +47,7 @@ cd $SCRIPT_DIR
 cd ..
 
 source .shellscript_functions
+source .tests/helper_functions
 
 if ! command -v pylint 2>/dev/null >/dev/null; then
 	pip install -r test_requirements.txt
@@ -81,16 +82,21 @@ errors=()
 
 if [ "$#" -gt 0 ]; then
 	# Process passed files
-	for i in "$@"; do
-		if [ -f "$i" ]; then
-			yellow_text "pylint $i"
-			pylint "$i" || {
-				ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pylint $i' to see details."
-				red_text "$ERRSTR\n"
-				errors+=("$ERRSTR")
-			}
+	for filename in "$@"; do
+		if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+
+			if [ -f "$filename" ]; then
+				yellow_text "pylint $filename"
+				pylint "$filename" || {
+					ERRSTR="Failed linting $filename: Run 'source $VENV_DIR/bin/activate' and then 'pylint $filename' to see details."
+					red_text "$ERRSTR\n"
+					errors+=("$ERRSTR")
+				}
+			else
+				red_text "File $filename not found, skipping."
+			fi
 		else
-			red_text "File $i not found, skipping."
+			echo "Either ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT is false or the file $filename has not been updated"
 		fi
 	done
 else

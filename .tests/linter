@@ -55,6 +55,8 @@ while [ $k -lt ${#args[@]} ]; do
 
 	if [[ " ${linters[*]} " == *" $i "* ]]; then
 		specific_linter=$i
+	elif [[ "$i" == "--check_only_changed_since_last_success" ]]; then
+		fail_on_error=0
 	elif [[ "$i" == "--dont_fail_on_error" ]]; then
 		fail_on_error=0
 	elif [[ "$i" == "--quick" ]]; then
@@ -76,6 +78,8 @@ export DONT_INSTALL_MODULES=1
 export DONT_SHOW_DONT_INSTALL_MESSAGE=1
 
 errors=()
+
+export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
 
 # Function to run linters on specific files or generally
 run_linter() {

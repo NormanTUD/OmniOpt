@@ -365,6 +365,9 @@ if [[ -n $CI ]]; then
 	_test "share" ".tests/share" 0 255
 elif ! is_in_container; then
 	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
+	if [[ -z $CI ]]; then
+		_test "pyright" "pyright ." 0
+	fi
 fi
 
 _test "Basic tests" "$OMNIOPT_CALL --tests --mem_gb 1 --time 10 --experiment_name test_name --gpus $NUM_GPUS" 0
@@ -373,7 +376,6 @@ _test "Basic tests" "$OMNIOPT_CALL --tests --mem_gb 1 --time 10 --experiment_nam
 #	_test "mypy" ".tests/mypy $i" 0
 #done
 
-_test "pyright" "pyright ." 0
 
 TESTNAME="__main__tests__BOTORCH_MODULAR___nogridsearch"
 
@@ -397,17 +399,12 @@ if [[ -z $CI ]] && ! [[ -e /.dockerenv ]]; then
 	fi
 fi
 
-_test "Find unused params in plots" "bash .tests/find_unused_params_in_plots" 0
 _test "Testing defective toml file" "$OMNIOPT_CALL --config_toml .tests/defective_example_config.toml --follow" 5 1
 _test "Testing defective yaml file" "$OMNIOPT_CALL --config_yaml .tests/defective_example_config.yaml --follow" 5 104
 _test "Testing defective json file" "$OMNIOPT_CALL --config_json .tests/defective_example_config.json --follow" 5 104
 #_test "Markdown-Linter" ".tests/test_markdown_doc" 0
 
 _test "Testing non-existant json config file" "$OMNIOPT_CALL --config_json /dev/idontexist.json" 100
-
-_test "Find undocumented exit codes" ".tests/find_undocumented_exit_codes" 0
-
-_test "Find wrong order definitions" ".tests/find_wrong_order_definitions" 0
 
 if command -v sbatch 2>/dev/null >/dev/null; then
 	_test "--force_local_execution" ".tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once --follow" 0

@@ -14,6 +14,9 @@ tests=(
 	all_oo_options_are_in_gui_and_vice_versa
 	lizard
 	doc_has_outdated_params
+	find_undocumented_exit_codes
+	find_wrong_order_definitions
+	find_unused_params_in_plots
 	find_functions_that_are_defined_multiple_times
 	php_files
 	find_typos

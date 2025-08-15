@@ -103,6 +103,15 @@ fi
 
 real_hash=$(cat $results_csv | sed -e 's#.*,##' | sort | md5sum | sed -e 's#\s.*##')
 
+if [[ $seed -eq 1234 ]]; then
+	if [[ $(cat $results_csv | grep "5.15" | grep "^0," | wc -l) -ne 1 ]]; then
+		echo "ERROR: The first line does not contain the string 5.15 exactly once. This can mean several things, like:";
+		echo "- ax changed an API call,";
+		echo "- there is a bug in OmniOpt, most likely in the save_results.csv or anything related to creating or getting jobs, or something with setting seeds";
+		exit 3
+	fi
+fi
+
 echo "Wanted Hash: '$hash' (length: ${#hash})"
 echo "Real Hash:   '$real_hash' (length: ${#real_hash})"
 

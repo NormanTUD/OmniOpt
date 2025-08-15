@@ -28,6 +28,9 @@ jobs:
         restore-keys: |
           pip-${{ runner.python_version }}-${{ hashFiles('requirements.txt,test_requirements.txt') }}-
 
+    - name: Ensure venv path exists
+      run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
+
     - name: Cache virtualenv
       uses: actions/cache@v3
       with:
@@ -40,16 +43,6 @@ jobs:
       run: |
         sudo chmod -R a+r /var/cache/apt/archives /var/lib/apt/lists
         sudo chmod -R a+X /var/cache/apt/archives /var/lib/apt/lists
-
-    - name: Cache apt packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          /var/cache/apt/archives
-          /var/lib/apt/lists
-        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          apt-${{ runner.os }}-
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -98,16 +91,6 @@ jobs:
         key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
           venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
-
-    - name: Cache apt packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          /var/cache/apt/archives
-          /var/lib/apt/lists
-        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          apt-${{ runner.os }}-
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -168,16 +151,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Cache apt packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          /var/cache/apt/archives
-          /var/lib/apt/lists
-        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          apt-${{ runner.os }}-
-
     - name: Install dependencies
       run: |
         .tools/ci_dependency
@@ -213,16 +186,6 @@ jobs:
         key: venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
         restore-keys: |
           venv-${{ runner.python_version }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}-
-
-    - name: Cache apt packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          /var/cache/apt/archives
-          /var/lib/apt/lists
-        key: apt-${{ runner.os }}-${{ hashFiles('apt-dependencies.txt') }}-${{ format('yyyyMMdd', github.event.head_commit.timestamp) }}
-        restore-keys: |
-          apt-${{ runner.os }}-
 
     - name: Checkout code
       uses: actions/checkout@v4

@@ -27,6 +27,7 @@ function help() {
 	echo "--quick                                              Disable slow tests"
 	echo "--help                                               This help"
 	echo "--dont_fail_on_error                                 Don't fail on error"
+	echo "--check_only_changed_since_last_success              For slow linters: Check only the files that have been changed since the last successful run"
 	echo "[files]                                              Run linters only on specified files"
 	echo "[linter]                                             Run a specific linter"
 
@@ -56,7 +57,7 @@ while [ $k -lt ${#args[@]} ]; do
 	if [[ " ${linters[*]} " == *" $i "* ]]; then
 		specific_linter=$i
 	elif [[ "$i" == "--check_only_changed_since_last_success" ]]; then
-		fail_on_error=0
+		export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
 	elif [[ "$i" == "--dont_fail_on_error" ]]; then
 		fail_on_error=0
 	elif [[ "$i" == "--quick" ]]; then

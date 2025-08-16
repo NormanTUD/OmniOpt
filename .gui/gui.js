@@ -780,7 +780,7 @@ function update_command() {
 		toggleElementVisibility("#command_element_highlighted", command, true);
 		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
 
-		$("#command_element").text(command);
+		$("#command_element").text(addBase64DecodedVersions(command));
 		$("#curl_command").text(curl_command);
 	} else {
 		toggleElementVisibility("#command_element_highlighted", "", false);
@@ -795,6 +795,28 @@ function update_command() {
 	update_url();
 
 	toggleHiddenConfigTableIfError();
+}
+
+function addBase64DecodedVersions(cmdString) {
+    return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
+        const value = singleQuoted || doubleQuoted || bare;
+
+        let decoded = null;
+        try {
+            if (key === "--run_program") {
+                decoded = atob(value);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        if (decoded) {
+            const safeDecoded = decoded.replace(/\x27/g, `'\\''`);
+            return `${match} ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
+        } else {
+            return match;
+        }
+    });
 }
 
 async function toggleElementVisibility(selector, content, show) {

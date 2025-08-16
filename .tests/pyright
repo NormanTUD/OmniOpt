@@ -54,11 +54,11 @@ if ! command -v pyright 2>/dev/null >/dev/null; then
 	pip install pyright
 fi
 
-for i in $(ls .*.py | grep -v ".helpers.py"); do
+for filename in $(ls .*.py | grep -v ".helpers.py"); do
 	if file_has_changed_since_last_tagged_version "$filename"; then
-		echo "Pyright $i:"
-		pyright "$i" || {
-			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyright $i' to see details."
+		echo "Pyright $filename:"
+		pyright "$filename" || {
+			ERRSTR="Failed linting $filename: Run 'source $VENV_DIR/bin/activate' and then 'pyright $filename' to see details."
 			red_text "$ERRSTR\n"
 			errors+=("$ERRSTR")
 		}

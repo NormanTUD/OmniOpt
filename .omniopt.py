@@ -27,6 +27,7 @@ import inspect
 import tracemalloc
 import resource
 import psutil
+from urllib.parse import urlencode
 
 FORCE_EXIT: bool = False
 
@@ -6526,7 +6527,7 @@ def insert_jobs_from_csv(this_csv_file_path: str) -> None:
 def normalize_path(file_path: str) -> str:
     return file_path.replace("//", "/")
 
-def insert_jobs_from_lists(csv_path, arm_params_list, results_list, __status):
+def insert_jobs_from_lists(csv_path: str, arm_params_list: Any, results_list: Any, __status: Any) -> None:
     cnt = 0
     err_msgs = []
 
@@ -10414,7 +10415,7 @@ def main() -> None:
     print_run_info()
 
     initialize_nvidia_logs()
-    write_ui_url_if_present()
+    write_ui_url()
 
     LOGFILE_DEBUG_GET_NEXT_TRIALS = get_current_run_folder('get_next_trials.csv')
     cli_params_experiment_parameters = parse_parameters()
@@ -10542,10 +10543,31 @@ def initialize_nvidia_logs() -> None:
     global NVIDIA_SMI_LOGS_BASE
     NVIDIA_SMI_LOGS_BASE = get_current_run_folder('gpu_usage_')
 
-def write_ui_url_if_present() -> None:
-    if args.ui_url:
-        with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
-            myfile.write(decode_if_base64(args.ui_url))
+def build_gui_url(config: ConfigLoader) -> str:
+    base_url = get_base_url()
+    params = {}
+    for attr, value in vars(config).items():
+        if attr == "run_program":
+            params[attr] = global_vars["joined_run_program"]
+        elif isinstance(value, bool):
+            params[attr] = int(value)
+        elif isinstance(value, list):
+            params[attr] = ",".join(str(v) for v in value)
+        elif value is not None:
+            params[attr] = value
+    return f"{base_url}?{urlencode(params)}"
+
+def get_base_url() -> str:
+    file_path = Path.home() / ".oo_base_url"
+    if file_path.exists():
+        return file_path.read_text().strip()
+    else:
+        return "https://imageseg.scads.de/omniax/"
+
+def write_ui_url() -> None:
+    url = build_gui_url(args)
+    with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
+        myfile.write(decode_if_base64(url))
 
 def handle_random_steps() -> None:
     if args.parameter and args.continue_previous_job and random_steps <= 0:

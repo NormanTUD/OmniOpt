@@ -13,6 +13,7 @@ allowed=(
 	root_venv_dir
 	partition
         flame_graph
+	ui_url
 	debug
 	dependency
 	checkout_to_latest_tested_version

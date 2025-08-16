@@ -22,8 +22,6 @@ if command -v python3 2>/dev/null >/dev/null; then
 		for filename in .*.py; do
 			if file_has_changed_since_last_tagged_version "$filename"; then
 				files="$files $filename"
-			else
-				echo "!!! UNCHANGED: $filename"
 			fi
 		done
 

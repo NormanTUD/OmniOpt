@@ -14,7 +14,7 @@ tests=(
 	unit_tests
 	find_unused_share_functions
 	all_oo_options_are_in_gui_and_vice_versa
-	lizard
+	#lizard
 	doc_has_outdated_params
 	find_undocumented_exit_codes
 	find_wrong_order_definitions

@@ -23,10 +23,6 @@ jobs:
     - name: Ensure venv path exists
       run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
 
-    - name: Extract date
-      id: date
-      run: echo "today=$(date -u +%Y%m%d)" >> $GITHUB_OUTPUT
-
     - name: Cache omniax_venvs
       uses: actions/cache@v3
       with:

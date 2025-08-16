@@ -55,7 +55,7 @@ if ! command -v pyright 2>/dev/null >/dev/null; then
 fi
 
 for i in $(ls .*.py | grep -v ".helpers.py"); do
-	if [[ -n $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+	if file_has_changed_since_last_tagged_version "$filename"; then
 		echo "Pyright $i:"
 		pyright "$i" || {
 			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'pyright $i' to see details."

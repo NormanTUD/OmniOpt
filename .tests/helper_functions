@@ -429,24 +429,36 @@ function _test_nr_jobs {
 last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 
 file_has_changed_since_last_tagged_version() {
-	local patterns=("$@")
+	local file="$1"
 
-	if [[ -z "$last_tag" ]]; then
+	# Wenn Option deaktiviert -> immer true zurückgeben
+	if [[ -z "$ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT" ]]; then
 		return 0
 	fi
 
-	for pattern in "${patterns[@]}"; do
-		for file in "$pattern"; do
-			if [[ $pattern != "" ]]; then
-				git_diff=$(git diff --name-only "$last_tag" -- "$file" >/dev/null)
-				if [[ $git_diff == "" ]] || git_diff | grep -q .; then
-					return 1
-				fi
+	if [[ -z "$last_tag" ]]; then
+		last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
+	fi
 
-				return 0
-			fi
-		done
-	done
+	if [[ -z "$last_tag" ]]; then
+	echo "Cannot get last tag" >&2
+		return 1
+	fi
+
+	# Geändert zwischen letztem Tag und HEAD?
+	if ! git diff --quiet "$last_tag"..HEAD -- "$file"; then
+		return 0
+	fi
+
+	# Änderungen im Working Tree?
+	if ! git diff --quiet -- "$file"; then
+		return 0
+	fi
+
+	# Änderungen im Staging-Bereich?
+	if ! git diff --cached --quiet -- "$file"; then
+		return 0
+	fi
 
 	return 1
 }

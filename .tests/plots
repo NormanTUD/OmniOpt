@@ -172,14 +172,14 @@ expected_plot_types=()
 if [[ -n $test_types_regex ]]; then
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
 		if [[ -z "$test_types_regex" ]] || [[ "$possible_plot_type" =~ $test_types_regex ]]; then
-			if [[ "$ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT" == "1" ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+			if file_has_changed_since_last_tagged_version "$filename"; then
 				expected_plot_types+=("$possible_plot_type")
 			fi
 		fi
 	done
 else
 	for possible_plot_type in $(ls .omniopt_plot_*.py | sed -e 's#\.py##' -e 's#.*_plot_##' | grep -v 3d); do
-		if [[ "$ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT" == "1" ]] && file_has_changed_since_last_tagged_version "$filename" || [[ -z $ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT ]]; then
+		if file_has_changed_since_last_tagged_version "$filename"; then
 			expected_plot_types+=("$possible_plot_type")
 		fi
 	done

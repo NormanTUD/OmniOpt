@@ -46,18 +46,21 @@ cd $SCRIPT_DIR
 cd ..
 
 source .shellscript_functions
+source .tests/helper_functions
 
 errors=()
 
 IGNOREME="E501,E302,E265,E128,E305,E261,E126,E124,F824"
 
 if command -v flake8 2>/dev/null >/dev/null; then
-	for i in $(ls .*.py | grep -v ".helpers.py"); do
-		flake8 --ignore "$IGNOREME" "$i" || {
-			ERRSTR="Failed linting $i: Run 'source $VENV_DIR/bin/activate' and then 'flake8 --ignore $IGNOREME $i' to see details."
-			red_text "$ERRSTR\n"
-			errors+=("$ERRSTR")
-		}
+	for filename in $(ls .*.py | grep -v ".helpers.py"); do
+		if file_has_changed_since_last_tagged_version "$filename"; then
+			flake8 --ignore "$IGNOREME" "$filename" || {
+				ERRSTR="Failed linting $filename: Run 'source $VENV_DIR/bin/activate' and then 'flake8 --ignore $IGNOREME $filename' to see details."
+				red_text "$ERRSTR\n"
+				errors+=("$ERRSTR")
+			}
+		fi
 	done
 else
 	red_text "flake8 not found"
@@ -72,8 +75,8 @@ if [ ${#errors[@]} -eq 0 ]; then
 	exit 0
 else
 	red_text "=> FLAKE8-ERRORS => FLAKE8-ERRORS => FLAKE8-ERRORS =>\n"
-	for i in "${errors[@]}"; do
-		red_text "$i\n"
+	for error in "${errors[@]}"; do
+		red_text "$error\n"
 	done
 
 	exit ${#errors[@]}

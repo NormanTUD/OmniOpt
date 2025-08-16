@@ -2,6 +2,8 @@
 
 # HELPPAGE: Tests that run very quickly and are annoying when the fail fast too late
 
+export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
+
 tests=(
 	shellcheck
 	find_functions_with_missing_types

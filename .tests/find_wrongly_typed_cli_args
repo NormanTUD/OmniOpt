@@ -24,9 +24,17 @@ cd $SCRIPT_DIR
 
 cd ..
 
+source .shellscript_functions
+source .tests/helper_functions
+
 IFS=$'\n'
 
 errors=0
+
+if ! file_has_changed_since_last_tagged_version .omniopt.py; then
+	green_text ".omniopt.py has not changed since last successful test suite run. Exiting find_wrongly_typed_cli_args with 0."
+	exit 0
+fi
 
 for cli_arg_line in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add_argument.##'); do
 	_name=$(echo "$cli_arg_line" | sed -e "s#^'--##" -e "s#'.*##")

@@ -153,6 +153,7 @@
 
 		if [[ -n $RUN_UUID ]]; then
 			if ! [[ -e "logs/${RUN_UUID}_ram_log" ]]; then
+				mkdir -p logs
 				echo "time,ram,ram_children" > "logs/${RUN_UUID}_ram_log"
 			fi
 

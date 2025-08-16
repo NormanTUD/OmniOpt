@@ -431,7 +431,6 @@ last_tag=$(git describe --tags --abbrev=0 2>/dev/null)
 file_has_changed_since_last_tagged_version() {
 	local file="$1"
 
-	# Wenn Option deaktiviert -> immer true zurückgeben
 	if [[ -z "$ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT" ]]; then
 		return 0
 	fi
@@ -445,17 +444,14 @@ file_has_changed_since_last_tagged_version() {
 		return 1
 	fi
 
-	# Geändert zwischen letztem Tag und HEAD?
 	if ! git diff --quiet "$last_tag"..HEAD -- "$file"; then
 		return 0
 	fi
 
-	# Änderungen im Working Tree?
 	if ! git diff --quiet -- "$file"; then
 		return 0
 	fi
 
-	# Änderungen im Staging-Bereich?
 	if ! git diff --cached --quiet -- "$file"; then
 		return 0
 	fi

@@ -11,10 +11,15 @@ cd $SCRIPT_DIR
 cd ..
 
 source .shellscript_functions
+source .tests/helper_functions
 
 if [[ -n $1 ]]; then
 	python3 .tests/find_typos_in_bash.py $1
 else
-	files=$(grep -r "^#..usr.bin.env.bash" . 2>/dev/null | sed -e 's#:.*##' | tr '\n' ' ')
-	eval "python3 .tests/find_typos_in_bash.py $files"
+	files=$(grep -r "^#..usr.bin.env.bash" . 2>/dev/null | sed -e 's#:.*##')
+	for filename in $files; do
+		if file_has_changed_since_last_tagged_version "$filename"; then
+			python3 .tests/find_typos_in_bash.py "$filename"
+		fi
+	done
 fi

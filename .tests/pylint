@@ -83,8 +83,8 @@ errors=()
 if [ "$#" -gt 0 ]; then
 	# Process passed files
 	for filename in "$@"; do
-		if file_has_changed_since_last_tagged_version "$filename"; then
-			if [ -f "$filename" ]; then
+		if [ -f "$filename" ]; then
+			if file_has_changed_since_last_tagged_version "$filename"; then
 				yellow_text "pylint $filename"
 				pylint "$filename" || {
 					ERRSTR="Failed linting $filename: Run 'source $VENV_DIR/bin/activate' and then 'pylint $filename' to see details."

@@ -10546,16 +10546,32 @@ def initialize_nvidia_logs() -> None:
 def build_gui_url(config: ConfigLoader) -> str:
     base_url = get_base_url()
     params = {}
+
     for attr, value in vars(config).items():
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
+        elif attr == "parameter" and value is not None:
+            for i, param in enumerate(value):
+                name, ptype = param[0], param[1]
+                params[f"parameter_{i}_name"] = name
+                params[f"parameter_{i}_type"] = ptype
+                if ptype == "range":
+                    params[f"parameter_{i}_min"] = param[2]
+                    params[f"parameter_{i}_max"] = param[3]
+                    params[f"parameter_{i}_number_type"] = param[4]
+                    params[f"parameter_{i}_log_scale"] = "false"
+                elif ptype == "choice":
+                    # Wenn CSV-Liste, in einzelne Werte aufsplitten für doseq=True
+                    choices = [c.strip() for c in param[2].split(",")]
+                    params[f"parameter_{i}_choices"] = choices
         elif isinstance(value, bool):
             params[attr] = int(value)
         elif isinstance(value, list):
-            params[attr] = ",".join(str(v) for v in value)
+            params[attr] = value  # bleibt als Liste, doseq=True behandelt es
         elif value is not None:
             params[attr] = value
-    return f"{base_url}?{urlencode(params)}"
+
+    return f"{base_url}?{urlencode(params, doseq=True)}"
 
 def get_base_url() -> str:
     file_path = Path.home() / ".oo_base_url"

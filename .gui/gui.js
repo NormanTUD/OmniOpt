@@ -748,9 +748,6 @@ function update_command() {
 		base_url = base_url.replace(/^https:\//, "https://");
 		base_url = base_url.replace(/^file:\//, "file://");
 
-		var ui_url = btoa(window.location.toString());
-		command += " --ui_url " + ui_url;
-
 		var base_64_string = btoa(command);
 
 		var curl_or_cat = "curl";

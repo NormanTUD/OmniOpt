@@ -10551,7 +10551,7 @@ def build_gui_url(config: ConfigLoader) -> str:
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
         elif attr == "parameter" and value is not None:
-            for i, param in enumerate(value):
+            for i, param in enumerate(config.parameter):
                 name, ptype = param[0], param[1]
                 params[f"parameter_{i}_name"] = name
                 params[f"parameter_{i}_type"] = ptype
@@ -10561,9 +10561,10 @@ def build_gui_url(config: ConfigLoader) -> str:
                     params[f"parameter_{i}_number_type"] = param[4]
                     params[f"parameter_{i}_log_scale"] = "false"
                 elif ptype == "choice":
-                    # Wenn CSV-Liste, in einzelne Werte aufsplitten für doseq=True
-                    choices = [c.strip() for c in param[2].split(",")]
-                    params[f"parameter_{i}_choices"] = choices
+                    choices = ",".join([c.strip() for c in param[2].split(",")])
+                    params[f"parameter_{i}_values"] = choices
+
+            params["num_parameters"] = len(config.parameter)
         elif isinstance(value, bool):
             params[attr] = int(value)
         elif isinstance(value, list):
@@ -10571,7 +10572,9 @@ def build_gui_url(config: ConfigLoader) -> str:
         elif value is not None:
             params[attr] = value
 
-    return f"{base_url}?{urlencode(params, doseq=True)}"
+    ret = f"{base_url}?{urlencode(params, doseq=True)}"
+
+    return ret
 
 def get_base_url() -> str:
     file_path = Path.home() / ".oo_base_url"

@@ -10567,8 +10567,12 @@ def collect_params(config: argparse.Namespace) -> dict:
 def process_parameters(parameters: list) -> dict:
     params = {}
     for i, param in enumerate(parameters):
-        name = param[0] if len(param) > 0 else f"param_{i}"
-        ptype = param[1] if len(param) > 1 else "unknown"
+        if isinstance(param, dict):
+            name = param.get("name", f"param_{i}")
+            ptype = param.get("type", "unknown")
+        else:
+            name = param[0] if len(param) > 0 else f"param_{i}"
+            ptype = param[1] if len(param) > 1 else "unknown"
 
         params[f"parameter_{i}_name"] = name
         params[f"parameter_{i}_type"] = ptype

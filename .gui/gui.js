@@ -780,14 +780,16 @@ function update_command() {
 		toggleElementVisibility("#command_element_highlighted", command, true);
 		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
 
-		$("#command_element").text(addBase64DecodedVersions(command));
+		nicer_command = addBase64DecodedVersions(command);
+
 		$("#curl_command").text(curl_command);
+		$("#command_element").text(nicer_command);
 	} else {
 		toggleElementVisibility("#command_element_highlighted", "", false);
 		toggleElementVisibility("#curl_command_highlighted", "", false);
 
-		$("#command_element").text("");
 		$("#curl_command").text("");
+		$("#command_element").text("");
 	}
 
 	show_warnings_and_errors(warnings, errors);

@@ -240,6 +240,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   todo-to-issue:
+    needs: [smoke-tests]
     strategy:
       fail-fast: true
     runs-on: "ubuntu-latest"

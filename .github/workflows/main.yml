@@ -222,7 +222,7 @@ jobs:
 
     - name: plot tests
       run: |
-        bash ./.tests/plots --check_only_changed_since_last_success
+        bash ./.tests/plots
     - uses: release-drafter/release-drafter@v5
       with:
           config-name: release-drafter.yml

@@ -140,7 +140,7 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
-    needs: [smoke-tests] #, install-via-pip]
+    needs: [smoke-tests]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:
@@ -152,7 +152,6 @@ jobs:
       contents: write
 
     steps:
-
     - name: Cache omniax_venvs
       uses: actions/cache@v3
       with:

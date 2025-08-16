@@ -10546,50 +10546,59 @@ def initialize_nvidia_logs() -> None:
 
 def build_gui_url(config: argparse.Namespace) -> str:
     base_url = get_base_url()
-    params = {}
+    params = collect_params(config)
+    return f"{base_url}?{urlencode(params, doseq=True)}"
 
+def collect_params(config: argparse.Namespace) -> dict:
+    params = {}
     for attr, value in vars(config).items():
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
         elif attr == "parameter" and value is not None:
-            for i, param in enumerate(config.parameter):
-                name = param[0] if len(param) > 0 else f"param_{i}"
-                ptype = param[1] if len(param) > 1 else "unknown"
-                
-                params[f"parameter_{i}_name"] = name
-                params[f"parameter_{i}_type"] = ptype
-
-                if ptype == "range":
-                    if len(param) > 3:
-                        params[f"parameter_{i}_min"] = param[2]
-                        params[f"parameter_{i}_max"] = param[3]
-                    else:
-                        params[f"parameter_{i}_min"] = 0
-                        params[f"parameter_{i}_max"] = 1
-                    params[f"parameter_{i}_number_type"] = param[4] if len(param) > 4 else "float"
-                    params[f"parameter_{i}_log_scale"] = "false"
-
-                elif ptype == "choice":
-                    if len(param) > 2 and param[2]:
-                        choices = ",".join([c.strip() for c in str(param[2]).split(",")])
-                    else:
-                        choices = ""
-                    params[f"parameter_{i}_values"] = choices
-                elif ptype == "fixed":
-                    params[f"parameter_{i}_value"] = param[2] if len(param) > 2 else ""
-
-
-            params["num_parameters"] = len(config.parameter)
+            params.update(process_parameters(config.parameter))
         elif isinstance(value, bool):
             params[attr] = int(value)
         elif isinstance(value, list):
-            params[attr] = value  # bleibt als Liste, doseq=True behandelt es
+            params[attr] = value
         elif value is not None:
             params[attr] = value
+    return params
 
-    ret = f"{base_url}?{urlencode(params, doseq=True)}"
+def process_parameters(parameters: list) -> dict:
+    params = {}
+    for i, param in enumerate(parameters):
+        name = param[0] if len(param) > 0 else f"param_{i}"
+        ptype = param[1] if len(param) > 1 else "unknown"
 
-    return ret
+        params[f"parameter_{i}_name"] = name
+        params[f"parameter_{i}_type"] = ptype
+
+        if ptype == "range":
+            params.update(process_range_parameter(i, param))
+        elif ptype == "choice":
+            params.update(process_choice_parameter(i, param))
+        elif ptype == "fixed":
+            params.update(process_fixed_parameter(i, param))
+
+    params["num_parameters"] = len(parameters)
+    return params
+
+def process_range_parameter(i: int, param: list) -> dict:
+    return {
+        f"parameter_{i}_min": param[2] if len(param) > 3 else 0,
+        f"parameter_{i}_max": param[3] if len(param) > 3 else 1,
+        f"parameter_{i}_number_type": param[4] if len(param) > 4 else "float",
+        f"parameter_{i}_log_scale": "false",
+    }
+
+def process_choice_parameter(i: int, param: list) -> dict:
+    choices = ""
+    if len(param) > 2 and param[2]:
+        choices = ",".join([c.strip() for c in str(param[2]).split(",")])
+    return {f"parameter_{i}_values": choices}
+
+def process_fixed_parameter(i: int, param: list) -> dict:
+    return {f"parameter_{i}_value": param[2] if len(param) > 2 else ""}
 
 def get_base_url() -> str:
     file_path = Path.home() / ".oo_base_url"

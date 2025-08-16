@@ -1,5 +1,61 @@
 name: CI
 
+# ========================================================
+# Reusable step definitions
+# ========================================================
+x-steps:
+  checkout: &checkout
+    name: Checkout code
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+      tags: true
+
+  ensure-venv-path: &ensure-venv-path
+    name: Ensure venv path exists
+    run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
+
+  extract-date: &extract-date
+    name: Extract date
+    id: date
+    run: echo "today=$(date -u +%Y%m%d)" >> $GITHUB_OUTPUT
+
+  cache-venv: &cache-venv
+    name: Cache omniax_venvs
+    uses: actions/cache@v3
+    with:
+      path: ~/.omniax_venvs
+      key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
+      restore-keys: |
+        venv-${{ steps.date.outputs.today }}-
+        venv-
+
+  install-deps: &install-deps
+    name: Install dependencies
+    run: .tools/ci_dependency
+
+  create-venv: &create-venv
+    name: Creating virtualenv
+    run: |
+      VENV_PATH="$HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')"
+      python3 -m venv "$VENV_PATH"
+      source "$VENV_PATH/bin/activate"
+      if command -v brew >/dev/null 2>&1; then
+        pip install psycopg2-binary
+      fi
+
+  extra-linux-installs: &extra-linux-installs
+    name: Extra Linux installs
+    if: runner.os == 'Linux'
+    run: |
+      VENV_PATH="$HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')"
+      source "$VENV_PATH/bin/activate"
+      pip install --no-cache-dir --upgrade pip setuptools wheel multidict
+
+defaults:
+  run:
+    shell: bash
+
 on:
   push:
     branches: ['**']
@@ -63,60 +119,3 @@ jobs:
             coverage*.xml
             htmlcov
 
-# ========================================================
-# Reusable step definitions
-# ========================================================
-
-defaults:
-  run:
-    shell: bash
-
-# Anchors
-_checkout: &checkout
-  name: Checkout code
-  uses: actions/checkout@v4
-  with:
-    fetch-depth: 0
-    tags: true
-
-_ensure-venv-path: &ensure-venv-path
-  name: Ensure venv path exists
-  run: mkdir -p ~/.omniax_venvs/Python_${{ runner.python_version }}/${{ runner.arch }}
-
-_extract-date: &extract-date
-  name: Extract date
-  id: date
-  run: echo "today=$(date -u +%Y%m%d)" >> $GITHUB_OUTPUT
-
-_cache-venv: &cache-venv
-  name: Cache omniax_venvs
-  uses: actions/cache@v3
-  with:
-    path: ~/.omniax_venvs
-    key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
-    restore-keys: |
-      venv-${{ steps.date.outputs.today }}-
-      venv-
-
-_install-deps: &install-deps
-  name: Install dependencies
-  run: .tools/ci_dependency
-
-_create-venv: &create-venv
-  name: Creating virtualenv
-  run: |
-    VENV_PATH="$HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')"
-    python3 -m venv "$VENV_PATH"
-    source "$VENV_PATH/bin/activate"
-
-    if command -v brew >/dev/null 2>&1; then
-      pip install psycopg2-binary
-    fi
-
-_extra-linux-installs: &extra-linux-installs
-  name: Extra Linux installs
-  if: runner.os == 'Linux'
-  run: |
-    VENV_PATH="$HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')"
-    source "$VENV_PATH/bin/activate"
-    pip install --no-cache-dir --upgrade pip setuptools wheel multidict

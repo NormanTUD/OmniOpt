@@ -13,13 +13,28 @@ cd ..
 source .shellscript_functions
 source .tests/helper_functions
 
-if [[ -n $1 ]]; then
-	python3 .tests/find_typos_in_bash.py $1
-else
-	files=$(grep -r "^#..usr.bin.env.bash" . 2>/dev/null | sed -e 's#:.*##')
-	for filename in $files; do
-		if file_has_changed_since_last_tagged_version "$filename"; then
-			python3 .tests/find_typos_in_bash.py "$filename"
+if command -v python3 2>/dev/null >/dev/null; then
+	if [[ -n $1 ]]; then
+		python3 .tests/find_typos_in_python.py "$@"
+		exit_code=$?
+	else
+		files=""
+		for filename in .*.py; do
+			if file_has_changed_since_last_tagged_version "$filename"; then
+				files="$files $filename"
+			else
+				echo "!!! UNCHANGED: $filename"
+			fi
+		done
+
+		if [[ -n "$files" ]]; then
+			eval "python3 .tests/find_typos_in_python.py $files"
+			exit_code=$?
+		else
+			echo "No changed Python files to check."
+			exit_code=0
 		fi
-	done
+	fi
+else
+	echo "Warning: python3 is not installed. Cannot run find_typos_in_python"
 fi

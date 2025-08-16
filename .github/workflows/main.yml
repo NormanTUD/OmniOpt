@@ -57,7 +57,7 @@ jobs:
 
     - name: Run annoying tiny but important tests that often fail
       run: |
-        .tests/annoying_tiny_but_important_tests
+        .tests/smoke_tests
 
   Linter:
     needs: [smoke-tests]

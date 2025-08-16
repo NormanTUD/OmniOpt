@@ -364,7 +364,7 @@ is_in_container() {
 if [[ -n $CI ]]; then
 	_test "share" ".tests/share" 0 255
 elif ! is_in_container; then
-	_test "Smoke tests" ".tests/annoying_tiny_but_important_tests" 0
+	_test "Smoke tests" ".tests/smoke_tests" 0
 	if [[ -z $CI ]]; then
 		_test "pyright" "pyright ." 0
 	fi

@@ -10553,21 +10553,29 @@ def build_gui_url(config: argparse.Namespace) -> str:
             params[attr] = global_vars["joined_run_program"]
         elif attr == "parameter" and value is not None:
             for i, param in enumerate(config.parameter):
-                name, ptype = param[0], param[1]
+                name = param[0] if len(param) > 0 else f"param_{i}"
+                ptype = param[1] if len(param) > 1 else "unknown"
+                
                 params[f"parameter_{i}_name"] = name
                 params[f"parameter_{i}_type"] = ptype
-                if ptype == "range":
-                    params[f"parameter_{i}_min"] = param[2]
-                    params[f"parameter_{i}_max"] = param[3]
-                    if 4 in param:
-                        params[f"parameter_{i}_number_type"] = param[4]
-                    else:
-                        params[f"parameter_{i}_number_type"] = "float"
 
+                if ptype == "range":
+                    if len(param) > 3:
+                        params[f"parameter_{i}_min"] = param[2]
+                        params[f"parameter_{i}_max"] = param[3]
+                    else:
+                        params[f"parameter_{i}_min"] = 0
+                        params[f"parameter_{i}_max"] = 1
+                    params[f"parameter_{i}_number_type"] = param[4] if len(param) > 4 else "float"
                     params[f"parameter_{i}_log_scale"] = "false"
+
                 elif ptype == "choice":
-                    choices = ",".join([c.strip() for c in param[2].split(",")])
+                    if len(param) > 2 and param[2]:
+                        choices = ",".join([c.strip() for c in str(param[2]).split(",")])
+                    else:
+                        choices = ""
                     params[f"parameter_{i}_values"] = choices
+
 
             params["num_parameters"] = len(config.parameter)
         elif isinstance(value, bool):

@@ -10575,6 +10575,8 @@ def build_gui_url(config: argparse.Namespace) -> str:
                     else:
                         choices = ""
                     params[f"parameter_{i}_values"] = choices
+                elif ptype == "fixed":
+                    params[f"parameter_{i}_value"] = param[2] if len(param) > 2 else ""
 
 
             params["num_parameters"] = len(config.parameter)

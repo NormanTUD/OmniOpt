@@ -777,10 +777,10 @@ function update_command() {
 			curl_command = `${curl_or_cat} ${base_url}install_omniax.sh${command_end}`;
 		}
 
-		toggleElementVisibility("#command_element_highlighted", command, true);
-		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
-
 		nicer_command = addBase64DecodedVersions(command);
+
+		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
+		toggleElementVisibility("#command_element_highlighted", nicer_command, true);
 
 		$("#curl_command").text(curl_command);
 		$("#command_element").text(nicer_command);
@@ -814,7 +814,7 @@ function addBase64DecodedVersions(cmdString) {
 
         if (decoded) {
             const safeDecoded = decoded.replace(/\x27/g, `'\\''`);
-            return `${match} ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
+            return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
         } else {
             return match;
         }

@@ -10544,7 +10544,7 @@ def initialize_nvidia_logs() -> None:
     global NVIDIA_SMI_LOGS_BASE
     NVIDIA_SMI_LOGS_BASE = get_current_run_folder('gpu_usage_')
 
-def build_gui_url(config: ConfigLoader) -> str:
+def build_gui_url(config: argparse.Namespace) -> str:
     base_url = get_base_url()
     params = {}
 

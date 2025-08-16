@@ -26,8 +26,9 @@ import traceback
 import inspect
 import tracemalloc
 import resource
-import psutil
 from urllib.parse import urlencode
+
+import psutil
 
 FORCE_EXIT: bool = False
 
@@ -10580,8 +10581,8 @@ def get_base_url() -> str:
     file_path = Path.home() / ".oo_base_url"
     if file_path.exists():
         return file_path.read_text().strip()
-    else:
-        return "https://imageseg.scads.de/omniax/"
+
+    return "https://imageseg.scads.de/omniax/"
 
 def write_ui_url() -> None:
     url = build_gui_url(args)

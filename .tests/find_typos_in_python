@@ -17,6 +17,7 @@ exit_code=0
 if command -v python3 2>/dev/null >/dev/null; then
 	if [[ -n $1 ]]; then
 		python3 .tests/find_typos_in_python.py $*
+		exit_code=$?
 	else
 		python3 .tests/find_typos_in_python.py .*.py
 		exit_code=$?

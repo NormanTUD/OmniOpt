@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # HELPPAGE: Helper functions for other functions, like, for checks if a file has been changed since the last commit
 

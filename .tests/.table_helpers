@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then

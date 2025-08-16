@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 set -euo pipefail
 
 ALWAYS_THERE="--no_normalize_y --fit_out_of_design"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # HELPPAGE: Tests that run very quickly and are annoying when the fail fast too late
 
@@ -21,7 +21,6 @@ tests=(
 	find_unused_params_in_plots
 	find_functions_that_are_defined_multiple_times
 	php_files
-	find_typos
 	check_state_file_documentation
 	find_missing_toc_in_md_files
 	find_double_function_names
@@ -40,6 +39,7 @@ tests=(
 	share_tests
 	js_syntax
 	pyright_fast
+	find_typos
 )
 
 code=1

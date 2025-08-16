@@ -10559,7 +10559,11 @@ def build_gui_url(config: argparse.Namespace) -> str:
                 if ptype == "range":
                     params[f"parameter_{i}_min"] = param[2]
                     params[f"parameter_{i}_max"] = param[3]
-                    params[f"parameter_{i}_number_type"] = param[4]
+                    if 4 in param:
+                        params[f"parameter_{i}_number_type"] = param[4]
+                    else:
+                        params[f"parameter_{i}_number_type"] = "float"
+
                     params[f"parameter_{i}_log_scale"] = "false"
                 elif ptype == "choice":
                     choices = ",".join([c.strip() for c in param[2].split(",")])

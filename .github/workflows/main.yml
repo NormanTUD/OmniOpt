@@ -34,7 +34,6 @@ jobs:
         key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
         restore-keys: |
           venv-${{ steps.date.outputs.today }}-
-          venv-
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -78,7 +77,6 @@ jobs:
         key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
         restore-keys: |
           venv-${{ steps.date.outputs.today }}-
-          venv-
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -162,7 +160,6 @@ jobs:
         key: venv-${{ steps.date.outputs.today }}-${{ hashFiles('requirements.txt', 'test_requirements.txt') }}
         restore-keys: |
           venv-${{ steps.date.outputs.today }}-
-          venv-
 
     - name: Checkout code
       uses: actions/checkout@v4

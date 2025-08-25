@@ -192,16 +192,6 @@ jobs:
       run: |
         ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
 
-    - name: Upload coverage artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-data
-        path: |
-          .coverage*
-          coverage*.xml
-          htmlcov
-
-
     - name: plot tests
       run: |
         bash ./.tests/plots

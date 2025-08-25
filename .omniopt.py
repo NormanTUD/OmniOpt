@@ -804,6 +804,7 @@ class ConfigLoader:
     gridsearch: bool
     auto_exclude_defective_hosts: bool
     debug: bool
+    debug_stack_trace_regex: Optional[str]
     num_restarts: int
     raw_samples: int
     show_generate_time_table: bool
@@ -991,6 +992,8 @@ class ConfigLoader:
         debug.add_argument('--prettyprint', help='Shows stdout and stderr in a pretty printed format', action='store_true', default=False)
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
         debug.add_argument('--debug_stack_regex', help='Only print debug messages if call stack matches any regex', type=str, default='')
+        debug.add_argument('--debug_stack_trace_regex', help='Show compact call stack with arrows if any function in stack matches regex', type=str, default=None)
+
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
@@ -7270,11 +7273,9 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
-    save_results_csv()
-
-    save_checkpoint()
-
     if this_jobs_finished > 0:
+        save_results_csv()
+        save_checkpoint()
         progressbar_description([*new_msgs, f"finished {this_jobs_finished} {'job' if this_jobs_finished == 1 else 'jobs'}"])
 
     JOBS_FINISHED += this_jobs_finished
@@ -11171,6 +11172,29 @@ def main_outside() -> None:
             else:
                 end_program(True)
 
+def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:
+    pattern = re.compile(regex) if regex else None
+
+    def wrapped(*args, **kwargs):
+        # nur prüfen ob diese Funktion den Trigger erfüllt
+        if pattern and not pattern.search(func.__name__):
+            return func(*args, **kwargs)
+
+        stack = inspect.stack()
+        chain = []
+        for frame in stack[1:]:
+            fn = frame.function
+            if fn in ("wrapped", "<module>"):
+                continue
+            chain.append(fn)
+
+        if chain:
+            sys.stderr.write(" ⇒ ".join(reversed(chain)) + "\n")
+
+        return func(*args, **kwargs)
+
+    return wrapped
+
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = any(os.getenv(v) for v in ("ENABLE_BEARTYPE", "CI"))
 
@@ -11199,6 +11223,9 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
             if args.show_func_name:
                 wrapped = show_func_name_wrapper(wrapped)
+
+            if args.debug_stack_trace_regex:
+                wrapped = stack_trace_wrapper(wrapped, args.debug_stack_trace_regex)
 
             namespace[name] = wrapped
 

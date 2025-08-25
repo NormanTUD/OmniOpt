@@ -51,6 +51,7 @@ if command -v php 2>/dev/null >/dev/null; then
 
 	declare -a help_exceptions=(
 		raise_in_eval
+		debug_stack_trace_regex
 		config_yaml
 		config_json
 		skip_search

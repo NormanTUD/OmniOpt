@@ -2136,7 +2136,7 @@ def try_saving_to_db() -> None:
 def merge_with_job_infos(df: pd.DataFrame) -> pd.DataFrame:
     job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
     if not os.path.exists(job_infos_path):
-        return df 
+        return df
 
     job_df = pd.read_csv(job_infos_path)
 

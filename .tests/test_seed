@@ -88,7 +88,7 @@ if [[ -d $run_dir ]]; then
 	rm -rf $run_dir
 fi
 
-$OMNIOPT_CALL --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed $skip_search --debug_stack_regex=main
+$OMNIOPT_CALL --partition=alpha --experiment_name=$test_name --mem_gb=1 --time=60 --worker_timeout=5 --max_eval=2 --num_parallel_jobs=1 --gpus=$gpus --num_random_steps=1 --follow --result_names RESULT=min --run_program='ZWNobyAiUkVTVUxUOiAlKGVwb2NocyklKGxyKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --occ_type=euclid --run_mode=local --parameter epochs range 1 10 float false --parameter lr range 0 10 float false --seed $seed $skip_search
 
 exit_code=$?
 
@@ -101,7 +101,7 @@ if [[ $exit_code -ne 0 ]]; then
 	exit 2
 fi
 
-real_hash=$(cat $results_csv | sed -e 's#.*,##' | sort | md5sum | sed -e 's#\s.*##')
+real_hash=$(cat $results_csv | sed -e 's#.*,##' | md5sum | sed -e 's#\s.*##')
 
 if [[ $seed -eq 1234 ]]; then
 	if [[ $(cat $results_csv | grep "5.15" | grep "^0," | wc -l) -ne 1 ]]; then
@@ -115,7 +115,7 @@ if [[ $seed -eq 1234 ]]; then
 		echo "================================================="
 		echo "================================================="
 
-		echo "Since I know of this and tests fail otherwise, I will pass this. BUT FIX IT!"
+		exit 1
 	fi
 fi
 
@@ -126,9 +126,9 @@ if [ "$real_hash" = "$hash" ]; then
 	green_text "Hash of the '$results_csv' is $real_hash"
 	exit 0
 else
-	red_text "====> $results_csv ====>"
+	red_text "====> $results_csv ====>\n"
 	cat $results_csv
-	red_text "<==== $results_csv <===="
+	red_text "<==== $results_csv <====\n"
 
 	red_text "Hash of '$results_csv' is different from the wanted hash (wanted: $hash, real: $real_hash)"
 	exit 1

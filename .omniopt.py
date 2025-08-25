@@ -2241,6 +2241,10 @@ def fetch_and_prepare_trials() -> pd.DataFrame:
     return reindex_trials(df)
 
 def write_csv(df, path: str) -> None:
+    try:
+        df = df.sort_values(by=["trial_index"], kind="stable").reset_index(drop=True)
+    except:
+        pass
     df.to_csv(path, index=False, float_format="%.30f")
 
 def write_json_snapshot(path: str) -> None:
@@ -9655,7 +9659,6 @@ def load_experiment_state() -> None:
     state_path = get_current_run_folder("experiment_state.json")
 
     if not os.path.exists(state_path):
-        print(f"State file {state_path} does not exist, starting fresh")
         return
 
     if args.worker_generator_path:

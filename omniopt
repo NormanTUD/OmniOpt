@@ -110,8 +110,8 @@
 
 		if (command -v sbatch >/dev/null && [[ -n "$SLURM_JOB_ID" ]]) || ! command -v sbatch >/dev/null; then
 			already_logging_this_command=1
-			exec 1> >(tee -ia $bash_logname)
-			exec 2> >(tee -ia $bash_logname >& 2)
+			exec 1> >(tee -ia "$bash_logname")
+			exec 2> >(tee -ia "$bash_logname" >& 2)
 		fi
 	else
 		echo "uuidgen is not installed. It's recommended you install it." >&2
@@ -170,7 +170,7 @@
 		while true; do
 			date_str=$(date +"%Y-%m-%d %H:%M:%S")
 			echo -e "\n\n$date_str -> $(show_ram)\n\n" >&2
-			sleep $n
+			sleep "$n"
 		done
 	}
 
@@ -1188,7 +1188,7 @@ EOF
 								myexit 211
 							}
 
-							bash omniopt $*
+							bash omniopt "$*"
 							exit_code=$?
 
 							myexit $exit_code

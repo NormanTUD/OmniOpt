@@ -2133,72 +2133,31 @@ def try_saving_to_db() -> None:
     except Exception as e:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
 
-def merge_with_job_infos(pd_frame: pd.DataFrame) -> pd.DataFrame:
+def merge_with_job_infos(df: pd.DataFrame) -> pd.DataFrame:
     job_infos_path = os.path.join(get_current_run_folder(), "job_infos.csv")
     if not os.path.exists(job_infos_path):
-        return pd_frame
+        return df 
 
     job_df = pd.read_csv(job_infos_path)
 
-    if 'trial_index' not in pd_frame.columns or 'trial_index' not in job_df.columns:
+    if 'trial_index' not in df.columns or 'trial_index' not in job_df.columns:
         raise ValueError("Both DataFrames must contain a 'trial_index' column.")
 
-    job_df_filtered = job_df[job_df['trial_index'].isin(pd_frame['trial_index'])]
+    job_df_filtered = job_df[job_df['trial_index'].isin(df['trial_index'])]
 
-    new_cols = [col for col in job_df_filtered.columns if col != 'trial_index' and col not in pd_frame.columns]
+    new_cols = [col for col in job_df_filtered.columns if col != 'trial_index' and col not in df.columns]
 
     job_df_reduced = job_df_filtered[['trial_index'] + new_cols]
 
-    merged = pd.merge(pd_frame, job_df_reduced, on='trial_index', how='left')
+    merged = pd.merge(df, job_df_reduced, on='trial_index', how='left')
 
-    old_cols = [col for col in pd_frame.columns if col != 'trial_index']
+    old_cols = [col for col in df.columns if col != 'trial_index']
 
     new_order = ['trial_index'] + new_cols + old_cols
 
     merged = merged[new_order]
 
     return merged
-
-def reindex_trials(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Ensure trial_index is sequential and arm_name unique.
-    Keep arm_name unless all parameters except 'order', 'hostname', 'queue_time' match.
-    """
-    if "trial_index" not in df.columns or "arm_name" not in df.columns:
-        return df
-
-    # Sort by something stable (queue_time if available)
-    sort_cols = ["queue_time"] if "queue_time" in df.columns else df.columns.tolist()
-    df = df.sort_values(by=sort_cols, ignore_index=True)
-
-    # Mapping from "parameter signature" to assigned arm_name
-    seen_signatures = {}
-    new_arm_names = []
-
-    for new_idx, row in df.iterrows():
-        # Create signature without 'order', 'hostname', 'queue_time', 'trial_index', 'arm_name'
-        ignore_cols = {"order", "hostname", "queue_time", "trial_index", "arm_name"}
-        signature = tuple((col, row[col]) for col in df.columns if col not in ignore_cols)
-
-        if signature in seen_signatures:
-            # Collision → make a unique name
-            base_name = seen_signatures[signature]
-            suffix = 1
-            new_name = f"{base_name}_{suffix}"
-            while new_name in new_arm_names:
-                suffix += 1
-                new_name = f"{base_name}_{suffix}"
-            new_arm_names.append(new_name)
-        else:
-            # First occurrence → use new_idx as trial index in name
-            new_name = f"{new_idx}_0"
-            seen_signatures[signature] = f"{new_idx}_0"
-            new_arm_names.append(new_name)
-
-        df.at[new_idx, "trial_index"] = new_idx
-        df.at[new_idx, "arm_name"] = new_name
-
-    return df
 
 def save_results_csv() -> Optional[str]:
     if args.dryrun:
@@ -2214,11 +2173,8 @@ def save_results_csv() -> Optional[str]:
     save_checkpoint()
 
     try:
-        pd_frame = fetch_and_prepare_trials()
-        #print("========================")
-        #print(pd_frame["generation_node"])
-        #print("========================")
-        write_csv(pd_frame, pd_csv)
+        df = fetch_and_prepare_trials()
+        write_csv(df, pd_csv)
         write_json_snapshot(pd_json)
         save_experiment_to_file()
 
@@ -2240,8 +2196,15 @@ def get_results_paths() -> tuple[str, str]:
 def fetch_and_prepare_trials() -> pd.DataFrame:
     ax_client.experiment.fetch_data()
     df = ax_client.get_trials_data_frame()
+
+    #print("========================")
+    #print("BEFORE merge_with_job_infos:")
+    #print(df["generation_node"])
     df = merge_with_job_infos(df)
-    return reindex_trials(df)
+    #print("AFTER merge_with_job_infos:")
+    #print(df["generation_node"])
+
+    return df
 
 def write_csv(df, path: str) -> None:
     try:

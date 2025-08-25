@@ -101,6 +101,11 @@ if [[ $exit_code -ne 0 ]]; then
 	exit 2
 fi
 
+if [[ ! -e $results_csv ]]; then
+	echo "$results_csv does not exist! Something went wrong!"
+	exit 1
+fi
+
 real_hash=$(cat $results_csv | sed -e 's#.*,##' | md5sum | sed -e 's#\s.*##')
 
 if [[ $seed -eq 1234 ]]; then

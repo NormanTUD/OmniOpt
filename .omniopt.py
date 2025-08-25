@@ -2215,6 +2215,9 @@ def save_results_csv() -> Optional[str]:
 
     try:
         pd_frame = fetch_and_prepare_trials()
+        #print("========================")
+        #print(pd_frame["generation_node"])
+        #print("========================")
         write_csv(pd_frame, pd_csv)
         write_json_snapshot(pd_json)
         save_experiment_to_file()
@@ -5055,8 +5058,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     abandon_all_jobs()
 
-    save_results_csv()
-
     if exit_code:
         _exit = exit_code
 
@@ -7594,8 +7595,6 @@ def execute_evaluation(_params: list) -> Optional[int]:
         trial_counter += 1
 
         progressbar_description("started new job")
-
-        save_results_csv()
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1
@@ -7886,8 +7885,6 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
     print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")
 
-    save_results_csv()
-
     return batched_arms
 
 def fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[Dict[int, Any], bool]:
@@ -7941,8 +7938,6 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 if trial_successful:
                     cnt += 1
                     trials_dict[trial_index] = arm.parameters
-
-        save_results_csv()
 
         return _finalize_generation(trials_dict, cnt, n, start_time)
 
@@ -8823,10 +8818,6 @@ def execute_trials(
         _args = [trial_index, parameters, i, phase]
         index_param_list.append(_args)
         i += 1
-
-        save_results_csv()
-
-    save_results_csv()
 
     start_time = time.time()
 

@@ -10478,7 +10478,8 @@ def main() -> None:
 
             set_global_generation_strategy()
 
-        start_worker_generators()
+        if None:
+            start_worker_generators()
 
         try:
             run_search_with_progress_bar()

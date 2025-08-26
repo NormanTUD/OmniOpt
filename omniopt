@@ -390,7 +390,7 @@
 						if [[ -z $run_folder ]]; then
 							true
 						else
-							bash $SCRIPT_DIR/omniopt_share --username="$USER" "$run_folder" 2>/dev/null >/dev/null
+							bash "$SCRIPT_DIR/omniopt_share" --username="$USER" "$run_folder" 2>/dev/null >/dev/null
 						fi
 						set -e
 					else
@@ -601,7 +601,7 @@
 
 				echo ""
 				caller
-				echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
+				echo "Runtime (calltracer): $(displaytime "$SECONDS"), PID: $$"
 			else
 				echo ""
 			fi
@@ -620,7 +620,7 @@
 				if [[ $python_pid =~ $re ]] ; then
 					if [[ -z "$already_sent_signal" ]]; then
 						if command -v ps 2>/dev/null >/dev/null; then
-							if ps auxf | grep $python_pid 2>/dev/null >/dev/null; then
+							if ps auxf | grep "$python_pid" 2>/dev/null >/dev/null; then
 								already_sent_signal=1
 								echo -e "\nSending USR1 to $python_pid (python). Reason: $REASON"
 								kill -USR1 "$python_pid"
@@ -633,7 +633,7 @@
 			fi
 
 			if [[ $kill_python_if_started_already_shown -eq 0 ]]; then
-				echo "Runtime (kill_python_if_started): $(displaytime $SECONDS), PID: $$"
+				echo "Runtime (kill_python_if_started): $(displaytime "$SECONDS"), PID: $$"
 				kill_python_if_started_already_shown=1
 			fi
 
@@ -1622,17 +1622,17 @@ EOF
 
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
 			if [[ -z $RUN_WITH_PYSPY ]]; then
-				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
+				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" "$args_string"
 				EXIT_CODE=$?
 			else
 				echo "Starting OmniOpt with Py-Spy"
 				pip install py-spy
-				stdbuf -e 0 -o 0 py-spy record --rate 10 --subprocesses --native --output $RUN_UUID.svg python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
+				stdbuf -e 0 -o 0 py-spy record --rate 10 --subprocesses --native --output "$RUN_UUID.svg" python3 -- "$SCRIPT_DIR/.omniopt.py" "$args_string"
 				EXIT_CODE=$?
 			fi
 		else
 			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
-			coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
+			coverage run -p "$SCRIPT_DIR/.omniopt.py" "$args_string"
 			EXIT_CODE=$?
 		fi
 
@@ -1983,7 +1983,7 @@ EOF
 	fi
 
 	if [[ $show_runtime -eq 0 ]]; then
-		echo "Runtime (end): $(displaytime $SECONDS), PID: $$"
+		echo "Runtime (end): $(displaytime "$SECONDS"), PID: $$"
 	fi
 
 	if [[ -n $RUN_WITH_COVERAGE ]]; then

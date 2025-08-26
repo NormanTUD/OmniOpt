@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Testing if all kinds of different models that support Multi-Objective-Optimization work properly
+
 function echoerr { echo "$@" 1>&2; }
 
 function yellow_text { echoerr -e "\033[0;33m$1\033[0m"; }

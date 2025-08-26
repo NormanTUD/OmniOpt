@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Table helpers file
+
 if [[ -n $RUN_WITH_COVERAGE ]]; then
 	if command -v coverage 2>/dev/null >/dev/null; then
 		coverage combine -i 2>/dev/null >/dev/null || true

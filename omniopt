@@ -31,7 +31,7 @@
 #SBATCH --signal=B:USR1@600
 
 {
-	SCRIPT_DIR=$(dirname $(realpath "$0"))
+	SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 	if [ -n "${SLURM_JOB_ID:-}" ] ; then
 		set +e

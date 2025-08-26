@@ -52,7 +52,7 @@
 		set -e
 	fi
 
-	source $SCRIPT_DIR/.colorfunctions.sh
+	source "$SCRIPT_DIR/.colorfunctions.sh"
 
 	cancelled_manually=0
 
@@ -678,7 +678,7 @@
 
 				printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
 			elif [[ $var =~ $time_re ]]; then
-				echo $var
+				echo "$var"
 			else
 				red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
 
@@ -1183,7 +1183,7 @@ EOF
 					if [[ "$commits_since_tag" -gt 0 ]]; then
 						if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
 							yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
-							git -C "$SCRIPT_DIR" checkout $tag_commit_hash >/dev/null 2>/dev/null || {
+							git -C "$SCRIPT_DIR" checkout "$tag_commit_hash" >/dev/null 2>/dev/null || {
 								red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
 								myexit 211
 							}

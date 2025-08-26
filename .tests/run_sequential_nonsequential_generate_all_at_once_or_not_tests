@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: Using different raw_samples and num_restarts automatically to test differences
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR"
 cd ..

@@ -73,7 +73,7 @@
 		fclose($handle);
 
 		if (strpos($firstLine, '#!/usr/bin/env bash') === 0) {
-			if (preg_match("/^\./", $file->getPathname()) {
+			if (preg_match("/^\./", $file->getPathname())) {
 				continue;
 			}
 

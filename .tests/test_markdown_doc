@@ -17,6 +17,8 @@ fi
 
 source .shellscript_functions
 
+pip install -q pymarkdownlnt
+
 res=$(pymarkdown scan .gui/_tutorials/*.md | grep -iv "Line length" | grep -v "Hard tabs" | grep -v "Inline HTML" | grep -v "Fenced code blocks should have a language specified" | grep -v "^\s*$")
 
 echo "$res"

@@ -7933,7 +7933,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     params = arm.parameters
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
-        print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned.")
+        print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned. Params: {params}, constraints: {post_generation_constraints}")
         trial.mark_abandoned(reason="Post-Generation-Constraint failed")
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")

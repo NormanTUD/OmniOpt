@@ -603,7 +603,7 @@ def _get_debug_json(time_str: str, msg: str) -> str:
 
 def print_stack_paths() -> None:
     stack = inspect.stack()[1:]  # skip current frame
-    stack.reverse()  # vom Hauptprogramm zur tiefsten Funktion
+    stack.reverse()
 
     last_filename = None
     for depth, frame_info in enumerate(stack):
@@ -2057,15 +2057,6 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
 
     return "", ""
 
-#def extract_and_print_qr(text: str) -> None:
-#    match = re.search(r"(https?://\S+|\b[\w.-]+@[\w.-]+\.\w+\b|\b\d{10,}\b)", text)
-#    if match:
-#        data = match.group(0)
-#        qr = qrcode.QRCode(box_size=1, error_correction=qrcode.constants.ERROR_CORRECT_L, border=0)
-#        qr.add_data(data)
-#        qr.make()
-#        qr.print_ascii(out=sys.stdout)
-
 def force_live_share() -> bool:
     if args.live_share:
         return live_share(True)
@@ -2085,7 +2076,6 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     if text_and_qr:
         if stderr:
             print_green(stderr)
-            #extract_and_print_qr(stderr)
         else:
             print_red("This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
     if stdout:
@@ -3698,7 +3688,7 @@ def write_failed_logs(data_dict: Optional[dict], error_description: str = "") ->
         data = [list(data_dict.values())]
     else:
         print_debug("No data_dict provided, writing only error description.")
-        data = [[]]  # leeres Datenfeld, nur error_description kommt dazu
+        data = [[]]
 
     if error_description:
         headers.append('error_description')
@@ -3937,7 +3927,7 @@ def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_n
         "run_time",
         "program_string",
         *parameters_keys,
-        *arg_result_names,  # arg_result_names muss global definiert sein
+        *arg_result_names,
         "exit_code",
         "signal",
         "hostname",
@@ -7826,7 +7816,6 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         )
         print_debug(f"got global_gs.gen(): {batched_generator_run}")
 
-        # Inline rekursiv entpacken bis flach
         depth = 0
         path = "batched_generator_run"
         while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
@@ -7877,7 +7866,6 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                 if cnt >= n:
                     break
 
-                # 🔹 Erzeuge einen komplett neuen Arm, damit Ax den Namen vergibt
                 try:
                     arm = Arm(parameters=arm.parameters)
                 except Exception as arm_err:
@@ -8627,7 +8615,7 @@ def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = N
     model_enum = get_model_from_name(model_name)
 
     return GenerationStep(
-        generator=model_enum,   # ✅ neue API
+        generator=model_enum,
         num_trials=_num_trials,
         max_parallelism=1000 * max_eval + 1000,
         model_kwargs=get_model_kwargs(),
@@ -9631,7 +9619,7 @@ def load_experiment_state() -> None:
         arms_seen = {}
         for arm in data.get("arms", []):
             name = arm.get("name")
-            sig = arm.get("parameters")  # grobe Signatur
+            sig = arm.get("parameters")
             if not name:
                 continue
             if name in arms_seen and arms_seen[name] != sig:
@@ -9640,7 +9628,6 @@ def load_experiment_state() -> None:
                 arm["name"] = new_name
             arms_seen[name] = sig
 
-        # Gefilterten Zustand speichern und laden
         temp_path = state_path + ".no_conflicts.json"
         with open(temp_path, encoding="utf-8", mode="w") as f:
             json.dump(data, f)
@@ -11135,7 +11122,6 @@ def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:
     pattern = re.compile(regex) if regex else None
 
     def wrapped(*args, **kwargs):
-        # nur prüfen ob diese Funktion den Trigger erfüllt
         if pattern and not pattern.search(func.__name__):
             return func(*args, **kwargs)
 

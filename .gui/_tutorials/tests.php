@@ -73,10 +73,6 @@
 		fclose($handle);
 
 		if (strpos($firstLine, '#!/usr/bin/env bash') === 0) {
-			if (preg_match("/^\./", $file->getPathname())) {
-				continue;
-			}
-
 			print "<h3>" . basename($file->getPathname()) . "</h3>\n";
 
 			$contents = file($file->getPathname());

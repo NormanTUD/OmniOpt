@@ -9075,8 +9075,6 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         _wrn = f"found {NR_OF_0_RESULTS} zero-jobs (max: {args.max_nr_of_zero_results})"
         progressbar_description(_wrn)
         print_debug(_wrn)
-
-        live_share()
     else:
         NR_OF_0_RESULTS = 0
 
@@ -9085,8 +9083,10 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         print_debug(_wrn)
         progressbar_description(_wrn)
 
+        live_share()
         return True
 
+    live_share()
     return False
 
 def finalize_jobs() -> None:

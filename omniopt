@@ -1888,7 +1888,8 @@ EOF
 
 
 						exit_code_lines=$(grep -i "exit-code:*" "$LOG_PATH" 2>/dev/null)
-						if [ $? -ne 0 ] || [ -z "$exit_code_lines" ]; then
+						exit_code_lines_lines=$?
+						if [ $exit_code_lines_lines -ne 0 ] || [ -z "$exit_code_lines" ]; then
 							echo "WARN: grep failed or no exit-code line found."
 							exit_code_lines=""
 						fi

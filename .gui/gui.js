@@ -824,7 +824,7 @@ function addBase64DecodedVersions(cmdString) {
         }
 
         if (decoded) {
-            const safeDecoded = decoded.replace(/\x27/g, `'\\''`);
+            var safeDecoded = decoded.replace(/\x27/g, `'\\''`).trim();
             return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
         } else {
             return match;

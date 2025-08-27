@@ -1,6 +1,6 @@
 body {
 	font-variant: oldstyle-nums;
-	font-family: sans-serif;
+	font-family: sans-serif, "Fluent Emoji Color";
 	background-color: #fafafa;
 	text-shadow: 0 0.05em 0.1em rgba(0,0,0,0.2);
 	scroll-behavior: smooth;
@@ -99,7 +99,6 @@ button {
 	user-select: none;
 	-webkit-user-select: none;
 	touch-action: manipulation;
-	font-family: sans-serif;
 }
 
 button:hover {
@@ -776,10 +775,6 @@ input:checked + .slider::before {
 	display: inline-block;
 }
 
-input::placeholder {
-	font-family: sans-serif;
-}
-
 .gridjs-th-content {
 	overflow: visible !important;
 }
@@ -805,7 +800,6 @@ h1, h2, h3, h4, h5, h6 {
 	border: 1px solid #f2d600;
 	padding: 1em 1em 1em 70px;
 	position: relative;
-	font-family: sans-serif;
 	color: #665500;
 	margin: 1em 0;
 	border-radius: 4px;

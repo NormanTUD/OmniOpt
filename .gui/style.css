@@ -141,7 +141,7 @@ button:disabled:hover {
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
-	display: -webkit-box;
+	display: flex;
 }
 
 .tab {
@@ -628,6 +628,7 @@ img {
 	align-items: center;
 	flex: 1 1 auto;
 	min-width: 200px;
+	display: contents;
 }
 
 .logo-img {
@@ -655,7 +656,7 @@ img {
 
 .header-tabs {
 	margin-top: 10px;
-	display: flex;
+	display: contents;
 	flex-wrap: wrap;
 	gap: 10px;
 	flex: 2 1 100%;

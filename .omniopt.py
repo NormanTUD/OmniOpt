@@ -26,7 +26,7 @@ import traceback
 import inspect
 import tracemalloc
 import resource
-from urllib.parse import urlencode, quote
+from urllib.parse import urlencode
 
 import psutil
 

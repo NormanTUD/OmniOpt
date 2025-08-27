@@ -455,6 +455,7 @@ function update_table_row (item, errors, warnings, command) {
 		if(!errors.length) {
 			if (item.id != "constraints") {
 				if (item.id == "result_names") {
+					value = value.replace(/\s+/g, ' ').trim()
 					command += ` --${item.id} '${value}'`
 				} else {
 					command += " --" + item.id + "=" + value;

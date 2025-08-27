@@ -2316,7 +2316,7 @@ function createResultParameterCanvases(this_res_name) {
 			var result_max = Math.max.apply(null, result_values);
 
 			var heading = document.createElement("h2");
-			heading.textContent = "Interpretation for result: " + result_name + " (goal: " + result_goal + ")";
+			heading.textContent = result_name + " (goal: " + result_goal + ")";
 			heading.style.fontFamily = "sans-serif";
 			heading.style.marginTop = "24px";
 			heading.style.marginBottom = "12px";

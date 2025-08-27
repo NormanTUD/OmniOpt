@@ -30,6 +30,5 @@ pyspellchecker
 pyfiglet
 setuptools
 pyright
-qrcode
 tabulate
 optuna

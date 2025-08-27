@@ -525,7 +525,7 @@ def is_slurm_job() -> bool:
         return True
     return False
 
-def _sleep(t: int) -> int:
+def _sleep(t: Union[float, int]) -> int:
     if args is not None and not args.no_sleep:
         try:
             time.sleep(t)

@@ -300,9 +300,11 @@ function update_table_row (item, errors, warnings, command) {
 		if(item.required) {
 			var this_error = "<img src='i/warning.svg' style='height: 1em' /> Field '" + item.label + "' is required.";
 			smoothShow($("#" + item.id + "_error").html(this_error));
-			$("#" + item.id).css("background-color", "#FFCCCC !important");
+			$("#" + item.id).css("background-color", "#FFCCCC !important").addClass("invert_in_dark_mode");
 
 			errors.push(this_error);
+		} else {
+			$("#" + item.id).removeClass("invert_in_dark_mode");
 		}
 	} else if (item.id == "time") {
 		var worker_timeout_larger_than_global_timeout = parseInt($("#worker_timeout").val()) > parseInt($("#time").val());

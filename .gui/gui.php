@@ -12,9 +12,7 @@
 		$(document).ready(run_when_document_ready);
 	</script>
 <div id="loader">
-	<div class="spinner"></div>
-	<br>
-	<h2>Loading...</h2>
+	<div class="spinner"></div> Loading...
 </div>
 
 <div id="site" style="display: none">

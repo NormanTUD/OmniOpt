@@ -83,8 +83,8 @@ function input_to_time_picker (input_id) {
 
 	var $div = $(`
 		    <div class='time_picker_container'>
-			<input type='number' min=-1 max=159 class="invert_in_dark_mode time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
-			<input type='number' min=-1 step=31 class="invert_in_dark_mode time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
+			<input type='number' min=-1 max=159 class="time_picker_hours" value='${_hours}' onchange='update_original_time_element("${input_id}", this)'></input> Hours,
+			<input type='number' min=-1 step=31 class="time_picker_minutes" value='${_minutes}' onchange='update_original_time_element("${input_id}", this)'></input> Minutes
 		    </div>
 		`);
 
@@ -852,15 +852,15 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Min:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode minValue'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='minValue'></td>
 				</tr>
 				<tr>
 					<td>Max:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='invert_in_dark_mode maxValue'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='maxValue'></td>
 				</tr>
 				<tr>
 					<td>Type:</td>
@@ -884,11 +884,11 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Values (comma separated):</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode choiceValues'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='choiceValues'></td>
 				</tr>
 			</table>
 		    `;
@@ -897,11 +897,11 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='invert_in_dark_mode parameterName'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Value:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='invert_in_dark_mode fixedValue'></td>
+					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='fixedValue'></td>
 				</tr>
 			</table>
 		    `;
@@ -1017,8 +1017,6 @@ function create_table_row (table, tbody, item) {
 		var input = $("<textarea>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max });
 		$(input).css({"width": "95%", "height": "95%"});
 
-		$(input).addClass("invert_in_dark_mode");
-
 		input.on({
 			change: update_command,
 			keyup: update_command,
@@ -1032,8 +1030,6 @@ function create_table_row (table, tbody, item) {
 		}
 	} else {
 		var input = $("<input>").attr({ id: item.id, type: item.type, value: item.value, placeholder: item.placeholder, min: item.min, max: item.max, step: item.step }).css("width", "95%");
-
-		$(input).addClass("invert_in_dark_mode");
 
 		if (item.type === "checkbox") {
 			input.prop("checked", item.value);

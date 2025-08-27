@@ -10500,7 +10500,7 @@ def build_gui_url(config: argparse.Namespace) -> str:
 
     return ret
 
-def get_result_names_for_url(value: str) -> str:
+def get_result_names_for_url(value: List) -> str:
     d = dict(v.split("=", 1) if "=" in v else (v, "min") for v in value)
     s = " ".join(f"{k}={v}" for k, v in d.items())
 

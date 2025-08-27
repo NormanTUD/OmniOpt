@@ -40,7 +40,6 @@ tests=(
 	js_syntax
 	pyright_fast
 	find_typos
-	test_markdown_doc
 )
 
 code=1

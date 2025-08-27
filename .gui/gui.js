@@ -49,7 +49,7 @@ function smoothShow($elem) {
 	if (useSmoothFade) {
 		$elem.fadeIn(fadeTime);
 	} else {
-		$elem.show();  // sofort, ohne Animation
+		$elem.show();
 	}
 }
 
@@ -57,7 +57,7 @@ function smoothHide($elem) {
 	if (useSmoothFade) {
 		$elem.fadeOut(fadeTime);
 	} else {
-		$elem.hide();  // sofort, ohne Animation
+		$elem.hide();
 	}
 }
 

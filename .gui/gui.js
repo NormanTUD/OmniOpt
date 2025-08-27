@@ -852,15 +852,15 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+					<td><input placeholder="Parameter name" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Min:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='minValue'></td>
+					<td><input placeholder="Minimum value" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='minValue'></td>
 				</tr>
 				<tr>
 					<td>Max:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='maxValue'></td>
+					<td><input placeholder="Maximum value" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='number' class='maxValue'></td>
 				</tr>
 				<tr>
 					<td>Type:</td>
@@ -884,11 +884,11 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+					<td><input placeholder="Parameter name" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Values (comma separated):</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='choiceValues'></td>
+					<td><input placeholder="Comma-Seperated Values" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='choiceValues'></td>
 				</tr>
 			</table>
 		    `;
@@ -897,11 +897,11 @@ function updateOptions(select) {
 			<table class='parameter_config_table'>
 				<tr>
 					<td>Name:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
+					<td><input placeholder="Parameter name" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" value="${paramName}" type='text' class='parameterName'></td>
 				</tr>
 				<tr>
 					<td>Value:</td>
-					<td><input onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='fixedValue'></td>
+					<td><input placeholder="Value" onchange="update_command()" onkeyup="update_command()" onclick="update_command()" type='text' class='fixedValue'></td>
 				</tr>
 			</table>
 		    `;

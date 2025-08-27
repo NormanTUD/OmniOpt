@@ -10500,17 +10500,23 @@ def build_gui_url(config: argparse.Namespace) -> str:
 
 def collect_params(config: argparse.Namespace) -> dict:
     params = {}
+    user_home = os.path.expanduser("~")
+
     for attr, value in vars(config).items():
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
         elif attr == "parameter" and value is not None:
             params.update(process_parameters(config.parameter))
+        elif attr == "root_venv_dir":
+            if value is not None and os.path.abspath(value) != os.path.abspath(user_home):
+                params[attr] = value
         elif isinstance(value, bool):
             params[attr] = int(value)
         elif isinstance(value, list):
             params[attr] = value
         elif value is not None:
             params[attr] = value
+
     return params
 
 def process_parameters(parameters: list) -> dict:
@@ -10563,7 +10569,7 @@ def get_base_url() -> str:
 def write_ui_url() -> None:
     url = build_gui_url(args)
     with open(get_current_run_folder("ui_url.txt"), mode="a", encoding="utf-8") as myfile:
-        myfile.write(decode_if_base64(url))
+        myfile.write(url)
 
 def handle_random_steps() -> None:
     if args.parameter and args.continue_previous_job and random_steps <= 0:

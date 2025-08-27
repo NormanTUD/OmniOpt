@@ -2315,13 +2315,6 @@ function createResultParameterCanvases(this_res_name) {
 			var result_min = Math.min.apply(null, result_values);
 			var result_max = Math.max.apply(null, result_values);
 
-			var heading = document.createElement("h2");
-			heading.textContent = result_name + " (goal: " + result_goal + ")";
-			heading.style.fontFamily = "sans-serif";
-			heading.style.marginTop = "24px";
-			heading.style.marginBottom = "12px";
-			container.appendChild(heading);
-
 			var table = document.createElement("table");
 			table.style.borderCollapse = "collapse";
 			table.style.marginBottom = "32px";
@@ -2334,7 +2327,7 @@ function createResultParameterCanvases(this_res_name) {
 			th1.style.textAlign = "left";
 			th1.style.padding = "6px 12px";
 			var th2 = document.createElement("th");
-			th2.textContent = "Distribution of result";
+			th2.textContent = "Distribution";
 			th2.style.textAlign = "left";
 			th2.style.padding = "6px 12px";
 

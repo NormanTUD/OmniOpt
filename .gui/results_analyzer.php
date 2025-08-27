@@ -227,7 +227,7 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 			continue;
 		}
 
-		$html = "<h2>Visualization for result: <code>$result</code> (goal: <b>$goal</b>)</h2>";
+		$html = "<h2><code>$result</code> (goal: <b>$goal</b>)</h2>";
 		$html .= "<p>Best value: <b>$bestValue</b><br>Achieved at:";
 		foreach ($paramInfos as $info) {
 			$html .= "<br>- <code>{$info['param']}</code> = {$info['bestParamVal']}";

@@ -1084,7 +1084,7 @@ function create_tables() {
 		create_table_row(table, tbody, item);
 	});
 
-	tbody.append("<tr><td colspan=2><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'><img class='invert_in_dark_mode 'src='i/green_plus.svg' style='height: 1em' />&nbsp;Add variable</button></td></tr>");
+	tbody.append("<tr><td colspan=3><button onclick='add_parameter_row(this)' class='add_parameter' id='main_add_row_button'><img class='invert_in_dark_mode 'src='i/green_plus.svg' style='height: 1em' />&nbsp;Add variable</button></td></tr>");
 
 	var hidden_table = $("#hidden_config_table");
 	var hidden_tbody = hidden_table.find("tbody");

@@ -945,7 +945,7 @@ function add_parameter_row(button) {
 
 	update_command();
 
-	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
+	toggle_disabled_status_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
 function remove_parameter_row(button) {
@@ -957,7 +957,7 @@ function remove_parameter_row(button) {
 		update_command();
 	}
 
-	toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one();
+	toggle_disabled_status_of_remove_parameters_depending_on_if_there_are_more_than_one();
 }
 
 function string_or_array_to_list (input) {
@@ -1627,15 +1627,13 @@ function equation_validation_test () {
 	console.log(`Ran ${test_counter} tests (${failed} failed)`);
 }
 
-function toggle_visiblity_of_remove_parameters_depending_on_if_there_are_more_than_one() {
-	var current_setting = $(".remove_parameter").css("visibility");
-
+function toggle_disabled_status_of_remove_parameters_depending_on_if_there_are_more_than_one() {
 	var nr_params = $(".parameterName").length;
-	
-	if(nr_params <= 1) {
-		$(".remove_parameter").css("visibility", "hidden")
+
+	if (nr_params <= 1) {
+		$(".remove_parameter").prop("disabled", true);
 	} else {
-		$(".remove_parameter").css("visibility", "unset")
+		$(".remove_parameter").prop("disabled", false);
 	}
 }
 

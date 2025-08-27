@@ -70,7 +70,7 @@
 	}
 ?>
 
-<h1>🖧 Available partitions</h1>
+<h1>🖥️ Available partitions</h1>
 
 <div id="toc"></div>
 

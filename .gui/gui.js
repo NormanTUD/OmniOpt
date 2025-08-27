@@ -43,12 +43,22 @@ var shown_operation_insecure_without_server = false;
 
 var l = typeof log === "function" ? log : console.log;
 
+var useSmoothFade = false;
+
 function smoothShow($elem) {
-	$elem.fadeIn(fadeTime);
+	if (useSmoothFade) {
+		$elem.fadeIn(fadeTime);
+	} else {
+		$elem.show();  // sofort, ohne Animation
+	}
 }
 
 function smoothHide($elem) {
-	$elem.fadeOut(fadeTime);
+	if (useSmoothFade) {
+		$elem.fadeOut(fadeTime);
+	} else {
+		$elem.hide();  // sofort, ohne Animation
+	}
 }
 
 function smoothToggle($elem) {
@@ -1090,6 +1100,8 @@ function create_tables() {
 	});
 
 	highlight_all_bash();
+
+	useSmoothFade = true;
 
 	$("#site").show();
 	$("#loader").remove();

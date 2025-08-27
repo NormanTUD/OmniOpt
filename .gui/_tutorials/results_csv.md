@@ -6,7 +6,7 @@
 
 <div id="toc"></div>
 
-# What is a CSV?
+## What is a CSV?
 
 A **CSV** (Comma-Separated Values) file is a simple, text-based file format used to store tabular data. Each line represents a row, and each value is separated by a comma. CSVs are widely used because they are human-readable and compatible with many tools.
 
@@ -18,7 +18,7 @@ In **OmniOpt**, the `results.csv` file is used to store the outcomes of all exec
 - The **results** (objective values) produced by these configurations.
 - Metadata about the optimization process such as the trial index, arm name, trial status, and generation method used.
 
-### Example content:
+### Example content
 
 ```csv
 trial_index,arm_name,trial_status,generation_node,RESULT,int_param
@@ -29,13 +29,16 @@ trial_index,arm_name,trial_status,generation_node,RESULT,int_param
 ### Column Explanations
 
 #### `trial_index`
+
 A unique, sequential number identifying the trial.
 
 #### `arm_name`
+
 A name identifying the specific configuration (or **arm**) tested during the trial.
 In Ax (the optimization framework used by OmniOpt), an **arm** represents a single set of parameter values to be evaluated.
 
 #### `trial_status`
+
 Indicates the current or final state of a trial. Possible values are:
 
 - **COMPLETED** – The trial ran successfully and returned a result.
@@ -44,6 +47,7 @@ Indicates the current or final state of a trial. Possible values are:
 - **RUNNING** – The trial is still in progress and has not yet returned a result.
 
 #### `generation_node`
+
 This shows which model or strategy was responsible for generating the configuration. It reflects the generation logic used for that trial.
 
 ### Generation Models (`generation_node`)

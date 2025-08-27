@@ -52,13 +52,13 @@ For a constraint to be treated as an ax-constraint:
 - It must be mathematically valid (parsable and type-correct)
 - It must follow the linear form rules described above
 
-#### Examples of valid ax-constraints:
+#### Examples of valid ax-constraints
 
 - \(3 \cdot \text{learning_rate} + 2 \cdot \text{dropout} <= 1.0 \)
 - \( \text{batch_size} <= 512 \)
 - \( \text{layers} <= \text{depth} \)
 
-#### Examples **not** valid as ax-constraints:
+#### Examples **not** valid as ax-constraints
 
 - \( \text{sample_period} \cdot \text{window_size} >= 1 \)
 - \( 1 \cdot \text{sample_period} >= 1 / \text{window_size} \)
@@ -69,11 +69,11 @@ These are valid constraints but will be evaluated *after* point creation, as Pos
 
 For more complex constraints, Post-Generation-Constraints will be used. These are evaluated *after* point creation. If a point does not satisfy a Post-Generation-Constraint, the job will be immediately marked as *abandoned* and will not be executed.
 
-### Valid operators for Post-Generation-Constraints include:
+### Valid operators for Post-Generation-Constraints
 
 - `==`, `!=`, `<=`, `>=`
 
-### Valid calculation types:
+### Valid calculation types
 
 - Arithmetic sums and differences: `+`, `-`
 - Scalar multiplications: `*`
@@ -81,14 +81,14 @@ For more complex constraints, Post-Generation-Constraints will be used. These ar
 - Unary operations: `+x`, `-x`
 - Constants (e.g., `5`, `1.2`, etc.)
 
-### Post-Generation-Constraints must:
+### Post-Generation-Constraints must
 
 - Be valid equations (syntax-checked and structurally correct)
 - Include at least one comparison operator
 - Reference only allowed parameter names and numeric constants
 - Not be ax-compatible — otherwise, they will be treated as ax-constraints instead
 
-#### Examples of valid Post-Generation-Constraints:
+#### Examples of valid Post-Generation-Constraints
 
 - \( \text{sample_period} \cdot \text{window_size} >= 1 \)
 - \( 1 * \text{sample_period} >= 1 / \text{window_size} \)
@@ -129,7 +129,7 @@ This constraint limits the combination of learning rate and batch size to ensure
 
 In the CLI, constraints can be added using the `--experiment_constraints` argument. Each constraint must be encoded in base64 format.
 
-#### Example:
+#### Example
 
 ```bash
 --experiment_constraints $(echo "50 * learning_rate + 20 * batch_size >= 1000" | base64 -w0) $(echo "100 * learning_rate + 200 * num_layers >= 500" | base64 -w0)

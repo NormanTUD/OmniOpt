@@ -41,7 +41,7 @@ This configuration file does the following. When a job ends, and in the output t
 
 You can call OmniOpt2 with the parameter `--orchestrator_file orchestrator.yaml` to load such a file.
 
-## Valid behaviors:
+## Valid behaviors
 
 - `ExcludeNode`: Excludes the node for future jobs
 - `Restart`: Restarts the job, may end up on a different node

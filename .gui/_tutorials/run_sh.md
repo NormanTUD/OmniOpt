@@ -153,7 +153,6 @@ python3 script.py --epochs %(epochs) --learning_rate %(learning_rate) --model_na
 - `mean`: average of repeated measurements
 - `sem`: standard error of the mean (uncertainty of `mean`)
 
-
 Use `sem` when results are noisy — it helps Ax handle uncertainty.
 
 One way of calculating this would be this:

@@ -208,7 +208,6 @@ omniopt \
 
 This is an example python-program that generated random points that lie within the ranges and parameter boundaries of your experiment:
 
-
 ```python[../.random_generator.py]
 ```
 
@@ -220,6 +219,7 @@ This is another program. It uses [Optuna](https://optuna.org/) and a Tree-Parzen
 ```
 
 ## Caveats
+
 <div class="caveat warning">
 External Generator does not work with [custom generation strategies](tutorials?tutorial=custom_generation_strategy).
 </div>

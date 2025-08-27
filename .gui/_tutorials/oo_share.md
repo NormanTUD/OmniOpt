@@ -42,7 +42,6 @@ If you want to download a lot of exports, you can first run the local docker ins
 
 You can then download all exports as single HTML files by simply doing this:
 
-
 ```bash
 cd .gui
 bash download_local_exports --export_dir /home/YourUsername/test/randomtest_98580
@@ -85,6 +84,7 @@ Filtering subpages does not work for the export subpage.
 When using `--live_share` with OmniOpt2, the job is shared automatically after each finished job. A URL where you can reach the Job and a QR-Code is printed as well, so you can easily access the site from anywhere in the world.
 
 ## Notes on Privacy
+
 <div class="caveat tip">
 You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload
 is publically available for 30 days.

@@ -46,6 +46,7 @@ omniopt --[Tab]
 This will display all available options for **OmniOpt**.
 
 ## Troubleshooting
+
 <div class="caveat tip">
 If tab completion is not working, try the following:
 - Ensure you have restarted your shell.

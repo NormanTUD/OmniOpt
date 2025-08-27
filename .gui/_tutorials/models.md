@@ -25,6 +25,7 @@ In summary, surrogate models in Ax help optimize complex, expensive, or uncertai
 ## Default Generators
 
 ### BOTORCH_MODULAR
+
 `Models.BOTORCH_MODULAR` is the default Gaussian Process model using BoTorch under the hood. It fits a GP to observed data and proposes new candidates via acquisition function optimization (typically qEI/qNEI or qEHVI for multi-objective).
 **Best suited for:** *Continuous* or low-cardinality *categorical* search spaces with *low to medium* dimensionality (typically <20 after one-hot encoding). Ideal when function evaluations are *expensive*.
 **Use case:** Hyperparameter tuning of ML models with few parameters; optimization of quantum circuits, materials, or simulation parameters.
@@ -34,6 +35,7 @@ In summary, surrogate models in Ax help optimize complex, expensive, or uncertai
 Sources: [BoTorch: A Framework for Efficient Monte-Carlo Bayesian Optimization](https://arxiv.org/abs/1910.06403)
 
 ### SOBOL
+
 Sobol sampling generates *quasi-random low-discrepancy sequences* over the search space. Typically used for initialization.
 **Best suited for:** Any search space where *initial uniform exploration* is needed.
 **Use case:** Initial design in BO pipelines; sensitivity analysis; uniform space exploration.
@@ -43,6 +45,7 @@ Sobol sampling generates *quasi-random low-discrepancy sequences* over the searc
 Sources: [Sampling based on Sobol' sequences for Monte Carlo techniques applied to building simulations](https://publica.fraunhofer.de/handle/publica/375074)
 
 ### FACTORIAL
+
 The `FACTORIAL`-model generates a full factorial design over categorical variables. It enumerates all possible discrete combinations.
 **Best suited for:** Low-cardinality, fully discrete search spaces (categorical/integer).
 **Use case:** Grid search; controlled A/B testing; combinatorial experiments with small parameter spaces.
@@ -50,6 +53,7 @@ The `FACTORIAL`-model generates a full factorial design over categorical variabl
 - **Cons:** Grows exponentially with variable count/cardinality; not suitable for continuous parameters.
 
 ### SAASBO
+
 "**Sparse Axis-Aligned Subspace BO**" uses a sparse GP prior (hierarchical Half-Cauchy on lengthscales) and Hamiltonian Monte Carlo (NUTS) for inference.
 **Best suited for:** *High-dimensional* problems (hundreds of parameters) with *very limited evaluation budgets* (e.g., ≤100 trials).
 **Use case:** Deep learning HP tuning with large config spaces; material design; scientific problems with few effective parameters.
@@ -59,6 +63,7 @@ The `FACTORIAL`-model generates a full factorial design over categorical variabl
 Sources: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492), [SAASBO in the BoTorch-Documentation](https://botorch.org/docs/tutorials/saasbo)
 
 ### UNIFORM
+
 `UNIFORM` generates uniformly random samples. Equivalent to PseudoRandom, just explicitly uniform.
 **Best suited for:** Very cheap-to-evaluate functions; embarrassingly parallel sampling.
 **Use case:** Random stress testing; large-scale exploration; fallback search method.
@@ -66,6 +71,7 @@ Sources: [SAASBO Paper (Eriksson et al., 2021)](https://arxiv.org/abs/2006.04492
 - **Cons:** No adaptivity; inefficient in high-dimensional or expensive settings.
 
 ### BO_MIXED
+
 `BO_MIXED` is a BoTorch-powered model designed for *mixed spaces* (categorical + continuous). It encodes categories numerically (ordinal/integer) and uses a combined kernel.
 **Best suited for:** Optimization with both continuous and categorical variables.
 **Use case:** Neural architecture + HP tuning (e.g., architecture type + learning rate); mixed material design problems.
@@ -79,6 +85,7 @@ Sources: [Mixed-Variable Bayesian Optimization](https://arxiv.org/abs/1907.01329
 These generators cannot be used in [Custom Generation Strategies](tutorials?tutorial=custom_generation_strategy).
 
 ### RANDOMFOREST
+
 Uses a Random Forest surrogate model for prediction (no candidate generation). Suitable for modeling nonlinear effects in categorical/mixed spaces.
 **Best suited for:** Regression-only tasks; modeling complex, discrete-heavy datasets.
 **Use case:** Model diagnostics; cross-validation predictions; analysis of parameter importance.
@@ -91,6 +98,7 @@ Sources: [Hyperparameters and Tuning Strategies for Random Forest](https://arxiv
 [Generalising Random Forest Parameter Optimisation to Include Stability and Cost](https://arxiv.org/abs/1706.09865)
 
 ### PSEUDORANDOM
+
 Pseudo-random uniform sampling over the search space (via RNG). Like Sobol, but purely random.
 **Best suited for:** Baseline methods, quick-and-dirty optimization, very cheap evaluations.
 **Use case:** Random search for ML hyperparameters; brute-force sampling; baseline comparisons.

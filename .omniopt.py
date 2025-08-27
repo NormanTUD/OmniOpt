@@ -26,7 +26,7 @@ import traceback
 import inspect
 import tracemalloc
 import resource
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import psutil
 
@@ -10496,7 +10496,9 @@ def initialize_nvidia_logs() -> None:
 def build_gui_url(config: argparse.Namespace) -> str:
     base_url = get_base_url()
     params = collect_params(config)
-    return f"{base_url}?{urlencode(params, doseq=True)}"
+    ret = f"{base_url}?{urlencode(params, doseq=True)}"
+
+    return ret
 
 def collect_params(config: argparse.Namespace) -> dict:
     params = {}
@@ -10505,6 +10507,10 @@ def collect_params(config: argparse.Namespace) -> dict:
     for attr, value in vars(config).items():
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
+        elif attr == "result_names" and value:
+            d = dict(v.split("=", 1) if "=" in v else (v, "min") for v in value)
+            s = " ".join(f"{k}={v}" for k, v in d.items())
+            params[attr] = s
         elif attr == "parameter" and value is not None:
             params.update(process_parameters(config.parameter))
         elif attr == "root_venv_dir":

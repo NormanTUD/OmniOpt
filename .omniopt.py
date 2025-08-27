@@ -10514,7 +10514,7 @@ def collect_params(config: argparse.Namespace) -> dict:
         if attr == "run_program":
             params[attr] = global_vars["joined_run_program"]
         elif attr == "result_names" and value:
-            params[attr] = get_result_names_for_url()
+            params[attr] = get_result_names_for_url(value)
         elif attr == "parameter" and value is not None:
             params.update(process_parameters(config.parameter))
         elif attr == "root_venv_dir":

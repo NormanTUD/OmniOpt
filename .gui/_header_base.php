@@ -94,7 +94,6 @@
 <?php
 		if (isset($_SERVER["SCRIPT_FILENAME"]) && strpos($_SERVER['SCRIPT_FILENAME'], 'share.php') !== false) {
 ?>
-			<link rel="stylesheet" href="css/FluentEmojiColor.css">
 			<link rel="stylesheet" href="css/share.css">
 			<meta name="robots" content="noindex, nofollow">
 			<?php js("plotly-latest.min.js"); ?>

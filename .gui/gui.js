@@ -1101,8 +1101,6 @@ function create_tables() {
 
 	highlight_all_bash();
 
-	useSmoothFade = true;
-
 	$("#site").show();
 	$("#loader").remove();
 }
@@ -1346,6 +1344,8 @@ function run_when_document_ready () {
 	update_url();
 
 	update_command();
+
+	useSmoothFade = true;
 }
 
 function test_if_equation_is_valid(str, names) {

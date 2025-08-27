@@ -455,7 +455,7 @@ function update_table_row (item, errors, warnings, command) {
 		if(!errors.length) {
 			if (item.id != "constraints") {
 				if (item.id == "result_names") {
-					command += " --" + item.id + " " + value;
+					command += ` --${item.id} '${value}'`
 				} else {
 					command += " --" + item.id + "=" + value;
 				}

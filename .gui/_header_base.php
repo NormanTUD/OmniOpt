@@ -176,6 +176,7 @@
 <?php
 				$current_file = basename($_SERVER["PHP_SELF"]);
 				foreach ($GLOBALS["files"] as $fn => $n) {
+					$classes = "";
 					if (is_array($n)) {
 						$n = $n["name"];
 					}
@@ -190,10 +191,11 @@
 					$link_no_php = preg_replace("/\.php$/", "", $_link);
 					if ($tab_is_active) {
 						$n = "<i><b>$n</b></i>";
+						$classes =  " clicked_button";
 					}
 
 					$script_link = preg_replace("/\/\/*/", "/", get_main_script_dir() . "/$link_no_php");
-					echo "<a href='$script_link'><button class='header_button'>$n</button></a>";
+					echo "<a href='$script_link'><button class='header_button$classes'>$n</button></a>";
 				}
 ?>
 			</div>

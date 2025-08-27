@@ -995,7 +995,7 @@ function create_table_row (table, tbody, item) {
 			return str.replace(/'/g, "&#039;");
 		}
 
-		left_side_content += `<a class='tooltip invert_in_dark_mode' title='${escapeQuotes(item.help)}'>&#10067;</a>`;
+		left_side_content += `<a class='tooltip invert_in_dark_mode' title='${escapeQuotes(item.help)}'><img src='i/help.svg' /></a>`;
 	}
 
 	var labelCell = $("<td class='left_side'>").html(left_side_content);

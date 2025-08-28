@@ -5478,7 +5478,7 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
     return experiment_args
 
-def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[list]) -> None:
+def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_experiment_parameters: Optional[dict, list]) -> None:
     if not experiment_parameters:
         print_red("replace_parameters_for_continued_jobs: experiment_parameters was False")
         return None

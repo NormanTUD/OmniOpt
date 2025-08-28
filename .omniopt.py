@@ -6366,7 +6366,7 @@ def get_generation_node_for_index(
     results_list: List[Dict[str, Any]],
     index: int,
     __status: Any,
-    base_str: str
+    base_str: Optional[str]
 ) -> str:
     __status.update(f"{base_str}: Getting generation node")
     try:

@@ -6028,7 +6028,7 @@ def get_workers_string() -> str:
     )
 
 def _get_workers_string_collect_stats() -> dict:
-    stats = {}
+    stats: dict = {}
     for job, _ in global_vars["jobs"][:]:
         state = state_from_job(job)
         stats[state] = stats.get(state, 0) + 1

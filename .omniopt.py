@@ -5442,9 +5442,14 @@ def set_objectives() -> dict:
 
     return objectives
 
-def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, _experiment_parameters: Union[dict, list]) -> dict:
-    if experiment_constraints and len(experiment_constraints):
+def set_experiment_constraints(experiment_constraints: Optional[list], experiment_args: dict, _experiment_parameters: Optional[Union[dict, list]]) -> dict:
+    if _experiment_parameters is None:
+        print_red("set_experiment_constraints: _experiment_parameters was None")
+        my_exit(95)
 
+        return {}
+
+    if experiment_constraints and len(experiment_constraints):
         experiment_args["parameter_constraints"] = []
 
         if experiment_constraints:

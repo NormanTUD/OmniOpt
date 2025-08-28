@@ -5633,7 +5633,7 @@ def validate_experiment_parameters() -> None:
             print_red(f"Error: Missing key '{key}' at level: {current_level}")
             my_exit(95)
 
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[list]) -> Tuple[Any, str, str]:
+def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[dict, list]) -> Tuple[Any, str, str]:
     if not ax_client:
         print_red("__get_experiment_parameters__load_from_checkpoint: ax_client was None")
         my_exit(101)

@@ -5578,12 +5578,15 @@ def save_checkpoint_for_continued() -> None:
         _fatal_error(f"{checkpoint_filepath} not found. Cannot continue_previous_job without.", 47)
 
 def load_original_generation_strategy(original_ax_client_file: str) -> None:
-    with open(original_ax_client_file, encoding="utf-8") as f:
-        loaded_original_ax_client_json = json.load(f)
-        original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
+    if experiment_parameters:
+        with open(original_ax_client_file, encoding="utf-8") as f:
+            loaded_original_ax_client_json = json.load(f)
+            original_generation_strategy = loaded_original_ax_client_json["generation_strategy"]
 
-        if original_generation_strategy:
-            experiment_parameters["generation_strategy"] = original_generation_strategy
+            if original_generation_strategy:
+                experiment_parameters["generation_strategy"] = original_generation_strategy
+    else:
+        print_red("load_original_generation_strategy: experiment_parameters was empty!")
 
 def wait_for_checkpoint_file(checkpoint_file: str) -> None:
     start_time = time.time()

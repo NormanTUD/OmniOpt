@@ -6299,7 +6299,7 @@ def load_existing_job_data_into_ax_client() -> None:
     nr_of_imported_jobs = get_nr_of_imported_jobs()
     set_nr_inserted_jobs(NR_INSERTED_JOBS + nr_of_imported_jobs)
 
-def parse_parameter_type_error(_error_message: Union[str, None]) -> Optional[dict]:
+def parse_parameter_type_error(_error_message: Union[Exception, str, None]) -> Optional[dict]:
     if not _error_message:
         return None
 

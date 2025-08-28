@@ -6568,6 +6568,7 @@ def try_insert_job(csv_path: str, arm_params: Dict, result: Any, i: int, arm_par
             f"This can happen when the csv file has different parameters or results as the main job one's "
             f"or other imported jobs. Error: {e}"
         )
+
         if err_msg not in err_msgs:
             print_red(err_msg)
             err_msgs.append(err_msg)

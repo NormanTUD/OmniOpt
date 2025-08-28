@@ -11139,7 +11139,7 @@ def main_outside() -> None:
 def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:
     pattern = re.compile(regex) if regex else None
 
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: Any, **kwargs: Any) -> None:
         if pattern and not pattern.search(func.__name__):
             return func(*args, **kwargs)
 

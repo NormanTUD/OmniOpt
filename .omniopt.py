@@ -6572,9 +6572,12 @@ def try_insert_job(csv_path: str, arm_params: Dict, result: Any, i: int, arm_par
         if err_msgs is None:
             print_red("try_insert_job: err_msgs was None")
         else:
-            if err_msg not in err_msgs:
-                print_red(err_msg)
-                err_msgs.append(err_msg)
+            if isinstance(err_msgs, list):
+                if err_msg not in err_msgs:
+                    print_red(err_msg)
+                    err_msgs.append(err_msg)
+            elif isinstance(err_msgs, str):
+                err_msgs += f"\n{err_msg}"
 
     return cnt
 

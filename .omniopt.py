@@ -5548,13 +5548,13 @@ def copy_continue_uuid() -> None:
         print_debug(f"copy_continue_uuid: Source file does not exist: {source_file}")
 
 def load_ax_client_from_experiment_parameters() -> None:
-    #pprint(experiment_parameters)
-    global ax_client
+    if experiment_parameters:
+        global ax_client
 
-    tmp_file_path = get_tmp_file_from_json(experiment_parameters)
-    ax_client = AxClient.load_from_json_file(tmp_file_path)
-    ax_client = cast(AxClient, ax_client)
-    os.unlink(tmp_file_path)
+        tmp_file_path = get_tmp_file_from_json(experiment_parameters)
+        ax_client = AxClient.load_from_json_file(tmp_file_path)
+        ax_client = cast(AxClient, ax_client)
+        os.unlink(tmp_file_path)
 
 def save_checkpoint_for_continued() -> None:
     checkpoint_filepath = get_state_file_name('checkpoint.json')

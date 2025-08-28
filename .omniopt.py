@@ -5985,10 +5985,13 @@ def print_overview_tables(classic_params: Optional[Union[list, dict]], experimen
     print_result_names_overview_table()
 
 def update_progress_bar(nr: int) -> None:
-    try:
-        progress_bar.update(nr)
-    except Exception as e:
-        print(f"Error updating progress bar: {e}")
+    if progress_bar is not None:
+        try:
+            progress_bar.update(nr)
+        except Exception as e:
+            print(f"Error updating progress bar: {e}")
+    else:
+        print_red("update_progress_bar: progress_bar was None")
 
 def get_current_model_name() -> str:
     if overwritten_to_random:

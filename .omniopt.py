@@ -61,9 +61,9 @@ _last_count_time = 0
 _last_count_result: tuple[int, str] = (0, "")
 
 _total_time = 0.0
-_func_times = defaultdict(float)
-_func_mem = defaultdict(float)
-_func_call_paths = defaultdict(Counter)
+_func_times: defaultdict = defaultdict(float)
+_func_mem: defaultdict = defaultdict(float)
+_func_call_paths: defaultdict = defaultdict(Counter)
 _last_mem = defaultdict(float)
 _leak_threshold_mb = 10.0
 generation_strategy_names: list = []

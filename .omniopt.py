@@ -7403,33 +7403,41 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
     return False
 
 def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
-    print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
+    if submitit_executor is None:
+        print_red("submit_new_job: submitit_executor was None")
 
-    start = time.time()
+        return None
+    else:
+        print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
-    new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+        start = time.time()
 
-    elapsed = time.time() - start
+        new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
 
-    print_debug(f"Done submitting new job, took {elapsed} seconds")
+        elapsed = time.time() - start
 
-    return new_job
+        print_debug(f"Done submitting new job, took {elapsed} seconds")
+
+        return new_job
 
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if submitit_executor and ax_client:
         new_job = submit_new_job(parameters, trial_index)
-        submitted_jobs(1)
+        if new_job:
+            submitted_jobs(1)
 
-        _trial = ax_client.get_trial(trial_index)
+            _trial = ax_client.get_trial(trial_index)
 
-        try:
-            _trial.mark_staged(unsafe=True)
-        except Exception as e:
-            print_debug(f"orchestrator_start_trial: error {e}")
-        _trial.mark_running(unsafe=True, no_runner_required=True)
+            try:
+                _trial.mark_staged(unsafe=True)
+            except Exception as e:
+                print_debug(f"orchestrator_start_trial: error {e}")
+            _trial.mark_running(unsafe=True, no_runner_required=True)
 
-        print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
-        global_vars["jobs"].append((new_job, trial_index))
+            print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
+            global_vars["jobs"].append((new_job, trial_index))
+        else:
+            print_red("orchestrator_start_trial: Failed to start new job")
     else:
         _fatal_error("submitit_executor or ax_client could not be found properly", 9)
 
@@ -7561,15 +7569,18 @@ def execute_evaluation(_params: list) -> Optional[int]:
     try:
         initialize_job_environment()
         new_job = submit_new_job(parameters, trial_index)
-        submitted_jobs(1)
+        if new_job:
+            submitted_jobs(1)
 
-        print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
-        global_vars["jobs"].append((new_job, trial_index))
+            print_debug(f"execute_evaluation: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
+            global_vars["jobs"].append((new_job, trial_index))
 
-        mark_trial_stage("mark_running", "Marking the trial as running failed")
-        trial_counter += 1
+            mark_trial_stage("mark_running", "Marking the trial as running failed")
+            trial_counter += 1
 
-        progressbar_description("started new job")
+            progressbar_description("started new job")
+        else:
+            progressbar_description("Failed to start new job")
     except submitit.core.utils.FailedJobError as error:
         handle_failed_job(error, trial_index, new_job)
         trial_counter += 1

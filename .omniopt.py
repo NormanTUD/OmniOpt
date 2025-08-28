@@ -6600,6 +6600,9 @@ def __insert_job_into_ax_client__check_ax_client() -> None:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
 def __insert_job_into_ax_client__attach_trial(arm_params: dict) -> Tuple[Any, int]:
+    if ax_client is None:
+        raise RuntimeError("__insert_job_into_ax_client__attach_trial: ax_client was empty")
+
     new_trial = ax_client.attach_trial(arm_params)
     if not isinstance(new_trial, tuple) or len(new_trial) < 2:
         raise RuntimeError("attach_trial didn't return the expected tuple")

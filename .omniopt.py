@@ -701,8 +701,7 @@ def my_exit(_code: int = 0) -> None:
 
             sys.exit(skip_search_exit_code_found)
         except ValueError:
-            print(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code {_code}")
-            sys.exit(_code)
+            print_debug(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code {_code}")
 
     sys.exit(_code)
 

@@ -6569,9 +6569,12 @@ def try_insert_job(csv_path: str, arm_params: Dict, result: Any, i: int, arm_par
             f"or other imported jobs. Error: {e}"
         )
 
-        if err_msg not in err_msgs:
-            print_red(err_msg)
-            err_msgs.append(err_msg)
+        if err_msgs is None:
+            print_red("try_insert_job: err_msgs was None")
+        else:
+            if err_msg not in err_msgs:
+                print_red(err_msg)
+                err_msgs.append(err_msg)
 
     return cnt
 

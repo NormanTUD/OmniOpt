@@ -2162,6 +2162,9 @@ def save_results_csv() -> Optional[str]:
 
     try:
         df = fetch_and_prepare_trials()
+        if not df:
+            print_red(f"save_results_csv: fetch_and_prepare_trials returned an empty element: {df}")
+            return None
         write_csv(df, pd_csv)
         write_json_snapshot(pd_json)
         save_experiment_to_file()
@@ -2181,7 +2184,10 @@ def save_results_csv() -> Optional[str]:
 def get_results_paths() -> tuple[str, str]:
     return (get_current_run_folder(RESULTS_CSV_FILENAME), get_state_file_name('pd.json'))
 
-def fetch_and_prepare_trials() -> pd.DataFrame:
+def fetch_and_prepare_trials() -> Optional[pd.DataFrame]:
+    if not ax_client:
+        return None
+
     ax_client.experiment.fetch_data()
     df = ax_client.get_trials_data_frame()
 

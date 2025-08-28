@@ -10266,7 +10266,7 @@ def write_result_names_file() -> None:
         except Exception as e:
             print_red(f"Error trying to open file '{fn}': {e}")
 
-def run_program_once(params: Optional[dict] =None) -> None:
+def run_program_once(params: Optional[dict] = None) -> None:
     if not args.run_program_once:
         print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
         return

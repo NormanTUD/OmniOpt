@@ -6612,7 +6612,7 @@ def insert_job_into_ax_client(
     result: dict,
     new_job_type: str = "MANUAL",
     __status: Optional[Any] = None,
-    base_str: str = None
+    base_str: Optional[str] = None
 ) -> bool:
     __insert_job_into_ax_client__check_ax_client()
 

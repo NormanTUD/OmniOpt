@@ -2093,12 +2093,6 @@ def init_live_share() -> bool:
 
         return ret
 
-async def start_periodic_live_share() -> None:
-    if args.live_share and not os.environ.get("CI"):
-        while True:
-            live_share(force=False)
-            time.sleep(30)
-
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
     engine = get_engine()
@@ -10457,8 +10451,6 @@ def main() -> None:
 
         init_live_share()
 
-        start_periodic_live_share()
-
         show_available_hardware_and_generation_strategy_string(gpu_string, gpu_color)
 
         original_print(f"Run-Program: {global_vars['joined_run_program']}")
@@ -11223,7 +11215,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         "_record_stats",
         "_open",
         "_check_memory_leak",
-        "start_periodic_live_share",
         "start_logging_daemon",
         "get_current_run_folder",
         "show_func_name_wrapper"

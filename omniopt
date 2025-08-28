@@ -346,6 +346,31 @@
 	send_anonymized_usage_stats=0
 	already_shown_oo_base_url_msg=0
 
+	function run_live_share {
+		if [[ $RUN_UUID != "" ]]; then
+			full_log_file="$ORIGINAL_PWD/logs/$RUN_UUID"
+			if [[ -e "$full_log_file" ]]; then
+				set +e
+				run_folder=$(cat "$full_log_file" | grep "Run-folder:" | sed -e 's#Run-folder: ##')
+				if [[ -z $run_folder ]]; then
+					true
+				else
+					bash "$SCRIPT_DIR/omniopt_share" --username="$USER" "$run_folder" 2>/dev/null >/dev/null
+				fi
+				set -e
+			else
+				red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization.\n"
+			fi
+		fi
+	}
+
+	function start_periodidic_live_share {
+		while true; do
+			run_live_share 2>/dev/null >/dev/null
+			sleep 30
+		done
+	}
+
 	function myexit {
 		CODE=$1
 
@@ -382,21 +407,7 @@
 
 		if [[ $follow -eq 1 ]] || ! command -v sbatch 2>/dev/null >/dev/null || [[ $force_local_execution -eq 1 ]]; then
 			if [[ $live_share -eq 1 ]]; then
-				if [[ $RUN_UUID != "" ]]; then
-					full_log_file="$ORIGINAL_PWD/logs/$RUN_UUID"
-					if [[ -e "$full_log_file" ]]; then
-						set +e
-						run_folder=$(cat "$full_log_file" | grep "Run-folder:" | sed -e 's#Run-folder: ##')
-						if [[ -z $run_folder ]]; then
-							true
-						else
-							bash "$SCRIPT_DIR/omniopt_share" --username="$USER" "$run_folder" 2>/dev/null >/dev/null
-						fi
-						set -e
-					else
-						red_text "--live_share enabled, but $full_log_file could not be found. Cannot share once again in finalization.\n"
-					fi
-				fi
+				run_live_share
 			fi
 		fi
 
@@ -1620,6 +1631,13 @@ EOF
 		set +e
 		trap - ERR
 
+		live_share_pid=""
+
+		if [[ $live_share -eq 1 ]]; then
+			start_periodidic_live_share &
+			live_share_pid=$!
+		fi
+
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
 			if [[ -z $RUN_WITH_PYSPY ]]; then
 				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
@@ -1634,6 +1652,10 @@ EOF
 			echo "Using coverage run -p because \$RUN_WITH_COVERAGE is set"
 			coverage run -p "$SCRIPT_DIR/.omniopt.py" $args_string
 			EXIT_CODE=$?
+		fi
+
+		if [[ $live_share -eq 1 ]] && [[ -n $live_share_pid ]]; then
+			kill -9 $live_share_pid
 		fi
 
 		set -e

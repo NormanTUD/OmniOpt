@@ -5639,12 +5639,6 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
         my_exit(101)
         return {}, "", ""
 
-    if not experiment_parameters:
-        print_red("__get_experiment_parameters__load_from_checkpoint: experiment_parameters was None")
-        my_exit(95)
-
-        return {}, "", ""
-
     print_debug(f"Load from checkpoint: {continue_previous_job}")
 
     checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
@@ -5686,6 +5680,12 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     experiment_constraints = get_constraints()
     if experiment_constraints:
+
+        if not experiment_parameters:
+            print_red("__get_experiment_parameters__load_from_checkpoint: experiment_parameters was None")
+
+            return {}, "", ""
+
         experiment_args = set_experiment_constraints(
             experiment_constraints,
             experiment_args,

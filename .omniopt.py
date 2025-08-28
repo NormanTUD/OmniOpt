@@ -5466,7 +5466,7 @@ def replace_parameters_for_continued_jobs(parameter: Optional[list], cli_params_
     if args.worker_generator_path:
         return None
 
-    def get_name(obj) -> Optional[str]:
+    def get_name(obj: Any) -> Optional[str]:
         """Extract a parameter name from dict, list, or tuple safely."""
         if isinstance(obj, dict):
             return obj.get("name")

@@ -7432,7 +7432,6 @@ def is_already_in_defective_nodes(hostname: str) -> bool:
                     return True
     except Exception as e:
         print_red(f"is_already_in_defective_nodes: Error reading the file {file_path}: {e}")
-        return False
 
     return False
 
@@ -7441,18 +7440,18 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
         print_red("submit_new_job: submitit_executor was None")
 
         return None
-    else:
-        print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
-        start = time.time()
+    print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
-        new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
+    start = time.time()
 
-        elapsed = time.time() - start
+    new_job = submitit_executor.submit(evaluate, {"params": parameters, "trial_idx": trial_index, "submit_time": int(time.time())})
 
-        print_debug(f"Done submitting new job, took {elapsed} seconds")
+    elapsed = time.time() - start
 
-        return new_job
+    print_debug(f"Done submitting new job, took {elapsed} seconds")
+
+    return new_job
 
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if submitit_executor and ax_client:

@@ -6491,7 +6491,7 @@ def normalize_path(file_path: str) -> str:
 
 def insert_jobs_from_lists(csv_path: str, arm_params_list: Any, results_list: Any, __status: Any) -> None:
     cnt = 0
-    err_msgs = []
+    err_msgs: list = []
 
     for i, (arm_params, result) in enumerate(zip(arm_params_list, results_list)):
         base_str = f"[bold green]Loading job {i}/{len(results_list)} from {csv_path} into ax_client, result: {result}"

@@ -5737,7 +5737,7 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
 
     return experiment_args, gpu_string, gpu_color
 
-def get_experiment_parameters(cli_params_experiment_parameters: Optional[list]) -> Optional[Tuple[AxClient, dict, str, str]]:
+def get_experiment_parameters(cli_params_experiment_parameters: Optional[dict | list]) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     __get_experiment_parameters__check_ax_client()

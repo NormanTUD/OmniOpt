@@ -8471,16 +8471,21 @@ def get_model_from_name(name: str) -> Any:
             return gen
     raise ValueError(f"Unknown or unsupported model: {name}")
 
-def get_name_from_model(model: Any) -> Optional[str]:
+def get_name_from_model(model: Any) -> str:
     if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
-        return None
+        raise RuntimeError("get_model_from_name: SUPPORTED_MODELS was not a list, set or tuple. Cannot continue")
 
     model_str = model.value if hasattr(model, "value") else str(model)
 
     model_str_lower = model_str.lower()
     model_map = {m.lower(): m for m in SUPPORTED_MODELS}
 
-    return model_map.get(model_str_lower, None)
+    ret = model_map.get(model_str_lower, None)
+
+    if ret is None:
+        raise RuntimeError("get_name_from_model: failed to get Model")
+
+    return ret
 
 def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str, int]], int]:
     gen_strat_list = []

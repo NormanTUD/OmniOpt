@@ -478,7 +478,7 @@ def get_current_run_folder(name: Optional[str] = None) -> str:
 
     return CURRENT_RUN_FOLDER
 
-def get_state_file_name(name) -> str:
+def get_state_file_name(name: str) -> str:
     state_files_folder = f"{get_current_run_folder()}/state_files/"
     makedirs(state_files_folder)
 

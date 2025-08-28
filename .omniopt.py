@@ -10266,7 +10266,7 @@ def write_result_names_file() -> None:
         except Exception as e:
             print_red(f"Error trying to open file '{fn}': {e}")
 
-def run_program_once(params=None) -> None:
+def run_program_once(params: Optional[dict] =None) -> None:
     if not args.run_program_once:
         print_debug("[yellow]No setup script specified (run_program_once). Skipping setup.[/yellow]")
         return
@@ -10305,7 +10305,7 @@ def run_program_once(params=None) -> None:
         my_exit(57)
 
 def show_omniopt_call() -> None:
-    def remove_ui_url(arg_str) -> str:
+    def remove_ui_url(arg_str: str) -> str:
         return re.sub(r'(?:--ui_url(?:=\S+)?(?:\s+\S+)?)', '', arg_str).strip()
 
     original_argv = " ".join(sys.argv[1:])

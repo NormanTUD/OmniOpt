@@ -2194,7 +2194,7 @@ def fetch_and_prepare_trials() -> pd.DataFrame:
 
     return df
 
-def write_csv(df, path: str) -> None:
+def write_csv(df. pd.DataFrame, path: str) -> None:
     try:
         df = df.sort_values(by=["trial_index"], kind="stable").reset_index(drop=True)
     except KeyError:

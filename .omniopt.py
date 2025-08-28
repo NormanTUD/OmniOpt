@@ -3306,7 +3306,7 @@ def parse_experiment_parameters() -> None:
     # Remove duplicates by 'name' key preserving order
     params = list({p['name']: p for p in params}.values())
 
-    experiment_parameters = {p["name"]: p for p in params}
+    experiment_parameters = params # type: ignore[assignment]
 
 def check_factorial_range() -> None:
     if args.model and args.model == "FACTORIAL":

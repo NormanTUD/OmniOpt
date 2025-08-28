@@ -2222,10 +2222,13 @@ def write_json_snapshot(path: str) -> None:
         print_red("write_json_snapshot: ax_client was None")
 
 def save_experiment_to_file() -> None:
-    save_experiment(
-        ax_client.experiment,
-        get_state_file_name("ax_client.experiment.json")
-    )
+    if ax_client is not None:
+        save_experiment(
+            ax_client.experiment,
+            get_state_file_name("ax_client.experiment.json")
+        )
+    else:
+        print_red("save_experiment: ax_client is None")
 
 def should_save_to_database() -> bool:
     return args.model not in uncontinuable_models and args.save_to_database

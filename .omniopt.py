@@ -525,14 +525,12 @@ def is_slurm_job() -> bool:
         return True
     return False
 
-def _sleep(t: Union[float, int]) -> int:
+def _sleep(t: Union[float, int]) -> None:
     if args is not None and not args.no_sleep:
         try:
             time.sleep(t)
         except KeyboardInterrupt:
             pass
-
-    return t
 
 LOG_DIR: str = "logs"
 makedirs(LOG_DIR)
@@ -7688,7 +7686,7 @@ def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
             _ret = True
 
     if args.verbose_break_run_search_table:
-        show_debug_table_for_break_run_search(_name, _max_eval, _ret)
+        show_debug_table_for_break_run_search(_name, _max_eval)
 
     return _ret
 

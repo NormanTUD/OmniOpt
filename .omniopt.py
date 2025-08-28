@@ -577,20 +577,22 @@ def _debug(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> 
 def _get_debug_json(time_str: str, msg: str) -> str:
     function_stack = []
     try:
-        frame = inspect.currentframe().f_back  # skip _get_debug_json
-        while frame:
-            func_name = _function_name_cache.get(frame.f_code)
-            if func_name is None:
-                func_name = frame.f_code.co_name
-                _function_name_cache[frame.f_code] = func_name
+        cf = inspect.currentframe()
+        if cf:
+            frame = cf.f_back  # skip _get_debug_json
+            while frame:
+                func_name = _function_name_cache.get(frame.f_code)
+                if func_name is None:
+                    func_name = frame.f_code.co_name
+                    _function_name_cache[frame.f_code] = func_name
 
-            if func_name not in ("<module>", "print_debug", "wrapper"):
-                function_stack.append({
-                    "function": func_name,
-                    "line_number": frame.f_lineno
-                })
+                if func_name not in ("<module>", "print_debug", "wrapper"):
+                    function_stack.append({
+                        "function": func_name,
+                        "line_number": frame.f_lineno
+                    })
 
-            frame = frame.f_back
+                frame = frame.f_back
     except (SignalUSR, SignalINT, SignalCONT):
         print_red("\n⚠ You pressed CTRL-C. This is ignored in _get_debug_json.")
 

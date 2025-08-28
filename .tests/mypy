@@ -15,7 +15,7 @@ source .shellscript_functions
 exit_code=0
 
 if ! command -v mypy 2>/dev/null >/dev/null; then
-	pip install -q mypy
+	pip install -q mypy types-PyYAML types-toml
 fi
 
 if command -v mypy 2>/dev/null >/dev/null; then

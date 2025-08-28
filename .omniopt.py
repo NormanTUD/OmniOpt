@@ -5633,7 +5633,6 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     if not ax_client:
         print_red("__get_experiment_parameters__load_from_checkpoint: ax_client was None")
         my_exit(101)
-        
         return {}, "", ""
 
     if not experiment_parameters:

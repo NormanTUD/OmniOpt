@@ -50,7 +50,7 @@ jobs:
           pip install psycopg2-binary
         fi
 
-    - name: Run annoying tiny but important tests that often fail
+    - name: Smoke Tests
       run: |
         .tests/smoke_tests
 

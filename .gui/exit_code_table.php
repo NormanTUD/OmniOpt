@@ -40,7 +40,7 @@
 			88 => "Search was done according to ax",
 			89 => "All jobs failed",
 			90 => "Error creating the experiment_args",
-			91 => "Error creating the experiment_args",
+			91 => "Problems with lower and upper bounds",
 			92 => "Error loading torch: This can happen when your disk is full",
 			93 => "Failed loading module. See output for specific errors.",
 			95 => "experiment_parameters was not defined where it should have been",

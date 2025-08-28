@@ -5686,6 +5686,10 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     return experiment_args, gpu_string, gpu_color
 
 def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str]:
+    if ax_client is None:
+        print_red("__get_experiment_parameters__create_new_experiment: ax_client is None")
+        my_exit(101)
+
     objectives = set_objectives()
 
     experiment_args = {

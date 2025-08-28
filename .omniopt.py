@@ -6114,7 +6114,7 @@ def submitted_jobs(nr: int = 0) -> int:
 def count_jobs_in_squeue() -> tuple[int, str]:
     global _last_count_time, _last_count_result
 
-    now = time.time()
+    now = int(time.time())
     if _last_count_result != (0, "") and now - _last_count_time < 15:
         return _last_count_result
 

@@ -5597,6 +5597,8 @@ def validate_experiment_parameters() -> None:
         print_red(f"Error: experiment_parameters is not a dict: {type(experiment_parameters).__name__}")
         my_exit(95)
 
+        sys.exit(95)
+
     path_checks = [
         ("experiment", experiment_parameters),
         ("search_space", experiment_parameters.get("experiment")),

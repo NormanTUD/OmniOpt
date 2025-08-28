@@ -2161,7 +2161,7 @@ def save_results_csv() -> Optional[str]:
 
     try:
         df = fetch_and_prepare_trials()
-        if not df:
+        if df is None:
             print_red(f"save_results_csv: fetch_and_prepare_trials returned an empty element: {df}")
             return None
         write_csv(df, pd_csv)
@@ -2176,7 +2176,7 @@ def save_results_csv() -> Optional[str]:
     except (SignalUSR, SignalCONT, SignalINT) as e:
         raise type(e)(str(e)) from e
     except Exception as e:
-        print_red(f"While saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
+        print_red(f"\nWhile saving all trials as a pandas-dataframe-csv, an error occurred: {e}")
 
     return pd_csv
 

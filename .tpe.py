@@ -53,7 +53,7 @@ def tpe_suggest_point(trial: optuna.Trial, parameters: dict) -> dict:
                 if pvaltype == 'INT':
                     point[param_name] = trial.suggest_int(param_name, rmin, rmax)
                 elif pvaltype == 'FLOAT':
-                    point[param_name] = trial.suggest_float(param_name, rmin, rmax)
+                    point[param_name] = trial.suggest_float(param_name, rmin, rmax) # type: ignore[assignment]
                 else:
                     raise ValueError(f"Unsupported type {pvaltype} for RANGE")
 

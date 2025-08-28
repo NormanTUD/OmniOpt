@@ -40,6 +40,7 @@ tests=(
 	js_syntax
 	pyright_fast
 	find_typos
+	mypy
 )
 
 code=1

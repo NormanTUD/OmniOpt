@@ -333,7 +333,7 @@ def show_func_name_wrapper(func: F) -> F:
 
         return result
 
-    return wrapper  # type: ignore
+    return wrapper # type: ignore
 
 def log_time_and_memory_wrapper(func: F) -> F:
     @functools.wraps(func)
@@ -360,7 +360,7 @@ def log_time_and_memory_wrapper(func: F) -> F:
 
         return result
 
-    return wrapper  # type: ignore
+    return wrapper # type: ignore
 
 def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: float, mem_peak: float) -> None:
     global _total_time
@@ -3597,11 +3597,11 @@ def _add_to_csv_rewrite_file(file_path: str, rows: List[list], existing_heading:
         writer = csv.writer(tmp_file)
         writer.writerow(all_headings)
         for row in rows[1:]:
-            tmp_file.writerow([
+            tmp_file.writerow([ # type: ignore[attr-defined]
                 row[existing_heading.index(h)] if h in existing_heading else ""
                 for h in all_headings
             ])
-        tmp_file.writerow([
+        tmp_file.writerow([ # type: ignore[attr-defined]
             formatted_data[new_heading.index(h)] if h in new_heading else ""
             for h in all_headings
         ])

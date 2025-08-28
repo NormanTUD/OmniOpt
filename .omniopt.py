@@ -11167,7 +11167,7 @@ def main_outside() -> None:
 
     print_logo()
 
-    start_logging_daemon()
+    start_logging_daemon() # type: ignore[unused-coroutine]
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)

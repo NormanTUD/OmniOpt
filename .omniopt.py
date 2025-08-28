@@ -2214,9 +2214,12 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
     df.to_csv(path, index=False, float_format="%.30f")
 
 def write_json_snapshot(path: str) -> None:
-    json_snapshot = ax_client.to_json_snapshot()
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(json_snapshot, f, indent=4)
+    if ax_client is not None:
+        json_snapshot = ax_client.to_json_snapshot()
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(json_snapshot, f, indent=4)
+    else:
+        print_red("write_json_snapshot: ax_client was None")
 
 def save_experiment_to_file() -> None:
     save_experiment(

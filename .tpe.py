@@ -2,7 +2,8 @@ import sys
 import os
 import json
 import logging
-from typing import Optional
+from typing import Optional, Any
+
 try:
     import optuna
     from optuna.trial import create_trial
@@ -162,7 +163,7 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
     )
 
 @beartype
-def get_best_or_new_point(study: optuna.study.study.Study, parameters: dict, direction: str) -> dict:
+def get_best_or_new_point(study: Any, parameters: dict, direction: str) -> dict:
     best_trial_value = study.best_trial.value
     if best_trial_value is not None:
         if (direction == "minimize" and best_trial_value < 1e6) or \

@@ -8400,7 +8400,7 @@ def get_model_from_name(name: str) -> Any:
             return gen
     raise ValueError(f"Unknown or unsupported model: {name}")
 
-def get_name_from_model(model) -> Optional[str]:
+def get_name_from_model(model: Any) -> Optional[str]:
     if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
         return None
 

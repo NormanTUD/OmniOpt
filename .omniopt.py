@@ -6609,6 +6609,9 @@ def __insert_job_into_ax_client__attach_trial(arm_params: dict) -> Tuple[Any, in
     return new_trial
 
 def __insert_job_into_ax_client__get_trial(trial_idx: int) -> Any:
+    if ax_client is None:
+        raise RuntimeError("__insert_job_into_ax_client__get_trial: ax_client was empty")
+
     trial = ax_client.experiment.trials.get(trial_idx)
     if trial is None:
         raise RuntimeError(f"Trial with index {trial_idx} not found")
@@ -6619,6 +6622,9 @@ def __insert_job_into_ax_client__create_generator_run(arm_params: dict, trial_id
     return GeneratorRun(arms=[arm], generation_node_name=new_job_type)
 
 def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
+    if ax_client is None:
+        raise RuntimeError("__insert_job_into_ax_client__complete_trial_if_result: ax_client was empty")
+
     if f"{result}" != "":
         __insert_job_into_ax_client__update_status(__status, base_str, "Completing trial")
         is_ok = True
@@ -7706,9 +7712,11 @@ def show_debug_table_for_break_run_search(_name: str, _max_eval: Optional[int]) 
         ("failed_jobs()", failed_jobs()),
         ("count_done_jobs()", count_done_jobs()),
         ("_max_eval", _max_eval),
-        ("progress_bar.total", progress_bar.total),
         ("NR_INSERTED_JOBS", NR_INSERTED_JOBS)
     ]
+
+    if progress_bar is not None:
+        rows.append(("progress_bar.total", progress_bar.total))
 
     for row in rows:
         table.add_row(str(row[0]), str(row[1]))

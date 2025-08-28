@@ -5636,59 +5636,67 @@ def validate_experiment_parameters() -> None:
             my_exit(95)
 
 def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[list]) -> Tuple[Any, str, str]:
-    print_debug(f"Load from checkpoint: {continue_previous_job}")
-
-    checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
-    checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
-    original_ax_client_file = get_state_file_name("original_ax_client_before_loading_tmp_one.json")
-
-    if args.worker_generator_path:
-        wait_for_checkpoint_file(checkpoint_parameters_filepath)
-
-    die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
-
-    if args.worker_generator_path:
-        wait_for_checkpoint_file(checkpoint_file)
-
-    die_with_47_if_file_doesnt_exists(checkpoint_file)
-
-    load_experiment_parameters_from_checkpoint_file(checkpoint_file)
-    experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(None)
-
-    copy_state_files_from_previous_job(continue_previous_job)
-
-    validate_experiment_parameters()
-
-    replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
-
-    ax_client.save_to_json_file(filepath=original_ax_client_file)
-
-    load_original_generation_strategy(original_ax_client_file)
-    load_ax_client_from_experiment_parameters()
-    save_checkpoint_for_continued()
-
-    with open(get_current_run_folder("checkpoint_load_source"), mode='w', encoding="utf-8") as f:
-        print(f"Continuation from checkpoint {continue_previous_job}", file=f)
-
-    if not args.worker_generator_path:
-        copy_continue_uuid()
+    if not ax_client:
+        print_red("__get_experiment_parameters__load_from_checkpoint: ax_client was None")
+        my_exit(101)
+        
+        return {}, "", ""
     else:
-        print_debug(f"Not copying continue uuid because this is not a new job, because --worker_generator_path {args.worker_generator_path} is not a new job")
+        print_debug(f"Load from checkpoint: {continue_previous_job}")
 
-    experiment_constraints = get_constraints()
-    if experiment_constraints:
-        experiment_args = set_experiment_constraints(
-            experiment_constraints,
-            experiment_args,
-            experiment_parameters["experiment"]["search_space"]["parameters"]
-        )
+        checkpoint_file = f"{continue_previous_job}/state_files/checkpoint.json"
+        checkpoint_parameters_filepath = f"{continue_previous_job}/state_files/checkpoint.json.parameters.json"
+        original_ax_client_file = get_state_file_name("original_ax_client_before_loading_tmp_one.json")
 
-    return experiment_args, gpu_string, gpu_color
+        if args.worker_generator_path:
+            wait_for_checkpoint_file(checkpoint_parameters_filepath)
+
+        die_with_47_if_file_doesnt_exists(checkpoint_parameters_filepath)
+
+        if args.worker_generator_path:
+            wait_for_checkpoint_file(checkpoint_file)
+
+        die_with_47_if_file_doesnt_exists(checkpoint_file)
+
+        load_experiment_parameters_from_checkpoint_file(checkpoint_file)
+        experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(None)
+
+        copy_state_files_from_previous_job(continue_previous_job)
+
+        validate_experiment_parameters()
+
+        replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
+
+        ax_client.save_to_json_file(filepath=original_ax_client_file)
+
+        load_original_generation_strategy(original_ax_client_file)
+        load_ax_client_from_experiment_parameters()
+        save_checkpoint_for_continued()
+
+        with open(get_current_run_folder("checkpoint_load_source"), mode='w', encoding="utf-8") as f:
+            print(f"Continuation from checkpoint {continue_previous_job}", file=f)
+
+        if not args.worker_generator_path:
+            copy_continue_uuid()
+        else:
+            print_debug(f"Not copying continue uuid because this is not a new job, because --worker_generator_path {args.worker_generator_path} is not a new job")
+
+        experiment_constraints = get_constraints()
+        if experiment_constraints:
+            experiment_args = set_experiment_constraints(
+                experiment_constraints,
+                experiment_args,
+                experiment_parameters["experiment"]["search_space"]["parameters"]
+            )
+
+        return experiment_args, gpu_string, gpu_color
 
 def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str]:
     if ax_client is None:
         print_red("__get_experiment_parameters__create_new_experiment: ax_client is None")
         my_exit(101)
+
+        return {}, "", ""
 
     objectives = set_objectives()
 

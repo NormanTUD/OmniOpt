@@ -5607,10 +5607,6 @@ def wait_for_checkpoint_file(checkpoint_file: str) -> None:
     elapsed = int(time.time() - start_time)
     console.print(f"[green]Checkpoint file found after {elapsed} seconds[/green]   ")
 
-def __get_experiment_parameters__check_ax_client() -> None:
-    if not ax_client:
-        _fatal_error("Something went wrong with the ax_client", 9)
-
 def validate_experiment_parameters() -> None:
     if experiment_parameters is None:
         print_red("Error: experiment_parameters is None.")
@@ -5633,9 +5629,9 @@ def validate_experiment_parameters() -> None:
             print_red(f"Error: Missing key '{key}' at level: {current_level}")
             my_exit(95)
 
-def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[dict | list]) -> Tuple[Any, str, str]:
+def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_parameters: Optional[dict | list]) -> Tuple[Any, str, str]:
     if not ax_client:
-        print_red("__get_experiment_parameters__load_from_checkpoint: ax_client was None")
+        print_red("load_from_checkpoint: ax_client was None")
         my_exit(101)
         return {}, "", ""
 
@@ -5682,7 +5678,7 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
     if experiment_constraints:
 
         if not experiment_parameters:
-            print_red("__get_experiment_parameters__load_from_checkpoint: experiment_parameters was None")
+            print_red("load_from_checkpoint: experiment_parameters was None")
 
             return {}, "", ""
 
@@ -5694,9 +5690,9 @@ def __get_experiment_parameters__load_from_checkpoint(continue_previous_job: str
 
     return experiment_args, gpu_string, gpu_color
 
-def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str]:
+def create_new_experiment() -> Tuple[dict, str, str]:
     if ax_client is None:
-        print_red("__get_experiment_parameters__create_new_experiment: ax_client is None")
+        print_red("create_new_experiment: ax_client is None")
         my_exit(101)
 
         return {}, "", ""
@@ -5740,12 +5736,12 @@ def __get_experiment_parameters__create_new_experiment() -> Tuple[dict, str, str
 def get_experiment_parameters(cli_params_experiment_parameters: Optional[dict | list]) -> Optional[Tuple[AxClient, dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
-    __get_experiment_parameters__check_ax_client()
+    check_ax_client()
 
     if continue_previous_job:
-        experiment_args, gpu_string, gpu_color = __get_experiment_parameters__load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters)
+        experiment_args, gpu_string, gpu_color = load_from_checkpoint(continue_previous_job, cli_params_experiment_parameters)
     else:
-        experiment_args, gpu_string, gpu_color = __get_experiment_parameters__create_new_experiment()
+        experiment_args, gpu_string, gpu_color = create_new_experiment()
 
     return ax_client, experiment_args, gpu_string, gpu_color
 
@@ -6594,42 +6590,42 @@ def update_global_job_counters(cnt: int) -> None:
         set_max_eval(max_eval + cnt)
         set_nr_inserted_jobs(NR_INSERTED_JOBS + cnt)
 
-def __insert_job_into_ax_client__update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
+def update_status(__status: Optional[Any], base_str: Optional[str], new_text: str) -> None:
     if __status and base_str:
         __status.update(f"{base_str}: {new_text}")
 
-def __insert_job_into_ax_client__check_ax_client() -> None:
+def check_ax_client() -> None:
     if ax_client is None or not ax_client:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
-def __insert_job_into_ax_client__attach_trial(arm_params: dict) -> Tuple[Any, int]:
+def attach_trial(arm_params: dict) -> Tuple[Any, int]:
     if ax_client is None:
-        raise RuntimeError("__insert_job_into_ax_client__attach_trial: ax_client was empty")
+        raise RuntimeError("attach_trial: ax_client was empty")
 
     new_trial = ax_client.attach_trial(arm_params)
     if not isinstance(new_trial, tuple) or len(new_trial) < 2:
         raise RuntimeError("attach_trial didn't return the expected tuple")
     return new_trial
 
-def __insert_job_into_ax_client__get_trial(trial_idx: int) -> Any:
+def get_trial_by_index(trial_idx: int) -> Any:
     if ax_client is None:
-        raise RuntimeError("__insert_job_into_ax_client__get_trial: ax_client was empty")
+        raise RuntimeError("get_trial_by_index: ax_client was empty")
 
     trial = ax_client.experiment.trials.get(trial_idx)
     if trial is None:
         raise RuntimeError(f"Trial with index {trial_idx} not found")
     return trial
 
-def __insert_job_into_ax_client__create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> GeneratorRun:
+def create_generator_run(arm_params: dict, trial_idx: int, new_job_type: str) -> GeneratorRun:
     arm = Arm(parameters=arm_params, name=f'{trial_idx}_0')
     return GeneratorRun(arms=[arm], generation_node_name=new_job_type)
 
-def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
+def complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[Any], base_str: Optional[str]) -> None:
     if ax_client is None:
-        raise RuntimeError("__insert_job_into_ax_client__complete_trial_if_result: ax_client was empty")
+        raise RuntimeError("complete_trial_if_result: ax_client was empty")
 
     if f"{result}" != "":
-        __insert_job_into_ax_client__update_status(__status, base_str, "Completing trial")
+        update_status(__status, base_str, "Completing trial")
         is_ok = True
 
         for keyname in result.keys():
@@ -6638,19 +6634,19 @@ def __insert_job_into_ax_client__complete_trial_if_result(trial_idx: int, result
 
         if is_ok:
             ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
-            __insert_job_into_ax_client__update_status(__status, base_str, "Completed trial")
+            update_status(__status, base_str, "Completed trial")
         else:
             print_debug("Empty job encountered")
     else:
-        __insert_job_into_ax_client__update_status(__status, base_str, "Found trial without result. Not adding it.")
+        update_status(__status, base_str, "Found trial without result. Not adding it.")
 
-def __insert_job_into_ax_client__save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
+def save_results_if_needed(__status: Optional[Any], base_str: Optional[str]) -> None:
     if not args.worker_generator_path:
-        __insert_job_into_ax_client__update_status(__status, base_str, f"Saving {RESULTS_CSV_FILENAME}")
+        update_status(__status, base_str, f"Saving {RESULTS_CSV_FILENAME}")
         save_results_csv()
-        __insert_job_into_ax_client__update_status(__status, base_str, f"Saved {RESULTS_CSV_FILENAME}")
+        update_status(__status, base_str, f"Saved {RESULTS_CSV_FILENAME}")
 
-def __insert_job_into_ax_client__handle_type_error(e: Exception, arm_params: dict) -> bool:
+def handle_insert_job_error(e: Exception, arm_params: dict) -> bool:
     parsed_error = parse_parameter_type_error(e)
     if parsed_error is not None:
         param = parsed_error["parameter_name"]
@@ -6675,35 +6671,35 @@ def insert_job_into_ax_client(
     __status: Optional[Any] = None,
     base_str: Optional[str] = None
 ) -> bool:
-    __insert_job_into_ax_client__check_ax_client()
+    check_ax_client()
 
     done_converting = False
     while not done_converting:
         try:
-            __insert_job_into_ax_client__update_status(__status, base_str, "Checking ax client")
+            update_status(__status, base_str, "Checking ax client")
             if ax_client is None:
                 return False
 
-            __insert_job_into_ax_client__update_status(__status, base_str, "Attaching new trial")
-            _, new_trial_idx = __insert_job_into_ax_client__attach_trial(arm_params)
+            update_status(__status, base_str, "Attaching new trial")
+            _, new_trial_idx = attach_trial(arm_params)
 
-            __insert_job_into_ax_client__update_status(__status, base_str, "Getting new trial")
-            trial = __insert_job_into_ax_client__get_trial(new_trial_idx)
-            __insert_job_into_ax_client__update_status(__status, base_str, "Got new trial")
+            update_status(__status, base_str, "Getting new trial")
+            trial = get_trial_by_index(new_trial_idx)
+            update_status(__status, base_str, "Got new trial")
 
-            __insert_job_into_ax_client__update_status(__status, base_str, "Creating new arm")
-            manual_generator_run = __insert_job_into_ax_client__create_generator_run(arm_params, new_trial_idx, new_job_type)
+            update_status(__status, base_str, "Creating new arm")
+            manual_generator_run = create_generator_run(arm_params, new_trial_idx, new_job_type)
             trial._generator_run = manual_generator_run
             fool_linter(trial._generator_run)
 
-            __insert_job_into_ax_client__complete_trial_if_result(new_trial_idx, result, __status, base_str)
+            complete_trial_if_result(new_trial_idx, result, __status, base_str)
             done_converting = True
 
-            __insert_job_into_ax_client__save_results_if_needed(__status, base_str)
+            save_results_if_needed(__status, base_str)
             return True
 
         except ax.exceptions.core.UnsupportedError as e:
-            if not __insert_job_into_ax_client__handle_type_error(e, arm_params):
+            if not handle_insert_job_error(e, arm_params):
                 break
 
     return False

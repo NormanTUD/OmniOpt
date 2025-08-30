@@ -4945,7 +4945,7 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
-                _fatal_error("ax_client could not be found", 9)
+                _fatal_error("ax_client could not be found", 101)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
             print_debug(f"ERROR in line {get_line_info()}: {e}")
@@ -5046,7 +5046,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         if ax_client:
             ax_client.save_to_json_file(filepath=checkpoint_filepath)
         else:
-            _fatal_error("Something went wrong using the ax_client", 9)
+            _fatal_error("Something went wrong using the ax_client", 101)
     except Exception as e:
         save_checkpoint(trial_nr + 1, e)
 
@@ -7179,7 +7179,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
         else:
             _finish_job_core_helper_mark_failure(job, trial_index, _trial)
     else:
-        _fatal_error("ax_client could not be found or used", 9)
+        _fatal_error("ax_client could not be found or used", 101)
 
     print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
@@ -7470,8 +7470,10 @@ def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> 
             global_vars["jobs"].append((new_job, trial_index))
         else:
             print_red("orchestrator_start_trial: Failed to start new job")
+    elif ax_client:
+        _fatal_error("submitit_executor could not be found properly", 9)
     else:
-        _fatal_error("submitit_executor or ax_client could not be found properly", 9)
+        _fatal_error("ax_client could not be found properly", 101)
 
 def handle_exclude_node(stdout_path: str, hostname_from_out_file: Union[None, str]) -> None:
     stdout_path = check_alternate_path(stdout_path)
@@ -7577,7 +7579,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
     print_debug(f"execute_evaluation({_params})")
     trial_index, parameters, trial_counter, phase = _params
     if not ax_client:
-        _fatal_error("Failed to get ax_client", 9)
+        _fatal_error("Failed to get ax_client", 101)
 
         return None
 
@@ -7912,7 +7914,7 @@ def fetch_next_trials(nr_of_jobs_to_get: int, recursion: bool = False) -> Tuple[
     die_101_if_no_ax_client_or_experiment_or_gs()
 
     if not ax_client:
-        _fatal_error("ax_client was not defined", 9)
+        _fatal_error("ax_client was not defined", 101)
 
     if global_gs is None:
         _fatal_error("Global generation strategy is not set. This is a bug in OmniOpt2.", 107)

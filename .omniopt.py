@@ -7091,7 +7091,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 
     return None
 
-def _finish_job_core_helper_check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
+def check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
     possible_val_not_found_values = [
         VAL_IF_NOTHING_FOUND,
         -VAL_IF_NOTHING_FOUND,
@@ -7166,7 +7166,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if ax_client:
         _trial = ax_client.get_trial(trial_index)
 
-        if _finish_job_core_helper_check_valid_result(result):
+        if check_valid_result(result):
             _finish_job_core_helper_complete_trial(trial_index, raw_result)
 
             try:

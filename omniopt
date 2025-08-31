@@ -367,7 +367,7 @@
 	function start_periodidic_live_share {
 		while true; do
 			run_live_share 2>/dev/null >/dev/null
-			sleep 30
+			sleep 10
 		done
 	}
 

@@ -9157,10 +9157,8 @@ def check_search_space_exhaustion(nr_of_items: int) -> bool:
         print_debug(_wrn)
         progressbar_description(_wrn)
 
-        live_share()
         return True
 
-    live_share()
     return False
 
 def finalize_jobs() -> None:

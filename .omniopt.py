@@ -1235,16 +1235,18 @@ for _rn in args.result_names:
         _key = _rn
         _min_or_max = __default_min_max
 
+    _min_or_max = re.sub(r"'", "", _min_or_max)
+
     if _min_or_max not in ["min", "max"]:
         if _min_or_max:
             print_yellow(f"Value for determining whether to minimize or maximize was neither 'min' nor 'max' for key '{_key}', but '{_min_or_max}'. It will be set to the default, which is '{__default_min_max}' instead.")
         _min_or_max = __default_min_max
 
+    _key = re.sub(r"'", "", _key)
+
     if _key in arg_result_names:
         console.print(f"[red]The --result_names option '{_key}' was specified multiple times![/]")
         sys.exit(50)
-
-    _key = re.sub(r"'", "", key)
 
     if not re.fullmatch(r'^[a-zA-Z0-9_]+$', _key):
         console.print(f"[red]The --result_names option '{_key}' contains invalid characters! Must be one of a-z, A-Z, 0-9 or _[/]")

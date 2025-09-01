@@ -10787,7 +10787,7 @@ def test_find_paths(program_code: str) -> int:
     for i in files:
         if i not in string:
             if os.path.exists(i):
-                print("Missing {i} in find_file_paths string!")
+                print(f"Missing {i} in find_file_paths string!")
                 nr_errors += 1
 
     return nr_errors

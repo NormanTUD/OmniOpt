@@ -113,5 +113,9 @@ def main():
         for filename, lineno, var, line in all_suspicious:
             print(f"{filename}:{lineno}: Variable '{var}' detected in file -> {line}")
 
+        sys.exit(1)
+
+    sys.exit(0)
+
 if __name__ == "__main__":
     main()

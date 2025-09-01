@@ -48,21 +48,56 @@ def extract_defined_names(tree):
     NameCollector().visit(tree)
     return names
 
-def find_suspicious_strings(tree, defined_names, filename, source_lines):
+def extract_defined_names_with_lines(tree):
+    """
+    Extrahiert alle Variablennamen mit der Zeilennummer, in der sie definiert wurden.
+    """
+    names = []  # Liste von (name, lineno)
+
+    class NameCollector(ast.NodeVisitor):
+        def visit_Assign(self, node):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    names.append((target.id, node.lineno))
+                elif isinstance(target, (ast.Tuple, ast.List)):
+                    for elt in target.elts:
+                        if isinstance(elt, ast.Name):
+                            names.append((elt.id, node.lineno))
+            self.generic_visit(node)
+
+        def visit_FunctionDef(self, node):
+            names.append((node.name, node.lineno))
+            for arg in node.args.args:
+                names.append((arg.arg, node.lineno))
+            if node.args.vararg:
+                names.append((node.args.vararg.arg, node.lineno))
+            if node.args.kwarg:
+                names.append((node.args.kwarg.arg, node.lineno))
+            self.generic_visit(node)
+
+        def visit_ClassDef(self, node):
+            names.append((node.name, node.lineno))
+            self.generic_visit(node)
+
+    NameCollector().visit(tree)
+    return names  # Liste aller (name, lineno)
+
+def find_suspicious_strings(tree, filename, source_lines):
     suspicious = []
     string_pattern = re.compile(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}")
+
+    defined_names_with_lines = extract_defined_names_with_lines(tree)
 
     class StringChecker(ast.NodeVisitor):
         def visit_Constant(self, node):
             if isinstance(node.value, str):
                 matches = string_pattern.findall(node.value)
+                # Filtere nur Namen, die vor dieser Zeile definiert sind
+                defined_before = {name for name, lineno in defined_names_with_lines if lineno < getattr(node, "lineno", 0)}
                 for match in matches:
-                    if match in defined_names:
+                    if match in defined_before:
                         lineno = getattr(node, "lineno", None)
-                        if lineno is not None and 1 <= lineno <= len(source_lines):
-                            line = source_lines[lineno - 1].rstrip("\n")
-                        else:
-                            line = node.value
+                        line = source_lines[lineno - 1].rstrip("\n") if lineno else node.value
                         suspicious.append((filename, lineno, match, line))
             self.generic_visit(node)
 
@@ -85,7 +120,7 @@ def process_file(filename):
 
     defined_names = extract_defined_names(tree)
     source_lines = source.splitlines()
-    return find_suspicious_strings(tree, defined_names, filename, source_lines)
+    return find_suspicious_strings(tree, filename, source_lines)
 
 def main():
     parser = argparse.ArgumentParser(

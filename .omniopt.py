@@ -2084,7 +2084,7 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
         if stderr:
             print_green(stderr)
         else:
-            print_red("This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
+            print_red(f"This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 

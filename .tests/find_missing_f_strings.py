@@ -11,42 +11,11 @@ def collect_python_files(path):
     if os.path.isfile(path) and path.endswith(".py"):
         files.append(os.path.abspath(path))
     elif os.path.isdir(path):
-        for root, dirs, filenames in os.walk(path):
+        for root, _, filenames in os.walk(path):
             for filename in filenames:
                 if filename.endswith(".py"):
                     files.append(os.path.join(root, filename))
     return files
-
-def extract_defined_names(tree):
-    names = set()
-
-    class NameCollector(ast.NodeVisitor):
-        def visit_Assign(self, node):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    names.add(target.id)
-                elif isinstance(target, (ast.Tuple, ast.List)):
-                    for elt in target.elts:
-                        if isinstance(elt, ast.Name):
-                            names.add(elt.id)
-            self.generic_visit(node)
-
-        def visit_FunctionDef(self, node):
-            names.add(node.name)
-            for arg in node.args.args:
-                names.add(arg.arg)
-            if node.args.vararg:
-                names.add(node.args.vararg.arg)
-            if node.args.kwarg:
-                names.add(node.args.kwarg.arg)
-            self.generic_visit(node)
-
-        def visit_ClassDef(self, node):
-            names.add(node.name)
-            self.generic_visit(node)
-
-    NameCollector().visit(tree)
-    return names
 
 def extract_defined_names_with_lines(tree):
     """
@@ -118,7 +87,6 @@ def process_file(filename):
         sys.stderr.write(f"Syntaxfehler in {filename}: {e}\n")
         return []
 
-    defined_names = extract_defined_names(tree)
     source_lines = source.splitlines()
     return find_suspicious_strings(tree, filename, source_lines)
 
@@ -130,7 +98,7 @@ def main():
     args = parser.parse_args()
 
     input_paths = args.paths if args.paths else ["."]
-    
+
     python_files = []
     for path in input_paths:
         python_files.extend(collect_python_files(path))

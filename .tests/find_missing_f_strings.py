@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import argparse
 import ast
 import os
@@ -88,14 +89,19 @@ def process_file(filename):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Findet String-Literale wie 'bla {var}' ohne f-String-Markierung."
+        description="Finds string literals like 'bla {var}' without f-Strings."
     )
-    parser.add_argument("path", help="Pfad zu einer .py-Datei oder einem Ordner")
+    parser.add_argument("paths", nargs="*", help="Path to one or many .py-files or a folder")
     args = parser.parse_args()
 
-    python_files = collect_python_files(args.path)
+    input_paths = args.paths if args.paths else ["."]
+    
+    python_files = []
+    for path in input_paths:
+        python_files.extend(collect_python_files(path))
+
     if not python_files:
-        sys.stderr.write("Keine Python-Dateien gefunden.\n")
+        sys.stderr.write("No python files found.\n")
         sys.exit(1)
 
     all_suspicious = []
@@ -103,11 +109,9 @@ def main():
         all_suspicious.extend(process_file(file))
 
     if all_suspicious:
-        print("Mögliche vergessene f-Strings gefunden:\n")
+        print("Possible forgotten f's:\n")
         for filename, lineno, var, line in all_suspicious:
-            print(f"{filename}:{lineno}: Variable '{var}' in String entdeckt -> {line}")
-    else:
-        print("Keine verdächtigen Strings gefunden.")
+            print(f"{filename}:{lineno}: Variable '{var}' detected in file -> {line}")
 
 if __name__ == "__main__":
     main()

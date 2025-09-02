@@ -9935,9 +9935,11 @@ def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_
         pass
 
     if gpu_string:
-        console.print(f"[green]You have {cpu_count} CPUs available for the main process.[/green] [{gpu_color}]{gpu_string}[/{gpu_color}] [green]{gs_string}[/green]")
+        console.print(f"[green]You have {cpu_count} CPUs available for the main process.[/green] [{gpu_color}]{gpu_string}[/{gpu_color}]")
     else:
-        print_green(f"You have {cpu_count} CPUs available for the main process. {gs_string}")
+        print_green(f"You have {cpu_count} CPUs available for the main process.")
+
+    print_green(gs_string)
 
 def write_args_overview_table() -> None:
     table = Table(title="Arguments Overview")

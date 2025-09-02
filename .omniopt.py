@@ -7934,40 +7934,53 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
     retries = 0
 
     try:
+        print("!!!!!!!!!!!!!!!!!!!!!!!")
+        print_debug("1/33: Trying to generate trials")
         while cnt < n and retries < args.max_abandoned_retrial:
+            print_debug("2/33: entering while loop")
             for arm in get_batched_arms(n - cnt):
+                print_debug("3/33: iterating arms")
                 if cnt >= n:
+                    print_debug("4/33: cnt >= n, breaking")
                     break
 
                 try:
+                    print_debug("5/33: creating Arm object")
                     arm = Arm(parameters=arm.parameters)
                 except Exception as arm_err:
+                    print_debug("6/33: exception while creating Arm")
                     print_red(f"Error while creating new Arm: {arm_err}")
                     retries += 1
                     continue
 
-                print_debug(f"Fetching trial {cnt + 1}/{n}...")
+                print_debug(f"7/33: Fetching trial {cnt + 1}/{n}...")
                 progressbar_description(_get_trials_message(cnt + 1, n, trial_durations))
 
                 try:
+                    print_debug("8/33: calling create_and_handle_trial")
                     result = create_and_handle_trial(arm)
                     if result is not None:
+                        print_debug("9/33: got non-None result")
                         trial_index, trial_duration, trial_successful = result
-
                 except TrialRejected as e:
-                    print_debug(f"Trial rejected: {e}")
+                    print_debug(f"10/33: Trial rejected: {e}")
                     retries += 1
                     continue
 
+                print_debug("11/33: appending trial_duration")
                 trial_durations.append(trial_duration)
 
                 if trial_successful:
+                    print_debug("12/33: trial successful, incrementing cnt and storing params")
                     cnt += 1
                     trials_dict[trial_index] = arm.parameters
 
+        print_debug("13/33: finalizing generation")
         finalized = finalize_generation(trials_dict, cnt, n, start_time)
 
+        print_debug("14/33: returning finalized")
         return finalized
+
 
     except Exception as e:
         return _handle_generation_failure(e, n, recursion)

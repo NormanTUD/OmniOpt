@@ -1655,7 +1655,7 @@ EOF
 		fi
 
 		if [[ $live_share -eq 1 ]] && [[ -n $live_share_pid ]]; then
-			kill -9 $live_share_pid
+			kill -9 $live_share_pid >/dev/null 2>/dev/null
 		fi
 
 		set -e

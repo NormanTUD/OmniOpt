@@ -7965,7 +7965,9 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     cnt += 1
                     trials_dict[trial_index] = arm.parameters
 
-        return _finalize_generation(trials_dict, cnt, n, start_time)
+        finalized = finalize_generation(trials_dict, cnt, n, start_time)
+
+        return finalized
 
     except Exception as e:
         return _handle_generation_failure(e, n, recursion)
@@ -8015,7 +8017,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     end = time.time()
     return trial_index, float(end - start), True
 
-def _finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float) -> Tuple[Dict[int, Any], bool]:
+def finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, start_time: float) -> Tuple[Dict[int, Any], bool]:
     total_time = time.time() - start_time
 
     log_gen_times.append(total_time)

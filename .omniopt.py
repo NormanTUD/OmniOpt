@@ -5422,7 +5422,7 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
 def set_objectives() -> dict:
     objectives = {}
 
-    for rn in args.result_names:
+    for rn in arg_result_names:
         key, value = "", ""
 
         if "=" in rn:
@@ -5889,7 +5889,7 @@ def print_result_names_overview_table() -> None:
 
         return None
 
-    if args.continue_previous_job is not None and args.result_names is not None and len(args.result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
+    if args.continue_previous_job is not None and arg_result_names is not None and len(arg_result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
         print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
     if ax_client.experiment.optimization_config.is_moo_problem:

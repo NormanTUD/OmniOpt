@@ -7954,6 +7954,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     if result is not None:
                         trial_index, trial_duration, trial_successful = result
                 except TrialRejected as e:
+                    print_debug(f"generate_trials: Trial rejected, error: {e}")
                     retries += 1
                     continue
 

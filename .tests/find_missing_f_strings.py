@@ -121,4 +121,8 @@ def main():
     sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("You cancelled pressing CTRL-C")
+        sys.exit(0)

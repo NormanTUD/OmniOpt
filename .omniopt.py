@@ -998,7 +998,6 @@ class ConfigLoader:
         debug.add_argument('--runtime_debug', help='Logs which functions use most of the time', action='store_true', default=False)
         debug.add_argument('--debug_stack_regex', help='Only print debug messages if call stack matches any regex', type=str, default='')
         debug.add_argument('--debug_stack_trace_regex', help='Show compact call stack with arrows if any function in stack matches regex', type=str, default=None)
-
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:

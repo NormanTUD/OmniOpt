@@ -1649,7 +1649,8 @@ EOF
 				stdbuf -e 0 -o 0 py-spy record --rate 10 --subprocesses --native --output "$RUN_UUID.svg" python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
 				EXIT_CODE=$?
 			elif [[ -n $RUN_WITH_MEMRAY ]]; then
-				echo "Starting OmniOpt with MemRay"
+				echo "Starting OmniOpt with MemRay."
+				echo "Check later on with 'memray flamegraph $RUN_UUID.bin'"
 				export PYTORCH_NO_CUDA_MEMORY_CACHING=1
 				export PYTHONFAULTHANDLER=1
 				pip install memray

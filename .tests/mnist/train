@@ -49,7 +49,7 @@ def ensure_venv_and_rich():
         import rich
         import torch
         import torchvision
-    except ModuleNotFoundError:
+    except (OSError, ModuleNotFoundError):
         if not VENV_PATH.exists():
             create_and_setup_venv()
         else:

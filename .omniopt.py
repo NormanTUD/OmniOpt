@@ -822,6 +822,7 @@ class ConfigLoader:
     run_program_once: str
     mem_gb: int
     flame_graph: bool
+    memray: bool
     continue_previous_job: Optional[str]
     calculate_pareto_front_of_job: Optional[List[str]]
     revert_to_random_when_seemingly_exhausted: bool
@@ -983,6 +984,7 @@ class ConfigLoader:
         debug.add_argument('--verbose_break_run_search_table', help='Verbose logging for break_run_search', action='store_true', default=False)
         debug.add_argument('--debug', help='Enable debugging', action='store_true', default=False)
         debug.add_argument('--flame_graph', help='Enable flame-graphing. Makes everything slower, but creates a flame graph', action='store_true', default=False)
+        debug.add_argument('--memray', help='Use memray to show memory usage', action='store_true', default=False)
         debug.add_argument('--no_sleep', help='Disables sleeping for fast job generation (not to be used on HPC)', action='store_true', default=False)
         debug.add_argument('--tests', help='Run simple internal tests', action='store_true', default=False)
         debug.add_argument('--show_worker_percentage_table_at_end', help='Show a table of percentage of usage of max worker over time', action='store_true', default=False)
@@ -11179,6 +11181,7 @@ def main_outside() -> None:
 
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)
+    fool_linter(args.memray)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

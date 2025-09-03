@@ -1016,6 +1016,10 @@ $complex_options_str
 			args_string+=" --help "
 			;;
 
+		--memray)
+			export RUN_WITH_MEMRAY=1
+			;;
+
 		--flame_graph)
 			export RUN_WITH_PYSPY=1
 			;;
@@ -1639,13 +1643,20 @@ EOF
 		fi
 
 		if [[ -z $RUN_WITH_COVERAGE ]]; then
-			if [[ -z $RUN_WITH_PYSPY ]]; then
-				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
-				EXIT_CODE=$?
-			else
+			if [[ -n $RUN_WITH_PYSPY ]]; then
 				echo "Starting OmniOpt with Py-Spy"
 				pip install py-spy
 				stdbuf -e 0 -o 0 py-spy record --rate 10 --subprocesses --native --output "$RUN_UUID.svg" python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
+				EXIT_CODE=$?
+			elif [[ -n $RUN_WITH_MEMRAY ]]; then
+				echo "Starting OmniOpt with MemRay"
+				export PYTORCH_NO_CUDA_MEMORY_CACHING=1
+				export PYTHONFAULTHANDLER=1
+				pip install memray
+				stdbuf -e 0 -o 0 memray run -o "$RUN_UUID.bin" python3 -- "$SCRIPT_DIR/.omniopt.py" $args_string
+				EXIT_CODE=$?
+			else
+				stdbuf -e 0 -o 0 python3 "$SCRIPT_DIR/.omniopt.py" $args_string
 				EXIT_CODE=$?
 			fi
 		else

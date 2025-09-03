@@ -216,3 +216,4 @@ start_baseline_jobs.sh
 data/
 places365_data/
 .tests/mnist/.torch_venv_*
+*.bin

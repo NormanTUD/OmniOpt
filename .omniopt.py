@@ -7862,32 +7862,32 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         print_red("get_batched_arms: ax_client was None")
         return []
 
-    # Experiment-Status laden
     load_experiment_state()
 
-    while len(batched_arms) != nr_of_jobs_to_get:
+    while len(batched_arms) < nr_of_jobs_to_get:
         if attempts > args.max_attempts_for_generation:
             print_debug(f"get_batched_arms: Stopped after {attempts} attempts: could not generate enough arms "
                         f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
             break
 
-        remaining = nr_of_jobs_to_get - len(batched_arms)
-        print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting {remaining} more arm(s).")
+        print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
-        print_debug("get pending observations")
         t0 = time.time()
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
         dt = time.time() - t0
-        print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
+        print_debug(f"got pending observations (took {dt:.2f} seconds)")
 
-        print_debug("getting global_gs.gen()")
-        print_debug(f"ax_client.experiment: {ax_client.experiment}")
-        batched_generator_run = global_gs.gen(
-            experiment=ax_client.experiment,
-            n=remaining,
-            pending_observations=pending_observations
-        )
-        print_debug(f"got global_gs.gen(): {batched_generator_run}")
+        try:
+            print_debug("getting global_gs.gen() with n=1")
+            batched_generator_run = global_gs.gen(
+                experiment=ax_client.experiment,
+                n=1,
+                pending_observations=pending_observations,
+            )
+            print_debug(f"got global_gs.gen(): {batched_generator_run}")
+        except Exception as e:
+            print_debug(f"global_gs.gen failed: {e}")
+            break
 
         depth = 0
         path = "batched_generator_run"
@@ -7899,15 +7899,13 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         print_debug(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
 
-        print_debug("got new arms")
-        new_arms = batched_generator_run.arms
-        print_debug(f"new_arms: {new_arms}")
+        new_arms = getattr(batched_generator_run, "arms", [])
         if not new_arms:
             print_debug("get_batched_arms: No new arms were generated in this attempt.")
         else:
-            print_debug(f"get_batched_arms: Generated {len(new_arms)} new arm(s), wanted {nr_of_jobs_to_get}.")
+            print_debug(f"get_batched_arms: Generated {len(new_arms)} new arm(s), now at {len(batched_arms)+len(new_arms)} of {nr_of_jobs_to_get}.")
+            batched_arms.extend(new_arms)
 
-        batched_arms.extend(new_arms)
         attempts += 1
 
     print_debug(f"get_batched_arms: Finished with {len(batched_arms)} arm(s) after {attempts} attempt(s).")

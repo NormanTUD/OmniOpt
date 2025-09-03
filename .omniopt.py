@@ -7270,9 +7270,6 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     jobs_copy = global_vars["jobs"][:]
 
-    if len(jobs_copy) > 0:
-        print_debug(f"jobs in finish_previous_jobs: {jobs_copy}")
-
     finishing_jobs_start_time = time.time()
 
     with ThreadPoolExecutor() as finish_job_executor:

@@ -55,7 +55,7 @@ for bash_file in $(egrep -ri '^#!/usr/bin/env bash' * | sed -e 's#:.*##'); do
 			"GITHUB_STEP_SUMMARY" "NAME" "FOUND_FUNCS" "msg" "DEBUG" "CLUSTERHOST" "VIRTUAL_ENV"
 			"FILTER_EXPERIMENT" "FILTER_USER" "RUN_WITH_COVERAGE" "CI" "ITWORKSONMYMACHINE" "LOG_PATH"
 			"OO_MAIN_TESTS" "root_venv_dir" "PRINT_SEPERATOR" "RUN_WITH_PYSPY" "RUN_UUID"
-			"NO_RUNTIME" "DONT_ASK_FILE" "!" "-f"
+			"NO_RUNTIME" "DONT_ASK_FILE" "!" "-f" "RUN_WITH_MEMRAY"
 		)
 
 		filtered_params=()

@@ -334,6 +334,10 @@ def main():
         runtime_seconds = end_time - start_time
 
         print(f"RUNTIME: {runtime_seconds:.3f}")
+        max_runtime = 7200
+        normalized_runtime = (runtime_seconds / max_runtime) * 100
+        normalized_runtime = round(normalized_runtime, 3)
+        print(f"NORMALIZED_RUNTIME: {normalized_runtime}")
 
     except KeyboardInterrupt:
         graceful_exit(None, None)

@@ -2623,6 +2623,99 @@ function plotParameterDistributionsByStatus() {
 	resizePlotlyCharts();
 }
 
+function insertSortableSelectForSingleLogsTabs() {
+	if (typeof $ === "undefined") {
+		console.error("jQuery is not loaded.");
+		return;
+	}
+
+	var $tab_logs = $("#tab_logs");
+	if ($tab_logs.length === 0) {
+		console.error("#tab_logs not found.");
+		return;
+	}
+
+	var $menu = $tab_logs.find("menu[role='tablist']");
+	if ($menu.length === 0) {
+		console.error("No <menu> with role='tablist' found inside #tab_logs.");
+		return;
+	}
+
+	var $buttons = $menu.find("button[data-job_id]");
+	if ($buttons.length === 0) {
+		console.warn("No buttons with data-job_id found inside the menu.");
+		return;
+	}
+
+	// Alle data-Attribute sammeln
+	var dataAttrs = {};
+	$buttons.each(function() {
+		var attrs = this.attributes;
+		for (var i = 0; i < attrs.length; i++) {
+			var name = attrs[i].name;
+			if (name.startsWith("data-")) {
+				dataAttrs[name] = true;
+			}
+		}
+	});
+
+	var attrList = Object.keys(dataAttrs);
+	if (attrList.length === 0) {
+		console.warn("No data attributes found on buttons.");
+		return;
+	}
+
+	// <select> erstellen
+	var $select = $("<select></select>").css({marginBottom: "10px"});
+	$select.append($("<option disabled selected>Select attribute to sort</option>"));
+
+	attrList.forEach(function(attr) {
+		var cleanName = attr.replace("data-", "");
+		$select.append($("<option></option>").attr("value", attr + "|asc").text(cleanName + " (asc)"));
+		$select.append($("<option></option>").attr("value", attr + "|desc").text(cleanName + " (desc)"));
+	});
+
+	// Select ganz oben in #tab_logs einfügen
+	$tab_logs.prepend($select);
+
+	// Sortierfunktion
+	$select.on("change", function() {
+		var val = $(this).val();
+		if (!val) return;
+
+		var parts = val.split("|");
+		if (parts.length !== 2) return;
+
+		var attr = parts[0];
+		var order = parts[1];
+
+		var $btnsArray = $buttons.toArray();
+
+		$btnsArray.sort(function(a, b) {
+			var va = $(a).attr(attr);
+			var vb = $(b).attr(attr);
+
+			// Fehlertolerant: wenn Wert fehlt, auf null setzen
+			if (va === undefined || va === null) va = "";
+			if (vb === undefined || vb === null) vb = "";
+
+			// Zahlen vergleichen, sonst Strings
+			var na = parseFloat(va);
+			var nb = parseFloat(vb);
+			if (!isNaN(na) && !isNaN(nb)) {
+				return order === "asc" ? na - nb : nb - na;
+			} else {
+				if (va < vb) return order === "asc" ? -1 : 1;
+				if (va > vb) return order === "asc" ? 1 : -1;
+				return 0;
+			}
+		});
+
+		// Buttons neu anordnen
+		$menu.empty().append($btnsArray);
+	});
+}
+
 window.addEventListener('load', updatePreWidths);
 window.addEventListener('resize', updatePreWidths);
 

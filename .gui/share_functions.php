@@ -1568,7 +1568,8 @@
 					}
 				}
 
-				$runtime_string = get_runtime_from_outfile($file_as_string);
+				$runtime = get_runtime($file_as_string);
+				$runtime_string = get_runtime_human_format($runtime);
 
 				$brackets = [];
 
@@ -1599,7 +1600,7 @@
 				$data_array = [
 					"job_id=$nr",
 					"exit_code=$exit_code_from_file",
-					"runtime=$runtime_string"
+					"runtime=$runtime"
 				];
 
 				$data = " data-".implode(" data-", $data_array);
@@ -1740,15 +1741,13 @@
 		return null;
 	}
 
-	function get_runtime_from_outfile ($string) {
-		if(!$string) {
+	function get_runtime($string) {
+		if (!$string) {
 			return null;
 		}
 
 		$pattern = '/submitit INFO \((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\)/';
-
 		preg_match_all($pattern, $string, $matches);
-
 		$dates = $matches[1];
 
 		$unixTimes = [];
@@ -1757,29 +1756,26 @@
 			$unixTimes[] = strtotime($formattedDate);
 		}
 
-		if(!count($unixTimes)) {
-			return "";
+		if (!count($unixTimes)) {
+			return 0;
 		}
 
-		$minTime = min($unixTimes);
-		$maxTime = max($unixTimes);
-		$timeDiff = $maxTime - $minTime;
+		return max($unixTimes) - min($unixTimes);
+	}
 
-		$hours = floor($timeDiff / 3600);
-		$minutes = floor(($timeDiff % 3600) / 60);
-		$seconds = $timeDiff % 60;
+	function get_runtime_human_format($seconds) {
+		if ($seconds <= 0) {
+			return "0s";
+		}
+
+		$hours = floor($seconds / 3600);
+		$minutes = floor(($seconds % 3600) / 60);
+		$remainingSeconds = $seconds % 60;
 
 		$result = [];
-
-		if ($hours > 0) {
-			$result[] = "{$hours}h";
-		}
-		if ($minutes > 0) {
-			$result[] = "{$minutes}m";
-		}
-		if ($seconds > 0 || empty($result)) {
-			$result[] = "{$seconds}s";
-		}
+		if ($hours > 0) $result[] = "{$hours}h";
+		if ($minutes > 0) $result[] = "{$minutes}m";
+		if ($remainingSeconds > 0 || empty($result)) $result[] = "{$remainingSeconds}s";
 
 		return implode(":", $result);
 	}

@@ -464,6 +464,8 @@
 			}
 
 			hideFullscreenSpinner();
+
+			insertSortableSelectForSingleLogsTabs();
 		});
 	</script>
 	<div class="page">

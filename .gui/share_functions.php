@@ -1521,7 +1521,7 @@
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span>&#10060;</span>";
 		$green_checkmark = "<span>&#9989;</span>";
-		$gear = "<span><img style='height: 1em' class='invert_in_dark_mode' src='i/gear.svg' /></span>";
+		$gear = "<span><img style='height: 1em' src='i/gear.svg' /></span>";
 		$memory = "<span><img style='height: 1em' src='i/memory.svg' /></span>";
 		$time_warning = "<span><img style='height: 1em' src='i/timeout.svg' /></span>";
 

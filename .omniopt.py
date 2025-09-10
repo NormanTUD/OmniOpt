@@ -5916,19 +5916,18 @@ def print_result_names_overview_table() -> None:
         print_red("ax_client.experiment.optimization_config was None")
         return None
 
-    if ax_client.experiment.optimization_config.is_moo_problem:
-        if ax_client.experiment:
-            if ax_client.experiment.optimization_config is not None:
-                if ax_client.experiment.optimization_config.objective is not None:
-                    config_objectives = ax_client.experiment.optimization_config.objective.objectives
-                else:
-                    print_debug("ax_client.experiment.optimization_config.objective was None")
+    if ax_client.experiment and ax_client.experiment.optimization_config:
+        opt_config = ax_client.experiment.optimization_config
+        if opt_config.is_moo_problem:
+            objective = getattr(opt_config, "objective", None)
+            if objective and getattr(objective, "objectives", None) is not None:
+                config_objectives = objective.objectives
             else:
-                print_debug("ax_client.experiment.optimization_config was None")
+                print_debug("ax_client.experiment.optimization_config.objective was None")
         else:
-            print_debug("ax_client.experiment optimization_config was None")
+            config_objectives = [opt_config.objective]
     else:
-        config_objectives = [ax_client.experiment.optimization_config.objective]
+        print_debug("ax_client.experiment or optimization_config was None")
 
     res_names = []
     res_min_max = []

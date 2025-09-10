@@ -1485,7 +1485,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         y = np.zeros([num_completed_trials, 1])
 
         for t_idx, trial in enumerate(completed_trials):
-            trial_parameters = trial.arms.parameters
+            trial_parameters = trial.arms[t_idx].parameters
             x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
             trial_df = data.df[data.df["trial_index"] == trial.index]
             y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]]["mean"].item()
@@ -5917,8 +5917,16 @@ def print_result_names_overview_table() -> None:
         return None
 
     if ax_client.experiment.optimization_config.is_moo_problem:
-        if ax_client.experiment.optimization_config is not None:
-            config_objectives = ax_client.experiment.optimization_config.objective.objectives
+        if ax_client.experiment:
+            if ax_client.experiment.optimization_config is not None:
+                if ax_client.experiment.optimization_config.objective is not None:
+                    config_objectives = ax_client.experiment.optimization_config.objective.objectives
+                else:
+                    print_debug("ax_client.experiment.optimization_config.objective was None")
+            else:
+                print_debug("ax_client.experiment.optimization_config was None")
+        else:
+            print_debug("ax_client.experiment optimization_config was None")
     else:
         config_objectives = [ax_client.experiment.optimization_config.objective]
 

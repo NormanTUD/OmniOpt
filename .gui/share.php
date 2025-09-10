@@ -288,7 +288,7 @@
 				}
 
 
-				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);
+				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names, $result_min_max);
 
 				if (isset($_GET["filter_tabs_regex"])) {
 					$re = $_GET["filter_tabs_regex"];

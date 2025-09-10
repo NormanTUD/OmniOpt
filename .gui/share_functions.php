@@ -1518,7 +1518,26 @@
 		return $match_found === 1;
 	}
 
-	function generate_log_tabs($run_dir, $log_files, $result_names) {
+	function extract_results_string(string $file_as_string, array $result_names): string {
+		$matches = [];
+		preg_match_all('/^(\w+)\s*:\s*([+-]?\d+(?:\.\d+)?)/m', $file_as_string, $matches, PREG_SET_ORDER);
+
+		$results = [];
+		foreach ($matches as $m) {
+			$results[$m[1]] = $m[2]; // überschreibt ältere Werte
+		}
+
+		$parts = [];
+		foreach ($result_names as $name) {
+			if (isset($results[$name])) {
+				$parts[] = "$name: {$results[$name]}";
+			}
+		}
+
+		return $parts ? implode(', ', $parts) : '';
+	}
+
+	function generate_log_tabs($run_dir, $log_files, $result_names, $result_min_max) {
 		$red_cross = "<span>&#10060;</span>";
 		$green_checkmark = "<span>&#9989;</span>";
 		$gear = "<span><img style='height: 1em' src='i/gear.svg' /></span>";
@@ -1566,6 +1585,8 @@
 				}
 
 				$brackets_string = "";
+
+				$brackets[] = extract_results_string($file_as_string, $result_names);
 
 				if(count($brackets)) {
 					$brackets_string = " (".implode(", ", $brackets).")";
@@ -2417,11 +2438,11 @@
 		return [$tabs, $warnings];
 	}
 
-	function get_outfiles_tab_from_run_dir ($run_dir, $tabs, $warnings, $result_names) {
+	function get_outfiles_tab_from_run_dir ($run_dir, $tabs, $warnings, $result_names, $result_min_max) {
 		$out_files = get_log_files($run_dir);
 
 		if(count($out_files)) {
-			[$content, $i] = generate_log_tabs($run_dir, $out_files, $result_names);
+			[$content, $i] = generate_log_tabs($run_dir, $out_files, $result_names, $result_min_max);
 
 			if ($i > 0) {
 				$svg_icon = get_icon_html("tabs.svg");

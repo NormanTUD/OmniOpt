@@ -7242,7 +7242,10 @@ def _finish_previous_jobs_helper_process_job(job: Any, trial_index: int, this_jo
         this_jobs_finished += _finish_previous_jobs_helper_handle_exception(job, trial_index, error)
     return this_jobs_finished
 
-def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, this_jobs_finished: int) -> int:
+def _finish_previous_jobs_helper_check_and_process(__args: Tuple[Any, int]) -> int:
+    job, trial_index = __args
+
+    this_jobs_finished = 0
     if job is None:
         print_debug(f"finish_previous_jobs: job {job} is None")
         return this_jobs_finished
@@ -7254,10 +7257,6 @@ def _finish_previous_jobs_helper_check_and_process(job: Any, trial_index: int, t
             print_debug(f"finish_previous_jobs: job was neither done, nor LocalJob nor DebugJob, but {job}")
 
     return this_jobs_finished
-
-def _finish_previous_jobs_helper_wrapper(__args: Tuple[Any, int]) -> int:
-    job, trial_index = __args
-    return _finish_previous_jobs_helper_check_and_process(job, trial_index, 0)
 
 def finish_previous_jobs(new_msgs: List[str] = []) -> None:
     global JOBS_FINISHED
@@ -7274,7 +7273,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
     finishing_jobs_start_time = time.time()
 
     with ThreadPoolExecutor() as finish_job_executor:
-        futures = [finish_job_executor.submit(_finish_previous_jobs_helper_wrapper, (job, trial_index)) for job, trial_index in jobs_copy]
+        futures = [finish_job_executor.submit(_finish_previous_jobs_helper_check_and_process, (job, trial_index)) for job, trial_index in jobs_copy]
 
         for future in as_completed(futures):
             try:

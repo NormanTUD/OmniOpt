@@ -5899,12 +5899,7 @@ def print_ax_parameter_constraints_table(experiment_args: dict) -> None:
 
     return None
 
-def print_result_names_overview_table() -> None:
-    if not ax_client:
-        _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
-
-        return None
-
+def check_base_for_print_overview() -> Optional[bool]:
     if args.continue_previous_job is not None and arg_result_names is not None and len(arg_result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
         print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
@@ -5914,6 +5909,17 @@ def print_result_names_overview_table() -> None:
 
     if ax_client.experiment.optimization_config is None:
         print_red("ax_client.experiment.optimization_config was None")
+        return None
+
+    return True
+
+def print_result_names_overview_table() -> None:
+    if not ax_client:
+        _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
+
+        return None
+
+    if check_base_for_print_overview() is None:
         return None
 
     if ax_client.experiment and ax_client.experiment.optimization_config:

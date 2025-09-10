@@ -1629,9 +1629,12 @@
 				];
 
 				if (!empty($result_names)) {
-					$formatted_results = format_results_from_dict($results_dict, $result_names);
-					if ($formatted_results !== '') {
-						$data_array[] = preg_replace("/:\s*/", "=", $formatted_results);
+					$results_dict = extract_results_dict($file_as_string);
+
+					foreach ($result_names as $name) {
+						if (isset($results_dict[$name])) {
+							$data_array[] = "$name={$results_dict[$name]}";
+						}
 					}
 				}
 

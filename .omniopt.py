@@ -5917,7 +5917,8 @@ def print_result_names_overview_table() -> None:
         return None
 
     if ax_client.experiment.optimization_config.is_moo_problem:
-        config_objectives = ax_client.experiment.optimization_config.objective.objectives
+        if ax_client.experiment.optimization_config is not None:
+            config_objectives = ax_client.experiment.optimization_config.objective.objectives
     else:
         config_objectives = [ax_client.experiment.optimization_config.objective]
 

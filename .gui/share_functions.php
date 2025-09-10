@@ -1612,7 +1612,11 @@
 
 				$results_dict = extract_results_dict($file_as_string);
 
-				$brackets[] = format_results_from_dict($results_dict, $result_names);
+				$res_strings = format_results_from_dict($results_dict, $result_names);
+
+				if($res_strings) {
+					$brackets[] = $res_strings;
+				}
 
 				if(count($brackets)) {
 					$brackets_string = " (".implode(", ", $brackets).")";

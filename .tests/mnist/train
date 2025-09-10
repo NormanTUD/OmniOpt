@@ -270,6 +270,34 @@ def test(model, device, test_loader, criterion, epoch, total_epochs):
     ))
     return test_loss, accuracy
 
+
+
+def print_model_summary(model, input_size):
+    device = next(model.parameters()).device
+    x = torch.zeros(1, *input_size).to(device)
+
+    table = Table(title="Model Summary", box=box.ROUNDED, title_style="bold magenta")
+    table.add_column("Layer", style="bold cyan")
+    table.add_column("Output Shape", style="bold green")
+    table.add_column("Param #", justify="right", style="bold yellow")
+
+    total_params = 0
+    
+    # Flatten vor dem ersten Linear-Layer
+    x = x.view(x.size(0), -1)
+    
+    for name, layer in model.classifier._modules.items():
+        x = layer(x)
+        params = sum(p.numel() for p in layer.parameters() if p.requires_grad)
+        total_params += params
+        out_shape_str = str(list(x.shape))
+        table.add_row(name, out_shape_str, str(params))
+    
+    # Gesamtparameter als letzte Zeile
+    table.add_row("Total", "-", str(total_params))
+
+    console.print(table)
+
 def main():
     try:
         args = parse_args()
@@ -307,6 +335,8 @@ def main():
             init_mode=args.init,
             num_dense_layers=args.num_dense_layers
         ).to(device)
+        
+        print_model_summary(model, input_size=(1, 28, 28))
 
         if args.learning_rate == 0:
             console.print("[red]Learning Rate cannot be 0[/red]")

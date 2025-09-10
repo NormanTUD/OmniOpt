@@ -1898,76 +1898,49 @@ function _colorize_table_entries_by_trial_status () {
 	});
 }
 
-function _colorize_table_entries_by_queue_time() {
-	let cells = [...document.querySelectorAll('[data-column-id="queue_time"]')];
-	if (cells.length === 0) return;
-
-	let values = cells.map(el => parseFloat(el.textContent)).filter(v => !isNaN(v));
-	if (values.length === 0) return;
-
-	let min = Math.min(...values);
-	let max = Math.max(...values);
-	let range = max - min || 1;
-
-	cells.forEach(el => {
-		let value = parseFloat(el.textContent);
-		if (isNaN(value)) return;
-
-		let ratio = (value - min) / range;
-		let red = Math.round(255 * ratio);
-		let green = Math.round(255 * (1 - ratio));
-
-		el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-		el.classList.add("invert_in_dark_mode");
-	});
-}
-
-function _colorize_table_entries_by_run_time() {
-	let cells = [...document.querySelectorAll('[data-column-id="run_time"]')];
-	if (cells.length === 0) return;
-
-	let values = cells.map(el => parseFloat(el.textContent)).filter(v => !isNaN(v));
-	if (values.length === 0) return;
-
-	let min = Math.min(...values);
-	let max = Math.max(...values);
-	let range = max - min || 1;
-
-	cells.forEach(el => {
-		let value = parseFloat(el.textContent);
-		if (isNaN(value)) return;
-
-		let ratio = (value - min) / range;
-		let red = Math.round(255 * ratio);
-		let green = Math.round(255 * (1 - ratio));
-
-		el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-		el.classList.add("invert_in_dark_mode");
-	});
-}
-
-function _colorize_table_entries_by_results() {
-	result_names.forEach((name, index) => {
-		let minMax = result_min_max[index];
-		let selector_query = `[data-column-id="${name}"]`;
-		let cells = [...document.querySelectorAll(selector_query)];
+function _colorize_table_entries(configs) {
+	configs.forEach(cfg => {
+		let cells = [...document.querySelectorAll(cfg.selector)];
 		if (cells.length === 0) return;
 
-		let values = cells.map(el => parseFloat(el.textContent)).filter(v => v > 0 && !isNaN(v));
-		if (values.length === 0) return;
+		let rawValues = cells.map(el => parseFloat(el.textContent));
+		if (cfg.filter) rawValues = rawValues.filter(cfg.filter);
+		else rawValues = rawValues.filter(v => !isNaN(v));
 
-		let logValues = values.map(v => Math.log(v));
-		let logMin = Math.min(...logValues);
-		let logMax = Math.max(...logValues);
-		let logRange = logMax - logMin || 1;
+		if (rawValues.length === 0) return;
+
+		if (cfg.type === "categorical") {
+			let unique = [...new Set(cells.map(el => el.textContent.trim()))];
+			let colorMap = {};
+			unique.forEach((v, i) => {
+				let hue = Math.round((360 / unique.length) * i);
+				colorMap[v] = `hsl(${hue}, 70%, 60%)`;
+			});
+			cells.forEach(el => {
+				let v = el.textContent.trim();
+				if (colorMap[v]) {
+					el.style.backgroundColor = colorMap[v];
+					el.classList.add("invert_in_dark_mode");
+				}
+			});
+			return;
+		}
+
+		let values = rawValues;
+		if (cfg.type === "log") values = values.map(v => Math.log(v));
+
+		let min = Math.min(...values);
+		let max = Math.max(...values);
+		let range = max - min || 1;
 
 		cells.forEach(el => {
 			let value = parseFloat(el.textContent);
-			if (isNaN(value) || value <= 0) return;
+			if (isNaN(value)) return;
+			if (cfg.type === "log" && value <= 0) return;
 
-			let logValue = Math.log(value);
-			let ratio = (logValue - logMin) / logRange;
-			if (minMax === "max") ratio = 1 - ratio;
+			let val = cfg.type === "log" ? Math.log(value) : value;
+			let ratio = (val - min) / range;
+			if (cfg.invert) ratio = 1 - ratio;
 
 			let red = Math.round(255 * ratio);
 			let green = Math.round(255 * (1 - ratio));
@@ -1978,39 +1951,41 @@ function _colorize_table_entries_by_results() {
 	});
 }
 
-function _colorize_table_entries_by_generation_node_or_hostname() {
-	["hostname", "generation_node"].forEach(element => {
-		let selector_query = '[data-column-id="' + element + '"]:not(.gridjs-th)';
-		let cells = [...document.querySelectorAll(selector_query)];
-		if (cells.length === 0) return;
-
-		let uniqueValues = [...new Set(cells.map(el => el.textContent.trim()))];
-		let colorMap = {};
-
-		uniqueValues.forEach((value, index) => {
-			let hue = Math.round((360 / uniqueValues.length) * index);
-			colorMap[value] = `hsl(${hue}, 70%, 60%)`;
-		});
-
-		cells.forEach(el => {
-			let value = el.textContent.trim();
-			if (colorMap[value]) {
-				el.style.backgroundColor = colorMap[value];
-				el.classList.add("invert_in_dark_mode");
-			}
-		});
-	});
+function _apply_colorization() {
+	_colorize_table_entries([
+		{ selector: '[data-column-id="queue_time"]', type: "linear" },
+		{ selector: '[data-column-id="run_time"]', type: "linear" },
+		...result_names.map((name, i) => ({
+			selector: `[data-column-id="${name}"]`,
+			type: "log",
+			filter: v => v > 0 && !isNaN(v),
+			invert: result_min_max[i] === "max"
+		})),
+		{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
+		{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
+	]);
 }
 
-function colorize_table_entries () {
+function colorize_table_entries() {
 	setTimeout(() => {
 		if (typeof result_names !== "undefined" && Array.isArray(result_names) && result_names.length > 0) {
 			_colorize_table_entries_by_trial_status();
-			_colorize_table_entries_by_results();
-			_colorize_table_entries_by_run_time();
-			_colorize_table_entries_by_queue_time();
+
+			_colorize_table_entries([
+				{ selector: '[data-column-id="queue_time"]', type: "linear" },
+				{ selector: '[data-column-id="run_time"]', type: "linear" },
+				...result_names.map((name, i) => ({
+					selector: `[data-column-id="${name}"]`,
+					type: "log",
+					filter: v => v > 0 && !isNaN(v),
+					invert: result_min_max[i] === "max"
+				})),
+				{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
+				{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
+			]);
+
 			_colorize_table_entries_by_generation_method();
-			_colorize_table_entries_by_generation_node_or_hostname();
+
 			if (typeof apply_theme_based_on_system_preferences === 'function') {
 				apply_theme_based_on_system_preferences();
 			}

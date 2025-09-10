@@ -1568,7 +1568,7 @@
 					}
 				}
 
-				$runtime_string = get_runtime_from_outfile(file_get_contents($file_path));
+				$runtime_string = get_runtime_from_outfile($file_as_string);
 
 				$brackets = [];
 
@@ -1596,7 +1596,15 @@
 
 				$aria_selected_= $i == 0 ? 'aria-selected="true"' : '';
 
-				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.$aria_selected_.' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
+				$data_array = [
+					"job_id=$nr",
+					"exit_code=$exit_code_from_file",
+					"runtime=$runtime_string"
+				];
+
+				$data = " data-".implode(" data-", $data_array);
+
+				$output .= '<button '.$data.' onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.$aria_selected_.' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
 				$i++;
 			}
 		}

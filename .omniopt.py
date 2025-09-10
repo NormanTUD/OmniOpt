@@ -7922,7 +7922,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         path = "batched_generator_run"
         while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
             print_debug(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
-            batched_generator_run = batched_generator_run[0]
+            batched_generator_run = [batched_generator_run[0]]
             path += "[0]"
             depth += 1
 
@@ -8701,7 +8701,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     if model_name.lower() != "sobol":
         kwargs["model_kwargs"] = get_model_kwargs()
 
-    model_spec = [GeneratorSpec(selected_model, **kwargs)]
+    model_spec = [GeneratorSpec(selected_model, **kwargs)] # type: ignore[arg-type]
 
     res = GenerationNode(
         node_name=model_name,

@@ -1532,7 +1532,7 @@ function plotResultEvolution() {
 			yaxis: {
 				title: get_axis_title_data(resultName)
 			},
-			showlegend: true
+			showlegend: false
 		};
 
 		let subDiv = document.createElement("div");

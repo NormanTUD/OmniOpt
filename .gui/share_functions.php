@@ -1623,7 +1623,7 @@
 				$aria_selected_= $i == 0 ? 'aria-selected="true"' : '';
 
 				$data_array = [
-					"job_id=$nr",
+					"trial_index=$nr",
 					"exit_code=$exit_code_from_file",
 					"runtime=$runtime"
 				];

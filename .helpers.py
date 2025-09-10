@@ -10,7 +10,6 @@ try:
     import difflib
     import logging
     import os
-    import platform
     import re
     import traceback
     import numpy as np

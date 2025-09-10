@@ -24,6 +24,7 @@ exceptions=(
 	"_finish_previous_jobs_helper_wrapper"
 	"force_exit"
 	"_cancel_all_tasks_at_exit"
+	"_finish_previous_jobs_helper_check_and_process"
 )
 
 unused_count=0

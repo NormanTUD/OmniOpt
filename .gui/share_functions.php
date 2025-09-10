@@ -1541,25 +1541,6 @@
 		return $parts ? implode(', ', $parts) : '';
 	}
 
-	function extract_results_string(string $file_as_string, array $result_names): string {
-		$matches = [];
-		preg_match_all('/^(\w+)\s*:\s*([+-]?\d+(?:\.\d+)?)/m', $file_as_string, $matches, PREG_SET_ORDER);
-
-		$results = [];
-		foreach ($matches as $m) {
-			$results[$m[1]] = $m[2]; // überschreibt ältere Werte
-		}
-
-		$parts = [];
-		foreach ($result_names as $name) {
-			if (isset($results[$name])) {
-				$parts[] = "$name: {$results[$name]}";
-			}
-		}
-
-		return $parts ? implode(', ', $parts) : '';
-	}
-
 	function generate_log_tabs($run_dir, $log_files, $result_names, $result_min_max) {
 		$red_cross = "<span>&#10060;</span>";
 		$green_checkmark = "<span>&#9989;</span>";

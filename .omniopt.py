@@ -10419,7 +10419,7 @@ def show_omniopt_call() -> None:
     original_print(oo_call + " " + cleaned)
 
 def main() -> None:
-    global RESULT_CSV_FILE, ax_client, LOGFILE_DEBUG_GET_NEXT_TRIALS
+    global RESULT_CSV_FILE, LOGFILE_DEBUG_GET_NEXT_TRIALS
 
     check_if_has_random_steps()
 

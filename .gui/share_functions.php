@@ -1594,9 +1594,9 @@
 
 				$tabname = "$nr$brackets_string $checkmark";
 
-				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.(
-					$i == 0 ? 'aria-selected="true"' : ''
-				).' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
+				$aria_selected_= $i == 0 ? 'aria-selected="true"' : '';
+
+				$output .= '<button onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.$aria_selected_.' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
 				$i++;
 			}
 		}

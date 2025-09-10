@@ -2491,6 +2491,8 @@ function initializeResultParameterVisualizations() {
         } catch (outerErr) {
                 console.error('Failed to initialize result parameter visualizations:', outerErr);
         }
+
+	apply_theme_based_on_system_preferences();
 }
 
 function plotParameterDistributionsByStatus() {

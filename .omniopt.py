@@ -1471,6 +1471,9 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def update_generator_state(self: Any, experiment: Experiment, data: Data) -> None:
         search_space = experiment.search_space
         parameter_names = list(search_space.parameters.keys())
+        if experiment.optimization_config is None:
+            print_red("Error: update_generator_state is None")
+            return
         metric_names = list(experiment.optimization_config.metrics.keys())
 
         completed_trials = [
@@ -1482,7 +1485,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         y = np.zeros([num_completed_trials, 1])
 
         for t_idx, trial in enumerate(completed_trials):
-            trial_parameters = trial.arm.parameters
+            trial_parameters = trial.arms.parameters
             x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
             trial_df = data.df[data.df["trial_index"] == trial.index]
             y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]]["mean"].item()
@@ -7089,7 +7092,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 
             return None
 
-        ax_client.log_trial_failure(trial_index=trial_index)
+        log_trial_failure(trial_index)
         _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
@@ -7145,8 +7148,8 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
     if job:
         try:
             progressbar_description("job_failed")
-            ax_client.log_trial_failure(trial_index=trial_index)
-            _trial.mark_failed(unsafe=True)
+            log_trial_failure(trial_index)
+            mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
             print_red(f"\nERROR while trying to mark job as failure: {e}")
         job.cancel()
@@ -7202,7 +7205,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
         try:
             progressbar_description("job_failed")
             _trial = ax_client.get_trial(trial_index)
-            ax_client.log_trial_failure(trial_index=trial_index)
+            log_trial_failure(trial_index)
             mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
@@ -7668,12 +7671,20 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
 
     return None
 
+def log_trial_failure(trial_index: int) -> None:
+    if not ax_client:
+        my_exit(101)
+
+        return
+
+    ax_client.log_trial_failure(trial_index=trial_index)
+
 def cancel_failed_job(trial_index: int, new_job: Job) -> None:
     print_debug("Trying to cancel job that failed")
     if new_job:
         try:
             if ax_client:
-                ax_client.log_trial_failure(trial_index=trial_index)
+                log_trial_failure(trial_index)
             else:
                 _fatal_error("ax_client not defined", 101)
         except Exception as e:
@@ -8685,7 +8696,7 @@ def get_optimizer_kwargs() -> dict:
         "sequential": False
     }
 
-def create_step(model_name: str, _num_trials: int = -1, index: Optional[int] = None) -> GenerationStep:
+def create_step(model_name: str, _num_trials: int, index: int) -> GenerationStep:
     model_enum = get_model_from_name(model_name)
 
     return GenerationStep(

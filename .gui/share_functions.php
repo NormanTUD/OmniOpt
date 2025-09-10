@@ -1518,6 +1518,29 @@
 		return $match_found === 1;
 	}
 
+	function extract_results_dict(string $file_as_string): array {
+		$matches = [];
+		preg_match_all('/^(\w+)\s*:\s*([+-]?\d+(?:\.\d+)?)/m', $file_as_string, $matches, PREG_SET_ORDER);
+
+		$results = [];
+		foreach ($matches as $m) {
+			$results[$m[1]] = $m[2]; // überschreibt ältere Werte
+		}
+
+		return $results;
+	}
+
+	function format_results_from_dict(array $results_dict, array $result_names): string {
+		$parts = [];
+		foreach ($result_names as $name) {
+			if (isset($results_dict[$name])) {
+				$parts[] = "$name: {$results_dict[$name]}";
+			}
+		}
+
+		return $parts ? implode(', ', $parts) : '';
+	}
+
 	function extract_results_string(string $file_as_string, array $result_names): string {
 		$matches = [];
 		preg_match_all('/^(\w+)\s*:\s*([+-]?\d+(?:\.\d+)?)/m', $file_as_string, $matches, PREG_SET_ORDER);
@@ -1587,7 +1610,9 @@
 
 				$brackets_string = "";
 
-				$brackets[] = extract_results_string($file_as_string, $result_names);
+				$results_dict = extract_results_dict($file_as_string);
+
+				$brackets[] = format_results_from_dict($results_dict, $result_names);
 
 				if(count($brackets)) {
 					$brackets_string = " (".implode(", ", $brackets).")";
@@ -1602,6 +1627,13 @@
 					"exit_code=$exit_code_from_file",
 					"runtime=$runtime"
 				];
+
+				if (!empty($result_names)) {
+					$formatted_results = format_results_from_dict($results_dict, $result_names);
+					if ($formatted_results !== '') {
+						$data_array[] = preg_replace("/:\s*/", "=", $formatted_results);
+					}
+				}
 
 				$data = " data-".implode(" data-", $data_array);
 

@@ -1558,16 +1558,23 @@
 			if(is_file($file_path) && is_readable($file_path) && is_ascii_or_utf8($file_path)) {
 				$file_as_string = file_get_contents($file_path);
 
+				$status = "";
+
 				if (file_string_contains_results($file_as_string, $result_names)) {
+					$status = "success";
 					$checkmark = $green_checkmark;
 				} else {
 					if(preg_match("/(?:(?:oom_kill\s+event)|(?:CUDA out of memory))/i", $file_as_string)) {
+						$status = "oom";
 						$checkmark = $memory;
 					} else if(ends_with_submitit_info($file_as_string)) {
+						$status = "failed";
 						$checkmark = $red_cross;
 					} else if(contains_slurm_time_limit_error($file_as_string)) {
+						$status = "time_warning";
 						$checkmark = $time_warning;
 					} else {
+						$status = "still_working";
 						$checkmark = $gear;
 					}
 				}
@@ -1610,7 +1617,8 @@
 				$data_array = [
 					"trial_index=$nr",
 					"exit_code=$exit_code_from_file",
-					"runtime=$runtime"
+					"runtime=$runtime",
+					"status=$status"
 				];
 
 				if (!empty($result_names)) {

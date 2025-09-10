@@ -350,12 +350,12 @@ var hiddenTableData = [
 		value: "",
 		options: [
 			{
-				text: "Use pip and install OmniOpt2 from pypi (may not be the latest version)",
-				value: "pip"
-			},
-			{
 				text: "Use git clone to clone OmniOpt2",
 				value: "clone"
+			},
+			{
+				text: "Use pip and install OmniOpt2 from pypi (may not be the latest version)",
+				value: "pip"
 			}
 		],
 		required: true,

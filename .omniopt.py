@@ -2124,7 +2124,11 @@ def try_saving_to_db() -> None:
         else:
             print_red("ax_client was not defined in try_saving_to_db")
             my_exit(101)
-        save_generation_strategy(global_gs)
+
+        if global_gs is not None:
+            save_generation_strategy(global_gs)
+        else:
+            print_red("Not saving generation strategy: global_gs was empty")
     except Exception as e:
         print_debug(f"Failed trying to save sqlite3-DB: {e}")
 

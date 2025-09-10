@@ -5903,6 +5903,10 @@ def check_base_for_print_overview() -> Optional[bool]:
     if args.continue_previous_job is not None and arg_result_names is not None and len(arg_result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
         print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
+    if ax_client is None:
+        print_red("ax_client was None")
+        return None
+
     if ax_client.experiment is None:
         print_red("ax_client.experiment was None")
         return None

@@ -5753,7 +5753,7 @@ def create_new_experiment() -> Tuple[dict, str, str]:
 
     return experiment_args, gpu_string, gpu_color
 
-def get_experiment_parameters(cli_params_experiment_parameters: Optional[dict | list]) -> Optional[Tuple[AxClient, dict, str, str]]:
+def get_experiment_parameters(cli_params_experiment_parameters: Optional[dict | list]) -> Optional[Tuple[dict, str, str]]:
     continue_previous_job = args.worker_generator_path or args.continue_previous_job
 
     check_ax_client()
@@ -5763,7 +5763,7 @@ def get_experiment_parameters(cli_params_experiment_parameters: Optional[dict | 
     else:
         experiment_args, gpu_string, gpu_color = create_new_experiment()
 
-    return ax_client, experiment_args, gpu_string, gpu_color
+    return experiment_args, gpu_string, gpu_color
 
 def get_type_short(typename: str) -> str:
     if typename == "RangeParameter":
@@ -10501,7 +10501,7 @@ def main() -> None:
     exp_params = get_experiment_parameters(cli_params_experiment_parameters)
 
     if exp_params is not None:
-        ax_client, experiment_args, gpu_string, gpu_color = exp_params
+        experiment_args, gpu_string, gpu_color = exp_params
         print_debug(f"experiment_parameters: {experiment_parameters}")
 
         set_orchestrator()

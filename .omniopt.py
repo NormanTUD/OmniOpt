@@ -5896,6 +5896,14 @@ def print_result_names_overview_table() -> None:
     if args.continue_previous_job is not None and arg_result_names is not None and len(arg_result_names) != 0 and original_result_names is not None and len(original_result_names) != 0:
         print_yellow("--result_names will be ignored in continued jobs. The result names from the previous job will be used.")
 
+    if ax_client.experiment is None:
+        print_red("ax_client.experiment was None")
+        return
+
+    if ax_client.experiment.optimization_config is None:
+        print_red("ax_client.experiment.optimization_config was None")
+        return
+
     if ax_client.experiment.optimization_config.is_moo_problem:
         config_objectives = ax_client.experiment.optimization_config.objective.objectives
     else:
@@ -8115,12 +8123,12 @@ def set_global_gs_to_random() -> None:
         nodes=[
             GenerationNode(
                 node_name="Sobol",
-                generator_specs=[
-                    GeneratorSpec(
-                        Models.SOBOL,
-                        model_gen_kwargs=get_model_gen_kwargs()
-                    )
-                ]
+                generator_specs=[ # type: ignore[arg-type]
+                    GeneratorSpec( # type: ignore[arg-type]
+                        Models.SOBOL, # type: ignore[arg-type]
+                        model_gen_kwargs=get_model_gen_kwargs() # type: ignore[arg-type]
+                    ) # type: ignore[arg-type]
+                ] # type: ignore[arg-type]
             )
         ]
     )

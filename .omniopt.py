@@ -6285,7 +6285,7 @@ def progressbar_description(new_msgs: Union[str, List[str]] = []) -> None:
         print_red("Cannot update progress bar! It is None.")
 
 def clean_completed_jobs() -> None:
-    job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "failed", "preempted", "node_fail", "boot_fail"]
+    job_states_to_be_removed = ["early_stopped", "abandoned", "cancelled", "timeout", "interrupted", "failed", "preempted", "node_fail", "boot_fail", "finished"]
     job_states_to_be_ignored = ["ready", "completed", "unknown", "pending", "running", "completing", "out_of_memory", "requeued", "resv_del_hold"]
 
     for job, trial_index in global_vars["jobs"][:]:

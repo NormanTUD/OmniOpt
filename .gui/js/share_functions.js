@@ -2641,9 +2641,9 @@ function insertSortableSelectForSingleLogsTabs() {
 		return;
 	}
 
-	var $buttons = $menu.find("button[data-job_id]");
+	var $buttons = $menu.find("button[data-trial_index]");
 	if ($buttons.length === 0) {
-		console.warn("No buttons with data-job_id found inside the menu.");
+		console.warn("No buttons with data-trial_index found inside the menu.");
 		return;
 	}
 

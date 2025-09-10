@@ -2671,8 +2671,8 @@ function insertSortableSelectForSingleLogsTabs() {
 
 	attrList.forEach(function(attr) {
 		var cleanName = attr.replace("data-", "");
-		$select.append($("<option></option>").attr("value", attr + "|asc").text(cleanName + " (asc)"));
-		$select.append($("<option></option>").attr("value", attr + "|desc").text(cleanName + " (desc)"));
+		$select.append($("<option></option>").attr("value", attr + "|asc").text(cleanName + " (ascending)"));
+		$select.append($("<option></option>").attr("value", attr + "|desc").text(cleanName + " (descending)"));
 	});
 
 	// Select ganz oben in #tab_logs einfügen

@@ -1625,10 +1625,18 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def _format_best_sample(self: Any, best_sample: TParameterization, reverse_choice_map: dict) -> None:
         for name in best_sample.keys():
             param = self.parameters.get(name)
+            best_sample_by_name = best_sample[name]
+
             if isinstance(param, RangeParameter) and param.parameter_type == ParameterType.INT:
-                best_sample[name] = int(round(best_sample[name]))
+                if best_sample_by_name is not None:
+                    best_sample[name] = int(round(float(best_sample_by_name)))
+                else:
+                    print_debug("best_sample_by_name was empty")
             elif isinstance(param, ChoiceParameter):
-                best_sample[name] = str(reverse_choice_map.get(int(best_sample[name])))
+                if best_sample_by_name is not None:
+                    best_sample[name] = str(reverse_choice_map.get(int(best_sample_by_name)))
+                else:
+                    print_debug("best_sample_by_name was empty")
 
 decoder_registry["RandomForestGenerationNode"] = RandomForestGenerationNode
 

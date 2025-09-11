@@ -416,7 +416,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			updatePlot();
 		});
 
-		// Initial Auswahl: kein Farbwert, oder erstes Ergebnis falls nur eins
 		if (resultNames.length === 1) {
 			resultSelect.val(resultNames[0]).trigger("change");
 		} else {
@@ -2473,7 +2472,7 @@ function initializeResultParameterVisualizations() {
 function plotParameterDistributionsByStatus() {
 	const container = document.getElementById('parameter_by_status_distribution');
 	if (!container) {
-		console.error("Kein Container mit id 'parameter_by_status_distribution' gefunden.");
+		console.error("No container with id 'parameter_by_status_distribution' found.");
 		return null;
 	}
 
@@ -2507,7 +2506,7 @@ function plotParameterDistributionsByStatus() {
 
 	const statusIndex = tab_results_headers_json.indexOf("trial_status");
 	if (statusIndex < 0) {
-		container.textContent = "Kein 'trial_status' in den Daten gefunden.";
+		container.textContent = "No 'trial_status' found in data.";
 		return null;
 	}
 

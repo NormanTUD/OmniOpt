@@ -5767,6 +5767,10 @@ generate_and_test_random_parameters({args.num_random_steps + 1})
 """
 
 def get_global_gs_string() -> str:
+    seed_str = ""
+    if args.seed is not None:
+        seed_str = f"model_kwargs={{'seed': {args.seed}}},"
+
     return f"""from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
 
 global_gs = GenerationStrategy(
@@ -5774,9 +5778,8 @@ global_gs = GenerationStrategy(
         GenerationStep(
             generator=Generators.SOBOL,
             num_trials={args.num_random_steps},
-            max_parallelism=5,{f"""
-            model_kwargs={{'seed': {args.seed}}},
-            """ if args.seed is not None else ""}
+            max_parallelism=5,
+            {seed_str}
         ),
         GenerationStep(
             generator=Generators.{args.model},

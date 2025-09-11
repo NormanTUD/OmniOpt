@@ -2591,7 +2591,6 @@ function plotParameterDistributionsByStatus() {
 
 	$(container).data("loaded", "true");
 
-	// Color mapping (falls nicht global)
 	function getColorForStatus(status) {
 		const baseAlpha = 0.5;
 		switch(status.toUpperCase()) {

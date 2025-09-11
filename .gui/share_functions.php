@@ -1541,7 +1541,7 @@
 		return $parts ? implode(', ', $parts) : '';
 	}
 
-	function generate_log_tabs($run_dir, $log_files, $result_names, $result_min_max) {
+	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span>&#10060;</span>";
 		$green_checkmark = "<span>&#9989;</span>";
 		$gear = "<span><img style='height: 1em' src='i/gear.svg' /></span>";
@@ -2468,11 +2468,11 @@
 		return [$tabs, $warnings];
 	}
 
-	function get_outfiles_tab_from_run_dir ($run_dir, $tabs, $warnings, $result_names, $result_min_max) {
+	function get_outfiles_tab_from_run_dir ($run_dir, $tabs, $warnings, $result_names) {
 		$out_files = get_log_files($run_dir);
 
 		if(count($out_files)) {
-			[$content, $i] = generate_log_tabs($run_dir, $out_files, $result_names, $result_min_max);
+			[$content, $i] = generate_log_tabs($run_dir, $out_files, $result_names);
 
 			if ($i > 0) {
 				$svg_icon = get_icon_html("tabs.svg");

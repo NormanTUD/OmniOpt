@@ -7955,9 +7955,9 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         depth = 0
         path = "batched_generator_run"
-        while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) > 0:
+        while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) == 1:
             print_debug(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
-            batched_generator_run = [batched_generator_run[0]]
+            batched_generator_run = batched_generator_run[0]
             path += "[0]"
             depth += 1
 

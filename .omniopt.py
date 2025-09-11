@@ -7582,7 +7582,7 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
     return new_job
 
-def get_ax_client_trial(trial_index: int) -> Optional[int]:
+def get_ax_client_trial(trial_index: int) -> ax.core.trial.Trial:
     if not ax_client:
         my_exit(101)
 

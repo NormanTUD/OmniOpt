@@ -8127,18 +8127,6 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         except Exception as e:
             print_debug(f"global_gs.gen failed: {e}")
             traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
-
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            pprint(ax_client.experiment)
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-            sys.exit(1)
             break
 
         depth = 0

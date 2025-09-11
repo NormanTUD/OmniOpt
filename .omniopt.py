@@ -204,6 +204,9 @@ try:
     with spinner("Importing rich.pretty..."):
         from rich.pretty import pprint
 
+    with spinner("Importing pformat..."):
+        from pprint import pformat
+
     with spinner("Importing rich.prompt..."):
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
 
@@ -5745,11 +5748,37 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
 
     return experiment_args, gpu_string, gpu_color
 
+def get_experiment_args_python_script() -> str:
+
+    return """
+from ax.service.ax_client import AxClient, ObjectiveProperties
+
+"""
+
 def create_ax_client_experiment(experiment_args: dict) -> None:
     if not ax_client:
         my_exit(101)
 
         return None
+
+    print_debug(
+            "=================================" +
+            "experiment_args python script:\n" +
+            get_experiment_args_python_script() + 
+
+            """
+ax_client = AxClient(
+    verbose_logging=True,
+    enforce_sequential_optimization=False,
+    generation_strategy=global_gs
+)
+""" +
+
+            "experiment_args = " + pformat(experiment_args, width=120, compact=False) +
+            "\nax_client.create_experiment(**experiment_args)\n" +
+            "================================="
+            )
+    #dier(experiment_args)
 
     ax_client.create_experiment(**experiment_args)
 

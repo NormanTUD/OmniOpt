@@ -2529,7 +2529,7 @@ function plotParameterDistributionsByStatus() {
 				.filter(val => val !== "" && val != null && !isNaN(val))
 				.map(Number);
 
-			if (filteredValues.length > 1) {
+			if (filteredValues.length >= 1) {
 				const nbins = 20;
 				traces.push({
 					type: 'histogram',

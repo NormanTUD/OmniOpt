@@ -999,6 +999,7 @@ class ConfigLoader:
         debug.add_argument('--debug_stack_regex', help='Only print debug messages if call stack matches any regex', type=str, default='')
         debug.add_argument('--debug_stack_trace_regex', help='Show compact call stack with arrows if any function in stack matches regex', type=str, default=None)
         debug.add_argument('--show_func_name', help='Show func name before each execution and when it is done', action='store_true', default=False)
+        debug.add_argument('--beartype', help='Use beartype', action='store_true', default=False)
 
     def load_config(self: Any, config_path: str, file_format: str) -> dict:
         if not os.path.isfile(config_path):
@@ -11390,6 +11391,9 @@ def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:
 
 def auto_wrap_namespace(namespace: Any) -> Any:
     enable_beartype = any(os.getenv(v) for v in ("ENABLE_BEARTYPE", "CI"))
+
+    if args.beartype:
+        enable_beartype = True
 
     excluded_functions = {
         "log_time_and_memory_wrapper",

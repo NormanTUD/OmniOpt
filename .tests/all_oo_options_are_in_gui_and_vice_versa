@@ -68,6 +68,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		share_password
 		parameter
 		continue_previous_job
+		beartype
 		transforms
 		debug_stack_regex
 		num_cpus_main_job

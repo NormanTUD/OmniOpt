@@ -7225,7 +7225,7 @@ def update_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> N
 
     return None
 
-def complete_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> None:
+def complete_ax_client_trial(trial_idx: int, raw_result: Union[list, dict]) -> None:
     if not ax_client:
         my_exit(101)
 

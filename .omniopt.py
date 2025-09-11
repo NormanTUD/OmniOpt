@@ -7939,7 +7939,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         t0 = time.time()
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
         dt = time.time() - t0
-        print_debug(f"got pending observations (took {dt:.2f} seconds)")
+        print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
 
         try:
             print_debug("getting global_gs.gen() with n=1")
@@ -7951,7 +7951,8 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             print_debug(f"got global_gs.gen(): {batched_generator_run}")
         except Exception as e:
             print_debug(f"global_gs.gen failed: {e}")
-            traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
+            #traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
+            #sys.exit(1)
             break
 
         depth = 0

@@ -1612,8 +1612,6 @@
 
 				$tabname = "$nr$brackets_string $checkmark";
 
-				$aria_selected_= $i == 0 ? 'aria-selected="true"' : '';
-
 				$data_array = [
 					"trial_index=$nr",
 					"exit_code=$exit_code_from_file",
@@ -1630,6 +1628,8 @@
 				}
 
 				$data = " data-".implode(" data-", $data_array);
+
+				$aria_selected_= $i == 0 ? 'aria-selected="true"' : '';
 
 				$output .= '<button '.$data.' onclick="load_log_file('.$i.', \''.$file.'\')" role="tab" '.$aria_selected_.' aria-controls="single_run_'.$i.'">'.$tabname."</button>\n";
 				$i++;

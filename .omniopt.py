@@ -27,7 +27,6 @@ import inspect
 import tracemalloc
 import resource
 from urllib.parse import urlencode
-
 import psutil
 
 FORCE_EXIT: bool = False
@@ -11412,7 +11411,7 @@ Exit-Code: 159
 
     my_exit(nr_errors)
 
-def main_outside() -> None:
+def main_wrapper() -> None:
     print(f"Run-UUID: {run_uuid}")
 
     auto_wrap_namespace(globals())
@@ -11517,7 +11516,7 @@ def auto_wrap_namespace(namespace: Any) -> Any:
 
 if __name__ == "__main__":
     try:
-        main_outside()
+        main_wrapper()
     except (SignalUSR, SignalINT, SignalCONT) as e:
-        print_red(f"main_outside failed with exception {e}")
+        print_red(f"main_wrapper failed with exception {e}")
         end_program(True)

@@ -5754,7 +5754,7 @@ def generate_and_test_random_parameters(n):
     for _ in range(n):
         parameters, trial_index = ax_client.get_next_trial()
         print("Trial Index:", trial_index)
-        print("Vorgeschlagene Parameter:", parameters)
+        print("Suggested parameters:", parameters)
 
         ax_client.complete_trial(
             trial_index=trial_index,

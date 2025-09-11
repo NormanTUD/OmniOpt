@@ -2203,13 +2203,20 @@ def save_results_csv() -> Optional[str]:
 def get_results_paths() -> tuple[str, str]:
     return (get_current_run_folder(RESULTS_CSV_FILENAME), get_state_file_name('pd.json'))
 
+def ax_client_get_trials_data_frame() -> Optional[pd.DataFrame]:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    return ax_client.get_trials_data_frame()
+
 def fetch_and_prepare_trials() -> Optional[pd.DataFrame]:
     if not ax_client:
         return None
 
     ax_client.experiment.fetch_data()
-    df = ax_client.get_trials_data_frame()
-
+    df = ax_client_get_trials_data_frame()
     #print("========================")
     #print("BEFORE merge_with_job_infos:")
     #print(df["generation_node"])
@@ -2226,11 +2233,24 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
         pass
     df.to_csv(path, index=False, float_format="%.30f")
 
+def ax_client_to_json_snapshot() -> Optional[str]:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    json_snapshot = ax_client.to_json_snapshot()
+
+    return json_snapshot
+
 def write_json_snapshot(path: str) -> None:
     if ax_client is not None:
-        json_snapshot = ax_client.to_json_snapshot()
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(json_snapshot, f, indent=4)
+        json_snapshot = ax_client_to_json_snapshot()
+        if json_snapshot is not None:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(json_snapshot, f, indent=4)
+        else:
+            print_debug('json_snapshot from ax_client_to_json_snapshot was None')
     else:
         print_red("write_json_snapshot: ax_client was None")
 
@@ -4960,7 +4980,7 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
     if job:
         try:
             if ax_client:
-                _trial = ax_client.get_trial(trial_index)
+                _trial = get_ax_client_trial(trial_index)
                 _trial.mark_abandoned(reason=reason)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
@@ -5052,6 +5072,16 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     my_exit(_exit)
 
+def save_ax_client_to_json_file(checkpoint_filepath: str) -> None:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    save_ax_client_to_json_file(checkpoint_filepath)
+
+    return None
+
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3:
         if eee:
@@ -5064,7 +5094,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         checkpoint_filepath = get_state_file_name('checkpoint.json')
 
         if ax_client:
-            ax_client.save_to_json_file(filepath=checkpoint_filepath)
+            save_ax_client_to_json_file(filepath=checkpoint_filepath)
         else:
             _fatal_error("Something went wrong using the ax_client", 101)
     except Exception as e:
@@ -5680,7 +5710,7 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
 
     replace_parameters_for_continued_jobs(args.parameter, cli_params_experiment_parameters)
 
-    ax_client.save_to_json_file(filepath=original_ax_client_file)
+    save_ax_client_to_json_file(original_ax_client_file)
 
     load_original_generation_strategy(original_ax_client_file)
     load_ax_client_from_experiment_parameters()
@@ -5709,6 +5739,16 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
         )
 
     return experiment_args, gpu_string, gpu_color
+
+def create_ax_client_experiment(experiment_args) -> None:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    ax_client.create_experiment(**experiment_args)
+
+    return None
 
 def create_new_experiment() -> Tuple[dict, str, str]:
     if ax_client is None:
@@ -5739,7 +5779,7 @@ def create_new_experiment() -> Tuple[dict, str, str]:
     experiment_args = set_experiment_constraints(get_constraints(), experiment_args, experiment_parameters)
 
     try:
-        ax_client.create_experiment(**experiment_args)
+        create_ax_client_experiment(experiment_args)
         new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
         ax_client.experiment.add_tracking_metrics(new_metrics)
     except AssertionError as error:
@@ -6661,11 +6701,21 @@ def check_ax_client() -> None:
     if ax_client is None or not ax_client:
         _fatal_error("insert_job_into_ax_client: ax_client was not defined where it should have been", 101)
 
+def attach_ax_client_data(arm_params: dict) -> Optional[Tuple[Any, int]]:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    new_trial = ax_client.attach_trial(arm_params)
+
+    return new_trial
+
 def attach_trial(arm_params: dict) -> Tuple[Any, int]:
     if ax_client is None:
         raise RuntimeError("attach_trial: ax_client was empty")
 
-    new_trial = ax_client.attach_trial(arm_params)
+    new_trial = attach_ax_client_data(arm_params)
     if not isinstance(new_trial, tuple) or len(new_trial) < 2:
         raise RuntimeError("attach_trial didn't return the expected tuple")
     return new_trial
@@ -6696,7 +6746,7 @@ def complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[An
                 is_ok = False
 
         if is_ok:
-            ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
+            complete_ax_client_trial(trial_idx, raw_data=result)
             update_status(__status, base_str, "Completed trial")
         else:
             print_debug("Empty job encountered")
@@ -7147,7 +7197,7 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 
             return None
 
-        log_trial_failure(trial_index)
+        log_ax_client_trial_failure(trial_index)
         _trial.mark_failed(unsafe=True)
     except ValueError as e:
         print_debug(f"mark_trial_as_failed error: {e}")
@@ -7164,6 +7214,26 @@ def check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
     values_to_check = result if isinstance(result, list) else [result]
     return result is not None and all(r not in possible_val_not_found_values for r in values_to_check)
 
+def update_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> None:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    ax_client.update_trial_data(trial_index=trial_idx, raw_data=result)
+
+    return None
+
+def complete_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> None:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    ax_client.complete_trial(trial_index=trial_idx, raw_data=result)
+
+    return None
+
 def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -> None:
     if ax_client is None:
         print_red("ax_client is not defined in _finish_job_core_helper_complete_trial")
@@ -7171,12 +7241,12 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
 
     try:
         print_debug(f"Completing trial: {trial_index} with result: {raw_result}...")
-        ax_client.complete_trial(trial_index=trial_index, raw_data=raw_result)
+        complete_ax_client_trial(trial_index, raw_result)
         print_debug(f"Completing trial: {trial_index} with result: {raw_result}... Done!")
     except ax.exceptions.core.UnsupportedError as e:
         if f"{e}":
             print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure. Trying to update trial...")
-            ax_client.update_trial_data(trial_index=trial_index, raw_data=raw_result)
+            update_ax_client_trial(trial_index, raw_result)
             print_debug(f"Completing trial: {trial_index} with result: {raw_result} after failure... Done!")
         else:
             _fatal_error(f"Error completing trial: {e}", 234)
@@ -7203,7 +7273,7 @@ def _finish_job_core_helper_mark_failure(job: Any, trial_index: int, _trial: Any
     if job:
         try:
             progressbar_description("job_failed")
-            log_trial_failure(trial_index)
+            log_ax_client_trial_failure(trial_index)
             mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
             print_red(f"\nERROR while trying to mark job as failure: {e}")
@@ -7227,7 +7297,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     this_jobs_finished += 1
 
     if ax_client:
-        _trial = ax_client.get_trial(trial_index)
+        _trial = get_ax_client_trial(trial_index)
 
         if check_valid_result(result):
             _finish_job_core_helper_complete_trial(trial_index, raw_result)
@@ -7259,8 +7329,8 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
     if job:
         try:
             progressbar_description("job_failed")
-            _trial = ax_client.get_trial(trial_index)
-            log_trial_failure(trial_index)
+            _trial = get_ax_client_trial(trial_index)
+            log_ax_client_trial_failure(trial_index)
             mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
             print(f"ERROR in line {get_line_info()}: {e}")
@@ -7511,13 +7581,21 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
     return new_job
 
+def get_ax_client_trial(trial_index: int) -> Optional[int]:
+    if not ax_client:
+        my_exit(101)
+
+        return None
+
+    return ax_client.get_trial(trial_index)
+
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
     if submitit_executor and ax_client:
         new_job = submit_new_job(parameters, trial_index)
         if new_job:
             submitted_jobs(1)
 
-            _trial = ax_client.get_trial(trial_index)
+            _trial = get_ax_client_trial(trial_index)
 
             try:
                 _trial.mark_staged(unsafe=True)
@@ -7647,7 +7725,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
 
         return None
 
-    _trial = ax_client.get_trial(trial_index)
+    _trial = get_ax_client_trial(trial_index)
 
     def mark_trial_stage(stage: str, error_msg: str) -> None:
         try:
@@ -7726,7 +7804,7 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
 
     return None
 
-def log_trial_failure(trial_index: int) -> None:
+def log_ax_client_trial_failure(trial_index: int) -> None:
     if not ax_client:
         my_exit(101)
 
@@ -7739,7 +7817,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
     if new_job:
         try:
             if ax_client:
-                log_trial_failure(trial_index)
+                log_ax_client_trial_failure(trial_index)
             else:
                 _fatal_error("ax_client not defined", 101)
         except Exception as e:
@@ -7951,8 +8029,19 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             print_debug(f"got global_gs.gen(): {batched_generator_run}")
         except Exception as e:
             print_debug(f"global_gs.gen failed: {e}")
-            #traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
-            #sys.exit(1)
+            traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
+
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            pprint(ax_client.experiment)
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+            sys.exit(1)
             break
 
         depth = 0
@@ -9683,7 +9772,7 @@ def save_experiment_state() -> None:
             print_red("save_experiment_state: ax_client or ax_client.experiment is None, cannot save.")
             return
         state_path = get_current_run_folder("experiment_state.json")
-        ax_client.save_to_json_file(state_path)
+        save_ax_client_to_json_file(state_path)
     except Exception as e:
         print(f"Error saving experiment state: {e}")
 

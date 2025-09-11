@@ -4983,6 +4983,9 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
         try:
             if ax_client:
                 _trial = get_ax_client_trial(trial_index)
+                if _trial is None:
+                    return False
+
                 _trial.mark_abandoned(reason=reason)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
@@ -5742,7 +5745,7 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
 
     return experiment_args, gpu_string, gpu_color
 
-def create_ax_client_experiment(experiment_args) -> None:
+def create_ax_client_experiment(experiment_args: dict) -> None:
     if not ax_client:
         my_exit(101)
 
@@ -6748,7 +6751,7 @@ def complete_trial_if_result(trial_idx: int, result: dict, __status: Optional[An
                 is_ok = False
 
         if is_ok:
-            complete_ax_client_trial(trial_idx, raw_data=result)
+            complete_ax_client_trial(trial_idx, result)
             update_status(__status, base_str, "Completed trial")
         else:
             print_debug("Empty job encountered")
@@ -7301,6 +7304,9 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     if ax_client:
         _trial = get_ax_client_trial(trial_index)
 
+        if _trial is None:
+            return 0
+
         if check_valid_result(result):
             _finish_job_core_helper_complete_trial(trial_index, raw_result)
 
@@ -7332,6 +7338,9 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
         try:
             progressbar_description("job_failed")
             _trial = get_ax_client_trial(trial_index)
+            if _trial is None:
+                return None
+
             log_ax_client_trial_failure(trial_index)
             mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
@@ -7583,7 +7592,7 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
     return new_job
 
-def get_ax_client_trial(trial_index: int) -> ax.core.trial.Trial:
+def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
     if not ax_client:
         my_exit(101)
 
@@ -7599,14 +7608,17 @@ def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> 
 
             _trial = get_ax_client_trial(trial_index)
 
-            try:
-                _trial.mark_staged(unsafe=True)
-            except Exception as e:
-                print_debug(f"orchestrator_start_trial: error {e}")
-            _trial.mark_running(unsafe=True, no_runner_required=True)
+            if _trial is not None:
+                try:
+                    _trial.mark_staged(unsafe=True)
+                except Exception as e:
+                    print_debug(f"orchestrator_start_trial: error {e}")
+                _trial.mark_running(unsafe=True, no_runner_required=True)
 
-            print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
-            global_vars["jobs"].append((new_job, trial_index))
+                print_debug(f"orchestrator_start_trial: appending job {new_job} to global_vars['jobs'], trial_index: {trial_index}")
+                global_vars["jobs"].append((new_job, trial_index))
+            else:
+                print_red("Trial was none in orchestrator_start_trial")
         else:
             print_red("orchestrator_start_trial: Failed to start new job")
     elif ax_client:
@@ -7728,6 +7740,10 @@ def execute_evaluation(_params: list) -> Optional[int]:
         return None
 
     _trial = get_ax_client_trial(trial_index)
+
+    if _trial is None:
+        print_red("_trial was not in execute_evaluation")
+        return None
 
     def mark_trial_stage(stage: str, error_msg: str) -> None:
         try:

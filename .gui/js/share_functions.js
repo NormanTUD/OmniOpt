@@ -2530,8 +2530,6 @@ function plotParameterDistributionsByStatus() {
 				.map(Number);
 
 			if (filteredValues.length > 1) {
-				// Histogramm-Bins automatisch mit Plotly bestimmen lassen oder eigene
-				// Hier: bins in 20 Stück
 				const nbins = 20;
 				traces.push({
 					type: 'histogram',
@@ -2541,10 +2539,6 @@ function plotParameterDistributionsByStatus() {
 					xbingroup: 0,
 					marker: {color: getColorForStatus(status)},
 					nbinsx: nbins,
-					// für Overlay-Stil:
-					// histfunc: 'count', // default
-					// autobinx: false,
-					// xbins: {start: Math.min(...filteredValues), end: Math.max(...filteredValues), size: (Math.max(...filteredValues) - Math.min(...filteredValues)) / nbins}
 				});
 			}
 		});

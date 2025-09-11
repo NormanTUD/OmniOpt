@@ -802,6 +802,7 @@ class ConfigLoader:
     parameter: Optional[List[str]]
     experiment_constraints: Optional[List[str]]
     main_process_gb: int
+    beartype: bool
     worker_timeout: int
     slurm_signal_delay_s: int
     gridsearch: bool

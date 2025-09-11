@@ -7216,7 +7216,7 @@ def check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
     values_to_check = result if isinstance(result, list) else [result]
     return result is not None and all(r not in possible_val_not_found_values for r in values_to_check)
 
-def update_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> None:
+def update_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
     if not ax_client:
         my_exit(101)
 

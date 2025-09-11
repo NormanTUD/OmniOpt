@@ -5917,14 +5917,14 @@ def check_base_for_print_overview() -> Optional[bool]:
 
     return True
 
-def print_result_names_overview_table() -> None:
+def get_config_objectives() -> Any:
     if not ax_client:
-        _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
+        print_red("create_new_experiment: ax_client is None")
+        my_exit(101)
 
         return None
 
-    if check_base_for_print_overview() is None:
-        return None
+    config_objectives = None
 
     if ax_client.experiment and ax_client.experiment.optimization_config:
         opt_config = ax_client.experiment.optimization_config
@@ -5938,6 +5938,23 @@ def print_result_names_overview_table() -> None:
             config_objectives = [opt_config.objective]
     else:
         print_debug("ax_client.experiment or optimization_config was None")
+
+    return config_objectives
+
+def print_result_names_overview_table() -> None:
+    if not ax_client:
+        _fatal_error("Tried to access ax_client in print_result_names_overview_table, but it failed, because the ax_client was not defined.", 101)
+
+        return None
+
+    if check_base_for_print_overview() is None:
+        return None
+
+    config_objectives = get_config_objectives()
+
+    if config_objectives is None:
+        print_red("config_objectives not found")
+        return None
 
     res_names = []
     res_min_max = []

@@ -5816,6 +5816,7 @@ ax_client = AxClient(
     file_path = f"{get_current_run_folder()}/debug.py"
 
     try:
+        print_debug(python_code)
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(python_code)
     except Exception as e:

@@ -5079,7 +5079,7 @@ def save_ax_client_to_json_file(checkpoint_filepath: str) -> None:
 
         return None
 
-    save_ax_client_to_json_file(checkpoint_filepath)
+    ax_client.save_to_json_file(checkpoint_filepath)
 
     return None
 

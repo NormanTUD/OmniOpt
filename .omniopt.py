@@ -2234,7 +2234,7 @@ def write_csv(df: pd.DataFrame, path: str) -> None:
         pass
     df.to_csv(path, index=False, float_format="%.30f")
 
-def ax_client_to_json_snapshot() -> Optional[str]:
+def ax_client_to_json_snapshot() -> Optional[dict]:
     if not ax_client:
         my_exit(101)
 
@@ -5095,7 +5095,7 @@ def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) 
         checkpoint_filepath = get_state_file_name('checkpoint.json')
 
         if ax_client:
-            save_ax_client_to_json_file(filepath=checkpoint_filepath)
+            save_ax_client_to_json_file(checkpoint_filepath)
         else:
             _fatal_error("Something went wrong using the ax_client", 101)
     except Exception as e:
@@ -7225,7 +7225,7 @@ def update_ax_client_trial(trial_index: int, raw_result: Union[list, dict]) -> N
 
     return None
 
-def complete_ax_client_trial(trial_idx: int, raw_result: Union[list, dict]) -> None:
+def complete_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
     if not ax_client:
         my_exit(101)
 

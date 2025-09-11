@@ -1590,7 +1590,7 @@
 					$brackets[] = $runtime_string;
 				}
 
-				$exit_code_from_file = get_exit_code_from_outfile(file_get_contents($file_path));
+				$exit_code_from_file = get_exit_code_from_outfile($file_as_string);
 
 				if($exit_code_from_file != 0 && $exit_code_from_file != "") {
 					$brackets[] = "exit-code: $exit_code_from_file";

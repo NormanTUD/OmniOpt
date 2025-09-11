@@ -5790,9 +5790,7 @@ global_gs = GenerationStrategy(
 
 def write_ax_debug_python_code(experiment_args) -> None:
     python_code = (
-        "experiment_args python script:\n"
-        "=================================\n"
-        + get_experiment_args_import_python_script()
+        get_experiment_args_import_python_script()
         + get_global_gs_string()
         + """
 ax_client = AxClient(
@@ -5804,7 +5802,6 @@ ax_client = AxClient(
         + "experiment_args = " + pformat(experiment_args, width=120, compact=False)
         + "\nax_client.create_experiment(**experiment_args)\n"
         + get_generate_and_test_random_function_str()
-        + "================================="
     )
 
 

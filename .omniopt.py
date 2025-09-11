@@ -5786,30 +5786,30 @@ global_gs = GenerationStrategy(
 )
 """
 
-def write_ax_debug_python_code(experiment_args) -> None:
-    if args.generation_strategy:
-        print_debug(f"Cannot write debug code for custom generation_strategy")
-        return None
-
-    if args.model in uncontinuable_models:
-        print_debug(f"Cannot write debug code for uncontinuable mode {args.model}")
-        return None
-
-    python_code = (
-        get_experiment_args_import_python_script()
-        + get_global_gs_string()
-        + """
+def get_debug_ax_client_str() -> str:
+    return """
 ax_client = AxClient(
     verbose_logging=True,
     enforce_sequential_optimization=False,
     generation_strategy=global_gs
 )
 """
-        + "experiment_args = " + pformat(experiment_args, width=120, compact=False)
-        + "\nax_client.create_experiment(**experiment_args)\n"
-        + get_generate_and_test_random_function_str()
-    )
 
+def write_ax_debug_python_code(experiment_args) -> None:
+    if args.generation_strategy:
+        print_debug("Cannot write debug code for custom generation_strategy")
+        return None
+
+    if args.model in uncontinuable_models:
+        print_debug(f"Cannot write debug code for uncontinuable mode {args.model}")
+        return None
+
+    python_code = python_code = get_experiment_args_import_python_script() + \
+        get_global_gs_string() + \
+        get_debug_ax_client_str() + \
+        "experiment_args = " + pformat(experiment_args, width=120, compact=False) + \
+        "\nax_client.create_experiment(**experiment_args)\n" + \
+        get_generate_and_test_random_function_str()
 
     file_path = f"{get_current_run_folder()}/debug.py"
 

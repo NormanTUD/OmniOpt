@@ -903,6 +903,8 @@ generateRandomArray
 GenerationNode
 GenerationStep
 GenerationStrategy
+generatorGenerators
+generatorGeneratorsSOBOL
 GeneratorSpec
 geolist
 getComputedStyle
@@ -1414,6 +1416,7 @@ MemoryError
 memoryfree
 memorytotal
 memoryused
+memray
 MenuActive
 MENUACTIVE
 MenuArrow
@@ -1959,6 +1962,8 @@ printDate
 printedDate
 printf
 printfrunning
+printSuggested
+printTrial
 PrismJS
 PRNG
 probabilityofimprovement
@@ -2053,6 +2058,7 @@ Randomizer
 randomNormal
 randomUniform
 rangeBands
+rangen
 RangeParameter
 RangeParameters
 rangePoints
@@ -2197,6 +2203,7 @@ RSS
 RTL
 rundir
 runmode
+Running find_typos           ...
 runsh
 runtime
 Runtime
@@ -2930,4 +2937,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-memray

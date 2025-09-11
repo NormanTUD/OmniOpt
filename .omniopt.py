@@ -5737,8 +5737,7 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
 
 def get_experiment_args_import_python_script() -> str:
 
-    return """
-from ax.service.ax_client import AxClient, ObjectiveProperties
+    return """from ax.service.ax_client import AxClient, ObjectiveProperties
 from ax.adapter.registry import Generators
 import random
 

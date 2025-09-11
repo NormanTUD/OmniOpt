@@ -5767,8 +5767,7 @@ generate_and_test_random_parameters({args.num_random_steps + 1})
 """
 
 def get_global_gs_string() -> str:
-    return f"""
-from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
+    return f"""from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
 
 global_gs = GenerationStrategy(
     steps=[

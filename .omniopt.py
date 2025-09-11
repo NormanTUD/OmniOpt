@@ -5795,7 +5795,7 @@ ax_client = AxClient(
 )
 """
 
-def write_ax_debug_python_code(experiment_args) -> None:
+def write_ax_debug_python_code(experiment_args: dict) -> None:
     if args.generation_strategy:
         print_debug("Cannot write debug code for custom generation_strategy")
         return None

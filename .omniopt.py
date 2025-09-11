@@ -5735,16 +5735,86 @@ def load_from_checkpoint(continue_previous_job: str, cli_params_experiment_param
 
     return experiment_args, gpu_string, gpu_color
 
-def get_experiment_args_python_script() -> str:
+def get_experiment_args_import_python_script() -> str:
 
     return """
 from ax.service.ax_client import AxClient, ObjectiveProperties
+from ax.adapter.registry import Generators
+import random
 
+"""
+
+def get_generate_and_test_random_function_str() -> str:
+    raw_data_entries = ",\n                ".join(
+        f'"{name}": random.uniform(0, 1)' for name in arg_result_names
+    )
+
+    return f"""
+def generate_and_test_random_parameters(n):
+    for _ in range(n):
+        parameters, trial_index = ax_client.get_next_trial()
+        print("Trial Index:", trial_index)
+        print("Vorgeschlagene Parameter:", parameters)
+
+        ax_client.complete_trial(
+            trial_index=trial_index,
+            raw_data={{
+                {raw_data_entries}
+            }}
+        )
+
+generate_and_test_random_parameters({args.num_random_steps + 1})
 """
 
 def get_global_gs_string() -> str:
-    return """
+    return f"""
+from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
+
+global_gs = GenerationStrategy(
+    steps=[
+        GenerationStep(
+            generator=Generators.SOBOL,
+            num_trials={args.num_random_steps},
+            max_parallelism=5,{f"""
+            model_kwargs={{'seed': {args.seed}}},
+            """ if args.seed is not None else ""}
+        ),
+        GenerationStep(
+            generator=Generators.{args.model},
+            num_trials=-1,
+            max_parallelism=5,
+        ),
+    ]
+)
 """
+
+def write_ax_debug_python_code(experiment_args) -> None:
+    python_code = (
+        "experiment_args python script:\n"
+        "=================================\n"
+        + get_experiment_args_import_python_script()
+        + get_global_gs_string()
+        + """
+ax_client = AxClient(
+    verbose_logging=True,
+    enforce_sequential_optimization=False,
+    generation_strategy=global_gs
+)
+"""
+        + "experiment_args = " + pformat(experiment_args, width=120, compact=False)
+        + "\nax_client.create_experiment(**experiment_args)\n"
+        + get_generate_and_test_random_function_str()
+        + "================================="
+    )
+
+
+    file_path = f"{get_current_run_folder()}/debug.py"
+
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(python_code)
+    except Exception as e:
+        print_red(f"Error while writing {file_path}: {e}")
 
 def create_ax_client_experiment(experiment_args: dict) -> None:
     if not ax_client:
@@ -5752,27 +5822,7 @@ def create_ax_client_experiment(experiment_args: dict) -> None:
 
         return None
 
-    print_debug(
-            "=================================\n" +
-            "experiment_args python script:\n" +
-            "=================================\n" +
-            get_experiment_args_python_script() +
-
-            get_global_gs_string() +
-
-            """
-ax_client = AxClient(
-    verbose_logging=True,
-    enforce_sequential_optimization=False,
-    generation_strategy=global_gs
-)
-""" +
-
-            "experiment_args = " + pformat(experiment_args, width=120, compact=False) +
-            "\nax_client.create_experiment(**experiment_args)\n" +
-            "================================="
-            )
-    dier(experiment_args)
+    write_ax_debug_python_code(experiment_args)
 
     ax_client.create_experiment(**experiment_args)
 

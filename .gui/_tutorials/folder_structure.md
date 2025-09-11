@@ -192,6 +192,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `pareto_front_table.txt_OLD`: If multiple RESULT names are specified, this is the table of the calculated Pareto-front (intermediate)
 - `pd.json`: Contains data to restore the `ax_client`
 - `phase_random_steps`: How many random steps have been generated
+- `debug.py`: Python code for debugging the `ax_client` configuration
 - `phase_systematic_steps`: How many non-random steps have been generated
 - `result_errors.log`: A list of errors for the run regarding the results
 - `result_names_overview.txt`: The rich overview-table of all result names

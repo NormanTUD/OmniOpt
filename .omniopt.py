@@ -5789,7 +5789,7 @@ global_gs = GenerationStrategy(
 """
 
 def write_ax_debug_python_code(experiment_args) -> None:
-    if args.custom_generation_strategy:
+    if args.generation_strategy:
         print_debug(f"Cannot write debug code for custom generation_strategy")
         return None
 

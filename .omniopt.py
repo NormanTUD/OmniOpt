@@ -1356,19 +1356,6 @@ try:
     with spinner("Importing GeneratorSpec..."):
         from ax.generation_strategy.generator_spec import GeneratorSpec
 
-    #except Exception:
-    #    with spinner("Fallback: Importing ax.generation_strategy.generation_node..."):
-    #        import ax.generation_strategy.generation_node
-
-    #    with spinner("Fallback: Importing GenerationStep, GenerationStrategy from ax.generation_strategy..."):
-    #        from ax.generation_strategy.generation_node import GenerationNode, GenerationStep
-
-    #    with spinner("Fallback: Importing ExternalGenerationNode..."):
-    #        from ax.generation_strategy.external_generation_node import ExternalGenerationNode
-
-    #    with spinner("Fallback: Importing MaxTrials..."):
-    #        from ax.generation_strategy.transition_criterion import MaxTrials
-
     with spinner("Importing Models from ax.generation_strategy.registry..."):
         from ax.adapter.registry import Models
 
@@ -5755,6 +5742,10 @@ from ax.service.ax_client import AxClient, ObjectiveProperties
 
 """
 
+def get_global_gs_string() -> str:
+    return """
+"""
+
 def create_ax_client_experiment(experiment_args: dict) -> None:
     if not ax_client:
         my_exit(101)
@@ -5762,9 +5753,12 @@ def create_ax_client_experiment(experiment_args: dict) -> None:
         return None
 
     print_debug(
-            "=================================" +
+            "=================================\n" +
             "experiment_args python script:\n" +
-            get_experiment_args_python_script() + 
+            "=================================\n" +
+            get_experiment_args_python_script() +
+
+            get_global_gs_string() +
 
             """
 ax_client = AxClient(
@@ -5778,7 +5772,7 @@ ax_client = AxClient(
             "\nax_client.create_experiment(**experiment_args)\n" +
             "================================="
             )
-    #dier(experiment_args)
+    dier(experiment_args)
 
     ax_client.create_experiment(**experiment_args)
 

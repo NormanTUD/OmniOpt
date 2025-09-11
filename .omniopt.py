@@ -5789,6 +5789,14 @@ global_gs = GenerationStrategy(
 """
 
 def write_ax_debug_python_code(experiment_args) -> None:
+    if args.custom_generation_strategy:
+        print_debug(f"Cannot write debug code for custom generation_strategy")
+        return None
+
+    if args.model in uncontinuable_models:
+        print_debug(f"Cannot write debug code for uncontinuable mode {args.model}")
+        return None
+
     python_code = (
         get_experiment_args_import_python_script()
         + get_global_gs_string()
@@ -5812,6 +5820,8 @@ ax_client = AxClient(
             f.write(python_code)
     except Exception as e:
         print_red(f"Error while writing {file_path}: {e}")
+
+    return None
 
 def create_ax_client_experiment(experiment_args: dict) -> None:
     if not ax_client:

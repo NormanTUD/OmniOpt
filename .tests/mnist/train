@@ -85,7 +85,7 @@ def graceful_exit(signum, frame):
 signal.signal(signal.SIGINT, graceful_exit)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train a simple neural network on MNIST with CLI hyperparameters.")
+    parser = argparse.ArgumentParser(description="Train a simple neural network on CIFAR100 with CLI hyperparameters.")
 
     # Training hyperparameters
     parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train.")
@@ -353,8 +353,8 @@ def main():
             transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-        train_dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
-        test_dataset = datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+        train_dataset = datasets.CIFAR100(root="./cifar", train=True, download=True, transform=transform)
+        test_dataset = datasets.CIFAR100(root="./cifar", train=False, download=True, transform=transform)
 
         if args.install:
             print("Exiting, since the installation should now be done")
@@ -367,11 +367,11 @@ def main():
             torch.manual_seed(args.seed)
 
         model = SimpleMLP(
-            input_height=28,
-            input_width=28,
-            input_channels=1,
+            input_height=32,
+            input_width=32,
+            input_channels=3,
             hidden_size=args.hidden_size,
-            num_classes=10,
+            num_classes=100,
             dropout=args.dropout,
             activation=args.activation,
             init_mode=args.init,
@@ -383,7 +383,7 @@ def main():
             conv_padding=2
         ).to(device)
 
-        print_model_summary(model, input_size=(1, 28, 28))
+        print_model_summary(model, input_size=(3, 32, 32))
 
         if args.learning_rate == 0:
             console.print("[red]Learning Rate cannot be 0[/red]")

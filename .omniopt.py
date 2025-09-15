@@ -4264,6 +4264,8 @@ def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Di
     trial_index = parameters_with_trial_index["trial_idx"]
     submit_time = parameters_with_trial_index["submit_time"]
 
+    print(f'Trial-Index: {trial_index}')
+
     queue_time = abs(int(time.time()) - int(submit_time))
 
     start_nvidia_smi_thread()

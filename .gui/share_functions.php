@@ -1610,10 +1610,13 @@
 					$brackets_string = " (".implode(", ", $brackets).")";
 				}
 
-				$tabname = "$nr$brackets_string $checkmark";
+				$trial_index_or_nr = $nr;
+
+				$tabname = "$trial_index_or_nr$brackets_string $checkmark";
 
 				$data_array = [
 					"trial_index=$nr",
+					"trial_index_or_nr=$trial_index_or_nr",
 					"exit_code=$exit_code_from_file",
 					"runtime=$runtime",
 					"status=$status"

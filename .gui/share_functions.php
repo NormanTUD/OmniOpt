@@ -2581,7 +2581,7 @@
 
 			$tabs["{$svg_icon}Export"] = [
 				'id' => 'tab_export',
-				'content' => "<a href='$export_url'>Click here to enable the export</a>"
+				'content' => "<a href='$export_url#tab_export'><button>Click here to enable the export (reloads the site)</button></a>"
 			];
 
 			return [$tabs, $warnings];

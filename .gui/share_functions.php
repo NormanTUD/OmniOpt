@@ -1542,7 +1542,7 @@
 	}
 
 	function extract_trial_index($text, $nr) {
-		if (preg_match('/\btrial_index:\s*(\d+)/', $text, $matches)) {
+		if (preg_match('/\bTrial-Index:\s*(\d+)/', $text, $matches)) {
 			return (int)$matches[1];
 		}
 		return $nr;

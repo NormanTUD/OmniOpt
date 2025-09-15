@@ -1,3 +1,4 @@
 data
 .torch_venv
 .tests
+cifar

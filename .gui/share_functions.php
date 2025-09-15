@@ -1541,6 +1541,13 @@
 		return $parts ? implode(', ', $parts) : '';
 	}
 
+	function extract_trial_index($text, $nr) {
+		if (preg_match('/\btrial_index:\s*(\d+)/', $text, $matches)) {
+			return (int)$matches[1];
+		}
+		return $nr;
+	}
+
 	function generate_log_tabs($run_dir, $log_files, $result_names) {
 		$red_cross = "<span>&#10060;</span>";
 		$green_checkmark = "<span>&#9989;</span>";
@@ -1610,7 +1617,7 @@
 					$brackets_string = " (".implode(", ", $brackets).")";
 				}
 
-				$trial_index_or_nr = $nr;
+				$trial_index_or_nr = extract_trial_index($file_as_string, $nr);
 
 				$tabname = "$trial_index_or_nr$brackets_string $checkmark";
 

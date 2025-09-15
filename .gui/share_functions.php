@@ -2553,6 +2553,20 @@
 		return $cssContent;
 	}
 
+	function add_param_to_current_url(string $key, string $value): string {
+		$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+		$host   = $_SERVER['HTTP_HOST'];
+		$uri    = $_SERVER['REQUEST_URI'];
+
+		$parts = parse_url($scheme.'://'.$host.$uri);
+		parse_str($parts['query'] ?? '', $query);
+		$query[$key] = $value;
+
+		return $parts['scheme'].'://'.$parts['host']
+			. ($parts['path'] ?? '')
+			. '?'.http_build_query($query);
+	}
+
 	function get_export_tab ($tabs, $warnings, $run_dir) {
 		if(!file_exists("js/share_functions.js")) {
 			$warnings[] = "js/share_functions not found!";
@@ -2560,9 +2574,20 @@
 			return [$tabs, $warnings];
 		}
 
-		$run_dir = preg_replace('/^'.preg_replace("/\//", "\\/", $GLOBALS["sharesPath"]).'*/', "", $run_dir);
-
 		$svg_icon = get_icon_html("export.svg");
+
+		if(!isset($_GET["export"])) {
+			$export_url = add_param_to_current_url('export', '1');
+
+			$tabs["{$svg_icon}Export"] = [
+				'id' => 'tab_export',
+				'content' => "<a href='$export_url'>Click here to enable the export</a>"
+			];
+
+			return [$tabs, $warnings];
+		}
+
+		$run_dir = preg_replace('/^'.preg_replace("/\//", "\\/", $GLOBALS["sharesPath"]).'*/', "", $run_dir);
 
 		$special_col_names = "var special_col_names = ".json_encode($GLOBALS["SPECIAL_COL_NAMES"]);
 

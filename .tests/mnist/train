@@ -353,8 +353,11 @@ def main():
             transforms.Normalize((0.1307,), (0.3081,))
         ])
 
-        train_dataset = datasets.CIFAR100(root="./cifar", train=True, download=True, transform=transform)
-        test_dataset = datasets.CIFAR100(root="./cifar", train=False, download=True, transform=transform)
+        script_dir = os.path.dirname(__file__)
+        data_dir = os.path.join(script_dir, "cifar")
+
+        train_dataset = datasets.CIFAR100(root=data_dir, train=True, download=True, transform=transform)
+        test_dataset = datasets.CIFAR100(root=data_dir, train=False, download=True, transform=transform)
 
         if args.install:
             print("Exiting, since the installation should now be done")

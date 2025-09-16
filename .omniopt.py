@@ -9108,7 +9108,9 @@ def execute_trials(
                 result = future.result()
                 print_debug(f"result in execute_trials: {result}")
             except Exception as exc:
-                print_red(f"execute_trials: Error at executing a trial: {exc}")
+                failed_args = future_to_args[future]
+                print_red(f"execute_trials: Error at executing a trial with args {failed_args}: {exc}")
+                traceback.print_exc()
 
     end_time = time.time()
 

@@ -8,6 +8,7 @@
 		),
 		"gui" => "🧩&nbsp;GUI",
 		"share" => "🌍&nbsp;Share",
+		#"example" => "💡&nbsp;Example",
 		"usage_stats" => "📊&nbsp;Statistics"
 	);
 

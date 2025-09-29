@@ -180,7 +180,7 @@
 					$_link = "$fn.php";
 
 					if (!file_exists($_link)) {
-						dier("Could not find $_link");
+						dier("Could not find '$_link'");
 					}
 
 					$link_no_php = preg_replace("/\.php$/", "", $_link);

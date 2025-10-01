@@ -1,0 +1,381 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/WindowKDE_SensorStream_HoeffdingTreeClassifier_ACCURACY-RUNTIME/1« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">
+        Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">WindowKDE + SensorStream + HoeffdingTreeClassifier + ACCURACY-RUNTIME</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+			    "trial_index",
+			    "arm_name",
+			    "trial_status",
+			    "generation_node",
+			    "recent_samples_size",
+			    "feature_id",
+			    "p",
+			    "big_windowSize",
+			    "small_windowSize"
+			];
+			var tab_results_csv_json = [];
+</script>
+</script>
+
+<h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+<div id="tab_failed_results_table"></div>
+
+
+
+<script>
+var tab_failed_results_csv_json = [[5,50,"FAILED","SOBOL",1975,2,417,1755,1214],[9,90,"FAILED","SOBOL",1462,3,276,140,115],[10,100,"FAILED","SOBOL",1863,1,80,1181,810],[13,130,"FAILED","SOBOL",1748,4,152,1294,657],[26,260,"FAILED","SOBOL",1917,0,176,523,22],[29,290,"FAILED","SOBOL",1533,3,118,878,386],[42,420,"FAILED","SOBOL",1761,0,484,923,629],[52,520,"FAILED","SOBOL",851,0,309,466,160],[53,530,"FAILED","SOBOL",1819,3,242,1660,1576],[58,580,"FAILED","SOBOL",1957,2,263,1281,416],[61,610,"FAILED","SOBOL",1591,3,445,1136,53],[66,660,"FAILED","SOBOL",1570,2,25,611,503],[69,690,"FAILED","SOBOL",1938,3,207,974,906],[82,820,"FAILED","SOBOL",1647,0,246,1218,291],[85,850,"FAILED","SOBOL",1779,2,48,1323,177],[97,970,"FAILED","SOBOL",1151,4,233,327,240],[98,980,"FAILED","SOBOL",1554,0,413,1368,934],[101,1010,"FAILED","SOBOL",1935,3,357,1232,532],[114,1140,"FAILED","SOBOL",1726,1,318,961,147],[117,1170,"FAILED","SOBOL",1845,4,390,566,260],[126,1260,"FAILED","SOBOL",1209,2,492,1090,1055],[129,1290,"FAILED","SOBOL",1211,3,178,948,513],[133,1330,"FAILED","SOBOL",1996,4,303,1603,212],[139,1390,"FAILED","SOBOL",828,3,253,667,456],[150,1500,"FAILED","SOBOL",1389,1,157,1235,183],[177,1770,"FAILED","SOBOL",1117,2,481,606,149],[178,1780,"FAILED","SOBOL",1708,2,160,1589,955],[182,1820,"FAILED","SOBOL",1485,1,282,993,255],[189,1890,"FAILED","SOBOL",1569,3,337,1475,1053],[201,2010,"FAILED","SOBOL",1473,2,249,1252,800],[202,2020,"FAILED","SOBOL",1821,2,429,303,121],[210,2100,"FAILED","SOBOL",1636,1,99,1426,1292],[217,2170,"FAILED","SOBOL",1308,4,28,918,25],[221,2210,"FAILED","SOBOL",1531,2,406,1515,701],[222,2220,"FAILED","SOBOL",1174,2,211,555,380],[228,2280,"FAILED","SOBOL",881,1,61,750,202],[234,2340,"FAILED","SOBOL",1803,0,9,1560,442],[238,2380,"FAILED","SOBOL",1018,1,386,905,768],[249,2490,"FAILED","SOBOL",1317,3,410,1161,414],[258,2580,"FAILED","SOBOL",1598,2,239,1380,217],[261,2610,"FAILED","SOBOL",1982,4,63,1017,315],[267,2670,"FAILED","SOBOL",843,2,9,207,72],[277,2770,"FAILED","SOBOL",1799,2,217,687,602],[290,2900,"FAILED","SOBOL",1527,0,325,639,345],[293,2930,"FAILED","SOBOL",1893,3,376,775,248],[297,2970,"FAILED","SOBOL",1418,2,301,1143,1081],[306,3060,"FAILED","SOBOL",1692,1,416,1035,574],[309,3090,"FAILED","SOBOL",1825,4,346,1429,960],[310,3100,"FAILED","SOBOL",1469,0,42,375,156],[314,3140,"FAILED","SOBOL",1966,0,151,1511,1048],[330,3300,"FAILED","SOBOL",1836,1,184,826,471],[333,3330,"FAILED","SOBOL",1704,4,117,712,123],[341,3410,"FAILED","SOBOL",1770,4,412,1593,1293],[345,3450,"FAILED","SOBOL",1291,4,273,458,378],[346,3460,"FAILED","SOBOL",1882,0,93,1472,699],[349,3490,"FAILED","SOBOL",1514,3,147,1116,836],[350,3500,"FAILED","SOBOL",1160,1,466,64,30],[355,3550,"FAILED","SOBOL",529,4,500,269,196],[362,3620,"FAILED","SOBOL",1788,1,254,1068,93],[365,3650,"FAILED","SOBOL",1670,2,446,1455,440],[381,3810,"FAILED","SOBOL",1611,4,292,875,727],[386,3860,"FAILED","SOBOL",1624,0,106,1228,1217],[389,3890,"FAILED","SOBOL",1991,3,157,1373,1314],[393,3930,"FAILED","SOBOL",1446,2,20,741,484],[394,3940,"FAILED","SOBOL",1849,2,340,1689,663],[398,3980,"FAILED","SOBOL",1064,0,212,846,114],[409,4090,"FAILED","SOBOL",1272,4,236,1086,693],[413,4130,"FAILED","SOBOL",1550,2,362,496,16],[435,4350,"FAILED","SOBOL",749,3,245,549,162],[442,4420,"FAILED","SOBOL",1942,1,7,1850,50],[449,4490,"FAILED","SOBOL",1239,3,89,1061,204],[470,4700,"FAILED","SOBOL",1409,1,113,754,600],[481,4810,"FAILED","SOBOL",1136,3,474,804,359],[485,4850,"FAILED","SOBOL",1921,2,102,1645,932],[486,4860,"FAILED","SOBOL",1253,2,297,659,238],[490,4900,"FAILED","SOBOL",1809,1,403,1290,1091],[498,4980,"FAILED","SOBOL",1744,1,77,421,263],[502,5020,"FAILED","SOBOL",1466,0,451,1013,962],[521,5210,"FAILED","SOBOL",1467,4,34,1411,524],[522,5220,"FAILED","SOBOL",1862,0,354,394,330],[526,5260,"FAILED","SOBOL",1085,1,228,1048,879],[530,5300,"FAILED","SOBOL",1678,0,181,1270,1000],[537,5370,"FAILED","SOBOL",1251,2,189,761,299],[538,5380,"FAILED","SOBOL",1918,2,384,1809,621],[542,5420,"FAILED","SOBOL",1133,1,11,656,171],[548,5480,"FAILED","SOBOL",937,0,222,587,473],[554,5540,"FAILED","SOBOL",1761,1,209,1650,234],[558,5580,"FAILED","SOBOL",1039,0,335,807,558],[569,5690,"FAILED","SOBOL",1373,4,375,1004,138],[577,5770,"FAILED","SOBOL",1221,4,105,857,789],[581,5810,"FAILED","SOBOL",1943,3,479,1702,487],[582,5820,"FAILED","SOBOL",1355,1,158,743,683],[587,5870,"FAILED","SOBOL",865,4,468,512,243],[598,5980,"FAILED","SOBOL",1426,0,66,1085,393],[609,6090,"FAILED","SOBOL",1154,2,459,1099,649],[613,6130,"FAILED","SOBOL",1931,4,85,444,76],[625,6250,"FAILED","SOBOL",1065,4,304,699,425],[630,6300,"FAILED","SOBOL",1449,2,497,844,46],[634,6340,"FAILED","SOBOL",1989,1,328,1207,1126],[635,6350,"FAILED","SOBOL",959,3,129,917,607],[637,6370,"FAILED","SOBOL",1621,4,380,1313,1278],[645,6450,"FAILED","SOBOL",1995,3,15,815,678],[662,6620,"FAILED","SOBOL",1400,3,23,1196,1150],[674,6740,"FAILED","SOBOL",1642,2,203,922,629],[676,6760,"FAILED","SOBOL",969,2,81,206,66],[682,6820,"FAILED","SOBOL",1837,3,379,1743,1368],[685,6850,"FAILED","SOBOL",1973,2,236,1017,137],[690,6900,"FAILED","SOBOL",1600,4,111,1478,309],[701,7010,"FAILED","SOBOL",1853,1,322,1445,677],[705,7050,"FAILED","SOBOL",1341,0,98,408,228],[706,7060,"FAILED","SOBOL",1730,4,447,1047,753],[717,7170,"FAILED","SOBOL",1905,1,492,892,260],[722,7220,"FAILED","SOBOL",1528,3,367,603,186],[725,7250,"FAILED","SOBOL",1514,1,48,1082,604],[726,7260,"FAILED","SOBOL",1430,3,401,443,378],[729,7290,"FAILED","SOBOL",1057,1,276,60,53],[730,7300,"FAILED","SOBOL",1887,3,173,1418,967],[741,7410,"FAILED","SOBOL",1744,1,140,513,460],[746,7460,"FAILED","SOBOL",1870,4,15,990,95],[773,7730,"FAILED","SOBOL",1629,0,384,1388,86],[778,7780,"FAILED","SOBOL",1751,2,259,1115,469],[780,7800,"FAILED","SOBOL",633,4,293,327,156],[781,7810,"FAILED","SOBOL",1933,1,120,1653,1018],[794,7940,"FAILED","SOBOL",1927,2,466,499,60],[805,8050,"FAILED","SOBOL",1688,1,472,1593,551],[806,8060,"FAILED","SOBOL",1365,2,71,951,469],[809,8090,"FAILED","SOBOL",1239,0,197,553,102],[825,8250,"FAILED","SOBOL",1118,0,361,983,584],[826,8260,"FAILED","SOBOL",1953,4,213,1623,435],[829,8290,"FAILED","SOBOL",1861,0,415,1148,1078],[835,8350,"FAILED","SOBOL",949,1,119,685,365],[838,8380,"FAILED","SOBOL",1262,3,328,1076,93],[852,8520,"FAILED","SOBOL",795,4,376,713,30],[853,8530,"FAILED","SOBOL",1521,2,205,1262,1144],[862,8620,"FAILED","SOBOL",1153,4,135,886,810],[881,8810,"FAILED","SOBOL",1478,0,180,1041,303],[893,8930,"FAILED","SOBOL",1828,2,38,401,336],[894,8940,"FAILED","SOBOL",1225,3,390,1011,684],[900,9000,"FAILED","SOBOL",910,4,56,750,532],[910,9100,"FAILED","SOBOL",1017,4,299,580,254],[922,9220,"FAILED","SOBOL",1907,3,8,638,387],[933,9330,"FAILED","SOBOL",1707,1,57,1294,880],[934,9340,"FAILED","SOBOL",1346,3,394,185,109],[938,9380,"FAILED","SOBOL",1834,3,182,1208,550],[949,9490,"FAILED","SOBOL",1587,2,377,1239,432],[962,9620,"FAILED","SOBOL",1723,3,238,1528,1071],[963,9630,"FAILED","SOBOL",968,0,409,453,193],[965,9650,"FAILED","SOBOL",1670,0,313,670,506],[986,9860,"FAILED","SOBOL",1878,4,386,1876,1145],[987,9870,"FAILED","SOBOL",680,2,215,82,25],[989,9890,"FAILED","SOBOL",1811,0,243,1352,350],[994,9940,"FAILED","SOBOL",1683,2,118,1141,205],[1005,10050,"FAILED","SOBOL",1946,2,69,799,712],[1021,10210,"FAILED","SOBOL",1817,1,499,727,226],[1026,10260,"FAILED","SOBOL",1693,3,374,766,329],[1037,10370,"FAILED","SOBOL",1925,0,313,1173,836],[1038,10380,"FAILED","SOBOL",1006,4,230,282,176],[1042,10420,"FAILED","SOBOL",1548,3,438,1322,734],[1054,10540,"FAILED","SOBOL",1173,4,61,1168,359],[1060,10600,"FAILED","SOBOL",989,3,385,907,488],[1066,10660,"FAILED","SOBOL",1825,2,87,1385,1197],[1067,10670,"FAILED","SOBOL",616,0,260,587,67],[1069,10690,"FAILED","SOBOL",1984,1,292,1847,309],[1070,10700,"FAILED","SOBOL",1069,3,126,737,703],[1085,10850,"FAILED","SOBOL",1872,2,144,1682,756],[1086,10860,"FAILED","SOBOL",1198,2,305,793,233],[1089,10890,"FAILED","SOBOL",1322,0,431,707,338],[1101,11010,"FAILED","SOBOL",1884,0,44,223,183],[1105,11050,"FAILED","SOBOL",1436,2,257,1135,725],[1106,11060,"FAILED","SOBOL",1508,3,169,277,263],[1110,11100,"FAILED","SOBOL",1418,4,65,680,50],[1113,11130,"FAILED","SOBOL",1046,1,190,828,381],[1114,11140,"FAILED","SOBOL",1898,2,355,1717,609],[1125,11250,"FAILED","SOBOL",1731,2,334,375,100],[1126,11260,"FAILED","SOBOL",1340,2,250,1233,888],[1142,11420,"FAILED","SOBOL",1459,3,320,1304,426],[1158,11580,"FAILED","SOBOL",1283,4,494,858,513],[1162,11620,"FAILED","SOBOL",1771,3,207,1757,79],[1164,11640,"FAILED","SOBOL",644,4,235,559,297],[1165,11650,"FAILED","SOBOL",1914,2,409,1482,1409],[1170,11700,"FAILED","SOBOL",1541,4,283,1022,1021],[1172,11720,"FAILED","SOBOL",768,3,268,518,334],[1181,11810,"FAILED","SOBOL",1771,1,425,1704,404],[1182,11820,"FAILED","SOBOL",1157,3,24,813,616],[1201,12010,"FAILED","SOBOL",1459,1,38,1220,124],[1213,12130,"FAILED","SOBOL",1855,0,177,330,28],[1214,12140,"FAILED","SOBOL",1214,4,280,1188,992],[1217,12170,"FAILED","SOBOL",1336,2,405,1305,563],[1229,12290,"FAILED","SOBOL",1902,1,11,1758,910],[1230,12300,"FAILED","SOBOL",1044,2,407,650,72],[1233,12330,"FAILED","SOBOL",1422,0,282,845,499],[1237,12370,"FAILED","SOBOL",1511,2,451,201,189],[1238,12380,"FAILED","SOBOL",1435,3,102,1340,792],[1253,12530,"FAILED","SOBOL",1746,0,363,1644,875],[1254,12540,"FAILED","SOBOL",1322,4,213,755,145],[1257,12570,"FAILED","SOBOL",1196,2,88,748,285],[1258,12580,"FAILED","SOBOL",1873,2,488,1855,696],[1270,12700,"FAILED","SOBOL",1445,4,346,715,667],[1273,12730,"FAILED","SOBOL",1068,1,471,786,779],[1282,12820,"FAILED","SOBOL",1699,4,432,1411,1176],[1286,12860,"FAILED","SOBOL",1297,3,469,1130,271],[1301,13010,"FAILED","SOBOL",1549,1,159,1155,784],[1302,13020,"FAILED","SOBOL",1379,3,261,264,198],[1306,13060,"FAILED","SOBOL",1922,4,33,1351,646],[1317,13170,"FAILED","SOBOL",1693,1,31,694,154],[1322,13220,"FAILED","SOBOL",1819,3,157,811,292],[1333,13330,"FAILED","SOBOL",1570,0,414,781,660],[1349,13490,"FAILED","SOBOL",1687,2,276,1318,278],[1354,13540,"FAILED","SOBOL",1809,4,400,1186,168],[1357,13570,"FAILED","SOBOL",1875,0,230,1585,1338],[1363,13630,"FAILED","SOBOL",806,0,308,123,97],[1373,13730,"FAILED","SOBOL",1796,2,218,628,625],[1386,13860,"FAILED","SOBOL",1849,3,269,1550,1050],[1387,13870,"FAILED","SOBOL",592,1,66,470,188],[1389,13890,"FAILED","SOBOL",1961,0,94,1213,439],[1405,14050,"FAILED","SOBOL",1833,1,461,1253,999],[1410,14100,"FAILED","SOBOL",1710,3,337,1245,572],[1421,14210,"FAILED","SOBOL",1908,1,351,838,65],[1426,14260,"FAILED","SOBOL",1531,4,475,659,491],[1430,14300,"FAILED","SOBOL",1390,2,204,622,369],[1433,14330,"FAILED","SOBOL",1018,0,79,880,203],[1434,14340,"FAILED","SOBOL",1910,4,495,1521,787],[1445,14450,"FAILED","SOBOL",1704,0,442,427,295],[1446,14460,"FAILED","SOBOL",1351,4,109,1037,694],[1465,14650,"FAILED","SOBOL",1102,1,335,1004,328],[1471,14710,"FAILED","SOBOL",483,0,366,312,48],[1477,14770,"FAILED","SOBOL",1667,1,190,1551,169],[1478,14780,"FAILED","SOBOL",1279,3,353,912,820],[1485,14850,"FAILED","SOBOL",1895,0,298,1286,1227],[1491,14910,"FAILED","SOBOL",795,0,220,766,457],[1502,15020,"FAILED","SOBOL",1138,3,172,1094,36],[1508,15080,"FAILED","SOBOL",945,3,275,855,181],[1509,15090,"FAILED","SOBOL",1738,2,72,1181,1053],[1517,15170,"FAILED","SOBOL",1949,0,434,1914,110],[1521,15210,"FAILED","SOBOL",1492,1,142,939,544],[1524,15240,"FAILED","SOBOL",818,4,157,675,632],[1533,15330,"FAILED","SOBOL",1814,0,4,1611,577],[1534,15340,"FAILED","SOBOL",1241,4,416,969,412],[1537,15370,"FAILED","SOBOL",1365,1,291,524,18],[1553,15530,"FAILED","SOBOL",1377,0,398,1064,919],[1554,15540,"FAILED","SOBOL",1551,4,61,454,69],[1556,15560,"FAILED","SOBOL",757,2,198,345,224],[1562,15620,"FAILED","SOBOL",1937,3,278,1822,1468],[1565,15650,"FAILED","SOBOL",1753,2,103,1410,45],[1570,15700,"FAILED","SOBOL",1625,4,228,1090,401],[1574,15740,"FAILED","SOBOL",1371,3,140,1369,1059],[1581,15810,"FAILED","SOBOL",1989,0,211,995,893],[1597,15970,"FAILED","SOBOL",1868,0,359,535,419],[1602,16020,"FAILED","SOBOL",1744,3,484,965,27],[1613,16130,"FAILED","SOBOL",1889,1,455,1120,519],[1618,16180,"FAILED","SOBOL",1513,3,330,1378,911],[1621,16210,"FAILED","SOBOL",1531,1,23,937,360],[1626,16260,"FAILED","SOBOL",1903,3,148,571,195],[1637,16370,"FAILED","SOBOL",1727,0,165,1475,703],[1641,16410,"FAILED","SOBOL",1215,1,378,390,144],[1642,16420,"FAILED","SOBOL",1854,3,40,1030,868],[1645,16450,"FAILED","SOBOL",1960,2,339,1741,1635],[1661,16610,"FAILED","SOBOL",1838,1,222,1795,1177],[1666,16660,"FAILED","SOBOL",1711,4,96,1709,1253],[1674,16740,"FAILED","SOBOL",1766,4,296,905,744],[1690,16900,"FAILED","SOBOL",1918,3,402,973,559],[1694,16940,"FAILED","SOBOL",1164,2,316,1153,1034],[1706,17060,"FAILED","SOBOL",1839,4,287,1435,380],[1709,17090,"FAILED","SOBOL",1975,0,86,1832,1116],[1715,17150,"FAILED","SOBOL",843,1,381,374,325],[1717,17170,"FAILED","SOBOL",1583,2,29,1403,513],[1721,17210,"FAILED","SOBOL",1094,0,305,490,80],[1722,17220,"FAILED","SOBOL",1959,4,154,1098,932],[1725,17250,"FAILED","SOBOL",1854,0,484,1638,1571],[1733,17330,"FAILED","SOBOL",1659,0,160,943,424],[1738,17380,"FAILED","SOBOL",1783,2,35,560,6],[1757,17570,"FAILED","SOBOL",1800,0,349,1000,705],[1758,17580,"FAILED","SOBOL",1130,4,202,392,307],[1762,17620,"FAILED","SOBOL",1673,2,474,1492,850],[1773,17730,"FAILED","SOBOL",1941,1,464,588,358],[1782,17820,"FAILED","SOBOL",1438,4,58,1250,1249],[1789,17890,"FAILED","SOBOL",1822,1,97,875,829],[1810,18100,"FAILED","SOBOL",1559,3,91,1033,336],[1825,18250,"FAILED","SOBOL",1311,1,284,1058,859],[1826,18260,"FAILED","SOBOL",1633,3,134,417,130],[1828,18280,"FAILED","SOBOL",993,3,21,696,567],[1837,18370,"FAILED","SOBOL",1997,1,178,1511,637],[1838,18380,"FAILED","SOBOL",1074,3,278,901,352],[1841,18410,"FAILED","SOBOL",1446,0,404,596,204],[1851,18510,"FAILED","SOBOL",741,0,295,728,451],[1857,18570,"FAILED","SOBOL",1317,0,36,933,733],[1917,19170,"FAILED","SOBOL",1638,4,134,1632,377],[1922,19220,"FAILED","SOBOL",1997,1,40,1786,207],[1929,19290,"FAILED","SOBOL",1109,3,65,1094,71],[1941,19410,"FAILED","SOBOL",1874,3,425,1862,353],[1973,19730,"FAILED","SOBOL",1787,4,235,388,19],[1994,19940,"FAILED","SOBOL",1673,2,161,1494,68],[2021,20210,"FAILED","SOBOL",1898,3,314,663,107],[2061,20610,"FAILED","SOBOL",1604,4,121,831,131],[2098,20980,"FAILED","SOBOL",1815,0,401,1015,170],[2104,21040,"FAILED","SOBOL",640,1,75,524,35],[2117,21170,"FAILED","SOBOL",1960,4,436,1551,66],[2134,21340,"FAILED","SOBOL",1429,1,232,1130,48],[2169,21690,"FAILED","SOBOL",1155,2,266,963,24],[2231,22310,"FAILED","SOBOL",977,4,331,461,37],[2343,23430,"FAILED","SOBOL",863,0,352,684,142],[2350,23500,"FAILED","SOBOL",1831,4,407,1620,76],[2370,23700,"FAILED","SOBOL",1371,2,324,967,10],[2398,23980,"FAILED","SOBOL",1966,2,36,1389,61],[2433,24330,"FAILED","SOBOL",1657,1,464,560,8],[2457,24570,"FAILED","SOBOL",1806,0,155,882,189],[2694,26940,"FAILED","SOBOL",1707,2,353,1343,263],[2697,26970,"FAILED","SOBOL",1991,0,402,1146,140],[2737,27370,"FAILED","SOBOL",1608,2,218,1296,71],[2749,27490,"FAILED","SOBOL",1069,0,52,135,13],[2766,27660,"FAILED","SOBOL",1769,3,282,653,112],[2774,27740,"FAILED","SOBOL",1549,4,130,670,39],[2809,28090,"FAILED","SOBOL",1827,0,370,1280,31],[2840,28400,"FAILED","SOBOL",741,3,241,98,5],[2849,28490,"FAILED","SOBOL",1709,2,61,1161,213],[2926,29260,"FAILED","SOBOL",1870,3,322,1652,290],[2965,29650,"FAILED","SOBOL",1478,1,21,826,41],[2982,29820,"FAILED","SOBOL",1684,2,251,337,83],[3017,30170,"FAILED","SOBOL",1938,1,249,1729,107],[3054,30540,"FAILED","SOBOL",1849,2,192,1006,172],[3057,30570,"FAILED","SOBOL",1568,0,55,1453,295],[3089,30890,"FAILED","SOBOL",1524,1,308,928,147],[3113,31130,"FAILED","SOBOL",1876,0,124,513,80],[3178,31780,"FAILED","SOBOL",1088,3,234,984,94],[3190,31900,"FAILED","SOBOL",1611,3,5,1572,27],[3205,32050,"FAILED","SOBOL",1288,0,268,1090,101],[3223,32230,"FAILED","SOBOL",949,0,384,804,2],[3233,32330,"FAILED","SOBOL",1695,1,425,1557,343],[3760,37600,"FAILED","SOBOL",927,3,348,432,19],[3806,38060,"FAILED","SOBOL",1945,3,491,747,157],[3832,38320,"FAILED","SOBOL",646,4,189,384,67],[3838,38380,"FAILED","SOBOL",1897,3,246,1130,277],[3841,38410,"FAILED","SOBOL",1677,0,9,1327,150],[3865,38650,"FAILED","SOBOL",1794,1,325,1240,92],[3894,38940,"FAILED","SOBOL",1580,3,174,819,102],[3909,39090,"FAILED","SOBOL",1255,1,414,329,27],[3945,39450,"FAILED","SOBOL",1908,0,196,1750,45],[3957,39570,"FAILED","SOBOL",1385,1,35,662,103],[4418,44180,"FAILED","SOBOL",1502,2,71,1431,191],[4424,44240,"FAILED","SOBOL",774,4,490,727,106],[4442,44420,"FAILED","SOBOL",1908,4,287,1120,26],[4477,44770,"FAILED","SOBOL",1629,1,180,572,61],[4542,45420,"FAILED","SOBOL",1429,4,100,961,48],[4557,45570,"FAILED","SOBOL",1625,2,351,481,85],[4600,46000,"FAILED","SOBOL",972,3,42,326,8],[4609,46090,"FAILED","SOBOL",1298,1,146,1038,203],[4626,46260,"FAILED","SOBOL",1743,3,397,1527,166],[4653,46530,"FAILED","SOBOL",1533,0,412,1187,116],[4682,46820,"FAILED","SOBOL",1757,4,56,638,80],[4722,47220,"FAILED","SOBOL",1663,3,334,827,135],[4735,47350,"FAILED","SOBOL",652,0,364,545,1],[4754,47540,"FAILED","SOBOL",1724,4,68,1206,283],[4757,47570,"FAILED","SOBOL",1876,2,196,1371,170],[4873,48730,"FAILED","SOBOL",1052,0,225,768,91],[4897,48970,"FAILED","SOBOL",1330,2,275,804,5],[4949,49490,"FAILED","SOBOL",1936,1,381,1811,69],[4958,49580,"FAILED","SOBOL",1460,4,477,1193,246],[5047,50470,"FAILED","SOBOL",998,1,135,510,86],[5050,50500,"FAILED","SOBOL",1939,3,165,855,205],[5090,50900,"FAILED","SOBOL",1595,3,443,665,10],[5125,51250,"FAILED","SOBOL",1817,2,87,1152,46],[5238,52380,"FAILED","SOBOL",1206,2,399,988,102],[5738,57380,"FAILED","SOBOL",1860,3,4,777,23],[5773,57730,"FAILED","SOBOL",1585,1,406,1289,48],[5905,59050,"FAILED","SOBOL",1471,1,426,819,191],[5913,59130,"FAILED","SOBOL",1132,1,77,846,152],[6097,60970,"FAILED","SOBOL",1465,2,248,254,40],[6106,61060,"FAILED","SOBOL",1926,2,145,747,148],[6138,61380,"FAILED","SOBOL",1989,3,379,1344,312],[6141,61410,"FAILED","SOBOL",1643,1,264,1203,174],[7538,75380,"FAILED","SOBOL",1665,4,455,1245,34],[7573,75730,"FAILED","SOBOL",1890,0,75,697,6],[7601,76010,"FAILED","SOBOL",1401,1,263,1348,47],[7638,76380,"FAILED","SOBOL",1184,4,143,836,9],[7937,79370,"FAILED","SOBOL",1312,0,17,893,98],[8349,83490,"FAILED","SOBOL",1729,1,424,732,91],[8378,83780,"FAILED","SOBOL",1949,2,44,1218,120],[8482,84820,"FAILED","SOBOL",1565,3,195,1327,143],[8485,84850,"FAILED","SOBOL",1786,1,73,1220,279],[8488,84880,"FAILED","SOBOL",838,4,371,531,60],[8606,86060,"FAILED","SOBOL",1490,4,229,782,94],[8621,86210,"FAILED","SOBOL",1561,1,478,277,7],[8746,87460,"FAILED","SOBOL",1818,4,179,621,2],[8922,89220,"FAILED","SOBOL",1934,3,354,467,104],[8937,89370,"FAILED","SOBOL",1115,1,105,974,13],[9042,90420,"FAILED","SOBOL",1711,3,145,495,50],[9086,90860,"FAILED","SOBOL",1397,4,352,1048,168],[9175,91750,"FAILED","SOBOL",937,1,7,748,9],[9189,91890,"FAILED","SOBOL",1755,1,211,1106,124],[10722,107220,"FAILED","SOBOL",1599,4,183,1562,93],[10737,107370,"FAILED","SOBOL",1419,1,430,1005,56],[10774,107740,"FAILED","SOBOL",1136,2,38,555,31],[10778,107780,"FAILED","SOBOL",1902,3,272,671,163],[10810,108100,"FAILED","SOBOL",1963,2,6,1300,265],[10813,108130,"FAILED","SOBOL",1684,0,133,1152,127],[11150,111500,"FAILED","SOBOL",1324,3,193,1224,12],[11161,111610,"FAILED","SOBOL",1147,1,132,363,63],[11178,111780,"FAILED","SOBOL",1842,4,381,821,38],[11213,112130,"FAILED","SOBOL",1617,0,24,1371,2],[0,0,"ABANDONED","SOBOL",3389,1,448,919,1725],[1,10,"FAILED","SOBOL",1942,3,77,1829,118],[2,20,"ABANDONED","SOBOL",240,0,324,64,896],[3,30,"ABANDONED","SOBOL",3797,4,200,1185,1260],[4,40,"ABANDONED","SOBOL",4913,0,41,1465,1097],[5,50,"ABANDONED","SOBOL",1048,4,422,283,746],[6,60,"FAILED","SOBOL",1773,2,167,1547,267],[7,70,"ABANDONED","SOBOL",2904,2,295,701,1888],[8,80,"ABANDONED","SOBOL",2700,1,152,449,183],[9,90,"ABANDONED","SOBOL",1332,3,279,1303,1535],[10,100,"ABANDONED","SOBOL",842,1,24,539,1446],[11,110,"ABANDONED","SOBOL",4475,3,407,1713,834],[12,120,"ABANDONED","SOBOL",4313,2,371,1933,562],[13,130,"ABANDONED","SOBOL",368,2,247,819,1156],[14,140,"ABANDONED","SOBOL",2461,0,494,1086,1825],[15,150,"ABANDONED","SOBOL",3515,4,124,167,455],[16,160,"ABANDONED","SOBOL",3691,0,254,1621,1360],[17,170,"ABANDONED","SOBOL",2245,4,129,627,984],[18,180,"ABANDONED","SOBOL",582,2,382,1391,3],[19,190,"ABANDONED","SOBOL",4138,2,2,357,1653],[20,200,"ABANDONED","SOBOL",4572,1,224,13,1988],[21,210,"ABANDONED","SOBOL",705,3,347,1236,355],[22,220,"ABANDONED","SOBOL",1469,1,102,969,631],[23,230,"ABANDONED","SOBOL",2602,3,470,1778,1025],[24,240,"ABANDONED","SOBOL",3042,2,86,1027,793],[25,250,"ABANDONED","SOBOL",1673,2,455,226,1425],[26,260,"ABANDONED","SOBOL",1143,0,209,1991,1592],[27,270,"FAILED","SOBOL",4778,4,331,761,189],[28,280,"ABANDONED","SOBOL",4010,0,429,605,415],[29,290,"ABANDONED","SOBOL",66,4,49,1647,1804],[30,300,"ABANDONED","SOBOL",2119,1,302,382,1213],[31,310,"ABANDONED","SOBOL",3172,3,175,1370,568],[32,320,"ABANDONED","SOBOL",3275,0,18,1783,1926],[33,330,"ABANDONED","SOBOL",2066,4,397,965,291],[34,340,"ABANDONED","SOBOL",129,1,144,1201,695],[35,350,"ABANDONED","SOBOL",3917,3,271,48,1086],[36,360,"ABANDONED","SOBOL",4714,2,486,330,1298],[37,370,"ABANDONED","SOBOL",1236,2,117,1418,920],[38,380,"FAILED","SOBOL",1570,0,362,685,66],[39,390,"ABANDONED","SOBOL",3096,4,240,1563,1715],[40,400,"ABANDONED","SOBOL",2519,1,316,1319,478],[41,410,"ABANDONED","SOBOL",1542,3,193,433,1865],[42,420,"ABANDONED","SOBOL",661,0,438,1666,1151],[43,430,"ABANDONED","SOBOL",4684,4,71,586,504],[44,440,"ABANDONED","SOBOL",4182,0,160,803,857],[45,450,"ABANDONED","SOBOL",470,4,286,1948,1486],[46,460,"ABANDONED","SOBOL",2328,2,33,214,1530],[47,470,"FAILED","SOBOL",3617,2,413,1039,126],[48,480,"ABANDONED","SOBOL",3558,1,215,736,1034],[49,490,"ABANDONED","SOBOL",2348,3,340,1512,685],[50,500,"ABANDONED","SOBOL",451,0,93,279,329],[51,510,"ABANDONED","SOBOL",4240,4,463,1469,1952],[52,520,"ABANDONED","SOBOL",4391,1,310,1126,1662],[53,530,"ABANDONED","SOBOL",915,3,183,122,57],[54,540,"ABANDONED","SOBOL",1288,1,438,1856,958],[55,550,"ABANDONED","SOBOL",2812,3,55,891,1323],[56,560,"ABANDONED","SOBOL",2840,0,391,147,624],[57,570,"ABANDONED","SOBOL",1865,4,9,1105,1220],[58,580,"ABANDONED","SOBOL",945,2,264,870,1762],[59,590,"FAILED","SOBOL",4966,2,135,1882,394],[60,600,"FAILED","SOBOL",3899,1,108,1725,245],[61,610,"ABANDONED","SOBOL",186,3,479,527,1599],[62,620,"ABANDONED","SOBOL",2005,0,232,1260,1383],[63,630,"ABANDONED","SOBOL",3296,4,355,492,773],[64,640,"ABANDONED","SOBOL",3336,0,244,1122,298],[65,650,"ABANDONED","SOBOL",1971,4,375,126,1920],[66,660,"ABANDONED","SOBOL",234,2,120,1891,1066],[67,670,"ABANDONED","SOBOL",3866,2,498,856,715],[68,680,"ABANDONED","SOBOL",4927,1,276,513,927],[69,690,"ABANDONED","SOBOL",980,3,155,1735,1291],[70,700,"ABANDONED","SOBOL",1817,0,402,470,1694],[71,710,"FAILED","SOBOL",2874,4,28,1278,86],[72,720,"ABANDONED","SOBOL",2765,2,418,1526,1856],[73,730,"ABANDONED","SOBOL",1320,2,44,726,487],[74,740,"ABANDONED","SOBOL",874,0,291,1490,531],[75,750,"ABANDONED","SOBOL",4427,4,171,262,1125],[76,760,"ABANDONED","SOBOL",4287,0,73,104,1477],[77,770,"ABANDONED","SOBOL",419,3,451,1148,865],[78,780,"FAILED","SOBOL",2389,1,196,881,152],[79,790,"ABANDONED","SOBOL",3522,3,328,1870,1504],[80,800,"ABANDONED","SOBOL",3658,1,52,420,663],[81,810,"ABANDONED","SOBOL",2292,3,425,1328,1056],[82,820,"ABANDONED","SOBOL",517,1,180,564,1957],[83,830,"FAILED","SOBOL",4150,3,298,1684,324],[84,840,"FAILED","SOBOL",4643,0,458,1966,34],[85,850,"ABANDONED","SOBOL",697,4,82,782,1685],[86,860,"ABANDONED","SOBOL",1496,1,335,1048,1328],[87,870,"ABANDONED","SOBOL",2551,3,205,200,953],[88,880,"ABANDONED","SOBOL",3048,0,350,948,1244],[89,890,"ABANDONED","SOBOL",1604,4,221,1804,599],[90,900,"ABANDONED","SOBOL",1197,1,474,38,383],[91,910,"ABANDONED","SOBOL",4749,3,97,1214,1773],[92,920,"ABANDONED","SOBOL",3965,2,133,1432,1623],[93,930,"ABANDONED","SOBOL",96,2,251,320,220],[94,940,"ABANDONED","SOBOL",2106,0,6,1584,762],[95,950,"ABANDONED","SOBOL",3240,4,377,668,1394],[96,960,"ABANDONED","SOBOL",3127,2,283,235,97],[97,970,"ABANDONED","SOBOL",2149,2,164,1013,1746],[98,980,"ABANDONED","SOBOL",23,0,409,778,1267],[99,990,"ABANDONED","SOBOL",4048,4,37,1970,889],[100,1000,"ABANDONED","SOBOL",4822,0,190,1625,726],[101,1010,"ABANDONED","SOBOL",1114,4,319,623,1117],[102,1020,"ABANDONED","SOBOL",1716,1,66,1356,1895],[103,1030,"ABANDONED","SOBOL",3004,3,443,392,260],[104,1040,"ABANDONED","SOBOL",2644,0,113,648,1561],[105,1050,"ABANDONED","SOBOL",1432,4,489,1604,157],[106,1060,"ABANDONED","SOBOL",751,2,236,371,825],[107,1070,"ABANDONED","SOBOL",4541,2,367,1381,1455],[108,1080,"ABANDONED","SOBOL",4096,1,394,1226,1183],[109,1090,"ABANDONED","SOBOL",620,3,21,27,535],[110,1100,"ABANDONED","SOBOL",2200,1,266,1761,447],[111,1110,"ABANDONED","SOBOL",3722,3,149,991,1834],[112,1120,"ABANDONED","SOBOL",3469,1,482,1282,989],[113,1130,"ABANDONED","SOBOL",2492,3,105,467,1355],[114,1140,"ABANDONED","SOBOL",326,1,360,1699,1631],[115,1150,"FAILED","SOBOL",4350,3,227,549,25],[116,1160,"ABANDONED","SOBOL",4520,1,12,829,360],[117,1170,"ABANDONED","SOBOL",810,3,387,1919,1983],[118,1180,"ABANDONED","SOBOL",1374,0,140,185,1002],[119,1190,"ABANDONED","SOBOL",2663,4,260,1064,654],[120,1200,"ABANDONED","SOBOL",2947,1,186,1820,1414],[121,1210,"ABANDONED","SOBOL",1734,3,307,932,804],[122,1220,"ABANDONED","SOBOL",1092,0,60,1168,214],[123,1230,"ABANDONED","SOBOL",4883,4,433,85,1567],[124,1240,"ABANDONED","SOBOL",3753,0,344,305,1793],[125,1250,"ABANDONED","SOBOL",278,4,212,1447,425],[126,1260,"ABANDONED","SOBOL",1897,2,467,715,592],[127,1270,"ABANDONED","SOBOL",3419,2,88,1537,1189],[128,1280,"ABANDONED","SOBOL",3406,0,333,544,706],[129,1290,"ABANDONED","SOBOL",1881,4,207,1704,1076],[130,1300,"ABANDONED","SOBOL",301,1,459,438,1906],[131,1310,"RUNNING","SOBOL",3780,3,80,1310,312],[132,1320,"RUNNING","SOBOL",4857,2,178,1090,85],[133,1330,"ABANDONED","SOBOL",1070,2,300,158,1697],[134,1340,"ABANDONED","SOBOL",1750,0,54,1922,1286],[135,1350,"ABANDONED","SOBOL",2960,4,423,826,933],[136,1360,"ABANDONED","SOBOL",2678,1,8,74,1139],[137,1370,"ABANDONED","SOBOL",1388,3,376,1178,518],[138,1380,"ABANDONED","SOBOL",785,0,131,914,497],[139,1390,"ABANDONED","SOBOL",4496,4,253,1838,1847],[140,1400,"ABANDONED","SOBOL",4374,0,476,1558,1510],[141,1410,"ABANDONED","SOBOL",351,4,95,694,147],[142,1420,"ABANDONED","SOBOL",2478,2,348,1460,868],[143,1430,"ABANDONED","SOBOL",3453,2,223,292,1476],[144,1440,"RUNNING","SOBOL",3747,2,400,1996,319],[145,1450,"ABANDONED","SOBOL",2223,2,30,752,1963],[146,1460,"ABANDONED","SOBOL",604,0,278,1016,1055],[147,1470,"ABANDONED","SOBOL",4082,4,153,232,665],[148,1480,"ABANDONED","SOBOL",4554,0,118,387,939],[149,1490,"ABANDONED","SOBOL",766,4,500,1361,1342]];
+var tab_failed_results_headers_json = ["trial_index", "arm_name", "trial_status", "generation_node", "recent_samples_size", "feature_id", "p", "big_windowSize", "small_windowSize"];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			}
+			</script>
+
+<h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+
+<div id="tab_results_csv_table"></div>
+
+<script>
+				// Table initialization skipped for no-data file</script>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'WindowKDE_SensorStream_acc_run.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+    <div id="tab_pareto_fronts">
+        <p><strong>No Pareto plots available:</strong> This experiment had 549 FAILED runs and 0 COMPLETED runs. Pareto analysis requires successful runs with ACCURACY and RUNTIME data.</p>
+    </div>
+</div>
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:              </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Setting</th><th>Value </th></tr></thead><tbody><tr><td> Model for non-random steps</td><td>SOBOL </td></tr><tr><td> Max. nr. evaluations</td><td>50000 </td></tr><tr><td> Number random steps</td><td>50000 </td></tr><tr><td> Number random steps (from arguments)</td><td>20    </td></tr><tr><td> Nr. of workers (parameter)</td><td>30    </td></tr><tr><td> Main process memory (GB)</td><td>8     </td></tr><tr><td> Worker memory (GB)</td><td>64    </td></tr></tbody></table><h2>Experiment parameters:                             </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>range</td><td>1</td><td>1999</td><td>int</td><td>No         </td></tr><tr><td> feature_id</td><td>range</td><td>0</td><td>4</td><td>int</td><td>No         </td></tr><tr><td> p</td><td>range</td><td>1</td><td>500</td><td>int</td><td>No         </td></tr><tr><td> big_windowSize</td><td>range</td><td>1</td><td>1999</td><td>int</td><td>No         </td></tr><tr><td> small_windowSize</td><td>range</td><td>1</td><td>1999</td><td>int</td><td>No         </td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>549</td><td>0</td><td>549</td></tr></tbody></table>
+</body>
+</html>

@@ -1,0 +1,1447 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/UCDD_RialtoBridgeTimelapse_HoeffdingTreeClassifier_ACCURACY-RUNTIME/1« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">UCDD + RialtoBridgeTimelapse + HoeffdingTreeClassifier + ACCURACY-RUNTIME-REQLABELS</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+    "trial_index",
+    "arm_name",
+    "trial_status",
+    "generation_node",
+    "ACCURACY",
+    "RUNTIME",
+    "REQLABELS",
+    "recent_samples_size",
+    "n_reference_samples",
+    "n_recent_samples",
+    "threshold",
+    "stability_offset"
+];
+			var tab_results_csv_json = [
+        [0, 0, "COMPLETED", 0, 0.32, 2499, 0, 814, 1367, 1, 0.0833002461176365, 0.9],
+        [99, 990, "COMPLETED", "SOBOL", 0.32, 2700.0, 0.0, 234, 730, 10, 0.08751475111395121, 0.3],
+        [null, null, null, null, 0.32,2499,0,814,1367,1,0.0833002461176365,0.9],
+        [null, null, null, null, 0.32,2700.0,0.0,234,730,10,0.08751475111395121,0.3]
+    ];
+// Main results headers and data (starting with ACCURACY)
+			var tab_failed_results_csv_json = [[0,0,"FAILED","SOBOL",null,null,null,1301,3282,3150,0.8046478765010834,0.7],[1,10,"FAILED","SOBOL",null,null,null,4722,2034,904,0.029252883633598688,0.3],[2,20,"FAILED","SOBOL",null,null,null,3582,3862,3932,0.6442126195207238,0.8],[3,30,"FAILED","SOBOL",null,null,null,88,108,1373,0.429404454857111,1e-09],[4,40,"FAILED","SOBOL",null,null,null,824,4524,122,0.2630482416283339,1e-07],[5,50,"FAILED","SOBOL",null,null,null,2989,777,2680,0.5395041150506585,1e-12],[6,60,"FAILED","SOBOL",null,null,null,4373,2700,2153,0.16429876687377692,0.9],[7,70,"FAILED","SOBOL",null,null,null,2125,1448,4399,0.8780460110157728,0.5],[8,80,"FAILED","SOBOL",null,null,null,2272,4145,2284,0.5711190829668195,0.4],[9,90,"FAILED","SOBOL",null,null,null,3896,393,4920,0.35630700713582336,0.7],[10,100,"FAILED","SOBOL",null,null,null,2531,3625,564,0.9713047839589417,1e-11],[11,110,"FAILED","SOBOL",null,null,null,991,2378,2889,0.1959137273542583,1e-12],[12,120,"FAILED","SOBOL",null,null,null,565,3041,4133,0.12238983040489257,0.8],[13,130,"FAILED","SOBOL",null,null,null,3434,1788,1809,0.8361409857142716,0.2],[14,140,"FAILED","SOBOL",null,null,null,4555,4806,3664,0.4608975966013968,0.0001],[15,150,"FAILED","SOBOL",null,null,null,1759,1058,1027,0.7373495588563382,1e-08],[16,160,"FAILED","SOBOL",null,null,null,1708,4933,4693,0.13977604201994837,0.3],[17,170,"FAILED","SOBOL",null,null,null,4459,1185,2486,0.9152320567201823,1e-07],[18,180,"FAILED","SOBOL",null,null,null,3177,2836,2974,0.2865973609238863,1e-05],[19,190,"FAILED","SOBOL",null,null,null,343,1583,455,0.5013444786593318,0.1],[20,200,"FAILED","SOBOL",null,null,null,1248,3498,1703,0.6813443475868552,0.0001],[21,210,"FAILED","SOBOL",null,null,null,2754,2251,4223,0.4049492534082383,0.2],[22,220,"FAILED","SOBOL",null,null,null,3948,4350,1235,0.7665404952764511,1e-08],[23,230,"FAILED","SOBOL",null,null,null,2368,599,3442,0.05273247189074755,0.5],[24,240,"FAILED","SOBOL",null,null,null,1908,2514,740,0.49808643068559466,1e-12],[25,250,"FAILED","SOBOL",null,null,null,4113,1262,3338,0.7128372513893991,0.0001],[26,260,"FAILED","SOBOL",null,null,null,2900,4631,1522,0.084225368257612,0.4],[27,270,"FAILED","SOBOL",null,null,null,768,884,3807,0.859677679989487,0.6],[28,280,"FAILED","SOBOL",null,null,null,178,4047,2551,0.9468467792589217,1e-11],[29,290,"FAILED","SOBOL",null,null,null,3637,294,265,0.23303505290485918,0.8],[30,300,"FAILED","SOBOL",null,null,null,4939,3175,4582,0.5946034821085632,1e-06],[31,310,"FAILED","SOBOL",null,null,null,1562,1927,1985,0.31821209089830516,0.2],[32,320,"FAILED","SOBOL",null,null,null,1422,3793,475,0.04563714023306966,0.2],[33,330,"FAILED","SOBOL",null,null,null,4921,40,2956,0.7588968268744648,0.7],[34,340,"FAILED","SOBOL",null,null,null,3693,3429,2195,0.38171183500625194,1e-06],[35,350,"FAILED","SOBOL",null,null,null,277,2181,4987,0.6586552659291774,0.1],[36,360,"FAILED","SOBOL",null,null,null,635,2768,3734,0.5250709900297225,1e-07],[37,370,"FAILED","SOBOL",null,null,null,2878,1516,941,0.3107503828667104,1e-10],[38,380,"FAILED","SOBOL",null,null,null,4174,4377,4202,0.9237913286630064,0.8],[39,390,"FAILED","SOBOL",null,null,null,2004,630,1722,0.14790880339033902,1e-08],[40,400,"FAILED","SOBOL",null,null,null,2462,3713,4023,0.34175407472997904,1e-09],[41,410,"FAILED","SOBOL",null,null,null,4007,2466,1308,0.6186935647428036,0.9],[42,420,"FAILED","SOBOL",null,null,null,2730,4136,3242,0.24153138553909959,0.2],[43,430,"FAILED","SOBOL",null,null,null,1112,384,840,0.9547950130905956,1e-05],[44,440,"FAILED","SOBOL",null,null,null,445,4718,2081,0.8526412351951003,1e-11],[45,450,"FAILED","SOBOL",null,null,null,3235,970,4483,0.07676265083253384,0.4],[46,460,"FAILED","SOBOL",null,null,null,4444,3050,50,0.689780783964321,1e-09],[47,470,"FAILED","SOBOL",null,null,null,1570,1798,2764,0.47545623589120806,0.1],[48,480,"FAILED","SOBOL",null,null,null,1821,2943,1433,0.9007980914674699,0.3],[49,490,"FAILED","SOBOL",null,null,null,4651,1690,3874,0.18747711995616556,1e-07],[50,500,"FAILED","SOBOL",null,null,null,3300,4904,651,0.5470887181330473,1e-06],[51,510,"FAILED","SOBOL",null,null,null,544,1156,3406,0.270206572080031,0.1],[52,520,"FAILED","SOBOL",null,null,null,1046,4243,4652,0.42133433536812664,1e-10],[53,530,"FAILED","SOBOL",null,null,null,2631,491,1898,0.635594401229173,0.01],[54,540,"FAILED","SOBOL",null,null,null,3756,3527,2621,0.00504091534204781,0.5],[55,550,"FAILED","SOBOL",null,null,null,2255,2280,179,0.780983981916681,0.7],[56,560,"FAILED","SOBOL",null,null,null,2109,4582,3066,0.7293385641723871,0.9],[57,570,"FAILED","SOBOL",null,null,null,4236,835,390,0.4524600913450122,0.8],[58,580,"FAILED","SOBOL",null,null,null,3091,2641,4785,0.812109730457887,1e-09],[59,590,"FAILED","SOBOL",null,null,null,882,1389,2421,0.09878508572094143,0.3],[60,600,"FAILED","SOBOL",null,null,null,64,3224,1163,0.21848104232549667,0.5],[61,610,"FAILED","SOBOL",null,null,null,3445,1976,3526,0.9944204356744886,0.0001],[62,620,"FAILED","SOBOL",null,null,null,4815,3920,1631,0.3638289088513702,1e-08],[63,630,"FAILED","SOBOL",null,null,null,1361,167,4308,0.5780926479380578,1e-12],[64,640,"FAILED","SOBOL",null,null,null,1393,4433,1845,0.44015569074079397,0.5],[65,650,"FAILED","SOBOL",null,null,null,4774,681,4091,0.7250745793767274,1e-10],[66,660,"FAILED","SOBOL",null,null,null,3487,2800,1064,0.10426721698231996,0.8],[67,670,"FAILED","SOBOL",null,null,null,32,1553,3622,0.825145210782066,1e-06],[68,680,"FAILED","SOBOL",null,null,null,938,3387,4866,0.9901564731858671,1e-08],[69,690,"FAILED","SOBOL",null,null,null,3064,2135,2307,0.20617667889967561,1e-09],[70,700,"FAILED","SOBOL",null,null,null,4263,3766,2835,0.5911280910838396,1e-11],[71,710,"FAILED","SOBOL",null,null,null,2053,18,589,0.36931101780571046,0.0001],[72,720,"FAILED","SOBOL",null,null,null,2218,3102,2731,0.17541639772057532,0.3],[73,730,"FAILED","SOBOL",null,null,null,3802,1854,94,0.8962904803529381,1e-09],[74,740,"FAILED","SOBOL",null,null,null,2584,4755,4449,0.2754450175371021,0.5],[75,750,"FAILED","SOBOL",null,null,null,1083,1002,2126,0.5603678173404187,0.6],[76,760,"FAILED","SOBOL",null,null,null,493,4089,874,0.631086752936244,1e-06],[77,770,"FAILED","SOBOL",null,null,null,3322,342,3199,0.4092735908254981,1e-12],[78,780,"FAILED","SOBOL",null,null,null,4629,3691,1343,0.7942631034310907,0.1],[79,790,"FAILED","SOBOL",null,null,null,1872,2439,3980,0.010279397977516057,1e-07],[80,800,"FAILED","SOBOL",null,null,null,1617,3564,302,0.6134550895430148,1e-10],[81,810,"FAILED","SOBOL",null,null,null,4407,2312,2509,0.32847494577988984,1e-07],[82,820,"FAILED","SOBOL",null,null,null,3272,4294,2020,0.9668557650689036,0.1],[83,830,"FAILED","SOBOL",null,null,null,398,547,4540,0.2460390263963491,0.8],[84,840,"FAILED","SOBOL",null,null,null,1134,4882,3284,0.0634835590608418,0.7],[85,850,"FAILED","SOBOL",null,null,null,2679,1129,764,0.8474027823023498,0.9],[86,860,"FAILED","SOBOL",null,null,null,4058,2897,3753,0.47996385444141926,0.001],[87,870,"FAILED","SOBOL",null,null,null,2439,1649,1545,0.7018414987642319,1e-09],[88,880,"FAILED","SOBOL",null,null,null,1962,3952,4274,0.753414725355804,0.01],[89,890,"FAILED","SOBOL",null,null,null,4206,204,1676,0.032601689651608465,0.3],[90,900,"FAILED","SOBOL",null,null,null,2847,3280,3493,0.6709596367906779,0.2],[91,910,"FAILED","SOBOL",null,null,null,676,2027,1207,0.38597579005919397,1e-11],[92,920,"FAILED","SOBOL",null,null,null,250,2614,2456,0.29771490997821093,1e-06],[93,930,"FAILED","SOBOL",null,null,null,3749,1367,4741,0.5195888513326645,1e-05],[94,940,"FAILED","SOBOL",null,null,null,4865,4541,425,0.15217279562167824,1e-12],[95,950,"FAILED","SOBOL",null,null,null,1449,789,3023,0.9360957218315452,0.01],[96,960,"FAILED","SOBOL",null,null,null,1506,2673,4521,0.7102789408173412,1e-11],[97,970,"FAILED","SOBOL",null,null,null,4965,1426,2041,0.4879747859220952,0.5],[98,980,"FAILED","SOBOL",null,null,null,3610,4482,2803,0.8710074637830257,0.4],[100,1000,"FAILED","SOBOL",null,null,null,736,3893,1252,0.222923430448398,1e-05],[101,1010,"FAILED","SOBOL",null,null,null,2941,145,4044,0.9442885058652609,0.6],[102,1020,"FAILED","SOBOL",null,null,null,4071,3339,782,0.3215014365762472,0.8],[103,1030,"FAILED","SOBOL",null,null,null,1940,2086,3263,0.6059332435950637,0.7],[104,1040,"FAILED","SOBOL",null,null,null,2419,4784,994,0.9129174319524318,0.3],[105,1050,"FAILED","SOBOL",null,null,null,3926,1031,3708,0.12942077837325633,1e-06],[106,1060,"FAILED","SOBOL",null,null,null,2776,2994,1775,0.5124305840842426,0.7],[107,1070,"FAILED","SOBOL",null,null,null,1197,1746,4178,0.2901303700990975,0.5],[108,1080,"FAILED","SOBOL",null,null,null,379,3661,2924,0.39459395258314905,1e-08],[109,1090,"FAILED","SOBOL",null,null,null,3131,2410,522,0.6790297005120665,1e-12],[110,1100,"FAILED","SOBOL",null,null,null,4505,4197,4955,0.056265503372997044,0.0001],[111,1110,"FAILED","SOBOL",null,null,null,1671,449,2240,0.777626637879759,1e-07],[112,1120,"FAILED","SOBOL",null,null,null,1738,4304,3565,0.34522087196819484,1e-09],[113,1130,"FAILED","SOBOL",null,null,null,4606,557,1123,0.5675860440488905,0.7],[114,1140,"FAILED","SOBOL",null,null,null,3383,3476,4346,0.19822838186472655,0.3],[115,1150,"FAILED","SOBOL",null,null,null,587,2224,1592,0.9816600773483515,1e-10],[116,1160,"FAILED","SOBOL",null,null,null,945,2887,333,0.8326079839747399,0.0001],[117,1170,"FAILED","SOBOL",null,null,null,2568,1639,3088,0.11130371754430235,1e-08],[118,1180,"FAILED","SOBOL",null,null,null,3859,4970,2365,0.7477048299387097,0.9],[119,1190,"FAILED","SOBOL",null,null,null,2319,1217,4806,0.46321221393346784,0.01],[120,1200,"FAILED","SOBOL",null,null,null,2152,3134,1951,0.01792312958277762,1e-05],[121,1210,"FAILED","SOBOL",null,null,null,4317,1881,4627,0.8013584982920438,0.8],[122,1220,"FAILED","SOBOL",null,null,null,3045,4020,232,0.4319627356864512,1e-07],[123,1230,"FAILED","SOBOL",null,null,null,797,272,2595,0.6543242345415056,0.5],[124,1240,"FAILED","SOBOL",null,null,null,129,4687,3842,0.5362147396299988,0.6],[125,1250,"FAILED","SOBOL",null,null,null,3550,935,1478,0.25171845039911567,0.2],[126,1260,"FAILED","SOBOL",null,null,null,4754,2546,3373,0.8881576632149517,0.001],[127,1270,"FAILED","SOBOL",null,null,null,1260,1299,697,0.16685707001015543,1e-10],[128,1280,"FAILED","SOBOL",null,null,null,1284,4107,3777,0.9738835751805455,1e-06],[129,1290,"FAILED","SOBOL",null,null,null,4739,360,1531,0.1903869290370494,0.6],[130,1300,"FAILED","SOBOL",null,null,null,3526,3748,3308,0.5753768933601677,0.9],[131,1310,"FAILED","SOBOL",null,null,null,144,2497,749,0.35307665706798436,0.01],[132,1320,"FAILED","SOBOL",null,null,null,801,3084,1996,0.4554687410537154,0.4],[133,1330,"FAILED","SOBOL",null,null,null,3011,1836,4554,0.7399044666755944,0.001],[134,1340,"FAILED","SOBOL",null,null,null,4313,4697,277,0.11905951506271958,0.5],[135,1350,"FAILED","SOBOL",null,null,null,2186,944,2524,0.840420657005161,0.8],[136,1360,"FAILED","SOBOL",null,null,null,2334,3408,411,0.6465255405884236,0.3],[137,1370,"FAILED","SOBOL",null,null,null,3835,2156,3047,0.42422139312885704,1e-10],[138,1380,"FAILED","SOBOL",null,null,null,2553,3826,2441,0.8091733165159821,1e-06],[139,1390,"FAILED","SOBOL",null,null,null,969,77,4766,0.02568058153986931,0.001],[140,1400,"FAILED","SOBOL",null,null,null,622,4412,3507,0.15901776237599552,0.1],[141,1410,"FAILED","SOBOL",null,null,null,3378,660,1183,0.8803828154858202,0.6],[142,1420,"FAILED","SOBOL",null,null,null,4572,2740,4289,0.2595759048089385,1e-12],[143,1430,"FAILED","SOBOL",null,null,null,1742,1493,1652,0.5440077192634344,1e-11],[144,1440,"FAILED","SOBOL",null,null,null,1646,2633,2820,0.07974252446182072,0.1],[145,1450,"FAILED","SOBOL",null,null,null,4520,1386,613,0.8631779154781252,0.001],[146,1460,"FAILED","SOBOL",null,null,null,3155,4598,4851,0.49576134484633805,0.3],[147,1470,"FAILED","SOBOL",null,null,null,365,846,2332,0.7181228362657129,0.9],[148,1480,"FAILED","SOBOL",null,null,null,1191,3933,1078,0.5981864320952446,0.2],[149,1490,"FAILED","SOBOL",null,null,null,2810,185,3598,0.31369013542868196,0.3],[150,1500,"FAILED","SOBOL",null,null,null,3931,3223,1860,0.952047627132386,0.4],[151,1510,"FAILED","SOBOL",null,null,null,2386,1970,4066,0.23074705623462796,1e-09],[152,1520,"FAILED","SOBOL",null,null,null,1926,4902,1367,0.2823207233902067,0.8],[153,1530,"FAILED","SOBOL",null,null,null,4096,1149,3965,0.5046859177779406,1e-11],[154,1540,"FAILED","SOBOL",null,null,null,2955,2957,899,0.13724653448164464,0.0001],[155,1550,"FAILED","SOBOL",null,null,null,712,1709,3183,0.9206782225295901,1e-09],[156,1560,"FAILED","SOBOL",null,null,null,200,3544,4425,0.7697992198970168,1e-05],[157,1570,"FAILED","SOBOL",null,null,null,3615,2292,2140,0.048494946030899884,1e-12],[158,1580,"FAILED","SOBOL",null,null,null,4999,4234,2706,0.6868752503991127,0.2],[159,1590,"FAILED","SOBOL",null,null,null,1501,487,109,0.4023826567009091,0.7],[160,1600,"FAILED","SOBOL",null,null,null,1483,3602,2350,0.23820994839817286,0.1],[161,1610,"FAILED","SOBOL",null,null,null,4860,2350,4831,0.9590840087234974,0.4],[162,1620,"FAILED","SOBOL",null,null,null,3715,4176,319,0.3363202670197934,1e-09],[163,1630,"FAILED","SOBOL",null,null,null,255,428,3112,0.6212430742587894,0.8],[164,1640,"FAILED","SOBOL",null,null,null,691,4844,4361,0.6940325714573264,0.0001],[165,1650,"FAILED","SOBOL",null,null,null,2822,1091,1567,0.4722194167822599,1e-06],[166,1660,"FAILED","SOBOL",null,null,null,4192,3015,3579,0.8552297374140472,0.01],[167,1670,"FAILED","SOBOL",null,null,null,1987,1767,1099,0.07124600965343415,0.5],[168,1680,"FAILED","SOBOL",null,null,null,2445,3836,3397,0.3782296979613602,0.3],[169,1690,"FAILED","SOBOL",null,null,null,4024,87,682,0.6631485642902553,1e-11],[170,1700,"FAILED","SOBOL",null,null,null,2674,3321,3866,0.04036200992204249,1e-10],[171,1710,"FAILED","SOBOL",null,null,null,1168,2068,1464,0.761240011157468,1e-08],[172,1720,"FAILED","SOBOL",null,null,null,423,2730,208,0.9283218351639807,0.1],[173,1730,"FAILED","SOBOL",null,null,null,3257,1484,2610,0.1443420483134687,0.001],[174,1740,"FAILED","SOBOL",null,null,null,4382,4500,1927,0.5273751816097647,1e-09],[175,1750,"FAILED","SOBOL",null,null,null,1631,748,4641,0.3055580860245973,0.6],[176,1760,"FAILED","SOBOL",null,null,null,1838,4627,807,0.817305180028081,1e-09],[177,1770,"FAILED","SOBOL",null,null,null,4633,875,3248,0.096492136888206,1e-05],[178,1780,"FAILED","SOBOL",null,null,null,3357,2525,1276,0.7329308385010809,1e-08],[179,1790,"FAILED","SOBOL",null,null,null,488,1278,4030,0.44794701407663523,0.0001],[180,1800,"FAILED","SOBOL",null,null,null,1068,3194,2778,0.3615139801502228,1e-11],[181,1810,"FAILED","SOBOL",null,null,null,2609,1941,25,0.5833879438117147,0.01],[182,1820,"FAILED","SOBOL",null,null,null,3817,4040,4497,0.21399172948859632,0.6],[183,1830,"FAILED","SOBOL",null,null,null,2194,292,2056,0.9979146482627839,0.7],[184,1840,"FAILED","SOBOL",null,null,null,2049,2830,4940,0.5526260007582605,1e-07],[185,1850,"FAILED","SOBOL",null,null,null,4297,1582,2265,0.2676458495594561,0.001],[186,1860,"FAILED","SOBOL",null,null,null,3069,4951,2909,0.9040465102363378,1e-12],[187,1870,"FAILED","SOBOL",null,null,null,903,1198,546,0.18322979387082158,1e-10],[188,1880,"FAILED","SOBOL",null,null,null,8,4361,1790,0.0025021726898849014,0.9],[189,1890,"FAILED","SOBOL",null,null,null,3502,614,4153,0.7864214182384313,0.5],[190,1900,"FAILED","SOBOL",null,null,null,4798,3495,1008,0.4170632448513061,1e-08],[191,1910,"FAILED","SOBOL",null,null,null,1378,2243,3684,0.6389408817384392,1e-11],[192,1920,"FAILED","SOBOL",null,null,null,1336,2984,1220,0.2780011429488659,0.9],[193,1930,"FAILED","SOBOL",null,null,null,4830,1731,3467,0.5549406552687287,0.3],[194,1940,"FAILED","SOBOL",null,null,null,3470,4788,1689,0.17969675495289267,0.7],[195,1950,"FAILED","SOBOL",null,null,null,50,1039,4247,0.8929603750687093,1e-11],[196,1960,"FAILED","SOBOL",null,null,null,877,4202,2989,0.7887360355705023,0.6],[197,1970,"FAILED","SOBOL",null,null,null,3125,450,430,0.012857443772256373,0.5],[198,1980,"FAILED","SOBOL",null,null,null,4241,3643,4708,0.627854768877849,1e-07],[199,1990,"FAILED","SOBOL",null,null,null,2076,2397,2462,0.41353024311177433,1e-05],[200,2000,"FAILED","SOBOL",null,null,null,2240,4464,4607,0.10660375190898776,1e-12],[201,2010,"FAILED","SOBOL",null,null,null,3781,717,1970,0.8198634608574211,0.0001],[202,2020,"FAILED","SOBOL",null,null,null,2645,2679,2575,0.4446576609630138,0.3],[203,2030,"FAILED","SOBOL",null,null,null,1022,1427,251,0.7216010844502598,0.4],[204,2040,"FAILED","SOBOL",null,null,null,510,3342,1497,0.5859462469480932,0.9],[205,2050,"FAILED","SOBOL",null,null,null,3305,2094,3822,0.3716256323494017,0.1],[206,2060,"FAILED","SOBOL",null,null,null,4685,3882,716,0.9865848570335657,1e-10],[207,2070,"FAILED","SOBOL",null,null,null,1816,129,3353,0.21070235406793655,0.7],[208,2080,"FAILED","SOBOL",null,null,null,1594,3989,2178,0.6664379471465945,0.001],[209,2090,"FAILED","SOBOL",null,null,null,4429,236,4384,0.389559481754899,0.1],[210,2100,"FAILED","SOBOL",null,null,null,3211,3157,146,0.7511283663939685,1e-12],[211,2110,"FAILED","SOBOL",null,null,null,459,1909,2666,0.03780369934998453,1e-07],[212,2120,"FAILED","SOBOL",null,null,null,1116,2572,3907,0.1556718097999692,0.7],[213,2130,"FAILED","SOBOL",null,null,null,2696,1320,1388,0.9316111808419227,1e-11],[214,2140,"FAILED","SOBOL",null,null,null,4002,4649,3126,0.3029998126309365,0.8],[215,2150,"FAILED","SOBOL",null,null,null,2496,902,919,0.5172635591533035,1e-09],[216,2160,"FAILED","SOBOL",null,null,null,2019,3439,3649,0.9626170178987086,0.01],[217,2170,"FAILED","SOBOL",null,null,null,4150,2191,1052,0.24929605382308365,0.4],[218,2180,"FAILED","SOBOL",null,null,null,2863,4329,4118,0.6108878106120974,1e-11],[219,2190,"FAILED","SOBOL",null,null,null,659,577,1833,0.3340056422520429,1e-12],[220,2200,"FAILED","SOBOL",null,null,null,312,4993,580,0.4833055593855679,0.3],[221,2210,"FAILED","SOBOL",null,null,null,3688,1245,2864,0.6975656029395759,1e-09],[222,2220,"FAILED","SOBOL",null,null,null,4886,2857,2298,0.06893136257864535,0.0001],[223,2230,"FAILED","SOBOL",null,null,null,1427,1604,4896,0.8448744365889579,1e-10],[224,2240,"FAILED","SOBOL",null,null,null,1528,4739,2645,0.5091935586351901,0.0001],[225,2250,"FAILED","SOBOL",null,null,null,4943,991,164,0.29438147536851467,0.3],[226,2260,"FAILED","SOBOL",null,null,null,3672,3111,4676,0.9073990935795009,1e-05],[227,2270,"FAILED","SOBOL",null,null,null,173,1858,1883,0.13200805928185583,0.8],[228,2280,"FAILED","SOBOL",null,null,null,753,3692,627,0.06055566083081067,0.2],[229,2290,"FAILED","SOBOL",null,null,null,2924,2445,3420,0.774306838447228,1e-11],[230,2300,"FAILED","SOBOL",null,null,null,4128,4076,1408,0.3971442038081586,1e-07],[231,2310,"FAILED","SOBOL",null,null,null,1884,324,3889,0.6735961586274206,0.7],[232,2320,"FAILED","SOBOL",null,null,null,2364,2787,1617,0.8674418705310672,1e-09],[233,2330,"FAILED","SOBOL",null,null,null,3982,1535,4332,0.09204689532332122,0.01],[234,2340,"FAILED","SOBOL",null,null,null,2759,4434,1148,0.7050873856842518,0.6],[235,2350,"FAILED","SOBOL",null,null,null,1213,687,3551,0.49027924332767725,1e-10],[236,2360,"FAILED","SOBOL",null,null,null,318,3775,4799,0.3259945285972208,0.001],[237,2370,"FAILED","SOBOL",null,null,null,3192,21,2397,0.6024504243265837,1e-10],[238,2380,"FAILED","SOBOL",null,null,null,4483,3372,3081,0.22526491753757,0.01],[239,2390,"FAILED","SOBOL",null,null,null,1693,2124,366,0.9390121542438865,0.9],[240,2400,"FAILED","SOBOL",null,null,null,1793,3245,4188,0.43725687345303593,0.4],[241,2410,"FAILED","SOBOL",null,null,null,4550,1997,1746,0.6520076718498021,1e-06],[242,2420,"FAILED","SOBOL",null,null,null,3400,3979,3719,0.02141659674420953,0.9],[243,2430,"FAILED","SOBOL",null,null,null,571,226,965,0.7968689159117639,1e-07],[244,2440,"FAILED","SOBOL",null,null,null,1005,4561,2209,0.8858649244401604,0.5],[245,2450,"FAILED","SOBOL",null,null,null,2507,814,4963,0.17205320552177727,1e-12],[246,2460,"FAILED","SOBOL",null,null,null,3881,2582,490,0.5317033558376133,0.2],[247,2470,"FAILED","SOBOL",null,null,null,2297,1330,2931,0.255311942320317,0.01],[248,2480,"FAILED","SOBOL",null,null,null,2130,4261,74,0.2036660282444209,1e-11],[249,2490,"FAILED","SOBOL",null,null,null,4339,509,2750,0.9791220206376166,1e-08],[250,2500,"FAILED","SOBOL",null,null,null,2984,3585,2106,0.34856904595345256,0.5],[251,2510,"FAILED","SOBOL",null,null,null,858,2338,4468,0.5633161711245775,0.3],[252,2520,"FAILED","SOBOL",null,null,null,113,2925,3218,0.7451429493110627,1e-12],[253,2530,"FAILED","SOBOL",null,null,null,3567,1672,854,0.4687478625681251,0.1],[254,2540,"FAILED","SOBOL",null,null,null,4697,4846,3998,0.8283599124625325,1e-05],[255,2550,"FAILED","SOBOL",null,null,null,1316,1098,1323,0.11455186676979065,0.6],[256,2560,"FAILED","SOBOL",null,null,null,1323,4855,171,0.6726694898661226,1e-08],[257,2570,"FAILED","SOBOL",null,null,null,4700,1107,2651,0.395969845129177,1e-11],[258,2580,"FAILED","SOBOL",null,null,null,3565,2914,1889,0.775111669883132,0.01],[259,2590,"FAILED","SOBOL",null,null,null,105,1661,4682,0.06160819705575705,1e-05],[260,2600,"FAILED","SOBOL",null,null,null,841,3576,3433,0.13098597588203847,0.8],[261,2610,"FAILED","SOBOL",null,null,null,2972,2329,641,0.906624714968726,0.6],[262,2620,"FAILED","SOBOL",null,null,null,4352,4272,3902,0.29552537378668786,0.3],[263,2630,"FAILED","SOBOL",null,null,null,2147,520,1421,0.5100897671356798,0.4],[264,2640,"FAILED","SOBOL",null,null,null,2295,2593,4318,0.937872055457905,1e-10],[265,2650,"FAILED","SOBOL",null,null,null,3874,1341,1604,0.22436490940488876,0.6],[266,2660,"FAILED","SOBOL",null,null,null,2514,4553,3537,0.6034686932228506,1e-11],[267,2670,"FAILED","SOBOL",null,null,null,1008,806,1135,0.3267727217115462,1e-05],[268,2680,"FAILED","SOBOL",null,null,null,583,3968,2391,0.4894705973882228,1e-08],[269,2690,"FAILED","SOBOL",null,null,null,3417,216,4793,0.704038663962856,1e-06],[270,2700,"FAILED","SOBOL",null,null,null,4533,3254,359,0.09297736371681094,0.9],[271,2710,"FAILED","SOBOL",null,null,null,1781,2005,3075,0.8686124295778572,0.001],[272,2720,"FAILED","SOBOL",null,null,null,1685,3361,1752,0.2581576093714684,0.6],[273,2730,"FAILED","SOBOL",null,null,null,4481,2113,4194,0.5347962369229644,0.5],[274,2740,"FAILED","SOBOL",null,null,null,3194,3783,972,0.1693293683603406,1e-09],[275,2750,"FAILED","SOBOL",null,null,null,326,30,3725,0.8828938583731651,0.9],[276,2760,"FAILED","SOBOL",null,null,null,1230,4445,4977,0.7998704348038882,0.1],[277,2770,"FAILED","SOBOL",null,null,null,2771,698,2222,0.024170886730775238,1e-08],[278,2780,"FAILED","SOBOL",null,null,null,3970,2778,2945,0.6488843305036426,0.01],[279,2790,"FAILED","SOBOL",null,null,null,2347,1526,504,0.4343807461410761,1e-07],[280,2800,"FAILED","SOBOL",null,null,null,1886,4067,2736,0.11767140848375857,0.1],[281,2810,"FAILED","SOBOL",null,null,null,4135,315,60,0.831239839406684,1e-10],[282,2820,"FAILED","SOBOL",null,null,null,2916,3703,4455,0.46575015817955134,1e-12],[283,2830,"FAILED","SOBOL",null,null,null,751,2457,2092,0.7423848448209465,0.001],[284,2840,"FAILED","SOBOL",null,null,null,161,3119,848,0.5660438227895648,0.3],[285,2850,"FAILED","SOBOL",null,null,null,3654,1866,3212,0.3515362975168973,1e-06],[286,2860,"FAILED","SOBOL",null,null,null,4960,4728,1317,0.9762725539542735,1e-09],[287,2870,"FAILED","SOBOL",null,null,null,1540,980,3992,0.20057694679126142,1e-05],[288,2880,"FAILED","SOBOL",null,null,null,1444,2865,3470,0.4107759456895292,0.5],[289,2890,"FAILED","SOBOL",null,null,null,4899,1612,1224,0.6248532574214041,0.0001],[290,2900,"FAILED","SOBOL",null,null,null,3676,4982,4251,0.0157335636485368,1e-07],[291,2910,"FAILED","SOBOL",null,null,null,294,1234,1693,0.7918593843523413,0.6],[292,2920,"FAILED","SOBOL",null,null,null,651,4321,446,0.8898674865476787,1e-08],[293,2930,"FAILED","SOBOL",null,null,null,2861,569,3005,0.17685109533742072,0.2],[294,2940,"FAILED","SOBOL",null,null,null,4153,3449,2478,0.5579117139000446,0.3],[295,2950,"FAILED","SOBOL",null,null,null,2026,2202,4724,0.280724987545982,0.001],[296,2960,"FAILED","SOBOL",null,null,null,2484,4660,1954,0.20773509506881238,0.1],[297,2970,"FAILED","SOBOL",null,null,null,3985,913,4591,0.9838572128042579,0.7],[298,2980,"FAILED","SOBOL",null,null,null,2713,2563,235,0.37471470636688176,0.5],[299,2990,"FAILED","SOBOL",null,null,null,1129,1311,2559,0.5887957210671156,1e-09]];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+	// Get the selected plot type from dropdown
+	let selectedPlotType = document.getElementById("pareto_plot_selector").value;
+	
+	// Extract column indices
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let reqlabelsIndex = tab_results_headers_json.indexOf("REQLABELS");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (reqlabelsIndex === -1) {
+		console.warn("REQLABELS column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	let xIndex, yIndex, zIndex, xLabel, yLabel, zLabel, plotTitle, plotId, is3D = false;
+	
+	if (selectedPlotType === "reqlabels_vs_accuracy") {
+		if (accuracyIndex === -1) {
+			console.warn("ACCURACY column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "ACCURACY vs REQLABELS";
+		plotId = "pareto_front_graph_accuracy_reqlabels";
+	} else if (selectedPlotType === "reqlabels_vs_runtime") {
+		if (runtimeIndex === -1) {
+			console.warn("RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = runtimeIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "RUNTIME (min)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "RUNTIME vs REQLABELS";
+		plotId = "pareto_front_graph_runtime_reqlabels";
+	} else if (selectedPlotType === "3d_reqlabels_accuracy_runtime") {
+		if (accuracyIndex === -1 || runtimeIndex === -1) {
+			console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = runtimeIndex;
+		zIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "RUNTIME (min)";
+		zLabel = "REQLABELS (min)";
+		plotTitle = "REQLABELS vs ACCURACY vs RUNTIME";
+		plotId = "pareto_front_graph_3d_accuracy_runtime_reqlabels";
+		is3D = true;
+	}
+
+	// Extract data points, filtering out empty values
+	let xValues = [];
+	let yValues = [];
+	let zValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let xValue = row[xIndex];
+		let yValue = row[yIndex];
+		let zValue = is3D ? row[zIndex] : null;
+		
+		// For 2D plots, only check x and y values
+		if (!is3D) {
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+			}
+		} else {
+			// For 3D plots, check all three values
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined &&
+				zValue !== "" && zValue !== null && zValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+				zValues.push(parseFloat(zValue));
+			}
+		}
+	});
+
+	if (xValues.length === 0 || yValues.length === 0 || (is3D && zValues.length === 0)) {
+		console.warn("No valid data found for selected plot type");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Create the scatter plot container
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
+	graphContainer.innerHTML = "";
+
+	// Create a single scatter plot div
+	let div = document.createElement("div");
+	div.id = plotId;
+	div.style.marginBottom = "20px";
+	graphContainer.appendChild(div);
+
+	let layout, trace;
+
+	if (is3D) {
+		// 3D scatter plot configuration with reduced width
+		layout = {
+			title: plotTitle,
+			width: 700,  // Reduced width for more compact display
+			height: 500, // Controlled height for better layout
+			scene: {
+				xaxis: {
+					title: get_axis_title_data(xLabel)
+				},
+				yaxis: {
+					title: get_axis_title_data(yLabel)
+				},
+				zaxis: {
+					title: get_axis_title_data(zLabel)
+				}
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			z: zValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+				opacity: 0.8
+			},
+			type: "scatter3d",
+			name: plotTitle
+		};
+	} else {
+		// 2D scatter plot configuration
+		layout = {
+			title: plotTitle,
+			xaxis: {
+				title: get_axis_title_data(xLabel)
+			},
+			yaxis: {
+				title: get_axis_title_data(yLabel)
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+			},
+			type: "scatter",
+			name: plotTitle
+		};
+	}
+
+	// Create the plot
+	Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+
+	// Apply theme if available
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
+}
+
+function updateParetoPlot() {
+	// Reset the loaded flag to force regeneration
+	$("#tab_pareto_fronts").data("loaded", "false");
+	// Reload the plot with new selection
+	load_pareto_graph();
+}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				load_pareto_graph();;
+
+				createParallelPlot(tab_results_csv_json, tab_results_headers_json, ["ACCURACY", "RUNTIME"], special_col_names);;
+
+			});
+		</script>
+<div class="section-content">
+    <h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+    <div id="tab_results_csv_table"></div><script>// Create the main results table using tab_results_csv_json data
+        if (typeof tab_results_csv_json !== 'undefined' && tab_results_csv_json.length > 0) {
+            // Show only ACCURACY, RUNTIME, REQLABELS and experiment parameters
+            var correct_headers = ['ACCURACY', 'RUNTIME', 'REQLABELS', 'recent_samples_size', 'n_reference_samples', 'n_recent_samples', 'threshold', 'stability_offset'];
+            
+            // Find indices of these columns in the original headers
+            var column_indices = correct_headers.map(function(header) {
+                return tab_results_headers_json.indexOf(header);
+            }).filter(function(index) {
+                return index !== -1; // Only keep valid indices
+            });
+            
+            // Filter headers to only include the correct ones
+            var filtered_headers = column_indices.map(function(index) {
+                return tab_results_headers_json[index];
+            });
+            
+            // Filter data to only include the correct columns
+            var filtered_data = tab_results_csv_json.map(function(row) {
+                return column_indices.map(function(index) {
+                    return row[index];
+                });
+            });
+            
+            createTable(filtered_data, filtered_headers, 'tab_results_csv_table');
+            console.log('Loaded ' + filtered_data.length + ' completed runs with ' + filtered_headers.length + ' columns (ACCURACY, RUNTIME, REQLABELS + parameters)');
+        }
+
+				// Apply light green background to all rows in the table
+				setTimeout(function() {
+					var table = document.getElementById('tab_results_csv_table');
+					if (table) {
+						var rows = table.querySelectorAll('tr');
+						rows.forEach(function(row) {
+							row.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+						var cells = table.querySelectorAll('td, th');
+						cells.forEach(function(cell) {
+							cell.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+					}
+				}, 100);</script>
+    
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+    <div id="tab_failed_results_table"></div><script>
+				// Use the embedded failed runs data, but only show columns after REQLABELS
+				if (typeof tab_failed_results_csv_json !== 'undefined' && tab_failed_results_csv_json.length > 0) {
+					// Find the index of REQLABELS column
+					var reqlabels_index = tab_results_headers_json.indexOf('REQLABELS');
+					
+					// Create filtered headers (only columns after REQLABELS)
+					var parameter_headers = tab_results_headers_json.slice(reqlabels_index + 1);
+					
+					// Create filtered data (only columns after REQLABELS)
+					var parameter_data = tab_failed_results_csv_json.map(function(row) {
+						return row.slice(reqlabels_index + 1);
+					});
+					
+					createTable(parameter_data, parameter_headers, 'tab_failed_results_table');
+					console.log('Loaded ' + tab_failed_results_csv_json.length + ' failed runs with ' + parameter_headers.length + ' parameter columns');
+					
+					// Apply light red background to all rows and cells in the failed runs table
+					setTimeout(function() {
+						var failedTable = document.getElementById('tab_failed_results_table');
+						if (failedTable) {
+							// Apply to rows
+							var rows = failedTable.querySelectorAll('tr');
+							rows.forEach(function(row) {
+								row.style.setProperty('background-color', '#ffebee', 'important');
+							});
+							
+							// Also apply to individual cells to ensure coverage
+							var cells = failedTable.querySelectorAll('td, th');
+							cells.forEach(function(cell) {
+								cell.style.setProperty('background-color', '#ffebee', 'important');
+							});
+						}
+					}, 200);
+				} else {
+					document.getElementById('tab_failed_results_table').innerHTML = 
+						'<p style="color: #666; font-style: italic;">No failed runs data available.</p>';
+				}
+			</script></div>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'UCDD_RialtoBridgeTimelapse_reql.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+        <div style="margin-bottom: 15px;">
+	        <label for="pareto_plot_selector" style="font-weight: bold; margin-right: 10px;">Plot Type:</label>
+	        <select id="pareto_plot_selector" onchange="updateParetoPlot()" style="padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+		            <option value="reqlabels_vs_accuracy">REQLABELS vs ACCURACY</option>
+		            <option value="reqlabels_vs_runtime">REQLABELS vs RUNTIME</option>
+		            <option value="3d_reqlabels_accuracy_runtime">REQLABELS vs ACCURACY vs RUNTIME</option>
+	        </select>
+    </div>
+    <div id="pareto_front_graphs_container"></div>
+</div>
+
+
+<div class="section-header parallel">Parallel Plot</div>
+<div class="section-content">
+    <div class="invert_in_dark_mode" id="parallel-plot"></div>
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Model for non-random steps</td><td>SOBOL</td></tr><tr><td>Max. nr. evaluations (from arguments)</td><td>50000</td></tr><tr><td>Number random steps</td><td>50000</td></tr><tr><td>Number random steps (from arguments)</td><td>20</td></tr><tr><td>Nr. of workers (parameter)</td><td>50</td></tr><tr><td>Main process memory (GB)</td><td>8</td></tr><tr><td>Worker memory (GB)</td><td>64</td></tr></tbody></table><h2>Experiment parameters:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> n_reference_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> n_recent_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> threshold</td><td>float</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No</td></tr><tr><td> stability_offset</td><td>choice</td><td></td><td></td><td>0, 0, 0, 0, 0, 0, 0, 0, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</td><td></td><td></td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>299</td><td>4</td><td>303</td></tr></tbody></table>
+</body>
+</html>

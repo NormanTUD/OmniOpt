@@ -1,0 +1,2778 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/UDetect_Electricity_HoeffdingTreeClassifier_ACCURACY-RUNTIME/0« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">UDetect + Electricity + HoeffdingTreeClassifier + ACCURACY-RUNTIME-REQLABELS</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+    "trial_index",
+    "arm_name",
+    "trial_status",
+    "generation_node",
+    "ACCURACY",
+    "RUNTIME",
+    "REQLABELS",
+    "recent_samples_size",
+    "n_samples",
+    "n_windows",
+    "disjoint_training_windows"
+];
+			var tab_results_csv_json = [
+        [0, 0, "COMPLETED", 0, 0.71, 4, 0.0, 2165, 1, 583, "True"],
+        [1, 10, "COMPLETED", 0, 0.71, 2, 0.0, 2649, 2091, 4169, "True"],
+        [2, 20, "COMPLETED", 0, 0.71, 2, 0.0, 2230, 5000, 5000, "True"],
+        [3, 30, "COMPLETED", 0, 0.65, 5, 0.000184706316956, 1, 5000, 544, "False"],
+        [4, 40, "COMPLETED", 0, 0.71, 2, 0.0, 3113, 4414, 1065, "True"],
+        [5, 50, "COMPLETED", 0, 0.71, 2, 0.0, 1, 1775, 1615, "True"],
+        [6, 60, "COMPLETED", 0, 0.71, 2, 0.0, 4419, 1821, 2154, "True"],
+        [7, 70, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 499, 4739, "True"],
+        [8, 80, "COMPLETED", 0, 0.71, 2, 0.0, 3274, 838, 3908, "True"],
+        [9, 90, "COMPLETED", 0, 0.71, 2, 0.0, 1, 3285, 5000, "True"],
+        [10, 100, "COMPLETED", 0, 0.71, 2, 0.0, 2535, 1595, 4248, "True"],
+        [11, 110, "COMPLETED", 0, 0.71, 2, 0.0, 2165, 3803, 2836, "True"],
+        [12, 120, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2063, 1398, "True"],
+        [13, 130, "COMPLETED", 0, 0.71, 2, 0.0, 1, 1006, 1574, "True"],
+        [14, 140, "COMPLETED", 0, 0.71, 2, 0.0, 1, 3052, 2852, "True"],
+        [15, 150, "COMPLETED", 0, 0.71, 4, 0.0, 2398, 1, 3070, "False"],
+        [16, 160, "COMPLETED", 0, 0.71, 2, 0.0, 3786, 4462, 3717, "True"],
+        [17, 170, "COMPLETED", 0, 0.71, 2, 0.0, 1, 3883, 1703, "True"],
+        [18, 180, "COMPLETED", 0, 0.71, 2, 0.0, 2540, 3709, 1881, "True"],
+        [19, 190, "COMPLETED", 0, 0.71, 2, 0.0, 3827, 5000, 4227, "True"],
+        [20, 200, "COMPLETED", 0, 0.71, 2, 0.0, 3166, 2262, 1746, "True"],
+        [21, 210, "COMPLETED", 0, 0.71, 2, 0.0, 1, 909, 4175, "True"],
+        [22, 220, "COMPLETED", 0, 0.71, 4, 0.0, 2129, 1, 2301, "False"],
+        [23, 230, "COMPLETED", 0, 0.71, 2, 0.0002539711858145, 1, 3542, 1, "True"],
+        [24, 240, "COMPLETED", 0, 0.71, 2, 0.0, 2704, 3388, 3049, "True"],
+        [25, 250, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 941, 5000, "True"],
+        [26, 260, "COMPLETED", 0, 0.71, 2, 0.0, 118, 977, 2764, "True"],
+        [27, 270, "COMPLETED", 0, 0.71, 2, 0.0, 1, 4294, 2106, "True"],
+        [28, 280, "COMPLETED", 0, 0.71, 2, 0.0, 1132, 3123, 2507, "True"],
+        [29, 290, "COMPLETED", 0, 0.71, 2, 0.0, 1922, 3196, 4786, "True"],
+        [30, 300, "COMPLETED", 0, 0.71, 2, 0.0, 669, 1492, 2827, "True"],
+        [31, 310, "COMPLETED", 0, 0.71, 2, 0.0, 1, 3259, 321, "True"],
+        [32, 320, "COMPLETED", 0, 0.71, 2, 0.0, 1358, 3303, 712, "True"],
+        [33, 330, "COMPLETED", 0, 0.71, 2, 0.0, 1, 2745, 319, "True"],
+        [34, 340, "COMPLETED", 0, 0.71, 2, 0.0, 1532, 628, 3974, "True"],
+        [35, 350, "COMPLETED", 0, 0.71, 2, 0.0, 1975, 3442, 1573, "True"],
+        [36, 360, "COMPLETED", 0, 0.71, 4, 0.0, 5000, 1, 261, "False"],
+        [37, 370, "COMPLETED", 0, 0.71, 2, 0.0, 3032, 1190, 2173, "True"],
+        [38, 380, "COMPLETED", 0, 0.72, 4, 0.9581640192094568, 5000, 4610, 1, "False"],
+        [39, 390, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 3714, 5000, "True"],
+        [40, 400, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 4693, 564, "True"],
+        [41, 410, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 282, 5000, "True"],
+        [42, 420, "COMPLETED", 0, 0.71, 2, 0.0, 1, 406, 348, "True"],
+        [43, 430, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 4584, 3442, "True"],
+        [44, 440, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 406, 2185, "True"],
+        [45, 450, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 399, 3731, "True"],
+        [46, 460, "COMPLETED", 0, 0.71, 2, 0.0, 1, 1661, 529, "True"],
+        [47, 470, "COMPLETED", 0, 0.71, 1, 0.0023550055411895, 1, 420, 1, "False"],
+        [48, 480, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2321, 4060, "True"],
+        [49, 490, "COMPLETED", 0, 0.72, 3, 0.8488640561507204, 5000, 4537, 1, "True"],
+        [50, 500, "COMPLETED", 0, 0.71, 1, 0.002424270410048, 1, 407, 1, "True"],
+        [51, 510, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2621, 3655, "True"],
+        [52, 520, "COMPLETED", 0, 0.71, 2, 0.0, 3846, 2995, 1575, "True"],
+        [53, 530, "COMPLETED", 0, 0.71, 2, 0.0, 2123, 2585, 5000, "True"],
+        [54, 540, "COMPLETED", 0, 0.71, 2, 0.0, 1, 4544, 390, "True"],
+        [55, 550, "COMPLETED", 0, 0.69, 2, 0.0002077946065755, 1, 4290, 1, "True"],
+        [56, 560, "COMPLETED", 0, 0.71, 2, 0.0, 1, 431, 3029, "True"],
+        [57, 570, "COMPLETED", 0, 0.66, 3, 0.6692140746213521, 2635, 3717, 1, "False"],
+        [58, 580, "COMPLETED", 0, 0.71, 2, 0.0, 1, 497, 2087, "True"],
+        [59, 590, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2385, 3378, "True"],
+        [60, 600, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 4692, 2366, "True"],
+        [61, 610, "COMPLETED", 0, 0.71, 2, 0.0, 1766, 403, 288, "True"],
+        [62, 620, "COMPLETED", 0, 0.71, 2, 0.0, 1930, 1501, 3620, "True"],
+        [63, 630, "COMPLETED", 0, 0.71, 2, 0.0, 1, 4716, 1044, "True"],
+        [64, 640, "COMPLETED", 0, 0.71, 4, 0.9677918359807904, 3616, 3492, 1, "False"],
+        [65, 650, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 3412, 697, "True"],
+        [66, 660, "COMPLETED", 0, 0.73, 15, 0.9940663095677872, 779, 367, 1, "True"],
+        [67, 670, "COMPLETED", 0, 0.73, 35, 0.9965829331363132, 5000, 444, 1, "True"],
+        [68, 680, "COMPLETED", 0, 0.71, 4, 0.0, 5000, 1, 912, "True"],
+        [69, 690, "COMPLETED", 0, 0.71, 2, 0.0, 2274, 2160, 437, "True"],
+        [70, 700, "COMPLETED", 0, 0.71, 2, 0.0, 2979, 2438, 547, "True"],
+        [71, 710, "COMPLETED", 0, 0.71, 2, 0.0, 4503, 3313, 4773, "True"],
+        [72, 720, "COMPLETED", 0, 0.71, 2, 0.0, 1042, 1831, 160, "True"],
+        [73, 730, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2282, 2486, "True"],
+        [74, 740, "COMPLETED", 0, 0.71, 2, 0.0, 1, 1604, 360, "True"],
+        [75, 750, "COMPLETED", 0, 0.71, 4, 0.0, 3025, 1, 4618, "False"],
+        [76, 760, "COMPLETED", 0, 0.65, 7, 0.9235315847801996, 5000, 5000, 431, "False"],
+        [77, 770, "COMPLETED", 0, 0.71, 2, 0.0, 2319, 786, 4597, "True"],
+        [78, 780, "COMPLETED", 0, 0.71, 2, 0.0, 3576, 5000, 630, "True"],
+        [79, 790, "COMPLETED", 0, 0.71, 2, 0.0, 1824, 237, 4457, "True"],
+        [80, 800, "COMPLETED", 0, 0.7, 2, 0.4541466568156631, 2810, 5000, 1, "True"],
+        [81, 810, "COMPLETED", 0, 0.71, 2, 0.0, 2511, 1425, 1109, "True"],
+        [82, 820, "COMPLETED", 0, 0.71, 2, 0.0, 2734, 5000, 1516, "True"],
+        [83, 830, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2283, 711, "True"],
+        [84, 840, "COMPLETED", 0, 0.71, 2, 0.0, 513, 4549, 1533, "True"],
+        [85, 850, "COMPLETED", 0, 0.71, 2, 0.0, 3308, 4532, 1381, "True"],
+        [86, 860, "COMPLETED", 0, 0.71, 5, 0.0, 3486, 1, 701, "False"],
+        [87, 870, "COMPLETED", 0, 0.69, 5, 0.5132988548208349, 2779, 5000, 434, "False"],
+        [88, 880, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 5000, 1029, "True"],
+        [89, 890, "COMPLETED", 0, 0.68, 3, 0.6235685260435907, 3376, 5000, 1, "False"],
+        [90, 900, "COMPLETED", 0, 0.71, 2, 0.0, 1, 2059, 309, "True"],
+        [91, 910, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2636, 5000, "True"],
+        [92, 920, "COMPLETED", 0, 0.71, 2, 0.0, 1841, 422, 5000, "True"],
+        [93, 930, "COMPLETED", 0, 0.71, 5, 0.9593876985592908, 5000, 2967, 1, "False"],
+        [94, 940, "COMPLETED", 0, 0.71, 2, 0.0, 1, 1942, 3710, "True"],
+        [95, 950, "COMPLETED", 0, 0.71, 2, 0.0, 2449, 4639, 2315, "True"],
+        [96, 960, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 1194, 2810, "True"],
+        [97, 970, "COMPLETED", 0, 0.71, 2, 0.0, 1, 173, 3262, "True"],
+        [98, 980, "COMPLETED", 0, 0.71, 4, 0.0, 2013, 1, 5000, "False"],
+        [99, 990, "COMPLETED", 0, 0.71, 2, 0.0, 2749, 2868, 3795, "True"],
+        [100, 1000, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 1269, 4501, "True"],
+        [101, 1010, "COMPLETED", 0, 0.71, 4, 0.0, 2052, 1, 3880, "True"],
+        [102, 1020, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 3436, 2731, "True"],
+        [103, 1030, "COMPLETED", 0, 0.71, 2, 0.0, 3568, 3998, 545, "True"],
+        [104, 1040, "COMPLETED", 0, 0.71, 2, 0.0, 2718, 3170, 1154, "True"],
+        [105, 1050, "COMPLETED", 0, 0.71, 2, 0.0, 2585, 2863, 170, "True"],
+        [106, 1060, "COMPLETED", 0, 0.71, 2, 0.0, 4658, 3502, 1911, "True"],
+        [107, 1070, "COMPLETED", 0, 0.7, 3, 0.2888806797192464, 1564, 4710, 1, "True"],
+        [108, 1080, "COMPLETED", 0, 0.71, 2, 0.0, 5000, 2607, 153, "True"],
+        [109, 1090, "COMPLETED", 0, 0.71, 2, 0.0, 1714, 4533, 3795, "True"],
+        [110, 1100, "COMPLETED", 0, 0.71, 2, 0.0, 1855, 888, 1396, "True"],
+        [111, 1110, "COMPLETED", 0, 0.71, 2, 0.0, 4180, 2058, 869, "True"],
+        [112, 1120, "COMPLETED", 0, 0.71, 4, 0.0, 5000, 1, 4789, "False"],
+        [113, 1130, "COMPLETED", 0, 0.71, 2, 0.0, 2927, 2456, 971, "True"],
+        [114, 1140, "COMPLETED", 0, 0.71, 2, 0.0, 1, 5000, 264, "True"],
+        [115, 1150, "COMPLETED", 0, 0.71, 2, 0.0, 4985, 2617, 2688, "True"],
+        [116, 1160, "COMPLETED", 0, 0.71, 4, 0.0, 1767, 1, 4530, "True"],
+        [117, 1170, "COMPLETED", 0, 0.71, 2, 0.0, 2083, 3017, 4552, "True"],
+        [0, 0, "COMPLETED", "SOBOL", 0.71, 41.0, 0.58, 4473, 3326, 1325, "False"],
+        [1, 10, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1565, 1884, 4917, "True"],
+        [2, 20, "COMPLETED", "SOBOL", 0.72, 3.0, 0.01, 50, 4188, 229, "False"],
+        [3, 30, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3586, 553, 3512, "True"],
+        [4, 40, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2511, 4938, 4191, "True"],
+        [5, 50, "COMPLETED", "SOBOL", 0.71, 32.0, 0.0, 1047, 1075, 2167, "False"],
+        [6, 60, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2013, 2519, 3105, "True"],
+        [7, 70, "COMPLETED", "SOBOL", 0.73, 13.0, 0.99, 4103, 1463, 754, "False"],
+        [8, 80, "COMPLETED", "SOBOL", 0.71, 81.0, 0.18, 3936, 3769, 2640, "False"],
+        [9, 90, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2434, 211, 1236, "True"],
+        [10, 100, "COMPLETED", "SOBOL", 0.62, 70.0, 0.1, 900, 3688, 4051, "False"],
+        [11, 110, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3029, 2322, 2329, "True"],
+        [12, 120, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3360, 2940, 361, "True"],
+        [13, 130, "COMPLETED", "SOBOL", 0.71, 63.0, 0.0, 491, 1804, 3323, "False"],
+        [14, 140, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1475, 4578, 1759, "True"],
+        [15, 150, "COMPLETED", "SOBOL", 0.71, 26.0, 0.0, 4973, 634, 4422, "False"],
+        [16, 160, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4772, 4530, 1056, "True"],
+        [17, 170, "COMPLETED", "SOBOL", 0.71, 27.0, 0.0, 1277, 895, 2782, "False"],
+        [18, 180, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 387, 3043, 2470, "True"],
+        [19, 190, "COMPLETED", "SOBOL", 0.71, 44.0, 0.0, 3259, 1600, 3869, "False"],
+        [20, 200, "COMPLETED", "SOBOL", 0.71, 77.0, 0.07, 2848, 3466, 3190, "False"],
+        [21, 210, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 721, 2410, 532, "True"],
+        [22, 220, "COMPLETED", "SOBOL", 0.65, 90.0, 0.05, 2311, 4011, 4594, "False"],
+        [23, 230, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3816, 147, 1627, "True"],
+        [24, 240, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4235, 2760, 4746, "True"],
+        [25, 250, "COMPLETED", "SOBOL", 0.67, 25.0, 0.47, 2146, 1395, 1458, "False"],
+        [26, 260, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1237, 4716, 3644, "True"],
+        [27, 270, "COMPLETED", "SOBOL", 0.69, 5.0, 0.98, 2703, 1158, 57, "False"],
+        [28, 280, "COMPLETED", "SOBOL", 0.69, 69.0, 0.26, 3698, 4294, 2024, "False"],
+        [29, 290, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 164, 351, 4371, "True"],
+        [30, 300, "COMPLETED", "SOBOL", 0.71, 9.0, 0.49, 1774, 3281, 935, "False"],
+        [31, 310, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4685, 2146, 2964, "True"],
+        [32, 320, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4544, 4082, 3938, "True"],
+        [33, 330, "COMPLETED", "SOBOL", 0.71, 18.0, 0.0, 1831, 524, 2226, "False"],
+        [34, 340, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 296, 3377, 2538, "True"],
+        [35, 350, "COMPLETED", "SOBOL", 0.7, 29.0, 0.61, 3637, 2011, 1125, "False"],
+        [36, 360, "COMPLETED", "SOBOL", 0.66, 66.0, 0.06, 2757, 2626, 1813, "False"],
+        [37, 370, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1098, 1490, 4466, "True"],
+        [38, 380, "COMPLETED", "SOBOL", 0.72, 4.0, 0.38, 2083, 4889, 405, "False"],
+        [39, 390, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4370, 946, 3376, "True"],
+        [40, 400, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3832, 3640, 262, "True"],
+        [41, 410, "COMPLETED", "SOBOL", 0.71, 58.0, 0.0, 2211, 2197, 3536, "False"],
+        [42, 420, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 697, 3877, 1350, "True"],
+        [43, 430, "COMPLETED", "SOBOL", 0.71, 10.0, 0.0, 2944, 242, 4952, "False"],
+        [44, 440, "COMPLETED", "SOBOL", 0.65, 94.0, 0.07, 3158, 4625, 2974, "False"],
+        [45, 450, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 405, 761, 632, "True"],
+        [46, 460, "COMPLETED", "SOBOL", 0.71, 72.0, 0.0, 1370, 2831, 4068, "False"],
+        [47, 470, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4751, 1774, 2034, "True"],
+        [48, 480, "COMPLETED", "SOBOL", 0.7, 70.0, 0.11, 4882, 3074, 3678, "False"],
+        [49, 490, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1504, 1708, 82, "True"],
+        [50, 500, "COMPLETED", "SOBOL", 0.71, 97.0, 0.01, 595, 4405, 4770, "False"],
+        [51, 510, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3350, 847, 1492, "True"],
+        [52, 520, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3056, 3981, 803, "True"],
+        [53, 530, "COMPLETED", "SOBOL", 0.71, 6.0, 0.0, 811, 37, 2841, "False"],
+        [54, 540, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2421, 3593, 1903, "True"],
+        [55, 550, "COMPLETED", "SOBOL", 0.71, 62.0, 0.0, 4043, 2457, 4240, "False"],
+        [56, 560, "COMPLETED", "SOBOL", 0.72, 134.0, 0.1, 4169, 4843, 2359, "False"],
+        [57, 570, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1885, 1209, 3767, "True"],
+        [58, 580, "COMPLETED", "SOBOL", 0.7, 23.0, 0.25, 995, 2731, 953, "False"],
+        [59, 590, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2657, 1289, 2670, "True"],
+        [60, 600, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3456, 3153, 4647, "True"],
+        [61, 610, "COMPLETED", "SOBOL", 0.67, 46.0, 0.01, 117, 2096, 1671, "False"],
+        [62, 620, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1708, 4322, 3235, "True"],
+        [63, 630, "COMPLETED", "SOBOL", 0.73, 23.0, 0.99, 4424, 458, 586, "False"],
+        [64, 640, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4397, 4879, 3286, "True"],
+        [65, 650, "COMPLETED", "SOBOL", 0.71, 17.0, 0.7, 1641, 1015, 320, "False"],
+        [66, 660, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 129, 2615, 4382, "True"],
+        [67, 670, "COMPLETED", "SOBOL", 0.71, 44.0, 0.0, 3507, 1559, 1723, "False"],
+        [68, 680, "COMPLETED", "SOBOL", 0.66, 25.0, 0.54, 2590, 3425, 1200, "False"],
+        [69, 690, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 968, 1983, 2599, "True"],
+        [70, 700, "COMPLETED", "SOBOL", 0.7, 61.0, 0.18, 1935, 4130, 2287, "False"],
+        [71, 710, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4181, 496, 4013, "True"],
+        [72, 720, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4016, 2880, 2125, "True"],
+        [73, 730, "COMPLETED", "SOBOL", 0.71, 48.0, 0.0, 2354, 1744, 4154, "False"],
+        [74, 740, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 822, 4674, 718, "True"],
+        [75, 750, "COMPLETED", "SOBOL", 0.71, 24.0, 0.0, 3106, 731, 3064, "False"],
+        [76, 760, "COMPLETED", "SOBOL", 0.71, 94.0, 0.0, 3283, 3868, 4875, "False"],
+        [77, 770, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 567, 310, 1289, "True"],
+        [78, 780, "COMPLETED", "SOBOL", 0.71, 91.0, 0.0, 1555, 3631, 3475, "False"],
+        [79, 790, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4893, 2265, 186, "True"],
+        [80, 800, "COMPLETED", "SOBOL", 0.71, 126.0, 0.0, 4695, 3524, 4335, "False"],
+        [81, 810, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1354, 2467, 1984, "True"],
+        [82, 820, "COMPLETED", "SOBOL", 0.71, 98.0, 0.0, 466, 3912, 2922, "False"],
+        [83, 830, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3180, 48, 898, "True"],
+        [84, 840, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2928, 4433, 1420, "True"],
+        [85, 850, "COMPLETED", "SOBOL", 0.71, 24.0, 0.0, 641, 798, 4704, "False"],
+        [86, 860, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2234, 3103, 16, "True"],
+        [87, 870, "COMPLETED", "SOBOL", 0.71, 46.0, 0.0, 3893, 1660, 3607, "False"],
+        [88, 880, "COMPLETED", "SOBOL", 0.66, 15.0, 0.8, 4314, 4352, 491, "False"],
+        [89, 890, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2067, 409, 3155, "True"],
+        [90, 900, "COMPLETED", "SOBOL", 0.67, 64.0, 0.08, 1160, 3182, 1590, "False"],
+        [91, 910, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2780, 2047, 4552, "True"],
+        [92, 920, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3621, 2664, 2740, "True"],
+        [93, 930, "COMPLETED", "SOBOL", 0.7, 33.0, 0.02, 241, 1298, 1019, "False"],
+        [94, 940, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1853, 4776, 3833, "True"],
+        [95, 950, "COMPLETED", "SOBOL", 0.71, 35.0, 0.0, 4606, 1218, 2429, "False"],
+        [96, 960, "COMPLETED", "SOBOL", 0.71, 9.0, 0.94, 4624, 2568, 674, "False"],
+        [97, 970, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1751, 1433, 3010, "True"],
+        [98, 980, "COMPLETED", "SOBOL", 0.69, 55.0, 0.03, 220, 4988, 2072, "False"],
+        [99, 990, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3714, 1045, 4111, "True"],
+        [100, 1000, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2680, 4178, 3578, "True"],
+        [101, 1010, "COMPLETED", "SOBOL", 0.73, 12.0, 1.0, 1175, 621, 299, "False"],
+        [102, 1020, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2163, 3317, 4987, "True"],
+        [103, 1030, "COMPLETED", "SOBOL", 0.68, 51.0, 0.1, 4290, 1952, 1391, "False"],
+        [104, 1040, "COMPLETED", "SOBOL", 0.71, 116.0, 0.0, 3754, 4567, 4503, "False"],
+        [105, 1050, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2289, 703, 1854, "True"],
+        [106, 1060, "COMPLETED", "SOBOL", 0.71, 98.0, 0.0, 776, 2929, 3418, "False"],
+        [107, 1070, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2865, 1873, 442, "True"],
+        [108, 1080, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3237, 3736, 2263, "True"],
+        [109, 1090, "COMPLETED", "SOBOL", 0.71, 60.0, 0.0, 325, 2294, 3980, "False"],
+        [110, 1100, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1294, 3817, 1165, "True"],
+        [111, 1110, "COMPLETED", "SOBOL", 0.71, 9.0, 0.0, 4827, 182, 2574, "False"],
+        [112, 1120, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4961, 4041, 1713, "True"],
+        [113, 1130, "COMPLETED", "SOBOL", 0.71, 7.0, 0.0, 1425, 97, 4684, "False"],
+        [114, 1140, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 518, 3496, 622, "True"],
+        [115, 1150, "COMPLETED", "SOBOL", 0.71, 53.0, 0.24, 3427, 2360, 3276, "False"],
+        [116, 1160, "COMPLETED", "SOBOL", 0.71, 74.0, 0.0, 2979, 2975, 3808, "False"],
+        [117, 1170, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 888, 1610, 2394, "True"],
+        [118, 1180, "COMPLETED", "SOBOL", 0.72, 69.0, 0.17, 2500, 4462, 2706, "False"],
+        [119, 1190, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3964, 904, 995, "True"],
+        [120, 1200, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4092, 3212, 2879, "True"],
+        [121, 1210, "COMPLETED", "SOBOL", 0.71, 12.0, 0.82, 1962, 2156, 845, "False"],
+        [122, 1220, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1075, 4225, 4281, "True"],
+        [123, 1230, "COMPLETED", "SOBOL", 0.71, 13.0, 0.0, 2577, 362, 1939, "False"],
+        [124, 1240, "COMPLETED", "SOBOL", 0.69, 4.0, 0.73, 3535, 4744, 118, "False"],
+        [125, 1250, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 38, 1110, 3719, "True"],
+        [126, 1260, "COMPLETED", "SOBOL", 0.7, 27.0, 0.38, 1631, 2789, 1533, "False"],
+        [127, 1270, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4501, 1347, 4807, "True"],
+        [128, 1280, "COMPLETED", "SOBOL", 0.65, 5.0, 0.99, 4515, 3892, 25, "False"],
+        [129, 1290, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1606, 263, 3617, "True"],
+        [130, 1300, "COMPLETED", "SOBOL", 0.71, 36.0, 0.0, 13, 3660, 1431, "False"],
+        [131, 1310, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3549, 2214, 4715, "True"],
+        [132, 1320, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2552, 2848, 2893, "True"],
+        [133, 1330, "COMPLETED", "SOBOL", 0.69, 10.0, 0.53, 1088, 1797, 869, "False"],
+        [134, 1340, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1976, 4648, 4305, "True"],
+        [135, 1350, "COMPLETED", "SOBOL", 0.71, 25.0, 0.0, 4067, 779, 1954, "False"],
+        [136, 1360, "COMPLETED", "SOBOL", 0.71, 80.0, 0.09, 3978, 3398, 3862, "False"],
+        [137, 1370, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2475, 2027, 2458, "True"],
+        [138, 1380, "COMPLETED", "SOBOL", 0.68, 459.0, 0.06, 863, 4098, 2770, "False"],
+        [139, 1390, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2992, 545, 1049, "True"],
+        [140, 1400, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3401, 4912, 1581, "True"],
+        [141, 1410, "COMPLETED", "SOBOL", 0.71, 28.0, 0.0, 532, 964, 4542, "False"],
+        [142, 1420, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1439, 2644, 480, "True"],
+        [143, 1430, "COMPLETED", "SOBOL", 0.71, 43.0, 0.0, 4936, 1513, 3144, "False"],
+        [144, 1440, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4814, 2713, 2278, "True"],
+        [145, 1450, "COMPLETED", "SOBOL", 0.71, 36.0, 0.0, 1319, 1266, 4004, "False"],
+        [146, 1460, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 351, 4820, 1190, "True"],
+        [147, 1470, "COMPLETED", "SOBOL", 0.71, 33.0, 0.0, 3223, 1190, 2589, "False"],
+        [148, 1480, "COMPLETED", "SOBOL", 0.71, 93.0, 0.07, 2889, 4306, 4410, "False"],
+        [149, 1490, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 762, 437, 1751, "True"],
+        [150, 1500, "COMPLETED", "SOBOL", 0.71, 79.0, 0.0, 2274, 3132, 3315, "False"],
+        [151, 1510, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3780, 2080, 349, "True"],
+        [152, 1520, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4276, 4381, 3446, "True"],
+        [153, 1530, "COMPLETED", "SOBOL", 0.69, 3.0, 0.99, 2188, 829, 158, "False"],
+        [154, 1540, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1200, 3055, 4846, "True"],
+        [155, 1550, "COMPLETED", "SOBOL", 0.66, 26.0, 0.54, 2666, 1685, 1260, "False"],
+        [156, 1560, "COMPLETED", "SOBOL", 0.69, 10.0, 0.94, 3739, 3572, 727, "False"],
+        [157, 1570, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 205, 2441, 3073, "True"],
+        [158, 1580, "COMPLETED", "SOBOL", 0.7, 85.0, 0.04, 1737, 3965, 2135, "False"],
+        [159, 1590, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4648, 17, 4164, "True"],
+        [160, 1600, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4581, 3711, 2716, "True"],
+        [161, 1610, "COMPLETED", "SOBOL", 0.7, 37.0, 0.47, 1867, 2341, 1005, "False"],
+        [162, 1620, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 255, 3787, 3819, "True"],
+        [163, 1630, "COMPLETED", "SOBOL", 0.71, 10.0, 0.0, 3596, 234, 2405, "False"],
+        [164, 1640, "COMPLETED", "SOBOL", 0.7, 6.0, 0.58, 2794, 4598, 593, "False"],
+        [165, 1650, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1135, 651, 3247, "True"],
+        [166, 1660, "COMPLETED", "SOBOL", 0.71, 83.0, 0.05, 2042, 2955, 1683, "False"],
+        [167, 1670, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4328, 1825, 4654, "True"],
+        [168, 1680, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3868, 4206, 1562, "True"],
+        [169, 1690, "COMPLETED", "SOBOL", 0.71, 19.0, 0.0, 2248, 576, 4836, "False"],
+        [170, 1700, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 655, 3349, 148, "True"],
+        [171, 1710, "COMPLETED", "SOBOL", 0.71, 54.0, 0.0, 2902, 1902, 3749, "False"],
+        [172, 1720, "COMPLETED", "SOBOL", 0.71, 64.0, 0.0, 3194, 2535, 4271, "False"],
+        [173, 1730, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 442, 1483, 1930, "True"],
+        [174, 1740, "COMPLETED", "SOBOL", 0.72, 103.0, 0.03, 1329, 4959, 2868, "False"],
+        [175, 1750, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4709, 1090, 834, "True"],
+        [176, 1760, "COMPLETED", "SOBOL", 0.68, 45.0, 0.55, 4919, 4695, 4978, "False"],
+        [177, 1770, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1541, 1142, 1382, "True"],
+        [178, 1780, "COMPLETED", "SOBOL", 0.69, 72.0, 0.01, 553, 2745, 3568, "False"],
+        [179, 1790, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3308, 1374, 289, "True"],
+        [180, 1800, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3092, 3258, 2100, "True"],
+        [181, 1810, "COMPLETED", "SOBOL", 0.71, 56.0, 0.0, 847, 2127, 4139, "False"],
+        [182, 1820, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2379, 4276, 703, "True"],
+        [183, 1830, "COMPLETED", "SOBOL", 0.71, 12.0, 0.0, 4002, 328, 3039, "False"],
+        [184, 1840, "COMPLETED", "SOBOL", 0.69, 28.0, 0.75, 4205, 3027, 1137, "False"],
+        [185, 1850, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1922, 1580, 2546, "True"],
+        [186, 1860, "COMPLETED", "SOBOL", 0.67, 115.0, 0.02, 953, 4509, 2234, "False"],
+        [187, 1870, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2615, 879, 3950, "True"],
+        [188, 1880, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3493, 3992, 3427, "True"],
+        [189, 1890, "COMPLETED", "SOBOL", 0.7, 8.0, 0.45, 154, 124, 451, "False"],
+        [190, 1900, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1666, 3443, 4513, "True"],
+        [191, 1910, "COMPLETED", "SOBOL", 0.69, 36.0, 0.55, 4382, 2392, 1864, "False"],
+        [192, 1920, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4438, 2906, 4584, "True"],
+        [193, 1930, "COMPLETED", "SOBOL", 0.71, 50.0, 0.0, 1683, 1855, 1617, "False"],
+        [194, 1940, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 92, 4549, 3181, "True"],
+        [195, 1950, "COMPLETED", "SOBOL", 0.7, 18.0, 0.56, 3470, 680, 523, "False"],
+        [196, 1960, "COMPLETED", "SOBOL", 0.67, 70.0, 0.18, 2631, 3796, 2500, "False"],
+        [197, 1970, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1009, 166, 3899, "True"],
+        [198, 1980, "COMPLETED", "SOBOL", 0.72, 27.0, 0.35, 1899, 3720, 1085, "False"],
+        [199, 1990, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4144, 2273, 2811, "True"],
+        [200, 2000, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4057, 4970, 906, "True"],
+        [201, 2010, "COMPLETED", "SOBOL", 0.71, 33.0, 0.0, 2396, 1021, 2934, "False"],
+        [202, 2020, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 786, 2546, 1996, "True"],
+        [203, 2030, "COMPLETED", "SOBOL", 0.71, 45.0, 0.0, 3070, 1414, 4343, "False"],
+        [204, 2040, "COMPLETED", "SOBOL", 0.71, 104.0, 0.0, 3325, 3301, 3654, "False"],
+        [205, 2050, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 609, 1930, 67, "True"],
+        [206, 2060, "COMPLETED", "SOBOL", 0.71, 114.0, 0.0, 1518, 4158, 4755, "False"],
+        [207, 2070, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4857, 605, 1467, "True"],
+        [208, 2080, "COMPLETED", "SOBOL", 0.71, 104.0, 0.0, 4736, 4247, 3116, "False"],
+        [209, 2090, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1396, 377, 764, "True"],
+        [210, 2100, "COMPLETED", "SOBOL", 0.71, 82.0, 0.0, 430, 3228, 4200, "False"],
+        [211, 2110, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3144, 2176, 2176, "True"],
+        [212, 2120, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2969, 2812, 198, "True"],
+        [213, 2130, "COMPLETED", "SOBOL", 0.71, 39.0, 0.0, 682, 1365, 3482, "False"],
+        [214, 2140, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2197, 4763, 1296, "True"],
+        [215, 2150, "COMPLETED", "SOBOL", 0.71, 32.0, 0.0, 3856, 1133, 4888, "False"],
+        [216, 2160, "COMPLETED", "SOBOL", 0.71, 91.0, 0.3, 4356, 3512, 1789, "False"],
+        [217, 2170, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2108, 2381, 4452, "True"],
+        [218, 2180, "COMPLETED", "SOBOL", 0.69, 6.0, 0.26, 1123, 4061, 390, "False"],
+        [219, 2190, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2743, 113, 3352, "True"],
+        [220, 2200, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3662, 4480, 4040, "True"],
+        [221, 2210, "COMPLETED", "SOBOL", 0.71, 27.0, 0.0, 282, 927, 2319, "False"],
+        [222, 2220, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1816, 2998, 2631, "True"],
+        [223, 2230, "COMPLETED", "SOBOL", 0.68, 45.0, 0.11, 4570, 1628, 1227, "False"],
+        [224, 2240, "COMPLETED", "SOBOL", 0.67, 45.0, 0.65, 4660, 4658, 1893, "False"],
+        [225, 2250, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1788, 710, 4230, "True"],
+        [226, 2260, "COMPLETED", "SOBOL", 0.7, 8.0, 0.06, 178, 2859, 794, "False"],
+        [227, 2270, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3672, 1728, 2832, "True"],
+        [228, 2280, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2717, 3612, 4800, "True"],
+        [229, 2290, "COMPLETED", "SOBOL", 0.71, 61.0, 0.0, 1212, 2242, 1521, "False"],
+        [230, 2300, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2121, 3844, 3707, "True"],
+        [231, 2310, "COMPLETED", "SOBOL", 0.74, 44.0, 0.99, 4249, 291, 110, "False"],
+        [232, 2320, "COMPLETED", "SOBOL", 0.71, 66.0, 0.0, 3791, 2595, 3205, "False"],
+        [233, 2330, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2325, 1543, 556, "True"],
+        [234, 2340, "COMPLETED", "SOBOL", 0.71, 131.0, 0.0, 734, 4863, 4618, "False"],
+        [235, 2350, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2823, 994, 1642, "True"],
+        [236, 2360, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3274, 4108, 963, "True"],
+        [237, 2370, "COMPLETED", "SOBOL", 0.71, 16.0, 0.0, 362, 477, 2679, "False"],
+        [238, 2380, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1252, 3407, 2368, "True"],
+        [239, 2390, "COMPLETED", "SOBOL", 0.71, 53.0, 0.0, 4786, 1959, 3776, "False"],
+        [240, 2400, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4997, 3201, 415, "True"],
+        [241, 2410, "COMPLETED", "SOBOL", 0.71, 55.0, 0.0, 1462, 2070, 3387, "False"],
+        [242, 2420, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 476, 4375, 1822, "True"],
+        [243, 2430, "COMPLETED", "SOBOL", 0.71, 17.0, 0.0, 3385, 427, 4476, "False"],
+        [244, 2440, "COMPLETED", "SOBOL", 0.71, 56.0, 0.35, 3015, 4792, 2508, "False"],
+        [245, 2450, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 924, 1238, 1095, "True"],
+        [246, 2460, "COMPLETED", "SOBOL", 0.69, 43.0, 0.45, 2459, 2685, 3909, "False"],
+        [247, 2470, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3922, 1314, 2197, "True"],
+        [248, 2480, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4129, 3935, 4098, "True"],
+        [249, 2490, "COMPLETED", "SOBOL", 0.71, 7.0, 0.0, 1998, 66, 2065, "False"],
+        [250, 2500, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1033, 3542, 3003, "True"],
+        [251, 2510, "COMPLETED", "SOBOL", 0.68, 8.0, 0.93, 2535, 2491, 661, "False"],
+        [252, 2520, "COMPLETED", "SOBOL", 0.67, 29.0, 0.71, 3572, 3123, 1340, "False"],
+        [253, 2530, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 75, 1676, 4941, "True"],
+        [254, 2540, "COMPLETED", "SOBOL", 0.7, 6.0, 0.33, 1589, 4449, 253, "False"],
+        [255, 2550, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4460, 819, 3527, "True"],
+        [256, 2560, "COMPLETED", "SOBOL", 0.64, 107.0, 0.1, 4468, 4436, 4227, "False"],
+        [257, 2570, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1595, 806, 1876, "True"],
+        [258, 2580, "COMPLETED", "SOBOL", 0.71, 74.0, 0.0, 64, 3110, 2815, "False"],
+        [259, 2590, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3559, 1662, 791, "True"],
+        [260, 2600, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2525, 3546, 1509, "True"],
+        [261, 2610, "COMPLETED", "SOBOL", 0.71, 67.0, 0.0, 1020, 2494, 4793, "False"],
+        [262, 2620, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2007, 3939, 103, "True"],
+        [263, 2630, "COMPLETED", "SOBOL", 0.71, 6.0, 0.0, 4135, 69, 3695, "False"],
+        [264, 2640, "COMPLETED", "SOBOL", 0.7, 24.0, 0.74, 3911, 2690, 559, "False"],
+        [265, 2650, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2445, 1321, 3222, "True"],
+        [266, 2660, "COMPLETED", "SOBOL", 0.69, 30.0, 0.15, 933, 4797, 1659, "False"],
+        [267, 2670, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3022, 1245, 4620, "True"],
+        [268, 2680, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3394, 4359, 2692, "True"],
+        [269, 2690, "COMPLETED", "SOBOL", 0.7, 11.0, 0.69, 482, 411, 971, "False"],
+        [270, 2700, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1451, 3185, 3784, "True"],
+        [271, 2710, "COMPLETED", "SOBOL", 0.7, 55.0, 0.12, 4984, 2054, 2380, "False"],
+        [272, 2720, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4804, 3413, 3394, "True"],
+        [273, 2730, "COMPLETED", "SOBOL", 0.72, 7.0, 0.61, 1268, 1965, 427, "False"],
+        [274, 2740, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 361, 4114, 4488, "True"],
+        [275, 2750, "COMPLETED", "SOBOL", 0.71, 17.0, 0.0, 3270, 483, 1829, "False"],
+        [276, 2760, "COMPLETED", "SOBOL", 0.63, 28.0, 0.46, 2822, 4848, 1112, "False"],
+        [277, 2770, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 731, 977, 2511, "True"],
+        [278, 2780, "COMPLETED", "SOBOL", 0.71, 73.0, 0.0, 2343, 2580, 2200, "False"],
+        [279, 2790, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3807, 1527, 3926, "True"],
+        [280, 2800, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4248, 3830, 2057, "True"],
+        [281, 2810, "COMPLETED", "SOBOL", 0.71, 12.0, 0.0, 2117, 279, 4086, "False"],
+        [282, 2820, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1230, 3598, 649, "True"],
+        [283, 2830, "COMPLETED", "SOBOL", 0.71, 57.0, 0.0, 2733, 2229, 2995, "False"],
+        [284, 2840, "COMPLETED", "SOBOL", 0.71, 75.0, 0.0, 3691, 2862, 4924, "False"],
+        [285, 2850, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 194, 1732, 1338, "True"],
+        [286, 2860, "COMPLETED", "SOBOL", 0.66, 87.0, 0.08, 1786, 4661, 3524, "False"],
+        [287, 2870, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4657, 715, 236, "True"],
+        [288, 2880, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4553, 3001, 1605, "True"],
+        [289, 2890, "COMPLETED", "SOBOL", 0.71, 52.0, 0.0, 1798, 1632, 4576, "False"],
+        [290, 2900, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 286, 4483, 515, "True"],
+        [291, 2910, "COMPLETED", "SOBOL", 0.71, 28.0, 0.0, 3663, 932, 3169, "False"],
+        [292, 2920, "COMPLETED", "SOBOL", 0.69, 50.0, 0.32, 2747, 4047, 3897, "False"],
+        [293, 2930, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1125, 100, 2483, "True"],
+        [294, 2940, "COMPLETED", "SOBOL", 0.71, 92.0, 0.0, 2092, 3498, 2794, "False"],
+        [295, 2950, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4337, 2369, 1082, "True"],
+        [296, 2960, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3860, 4748, 2946, "True"],
+        [297, 2970, "COMPLETED", "SOBOL", 0.68, 9.0, 0.98, 2199, 1116, 913, "False"],
+        [298, 2980, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 667, 2797, 4349, "True"],
+        [299, 2990, "COMPLETED", "SOBOL", 0.63, 35.0, 0.17, 2951, 1348, 2008, "False"],
+        [300, 3000, "COMPLETED", "SOBOL", 0.69, 4.0, 0.94, 3128, 3235, 70, "False"],
+        [301, 3010, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 411, 2182, 3671, "True"],
+        [302, 3020, "COMPLETED", "SOBOL", 0.7, 48.0, 0.16, 1399, 4253, 1484, "False"],
+        [303, 3030, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4738, 383, 4758, "True"],
+        [304, 3040, "COMPLETED", "SOBOL", 0.66, 12.0, 0.9, 4850, 4142, 781, "False"],
+        [305, 3050, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1510, 590, 3118, "True"],
+        [306, 3060, "COMPLETED", "SOBOL", 0.7, 84.0, 0.01, 622, 3285, 2178, "False"],
+        [307, 3070, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3336, 1915, 4217, "True"],
+        [308, 3080, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3083, 2551, 3490, "True"],
+        [309, 3090, "COMPLETED", "SOBOL", 0.69, 7.0, 0.53, 797, 1421, 211, "False"],
+        [310, 3100, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2390, 4975, 4900, "True"],
+        [311, 3110, "COMPLETED", "SOBOL", 0.71, 33.0, 0.0, 4048, 1028, 1304, "False"],
+        [312, 3120, "COMPLETED", "SOBOL", 0.72, 83.0, 0.1, 4157, 3724, 4435, "False"],
+        [313, 3130, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1910, 2276, 1786, "True"],
+        [314, 3140, "COMPLETED", "SOBOL", 0.7, 90.0, 0.02, 1003, 3800, 3349, "False"],
+        [315, 3150, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2623, 169, 373, "True"],
+        [316, 3160, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3464, 4536, 2312, "True"],
+        [317, 3170, "COMPLETED", "SOBOL", 0.71, 21.0, 0.0, 84, 666, 4028, "False"],
+        [318, 3180, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1696, 2893, 1215, "True"],
+        [319, 3190, "COMPLETED", "SOBOL", 0.71, 49.0, 0.0, 4449, 1840, 2624, "False"],
+        [320, 3200, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4388, 3450, 1007, "True"],
+        [321, 3210, "COMPLETED", "SOBOL", 0.71, 62.0, 0.04, 1675, 2397, 2733, "False"],
+        [322, 3220, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 140, 3999, 2422, "True"],
+        [323, 3230, "COMPLETED", "SOBOL", 0.71, 8.0, 0.0, 3482, 129, 3821, "False"],
+        [324, 3240, "COMPLETED", "SOBOL", 0.71, 100.0, 0.06, 2602, 4493, 3260, "False"],
+        [325, 3250, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 942, 863, 601, "True"],
+        [326, 3260, "COMPLETED", "SOBOL", 0.71, 72.0, 0.04, 1928, 3011, 4662, "False"],
+        [327, 3270, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4214, 1563, 1695, "True"],
+        [328, 3280, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3988, 4263, 4834, "True"],
+        [329, 3290, "COMPLETED", "SOBOL", 0.71, 12.0, 0.0, 2368, 315, 1545, "False"],
+        [330, 3300, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 854, 3244, 3732, "True"],
+        [331, 3310, "COMPLETED", "SOBOL", 0.71, 5.0, 0.99, 3101, 2114, 145, "False"],
+        [332, 3320, "COMPLETED", "SOBOL", 0.71, 47.0, 0.43, 3314, 2748, 1918, "False"],
+        [333, 3330, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 562, 1378, 4264, "True"],
+        [334, 3340, "COMPLETED", "SOBOL", 0.67, 26.0, 0.25, 1527, 4698, 827, "False"],
+        [335, 3350, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4907, 1146, 2856, "True"],
+        [336, 3360, "COMPLETED", "SOBOL", 0.66, 48.0, 0.55, 4725, 4947, 1375, "False"],
+        [337, 3370, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1347, 1076, 4966, "True"],
+        [338, 3380, "COMPLETED", "SOBOL", 0.69, 4.0, 0.16, 438, 2522, 276, "False"],
+        [339, 3390, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3193, 1469, 3560, "True"],
+        [340, 3400, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2899, 3353, 4122, "True"],
+        [341, 3410, "COMPLETED", "SOBOL", 0.71, 51.0, 0.0, 654, 1905, 2098, "False"],
+        [342, 3420, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2264, 4211, 3037, "True"],
+        [343, 3430, "COMPLETED", "SOBOL", 0.73, 19.0, 0.99, 3886, 579, 686, "False"],
+        [344, 3440, "COMPLETED", "SOBOL", 0.71, 91.0, 0.0, 4324, 2961, 2553, "False"],
+        [345, 3450, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2041, 1831, 1149, "True"],
+        [346, 3460, "COMPLETED", "SOBOL", 0.71, 260.0, 0.0, 1151, 4604, 3962, "False"],
+        [347, 3470, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2812, 657, 2241, "True"],
+        [348, 3480, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3612, 3770, 468, "True"],
+        [349, 3490, "COMPLETED", "SOBOL", 0.71, 10.0, 0.0, 273, 219, 3430, "False"],
+        [350, 3500, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1864, 3695, 1867, "True"],
+        [351, 3510, "COMPLETED", "SOBOL", 0.71, 67.0, 0.0, 4579, 2326, 4530, "False"],
+        [352, 3520, "COMPLETED", "SOBOL", 0.71, 101.0, 0.0, 4630, 3948, 3628, "False"],
+        [353, 3530, "COMPLETED", "SOBOL", 0.71, 4.0, 0.0, 1721, 1, 32, "True"],
+        [354, 3540, "COMPLETED", "SOBOL", 0.71, 113.0, 0.0, 206, 3555, 4722, "False"],
+        [355, 3550, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3743, 2426, 1443, "True"],
+        [356, 3560, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2668, 3061, 872, "True"],
+        [357, 3570, "COMPLETED", "SOBOL", 0.71, 57.0, 0.0, 1204, 1692, 2911, "False"],
+        [358, 3580, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2170, 4387, 1971, "True"],
+        [359, 3590, "COMPLETED", "SOBOL", 0.71, 25.0, 0.0, 4260, 835, 4308, "False"],
+        [360, 3600, "COMPLETED", "SOBOL", 0.63, 87.0, 0.09, 3781, 3136, 2446, "False"],
+        [361, 3610, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2278, 2083, 3854, "True"],
+        [362, 3620, "COMPLETED", "SOBOL", 0.65, 26.0, 0.12, 744, 4311, 1041, "False"],
+        [363, 3630, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2874, 440, 2757, "True"],
+        [364, 3640, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3204, 4807, 4540, "True"],
+        [365, 3650, "COMPLETED", "SOBOL", 0.71, 36.0, 0.0, 335, 1176, 1564, "False"],
+        [366, 3660, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1320, 2701, 3127, "True"],
+        [367, 3670, "COMPLETED", "SOBOL", 0.71, 11.0, 0.97, 4817, 1252, 478, "False"],
+        [368, 3680, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4928, 2648, 3987, "True"],
+        [369, 3690, "COMPLETED", "SOBOL", 0.71, 44.0, 0.0, 1432, 1517, 2276, "False"],
+        [370, 3700, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 543, 4915, 2586, "True"],
+        [371, 3710, "COMPLETED", "SOBOL", 0.71, 29.0, 0.0, 3415, 968, 1172, "False"],
+        [372, 3720, "COMPLETED", "SOBOL", 0.65, 29.0, 0.55, 3004, 4084, 1744, "False"],
+        [373, 3730, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 876, 532, 4398, "True"],
+        [374, 3740, "COMPLETED", "SOBOL", 0.69, 5.0, 0.68, 2466, 3383, 337, "False"],
+        [375, 3750, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3972, 2014, 3308, "True"],
+        [376, 3760, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4078, 4633, 175, "True"],
+        [377, 3770, "COMPLETED", "SOBOL", 0.71, 23.0, 0.0, 1989, 763, 3449, "False"],
+        [378, 3780, "COMPLETED", "SOBOL", 0.71, 5.0, 0.0, 1080, 2833, 1262, "True"],
+        [379, 3790, "COMPLETED", "SOBOL", 0.71, 49.0, 0.0, 2546, 1781, 4863, "False"],
+        [380, 3800, "COMPLETED", "SOBOL", 0.63, 95.0, 0.08, 3541, 3667, 3081, "False"],
+        [381, 3810, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 7, 2219, 740, "True"],
+        [382, 3820, "COMPLETED", "SOBOL", 0.71, 126.0, 0.0, 1617, 3899, 4177, "False"],
+        [383, 3830, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4528, 268, 2143, "True"],
+        [384, 3840, "COMPLETED", "SOBOL", 0.71, 71.0, 0.0, 4505, 2776, 3027, "False"],
+        [385, 3850, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1632, 1333, 676, "True"],
+        [386, 3860, "COMPLETED", "SOBOL", 0.68, 76.0, 0.0, 22, 4732, 4113, "False"],
+        [387, 3870, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3517, 1096, 2089, "True"],
+        [388, 3880, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2561, 4230, 307, "True"],
+        [389, 3890, "COMPLETED", "SOBOL", 0.71, 14.0, 0.0, 1056, 365, 3591, "False"],
+        [390, 3900, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1965, 3217, 1404, "True"],
+        [391, 3910, "COMPLETED", "SOBOL", 0.71, 73.0, 0.0, 4093, 2159, 4995, "False"],
+        [392, 3920, "COMPLETED", "SOBOL", 0.67, 31.0, 0.64, 3948, 4467, 1837, "False"],
+        [393, 3930, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2482, 911, 4500, "True"],
+        [394, 3940, "COMPLETED", "SOBOL", 0.73, 6.0, 0.29, 891, 2981, 440, "False"],
+        [395, 3950, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2980, 1616, 3401, "True"],
+        [396, 3960, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3431, 3480, 3972, "True"],
+        [397, 3970, "COMPLETED", "SOBOL", 0.64, 48.0, 0.05, 519, 2345, 2251, "False"],
+        [398, 3980, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1409, 4024, 2562, "True"],
+        [399, 3990, "COMPLETED", "SOBOL", 0.71, 7.0, 0.0, 4943, 82, 1158, "False"],
+        [2550, 25500, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2429, 3340, 4166, "True"],
+        [2551, 25510, "COMPLETED", "SOBOL", 0.71, 52.0, 0.0, 3932, 1892, 2132, "False"],
+        [2552, 25520, "COMPLETED", "SOBOL", 0.71, 112.0, 0.0, 4118, 4588, 3997, "False"],
+        [2553, 25530, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2027, 641, 2286, "True"],
+        [2554, 25540, "COMPLETED", "SOBOL", 0.71, 77.0, 0.0, 1042, 2945, 2596, "False"],
+        [2555, 25550, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2506, 1815, 1183, "True"],
+        [2556, 25560, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3581, 3682, 1753, "True"],
+        [2557, 25570, "COMPLETED", "SOBOL", 0.71, 62.0, 0.0, 45, 2312, 4407, "False"],
+        [2558, 25580, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1579, 3757, 347, "True"],
+        [2559, 25590, "COMPLETED", "SOBOL", 0.71, 9.0, 0.0, 4488, 205, 3318, "False"],
+        [2560, 25600, "COMPLETED", "SOBOL", 0.65, 5.0, 0.94, 4484, 3689, 145, "False"],
+        [2561, 25610, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1573, 2325, 3736, "True"],
+        [2562, 25620, "COMPLETED", "SOBOL", 0.67, 27.0, 0.01, 41, 3769, 1546, "False"],
+        [2563, 25630, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3575, 213, 4830, "True"],
+        [2564, 25640, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2502, 4576, 2852, "True"],
+        [2565, 25650, "COMPLETED", "SOBOL", 0.71, 21.0, 0.0, 1036, 634, 828, "False"],
+        [2566, 25660, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2024, 2938, 4268, "True"],
+        [2567, 25670, "COMPLETED", "SOBOL", 0.71, 74.0, 0.0, 4112, 1803, 1917, "False"],
+        [2568, 25680, "COMPLETED", "SOBOL", 0.71, 104.0, 0.0, 3928, 4190, 3822, "False"],
+        [2569, 25690, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2423, 554, 2418, "True"],
+        [2570, 25700, "COMPLETED", "SOBOL", 0.63, 77.0, 0.02, 910, 3328, 2732, "False"],
+        [2571, 25710, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3038, 1884, 1011, "True"],
+        [2572, 25720, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3371, 2519, 1699, "True"],
+        [2573, 25730, "COMPLETED", "SOBOL", 0.71, 41.0, 0.0, 499, 1461, 4660, "False"],
+        [2574, 25740, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1467, 4938, 597, "True"],
+        [2575, 25750, "COMPLETED", "SOBOL", 0.71, 32.0, 0.0, 4962, 1072, 3261, "False"],
+        [2576, 25760, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4783, 4717, 2237, "True"],
+        [2577, 25770, "COMPLETED", "SOBOL", 0.71, 34.0, 0.0, 1285, 1160, 3963, "False"],
+        [2578, 25780, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 379, 2761, 1153, "True"],
+        [2579, 25790, "COMPLETED", "SOBOL", 0.71, 40.0, 0.0, 3248, 1397, 2552, "False"],
+        [2580, 25800, "COMPLETED", "SOBOL", 0.71, 101.0, 0.0, 2839, 3280, 4529, "False"],
+        [2581, 25810, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 709, 2145, 1870, "True"],
+        [2582, 25820, "COMPLETED", "SOBOL", 0.71, 91.0, 0.05, 2322, 4293, 3431, "False"],
+        [2583, 25830, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3825, 350, 465, "True"],
+        [2584, 25840, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4226, 3044, 3564, "True"],
+        [2585, 25850, "COMPLETED", "SOBOL", 0.67, 4.0, 0.98, 2135, 1601, 276, "False"],
+        [2586, 25860, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1248, 4531, 4962, "True"],
+        [2587, 25870, "COMPLETED", "SOBOL", 0.71, 26.0, 0.0, 2712, 896, 1376, "False"],
+        [2588, 25880, "COMPLETED", "SOBOL", 0.66, 27.0, 0.69, 3709, 4010, 687, "False"],
+        [2589, 25890, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 172, 145, 3033, "True"],
+        [2590, 25900, "COMPLETED", "SOBOL", 0.68, 63.0, 0.12, 1765, 3466, 2096, "False"],
+        [2591, 25910, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4674, 2408, 4125, "True"],
+        [2592, 25920, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4535, 3876, 2757, "True"],
+        [2593, 25930, "COMPLETED", "SOBOL", 0.71, 12.0, 0.0, 1820, 240, 1045, "False"],
+        [2594, 25940, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 307, 3639, 3856, "True"],
+        [2595, 25950, "COMPLETED", "SOBOL", 0.71, 55.0, 0.0, 3646, 2196, 2442, "False"],
+        [2596, 25960, "COMPLETED", "SOBOL", 0.7, 7.0, 0.89, 2768, 2832, 474, "False"],
+        [2597, 25970, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1107, 1775, 3128, "True"],
+        [2598, 25980, "COMPLETED", "SOBOL", 0.67, 54.0, 0.24, 2075, 4627, 1567, "False"],
+        [2599, 25990, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4358, 762, 4538, "True"],
+        [2600, 26000, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3842, 3375, 1444, "True"],
+        [2601, 26010, "COMPLETED", "SOBOL", 0.64, 50.0, 0.05, 2220, 2010, 4718, "False"],
+        [2602, 26020, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 688, 4081, 32, "True"],
+        [2603, 26030, "COMPLETED", "SOBOL", 0.71, 18.0, 0.0, 2933, 524, 3632, "False"],
+        [2604, 26040, "COMPLETED", "SOBOL", 0.71, 120.0, 0.0, 3149, 4890, 4311, "False"],
+        [2605, 26050, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 394, 947, 1970, "True"],
+        [2606, 26060, "COMPLETED", "SOBOL", 0.71, 66.0, 0.0, 1381, 2627, 2907, "False"],
+        [2607, 26070, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4759, 1492, 873, "True"],
+        [2608, 26080, "COMPLETED", "SOBOL", 0.71, 77.0, 0.0, 4873, 2731, 4859, "False"],
+        [2609, 26090, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1493, 1287, 1263, "True"],
+        [2610, 26100, "COMPLETED", "SOBOL", 0.7, 104.0, 0.01, 606, 4843, 3453, "False"],
+        [2611, 26110, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3358, 1207, 174, "True"],
+        [2612, 26120, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3066, 4324, 2141, "True"],
+        [2613, 26130, "COMPLETED", "SOBOL", 0.71, 16.0, 0.0, 819, 459, 4180, "False"],
+        [2614, 26140, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2412, 3155, 741, "True"],
+        [2615, 26150, "COMPLETED", "SOBOL", 0.71, 58.0, 0.0, 4032, 2097, 3077, "False"],
+        [2616, 26160, "COMPLETED", "SOBOL", 0.68, 26.0, 0.68, 4180, 4403, 1176, "False"],
+        [2617, 26170, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1894, 846, 2585, "True"],
+        [2618, 26180, "COMPLETED", "SOBOL", 0.71, 51.0, 0.11, 986, 3072, 2272, "False"],
+        [2619, 26190, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2646, 1708, 3988, "True"],
+        [2620, 26200, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3448, 3593, 3309, "True"],
+        [2621, 26210, "COMPLETED", "SOBOL", 0.66, 5.0, 0.04, 106, 2459, 333, "False"],
+        [2622, 26220, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1719, 3981, 4397, "True"],
+        [2623, 26230, "COMPLETED", "SOBOL", 0.71, 6.0, 0.0, 4432, 39, 1747, "False"],
+        [2624, 26240, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4405, 4675, 4624, "True"],
+        [2625, 26250, "COMPLETED", "SOBOL", 0.71, 23.0, 0.0, 1652, 733, 1658, "False"],
+        [2626, 26260, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 118, 2880, 3219, "True"],
+        [2627, 26270, "COMPLETED", "SOBOL", 0.7, 9.0, 0.99, 3498, 1746, 560, "False"],
+        [2628, 26280, "COMPLETED", "SOBOL", 0.7, 83.0, 0.06, 2579, 3629, 2381, "False"],
+        [2629, 26290, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 959, 2265, 3780, "True"],
+        [2630, 26300, "COMPLETED", "SOBOL", 0.67, 29.0, 0.36, 1944, 3865, 969, "False"],
+        [2631, 26310, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4192, 309, 2695, "True"],
+        [2632, 26320, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4004, 2618, 788, "True"],
+        [2633, 26330, "COMPLETED", "SOBOL", 0.71, 43.0, 0.0, 2346, 1560, 2816, "False"],
+        [2634, 26340, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 831, 4881, 1879, "True"],
+        [2635, 26350, "COMPLETED", "SOBOL", 0.71, 36.0, 0.0, 3117, 1015, 4226, "False"],
+        [2636, 26360, "COMPLETED", "SOBOL", 0.68, 112.0, 0.08, 3292, 4130, 3693, "False"],
+        [2637, 26370, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 578, 494, 107, "True"],
+        [2638, 26380, "COMPLETED", "SOBOL", 0.71, 90.0, 0.0, 1544, 3424, 4794, "False"],
+        [2639, 26390, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4885, 1981, 1505, "True"],
+        [2640, 26400, "COMPLETED", "SOBOL", 0.71, 82.0, 0.0, 4703, 3183, 2997, "False"],
+        [2641, 26410, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1365, 2048, 645, "True"],
+        [2642, 26420, "COMPLETED", "SOBOL", 0.65, 68.0, 0.03, 455, 4353, 4085, "False"],
+        [2643, 26430, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3172, 410, 2061, "True"],
+        [2644, 26440, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2917, 4774, 239, "True"],
+        [2645, 26450, "COMPLETED", "SOBOL", 0.71, 35.0, 0.0, 632, 1217, 3523, "False"],
+        [2646, 26460, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2243, 2662, 1334, "True"],
+        [2647, 26470, "COMPLETED", "SOBOL", 0.71, 37.0, 0.0, 3904, 1298, 4925, "False"],
+        [2648, 26480, "COMPLETED", "SOBOL", 0.72, 91.0, 0.1, 4303, 3914, 1828, "False"],
+        [2649, 26490, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2058, 49, 4492, "True"],
+        [2650, 26500, "COMPLETED", "SOBOL", 0.67, 6.0, 0.3, 1169, 3525, 429, "False"],
+        [2651, 26510, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2790, 2468, 3390, "True"],
+        [2652, 26520, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3629, 3102, 3922, "True"],
+        [2653, 26530, "COMPLETED", "SOBOL", 0.71, 49.0, 0.0, 252, 1659, 2201, "False"],
+        [2654, 26540, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1842, 4433, 2514, "True"],
+        [2655, 26550, "COMPLETED", "SOBOL", 0.72, 21.0, 0.84, 4597, 797, 1110, "False"],
+        [2656, 26560, "COMPLETED", "SOBOL", 0.71, 78.0, 0.0, 4613, 2928, 2012, "False"],
+        [2657, 26570, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1743, 1871, 4349, "True"],
+        [2658, 26580, "COMPLETED", "SOBOL", 0.71, 17.0, 0.04, 228, 4567, 909, "False"],
+        [2659, 26590, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3725, 702, 2948, "True"],
+        [2660, 26600, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2689, 3818, 4759, "True"],
+        [2661, 26610, "COMPLETED", "SOBOL", 0.71, 9.0, 0.0, 1186, 183, 1480, "False"],
+        [2662, 26620, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2151, 3738, 3670, "True"],
+        [2663, 26630, "COMPLETED", "SOBOL", 0.68, 7.0, 0.97, 4282, 2295, 73, "False"],
+        [2664, 26640, "COMPLETED", "SOBOL", 0.66, 91.0, 0.17, 3763, 4986, 3166, "False"],
+        [2665, 26650, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2299, 1044, 517, "True"],
+        [2666, 26660, "COMPLETED", "SOBOL", 0.71, 71.0, 0.0, 765, 2567, 4580, "False"],
+        [2667, 26670, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2856, 1432, 1604, "True"],
+        [2668, 26680, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3226, 3318, 1081, "True"],
+        [2669, 26690, "COMPLETED", "SOBOL", 0.71, 52.0, 0.0, 317, 1953, 2797, "False"],
+        [2670, 26700, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1302, 4180, 2484, "True"],
+        [2671, 26710, "COMPLETED", "SOBOL", 0.71, 21.0, 0.0, 4838, 623, 3893, "False"],
+        [2672, 26720, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4950, 4225, 374, "True"],
+        [2673, 26730, "COMPLETED", "SOBOL", 0.71, 14.0, 0.0, 1416, 360, 3346, "False"],
+        [2674, 26740, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 526, 3212, 1785, "True"],
+        [2675, 26750, "COMPLETED", "SOBOL", 0.71, 57.0, 0.0, 3438, 2154, 4439, "False"],
+        [2676, 26760, "COMPLETED", "SOBOL", 0.69, 71.0, 0.07, 2988, 2791, 2627, "False"],
+        [2677, 26770, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 898, 1347, 1213, "True"],
+        [2678, 26780, "COMPLETED", "SOBOL", 0.69, 89.0, 0.17, 2489, 4746, 4024, "False"],
+        [2679, 26790, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3955, 1110, 2313, "True"],
+        [2680, 26800, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4101, 3494, 4216, "True"],
+        [2681, 26810, "COMPLETED", "SOBOL", 0.68, 48.0, 0.27, 1973, 2360, 2182, "False"],
+        [2682, 26820, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1063, 4039, 3119, "True"],
+        [2683, 26830, "COMPLETED", "SOBOL", 0.71, 11.0, 0.89, 2568, 97, 778, "False"],
+        [2684, 26840, "COMPLETED", "SOBOL", 0.71, 28.0, 0.57, 3524, 4462, 1300, "False"],
+        [2685, 26850, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 30, 906, 4901, "True"],
+        [2686, 26860, "COMPLETED", "SOBOL", 0.68, 6.0, 0.53, 1639, 2976, 214, "False"],
+        [2687, 26870, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 4512, 1612, 3488, "True"],
+        [2688, 26880, "COMPLETED", "SOBOL", 0.64, 29.0, 0.7, 4526, 4098, 1364, "False"],
+        [2689, 26890, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1615, 547, 4955, "True"],
+        [2690, 26900, "COMPLETED", "SOBOL", 0.63, 3.0, 0.0, 4, 3398, 268, "False"],
+        [2691, 26910, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3539, 2029, 3552, "True"],
+        [2692, 26920, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2544, 2642, 4074, "True"],
+        [2693, 26930, "COMPLETED", "SOBOL", 0.71, 48.0, 0.0, 1077, 1513, 2050, "False"],
+        [2694, 26940, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 1987, 4910, 2987, "True"],
+        [2695, 26950, "COMPLETED", "SOBOL", 0.71, 19.0, 0.91, 4075, 964, 636, "False"],
+        [2696, 26960, "COMPLETED", "SOBOL", 0.7, 68.0, 0.27, 3970, 3662, 2525, "False"],
+        [2697, 26970, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 2464, 2214, 1121, "True"],
+        [2698, 26980, "COMPLETED", "SOBOL", 0.71, 98.0, 0.0, 874, 3894, 3932, "False"],
+        [2699, 26990, "COMPLETED", "SOBOL", 0.71, 2.0, 0.0, 3001, 263, 2210, "True"],
+        [null, null, null, null, 0.71,4,0.0,2165,1,583,"True"],
+        [null, null, null, null, 0.71,2,0.0,2649,2091,4169,"True"],
+        [null, null, null, null, 0.71,2,0.0,2230,5000,5000,"True"],
+        [null, null, null, null, 0.65,5,0.000184706316956,1,5000,544,"False"],
+        [null, null, null, null, 0.71,2,0.0,3113,4414,1065,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,1775,1615,"True"],
+        [null, null, null, null, 0.71,2,0.0,4419,1821,2154,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,499,4739,"True"],
+        [null, null, null, null, 0.71,2,0.0,3274,838,3908,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,3285,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,2535,1595,4248,"True"],
+        [null, null, null, null, 0.71,2,0.0,2165,3803,2836,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2063,1398,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,1006,1574,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,3052,2852,"True"],
+        [null, null, null, null, 0.71,4,0.0,2398,1,3070,"False"],
+        [null, null, null, null, 0.71,2,0.0,3786,4462,3717,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,3883,1703,"True"],
+        [null, null, null, null, 0.71,2,0.0,2540,3709,1881,"True"],
+        [null, null, null, null, 0.71,2,0.0,3827,5000,4227,"True"],
+        [null, null, null, null, 0.71,2,0.0,3166,2262,1746,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,909,4175,"True"],
+        [null, null, null, null, 0.71,4,0.0,2129,1,2301,"False"],
+        [null, null, null, null, 0.71,2,0.0002539711858145,1,3542,1,"True"],
+        [null, null, null, null, 0.71,2,0.0,2704,3388,3049,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,941,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,118,977,2764,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,4294,2106,"True"],
+        [null, null, null, null, 0.71,2,0.0,1132,3123,2507,"True"],
+        [null, null, null, null, 0.71,2,0.0,1922,3196,4786,"True"],
+        [null, null, null, null, 0.71,2,0.0,669,1492,2827,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,3259,321,"True"],
+        [null, null, null, null, 0.71,2,0.0,1358,3303,712,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,2745,319,"True"],
+        [null, null, null, null, 0.71,2,0.0,1532,628,3974,"True"],
+        [null, null, null, null, 0.71,2,0.0,1975,3442,1573,"True"],
+        [null, null, null, null, 0.71,4,0.0,5000,1,261,"False"],
+        [null, null, null, null, 0.71,2,0.0,3032,1190,2173,"True"],
+        [null, null, null, null, 0.72,4,0.9581640192094568,5000,4610,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,5000,3714,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,4693,564,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,282,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,406,348,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,4584,3442,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,406,2185,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,399,3731,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,1661,529,"True"],
+        [null, null, null, null, 0.71,1,0.0023550055411895,1,420,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,5000,2321,4060,"True"],
+        [null, null, null, null, 0.72,3,0.8488640561507204,5000,4537,1,"True"],
+        [null, null, null, null, 0.71,1,0.002424270410048,1,407,1,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2621,3655,"True"],
+        [null, null, null, null, 0.71,2,0.0,3846,2995,1575,"True"],
+        [null, null, null, null, 0.71,2,0.0,2123,2585,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,4544,390,"True"],
+        [null, null, null, null, 0.69,2,0.0002077946065755,1,4290,1,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,431,3029,"True"],
+        [null, null, null, null, 0.66,3,0.6692140746213521,2635,3717,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,1,497,2087,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2385,3378,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,4692,2366,"True"],
+        [null, null, null, null, 0.71,2,0.0,1766,403,288,"True"],
+        [null, null, null, null, 0.71,2,0.0,1930,1501,3620,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,4716,1044,"True"],
+        [null, null, null, null, 0.71,4,0.9677918359807904,3616,3492,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,5000,3412,697,"True"],
+        [null, null, null, null, 0.73,15,0.9940663095677872,779,367,1,"True"],
+        [null, null, null, null, 0.73,35,0.9965829331363132,5000,444,1,"True"],
+        [null, null, null, null, 0.71,4,0.0,5000,1,912,"True"],
+        [null, null, null, null, 0.71,2,0.0,2274,2160,437,"True"],
+        [null, null, null, null, 0.71,2,0.0,2979,2438,547,"True"],
+        [null, null, null, null, 0.71,2,0.0,4503,3313,4773,"True"],
+        [null, null, null, null, 0.71,2,0.0,1042,1831,160,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2282,2486,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,1604,360,"True"],
+        [null, null, null, null, 0.71,4,0.0,3025,1,4618,"False"],
+        [null, null, null, null, 0.65,7,0.9235315847801996,5000,5000,431,"False"],
+        [null, null, null, null, 0.71,2,0.0,2319,786,4597,"True"],
+        [null, null, null, null, 0.71,2,0.0,3576,5000,630,"True"],
+        [null, null, null, null, 0.71,2,0.0,1824,237,4457,"True"],
+        [null, null, null, null, 0.7,2,0.4541466568156631,2810,5000,1,"True"],
+        [null, null, null, null, 0.71,2,0.0,2511,1425,1109,"True"],
+        [null, null, null, null, 0.71,2,0.0,2734,5000,1516,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2283,711,"True"],
+        [null, null, null, null, 0.71,2,0.0,513,4549,1533,"True"],
+        [null, null, null, null, 0.71,2,0.0,3308,4532,1381,"True"],
+        [null, null, null, null, 0.71,5,0.0,3486,1,701,"False"],
+        [null, null, null, null, 0.69,5,0.5132988548208349,2779,5000,434,"False"],
+        [null, null, null, null, 0.71,2,0.0,5000,5000,1029,"True"],
+        [null, null, null, null, 0.68,3,0.6235685260435907,3376,5000,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,1,2059,309,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2636,5000,"True"],
+        [null, null, null, null, 0.71,2,0.0,1841,422,5000,"True"],
+        [null, null, null, null, 0.71,5,0.9593876985592908,5000,2967,1,"False"],
+        [null, null, null, null, 0.71,2,0.0,1,1942,3710,"True"],
+        [null, null, null, null, 0.71,2,0.0,2449,4639,2315,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,1194,2810,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,173,3262,"True"],
+        [null, null, null, null, 0.71,4,0.0,2013,1,5000,"False"],
+        [null, null, null, null, 0.71,2,0.0,2749,2868,3795,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,1269,4501,"True"],
+        [null, null, null, null, 0.71,4,0.0,2052,1,3880,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,3436,2731,"True"],
+        [null, null, null, null, 0.71,2,0.0,3568,3998,545,"True"],
+        [null, null, null, null, 0.71,2,0.0,2718,3170,1154,"True"],
+        [null, null, null, null, 0.71,2,0.0,2585,2863,170,"True"],
+        [null, null, null, null, 0.71,2,0.0,4658,3502,1911,"True"],
+        [null, null, null, null, 0.7,3,0.2888806797192464,1564,4710,1,"True"],
+        [null, null, null, null, 0.71,2,0.0,5000,2607,153,"True"],
+        [null, null, null, null, 0.71,2,0.0,1714,4533,3795,"True"],
+        [null, null, null, null, 0.71,2,0.0,1855,888,1396,"True"],
+        [null, null, null, null, 0.71,2,0.0,4180,2058,869,"True"],
+        [null, null, null, null, 0.71,4,0.0,5000,1,4789,"False"],
+        [null, null, null, null, 0.71,2,0.0,2927,2456,971,"True"],
+        [null, null, null, null, 0.71,2,0.0,1,5000,264,"True"],
+        [null, null, null, null, 0.71,2,0.0,4985,2617,2688,"True"],
+        [null, null, null, null, 0.71,4,0.0,1767,1,4530,"True"],
+        [null, null, null, null, 0.71,2,0.0,2083,3017,4552,"True"],
+        [null, null, null, null, 0.71,41.0,0.58,4473,3326,1325,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1565,1884,4917,"True"],
+        [null, null, null, null, 0.72,3.0,0.01,50,4188,229,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3586,553,3512,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2511,4938,4191,"True"],
+        [null, null, null, null, 0.71,32.0,0.0,1047,1075,2167,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2013,2519,3105,"True"],
+        [null, null, null, null, 0.73,13.0,0.99,4103,1463,754,"False"],
+        [null, null, null, null, 0.71,81.0,0.18,3936,3769,2640,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2434,211,1236,"True"],
+        [null, null, null, null, 0.62,70.0,0.1,900,3688,4051,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3029,2322,2329,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3360,2940,361,"True"],
+        [null, null, null, null, 0.71,63.0,0.0,491,1804,3323,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1475,4578,1759,"True"],
+        [null, null, null, null, 0.71,26.0,0.0,4973,634,4422,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4772,4530,1056,"True"],
+        [null, null, null, null, 0.71,27.0,0.0,1277,895,2782,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,387,3043,2470,"True"],
+        [null, null, null, null, 0.71,44.0,0.0,3259,1600,3869,"False"],
+        [null, null, null, null, 0.71,77.0,0.07,2848,3466,3190,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,721,2410,532,"True"],
+        [null, null, null, null, 0.65,90.0,0.05,2311,4011,4594,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3816,147,1627,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4235,2760,4746,"True"],
+        [null, null, null, null, 0.67,25.0,0.47,2146,1395,1458,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1237,4716,3644,"True"],
+        [null, null, null, null, 0.69,5.0,0.98,2703,1158,57,"False"],
+        [null, null, null, null, 0.69,69.0,0.26,3698,4294,2024,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,164,351,4371,"True"],
+        [null, null, null, null, 0.71,9.0,0.49,1774,3281,935,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4685,2146,2964,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4544,4082,3938,"True"],
+        [null, null, null, null, 0.71,18.0,0.0,1831,524,2226,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,296,3377,2538,"True"],
+        [null, null, null, null, 0.7,29.0,0.61,3637,2011,1125,"False"],
+        [null, null, null, null, 0.66,66.0,0.06,2757,2626,1813,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1098,1490,4466,"True"],
+        [null, null, null, null, 0.72,4.0,0.38,2083,4889,405,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4370,946,3376,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3832,3640,262,"True"],
+        [null, null, null, null, 0.71,58.0,0.0,2211,2197,3536,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,697,3877,1350,"True"],
+        [null, null, null, null, 0.71,10.0,0.0,2944,242,4952,"False"],
+        [null, null, null, null, 0.65,94.0,0.07,3158,4625,2974,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,405,761,632,"True"],
+        [null, null, null, null, 0.71,72.0,0.0,1370,2831,4068,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4751,1774,2034,"True"],
+        [null, null, null, null, 0.7,70.0,0.11,4882,3074,3678,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1504,1708,82,"True"],
+        [null, null, null, null, 0.71,97.0,0.01,595,4405,4770,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3350,847,1492,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3056,3981,803,"True"],
+        [null, null, null, null, 0.71,6.0,0.0,811,37,2841,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2421,3593,1903,"True"],
+        [null, null, null, null, 0.71,62.0,0.0,4043,2457,4240,"False"],
+        [null, null, null, null, 0.72,134.0,0.1,4169,4843,2359,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1885,1209,3767,"True"],
+        [null, null, null, null, 0.7,23.0,0.25,995,2731,953,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2657,1289,2670,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3456,3153,4647,"True"],
+        [null, null, null, null, 0.67,46.0,0.01,117,2096,1671,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1708,4322,3235,"True"],
+        [null, null, null, null, 0.73,23.0,0.99,4424,458,586,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4397,4879,3286,"True"],
+        [null, null, null, null, 0.71,17.0,0.7,1641,1015,320,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,129,2615,4382,"True"],
+        [null, null, null, null, 0.71,44.0,0.0,3507,1559,1723,"False"],
+        [null, null, null, null, 0.66,25.0,0.54,2590,3425,1200,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,968,1983,2599,"True"],
+        [null, null, null, null, 0.7,61.0,0.18,1935,4130,2287,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4181,496,4013,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4016,2880,2125,"True"],
+        [null, null, null, null, 0.71,48.0,0.0,2354,1744,4154,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,822,4674,718,"True"],
+        [null, null, null, null, 0.71,24.0,0.0,3106,731,3064,"False"],
+        [null, null, null, null, 0.71,94.0,0.0,3283,3868,4875,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,567,310,1289,"True"],
+        [null, null, null, null, 0.71,91.0,0.0,1555,3631,3475,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4893,2265,186,"True"],
+        [null, null, null, null, 0.71,126.0,0.0,4695,3524,4335,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1354,2467,1984,"True"],
+        [null, null, null, null, 0.71,98.0,0.0,466,3912,2922,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3180,48,898,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2928,4433,1420,"True"],
+        [null, null, null, null, 0.71,24.0,0.0,641,798,4704,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2234,3103,16,"True"],
+        [null, null, null, null, 0.71,46.0,0.0,3893,1660,3607,"False"],
+        [null, null, null, null, 0.66,15.0,0.8,4314,4352,491,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2067,409,3155,"True"],
+        [null, null, null, null, 0.67,64.0,0.08,1160,3182,1590,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2780,2047,4552,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3621,2664,2740,"True"],
+        [null, null, null, null, 0.7,33.0,0.02,241,1298,1019,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1853,4776,3833,"True"],
+        [null, null, null, null, 0.71,35.0,0.0,4606,1218,2429,"False"],
+        [null, null, null, null, 0.71,9.0,0.94,4624,2568,674,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1751,1433,3010,"True"],
+        [null, null, null, null, 0.69,55.0,0.03,220,4988,2072,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3714,1045,4111,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2680,4178,3578,"True"],
+        [null, null, null, null, 0.73,12.0,1.0,1175,621,299,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2163,3317,4987,"True"],
+        [null, null, null, null, 0.68,51.0,0.1,4290,1952,1391,"False"],
+        [null, null, null, null, 0.71,116.0,0.0,3754,4567,4503,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2289,703,1854,"True"],
+        [null, null, null, null, 0.71,98.0,0.0,776,2929,3418,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2865,1873,442,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3237,3736,2263,"True"],
+        [null, null, null, null, 0.71,60.0,0.0,325,2294,3980,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1294,3817,1165,"True"],
+        [null, null, null, null, 0.71,9.0,0.0,4827,182,2574,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4961,4041,1713,"True"],
+        [null, null, null, null, 0.71,7.0,0.0,1425,97,4684,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,518,3496,622,"True"],
+        [null, null, null, null, 0.71,53.0,0.24,3427,2360,3276,"False"],
+        [null, null, null, null, 0.71,74.0,0.0,2979,2975,3808,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,888,1610,2394,"True"],
+        [null, null, null, null, 0.72,69.0,0.17,2500,4462,2706,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3964,904,995,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4092,3212,2879,"True"],
+        [null, null, null, null, 0.71,12.0,0.82,1962,2156,845,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1075,4225,4281,"True"],
+        [null, null, null, null, 0.71,13.0,0.0,2577,362,1939,"False"],
+        [null, null, null, null, 0.69,4.0,0.73,3535,4744,118,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,38,1110,3719,"True"],
+        [null, null, null, null, 0.7,27.0,0.38,1631,2789,1533,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4501,1347,4807,"True"],
+        [null, null, null, null, 0.65,5.0,0.99,4515,3892,25,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1606,263,3617,"True"],
+        [null, null, null, null, 0.71,36.0,0.0,13,3660,1431,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3549,2214,4715,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2552,2848,2893,"True"],
+        [null, null, null, null, 0.69,10.0,0.53,1088,1797,869,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1976,4648,4305,"True"],
+        [null, null, null, null, 0.71,25.0,0.0,4067,779,1954,"False"],
+        [null, null, null, null, 0.71,80.0,0.09,3978,3398,3862,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2475,2027,2458,"True"],
+        [null, null, null, null, 0.68,459.0,0.06,863,4098,2770,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2992,545,1049,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3401,4912,1581,"True"],
+        [null, null, null, null, 0.71,28.0,0.0,532,964,4542,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1439,2644,480,"True"],
+        [null, null, null, null, 0.71,43.0,0.0,4936,1513,3144,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4814,2713,2278,"True"],
+        [null, null, null, null, 0.71,36.0,0.0,1319,1266,4004,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,351,4820,1190,"True"],
+        [null, null, null, null, 0.71,33.0,0.0,3223,1190,2589,"False"],
+        [null, null, null, null, 0.71,93.0,0.07,2889,4306,4410,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,762,437,1751,"True"],
+        [null, null, null, null, 0.71,79.0,0.0,2274,3132,3315,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3780,2080,349,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4276,4381,3446,"True"],
+        [null, null, null, null, 0.69,3.0,0.99,2188,829,158,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1200,3055,4846,"True"],
+        [null, null, null, null, 0.66,26.0,0.54,2666,1685,1260,"False"],
+        [null, null, null, null, 0.69,10.0,0.94,3739,3572,727,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,205,2441,3073,"True"],
+        [null, null, null, null, 0.7,85.0,0.04,1737,3965,2135,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4648,17,4164,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4581,3711,2716,"True"],
+        [null, null, null, null, 0.7,37.0,0.47,1867,2341,1005,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,255,3787,3819,"True"],
+        [null, null, null, null, 0.71,10.0,0.0,3596,234,2405,"False"],
+        [null, null, null, null, 0.7,6.0,0.58,2794,4598,593,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1135,651,3247,"True"],
+        [null, null, null, null, 0.71,83.0,0.05,2042,2955,1683,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4328,1825,4654,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3868,4206,1562,"True"],
+        [null, null, null, null, 0.71,19.0,0.0,2248,576,4836,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,655,3349,148,"True"],
+        [null, null, null, null, 0.71,54.0,0.0,2902,1902,3749,"False"],
+        [null, null, null, null, 0.71,64.0,0.0,3194,2535,4271,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,442,1483,1930,"True"],
+        [null, null, null, null, 0.72,103.0,0.03,1329,4959,2868,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4709,1090,834,"True"],
+        [null, null, null, null, 0.68,45.0,0.55,4919,4695,4978,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1541,1142,1382,"True"],
+        [null, null, null, null, 0.69,72.0,0.01,553,2745,3568,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3308,1374,289,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3092,3258,2100,"True"],
+        [null, null, null, null, 0.71,56.0,0.0,847,2127,4139,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2379,4276,703,"True"],
+        [null, null, null, null, 0.71,12.0,0.0,4002,328,3039,"False"],
+        [null, null, null, null, 0.69,28.0,0.75,4205,3027,1137,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1922,1580,2546,"True"],
+        [null, null, null, null, 0.67,115.0,0.02,953,4509,2234,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2615,879,3950,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3493,3992,3427,"True"],
+        [null, null, null, null, 0.7,8.0,0.45,154,124,451,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1666,3443,4513,"True"],
+        [null, null, null, null, 0.69,36.0,0.55,4382,2392,1864,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4438,2906,4584,"True"],
+        [null, null, null, null, 0.71,50.0,0.0,1683,1855,1617,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,92,4549,3181,"True"],
+        [null, null, null, null, 0.7,18.0,0.56,3470,680,523,"False"],
+        [null, null, null, null, 0.67,70.0,0.18,2631,3796,2500,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1009,166,3899,"True"],
+        [null, null, null, null, 0.72,27.0,0.35,1899,3720,1085,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4144,2273,2811,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4057,4970,906,"True"],
+        [null, null, null, null, 0.71,33.0,0.0,2396,1021,2934,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,786,2546,1996,"True"],
+        [null, null, null, null, 0.71,45.0,0.0,3070,1414,4343,"False"],
+        [null, null, null, null, 0.71,104.0,0.0,3325,3301,3654,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,609,1930,67,"True"],
+        [null, null, null, null, 0.71,114.0,0.0,1518,4158,4755,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4857,605,1467,"True"],
+        [null, null, null, null, 0.71,104.0,0.0,4736,4247,3116,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1396,377,764,"True"],
+        [null, null, null, null, 0.71,82.0,0.0,430,3228,4200,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3144,2176,2176,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2969,2812,198,"True"],
+        [null, null, null, null, 0.71,39.0,0.0,682,1365,3482,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2197,4763,1296,"True"],
+        [null, null, null, null, 0.71,32.0,0.0,3856,1133,4888,"False"],
+        [null, null, null, null, 0.71,91.0,0.3,4356,3512,1789,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2108,2381,4452,"True"],
+        [null, null, null, null, 0.69,6.0,0.26,1123,4061,390,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2743,113,3352,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3662,4480,4040,"True"],
+        [null, null, null, null, 0.71,27.0,0.0,282,927,2319,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1816,2998,2631,"True"],
+        [null, null, null, null, 0.68,45.0,0.11,4570,1628,1227,"False"],
+        [null, null, null, null, 0.67,45.0,0.65,4660,4658,1893,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1788,710,4230,"True"],
+        [null, null, null, null, 0.7,8.0,0.06,178,2859,794,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3672,1728,2832,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2717,3612,4800,"True"],
+        [null, null, null, null, 0.71,61.0,0.0,1212,2242,1521,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2121,3844,3707,"True"],
+        [null, null, null, null, 0.74,44.0,0.99,4249,291,110,"False"],
+        [null, null, null, null, 0.71,66.0,0.0,3791,2595,3205,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2325,1543,556,"True"],
+        [null, null, null, null, 0.71,131.0,0.0,734,4863,4618,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2823,994,1642,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3274,4108,963,"True"],
+        [null, null, null, null, 0.71,16.0,0.0,362,477,2679,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1252,3407,2368,"True"],
+        [null, null, null, null, 0.71,53.0,0.0,4786,1959,3776,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4997,3201,415,"True"],
+        [null, null, null, null, 0.71,55.0,0.0,1462,2070,3387,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,476,4375,1822,"True"],
+        [null, null, null, null, 0.71,17.0,0.0,3385,427,4476,"False"],
+        [null, null, null, null, 0.71,56.0,0.35,3015,4792,2508,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,924,1238,1095,"True"],
+        [null, null, null, null, 0.69,43.0,0.45,2459,2685,3909,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3922,1314,2197,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4129,3935,4098,"True"],
+        [null, null, null, null, 0.71,7.0,0.0,1998,66,2065,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1033,3542,3003,"True"],
+        [null, null, null, null, 0.68,8.0,0.93,2535,2491,661,"False"],
+        [null, null, null, null, 0.67,29.0,0.71,3572,3123,1340,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,75,1676,4941,"True"],
+        [null, null, null, null, 0.7,6.0,0.33,1589,4449,253,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4460,819,3527,"True"],
+        [null, null, null, null, 0.64,107.0,0.1,4468,4436,4227,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1595,806,1876,"True"],
+        [null, null, null, null, 0.71,74.0,0.0,64,3110,2815,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3559,1662,791,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2525,3546,1509,"True"],
+        [null, null, null, null, 0.71,67.0,0.0,1020,2494,4793,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2007,3939,103,"True"],
+        [null, null, null, null, 0.71,6.0,0.0,4135,69,3695,"False"],
+        [null, null, null, null, 0.7,24.0,0.74,3911,2690,559,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2445,1321,3222,"True"],
+        [null, null, null, null, 0.69,30.0,0.15,933,4797,1659,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3022,1245,4620,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3394,4359,2692,"True"],
+        [null, null, null, null, 0.7,11.0,0.69,482,411,971,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1451,3185,3784,"True"],
+        [null, null, null, null, 0.7,55.0,0.12,4984,2054,2380,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4804,3413,3394,"True"],
+        [null, null, null, null, 0.72,7.0,0.61,1268,1965,427,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,361,4114,4488,"True"],
+        [null, null, null, null, 0.71,17.0,0.0,3270,483,1829,"False"],
+        [null, null, null, null, 0.63,28.0,0.46,2822,4848,1112,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,731,977,2511,"True"],
+        [null, null, null, null, 0.71,73.0,0.0,2343,2580,2200,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3807,1527,3926,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4248,3830,2057,"True"],
+        [null, null, null, null, 0.71,12.0,0.0,2117,279,4086,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1230,3598,649,"True"],
+        [null, null, null, null, 0.71,57.0,0.0,2733,2229,2995,"False"],
+        [null, null, null, null, 0.71,75.0,0.0,3691,2862,4924,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,194,1732,1338,"True"],
+        [null, null, null, null, 0.66,87.0,0.08,1786,4661,3524,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4657,715,236,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4553,3001,1605,"True"],
+        [null, null, null, null, 0.71,52.0,0.0,1798,1632,4576,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,286,4483,515,"True"],
+        [null, null, null, null, 0.71,28.0,0.0,3663,932,3169,"False"],
+        [null, null, null, null, 0.69,50.0,0.32,2747,4047,3897,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1125,100,2483,"True"],
+        [null, null, null, null, 0.71,92.0,0.0,2092,3498,2794,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4337,2369,1082,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3860,4748,2946,"True"],
+        [null, null, null, null, 0.68,9.0,0.98,2199,1116,913,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,667,2797,4349,"True"],
+        [null, null, null, null, 0.63,35.0,0.17,2951,1348,2008,"False"],
+        [null, null, null, null, 0.69,4.0,0.94,3128,3235,70,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,411,2182,3671,"True"],
+        [null, null, null, null, 0.7,48.0,0.16,1399,4253,1484,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4738,383,4758,"True"],
+        [null, null, null, null, 0.66,12.0,0.9,4850,4142,781,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1510,590,3118,"True"],
+        [null, null, null, null, 0.7,84.0,0.01,622,3285,2178,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3336,1915,4217,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3083,2551,3490,"True"],
+        [null, null, null, null, 0.69,7.0,0.53,797,1421,211,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2390,4975,4900,"True"],
+        [null, null, null, null, 0.71,33.0,0.0,4048,1028,1304,"False"],
+        [null, null, null, null, 0.72,83.0,0.1,4157,3724,4435,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1910,2276,1786,"True"],
+        [null, null, null, null, 0.7,90.0,0.02,1003,3800,3349,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2623,169,373,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3464,4536,2312,"True"],
+        [null, null, null, null, 0.71,21.0,0.0,84,666,4028,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1696,2893,1215,"True"],
+        [null, null, null, null, 0.71,49.0,0.0,4449,1840,2624,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4388,3450,1007,"True"],
+        [null, null, null, null, 0.71,62.0,0.04,1675,2397,2733,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,140,3999,2422,"True"],
+        [null, null, null, null, 0.71,8.0,0.0,3482,129,3821,"False"],
+        [null, null, null, null, 0.71,100.0,0.06,2602,4493,3260,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,942,863,601,"True"],
+        [null, null, null, null, 0.71,72.0,0.04,1928,3011,4662,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4214,1563,1695,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3988,4263,4834,"True"],
+        [null, null, null, null, 0.71,12.0,0.0,2368,315,1545,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,854,3244,3732,"True"],
+        [null, null, null, null, 0.71,5.0,0.99,3101,2114,145,"False"],
+        [null, null, null, null, 0.71,47.0,0.43,3314,2748,1918,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,562,1378,4264,"True"],
+        [null, null, null, null, 0.67,26.0,0.25,1527,4698,827,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4907,1146,2856,"True"],
+        [null, null, null, null, 0.66,48.0,0.55,4725,4947,1375,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1347,1076,4966,"True"],
+        [null, null, null, null, 0.69,4.0,0.16,438,2522,276,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3193,1469,3560,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2899,3353,4122,"True"],
+        [null, null, null, null, 0.71,51.0,0.0,654,1905,2098,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2264,4211,3037,"True"],
+        [null, null, null, null, 0.73,19.0,0.99,3886,579,686,"False"],
+        [null, null, null, null, 0.71,91.0,0.0,4324,2961,2553,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2041,1831,1149,"True"],
+        [null, null, null, null, 0.71,260.0,0.0,1151,4604,3962,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2812,657,2241,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3612,3770,468,"True"],
+        [null, null, null, null, 0.71,10.0,0.0,273,219,3430,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1864,3695,1867,"True"],
+        [null, null, null, null, 0.71,67.0,0.0,4579,2326,4530,"False"],
+        [null, null, null, null, 0.71,101.0,0.0,4630,3948,3628,"False"],
+        [null, null, null, null, 0.71,4.0,0.0,1721,1,32,"True"],
+        [null, null, null, null, 0.71,113.0,0.0,206,3555,4722,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3743,2426,1443,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2668,3061,872,"True"],
+        [null, null, null, null, 0.71,57.0,0.0,1204,1692,2911,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2170,4387,1971,"True"],
+        [null, null, null, null, 0.71,25.0,0.0,4260,835,4308,"False"],
+        [null, null, null, null, 0.63,87.0,0.09,3781,3136,2446,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2278,2083,3854,"True"],
+        [null, null, null, null, 0.65,26.0,0.12,744,4311,1041,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2874,440,2757,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3204,4807,4540,"True"],
+        [null, null, null, null, 0.71,36.0,0.0,335,1176,1564,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1320,2701,3127,"True"],
+        [null, null, null, null, 0.71,11.0,0.97,4817,1252,478,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4928,2648,3987,"True"],
+        [null, null, null, null, 0.71,44.0,0.0,1432,1517,2276,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,543,4915,2586,"True"],
+        [null, null, null, null, 0.71,29.0,0.0,3415,968,1172,"False"],
+        [null, null, null, null, 0.65,29.0,0.55,3004,4084,1744,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,876,532,4398,"True"],
+        [null, null, null, null, 0.69,5.0,0.68,2466,3383,337,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3972,2014,3308,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4078,4633,175,"True"],
+        [null, null, null, null, 0.71,23.0,0.0,1989,763,3449,"False"],
+        [null, null, null, null, 0.71,5.0,0.0,1080,2833,1262,"True"],
+        [null, null, null, null, 0.71,49.0,0.0,2546,1781,4863,"False"],
+        [null, null, null, null, 0.63,95.0,0.08,3541,3667,3081,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,7,2219,740,"True"],
+        [null, null, null, null, 0.71,126.0,0.0,1617,3899,4177,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4528,268,2143,"True"],
+        [null, null, null, null, 0.71,71.0,0.0,4505,2776,3027,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1632,1333,676,"True"],
+        [null, null, null, null, 0.68,76.0,0.0,22,4732,4113,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3517,1096,2089,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2561,4230,307,"True"],
+        [null, null, null, null, 0.71,14.0,0.0,1056,365,3591,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1965,3217,1404,"True"],
+        [null, null, null, null, 0.71,73.0,0.0,4093,2159,4995,"False"],
+        [null, null, null, null, 0.67,31.0,0.64,3948,4467,1837,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2482,911,4500,"True"],
+        [null, null, null, null, 0.73,6.0,0.29,891,2981,440,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2980,1616,3401,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3431,3480,3972,"True"],
+        [null, null, null, null, 0.64,48.0,0.05,519,2345,2251,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1409,4024,2562,"True"],
+        [null, null, null, null, 0.71,7.0,0.0,4943,82,1158,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2429,3340,4166,"True"],
+        [null, null, null, null, 0.71,52.0,0.0,3932,1892,2132,"False"],
+        [null, null, null, null, 0.71,112.0,0.0,4118,4588,3997,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2027,641,2286,"True"],
+        [null, null, null, null, 0.71,77.0,0.0,1042,2945,2596,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2506,1815,1183,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3581,3682,1753,"True"],
+        [null, null, null, null, 0.71,62.0,0.0,45,2312,4407,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1579,3757,347,"True"],
+        [null, null, null, null, 0.71,9.0,0.0,4488,205,3318,"False"],
+        [null, null, null, null, 0.65,5.0,0.94,4484,3689,145,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1573,2325,3736,"True"],
+        [null, null, null, null, 0.67,27.0,0.01,41,3769,1546,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3575,213,4830,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2502,4576,2852,"True"],
+        [null, null, null, null, 0.71,21.0,0.0,1036,634,828,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2024,2938,4268,"True"],
+        [null, null, null, null, 0.71,74.0,0.0,4112,1803,1917,"False"],
+        [null, null, null, null, 0.71,104.0,0.0,3928,4190,3822,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2423,554,2418,"True"],
+        [null, null, null, null, 0.63,77.0,0.02,910,3328,2732,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3038,1884,1011,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3371,2519,1699,"True"],
+        [null, null, null, null, 0.71,41.0,0.0,499,1461,4660,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1467,4938,597,"True"],
+        [null, null, null, null, 0.71,32.0,0.0,4962,1072,3261,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4783,4717,2237,"True"],
+        [null, null, null, null, 0.71,34.0,0.0,1285,1160,3963,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,379,2761,1153,"True"],
+        [null, null, null, null, 0.71,40.0,0.0,3248,1397,2552,"False"],
+        [null, null, null, null, 0.71,101.0,0.0,2839,3280,4529,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,709,2145,1870,"True"],
+        [null, null, null, null, 0.71,91.0,0.05,2322,4293,3431,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3825,350,465,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4226,3044,3564,"True"],
+        [null, null, null, null, 0.67,4.0,0.98,2135,1601,276,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1248,4531,4962,"True"],
+        [null, null, null, null, 0.71,26.0,0.0,2712,896,1376,"False"],
+        [null, null, null, null, 0.66,27.0,0.69,3709,4010,687,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,172,145,3033,"True"],
+        [null, null, null, null, 0.68,63.0,0.12,1765,3466,2096,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4674,2408,4125,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4535,3876,2757,"True"],
+        [null, null, null, null, 0.71,12.0,0.0,1820,240,1045,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,307,3639,3856,"True"],
+        [null, null, null, null, 0.71,55.0,0.0,3646,2196,2442,"False"],
+        [null, null, null, null, 0.7,7.0,0.89,2768,2832,474,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1107,1775,3128,"True"],
+        [null, null, null, null, 0.67,54.0,0.24,2075,4627,1567,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4358,762,4538,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3842,3375,1444,"True"],
+        [null, null, null, null, 0.64,50.0,0.05,2220,2010,4718,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,688,4081,32,"True"],
+        [null, null, null, null, 0.71,18.0,0.0,2933,524,3632,"False"],
+        [null, null, null, null, 0.71,120.0,0.0,3149,4890,4311,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,394,947,1970,"True"],
+        [null, null, null, null, 0.71,66.0,0.0,1381,2627,2907,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4759,1492,873,"True"],
+        [null, null, null, null, 0.71,77.0,0.0,4873,2731,4859,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1493,1287,1263,"True"],
+        [null, null, null, null, 0.7,104.0,0.01,606,4843,3453,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3358,1207,174,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3066,4324,2141,"True"],
+        [null, null, null, null, 0.71,16.0,0.0,819,459,4180,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2412,3155,741,"True"],
+        [null, null, null, null, 0.71,58.0,0.0,4032,2097,3077,"False"],
+        [null, null, null, null, 0.68,26.0,0.68,4180,4403,1176,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1894,846,2585,"True"],
+        [null, null, null, null, 0.71,51.0,0.11,986,3072,2272,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2646,1708,3988,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3448,3593,3309,"True"],
+        [null, null, null, null, 0.66,5.0,0.04,106,2459,333,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1719,3981,4397,"True"],
+        [null, null, null, null, 0.71,6.0,0.0,4432,39,1747,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4405,4675,4624,"True"],
+        [null, null, null, null, 0.71,23.0,0.0,1652,733,1658,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,118,2880,3219,"True"],
+        [null, null, null, null, 0.7,9.0,0.99,3498,1746,560,"False"],
+        [null, null, null, null, 0.7,83.0,0.06,2579,3629,2381,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,959,2265,3780,"True"],
+        [null, null, null, null, 0.67,29.0,0.36,1944,3865,969,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4192,309,2695,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4004,2618,788,"True"],
+        [null, null, null, null, 0.71,43.0,0.0,2346,1560,2816,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,831,4881,1879,"True"],
+        [null, null, null, null, 0.71,36.0,0.0,3117,1015,4226,"False"],
+        [null, null, null, null, 0.68,112.0,0.08,3292,4130,3693,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,578,494,107,"True"],
+        [null, null, null, null, 0.71,90.0,0.0,1544,3424,4794,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4885,1981,1505,"True"],
+        [null, null, null, null, 0.71,82.0,0.0,4703,3183,2997,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1365,2048,645,"True"],
+        [null, null, null, null, 0.65,68.0,0.03,455,4353,4085,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3172,410,2061,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2917,4774,239,"True"],
+        [null, null, null, null, 0.71,35.0,0.0,632,1217,3523,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2243,2662,1334,"True"],
+        [null, null, null, null, 0.71,37.0,0.0,3904,1298,4925,"False"],
+        [null, null, null, null, 0.72,91.0,0.1,4303,3914,1828,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2058,49,4492,"True"],
+        [null, null, null, null, 0.67,6.0,0.3,1169,3525,429,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2790,2468,3390,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3629,3102,3922,"True"],
+        [null, null, null, null, 0.71,49.0,0.0,252,1659,2201,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1842,4433,2514,"True"],
+        [null, null, null, null, 0.72,21.0,0.84,4597,797,1110,"False"],
+        [null, null, null, null, 0.71,78.0,0.0,4613,2928,2012,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1743,1871,4349,"True"],
+        [null, null, null, null, 0.71,17.0,0.04,228,4567,909,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3725,702,2948,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2689,3818,4759,"True"],
+        [null, null, null, null, 0.71,9.0,0.0,1186,183,1480,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2151,3738,3670,"True"],
+        [null, null, null, null, 0.68,7.0,0.97,4282,2295,73,"False"],
+        [null, null, null, null, 0.66,91.0,0.17,3763,4986,3166,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2299,1044,517,"True"],
+        [null, null, null, null, 0.71,71.0,0.0,765,2567,4580,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2856,1432,1604,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,3226,3318,1081,"True"],
+        [null, null, null, null, 0.71,52.0,0.0,317,1953,2797,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1302,4180,2484,"True"],
+        [null, null, null, null, 0.71,21.0,0.0,4838,623,3893,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4950,4225,374,"True"],
+        [null, null, null, null, 0.71,14.0,0.0,1416,360,3346,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,526,3212,1785,"True"],
+        [null, null, null, null, 0.71,57.0,0.0,3438,2154,4439,"False"],
+        [null, null, null, null, 0.69,71.0,0.07,2988,2791,2627,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,898,1347,1213,"True"],
+        [null, null, null, null, 0.69,89.0,0.17,2489,4746,4024,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3955,1110,2313,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,4101,3494,4216,"True"],
+        [null, null, null, null, 0.68,48.0,0.27,1973,2360,2182,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1063,4039,3119,"True"],
+        [null, null, null, null, 0.71,11.0,0.89,2568,97,778,"False"],
+        [null, null, null, null, 0.71,28.0,0.57,3524,4462,1300,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,30,906,4901,"True"],
+        [null, null, null, null, 0.68,6.0,0.53,1639,2976,214,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,4512,1612,3488,"True"],
+        [null, null, null, null, 0.64,29.0,0.7,4526,4098,1364,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1615,547,4955,"True"],
+        [null, null, null, null, 0.63,3.0,0.0,4,3398,268,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3539,2029,3552,"True"],
+        [null, null, null, null, 0.71,2.0,0.0,2544,2642,4074,"True"],
+        [null, null, null, null, 0.71,48.0,0.0,1077,1513,2050,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,1987,4910,2987,"True"],
+        [null, null, null, null, 0.71,19.0,0.91,4075,964,636,"False"],
+        [null, null, null, null, 0.7,68.0,0.27,3970,3662,2525,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,2464,2214,1121,"True"],
+        [null, null, null, null, 0.71,98.0,0.0,874,3894,3932,"False"],
+        [null, null, null, null, 0.71,2.0,0.0,3001,263,2210,"True"]
+    ];
+// Main results headers and data (starting with ACCURACY)
+			var tab_failed_results_csv_json = [[2700,27000,"FAILED","SOBOL",null,null,null,3413,4647,398,"True"],[2701,27010,"FAILED","SOBOL",null,null,null,540,777,3360,"False"],[2702,27020,"FAILED","SOBOL",null,null,null,1430,2848,1799,"True"],[2703,27030,"FAILED","SOBOL",null,null,null,4925,1795,4463,"False"],[2704,27040,"FAILED","SOBOL",null,null,null,4825,3056,940,"True"],[2705,27050,"FAILED","SOBOL",null,null,null,1327,1687,2666,"False"],[2706,27060,"FAILED","SOBOL",null,null,null,342,4382,2353,"True"],[2707,27070,"FAILED","SOBOL",null,null,null,3212,830,3752,"False"],[2708,27080,"FAILED","SOBOL",null,null,null,2881,3963,3229,"False"],[2709,27090,"FAILED","SOBOL",null,null,null,751,16,570,"True"],[2710,27100,"FAILED","SOBOL",null,null,null,2285,3570,4633,"False"],[2711,27110,"FAILED","SOBOL",null,null,null,3788,2440,1667,"True"],[2712,27120,"FAILED","SOBOL",null,null,null,4268,4822,4784,"True"],[2713,27130,"FAILED","SOBOL",null,null,null,2177,1191,1495,"False"],[2714,27140,"FAILED","SOBOL",null,null,null,1211,2715,3685,"True"],[2715,27150,"FAILED","SOBOL",null,null,null,2675,1267,98,"False"],[2716,27160,"FAILED","SOBOL",null,null,null,3750,3131,1909,"False"],[2717,27170,"FAILED","SOBOL",null,null,null,214,2079,4256,"True"],[2718,27180,"FAILED","SOBOL",null,null,null,1729,4305,816,"False"],[2719,27190,"FAILED","SOBOL",null,null,null,4638,435,2845,"True"],[2720,27200,"FAILED","SOBOL",null,null,null,4572,3349,4054,"True"],[2721,27210,"FAILED","SOBOL",null,null,null,1857,1900,2343,"False"],[2722,27220,"FAILED","SOBOL",null,null,null,266,4205,2656,"True"],[2723,27230,"FAILED","SOBOL",null,null,null,3604,575,1243,"False"],[2724,27240,"FAILED","SOBOL",null,null,null,2805,4961,1774,"False"],[2725,27250,"FAILED","SOBOL",null,null,null,1143,1091,4428,"True"],[2726,27260,"FAILED","SOBOL",null,null,null,2034,2537,365,"False"],[2727,27270,"FAILED","SOBOL",null,null,null,4317,1484,3336,"True"],[2728,27280,"FAILED","SOBOL",null,null,null,3879,3785,225,"True"],[2729,27290,"FAILED","SOBOL",null,null,null,2257,233,3499,"False"],[2730,27300,"FAILED","SOBOL",null,null,null,647,3709,1309,"True"],[2731,27310,"FAILED","SOBOL",null,null,null,2891,2340,4911,"False"],[2732,27320,"FAILED","SOBOL",null,null,null,3185,2956,3089,"False"],[2733,27330,"FAILED","SOBOL",null,null,null,431,1826,748,"True"],[2734,27340,"FAILED","SOBOL",null,null,null,1340,4599,4187,"False"],[2735,27350,"FAILED","SOBOL",null,null,null,4718,652,2153,"True"],[2736,27360,"FAILED","SOBOL",null,null,null,4910,4508,3640,"False"],[2737,27370,"FAILED","SOBOL",null,null,null,1530,877,44,"True"],[2738,27380,"FAILED","SOBOL",null,null,null,564,3027,4730,"False"],[2739,27390,"FAILED","SOBOL",null,null,null,3317,1578,1452,"True"],[2740,27400,"FAILED","SOBOL",null,null,null,3103,3445,919,"True"],[2741,27410,"FAILED","SOBOL",null,null,null,856,2392,2958,"False"],[2742,27420,"FAILED","SOBOL",null,null,null,2371,3995,2021,"True"],[2743,27430,"FAILED","SOBOL",null,null,null,3991,124,4357,"False"],[2744,27440,"FAILED","SOBOL",null,null,null,4216,2742,2474,"False"],[2745,27450,"FAILED","SOBOL",null,null,null,1930,1374,3883,"True"],[2746,27460,"FAILED","SOBOL",null,null,null,945,4693,1072,"False"],[2747,27470,"FAILED","SOBOL",null,null,null,2604,1142,2788,"True"],[2748,27480,"FAILED","SOBOL",null,null,null,3484,4277,4609,"True"],[2749,27490,"FAILED","SOBOL",null,null,null,143,330,1633,"False"]];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+	// Get the selected plot type from dropdown
+	let selectedPlotType = document.getElementById("pareto_plot_selector").value;
+	
+	// Extract column indices
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let reqlabelsIndex = tab_results_headers_json.indexOf("REQLABELS");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (reqlabelsIndex === -1) {
+		console.warn("REQLABELS column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	let xIndex, yIndex, zIndex, xLabel, yLabel, zLabel, plotTitle, plotId, is3D = false;
+	
+	if (selectedPlotType === "reqlabels_vs_accuracy") {
+		if (accuracyIndex === -1) {
+			console.warn("ACCURACY column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "ACCURACY vs REQLABELS";
+		plotId = "pareto_front_graph_accuracy_reqlabels";
+	} else if (selectedPlotType === "reqlabels_vs_runtime") {
+		if (runtimeIndex === -1) {
+			console.warn("RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = runtimeIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "RUNTIME (min)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "RUNTIME vs REQLABELS";
+		plotId = "pareto_front_graph_runtime_reqlabels";
+	} else if (selectedPlotType === "3d_reqlabels_accuracy_runtime") {
+		if (accuracyIndex === -1 || runtimeIndex === -1) {
+			console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = runtimeIndex;
+		zIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "RUNTIME (min)";
+		zLabel = "REQLABELS (min)";
+		plotTitle = "REQLABELS vs ACCURACY vs RUNTIME";
+		plotId = "pareto_front_graph_3d_accuracy_runtime_reqlabels";
+		is3D = true;
+	}
+
+	// Extract data points, filtering out empty values
+	let xValues = [];
+	let yValues = [];
+	let zValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let xValue = row[xIndex];
+		let yValue = row[yIndex];
+		let zValue = is3D ? row[zIndex] : null;
+		
+		// For 2D plots, only check x and y values
+		if (!is3D) {
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+			}
+		} else {
+			// For 3D plots, check all three values
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined &&
+				zValue !== "" && zValue !== null && zValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+				zValues.push(parseFloat(zValue));
+			}
+		}
+	});
+
+	if (xValues.length === 0 || yValues.length === 0 || (is3D && zValues.length === 0)) {
+		console.warn("No valid data found for selected plot type");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Create the scatter plot container
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
+	graphContainer.innerHTML = "";
+
+	// Create a single scatter plot div
+	let div = document.createElement("div");
+	div.id = plotId;
+	div.style.marginBottom = "20px";
+	graphContainer.appendChild(div);
+
+	let layout, trace;
+
+	if (is3D) {
+		// 3D scatter plot configuration with reduced width
+		layout = {
+			title: plotTitle,
+			width: 700,  // Reduced width for more compact display
+			height: 500, // Controlled height for better layout
+			scene: {
+				xaxis: {
+					title: get_axis_title_data(xLabel)
+				},
+				yaxis: {
+					title: get_axis_title_data(yLabel)
+				},
+				zaxis: {
+					title: get_axis_title_data(zLabel)
+				}
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			z: zValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+				opacity: 0.8
+			},
+			type: "scatter3d",
+			name: plotTitle
+		};
+	} else {
+		// 2D scatter plot configuration
+		layout = {
+			title: plotTitle,
+			xaxis: {
+				title: get_axis_title_data(xLabel)
+			},
+			yaxis: {
+				title: get_axis_title_data(yLabel)
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+			},
+			type: "scatter",
+			name: plotTitle
+		};
+	}
+
+	// Create the plot
+	Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+
+	// Apply theme if available
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
+}
+
+function updateParetoPlot() {
+	// Reset the loaded flag to force regeneration
+	$("#tab_pareto_fronts").data("loaded", "false");
+	// Reload the plot with new selection
+	load_pareto_graph();
+}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				load_pareto_graph();;
+
+				createParallelPlot(tab_results_csv_json, tab_results_headers_json, ["ACCURACY", "RUNTIME"], special_col_names);;
+
+			});
+		</script>
+<div class="section-content">
+    <h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+    <div id="tab_results_csv_table"></div><script>// Create the main results table using tab_results_csv_json data
+        if (typeof tab_results_csv_json !== 'undefined' && tab_results_csv_json.length > 0) {
+            // Show only ACCURACY, RUNTIME, REQLABELS and experiment parameters
+            var correct_headers = ['ACCURACY', 'RUNTIME', 'REQLABELS', 'recent_samples_size', 'n_samples', 'n_windows', 'disjoint_training_windows'];
+            
+            // Find indices of these columns in the original headers
+            var column_indices = correct_headers.map(function(header) {
+                return tab_results_headers_json.indexOf(header);
+            }).filter(function(index) {
+                return index !== -1; // Only keep valid indices
+            });
+            
+            // Filter headers to only include the correct ones
+            var filtered_headers = column_indices.map(function(index) {
+                return tab_results_headers_json[index];
+            });
+            
+            // Filter data to only include the correct columns
+            var filtered_data = tab_results_csv_json.map(function(row) {
+                return column_indices.map(function(index) {
+                    return row[index];
+                });
+            });
+            
+            createTable(filtered_data, filtered_headers, 'tab_results_csv_table');
+            console.log('Loaded ' + filtered_data.length + ' completed runs with ' + filtered_headers.length + ' columns (ACCURACY, RUNTIME, REQLABELS + parameters)');
+        }
+
+				// Apply light green background to all rows in the table
+				setTimeout(function() {
+					var table = document.getElementById('tab_results_csv_table');
+					if (table) {
+						var rows = table.querySelectorAll('tr');
+						rows.forEach(function(row) {
+							row.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+						var cells = table.querySelectorAll('td, th');
+						cells.forEach(function(cell) {
+							cell.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+					}
+				}, 100);</script>
+    
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+    <div id="tab_failed_results_table"></div><script>
+				// Use the embedded failed runs data, but only show columns after REQLABELS
+				if (typeof tab_failed_results_csv_json !== 'undefined' && tab_failed_results_csv_json.length > 0) {
+					// Find the index of REQLABELS column
+					var reqlabels_index = tab_results_headers_json.indexOf('REQLABELS');
+					
+					// Create filtered headers (only columns after REQLABELS)
+					var parameter_headers = tab_results_headers_json.slice(reqlabels_index + 1);
+					
+					// Create filtered data (only columns after REQLABELS)
+					var parameter_data = tab_failed_results_csv_json.map(function(row) {
+						return row.slice(reqlabels_index + 1);
+					});
+					
+					createTable(parameter_data, parameter_headers, 'tab_failed_results_table');
+					console.log('Loaded ' + tab_failed_results_csv_json.length + ' failed runs with ' + parameter_headers.length + ' parameter columns');
+					
+					// Apply light red background to all rows and cells in the failed runs table
+					setTimeout(function() {
+						var failedTable = document.getElementById('tab_failed_results_table');
+						if (failedTable) {
+							// Apply to rows
+							var rows = failedTable.querySelectorAll('tr');
+							rows.forEach(function(row) {
+								row.style.setProperty('background-color', '#ffebee', 'important');
+							});
+							
+							// Also apply to individual cells to ensure coverage
+							var cells = failedTable.querySelectorAll('td, th');
+							cells.forEach(function(cell) {
+								cell.style.setProperty('background-color', '#ffebee', 'important');
+							});
+						}
+					}, 200);
+				} else {
+					document.getElementById('tab_failed_results_table').innerHTML = 
+						'<p style="color: #666; font-style: italic;">No failed runs data available.</p>';
+				}
+			</script></div>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'UDetect_Electricity_reql.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+        <div style="margin-bottom: 15px;">
+	        <label for="pareto_plot_selector" style="font-weight: bold; margin-right: 10px;">Plot Type:</label>
+	        <select id="pareto_plot_selector" onchange="updateParetoPlot()" style="padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+		            <option value="reqlabels_vs_accuracy">REQLABELS vs ACCURACY</option>
+		            <option value="reqlabels_vs_runtime">REQLABELS vs RUNTIME</option>
+		            <option value="3d_reqlabels_accuracy_runtime">REQLABELS vs ACCURACY vs RUNTIME</option>
+	        </select>
+    </div>
+    <div id="pareto_front_graphs_container"></div>
+</div>
+
+
+<div class="section-header parallel">Parallel Plot</div>
+<div class="section-content">
+    <div class="invert_in_dark_mode" id="parallel-plot"></div>
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Model for non-random steps</td><td>SOBOL</td></tr><tr><td>Max. nr. evaluations (from arguments)</td><td>50000</td></tr><tr><td>Number random steps</td><td>50000</td></tr><tr><td>Number random steps (from arguments)</td><td>20</td></tr><tr><td>Nr. of workers (parameter)</td><td>50</td></tr><tr><td>Main process memory (GB)</td><td>8</td></tr><tr><td>Worker memory (GB)</td><td>64</td></tr></tbody></table><h2>Experiment parameters:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> n_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> n_windows</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> disjoint_training_windows</td><td>choice</td><td></td><td></td><td>False, True</td><td></td><td></td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>50</td><td>1336</td><td>1386</td></tr></tbody></table>
+</body>
+</html>

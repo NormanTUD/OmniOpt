@@ -1,0 +1,1524 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/CDLEEDS_ForestCovertype_HoeffdingTreeClassifier_ACCURACY-RUNTIME/1« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">
+        Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">CDLEEDS + ForestCovertype + HoeffdingTreeClassifier + ACCURACY-RUNTIME-REQLABELS</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+    "ACCURACY",
+    "RUNTIME",
+    "REQLABELS",
+    "recent_samples_size",
+    "significance",
+    "gamma",
+    "max_node_size",
+    "max_tree_depth",
+    "max_time_stationary"
+];
+			var tab_results_csv_json = [
+        [
+                0.84,
+                12705.0,
+                0.9995060551422078,
+                35,
+                0.9834163764659316,
+                0.1797523171380162,
+                563,
+                3,
+                1125
+        ],
+        [
+                0.8,
+                11842.0,
+                0.9644048828003564,
+                597,
+                0.1134273931346833,
+                0.0432098900172859,
+                7,
+                1488,
+                95
+        ],
+        [
+                0.58,
+                559.0,
+                0.0,
+                3623,
+                0.5801374309696257,
+                0.1929343481976539,
+                1,
+                2975,
+                1182
+        ]
+];
+			var tab_failed_results_csv_json = [
+        [3160, 0.5985400032997131, 0.4018160467743873, 2289, 4712, 2946],
+        [1781, 0.3334791729114949, 0.5316018764730542, 3166, 700, 1055],
+        [1, 0.9713742294870316, 0.2306606945358216, 461, 2022, 1620],
+        [4902, 0.2072247407045215, 0.8279945482704788, 3764, 3546, 4722],
+        [3876, 0.8179720507971942, 0.6478013684079051, 4487, 2684, 3371],
+        [1183, 0.1164870181437581, 0.2939012513067573, 988, 1789, 308],
+        [2024, 0.6880900480207056, 0.9748789998106658, 2638, 609, 2046],
+        [3072, 0.4851451948098838, 0.0910863189343363, 1567, 4021, 3976],
+        [2690, 0.8795991459935903, 0.9362888608165084, 782, 1218, 4548],
+        [2252, 0.1776571499425917, 0.0054218228925019, 4985, 4623, 1483],
+        [790, 0.5036621864456682, 0.7019932730644941, 1460, 3284, 877],
+        [4112, 0.301174296632409, 0.3639801022391766, 3078, 2402, 2810],
+        [4650, 0.6619373971391468, 0.1757111238874494, 3606, 1368, 4114],
+        [408, 0.3967850511968135, 0.757713982226327, 2181, 2910, 2221],
+        [1559, 0.7812776252627373, 0.4411789722144603, 4261, 4068, 443],
+        [3539, 0.017219628797844, 0.6174834348689764, 256, 53, 3547],
+        [3653, 0.7734561139978468, 0.0537485082242637, 2665, 3684, 2476],
+        [1252, 0.0406389127653092, 0.8871089163981378, 1862, 2157, 4335],
+        [532, 0.6541423234324902, 0.3196732046958059, 4587, 838, 3653],
+        [4411, 0.4201698670722543, 0.747396130271256, 1210, 4848, 505],
+        [4324, 0.5582880354952066, 0.806985296273604, 488, 3843, 1339],
+        [776, 0.2621386656351387, 0.1275367212705314, 4059, 434, 4526],
+        [2434, 0.9341371685154736, 0.5722328603770583, 2389, 1612, 2515],
+        [2627, 0.1387164242397993, 0.4855772393867373, 3388, 2509, 695],
+        [2863, 0.7426281002853065, 0.5184977146368474, 4166, 2266, 17],
+        [2041, 0.4462044988498091, 0.4160161794275045, 48, 3146, 3202],
+        [1003, 0.8725978701040149, 0.8451184978950768, 3594, 4488, 3846],
+        [3941, 0.07745135740377, 0.2126834858246147, 1891, 1081, 2029],
+        [4790, 0.9635791260376572, 0.279853412522003, 1365, 228, 1144],
+        [310, 0.2306095268372446, 0.6609968998730182, 2870, 4245, 3001],
+        [1660, 0.5907185450140386, 0.1091548972744494, 770, 3084, 4975],
+        [3401, 0.3568984866216778, 0.9579073329009116, 4695, 1545, 1829],
+        [3307, 0.9989272390883416, 0.7076576147209853, 3337, 3921, 1938],
+        [1635, 0.203549445156008, 0.3579488841593265, 2459, 514, 3751],
+        [167, 0.6182327217794955, 0.9112529997248202, 3915, 1855, 3263],
+        [4735, 0.3220708581190556, 0.0310654169358313, 613, 2736, 83],
+        [4041, 0.7151071998067199, 0.4629257664661854, 1139, 3456, 1748],
+        [1017, 0.481031117958948, 0.5963471693843602, 4639, 1916, 4889],
+        [2171, 0.8372564807664603, 0.1657831060159951, 1738, 755, 3073],
+        [2926, 0.1045124484784901, 0.7672779194898903, 2808, 4772, 1221],
+        [2523, 0.5307405896410347, 0.2368132926467806, 4843, 154, 570],
+        [2418, 0.2969994145128875, 0.8224515866450965, 641, 4164, 3713],
+        [644, 0.8988222948107867, 0.3762938439156859, 2917, 2844, 4241],
+        [4259, 0.1657433558031916, 0.5567591175958513, 1299, 1317, 2387],
+        [4504, 0.8087700972799212, 0.9961375376079232, 2021, 2491, 770],
+        [555, 0.0136053764596581, 0.0694617969952523, 3445, 3389, 2585],
+        [1393, 0.6816906597092747, 0.638359703456983, 114, 4566, 4441],
+        [3704, 0.3853157229367643, 0.3039515414908528, 4120, 1157, 1259],
+        [3486, 0.6270765292905272, 0.8667432559169828, 1711, 2601, 2720],
+        [1418, 0.4243326160218566, 0.1914256637115031, 2513, 1718, 783]
+    ];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+	// Get the selected plot type from dropdown
+	let selectedPlotType = document.getElementById("pareto_plot_selector").value;
+	
+	// Extract column indices
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let reqlabelsIndex = tab_results_headers_json.indexOf("REQLABELS");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (reqlabelsIndex === -1) {
+		console.warn("REQLABELS column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	let xIndex, yIndex, zIndex, xLabel, yLabel, zLabel, plotTitle, plotId, is3D = false;
+	
+	if (selectedPlotType === "reqlabels_vs_accuracy") {
+		if (accuracyIndex === -1) {
+			console.warn("ACCURACY column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "ACCURACY vs REQLABELS";
+		plotId = "pareto_front_graph_accuracy_reqlabels";
+	} else if (selectedPlotType === "reqlabels_vs_runtime") {
+		if (runtimeIndex === -1) {
+			console.warn("RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = runtimeIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "RUNTIME (min)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "RUNTIME vs REQLABELS";
+		plotId = "pareto_front_graph_runtime_reqlabels";
+	} else if (selectedPlotType === "3d_reqlabels_accuracy_runtime") {
+		if (accuracyIndex === -1 || runtimeIndex === -1) {
+			console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = runtimeIndex;
+		zIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "RUNTIME (min)";
+		zLabel = "REQLABELS (min)";
+		plotTitle = "REQLABELS vs ACCURACY vs RUNTIME";
+		plotId = "pareto_front_graph_3d_accuracy_runtime_reqlabels";
+		is3D = true;
+	}
+
+	// Extract data points, filtering out empty values
+	let xValues = [];
+	let yValues = [];
+	let zValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let xValue = row[xIndex];
+		let yValue = row[yIndex];
+		let zValue = is3D ? row[zIndex] : null;
+		
+		// For 2D plots, only check x and y values
+		if (!is3D) {
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+			}
+		} else {
+			// For 3D plots, check all three values
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined &&
+				zValue !== "" && zValue !== null && zValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+				zValues.push(parseFloat(zValue));
+			}
+		}
+	});
+
+	if (xValues.length === 0 || yValues.length === 0 || (is3D && zValues.length === 0)) {
+		console.warn("No valid data found for selected plot type");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Create the scatter plot container
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
+	graphContainer.innerHTML = "";
+
+	// Create a single scatter plot div
+	let div = document.createElement("div");
+	div.id = plotId;
+	div.style.marginBottom = "20px";
+	graphContainer.appendChild(div);
+
+	let layout, trace;
+
+	if (is3D) {
+		// 3D scatter plot configuration with reduced width
+		layout = {
+			title: plotTitle,
+			width: 700,  // Reduced width for more compact display
+			height: 500, // Controlled height for better layout
+			scene: {
+				xaxis: {
+					title: get_axis_title_data(xLabel)
+				},
+				yaxis: {
+					title: get_axis_title_data(yLabel)
+				},
+				zaxis: {
+					title: get_axis_title_data(zLabel)
+				}
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			z: zValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+				opacity: 0.8
+			},
+			type: "scatter3d",
+			name: plotTitle
+		};
+	} else {
+		// 2D scatter plot configuration
+		layout = {
+			title: plotTitle,
+			xaxis: {
+				title: get_axis_title_data(xLabel)
+			},
+			yaxis: {
+				title: get_axis_title_data(yLabel)
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+			},
+			type: "scatter",
+			name: plotTitle
+		};
+	}
+
+	// Create the plot
+	Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+
+	// Apply theme if available
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
+}
+
+function updateParetoPlot() {
+	// Reset the loaded flag to force regeneration
+	$("#tab_pareto_fronts").data("loaded", "false");
+	// Reload the plot with new selection
+	load_pareto_graph();
+}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				load_pareto_graph();;
+
+			});
+		</script>
+
+<h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+
+<div id="tab_results_csv_table"></div>
+
+<script>// Create the main results table using tab_results_csv_json data
+        if (typeof tab_results_csv_json !== 'undefined' && tab_results_csv_json.length > 0) {
+            // Show only ACCURACY, RUNTIME, REQLABELS and experiment parameters
+            var correct_headers = ['ACCURACY', 'RUNTIME', 'REQLABELS', 'recent_samples_size', 'significance', 'gamma', 'max_node_size', 'max_tree_depth', 'max_time_stationary'];
+            
+            // Find indices of these columns in the original headers
+            var column_indices = correct_headers.map(function(header) {
+                return tab_results_headers_json.indexOf(header);
+            }).filter(function(index) {
+                return index !== -1; // Only keep valid indices
+            });
+            
+            // Filter headers to only include the correct ones
+            var filtered_headers = column_indices.map(function(index) {
+                return tab_results_headers_json[index];
+            });
+            
+            // Filter data to only include the correct columns
+            var filtered_data = tab_results_csv_json.map(function(row) {
+                return column_indices.map(function(index) {
+                    return row[index];
+                });
+            });
+            
+            createTable(filtered_data, filtered_headers, 'tab_results_csv_table');
+            console.log('Loaded ' + filtered_data.length + ' completed runs with ' + filtered_headers.length + ' columns (ACCURACY, RUNTIME, REQLABELS + parameters)');
+        }
+
+				// Apply light green background to all rows in the table
+				setTimeout(function() {
+					var table = document.getElementById('tab_results_csv_table');
+					if (table) {
+						var rows = table.querySelectorAll('tr');
+						rows.forEach(function(row) {
+							row.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+						var cells = table.querySelectorAll('td, th');
+						cells.forEach(function(cell) {
+							cell.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+					}
+				}, 100);</script>
+
+
+    
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+    <div id="tab_failed_results_table"></div><script>
+				// Simple Failed Runs table implementation
+				if (typeof tab_failed_results_csv_json !== 'undefined' && tab_failed_results_csv_json.length > 0) {
+					// Define parameter headers directly
+					var parameter_headers = ['recent_samples_size', 'significance', 'gamma', 'max_node_size', 'max_tree_depth', 'max_time_stationary'];
+					
+					// Use the failed runs data directly
+					var parameter_data = tab_failed_results_csv_json;
+					
+					createTable(parameter_data, parameter_headers, 'tab_failed_results_table');
+					console.log('Loaded ' + tab_failed_results_csv_json.length + ' failed runs');
+					
+					// Apply light red background
+					setTimeout(function() {
+						var failedTable = document.getElementById('tab_failed_results_table');
+						if (failedTable) {
+							var rows = failedTable.querySelectorAll('tr');
+							rows.forEach(function(row) {
+								row.style.setProperty('background-color', '#ffebee', 'important');
+							});
+							var cells = failedTable.querySelectorAll('td, th');
+							cells.forEach(function(cell) {
+								cell.style.setProperty('background-color', '#ffebee', 'important');
+							});
+						}
+					}, 200);
+				} else {
+					document.getElementById('tab_failed_results_table').innerHTML = 
+						'<p style="color: #666; font-style: italic;">No failed runs data available.</p>';
+				}
+			</script>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'CDLEEDS_ForestCovertype_reql.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+        <div style="margin-bottom: 15px;">
+	        <label for="pareto_plot_selector" style="font-weight: bold; margin-right: 10px;">Plot Type:</label>
+	        <select id="pareto_plot_selector" onchange="updateParetoPlot()" style="padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+		            <option value="reqlabels_vs_accuracy">REQLABELS vs ACCURACY</option>
+		            <option value="reqlabels_vs_runtime">REQLABELS vs RUNTIME</option>
+		            <option value="3d_reqlabels_accuracy_runtime">REQLABELS vs ACCURACY vs RUNTIME</option>
+	        </select>
+    </div>
+    <div id="pareto_front_graphs_container"></div>
+
+
+<div class="section-header parallel">Parallel Plot</div>
+<div class="section-content">
+    <div id="parallel-plot"></div>
+</div>
+<script>
+    // Initialize parallel plot with cleaned data
+    createParallelPlot(tab_results_csv_json, tab_results_headers_json, ["ACCURACY", "RUNTIME", "REQLABELS"]);
+</script>
+
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Model for non-random steps</td><td>SOBOL</td></tr><tr><td>Max. nr. evaluations (from arguments)</td><td>50000</td></tr><tr><td>Number random steps</td><td>50000</td></tr><tr><td>Number random steps (from arguments)</td><td>20</td></tr><tr><td>Nr. of workers (parameter)</td><td>50</td></tr><tr><td>Main process memory (GB)</td><td>8</td></tr><tr><td>Worker memory (GB)</td><td>64</td></tr></tbody></table><h2>Experiment parameters:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> significance</td><td>float</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No</td></tr><tr><td> gamma</td><td>float</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No</td></tr><tr><td> max_node_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> max_tree_depth</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> max_time_stationary</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>50</td><td>3</td><td>53</td></tr></tbody></table>
+</body>
+</html>

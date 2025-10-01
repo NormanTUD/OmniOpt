@@ -1,0 +1,1380 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/NNDVI_ForestCovertype_HoeffdingTreeClassifier_ACCURACY-RUNTIME/0« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">NNDVI + ForestCovertype + HoeffdingTreeClassifier + ACCURACY-RUNTIME-REQLABELS</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [];
+var tab_failed_results_headers_json = ["recent_samples_size","n_samples","k_neighbors","n_permutations","significance_level"];
+			var tab_results_csv_json = [];
+// Main results headers and data (starting with ACCURACY)
+			var tab_failed_results_csv_json = [[2557,1778,39,327,0.6438520820140838],[2160,3878,65,884,0.2050285430736839],[1124,91,1,241,0.2844940005391836],[4179,2992,77,549,0.8431869007758797],[4564,1150,61,632,0.8835187779683619],[115,3268,35,63,0.4486011939998716],[1617,1982,98,813,0.0565307312700897],[3726,4863,22,493,0.6191297537814826],[3354,414,90,15,0.1393278973381966],[1402,2670,16,697,0.7019268343392759],[329,1457,53,428,0.8085508432593196],[4935,4200,28,861,0.3736333522368222],[3770,2285,13,945,0.3986003180406987],[871,4561,87,251,0.9572932443022728],[2415,847,50,625,0.5375750218965112],[2968,3571,74,180,0.0987514309063553],[3035,723,19,763,0.8407990392129868],[2328,3623,93,449,0.2811277262512594],[630,2409,32,676,0.2318218493070453],[3990,4510,56,113,0.6696593799758702],[4690,1352,83,193,0.5698916335366666],[555,4232,9,503,0.0063294191360473],[1474,519,71,373,0.4910410825945437],[3262,2638,47,932,0.9249878605380654],[3478,2087,67,575,0.3166307207867503],[1846,4832,42,136,0.7505774132199585],[185,1045,80,989,0.736472756549716],[4475,3300,4,301,0.1729106350950896],[4244,215,32,380,0.0884772245306521],[1040,2941,58,815,0.5263147812243552],[1917,1654,19,61,0.9763144326303154],[2780,3929,95,745,0.4166430862080305],[2680,30,51,911,0.5975018876455724],[1979,3048,26,349,0.0388089725375175],[983,1840,88,527,0.4585273250676691],[4339,3822,14,216,0.8973508974686265],[4424,1882,49,105,0.8723687033932656],[275,4959,73,670,0.3097696957532316],[1741,1250,11,456,0.2031455567087978],[3544,3173,86,771,0.6380631258059292],[3133,1557,2,723,0.1203790553826838],[1487,4105,78,36,0.5552965315338224],[528,314,40,840,0.9473668864462524],[4834,2765,66,404,0.384767964316532],[3969,908,100,292,0.344451315395534],[769,3515,24,982,0.7832749212570488],[2194,2224,63,144,0.703809571608901],[3052,4617,37,584,0.1451166304759681],[2824,2470,81,471,0.9154205493349582],[2441,4454,5,788,0.4775830037947744],[858,662,69,88,0.0275832445714622],[3899,3679,43,656,0.5872545724045484],[4918,619,21,540,0.6716727546975017],[463,2543,97,234,0.2377259916253388],[1263,1252,34,892,0.2518307561129331],[3376,4327,60,336,0.8153929556421936],[3631,945,30,159,0.42621063163504],[1674,3396,54,601,0.9897727382183074],[54,2187,17,275,0.5050612048842013],[4664,4736,91,968,0.0711145273223519],[4114,1593,70,853,0.1708975020330399],[1229,3985,46,422,0.7305688633266836],[2070,277,82,704,0.7798746101465076],[2608,2885,8,23,0.3420370385814457],[2632,1194,87,605,0.0417807022389024],[2086,3139,12,169,0.6043682180363685],[1209,1925,75,957,0.8983085395526141],[4096,4982,49,271,0.4633872414622455],[4648,1816,15,409,0.3009846031554043],[30,3779,91,849,0.8596813364848493],[1692,66,28,27,0.6273860097043215],[3651,3102,53,717,0.1885738399177789],[3437,2248,36,793,0.5542131372392177],[1321,4659,60,482,0.1154010009132325],[402,873,23,644,0.3819219868257641],[4863,3461,98,83,0.9406186941303312],[3841,369,64,222,0.7940701754335314],[798,2800,39,537,0.3591487843971699],[2496,1513,76,338,0.1537835849989205],[2885,4082,2,904,0.7163711863067],[3106,1306,57,41,0.4764996095001697],[2256,4363,33,733,0.9104424948655068],[711,576,94,392,0.5844085949137807],[3908,2519,20,835,0.020835052255541],[4772,684,43,970,0.2485212458018213],[474,3722,67,289,0.6863702236991375],[1547,2436,5,587,0.824059910165146],[3191,4398,79,156,0.2643923708107322],[3561,254,9,353,0.9927444679196924],[1761,2841,84,921,0.4330769620258361],[258,1628,46,205,0.0720721694063395],[4401,4041,72,523,0.5099211212787776],[4319,2132,94,657,0.7217837707288564],[966,4701,18,101,0.1582101351246237],[2002,987,56,774,0.3313599224798381],[2697,3420,31,469,0.7653028933554887],[2763,2025,25,132,0.2176245403531938],[1897,4886,100,565,0.6525458235722034],[1056,1094,38,311,0.8579109002817422],[4268,3234,62,994,0.295323399355635],[4495,127,77,829,0.4418871463239192],[202,3046,3,384,0.8806993309818208],[1822,1755,65,742,0.6141784677579998],[3461,3836,40,48,0.0554817195571958],[3208,812,74,444,0.6873207349665463],[1412,3517,48,752,0.1286240127906203],[613,2309,86,124,0.3609194548241794],[4750,4603,10,682,0.7997316060215234],[4052,1413,26,516,0.9621190160568804],[684,4178,51,196,0.3995314296204596],[2268,469,13,930,0.1055909928511828],[2977,2705,89,361,0.5405123690161853],[2907,476,45,692,0.2665216268785297],[2357,2615,70,4,0.8300951546654105],[932,1406,7,873,0.6569454825632273],[3824,4268,83,434,0.2230026120692491],[4993,2375,54,264,0.0111551908906549],[390,4454,29,948,0.5708227451164274],[1348,746,92,178,0.9318274224828929],[3293,3666,16,613,0.4939784297142177],[3702,1689,96,880,0.7631734104994684],[1601,3985,22,317,0.3253244437556713],[135,193,59,559,0.1876346346009522],[4582,2897,35,246,0.7473021553661673],[4195,1087,6,77,0.5196007335484027],[1148,3324,80,636,0.085657777544111],[2142,2033,44,490,0.4116918001845478],[2537,4796,68,800,0.9752654209174216],[2504,349,5,424,0.4666058905590325],[2117,2741,79,867,0.9049422177579252],[1159,1533,42,10,0.6060069116596132],[4204,4141,66,702,0.0458520230036228],[4598,2189,95,619,0.1955847524479031],[139,4639,21,188,0.6300149573720991],[1563,931,57,938,0.8653560499846935],[3681,3480,33,258,0.301295187767595],[3310,1875,56,236,0.9403238359801472],[1349,3799,30,553,0.3762629403024911],[354,8,94,323,0.1127877350933849],[4970,3083,18,890,0.5472179660424589],[3793,1214,46,806,0.7122840795945375],[904,3198,72,500,0.1521292838845401],[2370,1905,9,626,0.3524994838293641],[2914,4923,85,71,0.7908357255179435],[3000,2152,27,988,0.020037601660937],[2303,4759,53,302,0.5792216842919587],[683,967,15,574,0.9083013649471104],[4034,3361,91,138,0.4690018458589911],[4744,313,75,57,0.2598332471679896],[599,2861,49,748,0.8229080825243145],[1441,1570,88,378,0.6802233966048807],[3239,4021,12,819,0.2448147789556533],[3453,626,76,676,0.5136423628199845],[1811,3702,1,115,0.0782337117101997],[228,2494,63,762,0.4342435197476297],[4528,4417,39,450,0.9973183811288326],[4289,1286,24,371,0.7727858228161931],[1094,4304,98,936,0.3334863966740667],[1894,596,36,190,0.1633823751509189],[2747,2578,61,506,0.7225663722716272],[2734,1472,92,840,0.2916131923627108],[2023,4197,17,402,0.8517680661473424],[950,410,55,724,0.6513977360781282],[4316,2685,29,35,0.2130614237505942],[4389,831,7,146,0.0479800819270312],[250,3575,83,581,0.6120409590154886],[1794,2289,44,295,0.8755162943489849],[3587,4544,70,980,0.44108607455343],[3177,108,44,528,0.8005179625824093],[1541,2988,68,215,0.3660877167619764],[504,1775,7,911,0.1307467319667339],[4800,3894,81,347,0.6948076425157487],[3943,1967,58,459,0.5450901413429527],[735,4867,34,769,0.1067539145257323],[2237,1153,96,107,0.4056891128066927],[3105,3254,22,667,0.9658438936453312],[2857,1029,65,280,0.2233168327286839],[2465,3305,41,963,0.6626163369454443],[804,2091,78,163,0.8327204662859439],[3855,4815,3,595,0.2735363985262811],[4865,1670,38,711,0.4980537285674363],[420,3926,62,17,0.9334623610880226],[1298,213,25,859,0.5774524452332406],[3401,2956,99,415,0.0143775950055569],[3654,2394,14,92,0.7440640842746942],[1707,4512,90,650,0.1809892080221325],[10,726,26,476,0.3236737638171762],[4610,3607,52,783,0.7590824297983199],[4070,535,86,898,0.9682662567608056],[1176,2634,10,329,0.4090822745114565],[2095,1347,73,547,0.080002723980695],[2643,4248,47,228,0.5193021352514624],[2588,2343,71,646,0.8508069441653788],[2032,4580,47,82,0.2867574696913361],[1233,789,84,794,0.210094125714153],[4129,3552,10,480,0.6445281637310982],[4673,433,31,342,0.6227138813938946],[65,2728,55,902,0.062555278616026],[1648,1437,19,224,0.4498744091074913],[3597,4141,93,534,0.8881992295924575],[3382,1131,20,958,0.3689371146652847],[1276,3210,95,269,0.8072620206605642],[435,2002,32,607,0.6958866646308451],[4887,4922,58,168,0.1357279689069837],[3876,1720,79,29,0.0980910942405462],[823,3859,4,714,0.5325251062326132],[2443,149,67,413,0.9550454569980502],[2842,3012,41,847,0.390996015984565],[3082,157,99,210,0.6654657348487525],[2222,2922,23,517,0.2300608908068388],[756,1713,61,359,0.2746154206413775],[3963,3949,35,916,0.8377017032261938],[4815,2068,1,781,0.9247995408028364],[527,4773,77,462,0.4854886934570968],[1522,1065,38,664,0.0035791583582758],[3156,3359,64,95,0.5627593484111129],[3528,1371,50,398,0.180028086040169],[1737,4290,75,830,0.7392083616033195],[312,499,13,46,0.7561151317618787],[4445,2579,87,728,0.3168041914701461],[4372,781,52,594,0.4197551968898624],[1009,3642,28,150,0.9828414534498005],[1967,2351,90,977,0.5280904698055237],[2672,4490,15,282,0.0926856592241674],[2806,889,34,119,0.8902147383540868],[1950,3457,59,686,0.4557806854657828],[1031,2243,21,439,0.0332604573890566],[4233,4676,97,757,0.5973099467344583],[4472,1498,69,922,0.6349620496723801],[169,4085,43,367,0.1966372440587729],[1867,372,81,509,0.3080124773997813],[3516,2784,6,203,0.8681710653062908],[3262,1941,82,307,0.3889802581276744],[1456,4978,8,999,0.949138938980177],[578,1192,69,127,0.5618196932356804],[4725,3154,45,569,0.1234948021117597],[4019,49,18,736,0.145293856177479],[661,3107,92,55,0.709343312062323],[2322,1820,30,821,0.7860067712925374],[3021,3763,54,390,0.3515727444291114],[2932,1613,11,559,0.5919390021171421],[2392,4044,85,247,0.0288527046609669],[889,257,48,878,0.4836035730522125],[3771,2826,73,317,0.9190084319654852],[4948,1004,89,487,0.8160726548172533],[336,3415,14,803,0.2568924796357751],[1371,2129,51,73,0.2399858247302472],[3326,4717,27,638,0.679296657204628],[3737,560,62,871,0.0635062323063611],[1626,2523,37,434,0.5028171577267349],[82,1310,100,692,0.9847268155142664],[4539,4346,24,5,0.4255465548224747],[4141,2451,40,174,0.3384334889743477],[1103,4395,66,615,0.7738383144270627],[2176,681,3,261,0.7292836619038134],[2561,3738,78,951,0.1661973904725164],[2575,665,59,200,0.304294417399913],[2181,3742,33,511,0.864456901602447],[1108,2455,97,364,0.6308813292793929],[4156,4378,21,926,0.1925526273697614],[4544,1325,43,755,0.0450142561551183],[97,4343,69,440,0.6090675228256732],[1641,557,6,686,0.9018496629130094],[3742,2538,82,120,0.4674118326995521],[3331,2113,8,388,0.7897248089853675],[1387,4720,82,824,0.3552869453113526],[350,1007,45,52,0.1493745988775044],[4953,3400,69,738,0.7134278915729374],[3786,274,92,569,0.5500658572912215],[894,2822,17,128,0.111737248327583],[2396,1608,54,998,0.3773453707471489],[2947,4060,30,307,0.9375077694393694],[3017,1835,85,640,0.2437038029376417],[2307,3760,11,73,0.6830109175723045],[646,47,72,803,0.8201534570027142],[4014,3122,48,486,0.2609769996609538],[4711,1175,14,320,0.4718497965931892],[573,3158,89,876,0.9072508186958728],[1451,1945,27,250,0.5803040552511811],[3246,4962,51,555,0.0172215946055948],[3501,389,37,952,0.7255656613893807],[1862,2780,63,259,0.1624831672832369],[164,1494,24,616,0.334352709095925],[4457,4102,100,174,0.7697537572234869],[4228,2228,66,7,0.9964805547948926],[1016,4679,40,688,0.4373041903991252],[1936,892,78,438,0.0751412163507193],[2801,3442,3,868,0.5144482454750687],[2657,2355,47,534,0.4382395440340042],[1963,4474,71,226,0.8765682608149946],[1004,765,10,900,0.6109600231423973],[4358,3647,84,343,0.0507975240685045],[4440,496,55,478,0.2141747866217046],[298,2595,31,797,0.6486126019638032],[1722,1386,93,79,0.8545250636506825],[3523,4287,19,648,0.2904718118514865],[3151,1068,96,846,0.96668028489314],[1507,3343,20,413,0.4026270070690661],[512,2052,58,713,0.1098449896704405],[4810,4776,32,31,0.5442828384730964],[3948,1708,4,165,0.6918059814162552],[751,3965,80,609,0.1316435678526759],[2217,173,41,267,0.3652190174870192],[3068,2917,67,961,0.8035476413220167],[2847,146,23,97,0.0152139267679303],[2457,3027,99,661,0.5743903989810497],[838,1735,36,465,0.9365534957181662],[3881,3855,61,779,0.4972463662121445],[4902,2006,76,917,0.270534796912223],[440,4905,1,357,0.8336172426864504],[1281,1114,64,519,0.6617475781850516],[3397,3214,38,209,0.2263465709537267],[3612,1433,74,286,0.516455664217472],[1653,4158,50,974,0.0810546309612691],[70,449,87,152,0.4080012791529297],[4688,2724,13,591,0.9710837583877145],[4134,792,28,730,0.7601957331839949],[1247,3537,52,45,0.3208886891882866],[2047,2328,16,831,0.1837462650109082],[2592,4583,90,396,0.7429226442780344],[2648,1332,17,978,0.8873938228208572],[2109,4252,93,296,0.4529673803504556],[1191,538,29,580,0.0594950838480144],[4075,2619,55,148,0.6235521836113184],[4625,743,83,32,0.6475597534403204],[14,3603,7,726,0.2092273374088108],[1712,2390,70,399,0.2876562016755342],[3669,4529,44,844,0.8478071791641413],[3416,196,68,666,0.3938115471564233],[1302,2960,44,109,0.953962610155344],[425,1674,81,767,0.5335751766003667],[4879,3909,6,460,0.0952426676228642],[3859,2107,34,345,0.1345846922975033],[818,4812,59,914,0.6986417660359293],[2480,1026,22,212,0.8044749755766242],[2862,3320,96,531,0.3700485665667802],[3090,1170,41,418,0.5655749390684068],[2232,3249,65,857,0.0024962520301342],[730,1962,3,19,0.4865387043394148],[3929,4883,78,708,0.9219511736705898],[4795,1759,62,597,0.8365583671312778],[490,3897,37,162,0.2773705815318971],[1526,111,99,963,0.2272739052083343],[3173,2972,25,279,0.6665771272648126],[3582,2304,89,230,0.0918801929671317],[1779,4541,14,544,0.5311835005339234],[235,828,52,332,0.9797813181672244],[4385,3591,26,896,0.4205934396218508],[4301,394,10,784,0.3198358406648039],[945,2690,86,474,0.7552482839711009]];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				// Check if parallel-plot element exists
+				if (!document.getElementById("parallel-plot")) {
+					console.log("No parallel-plot element found - skipping parallel plot");
+					return;
+				}
+				
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+	// Check if the pareto plot selector exists
+	let plotSelector = document.getElementById("pareto_plot_selector");
+	if (!plotSelector) {
+		console.log("No pareto plot selector found - skipping pareto plot");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Get the selected plot type from dropdown
+	let selectedPlotType = plotSelector.value;
+	
+	// Extract column indices
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let reqlabelsIndex = tab_results_headers_json.indexOf("REQLABELS");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (reqlabelsIndex === -1) {
+		console.warn("REQLABELS column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	let xIndex, yIndex, zIndex, xLabel, yLabel, zLabel, plotTitle, plotId, is3D = false;
+	
+	if (selectedPlotType === "reqlabels_vs_accuracy") {
+		if (accuracyIndex === -1) {
+			console.warn("ACCURACY column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "ACCURACY vs REQLABELS";
+		plotId = "pareto_front_graph_accuracy_reqlabels";
+	} else if (selectedPlotType === "reqlabels_vs_runtime") {
+		if (runtimeIndex === -1) {
+			console.warn("RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = runtimeIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "RUNTIME (min)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "RUNTIME vs REQLABELS";
+		plotId = "pareto_front_graph_runtime_reqlabels";
+	} else if (selectedPlotType === "3d_reqlabels_accuracy_runtime") {
+		if (accuracyIndex === -1 || runtimeIndex === -1) {
+			console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = runtimeIndex;
+		zIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "RUNTIME (min)";
+		zLabel = "REQLABELS (min)";
+		plotTitle = "REQLABELS vs ACCURACY vs RUNTIME";
+		plotId = "pareto_front_graph_3d_accuracy_runtime_reqlabels";
+		is3D = true;
+	}
+
+	// Extract data points, filtering out empty values
+	let xValues = [];
+	let yValues = [];
+	let zValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let xValue = row[xIndex];
+		let yValue = row[yIndex];
+		let zValue = is3D ? row[zIndex] : null;
+		
+		// For 2D plots, only check x and y values
+		if (!is3D) {
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+			}
+		} else {
+			// For 3D plots, check all three values
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined &&
+				zValue !== "" && zValue !== null && zValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+				zValues.push(parseFloat(zValue));
+			}
+		}
+	});
+
+	if (xValues.length === 0 || yValues.length === 0 || (is3D && zValues.length === 0)) {
+		console.warn("No valid data found for selected plot type");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Create the scatter plot container
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
+	graphContainer.innerHTML = "";
+
+	// Create a single scatter plot div
+	let div = document.createElement("div");
+	div.id = plotId;
+	div.style.marginBottom = "20px";
+	graphContainer.appendChild(div);
+
+	let layout, trace;
+
+	if (is3D) {
+		// 3D scatter plot configuration with reduced width
+		layout = {
+			title: plotTitle,
+			width: 700,  // Reduced width for more compact display
+			height: 500, // Controlled height for better layout
+			scene: {
+				xaxis: {
+					title: get_axis_title_data(xLabel)
+				},
+				yaxis: {
+					title: get_axis_title_data(yLabel)
+				},
+				zaxis: {
+					title: get_axis_title_data(zLabel)
+				}
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			z: zValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+				opacity: 0.8
+			},
+			type: "scatter3d",
+			name: plotTitle
+		};
+	} else {
+		// 2D scatter plot configuration
+		layout = {
+			title: plotTitle,
+			xaxis: {
+				title: get_axis_title_data(xLabel)
+			},
+			yaxis: {
+				title: get_axis_title_data(yLabel)
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+			},
+			type: "scatter",
+			name: plotTitle
+		};
+	}
+
+	// Create the plot
+	Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+
+	// Apply theme if available
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
+}
+
+function updateParetoPlot() {
+	// Reset the loaded flag to force regeneration
+	$("#tab_pareto_fronts").data("loaded", "false");
+	// Reload the plot with new selection
+	load_pareto_graph();
+}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				load_pareto_graph();;
+
+				createParallelPlot(tab_results_csv_json, tab_results_headers_json, ["ACCURACY", "RUNTIME"], special_col_names);;
+
+			});
+		</script>
+<div class="section-content">
+    <h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+    <div id="tab_results_table">
+        <p style="color: #666; font-style: italic; padding: 20px;">No completed runs available for NNDVI ForestCovertype experiment.</p>
+    </div>
+    
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+    <div id="tab_failed_results_table"></div><script>
+				// Use the embedded failed runs data with proper headers
+				if (typeof tab_failed_results_csv_json !== 'undefined' && tab_failed_results_csv_json.length > 0) {
+					// Use the dedicated failed results headers (5 NNDVI parameter columns)
+					var parameter_headers = tab_failed_results_headers_json;
+					
+					// Use the failed results data as-is (already contains only parameter columns)
+					var parameter_data = tab_failed_results_csv_json;
+					
+					createTable(parameter_data, parameter_headers, 'tab_failed_results_table');
+					console.log('Loaded ' + tab_failed_results_csv_json.length + ' failed runs with ' + parameter_headers.length + ' parameter columns');
+					
+					// Apply light red background to all rows and cells in the failed runs table
+					setTimeout(function() {
+						var failedTable = document.getElementById('tab_failed_results_table');
+						if (failedTable) {
+							// Apply to rows
+							var rows = failedTable.querySelectorAll('tr');
+							rows.forEach(function(row) {
+								row.style.setProperty('background-color', '#ffebee', 'important');
+							});
+							
+							// Also apply to individual cells to ensure coverage
+							var cells = failedTable.querySelectorAll('td, th');
+							cells.forEach(function(cell) {
+								cell.style.setProperty('background-color', '#ffebee', 'important');
+							});
+						}
+					}, 200);
+				} else {
+					document.getElementById('tab_failed_results_table').innerHTML = 
+						'<p style="color: #666; font-style: italic;">No failed runs data available.</p>';
+				}
+			</script>
+</div>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'BNDM_Electricity_reql.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td>Model for non-random steps</td><td>SOBOL</td></tr><tr><td>Max. nr. evaluations</td><td>50000</td></tr><tr><td>Number random steps</td><td>50000</td></tr><tr><td>Number random steps (from arguments)</td><td>20</td></tr><tr><td>Nr. of workers (parameter)</td><td>50</td></tr><tr><td>Main process memory (GB)</td><td>8</td></tr><tr><td>Worker memory (GB)</td><td>64</td></tr></tbody></table><h2>Experiment parameters:</h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> n_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No</td></tr><tr><td> k_neighbors</td><td>int</td><td>1</td><td>100</td><td></td><td>int</td><td>No</td></tr><tr><td> n_permutations</td><td>int</td><td>1</td><td>1000</td><td></td><td>int</td><td>No</td></tr><tr><td> significance_level</td><td>float</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No</td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>350</td><td>0</td><td>350</td></tr></tbody></table>
+</body>
+</html>

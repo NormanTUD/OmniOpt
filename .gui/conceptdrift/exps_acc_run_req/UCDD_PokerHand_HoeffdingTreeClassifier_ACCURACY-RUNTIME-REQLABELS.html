@@ -1,0 +1,1445 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/UCDD_PokerHand_HoeffdingTreeClassifier_ACCURACY-RUNTIME/1« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<script>
+var tab_failed_results_csv_json = [[305, 3491, 4859, 0.6086035113334656, 0.2], [3231, 836, 521, 0.4836043993420899, 1e-10], [4503, 4885, 3133, 0.811621253721416, 0.0001], [1494, 1923, 1299, 0.18812104607746005, 0.8], [2065, 4098, 957, 0.046434709798544645, 0.5], [3815, 1440, 4119, 0.9199267430230975, 1e-07], [2514, 2996, 2034, 0.3735971507020295, 1e-08], [827, 22, 2700, 0.7476058573275804, 0.3], [973, 4461, 2239, 0.9395667090751231, 1e-12], [3032, 2426, 2823, 0.06656956121325493, 0.01], [4236, 3379, 826, 0.6440866423808038, 0.9], [2230, 1027, 3914, 0.26958310244232414, 0.001], [1717, 2640, 3650, 0.3781289129033685, 1e-05], [4944, 612, 1734, 0.5026482413969934, 0.7], [3731, 4053, 4415, 0.20581889817118645, 0.3], [391, 1719, 3, 0.8297988298274577, 1e-09], [477, 3855, 3055, 0.33349057180806996, 0.7], [3489, 1821, 2467, 0.7079752883240581, 0.0001], [4717, 2774, 3839, 0.006803917724639177, 1e-11], [1788, 421, 755, 0.8798204169422388, 0.1], [2467, 3245, 1643, 0.7698129303604364, 0.4], [4155, 1218, 3555, 0.14580650909617543, 1e-08], [1204, 2324, 4666, 0.4417962990514934, 0.5], [746, 2886, 440, 0.24397245124727487, 0.001], [2751, 231, 4774, 0.8674839871488511, 0.9], [4047, 4280, 1537, 0.415814293295145, 0.01], [1989, 1317, 3374, 0.5408015416599811, 1e-11], [1252, 4703, 4341, 0.6800511165596544, 1e-10], [4589, 2046, 1175, 0.3060461761057377, 0.2], [1735, 1415, 2018, 0.027771535493433475, 0.8], [3853, 4957, 4624, 0.5970431248135865, 1e-10], [2889, 124, 309, 0.3001010195091367, 1e-07], [277, 3516, 2581, 0.8216778121832758, 0.01], [824, 1173, 4177, 0.9152693987023085, 0.4], [3591, 2689, 1839, 0.4561303073950112, 0.001], [4399, 2231, 3698, 0.6281998689845204, 1e-10], [2437, 3899, 1070, 0.2459939178470522, 0.6], [2033, 378, 3244, 0.39034012678451835, 1e-08], [4803, 3262, 899, 0.990784250870347, 0.9], [3184, 1825, 4035, 0.1636648807786405, 0.2], [1230, 4547, 1356, 0.7164141496624797, 1e-06], [528, 2016, 402, 0.560506453724578, 0.0001], [2638, 4114, 3113, 0.07019535465538501, 0.2], [4100, 802, 2423, 0.772439809050411, 0.5], [1487, 3060, 4844, 0.3590617906656116, 1e-12], [1260, 666, 769, 0.6683188570979982, 0.01], [4327, 2963, 3373, 0.20797690708190203, 1e-07], [2723, 2113, 1559, 0.8792775733061134, 1e-09], [441, 4250, 3833, 0.49781798220984635, 0.7], [989, 1690, 2926, 0.2795963183287531, 0.7], [3427, 4450, 591, 0.8481220151260496, 1e-11], [4875, 475, 4948, 0.051946433205157516, 0.001], [1963, 3397, 2318, 0.5747265530359, 0.4], [2201, 2367, 4494, 0.8047768790330738, 1e-05], [4637, 3996, 2147, 0.3132319962643087, 0.1], [3667, 1077, 2784, 0.5167327696830034, 0.9], [748, 2553, 107, 0.10407018634863198, 1e-08], [45, 260, 1652, 0.13534780492447318, 1e-12], [3119, 3612, 4366, 0.7350760255120694, 0.5], [3933, 1318, 1174, 0.4067027083784342, 0.3], [1654, 4821, 3592, 0.9606852925140411, 1e-05], [1635, 45, 3977, 0.5795229603629559, 0.6], [4029, 3593, 1259, 0.04139467615261674, 1e-11], [2982, 1494, 3185, 0.8664706620499492, 0.001], [104, 4880, 801, 0.25140924138762055, 0.4], [652, 2308, 2364, 0.4697517796736211, 0.1], [3685, 3820, 4746, 0.8977509017027915, 1e-07], [4577, 1096, 344, 0.19730046855658293, 1e-10], [2339, 2768, 3016, 0.6729943900201469, 0.8], [1046, 3183, 4565, 0.14614608449302613, 0.0001], [342, 881, 3600, 0.11498743678815664, 1e-06], [2744, 2983, 1011, 0.5118144915699959, 0.2], [4270, 1937, 4080, 0.34154085476323964, 0.9], [1395, 4191, 1781, 0.786062768464908, 1e-09], [1466, 2036, 2725, 0.22547998620010912, 0.4], [4199, 4329, 9, 0.6547127729579806, 0.0001], [2503, 744, 4436, 0.45300804329290983, 1e-11], [585, 2884, 2050, 0.927986410735175, 0.7], [1131, 554, 1116, 0.834513795087114, 0.8], [3205, 3321, 3495, 0.29710153334587813, 1e-09], [4746, 1610, 1593, 0.6234332508482039, 1e-07], [2169, 4527, 4267, 0.007138633904978633, 0.01], [2419, 997, 1461, 0.36193946552835404, 0.0001], [4495, 2630, 3774, 0.7599692600481213, 0.3], [3453, 2446, 672, 0.09046273404359817, 0.6], [883, 3919, 3315, 0.5342381687331945, 1e-12], [3774, 2801, 462, 0.36825994176231325, 0.6], [2966, 2285, 4781, 0.5405872574616224, 0.3], [199, 3777, 2485, 0.08024518847465516, 0.001], [902, 1537, 915, 0.1738376115076244, 1e-07], [3514, 4903, 3228, 0.6966176123674959, 0.1], [4478, 12, 1374, 0.39941538097150625, 0.8], [2360, 3540, 4017, 0.9679411967396736, 1e-10], [2112, 1914, 1819, 0.6444634026810527, 0.5], [4725, 4148, 4198, 0.23180093831755222, 1e-11], [3263, 934, 1046, 0.9343359753470868, 0.0001], [1153, 3016, 3721, 0.44279097360745073, 0.3], [605, 422, 4679, 0.28688267909735443, 0.2], [2559, 3130, 1963, 0.8408651442620904, 1e-06], [4178, 1791, 2639, 0.0134575635176152, 1e-09], [1408, 4650, 252, 0.6131859030760825, 0.9], [1338, 1578, 4303, 0.42978859692811966, 0.0001], [4250, 4475, 1714, 0.9513652706313879, 0.4], [2802, 596, 3532, 0.15538890171609818, 0.7], [364, 3343, 1234, 0.7246606090776623, 1e-11], [1066, 721, 2165, 0.5064381086826324, 1e-09], [3348, 2842, 4476, 0.1242322765160352, 0.7], [4952, 2088, 123, 0.7953361017163842, 0.01], [1885, 4362, 2769, 0.33619689143821596, 1e-06], [2279, 225, 568, 0.03604845238104463, 0.3], [4558, 3715, 2949, 0.5887976022940129, 1e-05], [3744, 1363, 2297, 0.26065158272720873, 1e-12], [670, 4690, 4969, 0.8610958257839084, 0.6], [123, 2498, 3430, 0.8923740429319441, 0.8], [3042, 3951, 711, 0.4789961435180157, 1e-08], [4012, 975, 3888, 0.6822672473881394, 1e-06], [1576, 2588, 1504, 0.1919560293480754, 0.1], [1714, 2205, 948, 0.32344942286238076, 1e-10], [3952, 3854, 3662, 0.7984279092755169, 0.8], [3060, 1228, 1722, 0.09774982908554375, 0.01], [27, 2724, 4140, 0.5269824968725443, 1e-07], [1318, 3207, 3130, 0.062165406424552205, 0.5], [1544, 519, 2200, 0.9961587302237749, 1e-07], [4121, 3423, 4911, 0.38109719059057534, 0.01], [2580, 1654, 470, 0.7071389128770679, 0.7], [506, 4396, 2890, 0.1690107476375997, 1e-09], [1210, 2167, 3790, 0.07553919900953769, 1e-11], [3128, 4285, 1445, 0.5512332394439727, 0.7], [4824, 641, 3333, 0.349817069908604, 0.4], [2091, 2918, 653, 0.7778160729669035, 0.001], [2498, 1283, 3474, 0.6024180800504982, 0.1], [4418, 4766, 1137, 0.01852907611243427, 1e-05], [3532, 305, 4244, 0.8124030512813478, 1e-08], [806, 3638, 1616, 0.30544736225157976, 0.9], [258, 1051, 64, 0.46147462763264774, 0.5], [2828, 2508, 2670, 0.9059966603051871, 1e-12], [3870, 2421, 2107, 0.2367496729735285, 1e-05], [1794, 4031, 4379, 0.6335766087844967, 0.3], [1762, 433, 138, 0.1587995010185987, 0.001], [3904, 3195, 2752, 0.7115029642581939, 0.3], [2837, 1721, 2179, 0.3834949509017169, 0.6], [250, 4643, 4463, 0.9840153371747583, 1e-10], [797, 1920, 3547, 0.7656098632980138, 1e-09], [3539, 4218, 1221, 0.3522776468396187, 0.8], [4450, 869, 4319, 0.5556563003771007, 0.1], [2464, 3005, 1698, 0.06526894283853471, 1e-07], [2090, 1506, 3874, 0.30304774302057924, 0.2], [4825, 4858, 1517, 0.8245482735075057, 0.0001], [3162, 62, 3415, 0.028738463811576367, 1e-11], [1174, 3566, 728, 0.5980558578465134, 0.5], [400, 2652, 3211, 0.32001612521894274, 0.0001], [948, 161, 4797, 0.4135478693898767, 1e-06], [3390, 3704, 2469, 0.9674541913382709, 0.01], [4911, 1368, 3068, 0.14021316981315612, 0.7], [2004, 4759, 449, 0.7399871960449964, 1e-09], [2233, 770, 2623, 0.8763460650537163, 0.6], [4683, 2867, 268, 0.4949322758838534, 1e-12], [3073, 4505, 3734, 0.5737138051316142, 1e-05], [3979, 571, 1803, 0.2766495799459517, 1e-08], [1685, 3294, 4214, 0.8452515389304608, 0.8], [3014, 356, 3816, 0.9391434293054044, 0.8], [151, 3274, 1420, 0.43226388349197803, 1e-10], [699, 790, 496, 0.3386093613822013, 1e-10], [3717, 3082, 2865, 0.783177077010274, 0.6], [4545, 1999, 2222, 0.11403573581203819, 0.4], [2293, 4141, 4887, 0.5107865321245044, 0.001], [1906, 141, 2081, 0.8733158379327506, 0.2], [4932, 3489, 4404, 0.2581781550832093, 1e-06], [3333, 1427, 42, 0.5843883401229978, 1e-08], [1083, 4935, 2694, 0.04630586155690253, 0.9], [379, 2253, 4221, 0.20215062190406025, 0.5], [2785, 3887, 1640, 0.6779208018369973, 1e-12], [4228, 1200, 3448, 0.47658172542601823, 0.0001], [1358, 2672, 1162, 0.9045350455287844, 0.2], [1444, 1065, 4607, 0.09141444989107549, 1e-09], [4143, 2575, 1879, 0.5352661430500448, 0.7], [2558, 2350, 2564, 0.36487097378075123, 0.01], [607, 4023, 170, 0.7628549663741142, 1e-07], [3462, 3229, 3856, 0.6122493132594973, 1e-10], [4529, 1854, 744, 0.28398164225928485, 0.001], [2387, 4599, 3399, 0.83788808317855, 0.4], [1926, 2521, 4647, 0.4819579893425107, 0.7], [2310, 1676, 2448, 0.15050830669701099, 1e-08], [4604, 4383, 4817, 0.719825581761077, 0.9], [3698, 546, 426, 0.4229891225900501, 0.1], [638, 3406, 3091, 0.9444897720478475, 1e-05], [2214, 3152, 23, 0.2664017562903464, 0.1], [1983, 2297, 2844, 0.09874721301719547, 0.0001], [4853, 3755, 517, 0.527903860276565, 0.2], [3410, 1166, 4864, 0.3263656898308545, 0.5], [1004, 2774, 2245, 0.801389740228653, 1e-11], [458, 39, 684, 0.9572353370897472, 1e-08], [2708, 3523, 3301, 0.41989921856485307, 0.9], [4307, 1559, 1477, 0.746306125657633, 0.1], [1281, 4891, 3759, 0.1299658220410347, 1e-06], [528, 3737, 4760, 0.023364103429019453, 0.4], [1232, 953, 3172, 0.2416454944051802, 0.01], [3184, 2600, 814, 0.6383964096885174, 1e-06], [4768, 2471, 3961, 0.46828933210112156, 1e-09], [2069, 3968, 1274, 0.9128569287583231, 0.7], [2447, 623, 4093, 0.7061567404866218, 1e-12], [4391, 3326, 1767, 0.16807414294965564, 0.5], [3558, 1600, 3616, 0.9932576785143464, 0.3], [857, 4463, 995, 0.37812011463567613, 0.0001], [309, 2100, 1936, 0.34690078806877134, 1e-05], [2855, 4340, 4550, 0.7748542271424085, 0.1], [3844, 738, 225, 0.07454180020652712, 0.8], [298, 4352, 1110, 0.5646692389231175, 1e-09], [2051, 2471, 526, 0.1327548124846071, 0.2], [4785, 3981, 2834, 0.7492781806699932, 1e-06], [3166, 943, 2236, 0.4207647753357887, 1e-09], [1248, 2616, 4874, 0.9584056098628789, 0.9], [546, 198, 3291, 0.802378106540069, 0.5], [2620, 3745, 695, 0.32717140425369146, 1e-11], [4082, 1331, 3768, 0.531057345867157, 0.0001], [1505, 4718, 1467, 0.1015965216923505, 0.3], [1278, 1548, 3042, 0.9101904801707715, 1e-09], [4309, 4895, 319, 0.4649529864229262, 0.7], [2705, 21, 4749, 0.6378951398655772, 0.01], [460, 3528, 2360, 0.2403526834938675, 1e-06], [1007, 1159, 804, 0.02201097428612411, 0.001], [3408, 2793, 3181, 0.6066159746684134, 0.4], [4856, 2294, 1284, 0.30904635750502346, 0.6], [1982, 3765, 3952, 0.8167179834935814, 1e-11], [2150, 2714, 2005, 0.26423655428923665, 1e-09], [160, 826, 1342, 0.947762468310073, 0.1], [2928, 3124, 4049, 0.42546985764801504, 1e-05], [3814, 1963, 863, 0.7211825179718435, 1e-08], [1852, 4099, 3279, 0.15119481416605413, 0.9], [1085, 1445, 4107, 0.7639339866302908, 0.01], [3330, 4929, 1755, 0.3656450438108295, 1e-07], [4934, 153, 3646, 0.5383294505793601, 1e-09], [1903, 3485, 964, 0.09429492707550526, 0.7], [2299, 2006, 3163, 0.29302641666680573, 1e-12], [4537, 4122, 822, 0.8306673701647669, 0.5], [3724, 793, 3936, 0.003188228441402316, 0.3], [690, 3071, 1301, 0.6197114776559174, 1e-05], [144, 368, 381, 0.650869887419045, 1e-05], [3021, 3270, 2980, 0.22140894427336752, 0.1], [709, 2065, 1230, 0.987195472240448, 0.6], [3627, 4298, 3536, 0.3860054305363447, 1e-11], [4675, 773, 1689, 0.7129519857820124, 0.001], [2240, 2856, 4329, 0.15945673979446293, 0.3], [1192, 76, 2479, 0.3169539776556194, 0.4], [3146, 3564, 4788, 0.8087270762976259, 0.0001], [4843, 1522, 439, 0.10791687895543874, 1e-11], [2073, 4850, 3077, 0.5208076186776162, 0.7], [2477, 870, 258, 0.8442896138951183, 1e-08], [785, 4201, 4656, 0.047981974307447675, 1e-05], [817, 302, 184, 0.5241970774140209, 0.01], [3519, 3648, 2551, 0.09478181722387671, 1e-07], [4430, 1277, 1914, 0.7975583056360483, 1e-10], [2485, 4785, 4572, 0.3222755828220397, 0.8], [1562, 3433, 846, 0.2170226648580283, 1e-08], [4566, 225, 4008, 0.3710441417694092, 1e-11], [2272, 3728, 1385, 0.7526867416668683, 0.6], [1887, 2073, 4189, 0.6163396284673363, 1e-09], [4950, 4370, 1829, 0.01630663239210844, 0.9], [1426, 1784, 1704, 0.3329206279087812, 0.01], [4162, 4668, 4312, 0.7928513197898864, 1e-07], [2577, 419, 1244, 0.12287938345596194, 1e-09], [588, 3140, 3523, 0.5057551721986383, 0.8], [3279, 3020, 2156, 0.15409585100412368, 1e-11], [4708, 1896, 2758, 0.9486990581266582, 0.0001], [2129, 4153, 132, 0.42645201516710224, 0.4], [3805, 3673, 3967, 0.1979574712496251, 0.8], [2894, 1398, 791, 0.900931276569143, 0.1], [192, 4731, 3195, 0.47226201950758695, 1e-07], [1115, 3302, 1930, 0.11750264365598559, 0.2], [2519, 2878, 3610, 0.7334020393658429, 0.0001], [4182, 2048, 1791, 0.43572677606903015, 1e-12], [1483, 4325, 4070, 0.9433527153842152, 0.5], [1398, 1951, 20, 0.006058689765632152, 1e-06], [4267, 4189, 2716, 0.6226582011673599, 0.01], [2747, 897, 2039, 0.29403914969973266, 0.7], [341, 2975, 4445, 0.8316342975534499, 1e-09], [3678, 2322, 3304, 0.18099768097884952, 1e-08], [659, 3818, 681, 0.687389829158783, 0.9], [113, 1495, 2249, 0.5315453067533672, 0.6], [1629, 3577, 2819, 0.3607948904633522, 0.3], [3113, 269, 2592, 0.4546822692397982, 0.4], [53, 3596, 300, 0.9146130800917744, 0.001], [755, 1092, 1850, 0.8210815738625824, 1e-07], [3659, 2545, 4168, 0.2988346498738974, 0.01], [4643, 2381, 1059, 0.5944721206072718, 0.8], [2193, 3994, 3707, 0.024408273585140704, 1e-10], [1965, 484, 888, 0.3558776087313891, 0.5], [4871, 3381, 3253, 0.769925762148574, 1e-12], [3429, 1690, 1366, 0.06874990411661565, 0.0001], [4787, 385, 2308, 0.21067357612960042, 0.01], [2051, 3243, 4958, 0.6713204168863595, 1e-07], [2426, 2243, 2137, 0.9637438690923155, 0.3], [4412, 3895, 4504, 0.4095783988442272, 1e-05], [3579, 1191, 117, 0.736159776719287, 1e-12], [836, 2683, 2774, 0.1361266616731882, 0.5], [289, 131, 4375, 0.10503118750080466, 0.9], [2875, 3497, 1642, 0.5178761252965778, 1e-08], [833, 2233, 349, 0.11139106540009379, 0.9], [1968, 4448, 3490, 0.3986351393274963, 0.8], [2189, 1084, 667, 0.22310949066653848, 1e-11], [4647, 2556, 3319, 0.6511218760889024, 0.7], [116, 3585, 4629, 0.7141552488058805, 0.9], [662, 1104, 3693, 0.5581278681717813, 0.5], [1950, 452, 4040, 0.031004806853830814, 1e-07], [3297, 1741, 3248, 0.30443072734586896, 0.8], [1040, 4624, 894, 0.8272241142876446, 1e-10], [4888, 708, 1486, 0.2521769567001611, 1e-11], [701, 2227, 2768, 0.7888678199760616, 0.9], [3364, 4627, 1706, 0.2705815970785916, 1e-06], [381, 322, 661, 0.6432910181749613, 1e-07], [3060, 2762, 4907, 0.17250177403725683, 0.8], [1288, 1670, 4282, 0.3619505800101906, 1e-08], [2975, 2019, 3213, 0.26531735632009806, 1e-12], [2167, 557, 4460, 0.12396768808737398, 0.9], [4399, 2532, 1224, 0.5651379590593278, 1e-05], [1845, 2442, 1410, 0.44277702520228923, 1e-06], [1693, 4556, 4951, 0.5974030451588332, 0.01], [1563, 2555, 4376, 0.4814001228455454, 0.0001], [1065, 1954, 2399, 0.6569570785053075, 1e-10], [4285, 4328, 4819, 0.6947228432390838, 1e-06], [4132, 1439, 1328, 0.34547189028188585, 0.01], [1804, 4155, 2989, 0.8406730574257671, 1e-09], [726, 986, 75, 0.017012348080053925, 0.001], [3340, 3427, 4241, 0.5434447444546968, 0.6], [424, 1640, 3431, 0.4172167944200337, 0.5], [1391, 449, 1668, 0.5724406141899526, 0.4], [3544, 2639, 1450, 0.651553589778021, 0.3], [59, 4683, 2694, 0.6819057283718138, 0.001], [2413, 186, 376, 0.4914897849522531, 1e-09], [4773, 2899, 3942, 0.9480568124689162, 0.01], [785, 2510, 2272, 0.06403936122730375, 0.8], [1588, 1998, 4661, 0.7624713931325823, 0.4], [4348, 4910, 1024, 0.2989307541716844, 1e-10], [4186, 2176, 2524, 0.6471994817592204, 0.6], [4009, 3383, 1512, 0.8750703357569873, 1e-07], [2997, 3354, 1133, 0.8367380038518458, 0.4], [1199, 2920, 2562, 0.4471349086873233, 1e-08], [1332, 2261, 507, 0.6287715751398355, 0.0001], [3984, 4661, 3810, 0.18117403670586646, 0.5], [4045, 91, 3053, 0.27396059009619056, 1e-10], [1266, 2999, 1382, 0.7854845458660275, 0.01], [3078, 1281, 2006, 0.7429782389942556, 1e-05], [2093, 1139, 754, 0.8823558590821922, 0.2], [4149, 3884, 1564, 0.016402696723118424, 0.4], [519, 1421, 179, 0.846020760897547, 1e-08], [2784, 2705, 2199, 0.8133143198210746, 1e-06], [3231, 815, 327, 0.9812407552190126, 0.0001], [186, 2566, 611, 0.7136753296069801, 1e-09], [2207, 1985, 2616, 0.3975303172636777, 0.001], [1633, 2891, 3538, 0.7614987365528941, 1e-08], [202, 4615, 2358, 0.4915656000692397, 1e-07], [3182, 848, 3710, 0.5624825413022191, 0.0001], [927, 1043, 2056, 0.680134970575571, 1e-09], [1055, 348, 4129, 0.5541539250649512, 1e-07], [4979, 2843, 986, 0.3396669984832406, 0.9], [3989, 644, 1438, 0.44443250487186015, 0.5], [2183, 2062, 602, 0.20033680315874516, 1e-08], [2348, 36, 2283, 0.779277926614508, 0.001], [350, 2287, 888, 0.6297808254864067, 1e-06], [4607, 1332, 3589, 0.3638211450725794, 0.6], [2516, 2756, 36, 0.7678489480689168, 0.2], [3242, 1645, 318, 0.0919768084678799, 0.8], [2131, 4150, 4709, 0.7979456199537963, 1e-05], [520, 4909, 3739, 0.055663571180775764, 0.01], [4879, 4666, 3121, 0.8179415886774659, 0.001], [3967, 1869, 4461, 0.9636435441169888, 1e-07], [167, 1597, 2958, 0.5101498502139002, 1e-10], [1139, 4390, 4621, 0.6480625392124056, 1e-11], [393, 3589, 2176, 0.8482975873183459, 0.3], [2289, 588, 4853, 0.18802510815300047, 0.01], [3707, 3094, 496, 0.9551739613395184, 1e-08], [4125, 2926, 4634, 0.08472548740915954, 0.2], [1291, 2145, 3780, 0.4396460027992725, 1e-06], [2116, 1147, 1298, 0.048416057189926504, 0.8], [237, 2458, 1993, 0.2300939963106066, 0.0001], [3122, 1098, 3231, 0.6264849206097424, 0.5], [1704, 3602, 1335, 0.4816434080526233, 0.0001], [1175, 2214, 4732, 0.8856864318847656, 1e-08], [4781, 4709, 373, 0.2264468949995935, 0.01], [3380, 2683, 4347, 0.5275584915559739, 0.8], [1803, 1059, 4187, 0.8275497896112501, 0.2], [3651, 4396, 3527, 0.45156196629814804, 0.4], [2110, 3494, 1550, 0.5449926298428327, 1e-08], [4753, 682, 4122, 0.3799904129430652, 0.01], [25, 4858, 4808, 0.026239634027704597, 0.001], [2640, 3350, 4645, 0.7239176991917193, 1e-07], [1981, 805, 3272, 0.09304134030267597, 0.6], [981, 4148, 2016, 0.7163277377728373, 0.4], [3333, 1337, 4912, 0.366484932616353, 1e-12], [3503, 2273, 1010, 0.4627148366887122, 1e-06], [732, 2493, 1403, 0.003996367825195193, 1e-10], [4581, 368, 544, 0.2918098158929497, 0.5], [4202, 3238, 1933, 0.4046540225446224, 0.7], [2506, 1733, 3179, 0.778423496408388, 0.01], [3792, 3472, 4161, 0.08337765711732209, 1e-11], [1769, 655, 1433, 0.9974812736287713, 0.3], [271, 4316, 2677, 0.37326952258311213, 0.6], [2734, 2797, 2870, 0.8760249245651066, 0.8]];
+var tab_failed_results_headers_json = ["recent_samples_size", "n_reference_samples", "n_recent_samples", "threshold", "stability_offset"];
+</script>
+<body>
+<div class="section-header results">
+        Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">UCDD + PokerHand + HoeffdingTreeClassifier + ACCURACY-RUNTIME-REQLABELS</div>
+
+<script > var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+			    "trial_index",
+			    "arm_name",
+			    "trial_status",
+			    "generation_node",
+			    "recent_samples_size",
+			    "n_reference_samples",
+			    "n_recent_samples",
+			    "threshold",
+			    "stability_offset"
+			];
+			var tab_results_csv_json = [];
+
+<script>
+var tab_failed_results_csv_json = [];
+</script>
+<script>
+
+</script>
+<script>
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx < data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+	if($("#tab_pareto_fronts").data("loaded") == "true") {
+		return;
+	}
+
+	// Get the selected plot type from dropdown
+	let selectedPlotType = document.getElementById("pareto_plot_selector").value;
+	
+	// Extract column indices
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let reqlabelsIndex = tab_results_headers_json.indexOf("REQLABELS");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (reqlabelsIndex === -1) {
+		console.warn("REQLABELS column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	let xIndex, yIndex, zIndex, xLabel, yLabel, zLabel, plotTitle, plotId, is3D = false;
+	
+	if (selectedPlotType === "reqlabels_vs_accuracy") {
+		if (accuracyIndex === -1) {
+			console.warn("ACCURACY column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "ACCURACY vs REQLABELS";
+		plotId = "pareto_front_graph_accuracy_reqlabels";
+	} else if (selectedPlotType === "reqlabels_vs_runtime") {
+		if (runtimeIndex === -1) {
+			console.warn("RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = runtimeIndex;
+		yIndex = reqlabelsIndex;
+		xLabel = "RUNTIME (min)";
+		yLabel = "REQLABELS (min)";
+		plotTitle = "RUNTIME vs REQLABELS";
+		plotId = "pareto_front_graph_runtime_reqlabels";
+	} else if (selectedPlotType === "3d_reqlabels_accuracy_runtime") {
+		if (accuracyIndex === -1 || runtimeIndex === -1) {
+			console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+			$("#tab_pareto_fronts").data("loaded", "true");
+			return;
+		}
+		xIndex = accuracyIndex;
+		yIndex = runtimeIndex;
+		zIndex = reqlabelsIndex;
+		xLabel = "ACCURACY (max)";
+		yLabel = "RUNTIME (min)";
+		zLabel = "REQLABELS (min)";
+		plotTitle = "REQLABELS vs ACCURACY vs RUNTIME";
+		plotId = "pareto_front_graph_3d_accuracy_runtime_reqlabels";
+		is3D = true;
+	}
+
+	// Extract data points, filtering out empty values
+	let xValues = [];
+	let yValues = [];
+	let zValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let xValue = row[xIndex];
+		let yValue = row[yIndex];
+		let zValue = is3D ? row[zIndex] : null;
+		
+		// For 2D plots, only check x and y values
+		if (!is3D) {
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+			}
+		} else {
+			// For 3D plots, check all three values
+			if (xValue !== "" && xValue !== null && xValue !== undefined &&
+				yValue !== "" && yValue !== null && yValue !== undefined &&
+				zValue !== "" && zValue !== null && zValue !== undefined) {
+				xValues.push(parseFloat(xValue));
+				yValues.push(parseFloat(yValue));
+				zValues.push(parseFloat(zValue));
+			}
+		}
+	});
+
+	if (xValues.length === 0 || yValues.length === 0 || (is3D && zValues.length === 0)) {
+		console.warn("No valid data found for selected plot type");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+
+	// Create the scatter plot container
+	let graphContainer = document.getElementById("pareto_front_graphs_container");
+	graphContainer.classList.add("invert_in_dark_mode");
+	graphContainer.innerHTML = "";
+
+	// Create a single scatter plot div
+	let div = document.createElement("div");
+	div.id = plotId;
+	div.style.marginBottom = "20px";
+	graphContainer.appendChild(div);
+
+	let layout, trace;
+
+	if (is3D) {
+		// 3D scatter plot configuration with reduced width
+		layout = {
+			title: plotTitle,
+			width: 700,  // Reduced width for more compact display
+			height: 500, // Controlled height for better layout
+			scene: {
+				xaxis: {
+					title: get_axis_title_data(xLabel)
+				},
+				yaxis: {
+					title: get_axis_title_data(yLabel)
+				},
+				zaxis: {
+					title: get_axis_title_data(zLabel)
+				}
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			z: zValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+				opacity: 0.8
+			},
+			type: "scatter3d",
+			name: plotTitle
+		};
+	} else {
+		// 2D scatter plot configuration
+		layout = {
+			title: plotTitle,
+			xaxis: {
+				title: get_axis_title_data(xLabel)
+			},
+			yaxis: {
+				title: get_axis_title_data(yLabel)
+			},
+			hovermode: "closest"
+		};
+
+		trace = {
+			x: xValues,
+			y: yValues,
+			mode: "markers",
+			marker: {
+				size: get_marker_size(),
+			},
+			type: "scatter",
+			name: plotTitle
+		};
+	}
+
+	// Create the plot
+	Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+
+	// Apply theme if available
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
+		apply_theme_based_on_system_preferences();
+	}
+
+	$("#tab_pareto_fronts").data("loaded", "true");
+}
+
+function updateParetoPlot() {
+	// Reset the loaded flag to force regeneration
+	$("#tab_pareto_fronts").data("loaded", "false");
+	// Reload the plot with new selection
+	// Pareto plot initialization skipped for no-data file
+}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				// Pareto plot initialization skipped for no-data file;
+
+			});
+		</script>
+
+<h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+
+<div id="tab_results_csv_table"></div>
+
+<script>
+				// Table initialization skipped for no-data file</script>
+
+
+
+			
+
+    
+    
+
+    
+    <h3 style="margin-top: 30px; margin-bottom: 15px; color: #d32f2f; font-weight: bold; font-size: 1.1em;">Failed Runs</h3>
+    <div id="tab_failed_results_table"></div>
+<script>
+				// Failed Runs Table Logic for UCDD PokerHand
+				console.log('Initializing Failed Runs table...');
+				
+				if (typeof tab_failed_results_csv_json !== 'undefined' && tab_failed_results_csv_json.length > 0) {
+					console.log('Found ' + tab_failed_results_csv_json.length + ' failed runs');
+					
+					// Use the parameter headers and data directly
+					var parameter_headers = tab_failed_results_headers_json;
+					var parameter_data = tab_failed_results_csv_json;
+					
+					console.log('Parameter headers:', parameter_headers);
+					console.log('Parameter data rows:', parameter_data.length);
+					
+					// Get container and clear it
+					var container = document.getElementById('tab_failed_results_table');
+					if (container) {
+						container.innerHTML = '';
+						
+						// Create Grid.js table with proper styling to match other HTML files
+						var grid = new gridjs.Grid({
+							columns: parameter_headers,
+							data: parameter_data,
+							pagination: {
+								enabled: true,
+								limit: 10
+							},
+							search: false,
+							sort: true,
+							style: {
+								table: {
+									'background-color': '#ffebee !important'
+								},
+								td: {
+									'background-color': '#ffebee !important'
+								},
+								th: {
+									'background-color': '#ffebee !important',
+									'font-weight': 'bold !important'
+								}
+							}
+						});
+						
+						grid.render(container);
+						console.log('Failed Runs table rendered successfully');
+						
+						// Apply additional styling after render to match other HTML files
+						setTimeout(function() {
+							var failedTable = document.getElementById('tab_failed_results_table');
+							if (failedTable) {
+								// Apply to all rows
+								var rows = failedTable.querySelectorAll('tr');
+								rows.forEach(function(row) {
+									row.style.setProperty('background-color', '#ffebee', 'important');
+								});
+								
+								// Apply to all cells with proper header styling
+								var cells = failedTable.querySelectorAll('td, th');
+								cells.forEach(function(cell) {
+									if (cell.tagName === 'TH') {
+										cell.style.setProperty('background-color', '#ffebee', 'important');
+										cell.style.setProperty('font-weight', 'bold', 'important');
+									} else {
+										cell.style.setProperty('background-color', '#ffebee', 'important');
+									}
+								});
+							}
+						}, 500);
+						
+					} else {
+						console.error('Failed Runs table container not found!');
+					}
+				} else {
+					console.log('No failed runs data available');
+					var container = document.getElementById('tab_failed_results_table');
+					if (container) {
+						container.innerHTML = '<p style="color: #666; font-style: italic;">No failed runs data available.</p>';
+					}
+				}
+			</script>
+</div><!-- Download functionality -->
+			<script > document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'UCDD_PokerHand_reql.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+    <div id="tab_pareto_fronts">
+        <p><strong>No Pareto plots available:</strong> This experiment had 398 FAILED runs and 0 COMPLETED runs. Pareto analysis requires successful runs with ACCURACY, RUNTIME, and REQLABELS data.</p>
+    </div>
+</div>
+    <div id="pareto_front_graphs_container"></div>
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:              </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Setting</th><th>Value </th></tr></thead><tbody><tr><td> Model for non-random steps</td><td>SOBOL </td></tr><tr><td> Max. nr. evaluations</td><td>50000 </td></tr><tr><td> Number random steps</td><td>50000 </td></tr><tr><td> Number random steps (from arguments)</td><td>20    </td></tr><tr><td> Nr. of workers (parameter)</td><td>50    </td></tr><tr><td> Main process memory (GB)</td><td>8     </td></tr><tr><td> Worker memory (GB)</td><td>128   </td></tr></tbody></table><h2>Experiment parameters:                                                                           </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No         </td></tr><tr><td> n_reference_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No         </td></tr><tr><td> n_recent_samples</td><td>int</td><td>1</td><td>5000</td><td></td><td>int</td><td>No         </td></tr><tr><td> threshold</td><td>float</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No         </td></tr><tr><td> stability_offset</td><td>choice</td><td></td><td></td><td>0, 0, 0, 0, 0, 0, 0, 0, 0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</td><td></td><td></td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>398</td><td>0</td><td>398</td></tr></tbody></table>
+</body>
+</html>

@@ -1,0 +1,1339 @@
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exported »s4122485/OCDD_OutdoorObjects_HoeffdingTreeClassifier_ACCURACY-RUNTIME/0« from OmniOpt2-Share</title>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/gridjs.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/gridjs/6.2.0/theme/mermaid.css" rel="stylesheet"/>
+<link href="expstyle.css" rel="stylesheet"/>
+<style>
+/* Clean Blue Section Styling */
+.section-header {
+    color: white;
+    padding: 18px 25px;
+    margin: 25px 0 15px 0;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    font-size: 1.6em;
+    border-left: 4px solid rgba(255,255,255,0.3);
+}
+
+.section-header.results {
+    background-color: #002D3F;
+}
+
+.section-header.pareto {
+    background-color: #024A65;
+}
+
+.section-header.parallel {
+    background-color: #015E80;
+}
+
+.section-header.overview {
+    background-color: #047A9A;
+}
+
+.section-content {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .section-content {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-header {
+    border-left-color: rgba(255,255,255,0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .section-header {
+        padding: 15px 20px;
+        font-size: 1.4em;
+        margin: 20px 0 12px 0;
+    }
+    
+    .section-content {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="section-header results">Results
+        <button id="downloadBtn" style="float: right; margin-left: 10px; padding: 5px 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+            <i class="fas fa-download" style="margin-right: 5px;"></i>Download
+        </button>
+    </div>
+<div class="experiment-subcaption" style="font-size: 0.7em; font-weight: normal; margin: 8px 0 16px 0; opacity: 0.9; letter-spacing: 0.3px; color: #666;">OCDD + OutdoorObjects + HoeffdingTreeClassifier + ACCURACY-RUNTIME</div>
+
+<script>
+			var log = console.log;
+			var theme = 'light';
+
+			var special_col_names = ["trial_index","arm_name","trial_status","generation_method","generation_node","hostname","run_time","start_time","exit_code","signal","end_time","program_string"]
+
+			var tab_results_headers_json = [
+        "ACCURACY",
+        "RUNTIME",
+        "recent_samples_size",
+        "n_samples",
+        "threshold",
+        "outlier_detector_kwargs"
+    ];
+			var tab_results_csv_json = [[0.55,1,4387,794,0.1751535910665989,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1368,2583,0.968495135338977,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,15,2100,0.33202827294915915,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3249,3889,0.5016045926678926,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2734,1805,0.8635899292640388,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,888,4707,0.039057076064869765,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2103,611,0.6443406005762518,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4008,3513,0.44357297564856707,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4138,2429,0.6964532271549105,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2291,4079,0.4021192914415151,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1007,1240,0.7889870529547334,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2912,2890,0.12041834551282227,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,3609,168,0.26431630473956463,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,589,3205,0.5898415493797511,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1736,1479,0.23415688408538698,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4971,4516,0.933916900454089,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4746,1343,0.42856566932052376,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1649,4539,0.7229110243786127,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,1,365,154,0.08640896148234606,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3521,3350,0.7549890882689506,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3000,938,0.6101738022826612,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1232,3059,0.28464475615136325,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2380,2249,0.8899558670334518,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4363,4370,0.19019204917363822,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3784,317,0.9498682387843728,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2016,3686,0.15653049600310623,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,663,1623,0.5433725449368357,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2646,4992,0.37380003042705356,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3338,1972,0.010904862236231567,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,240,3915,0.8354262998085469,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1,1,0.25914159623990246,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,6,1372,51,0.24794097606333848,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1,1,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4544,1107,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,5000,96,0.29895682764853015,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,5000,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,337,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,697,42,0.25375348183226776,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,5000,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,5000,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,8,1974,56,0.25274683682031374,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4010,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,5000,160,0.4014775087339337,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2912,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,6,5000,92,0.1778345011249104,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2430,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,5,1032,47,0.2452698479186875,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4157,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3491,1074,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,186,0.0340028184880962,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1248,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2502,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1,1,0.6419425817235236,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3312,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,270,5000,1,0.42390684855970673,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,7,1654,54,0.24810925964674918,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,16,358,5,0.28186844567535246,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2860,5000,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3558,1199,0.7265661050541061,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1008,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,4177,49,0.7470056253518794,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,313,5000,1,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1,1,0.7526111883884575,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,268,5000,1,0.12191186559012118,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,290,4509,1,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,98,4448,2,0.8349660941315792,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1270,4973,0.5873691110773263,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,473,38,0.1616306344763537,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4820,140,0.6896035086728054,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,11,2058,1,0.9188015970220405,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,260,4832,1,0.7201384908943825,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,3415,84,0.15753559863946584,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,5000,0.6437468054877002,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,429,2657,0.6624194623820595,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1228,4979,0.4951683005298625,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,58,90,0.8605888905778735,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3162,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4666,176,0.6449738834039442,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.54,104,732,1,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4138,4916,0.5255379548980122,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,4972,94,0.048437160074151525,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,738,4281,0.2815567644459447,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,27,4779,9,0.7880368431666477,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,58,2991,3,0.07701286321929199,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4561,143,0.9096729167164797,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4358,624,0.07868587488994033,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4557,3881,0.30170368504408185,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,4988,217,0.2228916068378261,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,728,4871,0.28558077152663286,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,181,4810,0.8379019251025889,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,9,5000,45,0.27842529523550835,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,5000,138,0.20505615225056872,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,16,5000,22,0.2577418911534765,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,5000,159,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,9,5000,51,0.04134819256559362,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,8,5000,68,0.2943994300519509,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.59,4,5000,118,0.2789814302070552,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,4030,141,0.2306931004110098,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,153,3019,1,0.31311085781288245,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,350,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,13,5000,33,0.1459126055754903,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,419,0.20297885703734475,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,11,5000,35,0.3567653953878141,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,5000,169,0.22757646733943793,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,2912,129,0.31299539115518243,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,6,5000,72,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,3233,137,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,5000,120,0.03465231126036639,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,4180,132,0.30998207962413354,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,8,5000,62,0.18567822055251243,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,4600,194,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,6,5000,79,0.3541603992492957,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,5000,297,0.25012197427388166,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,6,5000,80,0.1848729481099042,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,11,2048,1,0.24871950912045757,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,8,421,11,0.4476446531560657,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2659,147,0.1508238466226748,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,5000,130,0.3683507890781125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,5000,186,0.3214631466866358,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,245,1713,1,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1262,476,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,895,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,2,5000,496,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,923,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1407,758,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4716,702,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,93,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1574,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,531,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1133,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,439,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2976,473,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,609,1084,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,984,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3755,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,676,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3709,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1429,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3581,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,574,0.1382541684253305,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,797,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2107,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2834,0.025098023295785254,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2847,396,0.08052473524571137,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1670,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3392,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,1559,113,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2347,548,0.07158303574153553,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4639,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2686,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1407,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4205,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1977,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1872,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4805,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3118,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4429,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2292,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2957,0.8975552864339668,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2095,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2410,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2758,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,104,0.4132969696692485,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1855,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4600,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1968,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2228,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3148,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2293,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4155,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,1032,288,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4223,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1492,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4239,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4409,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1778,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2086,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4863,4292,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2300,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2544,0.2775982670413777,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2164,130,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,675,113,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,395,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,119,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,5000,143,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2989,344,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3276,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,5000,308,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,2,5000,441,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,5000,259,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1312,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,3933,141,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,1115,111,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,380,100,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,2,2790,127,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3422,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1572,346,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,1841,133,0.4852387622469769,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1111,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1219,367,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,373,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4827,3631,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2436,259,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3981,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1672,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,292,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,3359,150,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,1390,158,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3481,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1658,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2746,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3000,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3775,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3822,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2554,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4087,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1210,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3398,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,5000,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,894,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3247,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4884,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3681,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3032,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3572,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4853,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4688,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2599,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1641,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1029,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3774,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2192,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1415,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1849,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3363,2765,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2749,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4438,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1149,2429,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2996,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3273,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4538,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1738,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,754,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,152,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4566,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1143,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2821,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4045,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1945,409,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4334,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1804,4644,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2461,2045,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1451,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4699,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1314,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,1,750,390,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1591,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4759,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2365,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,506,3495,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3729,3641,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,868,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2054,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1530,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2878,125,0.9610723979980904,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2837,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1929,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2644,0.10895521377153802,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4595,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4870,2927,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4392,0.5302087686030861,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1768,0.28040839632379116,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1724,3196,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3581,0.5324942735956175,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2208,0.2516785104626173,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1911,0.6662636849747485,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3924,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,86,0.4730367434559084,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2531,0.7778040507819848,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1809,0.40981149088772967,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,373,0.0018306345889892424,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1540,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,81,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2171,0.49261053618539663,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3140,0.44509187431636876,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,918,0.559705391258303,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,773,0.8190912669114199,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2855,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4026,2349,0.3587285229159824,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,33,2844,0.48024635321274656,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,865,3763,0.5009082295421524,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,401,3839,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,64,1743,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,2856,328,0.2515242336317056,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4291,0.4856321406290066,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4081,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1185,0.3489737227011425,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3770,2109,0.5286728208426991,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1157,1394,0.47993627817088,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3922,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,2994,375,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2703,3912,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,360,0.4136874116342866,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,833,97,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,329,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2798,3333,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2140,4188,0.14162274867017777,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,25,4061,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,4439,153,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,3,5000,141,0.5456569018003534,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2843,437,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,5000,212,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,541,3077,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3721,3558,0.043492193037715184,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,3007,192,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2275,3755,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4239,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,155,0.713174270140127,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,218,90,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,191,0.6641815726983401,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,468,336,0.13084833170012147,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2409,3429,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2794,301,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3503,151,0.5779387287104096,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2075,135,0.6949421679546028,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4702,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,3521,396,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,1798,123,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,4590,0.5638467077699352,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,1977,315,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,2,5000,459,0.060465212698856616,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,3502,116,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,91,0.24899619647449753,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,867,0.41816929400341973,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,313,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,1218,246,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,5000,172,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,106,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,411,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,101,0.16768807683190576,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,4203,340,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2082,376,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4944,3015,0.4231981378965217,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2613,420,0.2659173131510794,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,1216,131,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,151,0.2497608143971046,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,5000,148,0.3071185603013405,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,2,603,103,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,236,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,4617,136,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,1554,113,0.47613849428521093,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,5000,133,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,3815,268,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3018,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2689,171,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1533,0.5398755110612284,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2934,320,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4516,0.718481799015665,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,155,0.5183189801209729,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,394,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2314,111,0.3689283108559124,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,4780,148,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2305,146,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,3905,301,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,803,337,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4909,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,3186,359,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3054,2853,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2652,1071,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2842,2364,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2311,2247,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2039,345,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,3400,133,0.5117447669770364,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1954,1002,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4063,4076,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2200,832,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3583,141,0.7268903738895688,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,289,115,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,1558,199,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2135,1734,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3329,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2643,124,0.582572819852775,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1231,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,825,183,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1267,1210,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2271,119,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2487,159,0.38172758080833874,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,4136,127,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,3014,263,0.3707976534435517,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3223,4463,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,994,712,0.9152932879923925,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3233,1368,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2419,314,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,1,565,298,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1008,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,3453,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.59,4,3609,130,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,5000,150,0.13820503466747036,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,478,220,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2000,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,2,496,93,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2521,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3607,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1297,2337,0.012028812247451772,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1061,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,914,111,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,1324,112,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,113,92,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,5000,190,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,3514,422,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,75,0.13344666828645887,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,4073,158,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1116,330,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,5000,288,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,5000,144,0.6821392527442355,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,4109,146,0.42690314798593093,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2454,366,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,5000,143,0.41588067969628173,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4843,3361,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,2344,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2804,1528,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3939,3241,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2859,4322,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3305,4800,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2138,4756,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1541,4001,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3097,1729,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2422,3116,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1543,1876,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3238,2617,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3237,2512,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3699,2600,0.7287087415834542,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3381,4529,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3405,1304,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3474,1206,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2147,1504,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3940,1710,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,717,623,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1922,2914,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2877,4866,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3076,4709,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2079,4839,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2256,3245,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3458,790,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3765,3037,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4181,3190,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1108,4122,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1391,4630,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1441,1998,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3460,4792,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,5000,152,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2011,127,0.3083796615461724,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1469,321,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,4916,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1894,285,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,455,257,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4682,2938,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,3589,334,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,262,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,4274,145,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1751,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,4458,168,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,929,368,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,2,776,139,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,3187,150,0.35929454625198765,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,3,3905,370,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,3,5000,327,0.25229577427282185,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,2221,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,4,1634,141,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,3182,139,0.2341176540513489,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,810,297,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1,160,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,1842,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1,3396,0.407606601382869,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2841,138,0.5068253530591734,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,276,2503,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,5,4673,145,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,3,5000,383,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,4619,427,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,5,4420,137,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2016,4177,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3642,4393,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3356,1630,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2108,2642,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2032,3444,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1207,3624,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3672,1870,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1505,2711,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1160,4405,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3903,4002,0.33202071005291756,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4003,3820,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4059,4684,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2076,1274,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,915,570,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2867,3273,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1702,925,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1837,4359,0.001,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1051,2197,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2056,3652,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3084,696,0.999,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1293,1119,0.6919114360809326,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4024,4197,0.3390406800508499,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3632,1633,0.9917819954324514,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1053,3675,0.10105686982162297,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,343,2024,0.44504301504977045,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3081,2657,0.5874014475215227,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,4577,262,0.24653040304780005,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2000,4430,0.8487754366099834,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2368,1516,0.14421884932927787,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4787,3166,0.7619372343700379,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2557,769,0.42057695565000175,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,290,3922,0.5474658437110483,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,831,378,0.8913301925100386,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3257,4939,0.01631826365366578,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4089,2374,0.6695487537961453,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1825,2932,0.3009610236864537,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1672,2317,0.8058121440336108,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4251,2990,0.16469885104149581,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3405,554,0.5055670402143151,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,674,4762,0.40208067424036564,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,121,787,0.05820588574744761,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2698,3904,0.9098381349239498,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4960,1300,0.257090157173574,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2223,3381,0.6490651810988783,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2161,45,0.35952472863160073,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4428,4645,0.7357817969676107,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2916,2042,0.08254845152422786,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,498,2639,0.9498948492221534,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1195,1808,0.6058982048146426,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3459,3497,0.4869413426630199,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3887,1062,0.8282949590142816,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1462,4254,0.20265596926771104,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1521,1658,0.43023341600224374,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3788,3658,0.537384084802121,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3556,1214,0.12975227025710045,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1137,4093,0.7750019424911588,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,594,196,0.6823707910832018,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2858,4485,0.2867390784677118,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4488,1891,0.8814911044351756,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2062,2801,0.025730090152472258,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2321,626,0.9818852139208466,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4901,4055,0.11040624404884875,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2755,1461,0.7046728948876262,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,25,3230,0.32475533079355956,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,732,2478,0.23200232347100974,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3308,2838,0.8617814995273948,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,4350,393,0.4546351195964962,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1612,4913,0.5772600916419178,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1768,529,0.06850767663493752,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4186,4778,0.9633882168270648,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3158,2222,0.3686295284908265,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,891,3093,0.7251531364005059,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,191,1365,0.8179108728151768,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2617,3327,0.21151803880743683,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4729,920,0.6191469980515539,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2465,3760,0.4731432980932295,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1904,2184,0.5188763821888716,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4634,2505,0.38834603370912374,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3022,100,0.7954857512712479,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,442,4581,0.17362337285280227,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,993,958,0.26625931283831594,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3731,4348,0.6384961175024509,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3928,1793,0.0442266113627702,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1351,3523,0.9233901477325708,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1388,1940,0.001367364389821887,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3970,2750,0.9037992237042636,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,3688,188,0.3090424407608807,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,956,4493,0.6580109224803746,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,405,1202,0.7525046818442642,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2979,4103,0.1541542787142098,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4677,1705,0.5617813325654716,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1941,3611,0.40773900879733266,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2423,460,0.5842825861722231,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4692,4846,0.4457098068147898,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2654,2447,0.8528514334876091,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,233,2868,0.23902767887897788,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,933,1433,0.33339964181371035,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3195,3258,0.6980851273555309,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4148,695,0.103813712105155,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1726,3985,0.9905323746651411,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1576,871,0.49737397920154036,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4309,3811,0.596973328879103,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3349,1373,0.1893396126590669,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,768,3318,0.8421444110833108,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,60,2234,0.747777236726135,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2797,3083,0.3441030932329595,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4860,481,0.9388570208754391,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2286,4825,0.0911346304025501,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2103,1726,0.9164787812903523,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4524,3590,0.05304224229604006,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2822,989,0.6473069951776416,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,553,4318,0.2593508072737604,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,3,1096,128,0.16486177700199187,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3520,4553,0.8021922721806913,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3824,2116,0.3950477902069688,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1562,2576,0.5101176360622048,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1424,289,0.8712165690306574,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3845,4401,0.22206465222872793,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3501,1954,0.5629309322908521,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1232,2727,0.4674869971945882,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,535,1564,0.1253482316508889,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2958,3741,0.9694253546372056,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4386,1150,0.3166792859975249,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2124,4166,0.7162056290451437,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2265,2385,0.29238239574059843,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4998,2921,0.676194590266794,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2661,329,0.0229593394305557,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,79,4986,0.8827544180061668,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,632,719,0.5404937965478748,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3367,3972,0.42957555820606647,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4289,1524,0.7709310799501836,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1714,3156,0.1372496593259275,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1861,1272,0.6265067638475448,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4130,3410,0.2816746613699943,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3216,857,0.9344178747087717,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,795,3834,0.03565031822025776,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,6,254,622,0.37790044049918653,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2516,4695,0.5278139991611243,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4828,2286,0.18694105673022568,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2404,3020,0.7816347711700946,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1960,1051,0.21136143689230086,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4541,4265,0.8215246957428753,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3117,1857,0.48016631869785487,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,384,3450,0.6146065258812159,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1093,2092,0.9567348517309874,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3668,2589,0.07368429906480015,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,5,3988,37,0.726912887532264,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1253,4655,0.3663675883002579,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1280,1474,0.9432436367552728,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4010,3223,0.08772240826301277,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3646,658,0.7443668883778155,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1066,4028,0.34848777583613993,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,367,425,0.19372807258740068,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3105,4887,0.8387303448952734,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4554,2490,0.49396559387259187,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1976,2830,0.6013560484629125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2392,1244,0.3916377318501473,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4810,4065,0.5145024896860123,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2533,1670,0.16924856390245258,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,266,3651,0.798780340032652,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,817,1902,0.6438987808693201,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3242,2792,0.2637338168490678,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4104,228,0.920867531210184,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1839,4458,0.049628347128629687,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1697,93,0.5583728803154081,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4276,4593,0.4121217804308981,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3380,2159,0.7568931938223541,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,649,2538,0.15074014560505747,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,106,1766,0.30563214446231723,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2682,3554,0.66239553816244,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4976,951,0.005753913348540664,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2237,4361,0.9003870536144822,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2146,2196,0.1082024099752307,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4412,3125,0.9871185464188457,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2931,521,0.3299914944265038,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,513,4790,0.7024680848810821,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1220,913,0.8572382873091847,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3484,3773,0.2356156946811825,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3862,1338,0.5808724757656455,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1436,3358,0.4500947273597121,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1535,762,0.18255824048258365,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3802,3934,0.7850431788060814,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3541,1489,0.3813145884796977,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1123,3197,0.5234255020543933,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,570,2347,0.9300332144126296,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2835,2964,0.03906056990474462,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4511,369,0.6299189488086849,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2086,4951,0.27728812728263436,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2298,1605,0.7303267306499183,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4877,3705,0.3619789053015411,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2779,1112,0.9523518495913595,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,49,4209,0.07709240183793008,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,745,253,0.48357831776700916,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3323,4442,0.6102196869309992,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4336,1997,0.2069764717333019,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1598,2689,0.8249347615353763,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1743,2054,0.3200915230084211,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4161,2632,0.7118190280366689,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,7,3183,77,0.1209635044336319,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,916,4620,0.9728356583714485,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,206,1094,0.5663450133502483,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2632,4227,0.4630985521376133,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4714,1822,0.8668338048327714,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2450,3490,0.22547299294359982,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1919,586,0.7665461817122996,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4650,4735,0.14065967306867241,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3006,2329,0.5439057435672731,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,427,2982,0.42518878617696465,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,967,1313,0.01857628524117172,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3706,3374,0.8861625877004117,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3953,819,0.29579630577936766,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1376,3877,0.671805855218321,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,1334,342,0.25270719964802263,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3915,4980,0.652473328486085,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3743,2417,0.06161971399374306,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1010,2894,0.9054494370538742,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,469,1557,0.5011821196693927,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3043,3130,0.4054907846469432,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4613,731,0.8092241282314062,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1877,3965,0.16031199721992015,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2487,1986,0.8317090921234339,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4756,2700,0.19826745728962122,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2590,302,0.6015154331810773,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,169,4395,0.49034979491308334,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,879,1162,0.08596062161400914,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3140,4159,0.9455083002634347,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4203,1597,0.35514011294953524,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1780,3715,0.7391920932661742,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1639,1849,0.24994233519583942,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4372,3461,0.8443886497095228,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3286,1024,0.44065816142596304,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,704,4297,0.5908115058783442,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,8,9,0.9951958905998617,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2743,4686,0.09666811990179122,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4913,2085,0.6875283967629076,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2338,2601,0.3424488943591714,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2050,830,0.665164071192965,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4470,3866,0.3043713720347732,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2876,1264,0.8947424146495759,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,606,3421,0.011931647773832082,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1159,2279,0.4161942360661924,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3582,3032,0.5508742290399968,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3761,594,0.14763291551731528,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1499,4726,0.7575487744417041,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1478,2440,0.6235337700806558,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3899,2881,0.4697313510738313,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3447,433,0.814500859072432,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1178,4878,0.21590293704532088,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,471,669,0.37301826353929934,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2894,4018,0.7217392263617367,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4450,1425,0.06509950694069266,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2188,3270,0.9677712710164488,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2200,161,0.04081630762852728,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4934,4525,0.9277748749498278,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2725,1934,0.27064591384679076,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,143,2763,0.6350838804915547,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,686,1698,0.7920774105563759,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3422,3623,0.17800613705068827,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4234,1176,0.5232648272458464,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1660,4136,0.38493195264972746,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1798,1000,0.8780830016620457,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4068,4310,0.030113092292100192,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3278,1758,0.6867594740819186,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,858,3563,0.2833252353500575,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,307,2147,0.12634220446459948,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2569,2548,0.7793869076501578,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,4,4774,140,0.43462025495246054,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2352,4546,0.5339720857329666,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2012,1405,0.45902361670322717,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4594,3291,0.5738459436614066,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3064,882,0.22859391583502292,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,331,3803,0.8661643157750368,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1030,493,0.7090594289749861,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3605,4818,0.3213431458324194,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4051,2265,0.9784749622363598,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1316,3055,0.11479090434499085,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1325,2250,0.4722264909017831,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4063,3062,0.6225002933610231,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3596,506,0.21925900772213935,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1019,4814,0.8135810571610927,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,322,898,0.7192471649050712,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3052,3798,0.3740481562614441,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4604,1391,0.9644192304778844,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2024,3294,0.06601477308757603,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2359,156,0.9264936395324767,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4785,4539,0.04355967831984162,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2561,2134,0.63441992729716,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,297,2552,0.27374661540798845,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,850,1741,0.17929092672280966,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3268,3569,0.7893309317510575,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4076,1014,0.38560041186586025,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1808,4307,0.5201600658036768,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1649,1191,0.030902725199237466,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4226,4130,0.8748565943632275,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3432,1685,0.2844883754476905,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,694,3627,0.6841341652497649,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,154,1917,0.778600353114307,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2732,2768,0.1295650277659297,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4923,175,0.5328129757735878,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2192,4522,0.4372410280201584,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2176,1410,0.570859201323241,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4440,3277,0.459574056815356,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2906,682,0.8633074320014567,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,480,4013,0.22998911047540604,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,2,1189,450,0.32433344242535533,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3456,4872,0.7085058807488531,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3888,2426,0.1176522941403091,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1469,2884,0.9770757077150046,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1487,601,0.6549763798769563,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3752,4711,0.2516662872489542,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3594,2275,0.9087980720512568,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1169,3045,0.06070782364532352,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,618,1259,0.40299128751084207,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2885,3438,0.502219923954457,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4459,833,0.15696786824427544,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2041,3852,0.8101319586988539,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2328,2078,0.19699365755170584,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4905,2616,0.8344445512518287,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,12,2753,13,0.489677930155769,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,16,4673,0.6046235704217107,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,715,1030,0.9467851783726364,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3294,4280,0.0832215784881264,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4361,1846,0.7398679881617427,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1631,3475,0.3520274399444461,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1788,1590,0.8451860752087087,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4213,3730,0.2467086111884564,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3132,1166,0.5919673292674125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,868,4146,0.438040645185858,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,161,307,0.09587424865737558,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2580,4378,0.9984265064932406,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4764,1983,0.3412975769918412,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2497,2714,0.6901418531220407,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,8,1886,738,0.30139194640517236,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4625,3949,0.6657067187130451,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3034,1552,0.009066971408203246,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,458,3143,0.8961449259985238,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1001,2411,0.5538567330408841,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3731,2910,0.41564800454862416,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3925,345,0.7604174809455871,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1346,4966,0.14622586840391158,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1387,806,0.7875459457822144,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3961,3881,0.18151716263964773,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3696,1328,0.5267739753257483,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,959,3368,0.38040241743437947,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,417,2343,0.036560911042615774,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2998,2979,0.9310707380007952,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4660,570,0.27394371389225125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1927,4741,0.6308266138322651,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2461,1835,0.3607053007502109,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4723,3486,0.7330625039357692,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2620,1078,0.0764208475202322,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,197,4234,0.9554601783007384,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,904,63,0.6114968754798173,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3173,4623,0.4808394661098719,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4173,2071,0.82561085161753,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1752,2626,0.20386411288566889,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1589,2010,0.7126162880919874,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4325,2685,0.3168575145862997,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3332,238,0.973991201063618,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,757,4448,0.11834582646749914,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,58,1098,0.462304400196299,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2790,4212,0.5695754675175995,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4868,1621,0.22432151013240217,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2286,3700,0.8694469767771661,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2078,357,0.1376805615965277,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4501,4955,0.767089024418965,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2843,2363,0.42232430128008125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,580,2957,0.5453085653558374,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1131,1503,0.8891452831700444,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3552,3193,0.01803036416321993,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2353,1012,0.04869958150573075,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4772,4304,0.9198164040464908,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2571,1739,0.2626826841086149,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,305,3566,0.6429700096696616,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,855,2131,0.7997093584686518,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3281,2550,0.17029899211227895,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,2,4065,153,0.5155529234725982,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1801,4537,0.39256675586290657,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1657,172,0.9013163137100637,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4237,4519,0.006804583217948675,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3419,1915,0.6634462061729283,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,689,2766,0.3065614026989788,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,145,1682,0.14981161420606076,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2722,3625,0.755842300882563,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4936,1189,0.41107088935002684,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2198,4127,0.5574443507753313,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2185,2424,0.4511455775443465,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4452,2882,0.5818010833803564,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,2891,447,0.23654429671913385,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,473,4870,0.8582891319170595,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1180,680,0.7014174875095487,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3445,4011,0.3290621878579259,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3901,1408,0.9861892454270274,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1476,3274,0.10715181818045676,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1497,831,0.2762374704256654,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3763,3849,0.6289897017255426,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3580,1256,0.0381313283983618,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1162,3435,0.9289825631324202,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,609,2272,0.5244764117244631,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2873,3043,0.38224313660897313,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4473,598,0.7859717213585973,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2047,4708,0.1836091445758939,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2336,1843,0.8240061706509441,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4915,3473,0.20592563827894628,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2741,1027,0.6091688553355634,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,10,4278,0.4826497287414968,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,12,707,11,0.07802172141894698,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3284,4671,0.953402459975332,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4375,2076,0.36302951382659376,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1637,2614,0.7312560483720154,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1783,1980,0.22640207086503505,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4200,2711,0.8678841735571623,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,1,3143,305,0.46414892643876376,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,876,4376,0.5672740968484431,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,167,1164,0.9719068332631141,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2592,4143,0.11991243675537408,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4754,1588,0.7107679547816514,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2489,3728,0.31916269232332706,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1879,343,0.6728569991122931,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4610,4963,0.29672508813254533,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3046,2409,0.8870913719125092,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,466,2908,0.019627430994063617,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1008,1550,0.4241383709795773,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3745,3141,0.5429767381437123,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3913,735,0.1397306657861918,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1336,3947,0.7654957646559923,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1373,567,0.1592616284955293,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3955,4739,0.808295050309971,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3703,2340,0.4045617011487484,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,970,2976,0.5001317453682422,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,429,1326,0.906500504732132,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3004,3365,0.06254853910207749,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4652,804,0.6534021591711789,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1917,3879,0.25375827290304004,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2447,2068,0.7382633109129966,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4717,2624,0.3540889690555632,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2629,61,0.9444571545105428,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,209,4620,0.08503183740191161,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,918,1076,0.49127880033664406,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3180,4231,0.6025658483784646,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4163,1832,0.19931787434592843,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1740,3483,0.8326380994059145,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1600,1619,0.34337814144231377,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4334,3698,0.6885790536198765,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3325,1096,0.09771877118200063,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,743,4210,0.9961251321062445,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,46,236,0.5898829577490687,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2782,4446,0.4396072517558932,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4874,2008,0.8433377456162124,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2300,2683,0.24901379264332354,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2088,743,0.7585996078960597,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4509,3937,0.14856150640174748,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2837,1500,0.5518028180655092,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,568,3191,0.4172450676616281,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1121,2360,0.010881037389859557,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3544,2955,0.8938130950685591,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.56,3,3799,354,0.3034420543126762,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1538,4952,0.6641134626679123,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1439,2199,0.9667206011470407,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3859,3106,0.06417024684511125,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3487,516,0.7208099681250751,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1217,4801,0.3719675955288112,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,511,904,0.21695382998511195,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2933,3787,0.8154293904714286,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,4410,1340,0.4706598806139082,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2148,3343,0.624584661161527,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,2,2240,85,0.38400334503501654,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4973,4607,0.5222139770612121,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2685,2159,0.17695529244281352,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,103,2522,0.7911488085184246,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,647,1770,0.6360131870601327,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3382,3537,0.2716965112183243,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4274,944,0.9288254667446018,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1699,4371,0.04174560862034559,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1837,1237,0.5349011506419629,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4106,4080,0.43567061066441237,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3240,1671,0.7804372652210295,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,819,3635,0.12727127123251558,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,269,1907,0.28239639351144435,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2531,2775,0.685708389673382,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.57,3,4813,222,0.029062006024643778,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2390,4469,0.8771541579645127,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1974,1476,0.11584203150868416,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4556,3204,0.9794037278592587,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3103,652,0.3222719170320779,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,369,4039,0.710110561715439,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,1069,416,0.8651138875652105,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3643,4899,0.22766489739902318,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4013,2491,0.5729169196486473,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1277,2815,0.45797318291664124,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1255,1040,0.8477243689317256,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3986,4272,0.24560157793946563,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3670,1875,0.5864726168364286,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1091,3446,0.4439919417947531,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,382,2108,0.10210723854601383,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3119,2588,0.9927110733538866,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.58,15,4539,23,0.33996976354904473,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1962,4663,0.6929617806393653,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2407,1288,0.30003201826289294,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4825,3408,0.668498338598758,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2519,844,0.015267846597358584,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,251,3843,0.8904011852275581,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,792,610,0.5483946260642261,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3218,4701,0.4216280995439738,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4128,2305,0.7629883801229298,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1863,3017,0.1451476335413754,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1712,2400,0.6499937292281538,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4291,2919,0.2581410668436438,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,3365,316,0.91088903901726,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,634,4995,0.059134428299963473,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,81,707,0.40115142715722324,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2658,3978,0.504516383357346,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1543,0.1636481997612864,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2262,3153,0.804882902527228,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,1,2121,278,0.20370657965168357,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,4388,4408,0.8292242785952986,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,2956,1972,0.48787066038511695,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,537,2723,0.6069488133396953,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,1235,1581,0.9488440157677979,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,3499,3740,0.08161986063979566,"{'nu':0.5,'kernel':'rbf','gamma':'auto'}"],[0.55,0,5000,1061,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,1,3514,422,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,1,75,0.1334466682864588,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.58,3,5000,190,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,1,2454,366,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,1116,330,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,3,4109,146,0.4269031479859309,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,4843,3361,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,3,4073,158,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1,2344,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,5000,144,0.6821392527442355,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,2,5000,143,0.4158806796962817,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,5000,288,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1541,4001,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2859,4322,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3939,3241,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2804,1528,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3097,1729,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3305,4800,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1543,1876,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2422,3116,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2138,4756,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3237,2512,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3238,2617,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3474,1206,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3381,4529,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2147,1504,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3699,2600,0.7287087415834542,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3405,1304,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3940,1710,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1922,2914,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,717,623,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2079,4839,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3076,4709,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2877,4866,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2256,3245,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,3458,790,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,4181,3190,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3765,3037,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3460,4792,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1391,4630,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1441,1998,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1108,4122,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,2011,127,0.3083796615461724,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,5,5000,152,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1,4916,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,1894,285,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,1,262,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,4682,2938,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,3589,334,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,455,257,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,1469,321,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,4,4274,145,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,5000,1751,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,3,4458,168,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,2,3187,150,0.3592945462519876,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,3,3905,370,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,5000,2221,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,3,5000,327,0.2522957742728218,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.58,2,776,139,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,1,929,368,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,3,3182,139,0.2341176540513489,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.58,4,1634,141,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,1,810,297,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1,1842,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,1,160,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,276,2503,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,2,2841,138,0.5068253530591734,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1,3396,0.407606601382869,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.57,5,4673,145,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,3,5000,383,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.58,5,4420,137,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.56,2,4619,427,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2016,4177,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1207,3624,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2108,2642,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3356,1630,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3642,4393,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2032,3444,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1505,2711,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3672,1870,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,4003,3820,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1160,4405,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,3903,4002,0.3320207100529175,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2867,3273,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,915,570,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,4059,4684,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,2076,1274,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1702,925,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1837,4359,0.001,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,1051,2197,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,0,2056,3652,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"],[0.55,1,3084,696,0.999,"\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}"]];
+
+			"use strict";
+			
+			function add_default_layout_data (layout) {
+				layout["width"] = get_graph_width();
+				layout["height"] = get_graph_height();
+				layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
+				layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
+			
+				return layout;
+			}
+			
+			function get_marker_size() {
+				return 12;
+			}
+			
+			function get_text_color() {
+				return theme == "dark" ? "white" : "black";
+			}
+			
+			function get_font_size() {
+				return 14;
+			}
+			
+			function get_graph_height() {
+				return 800;
+			}
+			
+			function get_font_data() {
+				return {
+					size: get_font_size(),
+					color: get_text_color()
+				}
+			}
+			
+			function get_axis_title_data(name, axis_type = "") {
+				if(axis_type) {
+					return {
+						text: name,
+						type: axis_type,
+						font: get_font_data()
+					};
+				}
+			
+				return {
+					text: name,
+					font: get_font_data()
+				};
+			}
+			
+			function get_graph_width() {
+				var width = document.body.clientWidth || window.innerWidth || document.documentElement.clientWidth;
+				return Math.max(800, Math.floor(width * 0.9));
+			}
+			
+			function createTable(data, headers, table_name) {
+				if (!$("#" + table_name).length) {
+					console.error("#" + table_name + " not found");
+					return;
+				}
+			
+				new gridjs.Grid({
+					pagination: true,
+					columns: headers,
+					data: data,
+					search: false,
+					sort: true,
+					ellipsis: false
+				}).render(document.getElementById(table_name));
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+
+			}
+			
+			function download_as_file(id, filename) {
+				var text = $("#" + id).text();
+				var blob = new Blob([text], {
+					type: "text/plain"
+				});
+				var link = document.createElement("a");
+				link.href = URL.createObjectURL(blob);
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+			
+			function copy_to_clipboard_from_id (id) {
+				var text = $("#" + id).text();
+			
+				copy_to_clipboard(text);
+			}
+			
+			function copy_to_clipboard(text) {
+				if (!navigator.clipboard) {
+					let textarea = document.createElement("textarea");
+					textarea.value = text;
+					document.body.appendChild(textarea);
+					textarea.select();
+					try {
+						document.execCommand("copy");
+					} catch (err) {
+						console.error("Copy failed:", err);
+					}
+					document.body.removeChild(textarea);
+					return;
+				}
+			
+				navigator.clipboard.writeText(text).then(() => {
+					console.log("Text copied to clipboard");
+				}).catch(err => {
+					console.error("Failed to copy text:", err);
+				});
+			}
+			
+			function filterNonEmptyRows(data) {
+				var new_data = [];
+				for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+					var line = data[row_idx];
+			
+					var line_has_empty_data = false;
+			
+					for (var col_idx = 0; col_idx < line.length; col_idx++) {
+						var col_header_name = tab_results_headers_json[col_idx];
+						var single_data_point = line[col_idx];
+			
+						if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+							line_has_empty_data = true;
+							continue;
+						}
+					}
+			
+					if(!line_has_empty_data) {
+						new_data.push(line);
+					}
+				}
+			
+				return new_data;
+			}
+			
+			function make_text_in_parallel_plot_nicer() {
+				$(".parcoords g > g > text").each(function() {
+					if (theme == "dark") {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "white")
+							.css("stroke", "black")
+							.css("stroke-width", "2px")
+							.css("paint-order", "stroke fill");
+					} else {
+						$(this)
+							.css("text-shadow", "unset")
+							.css("font-size", "0.9em")
+							.css("fill", "black")
+							.css("stroke", "unset")
+							.css("stroke-width", "unset")
+							.css("paint-order", "stroke fill");
+					}
+				});
+			}
+			
+			function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = []) {
+				if ($("#parallel-plot").data("loaded") == "true") {
+					return;
+				}
+			
+				dataArray = filterNonEmptyRows(dataArray);
+	
+	// Additional comprehensive filtering to remove any rows with problematic values
+	dataArray = dataArray.filter(row => {
+		// Ensure row has enough columns
+		if (!row || row.length < headers.length) return false;
+		
+		// Check that key result columns have valid values
+		const accuracyIndex = headers.indexOf('ACCURACY');
+		const runtimeIndex = headers.indexOf('RUNTIME');
+		
+		if (accuracyIndex >= 0) {
+			const accuracy = row[accuracyIndex];
+			if (accuracy === null || accuracy === undefined || accuracy === '' || isNaN(parseFloat(accuracy))) {
+				return false;
+			}
+		}
+		
+		if (runtimeIndex >= 0) {
+			const runtime = row[runtimeIndex];
+			if (runtime === null || runtime === undefined || runtime === '' || isNaN(parseFloat(runtime))) {
+				return false;
+			}
+		}
+		
+		return true;
+	});
+				const ignoreSet = new Set(ignoreColumns);
+				const numericalCols = [];
+				const categoricalCols = [];
+				const categoryMappings = {};
+			
+				headers.forEach((header, colIndex) => {
+					if (ignoreSet.has(header)) return;
+			
+					const values = dataArray.map(row => row[colIndex]);
+					if (values.every(val => !isNaN(parseFloat(val)))) {
+						numericalCols.push({ name: header, index: colIndex });
+					} else {
+						categoricalCols.push({ name: header, index: colIndex });
+						const uniqueValues = [...new Set(values)];
+		// Filter out null/undefined values from categorical mappings
+		const validUniqueValues = uniqueValues.filter(val => val !== null && val !== undefined && val !== "");
+		if (validUniqueValues.length === 0) validUniqueValues.push("unknown");
+		categoryMappings[header] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+					}
+				});
+			
+				const dimensions = [];
+			
+				numericalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => parseFloat(row[col.index])),
+						range: [
+							Math.min(...dataArray.map(row => parseFloat(row[col.index]))),
+							Math.max(...dataArray.map(row => parseFloat(row[col.index])))
+						]
+					});
+				});
+			
+				categoricalCols.forEach(col => {
+					dimensions.push({
+						label: col.name,
+						values: dataArray.map(row => categoryMappings[col.name][row[col.index]]),
+						tickvals: Object.values(categoryMappings[col.name]),
+						ticktext: Object.keys(categoryMappings[col.name])
+					});
+				});
+			
+				let colorScale = null;
+				let colorValues = null;
+			
+				if (resultNames.length > 1) {
+					let selectBox = '<select id="result-select" style="margin-bottom: 10px;">';
+					selectBox += '<option value="none">No color</option>';
+					var k = 0;
+					resultNames.forEach(resultName => {
+						var minMax = ["max", "min"][k];
+						if(minMax === undefined) {
+							minMax = "min [automatically chosen]"
+						}
+						selectBox += `<option value="${resultName}">${resultName} (${minMax})</option>`;
+						k = k + 1;
+					});
+					selectBox += '</select>';
+					$("#parallel-plot").before(selectBox);
+			
+					$("#result-select").change(function() {
+						const selectedResult = $(this).val();
+						if (selectedResult === "none") {
+							colorValues = null;
+							colorScale = null;
+						} else {
+							const resultCol = numericalCols.find(col => col.name.toLowerCase() === selectedResult.toLowerCase());
+							colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+			
+							let minResult = Math.min(...colorValues);
+							let maxResult = Math.max(...colorValues);
+			
+							var _result_min_max_idx = ["ACCURACY", "RUNTIME"].indexOf(selectedResult);
+			
+							let invertColor = false;
+							if (["max", "min"].length > _result_min_max_idx) {
+								invertColor = ["max", "min"][_result_min_max_idx] === "max";
+							}
+			
+							colorScale = invertColor
+								? [[0, 'red'], [1, 'green']]
+								: [[0, 'green'], [1, 'red']];
+						}
+						updatePlot();
+					});
+				} else {
+					let invertColor = false;
+					if (Object.keys(["max", "min"]).length == 1) {
+						invertColor = ["max", "min"][0] === "max";
+					}
+			
+					colorScale = invertColor
+						? [[0, 'red'], [1, 'green']]
+						: [[0, 'green'], [1, 'red']];
+			
+					const resultCol = numericalCols.find(col => col.name.toLowerCase() === resultNames[0].toLowerCase());
+					colorValues = dataArray.map(row => parseFloat(row[resultCol.index]));
+				}
+			
+				function updatePlot() {
+					const trace = {
+						type: 'parcoords',
+						dimensions: dimensions,
+						line: colorValues ? { color: colorValues, colorscale: colorScale } : {},
+						unselected: {
+							line: {
+								color: get_text_color(),
+								opacity: 0
+							}
+						},
+					};
+			
+					dimensions.forEach(dim => {
+						if (!dim.line) {
+							dim.line = {};
+						}
+						if (!dim.line.color) {
+							dim.line.color = 'rgba(169,169,169, 0.01)';
+						}
+					});
+			
+					Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+			
+					make_text_in_parallel_plot_nicer();
+				}
+			
+				updatePlot();
+			
+				$("#parallel-plot").data("loaded", "true");
+			
+				make_text_in_parallel_plot_nicer();
+			}
+
+			function plotScatter2d() {
+				if ($("#plotScatter2d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter2d");
+			
+				var minInput = document.getElementById("minValue");
+				var maxInput = document.getElementById("maxValue");
+			
+				if (!minInput || !maxInput) {
+					minInput = document.createElement("input");
+					minInput.id = "minValue";
+					minInput.type = "number";
+					minInput.placeholder = "Min Value";
+					minInput.step = "any";
+			
+					maxInput = document.createElement("input");
+					maxInput.id = "maxValue";
+					maxInput.type = "number";
+					maxInput.placeholder = "Max Value";
+					maxInput.step = "any";
+			
+					var inputContainer = document.createElement("div");
+					inputContainer.style.marginBottom = "10px";
+					inputContainer.appendChild(minInput);
+					inputContainer.appendChild(maxInput);
+					plotDiv.appendChild(inputContainer);
+				}
+			
+				var resultSelect = document.getElementById("resultSelect");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !resultSelect) {
+					resultSelect = document.createElement("select");
+					resultSelect.id = "resultSelect";
+					resultSelect.style.marginBottom = "10px";
+			
+					var sortedResults = [...["ACCURACY", "RUNTIME"]].sort();
+					sortedResults.forEach(result => {
+						var option = document.createElement("option");
+						option.value = result;
+						option.textContent = result;
+						resultSelect.appendChild(option);
+					});
+			
+					var selectContainer = document.createElement("div");
+					selectContainer.style.marginBottom = "10px";
+					selectContainer.appendChild(resultSelect);
+					plotDiv.appendChild(selectContainer);
+				}
+			
+				minInput.addEventListener("input", updatePlots);
+				maxInput.addEventListener("input", updatePlots);
+				if (resultSelect) {
+					resultSelect.addEventListener("change", updatePlots);
+				}
+			
+				updatePlots();
+			
+				async function updatePlots() {
+					var minValue = parseFloat(minInput.value);
+					var maxValue = parseFloat(maxInput.value);
+					if (isNaN(minValue)) minValue = -Infinity;
+					if (isNaN(maxValue)) maxValue = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var selectedResult = resultSelect ? resultSelect.value : ["ACCURACY", "RUNTIME"][0];
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue !== -Infinity) minResult = Math.max(minResult, minValue);
+					if (maxValue !== Infinity) maxResult = Math.min(maxResult, maxValue);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 2) {
+						console.error("Not enough columns for Scatter-Plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							let xCol = numericColumns[i];
+							let yCol = numericColumns[j];
+			
+							let xIndex = tab_results_headers_json.indexOf(xCol);
+							let yIndex = tab_results_headers_json.indexOf(yCol);
+			
+							let data = tab_results_csv_json.map(row => ({
+								x: parseFloat(row[xIndex]),
+								y: parseFloat(row[yIndex]),
+								result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+							}));
+			
+							data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+							let layoutTitle = `${xCol} (x) vs ${yCol} (y), result: ${selectedResult}`;
+							let layout = {
+								title: layoutTitle,
+								xaxis: {
+									title: get_axis_title_data(xCol)
+								},
+								yaxis: {
+									title: get_axis_title_data(yCol)
+								},
+								showlegend: false
+							};
+							let subDiv = document.createElement("div");
+			
+							let spinnerContainer = document.createElement("div");
+							spinnerContainer.style.display = "flex";
+							spinnerContainer.style.alignItems = "center";
+							spinnerContainer.style.justifyContent = "center";
+							spinnerContainer.style.width = layout.width + "px";
+							spinnerContainer.style.height = layout.height + "px";
+							spinnerContainer.style.position = "relative";
+			
+							let spinner = document.createElement("div");
+							spinner.className = "spinner";
+							spinner.style.width = "40px";
+							spinner.style.height = "40px";
+			
+							let loadingText = document.createElement("span");
+							loadingText.innerText = `Loading ${layoutTitle}`;
+							loadingText.style.marginLeft = "10px";
+			
+							spinnerContainer.appendChild(spinner);
+							spinnerContainer.appendChild(loadingText);
+			
+							plotDiv.appendChild(spinnerContainer);
+			
+							await new Promise(resolve => setTimeout(resolve, 50));
+			
+							let colors = data.map(d => {
+								if (d.result === null) {
+									return 'rgb(0, 0, 0)';
+								} else {
+									let norm = (d.result - minResult) / (maxResult - minResult);
+									if (invertColor) {
+										norm = 1 - norm;
+									}
+									return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+								}
+							});
+			
+							let trace = {
+								x: data.map(d => d.x),
+								y: data.map(d => d.y),
+								mode: 'markers',
+								marker: {
+									size: get_marker_size(),
+									color: data.map(d => d.result !== null ? d.result : null),
+									colorscale: invertColor ? [
+										[0, 'red'],
+										[1, 'green']
+									] : [
+										[0, 'green'],
+										[1, 'red']
+									],
+									colorbar: {
+										title: 'Result',
+										tickvals: [minResult, maxResult],
+										ticktext: [`${minResult}`, `${maxResult}`]
+									},
+									symbol: data.map(d => d.result === null ? 'x' : 'circle'),
+								},
+								text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+								type: 'scatter',
+								showlegend: false
+							};
+			
+							try {
+								plotDiv.replaceChild(subDiv, spinnerContainer);
+							} catch (err) {
+								//
+							}
+							Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+						}
+					}
+				}
+			
+				$("#plotScatter2d").data("loaded", "true");
+			}
+			
+			function plotScatter3d() {
+				if ($("#plotScatter3d").data("loaded") == "true") {
+					return;
+				}
+			
+				var plotDiv = document.getElementById("plotScatter3d");
+				if (!plotDiv) {
+					console.error("Div element with id 'plotScatter3d' not found");
+					return;
+				}
+				plotDiv.innerHTML = "";
+			
+				var minInput3d = document.getElementById("minValue3d");
+				var maxInput3d = document.getElementById("maxValue3d");
+			
+				if (!minInput3d || !maxInput3d) {
+					minInput3d = document.createElement("input");
+					minInput3d.id = "minValue3d";
+					minInput3d.type = "number";
+					minInput3d.placeholder = "Min Value";
+					minInput3d.step = "any";
+			
+					maxInput3d = document.createElement("input");
+					maxInput3d.id = "maxValue3d";
+					maxInput3d.type = "number";
+					maxInput3d.placeholder = "Max Value";
+					maxInput3d.step = "any";
+			
+					var inputContainer3d = document.createElement("div");
+					inputContainer3d.style.marginBottom = "10px";
+					inputContainer3d.appendChild(minInput3d);
+					inputContainer3d.appendChild(maxInput3d);
+					plotDiv.appendChild(inputContainer3d);
+				}
+			
+				var select3d = document.getElementById("select3dScatter");
+				if (["ACCURACY", "RUNTIME"].length > 1 && !select3d) {
+					if (!select3d) {
+						select3d = document.createElement("select");
+						select3d.id = "select3dScatter";
+						select3d.style.marginBottom = "10px";
+						select3d.innerHTML = ["ACCURACY", "RUNTIME"].map(name => `<option value="${name}">${name}</option>`).join("");
+			
+						select3d.addEventListener("change", updatePlots3d);
+			
+						plotDiv.appendChild(select3d);
+					}
+				}
+			
+				minInput3d.addEventListener("input", updatePlots3d);
+				maxInput3d.addEventListener("input", updatePlots3d);
+			
+				updatePlots3d();
+			
+				async function updatePlots3d() {
+					var selectedResult = select3d ? select3d.value : ["ACCURACY", "RUNTIME"][0];
+					var minValue3d = parseFloat(minInput3d.value);
+					var maxValue3d = parseFloat(maxInput3d.value);
+			
+					if (isNaN(minValue3d)) minValue3d = -Infinity;
+					if (isNaN(maxValue3d)) maxValue3d = Infinity;
+			
+					while (plotDiv.children.length > 2) {
+						plotDiv.removeChild(plotDiv.lastChild);
+					}
+			
+					var resultIndex = tab_results_headers_json.findIndex(header =>
+						header.toLowerCase() === selectedResult.toLowerCase()
+					);
+					var resultValues = tab_results_csv_json.map(row => row[resultIndex]);
+			
+					var minResult = Math.min(...resultValues.filter(value => value !== null && value !== ""));
+					var maxResult = Math.max(...resultValues.filter(value => value !== null && value !== ""));
+			
+					if (minValue3d !== -Infinity) minResult = Math.max(minResult, minValue3d);
+					if (maxValue3d !== Infinity) maxResult = Math.min(maxResult, maxValue3d);
+			
+					var invertColor = ["max", "min"][["ACCURACY", "RUNTIME"].indexOf(selectedResult)] === "max";
+			
+					var numericColumns = tab_results_headers_json.filter(col =>
+						!special_col_names.includes(col) && !["ACCURACY", "RUNTIME"].includes(col) &&
+						tab_results_csv_json.every(row => !isNaN(parseFloat(row[tab_results_headers_json.indexOf(col)])))
+					);
+			
+					if (numericColumns.length < 3) {
+						console.error("Not enough columns for 3D scatter plots");
+						return;
+					}
+			
+					for (let i = 0; i < numericColumns.length; i++) {
+						for (let j = i + 1; j < numericColumns.length; j++) {
+							for (let k = j + 1; k < numericColumns.length; k++) {
+								let xCol = numericColumns[i];
+								let yCol = numericColumns[j];
+								let zCol = numericColumns[k];
+			
+								let xIndex = tab_results_headers_json.indexOf(xCol);
+								let yIndex = tab_results_headers_json.indexOf(yCol);
+								let zIndex = tab_results_headers_json.indexOf(zCol);
+			
+								let data = tab_results_csv_json.map(row => ({
+									x: parseFloat(row[xIndex]),
+									y: parseFloat(row[yIndex]),
+									z: parseFloat(row[zIndex]),
+									result: row[resultIndex] !== "" ? parseFloat(row[resultIndex]) : null
+								}));
+			
+								data = data.filter(d => d.result >= minResult && d.result <= maxResult);
+			
+								let layoutTitle = `${xCol} (x) vs ${yCol} (y) vs ${zCol} (z), result: ${selectedResult}`;
+								let layout = {
+									title: layoutTitle,
+									scene: {
+										xaxis: {
+											title: get_axis_title_data(xCol)
+										},
+										yaxis: {
+											title: get_axis_title_data(yCol)
+										},
+										zaxis: {
+											title: get_axis_title_data(zCol)
+										}
+									},
+									showlegend: false
+								};
+			
+								let spinnerContainer = document.createElement("div");
+								spinnerContainer.style.display = "flex";
+								spinnerContainer.style.alignItems = "center";
+								spinnerContainer.style.justifyContent = "center";
+								spinnerContainer.style.width = layout.width + "px";
+								spinnerContainer.style.height = layout.height + "px";
+								spinnerContainer.style.position = "relative";
+			
+								let spinner = document.createElement("div");
+								spinner.className = "spinner";
+								spinner.style.width = "40px";
+								spinner.style.height = "40px";
+			
+								let loadingText = document.createElement("span");
+								loadingText.innerText = `Loading ${layoutTitle}`;
+								loadingText.style.marginLeft = "10px";
+			
+								spinnerContainer.appendChild(spinner);
+								spinnerContainer.appendChild(loadingText);
+			
+								plotDiv.appendChild(spinnerContainer);
+			
+								await new Promise(resolve => setTimeout(resolve, 50));
+			
+								let colors = data.map(d => {
+									if (d.result === null) {
+										return 'rgb(0, 0, 0)';
+									} else {
+										let norm = (d.result - minResult) / (maxResult - minResult);
+										if (invertColor) {
+											norm = 1 - norm;
+										}
+										return `rgb(${Math.round(255 * norm)}, ${Math.round(255 * (1 - norm))}, 0)`;
+									}
+								});
+			
+								let trace = {
+									x: data.map(d => d.x),
+									y: data.map(d => d.y),
+									z: data.map(d => d.z),
+									mode: 'markers',
+									marker: {
+										size: get_marker_size(),
+										color: data.map(d => d.result !== null ? d.result : null),
+										colorscale: invertColor ? [
+											[0, 'red'],
+											[1, 'green']
+										] : [
+											[0, 'green'],
+											[1, 'red']
+										],
+										colorbar: {
+											title: 'Result',
+											tickvals: [minResult, maxResult],
+											ticktext: [`${minResult}`, `${maxResult}`]
+										},
+									},
+									text: data.map(d => d.result !== null ? `Result: ${d.result}` : 'No result'),
+									type: 'scatter3d',
+									showlegend: false
+								};
+			
+								let subDiv = document.createElement("div");
+								try {
+									plotDiv.replaceChild(subDiv, spinnerContainer);
+								} catch (err) {
+									//
+								}
+								Plotly.newPlot(subDiv, [trace], add_default_layout_data(layout));
+							}
+						}
+					}
+				}
+			
+				$("#plotScatter3d").data("loaded", "true");
+			}
+			
+			async function load_pareto_graph() {
+				if($("#tab_pareto_fronts").data("loaded") == "true") {
+					return;
+				}
+			
+// Extract data dynamically from tab_results_csv_json instead of using hardcoded values
+	let accuracyIndex = tab_results_headers_json.indexOf("ACCURACY");
+	let runtimeIndex = tab_results_headers_json.indexOf("RUNTIME");
+	
+	if (accuracyIndex === -1 || runtimeIndex === -1) {
+		console.warn("ACCURACY or RUNTIME column not found in tab_results_headers_json");
+		$("#tab_pareto_fronts").data("loaded", "true");
+		return;
+	}
+	
+	// Extract ACCURACY and RUNTIME values from tab_results_csv_json
+	let accuracyValues = [];
+	let runtimeValues = [];
+	
+	tab_results_csv_json.forEach(row => {
+		let accuracy = row[accuracyIndex];
+		let runtime = row[runtimeIndex];
+		
+		if (accuracy !== "" && accuracy !== null && accuracy !== undefined &&
+			runtime !== "" && runtime !== null && runtime !== undefined) {
+			accuracyValues.push(parseFloat(accuracy));
+			runtimeValues.push(parseFloat(runtime));
+		}
+	});
+	
+	// Create data structure compatible with existing plotting code
+	var data = {
+		"ACCURACY": {
+			"RUNTIME": {
+				"ACCURACY": accuracyValues,
+				"RUNTIME": runtimeValues
+			}
+		}
+	};
+
+				if(data === null) {
+     // console.error("pareto_front_data is null");
+					return;
+				}
+			
+				if (!data || typeof data !== "object") {
+     // console.error("Invalid data format for pareto_front_data");
+					return;
+				}
+			
+				if (!Object.keys(data).length) {
+     // console.warn("No data found in pareto_front_data");
+					return;
+				}
+			
+				let categories = Object.keys(data);
+				let allMetrics = new Set();
+			
+				function extractMetrics(obj, prefix = "") {
+					let keys = Object.keys(obj);
+					for (let key of keys) {
+						let newPrefix = prefix ? `${prefix} -> ${key}` : key;
+						if (typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+							extractMetrics(obj[key], newPrefix);
+						} else {
+							if (!newPrefix.includes("param_dicts") && !newPrefix.includes(" -> sems -> ") && !newPrefix.includes("absolute_metrics")) {
+								allMetrics.add(newPrefix);
+							}
+						}
+					}
+				}
+			
+				for (let cat of categories) {
+					extractMetrics(data[cat]);
+				}
+			
+				allMetrics = Array.from(allMetrics);
+			
+				function extractValues(obj, metricPath, values) {
+					let parts = metricPath.split(" -> ");
+					let data = obj;
+					for (let part of parts) {
+						if (data && typeof data === "object") {
+							data = data[part];
+						} else {
+							return;
+						}
+					}
+					if (Array.isArray(data)) {
+						values.push(...data);
+					}
+				}
+			
+				let graphContainer = document.getElementById("pareto_front_graphs_container");
+				graphContainer.classList.add("invert_in_dark_mode");
+				graphContainer.innerHTML = "";
+			
+				var already_plotted = [];
+			
+				for (let i = 0; i < allMetrics.length; i++) {
+					for (let j = i + 1; j < allMetrics.length; j++) {
+						let xMetric = allMetrics[i];
+						let yMetric = allMetrics[j];
+			
+						let xValues = [];
+						let yValues = [];
+			
+						for (let cat of categories) {
+							let metricData = data[cat];
+							extractValues(metricData, xMetric, xValues);
+							extractValues(metricData, yMetric, yValues);
+						}
+			
+						xValues = xValues.filter(v => v !== undefined && v !== null);
+						yValues = yValues.filter(v => v !== undefined && v !== null);
+			
+						let cleanXMetric = xMetric.replace(/.* -> /g, "");
+						let cleanYMetric = yMetric.replace(/.* -> /g, "");
+			
+						let plot_key = `${cleanXMetric}-${cleanYMetric}`;
+			
+						if (xValues.length > 0 && yValues.length > 0 && xValues.length === yValues.length && !already_plotted.includes(plot_key)) {
+							let div = document.createElement("div");
+							div.id = `pareto_front_graph_${i}_${j}`;
+							div.style.marginBottom = "20px";
+							graphContainer.appendChild(div);
+			
+							let layout = {
+								title: `${cleanXMetric} vs ${cleanYMetric}`,
+								xaxis: {
+									title: get_axis_title_data(cleanXMetric)
+								},
+								yaxis: {
+									title: get_axis_title_data(cleanYMetric)
+								},
+								hovermode: "closest"
+							};
+			
+							let trace = {
+								x: xValues,
+								y: yValues,
+								mode: "markers",
+								marker: {
+									size: get_marker_size(),
+								},
+								type: "scatter",
+								name: `${cleanXMetric} vs ${cleanYMetric}`
+							};
+			
+							Plotly.newPlot(div.id, [trace], add_default_layout_data(layout));
+			
+							already_plotted.push(plot_key);
+						}
+					}
+				}
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			
+				$("#tab_pareto_fronts").data("loaded", "true");
+			}
+
+			function add_up_down_arrows_for_scrolling () {
+				const upArrow = document.createElement('div');
+				const downArrow = document.createElement('div');
+			
+				const style = document.createElement('style');
+				style.innerHTML = `
+					.scroll-arrow {
+						position: fixed;
+						right: 10px;
+						z-index: 100;
+						cursor: pointer;
+						font-size: 25px;
+						display: none;
+						background-color: green;
+						color: white;
+						padding: 5px;
+						outline: 2px solid white;
+						box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+						transition: background-color 0.3s, transform 0.3s;
+					}
+					.scroll-arrow:hover {
+						background-color: darkgreen;
+						transform: scale(1.1);
+					}
+					#up-arrow {
+						top: 10px;
+					}
+					#down-arrow {
+						bottom: 10px;
+					}
+				`;
+				document.head.appendChild(style);
+			
+				upArrow.id = "up-arrow";
+				upArrow.classList.add("scroll-arrow");
+				upArrow.classList.add("invert_in_dark_mode");
+				upArrow.innerHTML = "&#8593;";
+			
+				downArrow.id = "down-arrow";
+				downArrow.classList.add("scroll-arrow");
+				downArrow.classList.add("invert_in_dark_mode");
+				downArrow.innerHTML = "&#8595;";
+			
+				document.body.appendChild(upArrow);
+				document.body.appendChild(downArrow);
+			
+				function checkScrollPosition() {
+					const scrollPosition = window.scrollY;
+					const pageHeight = document.documentElement.scrollHeight;
+					const windowHeight = window.innerHeight;
+			
+					if (scrollPosition > 0) {
+						upArrow.style.display = "block";
+					} else {
+						upArrow.style.display = "none";
+					}
+			
+					if (scrollPosition + windowHeight < pageHeight) {
+						downArrow.style.display = "block";
+					} else {
+						downArrow.style.display = "none";
+					}
+				}
+			
+				window.addEventListener("scroll", checkScrollPosition);
+			
+				upArrow.addEventListener("click", function () {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			
+				downArrow.addEventListener("click", function () {
+					window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+				});
+			
+				checkScrollPosition();
+			
+				if (typeof apply_theme_based_on_system_preferences === 'function') {
+					apply_theme_based_on_system_preferences();
+				}
+			}
+
+			function updatePreWidths() {
+				var width = window.innerWidth * 0.95;
+				var pres = document.getElementsByTagName('pre');
+				for (var i = 0; i < pres.length; i++) {
+					pres[i].style.width = width + 'px';
+				}
+			}
+
+			function resizePlotlyCharts() {
+				const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+			
+				if (plotlyElements.length) {
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+			
+					const newWidth = windowWidth * 0.9;
+					const newHeight = windowHeight * 0.9;
+			
+					plotlyElements.forEach(function(element, index) {
+						const layout = {
+							width: newWidth,
+							height: newHeight,
+							plot_bgcolor: 'rgba(0, 0, 0, 0)',
+							paper_bgcolor: 'rgba(0, 0, 0, 0)',
+						};
+			
+						Plotly.relayout(element, layout)
+					});
+				}
+			
+				make_text_in_parallel_plot_nicer();
+				apply_theme_based_on_system_preferences();
+			}
+			
+			window.addEventListener('load', updatePreWidths);
+			window.addEventListener('resize', updatePreWidths);
+			
+			$(document).ready(function() {
+			
+				// add_up_down_arrows_for_scrolling();
+			
+			});
+			
+			window.addEventListener('resize', function() {
+				resizePlotlyCharts();
+			});
+
+			$(document).ready(function() {
+				load_pareto_graph();;
+
+				createParallelPlot(tab_results_csv_json, tab_results_headers_json, ["ACCURACY", "RUNTIME"], special_col_names);;
+
+			});
+		</script>
+<div class="section-content">
+    <h3 style="margin-top: 15px; margin-bottom: 10px; color: #4CAF50; font-weight: bold; font-size: 1.1em;">Completed Runs</h3>
+
+    <div id="tab_results_csv_table"></div><script>
+				createTable(tab_results_csv_json, tab_results_headers_json, 'tab_results_csv_table');
+
+				// Apply light green background to all rows in the table
+				setTimeout(function() {
+					var table = document.getElementById('tab_results_csv_table');
+					if (table) {
+						var rows = table.querySelectorAll('tr');
+						rows.forEach(function(row) {
+							row.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+						var cells = table.querySelectorAll('td, th');
+						cells.forEach(function(cell) {
+							cell.style.setProperty('background-color', '#e8f5e8', 'important');
+						});
+					}
+				}, 100);</script>
+</div>
+
+
+
+			
+</div><!-- Download functionality -->
+			<script>
+				document.getElementById('downloadBtn').addEventListener('click', function() {
+					showDownloadOptions();
+				});
+
+				function showDownloadOptions() {
+					// Create modal
+					var modal = document.createElement('div');
+					modal.style.backgroundColor = 'white';
+					modal.style.padding = '20px';
+					modal.style.borderRadius = '8px';
+					modal.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+					modal.style.maxWidth = '400px';
+					modal.style.width = '90%';
+					modal.style.position = 'fixed';
+					modal.style.top = '50%';
+					modal.style.left = '50%';
+					modal.style.transform = 'translate(-50%, -50%)';
+					modal.style.zIndex = '10000';
+
+					// Create modal content
+					var title = document.createElement('h3');
+					title.textContent = 'Download Options';
+					title.style.marginTop = '0';
+					title.style.color = '#333';
+					modal.appendChild(title);
+
+					var description = document.createElement('p');
+					description.textContent = 'Choose what data to download:';
+					description.style.marginBottom = '20px';
+					description.style.color = '#666';
+					modal.appendChild(description);
+
+					var buttonContainer = document.createElement('div');
+					buttonContainer.style.display = 'flex';
+					buttonContainer.style.flexDirection = 'column';
+					buttonContainer.style.gap = '10px';
+					modal.appendChild(buttonContainer);
+
+					// Download Current Experiment button
+					var downloadCurrentBtn = document.createElement('button');
+					downloadCurrentBtn.innerHTML = '<i class="fas fa-file-download" style="margin-right: 8px;"></i>Download Current Experiment';
+					downloadCurrentBtn.style.padding = '10px';
+					downloadCurrentBtn.style.backgroundColor = '#007bff';
+					downloadCurrentBtn.style.color = 'white';
+					downloadCurrentBtn.style.border = 'none';
+					downloadCurrentBtn.style.borderRadius = '4px';
+					downloadCurrentBtn.style.cursor = 'pointer';
+					downloadCurrentBtn.style.fontSize = '1em';
+					downloadCurrentBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadCurrentExperiment();
+					});
+					buttonContainer.appendChild(downloadCurrentBtn);
+
+					// Download All Data button
+					var downloadAllBtn = document.createElement('button');
+					downloadAllBtn.innerHTML = '<i class="fas fa-database" style="margin-right: 8px;"></i>Download All Data';
+					downloadAllBtn.style.padding = '10px';
+					downloadAllBtn.style.backgroundColor = '#28a745';
+					downloadAllBtn.style.color = 'white';
+					downloadAllBtn.style.border = 'none';
+					downloadAllBtn.style.borderRadius = '4px';
+					downloadAllBtn.style.cursor = 'pointer';
+					downloadAllBtn.style.fontSize = '1em';
+					downloadAllBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+						downloadAllExperiments();
+					});
+					buttonContainer.appendChild(downloadAllBtn);
+
+					// Cancel button
+					var cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.style.padding = '10px';
+					cancelBtn.style.backgroundColor = '#6c757d';
+					cancelBtn.style.color = 'white';
+					cancelBtn.style.border = 'none';
+					cancelBtn.style.borderRadius = '4px';
+					cancelBtn.style.cursor = 'pointer';
+					cancelBtn.style.fontSize = '1em';
+					cancelBtn.addEventListener('click', function() {
+						document.body.removeChild(modal);
+					});
+					buttonContainer.appendChild(cancelBtn);
+
+					document.body.appendChild(modal);
+				}
+
+				function downloadCurrentExperiment() {
+					// Combine completed and failed runs data
+					var csvData = [];
+					var headers = [];
+
+					// Add headers - use completed runs headers as base
+					headers = tab_results_headers_json.slice(); // Copy completed headers
+					headers.unshift('Status'); // Add Status column at the beginning
+
+					// Add completed runs with status
+					if (tab_results_csv_json && tab_results_csv_json.length > 0) {
+						tab_results_csv_json.forEach(function(row) {
+							var rowWithStatus = ['Completed'].concat(row);
+							csvData.push(rowWithStatus);
+						});
+					}
+
+					// Add failed runs with status
+					if (tab_failed_results_csv_json && tab_failed_results_csv_json.length > 0) {
+						// For failed runs, we need to map the data to match completed runs structure
+						// Failed runs have more columns, we need to extract ACCURACY, RUNTIME and parameter columns
+						var accuracyIndex = tab_failed_results_headers_json.indexOf('ACCURACY');
+						var runtimeIndex = tab_failed_results_headers_json.indexOf('RUNTIME');
+
+						tab_failed_results_csv_json.forEach(function(row) {
+							// Create a row that matches the completed runs structure
+							var completedRow = [];
+							var failedRow = ['Failed']; // Start with status
+
+							// Add ACCURACY and RUNTIME (may be null for failed runs)
+							failedRow.push(row[accuracyIndex]); // ACCURACY
+							failedRow.push(row[runtimeIndex]); // RUNTIME
+
+							// Add parameter columns (after RUNTIME in failed data)
+							for (var i = runtimeIndex + 1; i < row.length; i++) {
+								failedRow.push(row[i]);
+							}
+
+							csvData.push(failedRow);
+						});
+					}
+
+					// Generate CSV content
+					var csvContent = headers.join(',') + '\n';
+					csvData.forEach(function(row) {
+						csvContent += row.map(function(cell) {
+							// Handle null/undefined values and escape quotes
+							if (cell === null || cell === undefined) {
+								return '';
+							}
+							var cellStr = String(cell);
+							if (cellStr.indexOf(',') !== -1 || cellStr.indexOf('"') !== -1 || cellStr.indexOf('\n') !== -1) {
+								return '"' + cellStr.replace(/"/g, '""') + '"';
+							}
+							return cellStr;
+						}).join(',') + '\n';
+					});
+
+					// Create and trigger download
+					var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+					var link = document.createElement('a');
+					if (link.download !== undefined) {
+						var url = URL.createObjectURL(blob);
+						link.setAttribute('href', url);
+						link.setAttribute('download', 'OCDD_OutdoorObjects_acc_run.csv');
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+
+				function downloadAllExperiments() {
+					// Create download link for the pre-generated ZIP file
+					var link = document.createElement('a');
+					link.href = 'all_experiments_data.zip';
+					link.download = 'all_experiments_data.zip';
+					link.style.display = 'none';
+
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}			</script>
+
+<div class="section-header pareto">Scatter Plot</div>
+<div class="section-content">
+    <div id="pareto_front_graphs_container"></div>
+</div>
+
+
+<div class="section-header parallel">Parallel Plot</div>
+<div class="section-content">
+    <div class="invert_in_dark_mode" id="parallel-plot"></div>
+</div>
+
+
+<div class="section-header overview">Overview</div>
+<div class="section-content">
+<h2>Experiment overview:              </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Setting</th><th>Value           </th></tr></thead><tbody><tr><td> Model for non-random steps</td><td>BOTORCH_MODULAR </td></tr><tr><td> Max. nr. evaluations</td><td>500             </td></tr><tr><td> Number random steps</td><td>20              </td></tr><tr><td> Nr. of workers (parameter)</td><td>30              </td></tr><tr><td> Main process memory (GB)</td><td>8               </td></tr><tr><td> Worker memory (GB)</td><td>64              </td></tr></tbody></table><h2>Experiment parameters:                                                           </h2><table cellpadding="5" cellspacing="0"><thead><tr><th> Name</th><th>Type</th><th>Lower bound</th><th>Upper bound</th><th>Values</th><th>Type</th><th>Log Scale? </th></tr></thead><tbody><tr><td> recent_samples_size</td><td>range</td><td>1</td><td>5000</td><td></td><td>int</td><td>No         </td></tr><tr><td> n_samples</td><td>range</td><td>1</td><td>5000</td><td></td><td>int</td><td>No         </td></tr><tr><td> threshold</td><td>range</td><td>0.001</td><td>0.999</td><td></td><td>float</td><td>No         </td></tr><tr><td> outlier_detector_kwargs</td><td>fixed</td><td></td><td></td><td>\{\'nu\':0.5,\'kernel\':\'rbf\',\'gamma\':\'auto\'\}</td><td></td><td></td></tr></tbody></table><h2>Number of evaluations</h2><table><tbody><tr><th>Failed</th><th>Succeeded</th><th>Total</th></tr><tr><td>0</td><td>1093</td><td>1093</td></tr></tbody></table>
+</body>
+</html>

@@ -190,7 +190,11 @@
 					}
 
 					$script_link = preg_replace("/\/\/*/", "/", get_main_script_dir() . "/$link_no_php");
-					echo "<a href='$script_link'><button class='header_button$classes'>$n</button></a>";
+					if(preg_match("/conceptdrift/", $script_link)) {
+						echo "<a target='_blank' href='$script_link.php'><button class='header_button$classes'>$n</button></a>";
+					} else {
+						echo "<a href='$script_link'><button class='header_button$classes'>$n</button></a>";
+					}
 				}
 ?>
 			</div>

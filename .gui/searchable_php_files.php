@@ -8,7 +8,7 @@
 		),
 		"gui" => "🧩&nbsp;GUI",
 		"share" => "🌍&nbsp;Share",
-		#"example" => "💡&nbsp;Example",
+		"conceptdrift/index" => "💡&nbsp;Concept-Drift-Example",
 		"usage_stats" => "📊&nbsp;Statistics"
 	);
 

@@ -1,0 +1,969 @@
+/* General styles */
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
+html {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Inter, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styles */
+header {
+  display: flex;
+  justify-content: space-around;
+  background-color: #002D3F;
+  background: linear-gradient(135deg, #002D3F 0%, #024A65 100%);
+  color: white;
+  padding: 10px 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* Landing Page Title - Centered vertically and horizontally */
+.landing-title-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  z-index: 1;
+  padding-top: 60px; /* Account for header height */
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+}
+
+.landing-title-container.fade-out {
+  opacity: 0;
+}
+
+.landing-title-container.hidden {
+  display: none;
+}
+
+.main-title-container {
+  text-align: center;
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.authors-subtitle {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 1.8rem;
+    line-height: 1.4;
+    margin: 0 0 0.8rem 0;
+  }
+  
+  .authors-subtitle {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  
+  .main-title-container {
+    padding: 1.5rem 1rem;
+  }
+}
+
+.header-section {
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.header-section:hover {
+  background-color: #015E80;
+}
+
+.header-section.active {
+  background-color: #016A8E;
+}
+
+
+/* Content area */
+#content {
+  padding: 20px;
+}
+
+/* Hidden class for content */
+.hidden {
+  display: none;
+}
+
+/* Ensemble Estimation Section Styles */
+#ensemble-estimation-content {
+  padding: 0.5rem 0;
+}
+
+#ensemble-estimation-content .box {
+  width: 180px;
+  height: 70px;
+  background: linear-gradient(145deg, #4a6cf7, #3a5bd9);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  margin: 0 auto;
+}
+
+.dropdown-container .dropdown-header {
+  padding: 4px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-container .dropdown-content {
+  position: absolute;
+  background-color: white;
+  min-width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border-radius: 4px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+}
+
+#ensemble-estimation-content .box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #3a5bd9, #4a6cf7);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+#ensemble-estimation-content .box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(74, 108, 247, 0.4);
+}
+
+#ensemble-estimation-content .box:hover::before {
+  opacity: 1;
+}
+
+#ensemble-estimation-content .box:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(74, 108, 247, 0.3);
+}
+
+#ensemble-estimation-content .menu {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-out;
+  max-width: 600px;
+  margin: 1.5rem auto 0;
+}
+
+/* Hide the second menu (Single Variate DDs) by default */
+#ensemble-estimation-content #menu2 {
+  display: none !important;
+}
+
+/* Show the second menu when it has the visible class */
+#ensemble-estimation-content #menu2.menu-visible {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+  margin: 4px;
+  min-width: 180px;
+}
+
+/* Adjust dropdown styles within the menu - horizontal layout */
+#ensemble-estimation-content .menu:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+#ensemble-estimation-content .menu .dropdown-row {
+  display: grid !important;
+  grid-template-columns: 220px 220px auto !important;
+  gap: 1rem !important;
+  align-items: start !important;
+  justify-content: start !important;
+  width: 100% !important;
+}
+
+/* Force custom-dropdown elements to work with CSS Grid */
+#ensemble-estimation-content .menu .dropdown-row custom-dropdown {
+  display: block !important;
+  margin: 0 !important;
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+}
+
+/* Override the dropdown container's default margin that causes vertical stacking */
+#ensemble-estimation-content .menu .dropdown-row custom-dropdown .dropdown-container {
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+}
+
+#ensemble-estimation-content .menu custom-dropdown {
+  margin-bottom: 0 !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+}
+
+/* Ensure dropdown containers maintain horizontal layout */
+#ensemble-estimation-content .menu .dropdown-row .dropdown-container {
+  margin: 0 !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+}
+
+/* Override any potential inline styles that might reset the layout */
+#ensemble-estimation-content .menu[style] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#ensemble-estimation-content .menu .dropdown-row[style] {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+#ensemble-estimation-content .menu custom-dropdown[style] {
+  display: inline-block !important;
+  width: 220px !important;
+}
+
+/* Fix dropdown header and content widths */
+#ensemble-estimation-content .menu .dropdown-container .dropdown-header {
+  width: 100% !important;
+  max-width: 220px !important;
+  box-sizing: border-box !important;
+}
+
+#ensemble-estimation-content .menu .dropdown-container .dropdown-content {
+  width: 100% !important;
+  max-width: 220px !important;
+  box-sizing: border-box !important;
+}
+
+/* Show button styles within menu - horizontal alignment */
+#ensemble-estimation-content .menu .show-button {
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  align-self: flex-start !important;
+  background: #015E80 !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 8px;
+  font-size: 18px !important;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: auto !important;
+  min-width: 100px !important;
+  flex: 0 0 auto !important;
+  line-height: 1.2;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+}
+
+#ensemble-estimation-content .menu .show-button:hover {
+  background: #3a5bd9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 108, 247, 0.4);
+}
+
+#ensemble-estimation-content .menu .show-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(74, 108, 247, 0.4);
+}
+
+#ensemble-estimation-content{
+  #display: none;
+}
+
+.glow-line {
+  height: 2px;
+  width: 100%;
+  background: radial-gradient(ellipse at center, #00f 0%, transparent 80%);
+  background-size: 100% 2px;
+  background-repeat: no-repeat;
+  position: relative;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 40px;
+  margin-left: 0;
+}
+
+.pareto-model-offset {
+  margin-left: calc(8.333% * 1.2);
+}
+
+#content {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* When content is ready to be shown */
+#content.visible {
+  opacity: 1;
+}
+
+/* Footer styles - Thin and minimalistic */
+.site-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 12px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+.footer-link {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 400;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #4a6cf7;
+  text-decoration: none;
+}
+
+/* Add bottom padding to body to prevent content from being hidden behind fixed footer */
+body {
+  padding-bottom: 50px;
+}
+
+@media (max-width: 768px) {
+  .footer-links {
+    gap: 20px;
+  }
+  
+  .footer-link {
+    font-size: 0.8rem;
+  }
+}
+
+/* GridJS Pagination Horizontal Layout Fix */
+.gridjs-pagination {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  padding: 10px !important;
+}
+
+.gridjs-pagination .gridjs-pages {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin: 0 10px !important;
+}
+
+.gridjs-pagination .gridjs-pages button {
+  margin: 0 2px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.gridjs-pagination .gridjs-summary {
+  margin: 0 10px !important;
+  white-space: nowrap !important;
+}
+
+/* Ensure pagination controls don't stack vertically on smaller screens */
+@media (max-width: 768px) {
+  .gridjs-pagination {
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+  }
+  
+  .gridjs-pagination .gridjs-pages {
+    margin: 0 5px !important;
+  }
+  
+  .gridjs-pagination .gridjs-summary {
+    margin: 0 5px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Overview Section Tables - Custom Color Palette */
+/* Default table headers with new color scheme */
+#content table th {
+  background-color: #002D3F !important;
+  background: linear-gradient(135deg, #002D3F 0%, #024A65 100%) !important;
+  color: white !important;
+  text-align: left !important;
+  border: none !important;
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 2px 4px rgba(2, 45, 63, 0.3) !important;
+}
+
+/* Failed Runs Tables - Red Background */
+#content table:has(th:contains("Failed")), 
+#content table[id*="failed"], 
+#content table[class*="failed"],
+#content .failed-runs table,
+#content h3:contains("Failed") + table,
+#content h2:contains("Failed") + table {
+  border: 2px solid #dc3545 !important;
+  background-color: #fdf2f2 !important;
+}
+
+#content table:has(th:contains("Failed")) th, 
+#content table[id*="failed"] th, 
+#content table[class*="failed"] th,
+#content .failed-runs table th,
+#content h3:contains("Failed") + table th,
+#content h2:contains("Failed") + table th {
+  background-color: #dc3545 !important;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
+}
+
+#content table:has(th:contains("Failed")) tbody tr, 
+#content table[id*="failed"] tbody tr, 
+#content table[class*="failed"] tbody tr,
+#content .failed-runs table tbody tr,
+#content h3:contains("Failed") + table tbody tr,
+#content h2:contains("Failed") + table tbody tr {
+  background-color: #fdf2f2 !important;
+}
+
+#content table:has(th:contains("Failed")) tbody tr:nth-child(even), 
+#content table[id*="failed"] tbody tr:nth-child(even), 
+#content table[class*="failed"] tbody tr:nth-child(even),
+#content .failed-runs table tbody tr:nth-child(even),
+#content h3:contains("Failed") + table tbody tr:nth-child(even),
+#content h2:contains("Failed") + table tbody tr:nth-child(even) {
+  background-color: #fce8e8 !important;
+}
+
+#content table:has(th:contains("Failed")) tbody tr:hover, 
+#content table[id*="failed"] tbody tr:hover, 
+#content table[class*="failed"] tbody tr:hover,
+#content .failed-runs table tbody tr:hover,
+#content h3:contains("Failed") + table tbody tr:hover,
+#content h2:contains("Failed") + table tbody tr:hover {
+  background-color: #f8d7da !important;
+}
+
+/* Completed Runs Tables - Green Background */
+#content table:has(th:contains("Completed")), 
+#content table[id*="completed"], 
+#content table[class*="completed"],
+#content .completed-runs table,
+#content h3:contains("Completed") + table,
+#content h2:contains("Completed") + table {
+  border: 2px solid #28a745 !important;
+  background-color: #f2f9f2 !important;
+}
+
+#content table:has(th:contains("Completed")) th, 
+#content table[id*="completed"] th, 
+#content table[class*="completed"] th,
+#content .completed-runs table th,
+#content h3:contains("Completed") + table th,
+#content h2:contains("Completed") + table th {
+  background-color: #28a745 !important;
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+}
+
+#content table:has(th:contains("Completed")) tbody tr, 
+#content table[id*="completed"] tbody tr, 
+#content table[class*="completed"] tbody tr,
+#content .completed-runs table tbody tr,
+#content h3:contains("Completed") + table tbody tr,
+#content h2:contains("Completed") + table tbody tr {
+  background-color: #f2f9f2 !important;
+}
+
+#content table:has(th:contains("Completed")) tbody tr:nth-child(even), 
+#content table[id*="completed"] tbody tr:nth-child(even), 
+#content table[class*="failed"] tbody tr:nth-child(even),
+#content .completed-runs table tbody tr:nth-child(even),
+#content h3:contains("Completed") + table tbody tr:nth-child(even),
+#content h2:contains("Completed") + table tbody tr:nth-child(even) {
+  background-color: #e8f5e8 !important;
+}
+
+#content table:has(th:contains("Completed")) tbody tr:hover, 
+#content table[id*="completed"] tbody tr:hover, 
+#content table[class*="completed"] tbody tr:hover,
+#content .completed-runs table tbody tr:hover,
+#content h3:contains("Completed") + table tbody tr:hover,
+#content h2:contains("Completed") + table tbody tr:hover {
+  background-color: #d4edda !important;
+}
+
+/* Table body styling */
+#content table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 20px 0 !important;
+  background: white !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e9ecef !important;
+}
+
+#content table td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f8f9fa !important;
+  font-size: 0.9rem !important;
+  color: #495057 !important;
+  vertical-align: top !important;
+}
+
+/* Alternating row colors */
+#content table tbody tr:nth-child(odd) {
+  background-color: #ffffff !important;
+}
+
+#content table tbody tr:nth-child(even) {
+  background-color: #f8f9fa !important;
+}
+
+/* Hover effect for table rows */
+#content table tbody tr:hover {
+  background-color: rgba(1, 94, 128, 0.1) !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* Table container styling */
+#content .table-responsive {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  margin: 20px 0 !important;
+}
+
+/* Section headers in content */
+#content h1, #content h2, #content h3 {
+  color: #002D3F !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  margin: 30px 0 20px 0 !important;
+  padding-bottom: 10px !important;
+  border-bottom: 2px solid #015E80 !important;
+}
+
+#content h1 {
+  font-size: 2rem !important;
+}
+
+#content h2 {
+  font-size: 1.5rem !important;
+}
+
+#content h3 {
+  font-size: 1.25rem !important;
+}
+
+/* Overview section specific styling */
+#content .section-header {
+  background: linear-gradient(135deg, #016A8E 0%, #047A9A 100%) !important;
+  color: white !important;
+  padding: 15px 20px !important;
+  margin: 25px 0 15px 0 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 2px 4px rgba(1, 106, 142, 0.3) !important;
+}
+
+/* Content paragraphs and text */
+#content p {
+  color: #495057 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 15px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Code blocks and pre elements */
+#content pre, #content code {
+  background-color: #f8f9fa !important;
+  border: 1px solid #e9ecef !important;
+  border-radius: 4px !important;
+  padding: 8px 12px !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 0.85rem !important;
+  color: #495057 !important;
+}
+
+/* Lists styling */
+#content ul, #content ol {
+  color: #495057 !important;
+  padding-left: 20px !important;
+  margin-bottom: 15px !important;
+}
+
+#content li {
+  margin-bottom: 5px !important;
+  line-height: 1.5 !important;
+}
+
+/* Download Button Styling - Override inline styles */
+#downloadBtn {
+  background-color: #015E80 !important;
+  background: #015E80 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s ease !important;
+}
+
+#downloadBtn:hover {
+  background-color: #016A8E !important;
+  background: #016A8E !important;
+}
+
+/* Download Modal Button Styling - JavaScript Override Required */
+/* CSS alone cannot override individual style properties set via JS */
+/* The JavaScript solution below will handle the modal button colors */
+
+/* Base styling for modal buttons (fallback) */
+div[style*="position: fixed"] button {
+  transition: background-color 0.3s ease !important;
+}
+
+/* Enhanced Ensemble Iframe Styling */
+.ensemble-iframe-container {
+  margin: 10px auto;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.ensemble-iframe {
+  display: block;
+  margin: 0 auto;
+  width: 98%;
+  max-width: 1400px;
+  border: 2px solid #015E80 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(2, 45, 63, 0.15), 0 2px 8px rgba(2, 45, 63, 0.1) !important;
+  background: white !important;
+  transition: all 0.3s ease !important;
+}
+
+.ensemble-iframe:hover {
+  box-shadow: 0 12px 40px rgba(2, 45, 63, 0.2), 0 4px 12px rgba(2, 45, 63, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Enhanced Loading State */
+.ensemble-loading {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 2px solid #015E80;
+  margin: 10px auto;
+  max-width: 1400px;
+  width: 98%;
+  box-shadow: 0 4px 16px rgba(2, 45, 63, 0.1);
+}
+
+.ensemble-loading h3 {
+  color: #002D3F !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 10px !important;
+  font-weight: 600 !important;
+}
+
+.ensemble-loading p {
+  color: #024A65 !important;
+  font-size: 1rem !important;
+  margin-bottom: 20px !important;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 20px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #015E80;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Error State */
+.ensemble-error {
+  text-align: center;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, #fdf2f2 0%, #fce8e8 100%);
+  border-radius: 12px;
+  border: 2px solid #dc3545;
+  margin: 10px auto;
+  max-width: 1400px;
+  width: 98%;
+  box-shadow: 0 4px 16px rgba(220, 53, 69, 0.1);
+}
+
+.ensemble-error .error-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.ensemble-error h3 {
+  color: #721c24 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 15px !important;
+  font-weight: 600 !important;
+}
+
+.ensemble-error p {
+  color: #842029 !important;
+  font-size: 1rem !important;
+  margin-bottom: 10px !important;
+  line-height: 1.5 !important;
+}
+
+.retry-button {
+  background-color: #015E80 !important;
+  background: #015E80 !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background-color 0.3s ease !important;
+  margin-top: 20px !important;
+}
+
+.retry-button:hover {
+  background-color: #016A8E !important;
+  background: #016A8E !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(1, 94, 128, 0.3) !important;
+}
+
+/* Center Plotly plots within ensemble iframe */
+.plot-container.plotly .user-select-none.svg-container {
+  margin: auto !important;
+}
+
+/* Responsive iframe design */
+@media (max-width: 768px) {
+  .ensemble-iframe-container {
+    margin: 5px auto !important;
+  }
+  
+  .ensemble-iframe {
+    width: 96% !important;
+    height: 800px !important;
+    min-height: 600px !important;
+    border-radius: 8px !important;
+  }
+  
+  .ensemble-loading, .ensemble-error {
+    padding: 20px 15px !important;
+    margin: 5px auto !important;
+    width: 96% !important;
+  }
+  
+  .ensemble-loading h3, .ensemble-error h3 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Responsive design for ensemble estimation dropdowns */
+@media (max-width: 768px) {
+  #ensemble-estimation-content .menu .dropdown-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  #ensemble-estimation-content .menu .dropdown-row[style] {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+  
+  #ensemble-estimation-content .menu custom-dropdown {
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+  }
+  
+  #ensemble-estimation-content .menu .dropdown-row .dropdown-container {
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+  }
+  
+  #ensemble-estimation-content .menu .dropdown-container .dropdown-header {
+    max-width: 280px !important;
+  }
+  
+  #ensemble-estimation-content .menu .dropdown-container .dropdown-content {
+    max-width: 280px !important;
+  }
+  
+  /* Responsive grid layout for mobile */
+  #ensemble-estimation-content .menu .dropdown-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+  
+  /* Show button responsive styling */
+  #ensemble-estimation-content .menu .show-button {
+    margin-left: 0 !important;
+    margin-top: 0.5rem !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    align-self: center !important;
+    justify-self: center !important;
+  }
+}
+
+/* Responsive table design */
+@media (max-width: 768px) {
+  #content table {
+    font-size: 0.8rem !important;
+  }
+  
+  #content table th, #content table td {
+    padding: 8px 12px !important;
+  }
+  
+  #content h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  #content h2 {
+    font-size: 1.25rem !important;
+  }
+  
+  #content h3 {
+    font-size: 1.1rem !important;
+  }
+}

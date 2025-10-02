@@ -2094,10 +2094,9 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
     return True
 
 def init_live_share() -> bool:
-    with spinner("Initializing live share..."):
-        ret = live_share(True, True)
+    ret = live_share(True, True)
 
-        return ret
+    return ret
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)

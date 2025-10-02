@@ -355,11 +355,13 @@ def main():
         #])
 
         # for CIFAR100
-        transform = transforms.Normalize(
+        transform = transforms.Compose([
             transforms.ToTensor(),
-            (0.5071, 0.4867, 0.4408),
-            (0.2675, 0.2565, 0.2761)
-        )
+            transforms.Normalize(
+                (0.5071, 0.4867, 0.4408),
+                (0.2675, 0.2565, 0.2761)
+            )
+        ])
 
         script_dir = os.path.dirname(__file__)
         data_dir = os.path.join(script_dir, "cifar")

@@ -8,11 +8,14 @@ import subprocess
 import signal
 import traceback
 from pathlib import Path
+import hashlib
 import time
 
 start_time = time.time()
 
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
+SCRIPT_DIR = Path(__file__).resolve().parent
 
 try:
     import venv
@@ -20,7 +23,9 @@ except ModuleNotFoundError:
     print("venv not found. Is python3-venv installed?")
     sys.exit(1)
 
-VENV_PATH = Path(f".tests/mnist/.torch_venv_{__import__('hashlib').sha256(os.environ.get('CLUSTERHOST', '').encode()).hexdigest()[:10]}")
+clusterhost = os.environ.get("CLUSTERHOST", "").encode()
+hash_suffix = hashlib.sha256(clusterhost).hexdigest()[:10]
+VENV_PATH = SCRIPT_DIR / f".torch_venv_{hash_suffix}"
 
 if platform.system() == "Windows":
     PYTHON_BIN = VENV_PATH / "Scripts" / "python.exe"

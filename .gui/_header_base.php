@@ -176,7 +176,8 @@
 						$n = $n["name"];
 					}
 
-					$tab_is_active = preg_match("/^$fn.php/", $current_file);
+					$pattern = '/^' . preg_quote($fn, '/') . '\.php/';
+					$tab_is_active = preg_match($pattern, $current_file);
 					$_link = "$fn.php";
 
 					if (!file_exists($_link)) {

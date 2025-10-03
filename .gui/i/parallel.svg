@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Vertikale Achsen -->
+  <line x1="20" y1="10" x2="20" y2="90" stroke="#000" stroke-width="2"/>
+  <line x1="40" y1="10" x2="40" y2="90" stroke="#000" stroke-width="2"/>
+  <line x1="60" y1="10" x2="60" y2="90" stroke="#000" stroke-width="2"/>
+  <line x1="80" y1="10" x2="80" y2="90" stroke="#000" stroke-width="2"/>
+
+  <!-- Verbindungslinien -->
+  <polyline points="20,80 40,60 60,70 80,40" fill="none" stroke="#000" stroke-width="1.5"/>
+  <polyline points="20,20 40,40 60,30 80,60" fill="none" stroke="#000" stroke-width="1.5"/>
+  <polyline points="20,50 40,30 60,50 80,70" fill="none" stroke="#000" stroke-width="1.5"/>
+</svg>

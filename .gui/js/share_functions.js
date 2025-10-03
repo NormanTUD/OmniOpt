@@ -1,5 +1,7 @@
 "use strict";
 
+var last_resize_width = 0;
+
 function add_default_layout_data (layout, no_height = 0) {
 	layout["width"] = get_graph_width();
 	if (!no_height) {
@@ -2035,31 +2037,39 @@ function demo_mode(nr_sec = 3) {
 }
 
 function resizePlotlyCharts() {
-	const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+	const windowWidth = window.innerWidth;
 
-	if (plotlyElements.length) {
-		const windowWidth = window.innerWidth;
-		const windowHeight = window.innerHeight;
-
-		const newWidth = windowWidth * 0.9;
-		const newHeight = windowHeight * 0.9;
-
-		plotlyElements.forEach(function(element, index) {
-			const layout = {
-				width: newWidth,
-				height: newHeight,
-				plot_bgcolor: 'rgba(0, 0, 0, 0)',
-				paper_bgcolor: 'rgba(0, 0, 0, 0)',
-			};
-
-			Plotly.relayout(element, layout)
-		});
+	if(last_resize_width == windowWidth) {
+		return;
 	}
 
+	const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+
+	if (!plotlyElements.length) {
+		return;
+	}
+
+	const windowHeight = window.innerHeight;
+
+	const newWidth = windowWidth * 0.9;
+
+	plotlyElements.forEach(function(element, index) {
+		const layout = {
+			width: newWidth,
+			plot_bgcolor: 'rgba(0, 0, 0, 0)',
+			paper_bgcolor: 'rgba(0, 0, 0, 0)',
+		};
+
+		Plotly.relayout(element, layout)
+	});
+
 	make_text_in_parallel_plot_nicer();
+
 	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();
 	}
+
+	last_resize_width = windowWidth;
 }
 
 function plotTimelineFromGlobals() {

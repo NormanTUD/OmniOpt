@@ -209,6 +209,9 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		const columnVisibility = {};
 		const minMaxLimits = {};
 
+		const headerIndex = {};
+		headers.forEach((h,i) => headerIndex[h] = i);
+
 		// Checkboxen + Min/Max Felder generieren mit Boxen, max-Breite, Umbruch und Zeilenumbruch nach jeder Box
 		headers.forEach((header) => {
 			try {
@@ -260,7 +263,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 				if (isNumerical) {
 					// Werte ermitteln (nur gültige Zahlen)
 					const numericValues = dataArray
-						.map(row => parseFloat(row[headers.indexOf(header)]))
+						.map(row => parseFloat(row[headerIndex[header]]))
 						.filter(val => !isNaN(val));
 
 					const minVal = numericValues.length > 0 ? Math.min(...numericValues) : 0;

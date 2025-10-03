@@ -195,6 +195,12 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			}
 		});
 
+		const precomputedMappings = {};
+		categoricalCols.forEach(col => {
+			const uniqueValues = [...new Set(dataArray.map(row => row[col.index]))];
+			precomputedMappings[col.name] = Object.fromEntries(uniqueValues.map((val, i) => [val, i]));
+		});
+
 		// Erzeuge UI für Checkboxen und Min/Max Inputs für numerische Spalten
 		const controlContainerId = "parallel-plot-controls";
 		let controlContainer = $("#" + controlContainerId);
@@ -468,12 +474,12 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 
 				// Kategorische Dimensionen (aus gefilterten Daten)
 				filteredCategoricalCols.forEach(col => {
-					const vals = filteredData.map(row => categoryMappings[col.name][row[col.index]]);
+					const vals = filteredData.map(row => precomputedMappings[col.name][row[col.index]]);
 					dimensions.push({
 						label: col.name,
 						values: vals,
-						tickvals: Object.values(categoryMappings[col.name]),
-						ticktext: Object.keys(categoryMappings[col.name])
+						tickvals: Object.values(precomputedMappings[col.name]),
+						ticktext: Object.keys(precomputedMappings[col.name])
 					});
 				});
 

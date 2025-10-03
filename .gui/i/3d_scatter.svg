@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Achsen -->
+  <line x1="10" y1="90" x2="90" y2="90" stroke="#000" stroke-width="2"/> <!-- X-Achse -->
+  <line x1="10" y1="90" x2="10" y2="10" stroke="#000" stroke-width="2"/> <!-- Y-Achse -->
+  <line x1="10" y1="90" x2="70" y2="30" stroke="#000" stroke-width="2"/> <!-- Z-Achse -->
+
+  <!-- Punkte im 3D-Raum -->
+  <circle cx="30" cy="70" r="3" fill="#000"/>
+  <circle cx="50" cy="50" r="3" fill="#000"/>
+  <circle cx="60" cy="40" r="3" fill="#000"/>
+  <circle cx="40" cy="30" r="3" fill="#000"/>
+  <circle cx="70" cy="60" r="3" fill="#000"/>
+</svg>

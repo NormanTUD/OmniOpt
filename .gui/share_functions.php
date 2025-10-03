@@ -469,7 +469,7 @@
 		if(is_file($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='plotScatter3d'></div>";
 
-			$svg_icon = get_icon_html("scatter.svg");
+			$svg_icon = get_icon_html("3d_scatter.svg");
 
 			$tabs["$svg_icon$name"] = [
 				'id' => $id,
@@ -985,7 +985,7 @@
 	function add_timeline ($tabs, $warnings, $csv_file, $name, $tab_name) {
 		$html = '<div class="invert_in_dark_mode" id="plot_timeline"></div>';
 
-		$svg_icon = get_icon_html("plot.svg");
+		$svg_icon = get_icon_html("timeline.svg");
 
 		$tabs["{$svg_icon}$name"] = [
 			'id' => $tab_name,

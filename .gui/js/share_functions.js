@@ -449,8 +449,12 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					let vals = filteredData.map(row => parseFloat(row[col.index]));
 
 					// Fallback falls alle Werte NaN (sollte eigentlich nicht vorkommen)
-					const realMin = vals.length > 0 ? Math.min(...vals) : 0;
-					const realMax = vals.length > 0 ? Math.max(...vals) : 100;
+					let realMin = Infinity, realMax = -Infinity;
+					for (let v of vals) {
+						if (v < realMin) realMin = v;
+						if (v > realMax) realMax = v;
+					}
+					if (!isFinite(realMin)) { realMin = 0; realMax = 100; }
 
 					dimensions.push({
 						label: col.name,

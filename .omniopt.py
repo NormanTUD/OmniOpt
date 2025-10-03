@@ -2830,6 +2830,8 @@ def print_debug_get_next_trials(got: int, requested: int, _line: int) -> None:
     log_message_to_file(LOGFILE_DEBUG_GET_NEXT_TRIALS, msg, 0, "")
 
 def print_debug_progressbar(msg: str) -> None:
+    global last_msg_progressbar
+
     if msg != last_msg_progressbar:
         time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         msg = f"{time_str} ({worker_generator_uuid}): {msg}"

@@ -2417,14 +2417,14 @@
 		$pareto_front_json_file = "$run_dir/pareto_front_data.json";
 		$pareto_front_json_points_file = "$run_dir/pareto_idxs.json";
 
+		$svg_icon = get_icon_html("pareto.svg");
+
 		if(file_exists($pareto_front_json_points_file) && filesize($pareto_front_json_points_file)) {
 			$pareto_idxs_json_content = file_get_contents($pareto_front_json_points_file);
 
 			$GLOBALS["json_data"]["pareto_idxs"] = json_decode(json_encode(json_decode($pareto_idxs_json_content)), true);
 
 			$pareto_front_html = "<div id='pareto_front_idxs_plot_container'></div><div id='pareto_from_idxs_table'></div>\n";
-
-			$svg_icon = get_icon_html("plot.svg");
 
 			$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
 				'id' => 'tab_pareto_fronts',
@@ -2447,8 +2447,6 @@
 
 			if($pareto_front_html) {
 				$pareto_front_html = "<div class='caveat warning'>The old algorithm for calculating the pareto-front was buggy. Please re-calculate them using <tt>bash omniopt --calculate_pareto_front_of_job runs/path_to_job/run_nr --live_share</tt>.</div><div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
-
-				$svg_icon = get_icon_html("plot.svg");
 
 				$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
 					'id' => 'tab_pareto_fronts',

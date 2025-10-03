@@ -13,7 +13,7 @@ var PacketKind;
     PacketKind[PacketKind["SGR"] = 5] = "SGR";
     PacketKind[PacketKind["OSCURL"] = 6] = "OSCURL";
 })(PacketKind || (PacketKind = {}));
-export class AnsiUp {
+class AnsiUp {
     constructor() {
         this.VERSION = "6.0.6";
         this.setup_palettes();

@@ -501,7 +501,7 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 					}
 				});
 
-				Plotly.newPlot('parallel-plot', [trace], add_default_layout_data({}));
+				Plotly.react('parallel-plot', [trace], add_default_layout_data({uirevision: 'static'}));
 
 				make_text_in_parallel_plot_nicer();
 			} catch (error) {
@@ -509,13 +509,11 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			}
 		}
 
-
 		updatePlot();
 
 		$("#parallel-plot").data("loaded", "true");
 
 		make_text_in_parallel_plot_nicer();
-
 	} catch (err) {
 		console.error("Error in createParallelPlot:", err);
 	}

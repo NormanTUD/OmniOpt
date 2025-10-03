@@ -2628,7 +2628,6 @@ function insertSortableSelectForSingleLogsTabs() {
 
 	var $tab_logs = $("#tab_logs");
 	if ($tab_logs.length === 0) {
-		console.error("#tab_logs not found.");
 		return;
 	}
 

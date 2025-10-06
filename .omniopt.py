@@ -7836,7 +7836,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
     _trial = get_ax_client_trial(trial_index)
 
     if _trial is None:
-        print_red("_trial was not in execute_evaluation")
+        print_red(f"execute_evaluation: _trial was not in execute_evaluation for params {_params}")
         return None
 
     def mark_trial_stage(stage: str, error_msg: str) -> None:

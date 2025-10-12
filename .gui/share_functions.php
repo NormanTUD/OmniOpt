@@ -2360,10 +2360,14 @@
 		return $html;
 	}
 
-	function analyze_column_types($csv_data, $column_indices) {
+	function analyze_column_types(array $csv_data, array $column_indices, array $special_col_names): array {
 		$column_analysis = [];
 
 		foreach ($column_indices as $index => $column_name) {
+			if (in_array($column_name, $special_col_names, true)) {
+				continue; // skip special columns
+			}
+
 			$has_string = false;
 			$has_numeric = false;
 
@@ -2371,7 +2375,16 @@
 				if (!isset($row[$index])) {
 					continue;
 				}
-				if (is_numeric($row[$index])) {
+
+				$val = trim((string)$row[$index]);
+				if ($val === '') {
+					continue;
+				}
+
+				// strip quotes around numeric-looking strings
+				$val = trim($val, "'\"");
+
+				if (is_numeric($val)) {
 					$has_numeric = true;
 				} else {
 					$has_string = true;
@@ -2384,7 +2397,7 @@
 
 			$column_analysis[$column_name] = [
 				'numeric' => $has_numeric,
-				'string' => $has_string
+				'string'  => $has_string
 			];
 		}
 

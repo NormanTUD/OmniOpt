@@ -723,7 +723,9 @@ function initializeResultParameterVisualizations() {
                 console.error('Failed to initialize result parameter visualizations:', outerErr);
         }
 
-	apply_theme_based_on_system_preferences();
+	if(apply_theme_based_on_system_preferences) {
+		apply_theme_based_on_system_preferences();
+	}
 }
 
 function insertSortableSelectForSingleLogsTabs() {

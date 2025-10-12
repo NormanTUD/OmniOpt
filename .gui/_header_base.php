@@ -108,6 +108,15 @@
 			<?php js("js/gpu_usage.js"); ?>
 			<?php js("js/job_status_distribution.js"); ?>
 			<?php js("js/timeline.js"); ?>
+			<?php js("js/parallel.js"); ?>
+			<?php js("js/worker_usage.js"); ?>
+			<?php js("js/cpu_and_ram.js"); ?>
+			<?php js("js/scatter2d.js"); ?>
+			<?php js("js/scatter3d.js"); ?>
+			<?php js("js/boxplot.js"); ?>
+			<?php js("js/exit_pie_chart.js"); ?>
+			<?php js("js/result_distribution_generation_method.js"); ?>
+			<?php js("js/plot_parameter_distribution_by_status.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />

@@ -1294,21 +1294,14 @@ function plotBoxplot() {
 }
 
 function plotHeatmap() {
-	if ($("#plotHeatmap").data("loaded") === "true") {
-		return;
-	}
+	if ($("#plotHeatmap").data("loaded") === "true") return;
 
-	var numericColumns = tab_results_headers_json.filter(col => {
-		if (special_col_names.includes(col) || result_names.includes(col)) {
-			return false;
-		}
-		if (!col.startsWith("OO_Info")) {
-			return true;
-		}
-		let index = tab_results_headers_json.indexOf(col);
+	let numericColumns = tab_results_headers_json.filter(col => {
+		if (special_col_names.includes(col) || result_names.includes(col)) return false;
+		let idx = tab_results_headers_json.indexOf(col);
 		return tab_results_csv_json.every(row => {
-			let value = parseFloat(row[index]);
-			return !isNaN(value) && isFinite(value);
+			let v = parseFloat(row[idx]);
+			return !isNaN(v) && isFinite(v);
 		});
 	});
 
@@ -1317,19 +1310,19 @@ function plotHeatmap() {
 		return;
 	}
 
-	var columnData = numericColumns.map(col => {
-		let index = tab_results_headers_json.indexOf(col);
-		return tab_results_csv_json.map(row => parseFloat(row[index]));
+	let columnData = numericColumns.map(col => {
+		let idx = tab_results_headers_json.indexOf(col);
+		return tab_results_csv_json.map(row => parseFloat(row[idx]));
 	});
 
-	var dataMatrix = numericColumns.map((_, i) =>
+	let dataMatrix = numericColumns.map((_, i) =>
 		numericColumns.map((_, j) => {
-			let values = columnData[i].map((val, index) => (val + columnData[j][index]) / 2);
-			return values.reduce((a, b) => a + b, 0) / values.length;
+			let vals = columnData[i].map((v, k) => (v + columnData[j][k]) / 2);
+			return vals.reduce((a, b) => a + b, 0) / vals.length;
 		})
 	);
 
-	var trace = {
+	let trace = {
 		z: dataMatrix,
 		x: numericColumns,
 		y: numericColumns,
@@ -1337,17 +1330,13 @@ function plotHeatmap() {
 		type: 'heatmap'
 	};
 
-	var layout = {
-		xaxis: {
-			title: get_axis_title_data("Columns")
-		},
-		yaxis: {
-			title: get_axis_title_data("Columns")
-		},
+	let layout = {
+		xaxis: { title: get_axis_title_data("Columns") },
+		yaxis: { title: get_axis_title_data("Columns") },
 		showlegend: false
 	};
 
-	var plotDiv = document.getElementById("plotHeatmap");
+	let plotDiv = document.getElementById("plotHeatmap");
 	plotDiv.innerHTML = "";
 
 	Plotly.newPlot(plotDiv, [trace], add_default_layout_data(layout));

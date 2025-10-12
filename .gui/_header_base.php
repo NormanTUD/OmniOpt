@@ -102,6 +102,11 @@
 			<?php js("js/share_functions.js"); ?>
 			<?php js("js/heatmap.js"); ?>
 			<?php js("js/histogram.js"); ?>
+			<?php js("js/violin.js"); ?>
+			<?php js("js/evolution.js"); ?>
+			<?php js("js/result_pairs.js"); ?>
+			<?php js("js/gpu_usage.js"); ?>
+			<?php js("js/job_status_distribution.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />

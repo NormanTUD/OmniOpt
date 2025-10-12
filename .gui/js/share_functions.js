@@ -1298,6 +1298,7 @@ function plotHeatmap() {
 
 	let numericColumns = tab_results_headers_json.filter(col => {
 		if (special_col_names.includes(col) || result_names.includes(col)) return false;
+		if (col.toLowerCase().startsWith("oo_info_")) return false;
 		let idx = tab_results_headers_json.indexOf(col);
 		return tab_results_csv_json.every(row => {
 			let v = parseFloat(row[idx]);

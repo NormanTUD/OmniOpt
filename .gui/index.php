@@ -23,15 +23,23 @@
 
 	require "_header_base.php";
 ?>
-			<p><i>OmniOpt2</i> allows you to easily optimize complex hyperparameter configurations in situations where gradient information is not available or too complex. It is based on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, but allows any method of generation of new hyperparameter points by using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
+			<p><strong>OmniOpt2</strong> helps you effortlessly optimize complex hyperparameter configurations — even when gradients are unavailable or too complicated. It’s built on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, and also supports any method of generating new hyperparameter points using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
 
-			<p>You can run <i>OmniOpt2</i> on any linux that has <samp>python3</samp> and some basic necessities. If something is missing that cannot be installed, it will tell you how to install it. If the system you run it on has Slurm installed, it will use it to parallelize as you set the settings. If you run it locally without slurm, they will simply run sequentially.</p>
+			<p>You can run <strong>OmniOpt2</strong> on any Linux system with <code>python3</code> installed. Missing dependencies? Don’t worry — it will guide you step by step. If your system has Slurm installed, OmniOpt2 will automatically parallelize jobs; without Slurm, jobs run sequentially, hassle-free.</p>
 
-			<p><i>OmniOpt2</i> installs all of it's python-dependencies automatically in a virtual environment once at first run. This may take up to 20 minutes, but has to be done once. This is done to isolate it from other dependencies and to make you focus on your task of hyperparameter-minimization. For even more isolation, you can also use <a href="tutorials?tutorial=basics">Docker</a>.</p>
+			<p>All Python dependencies are installed automatically in a dedicated virtual environment on the first run. This may take a few minutes, but it ensures your system stays clean and you can focus on optimization. For complete isolation, you can also use <a href="tutorials?tutorial=basics">Docker</a>.</p>
 
-			<p>In short: It will try out your program with different hyperparameter settings and tries to find new ones to minimize the result using an algorithm called <a target="_blank" href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf">BoTorch-Modular.</a></p>
+			<p>In short, OmniOpt2 tests different hyperparameter combinations and uses the <a target="_blank" href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf">BoTorch-Modular</a> algorithm to find settings that minimize your target metric.</p>
 
-			<p><a target="_blank" href="tutorials.php?tutorial=run_sh">Read the documentation of how you need to change your program</a> and then go to the <a href="gui.php">OmniOpt2-GUI</a> and start optimizing.</p>
+			<ul>
+				<li>Works on any Linux + Python3</li>
+				<li>Automatic dependency installation</li>
+				<li>Supports Slurm for parallel jobs</li>
+				<li>Docker-ready for full isolation</li>
+			</ul>
+
+			<p>Check the <a target="_blank" href="tutorials.php?tutorial=run_sh">documentation</a> to adjust your program, then launch the <a href="gui.php">OmniOpt2 GUI</a> and start optimizing — faster, smarter, simpler.</p>
+
 
 			<script src="prism.js"></script>
 			<script src="footer.js"></script>

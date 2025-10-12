@@ -99,7 +99,6 @@
 			<?php js("plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>
 
-			<?php js("js/share_functions.js"); ?>
 			<?php js("js/heatmap.js"); ?>
 			<?php js("js/histogram.js"); ?>
 			<?php js("js/violin.js"); ?>
@@ -118,6 +117,7 @@
 			<?php js("js/result_distribution_generation_method.js"); ?>
 			<?php js("js/plot_parameter_distribution_by_status.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
+			<?php js("js/share_functions.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php

@@ -2709,6 +2709,8 @@ $onclick_string
 			$skipped_tab_names_string = "Skipped tabs: <ul>\n\t<li>".implode("</li>\n\t<li>", $skipped_tab_names)."</li>\n</ul>";
 		}
 
+		$export_content = embed_local_images_as_base64($export_content, __DIR__);
+
 		if(!isset($_GET["export_and_exit"])) {
 			$export_content = "$skipped_tab_names_string$buttons<pre class='no-highlight' id='export_tab_content'><!-- export.html -->".my_htmlentities($export_content)."\n<!-- export.html --></pre>$buttons";
 		}
@@ -2724,6 +2726,43 @@ $onclick_string
 		}
 
 		return [$tabs, $warnings];
+	}
+
+	function embed_local_images_as_base64($html, $base_dir = __DIR__) {
+		$ret = preg_replace_callback(
+			'/<img\s+([^>]*?)src=["\']([^"\']+)["\']([^>]*)>/is',
+			function ($m) use ($base_dir) {
+				$before = $m[1];
+				$src = trim($m[2]);
+				$after = $m[3];
+
+				// Ignoriere externe oder schon eingebettete Quellen
+				if (preg_match('#^(https?:|data:)#i', $src)) {
+					return $m[0];
+				}
+
+				// Absoluten Dateipfad ermitteln
+				$file_path = $base_dir . '/' . ltrim($src, '/');
+				if (!file_exists($file_path)) {
+					error_log("⚠️ Missing image file: $file_path");
+					return $m[0];
+				}
+
+				// MIME-Typ bestimmen
+				$mime = mime_content_type($file_path);
+				if (!$mime) $mime = 'application/octet-stream';
+
+				// Datei einlesen und in Base64 umwandeln
+				$data = base64_encode(file_get_contents($file_path));
+				$data_uri = "data:$mime;base64,$data";
+
+				// Ersetze src durch den eingebetteten Inhalt
+				return "<img {$before}src=\"$data_uri\"{$after}>";
+			},
+			$html
+		);
+
+		return $ret;
 	}
 
 	function clean_result_name_lines(array $lines) {

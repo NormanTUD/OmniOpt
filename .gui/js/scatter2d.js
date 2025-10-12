@@ -195,4 +195,3 @@ function plotScatter2d() {
 
 	$("#plotScatter2d").data("loaded", "true");
 }
-

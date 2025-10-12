@@ -723,7 +723,7 @@ function initializeResultParameterVisualizations() {
                 console.error('Failed to initialize result parameter visualizations:', outerErr);
         }
 
-	if(apply_theme_based_on_system_preferences) {
+	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();
 	}
 }

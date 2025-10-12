@@ -100,6 +100,8 @@
 			<?php js("js/gridjs.umd.js"); ?>
 
 			<?php js("js/share_functions.js"); ?>
+			<?php js("js/heatmap.js"); ?>
+			<?php js("js/histogram.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />

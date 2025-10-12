@@ -2716,27 +2716,22 @@ $onclick_string
 				$src = trim($m[2]);
 				$after = $m[3];
 
-				// Ignoriere externe oder schon eingebettete Quellen
 				if (preg_match('#^(https?:|data:)#i', $src)) {
 					return $m[0];
 				}
 
-				// Absoluten Dateipfad ermitteln
 				$file_path = $base_dir . '/' . ltrim($src, '/');
 				if (!file_exists($file_path)) {
 					error_log("⚠️ Missing image file: $file_path");
 					return $m[0];
 				}
 
-				// MIME-Typ bestimmen
 				$mime = mime_content_type($file_path);
 				if (!$mime) $mime = 'application/octet-stream';
 
-				// Datei einlesen und in Base64 umwandeln
 				$data = base64_encode(file_get_contents($file_path));
 				$data_uri = "data:$mime;base64,$data";
 
-				// Ersetze src durch den eingebetteten Inhalt
 				return "<img {$before}src=\"$data_uri\"{$after}>";
 			},
 			$html

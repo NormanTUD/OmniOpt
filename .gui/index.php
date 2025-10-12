@@ -42,7 +42,7 @@
 
 <p>All Python dependencies are installed automatically in a dedicated virtual environment on the first run. This may take a few minutes, but ensures your system stays clean and you can focus on optimization. For complete isolation, use <a href="tutorials?tutorial=basics">Docker</a>.</p>
 
-<p>In short, OmniOpt2 tests different hyperparameter combinations and uses the <a target="_blank" href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf"><i>BoTorch-Modular</i></a> algorithm to find settings that minimize your target metric.</p>
+<p>In short, OmniOpt2 tests different hyperparameter combinations and uses the <a target="_blank" href="https://web.archive.org/web/20240715080430/https://proceedings.neurips.cc/paper/2020/file/f5b1b89d98b7286673128a5fb112cb9a-Paper.pdf"><i>BoTorch-Modular</i></a> (<a href="tutorials?tutorial=models">among others</a>) algorithm to find settings that minimize your target metric.</p>
 
 <ul class="bullet-list">
   <li>Works on any Linux + Python3</li>

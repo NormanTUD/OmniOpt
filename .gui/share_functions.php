@@ -2608,28 +2608,21 @@
 			$onclick_string .= ';';
 		}
 
-		//$onclick_string = add_tabs_to_string($onclick_string, 4);
-
-		//$html_parts_str = add_tabs_to_string(implode("\n", $html_parts), 3);
 		$html_parts_str = implode("\n", $html_parts);
 
 		$js_dir = "js";
 		$js_functions = "";
 
-		// Alle JS-Dateien im Ordner holen, alphabetisch sortiert
 		$js_files = glob("$js_dir/*.js");
 		sort($js_files);
 
-		// share_functions.js und pareto_from_idxs.js später hinzufügen
 		$defer_files = ["$js_dir/share_functions.js", "$js_dir/pareto_from_idxs.js"];
 		$js_files = array_diff($js_files, $defer_files);
 
-		// Erst alle anderen JS-Dateien anhängen
 		foreach ($js_files as $file) {
 			$js_functions .= "\n" . file_get_contents($file);
 		}
 
-		// Dann explizit share_functions.js und pareto_from_idxs.js anhängen
 		foreach ($defer_files as $file) {
 			if (file_exists($file)) {
 				$js_functions .= "\n" . file_get_contents($file);

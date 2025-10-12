@@ -107,6 +107,7 @@
 			<?php js("js/result_pairs.js"); ?>
 			<?php js("js/gpu_usage.js"); ?>
 			<?php js("js/job_status_distribution.js"); ?>
+			<?php js("js/timeline.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />

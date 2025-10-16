@@ -206,6 +206,9 @@ jobs:
       contents: read
     environment: Production
     runs-on: ubuntu-latest
+
+    if: ${{ github.event_name == 'push' }}
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python

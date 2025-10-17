@@ -10,7 +10,6 @@ function is_visible(e) {
 	let style = e.ownerDocument.defaultView.getComputedStyle(e);
 	if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
 
-	// optional: check parent chain, but stop before causing reflows
 	let parent = e.parentElement;
 	while (parent && parent !== document.body) {
 		let ps = parent.ownerDocument.defaultView.getComputedStyle(parent);

@@ -824,10 +824,6 @@ function update_command() {
 	show_warnings_and_errors(warnings, errors);
 
 	update_url();
-
-	if(document_is_ready) {
-		toggleHiddenConfigTableIfError();
-	}
 }
 
 function addBase64DecodedVersions(cmdString) {
@@ -1367,8 +1363,6 @@ function run_when_document_ready () {
 	update_command();
 
 	useSmoothFade = true;
-
-	toggleHiddenConfigTableIfError();
 
 	document_is_ready = true;
 }

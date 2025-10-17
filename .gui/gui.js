@@ -1,5 +1,5 @@
 var invalid_names = ["generation_node", "start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string", "arm_name", "trial_index", "generation_method", "trial_status", "idxs", "submit_time", "queue_time", "worker_generator_uuid"];
-
+var document_is_ready = false;
 var fadeTime = 0;
 var fadeTimeAfterLoading = 300;
 
@@ -807,7 +807,9 @@ function update_command() {
 
 	update_url();
 
-	toggleHiddenConfigTableIfError();
+	if(document_is_ready) {
+		toggleHiddenConfigTableIfError();
+	}
 }
 
 function addBase64DecodedVersions(cmdString) {
@@ -1347,6 +1349,10 @@ function run_when_document_ready () {
 	update_command();
 
 	useSmoothFade = true;
+
+	toggleHiddenConfigTableIfError();
+
+	document_is_ready = true;
 }
 
 function test_if_equation_is_valid(str, names) {

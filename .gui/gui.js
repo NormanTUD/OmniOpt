@@ -3,6 +3,24 @@ var document_is_ready = false;
 var fadeTime = 0;
 var fadeTimeAfterLoading = 300;
 
+function is_visible(e) {
+	if (!e || e.nodeType !== 1) return false;
+	if (!document.body.contains(e)) return false;
+
+	let style = e.ownerDocument.defaultView.getComputedStyle(e);
+	if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+
+	// optional: check parent chain, but stop before causing reflows
+	let parent = e.parentElement;
+	while (parent && parent !== document.body) {
+		let ps = parent.ownerDocument.defaultView.getComputedStyle(parent);
+		if (ps.display === "none" || ps.visibility === "hidden" || ps.opacity === "0") return false;
+		parent = parent.parentElement;
+	}
+
+	return true;
+}
+
 function normalizeFloat(value) {
 	if (!isFinite(value)) {
 		return '';
@@ -62,7 +80,7 @@ function smoothHide($elem) {
 }
 
 function smoothToggle($elem) {
-	if($elem.is(":visible")) {
+	if(is_visible($elem)) {
 		smoothHide($elem);
 	} else {
 		smoothShow($elem);
@@ -745,7 +763,7 @@ function update_command() {
 
 	var errors_visible = false;
 	$(".parameterError").each(function (i, e) {
-		if($(e).is(":visible")) {
+		if(is_visible($(e))) {
 			errors_visible = true;
 		}
 	});

@@ -1647,13 +1647,15 @@ function toggle_disabled_status_of_remove_parameters_depending_on_if_there_are_m
 }
 
 function toggleHiddenConfigTableIfError() {
-	let table = $("#hidden_config_table");
+	const table = document.getElementById("hidden_config_table");
+	if (table.style.display !== "none") return;
 
-	if (!table.is(":visible") && table.find(".error_element").filter(function() {
-		var this_display = $(this).css("display");
-		return this_display !== "none" && $(this).text() !== "";
-	}).length > 0) {
-		table.toggle();
+	const errors = table.querySelectorAll(".error_element");
+	for (let el of errors) {
+		if (el.offsetParent !== null && el.textContent.trim() !== "") {
+			table.style.display = "";
+			return;
+		}
 	}
 }
 

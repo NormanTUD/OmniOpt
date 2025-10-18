@@ -192,7 +192,6 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 
 		$resultValues = array_values(array_filter($resultValuesRaw, 'is_numeric'));
 		if (count($resultValues) < 3) {
-			error_log("[Interpretation] ERROR: Too few numeric result values for '$result' (only " . count($resultValues) . ").");
 			continue;
 		}
 

@@ -1264,6 +1264,7 @@ function isAnyLogScaleSet() {
 
 function run_when_document_ready () {
 	create_tables();
+
 	update_partition_options();
 
 	var urlParams = new URLSearchParams(window.location.search);

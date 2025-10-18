@@ -60,32 +60,6 @@ var shown_operation_insecure_without_server = false;
 
 var l = typeof log === "function" ? log : console.log;
 
-var useSmoothFade = false;
-
-function smoothShow($elem) {
-	if (useSmoothFade) {
-		$elem.fadeIn(fadeTime);
-	} else {
-		$elem.show();
-	}
-}
-
-function smoothHide($elem) {
-	if (useSmoothFade) {
-		$elem.fadeOut(fadeTime);
-	} else {
-		$elem.hide();
-	}
-}
-
-function smoothToggle($elem) {
-	if(is_visible($elem)) {
-		smoothHide($elem);
-	} else {
-		smoothShow($elem);
-	}
-}
-
 function input_to_time_picker (input_id) {
 	var $input = $("#" + input_id);
 	var $parent = $($input).parent();
@@ -312,9 +286,9 @@ function update_table_row (item, errors, warnings, command) {
 				this_error = item.regex_does_not_match_text;
 			}
 			errors.push(this_error);
-			smoothShow($("#" + item.id + "_error").html(`<img src='i/warning.svg' style='height: 1em' /> ${this_error}`));
+			$("#" + item.id + "_error").html(`<img src='i/warning.svg' style='height: 1em' /> ${this_error}`).show()
 		} else {
-			smoothHide($("#" + item.id + "_error").html(""));
+			$("#" + item.id + "_error").html("").hide()
 		}
 	}
 
@@ -326,7 +300,7 @@ function update_table_row (item, errors, warnings, command) {
 	} else if ((item.type === "textarea" || item.type === "text") && value === "") {
 		if(item.required) {
 			var this_error = "<img src='i/warning.svg' style='height: 1em' /> Field '" + item.label + "' is required.";
-			smoothShow($("#" + item.id + "_error").html(this_error));
+			$("#" + item.id + "_error").html(this_error).show();
 			$("#" + item.id).css("background-color", "#FFCCCC !important");
 
 			errors.push(this_error);
@@ -349,10 +323,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			smoothShow($("#time_error").html(string_or_array_to_list(new_errors)));
+			$("#time_error").html(string_or_array_to_list(new_errors)).show();
 			errors.push(...new_errors);
 		} else {
-			smoothHide($("#time_error").html(""));
+			$("#time_error").html("").hide()
 			command += " --" + item.id + "=" + value;
 		}
 	} else if (item.id == "max_eval") {
@@ -395,10 +369,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			smoothShow($("#worker_timeout_error").html(string_or_array_to_list(new_errors)));
+			$("#worker_timeout_error").html(string_or_array_to_list(new_errors)).show();
 			errors.push(...new_errors);
 		} else {
-			smoothHide($("#worker_timeout_error").html(""));
+			$("#worker_timeout_error").html("").hide()
 			command += " --" + item.id + "=" + value;
 		}
 	} else if (item.type === "number") {
@@ -458,10 +432,10 @@ function update_table_row (item, errors, warnings, command) {
 		}
 
 		if(new_errors.length) {
-			smoothShow($("#run_program_error").html(string_or_array_to_list(new_errors)));
+			$("#run_program_error").html(string_or_array_to_list(new_errors)).show()
 			errors.push(...new_errors);
 		} else {
-			smoothHide($("#run_program_error").html(""));
+			$("#run_program_error").html("").hide()
 		}
 
 		value = btoa(value);
@@ -477,7 +451,7 @@ function update_table_row (item, errors, warnings, command) {
 				} else {
 					command += " --" + item.id + "=" + value;
 				}
-				smoothHide($("#" + item.id + "_error").html(""));
+				$("#" + item.id + "_error").html("").hide()
 				$("#" + item.id).css("background-color", "");
 			}
 		}
@@ -714,7 +688,7 @@ function update_command() {
 		}
 
 		if(warn_msg.length) {
-			smoothShow($($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)));
+			$($(".parameterError")[i]).html(string_or_array_to_list(warn_msg)).show()
 		} else {
 			$($(".parameterError")[i]).html("").hide();
 		}
@@ -752,9 +726,9 @@ function update_command() {
 
 		if (errors_string != "") {
 			errors.push("Something was wrong in the constraints parameter");
-			smoothShow($("#constraints_error").html(errors_string));
+			$("#constraints_error").html(errors_string).show()
 		} else {
-			smoothHide($("#constraints_error").html(""));
+			$("#constraints_error").html("").hide()
 		}
 	} else {
 		$("#constraints_error").html("");
@@ -950,7 +924,7 @@ function add_parameter_row(button) {
 	newRow.classList.add("parameterRow");
 	optionCell.firstChild.classList.add("optionSelect");
 
-	smoothShow($(newRow));
+	$(newRow).show()
 
 	update_command();
 
@@ -1341,8 +1315,6 @@ function run_when_document_ready () {
 
 	update_command();
 
-	useSmoothFade = true;
-
 	document_is_ready = true;
 }
 
@@ -1657,11 +1629,11 @@ function toggleHiddenConfigTableIfError() {
 }
 
 function show_warning_for_model_when_custom_generation_strategy_is_set() {
-	smoothShow($("#model_error").html("Custom generation strategy is set, so --model is ignored."));
+	$("#model_error").html("Custom generation strategy is set, so --model is ignored.").show();
 }
 
 function hide_warning_when_custom_custom_generation_strategy_isnt_set() {
-	smoothHide($("#model_error").html(""));
+	$("#model_error").html("").hide()
 }
 
 function toggle_model_warning_for_custom_generation_strategy() {

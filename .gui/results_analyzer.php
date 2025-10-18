@@ -166,7 +166,6 @@ function compute_csv_insights_flat(string $csvPath, array $correlations, array $
 	$interpretations = [];
 
 	if (empty($correlations)) {
-		error_log("[Interpretation] ERROR: correlations are empty.");
 		return [];
 	}
 

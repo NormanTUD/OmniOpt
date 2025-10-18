@@ -138,14 +138,17 @@
 				];
 
 				try {
-					$header = str_getcsv(fgets(fopen("$run_dir/results.csv", 'r')), ",", '"', "\\");
+					$res_csv = "$run_dir/results.csv";
+					if(file_exists($res_csv)) {
+						$header = str_getcsv(fgets(fopen($res_csv, 'r')), ",", '"', "\\");
 
-					if (!in_array('program_string', $header) || isset($_GET["show_job_infos"])) { 
-						$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
-					}
+						if (!in_array('program_string', $header) || isset($_GET["show_job_infos"])) { 
+							$tab_definitions["add_simple_pre_tab_from_file"][] = ["$run_dir/job_infos.csv", "Job-Infos", "tab_job_infos"];
+						}
 
-					if (in_array('start_time', $header) && in_array('end_time', $header)) {
-						$tab_definitions["add_timeline"][] = ["$run_dir/results.csv", "Timeline", "tab_timeline"];
+						if (in_array('start_time', $header) && in_array('end_time', $header)) {
+							$tab_definitions["add_timeline"][] = ["$run_dir/results.csv", "Timeline", "tab_timeline"];
+						}
 					}
 				} catch (\Throwable $e) {
 					error_log("Error in share.php: $e");

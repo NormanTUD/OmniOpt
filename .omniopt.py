@@ -241,9 +241,6 @@ try:
     with spinner("Importing uuid..."):
         import uuid
 
-    #with spinner("Importing qrcode..."):
-    #    import qrcode
-
     with spinner("Importing cowsay..."):
         import cowsay
 

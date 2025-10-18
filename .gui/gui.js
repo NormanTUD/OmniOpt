@@ -807,14 +807,14 @@ function update_command() {
 
 		nicer_command = addBase64DecodedVersions(command);
 
-		toggleElementVisibility("#curl_command_highlighted", curl_command, true);
-		toggleElementVisibility("#command_element_highlighted", nicer_command, true);
+		$("#curl_command_highlighted").text(curl_command).show();
+		$("#command_element_highlighted").text(nicer_command).show();
 
 		$("#curl_command").text(curl_command);
 		$("#command_element").text(nicer_command);
 	} else {
-		toggleElementVisibility("#command_element_highlighted", "", false);
-		toggleElementVisibility("#curl_command_highlighted", "", false);
+		$("#command_element_highlighted").hide();
+		$("#curl_command_highlighted").hide();
 
 		$("#curl_command").text("");
 		$("#command_element").text("");
@@ -826,42 +826,25 @@ function update_command() {
 }
 
 function addBase64DecodedVersions(cmdString) {
-    return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
-        const value = singleQuoted || doubleQuoted || bare;
+	return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
+		const value = singleQuoted || doubleQuoted || bare;
 
-        let decoded = null;
-        try {
-            if (key === "--run_program") {
-                decoded = atob(value);
-            }
-        } catch (e) {
-            console.error(e);
-        }
+		let decoded = null;
+		try {
+			if (key === "--run_program") {
+				decoded = atob(value);
+			}
+		} catch (e) {
+			console.error(e);
+		}
 
-        if (decoded) {
-            var safeDecoded = decoded.replace(/\x27/g, `'\\''`).trim();
-            return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
-        } else {
-            return match;
-        }
-    });
-}
-
-async function toggleElementVisibility(selector, content, show) {
-	let element = $(selector);
-
-	if (show) {
-		smoothShow(element.html(highlight_bash(content)));
-		smoothShow(element.parent());
-		smoothShow(element.parent().parent());
-	} else {
-		await Promise.all([
-			new Promise(resolve => element.fadeOut(fadeTime, resolve)),
-			new Promise(resolve => element.parent().fadeOut(fadeTime, resolve)),
-			new Promise(resolve => element.parent().parent().fadeOut(fadeTime, resolve))
-		]);
-		element.html("");
-	}
+		if (decoded) {
+			var safeDecoded = decoded.replace(/\x27/g, `'\\''`).trim();
+			return ` ${key}=$(echo '${safeDecoded}' | base64 -w0)`;
+		} else {
+			return match;
+		}
+});
 }
 
 function updateOptions(select) {

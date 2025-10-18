@@ -1423,7 +1423,7 @@
 
 	$tabs = [];
 
-	function file_string_contains_results($file_as_string, $names) {
+	function file_string_contains_results($file_path, $file_as_string, $names) {
 		if (!is_string($file_as_string) || strlen($file_as_string) === 0) {
 			return false;
 		}
@@ -1534,7 +1534,7 @@
 
 				$status = "";
 
-				if (file_string_contains_results($file_as_string, $result_names)) {
+				if (file_string_contains_results($file_path, $file_as_string, $result_names)) {
 					$status = "success";
 					$checkmark = $green_checkmark;
 				} else {

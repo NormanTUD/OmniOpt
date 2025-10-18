@@ -1329,10 +1329,6 @@ function run_when_document_ready () {
 		parameterIndex++;
 	});
 
-	update_command();
-
-	update_url();
-
 	document.getElementById("copytoclipboardbutton_curl").addEventListener(
 		"click",
 		copy_bashcommand_to_clipboard_curl,

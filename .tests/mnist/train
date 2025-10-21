@@ -86,6 +86,8 @@ console = Console()
 shown_exit_msg = False
 
 def graceful_exit(signum, frame):
+    global shown_exit_msg
+
     if not shown_exit_msg:
         console.print("\n[bold red]You pressed Ctrl+C. Exiting gracefully.[/bold red]")
         shown_exit_msg = True

@@ -5,7 +5,7 @@ wheel
 multidict
 numpy
 python-dateutil
-ax-platform==1.1.0
+ax-platform
 art
 tzlocal
 Rich

@@ -182,6 +182,7 @@ jobs:
 
     - name: Create a new version
       if: ${{ success() }}
+      if: ${{ github.event_name == 'push' }}
       run: |
         echo "Creating new version"
         git tag ${{ github.run_number }} || true

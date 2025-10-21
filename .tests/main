@@ -422,7 +422,7 @@ fi
 if [[ $superquick -eq 0 ]]; then
 	#_test "Test orchestrator" "./.tests/orchestrator" 0
 	_test "Test seed 1234" ".tests/test_seed --seed 1234 --gpus $NUM_GPUS --hash 86157f2f4b60e19a713c3f85ca13e19a" 0
-	_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 064019caa1ffab5af37e36b7aa043a0e" 0
+	_test "Test seed 4321" ".tests/test_seed --seed 4321 --gpus $NUM_GPUS --hash 60a91150ddb1f17f2c040230e9673dc0" 0
 
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0
 

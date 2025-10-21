@@ -10,8 +10,6 @@ import traceback
 from pathlib import Path
 import hashlib
 import time
-import math
-import random
 
 start_time = time.time()
 
@@ -72,12 +70,11 @@ def ensure_venv_and_rich():
 ensure_venv_and_rich()
 
 import argparse
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
 from rich.console import Console
 from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
 from rich.panel import Panel
@@ -93,25 +90,36 @@ def graceful_exit(signum, frame):
 signal.signal(signal.SIGINT, graceful_exit)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train a neural network on CIFAR100 with improved defaults.")
-    parser.add_argument("--epochs", type=int, default=60, help="Number of epochs to train.")
+    parser = argparse.ArgumentParser(description="Train a simple neural network on CIFAR100 with CLI hyperparameters.")
+
+    # Training hyperparameters
+    parser.add_argument("--epochs", type=int, default=60, help="Number of epochs to train. (Default bumped to 60 for CIFAR100)")
     parser.add_argument("--batch_size", type=int, default=128, help="Batch size for training and testing.")
-    parser.add_argument("--learning_rate", type=float, default=0.1, help="Learning rate for optimizer (SGD default uses 0.1).")
-    parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="sgd", help="Optimizer to use.")
+    parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate for optimizer.")
+    parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="adam", help="Optimizer to use.")
     parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
-    parser.add_argument("--weight_decay", type=float, default=5e-4, help="L2 weight decay (regularization).")
-    parser.add_argument("--hidden_size", type=int, default=512, help="Hidden size for simple MLP (if used).")
-    parser.add_argument("--dropout", type=float, default=0.2, help="Dropout probability.")
-    parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function.")
-    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="kaiming", help="Weight initialization.")
-    parser.add_argument("--num_dense_layers", type=int, default=2, help="Number of dense layers (simple MLP).")
-    parser.add_argument("--filter", type=int, default=64, help="Conv filters for simple MLP.")
-    parser.add_argument("--num_conv_layers", type=int, default=4, help="Conv layers for simple MLP.")
+    parser.add_argument("--weight_decay", type=float, default=1e-4, help="L2 weight decay (regularization).")
+
+    # MLP / Dense layer hyperparameters
+    parser.add_argument("--hidden_size", type=int, default=512, help="Number of neurons in the hidden layer.")
+    parser.add_argument("--dropout", type=float, default=0.2, help="Dropout probability (0.0 = no dropout).")
+    parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
+    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="kaiming", help="Weight initialization method.")
+    parser.add_argument("--num_dense_layers", type=int, default=2, help="Number of dense (fully-connected) layers excluding the output layer.")
+
+    # Convolutional layer hyperparameters (neu)
+    parser.add_argument("--filter", type=int, default=64, help="Number of filters per Conv2D layer")
+    parser.add_argument("--num_conv_layers", type=int, default=4, help="Number of convolutional layers")
+
+    # Conv internals (defaults better tuned)
+    parser.add_argument("--conv_kernel_size", type=int, default=3, help="Conv kernel size")
+    parser.add_argument("--conv_stride", type=int, default=1, help="Conv stride (use 1 and pool instead of large stride)")
+    parser.add_argument("--conv_padding", type=int, default=1, help="Conv padding (for kernel 3 -> 1)")
+
+    # Misc
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
-    parser.add_argument("--install", action="store_true", help="Install required dependencies and exit.")
-    parser.add_argument("--arch", type=str, choices=["resnet", "simple"], default="resnet", help="Architecture to train. Default: resnet (adapted ResNet-18 for CIFAR).")
-    parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision (fp16) training where supported.")
-    parser.add_argument("--label_smoothing", type=float, default=0.1, help="Label smoothing factor for CrossEntropyLoss. 0 disables.")
+    parser.add_argument("--install", action="store_true", help="Install required dependencies (default: False)")
+
     return parser.parse_args()
 
 class SimpleMLP(nn.Module):
@@ -135,6 +143,7 @@ class SimpleMLP(nn.Module):
         self.activation_fn = self.get_activation(activation)
         self.dropout = nn.Dropout(p=dropout)
 
+        # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
         conv_layers = []
         in_channels = input_channels
         h, w = input_height, input_width
@@ -147,13 +156,17 @@ class SimpleMLP(nn.Module):
             conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
             conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
             in_channels = conv_filters
+            # compute output spatial size after conv
             h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
             w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+
+            # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
             if (i + 1) % 2 == 0:
                 conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=2, stride=2)))
                 h = h // 2
                 w = w // 2
 
+        # convert list of tuples into Sequential with ordered names
         conv_seq = nn.Sequential()
         for name, module in conv_layers:
             conv_seq.add_module(name, module)
@@ -161,6 +174,7 @@ class SimpleMLP(nn.Module):
         self.conv = conv_seq
         flattened_size = in_channels * max(1, h) * max(1, w)
 
+        # Dense Layers
         dense_layers = nn.Sequential()
         in_features = flattened_size
         for i in range(num_dense_layers):
@@ -170,8 +184,10 @@ class SimpleMLP(nn.Module):
             in_features = hidden_size
 
         dense_layers.add_module("output", nn.Linear(in_features, num_classes))
+
         self.classifier = dense_layers
 
+        # Initialization
         if init_mode is not None and init_mode != "None":
             self.init_weights(init_mode)
 
@@ -191,7 +207,7 @@ class SimpleMLP(nn.Module):
         elif name == "leaky_relu":
             return nn.LeakyReLU(negative_slope=0.01)
         else:
-            raise ValueError(f"Unknown activation: {name}")
+            raise ValueError(f"Unbekannte Aktivierung: {name}")
 
     def init_weights(self, mode):
         for m in self.modules():
@@ -199,24 +215,14 @@ class SimpleMLP(nn.Module):
                 if mode == "xavier":
                     nn.init.xavier_uniform_(m.weight)
                 elif mode == "kaiming":
+                    # Kaiming for ReLU-style activations
                     nn.init.kaiming_uniform_(m.weight, nonlinearity='relu')
                 elif mode == "normal":
                     nn.init.normal_(m.weight, mean=0.0, std=0.02)
                 else:
-                    raise ValueError(f"Unknown init: {mode}")
+                    raise ValueError(f"Unbekannte Init-Methode: {mode}")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
-
-def build_resnet18_cifar(num_classes=100, pretrained=False):
-    # Load standard ResNet18 and adapt first conv + maxpool for CIFAR (32x32)
-    model = models.resnet18(pretrained=pretrained)
-    # Replace conv1: 7x7 stride2 not suitable for 32x32 -> 3x3, stride1, padding1
-    model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
-    # Remove the first maxpool to preserve spatial resolution
-    model.maxpool = nn.Identity()
-    # Adapt final fc
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
-    return model
 
 def show_hyperparams(args):
     table = Table(title="Hyperparameters", box=box.ROUNDED, title_style="bold magenta")
@@ -224,41 +230,64 @@ def show_hyperparams(args):
     table.add_column("Value", style="bold green")
 
     table.add_row("Epochs", str(args.epochs))
-    table.add_row("Architecture", args.arch)
+    table.add_row("Num Dense Layers", str(args.num_dense_layers))
     table.add_row("Batch size", str(args.batch_size))
     table.add_row("Learning rate", str(args.learning_rate))
+    table.add_row("Hidden size", str(args.hidden_size))
+    table.add_row("Dropout", str(args.dropout))
     table.add_row("Optimizer", args.optimizer)
     table.add_row("Momentum", str(args.momentum))
     table.add_row("Weight Decay", str(args.weight_decay))
-    table.add_row("Hidden size (MLP)", str(args.hidden_size))
-    table.add_row("Dropout", str(args.dropout))
-    table.add_row("Label smoothing", str(args.label_smoothing))
-    table.add_row("AMP", str(args.amp))
+    table.add_row("Activation", args.activation)
+    table.add_row("Init Method", args.init)
     table.add_row("Seed", str(args.seed) if args.seed is not None else "None")
+    table.add_row("Conv Filters", str(args.filter))
+    table.add_row("Num Conv Layers", str(args.num_conv_layers))
+    table.add_row("Conv Kernel", str(args.conv_kernel_size))
+    table.add_row("Conv Stride", str(args.conv_stride))
+    table.add_row("Conv Padding", str(args.conv_padding))
 
     console.print(table)
 
-def print_model_summary_generic(model, input_size):
+def print_model_summary(model, input_size):
     device = next(model.parameters()).device
     x = torch.zeros(1, *input_size).to(device)
-    try:
-        with torch.no_grad():
-            y = model(x)
-    except Exception:
-        y = None
 
-    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    table = Table(title="Model Summary", box=box.ROUNDED, title_style="bold magenta")
-    table.add_column("Item", style="bold cyan")
-    table.add_column("Value", style="bold green")
+    table = Table(
+        title="Model Summary",
+        box=box.ROUNDED,
+        title_style="bold magenta"
+    )
+    table.add_column("Layer", style="bold cyan")
+    table.add_column("Output Shape", style="bold green")
+    table.add_column("Param #", justify="right", style="bold yellow")
 
-    table.add_row("Model Type", model.__class__.__name__)
-    table.add_row("Total trainable params", str(total_params))
-    if y is not None:
-        table.add_row("Example output shape", str(list(y.shape)))
+    total_params = 0
+
+    # iterate through conv submodules in order
+    for name, layer in model.conv._modules.items():
+        x = layer(x)
+        params = sum(p.numel() for p in layer.parameters() if p.requires_grad)
+        total_params += params
+        table.add_row(f"conv::{name}", str(list(x.shape)), str(params))
+
+    # Flatten for dense layers
+    x = x.view(x.size(0), -1)
+
+    # iterate dense
+    for name, layer in model.classifier._modules.items():
+        x = layer(x)
+        params = sum(p.numel() for p in layer.parameters() if p.requires_grad)
+        total_params += params
+        out_shape_str = str(list(x.shape))
+        table.add_row(f"dense::{name}", out_shape_str, str(params))
+
+    # Gesamtparameter
+    table.add_row("Total", "-", str(total_params))
+
     console.print(table)
 
-def train_one_epoch(model, device, train_loader, criterion, optimizer, epoch, total_epochs, scaler=None, amp=False):
+def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs):
     model.train()
     running_loss = 0.0
     correct = 0
@@ -281,18 +310,10 @@ def train_one_epoch(model, device, train_loader, criterion, optimizer, epoch, to
             data, target = data.to(device), target.to(device)
 
             optimizer.zero_grad()
-            if amp and scaler is not None:
-                with torch.cuda.amp.autocast():
-                    output = model(data)
-                    loss = criterion(output, target)
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                output = model(data)
-                loss = criterion(output, target)
-                loss.backward()
-                optimizer.step()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
 
             running_loss += loss.item()
             _, predicted = torch.max(output.data, 1)
@@ -308,7 +329,7 @@ def train_one_epoch(model, device, train_loader, criterion, optimizer, epoch, to
 
     console.print(f"[green]Epoch-Loss[/green]: {running_loss:.4f}")
 
-def validate(model, device, test_loader, criterion, epoch, total_epochs):
+def test(model, device, test_loader, criterion, epoch, total_epochs):
     model.eval()
     test_loss = 0.0
     correct = 0
@@ -342,144 +363,115 @@ def validate(model, device, test_loader, criterion, epoch, total_epochs):
 
     return test_loss, accuracy
 
-def set_random_seeds(seed):
-    if seed is None:
-        return
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-
 def main():
     try:
         args = parse_args()
 
-        if args.install:
-            print("Exiting after installing dependencies (if requested).")
-            sys.exit(0)
-
         show_hyperparams(args)
 
-        set_random_seeds(args.seed)
+        if args.seed is not None:
+            torch.manual_seed(args.seed)
+            torch.cuda.manual_seed_all(args.seed)
 
+        # device + speed tweaks
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if torch.backends.cudnn.is_available():
             torch.backends.cudnn.benchmark = True
 
-        # Transforms
+        # Transforms: TRAIN (with augmentation) vs TEST (deterministic)
         train_transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(15),
-            transforms.AutoAugment(policy=transforms.AutoAugmentPolicy.CIFAR10),
             transforms.ToTensor(),
-            transforms.Normalize((0.5071, 0.4867, 0.4408),
-                                 (0.2675, 0.2565, 0.2761))
+            transforms.Normalize(
+                (0.5071, 0.4867, 0.4408),
+                (0.2675, 0.2565, 0.2761)
+            )
         ])
 
         test_transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.5071, 0.4867, 0.4408),
-                                 (0.2675, 0.2565, 0.2761))
+            transforms.Normalize(
+                (0.5071, 0.4867, 0.4408),
+                (0.2675, 0.2565, 0.2761)
+            )
         ])
 
         script_dir = os.path.dirname(__file__)
         data_dir = os.path.join(script_dir, "cifar")
 
+        # download datasets
         train_dataset = datasets.CIFAR100(root=data_dir, train=True, download=True, transform=train_transform)
         test_dataset = datasets.CIFAR100(root=data_dir, train=False, download=True, transform=test_transform)
 
+        if args.install:
+            print("Exiting, since the installation should now be done")
+            sys.exit(0)
+
+        # DataLoader performance options
         num_workers = min(4, (os.cpu_count() or 1))
         pin_memory = True if torch.cuda.is_available() else False
 
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
-        # Build model
-        if args.arch == "resnet":
-            model = build_resnet18_cifar(num_classes=100, pretrained=False).to(device)
-        else:
-            model = SimpleMLP(
-                input_height=32,
-                input_width=32,
-                input_channels=3,
-                hidden_size=args.hidden_size,
-                num_classes=100,
-                dropout=args.dropout,
-                activation=args.activation,
-                init_mode=args.init,
-                num_dense_layers=args.num_dense_layers,
-                num_conv_layers=args.num_conv_layers,
-                conv_filters=args.filter,
-                conv_kernel_size=3,
-                conv_stride=1,
-                conv_padding=1
-            ).to(device)
+        model = SimpleMLP(
+            input_height=32,
+            input_width=32,
+            input_channels=3,
+            hidden_size=args.hidden_size,
+            num_classes=100,
+            dropout=args.dropout,
+            activation=args.activation,
+            init_mode=args.init,
+            num_dense_layers=args.num_dense_layers,
+            num_conv_layers=args.num_conv_layers,
+            conv_filters=args.filter,
+            conv_kernel_size=args.conv_kernel_size,
+            conv_stride=args.conv_stride,
+            conv_padding=args.conv_padding
+        ).to(device)
 
-        print_model_summary_generic(model, input_size=(3, 32, 32))
+        print_model_summary(model, input_size=(3, 32, 32))
 
-        # Loss: label smoothing optional
-        if hasattr(nn.CrossEntropyLoss, "__call__"):
-            try:
-                criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing if args.label_smoothing > 0 else 0.0)
-            except TypeError:
-                # older PyTorch without label_smoothing
-                criterion = nn.CrossEntropyLoss()
-        else:
-            criterion = nn.CrossEntropyLoss()
+        if args.learning_rate == 0:
+            console.print("[red]Learning Rate cannot be 0[/red]")
+            sys.exit(1)
 
-        # Optimizer selection
-        if args.optimizer == "sgd":
-            optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
-        elif args.optimizer == "adam":
-            optimizer = optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+        if args.optimizer == "adam":
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+        elif args.optimizer == "sgd":
+            optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
         elif args.optimizer == "rmsprop":
-            optimizer = optim.RMSprop(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+            optimizer = torch.optim.RMSprop(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
         else:
             raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
-        # Scheduler
-        try:
-            scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
-        except Exception:
-            scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+        # Scheduler: StepLR is simple and effective; you can swap to ReduceLROnPlateau if desired.
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
 
-        # AMP scaler if requested and available
-        scaler = torch.cuda.amp.GradScaler() if (args.amp and torch.cuda.is_available()) else None
-        amp_enabled = (scaler is not None)
+        criterion = nn.CrossEntropyLoss()
 
         best_acc = 0.0
         best_loss = float("inf")
-        best_ckpt = None
-
         for epoch in range(1, args.epochs + 1):
-            train_one_epoch(model, device, train_loader, criterion, optimizer, epoch, args.epochs, scaler=scaler, amp=amp_enabled)
-            val_loss, val_acc = validate(model, device, test_loader, criterion, epoch, args.epochs)
+            train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)
+            val_loss, val_acc = test(model, device, test_loader, criterion, epoch, args.epochs)
 
-            # scheduler step
-            try:
-                scheduler.step()
-            except Exception:
-                pass
+            # step scheduler (for StepLR)
+            scheduler.step()
 
-            # checkpoint best by acc
-            if val_acc > best_acc:
-                best_acc = val_acc
-                try:
-                    ckpt_path = os.path.join(script_dir, "best_model.pth")
-                    torch.save({"epoch": epoch, "model_state": model.state_dict(), "optimizer_state": optimizer.state_dict(), "val_acc": val_acc}, ckpt_path)
-                    best_ckpt = ckpt_path
-                    console.print(f"[green]Saved improved model to {ckpt_path} (acc {best_acc:.2f}%)[/green]")
-                except Exception as e:
-                    console.print(f"[red]Failed to save checkpoint: {e}[/red]")
+            # save checkpoint if improved (optional)
+            #if val_acc > best_acc:
+            #    best_acc = val_acc
+            #    try:
+            #        ckpt_path = os.path.join(script_dir, "best_model.pth")
+            #        torch.save({"epoch": epoch, "model_state": model.state_dict(), "optimizer_state": optimizer.state_dict()}, ckpt_path)
+            #        console.print(f"[green]Saved improved model to {ckpt_path} (acc {best_acc:.2f}%)[/green]")
+            #    except Exception as e:
+            #        console.print(f"[red]Failed to save checkpoint: {e}[/red]")
 
             best_loss = min(best_loss, val_loss)
-
-        # final prints
-        console.print(f"[bold]Best validation accuracy:[/] {best_acc:.2f}%")
-        console.print(f"[bold]Last validation accuracy:[/] {val_acc:.2f}%")
-        if best_ckpt:
-            console.print(f"[bold]Best checkpoint:[/] {best_ckpt}")
 
         print(f"VAL_LOSS: {val_loss}")
         print(f"VAL_ACC: {val_acc}")

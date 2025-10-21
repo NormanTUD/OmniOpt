@@ -181,8 +181,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create a new version
-      if: ${{ success() }}
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ success() && github.event_name == 'push' }}
       run: |
         echo "Creating new version"
         git tag ${{ github.run_number }} || true

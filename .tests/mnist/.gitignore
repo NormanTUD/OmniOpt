@@ -2,3 +2,4 @@ data
 .torch_venv
 .tests
 cifar
+best_model.pth

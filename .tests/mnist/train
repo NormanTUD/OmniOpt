@@ -51,9 +51,9 @@ def restart_with_venv():
 
 def ensure_venv_and_rich():
     try:
-        import rich
-        import torch
-        import torchvision
+        import rich  # noqa: F401
+        import torch  # noqa: F401
+        import torchvision  # noqa: F401
     except (OSError, ModuleNotFoundError):
         if not VENV_PATH.exists():
             create_and_setup_venv()
@@ -93,23 +93,28 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Train a simple neural network on CIFAR100 with CLI hyperparameters.")
 
     # Training hyperparameters
-    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train.")
-    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training and testing.")
-    parser.add_argument("--learning_rate", type=float, default=0.0005, help="Learning rate for optimizer.")
+    parser.add_argument("--epochs", type=int, default=60, help="Number of epochs to train. (Default bumped to 60 for CIFAR100)")
+    parser.add_argument("--batch_size", type=int, default=128, help="Batch size for training and testing.")
+    parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate for optimizer.")
     parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="adam", help="Optimizer to use.")
     parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
-    parser.add_argument("--weight_decay", type=float, default=0.0, help="L2 weight decay (regularization).")
+    parser.add_argument("--weight_decay", type=float, default=1e-4, help="L2 weight decay (regularization).")
 
     # MLP / Dense layer hyperparameters
-    parser.add_argument("--hidden_size", type=int, default=256, help="Number of neurons in the hidden layer.")
-    parser.add_argument("--dropout", type=float, default=0.0, help="Dropout probability (0.0 = no dropout).")
+    parser.add_argument("--hidden_size", type=int, default=512, help="Number of neurons in the hidden layer.")
+    parser.add_argument("--dropout", type=float, default=0.2, help="Dropout probability (0.0 = no dropout).")
     parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
-    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="None", help="Weight initialization method.")
-    parser.add_argument("--num_dense_layers", type=int, default=1, help="Number of dense (fully-connected) layers excluding the output layer.")
+    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="kaiming", help="Weight initialization method.")
+    parser.add_argument("--num_dense_layers", type=int, default=2, help="Number of dense (fully-connected) layers excluding the output layer.")
 
     # Convolutional layer hyperparameters (neu)
     parser.add_argument("--filter", type=int, default=64, help="Number of filters per Conv2D layer")
-    parser.add_argument("--num_conv_layers", type=int, default=3, help="Number of convolutional layers")
+    parser.add_argument("--num_conv_layers", type=int, default=4, help="Number of convolutional layers")
+
+    # Conv internals (defaults better tuned)
+    parser.add_argument("--conv_kernel_size", type=int, default=3, help="Conv kernel size")
+    parser.add_argument("--conv_stride", type=int, default=1, help="Conv stride (use 1 and pool instead of large stride)")
+    parser.add_argument("--conv_padding", type=int, default=1, help="Conv padding (for kernel 3 -> 1)")
 
     # Misc
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
@@ -131,50 +136,58 @@ class SimpleMLP(nn.Module):
                  num_conv_layers,
                  conv_filters,
                  conv_kernel_size=3,
-                 conv_stride=2,
-                 conv_padding=2):
+                 conv_stride=1,
+                 conv_padding=1):
         super(SimpleMLP, self).__init__()
 
         self.activation_fn = self.get_activation(activation)
         self.dropout = nn.Dropout(p=dropout)
 
-        # Convolutional Layers
-        conv_layers = nn.Sequential()
+        # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
+        conv_layers = []
         in_channels = input_channels
         h, w = input_height, input_width
 
         for i in range(num_conv_layers):
-            conv_layers.add_module(f"conv{i}", nn.Conv2d(in_channels, conv_filters,
-                                                         kernel_size=conv_kernel_size,
-                                                         stride=conv_stride,
-                                                         padding=conv_padding))
-
-            conv_layers.add_module(f"bn{i}",nn.BatchNorm2d(conv_filters))
-
-            conv_layers.add_module(f"act_conv{i}", self.activation_fn)
-
+            conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
+                                                      kernel_size=conv_kernel_size,
+                                                      stride=conv_stride,
+                                                      padding=conv_padding)))
+            conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
+            conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
             in_channels = conv_filters
+            # compute output spatial size after conv
             h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
             w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
 
-        self.conv = conv_layers
-        flattened_size = in_channels * h * w
+            # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
+            if (i + 1) % 2 == 0:
+                conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=2, stride=2)))
+                h = h // 2
+                w = w // 2
+
+        # convert list of tuples into Sequential with ordered names
+        conv_seq = nn.Sequential()
+        for name, module in conv_layers:
+            conv_seq.add_module(name, module)
+
+        self.conv = conv_seq
+        flattened_size = in_channels * max(1, h) * max(1, w)
 
         # Dense Layers
         dense_layers = nn.Sequential()
         in_features = flattened_size
         for i in range(num_dense_layers):
             dense_layers.add_module(f"fc{i}", nn.Linear(in_features, hidden_size))
-            dense_layers.add_module(f"act{i}", self.activation_fn)
-            dense_layers.add_module(f"dropout{i}", self.dropout)
+            dense_layers.add_module(f"act{i}", self.get_activation(activation))
+            dense_layers.add_module(f"dropout{i}", nn.Dropout(p=dropout))
             in_features = hidden_size
 
         dense_layers.add_module("output", nn.Linear(in_features, num_classes))
-        #dense_layers.add_module("softmax", nn.Softmax(dim=1))
 
         self.classifier = dense_layers
 
-        # Initialisierung
+        # Initialization
         if init_mode is not None and init_mode != "None":
             self.init_weights(init_mode)
 
@@ -192,7 +205,7 @@ class SimpleMLP(nn.Module):
         elif name == "sigmoid":
             return nn.Sigmoid()
         elif name == "leaky_relu":
-            return nn.LeakyReLU()
+            return nn.LeakyReLU(negative_slope=0.01)
         else:
             raise ValueError(f"Unbekannte Aktivierung: {name}")
 
@@ -202,6 +215,7 @@ class SimpleMLP(nn.Module):
                 if mode == "xavier":
                     nn.init.xavier_uniform_(m.weight)
                 elif mode == "kaiming":
+                    # Kaiming for ReLU-style activations
                     nn.init.kaiming_uniform_(m.weight, nonlinearity='relu')
                 elif mode == "normal":
                     nn.init.normal_(m.weight, mean=0.0, std=0.02)
@@ -229,11 +243,11 @@ def show_hyperparams(args):
     table.add_row("Seed", str(args.seed) if args.seed is not None else "None")
     table.add_row("Conv Filters", str(args.filter))
     table.add_row("Num Conv Layers", str(args.num_conv_layers))
+    table.add_row("Conv Kernel", str(args.conv_kernel_size))
+    table.add_row("Conv Stride", str(args.conv_stride))
+    table.add_row("Conv Padding", str(args.conv_padding))
 
     console.print(table)
-
-# --- train, test, print_model_summary wie bisher ---
-# Ich lasse die restlichen Funktionen unverändert, da nur die Conv-Layer-Logik angepasst wurde.
 
 def print_model_summary(model, input_size):
     device = next(model.parameters()).device
@@ -250,17 +264,17 @@ def print_model_summary(model, input_size):
 
     total_params = 0
 
-    # Iteriere zuerst über die Conv-Schichten
+    # iterate through conv submodules in order
     for name, layer in model.conv._modules.items():
         x = layer(x)
         params = sum(p.numel() for p in layer.parameters() if p.requires_grad)
         total_params += params
         table.add_row(f"conv::{name}", str(list(x.shape)), str(params))
 
-    # Flatten für Dense-Layer
+    # Flatten for dense layers
     x = x.view(x.size(0), -1)
 
-    # Iteriere über Dense-Layer
+    # iterate dense
     for name, layer in model.classifier._modules.items():
         x = layer(x)
         params = sum(p.numel() for p in layer.parameters() if p.requires_grad)
@@ -315,7 +329,6 @@ def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs
 
     console.print(f"[green]Epoch-Loss[/green]: {running_loss:.4f}")
 
-
 def test(model, device, test_loader, criterion, epoch, total_epochs):
     model.eval()
     test_loss = 0.0
@@ -335,8 +348,9 @@ def test(model, device, test_loader, criterion, epoch, total_epochs):
             total += target.size(0)
             correct += (predicted == target).sum().item()
 
-    test_loss /= len(test_loader)
-    accuracy = 100.0 * correct / total
+    if len(test_loader) > 0:
+        test_loss /= len(test_loader)
+    accuracy = 100.0 * correct / total if total > 0 else 0.0
 
     console.print(
         Panel.fit(
@@ -355,18 +369,27 @@ def main():
 
         show_hyperparams(args)
 
+        if args.seed is not None:
+            torch.manual_seed(args.seed)
+            torch.cuda.manual_seed_all(args.seed)
+
+        # device + speed tweaks
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.backends.cudnn.is_available():
+            torch.backends.cudnn.benchmark = True
 
-        # for mnist:
-        #transform = transforms.Compose([
-        #    transforms.ToTensor(),
-        #    transforms.Normalize((0.1307,), (0.3081,))
-        #])
-
-        # for CIFAR100
-        transform = transforms.Compose([
+        # Transforms: TRAIN (with augmentation) vs TEST (deterministic)
+        train_transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                (0.5071, 0.4867, 0.4408),
+                (0.2675, 0.2565, 0.2761)
+            )
+        ])
+
+        test_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(
                 (0.5071, 0.4867, 0.4408),
@@ -377,18 +400,20 @@ def main():
         script_dir = os.path.dirname(__file__)
         data_dir = os.path.join(script_dir, "cifar")
 
-        train_dataset = datasets.CIFAR100(root=data_dir, train=True, download=True, transform=transform)
-        test_dataset = datasets.CIFAR100(root=data_dir, train=False, download=True, transform=transform)
+        # download datasets
+        train_dataset = datasets.CIFAR100(root=data_dir, train=True, download=True, transform=train_transform)
+        test_dataset = datasets.CIFAR100(root=data_dir, train=False, download=True, transform=test_transform)
 
         if args.install:
             print("Exiting, since the installation should now be done")
             sys.exit(0)
 
-        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
+        # DataLoader performance options
+        num_workers = min(4, (os.cpu_count() or 1))
+        pin_memory = True if torch.cuda.is_available() else False
 
-        if args.seed is not None:
-            torch.manual_seed(args.seed)
+        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=num_workers, pin_memory=pin_memory)
+        test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
         model = SimpleMLP(
             input_height=32,
@@ -402,9 +427,9 @@ def main():
             num_dense_layers=args.num_dense_layers,
             num_conv_layers=args.num_conv_layers,
             conv_filters=args.filter,
-            conv_kernel_size=3,
-            conv_stride=2,
-            conv_padding=2
+            conv_kernel_size=args.conv_kernel_size,
+            conv_stride=args.conv_stride,
+            conv_padding=args.conv_padding
         ).to(device)
 
         print_model_summary(model, input_size=(3, 32, 32))
@@ -422,11 +447,31 @@ def main():
         else:
             raise ValueError(f"Unknown optimizer: {args.optimizer}")
 
+        # Scheduler: StepLR is simple and effective; you can swap to ReduceLROnPlateau if desired.
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+
         criterion = nn.CrossEntropyLoss()
 
+        best_acc = 0.0
+        best_loss = float("inf")
         for epoch in range(1, args.epochs + 1):
             train(model, device, train_loader, criterion, optimizer, epoch, args.epochs)
             val_loss, val_acc = test(model, device, test_loader, criterion, epoch, args.epochs)
+
+            # step scheduler (for StepLR)
+            scheduler.step()
+
+            # save checkpoint if improved (optional)
+            #if val_acc > best_acc:
+            #    best_acc = val_acc
+            #    try:
+            #        ckpt_path = os.path.join(script_dir, "best_model.pth")
+            #        torch.save({"epoch": epoch, "model_state": model.state_dict(), "optimizer_state": optimizer.state_dict()}, ckpt_path)
+            #        console.print(f"[green]Saved improved model to {ckpt_path} (acc {best_acc:.2f}%)[/green]")
+            #    except Exception as e:
+            #        console.print(f"[red]Failed to save checkpoint: {e}[/red]")
+
+            best_loss = min(best_loss, val_loss)
 
         print(f"VAL_LOSS: {val_loss}")
         print(f"VAL_ACC: {val_acc}")
@@ -443,7 +488,7 @@ def main():
     except KeyboardInterrupt:
         graceful_exit(None, None)
     except Exception as e:
-        console.print(f"[bold red]An error occurred: {e}[/bold red]", style="bold red")
+        console.print(f"[bold red]An error occurred: {e}[/bold red]")
         traceback.print_exc()
         sys.exit(1)
 

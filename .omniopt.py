@@ -8300,7 +8300,7 @@ class TrialRejected(Exception):
 def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
     try:
         print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
-        trial.mark_arm_abandoned(trial.arms[0].name, reason)
+        trial.mark_abandoned(reason)
     except Exception as e:
         print(f"[ERROR] Could not mark trial as abandoned: {e}")
 

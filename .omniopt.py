@@ -7324,8 +7324,7 @@ def check_valid_result(result: Union[None, dict]) -> bool:
         99999999999999997168788049560464200849936328366177157906432
     ]
 
-    def flatten_values(obj):
-        """Rekursive Hilfsfunktion, um alle skalaren Werte aus dicts/lists/tuples zu extrahieren."""
+    def flatten_values(obj: Any) -> Any:
         values = []
         try:
             if isinstance(obj, dict):
@@ -7392,14 +7391,14 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
 
     return None
 
-def format_result_for_display(result):
+def format_result_for_display(result: dict) -> str:
     """
     Gibt ein dict kompakt als Einzeiler aus.
     Beispiel:
       {'RESULT': (123.4567, None), 'RESULT2': (312.5, 651.2)}
     -> "RESULT: 123.457, RESULT2: 312.500 (SEM: 651.200)"
     """
-    def safe_float(v):
+    def safe_float(v: Any) -> str:
         try:
             if v is None:
                 return None

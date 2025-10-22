@@ -10834,6 +10834,8 @@ def main() -> None:
 
         print_overview_tables(experiment_parameters, experiment_args)
 
+        live_share()
+
         write_files_and_show_overviews()
 
         #if args.continue_previous_job:

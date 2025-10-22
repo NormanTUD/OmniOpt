@@ -7509,7 +7509,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     jobs_copy = global_vars["jobs"][:]
 
-    finishing_jobs_start_time = time.time()
+    #finishing_jobs_start_time = time.time()
 
     with ThreadPoolExecutor() as finish_job_executor:
         futures = [finish_job_executor.submit(_finish_previous_jobs_helper_check_and_process, (job, trial_index)) for job, trial_index in jobs_copy]
@@ -7520,7 +7520,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
             except Exception as e:
                 print_red(f"⚠ Exception in parallel job handling: {e}")
 
-    finishing_jobs_end_time = time.time()
+    #finishing_jobs_end_time = time.time()
 
     #finishing_jobs_runtime = finishing_jobs_end_time - finishing_jobs_start_time
 
@@ -8136,9 +8136,9 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
-        t0 = time.time()
+        #t0 = time.time()
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
-        dt = time.time() - t0
+        #dt = time.time() - t0
         #print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
 
         try:

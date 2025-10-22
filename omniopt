@@ -374,7 +374,7 @@
 	function myexit {
 		CODE=$1
 
-		end_all_bg_processes
+		end_all_bg_processes 2>/dev/null
 
 		if [[ $follow -eq 1 ]]; then
 			if [[ -z $CODE ]] || ! [[ $CODE =~ $int_re ]]; then

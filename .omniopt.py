@@ -7528,7 +7528,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
 
 def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:
     if "None for metric" in str(error):
-        err_msg =  f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string.\nError: {error}\nJob-result: {job.result()}"
+        err_msg = f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string.\nError: {error}\nJob-result: {job.result()}"
 
         if count_done_jobs() == 0:
             print_red(err_msg)
@@ -7771,7 +7771,7 @@ def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
 
     try:
         return ax_client.get_trial(trial_index)
-    except KeyError as e:
+    except KeyError:
         error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed")
         return None
 

@@ -8303,49 +8303,6 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
     try:
         print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
         trial.mark_abandoned(reason=reason)
-
-        if ax_client is None:
-            print_red("ax_client was None!")
-            return None
-
-        if isinstance(arg_result_min_or_max, dict):
-            metric_names = arg_result_names
-            metric_dirs = arg_result_min_or_max
-        elif isinstance(arg_result_min_or_max, list):
-            metric_names = arg_result_names
-            metric_dirs = arg_result_min_or_max
-        else:
-            raise TypeError("arg_result_min_or_max must be list or dict")
-
-        if len(metric_names) == 0:
-            raise ValueError("No metrics given")
-
-        rows = []
-        for name, direction in zip(metric_names, metric_dirs):
-            if direction not in ("min", "max"):
-                print(f"[WARN] Invalid direction '{direction}' for metric '{name}', setting to 'min'.")
-                direction = "min"
-
-            value = 1e9 if direction == "min" else -1e9
-            rows.append({
-                "arm_name": trial.arm.name,
-                "metric_name": name,
-                "mean": value,
-                "sem": 0.0,
-                "trial_index": trial_index
-            })
-
-        dummy_df = pd.DataFrame(rows)
-
-        dummy_data = Data(df=dummy_df)
-        ax_client.experiment.attach_data(dummy_data)
-
-        abandoned_arms = [t.arm.name for t in ax_client.experiment.trials.values() if t.status == TrialStatus.ABANDONED]
-        if hasattr(ax_client, "_generation_strategy") and hasattr(ax_client._generation_strategy, "_model"):
-            model = ax_client._generation_strategy._model
-            if hasattr(model, "_exclude"):
-                model._exclude = abandoned_arms
-
     except Exception as e:
         print(f"[ERROR] Could not mark trial as abandoned: {e}")
 

@@ -8203,7 +8203,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
                         f"(got {len(batched_arms)} out of {nr_of_jobs_to_get}).")
             break
 
-        print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
+        #print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
         #t0 = time.time()
         pending_observations = get_pending_observation_features(experiment=ax_client.experiment)

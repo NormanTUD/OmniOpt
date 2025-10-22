@@ -7316,15 +7316,42 @@ def mark_trial_as_failed(trial_index: int, _trial: Any) -> None:
 
     return None
 
-def check_valid_result(result: Union[None, list, int, float, tuple]) -> bool:
+def check_valid_result(result: Union[None, dict]) -> bool:
     possible_val_not_found_values = [
         VAL_IF_NOTHING_FOUND,
         -VAL_IF_NOTHING_FOUND,
         -99999999999999997168788049560464200849936328366177157906432,
         99999999999999997168788049560464200849936328366177157906432
     ]
-    values_to_check = result if isinstance(result, list) else [result]
-    return result is not None and all(r not in possible_val_not_found_values for r in values_to_check)
+
+    def flatten_values(obj):
+        """Rekursive Hilfsfunktion, um alle skalaren Werte aus dicts/lists/tuples zu extrahieren."""
+        values = []
+        try:
+            if isinstance(obj, dict):
+                for v in obj.values():
+                    values.extend(flatten_values(v))
+            elif isinstance(obj, (list, tuple, set)):
+                for v in obj:
+                    values.extend(flatten_values(v))
+            else:
+                values.append(obj)
+        except Exception as e:
+            print(f"Error while flattening values: {e}")
+        return values
+
+    if result is None:
+        return False
+
+    try:
+        all_values = flatten_values(result)
+        for val in all_values:
+            if val in possible_val_not_found_values:
+                return False
+        return True
+    except Exception as e:
+        print(f"Error while checking result validity: {e}")
+        return False
 
 def update_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
     if not ax_client:
@@ -7365,13 +7392,59 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
 
     return None
 
-def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: Union[float, int, tuple]) -> None:
+def format_result_for_display(result):
+    """
+    Gibt ein dict kompakt als Einzeiler aus.
+    Beispiel:
+      {'RESULT': (123.4567, None), 'RESULT2': (312.5, 651.2)}
+    -> "RESULT: 123.457, RESULT2: 312.500 (SEM: 651.200)"
+    """
+    def safe_float(v):
+        try:
+            if v is None:
+                return None
+            if isinstance(v, (int, float)):
+                if math.isnan(v):
+                    return "NaN"
+                if math.isinf(v):
+                    return "∞" if v > 0 else "-∞"
+                return f"{v:.6f}"
+            return str(v)
+        except Exception as e:
+            return f"<error: {e}>"
+
+    try:
+        if not isinstance(result, dict):
+            return safe_float(result)
+
+        parts = []
+        for key, val in result.items():
+            try:
+                # Tupel oder Liste mit zwei Elementen: (Wert, SEM)
+                if isinstance(val, (list, tuple)) and len(val) == 2:
+                    main, sem = val
+                    main_str = safe_float(main)
+                    if sem is not None:
+                        sem_str = safe_float(sem)
+                        parts.append(f"{key}: {main_str} (SEM: {sem_str})")
+                    else:
+                        parts.append(f"{key}: {main_str}")
+                else:
+                    parts.append(f"{key}: {safe_float(val)}")
+            except Exception as e:
+                parts.append(f"{key}: <error: {e}>")
+
+        return ", ".join(parts)
+    except Exception as e:
+        return f"<error formatting result: {e}>"
+
+def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: dict) -> None:
     print_debug(f"Marking trial {_trial} as completed")
     _trial.mark_completed(unsafe=True)
 
     succeeded_jobs(1)
 
-    progressbar_description(f"new result: {result}")
+    progressbar_description(f"new result: {format_result_for_display(result)}")
     update_progress_bar(1)
 
     save_results_csv()
@@ -7403,9 +7476,6 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     result = job.result()
     print_debug(f"finish_job_core: trial-index: {trial_index}, job.result(): {result}, state: {state_from_job(job)}")
 
-    raw_result = result
-    result_keys = list(result.keys())
-    result = result[result_keys[0]]
     this_jobs_finished += 1
 
     if ax_client:
@@ -7415,7 +7485,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
             return 0
 
         if check_valid_result(result):
-            _finish_job_core_helper_complete_trial(trial_index, raw_result)
+            _finish_job_core_helper_complete_trial(trial_index, result)
 
             try:
                 _finish_job_core_helper_mark_success(_trial, result)

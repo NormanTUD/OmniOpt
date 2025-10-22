@@ -7772,7 +7772,7 @@ def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
     try:
         return ax_client.get_trial(trial_index)
     except KeyError as e:
-        error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed, error: {e}")
+        error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed")
         return None
 
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:

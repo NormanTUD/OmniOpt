@@ -5021,7 +5021,8 @@ def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_resul
         try:
             show_pareto_frontier_data(path_to_calculate, res_names, disable_sixel_and_table)
         except Exception as e:
-            print_red(f"show_pareto_frontier_data() failed with exception '{e}'")
+            inner_tb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+            print_red(f"show_pareto_frontier_data() failed with exception '{e}':\n{inner_tb}")
     else:
         print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
     return None

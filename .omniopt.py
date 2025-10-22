@@ -1371,8 +1371,8 @@ try:
     with spinner("Importing Models from ax.generation_strategy.registry..."):
         from ax.adapter.registry import Models
 
-    with spinner("Importing get_pending_observation_features_based_on_trial_status..."):
-        from ax.core.utils import get_pending_observation_features_based_on_trial_status
+    with spinner("Importing get_pending_observation_features..."):
+        from ax.core.utils import get_pending_observation_features
 
     with spinner("Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment
@@ -8197,12 +8197,10 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         #print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
-        #t0 = time.time()
-        pending_observations = get_pending_observation_features_based_on_trial_status(
-            experiment=ax_client.experiment
+        pending_observations = get_pending_observation_features(
+            experiment=ax_client.experiment,
+            include_out_of_design_points=True
         )
-        #dt = time.time() - t0
-        #print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
 
         try:
             #print_debug("getting global_gs.gen() with n=1")

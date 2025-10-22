@@ -8303,6 +8303,10 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
         print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
         trial.mark_abandoned(reason=reason)
 
+        if ax_client is None:
+            print_red("ax_client was None!")
+            return None
+
         if isinstance(arg_result_min_or_max, dict):
             metric_names = arg_result_names
             metric_dirs = arg_result_min_or_max

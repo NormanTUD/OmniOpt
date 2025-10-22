@@ -8317,7 +8317,7 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
             metric_names = arg_result_names
             metric_dirs = arg_result_min_or_max
         elif isinstance(arg_result_min_or_max, list):
-            metric_names = [f"metric_{i}" for i in range(len(arg_result_min_or_max))]
+            metric_names = arg_result_names
             metric_dirs = arg_result_min_or_max
         else:
             raise TypeError("arg_result_min_or_max muss Liste oder Dict sein")

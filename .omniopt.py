@@ -8157,12 +8157,12 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         depth = 0
         path = "batched_generator_run"
         while isinstance(batched_generator_run, (list, tuple)) and len(batched_generator_run) == 1:
-            print_debug(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
+            #print_debug(f"Depth {depth}, path {path}, type {type(batched_generator_run).__name__}, length {len(batched_generator_run)}: {batched_generator_run}")
             batched_generator_run = batched_generator_run[0]
             path += "[0]"
             depth += 1
 
-        print_debug(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
+        #print_debug(f"Final flat object at depth {depth}, path {path}: {batched_generator_run} (type {type(batched_generator_run).__name__})")
 
         new_arms = getattr(batched_generator_run, "arms", [])
         if not new_arms:

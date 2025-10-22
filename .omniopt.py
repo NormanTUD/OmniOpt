@@ -2851,7 +2851,6 @@ def print_debug_progressbar(msg: str) -> None:
 
                 _debug_progressbar(full_msg)
 
-                # Merke sowohl den formatierten als auch den rohen Text
                 last_msg_raw = msg
                 last_msg_progressbar = full_msg
     except Exception as e:

@@ -8142,7 +8142,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         #print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
 
         try:
-            print_debug("getting global_gs.gen() with n=1")
+            #print_debug("getting global_gs.gen() with n=1")
             batched_generator_run: Any = global_gs.gen(
                 experiment=ax_client.experiment,
                 n=1,

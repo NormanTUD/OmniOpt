@@ -7419,7 +7419,6 @@ def format_result_for_display(result: dict) -> str:
         parts = []
         for key, val in result.items():
             try:
-                # Tupel oder Liste mit zwei Elementen: (Wert, SEM)
                 if isinstance(val, (list, tuple)) and len(val) == 2:
                     main, sem = val
                     main_str = safe_float(main)

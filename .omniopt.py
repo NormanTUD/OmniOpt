@@ -8329,7 +8329,7 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
         rows = []
         for name, direction in zip(metric_names, metric_dirs):
             if direction not in ("min", "max"):
-                print(f"[WARN] Ungültige Richtungsangabe '{direction}' für Metrik '{name}', setze auf 'min'.")
+                print(f"[WARN] Invalid direction '{direction}' for metric '{name}', setting to 'min'.")
                 direction = "min"
 
             value = 1e9 if direction == "min" else -1e9

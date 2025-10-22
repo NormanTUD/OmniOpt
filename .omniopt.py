@@ -1371,8 +1371,8 @@ try:
     with spinner("Importing Models from ax.generation_strategy.registry..."):
         from ax.adapter.registry import Models
 
-    with spinner("Importing get_pending_observation_features..."):
-        from ax.core.utils import get_pending_observation_features
+    with spinner("Importing get_pending_observation_features_based_on_trial_status..."):
+        from ax.core.utils import get_pending_observation_features_based_on_trial_status
 
     with spinner("Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment
@@ -5496,7 +5496,6 @@ def set_objectives() -> dict:
         if value == "max":
             _min = False
 
-        print(f"key: {key}, _min: {_min}")
         objectives[key] = ObjectiveProperties(minimize=_min)
         k = k + 1
 
@@ -8199,7 +8198,9 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
         #print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
         #t0 = time.time()
-        pending_observations = get_pending_observation_features(experiment=ax_client.experiment)
+        pending_observations = get_pending_observation_features_based_on_trial_status(
+            experiment=ax_client.experiment
+        )
         #dt = time.time() - t0
         #print_debug(f"got pending observations: {pending_observations} (took {dt:.2f} seconds)")
 

@@ -7522,7 +7522,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     finishing_jobs_end_time = time.time()
 
-    finishing_jobs_runtime = finishing_jobs_end_time - finishing_jobs_start_time
+    #finishing_jobs_runtime = finishing_jobs_end_time - finishing_jobs_start_time
 
     #print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 

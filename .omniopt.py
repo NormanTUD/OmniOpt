@@ -5487,27 +5487,18 @@ def check_equation(variables: list, equation: str) -> Union[str, bool]:
 def set_objectives() -> dict:
     objectives = {}
 
-    for rn in arg_result_names:
-        key, value = "", ""
-
-        if "=" in rn:
-            key, value = rn.split('=', 1)
-        else:
-            key = rn
-            value = ""
-
-        if value not in ["min", "max"]:
-            if value:
-                print_yellow(f"Value '{value}' for --result_names {rn} is not a valid value. Must be min or max. Will be set to min.")
-
-            value = "min"
+    k = 0
+    for key in arg_result_names:
+        value = arg_result_min_or_max[k]
 
         _min = True
 
         if value == "max":
             _min = False
 
+        print(f"key: {key}, _min: {_min}")
         objectives[key] = ObjectiveProperties(minimize=_min)
+        k = k + 1
 
     return objectives
 

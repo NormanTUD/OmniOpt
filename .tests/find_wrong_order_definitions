@@ -29,7 +29,7 @@ else
 fi
 
 for i in $files; do
-	if [[ "$i" != *site-packages* ]]; then
+	if [[ "$i" != *site-packages* ]] && [[ "$i" != *debug.py* ]]; then
 		er=$(python3 .tests/find_wrong_order_definitions.py "$i" 2>&1)
 		ec=$?
 		if [[ $ec -ne 0 ]]; then

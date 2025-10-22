@@ -7513,7 +7513,7 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
             log_ax_client_trial_failure(trial_index)
             mark_trial_as_failed(trial_index, _trial)
         except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
+            print_debug(f"ERROR in line {get_line_info()}: {e}")
         job.cancel()
         orchestrate_job(job, trial_index)
 

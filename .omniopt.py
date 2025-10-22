@@ -4999,7 +4999,7 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
                 if _trial is None:
                     return False
 
-                mark_abandoned(_trial, reason)
+                mark_abandoned(_trial, reason, trial_index)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
@@ -8307,13 +8307,9 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
 class TrialRejected(Exception):
     pass
 
-def mark_abandoned(trial: Any, reason: str) -> None:
+def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
     try:
-        experiment = ax_client.experiment
-        if not isinstance(experiment, Experiment):
-            raise ValueError("AxClient enthält kein gültiges Experiment")
-
-        print(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
+        print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
         trial.mark_abandoned(reason=reason)
 
         # Metriken aus arg_result_min_or_max extrahieren
@@ -8341,16 +8337,17 @@ def mark_abandoned(trial: Any, reason: str) -> None:
                 "arm_name": trial.arm.name,
                 "metric_name": name,
                 "mean": value,
-                "sem": 0.0
+                "sem": 0.0,
+                "trial_index": trial_index
             })
 
         dummy_df = pd.DataFrame(rows)
 
         # Attach Data korrekt
         dummy_data = Data(df=dummy_df)
-        experiment.attach_data(dummy_data)
+        ax_client.experiment.attach_data(dummy_data)
 
-        abandoned_arms = [t.arm.name for t in experiment.trials.values() if t.status == TrialStatus.ABANDONED]
+        abandoned_arms = [t.arm.name for t in ax_client.experiment.trials.values() if t.status == TrialStatus.ABANDONED]
         if hasattr(ax_client, "_generation_strategy") and hasattr(ax_client._generation_strategy, "_model"):
             model = ax_client._generation_strategy._model
             if hasattr(model, "_exclude"):
@@ -8384,7 +8381,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     arm = trial.arms[0]
     if deduplicated_arm(arm):
         print_debug(f"Duplicated arm: {arm}")
-        mark_abandoned(trial, "Duplication detected")
+        mark_abandoned(trial, "Duplication detected", trial_index)
         raise TrialRejected("Duplicate arm.")
 
     arms_by_name_for_deduplication[arm.name] = arm
@@ -8393,7 +8390,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
         print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned. Params: {params}, constraints: {post_generation_constraints}")
-        mark_abandoned(trial, "Post-Generation-Constraint failed")
+        mark_abandoned(trial, "Post-Generation-Constraint failed", trial_index)
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")
 

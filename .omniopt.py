@@ -545,6 +545,18 @@ logfile_worker_creation_logs: str = f'{log_uuid_dir}_worker_creation_logs'
 logfile_trial_index_to_param_logs: str = f'{log_uuid_dir}_trial_index_to_param_logs'
 LOGFILE_DEBUG_GET_NEXT_TRIALS: Union[str, None] = None
 
+def error_without_print(text: str) -> None:
+    print_debug(text)
+
+    if get_current_run_folder():
+        try:
+            with open(get_current_run_folder("oo_errors.txt"), mode="a", encoding="utf-8") as myfile:
+                myfile.write(text + "\n\n")
+        except (OSError, FileNotFoundError) as e:
+            helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
+            sys.exit(99)
+
+
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
 
@@ -7688,7 +7700,7 @@ def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
     try:
         return ax_client.get_trial(trial_index)
     except KeyError as e:
-        print_red(f"get_ax_client_trial: trial_index {trial_index} failed, error: {e}")
+        error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed, error: {e}")
         return None
 
 def orchestrator_start_trial(parameters: Union[dict, str], trial_index: int) -> None:
@@ -7833,7 +7845,7 @@ def execute_evaluation(_params: list) -> Optional[int]:
     _trial = get_ax_client_trial(trial_index)
 
     if _trial is None:
-        print_red(f"execute_evaluation: _trial was not in execute_evaluation for params {_params}")
+        error_without_print(f"execute_evaluation: _trial was not in execute_evaluation for params {_params}")
         return None
 
     def mark_trial_stage(stage: str, error_msg: str) -> None:

@@ -7391,11 +7391,11 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
 
     return None
 
-def format_result_for_display(result: dict) -> Optional[str]:
+def format_result_for_display(result: dict) -> str:
     def safe_float(v: Any) -> str:
         try:
             if v is None:
-                return None
+                return "None"
             if isinstance(v, (int, float)):
                 if math.isnan(v):
                     return "NaN"

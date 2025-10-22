@@ -4999,7 +4999,7 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
                 if _trial is None:
                     return False
 
-                _trial.mark_abandoned(reason=reason)
+                mark_abandoned(_trial, reason)
                 print_debug(f"abandon_job: removing job {job}, trial_index: {trial_index}")
                 global_vars["jobs"].remove((job, trial_index))
             else:
@@ -8307,6 +8307,11 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
 class TrialRejected(Exception):
     pass
 
+def mark_abandoned(trial: Any, reason: str) -> None:
+    print_debug(f"Marking trial {trial} as abandoned. Reason: {reason}")
+
+    trial.mark_abandoned(reason=reason)
+
 def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:
         print_red("ax_client is None in create_and_handle_trial")
@@ -8332,7 +8337,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     arm = trial.arms[0]
     if deduplicated_arm(arm):
         print_debug(f"Duplicated arm: {arm}")
-        trial.mark_abandoned(reason="Duplication detected")
+        mark_abandoned(trial, "Duplication detected")
         raise TrialRejected("Duplicate arm.")
 
     arms_by_name_for_deduplication[arm.name] = arm
@@ -8341,7 +8346,7 @@ def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
 
     if not has_no_post_generation_constraints_or_matches_constraints(post_generation_constraints, params):
         print_debug(f"Trial {trial_index} does not meet post-generation constraints. Marking abandoned. Params: {params}, constraints: {post_generation_constraints}")
-        trial.mark_abandoned(reason="Post-Generation-Constraint failed")
+        mark_abandoned(trial, "Post-Generation-Constraint failed")
         abandoned_trial_indices.append(trial_index)
         raise TrialRejected("Post-generation constraints not met.")
 

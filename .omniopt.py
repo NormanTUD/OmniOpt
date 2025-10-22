@@ -8308,9 +8308,64 @@ class TrialRejected(Exception):
     pass
 
 def mark_abandoned(trial: Any, reason: str) -> None:
-    print_debug(f"Marking trial {trial} as abandoned. Reason: {reason}")
+    try:
+        if not isinstance(trial, Trial):
+            raise TypeError(f"Ungültiger Typ: trial ist {type(trial)}")
 
-    trial.mark_abandoned(reason=reason)
+        experiment = ax_client.experiment
+        if not isinstance(experiment, Experiment):
+            raise ValueError("AxClient enthält kein gültiges Experiment")
+
+        print(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
+        trial.mark_abandoned(reason=reason)
+
+        # Metriken aus arg_result_min_or_max extrahieren
+        if isinstance(arg_result_min_or_max, dict):
+            metric_names = list(arg_result_min_or_max.keys())
+            metric_dirs = list(arg_result_min_or_max.values())
+        elif isinstance(arg_result_min_or_max, list):
+            metric_names = [f"metric_{i}" for i in range(len(arg_result_min_or_max))]
+            metric_dirs = arg_result_min_or_max
+        else:
+            raise TypeError("arg_result_min_or_max muss Liste oder Dict sein")
+
+        if len(metric_names) == 0:
+            raise ValueError("Keine Metriken angegeben – Dummy-Daten können nicht erstellt werden.")
+
+        # Dummy-Werte so setzen, dass sie garantiert 'schlecht' sind
+        rows = []
+        for name, direction in zip(metric_names, metric_dirs):
+            if direction not in ("min", "max"):
+                print(f"[WARN] Ungültige Richtungsangabe '{direction}' für Metrik '{name}', setze auf 'min'.")
+                direction = "min"
+
+            value = 1e9 if direction == "min" else -1e9
+            rows.append({
+                "arm_name": trial.arm.name,
+                "metric_name": name,
+                "mean": value,
+                "sem": 0.0
+            })
+
+        dummy_df = pd.DataFrame(rows)
+
+        # Attach Data korrekt
+        dummy_data = Data(df=dummy_df)
+        experiment.attach_data(dummy_data)
+
+        print(f"[INFO] Trial {trial.index} als ABANDONED markiert und Dummy-Daten angehängt:")
+        print(dummy_df)
+
+        # Optional: sicherstellen, dass BoTorch keine doppelten Punkte zieht
+        abandoned_arms = [t.arm.name for t in experiment.trials.values() if t.status == TrialStatus.ABANDONED]
+        if hasattr(ax_client, "_generation_strategy") and hasattr(ax_client._generation_strategy, "_model"):
+            model = ax_client._generation_strategy._model
+            if hasattr(model, "_exclude"):
+                model._exclude = abandoned_arms
+                print(f"[INFO] Model exclude list aktualisiert: {abandoned_arms}")
+
+    except Exception as e:
+        print(f"[ERROR] Konnte Trial {getattr(trial, 'index', '?')} nicht korrekt als abandoned markieren: {e}")
 
 def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:

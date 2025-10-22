@@ -7392,12 +7392,6 @@ def _finish_job_core_helper_complete_trial(trial_index: int, raw_result: dict) -
     return None
 
 def format_result_for_display(result: dict) -> str:
-    """
-    Gibt ein dict kompakt als Einzeiler aus.
-    Beispiel:
-      {'RESULT': (123.4567, None), 'RESULT2': (312.5, 651.2)}
-    -> "RESULT: 123.457, RESULT2: 312.500 (SEM: 651.200)"
-    """
     def safe_float(v: Any) -> str:
         try:
             if v is None:

@@ -8314,8 +8314,8 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
 
         # Metriken aus arg_result_min_or_max extrahieren
         if isinstance(arg_result_min_or_max, dict):
-            metric_names = list(arg_result_min_or_max.keys())
-            metric_dirs = list(arg_result_min_or_max.values())
+            metric_names = arg_result_names
+            metric_dirs = arg_result_min_or_max
         elif isinstance(arg_result_min_or_max, list):
             metric_names = [f"metric_{i}" for i in range(len(arg_result_min_or_max))]
             metric_dirs = arg_result_min_or_max

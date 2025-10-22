@@ -8303,7 +8303,6 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
         print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned. Reason: {reason}")
         trial.mark_abandoned(reason=reason)
 
-        # Metriken aus arg_result_min_or_max extrahieren
         if isinstance(arg_result_min_or_max, dict):
             metric_names = arg_result_names
             metric_dirs = arg_result_min_or_max
@@ -8311,12 +8310,11 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
             metric_names = arg_result_names
             metric_dirs = arg_result_min_or_max
         else:
-            raise TypeError("arg_result_min_or_max muss Liste oder Dict sein")
+            raise TypeError("arg_result_min_or_max must be list or dict")
 
         if len(metric_names) == 0:
-            raise ValueError("Keine Metriken angegeben – Dummy-Daten können nicht erstellt werden.")
+            raise ValueError("No metrics given")
 
-        # Dummy-Werte so setzen, dass sie garantiert 'schlecht' sind
         rows = []
         for name, direction in zip(metric_names, metric_dirs):
             if direction not in ("min", "max"):
@@ -8334,7 +8332,6 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
 
         dummy_df = pd.DataFrame(rows)
 
-        # Attach Data korrekt
         dummy_data = Data(df=dummy_df)
         ax_client.experiment.attach_data(dummy_data)
 

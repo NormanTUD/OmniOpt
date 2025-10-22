@@ -10834,9 +10834,9 @@ def main() -> None:
 
         print_overview_tables(experiment_parameters, experiment_args)
 
-        live_share()
-
         write_files_and_show_overviews()
+
+        live_share()
 
         #if args.continue_previous_job:
         #    insert_jobs_from_csv(f"{args.continue_previous_job}/{RESULTS_CSV_FILENAME}")

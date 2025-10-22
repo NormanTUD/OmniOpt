@@ -7528,10 +7528,12 @@ def _finish_previous_jobs_helper_handle_failed_job(job: Any, trial_index: int) -
 
 def _finish_previous_jobs_helper_handle_exception(job: Any, trial_index: int, error: Exception) -> int:
     if "None for metric" in str(error):
-        print_red(
-            f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string."
-            f"\nError: {error}\nJob-result: {job.result()}"
-        )
+        err_msg =  f"\n⚠ It seems like the program that was about to be run didn't have 'RESULT: <FLOAT>' in it's output string.\nError: {error}\nJob-result: {job.result()}"
+
+        if count_done_jobs() == 0:
+            print_red(err_msg)
+        else:
+            print_debug(err_msg)
     else:
         print_red(f"\n⚠ {error}")
 

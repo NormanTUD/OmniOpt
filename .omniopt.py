@@ -5773,7 +5773,7 @@ def get_generate_and_test_random_function_str() -> str:
     )
 
     return f"""
-def generate_and_test_random_parameters(n):
+def generate_and_test_random_parameters(n: int) -> None:
     for _ in range(n):
         print("======================================")
         parameters, trial_index = ax_client.get_next_trial()

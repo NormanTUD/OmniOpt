@@ -7523,7 +7523,7 @@ def finish_previous_jobs(new_msgs: List[str] = []) -> None:
 
     finishing_jobs_runtime = finishing_jobs_end_time - finishing_jobs_start_time
 
-    print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
+    #print_debug(f"Finishing jobs took {finishing_jobs_runtime} second(s)")
 
     if this_jobs_finished > 0:
         save_results_csv()
@@ -9440,7 +9440,7 @@ def finalize_jobs() -> None:
         handle_slurm_execution()
 
 def go_through_jobs_that_are_not_completed_yet() -> None:
-    print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
+    #print_debug(f"Waiting for jobs to finish (currently, len(global_vars['jobs']) = {len(global_vars['jobs'])}")
 
     nr_jobs_left = len(global_vars['jobs'])
     if nr_jobs_left == 1:

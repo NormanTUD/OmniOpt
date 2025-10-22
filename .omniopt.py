@@ -8309,9 +8309,6 @@ class TrialRejected(Exception):
 
 def mark_abandoned(trial: Any, reason: str) -> None:
     try:
-        if not isinstance(trial, Trial):
-            raise TypeError(f"Ungültiger Typ: trial ist {type(trial)}")
-
         experiment = ax_client.experiment
         if not isinstance(experiment, Experiment):
             raise ValueError("AxClient enthält kein gültiges Experiment")
@@ -8353,19 +8350,14 @@ def mark_abandoned(trial: Any, reason: str) -> None:
         dummy_data = Data(df=dummy_df)
         experiment.attach_data(dummy_data)
 
-        print(f"[INFO] Trial {trial.index} als ABANDONED markiert und Dummy-Daten angehängt:")
-        print(dummy_df)
-
-        # Optional: sicherstellen, dass BoTorch keine doppelten Punkte zieht
         abandoned_arms = [t.arm.name for t in experiment.trials.values() if t.status == TrialStatus.ABANDONED]
         if hasattr(ax_client, "_generation_strategy") and hasattr(ax_client._generation_strategy, "_model"):
             model = ax_client._generation_strategy._model
             if hasattr(model, "_exclude"):
                 model._exclude = abandoned_arms
-                print(f"[INFO] Model exclude list aktualisiert: {abandoned_arms}")
 
     except Exception as e:
-        print(f"[ERROR] Konnte Trial {getattr(trial, 'index', '?')} nicht korrekt als abandoned markieren: {e}")
+        print(f"[ERROR] Could not mark trial as abandoned: {e}")
 
 def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:

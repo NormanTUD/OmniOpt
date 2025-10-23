@@ -117,7 +117,7 @@ jobs:
 
     - name: Wait for Slurm controller to become ready
       run: |
-        CONTAINER=$(docker ps --filter "name=slurm-master" --format "{{.ID}}")
+        CONTAINER=$(docker ps --filter "name=slurmmaster" --format "{{.ID}}")
         echo "Waiting for slurmctld to start in container: $CONTAINER"
         for i in $(seq 1 30); do
           if docker exec "$CONTAINER" bash -c "scontrol ping" 2>/dev/null | grep -q 'Slurmctld'; then
@@ -135,26 +135,26 @@ jobs:
       working-directory: .tests/slurm_docker
       run: |
         echo "================= 🧠 STEP 1: Check slurm.conf (Master) ================="
-        docker exec slurm-master cat /etc/slurm/slurm.conf || true
+        docker exec slurmmaster cat /etc/slurm/slurm.conf || true
 
         echo
         echo "================= 🔌 STEP 2: Check if slurmctld listens on TCP 6817 ================="
         echo "→ ss -ltnp | grep 6817 (Master)"
-        docker exec slurm-master ss -ltnp 2>/dev/null | grep 6817 || true
+        docker exec slurmmaster ss -ltnp 2>/dev/null | grep 6817 || true
         echo
         echo "→ ps aux | grep -E 'slurmctld|slurmd' (Master)"
-        docker exec slurm-master ps aux | grep -E 'slurmctld|slurmd' || true
+        docker exec slurmmaster ps aux | grep -E 'slurmctld|slurmd' || true
 
         echo
         echo "================= 🔐 STEP 3: Check munge keys and sockets ================="
         echo "→ Master munge directories"
-        docker exec slurm-master ls -l /etc/munge /var/run/munge /etc/munge/munge.key || true
+        docker exec slurmmaster ls -l /etc/munge /var/run/munge /etc/munge/munge.key || true
         echo
         echo "→ Node1 munge directories"
         docker exec slurm-node1 ls -l /etc/munge /var/run/munge || true
 
         echo
-        echo "================= 🌐 STEP 4: Check TCP connection from frontend to slurm-master:6817 ================="
+        echo "================= 🌐 STEP 4: Check TCP connection from frontend to slurmmaster:6817 ================="
         docker exec slurm-frontend bash -lc '</dev/tcp/slurmmaster/6817' && echo "✅ TCP OK" || echo "❌ TCP FAIL"
 
         echo
@@ -168,7 +168,7 @@ jobs:
         echo
         echo "================= 📜 STEP 6: Show Slurm logs ================="
         echo "→ /var/log/slurmctld.log (Master)"
-        docker exec slurm-master tail -n 200 /var/log/slurmctld.log || true
+        docker exec slurmmaster tail -n 200 /var/log/slurmctld.log || true
         echo
         echo "→ /var/log/slurmd.log (Node1)"
         docker exec slurm-node1 tail -n 200 /var/log/slurmd.log || true

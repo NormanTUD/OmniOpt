@@ -107,7 +107,7 @@ nodes="$nodes
                 - SLURM_NODENAME=slurmnode$n
                 - SLURM_CPUS_ON_NODE=1
         links:
-                - slurm-master
+                - slurmmaster
 "
 	done
 
@@ -125,13 +125,13 @@ nodes="$nodes
                 - ../../:/oo_dir
         ports:
                 - 8888:8888
-  slurm-master:
+  slurmmaster:
         build:
           context: ./master
           dockerfile: Dockerfile
         container_name: slurm-master
         shm_size: '4g'
-        hostname: slurm-master
+        hostname: slurmmaster
         user: admin
         volumes:
                 - shared-vol:/home/admin:nocopy
@@ -152,7 +152,7 @@ volumes:
 function create_slurm_conf {
 	nr_nodes=$1
 	echo "ClusterName=cluster
-SlurmctldHost=slurm-master
+SlurmctldHost=slurmmaster
 MpiDefault=none
 ProctrackType=proctrack/linuxproc
 ReturnToService=1
@@ -329,7 +329,7 @@ if $install_slurm; then
 		fi
 	fi
 
-	docker-compose build slurm-master
+	docker-compose build slurmmaster
 	docker-compose build slurmfrontend
 
 	for nodename in $(cat docker-compose.yml | grep "slurmnode[0-9][0-9]*:" | sed -e 's#^\s*##' -e 's#:\s*##'); do

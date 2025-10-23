@@ -1,104 +1,74 @@
 services:
-  slurmfrontend:
-        build:
-          context: ./frontend
-          dockerfile: Dockerfile
-        container_name: slurm-frontend
-        shm_size: '4g'
-        hostname: slurmfrontend
-        user: admin
-        volumes:
-                - shared-vol:/home/admin
-                - ../../:/oo_dir
-        ports:
-                - 8888:8888
+  slurm-frontend:
+    image: ghcr.io/normantud/omniopt/slurm_docker/slurm_docker_slurmfrontend:latest
+    container_name: slurm-frontend
+    hostname: slurm-frontend
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
   slurm-master:
-        build:
-          context: ./master
-          dockerfile: Dockerfile
-        container_name: slurm-master
-        shm_size: '4g'
-        hostname: slurm-master
-        user: admin
-        volumes:
-                - shared-vol:/home/admin:nocopy
-                - ../../:/oo_dir
-        environment:
-                - SLURM_CPUS_ON_NODE=1
-        ports:
-                - 6817:6817
-                - 6818:6818
-                - 6819:6819
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmmasteratest:latest
+    container_name: slurm-master
+    hostname: slurm-master
+    depends_on:
+      - slurm-frontend
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
 
+  slurm-node1:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode1atest:latest
+    container_name: slurm-node1
+    hostname: slurm-node1
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
 
-  slurmnode1:
-        build:
-          context: ./node
-          dockerfile: Dockerfile
-        container_name: slurm-node1
-        shm_size: '4g'
-        hostname: slurmnode1
-        user: admin
-        volumes:
-                - shared-vol:/home/admin:nocopy
-                - ../../:/oo_dir
-        environment:
-                - SLURM_NODENAME=slurmnode1
-                - SLURM_CPUS_ON_NODE=1
-        links:
-                - slurm-master
+  slurm-node2:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode2atest:latest
+    container_name: slurm-node2
+    hostname: slurm-node2
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
 
-  slurmnode2:
-        build:
-          context: ./node
-          dockerfile: Dockerfile
-        container_name: slurm-node2
-        shm_size: '4g'
-        hostname: slurmnode2
-        user: admin
-        volumes:
-                - shared-vol:/home/admin:nocopy
-                - ../../:/oo_dir
-        environment:
-                - SLURM_NODENAME=slurmnode2
-                - SLURM_CPUS_ON_NODE=1
-        links:
-                - slurm-master
+  slurm-node3:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode3atest:latest
+    container_name: slurm-node3
+    hostname: slurm-node3
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
 
-  slurmnode3:
-        build:
-          context: ./node
-          dockerfile: Dockerfile
-        container_name: slurm-node3
-        shm_size: '4g'
-        hostname: slurmnode3
-        user: admin
-        volumes:
-                - shared-vol:/home/admin:nocopy
-                - ../../:/oo_dir
-        environment:
-                - SLURM_NODENAME=slurmnode3
-                - SLURM_CPUS_ON_NODE=1
-        links:
-                - slurm-master
+  slurm-node4:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode4atest:latest
+    container_name: slurm-node4
+    hostname: slurm-node4
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
 
-  slurmnode4:
-        build:
-          context: ./node
-          dockerfile: Dockerfile
-        container_name: slurm-node4
-        shm_size: '4g'
-        hostname: slurmnode4
-        user: admin
-        volumes:
-                - shared-vol:/home/admin:nocopy
-                - ../../:/oo_dir
-        environment:
-                - SLURM_NODENAME=slurmnode4
-                - SLURM_CPUS_ON_NODE=1
-        links:
-                - slurm-master
-
-
-volumes:
-        shared-vol:
+networks:
+  slurmnet:
+    driver: bridge

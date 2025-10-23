@@ -47,8 +47,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 
 		if (resultNames.length === 1) {
 			resultSelect.val(resultNames[0]).trigger("change");
-		} else {
-			resultSelect.val("none").trigger("change");
 		}
 
 		updatePlot();

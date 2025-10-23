@@ -96,7 +96,7 @@ nodes="$nodes
         build:
           context: ./node
           dockerfile: Dockerfile
-        container_name: slurm-node$n
+        container_name: slurmnode$n
         shm_size: '4g'
         hostname: slurmnode$n
         user: admin

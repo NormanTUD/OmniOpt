@@ -1,2 +1,2 @@
-Host slurmnode* slurmfrontend slurmmaster
+Host slurmnode* slurmfrontend slurm-master
    StrictHostKeyChecking no

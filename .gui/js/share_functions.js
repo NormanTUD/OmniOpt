@@ -145,28 +145,6 @@ function filterNonEmptyRows(data) {
 	return new_data;
 }
 
-function make_text_in_parallel_plot_nicer() {
-	$(".parcoords g > g > text").each(function() {
-		if (theme == "dark") {
-			$(this)
-				.css("text-shadow", "unset")
-				.css("font-size", "0.9em")
-				.css("fill", "white")
-				.css("stroke", "black")
-				.css("stroke-width", "2px")
-				.css("paint-order", "stroke fill");
-		} else {
-			$(this)
-				.css("text-shadow", "unset")
-				.css("font-size", "0.9em")
-				.css("fill", "black")
-				.css("stroke", "unset")
-				.css("stroke-width", "unset")
-				.css("paint-order", "stroke fill");
-		}
-	});
-}
-
 function load_log_file(log_nr, filename) {
 	var pre_id = `single_run_${log_nr}_pre`;
 

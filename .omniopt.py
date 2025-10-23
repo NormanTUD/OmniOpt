@@ -10209,7 +10209,7 @@ def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) <= 1:
         print_debug(f"--result_names (has {len(res_names)} entries) must be at least 2.")
-        return
+        return None
 
     pareto_front_data: dict = get_pareto_front_data(path_to_calculate, res_names)
 
@@ -10263,6 +10263,8 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
         json.dump(pareto_points, pareto_idxs_json_handle)
 
     live_share_after_pareto()
+
+    return None
 
 def show_available_hardware_and_generation_strategy_string(gpu_string: str, gpu_color: str) -> None:
     cpu_count = os.cpu_count()

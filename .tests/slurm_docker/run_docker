@@ -129,7 +129,7 @@ nodes="$nodes
         build:
           context: ./master
           dockerfile: Dockerfile
-        container_name: slurm-master
+        container_name: slurmmaster
         shm_size: '4g'
         hostname: slurmmaster
         user: admin

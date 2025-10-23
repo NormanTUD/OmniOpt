@@ -9,10 +9,10 @@ services:
     networks:
       - slurmnet
 
-  slurm-master:
+  slurmmaster:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmmasteratest:latest
-    container_name: slurm-master
-    hostname: slurm-master
+    container_name: slurmmaster
+    hostname: slurmmaster
     depends_on:
       - slurm-frontend
     restart: unless-stopped
@@ -26,7 +26,7 @@ services:
     container_name: slurm-node1
     hostname: slurm-node1
     depends_on:
-      - slurm-master
+      - slurmmaster
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir
@@ -38,7 +38,7 @@ services:
     container_name: slurm-node2
     hostname: slurm-node2
     depends_on:
-      - slurm-master
+      - slurmmaster
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir
@@ -50,7 +50,7 @@ services:
     container_name: slurm-node3
     hostname: slurm-node3
     depends_on:
-      - slurm-master
+      - slurmmaster
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir
@@ -62,7 +62,7 @@ services:
     container_name: slurm-node4
     hostname: slurm-node4
     depends_on:
-      - slurm-master
+      - slurmmaster
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir

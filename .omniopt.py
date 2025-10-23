@@ -87,6 +87,7 @@ log_nr_gen_jobs: list[int] = []
 generation_strategy_human_readable: str = ""
 oo_call: str = "./omniopt"
 progress_bar_length: int = 0
+worker_usage_file = 'worker_usage.csv'
 
 if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
     oo_call = "omniopt"
@@ -2453,7 +2454,7 @@ def set_nr_inserted_jobs(new_nr_inserted_jobs: int) -> None:
 
 def write_worker_usage() -> None:
     if len(WORKER_PERCENTAGE_USAGE):
-        csv_filename = get_current_run_folder('worker_usage.csv')
+        csv_filename = get_current_run_folder(worker_usage_file)
 
         csv_columns = ['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage']
 
@@ -2463,7 +2464,7 @@ def write_worker_usage() -> None:
                 csv_writer.writerow(row)
     else:
         if is_slurm_job():
-            print_debug("WORKER_PERCENTAGE_USAGE seems to be empty. Not writing worker_usage.csv")
+            print_debug(f"WORKER_PERCENTAGE_USAGE seems to be empty. Not writing {worker_usage_file}")
 
 def log_system_usage() -> None:
     if not get_current_run_folder():

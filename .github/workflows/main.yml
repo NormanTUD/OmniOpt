@@ -88,8 +88,6 @@ jobs:
       fail-fast: true
     runs-on: ubuntu-24.04
     environment: Production
-    strategy:
-      fail-fast: true
 
     steps:
     - name: Checkout code

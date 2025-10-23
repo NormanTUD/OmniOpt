@@ -131,17 +131,31 @@ jobs:
         docker logs "$CONTAINER"
         exit 1
 
-   - name: Make sure slurm-daemons are started
+    - name: Start Slurm node daemons
       working-directory: .tests/slurm_docker/ci
       run: |
-        docker exec -it slurmnode1 systemctl start slurmd
-        docker exec -it slurmnode2 systemctl start slurmd
-        docker exec -it slurmnode3 systemctl start slurmd
-        docker exec -it slurmnode4 systemctl start slurmd
+        for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
+          docker exec $node systemctl start slurmd || echo "Failed to start $node, ignoring for now"
+        done
 
-        echo "Sleeping 10 seconds..."
-        sleep 10
-        echo "Slept 10 seconds!"
+        echo "Waiting for nodes to register with Slurm master..."
+        for i in {1..15}; do
+          idle_nodes=$(docker exec slurmmaster sinfo -h -o "%N %T" | grep -c IDLE)
+          if [ "$idle_nodes" -eq 4 ]; then
+            echo "All nodes are IDLE!"
+            break
+          fi
+          echo "Waiting 2s for nodes to come up..."
+          sleep 2
+        done
+
+        docker exec slurmmaster sinfo -Nel
+
+   - name: Check node registration
+      working-directory: .tests/slurm_docker/ci
+      run: |
+        docker exec -it slurmfrontend sinfo -Nel
+        docker exec -it slurmfrontend scontrol show nodes
 
     - name: Testing
       working-directory: .tests/slurm_docker

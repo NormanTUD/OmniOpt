@@ -1,6 +1,7 @@
 services:
   slurmfrontend:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmfrontend:latest
+    privileged: true
     container_name: slurmfrontend
     hostname: slurmfrontend
     restart: unless-stopped
@@ -11,6 +12,7 @@ services:
 
   slurmmaster:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmmaster:latest
+    privileged: true
     container_name: slurmmaster
     hostname: slurmmaster
     depends_on:
@@ -23,6 +25,7 @@ services:
 
   slurmnode1:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode1:latest
+    privileged: true
     container_name: slurmnode1
     hostname: slurmnode1
     depends_on:
@@ -35,6 +38,7 @@ services:
 
   slurmnode2:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode2:latest
+    privileged: true
     container_name: slurmnode2
     hostname: slurmnode2
     depends_on:
@@ -47,6 +51,7 @@ services:
 
   slurmnode3:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode3:latest
+    privileged: true
     container_name: slurmnode3
     hostname: slurmnode3
     depends_on:
@@ -59,6 +64,7 @@ services:
 
   slurmnode4:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode4:latest
+    privileged: true
     container_name: slurmnode4
     hostname: slurmnode4
     depends_on:

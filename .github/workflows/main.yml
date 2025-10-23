@@ -68,12 +68,15 @@ jobs:
 
       - name: Start Slurm cluster container
         run: |
-          docker run -d --name slurm-test --privileged -e NUM_NODES=2 giovtorres/slurm-docker-cluster:latest
+          docker run -d --name slurm-test --privileged \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            -e NUM_NODES=2 giovtorres/slurm-docker-cluster:latest
           sleep 20
 
       - name: Run OmniOpt
         run: |
-          docker exec slurm-test bash -c ".tests/main --exit_on_first_error --max_eval=2 --num_random_steps=1 --num_parallel_jobs=1 --gpus=0 --no_linkchecker --no_linter --no_plots"
+          docker exec slurm-test bash -c "/workspace/.tests/main --exit_on_first_error --max_eval=2 --num_random_steps=1 --num_parallel_jobs=1 --gpus=0 --no_linkchecker --no_linter --no_plots"
 
       - name: Stop Slurm container
         run: docker stop slurm-test

@@ -152,11 +152,11 @@ jobs:
 
         docker exec slurmmaster sinfo -Nel
 
-     - name: Check node registration
-        working-directory: .tests/slurm_docker/ci
-        run: |
-          docker exec -it slurmfrontend sinfo -Nel
-          docker exec -it slurmfrontend scontrol show nodes
+    - name: Check node registration
+      working-directory: .tests/slurm_docker/ci
+      run: |
+        docker exec -it slurmfrontend sinfo -Nel
+        docker exec -it slurmfrontend scontrol show nodes
 
     - name: Testing
       working-directory: .tests/slurm_docker

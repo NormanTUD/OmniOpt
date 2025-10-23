@@ -6385,6 +6385,8 @@ def log_worker_numbers() -> None:
         if len(WORKER_PERCENTAGE_USAGE) == 0 or WORKER_PERCENTAGE_USAGE[len(WORKER_PERCENTAGE_USAGE) - 1] != this_values:
             WORKER_PERCENTAGE_USAGE.append(this_values)
 
+            write_worker_usage()
+
 def get_slurm_in_brackets(in_brackets: list) -> list:
     if is_slurm_job():
         workers_strings = get_workers_string()

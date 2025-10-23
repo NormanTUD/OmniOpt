@@ -12,6 +12,7 @@ on:
 
 jobs:
   smoke-tests:
+    needs: [slurm-test]
     strategy:
       fail-fast: true
 

@@ -84,6 +84,8 @@ jobs:
         ./.tests/linter --check_only_changed_since_last_success
   slurm-docker-check:
     #needs: [smoke-tests]
+    strategy:
+      fail-fast: true
     runs-on: ubuntu-24.04
     environment: Production
     strategy:

@@ -49,7 +49,7 @@ jobs:
         .tests/smoke_tests
 
   slurm-test:
-    needs: [smoke-tests]
+    #needs: [smoke-tests]
     runs-on: ubuntu-latest
     services:
       mysql:

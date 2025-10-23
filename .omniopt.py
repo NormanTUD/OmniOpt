@@ -10231,7 +10231,7 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                     print(f"Not showing Pareto-front-sixel for {path_to_calculate}")
 
             if calculated_frontier is None:
-                print_debug("ERROR: calculated_frontier ist None")
+                print_debug("ERROR: calculated_frontier is None")
                 return None
 
             try:

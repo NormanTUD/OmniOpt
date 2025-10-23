@@ -1947,7 +1947,6 @@ EOF
 						exit_code="$exit_code_only_digits"
 
 						if ! [[ "$exit_code" =~ ^[0-9]+$ ]]; then
-							echo "WARN: exit_code invalid ('$exit_code'), setting to 3"
 							exit_code=3
 						fi
 

@@ -358,8 +358,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 		updatePlot();
 
 		$("#parallel-plot").data("loaded", "true");
-
-		make_text_in_parallel_plot_nicer();
 	} catch (err) {
 		console.error("Error in createParallelPlot:", err);
 	}

@@ -110,7 +110,7 @@ jobs:
         sudo apt-get install -y docker-compose
 
     - name: Build Slurm containers
-      working-directory: .tests/slurm_docker
+      working-directory: .tests/slurm_docker/ci
       run: |
         docker-compose up -d --build
         docker ps -a

@@ -152,6 +152,7 @@ jobs:
           sleep 2
         done
 
+        echo "docker exec slurmmaster sinfo -Nel:"
         docker exec slurmmaster sinfo -Nel
 
     - name: Check node registration

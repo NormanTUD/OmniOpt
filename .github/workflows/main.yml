@@ -64,6 +64,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
+          curl -fsSL https://get.docker.com | sudo bash
           sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring git
 
       - name: Start Slurm cluster container

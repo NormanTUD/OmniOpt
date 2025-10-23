@@ -96,6 +96,13 @@ jobs:
         fetch-depth: 0
         tags: true
 
+    - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GHCR_PAT }}
+
     - name: Set up Docker Compose
       run: |
         sudo apt-get update -y

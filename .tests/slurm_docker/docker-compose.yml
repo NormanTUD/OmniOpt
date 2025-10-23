@@ -23,8 +23,8 @@ services:
 
   slurmnode1:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode1atest:latest
-    container_name: slurm-node1
-    hostname: slurm-node1
+    container_name: slurmnode1
+    hostname: slurmnode1
     depends_on:
       - slurmmaster
     restart: unless-stopped
@@ -35,8 +35,8 @@ services:
 
   slurmnode2:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode2atest:latest
-    container_name: slurm-node2
-    hostname: slurm-node2
+    container_name: slurmnode2
+    hostname: slurmnode2
     depends_on:
       - slurmmaster
     restart: unless-stopped
@@ -47,8 +47,8 @@ services:
 
   slurmnode3:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode3atest:latest
-    container_name: slurm-node3
-    hostname: slurm-node3
+    container_name: slurmnode3
+    hostname: slurmnode3
     depends_on:
       - slurmmaster
     restart: unless-stopped
@@ -59,8 +59,8 @@ services:
 
   slurmnode4:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode4atest:latest
-    container_name: slurm-node4
-    hostname: slurm-node4
+    container_name: slurmnode4
+    hostname: slurmnode4
     depends_on:
       - slurmmaster
     restart: unless-stopped

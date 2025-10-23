@@ -1,0 +1,74 @@
+services:
+  slurm-frontend:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmfrontend:latest
+    container_name: slurm-frontend
+    hostname: slurm-frontend
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+  slurm-master:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmmaster:latest
+    container_name: slurm-master
+    hostname: slurm-master
+    depends_on:
+      - slurm-frontend
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+  slurm-node1:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode1:latest
+    container_name: slurm-node1
+    hostname: slurm-node1
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+  slurm-node2:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode2:latest
+    container_name: slurm-node2
+    hostname: slurm-node2
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+  slurm-node3:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode3:latest
+    container_name: slurm-node3
+    hostname: slurm-node3
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+  slurm-node4:
+    image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode4:latest
+    container_name: slurm-node4
+    hostname: slurm-node4
+    depends_on:
+      - slurm-master
+    restart: unless-stopped
+    volumes:
+      - ../../:/oo_dir
+    networks:
+      - slurmnet
+
+networks:
+  slurmnet:
+    driver: bridge

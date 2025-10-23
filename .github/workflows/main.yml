@@ -176,6 +176,97 @@ jobs:
         echo
         echo "================= 🧩 Debug sequence finished ================="
 
+    - name: Deep Diagnostics 🔬
+        if: always()
+        working-directory: .tests/slurm_docker
+        run: |
+        echo "================= 🧠 STEP 7: Deep Slurm Docker Diagnostics ================="
+
+        echo
+        echo "================= 🧱 CONTAINER STATUS ================="
+        docker ps -a
+        echo
+        echo "→ Inspect all container names"
+        docker ps -a --format '{{.Names}}' | sort
+
+        echo
+        echo "================= 🌐 NETWORK INSPECTION ================="
+        docker network ls
+        echo
+        echo "→ Inspect slurm network details (bridge, aliases, etc)"
+        docker network inspect $(docker network ls --format '{{.Name}}' | grep slurm || echo 'bridge') || true
+
+        echo
+        echo "================= 🧭 DNS RESOLUTION INSIDE MASTER ================="
+        for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
+            echo "→ getent hosts $node"
+            docker exec slurmmaster getent hosts $node || echo "❌ Failed to resolve $node"
+        done
+
+        echo
+        echo "================= 📡 NODE CONTAINERS EXISTENCE ================="
+        for node in slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+            echo "→ Checking if container $node exists"
+            docker inspect $node >/dev/null 2>&1 && echo "✅ $node found" || echo "❌ $node missing"
+        done
+
+        echo
+        echo "================= 🔑 MUNGE CHECKS ON ALL ================="
+        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+            echo "→ $host munge.key checksum"
+            docker exec $host md5sum /etc/munge/munge.key 2>/dev/null || echo "❌ $host missing key"
+            echo
+            echo "→ $host munge socket"
+            docker exec $host ls -l /var/run/munge 2>/dev/null || echo "❌ $host no socket dir"
+            echo
+        done
+
+        echo
+        echo "================= ⚙️ SLURM SERVICE STATUS ON EACH NODE ================="
+        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+            echo "→ $host: ps aux | grep slurm"
+            docker exec $host ps aux | grep -E 'slurmctld|slurmd' || echo "❌ no slurm processes"
+            echo
+        done
+
+        echo
+        echo "================= 🪵 SLURM LOG SNIPPETS ================="
+        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+            echo "→ $host: /var/log/slurmctld.log (if exists)"
+            docker exec $host tail -n 40 /var/log/slurmctld.log 2>/dev/null || echo "no slurmctld.log"
+            echo
+            echo "→ $host: /var/log/slurmd.log (if exists)"
+            docker exec $host tail -n 40 /var/log/slurmd.log 2>/dev/null || echo "no slurmd.log"
+            echo
+        done
+
+        echo
+        echo "================= 🧪 SLURM COMMANDS TEST ================="
+        echo "→ scontrol show nodes (Master)"
+        docker exec slurmmaster scontrol show nodes || true
+        echo
+        echo "→ sinfo (Frontend)"
+        docker exec slurm-frontend sinfo || true
+        echo
+        echo "→ sdiag (Master)"
+        docker exec slurmmaster sdiag || true
+        echo
+        echo "→ scontrol ping"
+        docker exec slurmmaster scontrol ping || true
+        echo
+        echo "→ squeue"
+        docker exec slurmmaster squeue || true
+        echo
+        echo "================= 🔥 SYSTEM DETAILS ================="
+        docker exec slurmmaster uname -a
+        docker exec slurmmaster cat /etc/os-release | head -n 5
+        docker exec slurmmaster df -h /var/spool/slurmctld || true
+        echo
+        docker exec slurmmaster ls -l /var/spool/slurmctld || true
+        echo
+        echo "================= 🧩 Diagnostics Complete ================="
+
+
     - name: Run OO inside slurm inside docker
       working-directory: .tests/slurm_docker
       run: |

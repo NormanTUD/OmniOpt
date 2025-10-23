@@ -29,6 +29,8 @@
 					<tbody></tbody>
 				</table>
 
+				<br>
+
 				<button onclick='$("#hidden_config_table").toggle()' class='add_parameter' id='main_add_row_button'>
 					<img src='i/cogwheels.svg' class="invert_in_dark_mode" style='height: 1em' />&nbsp;Show additional parameters
 				</button>

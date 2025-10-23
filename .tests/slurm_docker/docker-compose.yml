@@ -21,7 +21,7 @@ services:
     networks:
       - slurmnet
 
-  slurm-node1:
+  slurmnode1:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode1atest:latest
     container_name: slurm-node1
     hostname: slurm-node1
@@ -33,7 +33,7 @@ services:
     networks:
       - slurmnet
 
-  slurm-node2:
+  slurmnode2:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode2atest:latest
     container_name: slurm-node2
     hostname: slurm-node2
@@ -45,7 +45,7 @@ services:
     networks:
       - slurmnet
 
-  slurm-node3:
+  slurmnode3:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode3atest:latest
     container_name: slurm-node3
     hostname: slurm-node3
@@ -57,7 +57,7 @@ services:
     networks:
       - slurmnet
 
-  slurm-node4:
+  slurmnode4:
     image: ghcr.io/normantud/omniopt/slurm_docker_slurmnode4atest:latest
     container_name: slurm-node4
     hostname: slurm-node4

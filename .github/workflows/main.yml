@@ -11,29 +11,6 @@ on:
     - cron: '0 2 * * 0'
 
 jobs:
-  slurm-test:
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - "8888:3306"
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: koesterlab/setup-slurm-action@v1
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring git
-
-      - name: Run OmniOpt
-        run: |
-          ./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch --mem_gb=1 --time=60 --worker_timeout=5 --max_eval 4 --num_parallel_jobs 2 --gpus=0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgIC0taW50X3BhcmFtPSclKGludF9wYXJhbSknIC0tZmxvYXRfcGFyYW09JyUoZmxvYXRfcGFyYW0pJyAtLWNob2ljZV9wYXJhbT0nJShjaG9pY2VfcGFyYW0pJyAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps 2 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --generate_all_jobs_at_once --follow --show_generate_time_table
-
   smoke-tests:
     strategy:
       fail-fast: true
@@ -70,6 +47,30 @@ jobs:
     - name: Smoke Tests
       run: |
         .tests/smoke_tests
+
+  slurm-test:
+    needs: [smoke-tests]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - "8888:3306"
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: koesterlab/setup-slurm-action@v1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y xterm whiptail python3-dev php-cli unzip curl 2to3 python3-lib2to3 python3-toolz php-mbstring git
+
+      - name: Run OmniOpt
+        run: |
+          ./omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name=__main__tests__BOTORCH_MODULAR___nogridsearch --mem_gb=1 --time=60 --worker_timeout=5 --max_eval 4 --num_parallel_jobs 2 --gpus=0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgIC0taW50X3BhcmFtPSclKGludF9wYXJhbSknIC0tZmxvYXRfcGFyYW09JyUoZmxvYXRfcGFyYW0pJyAtLWNob2ljZV9wYXJhbT0nJShjaG9pY2VfcGFyYW0pJyAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps 2 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --generate_all_jobs_at_once --follow --show_generate_time_table
 
   Linter:
     needs: [smoke-tests]
@@ -225,7 +226,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [linter, docker-test, main-test, install-via-pip]
+    needs: [linter, docker-test, main-test, install-via-pip, slurm-test]
     permissions:
       contents: read
     environment: Production

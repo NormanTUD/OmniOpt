@@ -72,3 +72,4 @@ services:
 networks:
   slurmnet:
     driver: bridge
+

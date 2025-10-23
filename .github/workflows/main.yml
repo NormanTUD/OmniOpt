@@ -106,6 +106,7 @@ jobs:
     - name: Set up Docker Compose
       run: |
         sudo apt-get update -y
+        sudo apt-get purge -y man-db manpages
         sudo apt-get install -y docker-compose
 
     - name: Build Slurm containers

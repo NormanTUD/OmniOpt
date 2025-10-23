@@ -10234,52 +10234,12 @@ def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_s
                 print_debug("ERROR: calculated_frontier ist None")
                 return None
 
-            if not isinstance(calculated_frontier, dict):
-                print_debug(f"ERROR: calculated_frontier ist kein dict, sondern {type(calculated_frontier)}")
+            try:
+                if len(calculated_frontier[metric_x][metric_y]["idxs"]):
+                    pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
+            except AttributeError:
+                print_debug(f"ERROR: calculated_frontier structure invalid for ({metric_x}, {metric_y})")
                 return None
-
-            if metric_x not in calculated_frontier:
-                print_debug(f"ERROR: Key '{metric_x}' fehlt in calculated_frontier. Keys vorhanden: {list(calculated_frontier.keys())}")
-                return None
-
-            if calculated_frontier[metric_x] is None:
-                print_debug(f"ERROR: calculated_frontier['{metric_x}'] ist None")
-                return None
-
-            if not isinstance(calculated_frontier[metric_x], dict):
-                print_debug(f"ERROR: calculated_frontier['{metric_x}'] ist kein dict, sondern {type(calculated_frontier[metric_x])}")
-                return None
-
-            if metric_y not in calculated_frontier[metric_x]:
-                print_debug(f"ERROR: Key '{metric_y}' fehlt in calculated_frontier['{metric_x}']. Keys: {list(calculated_frontier[metric_x].keys())}")
-                return None
-
-            if calculated_frontier[metric_x][metric_y] is None:
-                print_debug(f"ERROR: calculated_frontier['{metric_x}']['{metric_y}'] ist None")
-                return None
-
-            if not isinstance(calculated_frontier[metric_x][metric_y], dict):
-                print_debug(f"ERROR: calculated_frontier['{metric_x}']['{metric_y}'] ist kein dict, sondern {type(calculated_frontier[metric_x][metric_y])}")
-                return None
-
-            if "idxs" not in calculated_frontier[metric_x][metric_y]:
-                print_debug(f"ERROR: Key 'idxs' fehlt in calculated_frontier['{metric_x}']['{metric_y}']. Keys: {list(calculated_frontier[metric_x][metric_y].keys())}")
-                return None
-
-            if calculated_frontier[metric_x][metric_y]["idxs"] is None:
-                print_debug(f"ERROR: calculated_frontier['{metric_x}']['{metric_y}']['idxs'] ist None")
-                return None
-
-            if not isinstance(calculated_frontier[metric_x][metric_y]["idxs"], (list, tuple)):
-                print_debug(f"ERROR: 'idxs' ist kein list/tuple, sondern {type(calculated_frontier[metric_x][metric_y]['idxs'])}")
-                return None
-
-            if len(calculated_frontier[metric_x][metric_y]["idxs"]) == 0:
-                print_debug(f"Hinweis: 'idxs' ist leer für ({metric_x}, {metric_y})")
-                return None
-
-            if len(calculated_frontier[metric_x][metric_y]["idxs"]):
-                pareto_points[metric_x][metric_y] = sorted(calculated_frontier[metric_x][metric_y]["idxs"])
 
             rich_table = pareto_front_as_rich_table(
                 calculated_frontier[metric_x][metric_y]["idxs"],

@@ -36,7 +36,8 @@ $env_variables = [
         "CI" => "Disables certain tests in a CI environment",
         "PRINT_SEPERATOR" => "Prints a seperator line after OmniOpt2 runs (useful for automated tests)",
         "SKIP_SEARCH" => "Skip the actual search, very useful for debugging",
-        "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job"
+        "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job",
+        "OMNIOPT_SLURM_WAIT_SLEEP" => "Wait 5 seconds instead of 0.05 seconds while waiting for slurm. Useful for CI tests"
     ],
     "Plot-Script" => [
         "BUBBLESIZEINPX" => "Size of bubbles in plot scripts in px"

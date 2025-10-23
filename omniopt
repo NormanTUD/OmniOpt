@@ -1857,7 +1857,11 @@ EOF
 							_tput el # Delete line from start to finish
 
 							echo -ne "$print_line"
-							sleep 0.05
+							if [[ -z $OMNIOPT_SLURM_WAIT_SLEEP ]]; then
+								sleep 0.05
+							else
+								sleep 5
+							fi
 						done
 					done
 

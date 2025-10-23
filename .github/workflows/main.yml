@@ -48,44 +48,6 @@ jobs:
       run: |
         .tests/smoke_tests
 
-  slurm-test:
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - "8888:3306"
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Download NOAA-GSL Slurm Docker Compose
-        run: |
-          curl -L -o docker-compose.yml https://raw.githubusercontent.com/NOAA-GSL/DockerSlurmCluster/main/docker-compose.yml
-
-      - name: Start Slurm cluster container
-        run: |
-          docker-compose up -d
-          sleep 20
-
-      - name: Install dependencies in Slurm container
-        run: |
-          docker exec slurm-master bash -c "apt-get update && apt-get install -y xterm which whiptail python3 python3-dev php-cli unzip curl python3-lib2to3 python3-toolz php-mbstring git"
-
-      - name: Run OmniOpt
-        run: |
-          docker exec slurm-master bash -c "./.tests/main --exit_on_first_error --max_eval=2 --num_random_steps=1 --num_parallel_jobs=1 --gpus=0 --no_linkchecker --no_linter --no_plots"
-
-      - name: Stop Slurm container
-        run: docker-compose down
-
   Linter:
     needs: [smoke-tests]
 

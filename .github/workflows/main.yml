@@ -143,16 +143,6 @@ jobs:
           echo "Exit-Code: $?"
         done
 
-        # Warten bis Nodes beim Master registriert sind
-        for i in {1..15}; do
-          idle_nodes=$(docker exec slurmmaster sinfo -h -o "%N %T" | grep -c IDLE)
-          if [ "$idle_nodes" -eq 4 ]; then
-            echo "All nodes are IDLE!"
-            break
-          fi
-          sleep 2
-        done
-
         echo "docker exec slurmmaster sinfo -Nel:"
         docker exec slurmmaster sinfo -Nel
 

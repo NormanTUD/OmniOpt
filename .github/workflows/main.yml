@@ -136,7 +136,7 @@ jobs:
       working-directory: .tests/slurm_docker/ci
       run: |
         for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
-          docker exec -d $node slurmd -D || echo "Failed to start $node, ignoring for now"
+          docker exec $node slurmd -D || echo "Failed to start $node, ignoring for now"
         done
 
         echo "Waiting for nodes to register with Slurm master..."

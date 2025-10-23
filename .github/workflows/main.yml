@@ -136,7 +136,8 @@ jobs:
       working-directory: .tests/slurm_docker/ci
       run: |
         for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
-          docker exec -d $node bash -c "sudo slurmd -N $SLURM_NODENAME" || echo "Failed $node"
+          docker exec $node bash -c "sudo service munge start" || echo "Failed starting munge on $node"
+          docker exec -d $node bash -c "sudo slurmd -N $SLURM_NODENAME" || echo "Failed starting slurmd on $node"
         done
 
         # Warten bis Nodes beim Master registriert sind

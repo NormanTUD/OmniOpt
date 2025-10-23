@@ -115,7 +115,7 @@ jobs:
         docker-compose up -d --build
         docker ps -a
 
-    - name: Verify /oo_dir mount inside slurm-master
+    - name: Run OO inside slurm inside docker
       working-directory: .tests/slurm_docker
       run: |
         CONTAINER=$(docker ps --filter "name=slurm-frontend" --format "{{.ID}}")

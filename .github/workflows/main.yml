@@ -136,17 +136,16 @@ jobs:
       working-directory: .tests/slurm_docker/ci
       run: |
         for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
-          docker exec -d $node slurmd || echo "Failed to start $node"
+          docker exec -d $node bash -c "sudo slurmd -N $SLURM_NODENAME" || echo "Failed $node"
         done
 
-        echo "Waiting for nodes to register with Slurm master..."
+        # Warten bis Nodes beim Master registriert sind
         for i in {1..15}; do
           idle_nodes=$(docker exec slurmmaster sinfo -h -o "%N %T" | grep -c IDLE)
           if [ "$idle_nodes" -eq 4 ]; then
             echo "All nodes are IDLE!"
             break
           fi
-          echo "Waiting 2s for nodes to come up..."
           sleep 2
         done
 

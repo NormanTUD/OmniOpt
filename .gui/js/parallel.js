@@ -203,8 +203,6 @@ function createParallelPlot(dataArray, headers, resultNames, ignoreColumns = [],
 			}
 		});
 
-
-
 		// Erzeuge Ergebnis-Auswahl für Farbskala (color by result)
 		const resultSelectId = "result-select";
 		let resultSelect = $(`#${resultSelectId}`);

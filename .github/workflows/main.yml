@@ -66,9 +66,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
+      - name: Download NOAA-GSL Slurm Docker Compose
+        run: |
+          curl -L -o docker-compose.yml https://raw.githubusercontent.com/NOAA-GSL/DockerSlurmCluster/main/docker-compose.yml
+
       - name: Start Slurm cluster container
         run: |
-          docker-compose -f https://raw.githubusercontent.com/NOAA-GSL/DockerSlurmCluster/main/docker-compose.yml up -d
+          docker-compose up -d
           sleep 20
 
       - name: Install dependencies in Slurm container
@@ -80,7 +84,7 @@ jobs:
           docker exec slurm-master bash -c "./.tests/main --exit_on_first_error --max_eval=2 --num_random_steps=1 --num_parallel_jobs=1 --gpus=0 --no_linkchecker --no_linter --no_plots"
 
       - name: Stop Slurm container
-        run: docker-compose -f https://raw.githubusercontent.com/NOAA-GSL/DockerSlurmCluster/main/docker-compose.yml down
+        run: docker-compose down
 
   Linter:
     needs: [smoke-tests]

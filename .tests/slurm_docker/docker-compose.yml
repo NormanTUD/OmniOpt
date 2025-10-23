@@ -1,8 +1,8 @@
 services:
-  slurm-frontend:
+  slurmfrontend:
     image: ghcr.io/normantud/omniopt/slurm_docker/slurm_docker_slurmfrontend:latest
-    container_name: slurm-frontend
-    hostname: slurm-frontend
+    container_name: slurmfrontend
+    hostname: slurmfrontend
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir
@@ -14,7 +14,7 @@ services:
     container_name: slurmmaster
     hostname: slurmmaster
     depends_on:
-      - slurm-frontend
+      - slurmfrontend
     restart: unless-stopped
     volumes:
       - ../../:/oo_dir

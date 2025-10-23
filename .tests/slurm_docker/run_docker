@@ -116,7 +116,7 @@ nodes="$nodes
         build:
           context: ./frontend
           dockerfile: Dockerfile
-        container_name: slurm-frontend
+        container_name: slurmfrontend
         shm_size: '4g'
         hostname: slurmfrontend
         user: admin
@@ -346,7 +346,7 @@ done
 cleanup
 
 cmd=(
-	docker exec slurm-frontend bash /oo_dir/omniopt
+	docker exec slurmfrontend bash /oo_dir/omniopt
 	--partition is_ignored_here
 	--experiment_name slurm_in_docker_test
 	--mem_gb="$mem_gb"
@@ -405,7 +405,7 @@ if [[ $run_tests -eq 1 ]]; then
 	echo "Discarding almost all other options because you chose to --run_tests"
 
 	cmd=(
-		docker exec slurm-frontend bash /oo_dir/.tests/main
+		docker exec slurmfrontend bash /oo_dir/.tests/main
 		--max_eval=2
 		--num_random_steps=1
 		--exit_on_first_error

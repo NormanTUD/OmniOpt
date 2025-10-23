@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: koesterlab/setup-slurm-action@v1
+      - uses: ./setup-slurm-action
 
       - name: Install dependencies
         run: |

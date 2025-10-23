@@ -26,9 +26,8 @@ jobs:
 
       - uses: koesterlab/setup-slurm-action@v1
 
-      - name: Build package
+      - name: Run OmniOpt
         run: |
-          cd omniopt
           ls
 
   smoke-tests:

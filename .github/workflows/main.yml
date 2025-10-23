@@ -48,30 +48,19 @@ jobs:
       run: |
         .tests/smoke_tests
 
-  slurm-test:
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - "8888:3306"
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - uses: actions/checkout@v4
+    - name: Build Slurm CI image
+        run: docker build -t slurm-test-ci -f Dockerfile.ci .
 
       - name: Start Slurm cluster container
         run: |
           docker run -d --name slurm-test --privileged \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            -e NUM_NODES=2 giovtorres/slurm-docker-cluster:latest
+            -e NUM_NODES=2 slurm-test-ci
           sleep 20
 
       - name: Run OmniOpt
         run: |
-          docker exec slurm-test bash -c "yum install -y epel-release && yum install -y xterm which whiptail python3 python3-devel php-cli unzip curl python3-lib2to3 python3-toolz php-mbstring git"
           docker exec slurm-test bash -c "./.tests/main --exit_on_first_error --max_eval=2 --num_random_steps=1 --num_parallel_jobs=1 --gpus=0 --no_linkchecker --no_linter --no_plots"
 
       - name: Stop Slurm container

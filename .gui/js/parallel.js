@@ -350,23 +350,46 @@ function parallel_update_plot(ctx) {
 }
 
 function make_text_in_parallel_plot_nicer() {
-	$(".parcoords g > g > text").each(function() {
-		if (theme == "dark") {
-			$(this)
-				.css("text-shadow", "unset")
-				.css("font-size", "0.9em")
-				.css("fill", "white")
-				.css("stroke", "black")
-				.css("stroke-width", "2px")
-				.css("paint-order", "stroke fill");
-		} else {
-			$(this)
-				.css("text-shadow", "unset")
-				.css("font-size", "0.9em")
-				.css("fill", "black")
-				.css("stroke", "unset")
-				.css("stroke-width", "unset")
-				.css("paint-order", "stroke fill");
+	try {
+		var texts = $(".parcoords g > g > text");
+		if (texts.length === 0) {
+			return;
 		}
-	});
+
+		var isDark = (typeof theme !== "undefined" && theme === "dark");
+
+		// Styles als Objektliteral vorbereiten, um css() nur einmal aufzurufen
+		var darkStyles = {
+			"text-shadow": "unset",
+			"font-size": "0.9em",
+			"fill": "white",
+			"stroke": "black",
+			"stroke-width": "2px",
+			"paint-order": "stroke fill"
+		};
+
+		var lightStyles = {
+			"text-shadow": "unset",
+			"font-size": "0.9em",
+			"fill": "black",
+			"stroke": "unset",
+			"stroke-width": "unset",
+			"paint-order": "stroke fill"
+		};
+
+		var styles = isDark ? darkStyles : lightStyles;
+
+		// Force Batch Update – nutzt native DOM, da schneller als .each()
+		for (var i = 0; i < texts.length; i++) {
+			var el = texts[i];
+			for (var prop in styles) {
+				if (Object.prototype.hasOwnProperty.call(styles, prop)) {
+					el.style.setProperty(prop, styles[prop], "");
+				}
+			}
+		}
+	} catch (e) {
+		console.error("make_text_in_parallel_plot_nicer(): Error:", e);
+		console.trace();
+	}
 }

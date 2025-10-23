@@ -9954,7 +9954,7 @@ def save_experiment_state() -> None:
         state_path = get_current_run_folder("experiment_state.json")
         save_ax_client_to_json_file(state_path)
     except Exception as e:
-        print(f"Error saving experiment state: {e}")
+        print_debug(f"Error saving experiment state: {e}")
 
 def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60) -> bool:
     try:

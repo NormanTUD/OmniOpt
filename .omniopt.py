@@ -8089,7 +8089,7 @@ def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
 
     return _ret
 
-def _calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
+def calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int) -> int:
     """Calculates the number of jobs to retrieve."""
     return min(
         max_eval + simulated_jobs - count_done_jobs(),
@@ -8102,7 +8102,7 @@ def remove_extra_spaces(text: str) -> str:
         raise ValueError("Input must be a string")
     return re.sub(r'\s+', ' ', text).strip()
 
-def _get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: List[float]) -> str:
+def get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: List[float]) -> str:
     """Generates the appropriate message for the number of trials being retrieved."""
     ret = ""
     if full_nr_of_jobs_to_get > 1:
@@ -8270,7 +8270,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     retries += 1
                     continue
 
-                progressbar_description(_get_trials_message(cnt + 1, n, trial_durations))
+                progressbar_description(get_trials_message(cnt + 1, n, trial_durations))
 
                 try:
                     result = create_and_handle_trial(arm)
@@ -8292,7 +8292,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
         return finalized
 
     except Exception as e:
-        return _handle_generation_failure(e, n, recursion)
+        return handle_generation_failure(e, n, recursion)
 
 class TrialRejected(Exception):
     pass
@@ -8357,7 +8357,7 @@ def finalize_generation(trials_dict: Dict[int, Any], cnt: int, requested: int, s
 
     return trials_dict, False
 
-def _handle_generation_failure(
+def handle_generation_failure(
     e: Exception,
     requested: int,
     recursion: bool
@@ -8373,7 +8373,7 @@ def _handle_generation_failure(
     )):
         msg = str(e)
         if msg not in error_8_saved:
-            _print_exhaustion_warning(e, recursion)
+            print_exhaustion_warning(e, recursion)
             error_8_saved.append(msg)
 
         if not recursion and args.revert_to_random_when_seemingly_exhausted:
@@ -8381,11 +8381,11 @@ def _handle_generation_failure(
             set_global_gs_to_random()
             return fetch_next_trials(requested, True)
 
-    print_red(f"_handle_generation_failure: General Exception: {e}")
+    print_red(f"handle_generation_failure: General Exception: {e}")
 
     return {}, True
 
-def _print_exhaustion_warning(e: Exception, recursion: bool) -> None:
+def print_exhaustion_warning(e: Exception, recursion: bool) -> None:
     if not recursion and args.revert_to_random_when_seemingly_exhausted:
         print_yellow(f"\n⚠Error 8: {e} From now (done jobs: {count_done_jobs()}) on, random points will be generated.")
     else:
@@ -9235,20 +9235,20 @@ def create_and_execute_next_runs(next_nr_steps: int, phase: Optional[str], _max_
     done_optimizing: bool = False
 
     try:
-        done_optimizing, trial_index_to_param = _create_and_execute_next_runs_run_loop(_max_eval, phase)
-        _create_and_execute_next_runs_finish(done_optimizing)
+        done_optimizing, trial_index_to_param = create_and_execute_next_runs_run_loop(_max_eval, phase)
+        create_and_execute_next_runs_finish(done_optimizing)
     except Exception as e:
         stacktrace = traceback.format_exc()
         print_debug(f"Warning: create_and_execute_next_runs encountered an exception: {e}\n{stacktrace}")
         return handle_exceptions_create_and_execute_next_runs(e)
 
-    return _create_and_execute_next_runs_return_value(trial_index_to_param)
+    return create_and_execute_next_runs_return_value(trial_index_to_param)
 
-def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str]) -> Tuple[bool, Optional[Dict]]:
+def create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optional[str]) -> Tuple[bool, Optional[Dict]]:
     done_optimizing = False
     trial_index_to_param: Optional[Dict] = None
 
-    nr_of_jobs_to_get = _calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
+    nr_of_jobs_to_get = calculate_nr_of_jobs_to_get(get_nr_of_imported_jobs(), len(global_vars["jobs"]))
 
     __max_eval = _max_eval if _max_eval is not None else 0
     new_nr_of_jobs_to_get = min(__max_eval - (submitted_jobs() - failed_jobs()), nr_of_jobs_to_get)
@@ -9286,13 +9286,13 @@ def _create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Opti
 
     return done_optimizing, trial_index_to_param
 
-def _create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
+def create_and_execute_next_runs_finish(done_optimizing: bool) -> None:
     finish_previous_jobs(["finishing jobs"])
 
     if done_optimizing:
         end_program(False, 0)
 
-def _create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Dict]) -> int:
+def create_and_execute_next_runs_return_value(trial_index_to_param: Optional[Dict]) -> int:
     try:
         if trial_index_to_param:
             res = len(trial_index_to_param.keys())
@@ -9623,28 +9623,28 @@ def parse_parameters() -> Any:
 def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
     table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
 
-    rows = _pareto_front_table_read_csv()
+    rows = pareto_front_table_read_csv()
     if not rows:
         table.add_column("No data found")
         return table
 
-    filtered_rows = _pareto_front_table_filter_rows(rows, idxs)
+    filtered_rows = pareto_front_table_filter_rows(rows, idxs)
     if not filtered_rows:
         table.add_column("No matching entries")
         return table
 
-    param_cols, result_cols = _pareto_front_table_get_columns(filtered_rows[0])
+    param_cols, result_cols = pareto_front_table_get_columns(filtered_rows[0])
 
-    _pareto_front_table_add_headers(table, param_cols, result_cols)
-    _pareto_front_table_add_rows(table, filtered_rows, param_cols, result_cols)
+    pareto_front_table_add_headers(table, param_cols, result_cols)
+    pareto_front_table_add_rows(table, filtered_rows, param_cols, result_cols)
 
     return table
 
-def _pareto_front_table_read_csv() -> List[Dict[str, str]]:
+def pareto_front_table_read_csv() -> List[Dict[str, str]]:
     with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
 
-def _pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int]) -> List[Dict[str, str]]:
+def pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int]) -> List[Dict[str, str]]:
     result = []
     for row in rows:
         try:
@@ -9656,7 +9656,7 @@ def _pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int])
             result.append(row)
     return result
 
-def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
+def pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
     all_columns = list(first_row.keys())
     ignored_cols = set(special_col_names) - {"trial_index"}
 
@@ -9664,13 +9664,13 @@ def _pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str
     result_cols = [col for col in arg_result_names if col in all_columns]
     return param_cols, result_cols
 
-def _pareto_front_table_add_headers(table: Table, param_cols: List[str], result_cols: List[str]) -> None:
+def pareto_front_table_add_headers(table: Table, param_cols: List[str], result_cols: List[str]) -> None:
     for col in param_cols:
         table.add_column(col, justify="center")
     for col in result_cols:
         table.add_column(Text(f"{col}", style="cyan"), justify="center")
 
-def _pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]], param_cols: List[str], result_cols: List[str]) -> None:
+def pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]], param_cols: List[str], result_cols: List[str]) -> None:
     for row in rows:
         values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
         result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]
@@ -9731,11 +9731,11 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
 
     plt.close(fig)
 
-def _pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
+def pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
     if x.shape != y.shape:
         raise ValueError("Input arrays x and y must have the same shape.")
 
-def _pareto_front_general_compare(
+def pareto_front_general_compare(
     xi: float, yi: float, xj: float, yj: float,
     x_minimize: bool, y_minimize: bool
 ) -> bool:
@@ -9746,7 +9746,7 @@ def _pareto_front_general_compare(
 
     return bool(x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better))
 
-def _pareto_front_general_find_dominated(
+def pareto_front_general_find_dominated(
     x: np.ndarray, y: np.ndarray, x_minimize: bool, y_minimize: bool
 ) -> np.ndarray:
     num_points = len(x)
@@ -9757,7 +9757,7 @@ def _pareto_front_general_find_dominated(
             if i == j:
                 continue
 
-            if _pareto_front_general_compare(x[i], y[i], x[j], y[j], x_minimize, y_minimize):
+            if pareto_front_general_compare(x[i], y[i], x[j], y[j], x_minimize, y_minimize):
                 is_dominated[i] = True
                 break
 
@@ -9770,14 +9770,14 @@ def pareto_front_general(
     y_minimize: bool = True
 ) -> np.ndarray:
     try:
-        _pareto_front_general_validate_shapes(x, y)
-        is_dominated = _pareto_front_general_find_dominated(x, y, x_minimize, y_minimize)
+        pareto_front_general_validate_shapes(x, y)
+        is_dominated = pareto_front_general_find_dominated(x, y, x_minimize, y_minimize)
         return np.where(~is_dominated)[0]
     except Exception as e:
         print("Error in pareto_front_general:", str(e))
         return np.array([], dtype=int)
 
-def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
+def pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
     results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
     result_names_file = f"{path_to_calculate}/result_names.txt"
 
@@ -9805,7 +9805,7 @@ def _pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[
 
     return records
 
-def _pareto_front_filter_complete_points(
+def pareto_front_filter_complete_points(
     path_to_calculate: str,
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
     primary_name: str,
@@ -9822,7 +9822,7 @@ def _pareto_front_filter_complete_points(
         raise ValueError(f"No full data points with both objectives found in {path_to_calculate}.")
     return points
 
-def _pareto_front_transform_objectives(
+def pareto_front_transform_objectives(
     points: List[Tuple[Any, float, float]],
     primary_name: str,
     secondary_name: str
@@ -9845,7 +9845,7 @@ def _pareto_front_transform_objectives(
 
     return x, y
 
-def _pareto_front_select_pareto_points(
+def pareto_front_select_pareto_points(
     x: np.ndarray,
     y: np.ndarray,
     x_minimize: bool,
@@ -9859,7 +9859,7 @@ def _pareto_front_select_pareto_points(
     selected_points = [points[i] for i in sorted_indices]
     return selected_points
 
-def _pareto_front_build_return_structure(
+def pareto_front_build_return_structure(
     path_to_calculate: str,
     selected_points: List[Tuple[Any, float, float]],
     records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
@@ -9890,7 +9890,7 @@ def _pareto_front_build_return_structure(
     for (trial_index, arm_name), _, _ in selected_points:
         row = csv_rows.get(trial_index, {})
         if row == {} or row is None or row['arm_name'] != arm_name:
-            print_debug(f"_pareto_front_build_return_structure: trial_index '{trial_index}' could not be found and row returned as None")
+            print_debug(f"pareto_front_build_return_structure: trial_index '{trial_index}' could not be found and row returned as None")
             continue
 
         idxs.append(int(row["trial_index"]))
@@ -9934,15 +9934,15 @@ def get_pareto_frontier_points(
     absolute_metrics: List[str],
     num_points: int
 ) -> Optional[dict]:
-    records = _pareto_front_aggregate_data(path_to_calculate)
+    records = pareto_front_aggregate_data(path_to_calculate)
 
     if records is None:
         return None
 
-    points = _pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
-    x, y = _pareto_front_transform_objectives(points, primary_objective, secondary_objective)
-    selected_points = _pareto_front_select_pareto_points(x, y, x_minimize, y_minimize, points, num_points)
-    result = _pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
+    points = pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
+    x, y = pareto_front_transform_objectives(points, primary_objective, secondary_objective)
+    selected_points = pareto_front_select_pareto_points(x, y, x_minimize, y_minimize, points, num_points)
+    result = pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
 
     return result
 

@@ -151,19 +151,19 @@ jobs:
         docker exec slurmmaster ls -l /etc/munge /var/run/munge /etc/munge/munge.key || true
         echo
         echo "→ Node1 munge directories"
-        docker exec slurm-node1 ls -l /etc/munge /var/run/munge || true
+        docker exec slurmnode1 ls -l /etc/munge /var/run/munge || true
 
         echo
         echo "================= 🌐 STEP 4: Check TCP connection from frontend to slurmmaster:6817 ================="
-        docker exec slurm-frontend bash -lc '</dev/tcp/slurmmaster/6817' && echo "✅ TCP OK" || echo "❌ TCP FAIL"
+        docker exec slurmfrontend bash -lc '</dev/tcp/slurmmaster/6817' && echo "✅ TCP OK" || echo "❌ TCP FAIL"
 
         echo
         echo "================= 🧭 STEP 5: Check hostname resolution and ping ================="
         echo "→ From Node1 to slurmmaster"
-        docker exec slurm-node1 ping -c1 slurmmaster || echo "⚠️ Ping to slurmmaster failed"
+        docker exec slurmnode1 ping -c1 slurmmaster || echo "⚠️ Ping to slurmmaster failed"
         echo
         echo "→ From Node1 to itself"
-        docker exec slurm-node1 ping -c1 slurmnode1 || echo "⚠️ Ping to slurmnode1 failed"
+        docker exec slurmnode1 ping -c1 slurmnode1 || echo "⚠️ Ping to slurmnode1 failed"
 
         echo
         echo "================= 📜 STEP 6: Show Slurm logs ================="
@@ -171,7 +171,7 @@ jobs:
         docker exec slurmmaster tail -n 200 /var/log/slurmctld.log || true
         echo
         echo "→ /var/log/slurmd.log (Node1)"
-        docker exec slurm-node1 tail -n 200 /var/log/slurmd.log || true
+        docker exec slurmnode1 tail -n 200 /var/log/slurmd.log || true
 
         echo
         echo "================= 🧩 Debug sequence finished ================="
@@ -204,14 +204,14 @@ jobs:
 
         echo
         echo "================= 📡 NODE CONTAINERS EXISTENCE ================="
-        for node in slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+        for node in slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
             echo "→ Checking if container $node exists"
             docker inspect $node >/dev/null 2>&1 && echo "✅ $node found" || echo "❌ $node missing"
         done
 
         echo
         echo "================= 🔑 MUNGE CHECKS ON ALL ================="
-        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+        for host in slurmmaster slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
             echo "→ $host munge.key checksum"
             docker exec $host md5sum /etc/munge/munge.key 2>/dev/null || echo "❌ $host missing key"
             echo
@@ -222,7 +222,7 @@ jobs:
 
         echo
         echo "================= ⚙️ SLURM SERVICE STATUS ON EACH NODE ================="
-        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+        for host in slurmmaster slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
             echo "→ $host: ps aux | grep slurm"
             docker exec $host ps aux | grep -E 'slurmctld|slurmd' || echo "❌ no slurm processes"
             echo
@@ -230,7 +230,7 @@ jobs:
 
         echo
         echo "================= 🪵 SLURM LOG SNIPPETS ================="
-        for host in slurmmaster slurm-node1 slurm-node2 slurm-node3 slurm-node4; do
+        for host in slurmmaster slurmnode1 slurmnode2 slurmnode3 slurmnode4; do
             echo "→ $host: /var/log/slurmctld.log (if exists)"
             docker exec $host tail -n 40 /var/log/slurmctld.log 2>/dev/null || echo "no slurmctld.log"
             echo
@@ -245,7 +245,7 @@ jobs:
         docker exec slurmmaster scontrol show nodes || true
         echo
         echo "→ sinfo (Frontend)"
-        docker exec slurm-frontend sinfo || true
+        docker exec slurmfrontend sinfo || true
         echo
         echo "→ sdiag (Master)"
         docker exec slurmmaster sdiag || true
@@ -268,7 +268,7 @@ jobs:
     - name: Run OO inside slurm inside docker
       working-directory: .tests/slurm_docker
       run: |
-        CONTAINER=$(docker ps --filter "name=slurm-frontend" --format "{{.ID}}")
+        CONTAINER=$(docker ps --filter "name=slurmfrontend" --format "{{.ID}}")
         export OMNIOPT_SLURM_WAIT_SLEEP=1
         docker exec "$CONTAINER" /oo_dir/omniopt --live_share --send_anonymized_usage_stats --partition alpha --experiment_name __main__tests__BOTORCH_MODULAR___nogridsearch --mem_gb=1 --time 30 --worker_timeout=5 --max_eval 10 --num_parallel_jobs 5 --gpus 0 --run_program Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgIC0taW50X3BhcmFtPSclKGludF9wYXJhbSknIC0tZmxvYXRfcGFyYW09JyUoZmxvYXRfcGFyYW0pJyAtLWNob2ljZV9wYXJhbT0nJShjaG9pY2VfcGFyYW0pJyAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x --parameter int_param range -100 10 int --parameter float_param range -100 10 float --parameter choice_param choice 1,2,4,8,16,hallo --parameter int_param_two range -100 10 int --num_random_steps 5 --model BOTORCH_MODULAR --auto_exclude_defective_hosts --generate_all_jobs_at_once --follow --show_generate_time_table
       continue-on-error: false

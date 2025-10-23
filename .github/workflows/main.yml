@@ -131,6 +131,18 @@ jobs:
         docker logs "$CONTAINER"
         exit 1
 
+   - name: Make sure slurm-daemons are started
+      working-directory: .tests/slurm_docker/ci
+      run: |
+        docker exec -it slurmnode1 systemctl start slurmd
+        docker exec -it slurmnode2 systemctl start slurmd
+        docker exec -it slurmnode3 systemctl start slurmd
+        docker exec -it slurmnode4 systemctl start slurmd
+
+        echo "Sleeping 10 seconds..."
+        sleep 10
+        echo "Slept 10 seconds!"
+
     - name: Testing
       working-directory: .tests/slurm_docker
       run: |

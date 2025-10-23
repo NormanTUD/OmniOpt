@@ -22,19 +22,14 @@ jobs:
           - "8888:3306"
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: koesterlab/setup-slurm-action@v1
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        tags: true
 
-    - name: Build package
-      run: |
-        cd omniopt
-        ls
+      - name: Build package
+        run: |
+          cd omniopt
+          ls
 
   smoke-tests:
     strategy:

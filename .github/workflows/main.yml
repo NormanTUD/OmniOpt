@@ -11,10 +11,8 @@ on:
     - cron: '0 2 * * 0'
 
 jobs:
-  testing:
+  slurm-test:
     runs-on: ubuntu-latest
-    # For the action to work, you have to supply a mysql
-    # service as defined below.
     services:
       mysql:
         image: mysql:8.0

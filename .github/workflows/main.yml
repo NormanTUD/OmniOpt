@@ -149,8 +149,8 @@ jobs:
     - name: Check node registration
       working-directory: .tests/slurm_docker/ci
       run: |
-        docker exec -it slurmfrontend sinfo -Nel
-        docker exec -it slurmfrontend scontrol show nodes
+        docker exec slurmfrontend sinfo -Nel
+        docker exec slurmfrontend scontrol show nodes
 
     - name: Testing
       working-directory: .tests/slurm_docker

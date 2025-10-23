@@ -115,6 +115,22 @@ jobs:
         docker-compose up -d --build
         docker ps -a
 
+    - name: Wait for Slurm controller to become ready
+      run: |
+        CONTAINER=$(docker ps --filter "name=slurm-master" --format "{{.ID}}")
+        echo "Waiting for slurmctld to start in container: $CONTAINER"
+        for i in $(seq 1 30); do
+          if docker exec "$CONTAINER" bash -c "scontrol ping" 2>/dev/null | grep -q 'Slurmctld'; then
+            echo "✅ Slurm controller is ready"
+            exit 0
+          fi
+          echo "⏳ Waiting for slurmctld ($i/30)..."
+          sleep 2
+        done
+        echo "❌ Timeout waiting for slurmctld"
+        docker logs "$CONTAINER"
+        exit 1
+
     - name: Run OO inside slurm inside docker
       working-directory: .tests/slurm_docker
       run: |

@@ -67,10 +67,6 @@ function help () {
 
 NUM_GPUS=0
 if command -v nvidia-smi 2>/dev/null >/dev/null; then
-	NUM_GPUS=$(nvidia-smi --list-gpus | wc -l)
-fi
-
-if [[ "$NUM_GPUS" -ne "0" ]]; then
 	NUM_GPUS=1
 fi
 

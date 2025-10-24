@@ -3,7 +3,7 @@
 
 	$GLOBALS["files"] = array(
 		"tutorials" => array(
-			"name" => "📚&nbsp;Tutorials&Help",
+			"name" => "📚&nbsp;HowTo",
 			"entries" => array()
 		),
 		"gui" => "🧩&nbsp;GUI",

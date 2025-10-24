@@ -7764,6 +7764,8 @@ def get_ax_client_trial(trial_index: int) -> Optional[ax.core.trial.Trial]:
         return None
 
     try:
+        log_data()
+
         return ax_client.get_trial(trial_index)
     except KeyError:
         error_without_print(f"get_ax_client_trial: trial_index {trial_index} failed")
@@ -8061,6 +8063,8 @@ def break_run_search(_name: str, _max_eval: Optional[int]) -> bool:
     _counted_done_jobs = count_done_jobs()
     _submitted_jobs = submitted_jobs()
     _failed_jobs = failed_jobs()
+
+    log_data()
 
     max_failed_jobs = max_eval
 
@@ -9205,6 +9209,8 @@ def execute_trials(
                 traceback.print_exc()
 
     end_time = time.time()
+
+    log_data()
 
     duration = float(end_time - start_time)
     job_submit_durations.append(duration)

@@ -6323,7 +6323,7 @@ def count_jobs_in_squeue() -> tuple[int, str]:
     global _last_count_time, _last_count_result
 
     now = int(time.time())
-    if _last_count_result != (0, "") and now - _last_count_time < 15:
+    if _last_count_result != (0, "") and now - _last_count_time < 5:
         return _last_count_result
 
     _len = len(global_vars["jobs"])

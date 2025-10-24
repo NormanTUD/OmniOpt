@@ -157,12 +157,6 @@ try:
             message="Ax currently requires a sqlalchemy version below 2.0.*",
         )
 
-        warnings.filterwarnings(
-            "ignore",
-            category=RuntimeWarning,
-            message="coroutine 'start_logging_daemon' was never awaited"
-        )
-
     with spinner("Importing argparse..."):
         import argparse
 
@@ -2088,6 +2082,8 @@ def force_live_share() -> bool:
     return False
 
 def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
+    log_data()
+
     if not get_current_run_folder():
         print(f"live_share: get_current_run_folder was empty or false: {get_current_run_folder()}")
         return False
@@ -7488,6 +7484,8 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
     print_debug(f"finish_job_core: removing job {job}, trial_index: {trial_index}")
     global_vars["jobs"].remove((job, trial_index))
 
+    log_data()
+
     force_live_share()
 
     return this_jobs_finished
@@ -7754,6 +7752,8 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
     elapsed = time.time() - start
 
     print_debug(f"Done submitting new job, took {elapsed} seconds")
+
+    log_data()
 
     return new_job
 
@@ -9444,11 +9444,6 @@ def run_search() -> bool:
     finalize_jobs()
 
     return False
-
-async def start_logging_daemon() -> None:
-    while True:
-        log_data()
-        time.sleep(30)
 
 def should_break_search() -> bool:
     ret = False
@@ -11526,8 +11521,6 @@ def main_wrapper() -> None:
 
     print_logo()
 
-    start_logging_daemon() # type: ignore[unused-coroutine]
-
     fool_linter(args.num_cpus_main_job)
     fool_linter(args.flame_graph)
     fool_linter(args.memray)
@@ -11598,7 +11591,6 @@ def auto_wrap_namespace(namespace: Any) -> Any:
         "_record_stats",
         "_open",
         "_check_memory_leak",
-        "start_logging_daemon",
         "get_current_run_folder",
         "show_func_name_wrapper"
     }

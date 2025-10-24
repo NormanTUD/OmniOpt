@@ -750,6 +750,17 @@ def set_random_steps(new_steps: int) -> None:
 
     random_steps = new_steps
 
+_DEFAULT_SPECIALS: Dict[str, Any] = {
+    "epochs": 1,
+    "epoch": 1,
+    "steps": 1,
+    "batchsize": 1,
+    "batchsz": 1,
+    "bs": 1,
+    "lr": "min",
+    "learning_rate": "min",
+}
+
 class ConfigLoader:
     runtime_debug: bool
     show_func_name: bool
@@ -1656,18 +1667,6 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
     The user can simply press *Enter* to accept the default or type a new
     value (validated & casted to the correct type automatically).
     """
-
-    _DEFAULT_SPECIALS: Dict[str, Any] = {
-        "epochs": 1,
-        "epoch": 1,
-        "steps": 1,
-        "batchsize": 1,
-        "batchsz": 1,
-        "bs": 1,
-        "lr": "min",
-        "learning_rate": "min",
-    }
-
     seed: int
     parameters: Optional[Dict[str, Any]]
     minimize: Optional[bool]
@@ -1704,8 +1703,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     def _default_for_param(self: Any, name: str, param: Any) -> Any:
         # 1. explicit override
-        if name.lower() in self._DEFAULT_SPECIALS:
-            override = self._DEFAULT_SPECIALS[name.lower()]
+        if name.lower() in _DEFAULT_SPECIALS:
+            override = _DEFAULT_SPECIALS[name.lower()]
             if override == "max" and isinstance(param, RangeParameter):
                 return param.upper
             if override == "min" and isinstance(param, RangeParameter):

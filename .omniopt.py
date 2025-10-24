@@ -9042,17 +9042,16 @@ def create_step(model_name: str, _num_trials: int, index: int) -> GenerationStep
     )
 
 def set_global_generation_strategy() -> None:
-    with spinner("Setting global generation strategy"):
-        continue_not_supported_on_custom_generation_strategy()
+    continue_not_supported_on_custom_generation_strategy()
 
-        try:
-            if args.generation_strategy is None:
-                setup_default_generation_strategy()
-            else:
-                setup_custom_generation_strategy()
-        except Exception as e:
-            print_red(f"Unexpected error in generation strategy setup: {e}")
-            my_exit(111)
+    try:
+        if args.generation_strategy is None:
+            setup_default_generation_strategy()
+        else:
+            setup_custom_generation_strategy()
+    except Exception as e:
+        print_red(f"Unexpected error in generation strategy setup: {e}")
+        my_exit(111)
 
     if global_gs is None:
         print_red("global_gs is None after setup!")

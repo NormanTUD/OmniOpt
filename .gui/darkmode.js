@@ -67,6 +67,8 @@ function updateTextColorIfUsageStatsInURL() {
 function enable_dark_mode(set_theme_cookie=true) {
 	$("#themeSelect").val("dark");
 
+	$('#oologo').attr('src','logo_black.png');
+
 	$('#main_window pre:not(.invert_in_dark_mode)').addClass('invert_in_dark_mode');
 	$('#main_window th:not(.invert_in_dark_mode)').addClass('invert_in_dark_mode');
 	$('#main_window .gridjs-th:not(.invert_in_dark_mode)').addClass('invert_in_dark_mode');
@@ -107,6 +109,8 @@ function enable_dark_mode(set_theme_cookie=true) {
 
 function enable_light_mode(set_theme_cookie=true) {
 	$("#themeSelect").val("light");
+
+	$('#oologo').attr('src','logo_white.png');
 
 	$("html").css("filter", "");
 	$(".invert_in_dark_mode").css("filter", "");

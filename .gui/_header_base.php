@@ -177,7 +177,7 @@
 		<div id="scads_bar" class="header-container">
 			<div class="header-logo-group">
 				<a href="index">
-					<img class="logo-img" src="logo.png" alt="OmniOpt2-Logo">
+					<img id='oologo' class="logo-img" src="logo_white.png" alt="OmniOpt2-Logo">
 				</a>
 				<a href="https://scads.ai/" target="_blank">
 					<img class="logo-img" src="scads_logo.svg" alt="ScaDS.ai-Logo">

@@ -631,7 +631,7 @@ img {
 }
 
 .logo-img {
-	max-height: 45px;
+	max-height: 85px;
 	height: auto;
 	width: auto;
 	object-fit: contain;
@@ -893,7 +893,7 @@ h1, h2, h3, h4, h5, h6 {
 	}
 
 	.logo-img {
-		max-height: 50px;
+		max-height: 80px;
 		pointer-events: unset;
 	}
 

@@ -26,7 +26,6 @@
 <style>
   .code { background-color: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
   .bullet-list li { margin: 8px 0; }
-  .bullet-list li::before { content: "⚡"; margin-right: 6px; color: #2980b9; }
   .cta-box { 
     background: #fef9e7; 
     border: 2px solid #f1c40f; 

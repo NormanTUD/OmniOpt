@@ -2167,6 +2167,8 @@ def merge_with_job_infos(df: pd.DataFrame) -> pd.DataFrame:
     return merged
 
 def save_results_csv() -> Optional[str]:
+    log_data()
+
     if args.dryrun:
         return None
 
@@ -6188,6 +6190,8 @@ def print_overview_tables(classic_params: Optional[Union[list, dict]], experimen
     print_result_names_overview_table()
 
 def update_progress_bar(nr: int) -> None:
+    log_data()
+
     if progress_bar is not None:
         try:
             progress_bar.update(nr)
@@ -6467,6 +6471,8 @@ def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
 def progressbar_description(new_msgs: Union[str, List[str]] = []) -> None:
     global last_progress_bar_desc
     global last_progress_bar_refresh_time
+
+    log_data()
 
     if isinstance(new_msgs, str):
         new_msgs = [new_msgs]

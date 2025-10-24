@@ -6345,6 +6345,7 @@ def count_jobs_in_squeue() -> tuple[int, str]:
             check=True,
             text=True
         )
+
         if "slurm_load_jobs error" in result.stderr:
             _last_count_result = (_len, "Detected slurm_load_jobs error in stderr.")
             _last_count_time = now

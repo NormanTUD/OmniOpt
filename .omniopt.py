@@ -2066,9 +2066,9 @@ def run_live_share_command(force: bool = False) -> Tuple[str, str]:
             return str(result.stdout), str(result.stderr)
         except subprocess.CalledProcessError as e:
             if e.stderr:
-                original_print(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
+                print_debug(f"run_live_share_command: command failed with error: {e}, stderr: {e.stderr}")
             else:
-                original_print(f"run_live_share_command: command failed with error: {e}")
+                print_debug(f"run_live_share_command: command failed with error: {e}")
             return "", str(e.stderr)
         except Exception as e:
             print(f"run_live_share_command: An error occurred: {e}")

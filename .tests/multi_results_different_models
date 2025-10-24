@@ -80,39 +80,39 @@ function validate_results {
 
 models=($(get_supported_models))
 total_models=${#models[@]}
-	failed=0
+failed=0
 
-	for i in "${!models[@]}"; do
-		model="${models[i]}"
-		echo "===== $model ===== (Job $((i+1)) of $total_models)"
+for i in "${!models[@]}"; do
+	model="${models[i]}"
+	echo "===== $model ===== (Job $((i+1)) of $total_models)"
 
-		if [[ $failed -ne 0 ]]; then
-			yellow_text "Skipping model $model because previous models failed"
-			continue
-		fi
-
-		if [[ "$model" =~ ^(PSEUDORANDOM|SOBOL|FACTORIAL|RANDOMFOREST|TPE|EXTERNAL_GENERATOR)$ ]]; then
-			yellow_text "Skipping incompatible model $model"
-			continue
-		fi
-
-		run_model_test "$model"
-		if [[ $? -ne 0 ]]; then
-			failed=1
-			continue
-		fi
-
-		validate_results "runs/multi_results_2_results_$model" "$model"
-
-		if [[ $? -ne 0 ]]; then
-			failed=1
-		fi
-	done
-
-	if [[ $failed -eq 0 ]]; then
-		green_text "All Multi-Result model tests succeeded"
-		exit 0
-	else
-		red_text "Some tests failed. Check logs."
-		exit 1
+	if [[ $failed -ne 0 ]]; then
+		yellow_text "Skipping model $model because previous models failed"
+		continue
 	fi
+
+	if [[ "$model" =~ ^(PSEUDORANDOM|SOBOL|FACTORIAL|RANDOMFOREST|TPE|EXTERNAL_GENERATOR)$ ]]; then
+		yellow_text "Skipping incompatible model $model"
+		continue
+	fi
+
+	run_model_test "$model"
+	if [[ $? -ne 0 ]]; then
+		failed=1
+		continue
+	fi
+
+	validate_results "runs/multi_results_2_results_$model" "$model"
+
+	if [[ $? -ne 0 ]]; then
+		failed=1
+	fi
+done
+
+if [[ $failed -eq 0 ]]; then
+	green_text "All Multi-Result model tests succeeded"
+	exit 0
+else
+	red_text "Some tests failed. Check logs."
+	exit 1
+fi

@@ -9195,6 +9195,8 @@ def execute_trials(
         index_param_list.append(_args)
         i += 1
 
+        log_data()
+
     start_time = time.time()
 
     cnt = 0

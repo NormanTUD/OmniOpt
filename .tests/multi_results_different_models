@@ -34,7 +34,7 @@ function run_model_test {
 		--live_share --send_anonymized_usage_stats --partition alpha \
 		--experiment_name "$run_name" \
 		--mem_gb=4 --time 60 --worker_timeout=5 --max_eval 2 \
-		--num_parallel_jobs 20 --gpus $NUM_GPUS \
+		--num_parallel_jobs 1 --gpus $NUM_GPUS \
 		--run_program $(echo "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)'  --int_param_two='%(int_param_two)' --nr_results=2" | base64 -w0) \
 		--parameter int_param range -100 10 int \
 		--parameter float_param range -100 10 float \

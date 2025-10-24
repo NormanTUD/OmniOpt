@@ -1704,8 +1704,8 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     def _default_for_param(self: Any, name: str, param: Any) -> Any:
         # 1. explicit override
-        if name.lower() in _DEFAULT_SPECIALS:
-            override = _DEFAULT_SPECIALS[name.lower()]
+        if name.lower() in self._DEFAULT_SPECIALS:
+            override = self._DEFAULT_SPECIALS[name.lower()]
             if override == "max" and isinstance(param, RangeParameter):
                 return param.upper
             if override == "min" and isinstance(param, RangeParameter):

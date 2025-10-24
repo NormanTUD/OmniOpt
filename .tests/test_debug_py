@@ -1,0 +1,38 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$SCRIPT_DIR"
+cd ..
+
+NUM_GPUS=0
+
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
+fi
+
+testname=test_if_debug_py_has_alternating
+rundir=runs/$testname
+
+if [[ -d $rundir ]]; then
+	rm -rf $rundir
+fi
+
+.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --max_eval=1 --mem_gb=4 --generate_all_jobs_at_once --random_sem --nr_results=1 --follow --testname="$testname" --nr_results=3 --alternate_min_max
+exit_code=$?
+
+if [[ $exit_code != 0 ]]; then
+	echo "Command failed with exit code $exit_code"
+	exit 1
+fi
+
+if [[ $(cat runs/test_if_debug_py_has_alternating/0/debug.py | grep minimize=True | wc -l) -ne 2 ]]; then
+	echo "debug.py has not 2 'minimize=True' lines"
+	exit 2
+fi
+
+if [[ $(cat runs/test_if_debug_py_has_alternating/0/debug.py | grep minimize=False | wc -l) -ne 1 ]]; then
+	echo "debug.py has not one 'minimize=False' lines"
+	exit 3
+fi
+
+exit 0

@@ -379,16 +379,9 @@ def _record_stats(func_name: str, elapsed: float, mem_diff: float, mem_after: fl
         call_path_str = " -> ".join(short_stack)
         _func_call_paths[func_name][call_path_str] += 1
 
-        print(
-            f"Function '{func_name}' took {elapsed:.4f}s "
-            f"(total {percent_if_added:.1f}% of tracked time)"
-        )
-        print(
-            f"Memory before: {mem_after - mem_diff:.2f} MB, after: {mem_after:.2f} MB, "
-            f"diff: {mem_diff:+.2f} MB, peak during call: {mem_peak:.2f} MB"
-        )
+        print(f"Function '{func_name}' took {elapsed:.4f}s (total {percent_if_added:.1f}% of tracked time)")
+        print(f"Memory before: {mem_after - mem_diff:.2f} MB, after: {mem_after:.2f} MB, diff: {mem_diff:+.2f} MB, peak during call: {mem_peak:.2f} MB")
 
-        # NEU: Runtime Stats
         runtime_stats = collect_runtime_stats()
         print("=== Runtime Stats ===")
         print(f"RSS: {runtime_stats['rss_MB']:.2f} MB, VMS: {runtime_stats['vms_MB']:.2f} MB")

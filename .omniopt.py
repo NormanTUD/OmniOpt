@@ -9272,6 +9272,7 @@ def create_and_execute_next_runs_run_loop(_max_eval: Optional[int], phase: Optio
 
     for _ in range(range_nr):
         trial_index_to_param, done_optimizing = get_next_trials(get_next_trials_nr)
+        log_data()
         if done_optimizing:
             continue
 

@@ -59,8 +59,6 @@ password=""
 outfile=
 send_single_runs=1
 
-run_dir_arg="$1"
-
 show_help_and_exit() {
 	local code=$1
 	echo "OmniOpt2 share - Share your hyperparameter optimization results with others. Options:"
@@ -517,4 +515,6 @@ main() {
 	exit 0
 }
 
-main "$@"
+if [[ "${TEST_MODE:-0}" -ne 1 ]]; then
+	main "$@"
+fi

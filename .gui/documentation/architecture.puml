@@ -68,7 +68,7 @@ User ..> Share : User Views Job results
 
 ' === Lokaler Modus ===
 package "Local Mode" {
-  database "runs/ (local)" as LocalRuns
+  database "runs/" as LocalRuns
 
   node "Local System" {
     component "OmniOpt2 main script" as LocalCore

@@ -21,7 +21,7 @@ Enter the **Sobol sequence** — a quasi-random, low-discrepancy sequence that s
 When choosing a certain number of initial hyperparameter settings, random sampling often clusters or misses regions entirely.
 A Sobol sequence achieves **better coverage** with the same number of samples, increasing your chance of finding promising areas early.
 
-This makes it ideal for the *initial exploration* phase, before you refine results using models like [BoTorch](tutorials?tutorial=models).
+This makes it ideal for the *initial exploration* phase, before you refine results using models like [BoTorch or other surrogate models](tutorials?tutorial=models).
 
 ## How Sobol sequences work
 

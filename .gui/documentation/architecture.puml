@@ -51,12 +51,12 @@ skinparam componentStyle rectangle
 skinparam defaultFontName Monospace
 skinparam ArrowFontSize 11
 
-title OmniOpt2 Architecture
+title OmniOpt Architecture
 
 ' === Benutzeroberfläche ===
 package "User Interface" {
   component "Web GUI\n(optional)" as GUI #line.dashed
-  database "OmniOpt2 Share" as Share #line.dashed
+  database "OmniOpt Share" as Share #line.dashed
 }
 
 component "CLI Command\nomniopt ..." as CLI
@@ -71,7 +71,7 @@ package "Local Mode" {
   database "runs/" as LocalRuns
 
   node "Local System" {
-    component "OmniOpt2 main script" as LocalCore
+    component "OmniOpt main script" as LocalCore
 
     component "Job #1" as LocalJob1 #FF8C00
     component "Job #2" as LocalJob2 #FF8C00
@@ -99,7 +99,7 @@ package "HPC Mode (via submitit/sbatch)" {
 
     node "Login Node\n(sbatch only)" as LoginNode
     node "Head Node" {
-      component "OmniOpt2 main script" as HPCMaster
+      component "OmniOpt main script" as HPCMaster
     }
     node "Compute Node 1" {
       component "Job #1" as HPCJob1 #FF8C00

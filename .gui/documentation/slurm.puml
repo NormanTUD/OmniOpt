@@ -52,7 +52,7 @@ skinparam ArrowFontSize 11
 title Interaction between OmniOpt, sbatch, ax, BoTorch Module, and ExternalGenerationNodes
 
 node "HPC Master Node" as HPCMaster {
-  component "OmniOpt2 Core" as OmniOptCore
+  component "OmniOpt Core" as OmniOptCore
   component "ax" as ax_module #LightBlue
 
   package "BoTorch Module" {

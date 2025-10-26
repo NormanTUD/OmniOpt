@@ -33,12 +33,6 @@ This makes it ideal for the *initial exploration* phase, before you refine resul
 - The resulting vector \((x_{i,1}, x_{i,2}, \dots, x_{i,s})\) is the \(i\)-th Sobol point.
 - The sequence satisfies properties of a \((t, s)\)-sequence in base 2 — ensuring uniform space coverage.
 
-### Compact summary
-
-$$x_{i,j} = \bigoplus_{k=1}^{\infty} i_k\,v_{k,j}$$
-
-where \(i_k\) is the \(k\)-th bit of \(i\), and the direction numbers \(v_{k,j}\) are precomputed constants.
-
 ## Summary
 
 Sobol sequences provide a **deterministic, low-discrepancy** way to explore hyperparameter spaces.

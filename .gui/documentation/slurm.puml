@@ -62,6 +62,7 @@ node "HPC Master Node" as HPCMaster {
     component "BOTORCH_MODULAR\n..." as modular #99FF99
     component "GPEI\n..." as gpei #99FF99
     component "SAASBO\n..." as saasbo #99FF99
+    component "Other modules\n..." as othermodules #99FF99
 
     botorch -down-> modular
     modular -> botorch
@@ -69,6 +70,8 @@ node "HPC Master Node" as HPCMaster {
     gpei -> botorch
     botorch -down-> saasbo
     saasbo -> botorch
+    othermodules -> botorch
+    botorch -> othermodules
   }
 
   component "ExternalGenerationNodes" as external_nodes
@@ -85,14 +88,12 @@ node "Compute Nodes" as ComputeNodes {
 
 OmniOptCore --> ax_module : invoke with search space
 
-ax_module --> sobol : generate initial points (default)
 sobol --> ax_module : initial points
 
-ax_module --> botorch : generate points\n(using current points)
-ax_module --> external_nodes : generate points\n(using current points)
-ax_module --> rf_nodes : generate points\n(using current points)
+ax_module --> botorch : generate points\n(using already evaluated points)
+ax_module --> external_nodes : generate points\n(using already evaluated points)
+ax_module --> rf_nodes : generate points\n(using already evaluated points)
 
-botorch --> ax_module : new points
 external_nodes --> ax_module : new points
 rf_nodes --> ax_module : new points
 

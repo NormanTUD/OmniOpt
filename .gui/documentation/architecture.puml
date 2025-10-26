@@ -90,7 +90,7 @@ package "Local Mode" {
   LocalJobN --> LocalCore : result
 
   LocalCore --> LocalRuns : write all results
-  LocalRuns ..> Share : --live_share, omniopt_share
+  LocalRuns ..> Share : --live_share/omniopt_share
 }
 
 ' === HPC Modus ===
@@ -126,7 +126,7 @@ package "HPC Mode (via submitit/sbatch)" {
   HPCJobN --> HPCMaster : result
 
   HPCMaster --> HPCRuns : write all results
-  HPCRuns ..> Share : --live_share, omniopt_share
+  HPCRuns ..> Share : --live_share/omniopt_share
 }
 
 @enduml

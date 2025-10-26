@@ -44,6 +44,8 @@ where \(i_k\) is the \(k\)-th bit of \(i\), and the direction numbers \(v_{k,j}\
 Sobol sequences provide a **deterministic, low-discrepancy** way to explore hyperparameter spaces.
 They outperform pure random search in uniformity and efficiency, making them ideal for *initial sampling* before model-based refinement.
 
+## Caveats
+
 <div class="caveat warning">
 - Sobol sequences do **not guarantee** global optima — they’re best for exploration, not exploitation.
 - High-dimensional spaces still suffer from the curse of dimensionality.

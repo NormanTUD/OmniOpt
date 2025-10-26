@@ -28,7 +28,7 @@ This makes it ideal for the *initial exploration* phase, before you refine resul
 ### Direction numbers and binary construction
 
 - For each dimension \(j\) (from \(1\) to \(s\)), select a primitive polynomial over [\(GF(2)\)](https://en.wikipedia.org/wiki/Finite_field) of degree \(s_j\).
-- Define “direction numbers” \(v_{k,j}\) as binary fractions: $v_{k,j} = \frac{m_{k,j}}{2^k}$ where \(m_{k,j}\) are odd integers less than \(2^k\).
+- Define “direction numbers” \(v_{k,j}\) as binary fractions: \(v_{k,j} = \frac{m_{k,j}}{2^k}\) where \(m_{k,j}\) are odd integers less than \(2^k\).
 - Represent the integer index \(i\) in binary: \(i = ( \dots i_3\,i_2\,i_1 )_2\). The \(j\)-th coordinate of the \(i\)-th point is: \(x_{i,j} = i_1 v_{1,j} \oplus i_2 v_{2,j} \oplus i_3 v_{3,j} \oplus \cdots\),  where \(\oplus\) is the bitwise XOR operation.
 - The resulting vector \((x_{i,1}, x_{i,2}, \dots, x_{i,s})\) is the \(i\)-th Sobol point.
 - The sequence satisfies properties of a \((t, s)\)-sequence in base 2 — ensuring uniform space coverage.

@@ -4,7 +4,7 @@
 				<a href="https://scads.ai/privacy/" target="_blank">Privacy Policy</a>
 			</p>
 			<p class="status-bar-field">
-				<a href="mailto:norman.koch@scads.ai">Contact Us</a>
+				<a href="mailto:norman.koch@tu-dresden.de">Contact Us</a>
 			</p>
 			<p class="status-bar-field">
 				<a href="https://scads.ai/imprint/" target="_blank">Imprint/Impressum</a>

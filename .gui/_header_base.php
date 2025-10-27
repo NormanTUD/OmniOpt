@@ -85,7 +85,7 @@
 		<?php js("darkmode.js"); ?>
 		<?php js("ansi_up.js"); ?>
 		<?php js("jquery.dataTables.min.js"); ?>
-		<?php js("crypto-core.js"); ?>
+		<?php js("libs/crypto-core.js"); ?>
 		<?php js("md5.js"); ?>
 		<?php js("main.js"); ?>
 		<?php js("search.js"); ?>

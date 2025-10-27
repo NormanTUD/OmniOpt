@@ -136,6 +136,8 @@ def flatten_extend(matrix: list) -> list:
 
 def convert_string_to_number(input_string: str) -> Union[int, float, None]:
     try:
+        assert isinstance(input_string, str), "Input must be a string"
+
         input_string = input_string.replace(",", ".")
 
         float_pattern = re.compile(r"[+-]?\d*\.\d+")

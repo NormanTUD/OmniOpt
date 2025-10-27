@@ -112,6 +112,9 @@ to_test = {
         "pareto_front_general_compare(1, 1, 1, 1e-9, True, True)": True,
         "pareto_front_general_compare(1, 1, 1, 1, True, True)": False,
         "pareto_front_general_compare(1, 1, 1, 1, False, False)": False,
+        "pareto_front_general_compare(1, 1, 0.5, 1, True, True)": True,
+        "pareto_front_general_compare(1, 1, 1, 0.5, True, True)": True,
+        "pareto_front_general_compare(1, 1, 1, 1, True, True)": False,
 
         "pareto_front_general_validate_shapes(np.array([1,2]), np.array([1,2]))": None,
 

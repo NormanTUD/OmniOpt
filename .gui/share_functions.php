@@ -2408,7 +2408,7 @@
 
 			$pareto_front_html = "<div id='pareto_front_idxs_plot_container'></div><div id='pareto_from_idxs_table'></div>\n";
 
-			$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
+			$tabs["{$svg_icon}Pareto-Fronts"] = [
 				'id' => 'tab_pareto_fronts',
 				'content' => $pareto_front_html,
 				'onclick' => "load_pareto_graph_from_idxs();"
@@ -2430,7 +2430,7 @@
 			if($pareto_front_html) {
 				$pareto_front_html = "<div class='caveat warning'>The old algorithm for calculating the pareto-front was buggy. Please re-calculate them using <tt>bash omniopt --calculate_pareto_front_of_job runs/path_to_job/run_nr --live_share</tt>.</div><div id='pareto_front_graphs_container'></div>\n$pareto_front_html";
 
-				$tabs["{$svg_icon}Pareto-Fronts-Estimation"] = [
+				$tabs["{$svg_icon}Pareto-Fronts"] = [
 					'id' => 'tab_pareto_fronts',
 					'content' => $pareto_front_html
 				];

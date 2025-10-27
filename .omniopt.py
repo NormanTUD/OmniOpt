@@ -3739,7 +3739,7 @@ def replace_parameters_in_string(
 ) -> str:
     try:
         prefixes = ['$', '%'] + additional_prefixes
-        patterns = ['{key}', '({key})'] + additional_patterns
+        patterns = ['{' + 'key' + '}', '(' + '{' + 'key' + '}' + ')'] + additional_patterns
 
         for key, value in parameters.items():
             replacement = format_value(value, float_format=float_format)

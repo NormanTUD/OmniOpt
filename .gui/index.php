@@ -55,7 +55,7 @@
 <div class="cta-box">
 Check the <a target="_blank" href="tutorials.php?tutorial=run_sh">documentation</a> to adjust your program, then launch the <a href="gui.php">OmniOpt2 GUI</a> and start optimizing — faster, smarter, simpler!
 </div>
-			<script src="prism.js"></script>
+			<script src="libs/prism.js"></script>
 			<script src="footer.js"></script>
 		</div>
 <?php

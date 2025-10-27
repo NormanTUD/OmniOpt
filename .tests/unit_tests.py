@@ -7,6 +7,7 @@ import importlib.util
 from rich.progress import Progress
 from rich.console import Console
 from rich.table import Table
+import numpy as np
 
 console = Console()
 
@@ -111,6 +112,13 @@ to_test = {
         "pareto_front_general_compare(1, 1, 1, 1e-9, True, True)": True,
         "pareto_front_general_compare(1, 1, 1, 1, True, True)": False,
         "pareto_front_general_compare(1, 1, 1, 1, False, False)": False,
+
+        "pareto_front_general_validate_shapes(np.array([1,2]), np.array([1,2]))": None,
+
+        "pareto_front_table_filter_rows([{'trial_index':'1','trial_status':'COMPLETED'},{'trial_index':'2','trial_status':'RUNNING'}],[1])": [{'trial_index':'1','trial_status':'COMPLETED'}],
+        "pareto_front_table_filter_rows([{'trial_index':'abc','trial_status':'COMPLETED'}],[0])": [],
+
+        "pareto_front_select_pareto_points(np.array([1,2,0.5]), np.array([1,2,1]), True, True, [(0,1,1),(1,2,2),(2,0.5,1)], 2)": [(2,0.5,1),(0,1,1)],
     }
 }
 

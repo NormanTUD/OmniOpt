@@ -78,13 +78,13 @@
 		<title>OmniOpt2</title>
 		<link href="prism.css" rel="stylesheet">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
-		<?php js("jquery-3.7.1.js"); ?>
-		<?php js("jquery-ui.min.js"); ?>
+		<?php js("libs/jquery-3.7.1.js"); ?>
+		<?php js("libs/jquery-ui.min.js"); ?>
 		<?php js("prism.js"); ?>
-		<?php js("tooltipster.bundle.min.js"); ?>
+		<?php js("libs/tooltipster.bundle.min.js"); ?>
 		<?php js("darkmode.js"); ?>
 		<?php js("ansi_up.js"); ?>
-		<?php js("jquery.dataTables.min.js"); ?>
+		<?php js("libs/jquery.dataTables.min.js"); ?>
 		<?php js("libs/crypto-core.js"); ?>
 		<?php js("md5.js"); ?>
 		<?php js("main.js"); ?>
@@ -96,7 +96,7 @@
 ?>
 			<link rel="stylesheet" href="css/share.css">
 			<meta name="robots" content="noindex, nofollow">
-			<?php js("plotly-latest.min.js"); ?>
+			<?php js("libs/plotly-latest.min.js"); ?>
 			<?php js("js/gridjs.umd.js"); ?>
 
 			<?php js("js/heatmap.js"); ?>
@@ -171,7 +171,7 @@
 
 			document.addEventListener('keydown', handle_key_down);
 		</script>
-		<script id="MathJax-script" async src="tex-mml-chtml.js"></script>
+		<script id="MathJax-script" async src="libs/tex-mml-chtml.js"></script>
 	</head>
 	<body>
 		<div id="scads_bar" class="header-container">

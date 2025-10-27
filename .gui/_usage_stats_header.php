@@ -20,7 +20,7 @@
 
 	require "_header_base.php";
 ?>
-	<script src="plotly-latest.min.js"></script>
+	<script src="libs/plotly-latest.min.js"></script>
 	<style>
 		table {
 			width: 100%;

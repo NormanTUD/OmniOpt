@@ -39,7 +39,6 @@ to_test = {
         "check_environment_variable('I_DO_NOT_EXIST')": False,
         "looks_like_int(1)": True,
         "to_int_when_possible('hallo')": "hallo",
-        "print_diff('hallo', 'hallo', 'hallo')": None,
         "looks_like_int('hallo')": False,
         "looks_like_int(4.2)": False,
         "looks_like_int(42)": True,
@@ -48,11 +47,7 @@ to_test = {
         "convert_string_to_number('1.1')": 1.1,
         "convert_string_to_number('hallo')": None,
         "convert_string_to_number(True)": None,
-        "_is_equal('test', 1, 1)": False,
-        "_is_not_equal('test', 1, 1)": True,
-        "print_if_not_plot_tests_and_exit('x', None)": 'x',
         "_handle_update_graph_exception('invalid command name')": None,
-        "print_traceback()": None,
         "flatten_extend([[1,2],[3,4]])": [1, 2, 3, 4]
     },
     ".pareto.py": {

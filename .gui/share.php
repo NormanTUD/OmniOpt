@@ -115,7 +115,7 @@
 						["$run_dir/generation_times.txt", "Generation Times", "tab_job_generation_times"],
 					],
 					'add_simple_table_from_ascii_table_file' => [
-						["$run_dir/args_overview.txt", "Args Overview", "tab_args_overview"]
+						["$run_dir/args_overview.txt", "Args", "tab_args_overview"]
 					],
 					'add_worker_usage_plot_from_file' => [
 						["$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage"]
@@ -124,10 +124,10 @@
 						["$run_dir/log", "Debug-Logs", "tab_debug_logs"]
 					],
 					'add_cpu_ram_usage_main_worker_from_file' => [
-						["$run_dir/cpu_ram_usage.csv", "CPU/RAM-Usage (main)", "tab_main_worker_cpu_ram"]
+						["$run_dir/cpu_ram_usage.csv", "CPU/RAM (main)", "tab_main_worker_cpu_ram"]
 					],
 					'add_parameter_distribution_by_type_plot' => [
-						["$run_dir/results.csv", "Param-Distrib by Status", "tab_param_distrib_by_job_type"]
+						["$run_dir/results.csv", "Param by Status", "tab_param_distrib_by_job_type"]
 					],
 					'add_flame_svg_file' => [
 						["$run_dir/profile_svg", "Flame-Graph", "tab_flame_graph"]

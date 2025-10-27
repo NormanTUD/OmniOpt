@@ -900,7 +900,7 @@
 
 		$svg_icon = get_icon_html("plot.svg");
 
-		$tabs["{$svg_icon}Job Status Distribution"] = [
+		$tabs["{$svg_icon}Status Distrib."] = [
 			'id' => 'tab_plot_job_status_distribution',
 			'content' => $html,
 			"onclick" => "plotJobStatusDistribution();"

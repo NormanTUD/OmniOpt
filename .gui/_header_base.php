@@ -80,7 +80,7 @@
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<?php js("libs/jquery-3.7.1.js"); ?>
 		<?php js("libs/jquery-ui.min.js"); ?>
-		<?php js("prism.js"); ?>
+		<?php js("libs/prism.js"); ?>
 		<?php js("libs/tooltipster.bundle.min.js"); ?>
 		<?php js("darkmode.js"); ?>
 		<?php js("libs/ansi_up.js"); ?>

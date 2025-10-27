@@ -121,7 +121,7 @@
 						["$run_dir/worker_usage.csv", "Worker-Usage", "tab_worker_usage"]
 					],
 					'add_debug_log_from_file' => [
-						["$run_dir/log", "Debug-Logs", "tab_debug_logs"]
+						["$run_dir/log", "Debug", "tab_debug_logs"]
 					],
 					'add_cpu_ram_usage_main_worker_from_file' => [
 						["$run_dir/cpu_ram_usage.csv", "CPU/RAM (main)", "tab_main_worker_cpu_ram"]

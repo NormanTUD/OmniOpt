@@ -493,17 +493,17 @@ try:
         dier: FunctionType = helpers.dier
         is_equal: FunctionType = helpers.is_equal
         is_not_equal: FunctionType = helpers.is_not_equal
-    with spinner("Importing helpers..."):
-        helpers_file: str = f"{script_dir}/.pareto.py"
+    with spinner("Importing pareto..."):
+        pareto_file: str = f"{script_dir}/.pareto.py"
         spec = importlib.util.spec_from_file_location(
             name="pareto",
-            location=helpers_file,
+            location=pareto_file,
         )
         if spec is not None and spec.loader is not None:
             pareto = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(pareto)
         else:
-            raise ImportError(f"Could not load module from {helpers_file}")
+            raise ImportError(f"Could not load module from {pareto_file}")
 
         pareto_front_table_filter_rows: FunctionType = pareto.pareto_front_table_filter_rows
         pareto_front_table_add_headers: FunctionType = pareto.pareto_front_table_add_headers

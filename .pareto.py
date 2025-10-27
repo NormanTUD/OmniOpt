@@ -88,8 +88,8 @@ def _find_dominated(x: np.ndarray, y: np.ndarray, x_minimize: bool, y_minimize: 
 
 # ----------------- Public Pareto functions -----------------
 def pareto_front_general(
-    x: Sequence[float],
-    y: Sequence[float],
+    x: np.ndarray,
+    y: np.ndarray,
     x_minimize: bool = True,
     y_minimize: bool = True
 ) -> np.ndarray:

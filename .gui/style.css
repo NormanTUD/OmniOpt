@@ -880,6 +880,10 @@ h1, h2, h3, h4, h5, h6 {
 	.toc {
 		display: none !important;
 	}
+
+	#footer_element {
+		display: none !important;
+	}
 }
 
 @media (max-width: 768px) {

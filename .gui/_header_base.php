@@ -83,10 +83,10 @@
 		<?php js("prism.js"); ?>
 		<?php js("libs/tooltipster.bundle.min.js"); ?>
 		<?php js("darkmode.js"); ?>
-		<?php js("ansi_up.js"); ?>
+		<?php js("libs/ansi_up.js"); ?>
 		<?php js("libs/jquery.dataTables.min.js"); ?>
 		<?php js("libs/crypto-core.js"); ?>
-		<?php js("md5.js"); ?>
+		<?php js("libs/md5.js"); ?>
 		<?php js("main.js"); ?>
 		<?php js("search.js"); ?>
 		<?php js("initialization.js"); ?>

@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict, Any, Sequence
+from typing import Tuple, List, Dict, Any
 from rich.table import Table
 from rich.text import Text
 import numpy as np

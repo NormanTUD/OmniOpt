@@ -508,7 +508,6 @@ try:
         pareto_front_table_filter_rows: FunctionType = pareto.pareto_front_table_filter_rows
         pareto_front_table_add_headers: FunctionType = pareto.pareto_front_table_add_headers
         pareto_front_table_add_rows: FunctionType = pareto.pareto_front_table_add_rows
-        pareto_front_general: FunctionType = pareto.pareto_front_general
         pareto_front_filter_complete_points: FunctionType = pareto.pareto_front_filter_complete_points
         pareto_front_select_pareto_points: FunctionType = pareto.pareto_front_select_pareto_points
 

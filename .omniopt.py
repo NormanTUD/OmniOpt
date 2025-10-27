@@ -493,6 +493,28 @@ try:
         dier: FunctionType = helpers.dier
         is_equal: FunctionType = helpers.is_equal
         is_not_equal: FunctionType = helpers.is_not_equal
+    with spinner("Importing helpers..."):
+        helpers_file: str = f"{script_dir}/.pareto.py"
+        spec = importlib.util.spec_from_file_location(
+            name="pareto",
+            location=helpers_file,
+        )
+        if spec is not None and spec.loader is not None:
+            pareto = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(pareto)
+        else:
+            raise ImportError(f"Could not load module from {helpers_file}")
+
+        pareto_front_table_filter_rows: FunctionType = pareto.pareto_front_table_filter_rows
+        pareto_front_table_add_headers: FunctionType = pareto.pareto_front_table_add_headers
+        pareto_front_table_add_rows: FunctionType = pareto.pareto_front_table_add_rows
+        pareto_front_general_validate_shapes: FunctionType = pareto.pareto_front_general_validate_shapes
+        pareto_front_general_compare: FunctionType = pareto.pareto_front_general_compare
+        pareto_front_general_find_dominated: FunctionType = pareto.pareto_front_general_find_dominated
+        pareto_front_general: FunctionType = pareto.pareto_front_general
+        pareto_front_filter_complete_points: FunctionType = pareto.pareto_front_filter_complete_points
+        pareto_front_select_pareto_points: FunctionType = pareto.pareto_front_select_pareto_points
+
 except KeyboardInterrupt:
     print("You pressed CTRL-c while importing the helpers file")
     sys.exit(0)
@@ -545,7 +567,6 @@ def error_without_print(text: str) -> None:
         except (OSError, FileNotFoundError) as e:
             helpers.print_color("red", f"Error: {e}. This may mean that the {get_current_run_folder()} was deleted during the run. Could not write '{text} to {get_current_run_folder()}/oo_errors.txt'")
             sys.exit(99)
-
 
 def print_red(text: str) -> None:
     helpers.print_color("red", text)
@@ -3353,6 +3374,328 @@ def parse_experiment_parameters() -> None:
 
     experiment_parameters = params # type: ignore[assignment]
 
+def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
+    pf_start_time = time.time()
+
+    if not path_to_calculate:
+        return False
+
+    global CURRENT_RUN_FOLDER
+    global RESULT_CSV_FILE
+    global arg_result_names
+
+    if not path_to_calculate:
+        print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
+        return False
+
+    if not os.path.exists(path_to_calculate):
+        print_red(f"Path '{path_to_calculate}' does not exist")
+        return False
+
+    ax_client_json = f"{path_to_calculate}/state_files/ax_client.experiment.json"
+
+    if not os.path.exists(ax_client_json):
+        print_red(f"Path '{ax_client_json}' not found")
+        return False
+
+    checkpoint_file: str = f"{path_to_calculate}/state_files/checkpoint.json"
+    if not os.path.exists(checkpoint_file):
+        print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
+        return False
+
+    RESULT_CSV_FILE = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
+    if not os.path.exists(RESULT_CSV_FILE):
+        print_red(f"{RESULT_CSV_FILE} not found")
+        return False
+
+    res_names = []
+
+    res_names_file = f"{path_to_calculate}/result_names.txt"
+    if not os.path.exists(res_names_file):
+        print_red(f"File '{res_names_file}' does not exist")
+        return False
+
+    try:
+        with open(res_names_file, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+    except Exception as e:
+        print_red(f"Error reading file '{res_names_file}': {e}")
+        return False
+
+    for line in lines:
+        entry = line.strip()
+        if entry != "":
+            res_names.append(entry)
+
+    if len(res_names) < 2:
+        print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}) in {path_to_calculate}. Cannot continue calculating the pareto front.")
+        return False
+
+    load_username_to_args(path_to_calculate)
+
+    CURRENT_RUN_FOLDER = path_to_calculate
+
+    arg_result_names = res_names
+
+    load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
+
+    if experiment_parameters is None:
+        return False
+
+    show_pareto_or_error_msg(path_to_calculate, res_names, disable_sixel_and_table)
+
+    pf_end_time = time.time()
+
+    print_debug(f"Calculating the Pareto-front took {pf_end_time - pf_start_time} seconds")
+
+    return True
+
+def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
+    if args.dryrun:
+        print_debug("Not showing Pareto-frontier data with --dryrun")
+        return None
+
+    if len(res_names) > 1:
+        try:
+            show_pareto_frontier_data(path_to_calculate, res_names, disable_sixel_and_table)
+        except Exception as e:
+            inner_tb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+            print_red(f"show_pareto_frontier_data() failed with exception '{e}':\n{inner_tb}")
+    else:
+        print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
+    return None
+
+def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
+    pareto_front_data: dict = {}
+
+    all_combinations = list(combinations(range(len(arg_result_names)), 2))
+
+    skip = False
+
+    for i, j in all_combinations:
+        if not skip:
+            metric_x = arg_result_names[i]
+            metric_y = arg_result_names[j]
+
+            x_minimize = get_result_minimize_flag(path_to_calculate, metric_x)
+            y_minimize = get_result_minimize_flag(path_to_calculate, metric_y)
+
+            try:
+                if metric_x not in pareto_front_data:
+                    pareto_front_data[metric_x] = {}
+
+                pareto_front_data[metric_x][metric_y] = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
+            except ax.exceptions.core.DataRequiredError as e:
+                print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
+            except SignalINT:
+                print_red("Calculating Pareto-fronts was cancelled by pressing CTRL-c")
+                skip = True
+
+    return pareto_front_data
+
+def pareto_front_transform_objectives(
+    points: List[Tuple[Any, float, float]],
+    primary_name: str,
+    secondary_name: str
+) -> Tuple[np.ndarray, np.ndarray]:
+    primary_idx = arg_result_names.index(primary_name)
+    secondary_idx = arg_result_names.index(secondary_name)
+
+    x = np.array([p[1] for p in points])
+    y = np.array([p[2] for p in points])
+
+    if arg_result_min_or_max[primary_idx] == "max":
+        x = -x
+    elif arg_result_min_or_max[primary_idx] != "min":
+        raise ValueError(f"Unknown mode for {primary_name}: {arg_result_min_or_max[primary_idx]}")
+
+    if arg_result_min_or_max[secondary_idx] == "max":
+        y = -y
+    elif arg_result_min_or_max[secondary_idx] != "min":
+        raise ValueError(f"Unknown mode for {secondary_name}: {arg_result_min_or_max[secondary_idx]}")
+
+    return x, y
+
+def get_pareto_frontier_points(
+    path_to_calculate: str,
+    primary_objective: str,
+    secondary_objective: str,
+    x_minimize: bool,
+    y_minimize: bool,
+    absolute_metrics: List[str],
+    num_points: int
+) -> Optional[dict]:
+    records = pareto_front_aggregate_data(path_to_calculate)
+
+    if records is None:
+        return None
+
+    points = pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
+    x, y = pareto_front_transform_objectives(points, primary_objective, secondary_objective)
+    selected_points = pareto_front_select_pareto_points(x, y, x_minimize, y_minimize, points, num_points)
+    result = pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
+
+    return result
+
+def pareto_front_table_read_csv() -> List[Dict[str, str]]:
+    with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
+    table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
+
+    rows = pareto_front_table_read_csv()
+    if not rows:
+        table.add_column("No data found")
+        return table
+
+    filtered_rows = pareto_front_table_filter_rows(rows, idxs)
+    if not filtered_rows:
+        table.add_column("No matching entries")
+        return table
+
+    param_cols, result_cols = pareto_front_table_get_columns(filtered_rows[0])
+
+    pareto_front_table_add_headers(table, param_cols, result_cols)
+    pareto_front_table_add_rows(table, filtered_rows, param_cols, result_cols)
+
+    return table
+
+def pareto_front_build_return_structure(
+    path_to_calculate: str,
+    selected_points: List[Tuple[Any, float, float]],
+    records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
+    absolute_metrics: List[str],
+    primary_name: str,
+    secondary_name: str
+) -> dict:
+    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
+    result_names_file = f"{path_to_calculate}/result_names.txt"
+
+    with open(result_names_file, mode="r", encoding="utf-8") as f:
+        result_names = [line.strip() for line in f if line.strip()]
+
+    csv_rows = {}
+    with open(results_csv_file, mode="r", encoding="utf-8", newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            trial_index = int(row['trial_index'])
+            csv_rows[trial_index] = row
+
+    ignored_columns = {'trial_index', 'arm_name', 'trial_status', 'generation_node'}
+    ignored_columns.update(result_names)
+
+    param_dicts = []
+    idxs = []
+    means_dict = defaultdict(list)
+
+    for (trial_index, arm_name), _, _ in selected_points:
+        row = csv_rows.get(trial_index, {})
+        if row == {} or row is None or row['arm_name'] != arm_name:
+            continue
+
+        idxs.append(int(row["trial_index"]))
+
+        param_dict: dict[str, int | float | str] = {}
+        for key, value in row.items():
+            if key not in ignored_columns:
+                try:
+                    param_dict[key] = int(value)
+                except ValueError:
+                    try:
+                        param_dict[key] = float(value)
+                    except ValueError:
+                        param_dict[key] = value
+
+        param_dicts.append(param_dict)
+
+        for metric in absolute_metrics:
+            means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
+
+    ret = {
+        primary_name: {
+            secondary_name: {
+                "absolute_metrics": absolute_metrics,
+                "param_dicts": param_dicts,
+                "means": dict(means_dict),
+                "idxs": idxs
+            },
+            "absolute_metrics": absolute_metrics
+        }
+    }
+
+    return ret
+
+def pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
+    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
+    result_names_file = f"{path_to_calculate}/result_names.txt"
+
+    if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
+        return None
+
+    with open(result_names_file, mode="r", encoding="utf-8") as f:
+        result_names = [line.strip() for line in f if line.strip()]
+
+    records: dict = defaultdict(lambda: {'means': {}})
+
+    with open(results_csv_file, encoding="utf-8", mode="r", newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            trial_index = int(row['trial_index'])
+            arm_name = row['arm_name']
+            key = (trial_index, arm_name)
+
+            for metric in result_names:
+                if metric in row:
+                    try:
+                        records[key]['means'][metric] = float(row[metric])
+                    except ValueError:
+                        continue
+
+    return records
+
+def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
+    if data is None:
+        print("[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
+        return
+
+    if not supports_sixel():
+        print(f"[italic yellow]Your console does not support sixel-images. Will not print Pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
+        return
+
+    import matplotlib.pyplot as plt
+
+    means = data[x_metric][y_metric]["means"]
+
+    x_values = means[x_metric]
+    y_values = means[y_metric]
+
+    fig, _ax = plt.subplots()
+
+    _ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
+
+    _ax.set_xlabel(x_metric)
+    _ax.set_ylabel(y_metric)
+
+    _ax.set_title(f'Pareto-Front {x_metric}/{y_metric}')
+
+    _ax.ticklabel_format(style='plain', axis='both', useOffset=False)
+
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
+        plt.savefig(tmp_file.name, dpi=300)
+
+        print_image_to_cli(tmp_file.name, 1000)
+
+    plt.close(fig)
+
+def pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
+    all_columns = list(first_row.keys())
+    ignored_cols = set(special_col_names) - {"trial_index"}
+
+    param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names and not col.startswith("OO_Info_")]
+    result_cols = [col for col in arg_result_names if col in all_columns]
+    return param_cols, result_cols
+
 def check_factorial_range() -> None:
     if args.model and args.model == "FACTORIAL":
         _fatal_error("\n⚠ --model FACTORIAL cannot be used with range parameter", 181)
@@ -5010,21 +5353,6 @@ def abandon_all_jobs() -> None:
         abandoned = abandon_job(job, trial_index, "abandon_all_jobs was called")
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
-
-def show_pareto_or_error_msg(path_to_calculate: str, res_names: list = arg_result_names, disable_sixel_and_table: bool = False) -> None:
-    if args.dryrun:
-        print_debug("Not showing Pareto-frontier data with --dryrun")
-        return None
-
-    if len(res_names) > 1:
-        try:
-            show_pareto_frontier_data(path_to_calculate, res_names, disable_sixel_and_table)
-        except Exception as e:
-            inner_tb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-            print_red(f"show_pareto_frontier_data() failed with exception '{e}':\n{inner_tb}")
-    else:
-        print_debug(f"show_pareto_frontier_data will NOT be executed because len(arg_result_names) is {len(arg_result_names)}")
-    return None
 
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
@@ -9624,69 +9952,6 @@ def parse_parameters() -> Any:
 
     return cli_params_experiment_parameters
 
-def create_pareto_front_table(idxs: List[int], metric_x: str, metric_y: str) -> Table:
-    table = Table(title=f"Pareto-Front for {metric_y}/{metric_x}:", show_lines=True)
-
-    rows = pareto_front_table_read_csv()
-    if not rows:
-        table.add_column("No data found")
-        return table
-
-    filtered_rows = pareto_front_table_filter_rows(rows, idxs)
-    if not filtered_rows:
-        table.add_column("No matching entries")
-        return table
-
-    param_cols, result_cols = pareto_front_table_get_columns(filtered_rows[0])
-
-    pareto_front_table_add_headers(table, param_cols, result_cols)
-    pareto_front_table_add_rows(table, filtered_rows, param_cols, result_cols)
-
-    return table
-
-def pareto_front_table_read_csv() -> List[Dict[str, str]]:
-    with open(RESULT_CSV_FILE, mode="r", encoding="utf-8", newline="") as f:
-        return list(csv.DictReader(f))
-
-def pareto_front_table_filter_rows(rows: List[Dict[str, str]], idxs: List[int]) -> List[Dict[str, str]]:
-    result = []
-    for row in rows:
-        try:
-            trial_index = int(row["trial_index"])
-        except (KeyError, ValueError):
-            continue
-
-        if row.get("trial_status", "").strip().upper() == "COMPLETED" and trial_index in idxs:
-            result.append(row)
-    return result
-
-def pareto_front_table_get_columns(first_row: Dict[str, str]) -> Tuple[List[str], List[str]]:
-    all_columns = list(first_row.keys())
-    ignored_cols = set(special_col_names) - {"trial_index"}
-
-    param_cols = [col for col in all_columns if col not in ignored_cols and col not in arg_result_names and not col.startswith("OO_Info_")]
-    result_cols = [col for col in arg_result_names if col in all_columns]
-    return param_cols, result_cols
-
-def pareto_front_table_add_headers(table: Table, param_cols: List[str], result_cols: List[str]) -> None:
-    for col in param_cols:
-        table.add_column(col, justify="center")
-    for col in result_cols:
-        table.add_column(Text(f"{col}", style="cyan"), justify="center")
-
-def pareto_front_table_add_rows(table: Table, rows: List[Dict[str, str]], param_cols: List[str], result_cols: List[str]) -> None:
-    for row in rows:
-        values = [str(helpers.to_int_when_possible(row[col])) for col in param_cols]
-        result_values = [Text(str(helpers.to_int_when_possible(row[col])), style="cyan") for col in result_cols]
-        table.add_row(*values, *result_values, style="bold green")
-
-def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Optional[Table]:
-    if not os.path.exists(RESULT_CSV_FILE):
-        print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
-        return None
-
-    return create_pareto_front_table(idxs, metric_x, metric_y)
-
 def supports_sixel() -> bool:
     term = os.environ.get("TERM", "").lower()
     if "xterm" in term or "mlterm" in term:
@@ -9700,255 +9965,6 @@ def supports_sixel() -> bool:
         pass
 
     return False
-
-def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
-    if data is None:
-        print("[italic yellow]The data seems to be empty. Cannot plot pareto frontier.[/]")
-        return
-
-    if not supports_sixel():
-        print(f"[italic yellow]Your console does not support sixel-images. Will not print Pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
-        return
-
-    import matplotlib.pyplot as plt
-
-    means = data[x_metric][y_metric]["means"]
-
-    x_values = means[x_metric]
-    y_values = means[y_metric]
-
-    fig, _ax = plt.subplots()
-
-    _ax.scatter(x_values, y_values, s=50, marker='x', c='blue', label='Data Points')
-
-    _ax.set_xlabel(x_metric)
-    _ax.set_ylabel(y_metric)
-
-    _ax.set_title(f'Pareto-Front {x_metric}/{y_metric}')
-
-    _ax.ticklabel_format(style='plain', axis='both', useOffset=False)
-
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=True) as tmp_file:
-        plt.savefig(tmp_file.name, dpi=300)
-
-        print_image_to_cli(tmp_file.name, 1000)
-
-    plt.close(fig)
-
-def pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
-    if x.shape != y.shape:
-        raise ValueError("Input arrays x and y must have the same shape.")
-
-def pareto_front_general_compare(
-    xi: float, yi: float, xj: float, yj: float,
-    x_minimize: bool, y_minimize: bool
-) -> bool:
-    x_better_eq = xj <= xi if x_minimize else xj >= xi
-    y_better_eq = yj <= yi if y_minimize else yj >= yi
-    x_strictly_better = xj < xi if x_minimize else xj > xi
-    y_strictly_better = yj < yi if y_minimize else yj > yi
-
-    return bool(x_better_eq and y_better_eq and (x_strictly_better or y_strictly_better))
-
-def pareto_front_general_find_dominated(
-    x: np.ndarray, y: np.ndarray, x_minimize: bool, y_minimize: bool
-) -> np.ndarray:
-    num_points = len(x)
-    is_dominated = np.zeros(num_points, dtype=bool)
-
-    for i in range(num_points):
-        for j in range(num_points):
-            if i == j:
-                continue
-
-            if pareto_front_general_compare(x[i], y[i], x[j], y[j], x_minimize, y_minimize):
-                is_dominated[i] = True
-                break
-
-    return is_dominated
-
-def pareto_front_general(
-    x: np.ndarray,
-    y: np.ndarray,
-    x_minimize: bool = True,
-    y_minimize: bool = True
-) -> np.ndarray:
-    try:
-        pareto_front_general_validate_shapes(x, y)
-        is_dominated = pareto_front_general_find_dominated(x, y, x_minimize, y_minimize)
-        return np.where(~is_dominated)[0]
-    except Exception as e:
-        print("Error in pareto_front_general:", str(e))
-        return np.array([], dtype=int)
-
-def pareto_front_aggregate_data(path_to_calculate: str) -> Optional[Dict[Tuple[int, str], Dict[str, Dict[str, float]]]]:
-    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
-    result_names_file = f"{path_to_calculate}/result_names.txt"
-
-    if not os.path.exists(results_csv_file) or not os.path.exists(result_names_file):
-        return None
-
-    with open(result_names_file, mode="r", encoding="utf-8") as f:
-        result_names = [line.strip() for line in f if line.strip()]
-
-    records: dict = defaultdict(lambda: {'means': {}})
-
-    with open(results_csv_file, encoding="utf-8", mode="r", newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            trial_index = int(row['trial_index'])
-            arm_name = row['arm_name']
-            key = (trial_index, arm_name)
-
-            for metric in result_names:
-                if metric in row:
-                    try:
-                        records[key]['means'][metric] = float(row[metric])
-                    except ValueError:
-                        continue
-
-    return records
-
-def pareto_front_filter_complete_points(
-    path_to_calculate: str,
-    records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
-    primary_name: str,
-    secondary_name: str
-) -> List[Tuple[Tuple[int, str], float, float]]:
-    points = []
-    for key, metrics in records.items():
-        means = metrics['means']
-        if primary_name in means and secondary_name in means:
-            x_val = means[primary_name]
-            y_val = means[secondary_name]
-            points.append((key, x_val, y_val))
-    if len(points) == 0:
-        raise ValueError(f"No full data points with both objectives found in {path_to_calculate}.")
-    return points
-
-def pareto_front_transform_objectives(
-    points: List[Tuple[Any, float, float]],
-    primary_name: str,
-    secondary_name: str
-) -> Tuple[np.ndarray, np.ndarray]:
-    primary_idx = arg_result_names.index(primary_name)
-    secondary_idx = arg_result_names.index(secondary_name)
-
-    x = np.array([p[1] for p in points])
-    y = np.array([p[2] for p in points])
-
-    if arg_result_min_or_max[primary_idx] == "max":
-        x = -x
-    elif arg_result_min_or_max[primary_idx] != "min":
-        raise ValueError(f"Unknown mode for {primary_name}: {arg_result_min_or_max[primary_idx]}")
-
-    if arg_result_min_or_max[secondary_idx] == "max":
-        y = -y
-    elif arg_result_min_or_max[secondary_idx] != "min":
-        raise ValueError(f"Unknown mode for {secondary_name}: {arg_result_min_or_max[secondary_idx]}")
-
-    return x, y
-
-def pareto_front_select_pareto_points(
-    x: np.ndarray,
-    y: np.ndarray,
-    x_minimize: bool,
-    y_minimize: bool,
-    points: List[Tuple[Any, float, float]],
-    num_points: int
-) -> List[Tuple[Any, float, float]]:
-    indices = pareto_front_general(x, y, x_minimize, y_minimize)
-    sorted_indices = indices[np.argsort(x[indices])]
-    sorted_indices = sorted_indices[:num_points]
-    selected_points = [points[i] for i in sorted_indices]
-    return selected_points
-
-def pareto_front_build_return_structure(
-    path_to_calculate: str,
-    selected_points: List[Tuple[Any, float, float]],
-    records: Dict[Tuple[int, str], Dict[str, Dict[str, float]]],
-    absolute_metrics: List[str],
-    primary_name: str,
-    secondary_name: str
-) -> dict:
-    results_csv_file = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
-    result_names_file = f"{path_to_calculate}/result_names.txt"
-
-    with open(result_names_file, mode="r", encoding="utf-8") as f:
-        result_names = [line.strip() for line in f if line.strip()]
-
-    csv_rows = {}
-    with open(results_csv_file, mode="r", encoding="utf-8", newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            trial_index = int(row['trial_index'])
-            csv_rows[trial_index] = row
-
-    ignored_columns = {'trial_index', 'arm_name', 'trial_status', 'generation_node'}
-    ignored_columns.update(result_names)
-
-    param_dicts = []
-    idxs = []
-    means_dict = defaultdict(list)
-
-    for (trial_index, arm_name), _, _ in selected_points:
-        row = csv_rows.get(trial_index, {})
-        if row == {} or row is None or row['arm_name'] != arm_name:
-            print_debug(f"pareto_front_build_return_structure: trial_index '{trial_index}' could not be found and row returned as None")
-            continue
-
-        idxs.append(int(row["trial_index"]))
-
-        param_dict: dict[str, int | float | str] = {}
-        for key, value in row.items():
-            if key not in ignored_columns:
-                try:
-                    param_dict[key] = int(value)
-                except ValueError:
-                    try:
-                        param_dict[key] = float(value)
-                    except ValueError:
-                        param_dict[key] = value
-
-        param_dicts.append(param_dict)
-
-        for metric in absolute_metrics:
-            means_dict[metric].append(records[(trial_index, arm_name)]['means'].get(metric, float("nan")))
-
-    ret = {
-        primary_name: {
-            secondary_name: {
-                "absolute_metrics": absolute_metrics,
-                "param_dicts": param_dicts,
-                "means": dict(means_dict),
-                "idxs": idxs
-            },
-            "absolute_metrics": absolute_metrics
-        }
-    }
-
-    return ret
-
-def get_pareto_frontier_points(
-    path_to_calculate: str,
-    primary_objective: str,
-    secondary_objective: str,
-    x_minimize: bool,
-    y_minimize: bool,
-    absolute_metrics: List[str],
-    num_points: int
-) -> Optional[dict]:
-    records = pareto_front_aggregate_data(path_to_calculate)
-
-    if records is None:
-        return None
-
-    points = pareto_front_filter_complete_points(path_to_calculate, records, primary_objective, secondary_objective)
-    x, y = pareto_front_transform_objectives(points, primary_objective, secondary_objective)
-    selected_points = pareto_front_select_pareto_points(x, y, x_minimize, y_minimize, points, num_points)
-    result = pareto_front_build_return_structure(path_to_calculate, selected_points, records, absolute_metrics, primary_objective, secondary_objective)
-
-    return result
 
 def save_experiment_state() -> None:
     try:
@@ -10182,33 +10198,42 @@ def get_result_minimize_flag(path_to_calculate: str, resname: str) -> bool:
 
     return minmax[index] == "min"
 
-def get_pareto_front_data(path_to_calculate: str, res_names: list) -> dict:
-    pareto_front_data: dict = {}
+def post_job_calculate_pareto_front() -> None:
+    if not args.calculate_pareto_front_of_job:
+        return
 
-    all_combinations = list(combinations(range(len(arg_result_names)), 2))
+    failure = False
 
-    skip = False
+    _paths_to_calculate = []
 
-    for i, j in all_combinations:
-        if not skip:
-            metric_x = arg_result_names[i]
-            metric_y = arg_result_names[j]
+    for _path_to_calculate in list(set(args.calculate_pareto_front_of_job)):
+        try:
+            found_paths = find_results_paths(_path_to_calculate)
 
-            x_minimize = get_result_minimize_flag(path_to_calculate, metric_x)
-            y_minimize = get_result_minimize_flag(path_to_calculate, metric_y)
+            for _fp in found_paths:
+                if _fp not in _paths_to_calculate:
+                    _paths_to_calculate.append(_fp)
+        except (FileNotFoundError, NotADirectoryError) as e:
+            print_red(f"post_job_calculate_pareto_front: find_results_paths('{_path_to_calculate}') failed with {e}")
 
-            try:
-                if metric_x not in pareto_front_data:
-                    pareto_front_data[metric_x] = {}
+            failure = True
 
-                pareto_front_data[metric_x][metric_y] = get_calculated_frontier(path_to_calculate, metric_x, metric_y, x_minimize, y_minimize, res_names)
-            except ax.exceptions.core.DataRequiredError as e:
-                print_red(f"Error computing Pareto frontier for {metric_x} and {metric_y}: {e}")
-            except SignalINT:
-                print_red("Calculating Pareto-fronts was cancelled by pressing CTRL-c")
-                skip = True
+    for _path_to_calculate in _paths_to_calculate:
+        for path_to_calculate in found_paths:
+            if not job_calculate_pareto_front(path_to_calculate):
+                failure = True
 
-    return pareto_front_data
+    if failure:
+        my_exit(24)
+
+    my_exit(0)
+
+def pareto_front_as_rich_table(idxs: list, metric_x: str, metric_y: str) -> Optional[Table]:
+    if not os.path.exists(RESULT_CSV_FILE):
+        print_debug(f"pareto_front_as_rich_table: File '{RESULT_CSV_FILE}' not found")
+        return None
+
+    return create_pareto_front_table(idxs, metric_x, metric_y)
 
 def show_pareto_frontier_data(path_to_calculate: str, res_names: list, disable_sixel_and_table: bool = False) -> None:
     if len(res_names) <= 1:
@@ -10551,112 +10576,6 @@ def find_results_paths(base_path: str) -> list:
                     found_paths.append(root)
 
     return list(set(found_paths))
-
-def post_job_calculate_pareto_front() -> None:
-    if not args.calculate_pareto_front_of_job:
-        return
-
-    failure = False
-
-    _paths_to_calculate = []
-
-    for _path_to_calculate in list(set(args.calculate_pareto_front_of_job)):
-        try:
-            found_paths = find_results_paths(_path_to_calculate)
-
-            for _fp in found_paths:
-                if _fp not in _paths_to_calculate:
-                    _paths_to_calculate.append(_fp)
-        except (FileNotFoundError, NotADirectoryError) as e:
-            print_red(f"post_job_calculate_pareto_front: find_results_paths('{_path_to_calculate}') failed with {e}")
-
-            failure = True
-
-    for _path_to_calculate in _paths_to_calculate:
-        for path_to_calculate in found_paths:
-            if not job_calculate_pareto_front(path_to_calculate):
-                failure = True
-
-    if failure:
-        my_exit(24)
-
-    my_exit(0)
-
-def job_calculate_pareto_front(path_to_calculate: str, disable_sixel_and_table: bool = False) -> bool:
-    pf_start_time = time.time()
-
-    if not path_to_calculate:
-        return False
-
-    global CURRENT_RUN_FOLDER
-    global RESULT_CSV_FILE
-    global arg_result_names
-
-    if not path_to_calculate:
-        print_red("Can only calculate pareto front of previous job when --calculate_pareto_front_of_job is set")
-        return False
-
-    if not os.path.exists(path_to_calculate):
-        print_red(f"Path '{path_to_calculate}' does not exist")
-        return False
-
-    ax_client_json = f"{path_to_calculate}/state_files/ax_client.experiment.json"
-
-    if not os.path.exists(ax_client_json):
-        print_red(f"Path '{ax_client_json}' not found")
-        return False
-
-    checkpoint_file: str = f"{path_to_calculate}/state_files/checkpoint.json"
-    if not os.path.exists(checkpoint_file):
-        print_red(f"The checkpoint file '{checkpoint_file}' does not exist")
-        return False
-
-    RESULT_CSV_FILE = f"{path_to_calculate}/{RESULTS_CSV_FILENAME}"
-    if not os.path.exists(RESULT_CSV_FILE):
-        print_red(f"{RESULT_CSV_FILE} not found")
-        return False
-
-    res_names = []
-
-    res_names_file = f"{path_to_calculate}/result_names.txt"
-    if not os.path.exists(res_names_file):
-        print_red(f"File '{res_names_file}' does not exist")
-        return False
-
-    try:
-        with open(res_names_file, "r", encoding="utf-8") as file:
-            lines = file.readlines()
-    except Exception as e:
-        print_red(f"Error reading file '{res_names_file}': {e}")
-        return False
-
-    for line in lines:
-        entry = line.strip()
-        if entry != "":
-            res_names.append(entry)
-
-    if len(res_names) < 2:
-        print_red(f"Error: There are less than 2 result names (is: {len(res_names)}, {', '.join(res_names)}) in {path_to_calculate}. Cannot continue calculating the pareto front.")
-        return False
-
-    load_username_to_args(path_to_calculate)
-
-    CURRENT_RUN_FOLDER = path_to_calculate
-
-    arg_result_names = res_names
-
-    load_experiment_parameters_from_checkpoint_file(checkpoint_file, False)
-
-    if experiment_parameters is None:
-        return False
-
-    show_pareto_or_error_msg(path_to_calculate, res_names, disable_sixel_and_table)
-
-    pf_end_time = time.time()
-
-    print_debug(f"Calculating the Pareto-front took {pf_end_time - pf_start_time} seconds")
-
-    return True
 
 def set_arg_states_from_continue() -> None:
     if args.continue_previous_job and not args.num_random_steps:

@@ -45,10 +45,7 @@ def pareto_front_general_validate_shapes(x: np.ndarray, y: np.ndarray) -> None:
     if x.shape != y.shape:
         raise ValueError("Input arrays x and y must have the same shape.")
 
-def pareto_front_general_compare(
-    xi: float, yi: float, xj: float, yj: float,
-    x_minimize: bool, y_minimize: bool
-) -> bool:
+def pareto_front_general_compare(xi: float, yi: float, xj: float, yj: float, x_minimize: bool, y_minimize: bool) -> bool:
     x_better_eq = xj <= xi if x_minimize else xj >= xi
     y_better_eq = yj <= yi if y_minimize else yj >= yi
     x_strictly_better = xj < xi if x_minimize else xj > xi

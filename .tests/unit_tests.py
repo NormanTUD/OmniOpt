@@ -32,9 +32,6 @@ mods = {}
 loaded_files = []
 
 to_test = {
-    #".omniopt_plot_kde.py": {
-    #    "get_num_rows_cols(1, 1, 1)": (1, 1)
-    #},
     ".helpers.py": {
         "is_valid_time_format('hallo')": False,
         "is_valid_time_format('2024-01-01 20:20:02')": True,
@@ -56,6 +53,28 @@ to_test = {
         "_handle_update_graph_exception('invalid command name')": None,
         "print_traceback()": None,
         "flatten_extend([[1,2],[3,4]])": [1, 2, 3, 4]
+    },
+    ".pareto.py": {
+        "pareto_front_general_compare(1, 1, 0.5, 1, True, True)": True,
+        "pareto_front_general_compare(1, 1, 1, 0.5, True, True)": True,
+        "pareto_front_general_compare(1, 1, 0.5, 0.5, True, True)": True,
+        "pareto_front_general_compare(1, 1, 1, 1, True, True)": False,
+        "pareto_front_general_compare(1, 1, 1.5, 1, True, True)": False,
+        "pareto_front_general_compare(1, 1, 1, 1.5, True, True)": False,
+        "pareto_front_general_compare(1, 1, 0.5, 1.5, True, True)": False,
+        "pareto_front_general_compare(1, 1, 2, 1, False, False)": True,
+        "pareto_front_general_compare(1, 1, 1, 2, False, False)": True,
+        "pareto_front_general_compare(1, 1, 2, 2, False, False)": True,
+        "pareto_front_general_compare(1, 1, 1, 1, False, False)": False,
+        "pareto_front_general_compare(1, 1, 0, 1, False, False)": False,
+        "pareto_front_general_compare(1, 1, 1, 0, False, False)": False,
+        "pareto_front_general_compare(1, 1, 2, 0, False, False)": False,
+        "pareto_front_general_compare(1, 1, 0.5, 2, True, False)": True,
+        "pareto_front_general_compare(1, 1, 0.5, 0.5, True, False)": False,
+        "pareto_front_general_compare(1, 1, 1.5, 2, True, False)": False,
+        "pareto_front_general_compare(1, 1, 1, 2, True, False)": True,
+        "pareto_front_general_compare(1, 1, 0.5, 1, True, False)": True,
+        "pareto_front_general_compare(1, 1, 1, 1, True, False)": False
     }
 }
 

@@ -122,6 +122,13 @@ to_test = {
         "pareto_front_table_filter_rows([{'trial_index':'abc','trial_status':'COMPLETED'}],[0])": [],
 
         "pareto_front_select_pareto_points(np.array([1,2,0.5]), np.array([1,2,1]), True, True, [(0,1,1),(1,2,2),(2,0.5,1)], 2)": [(2,0.5,1),(0,1,1)],
+        "pareto_front_select_pareto_points(np.array([1, 2, 0.5]), np.array([1, 2, 1]), True, True, [(0,1,1),(1,2,2),(2,0.5,1)], 2)": [(2,0.5,1),(0,1,1)],
+        "pareto_front_select_pareto_points(np.array([1,2,3,0.5]), np.array([1,2,0.5,1]), True, True, [(0,1,1),(1,2,2),(2,3,0.5),(3,0.5,1)], 3)": [(3,0.5,1),(2,3,0.5),(0,1,1)],
+        "pareto_front_select_pareto_points(np.array([1,1,1]), np.array([1,1,1]), True, True, [(0,1,1),(1,1,1),(2,1,1)], 2)": [(0,1,1),(1,1,1)],
+        "pareto_front_select_pareto_points(np.array([1,2,0.5]), np.array([1,0.5,2]), False, False, [(0,1,1),(1,2,0.5),(2,0.5,2)], 2)": [(2,0.5,2),(1,2,0.5)],
+        "pareto_front_select_pareto_points(np.array([1,2,0.5]), np.array([1,0.5,2]), True, False, [(0,1,1),(1,2,0.5),(2,0.5,2)], 2)": [(2,0.5,2),(0,1,1)],
+        "pareto_front_select_pareto_points(np.array([0.5,1,2]), np.array([2,1,0.5]), True, True, [(0,0.5,2),(1,1,1),(2,2,0.5)], 1)": [(0,0.5,2)],
+        "pareto_front_select_pareto_points(np.array([5,2,3,1,4]), np.array([1,5,2,3,4]), True, True, [(0,5,1),(1,2,5),(2,3,2),(3,1,3),(4,4,4)], 3)": [(3,1,3),(2,3,2),(1,2,5)],
     }
 }
 

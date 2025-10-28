@@ -10649,6 +10649,9 @@ def show_omniopt_call() -> None:
 
     original_print(oo_call + " " + cleaned)
 
+    if args.dependency is not None and args.dependency != "":
+        print(f"Dependency: {args.dependency}")
+
 def main() -> None:
     global RESULT_CSV_FILE, LOGFILE_DEBUG_GET_NEXT_TRIALS
 

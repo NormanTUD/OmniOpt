@@ -10980,8 +10980,6 @@ def run_search_with_progress_bar() -> None:
     wait_for_jobs_to_complete()
 
 def complex_tests(_program_name: str, wanted_stderr: str, wanted_exit_code: int, wanted_signal: Union[int, None], res_is_none: bool = False) -> int:
-    #print_yellow(f"Test suite: {_program_name}")
-
     nr_errors: int = 0
 
     program_path: str = f"./.tests/test_wronggoing_stuff.bin/bin/{_program_name}"

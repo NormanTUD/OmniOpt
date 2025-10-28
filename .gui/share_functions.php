@@ -490,7 +490,8 @@
 
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
-			$html = "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
+			$html = "This logs the CPU and RAM usage of the main worker process.<br>";
+			$html .= "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 			$html .= '<pre id="pre_' . $id . '">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);

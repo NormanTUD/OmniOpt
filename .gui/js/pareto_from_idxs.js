@@ -33,10 +33,7 @@ function get_row_by_index(idx) {
 }
 
 function load_pareto_graph_from_idxs () {
-	// Schnittstelle bleibt gleich: keine Argumente, alte Fehlertexte beibehalten.
-	// Wenn pareto_idxs nicht gesetzt ist, versuchen wir, ihn hier berechnet zu bekommen.
 	if (!Object.keys(window).includes("pareto_idxs")) {
-		// versuche Pareto in JS zu berechnen, falls die notwendigen Daten da sind
 		try {
 			if (typeof computeParetoIdxsFromTabResults === "function") {
 				var computed = computeParetoIdxsFromTabResults();
@@ -45,7 +42,7 @@ function load_pareto_graph_from_idxs () {
 				}
 			}
 		} catch (e) {
-			// ignore, wir fallen durch zu der existierenden Fehlerbehandlung weiter unten
+			// Do nothing
 		}
 	}
 
@@ -432,19 +429,8 @@ function getMinMaxByResultName(resultName) {
 	}
 }
 
-/* ----------------- Neue Pareto-Funktionen in JS (Integration, Schnittstellen unverändert) ----------------- */
-
-/*
-  computeParetoIdxsFromTabResults()
-    - Liest tab_results_headers_json und tab_results_csv_json sowie result_names/result_min_max
-    - Filtert nur COMPLETED trial_status
-    - Berechnet Pareto-Fronten für alle Paare result_names[i] vs result_names[j] (i != j)
-    - Liefert ein Objekt in der Form { "X": { "Y": [trial_index, ...], ... }, ... }
-    - Gibt null zurück bei fatalen Fehlern.
-*/
 function computeParetoIdxsFromTabResults() {
 	try {
-		// prüfe nötige globale arrays
 		if (typeof tab_results_headers_json === "undefined" || !Array.isArray(tab_results_headers_json)) {
 			if (typeof error === "function") error("computeParetoIdxsFromTabResults: tab_results_headers_json is missing or not an array.");
 			else console.error("computeParetoIdxsFromTabResults: tab_results_headers_json is missing or not an array.");
@@ -465,10 +451,8 @@ function computeParetoIdxsFromTabResults() {
 			else console.error("computeParetoIdxsFromTabResults: result_min_max must be an array of same length as result_names.");
 			return null;
 		}
-		// special_col_names optional, wir greifen darauf zu wenn vorhanden
 		var useSpecial = (typeof special_col_names !== "undefined" && Array.isArray(special_col_names));
 
-		// header -> index map
 		var headerIndex = {};
 		for (var i = 0; i < tab_results_headers_json.length; i++) {
 			headerIndex[tab_results_headers_json[i]] = i;
@@ -481,16 +465,13 @@ function computeParetoIdxsFromTabResults() {
 		}
 		var trialIndexHeaderIdx = headerIndex["trial_index"];
 
-		// prepare structured rows (nur COMPLETED, nur numeric results vorhanden)
 		var structuredRows = [];
 		for (var r = 0; r < tab_results_csv_json.length; r++) {
 			var row = tab_results_csv_json[r];
 			if (!Array.isArray(row)) continue;
 
-			// trial index
 			var trialIdxVal = row[trialIndexHeaderIdx];
 
-			// trial_status prüfen falls vorhanden
 			var status = null;
 			if (headerIndex.hasOwnProperty("trial_status")) {
 				var rawSt = row[headerIndex["trial_status"]];
@@ -503,7 +484,6 @@ function computeParetoIdxsFromTabResults() {
 
 			if (status !== "COMPLETED") continue;
 
-			// parse numeric results
 			var numericResults = {};
 			var skip = false;
 			for (var ri = 0; ri < result_names.length; ri++) {
@@ -512,12 +492,11 @@ function computeParetoIdxsFromTabResults() {
 				if (headerIndex.hasOwnProperty(rname)) {
 					hdrIdx = headerIndex[rname];
 				} else {
-					// case-insensitive fallback
 					hdrIdx = -1;
 					for (var hh = 0; hh < tab_results_headers_json.length; hh++) {
 						if (String(tab_results_headers_json[hh]).toLowerCase() === String(rname).toLowerCase()) {
 							hdrIdx = hh;
-							headerIndex[rname] = hh; // cache mapping
+							headerIndex[rname] = hh;
 							break;
 						}
 					}
@@ -545,12 +524,10 @@ function computeParetoIdxsFromTabResults() {
 		}
 
 		if (structuredRows.length === 0) {
-			// keine gültigen Zeilen
 			console.warn("computeParetoIdxsFromTabResults: no suitable completed rows found for pareto calculation.");
 			return {};
 		}
 
-		// Hilfsfunktionen für Dominanzprüfung
 		function _isFiniteNumber(v) {
 			return typeof v === "number" && isFinite(v);
 		}
@@ -611,7 +588,6 @@ function computeParetoIdxsFromTabResults() {
 			return res;
 		}
 
-		// Berechne für jedes Paar
 		var paretoIdxs = {};
 		for (var xi = 0; xi < result_names.length; xi++) {
 			var xName = result_names[xi];
@@ -653,7 +629,6 @@ function computeParetoIdxsFromTabResults() {
 					return trialIndices[localIdx];
 				});
 
-				// sortiere deterministisch nach x aufsteigend (like Python)
 				try {
 					var combined = ndTrial.map(function(ti) {
 						var local = trialIndices.indexOf(ti);
@@ -666,7 +641,7 @@ function computeParetoIdxsFromTabResults() {
 					});
 					ndTrial = combined.map(function(c) { return c.ti; });
 				} catch (e) {
-					// ignore
+					// Do nothing
 				}
 
 				paretoIdxs[xName][yName] = ndTrial;
@@ -680,11 +655,6 @@ function computeParetoIdxsFromTabResults() {
 	}
 }
 
-/*
-  computeAndRenderParetoFromResults()
-    - Komfortfunktion: berechnet pareto_idxs, setzt window.pareto_idxs und ruft load_pareto_graph_from_idxs()
-    - Schnittstelle bleibt: keine Argumente, keine Änderung in externem Aufrufverhalten.
-*/
 function computeAndRenderParetoFromResults() {
 	try {
 		var computed = computeParetoIdxsFromTabResults();

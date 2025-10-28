@@ -128,8 +128,10 @@
 	}
 
 	function convert_sixel($output) {
-		$command_v_sixel2png = shell_exec('command -v sixel2png');
-		$has_sixel2png = is_string($command_v_sixel2png) && trim($command_v_sixel2png) !== '';
+		$sixel2png_path = '/usr/bin/sixel2png';
+		if (!file_exists($sixel2png_path) || !is_executable($sixel2png_path)) {
+			return $output;
+		}
 
 		$ESC = "\x1b";
 		$start_marker = $ESC . "P";
@@ -139,6 +141,9 @@
 		$new_output = '';
 		$pos = 0;
 		$last_pos = 0;
+
+		// Maximum SIXEL size to prevent DoS
+		$max_sixel_size = 5 * 1024 * 1024; // 5MB
 
 		while ($pos < $length) {
 			$start_pos = strpos($output, $start_marker, $pos);
@@ -154,46 +159,100 @@
 			}
 
 			$end_pos_incl = $end_pos + 2;
-
 			$new_output .= substr($output, $last_pos, $start_pos - $last_pos);
 
 			$sixel_sequence = substr($output, $start_pos, $end_pos_incl - $start_pos);
 
+			// Validate SIXEL size before processing
+			if (strlen($sixel_sequence) > $max_sixel_size) {
+				$new_output .= "<br>[SIXEL too large]";
+				$pos = $end_pos_incl;
+				$last_pos = $pos;
+				continue;
+			}
+
 			$img_html = "<br>";
 
-			if ($has_sixel2png && strlen($sixel_sequence) > 0) {
+			if (strlen($sixel_sequence) > 0) {
 				$sixel = html_entity_decode($sixel_sequence, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-				$tmp_sixel = tempnam(sys_get_temp_dir(), "sixel_") . ".sixel";
-				$tmp_png = tempnam(sys_get_temp_dir(), "sixel_") . ".png";
+				// Create secure temporary directory
+				$tmp_dir = sys_get_temp_dir() . '/sixel_' . bin2hex(random_bytes(16));
+				if (!mkdir($tmp_dir, 0700)) {
+					$pos = $end_pos_incl;
+					$last_pos = $pos;
+					continue;
+				}
+
+				$tmp_sixel = $tmp_dir . '/input.sixel';
+				$tmp_png = $tmp_dir . '/output.png';
 
 				try {
 					$bytes_written = file_put_contents($tmp_sixel, $sixel);
 					if ($bytes_written !== false && $bytes_written > 0) {
-						$cmd = "sixel2png -i " . escapeshellarg($tmp_sixel) . " -o " . escapeshellarg($tmp_png);
-						shell_exec($cmd);
+						// Use absolute path and proper escaping
+						$cmd = escapeshellcmd($sixel2png_path) .
+							' -i ' . escapeshellarg($tmp_sixel) .
+							' -o ' . escapeshellarg($tmp_png) .
+							' 2>/dev/null'; // Suppress errors
 
+						// Execute with timeout
+						$descriptorspec = array();
+						$process = proc_open($cmd, $descriptorspec, $pipes);
+
+						if (is_resource($process)) {
+							// Wait max 5 seconds
+							$timeout = 5;
+							$start_time = time();
+
+							do {
+								$status = proc_get_status($process);
+								if (!$status['running']) break;
+								usleep(100000); // 0.1s
+							} while (time() - $start_time < $timeout);
+
+							// Kill if still running
+							if ($status['running']) {
+								proc_terminate($process, 9);
+							}
+							proc_close($process);
+						}
+
+						// Verify output is actually a PNG
 						if (file_exists($tmp_png) && filesize($tmp_png) > 0) {
-							clean_black_lines_inplace($tmp_png);
-							$data = file_get_contents($tmp_png);
-							if ($data !== false && strlen($data) <= 5 * 1024 * 1024) {
-								$base64 = base64_encode($data);
-								$img_html = '<img src="data:image/png;base64,' . $base64 . '" alt="SIXEL Image"/>';
+							$finfo = finfo_open(FILEINFO_MIME_TYPE);
+							$mime = finfo_file($finfo, $tmp_png);
+							finfo_close($finfo);
+
+							if ($mime === 'image/png' && filesize($tmp_png) <= 5 * 1024 * 1024) {
+								clean_black_lines_inplace($tmp_png);
+								$data = file_get_contents($tmp_png);
+								if ($data !== false) {
+									$base64 = base64_encode($data);
+									// Sanitize base64 output
+									$base64 = preg_replace('/[^A-Za-z0-9+\/=]/', '', $base64);
+									$img_html = '<img src="data:image/png;base64,' .
+										htmlspecialchars($base64, ENT_QUOTES, 'UTF-8') .
+										'" alt="SIXEL Image"/>';
+								}
 							}
 						}
 					}
 				} finally {
+					// Secure cleanup
 					if (file_exists($tmp_sixel)) {
 						my_unlink($tmp_sixel);
 					}
 					if (file_exists($tmp_png)) {
 						my_unlink($tmp_png);
 					}
+					if (is_dir($tmp_dir)) {
+						rmdir($tmp_dir);
+					}
 				}
 			}
 
 			$new_output .= $img_html;
-
 			$pos = $end_pos_incl;
 			$last_pos = $pos;
 		}

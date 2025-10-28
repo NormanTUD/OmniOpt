@@ -974,7 +974,7 @@
 
 		$svg_icon = get_icon_html("plot.svg");
 
-		$tabs["{$svg_icon}Results by Gen. Method"] = [
+		$tabs["{$svg_icon}Results/Gen. Method"] = [
 			'id' => 'tab_plot_results_distribution_by_generation_method',
 			'content' => $html,
 			"onclick" => "plotResultsDistributionByGenerationMethod();"

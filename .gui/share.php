@@ -111,8 +111,8 @@
 						//["$run_dir/trial_index_to_params", "Trial-Index-to-Param", "tab_trial_index_to_param"],
 						["$run_dir/progressbar", "Progressbar", "tab_progressbar_log"],
 						["$run_dir/verbose_log.txt", "Verbose log", "tab_verbose_log"],
-						["$run_dir/job_submit_durations.txt", "Job Submit Durations", "tab_job_submit_durations"],
-						["$run_dir/generation_times.txt", "Generation Times", "tab_job_generation_times"],
+						["$run_dir/job_submit_durations.txt", "Submit times", "tab_job_submit_durations"],
+						["$run_dir/generation_times.txt", "Gen. times", "tab_job_generation_times"],
 					],
 					'add_simple_table_from_ascii_table_file' => [
 						["$run_dir/args_overview.txt", "Args", "tab_args_overview"]

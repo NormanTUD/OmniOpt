@@ -10652,6 +10652,9 @@ def show_omniopt_call() -> None:
     if args.dependency is not None and args.dependency != "":
         print(f"Dependency: {args.dependency}")
 
+    if args.ui_url is not None and args.ui_url != "":
+        print_yellow(f"--ui_url is deprecated. Do not use it anymore. It will be ignored and one day be removed.")
+
 def main() -> None:
     global RESULT_CSV_FILE, LOGFILE_DEBUG_GET_NEXT_TRIALS
 

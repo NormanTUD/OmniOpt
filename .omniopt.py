@@ -3943,7 +3943,7 @@ def _add_to_csv_acquire_lock(lockfile: str, dir_path: str) -> bool:
             time.sleep(wait_time)
             max_wait -= wait_time
         except Exception as e:
-            print("Lock error:", e)
+            print_red(f"Lock error: {e}")
             return False
     return False
 
@@ -4016,12 +4016,12 @@ def find_file_paths(_text: str) -> List[str]:
 def check_file_info(file_path: str) -> str:
     if not os.path.exists(file_path):
         if not args.tests:
-            print(f"check_file_info: The file {file_path} does not exist.")
+            print_red(f"check_file_info: The file {file_path} does not exist.")
         return ""
 
     if not os.access(file_path, os.R_OK):
         if not args.tests:
-            print(f"check_file_info: The file {file_path} is not readable.")
+            print_red(f"check_file_info: The file {file_path} is not readable.")
         return ""
 
     file_stat = os.stat(file_path)
@@ -4135,7 +4135,7 @@ def count_defective_nodes(file_path: Union[str, None] = None, entry: Any = None)
         return sorted(set(entries))
 
     except Exception as e:
-        print(f"An error has occurred: {e}")
+        print_red(f"An error has occurred: {e}")
         return []
 
 def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]:
@@ -4146,7 +4146,7 @@ def test_gpu_before_evaluate(return_in_case_of_error: dict) -> Union[None, dict]
 
                 fool_linter(tmp)
         except RuntimeError:
-            print(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
+            print_red(f"Node {socket.gethostname()} was detected as faulty. It should have had a GPU, but there is an error initializing the CUDA driver. Adding this node to the --exclude list.")
             count_defective_nodes(None, socket.gethostname())
             return return_in_case_of_error
         except Exception:
@@ -4856,7 +4856,7 @@ def replace_string_with_params(input_string: str, params: list) -> str:
         return replaced_string
     except AssertionError as e:
         error_text = f"Error in replace_string_with_params: {e}"
-        print(error_text)
+        print_red(error_text)
         raise
 
     return ""
@@ -5133,9 +5133,7 @@ def get_sixel_graphics_data(_pd_csv: str, _force: bool = False) -> list:
             _params = [_command, plot, _tmp, plot_type, tmp_file, _width]
             data.append(_params)
         except Exception as e:
-            tb = traceback.format_exc()
-            print_red(f"Error trying to print {plot_type} to CLI: {e}, {tb}")
-            print_debug(f"Error trying to print {plot_type} to CLI: {e}")
+            print_red(f"Error trying to print {plot_type} to CLI: {e}")
 
     return data
 
@@ -5336,8 +5334,7 @@ def abandon_job(job: Job, trial_index: int, reason: str) -> bool:
             else:
                 _fatal_error("ax_client could not be found", 101)
         except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
-            print_debug(f"ERROR in line {get_line_info()}: {e}")
+            print_red(f"ERROR in line {get_line_info()}: {e}")
             return False
         job.cancel()
         return True
@@ -5386,7 +5383,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
             _exit = new_exit
     except (SignalUSR, SignalINT, SignalCONT, KeyboardInterrupt):
         print_red("\n⚠ You pressed CTRL+C or a signal was sent. Program execution halted while ending program.")
-        print("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
+        print_red("\n⚠ KeyboardInterrupt signal was sent. Ending program will still run.")
         new_exit = show_end_table_and_save_end_files()
         if new_exit > 0:
             _exit = new_exit
@@ -5420,9 +5417,9 @@ def save_ax_client_to_json_file(checkpoint_filepath: str) -> None:
 def save_checkpoint(trial_nr: int = 0, eee: Union[None, str, Exception] = None) -> None:
     if trial_nr > 3:
         if eee:
-            print(f"Error during saving checkpoint: {eee}")
+            print_red(f"Error during saving checkpoint: {eee}")
         else:
-            print("Error during saving checkpoint")
+            print_red("Error during saving checkpoint")
         return
 
     try:
@@ -5592,7 +5589,7 @@ def parse_equation_item(comparer_found: bool, item: str, parsed: list, parsed_or
         })
     elif item in [">=", "<="]:
         if comparer_found:
-            print("There is already one comparison operator! Cannot have more than one in an equation!")
+            print_red("There is already one comparison operator! Cannot have more than one in an equation!")
             return_totally = True
         comparer_found = True
 
@@ -6280,7 +6277,6 @@ def parse_single_experiment_parameter_table(classic_params: Optional[Union[list,
                 _upper = param["bounds"][1]
 
             _possible_int_lower = str(helpers.to_int_when_possible(_lower))
-            #print(f"name: {_name}, _possible_int_lower: {_possible_int_lower}, lower: {_lower}")
             _possible_int_upper = str(helpers.to_int_when_possible(_upper))
 
             rows.append([_name, _short_type, _possible_int_lower, _possible_int_upper, "", value_type, log_scale])
@@ -6513,7 +6509,7 @@ def update_progress_bar(nr: int) -> None:
         try:
             progress_bar.update(nr)
         except Exception as e:
-            print(f"Error updating progress bar: {e}")
+            print_red(f"Error updating progress bar: {e}")
     else:
         print_red("update_progress_bar: progress_bar was None")
 
@@ -6953,7 +6949,7 @@ def get_generation_node_for_index(
 
         return generation_node
     except Exception as e:
-        print(f"Error while get_generation_node_for_index: {e}")
+        print_red(f"Error while get_generation_node_for_index: {e}")
         return "MANUAL"
 
 def _get_generation_node_for_index_index_valid(
@@ -7568,7 +7564,7 @@ def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
         if not args.tests:
             original_print(f"get_parameters_from_outfile: The file '{stdout_path}' was not found.")
     except Exception as e:
-        print(f"get_parameters_from_outfile: There was an error: {e}")
+        print_red(f"get_parameters_from_outfile: There was an error: {e}")
 
     return None
 
@@ -7586,7 +7582,7 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
         original_print(f"The file '{stdout_path}' was not found.")
         return None
     except Exception as e:
-        print(f"There was an error: {e}")
+        print_red(f"There was an error: {e}")
         return None
 
 def add_to_global_error_list(msg: str) -> None:
@@ -7649,7 +7645,7 @@ def check_valid_result(result: Union[None, dict]) -> bool:
             else:
                 values.append(obj)
         except Exception as e:
-            print(f"Error while flattening values: {e}")
+            print_red(f"Error while flattening values: {e}")
         return values
 
     if result is None:
@@ -7662,7 +7658,7 @@ def check_valid_result(result: Union[None, dict]) -> bool:
                 return False
         return True
     except Exception as e:
-        print(f"Error while checking result validity: {e}")
+        print_red(f"Error while checking result validity: {e}")
         return False
 
 def update_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
@@ -7798,7 +7794,7 @@ def finish_job_core(job: Any, trial_index: int, this_jobs_finished: int) -> int:
                 if len(arg_result_names) > 1 and count_done_jobs() > 1 and not job_calculate_pareto_front(get_current_run_folder(), True):
                     print_red("job_calculate_pareto_front post job failed")
             except Exception as e:
-                print(f"ERROR in line {get_line_info()}: {e}")
+                print_red(f"ERROR in line {get_line_info()}: {e}")
         else:
             _finish_job_core_helper_mark_failure(job, trial_index, _trial)
     else:
@@ -8137,7 +8133,7 @@ def handle_restart(stdout_path: str, trial_index: int) -> None:
     if parameters:
         orchestrator_start_trial(parameters, trial_index)
     else:
-        print(f"Could not determine parameters from outfile {stdout_path} for restarting job")
+        print_red(f"Could not determine parameters from outfile {stdout_path} for restarting job")
 
 def check_alternate_path(path: str) -> str:
     if os.path.exists(path):
@@ -8333,7 +8329,7 @@ def cancel_failed_job(trial_index: int, new_job: Job) -> None:
             else:
                 _fatal_error("ax_client not defined", 101)
         except Exception as e:
-            print(f"ERROR in line {get_line_info()}: {e}")
+            print_red(f"ERROR in line {get_line_info()}: {e}")
         new_job.cancel()
 
         print_debug(f"cancel_failed_job: removing job {new_job}, trial_index: {trial_index}")
@@ -8633,7 +8629,7 @@ def mark_abandoned(trial: Any, reason: str, trial_index: int) -> None:
         print_debug(f"[INFO] Marking trial {trial.index} ({trial.arm.name}) as abandoned, trial-index: {trial_index}. Reason: {reason}")
         trial.mark_abandoned(reason)
     except Exception as e:
-        print(f"[ERROR] Could not mark trial as abandoned: {e}")
+        print_red(f"[ERROR] Could not mark trial as abandoned: {e}")
 
 def create_and_handle_trial(arm: Any) -> Optional[Tuple[int, float, bool]]:
     if ax_client is None:
@@ -9160,10 +9156,10 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str,
 
     for s in splitted_by_comma:
         if "=" not in s:
-            print(f"'{s}' does not contain '='")
+            print_red(f"'{s}' does not contain '='")
             my_exit(123)
         if s.count("=") != 1:
-            print(f"There can only be one '=' in the gen_strat_str's element '{s}'")
+            print_red(f"There can only be one '=' in the gen_strat_str's element '{s}'")
             my_exit(123)
 
         model_name, nr_str = s.split("=")
@@ -9173,13 +9169,13 @@ def parse_generation_strategy_string(gen_strat_str: str) -> tuple[list[dict[str,
             _fatal_error(f"Model {matching_model} is not valid for custom generation strategy.", 56)
 
         if not matching_model:
-            print(f"'{model_name}' not found in SUPPORTED_MODELS")
+            print_red(f"'{model_name}' not found in SUPPORTED_MODELS")
             my_exit(123)
 
         try:
             nr = int(nr_str)
         except ValueError:
-            print(f"Invalid number of generations '{nr_str}' for model '{model_name}'")
+            print_red(f"Invalid number of generations '{nr_str}' for model '{model_name}'")
             my_exit(123)
 
         gen_strat_list.append({matching_model: nr})
@@ -9736,7 +9732,7 @@ def execute_nvidia_smi() -> None:
                 if not host:
                     print_debug("host not defined")
         except Exception as e:
-            print(f"execute_nvidia_smi: An error occurred: {e}")
+            print_red(f"execute_nvidia_smi: An error occurred: {e}")
         if is_slurm_job() and not args.force_local_execution:
             _sleep(30)
 
@@ -9907,7 +9903,7 @@ def parse_orchestrator_file(_f: str, _test: bool = False) -> Union[dict, None]:
 
                 return data
             except Exception as e:
-                print(f"Error while parse_experiment_parameters({_f}): {e}")
+                print_red(f"Error while parse_experiment_parameters({_f}): {e}")
     else:
         print_red(f"{_f} could not be found")
 
@@ -9975,7 +9971,7 @@ def save_experiment_state() -> None:
 def wait_for_state_file(state_path: str, min_size: int = 5, max_wait_seconds: int = 60) -> bool:
     try:
         if not os.path.exists(state_path):
-            print(f"[ERROR] File '{state_path}' does not exist.")
+            print_debug(f"[ERROR] File '{state_path}' does not exist.")
             return False
 
         i = 0

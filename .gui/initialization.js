@@ -50,7 +50,6 @@ function wrapEmojisInSpans() {
 	try {
 		const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
 
-		// Prüfen, ob body existiert, sonst DOMContentLoaded abwarten
 		function run() {
 			if (!document.body) {
 				document.addEventListener('DOMContentLoaded', run);
@@ -98,7 +97,6 @@ function wrapEmojisInSpans() {
 
 			if (textNodes.length === 0) return;
 
-			// Gruppiere nach Parent
 			const parentsMap = new Map();
 			for (const tn of textNodes) {
 				const p = tn.parentNode;
@@ -139,7 +137,6 @@ function wrapEmojisInSpans() {
 				return frag;
 			}
 
-			// Ersetze pro Parent
 			parentsMap.forEach((nodes, parent) => {
 				try {
 					const frag = document.createDocumentFragment();
@@ -157,7 +154,7 @@ function wrapEmojisInSpans() {
 					parent.innerHTML = '';
 					parent.appendChild(frag);
 				} catch (err) {
-					console.error('Fehler beim Verarbeiten eines Parents:', err);
+					console.error('Error while working on a parent:', err);
 				}
 			});
 		}

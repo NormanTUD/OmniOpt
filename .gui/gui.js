@@ -399,7 +399,7 @@ function update_table_row (item, errors, warnings, command) {
 	} else if (item.id == "external_generator") {
 		command += " --" + item.id + "='" + btoa(value) + "'";
 	} else if (item.id == "run_program_once") {
-		command += " --" + item.id + "='" + value + "'";
+		command += " --" + item.id + "='" + btoa(value) + "'";
 	} else if (item.id == "run_program") {
 		var variables_in_run_program = get_var_names_from_run_program(value);
 		//value = quote_variables(value);

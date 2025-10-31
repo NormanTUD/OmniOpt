@@ -10611,7 +10611,7 @@ def run_program_once(params: Optional[dict] = None) -> None:
         params = {}
 
     if isinstance(args.run_program_once, str):
-        command_str = args.run_program_once
+        command_str = decode_if_base64(args.run_program_once)
         for k, v in params.items():
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))

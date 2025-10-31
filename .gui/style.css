@@ -919,11 +919,6 @@ h1, h2, h3, h4, h5, h6 {
 	}
 }
 
-.emoji_nav {
-	height: 32px;
-	vertical-align: middle;
-}
-
 .li_list {
 	padding-top: 5px;
 	padding-bottom: 5px;
@@ -932,4 +927,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .header_button {
 	min-width: 130px;
+}
+
+.emoji_nav {
+	height: 32px;
+	vertical-align: middle;
 }

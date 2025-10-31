@@ -33,13 +33,15 @@ Here’s an example `install.sh` you might call with `run_program_once`:
 ```bash
 #!/bin/bash
 echo "Installing dependencies..."
+python3 -mvenv virtual_env
+source virtual_env/bin/activate
 pip install -r requirements.txt
 
 echo "Downloading dataset..."
 wget https://example.com/dataset.zip
 unzip dataset.zip -d ./data
 
-echo "Done ✅"
+echo "Done"
 ```
 
 ## Tips

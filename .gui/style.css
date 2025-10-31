@@ -923,3 +923,8 @@ h1, h2, h3, h4, h5, h6 {
 	height: 2em;
 	vertical-align: middle;
 }
+
+.li_list {
+	padding-top: 5px;
+	list-style-type: none;
+}

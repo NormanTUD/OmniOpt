@@ -1,4 +1,4 @@
-# 💻 VirtualEnv
+# <img class='emoji_nav' src='emojis/laptop.svg' /> VirtualEnv
 
 <!-- What are Virtual Environments and how OmniOpt2 uses them -->
 

@@ -1,4 +1,4 @@
-# 📝 Create `run.sh`-file & modify your program
+# <img class='emoji_nav' src='emojis/memo.svg' /> Create `run.sh`-file & modify your program
 
 <!-- This is needed to prepare your program for OmniOpt2 -->
 

@@ -1,4 +1,4 @@
-# 📊 <tt>results.csv</tt>
+# <img class='emoji_nav' src='emojis/chart.svg' /> <tt>results.csv</tt>
 
 <!-- What is the results.csv and what do its columns mean? -->
 

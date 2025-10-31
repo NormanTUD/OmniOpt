@@ -1,4 +1,4 @@
-# 🛠️ The `--run_program_once` parameter
+# <img class='emoji_nav' src='emojis/hammer_and_wrench.svg' /> The `--run_program_once` parameter
 
 <div id="toc"></div>
 

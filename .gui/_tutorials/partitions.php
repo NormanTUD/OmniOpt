@@ -70,7 +70,7 @@
 	}
 ?>
 
-<h1>🖥️ Available partitions</h1>
+<h1><img class='emoji_nav' src='emojis/computer.svg' /> Available partitions</h1>
 
 <div id="toc"></div>
 

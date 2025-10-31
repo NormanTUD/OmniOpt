@@ -1,4 +1,4 @@
-# 🌍 OmniOpt2-Share
+# <img class='emoji_nav' src='emojis/world.svg' /> OmniOpt2-Share
 
 <!-- What is OmniOpt2-Share and how to use it? -->
 

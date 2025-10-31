@@ -1,4 +1,4 @@
-# 🧭 What is Multi-Objective-Optimization?
+# <img class='emoji_nav' src='emojis/crystal_ball.svg' /> What is Multi-Objective-Optimization?
 
 <!-- How to use OmniOpt2 with Multi-Objective-Optimization (MOO)? -->
 

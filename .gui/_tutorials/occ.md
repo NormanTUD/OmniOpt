@@ -1,4 +1,4 @@
-# 🔗 What is optimization with combined criteria?
+# <img class='emoji_nav' src='emojis/link.svg' /> What is optimization with combined criteria?
 
 <!-- How to use OmniOpt2 with multiple results (OCC) -->
 

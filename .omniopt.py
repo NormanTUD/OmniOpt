@@ -10619,9 +10619,9 @@ def run_program_once(params: Optional[dict] = None) -> None:
         print(f"Executing command: [cyan]{command_str}[/cyan]")
         result = subprocess.run(command_str, shell=True, check=True)
         if result.returncode == 0:
-            console.log("[bold green]Setup script completed successfully ✅[/bold green]")
+            print("[bold green]Setup script completed successfully ✅[/bold green]")
         else:
-            console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
+            print(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
             my_exit(57)
         print("Done executing command")
@@ -10630,9 +10630,9 @@ def run_program_once(params: Optional[dict] = None) -> None:
         with spinner("run_program_once: Executing command list: [cyan]{args.run_program_once}[/cyan]"):
             result = subprocess.run(args.run_program_once, check=True)
             if result.returncode == 0:
-                console.log("[bold green]Setup script completed successfully ✅[/bold green]")
+                print("[bold green]Setup script completed successfully ✅[/bold green]")
             else:
-                console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
+                print(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
                 my_exit(57)
 

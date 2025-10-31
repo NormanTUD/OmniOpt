@@ -1,4 +1,4 @@
-# 🔁 Continue jobs
+# <img class='emoji_nav' src='emojis/circle_arrows.svg' /> Continue jobs
 
 <!-- How to continue jobs after they have been run already -->
 

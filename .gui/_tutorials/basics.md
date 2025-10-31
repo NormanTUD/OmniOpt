@@ -1,4 +1,4 @@
-# 🐳Basics and Docker
+# <img class='emoji_nav' src='emojis/whale.svg' /> Basics and Docker
 
 <!-- How to use OmniOpt locally, on HPC-Systems or in Docker -->
 

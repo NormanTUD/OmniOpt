@@ -1,4 +1,4 @@
-# 🧪 Dry-Runs
+# <img class='emoji_nav' src='emojis/test_tube.svg' /> Dry-Runs
 
 <!-- How to quickly test if your configuration works properly -->
 

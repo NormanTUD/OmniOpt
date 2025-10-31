@@ -397,9 +397,9 @@ function update_table_row (item, errors, warnings, command) {
 			}
 		}
 	} else if (item.id == "external_generator") {
-		command += " --" + item.id + "='" + btoa(value) + "'";
+		command += " --" + item.id + "='" + encode_base64(value) + "'";
 	} else if (item.id == "run_program_once") {
-		command += " --" + item.id + "='" + btoa(value) + "'";
+		command += " --" + item.id + "='" + encode_base64(value) + "'";
 	} else if (item.id == "run_program") {
 		var variables_in_run_program = get_var_names_from_run_program(value);
 		//value = quote_variables(value);
@@ -440,7 +440,7 @@ function update_table_row (item, errors, warnings, command) {
 			$("#run_program_error").html("").hide()
 		}
 
-		value = btoa(value);
+		value = encode_base64(value);
 
 		command += " --" + item.id + "='" + value + "'";
 		$("#" + item.id).css("background-color", "");
@@ -716,7 +716,7 @@ function update_command() {
 			return el.trim();
 		});
 		for (var r = 0; r < _constraints.length; r++) {
-			command += " --experiment_constraints '" + btoa(add_equation_spaces(_constraints[r])) + "'";
+			command += " --experiment_constraints '" + encode_base64(add_equation_spaces(_constraints[r])) + "'";
 		}
 
 		var constraints_string = $("#constraints").val();
@@ -752,7 +752,7 @@ function update_command() {
 		base_url = base_url.replace(/^https:\//, "https://");
 		base_url = base_url.replace(/^file:\//, "file://");
 
-		var base_64_string = btoa(command);
+		var base_64_string = encode_base64(command);
 
 		var curl_or_cat = "curl";
 
@@ -799,6 +799,10 @@ function update_command() {
 	show_warnings_and_errors(warnings, errors);
 
 	update_url();
+}
+
+function encode_base64 (v) {
+	return btoa(v);
 }
 
 function decode_base64 (v) {

@@ -689,8 +689,9 @@ img {
 .header-theme-toggle {
 	flex: 1 1 auto;
 	align-items: center;
-	margin-top: 20px;
 	min-width: 120px;
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .switch {

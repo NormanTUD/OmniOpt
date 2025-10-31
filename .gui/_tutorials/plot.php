@@ -5,7 +5,7 @@
 		include_once("../_functions.php");
 	}
 ?>
-<h1>📉Plot your results</h1>
+<h1><img class='emoji_nav' src='emojis/chart_down.svg' />Plot your results</h1>
 
 <!-- What kinds of plots are available and how to use them -->
 

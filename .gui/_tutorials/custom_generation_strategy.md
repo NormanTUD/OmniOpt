@@ -1,4 +1,4 @@
-# 🧩 Custom Generation Strategy
+# <img class='emoji_nav' src='emojis/puzzle.svg' /> Custom Generation Strategy
 
 <!-- How to run custom generation strategies -->
 

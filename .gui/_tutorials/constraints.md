@@ -1,4 +1,4 @@
-# ⚖️ Constraints
+# <img class='emoji_nav' src='emojis/scale.svg' /> Constraints
 
 <!-- What are Constraints and how to use them? -->
 

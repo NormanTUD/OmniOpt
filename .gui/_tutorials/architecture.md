@@ -1,4 +1,4 @@
-# 🏗️ OmniOpt2 Architecture Overview
+# <img class='emoji_nav' src='emojis/construction.svg' /> OmniOpt2 Architecture Overview
 
 <!-- What is the Architecture of OmniOpt2? -->
 

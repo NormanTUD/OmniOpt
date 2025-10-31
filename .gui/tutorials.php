@@ -76,12 +76,12 @@ function list_tutorials() {
 	}
 
 	$category_icons = [
-		"Preparations, Basics and Setup" => "📦",
-		"Advanced Usage"                 => "⚙️",
-		"Developing"                     => "🧪",
-		"Models"                         => "🤖",
-		"Multiple Objectives"            => "🎯",
-		"Plotting and Sharing Results"  => "📈"
+		"Preparations, Basics and Setup" => "<img class='emoji_nav' src='emojis/box.svg' />",
+		"Advanced Usage"                 => "<img class='emoji_nav' src='emojis/gear.svg' />",
+		"Developing"                     => "<img class='emoji_nav' src='emojis/test_tube.svg' />",
+		"Models"                         => "<img class='emoji_nav' src='emojis/robot.svg' />",
+		"Multiple Objectives"            => "<img class='emoji_nav' src='emojis/direct_hit.svg' />",
+		"Plotting and Sharing Results"   => "<img class='emoji_nav' src='emojis/chart_up.svg' />"
 	];
 
 	foreach ($categories as $cat => $entries) {

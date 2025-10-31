@@ -10625,7 +10625,6 @@ def run_program_once(params: Optional[dict] = None) -> None:
             print(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
             my_exit(57)
-        print("Done executing command")
 
     elif isinstance(args.run_program_once, (list, tuple)):
         with spinner("run_program_once: Executing command list: [cyan]{args.run_program_once}[/cyan]"):

@@ -1,4 +1,4 @@
-# 🧮 Sobol Sequences for Hyperparameter Search
+# <img class='emoji_nav' src='emojis/spiral_notepad.svg' /> Sobol Sequences for Hyperparameter Search
 
 <!-- What are SOBOL sequences? -->
 

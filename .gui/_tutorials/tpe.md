@@ -1,4 +1,4 @@
-# 🌳 Tree-structured Parzen Estimator (TPE)
+# <img class='emoji_nav' src='emojis/tree2.svg' /> Tree-structured Parzen Estimator (TPE)
 
 <div id="toc"></div>
 

@@ -26,7 +26,7 @@ bash relative/path/to/install.sh
 
 The path is relative to your current pwd when starting this job.
 
-## 📁 Example: `install.sh`
+## Example: `install.sh`
 
 Here’s an example `install.sh` you might call with `run_program_once`:
 
@@ -42,7 +42,7 @@ unzip dataset.zip -d ./data
 echo "Done ✅"
 ```
 
-## 💡 Tips
+## Tips
 
 <div class="caveat warning">
 - This runs **once per experiment**, not per trial.

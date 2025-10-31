@@ -801,6 +801,10 @@ function update_command() {
 	update_url();
 }
 
+function decode_base64 (v) {
+	return atob(v);
+}
+
 function addBase64DecodedVersions(cmdString) {
 	return cmdString.replace(/(--[a-zA-Z0-9_]+)=('([^']+)'|"([^"]+)"|([^\s]+))/g, (match, key, _, singleQuoted, doubleQuoted, bare) => {
 		const value = singleQuoted || doubleQuoted || bare;
@@ -808,7 +812,7 @@ function addBase64DecodedVersions(cmdString) {
 		let decoded = null;
 		try {
 			if (key === "--run_program") {
-				decoded = atob(value);
+				decoded = decode_base64(value);
 			}
 		} catch (e) {
 			console.error(e);

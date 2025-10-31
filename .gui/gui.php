@@ -49,36 +49,40 @@
 
 		<div class="half">
 			<div id="commands">
-				<h2>Install and run</h2>
-				<p class="no_linebreak">Run this to install OmniOpt2 and run this command. First time installation may take up to 30 minutes.</p>
-				<div class="dark_code_bg invert_in_dark_mode">
-					<code id="curl_command_highlighted"></code>
-					<code style="display: none" id="curl_command"></code>
-				</div>
-				<div id="copytoclipboard_curl">
-					<button type="button" id="copytoclipboardbutton_curl">
-						<img src='i/clipboard.svg' style='height: 1em' /> Copy to clipboard
-					</button>
-				</div>
-				<div class="invert_in_dark_mode" id="copied_curl" style="display: none">
-					<img src='i/clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b>
+				<div id="install_and_run">
+					<h2>Install and run</h2>
+					<p class="no_linebreak">Run this to install OmniOpt2 and run this command. First time installation may take up to 30 minutes.</p>
+					<div class="dark_code_bg invert_in_dark_mode">
+						<code id="curl_command_highlighted"></code>
+						<code style="display: none" id="curl_command"></code>
+					</div>
+					<div id="copytoclipboard_curl">
+						<button type="button" id="copytoclipboardbutton_curl">
+							<img src='i/clipboard.svg' style='height: 1em' /> Copy to clipboard
+						</button>
+					</div>
+					<div class="invert_in_dark_mode" id="copied_curl" style="display: none">
+						<img src='i/clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b>
+					</div>
+
+					<br><br>
 				</div>
 
-				<br><br>
-
-				<h2>Run</h2>
-				<p class="no_linebreak">Run this command in the <code>ax</code>-folder when you already have OmniOpt2 installed.</p>
-				<div class="dark_code_bg invert_in_dark_mode">
-					<code id="command_element_highlighted"></code>
-					<code style="display: none" id="command_element"></code>
-				</div>
-				<div id="copytoclipboard_main">
-					<button type="button" id="copytoclipboardbutton_main">
-						<img src='i/clipboard.svg' style='height: 1em' /> Copy to clipboard
-					</button>
-				</div>
-				<div class="invert_in_dark_mode" id="copied_main" style="display: none">
-					<img src='i/clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b>
+				<div id="only_run">
+					<h2>Run</h2>
+					<p class="no_linebreak">Run this command in the <code>ax</code>-folder when you already have OmniOpt2 installed.</p>
+					<div class="dark_code_bg invert_in_dark_mode">
+						<code id="command_element_highlighted"></code>
+						<code style="display: none" id="command_element"></code>
+					</div>
+					<div id="copytoclipboard_main">
+						<button type="button" id="copytoclipboardbutton_main">
+							<img src='i/clipboard.svg' style='height: 1em' /> Copy to clipboard
+						</button>
+					</div>
+					<div class="invert_in_dark_mode" id="copied_main" style="display: none">
+						<img src='i/clipboard.svg' style='height: 1em' /> <b>Copied bash command to the clipboard</b>
+					</div>
 				</div>
 			</div>
 			<div id="warnings" style="display: none"></div>

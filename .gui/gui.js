@@ -785,12 +785,16 @@ function update_command() {
 
 		$("#curl_command_highlighted").text(curl_command).show();
 		$("#command_element_highlighted").text(nicer_command).show();
+		$("#install_and_run").show();
+		$("#only_run").show();
 
 		$("#curl_command").text(curl_command);
 		$("#command_element").text(nicer_command);
 	} else {
 		$("#command_element_highlighted").hide();
 		$("#curl_command_highlighted").hide();
+		$("#install_and_run").hide();
+		$("#only_run").hide();
 
 		$("#curl_command").text("");
 		$("#command_element").text("");

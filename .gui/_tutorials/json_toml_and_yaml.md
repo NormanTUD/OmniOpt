@@ -1,4 +1,4 @@
-# 📄 `config.{json,yaml,toml}`
+# <img class='emoji_nav' src='emojis/page.svg' /> `config.{json,yaml,toml}`
 
 <!-- How to load parameters from OmniOpt2-config-files -->
 

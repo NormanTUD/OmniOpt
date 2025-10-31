@@ -1,4 +1,4 @@
-<h1>🧾 Exit-Codes and Bash-scripting</h1>
+<h1><img class='emoji_nav' src='emojis/receipt.svg' /> Exit-Codes and Bash-scripting</h1>
 
 <!-- How to script OmniOpt2 -->
 

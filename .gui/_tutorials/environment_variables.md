@@ -1,4 +1,4 @@
-# 🌿Environment Variables
+# <img class='emoji_nav' src='emojis/herb.svg' />Environment Variables
 
 <!-- List of all environment variables that change how OmniOpt2 works -->
 

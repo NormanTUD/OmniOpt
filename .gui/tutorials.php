@@ -86,7 +86,7 @@ function list_tutorials() {
 
 	foreach ($categories as $cat => $entries) {
 		$icon = $category_icons[$cat] ?? "📚"; // Fallback-Icon
-		echo "<h3><span>" . $icon . "</span> " . $cat . "</h3>\n";
+		echo "<h2><span>" . $icon . "</span> " . $cat . "</h2>\n";
 
 		if (count($entries) === 1) {
 			$e = $entries[0];
@@ -109,7 +109,7 @@ function list_tutorials() {
 	}
 
 	if (!empty($uncategorized)) {
-		echo "<h3>No category</h3>\n";
+		echo "<h2>No category</h2>\n";
 		echo "<ul>\n";
 		foreach ($uncategorized as $e) {
 			$comment = "";

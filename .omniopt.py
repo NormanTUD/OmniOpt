@@ -8766,6 +8766,7 @@ def set_global_gs_to_random() -> None:
         nodes=[
             GenerationNode(
                 node_name="Sobol",
+                should_deduplicate=True,
                 generator_specs=[ # type: ignore[arg-type]
                     GeneratorSpec( # type: ignore[arg-type]
                         Models.SOBOL, # type: ignore[arg-type]

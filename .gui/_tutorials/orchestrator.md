@@ -1,4 +1,4 @@
-# 🎼 Orchestrator
+# <img class='emoji_nav' src='emojis/score.svg' /> Orchestrator
 
 <!-- How to orchestrate how failing jobs should restart or be treated in general -->
 

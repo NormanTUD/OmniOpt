@@ -1,4 +1,4 @@
-# 🗄️ Using the SQLite3 store
+# <img class='emoji_nav' src='emojis/card_file_box.svg' /> Using the SQLite3 store
 
 <!-- What is SQLite3 and how to use it? -->
 

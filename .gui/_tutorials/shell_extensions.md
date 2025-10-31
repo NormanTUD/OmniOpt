@@ -1,4 +1,4 @@
-# ⌨️ Shell-Extensions `bash`, `zsh`
+# <img class='emoji_nav' src='emojis/shell.svg' /> Shell-Extensions `bash`, `zsh`
 
 <!-- Extensions for tab-completion for ZSH and Bash-Shells -->
 

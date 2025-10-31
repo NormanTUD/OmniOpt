@@ -687,7 +687,6 @@ img {
 }
 
 .header-theme-toggle {
-	flex: 1 1 auto;
 	align-items: center;
 	min-width: 120px;
 	margin-top: auto;

@@ -815,7 +815,7 @@ function addBase64DecodedVersions(cmdString) {
 
 		let decoded = null;
 		try {
-			if (key === "--run_program") {
+			if (key === "--run_program" || key === "--run_program_once") {
 				decoded = decode_base64(value);
 			}
 		} catch (e) {

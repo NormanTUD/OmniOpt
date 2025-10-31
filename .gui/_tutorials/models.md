@@ -1,4 +1,4 @@
-# 🧬Surrogate Models
+# <img class='emoji_nav' src='emojis/spy.svg' /> Surrogate Models
 
 <!-- What are Surrogate Models and when to use which one? -->
 

@@ -1,4 +1,4 @@
-<h1>✅ Run automated tests</h1>
+<h1><img class='emoji_nav' src='emojis/green_checkmark.svg' /> Run automated tests</h1>
 
 <!-- How to run automated tests and what options are available -->
 

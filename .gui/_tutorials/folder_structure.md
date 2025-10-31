@@ -1,4 +1,4 @@
-# 📁 Folder structure of OmniOpt2 runs
+# <img class='emoji_nav' src='emojis/open_folder.svg' /> Folder structure of OmniOpt2 runs
 
 <!-- What files are created for each run? -->
 

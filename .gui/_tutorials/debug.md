@@ -1,4 +1,4 @@
-# 🐞 Debugging
+# <img class='emoji_nav' src='emojis/bug.svg' /> Debugging
 
 <!-- How to find and solve bugs -->
 

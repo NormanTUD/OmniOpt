@@ -1,4 +1,4 @@
-# 🌲 Random Forest
+# <img class='emoji_nav' src='emojis/tree.svg' /> Random Forest
 
 <div id="toc"></div>
 

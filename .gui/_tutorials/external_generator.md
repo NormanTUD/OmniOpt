@@ -1,4 +1,4 @@
-# ♻️ Using external generators
+# <img class='emoji_nav' src='emojis/recyling.svg' /> Using external generators
 
 <!-- How to use your own programs to generate new points and include them easily in OmniOpt2 -->
 

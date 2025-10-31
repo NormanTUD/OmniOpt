@@ -3,13 +3,13 @@
 
 	$GLOBALS["files"] = array(
 		"tutorials" => array(
-			"name" => "📚&nbsp;HowTo",
+			"name" => "<img class='emoji_nav' src='emojis/books.svg' />&nbsp;HowTo",
 			"entries" => array()
 		),
-		"gui" => "🧩&nbsp;GUI",
-		"share" => "🌍&nbsp;Share",
-		"conceptdrift/index" => "💡&nbsp;Example",
-		"usage_stats" => "📊&nbsp;Statistics"
+		"gui" => "<img class='emoji_nav' src='emojis/memo.svg' />&nbsp;GUI",
+		"share" => "<img class='emoji_nav' src='emojis/world.svg' />&nbsp;Share",
+		"conceptdrift/index" => "<img class='emoji_nav' src='emojis/bulb.svg' />&nbsp;Example",
+		"usage_stats" => "<img class='emoji_nav' src='emojis/chart.svg' />&nbsp;Statistics"
 	);
 
 	if (isset($GLOBALS["index_tutorials"])) {

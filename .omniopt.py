@@ -10616,14 +10616,15 @@ def run_program_once(params: Optional[dict] = None) -> None:
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
 
-        with spinner(f"Executing command: [cyan]{command_str}[/cyan]"):
-            result = subprocess.run(command_str, shell=True, check=True)
-            if result.returncode == 0:
-                console.log("[bold green]Setup script completed successfully ✅[/bold green]")
-            else:
-                console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
+        print(f"Executing command: [cyan]{command_str}[/cyan]")
+        result = subprocess.run(command_str, shell=True, check=True)
+        if result.returncode == 0:
+            console.log("[bold green]Setup script completed successfully ✅[/bold green]")
+        else:
+            console.log(f"[bold red]Setup script failed with exit code {result.returncode} ❌[/bold red]")
 
-                my_exit(57)
+            my_exit(57)
+        print("Done executing command")
 
     elif isinstance(args.run_program_once, (list, tuple)):
         with spinner("run_program_once: Executing command list: [cyan]{args.run_program_once}[/cyan]"):

@@ -9337,6 +9337,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     res = GenerationNode(
         node_name=model_name,
         generator_specs=model_spec,
+        should_deduplicate=True,
         transition_criteria=trans_crit
     )
 

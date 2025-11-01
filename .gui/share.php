@@ -126,9 +126,9 @@
 					'add_cpu_ram_usage_main_worker_from_file' => [
 						["$run_dir/cpu_ram_usage.csv", "CPU/RAM", "tab_main_worker_cpu_ram"]
 					],
-					'add_parameter_distribution_by_type_plot' => [
-						["$run_dir/results.csv", "Param/Status", "tab_param_distrib_by_job_type"]
-					],
+					#'add_parameter_distribution_by_type_plot' => [
+					#	["$run_dir/results.csv", "Param/Status", "tab_param_distrib_by_job_type"]
+					#],
 					'add_flame_svg_file' => [
 						["$run_dir/profile_svg", "Flame-Graph", "tab_flame_graph"]
 					],

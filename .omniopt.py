@@ -6517,6 +6517,8 @@ def get_current_model_name() -> str:
     if overwritten_to_random:
         return "Random*"
 
+    gs_model = "unknown model"
+
     if ax_client:
         try:
             if args.generation_strategy:
@@ -6524,10 +6526,6 @@ def get_current_model_name() -> str:
                 if isinstance(idx, int):
                     if 0 <= idx < len(generation_strategy_names):
                         gs_model = generation_strategy_names[int(idx)]
-                    else:
-                        gs_model = "unknown model"
-                else:
-                    gs_model = "unknown model"
             else:
                 gs_model = getattr(ax_client.generation_strategy, "current_node_name", "unknown model")
 

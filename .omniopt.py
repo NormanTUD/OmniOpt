@@ -6522,7 +6522,7 @@ def get_current_model_name() -> str:
     if ax_client:
         try:
             if args.generation_strategy:
-                idx = getattr(ax_client.generation_strategy, "current_step_index", None)
+                idx = getattr(global_gs, "current_step_index", None)
                 if isinstance(idx, int):
                     if 0 <= idx < len(generation_strategy_names):
                         gs_model = generation_strategy_names[int(idx)]

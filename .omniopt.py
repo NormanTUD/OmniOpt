@@ -6527,7 +6527,7 @@ def get_current_model_name() -> str:
                     if 0 <= idx < len(generation_strategy_names):
                         gs_model = generation_strategy_names[int(idx)]
             else:
-                gs_model = getattr(ax_client.generation_strategy, "current_node_name", "unknown model")
+                gs_model = getattr(global_gs, "current_node_name", "unknown model")
 
             if gs_model:
                 return str(gs_model)

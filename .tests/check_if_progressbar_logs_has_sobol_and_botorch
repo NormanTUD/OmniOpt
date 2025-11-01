@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd "$SCRIPT_DIR"
+
+cd ..
+
+.tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=1 --generate_all_jobs_at_once --follow
+
+last_progressbar="logs/$(ls -t logs | grep progressbar | head -n1)"
+
+if [[ $(cat $last_progressbar | grep SOBOL | wc -l) -eq 0 ]]; then
+	echo "$last_progressbar does not contain SOBOL"
+	exit 1
+fi
+
+if [[ $(cat $last_progressbar | grep BOTORCH_MODULAR | wc -l) -eq 0 ]]; then
+	echo "$last_progressbar does not contain BOTORCH_MODULAR"
+	exit 2
+fi
+
+exit 0

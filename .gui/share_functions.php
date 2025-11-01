@@ -2842,7 +2842,7 @@ $onclick_string
 			$firstLine = fgets(fopen($ui_url_txt, 'r'));
 
 			if (filter_var($firstLine, FILTER_VALIDATE_URL) && (strpos($firstLine, 'http://') === 0 || strpos($firstLine, 'https://') === 0)) {
-				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\">GUI page with all the settings of this job</button><br>";
+				$overview_html .= "<button onclick=\"window.open('".htmlspecialchars($firstLine)."', '_blank')\"><img class='emoji_nav' src='emojis/memo.svg'>GUI page with all the settings of this job</button><br>";
 			}
 		} else {
 			$warnings[] = "$ui_url_txt not found";

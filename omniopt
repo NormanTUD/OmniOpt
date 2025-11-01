@@ -1877,7 +1877,7 @@ EOF
 						kill_tail_when_squeue_job_empty "$started_job_nr" &
 
 						tail_log_file() {
-							trap 'ask_cancel' SIGINT
+							#trap 'ask_cancel' SIGINT
 							# weird exec stuff for disabling the "Terminated" message coming from kill
 							exec 3>&2          # 3 is now a copy of 2
 							exec 2> /dev/null  # 2 now points to /dev/null

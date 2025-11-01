@@ -256,6 +256,7 @@
 					$warnings[] = "No successful jobs were found";
 				}
 
+				/*
 				if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
 					if(isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
 						$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
@@ -289,6 +290,7 @@
 				} else {
 					$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
 				}
+				*/
 
 
 				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);

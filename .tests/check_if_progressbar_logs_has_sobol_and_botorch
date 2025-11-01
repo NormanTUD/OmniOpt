@@ -8,16 +8,28 @@ cd ..
 
 .tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=1 --generate_all_jobs_at_once --follow
 
+exit_code=$?
+
+if [[ $exit_code -ne 0 ]]; then
+	echo ".tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=1 --generate_all_jobs_at_once --follow failed with exit_code $exit_code"
+	exit 1
+fi
+
 last_progressbar="logs/$(ls -t logs | grep progressbar | head -n1)"
 
 if [[ $(cat $last_progressbar | grep SOBOL | wc -l) -eq 0 ]]; then
 	echo "$last_progressbar does not contain SOBOL"
-	exit 1
+	exit 2
 fi
 
 if [[ $(cat $last_progressbar | grep BOTORCH_MODULAR | wc -l) -eq 0 ]]; then
 	echo "$last_progressbar does not contain BOTORCH_MODULAR"
-	exit 2
+	exit 3
+fi
+
+if [[ $(cat $last_progressbar | grep "new result" | wc -l) -ne 2 ]]; then
+	echo "$last_progressbar does not contain 2 results"
+	exit 4
 fi
 
 exit 0

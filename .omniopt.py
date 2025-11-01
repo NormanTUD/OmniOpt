@@ -8705,7 +8705,7 @@ def handle_generation_failure(
 
         if not recursion and args.revert_to_random_when_seemingly_exhausted:
             print_debug("Switching to random search strategy.")
-            set_global_gs_to_random()
+            set_global_gs_to_sobol()
             return fetch_next_trials(requested, True)
 
     print_red(f"handle_generation_failure: General Exception: {e}")
@@ -8757,9 +8757,11 @@ def get_model_gen_kwargs() -> dict:
         "fit_out_of_design": args.fit_out_of_design
     }
 
-def set_global_gs_to_random() -> None:
+def set_global_gs_to_sobol() -> None:
     global global_gs
     global overwritten_to_random
+
+    print("Reverting to SOBOL")
 
     global_gs = GenerationStrategy(
         name="Random*",

@@ -122,6 +122,7 @@ function replace_backticks_with_tt(str) {
 			i++;
 		}
 	}
+
 	return result;
 }
 

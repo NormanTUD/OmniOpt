@@ -31,7 +31,7 @@ import psutil
 
 FORCE_EXIT: bool = False
 
-LAST_LOG_TIME int = 0
+LAST_LOG_TIME: int = 0
 last_msg_progressbar = ""
 last_msg_raw = None
 last_lock = threading.Lock()

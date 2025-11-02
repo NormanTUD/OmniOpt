@@ -58,7 +58,7 @@ Computes the Euclidean distance, which is the square root of the sum of squared 
 Explanation:
 
 - Computes the geometric mean instead of a sum-based distance.
-- The geometric mean is the nth root of the product of the absolute values.
+- The geometric mean is the \(n\)th root of the product of the absolute values.
 
 ### Signed Harmonic Distance
 

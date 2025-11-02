@@ -1,70 +1,74 @@
 function plotWorkerUsage() {
-    var $plot = $("#workerUsagePlot");
-    if ($plot.data("loaded") == "true") return;
+	if($("#workerUsagePlot").data("loaded") == "true") {
+		return;
+	}
+	var data = tab_worker_usage_csv_json;
+	if (!Array.isArray(data) || data.length === 0) {
+		console.error("Invalid or empty data provided.");
+		return;
+	}
 
-    var data = tab_worker_usage_csv_json;
-    if (!Array.isArray(data) || data.length === 0) {
-        console.error("Invalid or empty data provided.");
-        return;
-    }
+	let timestamps = [];
+	let desiredWorkers = [];
+	let realWorkers = [];
 
-    var n = data.length;
-    var timestamps = new Array(n);
-    var desiredWorkers = new Array(n);
-    var realWorkers = new Array(n);
-    var used = 0;
+	for (let i = 0; i < data.length; i++) {
+		let entry = data[i];
 
-    for (var i = 0; i < n; i++) {
-        var entry = data[i];
-        if (!Array.isArray(entry) || entry.length < 3) {
-            console.warn("Skipping invalid entry:", entry);
-            continue;
-        }
+		if (!Array.isArray(entry) || entry.length < 3) {
+			console.warn("Skipping invalid entry:", entry);
+			continue;
+		}
 
-        var unixTime = Number(entry[0]);
-        var desired = Number(entry[1]);
-        var real = Number(entry[2]);
+		let unixTime = parseFloat(entry[0]);
+		let desired = parseInt(entry[1], 10);
+		let real = parseInt(entry[2], 10);
 
-        if (!isFinite(unixTime) || !isFinite(desired) || !isFinite(real)) {
-            console.warn("Skipping invalid numerical values:", entry);
-            continue;
-        }
+		if (isNaN(unixTime) || isNaN(desired) || isNaN(real)) {
+			console.warn("Skipping invalid numerical values:", entry);
+			continue;
+		}
 
-        timestamps[used] = unixTime * 1000; // <-- epoch ms number (faster)
-        desiredWorkers[used] = desired;
-        realWorkers[used] = real;
-        used++;
-    }
+		timestamps.push(new Date(unixTime * 1000).toISOString());
+		desiredWorkers.push(desired);
+		realWorkers.push(real);
+	}
 
-    if (used !== n) {
-        timestamps.length = used;
-        desiredWorkers.length = used;
-        realWorkers.length = used;
-    }
+	let trace1 = {
+		x: timestamps,
+		y: desiredWorkers,
+		mode: 'lines+markers',
+		name: 'Desired Workers',
+		line: {
+			color: 'blue'
+		}
+	};
 
-    var trace1 = {
-        x: timestamps,
-        y: desiredWorkers,
-        mode: 'lines+markers',
-        name: 'Desired Workers',
-        line: { color: 'blue' }
-    };
+	let trace2 = {
+		x: timestamps,
+		y: realWorkers,
+		mode: 'lines+markers',
+		name: 'Real Workers',
+		line: {
+			color: 'red'
+		}
+	};
 
-    var trace2 = {
-        x: timestamps,
-        y: realWorkers,
-        mode: 'lines+markers',
-        name: 'Real Workers',
-        line: { color: 'red' }
-    };
+	let layout = {
+		title: "Worker Usage Over Time",
+		xaxis: {
+			title: get_axis_title_data("Time", "date")
+		},
+		yaxis: {
+			title: get_axis_title_data("Number of Workers")
+		},
+		legend: {
+			x: 0,
+			y: 1
+		}
+	};
 
-    var layout = {
-        title: "Worker Usage Over Time",
-        xaxis: { title: get_axis_title_data("Time", "date") },
-        yaxis: { title: get_axis_title_data("Number of Workers") },
-        legend: { x: 0, y: 1 }
-    };
-
-    Plotly.newPlot('workerUsagePlot', [trace1, trace2], add_default_layout_data(layout));
-    $plot.data("loaded", "true");
+	Plotly.newPlot('workerUsagePlot', [trace1, trace2], add_default_layout_data(layout));
+	$("#workerUsagePlot").data("loaded", "true");
 }
+

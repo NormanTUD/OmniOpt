@@ -646,14 +646,14 @@
 
 	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
+			$csv_contents = get_csv_data_as_array($filename);
+			$csv_contents = collapse_runs_keep_first_last($csv_contents);
+			$csv_text = csv_array_to_text($csv_contents);
+
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_'.$id.'">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_'.$id.'">'.my_htmlentities(remove_ansi_colors($csv_text)).'</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-
-			$csv_contents = get_csv_data_as_array($filename);
-
-			$csv_contents = collapse_runs_keep_first_last($csv_contents);
 
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_contents;
 

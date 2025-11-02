@@ -374,8 +374,6 @@ def main():
     try:
         args = parse_args()
 
-        show_hyperparams(args)
-
         if args.seed is not None:
             torch.manual_seed(args.seed)
             torch.cuda.manual_seed_all(args.seed)
@@ -414,6 +412,8 @@ def main():
         if args.install:
             print("Exiting, since the installation should now be done")
             sys.exit(0)
+
+        show_hyperparams(args)
 
         # DataLoader performance options
         num_workers = min(4, (os.cpu_count() or 1))

@@ -24,53 +24,23 @@ function plotTimelineFromGlobals() {
 	}
 
 	const traces = [];
-
-	// Add dummy traces for legend
-	traces.push({
-		type: "scatter",
-		mode: "lines",
-		x: [null, null],
-		y: [null, null],
-		line: { color: "green", width: 4 },
-		name: "COMPLETED",
-		showlegend: true,
-		hoverinfo: "none"
-	});
-	traces.push({
-		type: "scatter",
-		mode: "lines",
-		x: [null, null],
-		y: [null, null],
-		line: { color: "yellow", width: 4 },
-		name: "RUNNING",
-		showlegend: true,
-		hoverinfo: "none"
-	});
-	traces.push({
-		type: "scatter",
-		mode: "lines",
-		x: [null, null],
-		y: [null, null],
-		line: { color: "red", width: 4 },
-		name: "FAILED/OTHER",
-		showlegend: true,
-		hoverinfo: "none"
-	});
+	const status_colors = { COMPLETED: "green", RUNNING: "yellow", FAILED: "red", OTHER: "red" };
+	const existing_statuses = new Set();
 
 	for (const row of data) {
 		const trial_index = row[ix_trial_index];
 		const start = row[ix_start_time];
 		const end = row[ix_end_time];
-		const status = row[ix_status];
+		const status = row[ix_status] || "OTHER";
 
 		if (
 			trial_index === "" || start === "" || end === "" ||
 			isNaN(start) || isNaN(end)
 		) continue;
 
-		let color = "red"; // default
-		if (status === "COMPLETED") color = "green";
-		else if (status === "RUNNING") color = "yellow";
+		existing_statuses.add(status);
+
+		const color = status_colors[status] || "red";
 
 		traces.push({
 			type: "scatter",
@@ -84,25 +54,34 @@ function plotTimelineFromGlobals() {
 		});
 	}
 
-	if (traces.length <= 3) { // only dummy traces added
+	// Add dummy traces dynamically for existing statuses only
+	for (const status of existing_statuses) {
+		let color = status_colors[status] || "red";
+		let legend_name = status;
+		traces.unshift({ // unshift, damit legend oben bleibt
+			type: "scatter",
+			mode: "lines",
+			x: [null, null],
+			y: [null, null],
+			line: { color: color, width: 4 },
+			name: legend_name,
+			showlegend: true,
+			hoverinfo: "none"
+		});
+	}
+
+	if (traces.length === 0) {
 		console.warn("No valid data for plotting found.");
 		return null;
 	}
 
 	const layout = {
 		title: "Trial Timeline",
-		xaxis: {
-			title: "Time",
-			type: "date"
-		},
-		yaxis: {
-			title: "Trial Index",
-			autorange: "reversed"
-		},
+		xaxis: { title: "Time", type: "date" },
+		yaxis: { title: "Trial Index", autorange: "reversed" },
 		margin: { t: 50 }
 	};
 
 	Plotly.newPlot('plot_timeline', traces, add_default_layout_data(layout));
 	return true;
 }
-

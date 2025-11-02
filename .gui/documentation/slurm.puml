@@ -59,10 +59,10 @@ node "HPC Master Node" as HPCMaster {
     component "Sobol Sequence Generator" as sobol #LightGreen
     component "BoTorch Optimizer" as botorch
 
-    component "BOTORCH_MODULAR\n..." as modular #99FF99
-    component "GPEI\n..." as gpei #99FF99
-    component "SAASBO\n..." as saasbo #99FF99
-    component "Other modules\n..." as othermodules #99FF99
+    component "BOTORCH_MODULAR" as modular #99FF99
+    component "GPEI" as gpei #99FF99
+    component "SAASBO" as saasbo #99FF99
+    component "Other modules" as othermodules #99FF99
 
     botorch -down-> modular
     modular -> botorch

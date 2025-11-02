@@ -583,6 +583,26 @@
 		return [$tabs, $warnings];
 	}
 
+	function collapse_runs_keep_first_last(array $rows): array {
+		$result = [];
+		$count = count($rows);
+
+		for ($i = 0; $i < $count; $i++) {
+			$current_sig = json_encode(array_slice($rows[$i], 1));
+			$prev_sig = $i > 0 ? json_encode(array_slice($rows[$i-1], 1)) : null;
+			$next_sig = $i < $count-1 ? json_encode(array_slice($rows[$i+1], 1)) : null;
+
+			$is_first_of_run = $current_sig !== $prev_sig;
+			$is_last_of_run = $current_sig !== $next_sig;
+
+			if ($is_first_of_run || $is_last_of_run) {
+				$result[] = $rows[$i];
+			}
+		}
+
+		return $result;
+	}
+
 	function add_worker_usage_plot_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "<div class='invert_in_dark_mode' id='workerUsagePlot'></div>";
@@ -591,6 +611,8 @@
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
+
+			$csv_contents = collapse_runs_keep_first_last($csv_contents);
 
 			$GLOBALS["json_data"]["{$id}_csv_json"] = $csv_contents;
 

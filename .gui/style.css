@@ -933,12 +933,12 @@ h1, h2, h3, h4, h5, h6 {
 	vertical-align: middle;
 }
 
-[onclick], button, a {
+[onclick], button, a, .slider {
 	cursor: pointer;
 	transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-[onclick]:hover, button:hover, a:hover {
+[onclick]:hover, button:hover, a:hover, .slider:hover {
 	transform: scale(1.08);
 	opacity: 0.9;
 }

@@ -99,7 +99,7 @@ function get_category_icon(category) {
 	var icons = {
 		"Tutorials": "<img class='emoji_nav' src='emojis/books.svg' />",
 		"Shares": "<img class='emoji_nav' src='emojis/world.svg' />",
-		"Default": "📄"
+		"Default": "<img class='emoji_nav' src='emojis/page.svg' />"
 	};
 	return icons[category] || icons["Default"];
 }

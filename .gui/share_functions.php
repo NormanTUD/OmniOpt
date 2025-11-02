@@ -488,6 +488,35 @@
 		return [$tabs, $warnings];
 	}
 
+	function keep_rows_every_n_seconds($csv, $seconds = 30) {
+		if (count($csv) <= 1) return $csv;
+
+		$result = [];
+		$last_ts = null;
+
+		foreach ($csv as $idx => $row) {
+			if ($idx === 0) {
+				$result[] = $row;
+				continue;
+			}
+
+			$ts = intval($row[0]);
+
+			if ($last_ts === null) {
+				$result[] = $row;
+				$last_ts = $ts;
+				continue;
+			}
+
+			if ($ts - $last_ts >= $seconds) {
+				$result[] = $row;
+				$last_ts = $ts;
+			}
+		}
+
+		return $result;
+	}
+
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
 			$html = "This logs the CPU and RAM usage of the main worker process.<br>";
@@ -497,6 +526,8 @@
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
 
 			$csv_contents = get_csv_data_as_array($filename);
+			$csv_contents = keep_rows_every_n_seconds($csv_contents);
+
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;
 			array_shift($csv_contents_no_header);

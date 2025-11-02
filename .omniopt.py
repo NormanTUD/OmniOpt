@@ -31,7 +31,7 @@ import psutil
 
 FORCE_EXIT: bool = False
 
-LAST_LOG_TIME = 0
+LAST_LOG_TIME int = 0
 last_msg_progressbar = ""
 last_msg_raw = None
 last_lock = threading.Lock()
@@ -2481,7 +2481,8 @@ def log_system_usage() -> None:
     now = time.time()
     if now - LAST_LOG_TIME < 30:
         return
-    LAST_LOG_TIME = now
+
+    LAST_LOG_TIME = int(now)
 
     if not get_current_run_folder():
         return

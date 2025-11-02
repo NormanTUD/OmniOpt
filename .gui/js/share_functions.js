@@ -14,7 +14,7 @@ function add_default_layout_data (layout, no_height = 0) {
 }
 
 function get_marker_size() {
-	return 12;
+	return 4;
 }
 
 function get_text_color() {

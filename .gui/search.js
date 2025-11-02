@@ -97,8 +97,8 @@ function mark_search_result_yellow(content, search) {
 
 function get_category_icon(category) {
 	var icons = {
-		"Tutorials": "📚",
-		"Shares": "🌏",
+		"Tutorials": "<img class='emoji_nav' src='emojis/books.svg' />",
+		"Shares": "<img class='emoji_nav' src='emojis/world.svg' />",
 		"Default": "📄"
 	};
 	return icons[category] || icons["Default"];

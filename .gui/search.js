@@ -104,6 +104,27 @@ function get_category_icon(category) {
 	return icons[category] || icons["Default"];
 }
 
+function replace_backticks_with_tt(str) {
+	let result = '';
+	let i = 0;
+	while (i < str.length) {
+		if (str[i] === '`') {
+			let end = str.indexOf('`', i + 1);
+			if (end !== -1) {
+				result += `<tt>${str.slice(i + 1, end)}</tt>`;
+				i = end + 1;
+			} else {
+				result += str[i];
+				i++;
+			}
+		} else {
+			result += str[i];
+			i++;
+		}
+	}
+	return result;
+}
+
 async function displaySearchResults(searchTerm, results) {
         var $searchResults = $("#searchResults");
         $searchResults.empty();
@@ -159,7 +180,7 @@ async function displaySearchResults(searchTerm, results) {
 					if (itemLines.length > 0) {
 						var headlineHtml = "";
 						if (headline !== "_no_headline_") {
-							headlineHtml = `<div class="search_headline">${headline}</div>\n`;
+							headlineHtml = `<div class="search_headline">${replace_backticks_with_tt(headline)}</div>\n`;
 						}
 
 						var listHtml = `<ul>\n${itemLines.join("\n")}\n</ul>`;

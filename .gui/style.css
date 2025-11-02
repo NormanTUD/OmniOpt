@@ -932,3 +932,23 @@ h1, h2, h3, h4, h5, h6 {
 	height: 32px;
 	vertical-align: middle;
 }
+
+[onclick], button, a {
+	cursor: pointer;
+	transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+[onclick]:hover, button:hover, a:hover {
+	transform: scale(1.08);
+	opacity: 0.9;
+}
+
+body {
+	opacity: 0;
+	animation: bodyFadeIn 1s ease forwards;
+}
+
+@keyframes bodyFadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}

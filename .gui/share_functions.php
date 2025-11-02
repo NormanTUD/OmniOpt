@@ -517,16 +517,26 @@
 		return $result;
 	}
 
+	function csv_array_to_text($csv) {
+		$lines = [];
+		foreach ($csv as $row) {
+			$lines[] = implode(',', $row);
+		}
+		return implode("\n", $lines);
+	}
+
 	function add_cpu_ram_usage_main_worker_from_file($tabs, $warnings, $filename, $name, $id) {
 		if(is_file($filename) && filesize($filename) && is_ascii_or_utf8($filename)) {
+			$csv_contents = get_csv_data_as_array($filename);
+			$csv_contents = keep_rows_every_n_seconds($csv_contents);
+
+			$csv_text = csv_array_to_text($csv_contents);
+
 			$html = "This logs the CPU and RAM usage of the main worker process.<br>";
 			$html .= "<div class='invert_in_dark_mode' id='mainWorkerCPURAM'></div>";
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-			$html .= '<pre id="pre_' . $id . '">'.my_htmlentities(remove_ansi_colors(file_get_contents($filename))).'</pre>';
+			$html .= '<pre id="pre_' . $id . '">' . my_htmlentities(remove_ansi_colors($csv_text)) . '</pre>';
 			$html .= copy_id_to_clipboard_string("pre_$id", $filename);
-
-			$csv_contents = get_csv_data_as_array($filename);
-			$csv_contents = keep_rows_every_n_seconds($csv_contents);
 
 			$headers = $csv_contents[0];
 			$csv_contents_no_header = $csv_contents;

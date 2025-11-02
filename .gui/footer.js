@@ -36,5 +36,3 @@ async function start_gremlins () {
 		document.body.appendChild(s);
 	})();
 }
-
-wrapEmojisInSpans();

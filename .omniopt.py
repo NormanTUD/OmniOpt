@@ -31,6 +31,7 @@ import psutil
 
 FORCE_EXIT: bool = False
 
+LAST_LOG_TIME = 0
 last_msg_progressbar = ""
 last_msg_raw = None
 last_lock = threading.Lock()
@@ -2475,32 +2476,35 @@ def write_worker_usage() -> None:
             print_debug(f"WORKER_PERCENTAGE_USAGE seems to be empty. Not writing {worker_usage_file}")
 
 def log_system_usage() -> None:
+    global LAST_LOG_TIME
+
+    now = time.time()
+    if now - LAST_LOG_TIME < 30:
+        return
+    LAST_LOG_TIME = now
+
     if not get_current_run_folder():
         return
 
     ram_cpu_csv_file_path = os.path.join(get_current_run_folder(), "cpu_ram_usage.csv")
-
     makedirs(os.path.dirname(ram_cpu_csv_file_path))
 
     file_exists = os.path.isfile(ram_cpu_csv_file_path)
 
+    mem_proc = process.memory_info() if process else None
+    if not mem_proc:
+        return
+
+    ram_usage_mb = mem_proc.rss / (1024 * 1024)
+    cpu_usage_percent = psutil.cpu_percent(percpu=False)
+    if ram_usage_mb <= 0 or cpu_usage_percent <= 0:
+        return
+
     with open(ram_cpu_csv_file_path, mode='a', newline='', encoding="utf-8") as file:
         writer = csv.writer(file)
-
-        current_time = int(time.time())
-
-        if process is not None:
-            mem_proc = process.memory_info()
-
-            if mem_proc is not None:
-                ram_usage_mb = mem_proc.rss / (1024 * 1024)
-                cpu_usage_percent = psutil.cpu_percent(percpu=False)
-
-                if ram_usage_mb > 0 and cpu_usage_percent > 0:
-                    if not file_exists:
-                        writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent"])
-
-                    writer.writerow([current_time, ram_usage_mb, cpu_usage_percent])
+        if not file_exists:
+            writer.writerow(["timestamp", "ram_usage_mb", "cpu_usage_percent"])
+        writer.writerow([int(now), ram_usage_mb, cpu_usage_percent])
 
 def write_process_info() -> None:
     try:

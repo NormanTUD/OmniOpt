@@ -49,7 +49,7 @@ skinparam componentStyle rectangle
 skinparam defaultFontName Monospace
 skinparam ArrowFontSize 11
 
-title Interaction between OmniOpt, sbatch, ax, BoTorch Module, and ExternalGenerationNodes
+title Interaction between OmniOpt, Slurm, ax, BoTorch Module, and ExternalGenerationNodes
 
 node "HPC Master Node" as HPCMaster {
   component "OmniOpt Core" as OmniOptCore

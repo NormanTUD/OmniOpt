@@ -259,11 +259,14 @@
 						'link' => "tutorials?tutorial=$tutorial"
 					];
 
-					if (!empty($result['context']['id'])) {
-						$entry['link'] .= '#' . $result['context']['id'];
-					}
 
-					$categorized["Tutorials"][] = $entry;
+					if (!preg_match("/conceptdrift/", $tutorial)) {
+						if (!empty($result['context']['id'])) {
+							$entry['link'] .= '#' . $result['context']['id'];
+						}
+
+						$categorized["Tutorials"][] = $entry;
+					}
 					$GLOBALS["cnt"]++;
 
 					if ($GLOBALS["cnt"] >= $GLOBALS["max_results"]) {

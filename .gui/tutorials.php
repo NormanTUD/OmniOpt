@@ -85,7 +85,7 @@ function list_tutorials() {
 	];
 
 	foreach ($categories as $cat => $entries) {
-		$icon = $category_icons[$cat] ?? "📚"; // Fallback-Icon
+		$icon = $category_icons[$cat] ?? "<img class='emoji_nav' src='emojis/books.svg' />"; // Fallback-Icon
 		echo "<h2><span>" . $icon . "</span> " . $cat . "</h2>\n";
 
 		if (count($entries) === 1) {

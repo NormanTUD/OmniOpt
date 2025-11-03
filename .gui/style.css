@@ -895,12 +895,12 @@ h1, h2, h3, h4, h5, h6 {
 	.header-theme-toggle {
 		justify-content: center;
 		flex: 1 1 100%;
-		text-align: center;
 		width: inherit;
 	}
 
 	.logo-img {
 		max-height: 80px;
+		max-width: 100%;
 		pointer-events: unset;
 	}
 

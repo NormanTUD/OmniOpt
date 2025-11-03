@@ -76,7 +76,7 @@
 	function search_text_with_context($lines, $regex) {
 		$results = [];
 		foreach ($lines as $line_number => $line) {
-			$stripped = strip_html_tags_safe($line);
+			$stripped = html_entity_decode(strip_html_tags_safe($line), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 			if (preg_match($regex, $stripped)) {
 				$context = find_nearest_heading($lines, $line_number);
 				$results[] = [

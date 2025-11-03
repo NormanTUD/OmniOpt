@@ -1423,7 +1423,7 @@
 					if($new_param_name == "run_nr") {
 						$pw_file = "$folderPathWithFile/password.sha256";
 						if(file_exists($pw_file)) {
-							$key_string = "&nbsp;&#128272;";
+							$key_string = "&nbsp;<span><img style='height: 1em' src='emojis/lock.svg' /></span>";
 						}
 					}
 

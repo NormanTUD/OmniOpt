@@ -2230,12 +2230,7 @@ def fetch_and_prepare_trials() -> Optional[pd.DataFrame]:
 
     ax_client.experiment.fetch_data()
     df = ax_client_get_trials_data_frame()
-    #print("========================")
-    #print("BEFORE merge_with_job_infos:")
-    #print(df["generation_node"])
     df = merge_with_job_infos(df)
-    #print("AFTER merge_with_job_infos:")
-    #print(df["generation_node"])
 
     return df
 

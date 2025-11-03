@@ -46,19 +46,17 @@
 	function extract_html_from_php($filename) {
 		if (!file_exists($filename)) return 'Error: File does not exist.';
 
-		$command = escapeshellcmd("php $filename");
-
 		ob_start();
 		try {
-			passthru($command, $return_var);
+			include $filename; 
 			$output = ob_get_clean();
-			if ($return_var !== 0) throw new Exception("Error executing PHP script: $filename");
 			return preg_replace("/<head>.*<\/head>/is", "", $output);
 		} catch (Throwable $e) {
 			ob_end_clean();
 			return "Error: " . $e->getMessage();
 		}
 	}
+
 
 	function strip_html_tags_safe($html) {
 		return strip_tags($html);

@@ -3,6 +3,7 @@
 
 	$GLOBALS["main_script_dir"] = null;
 	$GLOBALS["cache_parse_arguments_and_print_html_table"] = array();
+	$GLOBALS['extract_and_join_python_list_cache'] = [];
 
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
@@ -298,27 +299,31 @@
 	}
 
 	function extract_and_join_python_list($file_path, $variable_name) {
+		$cache_key = $file_path . '::' . $variable_name;
+
+		if (isset($GLOBALS['extract_and_join_python_list_cache'][$cache_key])) {
+			return $GLOBALS['extract_and_join_python_list_cache'][$cache_key];
+		}
+
 		if (!is_readable($file_path)) {
-			return null;
+			return $GLOBALS['extract_and_join_python_list_cache'][$cache_key] = null;
 		}
 
 		$lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 		if ($lines === false) {
-			return null;
+			return $GLOBALS['extract_and_join_python_list_cache'][$cache_key] = null;
 		}
 
 		foreach ($lines as $line) {
 			$trimmed = trim($line);
-
 			$pattern = '/^' . preg_quote($variable_name, '/') . '\s*:\s*list\s*=\s*(\[.*\])\s*$/';
 
 			if (preg_match($pattern, $trimmed, $matches)) {
 				$list_literal = $matches[1];
 
 				$elements = eval("return $list_literal;");
-
 				if (!is_array($elements)) {
-					return null;
+					return $GLOBALS['extract_and_join_python_list_cache'][$cache_key] = null;
 				}
 
 				$escaped_elements = array_map(function ($item) {
@@ -326,13 +331,12 @@
 				}, $elements);
 
 				$joined = implode(', ', $escaped_elements);
-				$new_variable = "joined_" . $variable_name;
 
-				return $joined;
+				return $GLOBALS['extract_and_join_python_list_cache'][$cache_key] = $joined;
 			}
 		}
 
-		return null;
+		return $GLOBALS['extract_and_join_python_list_cache'][$cache_key] = null;
 	}
 
 	function parse_arguments($file_path) {

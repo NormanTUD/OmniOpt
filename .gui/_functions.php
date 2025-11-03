@@ -2,6 +2,7 @@
 	chdir(__DIR__);
 
 	$GLOBALS["main_script_dir"] = null;
+	$GLOBALS["cache_parse_arguments_and_print_html_table"] = array();
 
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
@@ -593,8 +594,18 @@
 	}
 
 	function parse_arguments_and_print_html_table ($file_path, $no_msg_when_empty = 0) {
-		$arguments = parse_arguments($file_path);
-		echo generate_argparse_html_table($arguments, $no_msg_when_empty);
+		$ret = "";
+
+		if(isset($GLOBALS["cache_parse_arguments_and_print_html_table"][$file_path])) {
+			$ret = $GLOBALS["cache_parse_arguments_and_print_html_table"][$file_path];
+		} else {
+			$arguments = parse_arguments($file_path);
+			$ret = generate_argparse_html_table($arguments, $no_msg_when_empty);
+
+			$GLOBALS["cache_parse_arguments_and_print_html_table"][$file_path] = $ret;
+		}
+
+		echo $ret;
 	}
 
 	function extract_magic_comment($file_path, $descriptionKey) {

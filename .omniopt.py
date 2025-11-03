@@ -34,7 +34,7 @@ FORCE_EXIT: bool = False
 LAST_LOG_TIME: int = 0
 last_msg_progressbar = ""
 last_msg_raw = None
-last_lock = threading.Lock()
+last_lock_print_debug = threading.Lock()
 
 def force_exit(signal_number: Any, frame: Any) -> Any:
     global FORCE_EXIT
@@ -2858,7 +2858,7 @@ def print_debug_progressbar(msg: str) -> None:
     global last_msg_progressbar, last_msg_raw
 
     try:
-        with last_lock:
+        with last_lock_print_debug:
             if msg != last_msg_raw:
                 time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 full_msg = f"{time_str} ({worker_generator_uuid}): {msg}"

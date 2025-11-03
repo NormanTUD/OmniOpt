@@ -88,7 +88,7 @@ function mark_search_result_yellow(content, search) {
 	try {
 		var escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 		var regex = new RegExp("(" + escapedSearch + ")", "gi");
-		return content.replace(regex, "<span class='marked_text'>$1</span>");
+		return content.replace(regex, "<span class='marked_text invert_in_dark_mode'>$1</span>");
 	} catch (error) {
 		console.error("Error while marking search results: ", error);
 		return content;

@@ -810,22 +810,7 @@ function encode_base64 (v) {
 }
 
 function decode_base64 (input) {
-	let result = input;
-	let decoded = "";
-
-	while (true) {
-		try {
-			decoded = atob(result);
-
-			if (/^[A-Za-z0-9+/]*={0,2}$/.test(decoded) && decoded.length % 4 === 0) {
-				result = decoded;
-			} else {
-				break;
-			}
-		} catch (e) {
-			break;
-		}
-	}
+	decoded = atob(result);
 
 	return result;
 }

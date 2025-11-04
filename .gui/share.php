@@ -225,7 +225,7 @@
 						}
 					}
 
-					$tabs = add_job_status_distribution($tabs);
+					#$tabs = add_job_status_distribution($tabs);
 
 					if($status_data["succeeded"] > 1) {
 						if($nr_numerical_cols >= 1) {

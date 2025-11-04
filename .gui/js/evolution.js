@@ -1,7 +1,7 @@
 function plotResultEvolution() {
 	if ($("#plotResultEvolution").data("loaded") === "true") return;
 
-	result_names.forEach(resultName => {
+	result_names.forEach((resultName, idx) => {
 		let xColumnIndex = tab_results_headers_json.indexOf("trial_index");
 		let resultIndex = tab_results_headers_json.indexOf(resultName);
 		let minOrMax = result_min_max[idx];

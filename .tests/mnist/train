@@ -177,8 +177,8 @@ class SimpleMLP(nn.Module):
             # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
             if (i + 1) % 2 == 0:
                 conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
-                h = h // 2
-                w = w // 2
+                h = (h - pool_kernel) // pool_stride + 1
+                w = (w - pool_kernel) // pool_stride + 1
 
         # convert list of tuples into Sequential with ordered names
         conv_seq = nn.Sequential()

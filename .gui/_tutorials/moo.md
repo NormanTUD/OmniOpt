@@ -62,6 +62,11 @@ This will calculate the pareto fronts, and, when you had `--live_share` enabled,
 
 In multi-objective optimization with Ax/BoTorch, it is highly recommended to normalize all objectives to a similar scale. Without normalization, the optimizer can be biased toward objectives with larger numeric ranges or steeper gradients, effectively neglecting others. Normalization ensures that the acquisition functions properly balance trade-offs between all objectives, allowing the search to explore the Pareto front more evenly and avoid being dominated by a single objective.
 
+$$
+\text{Normalized_value} = \frac{\text{Observed_value} - \text{Min_expected}}{\text{Max_expected} - \text{Min_expected}} \times 100
+$$
+
+
 It is highly recommended to normalize all objectives in multi-objective optimization. Without normalization, the optimizer may favor objectives with naturally larger scales, neglecting others. Normalization ensures that all objectives are treated fairly, allowing Ax/BoTorch to properly explore the Pareto front.
 
 This can be done, for example, by mapping the expected minimum and maximum values of an objective to a normalized range (e.g., 0–100):

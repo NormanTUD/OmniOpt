@@ -3563,6 +3563,47 @@ $onclick_string
 		return htmlentities($str, ENT_QUOTES, 'utf-8');
 	}
 
+	function getRunProgramFromFile($file) {
+		if (!is_string($file) || strlen(trim($file)) === 0) {
+			error_log("getRunProgramFromFile: Invalid file name provided.");
+			return "";
+		}
+
+		if (!file_exists($file)) {
+			error_log("getRunProgramFromFile: File '$file' does not exist.");
+			return "";
+		}
+
+		$content = file_get_contents($file);
+		if ($content === false) {
+			error_log("getRunProgramFromFile: Failed to read file '$file'.");
+			return "";
+		}
+
+		// Remove ANSI color codes
+		$clean = preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $content);
+		if ($clean === null) {
+			error_log("getRunProgramFromFile: Error removing ANSI color codes.");
+			return "";
+		}
+
+		// Regex: match Run-Program line and capture everything inside the first pair of quotes
+		// after Run-Program: (allowing arbitrary text like echo before the quotes)
+		$pattern = '/Run-Program:\s*.*?"(.*?)"/i';
+		if (preg_match($pattern, $clean, $matches)) {
+			$result = trim($matches[1]);
+			if ($result !== "") {
+				return $result;
+			} else {
+				error_log("getRunProgramFromFile: Found Run-Program line, but command is empty.");
+				return "";
+			}
+		}
+
+		error_log("getRunProgramFromFile: No Run-Program line found in '$file'.");
+		return "";
+	}
+
 	function getJobIdFromFile($file) {
 		if (!is_string($file) || strlen(trim($file)) === 0) {
 			error_log("getJobIdFromFile: Invalid file name provided.");

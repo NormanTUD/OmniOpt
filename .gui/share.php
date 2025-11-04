@@ -536,10 +536,18 @@
                </div>
 
 <?php
-		$slurm_id = getJobIdFromFile("$run_dir/outfile");
+		$outfile = "$run_dir/outfile";
 
-		if($slurm_id) {
-			echo "Slurm-ID: $slurm_id<br>";
+		$slurm_id = getJobIdFromFile($outfile);
+
+		if($slurm_id != "") {
+			echo "<b>Slurm-ID</b>: $slurm_id<br>";
+		}
+
+		$run_program = getRunProgramFromFile($outfile);
+
+		if($run_program != "") {
+			echo "<b>Run-Program</b>: <tt>$run_program</tt><br>";
 		}
 ?>
 

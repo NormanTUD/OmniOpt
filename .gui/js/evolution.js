@@ -4,6 +4,7 @@ function plotResultEvolution() {
 	result_names.forEach(resultName => {
 		let xColumnIndex = tab_results_headers_json.indexOf("trial_index");
 		let resultIndex = tab_results_headers_json.indexOf(resultName);
+		let minOrMax = result_min_max[idx];
 
 		let filteredData = tab_results_csv_json.map(row => {
 			let x = parseFloat(row[xColumnIndex]);
@@ -22,7 +23,7 @@ function plotResultEvolution() {
 		let linearFit = calculateLinearFit(xData, yData);
 		let loessY = loessFit(xData, yData);
 
-		plotSingleRun(subDivContainer(), xData, yData, linearFit, loessY, resultName);
+		plotSingleRun(subDivContainer(), xData, yData, linearFit, loessY, resultName, minOrMax);
 	});
 
 	$("#plotResultEvolution").data("loaded", "true");
@@ -83,7 +84,7 @@ function subDivContainer() {
 	return subDiv;
 }
 
-function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName) {
+function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName, minOrMax) {
 	let traceData = {
 		x: xData,
 		y: yData,
@@ -122,13 +123,15 @@ function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName) {
 	formulaDiv.style.marginTop = "5px";
 	formulaDiv.style.fontSize = "14px";
 
-	let trendScore = (linearFit.a * linearFit.r2).toFixed(3);
+	// Trend Score logic: negative is "good" if minimizing, positive is "good" if maximizing
+	let trendScore = linearFit.a * linearFit.r2;
+	let isGood = (minOrMax === "min" && trendScore < 0) || (minOrMax === "max" && trendScore > 0);
 
 	formulaDiv.innerHTML = `
 	<b>Linear Fit:</b> \\(y = ${linearFit.a.toFixed(3)} x + ${linearFit.b.toFixed(3)}\\)<br>
-	<b>R²:</b> ${linearFit.r2.toFixed(3)}<br>
-	<b>Trend Score:</b> ${trendScore} (${trendScore < 0 ? "Good" : "Bad/Stable"})<br>
-	<b>LOESS:</b> smoothed trend (visual)
+	<b>R²:</b> ${linearFit.r2.toFixed(3)} — indicates how well the linear trend explains the data variance (0 = no correlation, 1 = perfect correlation)<br>
+	<b>Trend Score:</b> ${trendScore.toFixed(3)} (${isGood ? "Good trend towards target" : "Bad/unstable trend"})<br>
+	<b>LOESS:</b> smoothed trend (visual) — this line is not a formula; it only shows the general trend of the data in a human-readable form
 	`;
 
 	subDiv.appendChild(formulaDiv);

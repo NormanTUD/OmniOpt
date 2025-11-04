@@ -74,7 +74,7 @@ function plotResultEvolution() {
         let formulaDiv = document.createElement("div");
         formulaDiv.style.marginTop = "5px";
         formulaDiv.style.fontSize = "14px";
-        formulaDiv.innerHTML = `Fit: $$y = ${a.toFixed(3)} x + ${b.toFixed(3)}$$`;
+        formulaDiv.innerHTML = `$$\\text{Fit equation:} y = ${a.toFixed(3)} x + ${b.toFixed(3)}$$`;
         subDiv.appendChild(formulaDiv);
 
         if (window.MathJax) {

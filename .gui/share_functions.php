@@ -3588,7 +3588,7 @@ $onclick_string
 
 		// Regex: match Run-Program line and capture everything inside the first pair of quotes
 		// after Run-Program: (allowing arbitrary text like echo before the quotes)
-		$pattern = '/Run-Program:\s*.*?"(.*?)"/i';
+		$pattern = '/Run-Program:\s*(?:".*?"|(.*))/i';
 		if (preg_match($pattern, $clean, $matches)) {
 			$result = trim($matches[1]);
 			if ($result !== "") {

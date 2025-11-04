@@ -111,6 +111,7 @@ def parse_args():
     parser.add_argument("--hidden_size", type=int, default=128, help="Number of neurons in the hidden layer.")
     parser.add_argument("--dropout", type=float, default=0.2, help="Dropout probability (0.0 = no dropout).")
     parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
+    parser.add_argument("--dense_activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use for Dense-Layers.")
     parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="kaiming", help="Weight initialization method.")
     parser.add_argument("--num_dense_layers", type=int, default=2, help="Number of dense (fully-connected) layers excluding the output layer.")
 
@@ -122,6 +123,8 @@ def parse_args():
     parser.add_argument("--conv_kernel_size", type=int, default=3, help="Conv kernel size")
     parser.add_argument("--conv_stride", type=int, default=1, help="Conv stride (use 1 and pool instead of large stride)")
     parser.add_argument("--conv_padding", type=int, default=1, help="Conv padding (for kernel 3 -> 1)")
+    parser.add_argument("--pool_stride", type=int, default=2, help="Stride for pooling")
+    parser.add_argument("--pool_kernel", type=int, default=2, help="Kernel for Pooling")
 
     # Misc
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
@@ -138,16 +141,20 @@ class SimpleMLP(nn.Module):
                  hidden_size,
                  dropout,
                  activation,
+                 dense_activation,
                  init_mode,
                  num_dense_layers,
                  num_conv_layers,
                  conv_filters,
                  conv_kernel_size=3,
                  conv_stride=1,
-                 conv_padding=1):
+                 conv_padding=1,
+                 pool_kernel=2,
+                 pool_stride=2):
         super(SimpleMLP, self).__init__()
 
         self.activation_fn = self.get_activation(activation)
+        self.dense_activation_fn = self.get_activation(dense_activation)
         self.dropout = nn.Dropout(p=dropout)
 
         # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
@@ -169,7 +176,7 @@ class SimpleMLP(nn.Module):
 
             # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
             if (i + 1) % 2 == 0:
-                conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=2, stride=2)))
+                conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
                 h = h // 2
                 w = w // 2
 
@@ -186,7 +193,7 @@ class SimpleMLP(nn.Module):
         in_features = flattened_size
         for i in range(num_dense_layers):
             dense_layers.add_module(f"fc{i}", nn.Linear(in_features, hidden_size))
-            dense_layers.add_module(f"act{i}", self.get_activation(activation))
+            dense_layers.add_module(f"act{i}", self.get_activation(dense_activation))
             dense_layers.add_module(f"dropout{i}", nn.Dropout(p=dropout))
             in_features = hidden_size
 
@@ -246,6 +253,7 @@ def show_hyperparams(args):
     table.add_row("Momentum", str(args.momentum))
     table.add_row("Weight Decay", str(args.weight_decay))
     table.add_row("Activation", args.activation)
+    table.add_row("Dense-Activation", args.dense_activation)
     table.add_row("Init Method", args.init)
     table.add_row("Seed", str(args.seed) if args.seed is not None else "None")
     table.add_row("Conv Filters", str(args.filter))
@@ -253,6 +261,8 @@ def show_hyperparams(args):
     table.add_row("Conv Kernel", str(args.conv_kernel_size))
     table.add_row("Conv Stride", str(args.conv_stride))
     table.add_row("Conv Padding", str(args.conv_padding))
+    table.add_row("Pool-Stride", str(args.pool_stride))
+    table.add_row("Pool-Kernel", str(args.pool_kernel))
 
     console.print(table)
 
@@ -430,13 +440,16 @@ def main():
             num_classes=100,
             dropout=args.dropout,
             activation=args.activation,
+            dense_activation=args.dense_activation,
             init_mode=args.init,
             num_dense_layers=args.num_dense_layers,
             num_conv_layers=args.num_conv_layers,
             conv_filters=args.filter,
             conv_kernel_size=args.conv_kernel_size,
             conv_stride=args.conv_stride,
-            conv_padding=args.conv_padding
+            conv_padding=args.conv_padding,
+            pool_kernel=args.pool_kernel,
+            pool_stride=args.pool_stride,
         ).to(device)
 
         print_model_summary(model, input_size=(3, 32, 32))

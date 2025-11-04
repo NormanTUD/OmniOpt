@@ -229,7 +229,7 @@
 
 					if($status_data["succeeded"] > 1) {
 						if($nr_numerical_cols >= 1) {
-							$tabs = add_box_plot_tab($tabs);
+							#$tabs = add_box_plot_tab($tabs);
 							$tabs = add_violin_plot($tabs);
 							#$tabs = add_histogram_plot($tabs);
 						} else {

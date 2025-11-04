@@ -488,7 +488,7 @@
 		return [$tabs, $warnings];
 	}
 
-	function keep_rows_every_n_seconds($csv, $seconds = 30) {
+	function keep_rows_every_n_seconds($csv, $seconds = 60) {
 		if (count($csv) <= 1) return $csv;
 
 		$result = [];

@@ -3562,4 +3562,44 @@ $onclick_string
 	function my_htmlentities ($str) {
 		return htmlentities($str, ENT_QUOTES, 'utf-8');
 	}
+
+	function getJobIdFromFile($file) {
+		if (!is_string($file) || strlen(trim($file)) === 0) {
+			error_log("getJobIdFromFile: Invalid file name provided.");
+			return "";
+		}
+
+		if (!file_exists($file)) {
+			error_log("getJobIdFromFile: File '$file' does not exist.");
+			return "";
+		}
+
+		$content = file_get_contents($file);
+		if ($content === false) {
+			error_log("getJobIdFromFile: Failed to read file '$file'.");
+			return "";
+		}
+
+		// Remove ANSI color codes (e.g., \033[31m)
+		$clean = preg_replace('/\x1b\[[0-9;]*[A-Za-z]/', '', $content);
+		if ($clean === null) {
+			error_log("getJobIdFromFile: Error removing ANSI color codes.");
+			return "";
+		}
+
+		// Regex to extract numeric job ID only
+		$pattern = '/scancel\s+["\']?(\d+)["\']?/i';
+		if (preg_match($pattern, $clean, $matches)) {
+			$jobId = trim($matches[1]);
+			if ($jobId !== "" && ctype_digit($jobId)) {
+				return $jobId; // Only return if it's numeric
+			} else {
+				error_log("getJobIdFromFile: Found non-numeric job ID.");
+				return "";
+			}
+		}
+
+		error_log("getJobIdFromFile: No numeric job ID found in '$file'.");
+		return "";
+	}
 ?>

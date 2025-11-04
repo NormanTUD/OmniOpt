@@ -535,6 +535,13 @@
                        </div>
                </div>
 
+<?php
+		$slurm_id = getJobIdFromFile("$run_dir/outfile");
+
+		if($slurm_id) {
+			echo "Slurm-ID: $slurm_id<br>";
+		}
+?>
 
 		<br>
 		<div id="spinner" class="spinner"></div>

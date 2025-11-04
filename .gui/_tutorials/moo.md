@@ -1,4 +1,4 @@
-# <img class='emoji_nav' src='emojis/cow.svg' /> What is Multi-Objective-Optimization?
+# <img class='emoji_nav' src='emojis/cow.svg' /> What is Multi-Objective-Optimization? (MOO)
 
 <!-- How to use OmniOpt2 with Multi-Objective-Optimization (MOO)? -->
 

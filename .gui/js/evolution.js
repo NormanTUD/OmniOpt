@@ -129,9 +129,6 @@ function plotSingleRun(subDiv, xData, yData, linearFit, loessY, resultName, minO
 
 	formulaDiv.innerHTML = `
 	<b>Linear Fit:</b> \\(y = ${linearFit.a.toFixed(3)} x + ${linearFit.b.toFixed(3)}\\)<br>
-	<b>R²:</b> ${linearFit.r2.toFixed(3)} — indicates how well the linear trend explains the data variance (0 = no correlation, 1 = perfect correlation)<br>
-	<b>Trend Score:</b> ${trendScore.toFixed(3)} (${isGood ? "Good trend towards target" : "Bad/unstable trend"})<br>
-	<b>LOESS:</b> smoothed trend (visual) — this line is not a formula; it only shows the general trend of the data in a human-readable form
 	`;
 
 	subDiv.appendChild(formulaDiv);

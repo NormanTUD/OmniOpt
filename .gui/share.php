@@ -448,6 +448,7 @@
 
 			foreach ($warnings as $warning) {
 				echo 'console.debug("' . addslashes($warning) . '");';
+				echo "\n";
 			}
 		}
 ?>

@@ -1241,6 +1241,15 @@ function run_when_document_ready () {
 	var urlParams = new URLSearchParams(window.location.search);
 	tableData.forEach(function(item) {
 		var paramValue = urlParams.get(item.id);
+		
+		if (item.id === "run_program_once") {
+			try {
+				paramValue = atob(paramValue);
+			} catch (e) {
+				console.error("Base64 decoding failed for run_program_once:", e);
+			}
+		}
+		
 		if (paramValue !== null) {
 			var $element = $("#" + item.id);
 			if ($element.is(":checkbox")) {

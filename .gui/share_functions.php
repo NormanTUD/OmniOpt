@@ -3570,7 +3570,6 @@ $onclick_string
 		}
 
 		if (!file_exists($file)) {
-			error_log("getRunProgramFromFile: File '$file' does not exist.");
 			return "";
 		}
 
@@ -3611,7 +3610,6 @@ $onclick_string
 		}
 
 		if (!file_exists($file)) {
-			error_log("getJobIdFromFile: File '$file' does not exist.");
 			return "";
 		}
 

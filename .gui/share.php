@@ -231,7 +231,7 @@
 						if($nr_numerical_cols >= 1) {
 							$tabs = add_box_plot_tab($tabs);
 							$tabs = add_violin_plot($tabs);
-							$tabs = add_histogram_plot($tabs);
+							#$tabs = add_histogram_plot($tabs);
 						} else {
 							$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
 						}

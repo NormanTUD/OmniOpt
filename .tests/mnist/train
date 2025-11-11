@@ -126,11 +126,69 @@ def parse_args():
     parser.add_argument("--pool_stride", type=int, default=2, help="Stride for pooling")
     parser.add_argument("--pool_kernel", type=int, default=2, help="Kernel for Pooling")
 
+    # ResNet option
+    parser.add_argument("--resnet", action="store_true", help="Use ResNet-style residual blocks instead of simple Conv2d layers.")
+
     # Misc
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
     parser.add_argument("--install", action="store_true", help="Install required dependencies (default: False)")
 
     return parser.parse_args()
+
+class BasicBlock(nn.Module):
+    """
+    A small ResNet-like basic block with two conv layers, batchnorm and activation.
+    If in_channels != out_channels, performs a 1x1 conv downsample on the residual path
+    to match channels. This block does NOT change spatial resolution by itself.
+    Spatial downsampling (if desired) is handled by adding a pooling layer externally
+    to preserve previous script behaviour.
+    """
+    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, activation_name="relu"):
+        super(BasicBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.act1 = self._get_activation(activation_name)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=1, padding=padding)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.act2 = self._get_activation(activation_name)
+
+        self.downsample = None
+        if in_channels != out_channels or stride != 1:
+            # Use 1x1 conv to match channels and (optionally) stride if requested
+            self.downsample = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels)
+            )
+
+    def _get_activation(self, name):
+        name = name.lower()
+        if name == "relu":
+            return nn.ReLU()
+        elif name == "tanh":
+            return nn.Tanh()
+        elif name == "sigmoid":
+            return nn.Sigmoid()
+        elif name == "leaky_relu":
+            return nn.LeakyReLU(negative_slope=0.01)
+        elif name == "swiglu":
+            return nn.SiLU()
+        else:
+            raise ValueError(f"Unbekannte Aktivierung: {name}")
+
+    def forward(self, x):
+        identity = x
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.act1(out)
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(identity)
+
+        out += identity
+        out = self.act2(out)
+        return out
 
 class SimpleMLP(nn.Module):
     def __init__(self,
@@ -150,35 +208,61 @@ class SimpleMLP(nn.Module):
                  conv_stride=1,
                  conv_padding=1,
                  pool_kernel=2,
-                 pool_stride=2):
+                 pool_stride=2,
+                 use_resnet=False):
         super(SimpleMLP, self).__init__()
 
         self.activation_fn = self.get_activation(activation)
         self.dense_activation_fn = self.get_activation(dense_activation)
         self.dropout = nn.Dropout(p=dropout)
 
-        # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
+        # Convolutional Layers — either simple convs (original behaviour) or ResNet blocks
         conv_layers = []
         in_channels = input_channels
         h, w = input_height, input_width
 
-        for i in range(num_conv_layers):
-            conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
-                                                      kernel_size=conv_kernel_size,
-                                                      stride=conv_stride,
-                                                      padding=conv_padding)))
-            conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
-            conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
-            in_channels = conv_filters
-            # compute output spatial size after conv
-            h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
-            w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+        if not use_resnet:
+            # Original behaviour: build conv -> bn -> act, after each 2 convs add MaxPool2d
+            for i in range(num_conv_layers):
+                conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
+                                                          kernel_size=conv_kernel_size,
+                                                          stride=conv_stride,
+                                                          padding=conv_padding)))
+                conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
+                conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
+                in_channels = conv_filters
+                # compute output spatial size after conv
+                h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+                w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
 
-            # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
-            if (i + 1) % 2 == 0:
-                conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
-                h = (h - pool_kernel) // pool_stride + 1
-                w = (w - pool_kernel) // pool_stride + 1
+                # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
+                if (i + 1) % 2 == 0:
+                    conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
+                    h = (h - pool_kernel) // pool_stride + 1
+                    w = (w - pool_kernel) // pool_stride + 1
+        else:
+            # ResNet-style blocks: use BasicBlock instances.
+            # To preserve previous spatial behaviour we will insert a MaxPool2d after every two blocks,
+            # exactly like the original code did after every two conv layers. Each BasicBlock itself
+            # will not change spatial resolution (stride=1), but it will handle channel matching internally.
+            for i in range(num_conv_layers):
+                block = BasicBlock(in_channels, conv_filters,
+                                   kernel_size=conv_kernel_size,
+                                   stride=conv_stride,
+                                   padding=conv_padding,
+                                   activation_name=activation)
+                conv_layers.append((f"block{i}", block))
+                in_channels = conv_filters
+                # BasicBlock contains convs with first conv stride=conv_stride and second conv stride=1
+                # compute output spatial size after the first conv inside the block
+                h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+                w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+
+                # after every 2 blocks, add MaxPool2d to reduce spatial dims by 2 (preserve old behaviour)
+                if (i + 1) % 2 == 0:
+                    conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
+                    h = (h - pool_kernel) // pool_stride + 1
+                    w = (w - pool_kernel) // pool_stride + 1
 
         # convert list of tuples into Sequential with ordered names
         conv_seq = nn.Sequential()
@@ -265,6 +349,7 @@ def show_hyperparams(args):
     table.add_row("Conv Padding", str(args.conv_padding))
     table.add_row("Pool-Stride", str(args.pool_stride))
     table.add_row("Pool-Kernel", str(args.pool_kernel))
+    table.add_row("Use ResNet Blocks", str(getattr(args, "resnet", False)))
 
     console.print(table)
 
@@ -452,6 +537,7 @@ def main():
             conv_padding=args.conv_padding,
             pool_kernel=args.pool_kernel,
             pool_stride=args.pool_stride,
+            use_resnet=args.resnet,
         ).to(device)
 
         print_model_summary(model, input_size=(3, 32, 32))

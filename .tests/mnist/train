@@ -274,24 +274,38 @@ class SimpleMLP(nn.Module):
         h, w = input_height, input_width
 
         if not use_resnet:
-            # Original behaviour: build conv -> bn -> act, after each 2 convs add MaxPool2d
-            for i in range(num_conv_layers):
-                conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
-                                                          kernel_size=conv_kernel_size,
-                                                          stride=conv_stride,
-                                                          padding=conv_padding)))
-                conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
-                conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
-                in_channels = conv_filters
-                # compute output spatial size after conv
-                h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
-                w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+            # ResNet-style blocks with grouped residuals
+            i = 0
+            in_channels_current = in_channels
+            conv_count = 0  # zählt die tatsächlichen Conv2d Layer für Pooling
 
-                # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
-                if (i + 1) % 2 == 0:
-                    conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
-                    h = (h - pool_kernel) // pool_stride + 1
-                    w = (w - pool_kernel) // pool_stride + 1
+            while i < num_conv_layers:
+                group_size = min(residual_frequency, num_conv_layers - i)
+                block = GroupedResidualBlock(
+                    in_channels_current,
+                    conv_filters,
+                    num_blocks=group_size,
+                    kernel_size=conv_kernel_size,
+                    stride=conv_stride if i == 0 else 1,  # nur erster Block ggf. stride
+                    padding=conv_padding,
+                    activation_name=activation
+                )
+                conv_layers.append((f"group{i}", block))
+                in_channels_current = conv_filters
+
+                # update spatial size für jede BasicBlock in der Gruppe
+                for _ in range(group_size):
+                    h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+                    w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+                    conv_count += 1
+
+                    # Pool nach jedem 2. Conv
+                    if conv_count % 2 == 0:
+                        conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
+                        h = (h - pool_kernel) // pool_stride + 1
+                        w = (w - pool_kernel) // pool_stride + 1
+
+                i += group_size
         else:
             # ResNet-style blocks, but allow grouped residual frequency.
             # We'll create groups of `residual_frequency` BasicBlocks that share one residual addition.

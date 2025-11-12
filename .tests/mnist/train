@@ -277,31 +277,35 @@ class SimpleMLP(nn.Module):
             # ResNet-style blocks with grouped residuals
             i = 0
             in_channels_current = in_channels
-            conv_count = 0  # zählt die tatsächlichen Conv2d Layer für Pooling
+            conv_count = 0
 
             while i < num_conv_layers:
                 group_size = min(residual_frequency, num_conv_layers - i)
+                group_stride = conv_stride  # stride applied to the first BasicBlock inside the group
                 block = GroupedResidualBlock(
                     in_channels_current,
                     conv_filters,
                     num_blocks=group_size,
                     kernel_size=conv_kernel_size,
-                    stride=conv_stride if i == 0 else 1,  # nur erster Block ggf. stride
+                    stride=group_stride,
                     padding=conv_padding,
                     activation_name=activation
                 )
                 conv_layers.append((f"group{i}", block))
                 in_channels_current = conv_filters
 
-                # update spatial size für jede BasicBlock in der Gruppe
-                for _ in range(group_size):
-                    h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
-                    w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+                # update spatial size for each BasicBlock inside the group
+                for j in range(group_size):
+                    current_stride = group_stride if j == 0 else 1
+                    h = (h + 2*conv_padding - conv_kernel_size) // current_stride + 1
+                    w = (w + 2*conv_padding - conv_kernel_size) // current_stride + 1
                     conv_count += 1
 
-                    # Pool nach jedem 2. Conv
-                    if conv_count % 2 == 0 and min(h, w) > 1:
-                        actual_pool_kernel = min(pool_kernel, h, w)  # passt Kernel an
+                    # Pool after every 2 conv layers, but only if it won't collapse spatial dims
+                    if conv_count % 2 == 0:
+                        if min(h, w) <= 0:
+                            raise ValueError(f"Feature map too small before pooling (h={h}, w={w}). Reduce convs/pool or increase input size.")
+                        actual_pool_kernel = min(pool_kernel, h, w)
                         conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=actual_pool_kernel, stride=pool_stride)))
                         h = (h - actual_pool_kernel) // pool_stride + 1
                         w = (w - actual_pool_kernel) // pool_stride + 1

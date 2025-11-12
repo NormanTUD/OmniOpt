@@ -173,6 +173,18 @@ class BasicBlock(nn.Module):
             return nn.LeakyReLU(negative_slope=0.01)
         elif name == "swiglu":
             return nn.SiLU()
+        elif name == "elu":
+            return nn.ELU()
+        elif name == "selu":
+            return nn.SELU()
+        elif name == "gelu":
+            return nn.GELU()
+        elif name == "softplus":
+            return nn.Softplus()
+        elif name == "hardswish":
+            return nn.Hardswish()
+        elif name == "relu6":
+            return nn.ReLU6()
         else:
             raise ValueError(f"Unbekannte Aktivierung: {name}")
 
@@ -379,8 +391,6 @@ class SimpleMLP(nn.Module):
             return nn.Hardswish()
         elif name == "relu6":
             return nn.ReLU6()
-        elif name == "mish":
-            return nn.Mish()   # falls verfügbar
         else:
             raise ValueError(f"Unbekannte Aktivierung: {name}")
 

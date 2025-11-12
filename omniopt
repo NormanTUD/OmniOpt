@@ -511,7 +511,11 @@
 			if [ $minutes -eq 1 ]; then
 				result="in about $minutes minute"
 			else
-				result="in about $minutes minutes"
+				if [ $minutes -eq 0 ]; then
+					result="soon"
+				else
+					result="in about $minutes minutes"
+				fi
 			fi
 			echo "$result"
 			return

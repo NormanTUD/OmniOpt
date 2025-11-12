@@ -300,11 +300,11 @@ class SimpleMLP(nn.Module):
                     conv_count += 1
 
                     # Pool nach jedem 2. Conv
-                    if conv_count % 2 == 0:
-                        conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
-                        h = (h - pool_kernel) // pool_stride + 1
-                        w = (w - pool_kernel) // pool_stride + 1
-
+                    if conv_count % 2 == 0 and min(h, w) > 1:
+                        actual_pool_kernel = min(pool_kernel, h, w)  # passt Kernel an
+                        conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=actual_pool_kernel, stride=pool_stride)))
+                        h = (h - actual_pool_kernel) // pool_stride + 1
+                        w = (w - actual_pool_kernel) // pool_stride + 1
                 i += group_size
         else:
             # ResNet-style blocks, but allow grouped residual frequency.

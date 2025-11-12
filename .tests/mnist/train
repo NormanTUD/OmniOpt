@@ -302,13 +302,14 @@ class SimpleMLP(nn.Module):
                     conv_count += 1
 
                     # Pool after every 2 conv layers, but only if it won't collapse spatial dims
-                    if conv_count % 2 == 0:
-                        if min(h, w) <= 0:
-                            raise ValueError(f"Feature map too small before pooling (h={h}, w={w}). Reduce convs/pool or increase input size.")
+                    if conv_count % 2 == 0 and min(h, w) > 1:
                         actual_pool_kernel = min(pool_kernel, h, w)
-                        conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=actual_pool_kernel, stride=pool_stride)))
-                        h = (h - actual_pool_kernel) // pool_stride + 1
-                        w = (w - actual_pool_kernel) // pool_stride + 1
+                        actual_pool_stride = min(pool_stride, h, w)
+                        if actual_pool_kernel > 1 and actual_pool_stride > 0:
+                            conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=actual_pool_kernel, stride=actual_pool_stride)))
+                            h = (h - actual_pool_kernel) // actual_pool_stride + 1
+                            w = (w - actual_pool_kernel) // actual_pool_stride + 1
+
                 i += group_size
         else:
             # ResNet-style blocks, but allow grouped residual frequency.

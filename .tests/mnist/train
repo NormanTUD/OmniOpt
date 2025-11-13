@@ -126,120 +126,11 @@ def parse_args():
     parser.add_argument("--pool_stride", type=int, default=2, help="Stride for pooling")
     parser.add_argument("--pool_kernel", type=int, default=2, help="Kernel for Pooling")
 
-    # ResNet option
-    parser.add_argument("--resnet", action="store_true", help="Use ResNet-style residual blocks instead of simple Conv2d layers.")
-    parser.add_argument("--residual_frequency", type=int, default=1, help="After how many BasicBlocks a grouped residual addition (+ identity) should be applied (1 = every block).")
-
     # Misc
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
     parser.add_argument("--install", action="store_true", help="Install required dependencies (default: False)")
 
     return parser.parse_args()
-
-class BasicBlock(nn.Module):
-    """
-    A small ResNet-like basic block with two conv layers, batchnorm and activation.
-    If in_channels != out_channels, performs a 1x1 conv downsample on the residual path
-    to match channels. This block does NOT change spatial resolution by itself.
-    Spatial downsampling (if desired) is handled by adding a pooling layer externally
-    to preserve previous script behaviour.
-    """
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, activation_name="relu"):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
-        self.bn1 = nn.BatchNorm2d(out_channels)
-        self.act1 = self._get_activation(activation_name)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size, stride=1, padding=padding)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        self.act2 = self._get_activation(activation_name)
-
-        self.downsample = None
-        if in_channels != out_channels or stride != 1:
-            # Use 1x1 conv to match channels and (optionally) stride if requested
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
-                nn.BatchNorm2d(out_channels)
-            )
-
-    def _get_activation(self, name):
-        name = name.lower()
-        if name == "relu":
-            return nn.ReLU()
-        elif name == "tanh":
-            return nn.Tanh()
-        elif name == "sigmoid":
-            return nn.Sigmoid()
-        elif name == "leaky_relu":
-            return nn.LeakyReLU(negative_slope=0.01)
-        elif name == "swiglu":
-            return nn.SiLU()
-        elif name == "elu":
-            return nn.ELU()
-        elif name == "selu":
-            return nn.SELU()
-        elif name == "gelu":
-            return nn.GELU()
-        elif name == "softplus":
-            return nn.Softplus()
-        elif name == "hardswish":
-            return nn.Hardswish()
-        elif name == "relu6":
-            return nn.ReLU6()
-        else:
-            raise ValueError(f"Unbekannte Aktivierung: {name}")
-
-    def forward(self, x):
-        identity = x
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.act1(out)
-        out = self.conv2(out)
-        out = self.bn2(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(identity)
-
-        out += identity
-        out = self.act2(out)
-        return out
-
-class GroupedResidualBlock(nn.Module):
-    """
-    N consecutive BasicBlocks with a single grouped residual addition.
-    The identity is added to the output only once, after all blocks in the group.
-    Downsampling / channel matching is applied to the identity if needed.
-    """
-    def __init__(self, in_channels, out_channels, num_blocks, kernel_size=3, stride=1, padding=1, activation_name="relu"):
-        super(GroupedResidualBlock, self).__init__()
-        self.blocks = nn.Sequential()
-        self.downsample = None
-
-        # If channels or stride differ, prepare a downsample for the identity path.
-        if in_channels != out_channels or stride != 1:
-            self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
-                nn.BatchNorm2d(out_channels)
-            )
-
-        current_in = in_channels
-        for i in range(num_blocks):
-            # Only the first block may carry the requested stride (for spatial reduction if desired)
-            current_stride = stride if i == 0 else 1
-            block = BasicBlock(current_in, out_channels,
-                               kernel_size=kernel_size,
-                               stride=current_stride,
-                               padding=padding,
-                               activation_name=activation_name)
-            self.blocks.add_module(f"block{i}", block)
-            current_in = out_channels
-
-    def forward(self, x):
-        identity = x
-        out = self.blocks(x)
-        if self.downsample is not None:
-            identity = self.downsample(identity)
-        out += identity
-        return out
 
 class SimpleMLP(nn.Module):
     def __init__(self,
@@ -259,102 +150,35 @@ class SimpleMLP(nn.Module):
                  conv_stride=1,
                  conv_padding=1,
                  pool_kernel=2,
-                 pool_stride=2,
-                 use_resnet=False,
-                 residual_frequency=1):
+                 pool_stride=2):
         super(SimpleMLP, self).__init__()
 
         self.activation_fn = self.get_activation(activation)
         self.dense_activation_fn = self.get_activation(dense_activation)
         self.dropout = nn.Dropout(p=dropout)
 
-        # Convolutional Layers — either simple convs (original behaviour) or ResNet blocks
+        # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
         conv_layers = []
         in_channels = input_channels
         h, w = input_height, input_width
 
-        if not use_resnet:
-            # ResNet-style blocks with grouped residuals
-            i = 0
-            in_channels_current = in_channels
-            conv_count = 0
+        for i in range(num_conv_layers):
+            conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
+                                                      kernel_size=conv_kernel_size,
+                                                      stride=conv_stride,
+                                                      padding=conv_padding)))
+            conv_layers.append((f"bn{i}", nn.BatchNorm2d(conv_filters)))
+            conv_layers.append((f"act_conv{i}", self.get_activation(activation)))
+            in_channels = conv_filters
+            # compute output spatial size after conv
+            h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+            w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
 
-            while i < num_conv_layers:
-                group_size = min(residual_frequency, num_conv_layers - i)
-                group_stride = conv_stride  # stride applied to the first BasicBlock inside the group
-                block = GroupedResidualBlock(
-                    in_channels_current,
-                    conv_filters,
-                    num_blocks=group_size,
-                    kernel_size=conv_kernel_size,
-                    stride=group_stride,
-                    padding=conv_padding,
-                    activation_name=activation
-                )
-                conv_layers.append((f"group{i}", block))
-                in_channels_current = conv_filters
-
-                # update spatial size for each BasicBlock inside the group
-                for j in range(group_size):
-                    current_stride = group_stride if j == 0 else 1
-                    h = (h + 2*conv_padding - conv_kernel_size) // current_stride + 1
-                    w = (w + 2*conv_padding - conv_kernel_size) // current_stride + 1
-                    conv_count += 1
-
-                    # Pool after every 2 conv layers, but only if it won't collapse spatial dims
-                    if conv_count % 2 == 0 and min(h, w) > 1:
-                        actual_pool_kernel = min(pool_kernel, h, w)
-                        actual_pool_stride = min(pool_stride, h, w)
-                        if actual_pool_kernel > 1 and actual_pool_stride > 0:
-                            conv_layers.append((f"pool{conv_count//2}", nn.MaxPool2d(kernel_size=actual_pool_kernel, stride=actual_pool_stride)))
-                            h = (h - actual_pool_kernel) // actual_pool_stride + 1
-                            w = (w - actual_pool_kernel) // actual_pool_stride + 1
-
-                i += group_size
-        else:
-            # ResNet-style blocks, but allow grouped residual frequency.
-            # We'll create groups of `residual_frequency` BasicBlocks that share one residual addition.
-            i = 0
-            group_index = 0
-            while i < num_conv_layers:
-                group_size = min(residual_frequency, num_conv_layers - i)
-                # Create a grouped block: first block in group uses conv_stride, others stride=1
-                block = GroupedResidualBlock(in_channels, conv_filters,
-                                            num_blocks=group_size,
-                                            kernel_size=conv_kernel_size,
-                                            stride=conv_stride,
-                                            padding=conv_padding,
-                                            activation_name=activation)
-                conv_layers.append((f"group{group_index}", block))
-                in_channels = conv_filters
-
-                # Update spatial dimensions for each BasicBlock inside the group.
-                for _ in range(group_size):
-                    h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
-                    w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
-
-                # After every two original conv layers there was a pooling step.
-                # The original code added pool after every two conv layers. To preserve behavior
-                # we mimic the same: apply pooling after every 2 conv layers total.
-                # Track i and decide whether to insert pool modules as we pass conv indices.
-                # We know how many convs we've processed so far: i + group_size
-                # Add pools for each completed pair since last time.
-                # We'll compute how many pools should have been inserted up to this point and insert them accordingly.
-                # Simpler approach: insert a pool whenever the number of conv layers processed crosses a multiple of 2.
-                prev_i = i
-                i += group_size
-                # insert pools for each multiple of 2 crossed between prev_i and i
-                pools_to_add = 0
-                # count how many multiples of 2 are <= i and > prev_i
-                for multiple in range(prev_i + 1, i + 1):
-                    if multiple % 2 == 0:
-                        pools_to_add += 1
-                for p_idx in range(pools_to_add):
-                    conv_layers.append((f"pool{(prev_i + p_idx + 1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
-                    h = (h - pool_kernel) // pool_stride + 1
-                    w = (w - pool_kernel) // pool_stride + 1
-
-                group_index += 1
+            # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
+            if (i + 1) % 2 == 0:
+                conv_layers.append((f"pool{(i+1)//2}", nn.MaxPool2d(kernel_size=pool_kernel, stride=pool_stride)))
+                h = (h - pool_kernel) // pool_stride + 1
+                w = (w - pool_kernel) // pool_stride + 1
 
         # convert list of tuples into Sequential with ordered names
         conv_seq = nn.Sequential()
@@ -410,6 +234,8 @@ class SimpleMLP(nn.Module):
             return nn.Hardswish()
         elif name == "relu6":
             return nn.ReLU6()
+        elif name == "mish":
+            return nn.Mish()   # falls verfügbar
         else:
             raise ValueError(f"Unbekannte Aktivierung: {name}")
 
@@ -453,8 +279,6 @@ def show_hyperparams(args):
     table.add_row("Conv Padding", str(args.conv_padding))
     table.add_row("Pool-Stride", str(args.pool_stride))
     table.add_row("Pool-Kernel", str(args.pool_kernel))
-    table.add_row("Use ResNet Blocks", str(getattr(args, "resnet", False)))
-    table.add_row("Residual Frequency", str(getattr(args, "residual_frequency", 1)))
 
     console.print(table)
 
@@ -642,8 +466,6 @@ def main():
             conv_padding=args.conv_padding,
             pool_kernel=args.pool_kernel,
             pool_stride=args.pool_stride,
-            use_resnet=args.resnet,
-            residual_frequency=args.residual_frequency,
         ).to(device)
 
         print_model_summary(model, input_size=(3, 32, 32))

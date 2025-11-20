@@ -3046,3 +3046,11 @@ FragmentSelector
 conformsTo
 AutoNext
 NMS
+getNewURL
+iou
+getShape
+getUrlParam
+processModelOutput
+getBestClass
+IOU
+boxA

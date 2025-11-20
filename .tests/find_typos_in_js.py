@@ -12,8 +12,11 @@ except ModuleNotFoundError:
     sys.exit(0)
 
 # Initialize spellchecker with English dictionary
-spell = SpellChecker(language='en')
-console = Console()
+try:
+    spell = SpellChecker(language='en')
+    console = Console()
+except KeyboardInterrupt:
+    sys.exit(0)
 
 def read_file_to_array(file_path):
     if not os.path.exists(file_path):

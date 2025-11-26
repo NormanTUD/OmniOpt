@@ -1461,7 +1461,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def __init__(self: Any, regressor_options: Dict[str, Any] = {}, seed: Optional[int] = None, num_samples: int = 1) -> None:
         print_debug("Initializing RandomForestGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(node_name="RANDOMFOREST")
+        super().__init__(name="RANDOMFOREST")
         self.num_samples: int = num_samples
         self.seed: int = seed
 
@@ -1694,10 +1694,10 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
     def __init__(
         self: Any,
-        node_name: str = "INTERACTIVE_GENERATOR",
+        name: str = "INTERACTIVE_GENERATOR",
     ) -> None:
         t0 = time.monotonic()
-        super().__init__(node_name=node_name)
+        super().__init__(name=name)
         self.parameters = None
         self.minimize = None
         self.data = None
@@ -1853,10 +1853,10 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
 
 @dataclass(init=False)
 class ExternalProgramGenerationNode(ExternalGenerationNode):
-    def __init__(self: Any, external_generator: str = args.external_generator, node_name: str = "EXTERNAL_GENERATOR") -> None:
+    def __init__(self: Any, external_generator: str = args.external_generator, name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(node_name=node_name)
+        super().__init__(name=name)
         self.seed: int = args.seed
         self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
@@ -8768,7 +8768,7 @@ def set_global_gs_to_sobol() -> None:
         name="Random*",
         nodes=[
             GenerationNode(
-                node_name="Sobol",
+                name="Sobol",
                 should_deduplicate=True,
                 generator_specs=[ # type: ignore[arg-type]
                     GeneratorSpec( # type: ignore[arg-type]
@@ -9303,7 +9303,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     if model_name == "TPE":
         if len(arg_result_names) != 1:
             _fatal_error(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.", 108)
-        return ExternalProgramGenerationNode(external_generator=f"python3 {script_dir}/.tpe.py", node_name="EXTERNAL_GENERATOR")
+        return ExternalProgramGenerationNode(external_generator=f"python3 {script_dir}/.tpe.py", name="EXTERNAL_GENERATOR")
 
     external_generators = {
         "PSEUDORANDOM": f"python3 {script_dir}/.random_generator.py",
@@ -9317,7 +9317,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         cmd = external_generators[model_name]
         if model_name == "EXTERNAL_GENERATOR" and not cmd:
             _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
-        return ExternalProgramGenerationNode(external_generator=cmd, node_name="EXTERNAL_GENERATOR")
+        return ExternalProgramGenerationNode(external_generator=cmd, name="EXTERNAL_GENERATOR")
 
     trans_crit = [
         MinTrials(
@@ -9339,7 +9339,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     model_spec = [GeneratorSpec(selected_model, **kwargs)] # type: ignore[arg-type]
 
     res = GenerationNode(
-        node_name=model_name,
+        name=model_name,
         generator_specs=model_spec,
         should_deduplicate=True,
         transition_criteria=trans_crit

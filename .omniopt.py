@@ -7665,7 +7665,10 @@ def update_ax_client_trial(trial_idx: int, result: Union[list, dict]) -> None:
 
         return None
 
-    ax_client.update_trial_data(trial_index=trial_idx, raw_data=result)
+    
+    trial = get_trial_by_index(new_trial_idx)
+
+    trial.update_trial_data(raw_data=result)
 
     return None
 

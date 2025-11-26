@@ -1368,8 +1368,8 @@ try:
     with spinner("Importing ExternalGenerationNode..."):
         from ax.generation_strategy.external_generation_node import ExternalGenerationNode
 
-    with spinner("Importing MaxTrials..."):
-        from ax.generation_strategy.transition_criterion import MaxTrials
+    with spinner("Importing MinTrials..."):
+        from ax.generation_strategy.transition_criterion import MinTrials
 
     with spinner("Importing GeneratorSpec..."):
         from ax.generation_strategy.generator_spec import GeneratorSpec
@@ -9317,7 +9317,7 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
         return ExternalProgramGenerationNode(external_generator=cmd, node_name="EXTERNAL_GENERATOR")
 
     trans_crit = [
-        MaxTrials(
+        MinTrials(
             threshold=threshold,
             block_transition_if_unmet=True,
             transition_to=target_model,

@@ -1374,8 +1374,8 @@ try:
     with spinner("Importing GeneratorSpec..."):
         from ax.generation_strategy.generator_spec import GeneratorSpec
 
-    with spinner("Importing Models from ax.generation_strategy.registry..."):
-        from ax.adapter.registry import Models
+    with spinner("Importing Generators from ax.generation_strategy.registry..."):
+        from ax.adapter.registry import Generators
 
     with spinner("Importing get_pending_observation_features..."):
         from ax.core.utils import get_pending_observation_features
@@ -8769,7 +8769,7 @@ def set_global_gs_to_sobol() -> None:
                 should_deduplicate=True,
                 generator_specs=[ # type: ignore[arg-type]
                     GeneratorSpec( # type: ignore[arg-type]
-                        Models.SOBOL, # type: ignore[arg-type]
+                        Generators.SOBOL, # type: ignore[arg-type]
                         model_gen_kwargs=get_model_gen_kwargs() # type: ignore[arg-type]
                     ) # type: ignore[arg-type]
                 ] # type: ignore[arg-type]

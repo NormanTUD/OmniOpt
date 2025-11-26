@@ -5,6 +5,7 @@ wheel
 multidict
 numpy
 python-dateutil
+tqdm
 ax-platform
 art
 tzlocal
@@ -13,7 +14,6 @@ sixel
 scikit-learn
 submitit
 matplotlib
-tqdm
 seaborn
 pytz
 psutil

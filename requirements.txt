@@ -1,4 +1,6 @@
 mypydie
+art
+beartype
 sqlalchemy
 setuptools
 wheel
@@ -7,7 +9,6 @@ numpy
 python-dateutil
 tqdm
 ax-platform
-art
 tzlocal
 Rich
 sixel
@@ -24,7 +25,6 @@ emoji
 html5lib
 lxml
 toml
-beartype
 pyyaml
 pyspellchecker
 pyfiglet

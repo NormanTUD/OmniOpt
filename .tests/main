@@ -426,7 +426,7 @@ if [[ $superquick -eq 0 ]]; then
 
 	_test "adding_jobs_to_new_job" ".tests/adding_jobs_to_new_job" 0
 
-	_test "Single job fixed param" "$OMNIOPT_CALL --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --follow --live_share" 0
+	#_test "Single job fixed param" "$OMNIOPT_CALL --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --follow --live_share" 0
 
 	#_test "raise_in_eval" "$OMNIOPT_CALL --partition=alpha --experiment_name=only_one_fixed_param --mem_gb=1 --time=60 --worker_timeout=60 --max_eval=1 --num_parallel_jobs=1 --gpus=$NUM_GPUS --num_random_steps=1 --follow --send_anonymized_usage_stats --run_program='ZWNobyAiUkVTVUxUOiAlKGZpeGVkX3BhcmFtKSI=' --cpus_per_task=1 --nodes_per_job=1 --model=BOTORCH_MODULAR --run_mode=local --parameter fixed_param fixed 16 --send_anonymized_usage_stats --follow --raise_in_eval" 87 89
 

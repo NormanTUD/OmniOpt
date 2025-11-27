@@ -93,6 +93,7 @@ argv
 Arial
 arity
 arr
+Arrayfromnew
 arri
 arrlength
 ArrowLeft
@@ -118,6 +119,7 @@ async
 asyncLoad
 atag
 atob
+atobobjbdata
 atOffset
 atrament
 AttributeError
@@ -303,6 +305,7 @@ buttonpane
 buttonPanel
 buttonText
 bw
+bytesi
 ca
 calculateWeek
 calledFunction
@@ -430,6 +433,7 @@ conformsTo
 ConnectionError
 connectToSortable
 connectWith
+consoleerrorUnknown
 const
 Constains
 constrainedexpectedimprovement
@@ -555,6 +559,7 @@ darktheme
 darwin
 dataclass
 dataclass,
+datadata
 datadebug
 datafile
 dataFormat
@@ -605,6 +610,9 @@ debuglogs
 Dec
 December
 decille
+decodeBDataobj
+decodeBDatatx
+decodeBDataty
 Deduplicate
 def
 defaultDate
@@ -859,6 +867,7 @@ firefox
 firstDay
 firstDim
 FixedParameter
+fixedpusht
 fixedValue
 fixLeft
 fixnr
@@ -1772,6 +1781,8 @@ nvidia
 nvidiasmi
 nw
 obj
+objbdata
+objdtype
 ObjectiveProperties
 Objectkeysactivationsjoin
 Objectkeystensorslength
@@ -2215,6 +2226,8 @@ REMOTEHASH
 removeAttr
 removeIdAttribute
 renderAxis
+repairTracesdatadata
+repairTracestraces
 repeatVector
 REPLACEME
 reportError
@@ -2792,6 +2805,8 @@ tqdm
 TQDM
 tr
 Traceback
+tracesi
+traceslength
 traindataphp
 traindebug
 translationKey
@@ -2811,6 +2826,7 @@ Tue
 Tuesday
 tuple
 tutorialshelp
+tx
 txt
 typeahead
 typeassert

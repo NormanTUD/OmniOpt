@@ -5357,7 +5357,7 @@ def abandon_all_jobs() -> None:
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
-def write_result_to_trace_file(res: str) -> None:
+def write_result_to_trace_file(res: str) -> bool:
     if res is None:
         sys.stderr.write("Provided result is None, nothing to write\n")
         return False

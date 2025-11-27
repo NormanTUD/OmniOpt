@@ -5465,7 +5465,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate.training_data[0].X)
     #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate.training_data[0].Y)
-    #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate)
+    #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate.outcomes)
 
     if ax_client is not None:
         if len(arg_result_names) == 1:

@@ -5465,9 +5465,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     if ax_client is not None:
         render(ax_client.get_optimization_trace())
-    #dier(help(ax_client.get_optimization_trace()))
-    #dier(ax_client.get_trace_by_progression())
-    #dier(help(ax_client))
 
     wait_for_jobs_to_complete()
 

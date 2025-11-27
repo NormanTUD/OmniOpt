@@ -5399,7 +5399,68 @@ def write_result_to_trace_file(res):
 def render(plot_config: AxPlotConfig) -> None:
     res = plot_config.data
 
-    res = f"<div id='plot' style='width:100%;height:600px;'></div>\n<script type='text/javascript' src='https://cdn.plot.ly/plotly-latest.min.js'></script><script>const True = true;\nconst False = false;\nconst data = {res};\nPlotly.newPlot(document.getElementById('plot'), data.data, data.layout);</script>"
+    repair_funcs = """
+function decodeBData(obj) {
+    try {
+        if (!obj || typeof obj !== "object") {
+            return obj;
+        }
+
+        if (obj.bdata && obj.dtype) {
+            var binary_string = atob(obj.bdata);
+            var len = binary_string.length;
+            var bytes = new Uint8Array(len);
+
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+
+            switch (obj.dtype) {
+                case "i1": return Array.from(new Int8Array(bytes.buffer));
+                case "i2": return Array.from(new Int16Array(bytes.buffer));
+                case "i4": return Array.from(new Int32Array(bytes.buffer));
+                case "f4": return Array.from(new Float32Array(bytes.buffer));
+                case "f8": return Array.from(new Float64Array(bytes.buffer));
+                default:
+                    console.error("Unbekannter dtype:", obj.dtype);
+                    return [];
+            }
+        }
+
+        return obj;
+    } catch (e) {
+        console.error("Fehler beim Dekodieren von bdata:", e);
+        return [];
+    }
+}
+
+function repairTraces(traces) {
+    try {
+        var fixed = [];
+
+        for (var i = 0; i < traces.length; i++) {
+            var t = traces[i];
+
+            if (t.x) {
+                t.x = decodeBData(t.x);
+            }
+
+            if (t.y) {
+                t.y = decodeBData(t.y);
+            }
+
+            fixed.push(t);
+        }
+
+        return fixed;
+    } catch (e) {
+        console.error("Fehler beim Reparieren der Traces:", e);
+        return [];
+    }
+}
+    """
+
+    res = f"<div id='plot' style='width:100%;height:600px;'></div>\n<script type='text/javascript' src='https://cdn.plot.ly/plotly-latest.min.js'></script><script>{repair_funcs}\nconst True = true;\nconst False = false;\nconst data = {res};\ndata.data = repairTraces(data.data);\nPlotly.newPlot(document.getElementById('plot'), data.data, data.layout);</script>"
 
     write_result_to_trace_file(res)
 

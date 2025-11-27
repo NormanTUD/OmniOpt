@@ -5396,7 +5396,10 @@ def write_result_to_trace_file(res: str) -> bool:
     return True
 
 def render(plot_config: AxPlotConfig) -> None:
-    res = plot_config.data
+    if plot_config is None or "data" not in plot_config:
+        return None
+
+    res: str = plot_config.data # type: ignore
 
     repair_funcs = """
 function decodeBData(obj) {
@@ -5449,14 +5452,19 @@ function repairTraces(traces) {
 }
     """
 
+    res = str(res)
+
     res = f"<div id='plot' style='width:100%;height:600px;'></div>\n<script type='text/javascript' src='https://cdn.plot.ly/plotly-latest.min.js'></script><script>{repair_funcs}\nconst True = true;\nconst False = false;\nconst data = {res};\ndata.data = repairTraces(data.data);\nPlotly.newPlot(document.getElementById('plot'), data.data, data.layout);</script>"
 
     write_result_to_trace_file(res)
 
+    return None
+
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
 
-    render(ax_client.get_optimization_trace())
+    if ax_client is not None:
+        render(ax_client.get_optimization_trace())
     #dier(help(ax_client.get_optimization_trace()))
     #dier(ax_client.get_trace_by_progression())
     #dier(help(ax_client))

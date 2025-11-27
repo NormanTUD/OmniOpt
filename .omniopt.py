@@ -2,7 +2,7 @@
 
 #from mayhemmonkey import MayhemMonkey
 #mayhemmonkey = MayhemMonkey()
-#mayhemmonkey.set_function_fail_after_count("open", 201)
+#mayhemmonkey.set_function_fail_after_count("open", 10)
 #mayhemmonkey.set_function_error_rate("open", 0.1)
 #mayhemmonkey.set_function_group_error_rate(["io", "math"], 0.8)
 #mayhemmonkey.install_faulty()
@@ -5464,7 +5464,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     global END_PROGRAM_RAN
 
     if ax_client is not None:
-        if len(result_names) == 1:
+        if len(arg_result_names) == 1:
             render(ax_client.get_optimization_trace())
 
     wait_for_jobs_to_complete()

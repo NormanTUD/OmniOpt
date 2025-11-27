@@ -5464,7 +5464,8 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     global END_PROGRAM_RAN
 
     if ax_client is not None:
-        render(ax_client.get_optimization_trace())
+        if len(result_names) == 1:
+            render(ax_client.get_optimization_trace())
 
     wait_for_jobs_to_complete()
 

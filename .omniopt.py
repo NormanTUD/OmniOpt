@@ -270,8 +270,7 @@ try:
         from beartype import beartype
 
     with spinner("Importing rendering stuff..."):
-        from ax.plot.base import AxPlotConfig, AxPlotTypes
-        from ax.plot.render import plot_config_to_html
+        from ax.plot.base import AxPlotConfig
 
     with spinner("Importing statistics..."):
         import statistics

@@ -5401,7 +5401,6 @@ def render(plot_config: AxPlotConfig) -> None:
 
     repair_funcs = """
 function decodeBData(obj) {
-    try {
         if (!obj || typeof obj !== "object") {
             return obj;
         }
@@ -5428,14 +5427,9 @@ function decodeBData(obj) {
         }
 
         return obj;
-    } catch (e) {
-        console.error("Fehler beim Dekodieren von bdata:", e);
-        return [];
-    }
 }
 
 function repairTraces(traces) {
-    try {
         var fixed = [];
 
         for (var i = 0; i < traces.length; i++) {
@@ -5453,10 +5447,6 @@ function repairTraces(traces) {
         }
 
         return fixed;
-    } catch (e) {
-        console.error("Fehler beim Reparieren der Traces:", e);
-        return [];
-    }
 }
     """
 

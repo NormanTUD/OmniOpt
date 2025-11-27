@@ -5421,7 +5421,7 @@ function decodeBData(obj) {
                 case "f4": return Array.from(new Float32Array(bytes.buffer));
                 case "f8": return Array.from(new Float64Array(bytes.buffer));
                 default:
-                    console.error("Unbekannter dtype:", obj.dtype);
+                    console.error("Unknown dtype:", obj.dtype);
                     return [];
             }
         }

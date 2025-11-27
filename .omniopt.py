@@ -5399,7 +5399,7 @@ def write_result_to_trace_file(res):
 def render(plot_config: AxPlotConfig) -> None:
     res = plot_config.data
 
-    res = f"<div id='plot' style='width:100%;height:600px;'></div>\n<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js'></script><script>const True = true;\nconst False = false;\nconst data = {res};\nPlotly.newPlot(document.getElementById('plot'), data.data, data.layout);</script>"
+    res = f"<div id='plot' style='width:100%;height:600px;'></div>\n<script type='text/javascript' src='https://cdn.plot.ly/plotly-latest.min.js'></script><script>const True = true;\nconst False = false;\nconst data = {res};\nPlotly.newPlot(document.getElementById('plot'), data.data, data.layout);</script>"
 
     write_result_to_trace_file(res)
 

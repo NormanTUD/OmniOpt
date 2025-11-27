@@ -2108,7 +2108,14 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
         if stderr:
             print_green(stderr)
         else:
-            print_red(f"This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
+            if stderr and stdout:
+                print_red(f"This call should have shown the CURL, but didnt. Stderr: {stderr}, stdout: {stdout}")
+            elif stderr:
+                print_red(f"This call should have shown the CURL, but didnt. Stderr: {stderr}")
+            elif stdout:
+                print_red(f"This call should have shown the CURL, but didnt. Stdout: {stdout}")
+            else:
+                print_red(f"This call should have shown the CURL, but didnt.")
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 
@@ -5349,6 +5356,12 @@ def abandon_all_jobs() -> None:
 
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
+
+    #dier(ax_client.experiment)
+    #dier(ax_client.get_feature_importances())
+    #dier(ax_client.get_optimization_trace())
+    #dier(ax_client.get_trace_by_progression())
+    #dier(help(ax_client))
 
     wait_for_jobs_to_complete()
 

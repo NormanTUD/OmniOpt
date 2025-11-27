@@ -269,6 +269,10 @@ try:
     with spinner("Importing beartype..."):
         from beartype import beartype
 
+    with spinner("Importing rendering stuff..."):
+        from ax.plot.base import AxPlotConfig, AxPlotTypes
+        from ax.plot.render import plot_config_to_html
+
     with spinner("Importing statistics..."):
         import statistics
 
@@ -2115,7 +2119,7 @@ def live_share(force: bool = False, text_and_qr: bool = False) -> bool:
             elif stdout:
                 print_red(f"This call should have shown the CURL, but didnt. Stdout: {stdout}")
             else:
-                print_red(f"This call should have shown the CURL, but didnt.")
+                print_red("This call should have shown the CURL, but didnt.")
     if stdout:
         print_debug(f"live_share stdout: {stdout}")
 
@@ -5354,12 +5358,54 @@ def abandon_all_jobs() -> None:
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
+def write_result_to_trace_file(res):
+    if res is None:
+        sys.stderr.write("Provided result is None, nothing to write\n")
+        return False
+
+    target_folder = get_current_run_folder()
+    target_file = os.path.join(target_folder, "optimization_trace.html")
+
+    try:
+        file_handle = open(target_file, "w", encoding="utf-8")
+    except OSError as error:
+        sys.stderr.write("Unable to open target file for writing\n")
+        sys.stderr.write(str(error) + "\n")
+        return False
+
+    try:
+        written = file_handle.write(str(res))
+        file_handle.flush()
+
+        if written == 0:
+            sys.stderr.write("No data was written to the file\n")
+            file_handle.close()
+            return False
+    except Exception as error:
+        sys.stderr.write("Error occurred while writing to file\n")
+        sys.stderr.write(str(error) + "\n")
+        file_handle.close()
+        return False
+
+    try:
+        file_handle.close()
+    except Exception as error:
+        sys.stderr.write("Failed to properly close file\n")
+        sys.stderr.write(str(error) + "\n")
+        return False
+
+    return True
+
+def render(plot_config: AxPlotConfig) -> None:
+    res = plot_config_to_html(plot_config, inject_helpers=True)
+
+    write_result_to_trace_file(res)
+
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
 
-    #dier(ax_client.experiment)
-    #dier(ax_client.get_feature_importances())
-    #dier(ax_client.get_optimization_trace())
+    render(ax_client.get_optimization_trace())
+    #dier(help(ax_client.get_optimization_trace()))
     #dier(ax_client.get_trace_by_progression())
     #dier(help(ax_client))
 

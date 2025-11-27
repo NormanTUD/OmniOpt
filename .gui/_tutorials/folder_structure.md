@@ -195,6 +195,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `debug.py`: Python code for debugging the `ax_client` configuration
 - `phase_systematic_steps`: How many non-random steps have been generated
 - `result_errors.log`: A list of errors for the run regarding the results
+- `optimization_trace.html`: Trace of the optimization
 - `result_names_overview.txt`: The rich overview-table of all result names
 - `result_names.txt`: A list of RESULT names
 - `pareto_idxs.json`: The trial indices of Pareto fronts

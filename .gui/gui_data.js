@@ -101,7 +101,7 @@ var tableData = [
 		placeholder: "Name of your experiment (only letters, numbers, and underscores)",
 		required: true,
 		regex: "^[a-zA-Z0-9_]+$",
-		help: "Name of your experiment. Will be used for example for the foldername it's results will be saved in.",
+		help: "Name of your experiment. Will be used, for example, for the folder name where its results will be saved.",
 		regex_does_not_match_text: "The experiment name must consist of alphanumeric characters and underscores only."
 	},
 	{
@@ -111,7 +111,7 @@ var tableData = [
 		value: "",
 		placeholder: "Name of your reservation (optional)",
 		required: false,
-		help: "If you have a reservation, use it here. It makes jobs start faster, but is not necessary technically.",
+		help: "If you have a reservation, use it here. It makes jobs start faster, but is not technically necessary.",
 		regex: "^[a-zA-Z0-9_]*$",
 		regex_does_not_match_text: "The reservation name must consist of alphanumeric characters and underscores only."
 	},
@@ -121,7 +121,7 @@ var tableData = [
 		type: "text",
 		value: "",
 		placeholder: "Account the job should run on",
-		help: "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login-account.",
+		help: "Depending on which groups you are on, this determines to which account group on the Slurm-system that job should be linked. If left empty, it will solely be determined by your login account.",
 		regex: "^[a-zA-Z0-9_]*$",
 		regex_does_not_match_text: "The account name must consist of alphanumeric characters and underscores only."
 	},
@@ -221,7 +221,7 @@ var tableData = [
 		value: "",
 		placeholder: "Constraints like 'a + b >= 10', separated by Semicolon (;)",
 		info: "Use linear constraints in the form of <code>a*x + b*y - cz <= d</code>, where <code>a</code>, <code>b</code>, <code>c</code>, and <code>d</code> are float constants, and <code>x</code>, <code>y</code>, <code>z</code> are parameter names.There should be no space in each term around the operator <code></code> while there should be a single space around each operator <code>+</code>, <code>-</code>, <code><=</code>, and <code>>=</code>.",
-		help: "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
+		help: "The constraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
 	},
 	{
 		label: "Result-Names",

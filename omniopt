@@ -364,7 +364,7 @@
 		fi
 	}
 
-	function start_periodidic_live_share {
+	function start_periodic_live_share {
 		while true; do
 			run_live_share 2>/dev/null >/dev/null
 			sleep 10
@@ -1642,7 +1642,7 @@ EOF
 		live_share_pid=""
 
 		if [[ $live_share -eq 1 ]]; then
-			start_periodidic_live_share &
+			start_periodic_live_share &
 			live_share_pid=$!
 		fi
 

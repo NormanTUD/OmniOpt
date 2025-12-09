@@ -27,7 +27,7 @@
 	$warnings = [];
 
 	if(!is_dir($GLOBALS["sharesPath"])) {
-		$errors[] = "Folder <tt>$".$GLOBALS["sharesPath"]."</tt> not found.";
+		$errors[] = "Folder <tt>".$GLOBALS["sharesPath"]."</tt> not found.";
 	}
 
 	$expected_user_and_group = "www-data";

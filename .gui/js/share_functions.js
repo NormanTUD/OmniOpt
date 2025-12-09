@@ -631,7 +631,6 @@ function createResultParameterCanvases(this_res_name) {
 		}
 	}
 
-	// === Summary: Best result ===
 	var bestIndex = findBestRowIndex();
 	var bestRow = tab_results_csv_json[bestIndex];
 
@@ -639,7 +638,6 @@ function createResultParameterCanvases(this_res_name) {
 	ul.style.margin = "0";
 	ul.style.paddingLeft = "24px";
 
-	// Alle Result-Spalten
 	for (var i = 0; i < result_names.length; i++) {
 		var name = result_names[i];
 		var val = bestRow[header_map[name]];
@@ -648,7 +646,6 @@ function createResultParameterCanvases(this_res_name) {
 		ul.appendChild(li);
 	}
 
-	// Alle Parameter-Spalten (außer special_col_names)
 	for (var i = 0; i < tab_results_headers_json.length; i++) {
 		var name = tab_results_headers_json[i];
 		if (special_col_names.includes(name) || name.startsWith("OO_Info_") || result_names.includes(name)) {
@@ -729,7 +726,6 @@ function insertSortableSelectForSingleLogsTabs() {
 		return;
 	}
 
-	// Alle data-Attribute sammeln
 	var dataAttrs = {};
 	$buttons.each(function() {
 		var attrs = this.attributes;
@@ -747,7 +743,6 @@ function insertSortableSelectForSingleLogsTabs() {
 		return;
 	}
 
-	// <select> erstellen
 	var $select = $("<select></select>").css({marginBottom: "10px"});
 	$select.append($("<option disabled selected>Select attribute to sort</option>"));
 
@@ -757,10 +752,8 @@ function insertSortableSelectForSingleLogsTabs() {
 		$select.append($("<option></option>").attr("value", attr + "|desc").text(cleanName + " (descending)"));
 	});
 
-	// Select ganz oben in #tab_logs einfügen
 	$tab_logs.prepend($select);
 
-	// Sortierfunktion
 	$select.on("change", function() {
 		var val = $(this).val();
 		if (!val) return;
@@ -777,11 +770,9 @@ function insertSortableSelectForSingleLogsTabs() {
 			var va = $(a).attr(attr);
 			var vb = $(b).attr(attr);
 
-			// Fehlertolerant: wenn Wert fehlt, auf null setzen
 			if (va === undefined || va === null) va = "";
 			if (vb === undefined || vb === null) vb = "";
 
-			// Zahlen vergleichen, sonst Strings
 			var na = parseFloat(va);
 			var nb = parseFloat(vb);
 			if (!isNaN(na) && !isNaN(nb)) {
@@ -793,7 +784,6 @@ function insertSortableSelectForSingleLogsTabs() {
 			}
 		});
 
-		// Buttons neu anordnen
 		$menu.empty().append($btnsArray);
 	});
 }

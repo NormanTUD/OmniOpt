@@ -14,8 +14,7 @@ OmniOpt2-Share allows you to Share your results with others, online. You can sim
 omniopt_share runs/my_experiment/0
 ```
 
-The program will upload the
-job to our server, and allow give you a link to it which is valid for 30 days.
+The program will upload the job to our server, and give you a link to it which is valid for 30 days.
 
 ## `--help`
 

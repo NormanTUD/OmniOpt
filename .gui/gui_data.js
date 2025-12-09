@@ -300,7 +300,7 @@ var hiddenTableData = [
 		id: "debug",
 		type: "checkbox",
 		value: 0,
-		help: "This enables more output to be shown. Useful for debugging. Does not change the outcome of your Optimization."
+		help: "This enables more output to be shown. Useful for debugging. Does not change the outcome of your optimization."
 	},
 	{
 		label: "Revert to random",
@@ -668,7 +668,7 @@ var hiddenTableData = [
 		id: "max_abandoned_retrial",
 		type: "number",
 		value: 16,
-		placeholder: "Maximum number retrials to get when a job is abandoned post-generation",
+		placeholder: "Maximum number of retrials to get when a job is abandoned post-generation",
 		min: 20,
 	},
 	{
@@ -676,7 +676,7 @@ var hiddenTableData = [
 		id: "max_num_of_parallel_sruns",
 		type: "number",
 		value: 16,
-		placeholder: "Max number of parallel sruns to be started. More = faster job startup time but also more load on slurm controller",
+		placeholder: "Max number of parallel sruns to be started. More = faster job startup time but also more load on Slurm controller",
 		min: 1,
 	},
 	{
@@ -748,6 +748,6 @@ var hiddenTableData = [
 		id: "checkout_to_latest_tested_version",
 		type: "checkbox",
 		value: 0,
-		help: "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may has preventable bugs."
+		help: "For every commit, the CI pipeline checks all the tests and if they succeed, create a new version tag. If this is activated, you get the latest version that was tested properly and where all tests succeeded. If disabled, you may get the newest version, but it may have preventable bugs."
 	}
 ];

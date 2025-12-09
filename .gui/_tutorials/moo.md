@@ -8,7 +8,7 @@
 
 ## What is Multi-Objective-Optimization (MOO)?
 
-Sometimes, you have several goals in mind when optimizing your neural network. For example, you may want to minimize two goals that conflict with each other. For example, you want to minimize your loss, but also minimize the time a prediction takes. Usually, better results mean that your network needs more time. With OmniOpt2, you can optimize for both. This will not give you a single result, but rather a so-called [Pareto-Front](https://en.wikipedia.org/wiki/Pareto_front) of results, of which you can then choose one that best fits your needs. OmniOpt2 allows you to use as as many RESULT-values as you wish.
+Sometimes, you have several goals in mind when optimizing your neural network. For example, you may want to minimize two goals that conflict with each other. For example, you want to minimize your loss, but also minimize the time a prediction takes. Usually, better results mean that your network needs more time. With OmniOpt2, you can optimize for both. This will not give you a single result, but rather a so-called [Pareto-Front](https://en.wikipedia.org/wiki/Pareto_front) of results, of which you can then choose one that best fits your needs. OmniOpt2 allows you to use as many RESULT-values as you wish.
 
 ## How to use Multi-Objective-Optimization with OmniOpt2?
 

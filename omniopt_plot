@@ -103,7 +103,7 @@
 		echo "$closest"
 	}
 
-	if [[ -n $PRINT_SEPARATOR ]]; then # for tests, so that things are properly visually seperated
+	if [[ -n $PRINT_SEPARATOR ]]; then # for tests, so that things are properly visually separated
 		echo ""
 		echo "========================================================================"
 		echo ""

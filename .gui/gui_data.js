@@ -219,7 +219,7 @@ var tableData = [
 		id: "constraints",
 		type: "text",
 		value: "",
-		placeholder: "Constraints like 'a + b >= 10', seperated by Semicolon (;)",
+		placeholder: "Constraints like 'a + b >= 10', separated by Semicolon (;)",
 		info: "Use linear constraints in the form of <code>a*x + b*y - cz <= d</code>, where <code>a</code>, <code>b</code>, <code>c</code>, and <code>d</code> are float constants, and <code>x</code>, <code>y</code>, <code>z</code> are parameter names.There should be no space in each term around the operator <code></code> while there should be a single space around each operator <code>+</code>, <code>-</code>, <code><=</code>, and <code>>=</code>.",
 		help: "The contraints allow you to limit values of the hyperparameter space that are allowed. For example, you can set that the sum of all or some parameters must be below a certain number. This may be useful for simulations, or complex functions that have certain limitations depending on the hyperparameters."
 	},
@@ -231,7 +231,7 @@ var tableData = [
 		placeholder: "Name of the value that should be searched for, like 'result'",
 		required: true,
 		regex: /^(((([a-zA-Z][a-zA-Z0-9_]*)(=(min|max)(\s\s*|$))?)(\s|$)?)+)$/,
-		help: "A space-seperated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.",
+		help: "A space-separated list of strings to search for in the STDOUT of your program like, for example, the loss. Default is RESULT=min.",
 		info: "This is used for the regex to search through the <tt>STDOUT</tt> of your program to find result-values. You can define multiple result values like this: <code class='highlight_me dark_code_bg invert_in_dark_mode'>result1 result2 result3</code>. Can also be defined with min and max: <code class='highlight_me dark_code_bg invert_in_dark_mode'>LOSS=min PERFORMANCE=max ...</code>. Default, if min or max is not specified, is minimizing. Adding values here is the same as doing Multi-Objective-Optimization.",
 		regex_does_not_match_text: "The value must consist of one or more alphanumeric identifiers separated by spaces. Each identifier can optionally have an assignment, which can either be '=min' or '=max', which is optional though. Default is min. The assignment must end with a space or the end of the string. Each identifier must start with a letter and can contain letters, numbers, or underscores."
 
@@ -315,7 +315,7 @@ var hiddenTableData = [
 		type: "checkbox",
 		value: 0,
 		info: "Switches range parameters to choice with <tt>max_eval</tt> number of steps. Converted to int when parameter is int. Only use together with the <i>FACTORIAL</i>-model.",
-		help: "This internally converts range parameters to choice parameters by laying them out seperated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)"
+		help: "This internally converts range parameters to choice parameters by laying them out separated by the max eval number through the search space with intervals. Use FACTORIAL model to make it work properly. Still beta, though! (TOOD)"
 	},
 	{
 		label: "Model",
@@ -568,7 +568,7 @@ var hiddenTableData = [
 		},
 		type: "text",
 		value: "",
-		info: `A comma-seperated list of strings of the form 'MODELNAME=count', for example, <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10</code>. This will override the number of random steps and the --model option. Valid models are: ${model_list_html_custom_generation_strategy}`,
+		info: `A comma-separated list of strings of the form 'MODELNAME=count', for example, <code style="white-space: pre" class="highlight_me dark_code_bg invert_in_dark_mode">SOBOL=10,BOTORCH_MODULAR=20,SOBOL=10</code>. This will override the number of random steps and the --model option. Valid models are: ${model_list_html_custom_generation_strategy}`,
 		required: false,
 		regex: `^((?:${valid_models_generation_strategy.join("|")})+=\\d+,?)*$`,
 		help: "Specify a custom generation strategy",

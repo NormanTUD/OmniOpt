@@ -211,7 +211,7 @@
 		fi
 
 		if [[ ! -e $file ]]; then
-			echo "Cannot parse non-existant toml." >&2
+			echo "Cannot parse non-existent toml." >&2
 			return 1
 		fi
 
@@ -238,7 +238,7 @@
 		fi
 
 		if [[ ! -e "$file" ]]; then
-			echo "Cannot parse non-existant yaml." >&2
+			echo "Cannot parse non-existent yaml." >&2
 			return 1
 		fi
 
@@ -270,7 +270,7 @@
 		fi
 
 		if [[ ! -e "$file" ]]; then
-			echo "Cannot parse non-existant json." >&2
+			echo "Cannot parse non-existent json." >&2
 			return 1
 		fi
 

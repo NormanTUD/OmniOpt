@@ -5,7 +5,7 @@
 # Step 1:
 # It checks whether the environment already exists, and
 # if so, loads it.
-# If it doesn't exist. it creates it in
+# If it doesn't exist, it creates it in
 # ~/.omniax_$(uname -m)_$(python3 --version | sed -e 's# #_#g')
 # i.e. e.g. ~/.omniax_x86_64_Python_3.11.2/ . This is done so that there
 # is no need for multiple installations, so that, once installed, it doesn't

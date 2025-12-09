@@ -32,7 +32,7 @@ function unset_debug {
 	trap - DEBUG
 }
 
-export PRINT_SEPERATOR=""
+export PRINT_SEPARATOR=""
 export NO_RUNTIME=1
 export NO_NO_RESULT_ERROR=1
 export PLOT_TESTS=1

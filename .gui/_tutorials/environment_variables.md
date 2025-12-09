@@ -34,7 +34,7 @@ $env_variables = [
         "DONTSTARTFIREFOX" => "Don't start firefox when RUN_WITH_COVERAGE is defined",
         "RUN_WITH_COVERAGE" => "Runs omniopt- and plot-script with coverage to find out test code coverage",
         "CI" => "Disables certain tests in a CI environment",
-        "PRINT_SEPERATOR" => "Prints a seperator line after OmniOpt2 runs (useful for automated tests)",
+        "PRINT_SEPARATOR" => "Prints a seperator line after OmniOpt2 runs (useful for automated tests)",
         "SKIP_SEARCH" => "Skip the actual search, very useful for debugging",
         "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job"
     ],

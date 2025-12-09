@@ -22,7 +22,7 @@ LOG_TIMES+=("Failed,Name,TestRunTime,ExitCode,WantedExitCodes,Success")
 int_re='^[+-]?[0-9]+$'
 errors=()
 
-export PRINT_SEPERATOR=1
+export PRINT_SEPARATOR=1
 
 EXPECTED_TO_FAIL=0
 

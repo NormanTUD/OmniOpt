@@ -17,7 +17,7 @@ twice, the paths `runs/my_experiment/0` and `runs/my_experiment/1` exist.
 
 #### `best_result.txt`
 
-This file contains an ANSI-table that shows you the best result and the parameters resulted in that result.
+This file contains an ANSI-table that shows you the best result and the parameters that resulted in that result.
 
 ```
 		      Best parameter:

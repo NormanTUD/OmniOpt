@@ -10,7 +10,7 @@
 
 [TOML](https://en.wikipedia.org/wiki/TOML), [JSON](https://en.wikipedia.org/wiki/JSON) and [YAML](https://en.wikipedia.org/wiki/YAML) are file interchange formats that allow you to save data structures on your disk. OmniOpt2 allows you to load parameters via `--config_toml path/to/your/configuration.toml`, `--config_json path/to/your/configuration.json` or `--config_yaml path/to/your/configuration.yaml`.
 
-Basically, any parameter that can be given to the CLI can also be given over one of those two options. You can also merge CLI parameters with config-files, while CLI parameters take precedence.
+Basically, any parameter that can be given to the CLI can also be given over one of those three options. You can also merge CLI parameters with config-files, while CLI parameters take precedence.
 
 Only one of these can be used. You cannot, for example, use `--config_toml` and `--config_json` together.
 

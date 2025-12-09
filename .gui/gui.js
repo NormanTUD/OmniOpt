@@ -871,9 +871,10 @@ function updateOptions(select) {
 					</td>
 				</tr>
 				<tr>
-					<td>Log-Scale:</td>
+					<td>Log-Scale<a class='tooltip invert_in_dark_mode' title='Ensures parameters (e.g., learning rate, weight decay, epsilon) are optimized in log-space, so all magnitudes are handled evenly.'><img src='i/help.svg' /></a>:</td>
 					<td>
 						<input onchange="update_command()" type="checkbox" class="log_scale" />
+						
 					</td>
 				</tr>
 			</table>

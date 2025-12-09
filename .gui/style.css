@@ -952,3 +952,11 @@ body {
 	from { opacity: 0; }
 	to { opacity: 1; }
 }
+
+.log-desc span {
+	display: none;
+}
+
+.log-desc span:first-of-type {
+	display: inline;
+}

@@ -57,7 +57,7 @@ for more details.
 
 ## Install from pypi
 
-This may not use the bleeding-edge version, but if you get the version from here it means, the test suite has completety tested it properly.
+This may not use the bleeding-edge version, but if you get the version from here it means, the test suite has completely tested it properly.
 
 ```command
 pip3 install omniopt2

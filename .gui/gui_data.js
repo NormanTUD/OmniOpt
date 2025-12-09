@@ -98,7 +98,7 @@ var tableData = [
 		id: "experiment_name",
 		type: "text",
 		value: "",
-		placeholder: "Name of your experiment (only letters and numbers)",
+		placeholder: "Name of your experiment (only letters, numbers, and underscores)",
 		required: true,
 		regex: "^[a-zA-Z0-9_]+$",
 		help: "Name of your experiment. Will be used for example for the foldername it's results will be saved in.",

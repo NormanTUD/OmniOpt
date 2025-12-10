@@ -330,7 +330,7 @@
 			install_this=${install_those[$key]}
 			percent=$((idx * 100 / MAX_NR))
 
-			PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
+			PROGRESSBAR=$(generate_progress_bar "$idx" "$MAX_NR")
 
 			if [[ -z $CI ]]; then
 				green_reset_line "${PROGRESSBAR}➤Checking $idx/$MAX_NR, ${percent}%: $install_this..."

@@ -323,7 +323,6 @@
 		MAX_NR="${#install_those[@]}"
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
-		PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
 		MAX_PERCENT=100
 
 		for key in "${!install_those[@]}"; do

@@ -324,6 +324,7 @@
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
 		PROGRESSBAR=$(generate_progress_bar_setup "$MAX_NR")
+		MAX_PERCENT=100
 
 		for key in "${!install_those[@]}"; do
 			idx=$((idx+1))
@@ -333,7 +334,9 @@
 			PROGRESSBAR=$(generate_progress_bar "$idx" "$MAX_NR")
 
 			if [[ -z $CI ]]; then
-				green_reset_line "${PROGRESSBAR}➤Checking $idx/$MAX_NR, ${percent}%: $install_this..."
+				printf -v idx_padded "%*d" "${#MAX_NR}" "$idx"
+				printf -v percent_padded "%*d" "${#MAX_PERCENT}" "$percent"
+				green_reset_line "${PROGRESSBAR}➤Checking ${idx_padded}/${MAX_NR}, ${percent_padded}%: $install_this..."
 			fi
 
 			if ! echo "$FROZEN" | grep -q "$install_this"; then

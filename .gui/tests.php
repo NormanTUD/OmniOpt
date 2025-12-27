@@ -210,6 +210,61 @@ $invalidSvg = '<div xmlns="http://www.w3.org/2000/svg">Not an SVG</div>';
 expect("is_valid_svg_file: identifies valid SVG", test_file_helper($validSvg, 'is_valid_svg_file'), true);
 expect("is_valid_svg_file: rejects invalid root tag", test_file_helper($invalidSvg, 'is_valid_svg_file'), false);
 
+echo "\n--- Testing: highlight_backticks ---\n";
+expect("highlight_backticks: wraps text in tt tags", highlight_backticks("Dies ist `code`."), "Dies ist <tt>code</tt>.");
+expect("highlight_backticks: handles multiple backticks", highlight_backticks("`a` and `b`"), "<tt>a</tt> and <tt>b</tt>");
+
+echo "\n--- Testing: convertNewlinesToBr ---\n";
+$nlText = "Line 1\n\nLine 2\n\n\nLine 3";
+$expectedNl = "Line 1\n<br>Line 2\n<br><br>Line 3"; 
+expect("convertNewlinesToBr: converts double newlines to br", convertNewlinesToBr($nlText), $expectedNl);
+
+// --- Group: File & Directory Logic ---
+echo "\n--- Testing: build_run_folder_path ---\n";
+expect("build_run_folder_path: constructs correct path", build_run_folder_path("user1", "expA", 5), "user1/expA/5/");
+
+echo "\n--- Testing: validate_directory ---\n";
+$tempDir = sys_get_temp_dir() . '/test_dir_' . uniqid();
+mkdir($tempDir);
+try {
+    validate_directory($tempDir);
+    echo "✅ PASS: validate_directory: identifies existing directory\n";
+} catch (Exception $e) {
+    echo "❌ FAIL: validate_directory: should have found directory\n";
+    $failedTests++;
+}
+rmdir($tempDir);
+try {
+    validate_directory("/path/to/nonexistent/dir/12345");
+    echo "❌ FAIL: validate_directory: should have thrown exception for missing dir\n";
+    $failedTests++;
+} catch (Exception $e) {
+    echo "✅ PASS: validate_directory: throws exception for missing directory\n";
+}
+
+echo "\n--- Testing: read_file_as_array ---\n";
+$fileContent = "Line 1\n  \nLine 2\r\nLine 3";
+$readArray = test_file_helper($fileContent, 'read_file_as_array');
+expect("read_file_as_array: filters empty lines and trims", count($readArray), 3);
+expect("read_file_as_array: correct first element", $readArray[0], "Line 1");
+
+// --- Group: Specialized Parsing ---
+echo "\n--- Testing: get_status_for_results_csv ---\n";
+$csvContent = "id,name,trial_status\n1,test,completed\n2,test,failed\n3,test,running";
+$statusResult = test_file_helper($csvContent, 'get_status_for_results_csv');
+expect("get_status_for_results_csv: counts succeeded", $statusResult["succeeded"], 1);
+expect("get_status_for_results_csv: counts failed", $statusResult["failed"], 1);
+expect("get_status_for_results_csv: counts running", $statusResult["running"], 1);
+expect("get_status_for_results_csv: counts total", $statusResult["total"], 3);
+
+// --- Group: HTML Sanitization ---
+echo "\n--- Testing: sanitize_safe_html ---\n";
+$unsafeHtml = "<b>Safe</b><script>alert(1)</script><img src='https://example.com' onclick='bad()'>";
+$safeHtml = sanitize_safe_html($unsafeHtml);
+expect("sanitize_safe_html: removes script tags", strpos($safeHtml, "<script>"), false);
+expect("sanitize_safe_html: keeps allowed tags (b)", strpos($safeHtml, "<b>Safe</b>") !== false, true);
+expect("sanitize_safe_html: removes dangerous attributes (onclick)", strpos($safeHtml, "onclick"), false);
+
 // =================================================================
 // FINISH
 // =================================================================

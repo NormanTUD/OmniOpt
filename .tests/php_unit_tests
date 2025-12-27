@@ -18,6 +18,7 @@ exit_code=$?
 
 if [[ $exit_code != 0 ]]; then
 	echo "Test failed!!!"
+	exit 1
 fi
 
 exit 0

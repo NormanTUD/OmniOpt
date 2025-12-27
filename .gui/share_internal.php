@@ -1,16 +1,5 @@
 <?php
-	if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'wb'));
-
-	$GLOBALS["time_start"] = microtime(true);
-
-	error_reporting(E_ALL);
-	set_error_handler(
-		function ($severity, $message, $file, $line) {
-			throw new \ErrorException($message, $severity, $severity, $file, $line);
-		}
-	);
-
-	ini_set('display_errors', 1);
+	include("globals.php");
 
 	include_once "_functions.php";
 	include_once "share_functions.php";

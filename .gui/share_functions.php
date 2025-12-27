@@ -1,25 +1,10 @@
 <?php
-	error_reporting(E_ALL);
-	set_error_handler(
-		function ($severity, $message, $file, $line) {
-			throw new \ErrorException($message, $severity, $severity, $file, $line);
-		}
-	);
-
-	set_time_limit(300);
-
-	$GLOBALS["modificationCache"] = [];
-	$GLOBALS["recursiveModificationCache"] = [];
-	$GLOBALS["ascii_or_utf8_cache"] = [];
+	include("globals.php");
 
 	require_once 'libs/AnsiConverter/Theme/Theme.php';
 	require_once 'libs/AnsiConverter/AnsiToHtmlConverter.php';
 	require_once '_functions.php';
 	require_once 'results_analyzer.php';
-
-	ini_set('display_errors', 1);
-
-	$GLOBALS["sharesPath"] = "shares/";
 
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {

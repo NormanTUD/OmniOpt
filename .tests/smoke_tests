@@ -5,6 +5,7 @@
 export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
 
 tests=(
+	php_unit_tests
 	find_missing_f_strings
 	shellcheck
 	find_functions_with_missing_types

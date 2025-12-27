@@ -93,7 +93,7 @@ if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
 @beartype
-def set_title(df_filtered: pd.DataFrame, result_column_values: pd.core.series.Series, num_entries: int, _min: Union[float, int, None] = None, _max: Union[float, int, None] = None) -> None:
+def set_title(df_filtered: pd.DataFrame, result_column_values: pd.Series, num_entries: int, _min: Union[float, int, None] = None, _max: Union[float, int, None] = None) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:

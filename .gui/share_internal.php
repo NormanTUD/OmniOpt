@@ -15,8 +15,6 @@
 	include_once "_functions.php";
 	include_once "share_functions.php";
 
-	$sharesPath = './shares/';
-
 	$port = $_SERVER["SERVER_PORT"] ?? 80;
 	$scheme = ($port == 443) ? "https" : "http";
 	$host = $_SERVER["SERVER_NAME"] ?? "localhost";
@@ -83,7 +81,7 @@
 	$uuid_folder = null;
 
 	if ($update_uuid) {
-		$uuid_folder = find_matching_uuid_run_folder($update_uuid, $sharesPath, $user_id, $experiment_name);
+		$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
 	}
 
 	if(file_exists("$uuid_folder/password.sha256")) {
@@ -126,7 +124,7 @@
 	}
 
 	if ($user_id !== null && $experiment_name !== null && ($num_offered_files > 0 || isset($_GET["update"]))) {
-		$userFolder = get_user_folder($sharesPath, $uuid_folder, $user_id, $experiment_name);
+		$userFolder = get_user_folder($uuid_folder, $user_id, $experiment_name);
 		if(!$userFolder) {
 			die("Could not create user folder");
 		}
@@ -159,7 +157,7 @@
 				echo "Warning: The disk space is almost full. This may lead to error messages and you not being able to push jobs. If you want to see results anyway, check https://imageseg.scads.de/omniax/tutorials?tutorial=oo_share#run-locally-in-docker on how to install it locally (with docker). If you run on HPC, you may want to install this into a Research Cloud at the TU Dresden.\n";
 			}
 
-			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder, $sharesPath);
+			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder);
 
 			exit(0);
 		}

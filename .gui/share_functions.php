@@ -2013,7 +2013,7 @@
 		echo "Warning: " . $message . "\n";
 	}
 
-	function find_matching_uuid_run_folder(string $targetUUID, $sharesPath, $user_id, $experiment_name): ?string {
+	function find_matching_uuid_run_folder(string $targetUUID, $user_id, $experiment_name): ?string {
 		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id)) {
 			return null;
 		}
@@ -2022,7 +2022,7 @@
 			return null;
 		}
 
-		$glob_str = "$sharesPath/$user_id/$experiment_name/*/run_uuid";
+		$glob_str = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/run_uuid";
 		$files = glob($glob_str);
 
 		foreach ($files as $file) {
@@ -2046,13 +2046,13 @@
 		return rmdir($folder);
 	}
 
-	function create_new_folder($path, $user_id, $experiment_name) {
+	function create_new_folder($user_id, $experiment_name) {
 		$i = 0;
 
-		$newFolder = $path . "/$user_id/$experiment_name/$i";
+		$newFolder = $GLOBALS["sharesPath"] . "/$user_id/$experiment_name/$i";
 
 		do {
-			$newFolder = $path . "/$user_id/$experiment_name/$i";
+			$newFolder = $GLOBALS["sharesPath"]. "/$user_id/$experiment_name/$i";
 			$i++;
 		} while (file_exists($newFolder));
 
@@ -2092,8 +2092,8 @@
 		return [false, null];
 	}
 
-	function extract_path_components($found_hash_file_dir, $sharesPath) {
-		$pattern = "#^$sharesPath/([^/]+)/([^/]+)/(\d+)$#";
+	function extract_path_components($found_hash_file_dir) {
+		$pattern = "#^".$GLOBALS["sharesPath"]."/([^/]+)/([^/]+)/(\d+)$#";
 
 		if (preg_match($pattern, $found_hash_file_dir, $matches)) {
 			assert(isset($matches[1]), "Failed to extract user from path: $found_hash_file_dir");
@@ -2111,8 +2111,8 @@
 		}
 	}
 
-	function get_user_folder($sharesPath, $_uuid_folder, $user_id, $experiment_name, $run_nr="") {
-		$probe_dir = "$sharesPath/$user_id/$experiment_name/$run_nr";
+	function get_user_folder($_uuid_folder, $user_id, $experiment_name, $run_nr="") {
+		$probe_dir = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/$run_nr";
 
 		if($run_nr != "" && $run_nr >= 0 && is_dir($probe_dir)) {
 			return $probe_dir;
@@ -2123,7 +2123,7 @@
 		}
 
 		if (!$_uuid_folder) {
-			$userFolder = create_new_folder($sharesPath, $user_id, $experiment_name);
+			$userFolder = create_new_folder($user_id, $experiment_name);
 		} else {
 			$userFolder = $_uuid_folder;
 		}
@@ -2232,11 +2232,11 @@
 		return false;
 	}
 
-	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder, $sharesPath) {
+	function move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_id, $offered_files, $userFolder, $uuid_folder) {
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$found_hash_file_data = search_for_hash_file("$sharesPath/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
+		$found_hash_file_data = search_for_hash_file($GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
@@ -2249,7 +2249,7 @@
 		}
 
 		if ($found_hash_file && is_null($update_uuid)) {
-			list($user, $experiment_name, $run_id) = extract_path_components($found_hash_file_dir, $sharesPath);
+			list($user, $experiment_name, $run_id) = extract_path_components($found_hash_file_dir);
 			$old_url = remove_extra_slashes_from_url("$BASEURL/share?user_id=$user_id&experiment_name=$experiment_name&run_nr=$run_id");
 			echo "This project already seems to have been uploaded. See $old_url\n";
 			exit(0);

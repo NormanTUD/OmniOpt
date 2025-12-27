@@ -176,6 +176,40 @@ $inputArray = ["umlaut" => "äöü", "nested" => ["key" => "ß"]];
 expect("utf8ize: handles umlauts in arrays", utf8ize($inputArray), $inputArray);
 expect("utf8ize: handles plain string", utf8ize("test"), "test");
 
+// --- Group: Path Building ---
+echo "\n--- Testing: Path Building ---\n";
+expect(
+    "build_run_folder_path: generates correct structure", 
+    build_run_folder_path("user1", "exp_alpha", "42"), 
+    "user1/exp_alpha/42/"
+);
+
+// --- Group: CSV Processing ---
+echo "\n--- Testing: CSV Normalization ---\n";
+expect("normalize_csv_value: converts float-integers to string ints", normalize_csv_value("10.000"), "10");
+expect("normalize_csv_value: keeps real floats", normalize_csv_value("10.5"), "10.5");
+expect("normalize_csv_value: handles empty string", normalize_csv_value(""), "");
+
+// --- Group: Data Filtering ---
+echo "\n--- Testing: CSV Time Filtering ---\n";
+$csvData = [
+    ["timestamp", "value"],
+    ["1000", "A"],
+    ["1030", "B"], // Sollte übersprungen werden bei 60s Intervall
+    ["1061", "C"]  // Sollte behalten werden (1061 - 1000 > 60)
+];
+$filtered = keep_rows_every_n_seconds($csvData, 60);
+expect("keep_rows_every_n_seconds: filters correctly", count($filtered), 3); // Header + 1000 + 1061
+expect("keep_rows_every_n_seconds: keeps last valid row", $filtered[2][1], "C");
+
+// --- Group: File Validation ---
+echo "\n--- Testing: SVG Validation ---\n";
+$validSvg = '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40"/></svg>';
+$invalidSvg = '<div xmlns="http://www.w3.org/2000/svg">Not an SVG</div>';
+
+expect("is_valid_svg_file: identifies valid SVG", test_file_helper($validSvg, 'is_valid_svg_file'), true);
+expect("is_valid_svg_file: rejects invalid root tag", test_file_helper($invalidSvg, 'is_valid_svg_file'), false);
+
 // =================================================================
 // FINISH
 // =================================================================

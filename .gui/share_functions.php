@@ -3576,7 +3576,6 @@ $onclick_string
 			}
 		}
 
-		error_log("getJobIdFromFile: No numeric job ID found in '$file'.");
 		return "";
 	}
 ?>

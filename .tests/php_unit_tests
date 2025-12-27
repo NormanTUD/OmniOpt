@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR
+
+cd ..
+
+cd .gui
+
+if ! command -v php; then
+	echo "php not installed! Will skip testing."
+	exit 0
+fi
+
+php tests.php
+exit_code=$?
+
+if [[ $exit_code != 0 ]]; then
+	echo "Test failed!!!"
+fi
+
+exit 0

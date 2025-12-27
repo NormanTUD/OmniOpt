@@ -170,6 +170,11 @@ echo "\n--- Testing: Security & Edge Cases ---\n";
 expect("getJobIdFromFile: handles non-string", getJobIdFromFile(['not a string']), "");
 expect("get_valid_folders: non-existent path", get_valid_folders("/tmp/missing_" . uniqid()), []);
 
+// --- Group: Encoding ---
+echo "\n--- Testing: Encoding ---\n";
+$inputArray = ["umlaut" => "äöü", "nested" => ["key" => "ß"]];
+expect("utf8ize: handles umlauts in arrays", utf8ize($inputArray), $inputArray);
+expect("utf8ize: handles plain string", utf8ize("test"), "test");
 
 // =================================================================
 // FINISH

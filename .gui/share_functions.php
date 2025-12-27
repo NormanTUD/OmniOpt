@@ -2303,56 +2303,10 @@
 		}
 	}
 
-	function delete_empty_directories(string $directory): bool {
-		if (!is_dir($directory)) {
-			return false;
-		}
-
-		$iterator = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator(
-				$directory,
-				FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_SELF
-			),
-			RecursiveIteratorIterator::CHILD_FIRST
-		);
-
-		$anyDeleted = false;
-		$now = time();
-
-		foreach ($iterator as $fileInfo) {
-			if (!$fileInfo->isDir()) {
-				continue;
-			}
-
-			$path = $fileInfo->getPathname();
-
-			// Schnell prüfen, ob leer
-			$isEmpty = true;
-			$handle = @opendir($path);
-			if ($handle !== false) {
-				while (($entry = readdir($handle)) !== false) {
-					if ($entry !== '.' && $entry !== '..') {
-						$isEmpty = false;
-						break;
-					}
-				}
-				closedir($handle);
-			}
-
-			// Wenn leer und älter als 1 Tag, löschen
-			if ($isEmpty && $fileInfo->getMTime() < $now - 86400) {
-				if (@rmdir($path)) {
-					$anyDeleted = true;
-				}
-			}
-		}
-
-		return $anyDeleted;
-	}
-
-	function _delete_old_shares($dir) {
+	function _delete_old_shares() {
 		$oldDirectories = [];
 		$currentTime = time();
+		$dir = $GLOBALS["sharesPath"];
 
 		function is_dir_empty($dir) {
 			return (is_readable($dir) && count(scandir($dir)) == 2);
@@ -2386,8 +2340,7 @@
 
 	function delete_old_shares () {
 		try {
-			$oldDirs = _delete_old_shares($GLOBALS["sharesPath"]);
-			delete_empty_directories($GLOBALS["sharesPath"], false);
+			$oldDirs = _delete_old_shares();
 			return $oldDirs;
 		} catch (e) {
 			error_log(e);

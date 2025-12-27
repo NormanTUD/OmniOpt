@@ -9,6 +9,9 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font-feature-settings: "ss02", "liga", "onum";
+
+	line-height: 1.6; /* Weniger gedrungen */
+	letter-spacing: -0.011em; /* Moderner Look für Sans-Serif */
 }
 
 .marked_text {
@@ -796,12 +799,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .caveat {
 	background-color: #fff8b3;
-	border: 1px solid #f2d600;
 	padding: 1em 1em 1em 70px;
 	position: relative;
 	color: #665500;
 	margin: 1em 0;
-	border-radius: 4px;
+	border: none;
+	border-left: 5px solid #f2d600; /* Akzentleiste statt Rahmen */
+	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .caveat h1, .caveat h2, .caveat h3, .caveat h4 {
@@ -939,8 +943,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 [onclick]:hover, button:hover, a:hover, .slider:hover {
-	transform: scale(1.08);
-	opacity: 0.9;
+	transform: translateY(-2px); /* Leichtes Anheben statt Skalieren */
+	opacity: 1; /* Opacity-Verringerung bei Textlinks oft störend */
 }
 
 body {

@@ -326,6 +326,7 @@
 
 		MAX_PERCENT=100
 		idx_padded="1"
+		percent_padded=0
 
 		for key in "${!install_those[@]}"; do
 			idx=$((idx+1))

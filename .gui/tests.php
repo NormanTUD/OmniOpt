@@ -274,9 +274,9 @@ expect("sanitize_safe_html: removes dangerous attributes (onclick)", strpos($saf
 // =================================================================
 echo_if_wanted("\n---------------------------------\n");
 if ($failedTests === 0) {
-    echo "SUMMARY: All php-unit-tests tests passed successfully.\n";
+    echo_if_wanted("SUMMARY: All php-unit-tests tests passed successfully.\n");
     exit(0);
 } else {
-    echo "SUMMARY: $failedTests php-unit-test(s) failed.\n";
+    echo_if_wanted("SUMMARY: $failedTests php-unit-test(s) failed.\n");
     exit(1);
 }

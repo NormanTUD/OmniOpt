@@ -82,8 +82,6 @@ if (!function_exists('str_contains')) {
 // START OF TESTS
 // =================================================================
 
-echo "Starting Comprehensive Unit Tests...\n\n";
-
 // --- Group: get_or_env (from _functions.php) ---
 echo_if_wanted("--- Testing: get_or_env ---\n");
 $_GET['UNIT_TEST_VAR'] = 'value_from_get';
@@ -274,7 +272,7 @@ expect("sanitize_safe_html: removes dangerous attributes (onclick)", strpos($saf
 // =================================================================
 // FINISH
 // =================================================================
-echo "\n---------------------------------\n";
+echo_if_wanted("\n---------------------------------\n");
 if ($failedTests === 0) {
     echo "SUMMARY: All php-unit-tests tests passed successfully.\n";
     exit(0);

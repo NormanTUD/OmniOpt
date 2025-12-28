@@ -39,6 +39,10 @@ source .shellscript_functions
 
 errors=()
 
+if ! command -v deadcode 2>/dev/null >/dev/null; then
+	pip install -q deadcode
+fi
+
 if command -v deadcode 2>/dev/null >/dev/null; then
 	for i in $(ls .*.py | grep -v ".helpers.py"); do
 		deadcode $i || {

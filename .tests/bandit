@@ -33,6 +33,10 @@ source .shellscript_functions
 
 errors=()
 
+if ! command -v bandit 2>/dev/null >/dev/null; then
+	pip install -q bandit
+fi
+
 if command -v bandit 2>/dev/null >/dev/null; then
 	for i in $(ls .*.py | grep -v ".helpers.py"); do
 		bandit -lll -q -s B602 $i || {
@@ -42,7 +46,7 @@ if command -v bandit 2>/dev/null >/dev/null; then
 		}
 	done
 else
-	red_text "bandit not found"
+	red_text "bandit not found\n"
 fi
 
 secs=$SECONDS

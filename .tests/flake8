@@ -52,6 +52,10 @@ errors=()
 
 IGNOREME="E501,E302,E265,E128,E305,E261,E126,E124,F824"
 
+if ! command -v flake8 2>/dev/null >/dev/null; then
+	pip install -q flake8
+fi
+
 if command -v flake8 2>/dev/null >/dev/null; then
 	for filename in $(ls .*.py | grep -v ".helpers.py"); do
 		if file_has_changed_since_last_tagged_version "$filename"; then
@@ -63,7 +67,7 @@ if command -v flake8 2>/dev/null >/dev/null; then
 		fi
 	done
 else
-	red_text "flake8 not found"
+	red_text "flake8 not found\n"
 fi
 
 secs=$SECONDS

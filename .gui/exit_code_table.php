@@ -76,6 +76,7 @@
 			210 => "Unknown orchestrator mode",
 			211 => "Git checkout failed (--checkout_to_latest_tested_version)",
 			221 => "The test DEBUG_PARAM_EVAL has failed",
+			222 => "The test DEBUG_PARAM_EVAL was successful",
 			233 => "No random steps set",
 			234 => "Error at completing a trial, this is probably a bug with the trial-index-generation, or re-doing jobs with the orchestrator.",
 			235 => "Fail because the difference of range parameters (that is, the *lower* and *upper bound*) was too large",

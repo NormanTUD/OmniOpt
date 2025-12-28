@@ -1093,7 +1093,7 @@ EOF
 			exit 221
 		fi
 
-		exit 0
+		exit 222
 	fi
 
 	eval "$PARAM_EVAL"

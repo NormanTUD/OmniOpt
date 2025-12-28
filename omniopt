@@ -411,7 +411,7 @@
 			fi
 		fi
 
-		myexit "$CODE"
+		exit "$CODE"
 	}
 
 	function get_anon_user_id {
@@ -1266,14 +1266,14 @@ EOF
 				user_id="${BASH_REMATCH[1]}"
 			else
 				red_text "Error: user_id parameter is missing in the URL.\n"
-				myexit 16
+				exit 1
 			fi
 
 			if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
-				experiment_name="${BASH_REMATCH[1]}"6
+				experiment_name="${BASH_REMATCH[1]}"
 			else
 				red_text "Error: experiment_name parameter is missing in the URL.\n"
-				myexit 16
+				exit 1
 			fi
 
 			if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
@@ -1281,7 +1281,7 @@ EOF
 				true
 			else
 				red_text "Error: run_nr parameter is missing in the URL.\n"
-				myexit 16
+				exit 1
 			fi
 
 			yellow_text "Downloaded file $oo_tmp_file"
@@ -1311,14 +1311,14 @@ EOF
 				exit_code=$?
 				rm -rf $oo_tmp_dir
 
-				myexit $exit_code
+				exit $exit_code
 			elif [[ -s "$oo_tmp_file" ]]; then
 				cat $oo_tmp_file
 			fi
 
 			rm -rf $oo_tmp_dir
 
-			myexit 19
+			exit 19
 		else
 			red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr\n"
 			myexit 19
@@ -1982,7 +1982,7 @@ EOF
 								myexit "$exit_code"
 							else
 								echo "WARN: myexit function not found, exiting with code $exit_code"
-								myexit "$exit_code"
+								exit "$exit_code"
 							fi
 						fi
 					else

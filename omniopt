@@ -746,6 +746,61 @@
 EOF
 		}
 
+		# Erzeugt Code für Argumente, die einen Wert erwarten (z.B. --continue)
+	# $1: Name der Option (z.B. "continue")
+	# $2: Zielvariable im Zielskript (z.B. "continue_previous_job")
+	# $3: (Optional) Alias oder alternative Namen (Space-separated)
+	generate_arg_handling_code() {
+		local opt_name="$1"
+		local var_name="$2"
+		local aliases="$3"
+
+		# Erstelle die Case-Muster (z.B. --continue|--continue_previous_job)
+		local pattern="--${opt_name}"
+		if [[ -n "$aliases" ]]; then
+			for a in $aliases; do pattern+="|--${a}"; done
+		fi
+
+		cat <<EOF
+			${pattern}=*)
+				old_${var_name}=\$${var_name}
+				${var_name}="\${i#*=}"
+				if [[ -n \$old_${var_name} ]]; then
+					red_text "--${opt_name} was specified more than once. Using the last one.\\n"
+					args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--${opt_name}=.*[[:space:]][[:space:]]*# #')
+				fi
+				args_string+=" --${opt_name} \$${var_name} "
+				;;
+
+			${pattern})
+				old_${var_name}=\$${var_name}
+				shift
+				k=\$((k+1))
+				${var_name}="\${args[k]}"
+				if [[ -n \$old_${var_name} ]]; then
+					red_text "--${opt_name} was specified more than once. Using the last one.\\n"
+					args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--${opt_name}.*[[:space:]][[:space:]]*# #')
+				fi
+				args_string+=" --${opt_name} \$${var_name} "
+				;;
+EOF
+	}
+
+	# Erzeugt Code für einfache Flags (An/Aus, z.B. --debug)
+	generate_flag_handling_code() {
+		local opt_name="$1"
+		local var_name="$2"
+		local extra_cmd="$3" # z.B. "set_debug"
+
+		cat <<EOF
+			--${opt_name})
+				${var_name}=1
+				${extra_cmd}
+				args_string+=" --${opt_name} "
+				;;
+EOF
+}
+
 	generate_config_handling_code() {
 		local option_name="$1"
 		local check_type="$2"
@@ -874,151 +929,15 @@ while [ \$k -lt \${#args[@]} ]; do
 
 $complex_options_str
 
-		--continue=*)
-			old_continue=\$continue_previous_job
-			continue_previous_job="\${i#*=}"
+	$(generate_arg_handling_code "continue" "continue_previous_job" "continue_previous_job")
+	$(generate_arg_handling_code "worker_generator_path" "worker_generator_path")
+	$(generate_arg_handling_code "calculate_pareto_front_of_job" "calculate_pareto_front_of_job")
+	$(generate_arg_handling_code "show_ram_every_n_seconds" "show_ram_every_n_seconds")
+	$(generate_arg_handling_code "root_venv_dir" "root_venv_dir")
 
-			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --continue \$continue_previous_job "
-
-			continue_was_set=1
-
-			;;
-
-		--continue)
-			old_continue=\$continue_previous_job
-
-			shift
-			k=\$((k+1))
-
-			continue_previous_job="\${args[k]}"
-
-			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --continue \$continue_previous_job "
-
-			continue_was_set=1
-
-			;;
-
-		--continue_previous_job=*)
-			old_continue=\$continue_previous_job
-			continue_previous_job="\${i#*=}"
-
-			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue=.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --continue \$continue_previous_job "
-
-			continue_was_set=1
-
-			;;
-
-		--continue_previous_job)
-			old_continue=\$continue_previous_job
-
-			shift
-			k=\$((k+1))
-
-			continue_previous_job="\${args[k]}"
-
-			if [[ -n \$old_continue ]]; then
-				red_text "--continue was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--continue.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --continue \$continue_previous_job "
-
-			continue_was_set=1
-
-			;;
-
-		--worker_generator_path=*)
-			old_worker_generator_path=\$worker_generator_path
-			worker_generator_path="\${i#*=}"
-
-			if [[ -n \$old_worker_generator_path ]]; then
-				red_text "--worker_generator_path was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--worker_generator_path=.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --worker_generator_path \$worker_generator_path "
-
-			;;
-
-		--worker_generator_path)
-			old_worker_generator_path=\$worker_generator_path
-
-			shift
-			k=\$((k+1))
-
-			worker_generator_path="\${args[k]}"
-
-			if [[ -n \$old_worker_generator_path ]]; then
-				red_text "--worker_generator_path was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--worker_generator_path.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --worker_generator_path \$worker_generator_path "
-
-			;;
-
-		--calculate_pareto_front_of_job=*)
-			old_continue=\$calculate_pareto_front_of_job
-			calculate_pareto_front_of_job="\${i#*=}"
-
-			if [[ -n \$old_continue ]]; then
-				red_text "--calculate_pareto_front_of_job was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--calculate_pareto_front_of_job=.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --calculate_pareto_front_of_job \$calculate_pareto_front_of_job "
-
-			;;
-
-		--calculate_pareto_front_of_job)
-			old_continue=\$calculate_pareto_front_of_job
-
-			shift
-			k=\$((k+1))
-
-			calculate_pareto_front_of_job="\${args[k]}"
-
-			if [[ -n \$old_continue ]]; then
-				red_text "--calculate_pareto_front_of_job was specified more than once. Using the last one.\\n"
-				args_string=\$(echo "\$args_string" | sed -e 's#[[:space:]]*--calculate_pareto_front_of_job.*[[:space:]][[:space:]]*# #')
-			fi
-
-			args_string+=" --calculate_pareto_front_of_job \$calculate_pareto_front_of_job "
-
-			;;
-
-		--show_ram_every_n_seconds=*)
-			show_ram_every_n_seconds="\${i#*=}"
-
-			;;
-
-		--show_ram_every_n_seconds)
-			shift
-			k=\$((k+1))
-
-			show_ram_every_n_seconds="\${args[k]}"
-
-			;;
-
-		-h|--help)
-			help=1
-			args_string+=" --help "
-			;;
+	$(generate_flag_handling_code "debug" "debug" "set_debug")
+	$(generate_flag_handling_code "dryrun" "dryrun")
+	$(generate_flag_handling_code "live_share" "live_share")
 
 		--memray)
 			export RUN_WITH_MEMRAY=1
@@ -1033,36 +952,13 @@ $complex_options_str
 			set_debug
 			;;
 
+		-h|--help)
+			help=1
+			args_string+=" --help "
+			;;
+
 		--dryrun)
 			dryrun=1
-			;;
-
-		--live_share)
-			live_share=1
-
-			args_string+=" --live_share "
-
-			;;
-
-		--root_venv_dir=*)
-			root_venv_dir="\${i#*=}"
-
-			args_string+=" --root_venv_dir=\$root_venv_dir "
-
-			export root_venv_dir
-
-			;;
-
-		--root_venv_dir)
-			shift
-
-			k=\$((k+1))
-			root_venv_dir="\${args[k]}"
-
-			args_string+=" --root_venv_dir=\$root_venv_dir "
-
-			export root_venv_dir
-
 			;;
 
 		*)

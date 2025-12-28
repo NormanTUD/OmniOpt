@@ -18,7 +18,7 @@ function green_text {
 
 export DEBUG_PARAM_EVAL=1
 
-.tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=1 --mem_gb=1 --generate_all_jobs_at_once --follow --debug
+.tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=1 --mem_gb=1 --generate_all_jobs_at_once --follow
 
 
 exit_code=$?

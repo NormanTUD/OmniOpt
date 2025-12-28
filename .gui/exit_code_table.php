@@ -16,6 +16,7 @@
 			13 => "Run folder already exists",
 			14 => "Error installing OmniOpt2 via install_omniax.sh",
 			15 => "Unimplemented error",
+			16 => "Error regarding continued job from URL",
 			17 => "Cancelled loading modules",
 			18 => "test_wronggoing_stuff program not found (only --tests)",
 			19 => "Something was wrong with your parameters. See output for details",

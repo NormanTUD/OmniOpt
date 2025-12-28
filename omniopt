@@ -1094,7 +1094,7 @@ EOF
 			exit 221
 		fi
 
-		exit 222
+		myexit 222
 	fi
 
 	eval "$PARAM_EVAL"
@@ -1266,14 +1266,14 @@ EOF
 				user_id="${BASH_REMATCH[1]}"
 			else
 				red_text "Error: user_id parameter is missing in the URL.\n"
-				exit 1
+				myexit 16
 			fi
 
 			if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
-				experiment_name="${BASH_REMATCH[1]}"
+				experiment_name="${BASH_REMATCH[1]}"6
 			else
 				red_text "Error: experiment_name parameter is missing in the URL.\n"
-				exit 1
+				myexit 16
 			fi
 
 			if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
@@ -1281,7 +1281,7 @@ EOF
 				true
 			else
 				red_text "Error: run_nr parameter is missing in the URL.\n"
-				exit 1
+				myexit 16
 			fi
 
 			yellow_text "Downloaded file $oo_tmp_file"
@@ -1311,14 +1311,14 @@ EOF
 				exit_code=$?
 				rm -rf $oo_tmp_dir
 
-				exit $exit_code
+				myexit $exit_code
 			elif [[ -s "$oo_tmp_file" ]]; then
 				cat $oo_tmp_file
 			fi
 
 			rm -rf $oo_tmp_dir
 
-			exit 19
+			myexit 19
 		else
 			red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr\n"
 			myexit 19

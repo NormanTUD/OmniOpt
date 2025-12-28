@@ -5,6 +5,12 @@
 
 require_once 'share_functions.php'; // Includes _functions.php internally
 
+function echo_if_wanted($param) {
+	if(getenv("")) {
+		echo $param;
+	}
+}
+
 $failedTests = 0;
 
 /**
@@ -13,7 +19,7 @@ $failedTests = 0;
 function expect($label, $actual, $expected) {
     global $failedTests;
     if ($actual === $expected) {
-        echo "✅ PASS: $label\n";
+        echo_if_wanted("✅ PASS: $label\n");
     } else {
         echo "❌ FAIL: $label\n";
         echo "   Expected: " . json_encode($expected) . "\n";
@@ -79,7 +85,7 @@ if (!function_exists('str_contains')) {
 echo "Starting Comprehensive Unit Tests...\n\n";
 
 // --- Group: get_or_env (from _functions.php) ---
-echo "--- Testing: get_or_env ---\n";
+echo_if_wanted("--- Testing: get_or_env ---\n");
 $_GET['UNIT_TEST_VAR'] = 'value_from_get';
 expect("get_or_env: retrieves from \$_GET", get_or_env('UNIT_TEST_VAR'), 'value_from_get');
 
@@ -92,7 +98,7 @@ expect("get_or_env: returns false if both missing", get_or_env('NON_EXISTENT_CON
 
 
 // --- Group: extract_help_params_from_bash ---
-echo "\n--- Testing: extract_help_params_from_bash ---\n";
+echo_if_wanted("\n--- Testing: extract_help_params_from_bash ---\n");
 $bashHelp = '
 function help {
     echo "  --mode      Set the operation mode";
@@ -106,7 +112,7 @@ expect("Help: Logic generated HTML table", str_contains($resHelp, "<table"), tru
 
 
 // --- Group: getRunProgramFromFile (from share_functions.php) ---
-echo "\n--- Testing: getRunProgramFromFile ---\n";
+echo_if_wanted("\n--- Testing: getRunProgramFromFile ---\n");
 $runCases = [
     "Simple program line"      => ["content" => "Run-Program: myapp.sh", "expected" => "myapp.sh"],
     "Program line with spaces" => ["content" => "Run-Program:   /usr/bin/python  ", "expected" => "/usr/bin/python"],
@@ -121,7 +127,7 @@ foreach ($runCases as $label => $data) {
 
 
 // --- Group: getJobIdFromFile (from share_functions.php) ---
-echo "\n--- Testing: getJobIdFromFile ---\n";
+echo_if_wanted("\n--- Testing: getJobIdFromFile ---\n");
 $jobIdCases = [
     "Valid ID with single quotes" => ["content" => "scancel '12345'", "expected" => "12345"],
     "Valid ID with double quotes" => ["content" => 'scancel "67890"', "expected" => "67890"],
@@ -136,7 +142,7 @@ foreach ($jobIdCases as $label => $data) {
 
 
 // --- Group: Folder Functions ---
-echo "\n--- Testing: Folder Functions ---\n";
+echo_if_wanted("\n--- Testing: Folder Functions ---\n");
 $testPath = create_test_dir([
     "valid-folder"    => ["file.txt" => "hello"],
     "invalid_folder!" => [],       
@@ -166,18 +172,18 @@ if ($testPath) {
 
 
 // --- Group: Security & Edge Cases ---
-echo "\n--- Testing: Security & Edge Cases ---\n";
+echo_if_wanted("\n--- Testing: Security & Edge Cases ---\n");
 expect("getJobIdFromFile: handles non-string", getJobIdFromFile(['not a string']), "");
 expect("get_valid_folders: non-existent path", get_valid_folders("/tmp/missing_" . uniqid()), []);
 
 // --- Group: Encoding ---
-echo "\n--- Testing: Encoding ---\n";
+echo_if_wanted("\n--- Testing: Encoding ---\n");
 $inputArray = ["umlaut" => "äöü", "nested" => ["key" => "ß"]];
 expect("utf8ize: handles umlauts in arrays", utf8ize($inputArray), $inputArray);
 expect("utf8ize: handles plain string", utf8ize("test"), "test");
 
 // --- Group: Path Building ---
-echo "\n--- Testing: Path Building ---\n";
+echo_if_wanted("\n--- Testing: Path Building ---\n");
 expect(
     "build_run_folder_path: generates correct structure", 
     build_run_folder_path("user1", "exp_alpha", "42"), 
@@ -185,13 +191,13 @@ expect(
 );
 
 // --- Group: CSV Processing ---
-echo "\n--- Testing: CSV Normalization ---\n";
+echo_if_wanted("\n--- Testing: CSV Normalization ---\n");
 expect("normalize_csv_value: converts float-integers to string ints", normalize_csv_value("10.000"), "10");
 expect("normalize_csv_value: keeps real floats", normalize_csv_value("10.5"), "10.5");
 expect("normalize_csv_value: handles empty string", normalize_csv_value(""), "");
 
 // --- Group: Data Filtering ---
-echo "\n--- Testing: CSV Time Filtering ---\n";
+echo_if_wanted("\n--- Testing: CSV Time Filtering ---\n");
 $csvData = [
     ["timestamp", "value"],
     ["1000", "A"],
@@ -203,32 +209,32 @@ expect("keep_rows_every_n_seconds: filters correctly", count($filtered), 3); // 
 expect("keep_rows_every_n_seconds: keeps last valid row", $filtered[2][1], "C");
 
 // --- Group: File Validation ---
-echo "\n--- Testing: SVG Validation ---\n";
+echo_if_wanted("\n--- Testing: SVG Validation ---\n");
 $validSvg = '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40"/></svg>';
 $invalidSvg = '<div xmlns="http://www.w3.org/2000/svg">Not an SVG</div>';
 
 expect("is_valid_svg_file: identifies valid SVG", test_file_helper($validSvg, 'is_valid_svg_file'), true);
 expect("is_valid_svg_file: rejects invalid root tag", test_file_helper($invalidSvg, 'is_valid_svg_file'), false);
 
-echo "\n--- Testing: highlight_backticks ---\n";
+echo_if_wanted("\n--- Testing: highlight_backticks ---\n");
 expect("highlight_backticks: wraps text in tt tags", highlight_backticks("Dies ist `code`."), "Dies ist <tt>code</tt>.");
 expect("highlight_backticks: handles multiple backticks", highlight_backticks("`a` and `b`"), "<tt>a</tt> and <tt>b</tt>");
 
-echo "\n--- Testing: convertNewlinesToBr ---\n";
+echo_if_wanted("\n--- Testing: convertNewlinesToBr ---\n");
 $nlText = "Line 1\n\nLine 2\n\n\nLine 3";
 $expectedNl = "Line 1\n<br>Line 2\n<br><br>Line 3"; 
 expect("convertNewlinesToBr: converts double newlines to br", convertNewlinesToBr($nlText), $expectedNl);
 
 // --- Group: File & Directory Logic ---
-echo "\n--- Testing: build_run_folder_path ---\n";
+echo_if_wanted("\n--- Testing: build_run_folder_path ---\n");
 expect("build_run_folder_path: constructs correct path", build_run_folder_path("user1", "expA", 5), "user1/expA/5/");
 
-echo "\n--- Testing: validate_directory ---\n";
+echo_if_wanted("\n--- Testing: validate_directory ---\n");
 $tempDir = sys_get_temp_dir() . '/test_dir_' . uniqid();
 mkdir($tempDir);
 try {
     validate_directory($tempDir);
-    echo "✅ PASS: validate_directory: identifies existing directory\n";
+    echo_if_wanted("✅ PASS: validate_directory: identifies existing directory\n");
 } catch (Exception $e) {
     echo "❌ FAIL: validate_directory: should have found directory\n";
     $failedTests++;
@@ -239,17 +245,17 @@ try {
     echo "❌ FAIL: validate_directory: should have thrown exception for missing dir\n";
     $failedTests++;
 } catch (Exception $e) {
-    echo "✅ PASS: validate_directory: throws exception for missing directory\n";
+    echo_if_wanted("✅ PASS: validate_directory: throws exception for missing directory\n");
 }
 
-echo "\n--- Testing: read_file_as_array ---\n";
+echo_if_wanted("\n--- Testing: read_file_as_array ---\n");
 $fileContent = "Line 1\n  \nLine 2\r\nLine 3";
 $readArray = test_file_helper($fileContent, 'read_file_as_array');
 expect("read_file_as_array: filters empty lines and trims", count($readArray), 3);
 expect("read_file_as_array: correct first element", $readArray[0], "Line 1");
 
 // --- Group: Specialized Parsing ---
-echo "\n--- Testing: get_status_for_results_csv ---\n";
+echo_if_wanted("\n--- Testing: get_status_for_results_csv ---\n");
 $csvContent = "id,name,trial_status\n1,test,completed\n2,test,failed\n3,test,running";
 $statusResult = test_file_helper($csvContent, 'get_status_for_results_csv');
 expect("get_status_for_results_csv: counts succeeded", $statusResult["succeeded"], 1);
@@ -258,7 +264,7 @@ expect("get_status_for_results_csv: counts running", $statusResult["running"], 1
 expect("get_status_for_results_csv: counts total", $statusResult["total"], 3);
 
 // --- Group: HTML Sanitization ---
-echo "\n--- Testing: sanitize_safe_html ---\n";
+echo_if_wanted("\n--- Testing: sanitize_safe_html ---\n");
 $unsafeHtml = "<b>Safe</b><script>alert(1)</script><img src='https://example.com' onclick='bad()'>";
 $safeHtml = sanitize_safe_html($unsafeHtml);
 expect("sanitize_safe_html: removes script tags", strpos($safeHtml, "<script>"), false);

@@ -90,6 +90,83 @@
 			255 => "sbatch error"
 		];
 
+	if (isset($_GET['image'])) {
+		// 1. Requirements check
+		if (!extension_loaded('gd')) {
+			header("HTTP/1.1 404 Not Found");
+			exit;
+		}
+
+		// 2. Find lowest free exit code
+		$suggested_code = null;
+		for ($i = 0; $i <= 255; $i++) {
+			if (!isset($exit_code_info[$i])) {
+				$suggested_code = $i;
+				break;
+			}
+		}
+
+		// 3. Image dimensions & Theme Configuration
+		$is_light  = (isset($_GET['theme']) && $_GET['theme'] === 'light');
+		$block_w   = 3; 
+		$sep_w     = 1;
+		$unit_w    = $block_w + $sep_w;
+		$width     = 256 * $unit_w;
+		$height    = 160; // Extra height for descenders (g, j, p, q, y)
+
+		$img = imagecreatetruecolor($width, $height);
+
+		// 4. Color Palette with exact Hex values
+		if ($is_light) {
+			$bg         = imagecolorallocate($img, 250, 250, 250); // #FAFAFA
+			$text_col   = imagecolorallocate($img, 30, 30, 30);
+			$sep_col    = imagecolorallocate($img, 210, 210, 210);
+			$marker_col = imagecolorallocate($img, 120, 120, 120);
+		} else {
+			$bg         = imagecolorallocate($img, 0, 0, 0);       // #000000
+			$text_col   = imagecolorallocate($img, 220, 220, 220);
+			$sep_col    = imagecolorallocate($img, 50, 50, 50);
+			$marker_col = imagecolorallocate($img, 150, 150, 150);
+		}
+
+		$green = imagecolorallocate($img, 46, 204, 113); // Occupied
+		$red   = imagecolorallocate($img, 231, 76, 60);  // Available
+
+		imagefill($img, 0, 0, $bg);
+
+		// 5. Drawing the Exit Code Space (0-255)
+		for ($i = 0; $i <= 255; $i++) {
+			$x_start = $i * $unit_w;
+			$color = isset($exit_code_info[$i]) ? $green : $red;
+
+			// Main bar (3px wide)
+			imagefilledrectangle($img, $x_start, 55, $x_start + $block_w - 1, 85, $color);
+
+			// Separator (1px wide)
+			imagefilledrectangle($img, $x_start + $block_w, 55, $x_start + $block_w, 85, $sep_col);
+
+			// Axis labels every 20 codes
+			if ($i % 20 === 0) {
+				imageline($img, $x_start, 50, $x_start, 45, $marker_col);
+				imagestring($img, 2, $x_start, 25, (string)$i, $text_col);
+			}
+		}
+
+		// 6. Legend & Suggestion (English)
+		imagestring($img, 2, 10, 105, "Green: Occupied | Red: Available", $text_col);
+
+		if ($suggested_code !== null) {
+			// Positioned with enough vertical space for the 'g' in "Suggested"
+			imagestring($img, 4, 10, 125, "Suggested next free exit code: $suggested_code", $green);
+		}
+
+		// 7. Output
+		header("Content-Type: image/png");
+		imagepng($img);
+		imagedestroy($img);
+		exit;
+	}
+
 		if (isset($_GET["exit_code"])) {
 			$_ec = $_GET["exit_code"];
 

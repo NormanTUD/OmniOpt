@@ -1079,7 +1079,7 @@ EOF
 	if [[ $worker_generator_path != "" ]]; then
 		old_uuid_dir="$worker_generator_path/state_files/run_uuid"
 		if [[ -e $old_uuid_dir ]]; then
-			RUN_UUID=$(cat $old_uuid_dir)
+			RUN_UUID=$(cat "$old_uuid_dir")
 			if [[ -z $SLURM_JOB_ID ]]; then
 				yellow_text "--worker_generator_path defined: $worker_generator_path. Using UUID from that run."
 				yellow_text "Set RUN_UUID to $RUN_UUID"
@@ -1290,7 +1290,7 @@ EOF
 
 				exit $exit_code
 			elif [[ -s "$oo_tmp_file" ]]; then
-				cat $oo_tmp_file
+				cat "$oo_tmp_file"
 			fi
 
 			rm -rf $oo_tmp_dir

@@ -27,6 +27,7 @@ if [[ $exit_code -eq 222 ]]; then
 	green_text "Test test_bash_argparse_clone OK"
 else
 	red_text "Test test_bash_argparse_clone failed"
+	exit 1
 fi
 
-exit $exit_code
+exit 0

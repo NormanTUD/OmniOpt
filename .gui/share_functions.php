@@ -6,6 +6,14 @@
 	require_once '_functions.php';
 	require_once 'results_analyzer.php';
 
+	if(!function_exists("error_log_if_wanted")) {
+		function error_log_if_wanted($str) {
+			if(getenv("IS_RUNNING_UNIT_TESTS") != "1")  {
+				error_log($str);
+			}
+		}
+	}
+
 	if (!function_exists("dier")) {
 		function dier($data, $enable_html = 0, $exception = 0) {
 			$print = "";
@@ -3503,7 +3511,7 @@ $onclick_string
 
 	function getRunProgramFromFile($file) {
 		if (!is_string($file) || strlen(trim($file)) === 0) {
-			error_log("getRunProgramFromFile: Invalid file name provided.");
+			error_log_if_wanted("getRunProgramFromFile: Invalid file name provided.");
 			return "";
 		}
 
@@ -3532,18 +3540,18 @@ $onclick_string
 			if ($result !== "") {
 				return $result;
 			} else {
-				error_log("getRunProgramFromFile: Found Run-Program line, but command is empty.");
+				error_log_if_wanted("getRunProgramFromFile: Found Run-Program line, but command is empty.");
 				return "";
 			}
 		}
 
-		error_log("getRunProgramFromFile: No Run-Program line found in '$file'.");
+		error_log_if_wanted("getRunProgramFromFile: No Run-Program line found in '$file'.");
 		return "";
 	}
 
 	function getJobIdFromFile($file) {
 		if (!is_string($file) || strlen(trim($file)) === 0) {
-			error_log("getJobIdFromFile: Invalid file name provided.");
+			error_log_if_wanted("getJobIdFromFile: Invalid file name provided.");
 			return "";
 		}
 

@@ -13,6 +13,8 @@ if ! command -v php; then
 	exit 0
 fi
 
+export IS_RUNNING_UNIT_TESTS=1
+
 php tests.php
 exit_code=$?
 

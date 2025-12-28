@@ -6,7 +6,7 @@
 require_once 'share_functions.php'; // Includes _functions.php internally
 
 function echo_if_wanted($param) {
-	if(getenv("")) {
+	if(getenv("SHOW_SUCCESS")) {
 		echo $param;
 	}
 }

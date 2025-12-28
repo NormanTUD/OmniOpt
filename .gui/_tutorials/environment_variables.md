@@ -47,7 +47,9 @@ $env_variables = [
         "NO_RUNTIME" => "Don't show omniopt_plot runtime at the end",
         "NO_TESTS" => "Disable tests for .tests/pre-commit-hook",
         "NO_NO_RESULT_ERROR" => "Disable errors to stdout for plots when no results are found",
-        "SHOW_COMMAND_BEFORE_EXECUTION" => "Show the command before execution"
+        "SHOW_COMMAND_BEFORE_EXECUTION" => "Show the command before execution",
+        "SHOW_SUCCESS" => ".tests/php_unit_tests then also shows successes then, set it to 1",
+        "IS_RUNNING_UNIT_TESTS" => ".gui/tests.php: If set, it doesn't print out some warnings that are expected to reduce clutter"
     ]
 ];
 

@@ -236,7 +236,7 @@
 			if [[ "$MODULE" != "$AS_REQUIREMENT_OF" ]] && [[ "$AS_REQUIREMENT_OF" != "-" ]]; then
 				k=0
 
-				for i in $(pip3 install --default-timeout=300 --default-timeout=300 --disable-pip-version-check --dry-run "$MODULE" | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
+				for i in $(pip3 install --no-cache-dir --default-timeout=300 --default-timeout=300 --disable-pip-version-check --dry-run "$MODULE" | grep -v "already satisfied" | grep "Collecting" | sed -e 's#Collecting ##' | grep -v "^$MODULE$"); do
 					if [[ "$i" != "$MODULE" ]]; then
 						if [[ $k -eq 0 ]]; then
 							green_reset_line "${PROGRESSBAR}➤${STR}Installing requirements for $MODULE"

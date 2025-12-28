@@ -58,4 +58,10 @@ fi
 
 <h2 id="fire_and_forget">Start multiple jobs with a bash script, or how to fire-and-forget</h2>
 
+<h2 id="Exit-Codes visualization">Exit-Codes visualization</h2>
+
+<p>This is only important when you want to define new exit-code scenarios and are looking for the lowest available exit code to fill them more evenly.</p>
+
+<img alt="Custom Generation Strategy in GUI" data-lightsrc="exit_code_table.php?image=1&theme=light" data-darksrc="exit_code_table.php?image=1&theme=dark" /><br>
+
 <p>When you want to start multiple jobs, it's recommended to omit the <tt>--follow</tt>-parameter. This way, jobs will get started, but you dont need to wait for them to be finished.</p>

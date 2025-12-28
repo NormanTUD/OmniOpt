@@ -8,7 +8,6 @@ tests=(
 	test_bash_argparse_clone
 	php_unit_tests
 	find_missing_f_strings
-	shellcheck
 	find_functions_with_missing_types
 	find_wrongly_typed_cli_args
 	single_quotes_in_configloader
@@ -44,6 +43,7 @@ tests=(
 	pyright_fast
 	find_typos
 	mypy
+	shellcheck
 )
 
 code=1

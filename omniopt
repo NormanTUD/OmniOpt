@@ -411,7 +411,7 @@
 			fi
 		fi
 
-		exit "$CODE"
+		myexit "$CODE"
 	}
 
 	function get_anon_user_id {
@@ -1091,7 +1091,7 @@ EOF
 					meld "$tmp" "$debug_compare_file" &
 				fi
 			fi
-			exit 221
+			myexit 221
 		fi
 
 		myexit 222
@@ -1982,7 +1982,7 @@ EOF
 								myexit "$exit_code"
 							else
 								echo "WARN: myexit function not found, exiting with code $exit_code"
-								exit "$exit_code"
+								myexit "$exit_code"
 							fi
 						fi
 					else

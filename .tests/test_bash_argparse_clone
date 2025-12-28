@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# HELPPAGE: In OmniOpt, there is a parser that allows to parse argparse-like arguments before python. This tests it's output
+#
 function echoerr() {
 	echo "$@" 1>&2
 }

@@ -546,6 +546,8 @@ omniopt_cmd="$omniopt_cmd --show_generate_time_table"
 if [[ -z "$DONT_SHOW_STARTUP_COMMAND" ]]; then
 	green_text "$omniopt_cmd"
 fi
+
+
 eval "$omniopt_cmd"
 exit_code=$?
 

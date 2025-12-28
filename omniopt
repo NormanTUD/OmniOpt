@@ -1091,10 +1091,10 @@ EOF
 					meld "$tmp" "$debug_compare_file" &
 				fi
 			fi
-			myexit 221
+			exit 221
 		fi
 
-		myexit 222
+		exit 222
 	fi
 
 	eval "$PARAM_EVAL"

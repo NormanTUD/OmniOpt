@@ -279,7 +279,6 @@ function build_omniopt_command_one_param() {
 		fi
 	fi
 
-
 	echo "${cmd[@]}"
 }
 
@@ -544,7 +543,9 @@ fi
 
 omniopt_cmd="$omniopt_cmd --show_generate_time_table"
 
-green_text "$omniopt_cmd"
+if [[ -z "$DONT_SHOW_STARTUP_COMMAND" ]]; then
+	green_text "$omniopt_cmd"
+fi
 eval "$omniopt_cmd"
 exit_code=$?
 

@@ -44,6 +44,7 @@ $env_variables = [
     ],
     "Test-Scripts" => [
         "CREATE_PLOT_HELPS" => "Creates the help files for the tutorials page for each omniopt_plot",
+        "DONT_SHOW_STARTUP_COMMAND" => "Don't show the command to start from start_simple_optimization_run. Set to 1 to hide.",
         "NO_RUNTIME" => "Don't show omniopt_plot runtime at the end",
         "NO_TESTS" => "Disable tests for .tests/pre-commit-hook",
         "NO_NO_RESULT_ERROR" => "Disable errors to stdout for plots when no results are found",

@@ -38,6 +38,9 @@ if [[ $exit_code != 0 ]]; then
 	red_text "At least one PHP-unit test failed Test failed"
 	exit 1
 else
-	green_text "PHP-Unit-Tests OK"
+	if [[ -n ${SHOW_SUCCESS} ]]; then
+		green_text "PHP-Unit-Tests OK"
+	fi
+
 	exit 0
 fi

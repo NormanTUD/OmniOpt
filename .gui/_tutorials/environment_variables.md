@@ -36,7 +36,8 @@ $env_variables = [
         "CI" => "Disables certain tests in a CI environment",
         "PRINT_SEPARATOR" => "Prints a seperator line after OmniOpt2 runs (useful for automated tests)",
         "SKIP_SEARCH" => "Skip the actual search, very useful for debugging",
-        "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job"
+        "SKIP_SEARCH_EXIT_CODE" => "The exit code that should be used for this job",
+        "DEBUG_PARAM_EVAL" => "Tests if the argparse clone for bash works and creates the required arguments. Must be non-empty exported string in your shell to run a test. Please use it mainly over .tests/test_bash_argparse_clone"
     ],
     "Plot-Script" => [
         "BUBBLESIZEINPX" => "Size of bubbles in plot scripts in px"

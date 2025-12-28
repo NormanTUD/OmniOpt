@@ -325,6 +325,7 @@
 		NUMBER_OF_INSTALLED_MODULES=$(get_nr_of_already_installed_modules)
 
 		MAX_PERCENT=100
+		idx_padded="1"
 
 		for key in "${!install_those[@]}"; do
 			idx=$((idx+1))

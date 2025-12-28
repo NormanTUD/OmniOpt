@@ -1074,6 +1074,28 @@ done
 EOF
 	)
 
+	if [[ -n "${DEBUG_PARAM_EVAL}" ]]; then
+		echo "$PARAM_EVAL"
+
+		debug_compare_file=".tests/generated_param_eval_code"
+
+		tmp=$(mktemp)
+		printf '%s\n' "$PARAM_EVAL" | sed -e 's#^\s*##' | sed -e "s/;;\s*--/;;--/" >"$tmp"
+
+		if ! diff -u "$tmp" "$debug_compare_file"; then
+			if [ -n "$DISPLAY" ]; then
+				if command -v kompare >/dev/null; then
+					kompare "$tmp" "$debug_compare_file" &
+				elif command -v meld >/dev/null; then
+					meld "$tmp" "$debug_compare_file" &
+				fi
+			fi
+			exit 221
+		fi
+
+		exit 0
+	fi
+
 	eval "$PARAM_EVAL"
 
 	if [[ $worker_generator_path != "" ]]; then

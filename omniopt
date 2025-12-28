@@ -1075,7 +1075,6 @@ EOF
 	)
 
 	if [[ -n "${DEBUG_PARAM_EVAL}" ]]; then
-		echo "$PARAM_EVAL"
 
 		debug_compare_file=".tests/generated_param_eval_code"
 
@@ -1083,6 +1082,8 @@ EOF
 		printf '%s\n' "$PARAM_EVAL" | sed -e 's#^\s*##' | sed -e "s/;;\s*--/;;--/" >"$tmp"
 
 		if ! diff -u "$tmp" "$debug_compare_file"; then
+			echo "$PARAM_EVAL"
+
 			if [ -n "$DISPLAY" ]; then
 				if command -v kompare >/dev/null; then
 					kompare "$tmp" "$debug_compare_file" &

@@ -6,7 +6,13 @@ cd "$SCRIPT_DIR"
 
 cd ..
 
-.tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=1 --generate_all_jobs_at_once --follow
+NUM_GPUS=0
+
+if command -v nvidia-smi 2>/dev/null >/dev/null; then
+	NUM_GPUS=1
+fi
+
+.tests/start_simple_optimization_run --num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 --mem_gb=1 --generate_all_jobs_at_once --follow --gpus=$NUM_GPUS
 
 exit_code=$?
 

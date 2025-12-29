@@ -29,6 +29,8 @@ import resource
 from urllib.parse import urlencode
 import psutil
 
+IN_TEST_MODE = os.getenv("OO_MAIN_TESTS") == "1"
+
 FORCE_EXIT: bool = False
 
 LAST_LOG_TIME: int = 0
@@ -432,7 +434,8 @@ def makedirs(p: str) -> bool:
         try:
             os.makedirs(p, exist_ok=True)
         except Exception as ee:
-            print(f"Failed to create >{p}<. Error: {ee}")
+            if not IN_TEST_MODE:
+                print(f"Failed to create >{p}<. Error: {ee}")
 
     if os.path.exists(p):
         return True
@@ -2998,7 +3001,8 @@ def get_program_code_from_out_file(f: str) -> str:
         if alt and os.path.exists(alt):
             f = alt
         else:
-            print_red(f"\nget_program_code_from_out_file: {f} not found")
+            if not IN_TEST_MODE:
+                print_red(f"\nget_program_code_from_out_file: {f} not found")
             return ""
 
     fs = get_file_as_string(f)
@@ -4969,7 +4973,8 @@ def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
 
 def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED", "SOBOL"]:
-        print_red(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
+        if not IN_TEST_MODE:
+            print_red(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
         return 0
 
     count = 0
@@ -7698,7 +7703,8 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
                     return hostname
         return None
     except FileNotFoundError:
-        original_print(f"The file '{stdout_path}' was not found.")
+        if not IN_TEST_MODE:
+            original_print(f"The file '{stdout_path}' was not found.")
         return None
     except Exception as e:
         print_red(f"There was an error: {e}")
@@ -11188,8 +11194,6 @@ def run_tests() -> None:
     print_red("This should be red")
     print_yellow("This should be yellow")
     print_green("This should be green")
-
-    print(f"Printing test from current line {get_line_info()}")
 
     nr_errors: int = 0
 

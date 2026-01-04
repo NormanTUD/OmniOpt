@@ -10548,30 +10548,23 @@ def write_live_share_file_if_needed() -> None:
         if args.live_share:
             write_state_file("live_share", "1\n")
 
+def write_file_and_make_sure_dir_exists(file_path: str, text: str) -> None:
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, mode="w", encoding="utf-8") as f:
+            f.write(text)
+    except Exception as e:
+        print_red(f"Error writing '{text}' to file {file_path}: {e}")
+
 def write_username_statefile() -> None:
     with spinner("Writing username state file..."):
         _path = get_current_run_folder()
         if args.username:
-            file_path = f"{_path}/state_files/username"
-
-            try:
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                with open(file_path, mode="w", encoding="utf-8") as f:
-                    f.write(args.username)
-            except Exception as e:
-                print_red(f"Error writing to file: {e}")
+            write_file_and_make_sure_dir_exists(f"{_path}/state_files/username", args.username)
 
 def write_revert_to_random_when_seemingly_exhausted_file() -> None:
     with spinner("Writing revert_to_random_when_seemingly_exhausted file ..."):
-        _path = get_current_run_folder()
-        file_path = f"{_path}/state_files/revert_to_random_when_seemingly_exhausted"
-
-        try:
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, mode="w", encoding="utf-8") as f:
-                f.write("1\n")
-        except Exception as e:
-            print_red(f"Error writing to file: {e}")
+        write_file_and_make_sure_dir_exists(f"{get_current_run_folder()}/state_files/revert_to_random_when_seemingly_exhausted", '1\n')
 
 def debug_vars_unused_by_python_for_linter() -> None:
     print_debug(

@@ -10,6 +10,7 @@
 import sys
 import os
 import signal
+import pickle
 import re
 import math
 import time
@@ -159,8 +160,41 @@ try:
             message="Ax currently requires a sqlalchemy version below 2.0.*",
         )
 
+    with spinner("Importing argparse..."):
+        import argparse
+
+    with spinner("Importing datetime..."):
+        import datetime
+
     with spinner("Importing dataclass..."):
         from dataclasses import dataclass
+
+    with spinner("Importing socket..."):
+        import socket
+
+    with spinner("Importing stat..."):
+        import stat
+
+    with spinner("Importing pwd..."):
+        import pwd
+
+    with spinner("Importing base64..."):
+        import base64
+
+    with spinner("Importing json..."):
+        import json
+
+    with spinner("Importing yaml..."):
+        import yaml
+
+    with spinner("Importing toml..."):
+        import toml
+
+    with spinner("Importing csv..."):
+        import csv
+
+    with spinner("Importing ast..."):
+        import ast
 
     with spinner("Importing rich.table..."):
         from rich.table import Table
@@ -192,15 +226,26 @@ try:
     with spinner("Importing submitit.Job..."):
         from submitit import Job
 
-    with spinner("Importing importlib..."):
+    with spinner("Importing importlib.util..."):
         import importlib.util
-        import importlib
+
+    with spinner("Importing platform..."):
+        import platform
 
     with spinner("Importing inspect frame info..."):
         from inspect import currentframe, getframeinfo
 
     with spinner("Importing pathlib.Path..."):
         from pathlib import Path
+
+    with spinner("Importing uuid..."):
+        import uuid
+
+    with spinner("Importing cowsay..."):
+        import cowsay
+
+    with spinner("Importing shutil..."):
+        import shutil
 
     with spinner("Importing itertools.combinations..."):
         from itertools import combinations
@@ -214,6 +259,12 @@ try:
     with spinner("Importing PIL.Image..."):
         from PIL import Image
 
+    with spinner("Importing sixel..."):
+        import sixel
+
+    with spinner("Importing subprocess..."):
+        import subprocess
+
     with spinner("Importing tqdm..."):
         from tqdm import tqdm
 
@@ -223,20 +274,15 @@ try:
     with spinner("Importing rendering stuff..."):
         from ax.plot.base import AxPlotConfig
 
+    with spinner("Importing statistics..."):
+        import statistics
+
     with spinner("Trying to import pyfiglet..."):
         try:
             from pyfiglet import Figlet
             figlet_loaded = True
         except ModuleNotFoundError:
             figlet_loaded = False
-
-    modules_to_be_imported = ["argparse", "datetime", "socket", "stat", "pwd", "base64", "yaml", "json", "toml", "csv", "ast", "platform", "uuid", "cowsay", "shutil", "sixel", "subprocess", "statistics", "pickle"]
-    if False:
-        import argparse, datetime, socket, stat, pwd, base64, yaml, json, toml, csv, ast, platform, uuid, cowsay, shutil, sixel, subprocess, statistics, pickle  # noqa: E401,F401
-    for mod in modules_to_be_imported:
-        with spinner(f"Importing {mod}..."):
-            globals()[mod] = importlib.import_module(mod)
-
 except ModuleNotFoundError as e:
     print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
     print("Exit-Code: 4")

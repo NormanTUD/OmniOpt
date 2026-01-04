@@ -434,8 +434,7 @@ def makedirs(p: str) -> bool:
         try:
             os.makedirs(p, exist_ok=True)
         except Exception as ee:
-            if not IN_TEST_MODE:
-                print(f"Failed to create >{p}<. Error: {ee}")
+            print_red_if_not_in_test_mode(f"Failed to create >{p}<. Error: {ee}")
 
     if os.path.exists(p):
         return True
@@ -742,12 +741,23 @@ def print_yellow(text: str) -> None:
 
     print_debug(text)
 
+def print_yellow_if_not_in_test_mode(text: str) -> None:
+    if not IN_TEST_MODE:
+        print_yellow(text)
+
+def print_red_if_not_in_test_mode(text: str) -> None:
+    if not IN_TEST_MODE:
+        print_red(text)
+
+def original_print_if_not_in_test_mode(text: str) -> None:
+    if not IN_TEST_MODE:
+        original_print(text)
+
 def get_min_max_from_file(continue_path: str, n: int, _default_min_max: str) -> str:
     path = f"{continue_path}/result_min_max.txt"
 
     if not os.path.exists(path):
-        if not IN_TEST_MODE:
-            print_yellow(f"File '{path}' not found, will use {_default_min_max}")
+        print_yellow_if_not_in_test_mode(f"File '{path}' not found, will use {_default_min_max}")
         return _default_min_max
 
     with open(path, encoding="utf-8", mode='r') as file:
@@ -3002,8 +3012,7 @@ def get_program_code_from_out_file(f: str) -> str:
         if alt and os.path.exists(alt):
             f = alt
         else:
-            if not IN_TEST_MODE:
-                print_red(f"\nget_program_code_from_out_file: {f} not found")
+            print_red_if_not_in_test_mode(f"\nget_program_code_from_out_file: {f} not found")
             return ""
 
     fs = get_file_as_string(f)
@@ -4974,8 +4983,7 @@ def get_best_params(res_name: str = "RESULT") -> Optional[dict]:
 
 def _count_sobol_or_completed(this_csv_file_path: str, _type: str) -> int:
     if _type not in ["Sobol", "COMPLETED", "SOBOL"]:
-        if not IN_TEST_MODE:
-            print_red(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
+        print_red_if_not_in_test_mode(f"_type is not in Sobol, SOBOL or COMPLETED, but is '{_type}'")
         return 0
 
     count = 0
@@ -7704,8 +7712,7 @@ def get_hostname_from_outfile(stdout_path: Optional[str]) -> Optional[str]:
                     return hostname
         return None
     except FileNotFoundError:
-        if not IN_TEST_MODE:
-            original_print(f"The file '{stdout_path}' was not found.")
+        original_print_if_not_in_test_mode(f"The file '{stdout_path}' was not found.")
         return None
     except Exception as e:
         print_red(f"There was an error: {e}")

@@ -84,7 +84,7 @@ jobs:
         ./.tests/linter --check_only_changed_since_last_success
 
   install-via-pip:
-    needs: [smoke-tests]
+    needs: [smoke-tests, Linter]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -123,7 +123,7 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
-    needs: [smoke-tests]
+    needs: [smoke-tests, Linter]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:
@@ -203,7 +203,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [linter, docker-test, main-test, install-via-pip]
+    needs: [linter, docker-test, main-test, install-via-pip, Linter]
     permissions:
       contents: read
     environment: Production

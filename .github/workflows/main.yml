@@ -102,7 +102,7 @@ jobs:
       run: |
         .tests/install_via_pip
   docker-test:
-    needs: [smoke-tests]
+    needs: [smoke-tests, Linter]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:

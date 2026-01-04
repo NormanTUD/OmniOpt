@@ -48,43 +48,12 @@ jobs:
       run: |
         .tests/smoke_tests
 
-  Linter:
-    needs: [smoke-tests]
-
-    strategy:
-      fail-fast: true
-    runs-on: "ubuntu-latest"
-    environment: Production
-
-    permissions:
-      contents: write
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        tags: true
-
-    - name: Install dependencies
-      run: |
-        .tools/ci_dependency
-
-    - name: Creating virtualenv
-      run: |
-        python3 -mvenv $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')
-        source $HOME/.omniax_$(uname -m)_Python_$(python3 --version | sed -e 's#Python ##')/bin/activate
-
-        if command -v brew; then
-          pip install psycopg2-binary
-        fi
-
     - name: Run linter
       run: |
         ./.tests/linter --check_only_changed_since_last_success
 
   install-via-pip:
-    needs: [smoke-tests, Linter]
+    needs: [smoke-tests]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -102,7 +71,7 @@ jobs:
       run: |
         .tests/install_via_pip
   docker-test:
-    needs: [smoke-tests, Linter]
+    needs: [smoke-tests]
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -123,7 +92,7 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
-    needs: [smoke-tests, Linter]
+    needs: [smoke-tests]
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:
@@ -203,7 +172,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [linter, docker-test, main-test, install-via-pip, Linter]
+    needs: [linter, docker-test, main-test, install-via-pip]
     permissions:
       contents: read
     environment: Production

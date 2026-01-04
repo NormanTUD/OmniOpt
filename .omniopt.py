@@ -8560,8 +8560,6 @@ def calculate_nr_of_jobs_to_get(simulated_jobs: int, currently_running_jobs: int
     )
 
 def remove_extra_spaces(text: str) -> str:
-    if not isinstance(text, str):
-        raise ValueError("Input must be a string")
     return re.sub(r'\s+', ' ', text).strip()
 
 def get_trials_message(nr_of_jobs_to_get: int, full_nr_of_jobs_to_get: int, trial_durations: List[float]) -> str:

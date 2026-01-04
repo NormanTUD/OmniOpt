@@ -172,7 +172,7 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [linter, docker-test, main-test, install-via-pip]
+    needs: [docker-test, main-test, install-via-pip]
     permissions:
       contents: read
     environment: Production

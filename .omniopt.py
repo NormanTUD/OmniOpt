@@ -10558,9 +10558,8 @@ def write_file_and_make_sure_dir_exists(file_path: str, text: str) -> None:
 
 def write_username_statefile() -> None:
     with spinner("Writing username state file..."):
-        _path = get_current_run_folder()
         if args.username:
-            write_file_and_make_sure_dir_exists(f"{_path}/state_files/username", args.username)
+            write_file_and_make_sure_dir_exists(f"{get_current_run_folder()}/state_files/username", args.username)
 
 def write_revert_to_random_when_seemingly_exhausted_file() -> None:
     with spinner("Writing revert_to_random_when_seemingly_exhausted file ..."):

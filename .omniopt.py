@@ -10,7 +10,6 @@
 import sys
 import os
 import signal
-import pickle
 import re
 import math
 import time
@@ -231,9 +230,9 @@ try:
         except ModuleNotFoundError:
             figlet_loaded = False
 
-    modules_to_be_imported = ["argparse", "datetime", "socket", "stat", "pwd", "base64", "yaml", "json", "toml", "csv", "ast", "platform", "uuid", "cowsay", "shutil", "sixel", "subprocess", "statistics"]
+    modules_to_be_imported = ["argparse", "datetime", "socket", "stat", "pwd", "base64", "yaml", "json", "toml", "csv", "ast", "platform", "uuid", "cowsay", "shutil", "sixel", "subprocess", "statistics", "pickle"]
     if False:
-        import argparse, datetime, socket, stat, pwd, base64, yaml, json, toml, csv, ast, platform, uuid, cowsay, shutil, sixel, subprocess, statistics  # noqa: E401,F401
+        import argparse, datetime, socket, stat, pwd, base64, yaml, json, toml, csv, ast, platform, uuid, cowsay, shutil, sixel, subprocess, statistics, pickle  # noqa: E401,F401
     for mod in modules_to_be_imported:
         with spinner(f"Importing {mod}..."):
             globals()[mod] = importlib.import_module(mod)

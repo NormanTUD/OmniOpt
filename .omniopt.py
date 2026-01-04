@@ -1955,7 +1955,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
             temp_dir_counter = temp_dir_counter + 1
             temp_dir = os.path.join(get_current_run_folder(), "external_generator_tmp", str(temp_dir_counter))
 
-        os.makedirs(temp_dir, exist_ok=True)
+        makedirs(temp_dir)
 
         print_debug(f"Created temporary directory: {temp_dir}")
 
@@ -3804,7 +3804,7 @@ class MonitorProcess:
                 if crf and crf != "":
                     log_file_path = os.path.join(crf, "eval_nodes_cpu_ram_logs.txt")
 
-                    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+                    makedirs(os.path.dirname(log_file_path))
 
                     with open(log_file_path, mode="a", encoding="utf-8") as log_file:
                         hostname = socket.gethostname()
@@ -5974,7 +5974,7 @@ def set_experiment_constraints(experiment_constraints: Optional[list], experimen
 
                 file_path = os.path.join(get_current_run_folder(), "state_files", "constraints")
 
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                makedirs(os.path.dirname(file_path))
 
                 with open(file_path, "a", encoding="utf-8") as f:
                     f.write(constraints_string + "\n")
@@ -10246,7 +10246,7 @@ def set_arg_min_or_max_if_required(path_to_calculate: str) -> None:
 def get_calculated_frontier(path_to_calculate: str, metric_x: str, metric_y: str, x_minimize: bool, y_minimize: bool, res_names: list) -> Any:
     try:
         state_dir = os.path.join(get_current_run_folder(), "state_files")
-        os.makedirs(state_dir, exist_ok=True)
+        makedirs(state_dir)
 
         json_file = os.path.join(state_dir, "pareto_front_data.json")
 
@@ -10513,7 +10513,7 @@ def write_files_and_show_overviews() -> None:
 def write_git_version() -> None:
     with spinner("Writing git information"):
         folder = get_current_run_folder()
-        os.makedirs(folder, exist_ok=True)
+        makedirs(folder)
         file_path = os.path.join(folder, "git_version")
 
         try:
@@ -10550,7 +10550,7 @@ def write_live_share_file_if_needed() -> None:
 
 def write_file_and_make_sure_dir_exists(file_path: str, text: str) -> None:
     try:
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        makedirs(os.path.dirname(file_path))
         with open(file_path, mode="w", encoding="utf-8") as f:
             f.write(text)
     except Exception as e:

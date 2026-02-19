@@ -44,4 +44,41 @@ if [[ $got_nr_arm_evals -ne $wanted_nr_arm_evals ]]; then
 	exit 5
 fi
 
+wanted_nr_subfolder=2
+got_nr_subfolders=$(ls "$RUN/arm_evals" | wc -l)
+
+if [[ $wanted_nr_subfolder != $got_nr_subfolders ]]; then
+	echo "Wanted $wanted_nr_subfolder in $RUN/arm_evals, but got $got_nr_subfolders"
+
+	echo "=============== -> ls $RUN/arm_evals ->"
+	ls "$RUN/arm_evals"
+	echo "==============="
+	exit 6
+fi
+
+wanted_nr_subfolder=2
+got_nr_subfolders=$(ls "$RUN/arm_evals/0" | wc -l)
+
+if [[ $wanted_nr_subfolder != $got_nr_subfolders ]]; then
+	echo "Wanted $wanted_nr_subfolder in $RUN/arm_evals/0, but got $got_nr_subfolders"
+
+	echo "=============== -> ls $RUN/arm_evals/0 ->"
+	ls "$RUN/arm_evals/0"
+	echo "==============="
+	exit 7
+fi
+
+for i in 0 1; do
+	for j in 0 1; do
+		BASE_PATH="$RUN/arm_evals/$i/$j"
+
+		for file in exit_code.txt stderr.txt stdout.txt; do
+			if [[ ! -e "$BASE_PATH/$file" ]]; then
+				echo "$BASE_PATH/$file did not exist"
+				exit 8
+			fi
+		done
+	done
+done
+
 exit 0

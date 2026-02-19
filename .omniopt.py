@@ -4691,160 +4691,117 @@ def _compute_arm_eval_mean_and_sem(all_results: List[dict]) -> dict:
 
     return final
 
+def _run_single_evaluation(parameters, program_string, trial_index, submit_time, queue_time):
+    """Handles logic for a single trial execution."""
+    start_time = int(time.time())
+    stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string)
+    original_print(stderr)
+    end_time = int(time.time())
+
+    result = get_results_with_occ(stdout)
+    final_result = _evaluate_handle_result(stdout, result, parameters)
+
+    _evaluate_print_stuff(
+        parameters, program_string, stdout, stderr, exit_code, _signal,
+        result, start_time, end_time, end_time - start_time,
+        final_result, trial_index, submit_time, queue_time
+    )
+    return final_result
+
+def _aggregate_multi_results(all_sub_results, return_in_case_of_error):
+    """Computes mean, SEM, and handles OCC logic for multiple results."""
+    if not all_sub_results:
+        return return_in_case_of_error
+
+    # Base aggregation (Mean and SEM)
+    aggregated = _compute_arm_eval_mean_and_sem(all_sub_results)
+
+    # OCC Logic branch
+    if args.occ and len(arg_result_names) > 1:
+        occ_values = [
+            float(calculate_occ([res[k] for k in arg_result_names if k in res]))
+            for res in all_sub_results
+        ]
+        occ_values = [v for v in occ_values if v != VAL_IF_NOTHING_FOUND]
+
+        if not occ_values:
+            return return_in_case_of_error
+
+        occ_mean = statistics.mean(occ_values)
+        if len(occ_values) > 1:
+            occ_sem = statistics.stdev(occ_values) / math.sqrt(len(occ_values))
+            return {name: (occ_mean, occ_sem) for name in arg_result_names}
+        return {name: occ_mean for name in arg_result_names}
+
+    return aggregated
+
+def _run_multi_evaluation(parameters, program_string, nr_evals, trial_index, submit_time, queue_time, return_in_case_of_error):
+    """Executes the sub-eval loop and persists results."""
+    all_sub_results = []
+    overall_start_time = int(time.time())
+    original_print(f"Running {nr_evals} sub-evaluations for trial {trial_index}...")
+
+    for sub_nr in range(nr_evals):
+        sub_folder = os.path.join(get_current_run_folder(), "arm_evals", str(trial_index), str(sub_nr))
+        makedirs(sub_folder)
+
+        stdout, stderr, exit_code, _ = execute_bash_code_log_time(program_string)
+        original_print(stderr)
+        _save_sub_eval_outputs(sub_folder, stdout, stderr, exit_code)
+
+        raw_result = get_results(stdout)
+        original_print(f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}\n{stdout}")
+
+        if isinstance(raw_result, dict) and all(v is not None and isinstance(v, (int, float)) for v in raw_result.values()):
+            all_sub_results.append(raw_result)
+            _save_arm_eval_to_csv(trial_index, sub_nr, raw_result)
+        else:
+            original_print(f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index} failed")
+
+    overall_end_time = int(time.time())
+    final_result = _aggregate_multi_results(all_sub_results, return_in_case_of_error)
+
+    if all_sub_results:
+        original_print(f"Aggregated result for trial {trial_index}: {format_result_for_display(final_result)}")
+    else:
+        original_print(f"All {nr_evals} sub-evals for trial {trial_index} failed")
+
+    write_job_infos_csv(
+        parameters, None, program_string, 0, None, final_result,
+        overall_start_time, overall_end_time, overall_end_time - overall_start_time,
+        trial_index, submit_time, queue_time
+    )
+    return final_result
+
 def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]]:
     parameters = parameters_with_trial_index["params"]
     trial_index = parameters_with_trial_index["trial_idx"]
     submit_time = parameters_with_trial_index["submit_time"]
 
     print(f'Trial-Index: {trial_index}')
-
     queue_time = abs(int(time.time()) - int(submit_time))
 
     start_nvidia_smi_thread()
-    return_in_case_of_error: dict = get_return_in_case_of_errors()
-
+    return_in_case_of_error = get_return_in_case_of_errors()
     _test_gpu = test_gpu_before_evaluate(return_in_case_of_error)
-    final_result: Optional[Union[int, float, Dict[str, Optional[Union[int, float, Tuple]]], List[float]]] = return_in_case_of_error
+    final_result = return_in_case_of_error
 
     if _test_gpu is None:
         parameters = _evaluate_preprocess_parameters(parameters)
         ignore_signals()
         signal_messages = _evaluate_create_signal_map()
-
         nr_evals = args.nr_evals_per_arm
 
         try:
             if args.raise_in_eval:
                 raise SignalUSR("Raised in eval")
 
-            program_string_with_params: str = replace_parameters_in_string(
-                parameters,
-                global_vars["joined_run_program"]
-            )
+            program_string = replace_parameters_in_string(parameters, global_vars["joined_run_program"])
 
             if nr_evals <= 1:
-                # ---- ORIGINAL single-eval path (unchanged) ----
-                start_time: int = int(time.time())
-
-                stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string_with_params)
-
-                original_print(stderr)
-
-                end_time: int = int(time.time())
-
-                result = get_results_with_occ(stdout)
-
-                final_result = _evaluate_handle_result(stdout, result, parameters)
-
-                _evaluate_print_stuff(
-                    parameters,
-                    program_string_with_params,
-                    stdout,
-                    stderr,
-                    exit_code,
-                    _signal,
-                    result,
-                    start_time,
-                    end_time,
-                    end_time - start_time,
-                    final_result,
-                    trial_index,
-                    submit_time,
-                    queue_time
-                )
-
+                final_result = _run_single_evaluation(parameters, program_string, trial_index, submit_time, queue_time)
             else:
-                # ---- MULTI-eval path: run program nr_evals times ----
-                all_sub_results: List[dict] = []
-                overall_start_time: int = int(time.time())
-
-                original_print(f"Running {nr_evals} sub-evaluations for trial {trial_index}...")
-
-                for sub_nr in range(nr_evals):
-                    # Create sub-folder: <run_folder>/arm_evals/<trial_index>/<sub_nr>/
-                    sub_folder = os.path.join(
-                        get_current_run_folder(), "arm_evals",
-                        str(trial_index), str(sub_nr)
-                    )
-                    makedirs(sub_folder)
-
-                    # Execute the program
-                    stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string_with_params)
-                    original_print(stderr)
-
-                    # Persist per-sub-run outputs
-                    _save_sub_eval_outputs(sub_folder, stdout, stderr, exit_code)
-
-                    # Extract raw result dict (before OCC)
-                    raw_result = get_results(stdout)
-
-                    if nr_evals > 1:
-                        original_print(
-                            f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}"
-                        )
-
-                    original_print(stdout)
-
-                    if raw_result is not None and isinstance(raw_result, dict):
-                        all_valid = all(
-                            v is not None and isinstance(v, (int, float))
-                            for v in raw_result.values()
-                        )
-                        if all_valid:
-                            all_sub_results.append(raw_result)
-                        _save_arm_eval_to_csv(trial_index, sub_nr, raw_result)
-                    else:
-                        original_print(
-                            f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial "
-                            f"{trial_index} returned no valid result"
-                        )
-
-                overall_end_time: int = int(time.time())
-
-                if all_sub_results:
-                    # Compute mean and SEM across successful sub-evaluations
-                    aggregated = _compute_arm_eval_mean_and_sem(all_sub_results)
-
-                    # If OCC is enabled, compute OCC on per-sub-eval raw values,
-                    # then average the OCC scalars
-                    if args.occ and len(arg_result_names) > 1:
-                        occ_values = []
-                        for sub_res in all_sub_results:
-                            vals = [sub_res[k] for k in arg_result_names if k in sub_res]
-                            occ_val = calculate_occ(vals)
-                            if occ_val != VAL_IF_NOTHING_FOUND:
-                                occ_values.append(float(occ_val))
-                        if occ_values:
-                            occ_mean = statistics.mean(occ_values)
-                            if len(occ_values) > 1:
-                                occ_sem = statistics.stdev(occ_values) / math.sqrt(len(occ_values))
-                                final_result = {name: (occ_mean, occ_sem) for name in arg_result_names}
-                            else:
-                                final_result = {name: occ_mean for name in arg_result_names}
-                        else:
-                            final_result = return_in_case_of_error
-                    else:
-                        final_result = aggregated
-
-                    original_print(
-                        f"Aggregated result for trial {trial_index} "
-                        f"({len(all_sub_results)}/{nr_evals} successful): "
-                        f"{format_result_for_display(final_result)}"
-                    )
-                else:
-                    final_result = return_in_case_of_error
-                    original_print(
-                        f"All {nr_evals} sub-evals for trial {trial_index} failed"
-                    )
-
-                # Write one aggregated row to job_infos.csv
-                write_job_infos_csv(
-                    parameters, None, program_string_with_params,
-                    0, None, final_result,
-                    overall_start_time, overall_end_time,
-                    overall_end_time - overall_start_time,
-                    trial_index, submit_time, queue_time
-                )
+                final_result = _run_multi_evaluation(parameters, program_string, nr_evals, trial_index, submit_time, queue_time, return_in_case_of_error)
 
         except tuple(signal_messages.values()) as sig:
             signal_name = get_signal_name(sig, signal_messages)

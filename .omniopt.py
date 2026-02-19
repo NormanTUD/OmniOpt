@@ -4734,7 +4734,7 @@ def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], 
 
     return aggregated
 
-def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_evals: int, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float], return_in_case_of_error: dict[str, Union[float, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
+def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_evals: int, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float], return_in_case_of_error: dict[str, Union[float, int, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Executes the sub-eval loop and persists results."""
     all_sub_results = []
     overall_start_time = int(time.time())

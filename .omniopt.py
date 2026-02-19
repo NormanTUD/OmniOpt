@@ -215,7 +215,7 @@ try:
         from types import FunctionType
 
     with spinner("Importing typing..."):
-        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
+        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type, Mapping
 
     with spinner("Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -4708,7 +4708,7 @@ def _run_single_evaluation(parameters: dict[str, Any], program_string: str, tria
     )
     return final_result
 
-def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], return_in_case_of_error: dict[str, float]) -> dict[str, Union[float, Tuple[float, float]]]:
+def _aggregate_multi_results(all_sub_results: List[Dict[str, Optional[float]]], return_in_case_of_error: Dict[str, float]) -> Mapping[str, Union[float, Tuple[float, float]]]:
     """Computes mean, SEM, and handles OCC logic for multiple results."""
     if not all_sub_results:
         return return_in_case_of_error

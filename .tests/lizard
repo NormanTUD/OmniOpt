@@ -24,7 +24,8 @@ if command -v lizard 2>/dev/null >/dev/null; then
 		echo "Lizard: OK"
 	fi
 else
-	pip install lizard && bash .test/lizard
+	pip install lizard
+	echo "Run lizard again"
 fi
 
 exit $exit_code

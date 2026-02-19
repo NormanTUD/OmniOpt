@@ -81,4 +81,13 @@ for i in 0 1; do
 	done
 done
 
+if ! egrep -q "^arm_nr,sub_arm_nr,RESULT1,RESULT2$" "$RUN/arm_evals_results.csv"; then
+	echo "$RUN/arm_evals_results.csv does not contain 'arm_evals_results.csv'"
+
+	echo "=============== -> cat $RUN/arm_evals_results.csv ->"
+	cat "$RUN/arm_evals_results.csv"
+	echo "==============="
+
+fi
+
 exit 0

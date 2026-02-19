@@ -4353,7 +4353,7 @@ def _write_job_infos_csv_build_headline(parameters_keys: List[str], extra_vars_n
         *extra_vars_names
     ]
 
-def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]]) -> List[str]:
+def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Union[Optional[float], Tuple[float, float]]], List[float], int, float]]) -> List[str]:
     result_values: List[str] = []
 
     if isinstance(result, list):
@@ -4708,7 +4708,7 @@ def _run_single_evaluation(parameters: dict[str, Any], program_string: str, tria
     )
     return final_result
 
-def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], return_in_case_of_error: dict[str, Union[float, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
+def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], return_in_case_of_error: dict[str, Union[float, int, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Computes mean, SEM, and handles OCC logic for multiple results."""
     if not all_sub_results:
         return return_in_case_of_error

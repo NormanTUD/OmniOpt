@@ -4360,7 +4360,7 @@ def _write_job_infos_csv_result_to_strlist(result: Optional[Union[Dict[str, Unio
         for rkey in result:
             result_values.append(str(rkey))
     elif isinstance(result, dict):
-        for _rkey, rval in result.items():  # type: str, Optional[float]
+        for _rkey, rval in result.items():  # type: str, float | tuple[float, float] | None
             result_values.append(str(rval))
     elif result is not None:  # int or float
         result_values.append(str(result))

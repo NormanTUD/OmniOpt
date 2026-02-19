@@ -1,0 +1,47 @@
+#!/bin/bash
+
+TESTNAME=multiple_evals_per_arm
+RUNDIR="runs/$TESTNAME"
+if [[ -d $RUNDIR ]]; then
+	rm -rf $RUNDIR
+fi
+
+.tests/start_simple_optimization_run --max_eval=2 --num_parallel_jobs=1 --revert_to_random_when_seemingly_exhausted --generate_all_jobs_at_once --alternate_min_max --num_random_steps=1 --time=1200 --additional_parameter="--nr_evals_per_arm=2" --nr_results=2 --testname="$TESTNAME"
+exit_code=$?
+
+if [[ $exit_code != 0 ]]; then
+	echo "Running OmniOpt itself failed"
+	exit 1
+fi
+
+RUN="$RUNDIR/0"
+
+if [[ ! "$RUN" ]]; then
+	echo "$RUN did not exist"
+	exit 2
+fi
+
+if [[ ! -d "$RUN/arm_evals" ]]; then
+	echo "$RUN/arm_evals did not exist"
+	exit 3
+fi
+
+if [[ ! -e "$RUN/arm_evals_results.csv" ]]; then
+	echo "$RUN/arm_evals_results.csv did not exist"
+	exit 4
+fi
+
+got_nr_arm_evals=$(cat "$RUN/arm_evals_results.csv" | wc  -l)
+wanted_nr_arm_evals=5
+
+if [[ $got_nr_arm_evals -ne $wanted_nr_arm_evals ]]; then
+	echo "$RUN/arm_evals_results.csv should have $wanted_nr_arm_evals lines but has $got_nr_arm_evals"
+
+	echo "=============== -> cat $RUN/arm_evals_results.csv ->"
+	cat "$RUN/arm_evals_results.csv"
+	echo "==============="
+
+	exit 5
+fi
+
+exit 0

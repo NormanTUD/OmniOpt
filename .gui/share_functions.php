@@ -3640,4 +3640,49 @@ $onclick_string
 
 		return "";
 	}
+
+	function add_arm_distribution_tab($tabs, $warnings, $run_dir) {
+		$arm_evals_file = "$run_dir/arm_evals_results.csv";
+
+		if (!is_file($arm_evals_file)) {
+			$warnings[] = "$arm_evals_file does not exist";
+			return [$tabs, $warnings];
+		}
+
+		if (!filesize($arm_evals_file)) {
+			$warnings[] = "$arm_evals_file is empty";
+			return [$tabs, $warnings];
+		}
+
+		if (!is_ascii_or_utf8($arm_evals_file)) {
+			$warnings[] = "$arm_evals_file is not ASCII or UTF-8";
+			return [$tabs, $warnings];
+		}
+
+		$csv_contents = get_csv_data_as_array($arm_evals_file);
+
+		if (count($csv_contents) < 2) {
+			$warnings[] = "$arm_evals_file has no data rows";
+			return [$tabs, $warnings];
+		}
+
+		$arm_headers = $csv_contents[0];
+		$arm_data = $csv_contents;
+		array_shift($arm_data);
+
+		$GLOBALS["json_data"]["arm_evals_headers_json"] = $arm_headers;
+		$GLOBALS["json_data"]["arm_evals_csv_json"]     = $arm_data;
+
+		$html  = '<div class="invert_in_dark_mode" id="plotArmDistribution"></div>';
+
+		$svg_icon = get_icon_html("distribution.svg");
+
+		$tabs["{$svg_icon}Arm-Distribution"] = [
+			'id'      => 'tab_arm_distribution',
+			'content' => $html,
+			'onclick' => 'plotArmDistribution();'
+		];
+
+		return [$tabs, $warnings];
+	}
 ?>

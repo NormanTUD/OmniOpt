@@ -110,6 +110,7 @@
 			<?php js("js/plot_parameter_distribution_by_status.js"); ?>
 			<?php js("js/pareto_from_idxs.js"); ?>
 			<?php js("js/share_functions.js"); ?>
+			<?php js("js/arm_distribution.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php

@@ -4691,7 +4691,7 @@ def _compute_arm_eval_mean_and_sem(all_results: List[dict]) -> dict:
 
     return final
 
-def _run_single_evaluation(parameters, program_string, trial_index, submit_time, queue_time):
+def _run_single_evaluation(parameters: dict[str, Any], program_string: str, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float]) -> dict[str, Optional[Union[float, Tuple[float, float]]]]:
     """Handles logic for a single trial execution."""
     start_time = int(time.time())
     stdout, stderr, exit_code, _signal = execute_bash_code_log_time(program_string)
@@ -4708,7 +4708,7 @@ def _run_single_evaluation(parameters, program_string, trial_index, submit_time,
     )
     return final_result
 
-def _aggregate_multi_results(all_sub_results, return_in_case_of_error):
+def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], return_in_case_of_error: dict[str, float]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Computes mean, SEM, and handles OCC logic for multiple results."""
     if not all_sub_results:
         return return_in_case_of_error
@@ -4735,7 +4735,7 @@ def _aggregate_multi_results(all_sub_results, return_in_case_of_error):
 
     return aggregated
 
-def _run_multi_evaluation(parameters, program_string, nr_evals, trial_index, submit_time, queue_time, return_in_case_of_error):
+def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_evals: int, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float], return_in_case_of_error: dict[str, float]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Executes the sub-eval loop and persists results."""
     all_sub_results = []
     overall_start_time = int(time.time())

@@ -134,7 +134,8 @@
 					],
 					'add_worker_cpu_ram_from_file' => [
 						["$run_dir/eval_nodes_cpu_ram_logs.txt", "CPU/RAM-Usage (worker)", "tab_worker_cpu_ram_graphs"]
-					]
+					],
+					'add_arm_distribution_tab' => [["$run_dir"]]
 				];
 
 				try {

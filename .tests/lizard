@@ -24,7 +24,7 @@ if command -v lizard 2>/dev/null >/dev/null; then
 		echo "Lizard: OK"
 	fi
 else
-	echo "Warning: lizard is not installed. Cannot run lizard"
+	pip install lizard && bash .test/lizard
 fi
 
 exit $exit_code

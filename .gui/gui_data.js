@@ -505,6 +505,14 @@ var hiddenTableData = [
 		min: 1
 	},
 	{
+		label: "Nr. of Evals per Arm",
+		id: "nr_evals_per_arm",
+		type: "number",
+		value: 50,
+		info: "Number of evaluations per arm (hyperparameter combination) to check deviation from random initialization.",
+		min: 1
+	},
+	{
 		label: "Max nr. of zero results",
 		id: "max_nr_of_zero_results",
 		type: "number",

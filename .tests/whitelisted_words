@@ -3069,3 +3069,6 @@ ints
 newlines
 tt
 importlib
+stdouttxt
+stderrtxt
+dicts

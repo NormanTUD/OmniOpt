@@ -2041,21 +2041,35 @@
 
 	function create_new_folder($user_id, $experiment_name) {
 		$i = 0;
+		$basePath = $GLOBALS["sharesPath"] . "/$user_id/$experiment_name";
 
-		$newFolder = $GLOBALS["sharesPath"] . "/$user_id/$experiment_name/$i";
+		while (true) {
+			$newFolder = "$basePath/$i";
 
-		do {
-			$newFolder = $GLOBALS["sharesPath"]. "/$user_id/$experiment_name/$i";
+			// Check if it exists first to avoid unnecessary warning suppression
+			if (!file_exists($newFolder)) {
+				// @ is used to suppress the PHP warning because we handle the result manually
+				if (@mkdir($newFolder, 0777, true)) {
+					return $newFolder;
+				}
+
+				// If mkdir failed, but the folder now exists, another process beat us to it.
+				// In that case, we simply let the loop continue to the next index.
+				if (!file_exists($newFolder)) {
+					// If it still doesn't exist, it's a real permission or system error.
+					error_log("Failed to create directory at $newFolder due to system permissions.");
+					exit(1);
+				}
+			}
+
 			$i++;
-		} while (file_exists($newFolder));
 
-		try {
-			mkdir($newFolder, 0777, true);
-		} catch (Exception $e) {
-			print("Error trying to create directory $newFolder. Error:\n\n$e\n\n");
-			exit(1);
+			// Safety break to prevent infinite loops in extreme cases
+			if ($i > 1000) {
+				error_log("Directory creation limit reached for $basePath.");
+				exit(1);
+			}
 		}
-		return $newFolder;
 	}
 
 	function search_for_hash_file($directory, $new_upload_md5, $userFolder) {

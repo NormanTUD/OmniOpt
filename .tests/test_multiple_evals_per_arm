@@ -1,12 +1,13 @@
 #!/bin/bash
 
 TESTNAME=multiple_evals_per_arm
+
 RUNDIR="runs/$TESTNAME"
 if [[ -d $RUNDIR ]]; then
 	rm -rf $RUNDIR
 fi
 
-.tests/start_simple_optimization_run --max_eval=2 --num_parallel_jobs=1 --revert_to_random_when_seemingly_exhausted --generate_all_jobs_at_once --alternate_min_max --num_random_steps=1 --time=1200 --additional_parameter="--nr_evals_per_arm=2" --nr_results=2 --testname="$TESTNAME"
+.tests/start_simple_optimization_run --max_eval=2 --num_parallel_jobs=1 --revert_to_random_when_seemingly_exhausted --generate_all_jobs_at_once --alternate_min_max --num_random_steps=1 --time=1200 --additional_parameter="--nr_evals_per_arm=2 --beartype" --nr_results=2 --testname="$TESTNAME"
 exit_code=$?
 
 if [[ $exit_code != 0 ]]; then

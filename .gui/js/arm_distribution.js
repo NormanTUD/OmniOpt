@@ -304,7 +304,7 @@ function plotArmDistribution() {
 
 			if (infoData.length > 0) {
 				var aiHeader = document.createElement("h3");
-				aiHeader.textContent = "Arm Parameters (from results.csv)";
+				aiHeader.textContent = "Arm Parameters";
 				aiHeader.style.marginTop = "40px";
 				plotDiv.appendChild(aiHeader);
 

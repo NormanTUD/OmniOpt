@@ -4783,7 +4783,7 @@ def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Di
                             f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}"
                         )
 
-                    original_print(stdout);
+                    original_print(stdout)
 
                     if raw_result is not None and isinstance(raw_result, dict):
                         all_valid = all(

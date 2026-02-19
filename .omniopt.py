@@ -4778,9 +4778,10 @@ def evaluate(parameters_with_trial_index: dict) -> Optional[Union[int, float, Di
                     # Extract raw result dict (before OCC)
                     raw_result = get_results(stdout)
 
-                    original_print(
-                        f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}"
-                    )
+                    if nr_evals > 1:
+                        original_print(
+                            f"  Sub-eval {sub_nr + 1}/{nr_evals} for trial {trial_index}: {raw_result}"
+                        )
 
                     original_print(stdout);
 

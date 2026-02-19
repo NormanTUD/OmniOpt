@@ -66,6 +66,7 @@ trap 'calltracer' ERR
 
 export max_eval=200
 export num_parallel_jobs=20
+export nr_evals_per_arm=1
 export worker_timeout=30
 export mem_gb=5
 export runtime=300
@@ -108,6 +109,7 @@ function help () {
 	echo "  --debug                                                Enables debug mode"
 	echo "  --data=<str>                                           Data folder (default: data, possible options: data_tiny)"
 	echo "  --num_parallel_jobs=<int>                              Number of parallel jobs (default: 20, but at least --num_random_steps)"
+	echo "  --nr_evals_per_arm=<int>                               Number of evals per arm (default: 1)"
 	echo "  --worker_timeout=<int>                                 Number of minutes for a single-worker to timeout (default: 30)"
 	echo "  --mem_gb=<int>                                         Memory in GB (default 5)"
 	echo "  --time=<int>                                           Max runtime in minutes (default: 300)"
@@ -186,10 +188,15 @@ for i in "$@"; do
 			worker_timeout="${i#*=}"
 			shift
 			;;
+		--nr_evals_per_arm=*)
+			nr_evals_per_arm="${i#*=}"
+			shift
+			;;
 		--num_parallel_jobs=*)
 			num_parallel_jobs="${i#*=}"
 			shift
 			;;
+
 		--time=*)
 			runtime="${i#*=}"
 			shift
@@ -360,6 +367,7 @@ cmd="$OMNIOPT_CALL --live_share --send_anonymized_usage_stats \
 	--worker_timeout=$worker_timeout \
 	--max_eval=$max_eval \
 	--num_parallel_jobs=$num_parallel_jobs \
+	--nr_evals_per_arm=$nr_evals_per_arm \
 	--gpus=$NUM_GPUS \
 	--run_program=$(echo "bash $SCRIPT_DIR/example_network/run.sh --learning_rate=%(learning_rate) --epochs=%(epochs) --validation_split=$validation_split --width=%(width) --height=%(height) --dense=%(dense) --dense_units=%(dense_units) --conv=%(conv) --conv_filters=%(conv_filters) --data=$data --activation=%(activation)" | base64 -w 0) \
 	$(generate_parameter width $min_width $max_width int) \

@@ -163,6 +163,7 @@ These files store some states used mainly to continue jobs. Not all of these fil
 - `custom_generation_strategy`: Custom generation strategy file
 - `defective_nodes`: A list of nodes that were detected as defective, i.e. a GPU was allocated but none was given. Requires `--auto_exclude_defective_hosts` to be set
 - `experiment_name`: The name of this experiment
+- `arm_evals_results.csv`: For each run of the `--nr_evals_per_arm` parameter, the result is saved here (i.e. one evaluation = multiple real executions)
 - `experiment_overview.txt`: A table showing different parameters relating to the current experiment
 - `external_generator`: A file containing the path for the external generator
 - `failed_jobs`: The number of failed jobs

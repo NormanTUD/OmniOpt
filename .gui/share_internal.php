@@ -44,6 +44,7 @@
 		"progressbar",
 		"trial_index_to_params",
 		"worker_usage.csv",
+		"arm_evals_results.csv",
 		"job_start_time.txt",
 		"pareto_front_table.txt",
 		"pareto_front_data.json",

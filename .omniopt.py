@@ -4651,11 +4651,11 @@ def _save_sub_eval_outputs(sub_folder: str, stdout: Optional[str], stderr: Optio
         print_debug(f"Error saving sub-eval outputs to {sub_folder}: {e}")
 
 
-def _save_arm_eval_to_csv(arm_nr: int, sub_arm_nr: int, result: dict) -> None:
+def _save_arm_eval_to_csv(trial_index: int, sub_arm_nr: int, result: dict) -> None:
     """Append one sub-evaluation's results to the arm_evals_results.csv file."""
     csv_path = os.path.join(get_current_run_folder(), "arm_evals_results.csv")
-    heading = ["arm_nr", "sub_arm_nr"] + list(result.keys())
-    data = [str(arm_nr), str(sub_arm_nr)] + [str(v) for v in result.values()]
+    heading = ["trial_index", "sub_arm_nr"] + list(result.keys())
+    data = [str(trial_index), str(sub_arm_nr)] + [str(v) for v in result.values()]
     add_to_csv(csv_path, heading, data)
 
 

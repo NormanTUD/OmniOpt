@@ -215,7 +215,7 @@ try:
         from types import FunctionType
 
     with spinner("Importing typing..."):
-        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type, Mapping
+        from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
 
     with spinner("Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -4708,25 +4708,24 @@ def _run_single_evaluation(parameters: dict[str, Any], program_string: str, tria
     )
     return final_result
 
-def _aggregate_multi_results(all_sub_results: List[Dict[str, Optional[float]]], return_in_case_of_error: Dict[str, float]) -> Mapping[str, Union[float, Tuple[float, float]]]:
+def _aggregate_multi_results(all_sub_results: list[dict[str, Optional[float]]], return_in_case_of_error: dict[str, Union[float, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Computes mean, SEM, and handles OCC logic for multiple results."""
     if not all_sub_results:
         return return_in_case_of_error
 
-    # Base aggregation (Mean and SEM)
     aggregated = _compute_arm_eval_mean_and_sem(all_sub_results)
 
-    # OCC Logic branch
     if args.occ and len(arg_result_names) > 1:
         occ_values = [
-            float(calculate_occ([res[k] for k in arg_result_names if k in res]))
+            # Added 'is not None' check to filter out Optional values
+            float(calculate_occ(cast(list[float], [res[k] for k in arg_result_names if k in res and res[k] is not None])))
             for res in all_sub_results
         ]
+
         occ_values = [v for v in occ_values if v != VAL_IF_NOTHING_FOUND]
 
         if not occ_values:
             return return_in_case_of_error
-
         occ_mean = statistics.mean(occ_values)
         if len(occ_values) > 1:
             occ_sem = statistics.stdev(occ_values) / math.sqrt(len(occ_values))
@@ -4735,7 +4734,7 @@ def _aggregate_multi_results(all_sub_results: List[Dict[str, Optional[float]]], 
 
     return aggregated
 
-def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_evals: int, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float], return_in_case_of_error: dict[str, float]) -> dict[str, Union[float, Tuple[float, float]]]:
+def _run_multi_evaluation(parameters: dict[str, Any], program_string: str, nr_evals: int, trial_index: int, submit_time: Union[int, float], queue_time: Union[int, float], return_in_case_of_error: dict[str, Union[float, Tuple[float, float]]]) -> dict[str, Union[float, Tuple[float, float]]]:
     """Executes the sub-eval loop and persists results."""
     all_sub_results = []
     overall_start_time = int(time.time())

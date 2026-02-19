@@ -63,7 +63,27 @@
 	];
 
 	$acceptable_files = array_map(function($file) {
-		return preg_replace('/\.[^.]+$/', '', $file);
+		try {
+			// 1. Use pathinfo - it's safer and avoids the JIT memory allocation issue
+			$name = pathinfo($file, PATHINFO_FILENAME);
+
+			if (empty($name) && !empty($file)) {
+				// Fallback if pathinfo fails for strange filenames
+				return explode('.', $file)[0];
+			}
+
+			return $name;
+		} catch (Throwable $t) {
+			// 2. Catch and explain the environmental failure
+			echo "### Runtime Security Error\n";
+			echo "Failed to process filename: " . htmlspecialchars($file) . "\n";
+			echo "Reason: " . $t->getMessage() . "\n\n";
+
+			echo "### Suggested Fixes:\n";
+			echo "1. **Disable PCRE JIT:** Set `pcre.jit=0` in your php.ini.\n";
+			echo "2. **Check Systemd:** Your service may have `MemoryDenyWriteExecute=yes`.\n";
+			exit(1);
+		}
 	}, $acceptable_file_names);
 
 	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;

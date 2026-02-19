@@ -4299,7 +4299,7 @@ def get_return_in_case_of_errors() -> dict:
 
     return return_in_case_of_error
 
-def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Optional[float]], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
+def write_job_infos_csv(parameters: dict, stdout: Optional[str], program_string_with_params: str, exit_code: Optional[int], _signal: Optional[int], result: Optional[Union[Dict[str, Any], List[float], int, float]], start_time: Union[int, float], end_time: Union[int, float], run_time: Union[float, int], trial_index: int, submit_time: Union[float, int], queue_time: Union[float, int]) -> None:
     str_parameters_values = _write_job_infos_csv_parameters_to_str(parameters)
     extra_vars_names, extra_vars_values = _write_job_infos_csv_extract_extra_vars(stdout)
     extra_vars_names, extra_vars_values = _write_job_infos_csv_add_slurm_job_id(extra_vars_names, extra_vars_values)

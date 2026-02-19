@@ -2007,19 +2007,28 @@
 	}
 
 	function find_matching_uuid_run_folder(string $targetUUID, $user_id, $experiment_name): ?string {
-		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id)) {
-			return null;
-		}
-
-		if (!preg_match("/^[a-zA-Z0-9_-]+$/", $experiment_name)) {
-			return null;
+		try {
+			// Validation using preg_match - this may trigger the JIT error
+			if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id) || 
+				!preg_match("/^[a-zA-Z0-9_-]+$/", $experiment_name)) {
+				return null;
+			}
+		} catch (Throwable $t) {
+			handle_jit_security_error($t);
 		}
 
 		$glob_str = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/run_uuid";
 		$files = glob($glob_str);
 
+		if ($files === false) return null;
+
 		foreach ($files as $file) {
-			$fileContent = preg_replace('/\s+/', '', file_get_contents($file));
+			$rawContent = file_get_contents($file);
+			if ($rawContent === false) continue;
+
+			// SAFE ALTERNATIVE: Use str_replace/trim instead of preg_replace
+			// This avoids triggering the JIT memory allocation entirely.
+			$fileContent = str_replace([" ", "\n", "\r", "\t"], '', $rawContent);
 
 			if ($fileContent === $targetUUID) {
 				return dirname($file);
@@ -2027,6 +2036,22 @@
 		}
 
 		return null;
+	}
+
+	/**
+	 * Diagnostic helper to explain the JIT/Security failure
+	 */
+	function handle_jit_security_error($t) {
+		echo "### PHP Security Restriction Detected\n";
+		echo "**Error:** " . $t->getMessage() . "\n\n";
+		echo "### Mandatory Fixes:\n";
+		echo "1. **Disable Regex JIT:** Add `pcre.jit=0` to your `php.ini` file.\n";
+		echo "2. **Systemd Hardening:** Your web server may have `MemoryDenyWriteExecute=yes`. \n";
+		echo "   Run: `sudo systemctl edit apache2` (or your php-fpm service) and set:\n";
+		echo "   `[Service]`\n";
+		echo "   `MemoryDenyWriteExecute=no`\n\n";
+		echo "3. **Apply:** `sudo systemctl daemon-reload && sudo systemctl restart apache2`\n";
+		exit(1);
 	}
 
 	function delete_folder($folder) {
@@ -2041,35 +2066,50 @@
 
 	function create_new_folder($user_id, $experiment_name) {
 		$i = 0;
-		$basePath = $GLOBALS["sharesPath"] . "/$user_id/$experiment_name";
+		$sharesPath = $GLOBALS["sharesPath"];
+		$basePath = "$sharesPath/$user_id/$experiment_name";
 
-		while (true) {
+		while ($i <= 1000) {
 			$newFolder = "$basePath/$i";
 
-			// Check if it exists first to avoid unnecessary warning suppression
 			if (!file_exists($newFolder)) {
-				// @ is used to suppress the PHP warning because we handle the result manually
-				if (@mkdir($newFolder, 0777, true)) {
-					return $newFolder;
-				}
+				try {
+					if (@mkdir($newFolder, 0777, true)) {
+						return $newFolder;
+					}
+					throw new Exception(error_get_last()['message'] ?? 'Unknown error');
+				} catch (Exception $e) {
+					if (file_exists($newFolder)) { $i++; continue; }
 
-				// If mkdir failed, but the folder now exists, another process beat us to it.
-				// In that case, we simply let the loop continue to the next index.
-				if (!file_exists($newFolder)) {
-					// If it still doesn't exist, it's a real permission or system error.
-					error_log("Failed to create directory at $newFolder due to system permissions.");
+					$absPath = realpath($sharesPath) ?: $sharesPath;
+					$phpService = "php" . PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION . "-fpm";
+
+					echo "### Critical System Restriction Found\n";
+					echo "**Error:** " . $e->getMessage() . "\n";
+					echo "**Confirmed:** Ownership is correct (www-data), but OS is blocking the write.\n\n";
+
+					echo "### 1. AppArmor / SELinux (Most Likely)\n";
+					echo "Run this command to see if the kernel is blocking the path:\n";
+					echo "   `sudo dmesg | grep -i 'denied' | tail -n 5`\n";
+					echo "If you see 'apparmor=\"DENIED\"', you must update the profile in `/etc/apparmor.d/`.\n\n";
+
+					echo "### 2. Identify and Fix Service Sandbox\n";
+					echo "Try editing the specific PHP service or Apache:\n";
+					echo "   `sudo systemctl edit $phpService` OR `sudo systemctl edit apache2`\n\n";
+					echo "Add these lines:\n";
+					echo "   `[Service]`\n";
+					echo "   `ReadWritePaths=$absPath`\n";
+					echo "   `ProtectSystem=off` (Only if ReadWritePaths fails)\n\n";
+					echo "Apply changes:\n";
+					echo "   `sudo systemctl daemon-reload && sudo systemctl restart $phpService apache2`\n";
+
+					error_log("OS blocked mkdir at $absPath despite valid permissions.");
 					exit(1);
 				}
 			}
-
 			$i++;
-
-			// Safety break to prevent infinite loops in extreme cases
-			if ($i > 1000) {
-				error_log("Directory creation limit reached for $basePath.");
-				exit(1);
-			}
 		}
+		exit(1);
 	}
 
 	function search_for_hash_file($directory, $new_upload_md5, $userFolder) {

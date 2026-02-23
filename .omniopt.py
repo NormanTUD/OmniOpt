@@ -1396,8 +1396,8 @@ try:
     with spinner("Importing Generators from ax.generation_strategy.registry..."):
         from ax.adapter.registry import Generators
 
-    with spinner("Importing get_pending_observation_features..."):
-        from ax.core.utils import get_pending_observation_features
+    #with spinner("Importing get_pending_observation_features..."):
+    #    from ax.core.utils import get_pending_observation_features
 
     with spinner("Importing load_experiment..."):
         from ax.storage.json_store.load import load_experiment

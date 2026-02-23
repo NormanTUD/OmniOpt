@@ -8776,7 +8776,7 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
             batched_generator_run: Any = global_gs.gen(
                 experiment=ax_client.experiment,
                 n=1,
-                pending_observations=pending_observations,
+                pending_observations=pending_observations
             )
             print_debug(f"got global_gs.gen(): {batched_generator_run}")
         except Exception as e:

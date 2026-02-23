@@ -8765,10 +8765,10 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
 
         #print_debug(f"get_batched_arms: Attempt {attempts + 1}: requesting 1 more arm")
 
-        pending_observations = get_pending_observation_features(
-            experiment=ax_client.experiment,
-            include_out_of_design_points=True
-        )
+        #pending_observations = get_pending_observation_features(
+        #    experiment=ax_client.experiment,
+        #    include_out_of_design_points=True
+        #)
 
         try:
             #print_debug("getting global_gs.gen() with n=1")

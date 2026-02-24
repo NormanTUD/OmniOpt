@@ -9593,7 +9593,7 @@ def get_optimizer_kwargs() -> dict:
         "sequential": False
     }
 
-def create_step(model_name: str, _num_trials: int, index: int) -> GenerationNode:
+def create_step(model_name: str, _num_trials: int, index: int) -> Any:
     model_enum = get_model_from_name(model_name)
 
     return GenerationStep(

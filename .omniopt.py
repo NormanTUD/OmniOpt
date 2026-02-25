@@ -1559,8 +1559,6 @@ class RandomForestGenerationNode(ExternalGenerationNode):
                 if not constraint.check(params):
                     return False
 
-                return True
-
         return True
 
     def _separate_parameters(self: Any) -> tuple[list, dict, dict]:

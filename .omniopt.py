@@ -720,12 +720,10 @@ def my_exit(_code: int = 0) -> None:
     if is_skip_search() and os.getenv("SKIP_SEARCH_EXIT_CODE"):
         skip_search_exit_code = os.getenv("SKIP_SEARCH_EXIT_CODE")
 
-        skip_search_exit_code_found = None
-
         try:
-            if skip_search_exit_code_found is not None:
-                skip_search_exit_code_found = int(skip_search_exit_code)
-                sys.exit(skip_search_exit_code_found)
+            if skip_search_exit_code is not None:
+                skip_search_exit_code = int(skip_search_exit_code)
+                sys.exit(skip_search_exit_code)
         except ValueError:
             print_debug(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code {_code}")
 

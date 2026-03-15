@@ -9558,7 +9558,6 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     trans_crit = [
         MinTrials(
             threshold=threshold,
-            block_transition_if_unmet=True,
             transition_to=target_model,
             count_only_trials_with_data=True
         )

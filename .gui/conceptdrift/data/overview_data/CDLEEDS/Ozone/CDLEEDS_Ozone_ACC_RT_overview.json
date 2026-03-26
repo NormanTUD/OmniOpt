@@ -1,0 +1,101 @@
+{
+  "detector": "CDLEEDS",
+  "dataset": "Ozone",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "CDLEEDS_Ozone_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Max. nr. evaluations",
+        "1000"
+      ],
+      [
+        "Number random steps",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "20"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "1"
+      ],
+      [
+        "Nr. imported jobs",
+        "500"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "significance",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ],
+      [
+        "gamma",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ],
+      [
+        "max_node_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "max_tree_depth",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "max_time_stationary",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

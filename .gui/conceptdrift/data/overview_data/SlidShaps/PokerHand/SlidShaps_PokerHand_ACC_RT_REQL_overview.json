@@ -1,0 +1,27 @@
+{
+  "detector": "SlidShaps",
+  "dataset": "PokerHand",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "SlidShaps_PokerHand_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [],
+    "rows": [
+      [
+        "subset_bound",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [],
+    "rows": []
+  }
+}

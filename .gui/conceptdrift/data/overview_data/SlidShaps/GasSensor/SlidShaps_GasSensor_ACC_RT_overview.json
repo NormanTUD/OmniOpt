@@ -1,0 +1,121 @@
+{
+  "detector": "SlidShaps",
+  "dataset": "GasSensor",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "SlidShaps_GasSensor_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "batch_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "detection_buf_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "overlap",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "alpha",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "gamma",
+        "range",
+        "0.001",
+        "10",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "subset_bound",
+        "range",
+        "1",
+        "50",
+        "",
+        "range",
+        "No"
+      ]
+    ]
+  }
+}

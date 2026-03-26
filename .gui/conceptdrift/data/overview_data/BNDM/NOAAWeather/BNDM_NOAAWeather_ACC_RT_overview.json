@@ -1,0 +1,97 @@
+{
+  "detector": "BNDM",
+  "dataset": "NOAAWeather",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "BNDM_NOAAWeather_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Max. nr. evaluations",
+        "50402"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "20"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "1"
+      ],
+      [
+        "Nr. imported jobs",
+        "402"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "n_samples",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "const",
+        "float",
+        "0.001",
+        "10",
+        "float",
+        "No"
+      ],
+      [
+        "max_depth",
+        "int",
+        "1",
+        "20",
+        "int",
+        "No"
+      ],
+      [
+        "threshold",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ]
+    ]
+  }
+}

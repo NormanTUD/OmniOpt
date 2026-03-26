@@ -1,0 +1,93 @@
+{
+  "detector": "BNDM",
+  "dataset": "OutdoorObjects",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "BNDM_OutdoorObjects_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "BOTORCH_MODULAR"
+      ],
+      [
+        "Max. nr. evaluations",
+        "500"
+      ],
+      [
+        "Number random steps",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "n_samples",
+        "range",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "const",
+        "range",
+        "0.001",
+        "10",
+        "float",
+        "No"
+      ],
+      [
+        "max_depth",
+        "range",
+        "1",
+        "20",
+        "int",
+        "No"
+      ],
+      [
+        "threshold",
+        "range",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ]
+    ]
+  }
+}

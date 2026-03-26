@@ -1,0 +1,104 @@
+{
+  "detector": "NNDVI",
+  "dataset": "SensorStream",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT_REQL",
+  "source_html": "NNDVI_SensorStream_HoeffdingTreeClassifier_ACCURACY-RUNTIME-REQLABELS.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [],
+    "rows": [
+      [
+        "Setting",
+        "Value"
+      ],
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "n_samples",
+        "range",
+        "1",
+        "5000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "k_neighbors",
+        "range",
+        "1",
+        "100",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "n_permutations",
+        "range",
+        "1",
+        "1000",
+        "",
+        "range",
+        "No"
+      ],
+      [
+        "significance_level",
+        "range",
+        "0.001",
+        "0.999",
+        "",
+        "range",
+        "No"
+      ]
+    ]
+  }
+}

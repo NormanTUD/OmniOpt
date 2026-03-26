@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Single Variate DDs on Multiple Features</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src='https://cdn.jsdelivr.net/npm/plotly.js-dist@3.0.1/plotly.min.js'></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 20px;
+    }
+    .section-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .plot-container {
+      width: 100%;
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <div class="section-title">CDBD - Electricity dataset</div>
+    <div id="plot-cdbd" class="plot-container"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">IKS - Electricity dataset</div>
+    <div id="plot-iks" class="plot-container"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">WindowKDE - Electricity dataset</div>
+    <div id="plot-windowkde" class="plot-container"></div>
+  </div>
+
+  <script>
+    // Dataset length for Electricity
+    const datasetLength = 43312;
+    
+    // Image paths for each drift detector
+    const imagePaths_cdbd = [
+      'single_predictions/Aggregation_CDBD_43312.png',
+      'single_predictions/CDBD_0_43312.png',
+      'single_predictions/CDBD_1_43312.png',
+      'single_predictions/CDBD_2_43312.png',
+      'single_predictions/CDBD_3_43312.png',
+      'single_predictions/CDBD_4_43312.png',
+      'single_predictions/CDBD_5_43312.png',
+      'single_predictions/CDBD_6_43312.png',
+      'single_predictions/CDBD_7_43312.png'
+    ];
+
+    const imagePaths_iks = [
+      'single_predictions/Aggregation_IKS_43312.png',
+      'single_predictions/IKS_1_43312.png',
+      'single_predictions/IKS_2_43312.png',
+      'single_predictions/IKS_3_43312.png',
+      'single_predictions/IKS_4_43312.png',
+      'single_predictions/IKS_5_43312.png',
+      'single_predictions/IKS_6_43312.png',
+      'single_predictions/IKS_7_43312.png'
+    ];
+
+    const imagePaths_windowkde = [
+      'single_predictions/Aggregation_WindowKDE_43312.png',
+      'single_predictions/WindowKDE_0_43312.png',
+      'single_predictions/WindowKDE_1_43312.png',
+      'single_predictions/WindowKDE_2_43312.png',
+      'single_predictions/WindowKDE_3_43312.png',
+      'single_predictions/WindowKDE_4_43312.png',
+      'single_predictions/WindowKDE_5_43312.png',
+      'single_predictions/WindowKDE_6_43312.png',
+      'single_predictions/WindowKDE_7_43312.png'
+    ];
+
+    // Function to create vertical image stack plot
+    function createImageStack(imagePaths, containerId, ddMethod) {
+      const traces = [];
+      const y_height = 1.5;
+      const maxIndex = imagePaths.length - 1;
+      
+      imagePaths.forEach((imagePath, index) => {
+        const fullImagePath = new URL(imagePath, window.location.href).href;
+        const filename = imagePath.split('/').pop();
+        const label = filename.replace('_43312.png', '').replace('Aggregation_', 'Aggregation ');
+        const yPos = (maxIndex - index) * y_height;
+        
+        traces.push({
+          x: [0, 1],
+          y: [yPos, yPos],
+          mode: 'lines',
+          line: { width: 0 },
+          showlegend: false,
+          hoverinfo: 'skip'
+        });
+
+        traces.push({
+          x: [0],
+          y: [yPos],
+          mode: 'markers',
+          marker: { size: 0 },
+          showlegend: false,
+          hoverinfo: 'text',
+          hovertext: label
+        });
+      });
+
+      const images = imagePaths.map((imagePath, index) => {
+        const fullImagePath = new URL(imagePath, window.location.href).href;
+        const yPos = (maxIndex - index) * y_height;
+        return {
+          source: fullImagePath,
+          xref: 'x',
+          yref: 'y',
+          x: 0,
+          y: yPos,
+          sizex: 1,
+          sizey: 1,
+          xanchor: 'left',
+          yanchor: 'middle',
+          sizing: 'fill',
+          layer: 'below',
+          opacity: 1
+        };
+      });
+
+      const tickLabels = imagePaths.map((imagePath) => {
+        const filename = imagePath.split('/').pop();
+        return filename.replace('_43312.png', '').replace('Aggregation_', 'Aggregation ');
+      });
+
+      const tickYs = imagePaths.map((_, index) => (maxIndex - index) * y_height);
+
+      const layout = {
+        width: 1200,
+        height: 50 * imagePaths.length,
+        margin: { l: 120, r: 50, t: 50, b: 50 },
+        xaxis: {
+          range: [0, 1],
+          maxallowed: 1,
+          minallowed: 0,
+          showgrid: false,
+          zeroline: false,
+          showticklabels: true,
+          ticks: '',
+          tickmode: 'array',
+          tickvals: [0, 0.25, 0.5, 0.75, 1],
+          ticktext: [0, Math.round(0.25 * datasetLength), Math.round(0.5 * datasetLength), Math.round(0.75 * datasetLength), datasetLength],
+          title: 'Time Step'
+        },
+        yaxis: {
+          range: [-y_height / 2, (imagePaths.length - 0.5) * y_height],
+          fixedrange: true,
+          showgrid: false,
+          zeroline: false,
+          tickmode: 'array',
+          tickvals: tickYs,
+          ticktext: tickLabels,
+          title: ''
+        },
+        images: images,
+        hovermode: 'closest'
+      };
+
+      Plotly.newPlot(containerId, traces, layout, { responsive: true });
+    }
+
+    // Create all three plots when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      createImageStack(imagePaths_cdbd, 'plot-cdbd', 'CDBD');
+      createImageStack(imagePaths_iks, 'plot-iks', 'IKS');
+      createImageStack(imagePaths_windowkde, 'plot-windowkde', 'WindowKDE');
+    });
+  </script>
+</body>
+</html>

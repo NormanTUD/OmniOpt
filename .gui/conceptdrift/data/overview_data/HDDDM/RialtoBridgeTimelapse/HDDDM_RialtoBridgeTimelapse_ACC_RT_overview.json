@@ -1,0 +1,102 @@
+{
+  "detector": "HDDDM",
+  "dataset": "RialtoBridgeTimelapse",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "ACC_RT",
+  "source_html": "HDDDM_RialtoBridgeTimelapse_HoeffdingTreeClassifier_ACCURACY-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50411"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50411"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "50"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ],
+      [
+        "Nr. imported jobs",
+        "411"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Values",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "batch_size",
+        "int",
+        "2",
+        "5000",
+        "",
+        "int",
+        "No"
+      ],
+      [
+        "gamma",
+        "float",
+        "0.001",
+        "10",
+        "",
+        "float",
+        "No"
+      ],
+      [
+        "alpha",
+        "float",
+        "0.0005",
+        "0.05",
+        "",
+        "float",
+        "No"
+      ]
+    ]
+  }
+}

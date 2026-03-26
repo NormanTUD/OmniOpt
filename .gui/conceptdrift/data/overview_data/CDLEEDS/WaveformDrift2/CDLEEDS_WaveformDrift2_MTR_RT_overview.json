@@ -1,0 +1,113 @@
+{
+  "detector": "CDLEEDS",
+  "dataset": "WaveformDrift2",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "MTR_RT",
+  "source_html": "CDLEEDS_WaveformDrift2_HoeffdingTreeClassifier_MEANTIMERATIO-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50069"
+      ],
+      [
+        "Max. nr. evaluations (from arguments)",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50069"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "256"
+      ],
+      [
+        "Nr. imported jobs",
+        "69"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "significance",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ],
+      [
+        "gamma",
+        "float",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ],
+      [
+        "max_node_size",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "max_tree_depth",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "max_time_stationary",
+        "int",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ]
+    ]
+  }
+}

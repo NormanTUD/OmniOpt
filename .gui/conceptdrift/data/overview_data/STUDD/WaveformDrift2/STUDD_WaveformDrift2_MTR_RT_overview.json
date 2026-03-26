@@ -1,0 +1,73 @@
+{
+  "detector": "STUDD",
+  "dataset": "WaveformDrift2",
+  "model": "HoeffdingTreeClassifier",
+  "metric_code": "MTR_RT",
+  "source_html": "STUDD_WaveformDrift2_HoeffdingTreeClassifier_MEANTIMERATIO-RUNTIME.html",
+  "overview": {
+    "title": "Experiment overview",
+    "columns": [
+      "Setting",
+      "Value"
+    ],
+    "rows": [
+      [
+        "Model for non-random steps",
+        "SOBOL"
+      ],
+      [
+        "Max. nr. evaluations",
+        "50000"
+      ],
+      [
+        "Number random steps",
+        "50000"
+      ],
+      [
+        "Number random steps (from arguments)",
+        "20"
+      ],
+      [
+        "Nr. of workers (parameter)",
+        "30"
+      ],
+      [
+        "Main process memory (GB)",
+        "8"
+      ],
+      [
+        "Worker memory (GB)",
+        "64"
+      ]
+    ]
+  },
+  "parameters": {
+    "title": "Experiment parameters",
+    "columns": [
+      "Name",
+      "Type",
+      "Lower bound",
+      "Upper bound",
+      "Type",
+      "Log Scale?"
+    ],
+    "rows": [
+      [
+        "recent_samples_size",
+        "range",
+        "1",
+        "5000",
+        "int",
+        "No"
+      ],
+      [
+        "delta",
+        "range",
+        "0.001",
+        "0.999",
+        "float",
+        "No"
+      ]
+    ]
+  }
+}

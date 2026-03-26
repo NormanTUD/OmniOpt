@@ -1,11 +1,11 @@
 /* General styles */
 :root {
-  font-family: Inter, sans-serif;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1;
 }
 @supports (font-variation-settings: normal) {
   :root {
-    font-family: InterVariable, sans-serif;
+    font-family: InterVariable, Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 }
 
@@ -15,7 +15,7 @@ html {
 }
 
 body {
-  font-family: Inter, sans-serif;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -126,25 +126,290 @@ header {
   display: none;
 }
 
+#single-dds-content .single-dd-control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+/* #single-dds-content .single-dd-field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 760px);
+} */
+
+#single-dds-content .single-dd-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 760px);
+}
+
+
+
+#single-dds-content .single-dd-field-label {
+  min-width: 90px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #002D3F;
+}
+
+#single-dds-content .single-dd-field-input {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#single-dds-content .single-dd-field-input custom-dropdown {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+}
+
+#single-dds-content .single-dd-show {
+  margin-top: 8px;
+}
+
+#pareto-fronts-content .pareto-control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+#pareto-fronts-content .pareto-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 760px);
+}
+
+#pareto-fronts-content .pareto-field-label {
+  min-width: 90px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #002D3F;
+}
+
+#pareto-fronts-content .pareto-field-input {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#pareto-fronts-content .pareto-field-input custom-dropdown {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+}
+
+#pareto-fronts-content .pareto-show {
+  margin-top: 8px;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-container {
+  width: 100%;
+  max-width: 440px;
+  min-width: 0;
+  margin: 0;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-header {
+  width: 100%;
+}
+
+/* #single-dds-content .single-dd-field-input .dropdown-content {
+  position: static;
+  top: auto;
+  left: auto;
+  margin-top: 8px;
+  min-width: 100%;
+  max-width: 100%;
+  max-height: 240px;
+  z-index: auto;
+  box-sizing: border-box;
+} */
+ 
+#single-dds-content .single-dd-control-panel,
+#single-dds-content .single-dd-field,
+#single-dds-content .single-dd-field-input,
+#single-dds-content .single-dd-field-input custom-dropdown,
+#single-dds-content .single-dd-field-input .dropdown-container {
+  overflow: visible;
+}
+
+#single-dds-content .single-dd-field {
+  position: relative;
+}
+
+#single-dds-content .single-dd-field-input {
+  position: relative;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-container {
+  position: relative;
+  z-index: 1;
+}
+
+#single-dds-content .single-dd-field.dropdown-active {
+  z-index: 10000;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-container.dropdown-open {
+  z-index: 10001;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-header {
+  position: relative;
+  z-index: 10002;
+}
+
+#single-dds-content .single-dd-field-input .dropdown-content {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 240px;
+  z-index: 10003;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#pareto-fronts-content .pareto-control-panel,
+#pareto-fronts-content .pareto-field,
+#pareto-fronts-content .pareto-field-input,
+#pareto-fronts-content .pareto-field-input custom-dropdown,
+#pareto-fronts-content .pareto-field-input .dropdown-container {
+  overflow: visible;
+}
+
+#pareto-fronts-content .pareto-field {
+  position: relative;
+}
+
+#pareto-fronts-content .pareto-field-input {
+  position: relative;
+}
+
+#pareto-fronts-content .pareto-field-input .dropdown-container {
+  width: 100%;
+  max-width: 440px;
+  min-width: 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+#pareto-fronts-content .pareto-field.dropdown-active {
+  z-index: 10000;
+}
+
+#pareto-fronts-content .pareto-field-input .dropdown-container.dropdown-open {
+  z-index: 10001;
+}
+
+#pareto-fronts-content .pareto-field-input .dropdown-header {
+  width: 100%;
+  position: relative;
+  z-index: 10002;
+}
+
+#pareto-fronts-content .pareto-field-input .dropdown-content {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 240px;
+  z-index: 10003;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  #single-dds-content .single-dd-field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: min(100%, 420px);
+  }
+
+  #single-dds-content .single-dd-field-label {
+    min-width: 0;
+    text-align: left;
+  }
+
+  #single-dds-content .single-dd-field-input custom-dropdown {
+    max-width: 100%;
+  }
+
+  #single-dds-content .single-dd-field-input .dropdown-content {
+    position: static;
+    top: auto;
+    left: auto;
+    margin-top: 8px;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  #pareto-fronts-content .pareto-field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: min(100%, 420px);
+  }
+
+  #pareto-fronts-content .pareto-field-label {
+    min-width: 0;
+    text-align: left;
+  }
+
+  #pareto-fronts-content .pareto-field-input custom-dropdown {
+    max-width: 100%;
+  }
+
+  #pareto-fronts-content .pareto-field-input .dropdown-content {
+    position: static;
+    top: auto;
+    left: auto;
+    margin-top: 8px;
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
+
 /* Ensemble Estimation Section Styles */
 #ensemble-estimation-content {
   padding: 0.5rem 0;
 }
 
 #ensemble-estimation-content .box {
-  width: 180px;
-  height: 70px;
-  background: linear-gradient(145deg, #4a6cf7, #3a5bd9);
-  color: white;
+  width: min(100%, 460px);
+  min-height: 68px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #eaf3f7 0%, #d6e7f0 100%);
+  color: #002D3F;
+  border: 1px solid #b6d0df;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: none;
   border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 500;
-  box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+  font-size: 1.03rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(2, 45, 63, 0.12);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -183,15 +448,17 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #3a5bd9, #4a6cf7);
+  background: linear-gradient(135deg, #024A65 0%, #016A8E 100%);
   opacity: 0;
   z-index: -1;
   transition: opacity 0.3s ease;
 }
 
 #ensemble-estimation-content .box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(74, 108, 247, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(2, 45, 63, 0.2);
+  border-color: #6ca8c3;
+  color: #ffffff;
 }
 
 #ensemble-estimation-content .box:hover::before {
@@ -200,7 +467,30 @@ header {
 
 #ensemble-estimation-content .box:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 10px rgba(74, 108, 247, 0.3);
+  box-shadow: 0 2px 10px rgba(2, 45, 63, 0.18);
+}
+
+#ensemble-estimation-content .box.active {
+  color: #ffffff;
+  border-color: #01384e;
+  background: linear-gradient(135deg, #002D3F 0%, #024A65 100%);
+  box-shadow: 0 10px 28px rgba(2, 45, 63, 0.28);
+  transform: translateY(-1px);
+}
+
+#ensemble-estimation-content .box.active::before {
+  opacity: 0;
+}
+
+#ensemble-estimation-content .row.row-cols-2 {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+
+#ensemble-estimation-content .row.row-cols-2 > .col-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
 }
 
 #ensemble-estimation-content .menu {
@@ -213,18 +503,6 @@ header {
   animation: fadeIn 0.3s ease-out;
   max-width: 600px;
   margin: 1.5rem auto 0;
-}
-
-/* Hide the second menu (Single Variate DDs) by default */
-#ensemble-estimation-content #menu2 {
-  display: none !important;
-}
-
-/* Show the second menu when it has the visible class */
-#ensemble-estimation-content #menu2.menu-visible {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 1rem !important;
 }
 
 @keyframes fadeIn {
@@ -252,32 +530,6 @@ header {
   gap: 1rem !important;
 }
 
-#ensemble-estimation-content .menu .dropdown-row {
-  display: grid !important;
-  grid-template-columns: 220px 220px auto !important;
-  gap: 1rem !important;
-  align-items: start !important;
-  justify-content: start !important;
-  width: 100% !important;
-}
-
-/* Force custom-dropdown elements to work with CSS Grid */
-#ensemble-estimation-content .menu .dropdown-row custom-dropdown {
-  display: block !important;
-  margin: 0 !important;
-  width: 220px !important;
-  min-width: 220px !important;
-  max-width: 220px !important;
-}
-
-/* Override the dropdown container's default margin that causes vertical stacking */
-#ensemble-estimation-content .menu .dropdown-row custom-dropdown .dropdown-container {
-  margin: 0 !important;
-  margin-bottom: 0 !important;
-  margin-top: 0 !important;
-  width: 100% !important;
-}
-
 #ensemble-estimation-content .menu custom-dropdown {
   margin-bottom: 0 !important;
   display: inline-block !important;
@@ -287,25 +539,10 @@ header {
   max-width: 220px !important;
 }
 
-/* Ensure dropdown containers maintain horizontal layout */
-#ensemble-estimation-content .menu .dropdown-row .dropdown-container {
-  margin: 0 !important;
-  display: inline-block !important;
-  vertical-align: top !important;
-  width: 220px !important;
-  min-width: 220px !important;
-  max-width: 220px !important;
-}
-
 /* Override any potential inline styles that might reset the layout */
 #ensemble-estimation-content .menu[style] {
   display: flex !important;
   flex-direction: column !important;
-}
-
-#ensemble-estimation-content .menu .dropdown-row[style] {
-  display: flex !important;
-  flex-direction: row !important;
 }
 
 #ensemble-estimation-content .menu custom-dropdown[style] {
@@ -362,8 +599,67 @@ header {
   box-shadow: 0 2px 8px rgba(74, 108, 247, 0.4);
 }
 
-#ensemble-estimation-content{
-  #display: none;
+/* Ensemble of DDs controls styled like other sections */
+#ensemble-estimation-content #menu1 {
+  max-width: 760px;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-control-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 700px);
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-label {
+  min-width: 90px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #002D3F;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-input {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-input custom-dropdown {
+  display: block !important;
+  width: 100% !important;
+  max-width: 420px !important;
+  min-width: 0 !important;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-container {
+  width: 100% !important;
+  max-width: 420px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-header {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-content {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+#ensemble-estimation-content #menu1 .ensemble-ee-show {
+  margin-top: 6px;
 }
 
 .glow-line {
@@ -895,24 +1191,7 @@ div[style*="position: fixed"] button {
 
 /* Responsive design for ensemble estimation dropdowns */
 @media (max-width: 768px) {
-  #ensemble-estimation-content .menu .dropdown-row {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-  }
-  
-  #ensemble-estimation-content .menu .dropdown-row[style] {
-    flex-direction: column !important;
-    align-items: center !important;
-  }
-  
   #ensemble-estimation-content .menu custom-dropdown {
-    width: 280px !important;
-    min-width: 280px !important;
-    max-width: 280px !important;
-  }
-  
-  #ensemble-estimation-content .menu .dropdown-row .dropdown-container {
     width: 280px !important;
     min-width: 280px !important;
     max-width: 280px !important;
@@ -926,14 +1205,6 @@ div[style*="position: fixed"] button {
     max-width: 280px !important;
   }
   
-  /* Responsive grid layout for mobile */
-  #ensemble-estimation-content .menu .dropdown-row {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 0.5rem !important;
-    width: 100% !important;
-  }
-  
   /* Show button responsive styling */
   #ensemble-estimation-content .menu .show-button {
     margin-left: 0 !important;
@@ -942,6 +1213,25 @@ div[style*="position: fixed"] button {
     max-width: 280px !important;
     align-self: center !important;
     justify-self: center !important;
+  }
+
+  #ensemble-estimation-content #menu1 .ensemble-ee-field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: min(100%, 420px);
+  }
+
+  #ensemble-estimation-content #menu1 .ensemble-ee-field-label {
+    min-width: 0;
+    text-align: left;
+  }
+
+  #ensemble-estimation-content #menu1 .ensemble-ee-field-input custom-dropdown,
+  #ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-container,
+  #ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-header,
+  #ensemble-estimation-content #menu1 .ensemble-ee-field-input .dropdown-content {
+    max-width: 100% !important;
   }
 }
 

@@ -1,59 +1,9 @@
-function initDropdown(containerSelector) {
-  const $container = $(containerSelector);
-  const $header = $container.find('.dropdown-header');
-  const $label = $container.find('.dropdown-label');
-  const $content = $container.find('.dropdown-content');
-  const $input = $container.find('input[type="hidden"]');
-  const initialValue = $input.val();
-
-  // Set initial value if it exists
-  if (initialValue) {
-    const $selectedItem = $content.find(`p[data-value="${initialValue}"]`);
-    if ($selectedItem.length) {
-      $label.text(`${$label.data('base')}: ${$selectedItem.text()}`);
-      $selectedItem.addClass('selected');
-    }
-  }
-
-  $header.on('click', function () {
-    $header.toggleClass('open');
-    $content.toggleClass('show');
-  });
-
-  $content.find('p').on('click', function () {
-    const $p = $(this);
-    const text = $p.text();
-    const value = $p.data('value') ?? text;
-
-    // Update UI
-    $content.find('p').removeClass('selected');
-    $p.addClass('selected');
-    $label.text(`${$label.data('base')}: ${text}`);
-    $input.val(value);
-    
-    // Close dropdown
-    $content.removeClass('show');
-    $header.removeClass('open');
-  });
-
-  // Close when click outside of dropdown
-  $(document).on('click', function (e) {
-    if (!$container.is(e.target) && $container.has(e.target).length === 0) {
-      $content.removeClass('show');
-      $header.removeClass('open');
-    }
-  });
-
-  // Preserve label base name (before any choice is made)
-  const baseText = $label.text().split(':')[0].trim();
-  $label.data('base', baseText);
-}
-
 class CustomDropdown extends HTMLElement {
   connectedCallback() {
     const label = this.getAttribute('label');
     const name = this.getAttribute('name');
     const defaultValue = this.getAttribute('default-value') || this.getAttribute('value') || '';
+    const useExternalLabel = this.hasAttribute('external-label');
     const options = JSON.parse(this.getAttribute('options') || '[]');
     
     // Find the default option text and value
@@ -110,7 +60,7 @@ class CustomDropdown extends HTMLElement {
     this.innerHTML = `
       <div class="dropdown-container">
         <div class="dropdown-header">
-          <span class="dropdown-label">${label}${defaultText ? `: ${defaultText}` : ''}</span>
+          <span class="dropdown-label">${useExternalLabel ? defaultText : `${label}${defaultText ? `: ${defaultText}` : ''}`}</span>
           <span class="dropdown-arrow">&#x203A;</span>
         </div>
         <div class="dropdown-content">
@@ -149,55 +99,71 @@ class CustomDropdown extends HTMLElement {
         <input type="hidden" name="${name}" value="${defaultOptionValue}" id="${name}-input">
       </div>
     `;
-    
-    // Initialize the dropdown
+
     const container = this.querySelector('.dropdown-container');
     this.initDropdown(container);
   }
-  
+
   initDropdown(container) {
     const $container = $(container);
     const $header = $container.find('.dropdown-header');
     const $label = $container.find('.dropdown-label');
     const $content = $container.find('.dropdown-content');
     const $input = $container.find('input[type="hidden"]');
-    const baseText = $label.text().split(':')[0].trim();
-    
-    // Store the base label text
+    const useExternalLabel = this.hasAttribute('external-label');
+    const baseText = useExternalLabel ? '' : $label.text().split(':')[0].trim();
+
     $label.data('base', baseText);
-    
-    // Toggle dropdown
-    $header.on('click', function() {
-      $header.toggleClass('open');
-      $content.toggleClass('show');
+
+    function closeAllDropdowns() {
+      $('.dropdown-container').removeClass('dropdown-open');
+      $('.single-dd-field').removeClass('dropdown-active');
+      $('.pareto-field').removeClass('dropdown-active');
+      $('.dropdown-header').removeClass('open');
+      $('.dropdown-content').removeClass('show');
+    }
+
+    $header.on('click', function(e) {
+      e.stopPropagation();
+
+      const shouldOpen = !$content.hasClass('show');
+      closeAllDropdowns();
+
+      if (shouldOpen) {
+        $container.addClass('dropdown-open');
+        $container.closest('.single-dd-field, .pareto-field').addClass('dropdown-active');
+        $header.addClass('open');
+        $content.addClass('show');
+      }
     });
-    
-    // Handle option selection
-    $content.on('click', 'p', function() {
+
+    $content.on('click', 'p', function(e) {
+      e.stopPropagation();
+
       const $option = $(this);
       const value = $option.data('value');
       const text = $option.text();
-      
-      // Update UI
+
       $content.find('p').removeClass('selected');
       $option.addClass('selected');
-      $label.text(`${baseText}: ${text}`);
-      
-      // Update hidden input
-      $input.val(value);
-      
-      // Close dropdown
+
+      $label.text(useExternalLabel ? text : `${baseText}: ${text}`);
+      $input.val(value).trigger('change');
+
+      $container.removeClass('dropdown-open');
+      $container.closest('.single-dd-field, .pareto-field').removeClass('dropdown-active');
       $header.removeClass('open');
       $content.removeClass('show');
     });
-    
-    // Close when clicking outside
-    $(document).on('click', (e) => {
-      if (!$container.is(e.target) && $container.has(e.target).length === 0) {
-        $header.removeClass('open');
-        $content.removeClass('show');
-      }
-    });
+
+    if (!window.__customDropdownOutsideClickBound) {
+      $(document).on('click', function(e) {
+        if ($(e.target).closest('.dropdown-container').length === 0) {
+          closeAllDropdowns();
+        }
+      });
+      window.__customDropdownOutsideClickBound = true;
+    }
   }
 }
 

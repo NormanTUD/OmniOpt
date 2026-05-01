@@ -7055,7 +7055,8 @@ def clean_completed_jobs() -> None:
             job_states_to_be_removed_string = "', '".join(job_states_to_be_removed)
             job_states_to_be_ignored_string = "', '".join(job_states_to_be_ignored)
 
-            print_red(f"Job {job}, state not in ['{job_states_to_be_removed_string}'], which would be removed from the job list, or ['{job_states_to_be_ignored_string}'], which would be ignored: {_state}")
+            if "cancelled by" not in string_state:
+                print_red(f"Job {job}, state not in ['{job_states_to_be_removed_string}'], which would be removed from the job list, or ['{job_states_to_be_ignored_string}'], which would be ignored: {_state}")
 
 def simulate_load_data_from_existing_run_folders(_paths: List[str]) -> int:
     _counter: int = 0

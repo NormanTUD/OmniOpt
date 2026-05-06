@@ -1619,7 +1619,11 @@
 		$parts = [];
 		foreach ($result_names as $name) {
 			if (isset($results_dict[$name])) {
-				$parts[] = "$name: {$results_dict[$name]}";
+				$value = $results_dict[$name];
+				if (is_numeric($value) && intval($value) == $value && abs($value) >= 1000) {
+					$value = number_format(intval($value), 0, '.', ',');
+				}
+				$parts[] = "$name: $value";
 			}
 		}
 

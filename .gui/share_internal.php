@@ -1,6 +1,8 @@
 <?php
 	include("globals.php");
 
+	ini_set('memory_limit', '512M');
+
 	include_once "_functions.php";
 	include_once "share_functions.php";
 

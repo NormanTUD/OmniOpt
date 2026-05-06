@@ -2,14 +2,13 @@
 
 var last_resize_width = 0;
 
-function add_default_layout_data (layout, no_height = 0) {
+function add_default_layout_data(layout, no_height = 0) {
 	layout["width"] = get_graph_width();
 	if (!no_height) {
 		layout["height"] = get_graph_height();
 	}
 	layout["paper_bgcolor"] = 'rgba(0,0,0,0)';
 	layout["plot_bgcolor"] = 'rgba(0,0,0,0)';
-
 	return layout;
 }
 
@@ -33,18 +32,17 @@ function get_font_data() {
 	return {
 		size: get_font_size(),
 		color: get_text_color()
-	}
+	};
 }
 
 function get_axis_title_data(name, axis_type = "") {
-	if(axis_type) {
+	if (axis_type) {
 		return {
 			text: name,
 			type: axis_type,
 			font: get_font_data()
 		};
 	}
-
 	return {
 		text: name,
 		font: get_font_data()
@@ -57,7 +55,8 @@ function get_graph_width() {
 }
 
 function createTable(data, headers, table_name) {
-	if (!$("#" + table_name).length) {
+	var el = document.getElementById(table_name);
+	if (!el) {
 		console.error("#" + table_name + " not found");
 		return;
 	}
@@ -68,22 +67,19 @@ function createTable(data, headers, table_name) {
 		search: true,
 		sort: true,
 		ellipsis: false
-	}).render(document.getElementById(table_name));
+	}).render(el);
 
 	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();
 	}
 
 	colorize_table_entries();
-
 	add_colorize_to_gridjs_table();
 }
 
 function download_as_file(id, filename) {
-	var text = $("#" + id).text();
-	var blob = new Blob([text], {
-		type: "text/plain"
-	});
+	var text = document.getElementById(id).textContent;
+	var blob = new Blob([text], { type: "text/plain" });
 	var link = document.createElement("a");
 	link.href = URL.createObjectURL(blob);
 	link.download = filename;
@@ -92,15 +88,14 @@ function download_as_file(id, filename) {
 	document.body.removeChild(link);
 }
 
-function copy_to_clipboard_from_id (id) {
-	var text = $("#" + id).text();
-
+function copy_to_clipboard_from_id(id) {
+	var text = document.getElementById(id).textContent;
 	copy_to_clipboard(text);
 }
 
 function copy_to_clipboard(text) {
 	if (!navigator.clipboard) {
-		let textarea = document.createElement("textarea");
+		var textarea = document.createElement("textarea");
 		textarea.value = text;
 		document.body.appendChild(textarea);
 		textarea.select();
@@ -121,39 +116,35 @@ function copy_to_clipboard(text) {
 }
 
 function filterNonEmptyRows(data) {
+	var specialSet = new Set(special_col_names);
 	var new_data = [];
-	for (var row_idx = 0; row_idx <  data.length; row_idx++) {
+	for (var row_idx = 0; row_idx < data.length; row_idx++) {
 		var line = data[row_idx];
-
 		var line_has_empty_data = false;
 
 		for (var col_idx = 0; col_idx < line.length; col_idx++) {
-			var col_header_name = tab_results_headers_json[col_idx];
-			var single_data_point = line[col_idx];
-
-			if(single_data_point === "" && !special_col_names.includes(col_header_name)) {
+			if (line[col_idx] === "" && !specialSet.has(tab_results_headers_json[col_idx])) {
 				line_has_empty_data = true;
-				continue;
+				break;
 			}
 		}
 
-		if(!line_has_empty_data) {
+		if (!line_has_empty_data) {
 			new_data.push(line);
 		}
 	}
-
 	return new_data;
 }
 
 function load_log_file(log_nr, filename) {
 	var pre_id = `single_run_${log_nr}_pre`;
+	var preEl = document.getElementById(pre_id);
 
-	if (!$("#" + pre_id).data("loaded")) {
-		const params = new URLSearchParams(window.location.search);
-
-		const user_id = params.get('user_id');
-		const experiment_name = params.get('experiment_name');
-		const run_nr = params.get('run_nr');
+	if (preEl && !preEl.dataset.loaded) {
+		var params = new URLSearchParams(window.location.search);
+		var user_id = params.get('user_id');
+		var experiment_name = params.get('experiment_name');
+		var run_nr = params.get('run_nr');
 
 		var url = `get_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}&filename=${filename}`;
 
@@ -161,46 +152,46 @@ function load_log_file(log_nr, filename) {
 			.then(response => response.json())
 			.then(data => {
 				if (data.data) {
-					$("#" + pre_id).html(data.data);
-					$("#" + pre_id).data("loaded", true);
+					preEl.innerHTML = data.data;
+					preEl.dataset.loaded = "true";
 				} else {
 					log(`No 'data' key found in response.`);
 				}
-
-				$("#spinner_log_" + log_nr).remove();
+				var spinner = document.getElementById("spinner_log_" + log_nr);
+				if (spinner) spinner.remove();
 			})
 			.catch(error => {
 				log(`Error loading log: ${error}`);
-				$("#spinner_log_" + log_nr).remove();
+				var spinner = document.getElementById("spinner_log_" + log_nr);
+				if (spinner) spinner.remove();
 			});
 	}
 }
 
-function load_debug_log () {
-	var pre_id = `here_debuglogs_go`;
+function load_debug_log() {
+	var preEl = document.getElementById("here_debuglogs_go");
 
-	if (!$("#" + pre_id).data("loaded")) {
-		const params = new URLSearchParams(window.location.search);
-
-		const user_id = params.get('user_id');
-		const experiment_name = params.get('experiment_name');
-		const run_nr = params.get('run_nr');
+	if (preEl && !preEl.dataset.loaded) {
+		var params = new URLSearchParams(window.location.search);
+		var user_id = params.get('user_id');
+		var experiment_name = params.get('experiment_name');
+		var run_nr = params.get('run_nr');
 
 		var url = `get_debug_log?user_id=${user_id}&experiment_name=${experiment_name}&run_nr=${run_nr}`;
 
 		fetch(url)
 			.then(response => response.json())
 			.then(data => {
-				$("#debug_log_spinner").remove();
+				var spinner = document.getElementById("debug_log_spinner");
+				if (spinner) spinner.remove();
 
 				if (data.data) {
 					try {
-						$("#" + pre_id).html(data.data);
+						preEl.innerHTML = data.data;
 					} catch (err) {
-						$("#" + pre_id).text(`Error loading data: ${err}`);
+						preEl.textContent = `Error loading data: ${err}`;
 					}
-
-					$("#" + pre_id).data("loaded", true);
+					preEl.dataset.loaded = "true";
 
 					if (typeof apply_theme_based_on_system_preferences === 'function') {
 						apply_theme_based_on_system_preferences();
@@ -211,94 +202,116 @@ function load_debug_log () {
 			})
 			.catch(error => {
 				log(`Error loading log: ${error}`);
-				$("#debug_log_spinner").remove();
+				var spinner = document.getElementById("debug_log_spinner");
+				if (spinner) spinner.remove();
 			});
 	}
 }
 
+function _colorize_table_entries_by_generation_method() {
+	var colorMap = {
+		"manual": "green",
+		"sobol": "orange",
+		"saasbo": "pink",
+		"uniform": "lightblue",
+		"legacy_gpei": "sienna",
+		"bo_mixed": "aqua",
+		"randomforest": "darkseagreen",
+		"external_generator": "purple",
+		"botorch": "yellow"
+	};
 
-function _colorize_table_entries_by_generation_method () {
-	document.querySelectorAll('[data-column-id="generation_node"]').forEach(el => {
-		let text = el.textContent.toLowerCase();
-		let color = text.includes("manual") ? "green" :
-			text.includes("sobol") ? "orange" :
-			text.includes("saasbo") ? "pink" :
-			text.includes("uniform") ? "lightblue" :
-			text.includes("legacy_gpei") ? "sienna" :
-			text.includes("bo_mixed") ? "aqua" :
-			text.includes("randomforest") ? "darkseagreen" :
-			text.includes("external_generator") ? "purple" :
-			text.includes("botorch") ? "yellow" : "";
-		if (color !== "") {
+	var els = document.querySelectorAll('[data-column-id="generation_node"]');
+	for (var i = 0; i < els.length; i++) {
+		var el = els[i];
+		var text = el.textContent.toLowerCase();
+		var color = "";
+		for (var key in colorMap) {
+			if (text.includes(key)) {
+				color = colorMap[key];
+				break;
+			}
+		}
+		if (color) {
 			el.style.backgroundColor = color;
 		}
 		el.classList.add("invert_in_dark_mode");
-	});
+	}
 }
 
-function _colorize_table_entries_by_trial_status () {
-	document.querySelectorAll('[data-column-id="trial_status"]').forEach(el => {
-		let color = el.textContent.includes("COMPLETED") ? "lightgreen" :
-			el.textContent.includes("RUNNING") ? "orange" :
-			el.textContent.includes("FAILED") ? "red" :
-			el.textContent.includes("CANDIDATE") ? "lightblue" :
-			el.textContent.includes("ABANDONED") ? "yellow" : "";
+function _colorize_table_entries_by_trial_status() {
+	var els = document.querySelectorAll('[data-column-id="trial_status"]');
+	for (var i = 0; i < els.length; i++) {
+		var el = els[i];
+		var text = el.textContent;
+		var color = text.includes("COMPLETED") ? "lightgreen" :
+			text.includes("RUNNING") ? "orange" :
+			text.includes("FAILED") ? "red" :
+			text.includes("CANDIDATE") ? "lightblue" :
+			text.includes("ABANDONED") ? "yellow" : "";
 		if (color) el.style.backgroundColor = color;
 		el.classList.add("invert_in_dark_mode");
-	});
+	}
 }
 
 function _colorize_table_entries(configs) {
-	configs.forEach(cfg => {
-		let cells = [...document.querySelectorAll(cfg.selector)];
-		if (cells.length === 0) return;
-
-		let rawValues = cells.map(el => parseFloat(el.textContent));
-		if (cfg.filter) rawValues = rawValues.filter(cfg.filter);
-		else rawValues = rawValues.filter(v => !isNaN(v));
-
-		if (rawValues.length === 0) return;
+	for (var c = 0; c < configs.length; c++) {
+		var cfg = configs[c];
+		var cells = document.querySelectorAll(cfg.selector);
+		if (cells.length === 0) continue;
 
 		if (cfg.type === "categorical") {
-			let unique = [...new Set(cells.map(el => el.textContent.trim()))];
-			let colorMap = {};
-			unique.forEach((v, i) => {
-				let hue = Math.round((360 / unique.length) * i);
-				colorMap[v] = `hsl(${hue}, 70%, 60%)`;
-			});
-			cells.forEach(el => {
-				let v = el.textContent.trim();
-				if (colorMap[v]) {
-					el.style.backgroundColor = colorMap[v];
-					el.classList.add("invert_in_dark_mode");
+			var uniqueMap = {};
+			var uniqueCount = 0;
+			for (var i = 0; i < cells.length; i++) {
+				var v = cells[i].textContent.trim();
+				if (!(v in uniqueMap)) {
+					uniqueMap[v] = uniqueCount++;
 				}
-			});
-			return;
+			}
+			for (var i = 0; i < cells.length; i++) {
+				var v = cells[i].textContent.trim();
+				var hue = Math.round((360 / uniqueCount) * uniqueMap[v]);
+				cells[i].style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
+				cells[i].classList.add("invert_in_dark_mode");
+			}
+			continue;
 		}
 
-		let values = rawValues;
-		if (cfg.type === "log") values = values.map(v => Math.log(v));
+		// Numeric: compute min/max in one pass
+		var min = Infinity, max = -Infinity;
+		var parsedValues = new Float64Array(cells.length);
+		var validMask = new Uint8Array(cells.length);
 
-		let min = Math.min(...values);
-		let max = Math.max(...values);
-		let range = max - min || 1;
+		for (var i = 0; i < cells.length; i++) {
+			var val = parseFloat(cells[i].textContent);
+			parsedValues[i] = val;
+			if (isNaN(val)) continue;
+			if (cfg.type === "log" && val <= 0) continue;
+			if (cfg.filter && !cfg.filter(val)) continue;
+			validMask[i] = 1;
+			var transformed = cfg.type === "log" ? Math.log(val) : val;
+			if (transformed < min) min = transformed;
+			if (transformed > max) max = transformed;
+		}
 
-		cells.forEach(el => {
-			let value = parseFloat(el.textContent);
-			if (isNaN(value)) return;
-			if (cfg.type === "log" && value <= 0) return;
+		if (min === Infinity) continue;
+		var range = max - min || 1;
 
-			let val = cfg.type === "log" ? Math.log(value) : value;
-			let ratio = (val - min) / range;
+		for (var i = 0; i < cells.length; i++) {
+			if (!validMask[i]) continue;
+			var val = parsedValues[i];
+			var transformed = cfg.type === "log" ? Math.log(val) : val;
+			var ratio = (transformed - min) / range;
 			if (cfg.invert) ratio = 1 - ratio;
 
-			let red = Math.round(255 * ratio);
-			let green = Math.round(255 * (1 - ratio));
+			var red = (255 * ratio) | 0;
+			var green = (255 * (1 - ratio)) | 0;
 
-			el.style.backgroundColor = `rgb(${red}, ${green}, 0)`;
-			el.classList.add("invert_in_dark_mode");
-		});
-	});
+			cells[i].style.backgroundColor = `rgb(${red},${green},0)`;
+			cells[i].classList.add("invert_in_dark_mode");
+		}
+	}
 }
 
 function _apply_colorization() {
@@ -316,82 +329,92 @@ function _apply_colorization() {
 	]);
 }
 
+var _colorize_timer = null;
+
 function colorize_table_entries() {
-	setTimeout(() => {
-		if (typeof result_names !== "undefined" && Array.isArray(result_names) && result_names.length > 0) {
-			_colorize_table_entries_by_trial_status();
-
-			_colorize_table_entries([
-				{ selector: '[data-column-id="queue_time"]', type: "linear" },
-				{ selector: '[data-column-id="run_time"]', type: "linear" },
-				...result_names.map((name, i) => ({
-					selector: `[data-column-id="${name}"]`,
-					type: "log",
-					filter: v => v > 0 && !isNaN(v),
-					invert: result_min_max[i] === "max"
-				})),
-				{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
-				{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
-			]);
-
-			_colorize_table_entries_by_generation_method();
-
-			if (typeof apply_theme_based_on_system_preferences === 'function') {
-				apply_theme_based_on_system_preferences();
-			}
+	if (_colorize_timer) {
+		clearTimeout(_colorize_timer);
+	}
+	_colorize_timer = setTimeout(function() {
+		_colorize_timer = null;
+		if (typeof result_names === "undefined" || !Array.isArray(result_names) || result_names.length === 0) {
+			return;
 		}
-	}, 300);
+
+		_colorize_table_entries_by_trial_status();
+
+		_colorize_table_entries([
+			{ selector: '[data-column-id="queue_time"]', type: "linear" },
+			{ selector: '[data-column-id="run_time"]', type: "linear" },
+			...result_names.map((name, i) => ({
+				selector: `[data-column-id="${name}"]`,
+				type: "log",
+				filter: v => v > 0 && !isNaN(v),
+				invert: result_min_max[i] === "max"
+			})),
+			{ selector: '[data-column-id="hostname"]:not(.gridjs-th)', type: "categorical" },
+			{ selector: '[data-column-id="generation_node"]:not(.gridjs-th)', type: "categorical" }
+		]);
+
+		_colorize_table_entries_by_generation_method();
+
+		if (typeof apply_theme_based_on_system_preferences === 'function') {
+			apply_theme_based_on_system_preferences();
+		}
+	}, 100);
 }
 
-function add_colorize_to_gridjs_table () {
-	let searchInput = document.querySelector(".gridjs-search-input");
+function add_colorize_to_gridjs_table() {
+	var searchInput = document.querySelector(".gridjs-search-input");
 	if (searchInput) {
-		searchInput.addEventListener("input", colorize_table_entries);
+		var debounceTimer = null;
+		searchInput.addEventListener("input", function() {
+			if (debounceTimer) clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(colorize_table_entries, 200);
+		});
 	}
 }
 
 function updatePreWidths() {
-	var width = window.innerWidth * 0.95;
+	var width = (window.innerWidth * 0.95) + 'px';
 	var pres = document.getElementsByTagName('pre');
 	for (var i = 0; i < pres.length; i++) {
-		pres[i].style.width = width + 'px';
+		pres[i].style.width = width;
 	}
 }
 
+var _resizeRAF = null;
+
 function resizePlotlyCharts() {
-	const windowWidth = window.innerWidth;
+	if (_resizeRAF) return;
+	_resizeRAF = requestAnimationFrame(function() {
+		_resizeRAF = null;
+		var windowWidth = window.innerWidth;
 
-	if(last_resize_width == windowWidth) {
-		return;
-	}
+		if (last_resize_width === windowWidth) return;
 
-	const plotlyElements = document.querySelectorAll('.js-plotly-plot');
+		var plotlyElements = document.querySelectorAll('.js-plotly-plot');
+		if (!plotlyElements.length) return;
 
-	if (!plotlyElements.length) {
-		return;
-	}
-
-	const windowHeight = window.innerHeight;
-
-	const newWidth = windowWidth * 0.9;
-
-	plotlyElements.forEach(function(element, index) {
-		const layout = {
+		var newWidth = windowWidth * 0.9;
+		var layout = {
 			width: newWidth,
 			plot_bgcolor: 'rgba(0, 0, 0, 0)',
 			paper_bgcolor: 'rgba(0, 0, 0, 0)',
 		};
 
-		Plotly.relayout(element, layout)
+		for (var i = 0; i < plotlyElements.length; i++) {
+			Plotly.relayout(plotlyElements[i], layout);
+		}
+
+		make_text_in_parallel_plot_nicer();
+
+		if (typeof apply_theme_based_on_system_preferences === 'function') {
+			apply_theme_based_on_system_preferences();
+		}
+
+		last_resize_width = windowWidth;
 	});
-
-	make_text_in_parallel_plot_nicer();
-
-	if (typeof apply_theme_based_on_system_preferences === 'function') {
-		apply_theme_based_on_system_preferences();
-	}
-
-	last_resize_width = windowWidth;
 }
 
 function createResultParameterCanvases(this_res_name) {
@@ -417,221 +440,189 @@ function createResultParameterCanvases(this_res_name) {
 		return null;
 	}
 
-	function getColumnIndexMap(headers) {
-		var map = {};
-		for (var i = 0; i < headers.length; i++) {
-			map[headers[i]] = i;
+	var header_map = {};
+	for (var i = 0; i < tab_results_headers_json.length; i++) {
+		header_map[tab_results_headers_json[i]] = i;
+	}
+
+	var specialSet = new Set(special_col_names);
+	var resultSet = new Set(result_names);
+
+	var parameter_columns = [];
+	for (var i = 0; i < tab_results_headers_json.length; i++) {
+		var name = tab_results_headers_json[i];
+		if (!specialSet.has(name) && !resultSet.has(name) && !name.startsWith("OO_Info_")) {
+			parameter_columns.push(name);
 		}
-		return map;
-	}
-
-	function getColumnData(data, index) {
-		var result = [];
-		for (var i = 0; i < data.length; i++) {
-			result.push(data[i][index]);
-		}
-		return result;
-	}
-
-	function normalize(value, min, max) {
-		if (max === min) {
-			return 0.5;
-		}
-		return (value - min) / (max - min);
-	}
-
-	function interpolateColor(ratio, reverse) {
-		var r = reverse ? ratio : 1 - ratio;
-		var g = reverse ? 1 - ratio : ratio;
-		var b = 0;
-		r = Math.floor(r * 255);
-		g = Math.floor(g * 255);
-		return "rgb(" + r + "," + g + "," + b + ")";
-	}
-
-	function createCanvas(width, height) {
-		var canvas = document.createElement("canvas");
-		canvas.width = width;
-		canvas.height = height;
-		return canvas;
-	}
-
-	function isNumericArray(arr) {
-		for (var i = 0; i < arr.length; i++) {
-			var val = arr[i];
-			if (typeof val !== "number" || isNaN(val)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	function findBestRowIndex() {
-		var bestIndex = 0;
-
-		for (var i = 1; i < tab_results_csv_json.length; i++) {
-			var better = false;
-
-			for (var r = 0; r < result_names.length; r++) {
-				var col = result_names[r];
-				var colIdx = header_map[col];
-				var goal = result_min_max[r]; // "min" or "max"
-
-				var valCurrent = tab_results_csv_json[i][colIdx];
-				var valBest = tab_results_csv_json[bestIndex][colIdx];
-
-				if (goal === "min" && valCurrent < valBest) {
-					better = true;
-					break;
-				}
-
-				if (goal === "max" && valCurrent > valBest) {
-					better = true;
-					break;
-				}
-			}
-
-			if (better) {
-				bestIndex = i;
-			}
-		}
-
-		return bestIndex;
 	}
 
 	var canvas_width = 1000;
 	var canvas_height = 100;
-
-	var header_map = getColumnIndexMap(tab_results_headers_json);
-
-	var parameter_columns = tab_results_headers_json.filter(function (name) {
-		return (
-			!special_col_names.includes(name) &&
-			!result_names.includes(name) &&
-			!name.startsWith("OO_Info_")
-		);
-	});
+	var dataLen = tab_results_csv_json.length;
 
 	var container = document.createElement("div");
 
 	for (var r = 0; r < result_names.length; r++) {
 		var result_name = result_names[r];
-		if (this_res_name == result_name) {
-			var result_index = header_map[result_name];
-			var result_goal = result_min_max[r]; // "min" or "max"
+		if (this_res_name !== result_name) continue;
 
-			var result_values = getColumnData(tab_results_csv_json, result_index);
-			var result_min = Math.min.apply(null, result_values);
-			var result_max = Math.max.apply(null, result_values);
+		var result_index = header_map[result_name];
+		var result_goal = result_min_max[r];
 
-			var table = document.createElement("table");
-			table.style.borderCollapse = "collapse";
-			table.style.marginBottom = "32px";
+		// Pre-extract result column and compute min/max
+		var result_values = new Float64Array(dataLen);
+		var result_min = Infinity, result_max = -Infinity;
+		for (var i = 0; i < dataLen; i++) {
+			var v = tab_results_csv_json[i][result_index];
+			result_values[i] = v;
+			if (v < result_min) result_min = v;
+			if (v > result_max) result_max = v;
+		}
+		var result_range = result_max - result_min || 1;
 
-			var thead = document.createElement("thead");
-			var headRow = document.createElement("tr");
+		var table = document.createElement("table");
+		table.style.borderCollapse = "collapse";
+		table.style.marginBottom = "32px";
 
-			var th1 = document.createElement("th");
-			th1.textContent = "Parameter";
-			th1.style.textAlign = "left";
-			th1.style.padding = "6px 12px";
-			var th2 = document.createElement("th");
-			th2.textContent = "Distribution";
-			th2.style.textAlign = "left";
-			th2.style.padding = "6px 12px";
+		var thead = document.createElement("thead");
+		var headRow = document.createElement("tr");
 
-			headRow.appendChild(th1);
-			headRow.appendChild(th2);
-			thead.appendChild(headRow);
-			table.appendChild(thead);
+		var th1 = document.createElement("th");
+		th1.textContent = "Parameter";
+		th1.style.textAlign = "left";
+		th1.style.padding = "6px 12px";
+		var th2 = document.createElement("th");
+		th2.textContent = "Distribution";
+		th2.style.textAlign = "left";
+		th2.style.padding = "6px 12px";
 
-			var tbody = document.createElement("tbody");
+		headRow.appendChild(th1);
+		headRow.appendChild(th2);
+		thead.appendChild(headRow);
+		table.appendChild(thead);
 
-			for (var p = 0; p < parameter_columns.length; p++) {
-				var param_name = parameter_columns[p];
-				var param_index = header_map[param_name];
-				var param_values = getColumnData(tab_results_csv_json, param_index);
+		var tbody = document.createElement("tbody");
 
-				if (!isNumericArray(param_values)) {
-					continue;
+		for (var p = 0; p < parameter_columns.length; p++) {
+			var param_name = parameter_columns[p];
+			var param_index = header_map[param_name];
+
+			// Check if numeric and compute min/max in one pass
+			var param_min = Infinity, param_max = -Infinity;
+			var isNumeric = true;
+			for (var i = 0; i < dataLen; i++) {
+				var val = tab_results_csv_json[i][param_index];
+				if (typeof val !== "number" || isNaN(val)) {
+					isNumeric = false;
+					break;
 				}
-
-				var param_min = Math.min.apply(null, param_values);
-				var param_max = Math.max.apply(null, param_values);
-
-				var canvas = createCanvas(canvas_width, canvas_height);
-
-				canvas.classList.add("invert_in_dark_mode");
-
-				var ctx = canvas.getContext("2d");
-
-				ctx.fillStyle = "white";
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-				var x_groups = {};
-
-				for (var i = 0; i < tab_results_csv_json.length; i++) {
-					var raw_param = tab_results_csv_json[i][param_index];
-					var raw_result = tab_results_csv_json[i][result_index];
-
-					var x_ratio = normalize(raw_param, param_min, param_max);
-					var x = Math.floor(x_ratio * (canvas_width - 1));
-
-					if (!x_groups[x]) {
-						x_groups[x] = [];
-					}
-
-					x_groups[x].push(raw_result);
-				}
-
-				for (var x in x_groups) {
-					var values = x_groups[x];
-					values.sort(function (a, b) {
-						return a - b;
-					});
-
-					var stripe_height = canvas_height / values.length;
-					for (var i = 0; i < values.length; i++) {
-						var y_start = i * stripe_height;
-						var y_end = (i + 1) * stripe_height;
-
-						var value = values[i];
-						var result_ratio = normalize(value, result_min, result_max);
-						var color = interpolateColor(result_ratio, result_goal === "min");
-
-						ctx.beginPath();
-						ctx.strokeStyle = color;
-						ctx.lineWidth = 1;
-						ctx.moveTo(Number(x) + 0.5, y_start);
-						ctx.lineTo(Number(x) + 0.5, y_end);
-						ctx.stroke();
-					}
-				}
-
-				var row = document.createElement("tr");
-
-				var cell_param = document.createElement("td");
-				cell_param.textContent = param_name;
-				cell_param.style.padding = "4px 12px";
-				cell_param.style.verticalAlign = "top";
-				cell_param.style.fontFamily = "monospace";
-				cell_param.style.whiteSpace = "nowrap";
-
-				var cell_canvas = document.createElement("td");
-				cell_canvas.appendChild(canvas);
-				cell_canvas.style.padding = "4px 12px";
-
-				row.appendChild(cell_param);
-				row.appendChild(cell_canvas);
-				tbody.appendChild(row);
+				if (val < param_min) param_min = val;
+				if (val > param_max) param_max = val;
 			}
 
-			table.appendChild(tbody);
-			container.appendChild(table);
+			if (!isNumeric) continue;
+
+			var param_range = param_max - param_min || 1;
+
+			var canvas = document.createElement("canvas");
+			canvas.width = canvas_width;
+			canvas.height = canvas_height;
+			canvas.classList.add("invert_in_dark_mode");
+
+			var ctx = canvas.getContext("2d");
+			ctx.fillStyle = "white";
+			ctx.fillRect(0, 0, canvas_width, canvas_height);
+
+			// Use a typed array for grouping by x pixel
+			// Each x can have multiple results; collect them
+			var x_groups = new Array(canvas_width);
+
+			for (var i = 0; i < dataLen; i++) {
+				var raw_param = tab_results_csv_json[i][param_index];
+				var x = ((raw_param - param_min) / param_range * (canvas_width - 1)) | 0;
+
+				if (!x_groups[x]) {
+					x_groups[x] = [result_values[i]];
+				} else {
+					x_groups[x].push(result_values[i]);
+				}
+			}
+
+			// Use ImageData for pixel-level drawing (much faster than individual strokes)
+			var imageData = ctx.getImageData(0, 0, canvas_width, canvas_height);
+			var pixels = imageData.data;
+
+			for (var x = 0; x < canvas_width; x++) {
+				var values = x_groups[x];
+				if (!values) continue;
+
+				values.sort(function(a, b) { return a - b; });
+
+				var count = values.length;
+				for (var vi = 0; vi < count; vi++) {
+					var y_start = (vi / count * canvas_height) | 0;
+					var y_end = ((vi + 1) / count * canvas_height) | 0;
+
+					var result_ratio = (values[vi] - result_min) / result_range;
+					var red, green;
+					if (result_goal === "min") {
+						red = (255 * result_ratio) | 0;
+						green = (255 * (1 - result_ratio)) | 0;
+					} else {
+						red = (255 * (1 - result_ratio)) | 0;
+						green = (255 * result_ratio) | 0;
+					}
+
+					for (var y = y_start; y < y_end; y++) {
+						var idx = (y * canvas_width + x) * 4;
+						pixels[idx] = red;
+						pixels[idx + 1] = green;
+						pixels[idx + 2] = 0;
+						pixels[idx + 3] = 255;
+					}
+				}
+			}
+
+			ctx.putImageData(imageData, 0, 0);
+
+			var row = document.createElement("tr");
+
+			var cell_param = document.createElement("td");
+			cell_param.textContent = param_name;
+			cell_param.style.padding = "4px 12px";
+			cell_param.style.verticalAlign = "top";
+			cell_param.style.fontFamily = "monospace";
+			cell_param.style.whiteSpace = "nowrap";
+
+			var cell_canvas = document.createElement("td");
+			cell_canvas.appendChild(canvas);
+			cell_canvas.style.padding = "4px 12px";
+
+			row.appendChild(cell_param);
+			row.appendChild(cell_canvas);
+			tbody.appendChild(row);
+		}
+
+		table.appendChild(tbody);
+		container.appendChild(table);
+	}
+
+	// Find best row
+	var bestIndex = 0;
+	for (var i = 1; i < dataLen; i++) {
+		for (var ri = 0; ri < result_names.length; ri++) {
+			var colIdx = header_map[result_names[ri]];
+			var goal = result_min_max[ri];
+			var valCurrent = tab_results_csv_json[i][colIdx];
+			var valBest = tab_results_csv_json[bestIndex][colIdx];
+
+			if ((goal === "min" && valCurrent < valBest) || (goal === "max" && valCurrent > valBest)) {
+				bestIndex = i;
+				break;
+			}
 		}
 	}
 
-	var bestIndex = findBestRowIndex();
 	var bestRow = tab_results_csv_json[bestIndex];
 
 	var ul = document.createElement("ul");
@@ -639,22 +630,16 @@ function createResultParameterCanvases(this_res_name) {
 	ul.style.paddingLeft = "24px";
 
 	for (var i = 0; i < result_names.length; i++) {
-		var name = result_names[i];
-		var val = bestRow[header_map[name]];
 		var li = document.createElement("li");
-		li.textContent = name + " = " + val;
+		li.textContent = result_names[i] + " = " + bestRow[header_map[result_names[i]]];
 		ul.appendChild(li);
 	}
 
 	for (var i = 0; i < tab_results_headers_json.length; i++) {
 		var name = tab_results_headers_json[i];
-		if (special_col_names.includes(name) || name.startsWith("OO_Info_") || result_names.includes(name)) {
-			continue;
-		}
-
-		var val = bestRow[header_map[name]];
+		if (specialSet.has(name) || name.startsWith("OO_Info_") || resultSet.has(name)) continue;
 		var li = document.createElement("li");
-		li.textContent = name + " = " + val;
+		li.textContent = name + " = " + bestRow[header_map[name]];
 		ul.appendChild(li);
 	}
 
@@ -662,41 +647,38 @@ function createResultParameterCanvases(this_res_name) {
 }
 
 function initializeResultParameterVisualizations() {
-        try {
-                var elements = $('.result_parameter_visualization');
+	try {
+		var elements = document.querySelectorAll('.result_parameter_visualization');
 
-                if (!elements || elements.length === 0) {
-                        console.warn('No .result_parameter_visualization elements found.');
-                        return;
-                }
+		if (!elements || elements.length === 0) {
+			console.warn('No .result_parameter_visualization elements found.');
+			return;
+		}
 
-                elements.each(function () {
-                        var element = $(this);
+		for (var i = 0; i < elements.length; i++) {
+			var element = elements[i];
 
-                        if (element.data('initialized')) {
-                                return; // Already initialized, skip
-                        }
+			if (element.dataset.initialized) continue;
 
-                        var resname = element.attr('data-resname');
+			var resname = element.getAttribute('data-resname');
 
-                        if (!resname) {
-                                console.error('Missing data-resname attribute for element:', this);
-                                return;
-                        }
+			if (!resname) {
+				console.error('Missing data-resname attribute for element:', element);
+				continue;
+			}
 
-                        try {
-                                var html = createResultParameterCanvases(resname);
-
-                                element.html(html);
-                                element.data('initialized', true);
-
-                        } catch (err) {
-                                console.error('Error while calling createResultParameterCanvases for resname:', resname, err);
-                        }
-                });
-        } catch (outerErr) {
-                console.error('Failed to initialize result parameter visualizations:', outerErr);
-        }
+			try {
+				var html = createResultParameterCanvases(resname);
+				element.innerHTML = '';
+				element.appendChild(html);
+				element.dataset.initialized = "true";
+			} catch (err) {
+				console.error('Error while calling createResultParameterCanvases for resname:', resname, err);
+			}
+		}
+	} catch (outerErr) {
+		console.error('Failed to initialize result parameter visualizations:', outerErr);
+	}
 
 	if (typeof apply_theme_based_on_system_preferences === 'function') {
 		apply_theme_based_on_system_preferences();
@@ -710,9 +692,7 @@ function insertSortableSelectForSingleLogsTabs() {
 	}
 
 	var $tab_logs = $("#tab_logs");
-	if ($tab_logs.length === 0) {
-		return;
-	}
+	if ($tab_logs.length === 0) return;
 
 	var $menu = $tab_logs.find("menu[role='tablist']");
 	if ($menu.length === 0) {
@@ -743,14 +723,15 @@ function insertSortableSelectForSingleLogsTabs() {
 		return;
 	}
 
-	var $select = $("<select></select>").css({marginBottom: "10px"});
+	var $select = $("<select></select>").css({ marginBottom: "10px" });
 	$select.append($("<option disabled selected>Select attribute to sort</option>"));
 
-	attrList.forEach(function(attr) {
+	for (var i = 0; i < attrList.length; i++) {
+		var attr = attrList[i];
 		var cleanName = attr.replace("data-", "");
 		$select.append($("<option></option>").attr("value", attr + "|asc").text(cleanName + " (ascending)"));
 		$select.append($("<option></option>").attr("value", attr + "|desc").text(cleanName + " (descending)"));
-	});
+	}
 
 	$tab_logs.prepend($select);
 
@@ -767,21 +748,17 @@ function insertSortableSelectForSingleLogsTabs() {
 		var $btnsArray = $buttons.toArray();
 
 		$btnsArray.sort(function(a, b) {
-			var va = $(a).attr(attr);
-			var vb = $(b).attr(attr);
-
-			if (va === undefined || va === null) va = "";
-			if (vb === undefined || vb === null) vb = "";
+			var va = a.getAttribute(attr) || "";
+			var vb = b.getAttribute(attr) || "";
 
 			var na = parseFloat(va);
 			var nb = parseFloat(vb);
 			if (!isNaN(na) && !isNaN(nb)) {
 				return order === "asc" ? na - nb : nb - na;
-			} else {
-				if (va < vb) return order === "asc" ? -1 : 1;
-				if (va > vb) return order === "asc" ? 1 : -1;
-				return 0;
 			}
+			if (va < vb) return order === "asc" ? -1 : 1;
+			if (va > vb) return order === "asc" ? 1 : -1;
+			return 0;
 		});
 
 		$menu.empty().append($btnsArray);
@@ -793,10 +770,7 @@ window.addEventListener('resize', updatePreWidths);
 
 $(document).ready(function() {
 	colorize_table_entries();
-
 	add_colorize_to_gridjs_table();
 });
 
-window.addEventListener('resize', function() {
-	resizePlotlyCharts();
-});
+window.addEventListener('resize', resizePlotlyCharts);

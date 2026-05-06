@@ -10849,7 +10849,7 @@ def run_program_once(params: Optional[dict] = None) -> None:
             placeholder = f"%({k})"
             command_str = command_str.replace(placeholder, str(v))
 
-        print(f"Executing command: [cyan]{command_str}[/cyan]")
+        original_print(f"Executing command: [cyan]{command_str}[/cyan]")
         result = subprocess.run(command_str, shell=True, check=True)
         if result.returncode == 0:
             print("[bold green]Setup script completed successfully ✅[/bold green]")

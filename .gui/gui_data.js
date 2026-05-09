@@ -490,6 +490,13 @@ var hiddenTableData = [
 		info: "Show a verbose table when the break_run_search is run."
 	},
 	{
+		label: "Disable notifications?",
+		id: "disable_notifications",
+		type: "checkbox",
+		value: 0,
+		info: "Disable notifications for desktop systems."
+	},
+	{
 		label: "Abbreviate job names?",
 		id: "abbreviate_job_names",
 		type: "checkbox",

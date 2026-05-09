@@ -1,81 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" width="1000" height="400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 500" width="1100" height="500">
   <defs>
     <!-- Outer ring: VIVID green to cyan -->
     <linearGradient id="outerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#11aa00"/>
-      <stop offset="20%" stop-color="#33dd11"/>
-      <stop offset="45%" stop-color="#44ee33"/>
-      <stop offset="65%" stop-color="#00eebb"/>
+      <stop offset="0%" stop-color="#00cc00"/>
+      <stop offset="15%" stop-color="#22dd11"/>
+      <stop offset="35%" stop-color="#44ee33"/>
+      <stop offset="50%" stop-color="#33ffaa"/>
+      <stop offset="70%" stop-color="#00eedd"/>
       <stop offset="85%" stop-color="#00ddff"/>
       <stop offset="100%" stop-color="#00eeff"/>
     </linearGradient>
 
     <!-- Inner ring: rich deep blue to electric cyan -->
     <linearGradient id="innerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#001188"/>
-      <stop offset="25%" stop-color="#0033bb"/>
-      <stop offset="50%" stop-color="#0066dd"/>
-      <stop offset="75%" stop-color="#0099ff"/>
+      <stop offset="0%" stop-color="#0011aa"/>
+      <stop offset="20%" stop-color="#0033cc"/>
+      <stop offset="45%" stop-color="#0066ee"/>
+      <stop offset="70%" stop-color="#0099ff"/>
       <stop offset="100%" stop-color="#00ddff"/>
     </linearGradient>
 
     <!-- Outer ring highlight -->
-    <linearGradient id="outerHighlight" x1="30%" y1="0%" x2="70%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"/>
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+    <linearGradient id="outerHighlight" x1="25%" y1="0%" x2="75%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.1"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
 
     <!-- Inner ring highlight -->
-    <linearGradient id="innerHighlight" x1="40%" y1="0%" x2="60%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+    <linearGradient id="innerHighlight" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.05"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
 
     <!-- Text gradient: green to cyan to blue -->
     <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#33ee22"/>
-      <stop offset="30%" stop-color="#33dd44"/>
-      <stop offset="55%" stop-color="#00cc77"/>
-      <stop offset="75%" stop-color="#00aadd"/>
+      <stop offset="0%" stop-color="#44ff22"/>
+      <stop offset="25%" stop-color="#33ee44"/>
+      <stop offset="50%" stop-color="#00dd88"/>
+      <stop offset="75%" stop-color="#00bbdd"/>
       <stop offset="100%" stop-color="#0099ff"/>
     </linearGradient>
 
-    <!-- Subtitle gradient -->
+    <!-- Subtitle gradient - brighter, bolder -->
     <linearGradient id="subGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#44aacc"/>
-      <stop offset="100%" stop-color="#6688bb"/>
+      <stop offset="0%" stop-color="#88ffcc"/>
+      <stop offset="50%" stop-color="#77ddee"/>
+      <stop offset="100%" stop-color="#77ccff"/>
     </linearGradient>
 
     <!-- Golden flare radial -->
     <radialGradient id="flareGold" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="8%" stop-color="#ffffee" stop-opacity="1"/>
-      <stop offset="20%" stop-color="#ffee44" stop-opacity="0.8"/>
-      <stop offset="40%" stop-color="#ffcc00" stop-opacity="0.4"/>
-      <stop offset="65%" stop-color="#ff8800" stop-opacity="0.15"/>
+      <stop offset="6%" stop-color="#fffff8" stop-opacity="1"/>
+      <stop offset="15%" stop-color="#ffee44" stop-opacity="0.85"/>
+      <stop offset="30%" stop-color="#ffcc00" stop-opacity="0.5"/>
+      <stop offset="50%" stop-color="#ff9900" stop-opacity="0.2"/>
+      <stop offset="75%" stop-color="#ff6600" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Warm ambient glow behind flare -->
+    <!-- Warm ambient glow -->
     <radialGradient id="warmGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffdd00" stop-opacity="0.3"/>
-      <stop offset="50%" stop-color="#ff8800" stop-opacity="0.08"/>
+      <stop offset="0%" stop-color="#ffee00" stop-opacity="0.2"/>
+      <stop offset="40%" stop-color="#ffaa00" stop-opacity="0.06"/>
       <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Green ambient behind outer ring -->
+    <!-- Green ambient -->
     <radialGradient id="greenAmbient" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00ff44" stop-opacity="0.12"/>
-      <stop offset="60%" stop-color="#00dd88" stop-opacity="0.04"/>
+      <stop offset="0%" stop-color="#00ff55" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#00dd88" stop-opacity="0.03"/>
       <stop offset="100%" stop-color="#00ccff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Blue ambient -->
+    <radialGradient id="blueAmbient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0088ff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#0044ff" stop-opacity="0"/>
     </radialGradient>
 
     <!-- Green glow filter -->
     <filter id="greenGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="g1"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="g2"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="g1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="g2"/>
       <feMerge>
         <feMergeNode in="g1"/>
         <feMergeNode in="g2"/>
@@ -85,7 +94,7 @@
 
     <!-- Blue glow filter -->
     <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b1"/>
       <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b2"/>
       <feMerge>
         <feMergeNode in="b1"/>
@@ -94,108 +103,106 @@
       </feMerge>
     </filter>
 
-    <!-- Intense flare bloom -->
+    <!-- Flare bloom -->
     <filter id="flareBloom" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12"/>
     </filter>
 
-    <!-- Text glow -->
-    <filter id="textGlow" x="-5%" y="-10%" width="110%" height="130%">
-      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#000000" flood-opacity="0.6"/>
+    <!-- Soft flare -->
+    <filter id="softFlare" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
     </filter>
 
-    <!-- Subtitle glow -->
-    <filter id="subGlow" x="-5%" y="-10%" width="110%" height="130%">
-      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+    <!-- Subtle text backing — very soft, wide, dark halo -->
+    <filter id="textBacking" x="-3%" y="-15%" width="106%" height="130%">
+      <feFlood flood-color="#000000" flood-opacity="0.4" result="black"/>
+      <feComposite in="black" in2="SourceGraphic" operator="in" result="mask"/>
+      <feGaussianBlur in="mask" stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
   </defs>
 
   <!-- Transparent background -->
 
   <!-- Green ambient light behind rings -->
-  <ellipse cx="720" cy="180" rx="180" ry="180" fill="url(#greenAmbient)"/>
+  <ellipse cx="840" cy="250" rx="200" ry="200" fill="url(#greenAmbient)"/>
+
+  <!-- Blue ambient inside -->
+  <ellipse cx="820" cy="268" rx="90" ry="90" fill="url(#blueAmbient)"/>
 
   <!-- Warm golden ambient near flare -->
-  <ellipse cx="820" cy="80" rx="100" ry="100" fill="url(#warmGlow)"/>
+  <ellipse cx="950" cy="115" rx="110" ry="110" fill="url(#warmGlow)"/>
 
   <!-- === OUTER RING === -->
-  <!-- Main stroke -->
-  <circle cx="720" cy="185" r="135" fill="none" stroke="url(#outerGrad)" stroke-width="30"/>
-  <!-- Glow layer -->
-  <circle cx="720" cy="185" r="135" fill="none" stroke="url(#outerGrad)" stroke-width="30" filter="url(#greenGlow)" opacity="0.55"/>
-  <!-- Highlight/shine on top-left -->
-  <circle cx="720" cy="185" r="135" fill="none" stroke="url(#outerHighlight)" stroke-width="30"/>
+  <circle cx="840" cy="250" r="150" fill="none" stroke="url(#outerGrad)" stroke-width="32"/>
+  <circle cx="840" cy="250" r="150" fill="none" stroke="url(#outerGrad)" stroke-width="32" filter="url(#greenGlow)" opacity="0.5"/>
+  <circle cx="840" cy="250" r="150" fill="none" stroke="url(#outerHighlight)" stroke-width="32"/>
 
   <!-- === INNER RING === -->
-  <!-- Main stroke -->
-  <circle cx="705" cy="200" r="80" fill="none" stroke="url(#innerGrad)" stroke-width="24"/>
-  <!-- Glow layer -->
-  <circle cx="705" cy="200" r="80" fill="none" stroke="url(#innerGrad)" stroke-width="24" filter="url(#blueGlow)" opacity="0.5"/>
-  <!-- Highlight -->
-  <circle cx="705" cy="200" r="80" fill="none" stroke="url(#innerHighlight)" stroke-width="24"/>
+  <circle cx="822" cy="268" r="88" fill="none" stroke="url(#innerGrad)" stroke-width="26"/>
+  <circle cx="822" cy="268" r="88" fill="none" stroke="url(#innerGrad)" stroke-width="26" filter="url(#blueGlow)" opacity="0.45"/>
+  <circle cx="822" cy="268" r="88" fill="none" stroke="url(#innerHighlight)" stroke-width="26"/>
 
   <!-- === SCATTERED PARTICLES === -->
-  <!-- Greens -->
-  <circle cx="820" cy="62" r="3.5" fill="#66ff00" opacity="0.95"/>
-  <circle cx="835" cy="75" r="2.5" fill="#88ff11" opacity="0.9"/>
-  <circle cx="808" cy="48" r="2" fill="#44ee00" opacity="0.85"/>
-  <circle cx="845" cy="90" r="2.8" fill="#55ff22" opacity="0.75"/>
-  <circle cx="828" cy="52" r="1.8" fill="#aaff00" opacity="0.8"/>
-  <circle cx="800" cy="40" r="1.5" fill="#77ff33" opacity="0.7"/>
-  <circle cx="850" cy="70" r="3.2" fill="#33ee00" opacity="0.6"/>
-  <circle cx="860" cy="105" r="1.8" fill="#99ff00" opacity="0.7"/>
-  <circle cx="815" cy="38" r="2.2" fill="#bbff00" opacity="0.6"/>
-  <circle cx="865" cy="82" r="1.3" fill="#ddff00" opacity="0.85"/>
-  <circle cx="790" cy="35" r="2" fill="#00ff44" opacity="0.6"/>
-  <circle cx="870" cy="115" r="1.8" fill="#22ffaa" opacity="0.5"/>
-  <!-- Golds -->
-  <circle cx="825" cy="45" r="1.6" fill="#ffcc00" opacity="0.9"/>
-  <circle cx="840" cy="58" r="2.4" fill="#ffdd00" opacity="0.8"/>
-  <circle cx="812" cy="32" r="1.2" fill="#ffaa00" opacity="0.85"/>
-  <circle cx="855" cy="62" r="1.9" fill="#ffee22" opacity="0.7"/>
-  <circle cx="795" cy="45" r="1.4" fill="#ffbb00" opacity="0.6"/>
-  <circle cx="848" cy="42" r="1" fill="#ffffff" opacity="0.7"/>
-  <!-- Cyans -->
-  <circle cx="862" cy="95" r="2.2" fill="#00ffcc" opacity="0.5"/>
-  <circle cx="838" cy="35" r="1.6" fill="#00ffaa" opacity="0.55"/>
-  <circle cx="875" cy="100" r="1.4" fill="#00eeff" opacity="0.45"/>
+  <circle cx="955" cy="108" r="4" fill="#55ff00" opacity="0.95"/>
+  <circle cx="970" cy="122" r="2.8" fill="#88ff11" opacity="0.9"/>
+  <circle cx="942" cy="92" r="2.2" fill="#44ee00" opacity="0.85"/>
+  <circle cx="982" cy="138" r="3" fill="#55ff22" opacity="0.75"/>
+  <circle cx="962" cy="98" r="2" fill="#aaff00" opacity="0.8"/>
+  <circle cx="935" cy="85" r="1.6" fill="#77ff33" opacity="0.7"/>
+  <circle cx="988" cy="118" r="3.5" fill="#33ee00" opacity="0.6"/>
+  <circle cx="995" cy="152" r="2" fill="#99ff00" opacity="0.7"/>
+  <circle cx="950" cy="82" r="2.5" fill="#bbff00" opacity="0.6"/>
+  <circle cx="1000" cy="130" r="1.5" fill="#ddff00" opacity="0.85"/>
+  <circle cx="928" cy="80" r="2.2" fill="#00ff44" opacity="0.6"/>
+  <circle cx="1005" cy="160" r="2" fill="#22ffaa" opacity="0.5"/>
+  <circle cx="960" cy="90" r="1.8" fill="#ffcc00" opacity="0.9"/>
+  <circle cx="975" cy="105" r="2.6" fill="#ffdd00" opacity="0.8"/>
+  <circle cx="948" cy="78" r="1.4" fill="#ffaa00" opacity="0.85"/>
+  <circle cx="990" cy="108" r="2.1" fill="#ffee22" opacity="0.7"/>
+  <circle cx="932" cy="90" r="1.5" fill="#ffbb00" opacity="0.65"/>
+  <circle cx="983" cy="88" r="1.2" fill="#ffffff" opacity="0.75"/>
+  <circle cx="998" cy="142" r="2.4" fill="#00ffcc" opacity="0.5"/>
+  <circle cx="972" cy="80" r="1.8" fill="#00ffaa" opacity="0.55"/>
+  <circle cx="1008" cy="148" r="1.5" fill="#00eeff" opacity="0.45"/>
+  <circle cx="940" cy="72" r="1" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1002" cy="118" r="1.3" fill="#ffffff" opacity="0.5"/>
+  <circle cx="965" cy="75" r="0.8" fill="#ffffff" opacity="0.4"/>
 
   <!-- === MAIN LENS FLARE === -->
-  <!-- Outer warm bloom -->
-  <ellipse cx="835" cy="65" rx="55" ry="55" fill="url(#flareGold)" opacity="0.9"/>
-  <ellipse cx="835" cy="65" rx="30" ry="30" fill="url(#flareGold)" opacity="0.6" filter="url(#flareBloom)"/>
+  <ellipse cx="968" cy="110" rx="60" ry="60" fill="url(#flareGold)" opacity="0.92"/>
+  <ellipse cx="968" cy="110" rx="35" ry="35" fill="url(#flareGold)" opacity="0.55" filter="url(#flareBloom)"/>
+  <ellipse cx="968" cy="110" rx="18" ry="18" fill="url(#flareGold)" opacity="0.4" filter="url(#softFlare)"/>
 
-  <!-- Star spikes — 8 pointed, golden -->
-  <line x1="770" y1="65" x2="900" y2="65" stroke="#ffeeaa" stroke-width="3" opacity="0.9" stroke-linecap="round"/>
-  <line x1="835" y1="0" x2="835" y2="130" stroke="#ffeeaa" stroke-width="2.5" opacity="0.7" stroke-linecap="round"/>
-  <line x1="793" y1="23" x2="877" y2="107" stroke="#ffeeaa" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
-  <line x1="793" y1="107" x2="877" y2="23" stroke="#ffeeaa" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
-
-  <!-- Secondary thin spikes -->
-  <line x1="785" y1="45" x2="885" y2="85" stroke="#ffffff" stroke-width="1" opacity="0.3" stroke-linecap="round"/>
-  <line x1="815" y1="15" x2="855" y2="115" stroke="#ffffff" stroke-width="1" opacity="0.3" stroke-linecap="round"/>
+  <!-- Star spikes -->
+  <line x1="895" y1="110" x2="1041" y2="110" stroke="#ffeeaa" stroke-width="3.5" opacity="0.9" stroke-linecap="round"/>
+  <line x1="968" y1="37" x2="968" y2="183" stroke="#ffeeaa" stroke-width="2.8" opacity="0.7" stroke-linecap="round"/>
+  <line x1="922" y1="64" x2="1014" y2="156" stroke="#ffeeaa" stroke-width="2.2" opacity="0.55" stroke-linecap="round"/>
+  <line x1="922" y1="156" x2="1014" y2="64" stroke="#ffeeaa" stroke-width="2.2" opacity="0.55" stroke-linecap="round"/>
+  <line x1="918" y1="90" x2="1018" y2="130" stroke="#ffffff" stroke-width="1.2" opacity="0.3" stroke-linecap="round"/>
+  <line x1="948" y1="55" x2="988" y2="165" stroke="#ffffff" stroke-width="1.2" opacity="0.3" stroke-linecap="round"/>
+  <line x1="930" y1="140" x2="1006" y2="80" stroke="#ffffff" stroke-width="0.8" opacity="0.2" stroke-linecap="round"/>
+  <line x1="940" y1="60" x2="996" y2="160" stroke="#ffffff" stroke-width="0.8" opacity="0.2" stroke-linecap="round"/>
 
   <!-- Flare hot core -->
-  <circle cx="835" cy="65" r="8" fill="#ffffff" opacity="1"/>
-  <circle cx="835" cy="65" r="15" fill="#ffffff" opacity="0.5" filter="url(#flareBloom)"/>
-  <circle cx="835" cy="65" r="4" fill="#ffffcc" opacity="1"/>
+  <circle cx="968" cy="110" r="10" fill="#ffffff" opacity="1"/>
+  <circle cx="968" cy="110" r="18" fill="#ffffff" opacity="0.5" filter="url(#flareBloom)"/>
+  <circle cx="968" cy="110" r="5" fill="#ffffdd" opacity="1"/>
 
-  <!-- Secondary flare reflection (bottom-left) -->
-  <ellipse cx="600" cy="305" rx="8" ry="8" fill="url(#flareGold)" opacity="0.2"/>
-  <circle cx="610" cy="298" r="3" fill="#ffffff" opacity="0.08"/>
-
-  <!-- Tertiary tiny flare -->
-  <circle cx="640" cy="320" r="2.5" fill="#aaddff" opacity="0.1"/>
-  <circle cx="580" cy="315" r="1.5" fill="#ffdd88" opacity="0.08"/>
+  <!-- Secondary flare -->
+  <ellipse cx="700" cy="385" rx="10" ry="10" fill="url(#flareGold)" opacity="0.15"/>
 
   <!-- === TYPOGRAPHY === -->
-  <!-- "OmniOpt" — one word, bold, gradient -->
-  <text x="40" y="220" font-family="'Helvetica Neue', 'Arial Black', 'Segoe UI', Arial, sans-serif" font-size="105" font-weight="900" fill="url(#textGrad)" letter-spacing="-3" filter="url(#textGlow)">
-    OmniOpt
-  </text>
 
-  <!-- Subtitle: "Hyperparameter Optimizer" -->
-  <text x="44" y="285" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-size="34" font-weight="300" fill="url(#subGrad)" letter-spacing="1" opacity="0.9" filter="url(#subGlow)">
-    Hyperparameter Optimizer
-  </text>
+  <!-- "OmniOpt" — main title -->
+  <text x="40" y="195" font-family="'Helvetica Neue', 'Arial Black', 'Segoe UI', sans-serif" font-size="135" font-weight="900" fill="url(#textGrad)" letter-spacing="-4">OmniOpt</text>
+
+  <!-- "Hyperparameter" — with soft dark backing for readability -->
+  <text x="42" y="300" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-size="68" font-weight="600" fill="url(#subGrad)" letter-spacing="-1" filter="url(#textBacking)">Hyperparameter</text>
+
+  <!-- "Optimizer" — with soft dark backing for readability -->
+  <text x="42" y="385" font-family="'Helvetica Neue', 'Segoe UI', Arial, sans-serif" font-size="68" font-weight="600" fill="url(#subGrad)" letter-spacing="-1" filter="url(#textBacking)">Optimizer</text>
 </svg>

@@ -3214,7 +3214,7 @@ $onclick_string
 
 				$html = convert_markdown_to_html($natural_language_markdown);
 
-				$tabs["{$svg_icon}Insights"] = [
+				$tabs["{$svg_icon}Stats"] = [
 					'id' => 'tab_insights',
 					'content' => $html,
 					"onclick" => "initializeResultParameterVisualizations()"

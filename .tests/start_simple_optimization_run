@@ -541,7 +541,7 @@ if [[ "$additional_parameter" != "" ]]; then
 	omniopt_cmd="$omniopt_cmd $additional_parameter"
 fi
 
-omniopt_cmd="$omniopt_cmd --show_generate_time_table"
+omniopt_cmd="$omniopt_cmd --show_generate_time_table --disable_notifications"
 
 if [[ -z "$DONT_SHOW_STARTUP_COMMAND" ]]; then
 	green_text "$omniopt_cmd"

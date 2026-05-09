@@ -6981,6 +6981,7 @@ def get_desc_progress_text(new_msgs: List[str] = []) -> str:
     in_brackets.append(current_model_name)
     in_brackets.extend(_get_desc_progress_text_failed_jobs())
     in_brackets.extend(_get_desc_progress_text_best_params())
+    in_brackets.extend(_get_desc_progress_text_sparkline())
     in_brackets = get_slurm_in_brackets(in_brackets)
 
     if args.verbose_tqdm:
@@ -7027,6 +7028,13 @@ def _get_desc_progress_text_submitted_jobs() -> List[str]:
 
 def _get_desc_progress_text_new_msgs(new_msgs: List[str]) -> List[str]:
     return [msg for msg in new_msgs if msg]
+
+def _get_desc_progress_text_sparkline() -> List[str]:
+    """Get sparkline for progress bar description."""
+    spark = get_sparkline_for_progress()
+    if spark:
+        return [spark]
+    return []
 
 def progressbar_description(new_msgs: Union[str, List[str]] = []) -> None:
     global last_progress_bar_desc
@@ -10090,6 +10098,119 @@ def notify_run_complete() -> None:
         message=f"{succeeded} succeeded, {failed_count} failed. Best: {best_str}",
         timeout=10
     )
+
+def sparkline_colored(values: List[float], width: int = 20) -> str:
+    """
+    Generate a colored sparkline string showing optimization progress.
+
+    Colors indicate quality relative to the range:
+    - Green: values in the best 33%
+    - Yellow: values in the middle 33%
+    - Red: values in the worst 33%
+
+    The sparkline is right-aligned to show the most recent values.
+    """
+    if not values:
+        return ""
+
+    chars = "▁▂▃▄▅▆▇█"
+
+    # Take last `width` values
+    display_values = values[-width:]
+
+    mn = min(display_values)
+    mx = max(display_values)
+
+    if mn == mx:
+        # All values are the same
+        return "[dim]" + "▄" * len(display_values) + "[/dim]"
+
+    # Determine if we're minimizing (assume min is better for sparkline direction)
+    # We invert so that "better" = higher bar
+    # For minimize: lower values are better → invert
+    # We'll normalize: 0 = worst, 1 = best
+    is_minimizing = True
+    if len(arg_result_min_or_max) > 0 and arg_result_min_or_max[0] == "max":
+        is_minimizing = False
+
+    result_parts = []
+    for v in display_values:
+        # Normalize to [0, 1]
+        normalized = (v - mn) / (mx - mn)
+
+        if is_minimizing:
+            # For minimization: lower value = better = higher bar
+            bar_level = 1.0 - normalized
+            quality = 1.0 - normalized  # 1 = best (lowest value)
+        else:
+            # For maximization: higher value = better = higher bar
+            bar_level = normalized
+            quality = normalized  # 1 = best (highest value)
+
+        char_idx = int(bar_level * (len(chars) - 1))
+        char_idx = max(0, min(len(chars) - 1, char_idx))
+        char = chars[char_idx]
+
+        # Color based on quality (how good this point is)
+        if quality >= 0.66:
+            color = "green"
+        elif quality >= 0.33:
+            color = "yellow"
+        else:
+            color = "red"
+
+        result_parts.append(f"[{color}]{char}[/{color}]")
+
+    return "".join(result_parts)
+
+
+def get_sparkline_for_progress() -> str:
+    """
+    Get a sparkline representation of the optimization trace for the progress bar.
+    Returns a plain-text (ANSI-free) sparkline suitable for tqdm.
+    """
+    if not os.path.exists(RESULT_CSV_FILE):
+        return ""
+
+    try:
+        df = pd.read_csv(RESULT_CSV_FILE, float_precision='round_trip')
+        if df.empty or arg_result_names[0] not in df.columns:
+            return ""
+
+        values = df[arg_result_names[0]].dropna().tolist()
+        if len(values) < 2:
+            return ""
+
+        # Plain text sparkline for tqdm (no rich markup)
+        return _sparkline_plain(values, width=15)
+    except Exception:
+        return ""
+
+
+def _sparkline_plain(values: List[float], width: int = 15) -> str:
+    """Generate a plain-text sparkline (no color codes) for use in tqdm."""
+    chars = "▁▂▃▄▅▆▇█"
+    display_values = values[-width:]
+
+    mn = min(display_values)
+    mx = max(display_values)
+
+    if mn == mx:
+        return "▄" * len(display_values)
+
+    is_minimizing = True
+    if len(arg_result_min_or_max) > 0 and arg_result_min_or_max[0] == "max":
+        is_minimizing = False
+
+    result = []
+    for v in display_values:
+        normalized = (v - mn) / (mx - mn)
+        bar_level = (1.0 - normalized) if is_minimizing else normalized
+        char_idx = int(bar_level * (len(chars) - 1))
+        char_idx = max(0, min(len(chars) - 1, char_idx))
+        result.append(chars[char_idx])
+
+    return "".join(result)
 
 def execute_next_steps(next_nr_steps: int) -> int:
     if next_nr_steps:

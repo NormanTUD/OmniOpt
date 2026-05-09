@@ -5512,7 +5512,7 @@ def write_result_to_trace_file(res: str) -> bool:
 
     return True
 
-def render(plot_config: AxPlotConfig) -> None:
+def render_ax_client_trace(plot_config: AxPlotConfig) -> None:
     if plot_config is None or "data" not in plot_config:
         return None
 
@@ -5586,7 +5586,7 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
 
     if ax_client is not None:
         if len(arg_result_names) == 1:
-            render(ax_client.get_optimization_trace())
+            render_ax_client_trace(ax_client.get_optimization_trace())
 
     wait_for_jobs_to_complete()
 

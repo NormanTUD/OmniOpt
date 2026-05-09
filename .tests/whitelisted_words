@@ -62,6 +62,7 @@ AnotherSeries
 ansi
 ansitable
 API
+AppArmor
 appendText
 appendTo
 applyClassChange
@@ -174,6 +175,7 @@ Backcompat
 backend
 backends
 backgroundColor
+backticks
 barc
 barcodes
 barnard
@@ -334,6 +336,7 @@ catuntil
 cc
 cd
 cdata
+CDN
 cdot
 cdots
 cew
@@ -455,6 +458,7 @@ Controlgroup
 controlgroupCornerRegex
 controlgroupLabel
 conv
+convertnewlinestobr
 convolutional
 cookieOptions
 cookieValue
@@ -650,6 +654,7 @@ dfd
 dh
 dialogClass
 dict
+dicts
 didn
 Didn
 didnt
@@ -675,6 +680,7 @@ divname
 divNoNan
 divs
 DJ
+dmesg
 dn
 DNS
 Documentevaluate
@@ -947,11 +953,13 @@ getBestClass
 getComputedStyle
 getDate
 getDefaultComputedStyle
+getjobidfromfile
 getJSONurl
 getJSONurlfailfunction
 getName
 getNewURL
 getNumber
+getrunprogramfromfile
 getSelection
 getShape
 getUrlParam
@@ -1159,6 +1167,7 @@ imgs
 imgsz
 iMissing
 ImportError
+importlib
 importlibutil
 impressum
 Impressum
@@ -1202,6 +1211,7 @@ inputShape
 inputsjson
 inputString
 inputtensor
+inspectable
 inst
 instanceof
 instanceOptions
@@ -1211,6 +1221,7 @@ intendation
 InteractiveCLIGenerationNode
 interArea
 interpretability
+ints
 intval
 InvalidMathMLAttr
 iou
@@ -1266,6 +1277,7 @@ JavaScript
 Jax
 jaxtyping
 Jedi
+JIT
 joblib
 jobresult
 jobsbatch
@@ -1282,6 +1294,7 @@ json
 JSON
 jsondecoderJSONDecodeError
 jStat
+JSZip
 Jul
 July
 June
@@ -1609,6 +1622,7 @@ MSUP
 mtable
 mtd
 mtext
+mtime
 mtr
 multdimensional
 multi
@@ -1669,6 +1683,7 @@ newCategoryContent
 newDate
 newHeight
 newline
+newlines
 newNeuronWeights
 newOverBottom
 newOverLeft
@@ -1938,11 +1953,13 @@ partitionInfo
 partitionSelect
 parzen
 Parzen
+pathinfo
 pathlibPath
 pathlike
 pc
 pcielinkgencurrent
 pcielinkgenmax
+PCRE
 pct
 PDF
 pdjson
@@ -1982,6 +1999,7 @@ plotResultPairs
 plotResultsDistributionByGenerationMethod
 plotViolin
 plusequals
+plyer
 Pmatches
 pMaxHeight
 pMaxWidth
@@ -2170,6 +2188,7 @@ README
 READMEmd
 READMEs
 readonly
+ReadWritePaths
 reallyquick
 reappend
 Recache
@@ -2404,6 +2423,7 @@ selectYear
 selectYearLabel
 selfinstalling
 selfthreaddaemon
+SELinux
 selu
 sems
 Sep
@@ -2553,6 +2573,7 @@ sortForm
 sortValue
 spacebar
 spaceName
+sparkline
 sparseCategoricalCrossentropy
 spinbutton
 splitted
@@ -2595,8 +2616,10 @@ stdbuf
 stddev
 stderr
 STDERR
+stderrtxt
 stdout
 STDOUT
+stdouttxt
 steelblue
 stepBigMonths
 stepHooks
@@ -2668,6 +2691,7 @@ Synchronise
 SyntaxError
 sys
 sysargv
+systemctl
 SystemError
 SystemExit
 Tabbable
@@ -2808,6 +2832,7 @@ trm
 truecolor
 truetriggerchange
 truncatedNormal
+tt
 tty
 ttygif
 tu
@@ -2980,6 +3005,7 @@ windowlocationhref
 windowmatchMedia
 windowonbeforeunload
 windowonresize
+winkler
 withCredentials
 withinOffset
 Wk
@@ -3060,29 +3086,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-getrunprogramfromfile
-mtime
-getjobidfromfile
-backticks
-convertnewlinestobr
-ints
-newlines
-tt
-importlib
-stdouttxt
-stderrtxt
-dicts
-systemctl
-JIT
-pathinfo
-PCRE
-AppArmor
-SELinux
-dmesg
-ReadWritePaths
-winkler
-inspectable
-CDN
-JSZip
-sparkline
-plyer

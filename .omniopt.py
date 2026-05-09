@@ -10220,12 +10220,6 @@ def show_contextual_help(error_type: str, details: str = "", suggestion: str = "
     Provides the error, context, and a suggested fix.
     """
     help_db: Dict[str, Dict[str, str]] = {
-        "bounds_swapped": {
-            "title": "💡 Bounds Swapped",
-            "body": "[bold red]Error:[/] Lower bound is greater than upper bound.\n\n"
-                    "[dim]This usually happens when you accidentally swap the min/max values.[/dim]",
-            "fix": "Swap the values: --parameter {name} range {upper} {lower} {dtype}",
-        },
         "no_result_found": {
             "title": "💡 No RESULT Found",
             "body": "[bold red]Error:[/] Your program did not output 'RESULT: <number>'.\n\n"
@@ -10279,13 +10273,7 @@ def show_contextual_help(error_type: str, details: str = "", suggestion: str = "
                     "[dim]The optimizer generated a point that doesn't satisfy your\n"
                     "--experiment_constraints. It will be automatically retried.[/dim]",
             "fix": "This is handled automatically. If it persists, check your constraint syntax.",
-        },
-        "timeout": {
-            "title": "💡 Worker Timeout",
-            "body": "[bold yellow]Warning:[/] A worker job exceeded the time limit.\n\n"
-                    "[dim]The job was killed because it ran longer than --worker_timeout.[/dim]",
-            "fix": "Increase --worker_timeout (currently: {timeout} minutes)",
-        },
+        }
     }
 
     entry = help_db.get(error_type, {})

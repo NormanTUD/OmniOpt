@@ -5638,6 +5638,8 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     if succeeded_jobs() == 0 and failed_jobs() > 0:
         _exit = 89
 
+    print_exit_summary()
+
     force_live_share()
 
     my_exit(_exit)
@@ -11080,6 +11082,70 @@ def get_result_names_for_url(value: List) -> str:
     s = " ".join(f"{k}={v}" for k, v in d.items())
 
     return s
+
+def print_exit_summary() -> None:
+    """Print a colorful emoji-rich summary banner at the end of a run."""
+    succeeded = succeeded_jobs()
+    failed_count = failed_jobs()
+    total_done = count_done_jobs()
+    total_submitted = submitted_jobs()
+
+    whole_end_time = time.time()
+    whole_run_time = whole_end_time - whole_start_time
+    human_time = human_time_when_larger_than_a_min(whole_run_time)
+    time_str = f"{int(whole_run_time)}s {human_time}".strip()
+
+    # Determine overall status
+    if succeeded > 0 and failed_count == 0:
+        status_emoji = "✅"
+        status_text = "Optimization complete!"
+        border_style = "bold green"
+    elif succeeded > 0 and failed_count > 0:
+        status_emoji = "⚠️"
+        status_text = "Optimization finished with some failures"
+        border_style = "bold yellow"
+    elif succeeded == 0 and failed_count > 0:
+        status_emoji = "❌"
+        status_text = "Optimization failed"
+        border_style = "bold red"
+    else:
+        status_emoji = "🔍"
+        status_text = "Optimization ended (no results)"
+        border_style = "bold dim"
+
+    # Build summary lines
+    lines = []
+    lines.append(f"{status_emoji}  [bold]{status_text}[/bold]")
+    lines.append("")
+    lines.append(f"  📊 Trials: [green]{succeeded}[/green] succeeded / [red]{failed_count}[/red] failed / {total_done} done / {total_submitted} submitted")
+    lines.append(f"  ⏱️  Duration: {time_str}")
+
+    # Best results
+    for res_name in arg_result_names:
+        best = get_best_params_str(res_name)
+        if best:
+            lines.append(f"  🏆 Best {best}")
+
+    # Run folder
+    crf = get_current_run_folder()
+    if crf:
+        lines.append(f"  📁 Results: [underline]{crf}/{RESULTS_CSV_FILENAME}[/underline]")
+
+    # Model info
+    model_name = get_current_model_name()
+    lines.append(f"  🧠 Model: {model_name}")
+
+    summary_text = "\n".join(lines)
+
+    panel = Panel(
+        summary_text,
+        title="[bold]OmniOpt2 Run Summary[/bold]",
+        border_style=border_style,
+        padding=(1, 2)
+    )
+    console.print("")
+    console.print(panel)
+    console.print("")
 
 def collect_params(config: argparse.Namespace) -> dict:
     params = {}

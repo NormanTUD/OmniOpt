@@ -10149,14 +10149,6 @@ def _sparkline_plain(values: List[float], width: int = 15) -> str:
 
     return "".join(result)
 
-
-def _safe_format_dict(details: Union[str, dict]) -> dict:
-    """Convert details to a format-safe dict."""
-    if isinstance(details, dict):
-        return details
-    return {"details": details}
-
-
 def detect_and_show_help_for_errors(errors: List[str], stdout_path: str = "") -> None:
     """
     Analyze a list of error strings and show contextual help for the first recognized pattern.

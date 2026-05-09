@@ -109,7 +109,7 @@ joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 special_col_names: list = ["arm_name", "generation_method", "trial_index", "trial_status", "generation_node", "idxs", "start_time", "end_time", "run_time", "exit_code", "program_string", "signal", "hostname", "submit_time", "queue_time", "metric_name", "mean", "sem", "worker_generator_uuid", "runtime", "status"]
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
-
+_NOTIFICATIONS_AVAILABLE = False
 uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM"]
 
 post_generation_constraints: list = []
@@ -276,6 +276,13 @@ try:
 
     with spinner("Importing statistics..."):
         import statistics
+
+    with spinner("Importing notifier..."):
+        try:
+            from plyer import notification as _plyer_notification
+            _NOTIFICATIONS_AVAILABLE = True
+        except ImportError:
+            _NOTIFICATIONS_AVAILABLE = False
 
     with spinner("Trying to import pyfiglet..."):
         try:
@@ -839,6 +846,7 @@ class ConfigLoader:
     experiment_constraints: Optional[List[str]]
     main_process_gb: int
     beartype: bool
+    disable_notifications: bool
     worker_timeout: int
     slurm_signal_delay_s: int
     gridsearch: bool
@@ -987,6 +995,7 @@ class ConfigLoader:
         optional.add_argument('--range_max_difference', help=f'Max. difference for range, default is {default_max_range_difference}', default=default_max_range_difference, type=int)
         optional.add_argument('--skip_search', help='Skips the actual search, uses exit code 0 if not the environment variable SKIP_SEARCH_EXIT_CODE is set', action='store_true', default=False)
         optional.add_argument('--nr_evals_per_arm', help='Number of evaluations per arm (hyperparameter combination) to check deviation from random initialization. Default: 1', type=int, default=1)
+        optional.add_argument('--disable_notifications', help='Disable desktop notifications', action='store_true', default=False)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)
         speed.add_argument('--refit_on_cv', help='Refit on Cross-Validation (helps in accuracy, but makes generating new points slower)', action='store_true', default=False)
@@ -7987,6 +7996,7 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: di
     succeeded_jobs(1)
 
     progressbar_description(f"new result: {format_result_for_display(result)}")
+    notify_trial_result(_trial.index, result)
     update_progress_bar(1)
 
     save_results_csv()
@@ -10025,6 +10035,62 @@ def should_break_search() -> bool:
 
     return ret
 
+
+def send_notification(title: str, message: str, timeout: int = 5) -> None:
+    """Send a desktop notification if plyer is available and notifications are not disabled."""
+    if not _NOTIFICATIONS_AVAILABLE:
+        return
+    if hasattr(args, 'disable_notifications') and args.disable_notifications:
+        return
+    try:
+        _plyer_notification.notify(
+            title=title,
+            message=message,
+            app_name="OmniOpt2",
+            timeout=timeout
+        )
+    except Exception as e:
+        print_debug(f"Desktop notification failed: {e}")
+
+
+def notify_trial_result(trial_index: int, result: dict) -> None:
+    """Send a notification for a completed trial result."""
+    if not result:
+        return
+    result_str = format_result_for_display(result)
+    send_notification(
+        title=f"OmniOpt2 - Trial {trial_index} Complete",
+        message=f"Result: {result_str}",
+        timeout=3
+    )
+
+
+def notify_run_complete() -> None:
+    """Send a final notification when the entire optimization run is done."""
+    succeeded = succeeded_jobs()
+    failed_count = failed_jobs()
+
+    if succeeded > 0 and failed_count == 0:
+        emoji = "✅"
+    elif succeeded > 0:
+        emoji = "⚠️"
+    else:
+        emoji = "❌"
+
+    best_parts = []
+    for res_name in arg_result_names:
+        best = get_best_params_str(res_name)
+        if best:
+            best_parts.append(best)
+
+    best_str = ", ".join(best_parts) if best_parts else "N/A"
+
+    send_notification(
+        title=f"{emoji} OmniOpt2 Run Complete",
+        message=f"{succeeded} succeeded, {failed_count} failed. Best: {best_str}",
+        timeout=10
+    )
+
 def execute_next_steps(next_nr_steps: int) -> int:
     if next_nr_steps:
         print_debug(f"trying to get {next_nr_steps} next steps (current done: {count_done_jobs()}, max: {max_eval})")
@@ -11146,6 +11212,8 @@ def print_exit_summary() -> None:
     console.print("")
     console.print(panel)
     console.print("")
+
+    notify_run_complete()
 
 def collect_params(config: argparse.Namespace) -> dict:
     params = {}

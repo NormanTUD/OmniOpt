@@ -10149,96 +10149,6 @@ def _sparkline_plain(values: List[float], width: int = 15) -> str:
 
     return "".join(result)
 
-def show_contextual_help(error_type: str, details: str = "", suggestion: str = "") -> None:
-    """
-    Show a styled help panel when a common user mistake is detected.
-    Provides the error, context, and a suggested fix.
-    """
-    help_db: Dict[str, Dict[str, str]] = {
-        "no_result_found": {
-            "title": "💡 No RESULT Found",
-            "body": "[bold red]Error:[/] Your program did not output 'RESULT: <number>'.\n\n"
-                    "[dim]OmniOpt2 parses stdout for lines matching 'RESULT: <float>'.\n"
-                    "Make sure your script prints this exact format.[/dim]",
-            "fix": "Add to your script: print(f'RESULT: {your_metric_value}')",
-        },
-        "permission_denied": {
-            "title": "💡 Permission Denied",
-            "body": "[bold red]Error:[/] The script could not be executed.\n\n"
-                    "[dim]This usually means the file is missing execute permissions.[/dim]",
-            "fix": "Run: chmod +x your_script.sh",
-        },
-        "module_not_found": {
-            "title": "💡 Module Not Found",
-            "body": "[bold red]Error:[/] A Python module could not be imported.\n\n"
-                    "[dim]This can happen if the virtual environment is not activated\n"
-                    "or the module is not installed.[/dim]",
-            "fix": "Run: pip install <module_name>  (inside your venv)",
-        },
-        "oom_killed": {
-            "title": "💡 Out of Memory",
-            "body": "[bold red]Error:[/] Your job was killed due to insufficient memory.\n\n"
-                    "[dim]The OOM killer terminated your process. This happens when\n"
-                    "the job exceeds the allocated memory.[/dim]",
-            "fix": "Increase --mem_gb or reduce your model/batch size.",
-        },
-        "search_space_exhausted": {
-            "title": "💡 Search Space Exhausted",
-            "body": "[bold yellow]Warning:[/] The optimizer could not find new unique points.\n\n"
-                    "[dim]This can happen when:\n"
-                    "  • The search space is too small\n"
-                    "  • All combinations have been tried\n"
-                    "  • The model is stuck in a local optimum[/dim]",
-            "fix": "Try: --revert_to_random_when_seemingly_exhausted\n"
-                   "Or:  Widen your parameter ranges",
-        },
-        "cuda_error": {
-            "title": "💡 CUDA Error",
-            "body": "[bold red]Error:[/] A GPU/CUDA error was detected.\n\n"
-                    "[dim]This can be caused by:\n"
-                    "  • Stale CUDA cache (~/.nv)\n"
-                    "  • Driver mismatch\n"
-                    "  • GPU memory exhaustion[/dim]",
-            "fix": "Try: rm -rf ~/.nv && reduce batch size\n"
-                   "Or:  --auto_exclude_defective_hosts",
-        },
-        "constraint_violation": {
-            "title": "💡 Constraint Violation",
-            "body": "[bold yellow]Warning:[/] A generated parameter set violates constraints.\n\n"
-                    "[dim]The optimizer generated a point that doesn't satisfy your\n"
-                    "--experiment_constraints. It will be automatically retried.[/dim]",
-            "fix": "This is handled automatically. If it persists, check your constraint syntax.",
-        }
-    }
-
-    entry = help_db.get(error_type, {})
-    if not entry:
-        # Generic fallback
-        entry = {
-            "title": "💡 Help",
-            "body": f"[bold red]Error:[/] {error_type}\n\n{details}",
-            "fix": suggestion or "Check the documentation or logs for more details.",
-        }
-
-    # Format with any provided details
-    body = entry["body"]
-    fix = entry["fix"]
-
-    if details:
-        body = body.format(**_safe_format_dict(details))
-        fix = fix.format(**_safe_format_dict(details))
-
-    content = f"{body}\n\n[bold cyan]Suggested Fix:[/bold cyan]\n  [green]{fix}[/green]"
-
-    panel = Panel(
-        content,
-        title=entry["title"],
-        border_style="cyan",
-        padding=(1, 2),
-        expand=False,
-    )
-    console.print(panel)
-
 
 def _safe_format_dict(details: Union[str, dict]) -> dict:
     """Convert details to a format-safe dict."""
@@ -10269,7 +10179,6 @@ def detect_and_show_help_for_errors(errors: List[str], stdout_path: str = "") ->
     for error_text in errors:
         for pattern, help_key, extra in error_patterns:
             if pattern.lower() in error_text.lower() and help_key not in shown:
-                show_contextual_help(help_key, extra)
                 shown.add(help_key)
                 break  # Only show one help per error string
 

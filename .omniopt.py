@@ -7807,7 +7807,7 @@ def print_outfile_analyzed(stdout_path: str) -> None:
 
         print_red(out_files_string)
 
-        detect_and_show_help_for_errors(errors, stdout_path)
+        detect_and_show_help_for_errors(errors)
 
 def get_parameters_from_outfile(stdout_path: str) -> Union[None, dict, str]:
     stdout_path = check_alternate_path(stdout_path)
@@ -10149,7 +10149,7 @@ def _sparkline_plain(values: List[float], width: int = 15) -> str:
 
     return "".join(result)
 
-def detect_and_show_help_for_errors(errors: List[str], stdout_path: str = "") -> None:
+def detect_and_show_help_for_errors(errors: List[str]) -> None:
     """
     Analyze a list of error strings and show contextual help for the first recognized pattern.
     Called after error analysis to provide user-friendly guidance.
@@ -10169,7 +10169,7 @@ def detect_and_show_help_for_errors(errors: List[str], stdout_path: str = "") ->
 
     shown = set()
     for error_text in errors:
-        for pattern, help_key, extra in error_patterns:
+        for pattern, help_key, _ in error_patterns:
             if pattern.lower() in error_text.lower() and help_key not in shown:
                 shown.add(help_key)
                 break  # Only show one help per error string

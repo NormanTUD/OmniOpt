@@ -7,6 +7,7 @@
 	);
 
 	ini_set('display_errors', 1);
+	ini_set('memory_limit', '512M');
 
 	function dier($msg) {
 		print("<pre>" . print_r($msg, true) . "</pre>");

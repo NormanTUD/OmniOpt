@@ -549,6 +549,7 @@ cyanImage
 cyanOCR
 cyanPerson
 cyanSearching
+cyanSuggested
 cyanYOLO
 cyclomatic
 cz
@@ -667,6 +668,8 @@ dilationRate
 dilations
 dimensionTitles
 dimNo
+dimThe
+dimThis
 dir
 dirname
 disableSelection
@@ -2699,6 +2702,7 @@ tabbables
 tabcontent
 TabError
 tabindex
+tableData
 tablinks
 tablist
 tabpanel
@@ -3086,6 +3090,3 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
-dimThe
-dimThis
-cyanSuggested

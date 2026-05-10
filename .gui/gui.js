@@ -1261,7 +1261,7 @@ function run_when_document_ready () {
 		var paramValue = urlParams.get(item.id);
 
 		if (paramValue !== null) {
-			// Strip surrounding single quotes from result_names if present
+			// Strip surrounding single quotes if present
 			if (item.id === "result_names") {
 				paramValue = paramValue.replace(/^'(.*)'$/, '$1');
 			}
@@ -1282,6 +1282,9 @@ function run_when_document_ready () {
 		if (paramValue !== null) {
 			// Base64-decode for run_program_once and external_generator
 			if (item.id === "run_program_once" || item.id === "external_generator") {
+				// Strip surrounding single quotes FIRST (they come from the URL encoding)
+				paramValue = paramValue.replace(/^'(.*)'$/, '$1');
+
 				try {
 					paramValue = atob(paramValue);
 				} catch (e) {

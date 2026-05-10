@@ -1113,7 +1113,20 @@ function update_url() {
 		if (element.is(":checkbox")) {
 			value = element.is(":checked") ? 1 : 0;
 		} else {
-			value = encodeURIComponent(element.val());
+			value = element.val();
+
+			// Base64-encode run_program_once and external_generator for the URL
+			if (item.id === "run_program_once" || item.id === "external_generator") {
+				if (value && value.trim() !== "") {
+					try {
+						value = btoa(value);
+					} catch (e) {
+						console.error("Base64 encoding failed for " + item.id + ":", e);
+					}
+				}
+			}
+
+			value = encodeURIComponent(value);
 		}
 
 		params.push(item.id + "=" + value);
@@ -1242,18 +1255,17 @@ function run_when_document_ready () {
 	update_partition_options();
 
 	var urlParams = new URLSearchParams(window.location.search);
+
+	// --- tableData loop ---
 	tableData.forEach(function(item) {
 		var paramValue = urlParams.get(item.id);
-		
-		if (item.id === "run_program_once") {
-			try {
-				paramValue = atob(paramValue);
-			} catch (e) {
-				console.error("Base64 decoding failed for run_program_once:", e);
-			}
-		}
-		
+
 		if (paramValue !== null) {
+			// Strip surrounding single quotes from result_names if present
+			if (item.id === "result_names") {
+				paramValue = paramValue.replace(/^'(.*)'$/, '$1');
+			}
+
 			var $element = $("#" + item.id);
 			if ($element.is(":checkbox")) {
 				var boolValue = /^(1|true)$/i.test(paramValue);
@@ -1264,9 +1276,19 @@ function run_when_document_ready () {
 		}
 	});
 
+	// --- hiddenTableData loop ---
 	hiddenTableData.forEach(function(item) {
 		var paramValue = urlParams.get(item.id);
 		if (paramValue !== null) {
+			// Base64-decode for run_program_once and external_generator
+			if (item.id === "run_program_once" || item.id === "external_generator") {
+				try {
+					paramValue = atob(paramValue);
+				} catch (e) {
+					console.error("Base64 decoding failed for " + item.id + ":", e);
+				}
+			}
+
 			var $element = $("#" + item.id);
 			if ($element.is(":checkbox")) {
 				var boolValue = /^(1|true)$/i.test(paramValue);

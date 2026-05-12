@@ -1211,8 +1211,6 @@ class ConfigLoader:
                 print_red(f"Failed to write config file '{dest}': {e}")
                 sys.exit(5)
 
-        sys.exit(0)
-
     def parse_arguments(self: Any) -> argparse.Namespace:
         _args = self.parser.parse_args()
 

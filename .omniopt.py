@@ -1139,7 +1139,7 @@ class ConfigLoader:
         # ── Determine output format ──
         EXTENSION_MAP = {
             '.yaml': 'yaml',
-            '.yml':  'yaml',
+            '.yml': 'yaml',
             '.json': 'json',
             '.toml': 'toml',
         }

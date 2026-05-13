@@ -54,6 +54,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		memray
 		debug_stack_trace_regex
 		config_yaml
+		dump_config
 		config_json
 		skip_search
 		range_max_difference

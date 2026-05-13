@@ -1190,9 +1190,9 @@ class ConfigLoader:
                     sort_keys=True,
                     allow_unicode=True,
                 )
-            elif fmt == 'json':
+            if fmt == 'json':
                 return json.dumps(config, indent=2, sort_keys=True, ensure_ascii=False)
-            elif fmt == 'toml':
+            if fmt == 'toml':
                 # toml.dumps doesn't handle None values; strip them out
                 toml_safe = {k: v for k, v in config.items() if v is not None}
                 return toml.dumps(toml_safe)

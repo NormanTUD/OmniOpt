@@ -1112,7 +1112,7 @@ class ConfigLoader:
 
         return cli_args
 
-    def dump_config(self, args_namespace: argparse.Namespace) -> None:
+    def _dump_config(self, args_namespace: argparse.Namespace) -> None:
         """
         Serialize the current resolved configuration to a file or stdout.
 
@@ -1231,7 +1231,7 @@ class ConfigLoader:
         _args = self.parser.parse_args()
 
         if _args.dump_config is not None:
-            self.dump_config(_args)
+            self._dump_config(_args)
 
         config = {}
 

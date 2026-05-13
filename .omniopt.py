@@ -1126,7 +1126,10 @@ class ConfigLoader:
             return
 
         config = self._build_config_dict(args_namespace)
-        writing_to_stdout = (dest == '-')
+        writing_to_stdout = False
+        if dest == '-':
+            writing_to_stdout = True
+
         fmt = self._detect_format(dest, writing_to_stdout)
         serialized = self._serialize_config(config, fmt)
         self._write_config(dest, serialized, fmt, writing_to_stdout)
@@ -1193,8 +1196,7 @@ class ConfigLoader:
                 # toml.dumps doesn't handle None values; strip them out
                 toml_safe = {k: v for k, v in config.items() if v is not None}
                 return toml.dumps(toml_safe)
-            else:
-                return yaml.dump(config, default_flow_style=False, sort_keys=True)
+            return yaml.dump(config, default_flow_style=False, sort_keys=True)
         except Exception as e:
             print_red(f"Error serializing configuration as {fmt.upper()}: {e}")
             sys.exit(5)

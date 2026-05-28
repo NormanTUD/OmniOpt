@@ -3990,8 +3990,6 @@ def execute_bash_code_log_time(code: str) -> list:
                     run_env[key] = value
         else:
             print_red("⚠  Warning: OMNIAX_ENV_BASE64 is not set or empty. Environment snapshot unavailable.")
-    except (base64.binascii.Error, UnicodeDecodeError) as e:
-        print_red(f"⚠  Warning: Failed to decode OMNIAX_ENV_BASE64: {e}")
     except Exception as e:
         print_red(f"⚠  Warning: Unexpected error loading OMNIAX_ENV_BASE64: {e}")
 

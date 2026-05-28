@@ -66,7 +66,7 @@ pip3 install omniopt2
 ## Install from repo (bleeding edge, may contain untested changes)
 
 ```command
-pip3 install -e git+https://github.com/NormanTUD/OmniOpt2.git#egg=OmniOpt2
+pip3 install -e git+https://github.com/NormanTUD/OmniOpt.git#egg=OmniOpt2
 ```
 
 Alternatively, it can be executed directly, as OmniOpt2 will install its

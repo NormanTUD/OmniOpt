@@ -88,11 +88,17 @@
 
 	set -e
 
+	# Save the full environment as a base64-encoded variable for Python access
+	export OMNIAX_ENV_BASE64=$(env | base64 -w 0)
+	export OMNIAX_VENV_DIR="$VENV_DIR"
+
 	LMOD_DIR=/software/foundation/$(uname -m)/lmod/lmod/libexec
 
 	myml () {
 		if [[ -e $LMOD_DIR/ml_cmd ]]; then
 			eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
+		else
+			return 1
 		fi
 	}
 
@@ -105,9 +111,22 @@
 			myml release/23.04 GCCcore/12.2.0 Python/3.10.8 GCCcore/11.3.0 Tkinter/3.10.4 PostgreSQL/14.4
 
 			if [[ $(uname -m) == "ppc64le" ]]; then
-				myml zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21
+				myml zlib/1.2.12 GCC/12.2.0 OpenBLAS/0.3.21 || {
+					red_text "⚠️  Warning: Failed to load ppc64le-specific modules via myml.\n"
+				}
 			fi
 		fi
+	fi
+
+	if ! command -v python3 2>/dev/null >/dev/null; then
+		red_text "python3 not installed. Cannot continue."
+		exit 245
+	fi
+
+	# Warn if Python version is less than 3.10
+	PYTHON_VERSION_CHECK=$(python3 -c "import sys; print(1 if sys.version_info >= (3, 10) else 0)" 2>/dev/null)
+	if [[ "$PYTHON_VERSION_CHECK" != "1" ]]; then
+		echo_red "⚠️  Warning: Python version is less than 3.10. Detected: $(python3 --version). This may cause issues."
 	fi
 
 	#if command -v sacct 2>/dev/null >/dev/null; then

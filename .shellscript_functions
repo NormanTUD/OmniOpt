@@ -97,8 +97,6 @@
 	myml () {
 		if [[ -e $LMOD_DIR/ml_cmd ]]; then
 			eval "$($LMOD_DIR/ml_cmd "$@")" 2>/dev/null >/dev/null
-		else
-			return 1
 		fi
 	}
 

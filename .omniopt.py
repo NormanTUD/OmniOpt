@@ -3977,7 +3977,8 @@ def execute_bash_code_log_time(code: str) -> list:
             for line in env_decoded.splitlines():
                 if "=" in line:
                     key, _, value = line.partition("=")
-                    run_env[key] = value
+                    if key not in ["SESSION_MANAGER"]:
+                        run_env[key] = value
         else:
             print_red("⚠  Warning: OMNIAX_ENV_BASE64 is not set or empty. Environment snapshot unavailable.")
     except Exception as e:

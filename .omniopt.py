@@ -303,8 +303,6 @@ except KeyboardInterrupt:
     print("You pressed CTRL-C while modules were loading.")
     sys.exit(17)
 
-env_b64 = os.environ.get("OMNIAX_ENV_BASE64", "")
-
 def collect_runtime_stats() -> dict:
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
@@ -3972,6 +3970,8 @@ def execute_bash_code_log_time(code: str) -> list:
     # Decode and prepare the environment BEFORE spawning the process
     run_env = os.environ.copy()
     try:
+        env_b64 = os.environ.get("OMNIAX_ENV_BASE64", "")
+
         if env_b64:
             env_decoded = base64.b64decode(env_b64).decode("utf-8")
             for line in env_decoded.splitlines():

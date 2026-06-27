@@ -1,0 +1,1309 @@
+#!/usr/bin/env python3
+"""
+Exception Checker - Analyzes Python scripts for uncaught exceptions.
+Auto-bootstraps via uv if needed.
+"""
+
+import sys
+import os
+import subprocess
+import shutil
+
+# === AUTO-BOOTSTRAP VIA UV ===
+REQUIRED_PACKAGES = ["rich"]
+SCRIPT_NAME = os.path.basename(__file__)
+
+
+def _check_uv_available():
+    """Check if uv is available on PATH."""
+    return shutil.which("uv") is not None
+
+
+def _is_running_in_uv():
+    """Detect if we're already running inside a uv-bootstrapped environment."""
+    return os.environ.get("_EXCEPTION_CHECKER_UV_BOOTSTRAPPED") == "1"
+
+
+def _bootstrap_via_uv():
+    """Restart this script via uv with all dependencies."""
+    if not _check_uv_available():
+        print(
+            "\033[91mError: 'uv' is not installed.\033[0m",
+            file=sys.stderr,
+        )
+        print(
+            "Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    env = os.environ.copy()
+    env["_EXCEPTION_CHECKER_UV_BOOTSTRAPPED"] = "1"
+
+    cmd = ["uv", "run", "--with", ",".join(REQUIRED_PACKAGES), "python3", __file__] + sys.argv[1:]
+
+    try:
+        result = subprocess.run(cmd, env=env)
+        sys.exit(result.returncode)
+    except FileNotFoundError:
+        print("\033[91mError: Could not execute uv.\033[0m", file=sys.stderr)
+        sys.exit(1)
+
+
+def _check_dependencies():
+    """Check if all dependencies are importable."""
+    try:
+        import rich  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+# Bootstrap logic: if deps missing, restart via uv
+if not _is_running_in_uv() and not _check_dependencies():
+    _bootstrap_via_uv()
+
+# === ALL DEPENDENCIES AVAILABLE FROM HERE ===
+
+import ast
+import importlib
+import importlib.util
+import inspect
+import builtins
+import textwrap
+import time
+from pathlib import Path
+from typing import Optional
+from dataclasses import dataclass, field
+from collections import Counter
+
+from rich.console import Console
+from rich.table import Table
+from rich.live import Live
+from rich.panel import Panel
+from rich.syntax import Syntax
+from rich.tree import Tree
+from rich.text import Text
+from rich.columns import Columns
+from rich.spinner import Spinner
+from rich import box
+from rich.markup import escape
+
+
+console = Console()
+
+
+# === DATA STRUCTURES ===
+
+@dataclass
+class ExceptionInfo:
+    """Information about a possible exception."""
+    exception_type: str
+    source_function: str
+    source_module: str
+    line_number: int
+    context: str
+    reason: str
+    is_custom: bool = False
+
+
+@dataclass
+class UncaughtException:
+    """An uncaught exception finding."""
+    file_path: str
+    line_number: int
+    exception_type: str
+    context: str
+    reason: str
+    source_chain: list = field(default_factory=list)
+
+
+@dataclass
+class FunctionSignature:
+    """A function's signature with its possible exceptions."""
+    name: str
+    module: str
+    possible_exceptions: list = field(default_factory=list)
+
+
+# === LIVE STATUS DISPLAY ===
+
+class LiveStatus:
+    """Manages live terminal output showing exactly what's happening."""
+
+    def __init__(self):
+        self.current_phase = ""
+        self.current_action = ""
+        self.findings = []
+        self.stats = {
+            "files_found": 0,
+            "custom_exceptions": 0,
+            "functions_analyzed": 0,
+            "calls_inspected": 0,
+            "uncaught_found": 0,
+        }
+        self._live = None
+
+    def start(self):
+        self._live = Live(self._render(), console=console, refresh_per_second=12)
+        self._live.start()
+
+    def stop(self):
+        if self._live:
+            self._live.stop()
+
+    def update(self, phase: str = None, action: str = None):
+        if phase:
+            self.current_phase = phase
+        if action:
+            self.current_action = action
+        if self._live:
+            self._live.update(self._render())
+
+    def add_finding(self, finding: str):
+        self.findings.append(finding)
+        # Keep last 8 findings visible
+        if len(self.findings) > 8:
+            self.findings = self.findings[-8:]
+        if self._live:
+            self._live.update(self._render())
+
+    def increment(self, key: str, amount: int = 1):
+        self.stats[key] = self.stats.get(key, 0) + amount
+        if self._live:
+            self._live.update(self._render())
+
+    def _render(self):
+        """Render the current live display."""
+        parts = []
+
+        # Header with spinner
+        header = Text()
+        header.append("⚡ Exception Checker ", style="bold cyan")
+        header.append(f"| Phase: ", style="dim")
+        header.append(self.current_phase, style="bold yellow")
+        parts.append(header)
+
+        # Current action
+        if self.current_action:
+            action_text = Text()
+            action_text.append("  → ", style="green")
+            action_text.append(self.current_action[:120], style="white")
+            parts.append(action_text)
+
+        # Stats line
+        stats_text = Text()
+        stats_text.append("  📊 ", style="dim")
+        stats_text.append(f"Files: {self.stats['files_found']} ", style="cyan")
+        stats_text.append(f"| CustomExc: {self.stats['custom_exceptions']} ", style="magenta")
+        stats_text.append(f"| Funcs: {self.stats['functions_analyzed']} ", style="green")
+        stats_text.append(f"| Calls: {self.stats['calls_inspected']} ", style="yellow")
+        stats_text.append(f"| Uncaught: {self.stats['uncaught_found']} ", style="red bold")
+        parts.append(stats_text)
+
+        # Recent findings
+        if self.findings:
+            parts.append(Text("  ─── Recent Findings ───", style="dim"))
+            for finding in self.findings:
+                f_text = Text()
+                f_text.append("  🔴 ", style="red")
+                f_text.append(finding[:140], style="white")
+                parts.append(f_text)
+
+        # Combine
+        combined = Text("\n").join(parts)
+        return Panel(combined, box=box.ROUNDED, border_style="blue", title="[bold]Live Analysis[/bold]")
+
+
+# === DYNAMIC EXCEPTION DISCOVERY ===
+
+class ExceptionRegistry:
+    """Dynamic registry of all known exceptions."""
+
+    def __init__(self, status: LiveStatus):
+        self._builtin_exceptions = {}
+        self._custom_exceptions = {}
+        self._function_exceptions = {}
+        self._status = status
+        self._discover_builtin_exceptions()
+
+    def _discover_builtin_exceptions(self):
+        """Dynamically discover ALL builtin exceptions."""
+        for name in dir(builtins):
+            obj = getattr(builtins, name)
+            if isinstance(obj, type) and issubclass(obj, BaseException):
+                self._builtin_exceptions[name] = obj
+
+        self._status.update(action=f"Discovered {len(self._builtin_exceptions)} builtin exception types")
+
+    def get_builtin_exception_names(self) -> set:
+        return set(self._builtin_exceptions.keys())
+
+    def is_exception_class(self, name: str) -> bool:
+        return name in self._builtin_exceptions or name in self._custom_exceptions
+
+    def register_custom_exception(self, name: str, bases: list):
+        self._custom_exceptions[name] = bases
+        self._status.increment("custom_exceptions")
+        self._status.update(action=f"Found custom exception: {name} (bases: {', '.join(bases)})")
+
+    def get_function_exceptions(self, module: str, func_name: str) -> list:
+        key = f"{module}.{func_name}"
+        return self._function_exceptions.get(key, [])
+
+    def register_function_exceptions(self, module: str, func_name: str, exceptions: list):
+        key = f"{module}.{func_name}"
+        if key not in self._function_exceptions:
+            self._function_exceptions[key] = []
+        self._function_exceptions[key].extend(exceptions)
+
+
+# === STDLIB EXCEPTION MAPPING (DYNAMIC) ===
+
+class StdlibExceptionMapper:
+    """Dynamically maps stdlib functions to their possible exceptions."""
+
+    def __init__(self, registry: ExceptionRegistry, status: LiveStatus):
+        self.registry = registry
+        self._status = status
+        self._cache = {}
+
+    def get_exceptions_for_call(self, module_name: str, func_name: str) -> list:
+        """Dynamically determine which exceptions a function can raise."""
+        cache_key = f"{module_name}.{func_name}"
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+
+        exceptions = []
+
+        self._status.update(action=f"Inspecting stdlib: {module_name}.{func_name}")
+
+        # Try to import the module and inspect the function
+        exceptions.extend(self._inspect_function_docs(module_name, func_name))
+        exceptions.extend(self._inspect_function_source(module_name, func_name))
+
+        # Deduplicate
+        seen = set()
+        unique = []
+        for exc in exceptions:
+            if exc not in seen:
+                seen.add(exc)
+                unique.append(exc)
+
+        self._cache[cache_key] = unique
+        return unique
+
+    def _inspect_function_docs(self, module_name: str, func_name: str) -> list:
+        """Extract exceptions from docstrings dynamically."""
+        exceptions = []
+        try:
+            if module_name in ("builtins", ""):
+                func = getattr(builtins, func_name, None)
+            else:
+                mod = importlib.import_module(module_name)
+                func = getattr(mod, func_name, None)
+
+            if func is None:
+                return exceptions
+
+            doc = inspect.getdoc(func)
+            if doc:
+                for exc_name in self.registry.get_builtin_exception_names():
+                    if exc_name in doc:
+                        doc_lower = doc.lower()
+                        if any(keyword in doc_lower for keyword in
+                               ["raises", "raise", "error", "exception"]):
+                            exceptions.append(exc_name)
+
+        except (ImportError, AttributeError, TypeError, ModuleNotFoundError):
+            pass
+
+        return exceptions
+
+    def _inspect_function_source(self, module_name: str, func_name: str) -> list:
+        """Inspect function source code for raise statements."""
+        exceptions = []
+        try:
+            if module_name in ("builtins", ""):
+                return exceptions
+
+            mod = importlib.import_module(module_name)
+            func = getattr(mod, func_name, None)
+
+            if func is None:
+                return exceptions
+
+            try:
+                source = inspect.getsource(func)
+            except (OSError, TypeError):
+                return exceptions
+
+            try:
+                tree = ast.parse(textwrap.dedent(source))
+            except SyntaxError:
+                return exceptions
+
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Raise):
+                    exc_name = self._extract_exception_name(node)
+                    if exc_name:
+                        exceptions.append(exc_name)
+
+        except (ImportError, AttributeError, TypeError, ModuleNotFoundError):
+            pass
+
+        return exceptions
+
+    def _extract_exception_name(self, raise_node: ast.Raise) -> Optional[str]:
+        """Extract exception name from a raise node."""
+        if raise_node.exc is None:
+            return None
+
+        if isinstance(raise_node.exc, ast.Call):
+            return self._get_name_from_node(raise_node.exc.func)
+        elif isinstance(raise_node.exc, ast.Name):
+            return raise_node.exc.id
+        elif isinstance(raise_node.exc, ast.Attribute):
+            return raise_node.exc.attr
+
+        return None
+
+    def _get_name_from_node(self, node) -> Optional[str]:
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            return node.attr
+        return None
+
+
+# === BUILTIN CALL EXCEPTION INFERENCE ===
+
+class BuiltinCallAnalyzer:
+    """Analyzes builtin calls and infers possible exceptions dynamically."""
+
+    def __init__(self, registry: ExceptionRegistry, status: LiveStatus):
+        self.registry = registry
+        self._status = status
+        self._inference_rules = self._build_inference_rules()
+
+    def _build_inference_rules(self) -> dict:
+        """Build inference rules dynamically from actual builtins."""
+        rules = {}
+
+        for name in dir(builtins):
+            obj = getattr(builtins, name)
+            if callable(obj) and not isinstance(obj, type):
+                exceptions = self._infer_from_builtin(name, obj)
+                if exceptions:
+                    rules[name] = exceptions
+            elif isinstance(obj, type) and not issubclass(obj, BaseException):
+                exceptions = self._infer_from_type_constructor(name, obj)
+                if exceptions:
+                    rules[name] = exceptions
+
+        self._status.update(action=f"Built {len(rules)} builtin inference rules")
+        return rules
+
+    def _infer_from_builtin(self, name: str, func) -> list:
+        """Infer exceptions from a builtin function."""
+        exceptions = []
+        doc = getattr(func, '__doc__', '') or ''
+
+        for exc_name in self.registry.get_builtin_exception_names():
+            if exc_name in doc:
+                exceptions.append(exc_name)
+
+        return exceptions
+
+    def _infer_from_type_constructor(self, name: str, type_obj) -> list:
+        """Infer exceptions from type constructors."""
+        exceptions = []
+        doc = getattr(type_obj, '__doc__', '') or ''
+
+        for exc_name in self.registry.get_builtin_exception_names():
+            if exc_name in doc:
+                exceptions.append(exc_name)
+
+        # General rules for type conversions
+        if name in ('int', 'float', 'complex'):
+            if 'ValueError' not in exceptions:
+                exceptions.append('ValueError')
+            if 'TypeError' not in exceptions:
+                exceptions.append('TypeError')
+
+        return exceptions
+
+    def get_exceptions_for_builtin(self, name: str) -> list:
+        return self._inference_rules.get(name, [])
+
+
+# === MAIN AST ANALYZER ===
+
+class ScriptAnalyzer:
+    """Main analyzer - parses and analyzes Python scripts via AST."""
+
+    def __init__(self):
+        self.status = LiveStatus()
+        self.registry = ExceptionRegistry(self.status)
+        self.stdlib_mapper = StdlibExceptionMapper(self.registry, self.status)
+        self.builtin_analyzer = BuiltinCallAnalyzer(self.registry, self.status)
+        self.analyzed_files = set()
+        self.all_uncaught = []
+        self.import_map = {}  # module_name -> file_path
+        self.function_defs = {}  # (file, func_name) -> FunctionSignature
+        self._parsed_trees = {}  # file_path -> (tree, source_lines)
+
+    def analyze(self, file_path: str):
+        """Main entry point for analysis."""
+        file_path = os.path.abspath(file_path)
+
+        if not os.path.exists(file_path):
+            console.print(f"[red bold]Error:[/] File '{file_path}' does not exist.")
+            sys.exit(1)
+
+        console.print(Panel(
+            f"[bold cyan]Exception Checker[/bold cyan]\n"
+            f"Target: [yellow]{file_path}[/yellow]",
+            box=box.DOUBLE,
+        ))
+        console.print()
+
+        self.status.start()
+
+        try:
+            # Phase 1: Collect files
+            self.status.update(phase="1/4 Collecting Files", action="Resolving imports...")
+            files_to_analyze = self._collect_files(file_path)
+            self.status.stats["files_found"] = len(files_to_analyze)
+            self.status.update(action=f"Found {len(files_to_analyze)} file(s) to analyze")
+
+            # Phase 2: Discover custom exceptions
+            self.status.update(phase="2/4 Discovering Exceptions")
+            for f in files_to_analyze:
+                self.status.update(action=f"Scanning: {os.path.basename(f)}")
+                self._discover_custom_exceptions(f)
+
+            # Phase 3: Analyze function signatures
+            self.status.update(phase="3/4 Analyzing Functions")
+            for f in files_to_analyze:
+                self.status.update(action=f"Analyzing: {os.path.basename(f)}")
+                self._analyze_function_signatures(f)
+
+            # Phase 4: Find uncaught exceptions
+            self.status.update(phase="4/4 Finding Uncaught Exceptions")
+            for f in files_to_analyze:
+                self.status.update(action=f"Checking: {os.path.basename(f)}")
+                self._find_uncaught_exceptions(f)
+
+            self.status.update(phase="Done!", action="Analysis complete.")
+
+        finally:
+            self.status.stop()
+
+        console.print()
+        self._display_results()
+
+    def _parse_file(self, file_path: str):
+        """Parse a file and cache the result."""
+        if file_path in self._parsed_trees:
+            return self._parsed_trees[file_path]
+
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                source = f.read()
+            tree = ast.parse(source)
+            source_lines = source.splitlines()
+            self._parsed_trees[file_path] = (tree, source_lines)
+            return (tree, source_lines)
+        except (SyntaxError, IOError) as e:
+            self.status.update(action=f"Warning: Could not parse '{os.path.basename(file_path)}': {e}")
+            return None
+
+    def _collect_files(self, entry_file: str) -> list:
+        """Collect all relevant files (main script + local imports)."""
+        files = set()
+        to_process = [entry_file]
+
+        while to_process:
+            current = to_process.pop()
+            if current in files:
+                continue
+            files.add(current)
+
+            self.status.update(action=f"Resolving imports in: {os.path.basename(current)}")
+
+            parsed = self._parse_file(current)
+            if parsed is None:
+                continue
+
+            tree, _ = parsed
+            base_dir = os.path.dirname(current)
+
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        resolved = self._resolve_import(alias.name, base_dir)
+                        if resolved and resolved not in files:
+                            to_process.append(resolved)
+                            self.import_map[alias.name] = resolved
+                            self.status.update(
+                                action=f"Found local import: {alias.name} -> {os.path.basename(resolved)}"
+                            )
+
+                elif isinstance(node, ast.ImportFrom):
+                    if node.module:
+                        resolved = self._resolve_import(node.module, base_dir)
+                        if resolved and resolved not in files:
+                            to_process.append(resolved)
+                            self.import_map[node.module] = resolved
+                            self.status.update(
+                                action=f"Found local import: {node.module} -> {os.path.basename(resolved)}"
+                            )
+
+        return list(files)
+
+    def _resolve_import(self, module_name: str, base_dir: str) -> Optional[str]:
+        """Try to resolve an import to a local file."""
+        parts = module_name.split('.')
+        possible_paths = [
+            os.path.join(base_dir, *parts) + '.py',
+            os.path.join(base_dir, *parts, '__init__.py'),
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                return os.path.abspath(path)
+
+        # Try sys.path but skip stdlib
+        stdlib_prefix = os.path.dirname(os.__file__)
+        for search_path in sys.path:
+            if not search_path or search_path.startswith(stdlib_prefix):
+                continue
+            possible = os.path.join(search_path, *parts) + '.py'
+            if os.path.exists(possible):
+                return os.path.abspath(possible)
+
+        return None
+
+    def _discover_custom_exceptions(self, file_path: str):
+        """Discover custom exception classes in a file."""
+        parsed = self._parse_file(file_path)
+        if parsed is None:
+            return
+
+        tree, _ = parsed
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                bases = []
+                for base in node.bases:
+                    base_name = self._get_full_name(base)
+                    if base_name:
+                        bases.append(base_name)
+
+                if self._is_exception_subclass(bases):
+                    self.registry.register_custom_exception(node.name, bases)
+
+    def _is_exception_subclass(self, bases: list) -> bool:
+        """Check if a class inherits from an exception."""
+        for base in bases:
+            if base in self.registry.get_builtin_exception_names():
+                return True
+            if base in self.registry._custom_exceptions:
+                return True
+            parts = base.split('.')
+            if parts[-1] in self.registry.get_builtin_exception_names():
+                return True
+            if parts[-1] in self.registry._custom_exceptions:
+                return True
+        return False
+
+    def _analyze_function_signatures(self, file_path: str):
+        """Analyze all function definitions and their possible exceptions."""
+        parsed = self._parse_file(file_path)
+        if parsed is None:
+            return
+
+        tree, _ = parsed
+
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self.status.update(
+                    action=f"Analyzing function: {node.name}() in {os.path.basename(file_path)} (line {node.lineno})"
+                )
+                self.status.increment("functions_analyzed")
+
+                sig = FunctionSignature(
+                    name=node.name,
+                    module=file_path,
+                )
+                exceptions = self._find_raises_in_function(node, file_path)
+                sig.possible_exceptions = exceptions
+                self.function_defs[(file_path, node.name)] = sig
+                self.registry.register_function_exceptions(
+                    file_path, node.name, [e.exception_type for e in exceptions]
+                )
+
+                if exceptions:
+                    exc_names = list(set(e.exception_type for e in exceptions))
+                    self.status.update(
+                        action=f"  {node.name}() can raise: {', '.join(exc_names[:5])}"
+                        + (f" +{len(exc_names)-5} more" if len(exc_names) > 5 else "")
+                    )
+
+    def _find_raises_in_function(self, func_node, file_path: str) -> list:
+        """Find all exceptions that can be raised in a function."""
+        exceptions = []
+
+        for node in ast.walk(func_node):
+            if isinstance(node, ast.Raise):
+                exc_name = self._extract_raise_exception(node)
+                if exc_name:
+                    exceptions.append(ExceptionInfo(
+                        exception_type=exc_name,
+                        source_function=func_node.name,
+                        source_module=file_path,
+                        line_number=node.lineno,
+                        context=f"raise {exc_name}",
+                        reason=f"Explicit raise in function '{func_node.name}'",
+                        is_custom=exc_name in self.registry._custom_exceptions,
+                    ))
+
+            elif isinstance(node, ast.Call):
+                self.status.increment("calls_inspected")
+                call_exceptions = self._get_call_exceptions(node, file_path)
+                for exc in call_exceptions:
+                    exc.line_number = node.lineno
+                    exceptions.append(exc)
+
+        return exceptions
+
+    def _extract_raise_exception(self, raise_node: ast.Raise) -> Optional[str]:
+        """Extract exception type from a raise statement."""
+        if raise_node.exc is None:
+            return "RuntimeError"  # bare raise re-raises
+
+        if isinstance(raise_node.exc, ast.Call):
+            return self._get_full_name(raise_node.exc.func)
+        elif isinstance(raise_node.exc, ast.Name):
+            return raise_node.exc.id
+        elif isinstance(raise_node.exc, ast.Attribute):
+            return self._get_full_name(raise_node.exc)
+
+        return None
+
+    def _get_call_exceptions(self, call_node: ast.Call, file_path: str) -> list:
+        """Determine which exceptions a function call can raise."""
+        exceptions = []
+        func_name = self._get_full_name(call_node.func)
+
+        if not func_name:
+            return exceptions
+
+        simple_name = func_name.split('.')[-1]
+
+        # 1. Check if it's a builtin
+        builtin_excs = self.builtin_analyzer.get_exceptions_for_builtin(simple_name)
+        for exc in builtin_excs:
+            exceptions.append(ExceptionInfo(
+                exception_type=exc,
+                source_function=func_name,
+                source_module="builtins",
+                line_number=call_node.lineno,
+                context=f"Call to {func_name}()",
+                reason=f"Builtin '{simple_name}' can raise {exc}",
+            ))
+
+        # 2. Check if it's a known local function
+        for (fpath, fname), sig in self.function_defs.items():
+            if fname == simple_name or fname == func_name:
+                for exc_info in sig.possible_exceptions:
+                    exceptions.append(ExceptionInfo(
+                        exception_type=exc_info.exception_type,
+                        source_function=func_name,
+                        source_module=fpath,
+                        line_number=call_node.lineno,
+                        context=f"Call to {func_name}()",
+                        reason=f"Function '{fname}' in '{os.path.basename(fpath)}' can raise {exc_info.exception_type}",
+                        is_custom=exc_info.is_custom,
+                    ))
+
+        # 3. Check stdlib functions
+        if '.' in func_name:
+            parts = func_name.rsplit('.', 1)
+            module_part = parts[0]
+            func_part = parts[1]
+            stdlib_excs = self.stdlib_mapper.get_exceptions_for_call(module_part, func_part)
+            for exc in stdlib_excs:
+                if not any(e.exception_type == exc for e in exceptions):
+                    exceptions.append(ExceptionInfo(
+                        exception_type=exc,
+                        source_function=func_name,
+                        source_module=module_part,
+                        line_number=call_node.lineno,
+                        context=f"Call to {func_name}()",
+                        reason=f"'{module_part}.{func_part}' can raise {exc}",
+                    ))
+
+        # 4. Infer from operation type
+        exceptions.extend(self._infer_operation_exceptions(call_node, func_name))
+
+        return exceptions
+
+    def _infer_operation_exceptions(self, call_node: ast.Call, func_name: str) -> list:
+        """Infer exceptions based on operation type."""
+        exceptions = []
+        simple_name = func_name.split('.')[-1]
+
+        # File operations
+        file_ops = {'open', 'read', 'write', 'close', 'readline', 'readlines', 'writelines'}
+        if simple_name in file_ops:
+            for exc in ['FileNotFoundError', 'PermissionError', 'IsADirectoryError', 'OSError']:
+                exceptions.append(ExceptionInfo(
+                    exception_type=exc,
+                    source_function=func_name,
+                    source_module="io",
+                    line_number=call_node.lineno,
+                    context=f"File operation: {func_name}()",
+                    reason=f"File operation '{simple_name}' can raise {exc}",
+                ))
+
+        # Network operations
+        net_ops = {'connect', 'send', 'recv', 'request', 'get', 'post', 'put', 'delete',
+                   'urlopen', 'urlretrieve'}
+        if simple_name in net_ops:
+            for exc in ['ConnectionError', 'TimeoutError', 'OSError']:
+                exceptions.append(ExceptionInfo(
+                    exception_type=exc,
+                    source_function=func_name,
+                    source_module="network",
+                    line_number=call_node.lineno,
+                    context=f"Network operation: {func_name}()",
+                    reason=f"Network operation '{simple_name}' can raise {exc}",
+                ))
+
+        # JSON/serialization
+        json_ops = {'loads', 'load', 'dumps', 'dump', 'decode', 'encode'}
+        if simple_name in json_ops and any(m in func_name for m in ['json', 'yaml', 'pickle', 'marshal']):
+            for exc in ['ValueError', 'TypeError', 'KeyError']:
+                exceptions.append(ExceptionInfo(
+                    exception_type=exc,
+                    source_function=func_name,
+                    source_module="serialization",
+                    line_number=call_node.lineno,
+                    context=f"Serialization: {func_name}()",
+                    reason=f"Serialization '{simple_name}' can raise {exc}",
+                ))
+
+        # Subscript/index operations
+        index_ops = {'__getitem__', 'pop', 'remove', 'index'}
+        if simple_name in index_ops:
+            for exc in ['IndexError', 'KeyError', 'ValueError']:
+                exceptions.append(ExceptionInfo(
+                    exception_type=exc,
+                    source_function=func_name,
+                    source_module="builtins",
+                    line_number=call_node.lineno,
+                    context=f"Collection operation: {func_name}()",
+                    reason=f"Collection operation '{simple_name}' can raise {exc}",
+                ))
+
+        return exceptions
+
+    def _find_uncaught_exceptions(self, file_path: str):
+        """Find all uncaught exceptions in a file."""
+        parsed = self._parse_file(file_path)
+        if parsed is None:
+            return
+
+        tree, source_lines = parsed
+        self.status.update(action=f"Checking for uncaught exceptions in: {os.path.basename(file_path)}")
+        self._check_node_for_uncaught(tree, file_path, source_lines, caught_exceptions=set())
+
+    def _check_node_for_uncaught(self, node, file_path: str, source_lines: list,
+                                  caught_exceptions: set, depth: int = 0):
+        """Recursively check for uncaught exceptions."""
+        if depth > 100:  # Guard against infinite recursion
+            return
+
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.Try):
+                self._analyze_try_block(child, file_path, source_lines, caught_exceptions, depth)
+
+            elif isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                # Function definitions get their own scope
+                self._check_node_for_uncaught(child, file_path, source_lines, set(), depth + 1)
+
+            elif isinstance(child, ast.Call):
+                # Call outside of a try block
+                self.status.increment("calls_inspected")
+                call_exceptions = self._get_call_exceptions(child, file_path)
+                for exc_info in call_exceptions:
+                    if exc_info.exception_type not in caught_exceptions:
+                        if not self._is_inside_try(child, node):
+                            self.all_uncaught.append(UncaughtException(
+                                file_path=file_path,
+                                line_number=child.lineno,
+                                exception_type=exc_info.exception_type,
+                                context=self._get_source_context(source_lines, child.lineno),
+                                reason=exc_info.reason,
+                                source_chain=[exc_info.source_module, exc_info.source_function],
+                            ))
+                            self.status.increment("uncaught_found")
+                            self.status.add_finding(
+                                f"Line {child.lineno} in {os.path.basename(file_path)}: "
+                                f"{exc_info.exception_type} uncaught ({exc_info.reason})"
+                            )
+
+            elif isinstance(child, ast.Raise):
+                exc_name = self._extract_raise_exception(child)
+                if exc_name and exc_name not in caught_exceptions:
+                    if not self._is_inside_try(child, node):
+                        self.all_uncaught.append(UncaughtException(
+                            file_path=file_path,
+                            line_number=child.lineno,
+                            exception_type=exc_name,
+                            context=self._get_source_context(source_lines, child.lineno),
+                            reason="Explicit raise without surrounding try block",
+                            source_chain=[file_path],
+                        ))
+                        self.status.increment("uncaught_found")
+                        self.status.add_finding(
+                            f"Line {child.lineno} in {os.path.basename(file_path)}: "
+                            f"raise {exc_name} without try/except"
+                        )
+
+            elif isinstance(child, ast.Expr) and isinstance(child.value, ast.Call):
+                # Expression statements that are calls (e.g., standalone function calls)
+                self.status.increment("calls_inspected")
+                call_node = child.value
+                call_exceptions = self._get_call_exceptions(call_node, file_path)
+                for exc_info in call_exceptions:
+                    if exc_info.exception_type not in caught_exceptions:
+                        if not self._is_inside_try(child, node):
+                            self.all_uncaught.append(UncaughtException(
+                                file_path=file_path,
+                                line_number=child.lineno,
+                                exception_type=exc_info.exception_type,
+                                context=self._get_source_context(source_lines, child.lineno),
+                                reason=exc_info.reason,
+                                source_chain=[exc_info.source_module, exc_info.source_function],
+                            ))
+                            self.status.increment("uncaught_found")
+                            self.status.add_finding(
+                                f"Line {child.lineno} in {os.path.basename(file_path)}: "
+                                f"{exc_info.exception_type} uncaught"
+                            )
+
+            else:
+                # Recurse into other nodes
+                self._check_node_for_uncaught(child, file_path, source_lines,
+                                              caught_exceptions, depth + 1)
+
+    def _analyze_try_block(self, try_node: ast.Try, file_path: str,
+                           source_lines: list, parent_caught: set, depth: int):
+        """Analyze a try block for missing exception handlers."""
+        self.status.update(
+            action=f"Analyzing try block at line {try_node.lineno} in {os.path.basename(file_path)}"
+        )
+
+        # Collect all exceptions that can occur in the try body
+        possible_exceptions = {}  # exc_type -> ExceptionInfo
+
+        for stmt in try_node.body:
+            for inner_node in ast.walk(stmt):
+                if isinstance(inner_node, ast.Call):
+                    self.status.increment("calls_inspected")
+                    call_excs = self._get_call_exceptions(inner_node, file_path)
+                    for exc_info in call_excs:
+                        if exc_info.exception_type not in possible_exceptions:
+                            possible_exceptions[exc_info.exception_type] = exc_info
+
+                elif isinstance(inner_node, ast.Raise):
+                    exc_name = self._extract_raise_exception(inner_node)
+                    if exc_name and exc_name not in possible_exceptions:
+                        possible_exceptions[exc_name] = ExceptionInfo(
+                            exception_type=exc_name,
+                            source_function="<try-block>",
+                            source_module=file_path,
+                            line_number=inner_node.lineno,
+                            context=f"raise {exc_name}",
+                            reason=f"Explicit raise at line {inner_node.lineno}",
+                        )
+
+        # Collect all caught exceptions
+        caught = set(parent_caught)
+        catches_all = False
+
+        for handler in try_node.handlers:
+            if handler.type is None:
+                # Bare except: catches everything
+                catches_all = True
+                caught.update(possible_exceptions.keys())
+            else:
+                handler_types = self._get_handler_exception_types(handler.type)
+                for ht in handler_types:
+                    caught.add(ht)
+                    caught.update(self._get_subclasses(ht))
+
+        if not catches_all:
+            # Find uncaught exceptions in this try block
+            for exc_type, exc_info in possible_exceptions.items():
+                if not self._is_caught_by_handlers(exc_type, try_node.handlers):
+                    self.all_uncaught.append(UncaughtException(
+                        file_path=file_path,
+                        line_number=exc_info.line_number,
+                        exception_type=exc_type,
+                        context=self._get_source_context(source_lines, exc_info.line_number),
+                        reason=exc_info.reason + f" (not caught by except handlers at line {try_node.lineno})",
+                        source_chain=[exc_info.source_module, exc_info.source_function],
+                    ))
+                    self.status.increment("uncaught_found")
+                    self.status.add_finding(
+                        f"Line {exc_info.line_number} in {os.path.basename(file_path)}: "
+                        f"{exc_type} not caught by try at line {try_node.lineno}"
+                    )
+
+        # Recurse into the try body with the caught set
+        for stmt in try_node.body:
+            self._check_node_for_uncaught(stmt, file_path, source_lines, caught, depth + 1)
+
+        # Recurse into handler bodies
+        for handler in try_node.handlers:
+            for stmt in handler.body:
+                self._check_node_for_uncaught(stmt, file_path, source_lines, parent_caught, depth + 1)
+
+        # Recurse into else block
+        if try_node.orelse:
+            for stmt in try_node.orelse:
+                self._check_node_for_uncaught(stmt, file_path, source_lines, caught, depth + 1)
+
+        # Recurse into finally block
+        if try_node.finalbody:
+            for stmt in try_node.finalbody:
+                self._check_node_for_uncaught(stmt, file_path, source_lines, parent_caught, depth + 1)
+
+    def _is_inside_try(self, target_node, parent_node) -> bool:
+        """Check if a node is inside a try block within the parent."""
+        for child in ast.iter_child_nodes(parent_node):
+            if isinstance(child, ast.Try):
+                for stmt in child.body:
+                    if self._contains_node(stmt, target_node):
+                        return True
+        return False
+
+    def _contains_node(self, parent, target) -> bool:
+        """Check if parent contains target node."""
+        if parent is target:
+            return True
+        for node in ast.walk(parent):
+            if node is target:
+                return True
+        return False
+
+    def _get_handler_exception_types(self, handler_type) -> list:
+        """Extract all exception types from a handler."""
+        types = []
+        if isinstance(handler_type, ast.Tuple):
+            for elt in handler_type.elts:
+                name = self._get_full_name(elt)
+                if name:
+                    types.append(name)
+        else:
+            name = self._get_full_name(handler_type)
+            if name:
+                types.append(name)
+        return types
+
+    def _is_caught_by_handlers(self, exc_type: str, handlers: list) -> bool:
+        """Check if an exception type is caught by the handlers."""
+        for handler in handlers:
+            if handler.type is None:
+                return True  # Bare except catches all
+
+            handler_types = self._get_handler_exception_types(handler.type)
+            for ht in handler_types:
+                if self._exception_matches(exc_type, ht):
+                    return True
+        return False
+
+    def _exception_matches(self, exc_type: str, handler_type: str) -> bool:
+        """Check if an exception type is caught by a handler type (considering hierarchy)."""
+        # Direct match
+        if exc_type == handler_type:
+            return True
+
+        # BaseException catches everything
+        if handler_type == 'BaseException':
+            return True
+
+        # Exception catches everything except SystemExit, KeyboardInterrupt, GeneratorExit
+        if handler_type == 'Exception':
+            non_catchable = {'SystemExit', 'KeyboardInterrupt', 'GeneratorExit'}
+            return exc_type not in non_catchable
+
+        # Check builtin hierarchy dynamically using actual class relationships
+        if handler_type in self.registry._builtin_exceptions and exc_type in self.registry._builtin_exceptions:
+            handler_class = self.registry._builtin_exceptions[handler_type]
+            exc_class = self.registry._builtin_exceptions[exc_type]
+            try:
+                return issubclass(exc_class, handler_class)
+            except TypeError:
+                return False
+
+        # Check custom exception hierarchy
+        if exc_type in self.registry._custom_exceptions:
+            bases = self.registry._custom_exceptions[exc_type]
+            if handler_type in bases:
+                return True
+            # Recursive check
+            for base in bases:
+                if self._exception_matches(base, handler_type):
+                    return True
+
+        return False
+
+    def _get_subclasses(self, exc_type: str) -> set:
+        """Get all known subclasses of an exception type."""
+        subclasses = set()
+
+        if exc_type in self.registry._builtin_exceptions:
+            base_class = self.registry._builtin_exceptions[exc_type]
+            for name, cls in self.registry._builtin_exceptions.items():
+                try:
+                    if issubclass(cls, base_class) and cls is not base_class:
+                        subclasses.add(name)
+                except TypeError:
+                    pass
+
+        # Custom exceptions
+        for name, bases in self.registry._custom_exceptions.items():
+            if exc_type in bases:
+                subclasses.add(name)
+            # Check transitive
+            for base in bases:
+                if base in subclasses:
+                    subclasses.add(name)
+
+        return subclasses
+
+    def _get_full_name(self, node) -> Optional[str]:
+        """Extract the full dotted name from an AST node."""
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            value = self._get_full_name(node.value)
+            if value:
+                return f"{value}.{node.attr}"
+            return node.attr
+        elif isinstance(node, ast.Subscript):
+            return self._get_full_name(node.value)
+        return None
+
+    def _get_source_context(self, source_lines: list, line_number: int) -> str:
+        """Get the source code context for a line."""
+        if 0 < line_number <= len(source_lines):
+            return source_lines[line_number - 1].strip()
+        return "<unknown>"
+
+    # === RESULTS DISPLAY ===
+
+    def _display_results(self):
+        """Display results using Rich."""
+        if not self.all_uncaught:
+            console.print(Panel(
+                "[bold green]✓ No uncaught exceptions found![/bold green]\n"
+                "All detected exceptions are properly handled.",
+                box=box.ROUNDED,
+                border_style="green",
+            ))
+            return
+
+        # Deduplicate results
+        seen = set()
+        unique_uncaught = []
+        for ue in self.all_uncaught:
+            key = (ue.file_path, ue.line_number, ue.exception_type)
+            if key not in seen:
+                seen.add(key)
+                unique_uncaught.append(ue)
+
+        # Sort by file and line
+        unique_uncaught.sort(key=lambda x: (x.file_path, x.line_number))
+
+        # Summary
+        console.print(Panel(
+            f"[bold red]⚠ {len(unique_uncaught)} uncaught exception(s) found![/bold red]",
+            box=box.ROUNDED,
+            border_style="red",
+        ))
+
+        # Group by file
+        by_file = {}
+        for ue in unique_uncaught:
+            if ue.file_path not in by_file:
+                by_file[ue.file_path] = []
+            by_file[ue.file_path].append(ue)
+
+        for file_path, exceptions in by_file.items():
+            console.print()
+            rel_path = os.path.relpath(file_path)
+            console.print(f"[bold blue]📄 {rel_path}[/bold blue]")
+            console.print()
+
+            table = Table(
+                box=box.SIMPLE_HEAVY,
+                show_header=True,
+                header_style="bold magenta",
+                expand=True,
+            )
+            table.add_column("Line", style="cyan", width=6, justify="right")
+            table.add_column("Exception", style="red bold", width=28)
+            table.add_column("Code", style="yellow", width=45)
+            table.add_column("Reason", style="white", width=55)
+
+            for ue in exceptions:
+                table.add_row(
+                    str(ue.line_number),
+                    ue.exception_type,
+                    Text(ue.context, overflow="ellipsis", no_wrap=True),
+                    ue.reason,
+                )
+
+            console.print(table)
+
+        # Detailed view
+        console.print()
+        console.print("[bold]─── Detailed Analysis ───[/bold]")
+        console.print()
+
+        max_details = 40
+        for i, ue in enumerate(unique_uncaught[:max_details], 1):
+            tree = Tree(
+                f"[red bold]{i}.[/red bold] "
+                f"[cyan]Line {ue.line_number}[/cyan]: "
+                f"[yellow]{ue.exception_type}[/yellow] is uncaught"
+            )
+            tree.add(f"[dim]File:[/dim] {os.path.relpath(ue.file_path)}")
+            tree.add(f"[dim]Code:[/dim] [cyan]{escape(ue.context)}[/cyan]")
+            tree.add(f"[dim]Reason:[/dim] {ue.reason}")
+
+            if ue.source_chain:
+                chain_parts = [str(s) for s in ue.source_chain if s]
+                if chain_parts:
+                    chain = " → ".join(chain_parts)
+                    tree.add(f"[dim]Source:[/dim] {chain}")
+
+            suggestion = self._generate_fix_suggestion(ue)
+            tree.add(f"[green]Suggested fix:[/green] {suggestion}")
+
+            console.print(tree)
+            console.print()
+
+        if len(unique_uncaught) > max_details:
+            console.print(f"[dim]... and {len(unique_uncaught) - max_details} more.[/dim]")
+
+        # Statistics
+        console.print()
+        stats_table = Table(title="Statistics", box=box.ROUNDED, border_style="blue")
+        stats_table.add_column("Metric", style="bold")
+        stats_table.add_column("Value", style="cyan")
+
+        exc_types = set(ue.exception_type for ue in unique_uncaught)
+        stats_table.add_row("Total uncaught exceptions", str(len(unique_uncaught)))
+        stats_table.add_row("Distinct exception types", str(len(exc_types)))
+        stats_table.add_row("Affected files", str(len(by_file)))
+        stats_table.add_row("Files analyzed", str(len(self._parsed_trees)))
+        stats_table.add_row("Custom exceptions found", str(len(self.registry._custom_exceptions)))
+        stats_table.add_row("Functions analyzed", str(len(self.function_defs)))
+
+        console.print(stats_table)
+
+        # Top exception types
+        console.print()
+        exc_counter = Counter(ue.exception_type for ue in unique_uncaught)
+        top_table = Table(title="Most Common Uncaught Exceptions", box=box.ROUNDED, border_style="yellow")
+        top_table.add_column("Exception", style="red bold")
+        top_table.add_column("Count", style="cyan", justify="right")
+        top_table.add_column("Hierarchy", style="dim")
+
+        for exc_name, count in exc_counter.most_common(15):
+            hierarchy = self._get_exception_hierarchy_str(exc_name)
+            top_table.add_row(exc_name, str(count), hierarchy)
+
+        console.print(top_table)
+
+    def _get_exception_hierarchy_str(self, exc_name: str) -> str:
+        """Get a string representation of the exception's class hierarchy."""
+        if exc_name in self.registry._builtin_exceptions:
+            cls = self.registry._builtin_exceptions[exc_name]
+            mro = [c.__name__ for c in cls.__mro__ if c.__name__ not in ('object',)]
+            return " < ".join(mro)
+        elif exc_name in self.registry._custom_exceptions:
+            bases = self.registry._custom_exceptions[exc_name]
+            return f"{exc_name} < {' < '.join(bases)}"
+        return exc_name
+
+    def _generate_fix_suggestion(self, ue: UncaughtException) -> str:
+        """Generate a fix suggestion for an uncaught exception."""
+        exc = ue.exception_type
+
+        # Dynamically based on exception hierarchy
+        if exc in self.registry._builtin_exceptions:
+            exc_class = self.registry._builtin_exceptions[exc]
+            mro = exc_class.__mro__
+            # Find the nearest meaningful parent
+            parents = []
+            for parent in mro[1:]:
+                if parent.__name__ in ('Exception', 'BaseException', 'object'):
+                    break
+                parents.append(parent.__name__)
+
+            if parents:
+                return (
+                    f"Wrap in try/except {exc}, or catch more broadly with "
+                    f"except {parents[0]}"
+                )
+
+        if exc in self.registry._custom_exceptions:
+            bases = self.registry._custom_exceptions[exc]
+            if bases:
+                return f"Wrap in try/except {exc} or except {bases[0]}"
+
+        return f"Add 'except {exc}' to the try block, or handle the error case"
+
+
+# === MAIN ===
+
+def main():
+    if len(sys.argv) < 2:
+        console.print(Panel(
+            "[bold cyan]Exception Checker[/bold cyan]\n\n"
+            "[bold]Usage:[/bold] python3 exception_checker.py <script.py>\n\n"
+            "Analyzes a Python script for uncaught exceptions by:\n"
+            "  • Parsing the AST of the target and all local imports\n"
+            "  • Discovering custom exception classes and their hierarchies\n"
+            "  • Dynamically inferring which exceptions each call can raise\n"
+            "  • Checking if try/except blocks catch all possible exceptions\n"
+            "  • Tracing through the full call stack\n\n"
+            "[dim]Auto-bootstraps dependencies via uv if needed.[/dim]",
+            box=box.DOUBLE,
+            border_style="cyan",
+        ))
+        sys.exit(1)
+
+    target_file = sys.argv[1]
+
+    if not os.path.exists(target_file):
+        console.print(f"[red bold]Error:[/] File '{target_file}' does not exist.")
+        sys.exit(1)
+
+    if not target_file.endswith('.py'):
+        console.print(f"[yellow]Warning:[/] '{target_file}' does not have a .py extension. Proceeding anyway.")
+
+    analyzer = ScriptAnalyzer()
+    analyzer.analyze(target_file)
+
+
+if __name__ == "__main__":
+    main()

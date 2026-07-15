@@ -59,6 +59,20 @@
 		    transform: translateY(-1px);
 		    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 		}
+
+		#commands {
+		    top: 20px;
+		    border-radius: 12px;
+		    padding: 20px;
+		    max-height: 80vh;
+		    overflow-y: auto;
+		}
+
+		#commands code {
+		    font-size: 0.9em;
+		    line-height: 1.6;
+		    word-break: break-all;
+		}
 	</style>
 <div id="loader">
 	<div class="spinner"></div> Loading...

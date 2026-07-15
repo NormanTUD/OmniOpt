@@ -35,7 +35,7 @@
 		font-weight: bold; 
 	}
 </style>
-<p><i>OmniOpt2</i> helps you effortlessly optimize complex hyperparameter configurations — even when gradients are unavailable or too complicated. Built on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, it also supports any method of generating new hyperparameter points using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
+<p><i>OmniOpt2</i> helps you effortlessly optimize complex hyperparameter configurations, even when gradients are unavailable or too complicated. Built on <a target="_blank" href="https://ax.dev">Ax</a> and <a target="_blank" href="https://botorch.org">BoTorch</a>, it also supports any method of generating new hyperparameter points using <a href="tutorials?tutorial=external_generator">External Generators</a>.</p>
 
 <p>You can run <i>OmniOpt2</i> on any Linux system with <span class="code">python3</span>. Missing dependencies will be installed automatically.</p>
 
@@ -53,7 +53,7 @@
 </ul>
 
 <div class="cta-box">
-Check the <a target="_blank" href="tutorials.php?tutorial=run_sh">documentation</a> to adjust your program, then launch the <a href="gui.php">OmniOpt2 GUI</a> and start optimizing — faster, smarter, simpler!
+Check the <a target="_blank" href="tutorials.php?tutorial=run_sh">documentation</a> to adjust your program, then launch the <a href="gui.php">OmniOpt2 GUI</a> and start optimizing, faster, smarter, simpler!
 </div>
 			<script src="footer.js"></script>
 		</div>

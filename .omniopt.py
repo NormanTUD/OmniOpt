@@ -10094,7 +10094,7 @@ def send_notification(title: str, message: str, timeout: int = 5) -> None:
     """Send a desktop notification if plyer is available and notifications are not disabled."""
     if not _NOTIFICATIONS_AVAILABLE:
         return
-    if (hasattr(args, 'disable_notifications') and args.disable_notifications) or os.env(is_tes):
+    if (hasattr(args, 'disable_notifications') and args.disable_notifications):
         return
     try:
         _plyer_notification.notify(

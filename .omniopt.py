@@ -8041,7 +8041,6 @@ def _finish_job_core_helper_mark_success(_trial: ax.core.trial.Trial, result: di
     succeeded_jobs(1)
 
     progressbar_description(f"new result: {format_result_for_display(result)}")
-    notify_trial_result(_trial.index, result)
     update_progress_bar(1)
 
     save_results_csv()
@@ -10095,7 +10094,7 @@ def send_notification(title: str, message: str, timeout: int = 5) -> None:
     """Send a desktop notification if plyer is available and notifications are not disabled."""
     if not _NOTIFICATIONS_AVAILABLE:
         return
-    if hasattr(args, 'disable_notifications') and args.disable_notifications:
+    if (hasattr(args, 'disable_notifications') and args.disable_notifications) or os.env(is_tes):
         return
     try:
         _plyer_notification.notify(
@@ -10106,19 +10105,6 @@ def send_notification(title: str, message: str, timeout: int = 5) -> None:
         )
     except Exception as e:
         print_debug(f"Desktop notification failed: {e}")
-
-
-def notify_trial_result(trial_index: int, result: dict) -> None:
-    """Send a notification for a completed trial result."""
-    if not result:
-        return
-    result_str = format_result_for_display(result)
-    send_notification(
-        title=f"OmniOpt2 - Trial {trial_index} Complete",
-        message=f"Result: {result_str}",
-        timeout=3
-    )
-
 
 def notify_run_complete() -> None:
     """Send a final notification when the entire optimization run is done."""

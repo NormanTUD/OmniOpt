@@ -810,9 +810,9 @@ function encode_base64 (v) {
 }
 
 function decode_base64 (input) {
-	decoded = atob(result);
+	decoded = atob(input);
 
-	return result;
+	return decoded;
 }
 
 function addBase64DecodedVersions(cmdString) {

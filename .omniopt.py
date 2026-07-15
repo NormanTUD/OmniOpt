@@ -9645,17 +9645,17 @@ def get_optimizer_kwargs() -> dict:
         "sequential": False
     }
 
-def create_step(model_name: str, _num_trials: int, index: int) -> Any:
+def create_step(model_name: str, _num_trials: int, index: int, is_last: bool = False) -> Any:
     model_enum = get_model_from_name(model_name)
 
     return GenerationStep(
         generator=model_enum,
-        num_trials=_num_trials,
+        num_trials=_num_trials if not is_last else -1,
         max_parallelism=1000 * max_eval + 1000,
         model_kwargs=get_model_kwargs(),
         model_gen_kwargs=get_model_gen_kwargs(),
         should_deduplicate=True,
-        enforce_num_trials=True,
+        enforce_num_trials=not is_last,
         index=index
     )
 
@@ -9744,16 +9744,26 @@ def setup_custom_generation_strategy() -> None:
     start_index = int(len(generation_strategy_array) / 2)
     steps: list = []
 
+    idx = 0
+
     for gs_element in generation_strategy_array:
         try:
             model_name = list(gs_element.keys())[0]
             num_trials = int(gs_element[model_name])
-            step_node = create_step(model_name, num_trials, start_index)
+
+            is_last = (idx == len(generation_strategy_array) - 1)
+            
+            effective_num_trials = -1 if is_last else num_trials
+            
+            step_node = create_step(model_name, effective_num_trials, start_index, is_last)
+
             step_name = get_step_name(model_name, num_trials)
+
             steps.append(step_node)
             generation_strategy_names.append(step_name)
             print_debug(f"Added custom step: {step_name}")
             start_index += 1
+            idx += 1
         except Exception as e:
             print_red(f"Error creating step for {gs_element}: {e}")
             my_exit(111)
@@ -9762,7 +9772,7 @@ def setup_custom_generation_strategy() -> None:
 
     global global_gs, generation_strategy_human_readable
     try:
-        global_gs = GenerationStrategy(steps=steps)
+        global_gs = GenerationStrategy(nodes=steps)
         generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")

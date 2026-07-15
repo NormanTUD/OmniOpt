@@ -1643,7 +1643,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         y = np.zeros([num_completed_trials, 1])
 
         for t_idx, trial in enumerate(completed_trials):
-            trial_parameters = trial.arms[t_idx].parameters
+            trial_parameters = trial.arms[0].parameters
             x[t_idx, :] = np.array([trial_parameters[p] for p in parameter_names])
             trial_df = data.df[data.df["trial_index"] == trial.index]
             y[t_idx, 0] = trial_df[trial_df["metric_name"] == metric_names[0]]["mean"].item()

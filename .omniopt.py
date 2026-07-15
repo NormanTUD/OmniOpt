@@ -1652,7 +1652,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         self.parameters = search_space.parameters
 
         if isinstance(experiment.optimization_config.objective, MultiObjective):
-            for moo in experiment.optimization_config.objective.objectives:
+            for moo in experiment.optimization_config.objective.objectives: # type: ignore[attr-defined]
                 self.minimize.append(moo.minimize)
         else:
             self.minimize = experiment.optimization_config.objective.minimize

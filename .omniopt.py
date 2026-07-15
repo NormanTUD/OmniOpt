@@ -271,9 +271,6 @@ try:
     with spinner("Importing beartype..."):
         from beartype import beartype
 
-    with spinner("Importing rendering stuff..."):
-        from ax.plot.base import AxPlotConfig
-
     with spinner("Importing statistics..."):
         import statistics
 

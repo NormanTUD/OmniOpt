@@ -5738,10 +5738,6 @@ def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None)
     #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate.training_data[0].Y)
     #dier(global_gs.current_node.generator_specs[0]._fitted_adapter.generator._surrogate.outcomes)
 
-    if ax_client is not None:
-        if len(arg_result_names) == 1:
-            render_ax_client_trace(ax_client.get_optimization_trace())
-
     wait_for_jobs_to_complete()
 
     show_pareto_or_error_msg(get_current_run_folder(), arg_result_names)

@@ -5625,44 +5625,6 @@ def abandon_all_jobs() -> None:
         if not abandoned:
             print_debug(f"Job {job} could not be abandoned.")
 
-def write_result_to_trace_file(res: str) -> bool:
-    if res is None:
-        sys.stderr.write("Provided result is None, nothing to write\n")
-        return False
-
-    target_folder = get_current_run_folder()
-    target_file = os.path.join(target_folder, "optimization_trace.html")
-
-    try:
-        file_handle = open(target_file, "w", encoding="utf-8")
-    except OSError as error:
-        sys.stderr.write("Unable to open target file for writing\n")
-        sys.stderr.write(str(error) + "\n")
-        return False
-
-    try:
-        written = file_handle.write(str(res))
-        file_handle.flush()
-
-        if written == 0:
-            sys.stderr.write("No data was written to the file\n")
-            file_handle.close()
-            return False
-    except Exception as error:
-        sys.stderr.write("Error occurred while writing to file\n")
-        sys.stderr.write(str(error) + "\n")
-        file_handle.close()
-        return False
-
-    try:
-        file_handle.close()
-    except Exception as error:
-        sys.stderr.write("Failed to properly close file\n")
-        sys.stderr.write(str(error) + "\n")
-        return False
-
-    return True
-
 def end_program(_force: Optional[bool] = False, exit_code: Optional[int] = None) -> None:
     global END_PROGRAM_RAN
 

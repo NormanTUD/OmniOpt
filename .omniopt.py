@@ -9751,9 +9751,9 @@ def setup_custom_generation_strategy() -> None:
             num_trials = int(gs_element[model_name])
 
             is_last = (idx == len(generation_strategy_array) - 1)
-            
+
             effective_num_trials = -1 if is_last else num_trials
-            
+
             step_node = create_step(model_name, effective_num_trials, start_index, is_last)
 
             step_name = get_step_name(model_name, num_trials)

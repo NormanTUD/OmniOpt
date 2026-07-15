@@ -6385,7 +6385,7 @@ def get_global_gs_string() -> str:
     return f"""from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
 
 global_gs = GenerationStrategy(
-    steps=[
+    nodes=[
         GenerationStep(
             generator=Generators.SOBOL,
             num_trials={args.num_random_steps},

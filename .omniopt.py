@@ -9750,7 +9750,7 @@ def setup_custom_generation_strategy() -> None:
             model_name = list(gs_element.keys())[0]
             num_trials = int(gs_element[model_name])
 
-            is_last = (idx == len(generation_strategy_array) - 1)
+            is_last = idx == len(generation_strategy_array) - 1
 
             effective_num_trials = -1 if is_last else num_trials
 

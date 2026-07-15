@@ -11,6 +11,56 @@
 	<script>
 		$(document).ready(run_when_document_ready);
 	</script>
+	<style>
+		/* Smooth transitions on all inputs */
+		input, select, textarea {
+		    transition: border-color 0.2s, box-shadow 0.2s;
+		    border: 2px solid #ddd;
+		    border-radius: 6px;
+		    padding: 8px 12px;
+		}
+
+		input:focus, select:focus, textarea:focus {
+		    border-color: #4a90d9;
+		    box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+		    outline: none;
+		}
+
+		/* Error states with animation */
+		.error_element {
+		    animation: shake 0.3s ease-in-out;
+		    font-size: 0.85em;
+		    margin-top: 4px;
+		}
+
+		@keyframes shake {
+		    0%, 100% { transform: translateX(0); }
+		    25% { transform: translateX(-5px); }
+		    75% { transform: translateX(5px); }
+		}
+
+		/* Card-style sections */
+		.config-section {
+		    background: #fff;
+		    border-radius: 12px;
+		    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+		    padding: 24px;
+		    margin-bottom: 20px;
+		}
+
+		/* Better buttons */
+		button, .add_parameter {
+		    border-radius: 8px;
+		    padding: 10px 18px;
+		    font-weight: 600;
+		    transition: transform 0.1s, box-shadow 0.2s;
+		}
+
+		button:hover {
+		    transform: translateY(-1px);
+		    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+	</style>
 <div id="loader">
 	<div class="spinner"></div> Loading...
 </div>

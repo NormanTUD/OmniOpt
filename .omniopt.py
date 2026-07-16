@@ -8831,6 +8831,9 @@ def get_batched_arms(nr_of_jobs_to_get: int) -> list:
                 #pending_observations=pending_observations
             )
             print_debug(f"got global_gs.gen(): {batched_generator_run}")
+        except ImportError as e:
+            print_red(f"Error at global_gs.gen: {e}")
+            sys.exit(97)
         except Exception as e:
             print_debug(f"global_gs.gen failed: {e}")
             traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)

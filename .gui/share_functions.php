@@ -2094,12 +2094,14 @@
 
 					echo "### 1. AppArmor / SELinux (Most Likely)\n";
 					echo "Run this command to see if the kernel is blocking the path:\n";
-					echo "   `sudo dmesg | grep -i 'denied' | tail -n 5`\n";
+					echo "\n";
+					echo "sudo dmesg | grep -i 'denied' | tail -n 5\n";
+					echo "\n";
 					echo "If you see 'apparmor=\"DENIED\"', you must update the profile in `/etc/apparmor.d/`.\n\n";
 
 					echo "### 2. Identify and Fix Service Sandbox\n";
 					echo "Try editing the specific PHP service or Apache:\n";
-					echo "   `sudo systemctl edit $phpService` OR `sudo systemctl edit apache2`\n\n";
+					echo "\nsudo systemctl edit $phpService\n\nOR\n\nsudo systemctl edit apache2\n\n";
 					echo "Add these lines:\n";
 					echo "\n";
 					echo "[Service]\n";
@@ -2107,7 +2109,7 @@
 					echo "ProtectSystem=off\n\n";
 					echo "\n";
 					echo "Apply changes:\n";
-					echo "   `sudo systemctl daemon-reload && sudo systemctl restart $phpService apache2`\n";
+					echo "\n\nsudo systemctl daemon-reload && sudo systemctl restart $phpService apache2\n\n";
 
 					error_log("OS blocked mkdir at $absPath despite valid permissions.");
 					exit(1);

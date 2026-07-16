@@ -2101,9 +2101,11 @@
 					echo "Try editing the specific PHP service or Apache:\n";
 					echo "   `sudo systemctl edit $phpService` OR `sudo systemctl edit apache2`\n\n";
 					echo "Add these lines:\n";
-					echo "   `[Service]`\n";
-					echo "   `ReadWritePaths=$absPath`\n";
-					echo "   `ProtectSystem=off` (Only if ReadWritePaths fails)\n\n";
+					echo "\n";
+					echo "[Service]\n";
+					echo "ReadWritePaths=$absPath\n";
+					echo "ProtectSystem=off\n\n";
+					echo "\n";
 					echo "Apply changes:\n";
 					echo "   `sudo systemctl daemon-reload && sudo systemctl restart $phpService apache2`\n";
 

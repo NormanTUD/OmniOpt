@@ -2100,8 +2100,8 @@
 					echo "If you see 'apparmor=\"DENIED\"', you must update the profile in `/etc/apparmor.d/`.\n\n";
 
 					echo "\n\n";
-					echo 'echo "  capability net_admin," | sudo tee -a /etc/apparmor.d/local/usr.sbin.php-fpm' + "\n";
-					echo 'echo "  / rw," | sudo tee -a /etc/apparmor.d/local/usr.sbin.php-fpm' + "\n";
+					echo 'echo "  capability net_admin," | sudo tee -a /etc/apparmor.d/local/usr.sbin.php-fpm' . "\n";
+					echo 'echo "  / rw," | sudo tee -a /etc/apparmor.d/local/usr.sbin.php-fpm' . "\n";
 					echo "\n\n";
 
 					echo "### 2. Identify and Fix Service Sandbox\n";

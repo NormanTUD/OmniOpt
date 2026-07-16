@@ -11316,7 +11316,7 @@ def print_exit_summary() -> None:
 
     # Model info
     model_name = get_current_model_name()
-    lines.append(f"  🧠 Model: {model_name}")
+    lines.append(f"  🤖 Model: {model_name}")
 
     summary_text = "\n".join(lines)
 

@@ -9783,7 +9783,7 @@ def setup_custom_generation_strategy() -> None:
 
     global global_gs, generation_strategy_human_readable
     try:
-        global_gs = GenerationStrategy(steps=steps) # type: ignore[call-arg]
+        global_gs = GenerationStrategy(steps=steps)  # type: ignore[call-arg] # pylint: disable=missing-kwoa
         generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")

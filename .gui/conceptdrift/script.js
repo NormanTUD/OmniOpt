@@ -1175,23 +1175,45 @@ async function loadParetoCsvDataByDetector(dataset, metrics) {
       ? buildReqLabelsCsvPath
       : buildMtrRuntimeCsvPath;
 
-  const requests = DETECTOR_OPTIONS.map(detector =>
-    fetch(pathBuilder(detector, dataset))
-      .then(response => response.ok ? response.text() : null)
-      .then(csvText => {
-        if (!csvText) {
+  const includeReql = metrics === 'ACCURACY-RUNTIME';
+
+  const requests = DETECTOR_OPTIONS.map(detector => {
+    const primaryFetch = fetch(pathBuilder(detector, dataset))
+      .then(response => response.ok ? response.text() : null);
+
+    const reqlFetch = includeReql
+      ? fetch(buildReqLabelsCsvPath(detector, dataset))
+          .then(response => response.ok ? response.text() : null)
+          .catch(() => null)
+      : Promise.resolve(null);
+
+    return Promise.all([primaryFetch, reqlFetch])
+      .then(([csvText, reqlCsvText]) => {
+        if (!csvText && !reqlCsvText) {
           return null;
         }
 
-        const parsed = parseCsvText(csvText);
+        const parsed = csvText ? parseCsvText(csvText) : { headers: [], rows: [] };
+        const reqlParsed = reqlCsvText ? parseCsvText(reqlCsvText) : { headers: [], rows: [] };
+
+        const combinedHeaders = Array.from(new Set([
+          ...parsed.headers,
+          ...reqlParsed.headers
+        ]));
+        const combinedRows = [...parsed.rows, ...reqlParsed.rows];
+
+        if (!combinedRows.length) {
+          return null;
+        }
+
         return {
           detector,
-          rows: parsed.rows,
-          headers: parsed.headers
+          rows: combinedRows,
+          headers: combinedHeaders
         };
       })
-      .catch(() => null)
-  );
+      .catch(() => null);
+  });
 
   const results = await Promise.all(requests);
   return results.filter(Boolean);
@@ -2020,7 +2042,8 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows, headers
 }
 
 function loadCsvAccuracyRuntimeExperiment({ detector, dataset, model, button }) {
-  const path = buildAccuracyRuntimeCsvPath(detector, dataset);
+  const accRtPath = buildAccuracyRuntimeCsvPath(detector, dataset);
+  const accRtReqlPath = buildReqLabelsCsvPath(detector, dataset);
   const overviewDataPath = buildOverviewDataPath(detector, dataset, 'ACC_RT');
   const content = document.getElementById('content');
 
@@ -2033,24 +2056,35 @@ function loadCsvAccuracyRuntimeExperiment({ detector, dataset, model, button }) 
   content.classList.remove('visible');
 
   Promise.all([
-    fetch(path).then(response => {
+    fetch(accRtPath).then(response => {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       return response.text();
     }),
+    fetch(accRtReqlPath)
+      .then(response => response.ok ? response.text() : null)
+      .catch(() => null),
     fetch(overviewDataPath)
       .then(response => response.ok ? response.json() : null)
       .catch(() => null)
   ])
-    .then(([csvText, overviewData]) => {
-      const parsed = parseCsvText(csvText);
+    .then(([accRtCsvText, accRtReqlCsvText, overviewData]) => {
+      const accRtParsed = parseCsvText(accRtCsvText);
+      const accRtReqlParsed = accRtReqlCsvText ? parseCsvText(accRtReqlCsvText) : { headers: [], rows: [] };
+
+      const combinedHeaders = Array.from(new Set([
+        ...accRtParsed.headers,
+        ...accRtReqlParsed.headers
+      ]));
+      const combinedRows = [...accRtParsed.rows, ...accRtReqlParsed.rows];
+
       renderCsvAccuracyRuntimeExperiment({
         detector,
         dataset,
         model,
-        rows: parsed.rows,
-        headers: parsed.headers,
+        rows: combinedRows,
+        headers: combinedHeaders,
         metadata: overviewData
       });
     })
@@ -2058,7 +2092,7 @@ function loadCsvAccuracyRuntimeExperiment({ detector, dataset, model, button }) 
       content.innerHTML = `
         <div class="alert alert-danger">
           <h4>Error loading CSV content</h4>
-          <p>Failed to load: ${path}</p>
+          <p>Failed to load: ${accRtPath}</p>
           <p>${error.message}</p>
         </div>
       `;

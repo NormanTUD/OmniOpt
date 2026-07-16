@@ -5050,6 +5050,8 @@ def disable_logging() -> None:
 
         warnings.showwarning = custom_warning_handler
 
+        warnings.filterwarnings("ignore", category=UserWarning, module="plyer.*")
+
         fool_linter(f"warnings.showwarning set to {warnings.showwarning}")
 
 def display_failed_jobs_table() -> None:

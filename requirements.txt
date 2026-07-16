@@ -9,6 +9,7 @@ numpy
 python-dateutil
 tqdm
 ax-platform
+botorch[fully_bayesian]
 tzlocal
 Rich
 sixel

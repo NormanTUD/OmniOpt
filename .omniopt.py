@@ -1632,7 +1632,11 @@ class RandomForestGenerationNode(ExternalGenerationNode):
         if experiment.optimization_config is None:
             print_red("Error: update_generator_state is None")
             return
-        metric_names = list(experiment.optimization_config.metric_names)
+        try:
+            metric_names = list(experiment.optimization_config.metric_names)
+        except AttributeError as e:
+            print_red(f"Error trying to get experiment.optimization_config.metric_names: {e}")
+            sys.exit(94)
 
         completed_trials = [
             trial for trial in experiment.trials.values() if trial.status == TrialStatus.COMPLETED

@@ -43,6 +43,7 @@
 			91 => "Problems with lower and upper bounds",
 			92 => "Error loading torch: This can happen when your disk is full",
 			93 => "Failed loading module. See output for specific errors.",
+			94 => "Error trying to get experiment.optimization_config.metric_names",
 			95 => "experiment_parameters was not defined where it should have been",
 			96 => "Error while joining new generation worker",
 			97 => "Error in gs_gen",

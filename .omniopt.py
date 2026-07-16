@@ -2812,7 +2812,10 @@ def append_to_nvidia_smi_logs(_file: str, _host: str, result: str, _lvl: int = 0
 def _debug_progressbar(msg: str, _lvl: int = 0, eee: Union[None, str, Exception] = None) -> None:
     log_message_to_file(logfile_progressbar, msg, _lvl, str(eee))
 
-def decode_if_base64(input_str: str) -> str:
+def decode_if_base64(input_str: Union[None, str]) -> str:
+    if input_str is None:
+        return ""
+
     try:
         decoded_bytes = base64.b64decode(input_str)
         decoded_str = decoded_bytes.decode('utf-8')

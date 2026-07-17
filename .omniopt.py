@@ -1507,8 +1507,8 @@ try:
     with spinner("Trying ax.generation_strategy.generation_node..."):
         import ax.generation_strategy.generation_node
 
-    with spinner("Importing GenerationStep, GenerationStrategy from generation_strategy..."):
-        from ax.generation_strategy.generation_strategy import GenerationStep, GenerationStrategy
+    with spinner("Importing GenerationStrategy from generation_strategy..."):
+        from ax.generation_strategy.generation_strategy import GenerationStrategy
 
     with spinner("Importing GenerationNode from generation_node..."):
         from ax.generation_strategy.generation_node import GenerationNode
@@ -9433,16 +9433,9 @@ def print_generation_strategy(generation_strategy_array: list[dict[str, int]]) -
 
     console.print(table)
 
-def get_model_from_name(name: str) -> Any:
-    name = name.lower()
-    for gen in ax.adapter.registry.Generators:
-        if gen.name.lower() == name:
-            return gen
-    raise ValueError(f"Unknown or unsupported model: {name}")
-
 def get_name_from_model(model: Any) -> str:
     if not isinstance(SUPPORTED_MODELS, (list, set, tuple)):
-        raise RuntimeError("get_model_from_name: SUPPORTED_MODELS was not a list, set or tuple. Cannot continue")
+        raise RuntimeError("get_name_from_model: SUPPORTED_MODELS was not a list, set or tuple. Cannot continue")
 
     model_str = model.value if hasattr(model, "value") else str(model)
 
@@ -9593,7 +9586,17 @@ def get_torch_device_str() -> str:
         print_debug(f"Error detecting device: {e}")
         return "cpu"
 
-def create_node(model_name: str, threshold: int, next_model_name: Optional[str]) -> Union[RandomForestGenerationNode, GenerationNode]:
+def create_node(
+    model_name: str,
+    threshold: int,
+    next_model_name: Optional[str] = None,
+    *,
+    num_trials: Optional[int] = None,
+    index: Optional[int] = None,
+    is_last: bool = False,
+    max_parallelism: Optional[int] = None,
+    enforce_num_trials: Optional[bool] = None
+) -> Union[RandomForestGenerationNode, GenerationNode]:
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
             _fatal_error("Currently, RANDOMFOREST does not support Multi-Objective-Optimization", 251)
@@ -9624,13 +9627,17 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
             _fatal_error("--external_generator is missing. Cannot create points for EXTERNAL_GENERATOR without it.", 204)
         return ExternalProgramGenerationNode(external_generator=cmd, name="EXTERNAL_GENERATOR")
 
-    trans_crit = [
-        MinTrials(
-            threshold=threshold,
-            transition_to=target_model,
-            count_only_trials_with_data=True
-        )
-    ]
+    # Determine transition criteria
+    # If is_last is True, no transition is needed
+    trans_crit = []
+    if not is_last and target_model:
+        trans_crit = [
+            MinTrials(
+                threshold=threshold,
+                transition_to=target_model,
+                count_only_trials_with_data=True
+            )
+        ]
 
     selected_model = select_model(model_name)
 
@@ -9640,35 +9647,40 @@ def create_node(model_name: str, threshold: int, next_model_name: Optional[str])
     if model_name.lower() != "sobol":
         kwargs["model_kwargs"] = get_model_kwargs()
 
-    model_spec = [GeneratorSpec(selected_model, **kwargs)] # type: ignore[arg-type]
+    model_spec = [GeneratorSpec(selected_model, **kwargs)]  # type: ignore[arg-type]
 
-    res = GenerationNode(
-        name=model_name,
-        generator_specs=model_spec,
-        should_deduplicate=True,
-        transition_criteria=trans_crit
-    )
+    node_kwargs: dict = {
+        "name": model_name,
+        "generator_specs": model_spec,
+        "should_deduplicate": True,
+    }
+
+    if trans_crit:
+        node_kwargs["transition_criteria"] = trans_crit
+
+    res = GenerationNode(**node_kwargs)
 
     return res
+
+
+def create_step(model_name: str, _num_trials: int, index: int, is_last: bool = False) -> Any:
+    """Creates a generation node using create_node internally, preserving step-like behavior."""
+    # For the custom generation strategy, determine the next model name
+    # In the step-based approach, transition is handled by GenerationStrategy itself
+    # so we pass next_model_name=None and is_last appropriately
+    return create_node(
+        model_name,
+        threshold=_num_trials if _num_trials > 0 else max_eval,
+        next_model_name=None,
+        num_trials=_num_trials,
+        index=index,
+        is_last=is_last
+    )
 
 def get_optimizer_kwargs() -> dict:
     return {
         "sequential": False
     }
-
-def create_step(model_name: str, _num_trials: int, index: int, is_last: bool = False) -> Any:
-    model_enum = get_model_from_name(model_name)
-
-    return GenerationStep(
-        generator=model_enum,
-        num_trials=_num_trials if not is_last else -1,
-        max_parallelism=1000 * max_eval + 1000,
-        model_kwargs=get_model_kwargs(),
-        model_gen_kwargs=get_model_gen_kwargs(),
-        should_deduplicate=True,
-        enforce_num_trials=not is_last,
-        index=index
-    )
 
 def set_global_generation_strategy() -> None:
     continue_not_supported_on_custom_generation_strategy()
@@ -9753,7 +9765,7 @@ def setup_custom_generation_strategy() -> None:
 
     print_generation_strategy(generation_strategy_array)
     start_index = int(len(generation_strategy_array) / 2)
-    steps: list = []
+    nodes: list = []
 
     idx = 0
 
@@ -9770,7 +9782,7 @@ def setup_custom_generation_strategy() -> None:
 
             step_name = get_step_name(model_name, num_trials)
 
-            steps.append(step_node)
+            nodes.append(step_node)
             generation_strategy_names.append(step_name)
             print_debug(f"Added custom step: {step_name}")
             start_index += 1
@@ -9783,7 +9795,7 @@ def setup_custom_generation_strategy() -> None:
 
     global global_gs, generation_strategy_human_readable
     try:
-        global_gs = GenerationStrategy(steps=steps)  # type: ignore[call-arg] # pylint: disable=missing-kwoa
+        global_gs = GenerationStrategy(nodes=nodes)
         generation_strategy_human_readable = join_with_comma_and_then(generation_strategy_names)
     except Exception as e:
         print_red(f"Failed to create custom GenerationStrategy: {e}")

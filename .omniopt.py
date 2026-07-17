@@ -9663,20 +9663,6 @@ def create_node(
     return res
 
 
-def create_step(model_name: str, _num_trials: int, index: int, is_last: bool = False) -> Any:
-    """Creates a generation node using create_node internally, preserving step-like behavior."""
-    # For the custom generation strategy, determine the next model name
-    # In the step-based approach, transition is handled by GenerationStrategy itself
-    # so we pass next_model_name=None and is_last appropriately
-    return create_node(
-        model_name,
-        threshold=_num_trials if _num_trials > 0 else max_eval,
-        next_model_name=None,
-        num_trials=_num_trials,
-        index=index,
-        is_last=is_last
-    )
-
 def get_optimizer_kwargs() -> dict:
     return {
         "sequential": False
@@ -9764,7 +9750,6 @@ def setup_custom_generation_strategy() -> None:
         set_max_eval(new_max_eval_plus_jobs)
 
     print_generation_strategy(generation_strategy_array)
-    start_index = int(len(generation_strategy_array) / 2)
     nodes: list = []
 
     idx = 0
@@ -9776,19 +9761,28 @@ def setup_custom_generation_strategy() -> None:
 
             is_last = idx == len(generation_strategy_array) - 1
 
-            effective_num_trials = -1 if is_last else num_trials
+            # Determine the next model name for transition criteria
+            next_model_name = None
+            if not is_last and idx + 1 < len(generation_strategy_array):
+                next_model_name = list(generation_strategy_array[idx + 1].keys())[0]
 
-            step_node = create_step(model_name, effective_num_trials, start_index, is_last)
+            step_node = create_node(
+                model_name,
+                threshold=num_trials,
+                next_model_name=next_model_name,
+                num_trials=-1 if is_last else num_trials,
+                index=idx,
+                is_last=is_last
+            )
 
             step_name = get_step_name(model_name, num_trials)
 
             nodes.append(step_node)
             generation_strategy_names.append(step_name)
-            print_debug(f"Added custom step: {step_name}")
-            start_index += 1
+            print_debug(f"Added custom node: {step_name}")
             idx += 1
         except Exception as e:
-            print_red(f"Error creating step for {gs_element}: {e}")
+            print_red(f"Error creating node for {gs_element}: {e}")
             my_exit(111)
 
     write_state_file("custom_generation_strategy", args.generation_strategy)

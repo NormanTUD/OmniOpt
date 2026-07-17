@@ -9597,6 +9597,8 @@ def create_node(
     max_parallelism: Optional[int] = None,
     enforce_num_trials: Optional[bool] = None
 ) -> Union[RandomForestGenerationNode, GenerationNode]:
+    print_debug(f"create_node: num_trials = {num_trials}, index = {index}, max_parallelism = {max_parallelism}, enforce_num_trials = {enforce_num_trials}")
+
     if model_name == "RANDOMFOREST":
         if len(arg_result_names) != 1:
             _fatal_error("Currently, RANDOMFOREST does not support Multi-Objective-Optimization", 251)

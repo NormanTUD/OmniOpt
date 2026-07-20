@@ -40,6 +40,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		BOTORCH_MODULAR
 		SAASBO
 		UNIFORM
+		version
 		SOBOL
 		FACTORIAL
 		EXTERNAL_GENERATOR
@@ -58,6 +59,7 @@ if command -v php 2>/dev/null >/dev/null; then
 		config_json
 		skip_search
 		range_max_difference
+		version
 		db_url
 		config_toml
 		show_generation_and_submission_sixel

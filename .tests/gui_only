@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: GUI-only test suite, runs only tests relevant to the .gui/ directory
+
+tests=(
+	php_files
+	php_unit_tests
+	js_syntax
+	php_search
+	share
+	share_tests
+	find_typos_in_gui
+	find_typos_in_js
+	find_typos_in_php
+	all_oo_options_are_in_gui_and_vice_versa
+	find_double_function_names
+	find_unused_share_functions
+	doc_has_outdated_params
+	find_missing_toc_in_md_files
+	find_undocumented_exit_codes
+	missing_plot_metadata
+)
+
+code=1
+total_start=$(date +%s)
+
+declare -A runtimes
+
+human_readable_time() {
+    local secs=$1
+    if (( secs < 60 )); then
+        echo "${secs}s"
+    elif (( secs < 3600 )); then
+        printf "%dm %ds" $((secs/60)) $((secs%60))
+    else
+        printf "%dh %dm %ds" $((secs/3600)) $(((secs%3600)/60)) $((secs%60))
+    fi
+}
+
+for t in "${tests[@]}"; do
+    start=$(date +%s)
+    printf "Running %-45s ... \n" "$t"
+
+    if .tests/"$t"; then
+        end=$(date +%s)
+        runtime=$((end - start))
+        runtimes["$t"]=$runtime
+    else
+        end=$(date +%s)
+        runtime=$((end - start))
+        printf "\033[31mFAIL\033[0m (%ds)\n" "$runtime"
+        runtimes["$t"]=$runtime
+        exit $code
+    fi
+
+    code=$((code+1))
+done
+
+total_end=$(date +%s)
+total_runtime=$((total_end - total_start))
+
+echo
+echo "GUI-only Tests OK in $(human_readable_time "$total_runtime")"
+echo
+
+# Find longest test name for column width
+maxlen=0
+for t in "${tests[@]}"; do
+    (( ${#t} > maxlen )) && maxlen=${#t}
+done
+
+# Print table header
+printf "| %-*s | %-12s |\n" "$maxlen" "Test" "Runtime"
+printf "|-%-*s-|-%-12s-|\n" "$maxlen" "$(printf '%.0s-' $(seq 1 $maxlen))" "------------"
+
+# Print rows
+for t in "${tests[@]}"; do
+    runtime=${runtimes[$t]}
+    printf "| %-*s | %-12s |\n" "$maxlen" "$t" "$(human_readable_time "$runtime")"
+done

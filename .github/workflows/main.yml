@@ -11,7 +11,34 @@ on:
     - cron: '0 2 * * 0'
 
 jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      gui_only: ${{ steps.set_gui_only.outputs.gui_only }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          gui_only:
+            - '.gui/**'
+          other_changes:
+            - '!.gui/**'
+    - name: Determine GUI-only
+      id: set_gui_only
+      run: |
+        if [ "${{ steps.filter.outputs.gui_only }}" == "true" ] && \
+           [ "${{ steps.filter.outputs.other_changes }}" == "false" ]; then
+          echo "gui_only=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "gui_only=false" >> "$GITHUB_OUTPUT"
+        fi
+
   smoke-tests:
+    needs: [detect_changes]
     strategy:
       fail-fast: true
 
@@ -45,15 +72,23 @@ jobs:
         fi
 
     - name: Smoke Tests
+      if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
         .tests/smoke_tests
 
+    - name: GUI-only Tests
+      if: needs.detect_changes.outputs.gui_only == 'true'
+      run: |
+        .tests/gui_only
+
     - name: Run linter
+      if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
         ./.tests/linter --check_only_changed_since_last_success
 
   install-via-pip:
-    needs: [smoke-tests, docker-test]
+    needs: [smoke-tests, docker-test, detect_changes]
+    if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -71,7 +106,8 @@ jobs:
       run: |
         .tests/install_via_pip
   docker-test:
-    needs: [smoke-tests]
+    needs: [smoke-tests, detect_changes]
+    if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ubuntu-24.04
     environment: Production
     strategy:
@@ -92,7 +128,8 @@ jobs:
         ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
-    needs: [smoke-tests, install-via-pip]
+    needs: [smoke-tests, install-via-pip, detect_changes]
+    if: needs.detect_changes.outputs.gui_only != 'true'
     runs-on: ${{ matrix.os }}
     environment: Production
     strategy:
@@ -172,13 +209,13 @@ jobs:
         uses: "alstr/todo-to-issue-action@v5"
 
   deploy-to-pypi:
-    needs: [docker-test, main-test, install-via-pip]
+    needs: [docker-test, main-test, install-via-pip, detect_changes]
     permissions:
       contents: read
     environment: Production
     runs-on: ubuntu-latest
 
-    if: ${{ github.event_name == 'push' }}
+    if: needs.detect_changes.outputs.gui_only != 'true' && github.event_name == 'push'
 
     steps:
     - uses: actions/checkout@v4

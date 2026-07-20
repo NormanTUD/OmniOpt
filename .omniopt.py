@@ -46,10 +46,10 @@ def force_exit(signal_number: Any, frame: Any) -> Any:
 
     print("")
     if FORCE_EXIT:
-        print("Exiting now")
+        print("\033[91mExiting now (forced).\033[0m")
         os._exit(0)
     else:
-        print("Shutting down, this may take a while. Press CTRL-c again to force exit now.")
+        print("\033[93mShutting down gracefully. Press CTRL-C again to force exit.\033[0m")
         FORCE_EXIT = True
         sys.exit(0)
 
@@ -136,145 +136,71 @@ try:
         soft_wrap=True,
         color_system="256",
         force_terminal=not ci_env,
-        width=max(200, terminal_width)
+        width=min(200, max(80, terminal_width))
     )
 
     def spinner(text: str) -> Any:
         return console.status(f"[bold green]{text}", speed=0.2, refresh_per_second=6)
 
-    with spinner("Importing logging..."):
+    with spinner("Loading base modules..."):
         import logging
         logging.basicConfig(level=logging.CRITICAL)
 
-    with spinner("Importing warnings..."):
         import warnings
-
         warnings.filterwarnings(
             "ignore",
             category=FutureWarning,
             module="ax.adapter.best_model_selector"
         )
-
         warnings.filterwarnings(
             "ignore",
             message="Ax currently requires a sqlalchemy version below 2.0.*",
         )
 
-    with spinner("Importing argparse..."):
         import argparse
-
-    with spinner("Importing datetime..."):
         import datetime
-
-    with spinner("Importing dataclass..."):
         from dataclasses import dataclass
-
-    with spinner("Importing socket..."):
         import socket
-
-    with spinner("Importing stat..."):
         import stat
-
-    with spinner("Importing pwd..."):
         import pwd
-
-    with spinner("Importing base64..."):
         import base64
-
-    with spinner("Importing json..."):
         import json
-
-    with spinner("Importing yaml..."):
         import yaml
-
-    with spinner("Importing toml..."):
         import toml
-
-    with spinner("Importing csv..."):
         import csv
-
-    with spinner("Importing ast..."):
         import ast
 
-    with spinner("Importing rich.table..."):
+    with spinner("Loading rich UI components..."):
         from rich.table import Table
-
-    with spinner("Importing rich print..."):
         from rich import print
-
-    with spinner("Importing rich.pretty..."):
         from rich.pretty import pprint
-
-    with spinner("Importing pformat..."):
         from pprint import pformat
-
-    with spinner("Importing rich.prompt..."):
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
 
-    with spinner("Importing types.FunctionType..."):
+    with spinner("Loading type and utility modules..."):
         from types import FunctionType
-
-    with spinner("Importing typing..."):
         from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
-
-    with spinner("Importing ThreadPoolExecutor..."):
         from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    with spinner("Importing submitit.LocalExecutor..."):
-        from submitit import LocalExecutor, AutoExecutor
-
-    with spinner("Importing submitit.Job..."):
-        from submitit import Job
-
-    with spinner("Importing importlib.util..."):
+        from submitit import LocalExecutor, AutoExecutor, Job
         import importlib.util
-
-    with spinner("Importing platform..."):
         import platform
-
-    with spinner("Importing inspect frame info..."):
         from inspect import currentframe, getframeinfo
-
-    with spinner("Importing pathlib.Path..."):
         from pathlib import Path
-
-    with spinner("Importing uuid..."):
         import uuid
-
-    with spinner("Importing cowsay..."):
         import cowsay
-
-    with spinner("Importing shutil..."):
         import shutil
-
-    with spinner("Importing itertools.combinations..."):
         from itertools import combinations
-
-    with spinner("Importing os.listdir..."):
         from os import listdir
-
-    with spinner("Importing os.path..."):
         from os.path import isfile, join
 
-    with spinner("Importing PIL.Image..."):
+    with spinner("Loading optional modules..."):
         from PIL import Image
-
-    with spinner("Importing sixel..."):
         import sixel
-
-    with spinner("Importing subprocess..."):
         import subprocess
-
-    with spinner("Importing tqdm..."):
         from tqdm import tqdm
-
-    with spinner("Importing beartype..."):
         from beartype import beartype
-
-    with spinner("Importing statistics..."):
         import statistics
 
-    with spinner("Importing notifier..."):
         try:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning, module="plyer")
@@ -283,21 +209,20 @@ try:
         except ImportError:
             _NOTIFICATIONS_AVAILABLE = False
 
-    with spinner("Trying to import pyfiglet..."):
         try:
             from pyfiglet import Figlet
             figlet_loaded = True
         except ModuleNotFoundError:
             figlet_loaded = False
 except ModuleNotFoundError as e:
-    print(f"Some of the base modules could not be loaded. Most probably that means you have not loaded or installed the virtualenv properly. Error: {e}")
+    print(f"\033[91mSome base modules could not be loaded. Please ensure the virtualenv is activated.\nError: {e}\033[0m")
     print("Exit-Code: 4")
     sys.exit(4)
 except ImportError as e:
-    print(f"Error loading modules: {e}\nThis may be caused by forgetting to 'module load' the right python version or missing the python virtual environment.")
+    print(f"\033[91mError loading modules: {e}\nPlease run 'module load' for the correct Python version, or activate the virtual environment.\033[0m")
     sys.exit(4)
 except KeyboardInterrupt:
-    print("You pressed CTRL-C while modules were loading.")
+    print("\033[93mYou pressed CTRL-C while modules were loading.\033[0m")
     sys.exit(17)
 
 def collect_runtime_stats() -> dict:
@@ -917,6 +842,7 @@ class ConfigLoader:
             description='A hyperparameter optimizer for slurm-based HPC-systems',
             epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ..."
         )
+        self.parser.add_argument('--version', action='version', version='%(prog)s 2.0', help='Show version and exit')
 
         self._parsing_arguments_loader = _parsing_arguments_loader
 
@@ -978,7 +904,7 @@ class ConfigLoader:
         optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help='List of job data to load from existing jobs')
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--max_attempts_for_generation', help='Max. number of attempts for generating sets of new points (default: 20)', type=int, default=20)
-        optional.add_argument('--external_generator', help='Programm call for an external generator', type=str, default=None)
+        optional.add_argument('--external_generator', help='Command to call an external generator program', type=str, default=None)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
@@ -1091,9 +1017,9 @@ class ConfigLoader:
                 try:
                     converted_config[key] = expected_type(value)
                 except (ValueError, TypeError):
-                    print(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
+                    print_yellow(f"Warning: Cannot convert '{key}' to {expected_type.__name__}. Using default value.")
             else:
-                print(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
+                print_yellow(f"Warning: Unknown config parameter '{key}' found in the config file and ignored.")
 
         return converted_config
 
@@ -1103,9 +1029,12 @@ class ConfigLoader:
 
         validated_config = self.validate_and_convert(config, arg_defaults)
 
-        for key, _ in vars(cli_args).items():
-            if key in validated_config:
-                setattr(cli_args, key, validated_config[key])
+        for key, config_val in validated_config.items():
+            cli_val = getattr(cli_args, key, None)
+            default_val = arg_defaults.get(key)
+            if cli_val != default_val:
+                continue
+            setattr(cli_args, key, config_val)
 
         return cli_args
 
@@ -1239,7 +1168,8 @@ class ConfigLoader:
         json_and_toml = _args.config_json and _args.config_toml
 
         if yaml_and_toml or yaml_and_json or json_and_toml:
-            print("Error: Cannot use YAML, JSON and TOML configuration files simultaneously.]")
+            print("Error: Only one config format (YAML, JSON, or TOML) can be used at a time.")
+            print("Please use --config_yaml, --config_toml, or --config_json, but not multiple.")
             print("Exit-Code: 5")
 
             my_exit(5)
@@ -1472,123 +1402,67 @@ if args.continue_previous_job is not None:
         args.force_choice_for_ranges = True
 
 try:
-    with spinner("Importing torch...") as status:
+    with spinner("Loading ML frameworks..."):
         import torch
-    with spinner("Importing numpy...") as status:
         import numpy as np
-    with spinner("Importing ax..."):
+
+    with spinner("Loading Ax platform..."):
         import ax
-
-    with spinner("Importing ax.core.generator_run..."):
         from ax.core.generator_run import GeneratorRun
-
-    with spinner("Importing Cont_X_trans and Y_trans from ax.adapter.registry..."):
-        from ax.adapter.registry import Cont_X_trans, Y_trans
-
-    with spinner("Importing ax.core.arm..."):
+        from ax.adapter.registry import Cont_X_trans, Y_trans, Generators
         from ax.core.arm import Arm
-
-    with spinner("Importing ax.core.objective..."):
         from ax.core.objective import MultiObjective
-
-    with spinner("Importing ax.core.Metric..."):
         from ax.core import Metric
-
-    with spinner("Importing ax.exceptions.core..."):
         import ax.exceptions.core
-
-    with spinner("Importing ax.exceptions.generation_strategy..."):
         import ax.exceptions.generation_strategy
-
-    with spinner("Importing CORE_DECODER_REGISTRY..."):
-        from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
-
-    #try:
-    with spinner("Trying ax.generation_strategy.generation_node..."):
         import ax.generation_strategy.generation_node
-
-    with spinner("Importing GenerationStrategy from generation_strategy..."):
         from ax.generation_strategy.generation_strategy import GenerationStrategy
-
-    with spinner("Importing GenerationNode from generation_node..."):
         from ax.generation_strategy.generation_node import GenerationNode
-
-    with spinner("Importing ExternalGenerationNode..."):
         from ax.generation_strategy.external_generation_node import ExternalGenerationNode
-
-    with spinner("Importing MinTrials..."):
         from ax.generation_strategy.transition_criterion import MinTrials
-
-    with spinner("Importing GeneratorSpec..."):
         from ax.generation_strategy.generator_spec import GeneratorSpec
 
-    with spinner("Importing Generators from ax.generation_strategy.registry..."):
-        from ax.adapter.registry import Generators
-
-    #with spinner("Importing get_pending_observation_features..."):
-    #    from ax.core.utils import get_pending_observation_features
-
-    with spinner("Importing load_experiment..."):
+    with spinner("Loading Ax storage and data..."):
+        from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
         from ax.storage.json_store.load import load_experiment
-
-    with spinner("Importing save_experiment..."):
         from ax.storage.json_store.save import save_experiment
-
-    with spinner("Importing save_experiment_to_db..."):
         from ax.storage.sqa_store.save import save_experiment as save_experiment_to_db, save_generation_strategy
-
-    with spinner("Importing TrialStatus..."):
         from ax.core.base_trial import TrialStatus
-
-    with spinner("Importing Data..."):
         from ax.core.data import Data
-
-    with spinner("Importing Experiment..."):
         from ax.core.experiment import Experiment
-
-    with spinner("Importing parameter types..."):
         from ax.core.parameter import RangeParameter, FixedParameter, ChoiceParameter, ParameterType
-
-    with spinner("Importing TParameterization..."):
         from ax.core.types import TParameterization
 
-    with spinner("Importing pandas..."):
+    with spinner("Loading data science stack..."):
         import pandas as pd
-
-    with spinner("Importing AxClient and ObjectiveProperties..."):
         from ax.service.ax_client import AxClient, ObjectiveProperties
-
-    with spinner("Importing RandomForestRegressor..."):
         from sklearn.ensemble import RandomForestRegressor
-
-    with spinner("Importing botorch...") as status:
         import botorch
-    with spinner("Importing submitit...") as status:
         import submitit
         from submitit import DebugJob, LocalJob, SlurmJob
 except ModuleNotFoundError as ee:
-    original_print(f"Base modules could not be loaded: {ee}")
+    original_print(f"\033[91mFailed to load ML modules: {ee}\033[0m")
     my_exit(31)
 except SignalINT:
-    print("\n⚠ Signal INT was detected. Exiting with 128 + 2.")
+    print("\n\033[93m⚠ Signal INT detected. Exiting with 128 + 2.\033[0m")
     my_exit(130)
 except SignalUSR:
-    print("\n⚠ Signal USR was detected. Exiting with 128 + 10.")
+    print("\n\033[93m⚠ Signal USR detected. Exiting with 128 + 10.\033[0m")
     my_exit(138)
 except SignalCONT:
-    print("\n⚠ Signal CONT was detected. Exiting with 128 + 18.")
+    print("\n\033[93m⚠ Signal CONT detected. Exiting with 128 + 18.\033[0m")
     my_exit(146)
 except KeyboardInterrupt:
-    print("\n⚠ You pressed CTRL+C. Program execution halted while loading modules.")
+    print("\n\033[93m⚠ Interrupted while loading ML modules.\033[0m")
     my_exit(0)
 except AttributeError:
-    print(f"\n⚠ This error means that your virtual environment is probably outdated. Try removing the virtual environment under '{os.getenv('VENV_DIR')}' and re-install your environment.")
+    print(f"\n\033[91m⚠ Your virtual environment is outdated. Remove '{os.getenv('VENV_DIR')}' and re-install.\033[0m")
     my_exit(7)
 except FileNotFoundError as e:
-    print(f"\n⚠ Error {e}. This probably means that your hard disk is full")
+    print(f"\n\033[91m⚠ Error: {e}. The disk may be full.\033[0m")
     my_exit(92)
 except ImportError as e:
-    print(f"Failed to load module: {e}")
+    print(f"\033[91mFailed to load module: {e}\033[0m")
     my_exit(93)
 
 with spinner("Importing ax logger...") as status:
@@ -2437,7 +2311,7 @@ def add_to_phase_counter(phase: str, nr: int = 0, run_folder: str = "") -> int:
     return append_and_read(f'{run_folder}/state_files/phase_{phase}_steps', nr)
 
 if args.model and str(args.model).upper() not in SUPPORTED_MODELS:
-    print(f"Unsupported model {args.model}. Cannot continue. Valid models are {joined_supported_models}")
+    print(f"\033[91mUnsupported model '{args.model}'. Valid models are: {joined_supported_models}\033[0m")
     my_exit(203)
 
 if isinstance(args.num_parallel_jobs, int) or helpers.looks_like_int(args.num_parallel_jobs):
@@ -4038,16 +3912,16 @@ def execute_bash_code(code: str) -> list:
             real_exit_code = 1
 
         if not args.tests:
-            print(f"Error at execution of your program: {code}. Exit-Code: {real_exit_code}, Signal-Code: {signal_code}")
+            print(f"\033[91mExecution failed: {code}\n  Exit-Code: {real_exit_code}, Signal-Code: {signal_code}\033[0m")
             if len(e.stdout):
-                print(f"stdout: {e.stdout}")
+                print(f"  stdout: {e.stdout}")
             else:
-                print("No stdout")
+                print("  No stdout")
 
             if len(e.stderr):
-                print(f"stderr: {e.stderr}")
+                print(f"  stderr: {e.stderr}")
             else:
-                print("No stderr")
+                print("  No stderr")
 
         return [e.stdout, e.stderr, real_exit_code, signal_code]
 
@@ -8601,7 +8475,7 @@ def handle_failed_job(error: Union[None, Exception, str], trial_index: int, new_
         print_red(f"\n⚠ FAILED: {error}")
 
         if "CPU count per node can not be satisfied" in f"{error}":
-            print_red("Cannot continue. This can happen when you have too requested much memory.")
+            print_red("Cannot continue. This can happen when you have requested too much memory.")
             my_exit(144)
 
     if new_job is None:
@@ -10205,6 +10079,15 @@ def detect_and_show_help_for_errors(errors: List[str]) -> None:
     Analyze a list of error strings and show contextual help for the first recognized pattern.
     Called after error analysis to provide user-friendly guidance.
     """
+    error_messages = {
+        "permission_denied": "\033[93mHint: Check file/directory permissions. You may need to run 'chmod' or contact your admin.\033[0m",
+        "module_not_found": "\033[93mHint: A required Python module is missing. Install it with 'pip install <module>' or check your virtualenv.\033[0m",
+        "oom_killed": f"\033[93mHint: The worker ran out of memory. Try increasing --mem_gb (currently {args.mem_gb}GB) or --main_process_gb.\033[0m",
+        "no_result_found": "\033[93mHint: The evaluation produced no result. Check that your program writes its output correctly.\033[0m",
+        "cuda_error": "\033[93mHint: CUDA error detected. Check GPU drivers with 'nvidia-smi' and ensure compatible CUDA/cuDNN versions.\033[0m",
+        "timeout": f"\033[93mHint: Worker timed out after {args.worker_timeout}s. Increase --worker_timeout or optimize your program.\033[0m",
+    }
+
     error_patterns: List[Tuple[str, str, dict]] = [
         ("Permission denied", "permission_denied", {}),
         ("ModuleNotFoundError", "module_not_found", {}),
@@ -10214,7 +10097,6 @@ def detect_and_show_help_for_errors(errors: List[str]) -> None:
         ("Out of Memory", "oom_killed", {}),
         ("Got no result", "no_result_found", {}),
         ("CUDNN_STATUS", "cuda_error", {}),
-        ("cuda", "cuda_error", {}),
         ("Timeout", "timeout", {"timeout": str(args.worker_timeout)}),
     ]
 
@@ -10223,7 +10105,8 @@ def detect_and_show_help_for_errors(errors: List[str]) -> None:
         for pattern, help_key, _ in error_patterns:
             if pattern.lower() in error_text.lower() and help_key not in shown:
                 shown.add(help_key)
-                break  # Only show one help per error string
+                print(error_messages.get(help_key, ""))
+                break
 
 def execute_next_steps(next_nr_steps: int) -> int:
     if next_nr_steps:

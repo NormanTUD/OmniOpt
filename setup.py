@@ -86,7 +86,7 @@ if os.path.isfile(requirement_path):
 test_requirement_path = f"{lib_folder}/test_requirements.txt"
 if os.path.isfile(test_requirement_path):
     with open(test_requirement_path, mode="r", encoding="utf-8") as f:
-        install_requires = f.read().splitlines()
+        install_requires.extend(f.read().splitlines())
 
 def is_python_script(file_path):
     if file_path.endswith(".py"):

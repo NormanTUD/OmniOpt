@@ -47,7 +47,7 @@ submitit INFO (2024-07-08 17:34:57,477) - Exiting after successful completion
 The output (stdout and stderr) of your job is after the `stdout:` and before the `EXIT_CODE: 0`. Check
 this output for errors. Here, you'd see Slurm Errors for your job.
 
-Also check the exit-code. Some exit codes have special meanings, like 137, have special meaning. See this table for special exit codes:
+Also check the exit-code. Some exit codes, like 137 (SIGKILL), have special meaning. See this table for special exit codes:
 
 The code between `DEBUG INFOS START:` and `DEBUG INFOS END` contains info about the string of the command that is about to be executed. It is searched for file paths and the permissions, owner and so on of the file is displayed. This is useful to check for seeing if scripts you call really have the `x`-flag, or are readable and so on. All pathlike structures will be searched and only printed here if they link to a valid file.
 

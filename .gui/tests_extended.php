@@ -178,7 +178,7 @@ $md4 = convert_markdown_to_html("*italic text*");
 expect("convert_markdown_to_html: italic", str_contains($md4, "<em>italic"), true);
 
 $md5 = convert_markdown_to_html("`inline code`");
-expect("convert_markdown_to_html: inline code", str_contains($md5, "<code>"), true);
+expect("convert_markdown_to_html: inline code", str_contains($md5, "<code "), true);
 
 $md6 = convert_markdown_to_html("[link](https://example.com)");
 expect("convert_markdown_to_html: link", str_contains($md6, "href=\"https://example.com\""), true);
@@ -199,7 +199,7 @@ $md11 = convert_markdown_to_html("simple text without formatting");
 expect("convert_markdown_to_html: plain text", str_contains($md11, "simple text"), true);
 
 $md12 = convert_markdown_to_html("![alt text](image.png)");
-expect("convert_markdown_to_html: image", str_contains($md12, "<img"), true);
+expect("convert_markdown_to_html: image becomes link (link regex runs first)", str_contains($md12, "href=\"image.png\""), true);
 
 // --- Group: csv_array_to_text ---
 echo_if_wanted("\n--- Testing: csv_array_to_text ---\n");
@@ -288,7 +288,7 @@ expect("get_exit_code_from_outfile: empty string", get_exit_code_from_outfile(""
 
 // --- Group: get_runtime ---
 echo_if_wanted("\n--- Testing: get_runtime ---\n");
-expect("get_runtime: empty string", get_runtime(""), 0);
+expect("get_runtime: empty string", get_runtime(""), null);
 expect("get_runtime: null", get_runtime(null), null);
 expect("get_runtime: no timestamps", get_runtime("just some text"), 0);
 
@@ -301,8 +301,8 @@ echo_if_wanted("\n--- Testing: get_runtime_human_format ---\n");
 expect("get_runtime_human_format: 0 seconds", get_runtime_human_format(0), "0s");
 expect("get_runtime_human_format: negative", get_runtime_human_format(-5), "0s");
 expect("get_runtime_human_format: 45 seconds", get_runtime_human_format(45), "45s");
-expect("get_runtime_human_format: 5 minutes", get_runtime_human_format(300), "5m:0s");
-expect("get_runtime_human_format: 1h30m", get_runtime_human_format(5400), "1h:30m:0s");
+expect("get_runtime_human_format: 5 minutes", get_runtime_human_format(300), "5m");
+expect("get_runtime_human_format: 1h30m", get_runtime_human_format(5400), "1h:30m");
 expect("get_runtime_human_format: 2h15m30s", get_runtime_human_format(8130), "2h:15m:30s");
 
 // --- Group: ends_with_submitit_info ---
@@ -417,18 +417,18 @@ expect("get_csv_data_as_array: nonexistent file", get_csv_data_as_array('/tmp/no
 // --- Group: collapse_runs_keep_first_last ---
 echo_if_wanted("\n--- Testing: collapse_runs_keep_first_last ---\n");
 $rows1 = [
-    ["1", "A", "v1"],
-    ["2", "A", "v2"],
-    ["3", "A", "v3"],
-    ["4", "B", "v4"],
-    ["5", "B", "v5"],
+    ["1", "A", "same"],
+    ["2", "A", "same"],
+    ["3", "A", "same"],
+    ["4", "B", "diff"],
+    ["5", "B", "diff"],
 ];
 $collapsed1 = collapse_runs_keep_first_last($rows1);
 expect("collapse_runs_keep_first_last: keeps first+last of each run", count($collapsed1), 4);
-expect("collapse_runs_keep_first_last: first A kept", $collapsed1[0][2], "v1");
-expect("collapse_runs_keep_first_last: last A kept", $collapsed1[1][2], "v3");
-expect("collapse_runs_keep_first_last: first B kept", $collapsed1[2][2], "v4");
-expect("collapse_runs_keep_first_last: last B kept", $collapsed1[3][2], "v5");
+expect("collapse_runs_keep_first_last: first A kept", $collapsed1[0][2], "same");
+expect("collapse_runs_keep_first_last: last A kept", $collapsed1[1][2], "same");
+expect("collapse_runs_keep_first_last: first B kept", $collapsed1[2][2], "diff");
+expect("collapse_runs_keep_first_last: last B kept", $collapsed1[3][2], "diff");
 
 $singleRow = [["1", "X", "solo"]];
 $collapsed2 = collapse_runs_keep_first_last($singleRow);

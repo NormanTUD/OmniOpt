@@ -238,7 +238,6 @@
 			return $output;
 		}, $markdown);
 
-
 		$markdown = preg_replace('/^\d+\. (.*)$/m', "<ol><li>$1</li></ol>\n", $markdown);
 
 		$markdown = preg_replace('/  \n/', '<br>', $markdown);

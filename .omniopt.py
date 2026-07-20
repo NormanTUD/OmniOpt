@@ -4678,14 +4678,12 @@ def _save_sub_eval_outputs(sub_folder: str, stdout: Optional[str], stderr: Optio
     except Exception as e:
         print_debug(f"Error saving sub-eval outputs to {sub_folder}: {e}")
 
-
 def _save_arm_eval_to_csv(trial_index: int, sub_arm_nr: int, result: dict) -> None:
     """Append one sub-evaluation's results to the arm_evals_results.csv file."""
     csv_path = os.path.join(get_current_run_folder(), "arm_evals_results.csv")
     heading = ["trial_index", "sub_arm_nr"] + list(result.keys())
     data = [str(trial_index), str(sub_arm_nr)] + [str(v) for v in result.values()]
     add_to_csv(csv_path, heading, data)
-
 
 def _compute_arm_eval_mean_and_sem(all_results: List[dict]) -> dict:
     """
@@ -9539,7 +9537,6 @@ def create_node(
 
     return res
 
-
 def get_optimizer_kwargs() -> dict:
     return {
         "sequential": False
@@ -9984,7 +9981,6 @@ def should_break_search() -> bool:
 
     return ret
 
-
 def send_notification(title: str, message: str, timeout: int = 5) -> None:
     """Send a desktop notification if plyer is available and notifications are not disabled."""
     if not _NOTIFICATIONS_AVAILABLE:
@@ -10048,7 +10044,6 @@ def get_sparkline_for_progress() -> str:
         return _sparkline_plain(values, width=15)
     except Exception:
         return ""
-
 
 def _sparkline_plain(values: List[float], width: int = 15) -> str:
     """Generate a plain-text sparkline (no color codes) for use in tqdm."""

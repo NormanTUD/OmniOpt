@@ -226,72 +226,80 @@
 						}
 					}
 
-					#$tabs = add_job_status_distribution($tabs);
+				$tabs = add_job_status_distribution($tabs);
 
-					if($status_data["succeeded"] > 1) {
-						if($nr_numerical_cols >= 1) {
-							#$tabs = add_box_plot_tab($tabs);
-							$tabs = add_violin_plot($tabs);
-							#$tabs = add_histogram_plot($tabs);
-						} else {
-							$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
-						}
-
-						#if(count($non_special_columns_without_result_columns) > 2) {
-						#	$tabs = add_heatmap_plot_tab($tabs);
-						#} else {
-						#	$warnings[] = "Not enough columns for heatmap.";
-						#}
-
-						if (count($result_names) > 1) {
-							$tabs = add_plot_result_pairs($tabs);
-						} else {
-							$warnings[] = "Not enough result-names for result-pairs";
-						}
-
-						[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);
+				if($status_data["succeeded"] > 1) {
+					if($nr_numerical_cols >= 1) {
+						$tabs = add_box_plot_tab($tabs);
+						$tabs = add_violin_plot($tabs);
+						$tabs = add_histogram_plot($tabs);
 					} else {
-						$warnings[] = "No succeeded jobs found";
+						$warnings[] = "Not showing box-plot, violin-plot or histogram-plot, because not enough numerical columns are available. Need at least 1, but has $nr_numerical_cols.";
+					}
+
+					if(count($non_special_columns_without_result_columns) > 2) {
+						$tabs = add_heatmap_plot_tab($tabs);
+					} else {
+						$warnings[] = "Not enough columns for heatmap.";
+					}
+
+					if (count($result_names) > 1) {
+						$tabs = add_plot_result_pairs($tabs);
+					} else {
+						$warnings[] = "Not enough result-names for result-pairs";
+					}
+
+					[$tabs, $warnings] = add_result_evolution_tab($tabs, $warnings, $result_names);
+
+					if (count($result_names) >= 1 && $nr_numerical_cols >= 1) {
+						$tabs = add_kde_histogram_tab($tabs);
+					}
+
+					if (count($result_names) >= 1 && in_array("generation_node", $GLOBALS["json_data"]["tab_results_headers_json"])) {
+						$tabs = add_stacked_histogram_tab($tabs);
 					}
 				} else {
-					$warnings[] = "No successful jobs were found";
+					$warnings[] = "No succeeded jobs found";
 				}
+			} else {
+				$warnings[] = "No successful jobs were found";
+			}
 
-				/*
-				if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
-					if(isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
-						$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
+			[$tabs, $warnings] = add_job_info_charts_tab($tabs, $warnings, $run_dir);
 
-						$exitCodeIndex = array_search("exit_code", $headers, true);
+			if($status_data && ((isset($status_data["succeeded"]) && $status_data["succeeded"] > 0) || (isset($status_data["failed"]) && $status_data["failed"] > 0))) {
+				if(isset($GLOBALS["json_data"]["tab_results_headers_json"]) && isset($GLOBALS["json_data"]["tab_results_csv_json"])) {
+					$headers = $GLOBALS["json_data"]["tab_results_headers_json"];
 
-						if ($exitCodeIndex !== false) {
-							$rows = $GLOBALS["json_data"]["tab_results_csv_json"];
+					$exitCodeIndex = array_search("exit_code", $headers, true);
 
-							$exitCodes = array_column($rows, $exitCodeIndex);
+					if ($exitCodeIndex !== false) {
+						$rows = $GLOBALS["json_data"]["tab_results_csv_json"];
 
-							$uniqueExitCodes = array_unique($exitCodes);
+						$exitCodes = array_column($rows, $exitCodeIndex);
 
-							$uniqueExitCodes = array_filter($uniqueExitCodes, function ($value) {
-								return $value !== "None";
-							});
+						$uniqueExitCodes = array_unique($exitCodes);
 
-							$uniqueExitCodes = array_values($uniqueExitCodes);
+						$uniqueExitCodes = array_filter($uniqueExitCodes, function ($value) {
+							return $value !== "None";
+						});
 
-							if (count($uniqueExitCodes) > 1) {
-								$tabs = add_exit_codes_pie_plot($tabs);
-							} else {
-								$warnings[] = "No exit-codes found or all are none";
-							}
+						$uniqueExitCodes = array_values($uniqueExitCodes);
+
+						if (count($uniqueExitCodes) > 1) {
+							$tabs = add_exit_codes_pie_plot($tabs);
 						} else {
-							$warnings[] = "exit_code not found in the headers.";
+							$warnings[] = "No exit-codes found or all are none";
 						}
 					} else {
-						$warnings[] = "Global variables tab_results_headers_json or tab_results_csv_json is not set.";
+						$warnings[] = "exit_code not found in the headers.";
 					}
 				} else {
-					$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
+					$warnings[] = "Global variables tab_results_headers_json or tab_results_csv_json is not set.";
 				}
-				*/
+			} else {
+				$warnings[] = "No successful or failed jobs found, cannot show plot for exit-codes";
+			}
 
 
 				[$tabs, $warnings] = get_outfiles_tab_from_run_dir($run_dir, $tabs, $warnings, $result_names);

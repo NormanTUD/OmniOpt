@@ -111,6 +111,9 @@
 			<?php js("js/pareto_from_idxs.js"); ?>
 			<?php js("js/share_functions.js"); ?>
 			<?php js("js/arm_distribution.js"); ?>
+			<?php js("js/kde_histogram.js"); ?>
+			<?php js("js/stacked_histogram.js"); ?>
+			<?php js("js/job_info_plots.js"); ?>
 
 			<link href="css/mermaid.min.css" rel="stylesheet" />
 <?php

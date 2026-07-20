@@ -1067,6 +1067,81 @@
 		return $tabs;
 	}
 
+	function add_kde_histogram_tab($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotKdeHistogram"></div>';
+
+		$svg_icon = get_icon_html("distribution.svg");
+
+		$tabs["{$svg_icon}Result-Binned Hist."] = [
+			'id' => 'tab_kde_histogram',
+			'content' => $html,
+			"onclick" => "plotKdeHistogram();"
+		];
+
+		return $tabs;
+	}
+
+	function add_stacked_histogram_tab($tabs) {
+		$html = '<div class="invert_in_dark_mode" id="plotStackedHistogram"></div>';
+
+		$svg_icon = get_icon_html("plot.svg");
+
+		$tabs["{$svg_icon}Results/Method Stacked"] = [
+			'id' => 'tab_stacked_histogram',
+			'content' => $html,
+			"onclick" => "plotStackedHistogram();"
+		];
+
+		return $tabs;
+	}
+
+	function add_job_info_charts_tab($tabs, $warnings, $run_dir) {
+		$job_infos_file = "$run_dir/job_infos.csv";
+
+		if(!is_file($job_infos_file)) {
+			$warnings[] = "job_infos.csv not found, cannot plot job info charts";
+			return [$tabs, $warnings];
+		}
+
+		$handle = fopen($job_infos_file, 'r');
+		if (!$handle) {
+			$warnings[] = "Cannot open job_infos.csv";
+			return [$tabs, $warnings];
+		}
+
+		$header = fgetcsv($handle, 0, ",", '"', "\\");
+		fclose($handle);
+
+		if (!$header || !in_array("run_time", $header)) {
+			$warnings[] = "job_infos.csv has no run_time column";
+			return [$tabs, $warnings];
+		}
+
+		if(is_file($job_infos_file) && filesize($job_infos_file) && has_real_char($job_infos_file) && is_ascii_or_utf8($job_infos_file)) {
+			$csv_contents = get_csv_data_as_array($job_infos_file, ",");
+			if(count($csv_contents) > 1) {
+				$csv_headers = $csv_contents[0];
+				$csv_rows = $csv_contents;
+				array_shift($csv_rows);
+
+				$GLOBALS["json_data"]["tab_job_infos_headers_json"] = $csv_headers;
+				$GLOBALS["json_data"]["tab_job_infos_csv_json"] = $csv_rows;
+			}
+		}
+
+		$html = '<div class="invert_in_dark_mode" id="plotJobInfoCharts"></div>';
+
+		$svg_icon = get_icon_html("timeline.svg");
+
+		$tabs["{$svg_icon}Job Timings"] = [
+			'id' => 'tab_job_info_charts',
+			'content' => $html,
+			"onclick" => "plotJobInfoCharts();"
+		];
+
+		return [$tabs, $warnings];
+	}
+
 	function add_timeline ($tabs, $warnings, $csv_file, $name, $tab_name) {
 		$html = '<div class="invert_in_dark_mode" id="plot_timeline"></div>';
 

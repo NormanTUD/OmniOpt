@@ -726,6 +726,7 @@ _DEFAULT_SPECIALS: Dict[str, Any] = {
 
 class ConfigLoader:
     runtime_debug: bool
+    version: bool
     show_func_name: bool
     debug_stack_regex: str
     number_of_generators: int

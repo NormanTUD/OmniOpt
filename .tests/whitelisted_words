@@ -3094,3 +3094,5 @@ Namespace
 serializers
 setfacl
 progs
+plotKdeHistogram
+plotStackedHistogram

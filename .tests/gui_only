@@ -6,6 +6,7 @@ tests=(
 	php_files
 	php_unit_tests
 	js_syntax
+	js_gui_unit_tests
 	php_search
 	share
 	share_tests

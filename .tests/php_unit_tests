@@ -34,8 +34,11 @@ export IS_RUNNING_UNIT_TESTS=1
 php tests.php
 exit_code=$?
 
-if [[ $exit_code != 0 ]]; then
-	red_text "At least one PHP-unit test failed Test failed"
+php tests_extended.php
+extended_exit_code=$?
+
+if [[ $exit_code != 0 ]] || [[ $extended_exit_code != 0 ]]; then
+	red_text "At least one PHP-unit test failed"
 	exit 1
 else
 	if [[ -n ${SHOW_SUCCESS} ]]; then

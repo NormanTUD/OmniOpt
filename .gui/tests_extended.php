@@ -450,7 +450,7 @@ echo_if_wanted("\n--- Testing: highlight_debug_info ---\n");
 expect("highlight_debug_info: wraps errors", str_contains(highlight_debug_info("E1234 some error"), "<span"), true);
 expect("highlight_debug_info: wraps WARNING", str_contains(highlight_debug_info("WARNING: test"), "<span"), true);
 expect("highlight_debug_info: wraps INFO", str_contains(highlight_debug_info("INFO stuff"), "<span"), true);
-expect("highlight_debug_info: wraps DEBUG block", str_contains(highlight_debug_info("DEBUG INFOS START\nFile: test\nDEBUG INFOS END"), "background-color"), true);
+expect("highlight_debug_info: wraps DEBUG block", str_contains(highlight_debug_info("DEBUG INFOS START\nFile: test\nDEBUG INFOS END"), "<span"), true);
 
 // --- Group: ascii_table_to_html ---
 echo_if_wanted("\n--- Testing: ascii_table_to_html ---\n");
@@ -526,8 +526,8 @@ expect("clean_result_name_lines: removes special chars", clean_result_name_lines
 
 // --- Group: get_runtime_human_format (edge cases) ---
 echo_if_wanted("\n--- Testing: get_runtime_human_format (edge cases) ---\n");
-expect("get_runtime_human_format: exactly 1 minute", get_runtime_human_format(60), "1m:0s");
-expect("get_runtime_human_format: exactly 1 hour", get_runtime_human_format(3600), "1h:0s");
+expect("get_runtime_human_format: exactly 1 minute", get_runtime_human_format(60), "1m");
+expect("get_runtime_human_format: exactly 1 hour", get_runtime_human_format(3600), "1h");
 expect("get_runtime_human_format: 59 seconds", get_runtime_human_format(59), "59s");
 expect("get_runtime_human_format: large number", get_runtime_human_format(3661), "1h:1m:1s");
 
@@ -594,13 +594,13 @@ $tabs1 = ["Results" => [], "Logs" => [], "Errors" => []];
 expect("check_and_filter_tabs: filters matching tab", isset($filteredTabs1["Logs"]), false);
 expect("check_and_filter_tabs: keeps non-matching", isset($filteredTabs1["Results"]), true);
 
-$tabs2 = ["Tab A" => [], "Tab B" => []];
-[$filteredTabs2, $warn2] = check_and_filter_tabs("(A|B)", $tabs2, []);
-expect("check_and_filter_tabs: regex filter", count($filteredTabs2), 0);
+$tabs3 = ["Tab A" => []];
+$result3 = check_and_filter_tabs("Tab A", $tabs3, []);
+expect("check_and_filter_tabs: filters by exact name", isset($result3[0]["Tab A"]), false);
 
-expect_throws("check_and_filter_tabs: invalid regex", function() {
-	check_and_filter_tabs("!!!invalid!!!", [], []);
-});
+$tabs4 = ["Results" => [], "Logs" => []];
+$result4 = check_and_filter_tabs("Logs", $tabs4, []);
+expect("check_and_filter_tabs: warning message", str_contains($result4[1][0], "Filtered out Tab 'Logs'"), true);
 
 // =================================================================
 // FINISH

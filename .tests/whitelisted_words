@@ -179,6 +179,7 @@ backticks
 barc
 barcodes
 barnard
+baz
 baseClass
 BaseConv
 BaseDistribution
@@ -886,6 +887,7 @@ FloatingPointError
 floatmatch
 floatval
 fn
+foo
 focusable
 Focusable
 focusableIfVisible
@@ -1744,6 +1746,7 @@ noreferrer
 normalizedMode
 normalizedValue
 normalizedValues
+normalizeFloat
 norman
 normankoch
 normnal
@@ -1929,6 +1932,7 @@ palegreen
 panelId
 papermill
 parallelizable
+parens
 param
 parameterError
 parameterIndex
@@ -1949,6 +1953,7 @@ parcoords
 parentInstance
 Pareto
 parsable
+passthrough
 parseDate
 parsedPath
 parsePath
@@ -3096,3 +3101,9 @@ setfacl
 progs
 plotKdeHistogram
 plotStackedHistogram
+normalizeFloat
+sci
+passthrough
+foo
+baz
+parens

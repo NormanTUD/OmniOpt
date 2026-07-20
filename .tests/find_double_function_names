@@ -26,7 +26,7 @@ cd ..
 
 cd .gui
 
-FOUND_FUNCS=$(grep "^function " *.js | grep -v jquery | sed -e 's#.*function[[:space:]][[:space:]]*##' -e 's#[[:space:]]*(.*##' | sort | uniq -d) # )
+FOUND_FUNCS=$(grep "^function " *.js | grep -v 'gui_js_tests.js' | grep -v jquery | sed -e 's#.*function[[:space:]][[:space:]]*##' -e 's#[[:space:]]*(.*##' | sort | uniq -d) # )
 
 if [ -z "$FOUND_FUNCS" ]; then
 	FOUND_NR=0

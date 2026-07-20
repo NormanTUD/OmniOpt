@@ -2,6 +2,7 @@
 	header('Content-Type: application/json');
 
 	require "_usage_stat_functions.php";
+	require_once __DIR__ . '/_functions.php';
 
 	function assign_unique_ids(array $strings) {
 		$idMap = [];
@@ -21,7 +22,7 @@
 
 	$db_path = "stats/usage_statistics.db";
 
-	$element_id = $_GET["element_id"];
+	$element_id = get_get("element_id");
 
 	$data = fetch_data($db_path, $element_id);
 

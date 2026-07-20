@@ -89,7 +89,7 @@
 		}
 	}, $acceptable_file_names);
 
-	$update_uuid = isset($_GET["update_uuid"]) ? $_GET["update_uuid"] : null;
+	$update_uuid = get_get("update_uuid");
 	$uuid_folder = null;
 
 	if ($update_uuid) {
@@ -97,7 +97,7 @@
 	}
 
 	if(file_exists("$uuid_folder/password.sha256")) {
-		if(hash("sha256", $_GET["password"]) != file_get_contents("$uuid_folder/password.sha256")) {
+		if(hash("sha256", get_get("password")) != file_get_contents("$uuid_folder/password.sha256")) {
 			print("Error: The password you provided does not match the password of this job. Even for updating job on live-share, the password is required.");
 			exit(1);
 		}

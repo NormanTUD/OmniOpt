@@ -9,10 +9,7 @@
 	ini_set('display_errors', 1);
 	ini_set('memory_limit', '512M');
 
-	function dier($msg) {
-		print("<pre>" . print_r($msg, true) . "</pre>");
-		exit(1);
-	}
+	require_once __DIR__ . '/_functions.php';
 
 	function log_error($error_message) {
 		error_log($error_message);

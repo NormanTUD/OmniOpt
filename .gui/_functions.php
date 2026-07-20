@@ -23,7 +23,10 @@
 			$print .= "Backtrace:\n";
 			$print .= "<pre>\n";
 			foreach (debug_backtrace() as $trace) {
-				$print .= htmlentities(sprintf("\n%s:%s %s", $trace['file'], $trace['line'], $trace['function']));
+				$file = array_key_exists('file', $trace) ? $trace['file'] : '[internal function]';
+				$line = array_key_exists('line', $trace) ? $trace['line'] : '?';
+				$function = array_key_exists('function', $trace) ? $trace['function'] : '[unknown]';
+				$print .= htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
 			}
 			$print .= "</pre>\n";
 
@@ -44,6 +47,67 @@
 		}
 
 		return $var;
+	}
+
+	function get_post($name, $default = null) {
+		return $_POST[$name] ?? $default;
+	}
+
+	function get_server($name, $default = null) {
+		return $_SERVER[$name] ?? $default;
+	}
+
+	function validate_readable_file($filename) {
+		if(!is_file($filename)) {
+			return "$filename does not exist";
+		}
+		if(!filesize($filename)) {
+			return "$filename is empty";
+		}
+		if(!is_readable($filename)) {
+			return "$filename is not readable";
+		}
+		return null;
+	}
+
+	function generate_csrf_token() {
+		if (session_status() === PHP_SESSION_NONE) {
+			session_start();
+		}
+		if (empty($_SESSION['csrf_token'])) {
+			$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+		}
+		return $_SESSION['csrf_token'];
+	}
+
+	function verify_csrf_token($token) {
+		if (session_status() === PHP_SESSION_NONE) {
+			session_start();
+		}
+		return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+	}
+
+	function csrf_field() {
+		return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generate_csrf_token()) . '">';
+	}
+
+	function add_tab_entry(&$tabs, $name, $id, $content, $onclick = null, $icon = null) {
+		if ($icon) {
+			$key = "<img class='invert_icon' src='i/$icon' style='height: 1em' />&nbsp;$name";
+		} else {
+			$key = $name;
+		}
+
+		$tabs[$key] = [
+			'id' => $id,
+			'content' => $content
+		];
+
+		if ($onclick) {
+			$tabs[$key]['onclick'] = $onclick;
+		}
+
+		return $tabs;
 	}
 
 	function get_html_category_comment($file_path) {

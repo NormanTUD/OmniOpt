@@ -14,40 +14,6 @@
 		}
 	}
 
-	if (!function_exists("dier")) {
-		function dier($data, $enable_html = 0, $exception = 0) {
-			$print = "";
-
-			$print .= "<pre>\n";
-			ob_start();
-			print_r($data);
-			$buffer = ob_get_clean();
-			if ($enable_html) {
-				$print .= $buffer;
-			} else {
-				$print .= my_htmlentities($buffer);
-			}
-			$print .= "</pre>\n";
-
-			$print .= "Backtrace:\n";
-			$print .= "<pre>\n";
-			foreach (debug_backtrace() as $trace) {
-				$file = array_key_exists('file', $trace) ? $trace['file'] : '[internal function]';
-				$line = array_key_exists('line', $trace) ? $trace['line'] : '?';
-				$function = array_key_exists('function', $trace) ? $trace['function'] : '[unknown]';
-				$print .= my_htmlentities(sprintf("\n%s:%s %s", $file, $line, $function));
-			}
-			$print .= "</pre>\n";
-
-			if (!$exception) {
-				print $print;
-				exit();
-			} else {
-				throw new Exception($print);
-			}
-		}
-	}
-
 	function respond_with_error($error_message) {
 		header("HTTP/1.1 500 Internal Server Error");
 		header('Content-Type: application/json');

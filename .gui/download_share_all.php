@@ -4,10 +4,10 @@
 
 	$sharesPath = './shares/';
 
-	if (getenv("share_path") || isset($_GET["share_path"])) {
+	if (getenv("share_path") || get_get("share_path")) {
 		$sharesPath = getenv("share_path");
 		if(!$sharesPath) {
-			$sharesPath = "./" . $_GET["share_path"] . "/";
+			$sharesPath = "./" . get_get("share_path") . "/";
 			$sharesPath = preg_replace("/\/*$/", "/", $sharesPath);
 		}
 

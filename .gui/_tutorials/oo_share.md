@@ -85,6 +85,6 @@ When using `--live_share` with OmniOpt2, the job is shared automatically after e
 ## Notes on Privacy
 
 <div class="caveat tip">
-You can chose a random name to which OmniOpt2-Share should call you. But remember: the data you upload
-is publically available for 30 days.
+You can choose a random name to which OmniOpt2-Share should call you. But remember: the data you upload
+is publicly available for 30 days.
 </div>

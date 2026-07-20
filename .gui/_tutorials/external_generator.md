@@ -105,7 +105,7 @@ This then gets called with a temporary directory as first parameter, in which a 
 ```
 
 Your program must take this JSON file and create new hyperparameters, and put them in the same folder as `results.json`. The parameters, constraints and so on are, of course, dependent on the way you run OmniOpt2 and
-it's parameters.
+its parameters.
 
 The `results.json` file your program must write in the folder given as parameter may look like this:
 

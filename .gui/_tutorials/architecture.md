@@ -13,7 +13,7 @@ This document describes the architecture of the OmniOpt2 system, highlighting it
 - **User**: The human operator interacting with the system.  
 - **[Web GUI](gui)**: A web-based graphical interface that allows users to generate CLI commands easily. This is the primary and only interface for user interaction and command generation.
 
-The [Web GUI](gui) let's the user create the CLI command that drive the OmniOpt2 workflow.
+The [Web GUI](gui) lets the user create the CLI command that drive the OmniOpt2 workflow.
 
 ## OmniOpt2 Workflow
 

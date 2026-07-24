@@ -115,7 +115,6 @@ header {
   background-color: #016A8E;
 }
 
-
 /* Content area */
 #content {
   padding: 20px;
@@ -725,6 +724,16 @@ header {
 .footer-link:hover {
   color: #4a6cf7;
   text-decoration: none;
+}
+
+.footer-github-link {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+}
+
+.footer-github-link:hover {
+  color: #4a6cf7;
 }
 
 /* Add bottom padding to body to prevent content from being hidden behind fixed footer */

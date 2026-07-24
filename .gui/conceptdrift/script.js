@@ -1175,41 +1175,26 @@ async function loadParetoCsvDataByDetector(dataset, metrics) {
       ? buildReqLabelsCsvPath
       : buildMtrRuntimeCsvPath;
 
-  const includeReql = metrics === 'ACCURACY-RUNTIME';
-
   const requests = DETECTOR_OPTIONS.map(detector => {
     const primaryFetch = fetch(pathBuilder(detector, dataset))
       .then(response => response.ok ? response.text() : null);
 
-    const reqlFetch = includeReql
-      ? fetch(buildReqLabelsCsvPath(detector, dataset))
-          .then(response => response.ok ? response.text() : null)
-          .catch(() => null)
-      : Promise.resolve(null);
-
-    return Promise.all([primaryFetch, reqlFetch])
-      .then(([csvText, reqlCsvText]) => {
-        if (!csvText && !reqlCsvText) {
+    return primaryFetch
+      .then(csvText => {
+        if (!csvText) {
           return null;
         }
 
-        const parsed = csvText ? parseCsvText(csvText) : { headers: [], rows: [] };
-        const reqlParsed = reqlCsvText ? parseCsvText(reqlCsvText) : { headers: [], rows: [] };
+        const parsed = parseCsvText(csvText);
 
-        const combinedHeaders = Array.from(new Set([
-          ...parsed.headers,
-          ...reqlParsed.headers
-        ]));
-        const combinedRows = [...parsed.rows, ...reqlParsed.rows];
-
-        if (!combinedRows.length) {
+        if (!parsed.rows.length) {
           return null;
         }
 
         return {
           detector,
-          rows: combinedRows,
-          headers: combinedHeaders
+          rows: parsed.rows,
+          headers: parsed.headers
         };
       })
       .catch(() => null);
@@ -1687,9 +1672,10 @@ function renderReqLabelsScatterPlot(rows, headers) {
   }
 }
 
-function renderCsvAccuracyRuntimeExperiment({ detector, dataset, model, rows, headers, metadata }) {
+function renderCsvAccuracyRuntimeExperiment({ detector, dataset, model, rows: rawRows, headers, metadata }) {
   ensureCsvResultStyles();
   const content = document.getElementById('content');
+  const rows = rawRows.filter(row => String(row.Status || '').toLowerCase() !== 'abandoned');
   const completedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'completed');
   const failedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'failed');
   const plotRows = completedRows.length ? completedRows : rows.filter(row => typeof row.ACCURACY === 'number' && typeof row.RUNTIME === 'number');
@@ -1816,9 +1802,10 @@ function renderCsvAccuracyRuntimeExperiment({ detector, dataset, model, rows, he
   content.classList.add('visible');
 }
 
-function renderCsvReqLabelsExperiment({ detector, dataset, model, rows, headers, metadata }) {
+function renderCsvReqLabelsExperiment({ detector, dataset, model, rows: rawRows, headers, metadata }) {
   ensureCsvResultStyles();
   const content = document.getElementById('content');
+  const rows = rawRows.filter(row => String(row.Status || '').toLowerCase() !== 'abandoned');
   const completedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'completed');
   const failedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'failed');
   const plotRows = completedRows.filter(row =>
@@ -1908,9 +1895,10 @@ function renderCsvReqLabelsExperiment({ detector, dataset, model, rows, headers,
   content.classList.add('visible');
 }
 
-function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows, headers, metadata }) {
+function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows: rawRows, headers, metadata }) {
   ensureCsvResultStyles();
   const content = document.getElementById('content');
+  const rows = rawRows.filter(row => String(row.Status || '').toLowerCase() !== 'abandoned');
   const completedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'completed');
   const failedRows = rows.filter(row => String(row.Status || '').toLowerCase() === 'failed');
   const plotRows = completedRows.length ? completedRows : rows.filter(row => typeof row.MTR === 'number' && typeof row.RUNTIME === 'number');
@@ -2043,7 +2031,6 @@ function renderCsvMtrRuntimeExperiment({ detector, dataset, model, rows, headers
 
 function loadCsvAccuracyRuntimeExperiment({ detector, dataset, model, button }) {
   const accRtPath = buildAccuracyRuntimeCsvPath(detector, dataset);
-  const accRtReqlPath = buildReqLabelsCsvPath(detector, dataset);
   const overviewDataPath = buildOverviewDataPath(detector, dataset, 'ACC_RT');
   const content = document.getElementById('content');
 
@@ -2062,29 +2049,19 @@ function loadCsvAccuracyRuntimeExperiment({ detector, dataset, model, button }) 
       }
       return response.text();
     }),
-    fetch(accRtReqlPath)
-      .then(response => response.ok ? response.text() : null)
-      .catch(() => null),
     fetch(overviewDataPath)
       .then(response => response.ok ? response.json() : null)
       .catch(() => null)
   ])
-    .then(([accRtCsvText, accRtReqlCsvText, overviewData]) => {
-      const accRtParsed = parseCsvText(accRtCsvText);
-      const accRtReqlParsed = accRtReqlCsvText ? parseCsvText(accRtReqlCsvText) : { headers: [], rows: [] };
-
-      const combinedHeaders = Array.from(new Set([
-        ...accRtParsed.headers,
-        ...accRtReqlParsed.headers
-      ]));
-      const combinedRows = [...accRtParsed.rows, ...accRtReqlParsed.rows];
+    .then(([accRtCsvText, overviewData]) => {
+      const parsed = parseCsvText(accRtCsvText);
 
       renderCsvAccuracyRuntimeExperiment({
         detector,
         dataset,
         model,
-        rows: combinedRows,
-        headers: combinedHeaders,
+        rows: parsed.rows,
+        headers: parsed.headers,
         metadata: overviewData
       });
     })

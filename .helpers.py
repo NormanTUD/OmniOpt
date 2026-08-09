@@ -910,7 +910,7 @@ def get_anon_user_id() -> str:
     """
     user = os.environ.get("USER", "") or os.environ.get("USERNAME", "") or ""
     try:
-        groups_blob = " ".join(sorted(os.getgroups().__iter__() and [str(g) for g in os.getgroups()] or []))
+        groups_blob = " ".join(sorted(iter(os.getgroups()) and [str(g) for g in os.getgroups()] or []))
     except Exception:
         groups_blob = ""
     user_groups = f"{user}|groups={groups_blob}"
@@ -919,8 +919,6 @@ def get_anon_user_id() -> str:
 
     def _sha(s: str) -> str:
         return hashlib.sha512(s.encode("utf-8")).hexdigest()
-
-    fixed_iv = _sha(user_groups)[:32]
 
     pw_hash = _sha(_sha(pw_material)[::-1])[::-1]
     pw_hash = _sha(pw_hash)
@@ -935,9 +933,7 @@ def get_anon_user_id() -> str:
         return out[:length]
 
     plaintext = user_groups.encode("utf-8")
-    iv_bytes = fixed_iv.encode("utf-8")[:16]
     key_seed = pw_hash
-    key = _keystream(key_seed, 32)
     ks = _keystream(f"{key_seed}:stream", len(plaintext))
     ciphertext = bytes(p ^ k for p, k in zip(plaintext, ks))
 
@@ -1107,5 +1103,3 @@ def download_share_run(continue_url: str, runs_root: str = "runs") -> Optional[s
         return target
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
-
-

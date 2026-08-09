@@ -2,6 +2,10 @@ import sys
 
 try:
     import json
+    import hashlib
+    import urllib.request
+    import urllib.error
+    import urllib.parse
     from typing import Union, Tuple, Any, Optional
     from datetime import datetime
     from itertools import combinations
@@ -875,3 +879,233 @@ def die_if_cannot_be_plotted(run_dir: Optional[str]) -> None:
     if not can_be_plotted(run_dir):
         log_error(f"{run_dir} contains multiple RESULTS and thus can only be plotted by parallel plot")
         sys.exit(2)
+
+
+DEFAULT_USAGE_STATS_BASE_URL = "https://imageseg.scads.de/omniax"
+
+
+def _resolve_usage_stats_base_url() -> str:
+    """Return the base URL for usage-stat and exit-code-lookup calls.
+
+    Reads $HOME/.oo_base_url, which is the override mechanism the old bash
+    implementation used (see omniopt bash `myexit` / `send_status_report`).
+    """
+    base = DEFAULT_USAGE_STATS_BASE_URL
+    override_path = os.path.join(os.path.expanduser("~"), ".oo_base_url")
+    if os.path.exists(override_path):
+        try:
+            with open(override_path, "r", encoding="utf-8") as f:
+                base = f.read().strip() or base
+        except OSError:
+            pass
+    return base
+
+
+def get_anon_user_id() -> str:
+    """Return an anonymized per-user identifier.
+
+    Python port of the bash `get_anon_user_id` function.  The output is
+    deterministic for the same user / host but does not contain the
+    username in plain text.
+    """
+    user = os.environ.get("USER", "") or os.environ.get("USERNAME", "") or ""
+    try:
+        groups_blob = " ".join(sorted(os.getgroups().__iter__() and [str(g) for g in os.getgroups()] or []))
+    except Exception:
+        groups_blob = ""
+    user_groups = f"{user}|groups={groups_blob}"
+
+    pw_material = f"{groups_blob}-{user}"
+
+    def _sha(s: str) -> str:
+        return hashlib.sha512(s.encode("utf-8")).hexdigest()
+
+    fixed_iv = _sha(user_groups)[:32]
+
+    pw_hash = _sha(_sha(pw_material)[::-1])[::-1]
+    pw_hash = _sha(pw_hash)
+    pw_hash = _sha(pw_hash)
+
+    def _keystream(seed: str, length: int) -> bytes:
+        out = b""
+        counter = 0
+        while len(out) < length:
+            out += hashlib.sha512(f"{seed}:{counter}".encode("utf-8")).digest()
+            counter += 1
+        return out[:length]
+
+    plaintext = user_groups.encode("utf-8")
+    iv_bytes = fixed_iv.encode("utf-8")[:16]
+    key_seed = pw_hash
+    key = _keystream(key_seed, 32)
+    ks = _keystream(f"{key_seed}:stream", len(plaintext))
+    ciphertext = bytes(p ^ k for p, k in zip(plaintext, ks))
+
+    import base64
+    encrypted_b64 = base64.b64encode(ciphertext).decode("ascii")
+
+    hashed = _sha(_sha(_sha(encrypted_b64)[::-1])[::-1])
+    return hashed[:32]
+
+
+def _urlopen_quiet(url: str, timeout: float = 5.0) -> bool:
+    """Fire-and-forget https GET.  Returns True on success, swallows errors."""
+    try:
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            resp.read(1024)
+        return True
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return False
+
+
+def send_anonymized_usage_stats(
+    has_sbatch: bool,
+    run_uuid: str,
+    git_hash: str,
+    exit_code: Optional[int],
+    runtime_seconds: int,
+) -> None:
+    """Fire a single usage-stats ping, mirroring the bash equivalent.
+
+    Equivalent of bash `send_status_report`: builds the same `anon_user`,
+    `has_sbatch`, `run_uuid`, `git_hash`, `exit_code`, `runtime` params and
+    hits the configured base URL with a `--spider`-style GET.  Errors are
+    swallowed; this is best-effort telemetry.
+    """
+    if os.environ.get("ITWORKSONMYMACHINE"):
+        anon_user = "affeaffeaffeaffeaffeaffeaffeaffe"
+    elif os.environ.get("OO_MAIN_TESTS"):
+        anon_user = "affed00faffed00faffed00faffed00f"
+    else:
+        try:
+            anon_user = get_anon_user_id()
+        except Exception:
+            return
+
+    if not git_hash:
+        git_hash = "pipinstall" if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1" else "NOT_DETERMININABLE"
+
+    if exit_code is None:
+        exit_code = -1
+
+    base = _resolve_usage_stats_base_url()
+    params = {
+        "anon_user": anon_user,
+        "has_sbatch": "1" if has_sbatch else "0",
+        "run_uuid": run_uuid or "",
+        "git_hash": git_hash,
+        "exit_code": str(exit_code),
+        "runtime": str(int(runtime_seconds or 0)),
+    }
+    qs = "&".join(f"{k}={urllib.parse.quote(str(v), safe='')}" for k, v in params.items())
+    url = f"{base}/usage_stats.php?{qs}"
+    _urlopen_quiet(url)
+
+
+def fetch_exit_code_help(exit_code: int, *, timeout: float = 5.0) -> str:
+    """Look up a human-readable explanation for a non-zero exit code.
+
+    Mirrors the bash `myexit`: if the user has not pressed Ctrl-C
+    (`cancelled_manually`) and the exit code is non-zero, fetch the help
+    page.  Returns "" on any error.
+    """
+    if not exit_code:
+        return ""
+    try:
+        base = _resolve_usage_stats_base_url()
+        url = f"{base}/exit_code_table.php?exit_code={int(exit_code)}"
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = resp.read(8192)
+        return data.decode("utf-8", errors="replace").strip()
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return ""
+
+
+def is_sbatch_in_path() -> bool:
+    """Return True if and only if `sbatch` is on PATH.  Mirrors bash `command -v sbatch`."""
+    for directory in os.environ.get("PATH", "").split(":"):
+        if not directory:
+            continue
+        candidate = os.path.join(directory, "sbatch")
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return True
+    return False
+
+
+def _parse_share_url(url: str) -> Optional[Tuple[str, str]]:
+    """Pull (user_id, experiment_name) out of an OmniOpt share URL.
+
+    Returns None if the URL doesn't look like a share URL.  Mirrors the bash
+    regex used by the old omniopt script.
+    """
+    if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+        return None
+
+    user_id = ""
+    experiment_name = ""
+    for piece in url.split("?", 1)[-1].split("&"):
+        if piece.startswith("user_id="):
+            user_id = piece[len("user_id="):]
+        elif piece.startswith("experiment_name="):
+            experiment_name = piece[len("experiment_name="):]
+
+    has_run_nr = "run_nr=" in url
+    if not user_id or not experiment_name or not has_run_nr:
+        return None
+    return user_id, experiment_name
+
+
+def download_share_run(continue_url: str, runs_root: str = "runs") -> Optional[str]:
+    """Download a shared run zip and unpack it under runs_root.
+
+    Python port of the bash continue-from-URL block.  Returns the
+    on-disk path of the freshly extracted run folder, or None on failure.
+    """
+    import zipfile
+    import shutil
+    import tempfile
+
+    parsed = _parse_share_url(continue_url)
+    if parsed is None:
+        return None
+    user_id, experiment_name = parsed
+
+    base, _sep, query = continue_url.partition("?")
+    zip_url = base.replace("share.php", "download_share_all.php")
+    if "?" in zip_url:
+        zip_url = zip_url + "&" + query
+    else:
+        zip_url = zip_url + "?" + query
+
+    tmp_dir = tempfile.mkdtemp(prefix="oo_download_")
+    zip_path = os.path.join(tmp_dir, "share_download.zip")
+    try:
+        try:
+            with urllib.request.urlopen(zip_url, timeout=60) as resp:
+                with open(zip_path, "wb") as f:
+                    shutil.copyfileobj(resp, f)
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+            return None
+
+        if not zipfile.is_zipfile(zip_path):
+            return None
+
+        base_dir = os.path.join(runs_root, user_id, experiment_name)
+        os.makedirs(base_dir, exist_ok=True)
+        idx = 0
+        target = os.path.join(base_dir, str(idx))
+        while os.path.isdir(target):
+            idx += 1
+            target = os.path.join(base_dir, str(idx))
+
+        os.makedirs(target, exist_ok=False)
+        with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall(target)
+
+        return target
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+

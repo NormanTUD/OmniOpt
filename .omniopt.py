@@ -648,6 +648,8 @@ def my_exit(_code: int = 0) -> None:
 
     print(f"Wallclock-Runtime: {whole_run_time} seconds {human_time}")
 
+    _maybe_send_usage_stats(_code, whole_run_time)
+
     if is_skip_search() and os.getenv("SKIP_SEARCH_EXIT_CODE"):
         skip_search_exit_code_found = os.getenv("SKIP_SEARCH_EXIT_CODE")
 
@@ -658,6 +660,40 @@ def my_exit(_code: int = 0) -> None:
             print_debug(f"Trying to look for SKIP_SEARCH_EXIT_CODE failed. Exiting with original exit code {_code}")
 
     sys.exit(_code)
+
+
+def _resolve_git_hash() -> str:
+    """Best-effort current commit hash, or 'pipinstall' / 'NOT_DETERMININABLE'."""
+    try:
+        out = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+        if out:
+            return out
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    if os.environ.get("CUSTOM_VIRTUAL_ENV") == "1":
+        return "pipinstall"
+    return "NOT_DETERMININABLE"
+
+
+def _maybe_send_usage_stats(exit_code: int, runtime_seconds: int) -> None:
+    """Mirror of bash `send_status_report`: fire one anonymous stats ping."""
+    try:
+        if not args.send_anonymized_usage_stats:
+            return
+        helpers.send_anonymized_usage_stats(
+            has_sbatch=bool(SYSTEM_HAS_SBATCH),
+            run_uuid=run_uuid,
+            git_hash=_resolve_git_hash(),
+            exit_code=int(exit_code),
+            runtime_seconds=int(runtime_seconds),
+        )
+    except Exception as e:
+        print_debug(f"_maybe_send_usage_stats failed: {e}")
 
 def print_green(text: str) -> None:
     helpers.print_color("green", text)
@@ -2150,6 +2186,50 @@ def init_live_share() -> bool:
     ret = live_share(True, True)
 
     return ret
+
+
+_periodic_live_share_thread: Optional[threading.Thread] = None
+_periodic_live_share_stop = threading.Event()
+
+
+def start_periodic_live_share(interval_seconds: int = 10) -> Optional[threading.Thread]:
+    """Background loop that mirrors bash `start_periodic_live_share`.
+
+    Spawns a daemon thread which calls `force_live_share()` every
+    `interval_seconds` while the program runs.  Returns the thread (or
+    None if `--live_share` is disabled / we're in test mode).
+    """
+    global _periodic_live_share_thread
+
+    try:
+        if not args.live_share:
+            return None
+        if os.environ.get("OO_MAIN_TESTS") == "1":
+            return None
+    except (NameError, AttributeError):
+        return None
+
+    if _periodic_live_share_thread is not None and _periodic_live_share_thread.is_alive():
+        return _periodic_live_share_thread
+
+    _periodic_live_share_stop.clear()
+
+    def _runner() -> None:
+        while not _periodic_live_share_stop.wait(interval_seconds):
+            try:
+                force_live_share()
+            except Exception as e:
+                print_debug(f"periodic live_share failed: {e}")
+
+    t = threading.Thread(target=_runner, name="periodic-live-share", daemon=True)
+    t.start()
+    _periodic_live_share_thread = t
+    return t
+
+
+def stop_periodic_live_share() -> None:
+    """Signal the periodic share thread to stop (idempotent)."""
+    _periodic_live_share_stop.set()
 
 def init_storage(db_url: str) -> None:
     init_engine_and_session_factory(url=db_url, force_init=True)
@@ -11824,6 +11904,8 @@ def main_wrapper() -> None:
     fool_linter(args.flame_graph)
     fool_linter(args.memray)
 
+    start_periodic_live_share()
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
 
@@ -11853,6 +11935,8 @@ def main_wrapper() -> None:
                 end_program(True, 87)
             else:
                 end_program(True)
+        finally:
+            stop_periodic_live_share()
 
 def stack_trace_wrapper(func: Any, regex: Any = None) -> Any:
     pattern = re.compile(regex) if regex else None

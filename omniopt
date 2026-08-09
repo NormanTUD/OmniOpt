@@ -310,102 +310,17 @@
 	export NO_WHIPTAIL=1
 
 	function displaytime {
-		local T=$1
-		local D=$((T/60/60/24))
-		local H=$((T/60/60%24))
-		local M=$((T/60%60))
-		local S=$((T%60))
-		(( $D > 0 )) && printf '%d days ' $D
-		(( $H > 0 )) && printf '%d hours ' $H
-		(( $M > 0 )) && printf '%d minutes ' $M
-		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-		printf '%d seconds\n' $S
+		# Thin wrapper around .helpers.humanize_seconds.
+		python3 "$SCRIPT_DIR/.helpers.py" humanize-seconds "$1" 2>/dev/null
 	}
 
 	function remaining_time {
-		target_date="$1"
-		target_date=$(echo "$target_date" | sed -E 's/\x1b\[[0-9;]*m//g')
-
-		target_epoch=$(date -d "$target_date" +%s)
-
-		current_epoch=$(date +%s)
-
-		difference=$(( target_epoch - current_epoch ))
-
-		if [ $difference -lt 0 ]; then
-			return
-		fi
-
-		difference_minutes=$(( difference / 60 ))
-
-		if [ $difference_minutes -lt 30 ]; then
-			minutes=$difference_minutes
-			if [ $minutes -eq 1 ]; then
-				result="in about $minutes minute"
-			else
-				if [ $minutes -eq 0 ]; then
-					result="soon"
-				else
-					result="in about $minutes minutes"
-				fi
-			fi
-			echo "$result"
-			return
-		fi
-
-		difference_rounded=$(( (difference * 5 + 299) / 300 ))
-
-		minutes=$(( difference_rounded % 60 ))
-		hours=$(( (difference_rounded / 60) % 24 ))
-		days=$(( (difference_rounded / 1440) % 365 ))
-		years=$(( difference_rounded / 525600 ))
-
-		result=""
-		if [ $years -gt 0 ]; then
-			year_str="year"
-			if [ $years -gt 1 ]; then
-				year_str="years"
-			fi
-			result="$result $years $year_str"
-		fi
-
-		if [ $days -gt 0 ]; then
-			day_str="day"
-			if [ $days -gt 1 ]; then
-				day_str="days"
-			fi
-			if [ -n "$result" ]; then
-				result="$result and"
-			fi
-			result="$result $days $day_str"
-		fi
-
-		if [ $hours -gt 0 ]; then
-			hour_str="hour"
-			if [ $hours -gt 1 ]; then
-				hour_str="hours"
-			fi
-			if [ -n "$result" ]; then
-				result="$result and"
-			fi
-			result="$result $hours $hour_str"
-		fi
-
-		if [ $minutes -gt 0 ]; then
-			minute_str="minute"
-			if [ $minutes -gt 1 ]; then
-				minute_str="minutes"
-			fi
-			if [ -n "$result" ]; then
-				result="$result and"
-			fi
-			result="$result $minutes $minute_str"
-		fi
-
-		if [ -n "$result" ]; then
-			result="in about $result"
-			echo "$result"
-		fi
+		# Thin wrapper around .helpers.remaining_time.  Python handles
+		# the date arithmetic and the "in about X years and Y days..."
+		# formatting; bash strips the ANSI escapes from the input.
+		local cleaned
+		cleaned=$(echo "$1" | sed -E 's/\x1b\[[0-9;]*m//g')
+		python3 "$SCRIPT_DIR/.helpers.py" remaining-time "$cleaned" 2>/dev/null
 	}
 
 	export CUDA_DEVICE_ORDER=PCI_BUS_ID
@@ -426,9 +341,10 @@
 		}
 
 		slurmlogpath () {
-			if command -v scontrol 2>/dev/null >/dev/null; then
-				scontrol show job "$1" | grep StdOut | sed -e 's/^[[:space:]]*StdOut=//'
-			fi
+			# Thin wrapper around .helpers.slurmlogpath.  Python handles
+			# the scontrol subprocess call and the StdOut= regex parse;
+			# we keep the bash function so call sites stay unchanged.
+			python3 "$SCRIPT_DIR/.helpers.py" slurm-log-path "$1" 2>/dev/null
 		}
 
 		function calltracer {
@@ -512,25 +428,11 @@
 		fi
 
 		minutes_to_hh_mm_ss() {
-			var=$1
-
-			number_re='^[0-9]+$'
-			time_re='^[0-9]+:[0-9]+:[0-9]+$'
-
-			if [[ $var =~ $number_re ]] ; then
-				local total_minutes="$var"
-				local hours=$(( total_minutes / 60 ))
-				local minutes=$(( total_minutes % 60 ))
-				local seconds=00
-
-				printf "%02d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
-			elif [[ $var =~ $time_re ]]; then
-				echo "$var"
-			else
-				red_text "ERROR: $var is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
-
+			# Thin wrapper around .helpers.minutes_to_hh_mm_ss.
+			python3 "$SCRIPT_DIR/.helpers.py" minutes-to-hh-mm-ss "$1" 2>/dev/null || {
+				red_text "ERROR: $1 is not a valid input. Must be a number of minutes (digits) or HH:MM:SS\n"
 				myexit 103
-			fi
+			}
 		}
 
 		ORIG_ARGS=("$@")
@@ -735,58 +637,45 @@
 		fi
 	fi
 
+	# Defaults that the sbatch-submit path needs even when the user did not
+	# pass the flag.  The Python entry point handles the equivalent
+	# config-file and --continue state-file fallbacks itself.
+	if [[ -z $gpus ]]; then
+		gpus=0
+	fi
+
+	if [[ -z $main_process_gb ]]; then
+		if [[ -n $mem_gb ]]; then
+			main_process_gb=$mem_gb
+		else
+			main_process_gb=8 # default value
+		fi
+	fi
+
+	python_pid=""
+
+	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
+		source "$SCRIPT_DIR/.shellscript_functions"
+	else
+		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"
+		myexit 23
+	fi
+
 	if [[ $continue_previous_job =~ ^https?:// ]]; then
+		# The actual wget/unzip dance used to live here (~95 lines of bash).
+		# Python's .helpers.download_share_run now does it; we just detect
+		# the URL pattern, call python, and re-launch with --continue set
+		# to the freshly extracted local folder.  Runs after venv source
+		# so `python3` is the venv interpreter that can import .helpers.
 		if echo "$continue_previous_job" | grep -Eq 'share\?.*(user_id=[^&]+&.*experiment_name=[^&]+&.*run_nr=[0-9]+|experiment_name=[^&]+&.*user_id=[^&]+&.*run_nr=[0-9]+|run_nr=[0-9]+&.*user_id=[^&]+&.*experiment_name=[^&]+)'; then
-			zip_download_url=$(echo "$continue_previous_job" | sed -e 's#share\.php#download_share_all.php#')
+			new_folder=$(python3 "$SCRIPT_DIR/.helpers.py" download-share-run "$continue_previous_job" 2>/dev/null)
 
-			oo_tmp_dir=/tmp/oo_download/
-
-			oo_tmp_file="$oo_tmp_dir/tmp.zip"
-
-			mkdir -p $oo_tmp_dir
-
-			if [[ $continue_previous_job =~ user_id=([^&]+) ]]; then
-				user_id="${BASH_REMATCH[1]}"
-			else
-				red_text "Error: user_id parameter is missing in the URL.\n"
-				exit 1
+			if [[ "$new_folder" == "" ]]; then
+				red_text "Failed to download shared run from $continue_previous_job\n"
+				myexit 19
 			fi
 
-			if [[ $continue_previous_job =~ experiment_name=([^&]+) ]]; then
-				experiment_name="${BASH_REMATCH[1]}"
-			else
-				red_text "Error: experiment_name parameter is missing in the URL.\n"
-				exit 1
-			fi
-
-			if [[ $continue_previous_job =~ run_nr=([0-9]+) ]]; then
-				#run_nr="${BASH_REMATCH[1]}"
-				true
-			else
-				red_text "Error: run_nr parameter is missing in the URL.\n"
-				exit 1
-			fi
-
-			yellow_text "Downloaded file $oo_tmp_file"
-
-			wget -q "$zip_download_url" -O "$oo_tmp_file"
-
-			if unzip -tq "$oo_tmp_file" >/dev/null 2>&1; then
-				new_folder_base="runs/$user_id/$experiment_name"
-
-				i=0
-				new_folder="$new_folder_base/$i"
-
-				while [[ -d $new_folder ]]; do
-					new_folder="$new_folder_base/$i"
-					i=$((i+1))
-				done
-
-				mkdir -p "$new_folder"
-
-				unzip -q "$oo_tmp_file" -d "$new_folder"
-
-				yellow_text "Extracted file to $new_folder"
+			yellow_text "Extracted file to $new_folder"
 
 			new_args=()
 			replaced=0
@@ -815,44 +704,12 @@
 
 			bash "$SCRIPT_DIR/omniopt" "${new_args[@]}"
 			exit_code=$?
-			rm -rf $oo_tmp_dir
 
 			exit $exit_code
-			elif [[ -s "$oo_tmp_file" ]]; then
-				cat $oo_tmp_file
-			fi
-
-			rm -rf $oo_tmp_dir
-
-			exit 19
 		else
 			red_text "$continue_previous_job does not contain user_id, experiment_name, or run_nr\n"
 			myexit 19
 		fi
-	fi
-
-	# Defaults that the sbatch-submit path needs even when the user did not
-	# pass the flag.  The Python entry point handles the equivalent
-	# config-file and --continue state-file fallbacks itself.
-	if [[ -z $gpus ]]; then
-		gpus=0
-	fi
-
-	if [[ -z $main_process_gb ]]; then
-		if [[ -n $mem_gb ]]; then
-			main_process_gb=$mem_gb
-		else
-			main_process_gb=8 # default value
-		fi
-	fi
-
-	python_pid=""
-
-	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
-		source "$SCRIPT_DIR/.shellscript_functions"
-	else
-		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"
-		myexit 23
 	fi
 
 	mycd "$ORIGINAL_PWD"

@@ -3,9 +3,12 @@ import sys
 try:
     import json
     import hashlib
+    import shutil
+    import subprocess
     import urllib.request
     import urllib.error
     import urllib.parse
+    import zipfile
     from typing import Union, Tuple, Any, Optional
     from datetime import datetime
     from itertools import combinations
@@ -15,6 +18,7 @@ try:
     import logging
     import os
     import re
+    import tempfile
     import traceback
     import numpy as np
     import pandas as pd
@@ -52,17 +56,26 @@ def check_environment_variable(variable_name: str) -> bool:
 
     return False
 
-if not check_environment_variable("RUN_VIA_RUNSH"):
-    print("Must be run via the bash script, cannot be run as standalone.")
-
-    sys.exit(16)
-
 def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
-if not in_venv():
-    print("No venv loaded. Cannot continue.")
-    sys.exit(19)
+def _require_runtime_env() -> None:
+    """Assert that we're running inside the OmniOpt bash wrapper.
+
+    Called only on module import (not when `.helpers.py` is invoked
+    directly via its CLI entry point at the bottom of this file).
+    """
+    if not check_environment_variable("RUN_VIA_RUNSH"):
+        print("Must be run via the bash script, cannot be run as standalone.")
+
+        sys.exit(16)
+
+    if not in_venv():
+        print("No venv loaded. Cannot continue.")
+        sys.exit(19)
+
+if __name__ != "__main__":
+    _require_runtime_env()
 
 def looks_like_float(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, (int, float)):
@@ -1059,10 +1072,6 @@ def download_share_run(continue_url: str, runs_root: str = "runs") -> Optional[s
     Python port of the bash continue-from-URL block.  Returns the
     on-disk path of the freshly extracted run folder, or None on failure.
     """
-    import zipfile
-    import shutil
-    import tempfile
-
     parsed = _parse_share_url(continue_url)
     if parsed is None:
         return None
@@ -1103,3 +1112,165 @@ def download_share_run(continue_url: str, runs_root: str = "runs") -> Optional[s
         return target
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
+def humanize_seconds(total_seconds: int) -> str:
+    """Render a wallclock duration as 'X days Y hours Z minutes and N seconds'.
+
+    Same shape the legacy bash runtime helper emitted, so we can swap
+    one for the other without changing any user-visible output.
+    """
+    total = int(total_seconds)
+    days = total // 86400
+    hours = (total // 3600) % 24
+    minutes = (total // 60) % 60
+    seconds = total % 60
+
+    parts = []
+    if days > 0:
+        parts.append(f"{days} days")
+    if hours > 0:
+        parts.append(f"{hours} hours")
+    if minutes > 0:
+        parts.append(f"{minutes} minutes")
+    if days > 0 or hours > 0 or minutes > 0:
+        parts.append("and")
+    parts.append(f"{seconds} seconds")
+    return " ".join(parts)
+
+
+_MINUTE_RE = re.compile(r"^\d+$")
+_TIME_RE = re.compile(r"^[0-9]+:[0-9]+:[0-9]+$")
+
+
+def minutes_to_hh_mm_ss(value: str) -> str:
+    """Convert a minute count or an already-formatted time string.
+
+    Mirrors the legacy bash helper -- used to build sbatch's
+    --time value from the user-supplied --time flag (in minutes).
+    """
+    if _MINUTE_RE.match(value):
+        total_minutes = int(value)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours:02d}:{minutes:02d}:00"
+    if _TIME_RE.match(value):
+        return value
+    raise ValueError(f"{value} is not a valid input. Must be a number of minutes (digits) or an hour-minute-second string")
+
+
+def remaining_time(target_date: str) -> str:
+    """Pretty-print how long until `target_date` is reached.
+
+    Mirrors the legacy bash helper used by the SLURM spinner that
+    shows the estimated job start time.  Empty string when the
+    date is in the past.
+    """
+    cleaned = re.sub(r"\x1b\[[0-9;]*m", "", target_date)
+    try:
+        target_epoch = int(datetime.strptime(cleaned, "%Y-%m-%d %H:%M:%S").timestamp())
+    except (TypeError, ValueError):
+        return ""
+    now_epoch = int(datetime.now().timestamp())
+    difference = target_epoch - now_epoch
+    if difference < 0:
+        return ""
+    difference_minutes = difference // 60
+    if difference_minutes < 30:
+        if difference_minutes == 0:
+            return "soon"
+        if difference_minutes == 1:
+            return f"in about {difference_minutes} minute"
+        return f"in about {difference_minutes} minutes"
+    difference_rounded = (difference * 5 + 299) // 300
+    minutes = difference_rounded % 60
+    hours = (difference_rounded // 60) % 24
+    days = (difference_rounded // 1440) % 365
+    years = difference_rounded // 525600
+
+    result = ""
+    if years > 0:
+        result += f" {years} {'year' if years == 1 else 'years'}"
+    if days > 0:
+        if result:
+            result += " and"
+        result += f" {days} {'day' if days == 1 else 'days'}"
+    if hours > 0:
+        if result:
+            result += " and"
+        result += f" {hours} {'hour' if hours == 1 else 'hours'}"
+    if minutes > 0:
+        if result:
+            result += " and"
+        result += f" {minutes} {'minute' if minutes == 1 else 'minutes'}"
+
+    if result:
+        return f"in about{result}"
+    return ""
+
+
+def slurmlogpath(job_id: str) -> str:
+    """Return the stdout log path of a SLURM job (empty string on failure).
+
+    Thin wrapper used by the sbatch-submit spinner and the
+    wait_until_ended branch.
+    """
+    if shutil.which("scontrol") is None:
+        return ""
+    try:
+        out = subprocess.check_output(
+            ["scontrol", "show", "job", str(job_id)],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("StdOut="):
+            return line[len("StdOut="):]
+    return ""
+
+
+if __name__ == "__main__":
+    import argparse
+
+    _cli = argparse.ArgumentParser(prog=".helpers.py")
+    _sub = _cli.add_subparsers(dest="cmd", required=True)
+
+    _p_humanize = _sub.add_parser("humanize-seconds", help="render a wallclock duration as 'days, hours, minutes, and seconds'")
+    _p_humanize.add_argument("seconds", type=int)
+
+    _p_hh = _sub.add_parser("minutes-to-hh-mm-ss", help="format minutes or hour-minute-second strings for sbatch --time")
+    _p_hh.add_argument("value")
+
+    _p_rt = _sub.add_parser("remaining-time", help="format remaining-time message")
+    _p_rt.add_argument("target_date")
+
+    _p_sl = _sub.add_parser("slurm-log-path", help="print stdout log path of a SLURM job")
+    _p_sl.add_argument("job_id")
+
+    _p_dl = _sub.add_parser(
+        "download-share-run",
+        help="download a shared run zip and print the local path",
+    )
+    _p_dl.add_argument("url")
+
+    _args = _cli.parse_args()
+
+    try:
+        if _args.cmd == "humanize-seconds":
+            print(humanize_seconds(_args.seconds))
+        elif _args.cmd == "minutes-to-hh-mm-ss":
+            print(minutes_to_hh_mm_ss(_args.value))
+        elif _args.cmd == "remaining-time":
+            print(remaining_time(_args.target_date))
+        elif _args.cmd == "slurm-log-path":
+            print(slurmlogpath(_args.job_id))  # noqa: F821
+        elif _args.cmd == "download-share-run":
+            print(download_share_run(_args.url) or "")
+    except (SystemExit, ValueError) as exc:
+        if isinstance(exc, SystemExit):
+            raise
+        sys.stderr.write(f"error: {exc}\n")
+        sys.exit(1)

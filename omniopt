@@ -519,11 +519,16 @@ try:
                     if name and name not in last_seen:
                         last_seen.add(name)
                         collected += 1
+                        # Grow the total when we discover more packages
+                        # than the requirements file had (transitive deps)
+                        _new_total = max(initial_total, collected)
                         progress.update(
                             task,
+                            total=_new_total,
+                            completed=collected,
                             description=(
                                 f"[cyan]collecting[/cyan] [bold]{name}[/bold]"
-                                f"  [dim]({collected} so far)".ljust(80)
+                                f"  [dim]({collected}/{_new_total})".ljust(80)
                             ),
                         )
                     continue

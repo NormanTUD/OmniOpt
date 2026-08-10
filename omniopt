@@ -129,7 +129,10 @@ def _omniopt_disk_diagnose(captured_lines: list) -> "tuple | None":
     every call is wrapped in try/except so a broken probe never makes
     a bad situation worse.
     """
-    # 1) Try to lift a path out of the pip error message
+    NETWORK_FS = {"nfs", "nfs4", "cifs", "smbfs", "afs", "9p",
+                  "fuse.sshfs", "fuse.glusterfs", "gfs", "ocfs2"}
+
+    # 1) Lift any /-prefixed path out of the captured pip output
     candidates: list = []
     pat = re.compile(
         r"['\"]([/A-Za-z0-9_.+-]+(?:/[/A-Za-z0-9_.+-]*)*)['\"]"
@@ -137,83 +140,84 @@ def _omniopt_disk_diagnose(captured_lines: list) -> "tuple | None":
     for line in captured_lines:
         for m in pat.finditer(line):
             p = m.group(1)
-            if p.startswith("/") and _os.path.isabs(p):
-                candidates.append(p)
-            elif _os.path.isabs(p):
+            if _os.path.isabs(p):
                 candidates.append(p)
 
-    # 2) Always consider the venv dir and the pip cache / tmp dirs
-    try:
-        candidates.append(_OMNIOPT_DIR)
-    except Exception:
-        pass
-    try:
-        candidates.append(_os.environ.get("TMPDIR", "/tmp"))
-    except Exception:
-        pass
+    # 2) Always also probe the likely write-targets
+    for p in (
+        _OMNIOPT_DIR,
+        _os.getcwd(),
+        _os.environ.get("TMPDIR", "/tmp"),
+        _os.path.expanduser("~/.cache/pip"),
+    ):
+        if p:
+            candidates.append(p)
 
-    # Walk the candidates, find the first one we can stat
-    target = None
+    # Walk the candidates, prefer local over network
+    seen_mounts: set = set()
+    best = None
     for c in candidates:
         try:
-            if _os.path.isdir(c) or _os.path.isfile(c):
-                target = c
-                break
-        except OSError:
-            continue
-    if target is None:
-        try:
-            target = _os.getcwd()
+            if not (_os.path.isdir(c) or _os.path.isfile(c)):
+                continue
+            mount_point = c
+            while mount_point != "/" and not _os.path.ismount(mount_point):
+                mount_point = _os.path.dirname(mount_point)
+            if mount_point in seen_mounts:
+                continue
+            seen_mounts.add(mount_point)
+
+            try:
+                usage = _shutil.disk_usage(c)
+            except Exception:
+                continue
+
+            fstype = "unknown"
+            try:
+                with open("/proc/mounts", "r", encoding="utf-8",
+                          errors="replace") as _f:
+                    for ml in _f:
+                        _parts = ml.split()
+                        if len(_parts) >= 3 and _parts[1] == mount_point:
+                            fstype = _parts[2]
+                            break
+            except OSError:
+                pass
+
+            quota = None
+            try:
+                import subprocess as _sp
+                _q = _sp.run(
+                    ["quota", "-u", "-w", _os.environ.get("USER", "")],
+                    capture_output=True, text=True, timeout=5,
+                )
+                if _q.returncode == 0 and _q.stdout.strip():
+                    for _ln in _q.stdout.splitlines()[2:]:
+                        _toks = _ln.split()
+                        if (len(_toks) >= 4
+                                and _toks[1].isdigit()
+                                and _toks[3].isdigit()):
+                            used_kb = int(_toks[1])
+                            limit_kb = int(_toks[3])
+                            grace = _toks[4] if len(_toks) > 4 else ""
+                            if limit_kb > 0:
+                                quota = (used_kb / 1024 ** 2,
+                                         limit_kb / 1024 ** 2, grace)
+                                break
+            except Exception:
+                pass
+
+            cand = (c, fstype, usage, quota)
+            if best is None:
+                best = cand
+            elif best[1].lower() in NETWORK_FS and fstype.lower() not in NETWORK_FS:
+                best = cand
+            elif (best[2].free > usage.free
+                  and fstype.lower() not in NETWORK_FS):
+                best = cand
         except Exception:
-            return None
-
-    # 3) Probe disk usage via shutil
-    try:
-        usage = _shutil.disk_usage(target)
-    except Exception:
-        return None
-
-    # 4) Filesystem type via /proc/mounts (Linux only)
-    fstype = "unknown"
-    try:
-        mount_point = target
-        # Walk up to find the mount point
-        while mount_point != "/" and not _os.path.ismount(mount_point):
-            mount_point = _os.path.dirname(mount_point)
-        with open("/proc/mounts", "r", encoding="utf-8", errors="replace") as _f:
-            for _ml in _f:
-                _parts = _ml.split()
-                if len(_parts) >= 3 and _parts[1] == mount_point:
-                    fstype = _parts[2]
-                    break
-    except (OSError, FileNotFoundError):
-        pass
-
-    # 5) Quota via `quota` / `repquota` (best-effort)
-    quota = None
-    try:
-        import subprocess as _sp
-        _q = _sp.run(["quota", "-u", "-w", _os.environ.get("USER", "")],
-                     capture_output=True, text=True, timeout=5)
-        if _q.returncode == 0 and _q.stdout.strip():
-            # The output format is roughly:
-            # Filesystem  blocks quota  limit  grace  files quota  limit  grace
-            # /dev/sda1  12345678  0  10000000  0  ...
-            _lines = _q.stdout.splitlines()
-            for _ln in _lines[2:]:  # skip header
-                _toks = _ln.split()
-                if len(_toks) >= 4 and _toks[1].isdigit() and _toks[3].isdigit():
-                    used_kb = int(_toks[1])
-                    limit_kb = int(_toks[3])
-                    grace = _toks[4] if len(_toks) > 4 else ""
-                    # Only show quota if there's an actual limit (>0)
-                    if limit_kb > 0:
-                        quota = (used_kb / 1024 ** 2, limit_kb / 1024 ** 2, grace)
-                        break
-    except Exception:
-        pass
-
-    return (target, fstype, usage, quota)
+            continue
+    return best
 
 
 def _omniopt_transient_spinner(label: str, target) -> None:
@@ -349,7 +353,7 @@ def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file:
     width so the cursor never reflows.
     """
     child_code = r'''
-import subprocess, sys, time, re, shutil, signal
+import subprocess, sys, time, re, shutil, signal, os
 
 try:
     from rich.console import Console
@@ -364,6 +368,99 @@ except ImportError:
         "-r", sys.argv[1],
     ])
     sys.exit(0)
+
+
+def _omniopt_disk_diagnose(captured_lines, venv_dir):
+    """Best-effort disk-space probe used after pip exits with
+    ENOSPC/OSError.  Tries to find a real local path (skipping NFS,
+    CIFS, etc. where local free-space is meaningless), figures out the
+    mount-point, returns (path, fstype, usage, quota_or_None) or
+    None if nothing sensible was found.
+    """
+    NETWORK_FS = {"nfs", "nfs4", "cifs", "smbfs", "afs", "9p",
+                  "fuse.sshfs", "fuse.glusterfs", "gfs", "ocfs2"}
+
+    # Lift any /-prefixed path out of the captured pip output
+    candidates = []
+    pat = re.compile(r"['\"]([/A-Za-z0-9_.+-]+(?:/[/A-Za-z0-9_.+-]*)*)['\"]")
+    for line in captured_lines:
+        for m in pat.finditer(line):
+            p = m.group(1)
+            if os.path.isabs(p):
+                candidates.append(p)
+
+    # Always also probe the likely write-targets:
+    for p in (venv_dir, os.getcwd(),
+              os.environ.get("TMPDIR", "/tmp"),
+              os.path.expanduser("~/.cache/pip")):
+        if p:
+            candidates.append(p)
+
+    # Probe each candidate, prefer local over network
+    seen_mounts = set()
+    best = None
+    for c in candidates:
+        try:
+            if not (os.path.isdir(c) or os.path.isfile(c)):
+                continue
+            mount_point = c
+            while mount_point != "/" and not os.path.ismount(mount_point):
+                mount_point = os.path.dirname(mount_point)
+            if mount_point in seen_mounts:
+                continue
+            seen_mounts.add(mount_point)
+
+            try:
+                usage = shutil.disk_usage(c)
+            except Exception:
+                continue
+
+            fstype = "unknown"
+            try:
+                with open("/proc/mounts", "r", encoding="utf-8",
+                          errors="replace") as _f:
+                    for ml in _f:
+                        parts = ml.split()
+                        if len(parts) >= 3 and parts[1] == mount_point:
+                            fstype = parts[2]
+                            break
+            except OSError:
+                pass
+
+            quota = None
+            try:
+                q = subprocess.run(
+                    ["quota", "-u", "-w", os.environ.get("USER", "")],
+                    capture_output=True, text=True, timeout=5,
+                )
+                if q.returncode == 0 and q.stdout.strip():
+                    for ln in q.stdout.splitlines()[2:]:
+                        toks = ln.split()
+                        if len(toks) >= 4 and toks[1].isdigit() and toks[3].isdigit():
+                            used_kb = int(toks[1])
+                            limit_kb = int(toks[3])
+                            grace = toks[4] if len(toks) > 4 else ""
+                            if limit_kb > 0:
+                                quota = (used_kb / 1024 ** 2,
+                                         limit_kb / 1024 ** 2, grace)
+                                break
+            except Exception:
+                pass
+
+            candidate = (c, fstype, usage, quota)
+            # Prefer a local filesystem over a network one
+            if best is None:
+                best = candidate
+            elif best[1].lower() in NETWORK_FS and fstype.lower() not in NETWORK_FS:
+                best = candidate
+            elif (best[2].free > usage.free
+                  and fstype.lower() not in NETWORK_FS):
+                # otherwise prefer the path with the least free space
+                # (i.e. the one most likely to be the culprit)
+                best = candidate
+        except Exception:
+            continue
+    return best
 
 
 def _term_width(default=120):
@@ -499,10 +596,11 @@ try:
             total=initial_total,
         )
         proc = subprocess.Popen(
-            [sys.executable, "-m", "pip", "install",
+            [sys.executable, "-u", "-m", "pip", "install",
              "--default-timeout=300", "--disable-pip-version-check",
              "-r", requirements_file],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            bufsize=0,
         )
         last_seen = set()
         try:

@@ -413,10 +413,18 @@ if proc.returncode != 0:
 sys.exit(0)
 '''
     try:
-        _subprocess.run(
+        result = _subprocess.run(
             [venv_python, "-c", child_code, requirements_file],
             check=False,
         )
+        if result.returncode != 0:
+            _sys.stdout.write("\n")
+            _sys.stdout.flush()
+            _sys.stderr.write(
+                f"[omniopt] install failed (child exited with code {result.returncode}).\n"
+            )
+            _sys.stderr.flush()
+            _sys.exit(20)
     except KeyboardInterrupt:
         _sys.stdout.write("\n[omniopt] install cancelled\n")
         _sys.stdout.flush()

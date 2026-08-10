@@ -296,16 +296,54 @@ def _on_sigint(signum, frame):
 signal.signal(signal.SIGINT, _on_sigint)
 
 start = time.time()
+collected = 0
+captured_lines: list = []
+ERROR_PATTERNS = [
+    (re.compile(r"Could not fetch URL|connection (timed out|reset|refused)|"
+                r"NewConnectionError|ProxyError|NameResolutionError|"
+                r"Temporary failure in name resolution", re.I),
+     "network",
+     "pip couldn't reach PyPI.  Check your internet connection, proxy "
+     "settings (HTTPS_PROXY/HTTP_PROXY env vars), or firewall rules."),
+    (re.compile(r"Read timed out|Connection broken|EOF occurred", re.I),
+     "network",
+     "pip's connection to PyPI timed out.  Try again or use a closer "
+     "index-url (e.g. --index-url=https://pypi.org/simple)."),
+    (re.compile(r"Permission denied|access is denied|EACCES", re.I),
+     "permissions",
+     "pip couldn't write to the venv.  Make sure the user running "
+     "omniopt owns the venv directory or has write access to it."),
+    (re.compile(r"ResolutionImpossible|Found conflicts|Conflicting "
+                r"requirements|depends on", re.I),
+     "conflict",
+     "some packages in requirements.txt have conflicting version "
+     "requirements.  Try 'pip install --dry-run -r requirements.txt' "
+     "to see the exact conflict."),
+    (re.compile(r"Microsoft Visual C\+\+|fatal error C\d+|"
+                r"unable to find vcvarsall\.bat|"
+                r"failed building wheel for", re.I),
+     "build",
+     "a package needs to compile a C/C++ extension but no compiler is "
+     "installed.  On Debian/Ubuntu: 'sudo apt-get install build-essential "
+     "python3-dev'.  On RHEL/Fedora: 'sudo dnf install gcc python3-devel'."),
+    (re.compile(r"No space left on device|ENOSPC", re.I),
+     "disk",
+     "the disk is full.  Free up space on the volume that holds the "
+     "venv and try again."),
+    (re.compile(r"ERROR: Could not install packages because an "
+                r"OSPackageError|OSError: \\[Errno 13\\]", re.I),
+     "permissions",
+     "pip got an OS-level error (often a permission problem).  Check "
+     "the full error message above and make sure the venv directory "
+     "is writable."),
+]
+
 try:
     with Progress(
         SpinnerColumn("dots"),
         TextColumn("{task.description}"),
-        BarColumn(bar_width=None),
-        TaskProgressColumn(),
         TextColumn("elapsed"),
         TimeElapsedColumn(),
-        TextColumn("eta"),
-        TimeRemainingColumn(),
         console=console,
         transient=True,
     ) as progress:
@@ -314,8 +352,7 @@ try:
         # entire dependency graph) -- instead we drive the bar off the
         # live Collecting lines emitted by the actual install.
         # `total` is updated as we discover new packages so the
-        # progress bar grows in lockstep with the install and the ETA
-        # gets more accurate over time.
+        # progress bar grows in lockstep with the install.
         task = progress.add_task(
             f"[cyan]installing from {requirements_file} ...".ljust(80),
             total=None,
@@ -327,12 +364,14 @@ try:
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
         )
         last_seen = set()
-        collected = 0
         try:
             for line in proc.stdout:
                 if _interrupted["v"]:
                     break
                 line = line.rstrip()
+                if not line:
+                    continue
+                captured_lines.append(line)
                 m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
                 if m:
                     name = m.group(1).strip()
@@ -341,11 +380,9 @@ try:
                         collected += 1
                         progress.update(
                             task,
-                            total=collected + 50,  # heuristic: 50 more packages likely pending
-                            completed=collected,
                             description=(
                                 f"[cyan]collecting[/cyan] [bold]{name}[/bold]"
-                                f"  [dim]({collected})".ljust(80)
+                                f"  [dim]({collected} so far)".ljust(80)
                             ),
                         )
                     continue
@@ -354,7 +391,6 @@ try:
                     name = m.group(1).strip()
                     progress.update(
                         task,
-                        completed=min(collected, progress.tasks[0].total or collected),
                         description=f"[yellow]downloading[/yellow] [bold]{name}[/bold]".ljust(80),
                     )
                     continue
@@ -381,7 +417,6 @@ try:
                 if "Successfully installed" in line:
                     progress.update(
                         task,
-                        completed=progress.tasks[0].total or collected,
                         description="[bold green]finishing up ...[/bold green]".ljust(80),
                     )
         except KeyboardInterrupt:
@@ -408,7 +443,41 @@ if _interrupted["v"]:
     console.print(_pad("[yellow]install cancelled by user[/yellow]"))
     sys.exit(130)
 if proc.returncode != 0:
-    console.print(_pad(f"[red]pip exited with code {proc.returncode} after {elapsed:.1f}s[/red]"))
+    # Print a colorful, structured error report with the last lines
+    # of pip output and (when we can recognise it) a hint about
+    # what's likely wrong and how to fix it.
+    console.print(_pad("[bold red]✗ pip install failed[/bold red]"))
+    console.print(_pad(f"[red]exit code:[/red] [bold]{proc.returncode}[/bold]"
+                        f"   [red]after:[/red] [bold]{elapsed:.1f}s[/bold]"))
+    console.print(_pad(""))
+
+    # Detect the failure category
+    text_blob = "\n".join(captured_lines)
+    category = None
+    hint = None
+    for pattern, cat, h in ERROR_PATTERNS:
+        if pattern.search(text_blob):
+            category = cat
+            hint = h
+            break
+
+    if category:
+        console.print(_pad(f"[bold yellow]likely cause:[/bold yellow]"
+                            f" [yellow]{category}[/yellow]"))
+        if hint:
+            console.print(_pad(f"[yellow]{hint}[/yellow]"))
+        console.print(_pad(""))
+
+    console.print(_pad("[bold]last lines of pip output:[/bold]"))
+    tail_lines = captured_lines[-15:] if captured_lines else ["(no output captured)"]
+    for tl in tail_lines:
+        # Strip ANSI to keep things readable on dumb terminals
+        clean = re.sub(r"\\x1b\\[[0-9;]*m", "", tl)
+        console.print(_pad(f"  [dim]{clean}[/dim]"))
+
+    console.print(_pad(""))
+    console.print(_pad("[dim]hint: re-run with --debug or set "
+                        "PIP_VERBOSE=1 to get a full pip traceback.[/dim]"))
     sys.exit(proc.returncode)
 sys.exit(0)
 '''

@@ -78,15 +78,24 @@ def _omniopt_requirements_changed(venv_dir: str) -> bool:
 
 
 def _omniopt_save_requirements_hash(venv_dir: str) -> None:
-    with open(_os.path.join(venv_dir, "omniopt_requirements_hash"), "w") as fp:
-        fp.write(_omniopt_requirements_hash())
+    _omniopt_transient_spinner(
+        "[omniopt] writing requirements hash ...",
+        lambda: open(
+            _os.path.join(venv_dir, "omniopt_requirements_hash"), "w"
+        ).write(_omniopt_requirements_hash()),
+    )
 
 
 def _omniopt_create_venv(venv_dir: str) -> None:
     if _os.path.exists(venv_dir):
         return
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
-    _subprocess.run([_sys.executable, "-m", "venv", venv_dir], check=True)
+    _omniopt_transient_spinner(
+        f"[omniopt] creating virtualenv at {venv_dir} ...",
+        lambda: _subprocess.run(
+            [_sys.executable, "-m", "venv", venv_dir], check=True
+        ),
+    )
 
 
 def _omniopt_terminal_width(default: int = 100) -> int:
@@ -111,62 +120,84 @@ def _omniopt_pad_right(text: str, width: int | None = None) -> str:
     return text + (" " * pad)
 
 
-def _omniopt_install_rich_phase(venv_python: str) -> None:
-    """Install `rich` itself first, with a stdlib-only spinner-style
-    status line (Rich isn't available yet during bootstrap).  The
-    line is *transient*: when pip finishes we clear it entirely
-    (`\\r\\x1b[2K`) and emit no trailing newline, so the next
-    status the user sees starts fresh on a clean row.
+def _omniopt_transient_spinner(label: str, target) -> None:
+    """Run `target` (a no-arg callable) while showing a transient
+    stdlib-only spinner on stdout.  The line is fully cleared when
+    the call returns -- no trailing output, no re-flow.
     """
     width = _omniopt_terminal_width()
     frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    proc = _subprocess.Popen(
-        [venv_python, "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
-        stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL,
-    )
+    done = {"v": False}
+    result = {"exc": None}
+
+    def _runner() -> None:
+        try:
+            target()
+        except BaseException as _e:  # noqa: BLE001 - re-raised below
+            result["exc"] = _e
+        finally:
+            done["v"] = True
+
+    import threading as _threading
+    t = _threading.Thread(target=_runner, daemon=True)
+    t.start()
+
+    i = 0
     try:
-        i = 0
-        while proc.poll() is None:
-            msg = f"\r\x1b[2K{frames[i % len(frames)]} [omniopt] Installing rich ..."
-            _sys.stdout.write(_omniopt_pad_right(msg, width))
+        while not done["v"]:
+            _sys.stdout.write(
+                "\r\x1b[2K" + _omniopt_pad_right(f"{frames[i % len(frames)]} {label}", width)
+            )
             _sys.stdout.flush()
             i += 1
             _time.sleep(0.1)
-        # Final state -- transient: clear the line, no trailing newline,
-        # so whatever the next output is overwrites this row cleanly.
-        _sys.stdout.write("\r\x1b[2K")
-        _sys.stdout.flush()
     except KeyboardInterrupt:
-        proc.terminate()
-        try:
-            proc.wait(timeout=5)
-        except _subprocess.TimeoutExpired:
-            proc.kill()
-        # On Ctrl+C we DO leave a one-line note so the user knows
-        # why the bootstrap bailed, but we keep the cursor on the
-        # same row and pad-right to avoid terminal reflow.
+        # Mark done so the runner thread notices on next iteration,
+        # then re-raise so the outer code path can handle exit.
         _sys.stdout.write(
             "\r\x1b[2K"
-            + _omniopt_pad_right("[omniopt] rich install cancelled by user", width)
+            + _omniopt_pad_right(f"✗ {label} (cancelled)", width)
             + "\n"
         )
         _sys.stdout.flush()
         raise
+    t.join(timeout=5)
+
+    # Clear the spinner line -- nothing left on screen.
+    _sys.stdout.write("\r\x1b[2K")
+    _sys.stdout.flush()
+
+    if result["exc"] is not None:
+        raise result["exc"]
+
+
+def _omniopt_install_rich_phase(venv_python: str) -> None:
+    """Install `rich` itself first, with a stdlib-only spinner-style
+    status line (Rich isn't available yet during bootstrap).  The
+    line is *transient*: when pip finishes we clear it entirely.
+    """
+    def _do() -> None:
+        _subprocess.run(
+            [venv_python, "-m", "pip", "install",
+             "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
+            check=True, stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL,
+        )
+
+    _omniopt_transient_spinner("[omniopt] installing rich ...", _do)
 
 
 def _omniopt_install_requirements(venv_python: str) -> None:
-    """Install the requirement files into the venv with a small
-    stdlib-only progress UI (the bootstrap can't import rich yet).
+    """Install the requirement files into the venv.
 
     Two phases:
       1. Install `rich` by itself with a stdlib-only spinner line
          (Rich isn't available yet).
       2. Install the rest of the requirements via a child Python
          that uses Rich's transient progress bar with ETA/elapsed.
-         Right-pads everything so the terminal doesn't re-flow.
-    Ctrl+C is caught at every level and exits cleanly with exit 130
-    (standard "killed by SIGINT" code) instead of dumping a traceback.
+
+    Every phase shows a transient status line on stdout; nothing
+    persists once the install is done.  Ctrl+C is caught at every
+    level and exits cleanly with exit 130.
     """
     install_tests = _os.environ.get("install_tests")
     req_files = [_OMNIOPT_REQUIREMENTS]
@@ -200,7 +231,7 @@ def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file:
     width so the cursor never reflows.
     """
     child_code = '''
-import subprocess, sys, time, re, shutil, signal
+import subprocess, sys, time, re, shutil, signal, threading
 
 try:
     from rich.console import Console
@@ -230,10 +261,45 @@ def _pad(text, width=None):
     return text + (" " * max(0, width - len(visible) - 1))
 
 
-requirements_file = sys.argv[1]
+def _spinner(label, target):
+    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    done = {"v": False}
+    result = {"exc": None}
+    width = _term_width()
 
-# Pre-scan: ask pip which packages it would install.
-try:
+    def _runner():
+        try:
+            target()
+        except BaseException as e:
+            result["exc"] = e
+        finally:
+            done["v"] = True
+
+    t = threading.Thread(target=_runner, daemon=True)
+    t.start()
+    i = 0
+    try:
+        while not done["v"]:
+            sys.stdout.write("\\r\\x1b[2K" + _pad(f"{frames[i % len(frames)]} {label}", width))
+            sys.stdout.flush()
+            i += 1
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        done["v"] = True
+        t.join(timeout=5)
+        sys.stdout.write(
+            "\\r\\x1b[2K" + _pad(f"✗ {label} (cancelled)", width) + "\\n"
+        )
+        sys.stdout.flush()
+        raise
+    t.join(timeout=5)
+    sys.stdout.write("\\r\\x1b[2K")
+    sys.stdout.flush()
+    if result["exc"] is not None:
+        raise result["exc"]
+
+
+def _scan_packages():
     dry = subprocess.run(
         [sys.executable, "-m", "pip", "install", "--dry-run",
          "--disable-pip-version-check", "-r", requirements_file],
@@ -246,12 +312,21 @@ try:
             name = m.group(1).strip()
             if name and name not in pkgs:
                 pkgs.append(name)
+    return pkgs
+
+
+requirements_file = sys.argv[1]
+
+# Scan with a transient spinner so the user sees the dry-run phase.
+try:
+    pkgs = _spinner("scanning package list ...", _scan_packages)
+except KeyboardInterrupt:
+    sys.exit(130)
 except Exception:
     pkgs = []
 
 console = Console()
 
-# Catch Ctrl+C cleanly: terminate pip, print one line, exit 130.
 _interrupted = {"v": False}
 
 
@@ -319,9 +394,6 @@ if _interrupted["v"]:
 
 proc.wait()
 elapsed = time.time() - start
-# The progress bar is transient -- it disappears on its own.  Only
-# print a line on failure or cancellation so the user sees why the
-# bootstrap bailed; on success we stay silent.
 if _interrupted["v"]:
     console.print(_pad("[yellow]install cancelled by user[/yellow]"))
     sys.exit(130)

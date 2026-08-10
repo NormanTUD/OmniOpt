@@ -413,6 +413,7 @@ colname
 colorbar
 coloredString
 colormap
+colorfunctions
 colorpicker
 colorRegex
 colorscale

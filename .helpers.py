@@ -59,24 +59,6 @@ def check_environment_variable(variable_name: str) -> bool:
 def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
-def _require_runtime_env() -> None:
-    """Assert that we're running inside the OmniOpt bash wrapper.
-
-    Called only on module import (not when `.helpers.py` is invoked
-    directly via its CLI entry point at the bottom of this file).
-    """
-    if not check_environment_variable("RUN_VIA_RUNSH"):
-        print("Must be run via the bash script, cannot be run as standalone.")
-
-        sys.exit(16)
-
-    if not in_venv():
-        print("No venv loaded. Cannot continue.")
-        sys.exit(19)
-
-if __name__ != "__main__":
-    _require_runtime_env()
-
 def looks_like_float(x: Union[float, int, str, None]) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats

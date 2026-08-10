@@ -93,22 +93,22 @@ def is_python_script(file_path):
         return True
     return False
 
-def is_bash_script(file_path):
+def has_shebang(file_path):
     if file_path == ".env":
         return False
     try:
         with open(file_path, mode='r', encoding="utf-8") as file:
             first_line = file.readline()
-            return first_line.startswith("#!") and "bash" in first_line
+            return first_line.startswith("#!")
     except (IOError, UnicodeDecodeError):
         return False
 
 all_files = glob.glob("*")
 all_files.extend(glob.glob(".*"))
-bash_files = [f for f in all_files if is_bash_script(f)]
+executable_scripts = [f for f in all_files if has_shebang(f) and os.access(f, os.X_OK)]
 python_files = [f for f in all_files if is_python_script(f)]
 
-all_needed_files = bash_files
+all_needed_files = executable_scripts
 all_needed_files.extend(python_files)
 
 all_needed_files.append("LICENSE")

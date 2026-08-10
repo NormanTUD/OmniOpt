@@ -264,12 +264,12 @@ def _pad(text, width=None):
 def _spinner(label, target):
     frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
     done = {"v": False}
-    result = {"exc": None}
+    result = {"ret": None, "exc": None}
     width = _term_width()
 
     def _runner():
         try:
-            target()
+            result["ret"] = target()
         except BaseException as e:
             result["exc"] = e
         finally:
@@ -297,6 +297,7 @@ def _spinner(label, target):
     sys.stdout.flush()
     if result["exc"] is not None:
         raise result["exc"]
+    return result["ret"]
 
 
 def _scan_packages():

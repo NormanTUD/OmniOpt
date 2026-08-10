@@ -234,6 +234,12 @@ def _omniopt_install_requirements(venv_python: str) -> None:
         _sys.stdout.write("\n[omniopt] install cancelled\n")
         _sys.stdout.flush()
         _sys.exit(130)
+    except _subprocess.CalledProcessError as _e:
+        _sys.stdout.write("\n")
+        _sys.stdout.flush()
+        _sys.stderr.write(f"[omniopt] pip install failed (exit {_e.returncode}).\n")
+        _sys.stderr.flush()
+        _sys.exit(20)
 
 
 def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str) -> None:

@@ -297,6 +297,9 @@
 				fi
 			fi
 
+			# .helpers.fetch_exit_code_help is the Python equivalent;
+			# we use wget here so the lookup still works when myexit
+			# fires before the venv has been sourced.
 			set +e
 			wget -q -O - "$BASEURL/exit_code_table.php?exit_code=$CODE"
 

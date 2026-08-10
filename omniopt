@@ -945,6 +945,7 @@ if _os.environ.get("DEBUG_PARAM_EVAL"):
 # the missing file, but a few tests still assert on the legacy 100.
 # Mirror the file-existence check here before forwarding.
 _cfg_path: str = ""
+_arg: str = ""
 for _cfg_opt in ("config_yaml", "config_json", "config_toml"):
     _i = 1
     while _i < len(_sys.argv):

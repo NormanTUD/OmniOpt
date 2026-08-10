@@ -1232,6 +1232,120 @@ def slurmlogpath(job_id: str) -> str:
     return ""
 
 
+def _run_git(script_dir: str, *args: str, timeout: float = 10.0) -> Optional[str]:
+    """Run a git command in `script_dir`.  Returns stdout or None on failure."""
+    try:
+        return subprocess.check_output(
+            ["git", "-C", script_dir, *args],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def _read_git_hash(script_dir: str) -> str:
+    """Read current commit hash from `git_hash` file or `git rev-parse`."""
+    git_hash_file = os.path.join(script_dir, "git_hash")
+    if os.path.isfile(git_hash_file):
+        try:
+            with open(git_hash_file, "r", encoding="utf-8") as f:
+                return f.read().strip() or "NOT_DETERMININABLE"
+        except OSError:
+            return "NOT_DETERMININABLE"
+    return _run_git(script_dir, "rev-parse", "HEAD") or "NOT_DETERMININABLE"
+
+
+def _at_or_near_tag_message(
+    git_hash: str, current_tag: str, tag_commit_hash: str, n: int
+) -> str:
+    """Build the 'Current git-hash: ... (version/with-hash)' message
+    used when HEAD is on or close to the tagged commit.
+    """
+    if n != 0:
+        # n was not an integer (e.g. -1 used as a sentinel); callers
+        # handle the actual message construction.
+        return f"Current git-hash: {git_hash} (version: {current_tag})"
+    if git_hash == tag_commit_hash:
+        return f"Current git-hash: {git_hash} (version: {current_tag})"
+    return f"Current git-hash: {git_hash} ({current_tag}, {tag_commit_hash})"
+
+
+def _past_tag_message(
+    git_hash: str, current_tag: str, tag_commit_hash: str, n: int
+) -> str:
+    """Build the 'N commits ago' message used when HEAD is past the tag."""
+    noun = "commit" if n == 1 else "commits"
+    return (
+        f"Current git-hash: {git_hash} (last fully tested stable version "
+        f"{n} {noun} ago [{tag_commit_hash}, {current_tag}])"
+    )
+
+
+def resolve_git_version(
+    script_dir: str,
+    checkout_to_latest: bool = False,
+) -> Tuple[str, str]:
+    """Return (action, payload) describing what omniopt should do about git.
+
+    action: "print" | "checkout" | "none"
+    payload:
+      - "print"   -> the message to display (may contain newlines)
+      - "checkout" -> the commit hash to git-checkout
+      - "none"    -> empty string
+
+    Equivalent to the ~80-line bash block in the legacy omniopt that
+    compared `git describe` / `git rev-list` output and decided which
+    "Current git-hash: ..." message to print.
+    """
+    git_hash = _read_git_hash(script_dir)
+
+    # Best-effort tag fetch.
+    _run_git(script_dir, "fetch", "--tags", timeout=15.0)
+
+    current_tag = _run_git(script_dir, "describe", "--tags", "--abbrev=0") or ""
+    if not current_tag:
+        if git_hash != "NOT_DETERMININABLE":
+            return "print", f"Current git-hash: {git_hash}"
+        return "none", ""
+
+    tag_commit_hash = _run_git(script_dir, "rev-list", "-n", "1", current_tag) or ""
+    if not tag_commit_hash:
+        return "print", f"Current git-hash: {git_hash} (version: {current_tag})"
+
+    commits_since_raw = _run_git(
+        script_dir, "rev-list", "--count", f"{tag_commit_hash}..HEAD"
+    ) or ""
+    if not commits_since_raw:
+        return "print", f"Current git-hash: {git_hash} (version: {current_tag}, {tag_commit_hash})"
+
+    try:
+        n = int(commits_since_raw)
+    except ValueError:
+        n = -1  # sentinel: not an integer; the message builders fall back
+
+    if n <= 0:
+        return "print", _at_or_near_tag_message(
+            git_hash, current_tag, tag_commit_hash, n
+        )
+
+    if checkout_to_latest:
+        return "checkout", tag_commit_hash
+
+    msg = _past_tag_message(git_hash, current_tag, tag_commit_hash, n)
+
+    if not os.environ.get("OO_MAIN_TESTS"):
+        warning = (
+            f"The current version was not thoroughly tested. It may "
+            f"contain bugs. Checkout to {tag_commit_hash} or use "
+            f"--checkout_to_latest_tested_version."
+        )
+        return "print", msg + "\n" + warning
+
+    return "print", msg
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -1256,6 +1370,17 @@ if __name__ == "__main__":
     )
     _p_dl.add_argument("url")
 
+    _p_gv = _sub.add_parser(
+        "git-version",
+        help="print 'Current git-hash: ...' message and decide whether to checkout",
+    )
+    _p_gv.add_argument("script_dir")
+    _p_gv.add_argument(
+        "--checkout-to-latest",
+        action="store_true",
+        help="if set, signal a checkout instead of just printing the warning",
+    )
+
     _args = _cli.parse_args()
 
     try:
@@ -1269,6 +1394,13 @@ if __name__ == "__main__":
             print(slurmlogpath(_args.job_id))  # noqa: F821
         elif _args.cmd == "download-share-run":
             print(download_share_run(_args.url) or "")
+        elif _args.cmd == "git-version":
+            action, payload = resolve_git_version(
+                _args.script_dir, checkout_to_latest=_args.checkout_to_latest
+            )
+            print(action)
+            if payload:
+                print(payload)
     except (SystemExit, ValueError) as exc:
         if isinstance(exc, SystemExit):
             raise

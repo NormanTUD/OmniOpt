@@ -539,6 +539,20 @@
 		# --dryrun is set, so we don't need to mirror that here.
 	fi
 
+	python_pid=""
+
+	# Source the venv-setup script early so subsequent python3 calls
+	# in this script (git-version, etc.) use the venv interpreter
+	# with all the heavy dependencies (pandas, matplotlib, etc.)
+	# pre-installed.  RUN_VIA_RUNSH is also exported here, which
+	# .helpers.py checks on import.
+	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
+		source "$SCRIPT_DIR/.shellscript_functions"
+	else
+		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"
+		myexit 23
+	fi
+
 	if [[ $show_ram_every_n_seconds -gt 0 ]]; then
 		_show_ram_every_n_seconds $show_ram_every_n_seconds &
 	fi
@@ -557,85 +571,39 @@
 	done
 
 	if [[ $use_git -eq 1 ]]; then
-		git_hash="NOT_DETERMININABLE"
-
 		if ! command -v git 2>/dev/null >/dev/null; then
 			red_text "git not found. Cannot continue.\n"
 			myexit 11
 		fi
 
-		if [[ -e git_hash ]]; then
-			new_git_hash=$(cat git_hash)
-		else
-			trap - ERR
-			set +e
-			new_git_hash=$(git -C "$SCRIPT_DIR" rev-parse HEAD 2>/dev/null)
-			set -e
-			trap 'calltracer' ERR
-		fi
-
-		if [[ -n $new_git_hash ]]; then
-			git_hash=$new_git_hash
-		fi
-
-		set +e
-		trap - ERR
-		git -C "$SCRIPT_DIR" fetch --tags 2>/dev/null >/dev/null
-		current_tag=$(git -C "$SCRIPT_DIR" describe --tags --abbrev=0 2>/dev/null)
-		tag_commit_hash=$(git -C "$SCRIPT_DIR" rev-list -n 1 "$current_tag" 2>/dev/null)
-		commits_since_tag=$(git -C "$SCRIPT_DIR" rev-list --count "$tag_commit_hash"..HEAD 2>/dev/null)
-		set -e
-		trap 'calltracer' ERR
-
+		# The git version display + checkout logic (~80 lines of bash)
+		# moved into .helpers.resolve_git_version, which prints an action
+		# line ("print" | "checkout" | "none") and the payload.
 		if [[ -z "$SLURM_JOB_ID" ]]; then
-			if [[ -n $current_tag ]]; then
-				if [[ -n $tag_commit_hash ]] && [[ -z $commits_since_tag ]]; then
-					echo "Current git-hash: $git_hash (version: $current_tag, $tag_commit_hash)"
-				elif [[ -n $tag_commit_hash ]] && [[ -n $commits_since_tag ]]; then
-					if [[ $commits_since_tag -eq 1 ]]; then
-						echo "Current git-hash: $git_hash (last fully tested stable version $commits_since_tag commit ago [$tag_commit_hash, $current_tag])"
-					else
-						if [[ "$git_hash" == "$tag_commit_hash" ]]; then
-							if [[ $commits_since_tag -eq 0 ]]; then
-								echo "Current git-hash: $git_hash (version: $current_tag)"
-							else
-								echo "Current git-hash: $git_hash (last fully tested stable version $commits_since_tag commits ago [$tag_commit_hash, $current_tag])"
-							fi
-						else
-							if [[ $commits_since_tag -eq 0 ]]; then
-								echo "Current git-hash: $git_hash ($current_tag, $tag_commit_hash)"
-							else
-								echo "Current git-hash: $git_hash (last fully tested stable version $commits_since_tag commits ago [$tag_commit_hash, $current_tag])"
-							fi
-						fi
-					fi
-
-					if [[ "$commits_since_tag" -gt 0 ]]; then
-						if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
-							yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $tag_commit_hash..."
-							git -C "$SCRIPT_DIR" checkout "$tag_commit_hash" >/dev/null 2>/dev/null || {
-								red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
-								myexit 211
-							}
-
-							bash omniopt "$*"
-							exit_code=$?
-
-							myexit $exit_code
-						else
-							if [[ -z $OO_MAIN_TESTS ]]; then
-								yellow_text "The current version was not thoroughly tested. It may contain bugs. Checkout to $tag_commit_hash or use --checkout_to_latest_tested_version to get the latest tested version."
-							fi
-						fi
-					fi
-				else
-					echo "Current git-hash: $git_hash (version: $current_tag)"
-				fi
-
+			if [[ "$checkout_to_latest_tested_version" -eq "1" ]]; then
+				pyout=$(python3 "$SCRIPT_DIR/.helpers.py" git-version "$SCRIPT_DIR" --checkout-to-latest 2>/dev/null)
 			else
-				if [[ $git_hash != "NOT_DETERMININABLE" ]]; then
-					echo "Current git-hash: $git_hash"
-				fi
+				pyout=$(python3 "$SCRIPT_DIR/.helpers.py" git-version "$SCRIPT_DIR" 2>/dev/null)
+			fi
+
+			action=$(echo "$pyout" | head -n1)
+			payload=$(echo "$pyout" | tail -n +2)
+
+			if [[ "$action" == "checkout" ]]; then
+				yellow_text "--checkout_to_latest_tested_version enabled. Checking out to $payload..."
+				git -C "$SCRIPT_DIR" checkout "$payload" >/dev/null 2>/dev/null || {
+					red_text "\nFailed to checkout to latest version. Try not using --checkout_to_latest_tested_version.\n"
+					myexit 211
+				}
+
+				bash omniopt "$@"
+				exit_code=$?
+
+				myexit $exit_code
+			elif [[ "$action" == "print" ]]; then
+				while IFS= read -r line; do
+					yellow_text "$line"
+				done <<< "$payload"
 			fi
 		fi
 	fi
@@ -655,14 +623,6 @@
 		fi
 	fi
 
-	python_pid=""
-
-	if [[ -e "$SCRIPT_DIR/.shellscript_functions" ]]; then
-		source "$SCRIPT_DIR/.shellscript_functions"
-	else
-		red_text "$SCRIPT_DIR/.shellscript_functions not found. Cannot continue.\n"
-		myexit 23
-	fi
 
 	if [[ $continue_previous_job =~ ^https?:// ]]; then
 		# The actual wget/unzip dance used to live here (~95 lines of bash).

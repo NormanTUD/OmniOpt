@@ -1928,6 +1928,39 @@ with spinner("Importing SQL-Storage-Stuff...") as status:
 
 decoder_registry = CORE_DECODER_REGISTRY
 
+
+# Ax 1.3 added `sort_values` (and later also `log_scale`) to
+# ChoiceParameter; the docker SLURM test image still runs Ax 1.1.0
+# which doesn't know about these kwargs.  When loading a state file
+# written by a newer Ax, the default decoder blows up with
+# `ChoiceParameter.__init__() got an unexpected keyword argument
+# 'sort_values'`.  Wrap the default ChoiceParameter decoder so we
+# silently drop fields the installed Ax doesn't accept.
+def _omniopt_make_choiceparam_decoder_safe() -> None:
+    try:
+        from ax.core.parameter import ChoiceParameter as _CP
+        import inspect as _inspect
+    except Exception:
+        return
+    _accepted = set(_inspect.signature(_CP.__init__).parameters.keys())
+    # Always drop kwargs newer Ax added that this Ax can't take.
+    for _extra in ("sort_values", "log_scale"):
+        if _extra not in _accepted:
+            try:
+                _orig = decoder_registry["ChoiceParameter"]
+            except KeyError:
+                return
+            def _safe_choiceparam(*_args, **_kwargs):
+                _kwargs.pop("sort_values", None)
+                _kwargs.pop("log_scale", None)
+                return _orig(*_args, **_kwargs)
+            _safe_choiceparam.__name__ = getattr(_orig, "__name__", "ChoiceParameter")
+            decoder_registry["ChoiceParameter"] = _safe_choiceparam
+            break
+
+
+_omniopt_make_choiceparam_decoder_safe()
+
 NVIDIA_SMI_LOGS_BASE = None
 global_gs: Optional[GenerationStrategy] = None
 

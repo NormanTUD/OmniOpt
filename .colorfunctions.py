@@ -17,7 +17,6 @@ import os
 import shutil
 import subprocess
 import sys
-
 from collections.abc import Callable
 
 Green = "\033[0;32m"

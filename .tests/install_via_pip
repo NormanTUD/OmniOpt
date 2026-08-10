@@ -17,7 +17,7 @@ for install_type in omniopt git; do
 
 		source $activate_file
 
-		if [[ $install_type -eq "github" ]]; then
+		if [[ $install_type == "git" ]]; then
 			pip install git+https://github.com/NormanTUD/OmniOpt/
 		else
 			pip install omniopt2

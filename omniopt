@@ -754,6 +754,28 @@ def get_state_file_name(name: str) -> str:
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
+# When running inside a SLURM job the spool copies only the main
+# script (not hidden companion files like `.helpers.py` /
+# `.shellscript_functions`).  Resolve back to the original
+# invocation directory via `scontrol show job $SLURM_JOB_ID` so
+# `script_dir` always points at the real source tree.
+if os.environ.get("SLURM_JOB_ID") and shutil.which("scontrol"):
+    try:
+        ctrl = subprocess.run(
+            ["scontrol", "show", "job", os.environ["SLURM_JOB_ID"]],
+            capture_output=True, text=True, check=True,
+        )
+        for line in ctrl.stdout.splitlines():
+            line = line.lstrip()
+            if line.startswith("Command="):
+                original_cmd = line.split("=", 1)[1].strip()
+                candidate = os.path.dirname(original_cmd.split()[0]) if original_cmd else ""
+                if candidate and os.path.isdir(candidate) and os.path.exists(os.path.join(candidate, ".helpers.py")):
+                    script_dir = candidate
+                break
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        pass
+
 try:
     with spinner("Importing helpers..."):
         helpers_file: str = f"{script_dir}/.helpers.py"
@@ -12317,8 +12339,146 @@ def auto_wrap_namespace(namespace: Any) -> Any:
     return namespace
 
 if __name__ == "__main__":
+    # Python-side replacement for the bash wrapper's "submit the main
+    # process itself as a SLURM job (when sbatch is available and the
+    # user asked us to) and tail -f the output afterwards" logic.
+    # Without this we would only run main_wrapper() locally, which
+    # works but defeats the point of running on a login node of an
+    # HPC system.
     try:
-        main_wrapper()
+        _should_sbatch_submit = (
+            _os.environ.get("SLURM_JOB_ID") is None
+            and _shutil.which("sbatch") is not None
+            and not getattr(args, "force_local_execution", False)
+            and not getattr(args, "tests", False)
+            and not getattr(args, "calculate_pareto_front_of_job", None)
+        )
+        if _should_sbatch_submit and getattr(args, "follow", False):
+            _sbatch_cmd = [
+                "sbatch",
+                f"--mem={getattr(args, 'main_process_gb', 8) or 8}GB",
+                "-N", "1",
+                "--job-name", str(getattr(args, "experiment_name", "omniopt")),
+            ]
+            _time_val = getattr(args, "time", None)
+            if _time_val:
+                _sbatch_cmd += ["--time", str(_time_val)]
+            _cpus = getattr(args, "num_cpus_main_job", None)
+            if _cpus:
+                _sbatch_cmd += [f"--cpus-per-task={_cpus}"]
+            _gpus = getattr(args, "gpus", 0) or 0
+            if int(_gpus) != 0:
+                _sbatch_cmd += [f"--gres=gpu:{_gpus}"]
+            _account = getattr(args, "account", None)
+            if _account:
+                _sbatch_cmd += [f"--account={_account}"]
+            _reservation = getattr(args, "reservation", None)
+            if _reservation:
+                _sbatch_cmd += [f"--reservation={_reservation}"]
+            _sbatch_cmd += [_OMNIOPT_FILE] + _sys.argv[1:]
+
+            print_yellow(f"[omniopt] Submitting to SLURM: {' '.join(_sbatch_cmd)}")
+            _res = _subprocess.run(_sbatch_cmd, capture_output=True, text=True)
+            print(_res.stdout)
+            if _res.returncode != 0:
+                print_red(f"[omniopt] sbatch failed with exit code {_res.returncode}")
+                _sys.exit(_res.returncode)
+            _job_id = (_res.stdout.strip().split() or [""])[-1]
+            print_yellow(f"[omniopt] Submitted job {_job_id}, waiting for output ...")
+            # Find the SLURM log file via scontrol
+            _log_path = None
+            try:
+                _ctrl = _subprocess.run(
+                    ["scontrol", "show", "job", _job_id],
+                    capture_output=True, text=True, check=True,
+                )
+                for _line in _ctrl.stdout.splitlines():
+                    if _line.lstrip().startswith("StdOut="):
+                        _log_path = _line.split("=", 1)[1].strip()
+                        break
+            except (FileNotFoundError, _subprocess.CalledProcessError):
+                _log_path = None
+
+            # Start a background poller that kills the tail process once
+            # the job leaves squeue (mirror of the old bash
+            # `kill_tail_when_squeue_job_empty` helper).
+            _tail_proc = None
+            _poll_thread_stop = False
+            if _log_path:
+                while not _os.path.exists(_log_path):
+                    _time.sleep(2)
+                _tail_proc = _subprocess.Popen(
+                    ["tail", "-n", "1000", "-f", _log_path],
+                    stdout=_sys.stdout, stderr=_sys.stderr,
+                )
+
+                def _kill_tail_when_done() -> None:
+                    try:
+                        while not _poll_thread_stop:
+                            try:
+                                _sq = _subprocess.run(
+                                    ["squeue", "-j", _job_id, "--noheader"],
+                                    capture_output=True, text=True,
+                                )
+                                if _sq.returncode != 0 or not _sq.stdout.strip():
+                                    break
+                            except (FileNotFoundError, _subprocess.CalledProcessError):
+                                break
+                            _time.sleep(5)
+                        # Give the log a moment to flush, then stop tail.
+                        _time.sleep(2)
+                        if _tail_proc and _tail_proc.poll() is None:
+                            _tail_proc.terminate()
+                            try:
+                                _tail_proc.wait(timeout=5)
+                            except _subprocess.TimeoutExpired:
+                                _tail_proc.kill()
+                    except Exception:
+                        pass
+
+                import threading as _threading
+                _poll_thread = _threading.Thread(target=_kill_tail_when_done, daemon=True)
+                _poll_thread.start()
+                try:
+                    _tail_proc.wait()
+                except KeyboardInterrupt:
+                    _poll_thread_stop = True
+                    _tail_proc.terminate()
+                _poll_thread_stop = True
+                _poll_thread.join(timeout=5)
+            else:
+                # No log path -> just wait for the job to leave squeue.
+                while True:
+                    try:
+                        _sq = _subprocess.run(
+                            ["squeue", "-j", _job_id, "--noheader"],
+                            capture_output=True, text=True, check=True,
+                        )
+                        if not _sq.stdout.strip():
+                            break
+                    except (FileNotFoundError, _subprocess.CalledProcessError):
+                        break
+                    _time.sleep(5)
+
+            # Try to extract the job's exit code from the log so we
+            # can mirror the bash wrapper's behaviour.
+            _job_exit_code = 0
+            if _log_path and _os.path.exists(_log_path):
+                try:
+                    _lines = open(_log_path, encoding="utf-8", errors="replace").read().splitlines()
+                    for _line in _lines:
+                        if "Exit-Code:" in _line:
+                            for _tok in _line.split():
+                                if _tok.isdigit():
+                                    _job_exit_code = int(_tok)
+                                    break
+                            if _job_exit_code != 0:
+                                break
+                except OSError:
+                    pass
+            _sys.exit(_job_exit_code)
+        else:
+            main_wrapper()
     except (SignalUSR, SignalINT, SignalCONT) as e:
         print_red(f"main_wrapper failed with exception {e}")
         end_program(True)

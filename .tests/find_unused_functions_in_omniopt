@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Find functions in .omniopt.py that are unused.
+# HELPPAGE: Find functions in omniopt that are unused.
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
@@ -29,12 +29,12 @@ exceptions=(
 
 unused_count=0
 
-for funcname in $(grep "^def " .omniopt.py | sort | sed -e 's#^def[[:space:]]*##' -e 's#(.*##'); do
+for funcname in $(grep "^def " omniopt | sort | sed -e 's#^def[[:space:]]*##' -e 's#(.*##'); do
 	if [[ " ${exceptions[@]} " =~ " $funcname " ]]; then
 		continue
 	fi
 
-	cnt=$(grep -v "^def\s" .omniopt.py | grep "$funcname(" | grep -v is_equal | wc -l)
+	cnt=$(grep -v "^def\s" omniopt | grep "$funcname(" | grep -v is_equal | wc -l)
 
 	if [[ $cnt -eq 0 ]]; then
 		echo "$funcname: $cnt"

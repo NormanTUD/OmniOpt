@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Find arguments added multiple times in .omniopt.py.
+# HELPPAGE: Find arguments added multiple times in omniopt
 
 function echoerr {
 	echo "$@" 1>&2
@@ -26,7 +26,7 @@ cd ..
 
 errs=0
 
-for double_help in $(cat .omniopt.py | grep "\.add_argument(" | sed -e 's#.*add_argument.##' | sed -e 's#.*help=##' | sed -e "s#',.*##" | sort | uniq -d); do
+for double_help in $(cat omniopt | grep "\.add_argument(" | sed -e 's#.*add_argument.##' | sed -e 's#.*help=##' | sed -e "s#',.*##" | sort | uniq -d); do
 	red_text "Found double help: $double_help"
 	errs=$(($errs + 1))
 done

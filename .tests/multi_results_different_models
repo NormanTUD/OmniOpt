@@ -19,7 +19,7 @@ if command -v nvidia-smi &>/dev/null; then
 fi
 
 function get_supported_models {
-	grep "^SUPPORTED_MODELS" .omniopt.py | \
+	grep "^SUPPORTED_MODELS" omniopt | \
 		sed -e 's#.*=\s*##' -e 's#[][]##g' -e 's#"##g' -e 's#,##g'
 	}
 

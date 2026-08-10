@@ -26,9 +26,9 @@ cd ..
 
 errs=0
 
-for cli_arg in $(cat .omniopt.py | grep "\.add_argument(" | sed -e "s#',.*##" | sed -e "s#.*'##" | sed -e 's#^--##'); do
+for cli_arg in $(cat omniopt | grep "\.add_argument(" | sed -e "s#',.*##" | sed -e "s#.*'##" | sed -e 's#^--##'); do
 	if [[ $cli_arg != "--debug_stack_regex" ]]; then
-		if ! grep -Eq "^\s{4}${cli_arg}:" .omniopt.py; then
+		if ! grep -Eq "^\s{4}${cli_arg}:" omniopt; then
 			red_text "$cli_arg has no type in ConfigLoader"
 			errs=$(($errs+1))
 		fi

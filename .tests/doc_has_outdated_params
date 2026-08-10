@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Test if any documentation page has outdated options for .omniopt.py/omniopt.
+# HELPPAGE: Test if any documentation page has outdated options for omniopt.
 
 function echoerr {
 	echo "$@" 1>&2
@@ -28,7 +28,7 @@ errors=0
 
 for f in .gui/_tutorials/*; do
 	for p in $(cat "$f" | grep -- "--" | grep -v '<!--' | grep "^\s*--" | sed -e 's#^\s*##' -e 's#=.*##' -e 's#\s.*##'); do
-		if ! grep -q "add_argument('$p" .omniopt.py; then
+		if ! grep -q "add_argument('$p" omniopt; then
 			red_text "Parameter $p in $f was not found"
 			errors=$((errors+1))
 		fi

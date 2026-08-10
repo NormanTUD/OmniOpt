@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# HELPPAGE: Tests if the config-loader in .omniopt.py has only single quotes, as double-quotes cause other scripts that parse it to fail.
+# HELPPAGE: Tests if the config-loader in omniopt has only single quotes, as double-quotes cause other scripts that parse it to fail.
 
 function echoerr {
 	echo "$@" 1>&2
@@ -28,17 +28,17 @@ IFS=$'\n'
 
 errors=0
 
-for n in $(cat .omniopt.py | grep 'action="'); do
+for n in $(cat omniopt | grep 'action="'); do
 	red_text "Found double quotes action $n"
 	errors=$(($errors+1))
 done
 
-for n in $(cat .omniopt.py | grep 'nargs="'); do
+for n in $(cat omniopt | grep 'nargs="'); do
 	red_text "Found double quoted nargs $n"
 	errors=$(($errors+1))
 done
 
-for n in $(cat .omniopt.py | grep 'add_argument' | grep '"'); do
+for n in $(cat omniopt | grep 'add_argument' | grep '"'); do
 	red_text "Found double quote $n"
 	errors=$(($errors+1))
 done

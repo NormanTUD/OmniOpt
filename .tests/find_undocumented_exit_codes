@@ -6,8 +6,8 @@ errors=0
 
 for code in $(
 		(
-			grep -hPo 'my_exit\s*\(\s*\K\d+' omniopt .omniopt.py
-			grep -hPo '_fatal_error\s*\(.*?,\s*\K\d+' omniopt .omniopt.py
+			grep -hPo 'my_exit\s*\(\s*\K\d+' omniopt omniopt
+			grep -hPo '_fatal_error\s*\(.*?,\s*\K\d+' omniopt omniopt
 		) | sort -n | uniq | grep -v '^0$'
 	); do
 	if ! grep -q "^[[:space:]]*$code =>" .gui/exit_code_table.php; then

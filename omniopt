@@ -530,6 +530,17 @@ start = time.time()
 collected = 0
 captured_lines: list = []
 ERROR_PATTERNS = [
+    # Disk patterns FIRST -- pip often wraps ENOSPC inside a
+    # "Connection broken: OSError(28, ...)" so the naive "Connection
+    # broken" network pattern would otherwise fire first.
+    (re.compile(r"No space left on device|ENOSPC|Errno 28|"
+                r"Auf dem Ger.t ist kein Speicherplatz|"
+                r"kein Speicherplatz|"
+                r"espace disque|"
+                r"Connection broken.*OSError\(28", re.I),
+     "disk",
+     "the disk is full.  Free up space on the volume that holds the "
+     "venv and try again."),
     (re.compile(r"Could not fetch URL|connection (timed out|reset|refused)|"
                 r"NewConnectionError|ProxyError|NameResolutionError|"
                 r"Temporary failure in name resolution", re.I),
@@ -557,13 +568,6 @@ ERROR_PATTERNS = [
      "a package needs to compile a C/C++ extension but no compiler is "
      "installed.  On Debian/Ubuntu: 'sudo apt-get install build-essential "
      "python3-dev'.  On RHEL/Fedora: 'sudo dnf install gcc python3-devel'."),
-    (re.compile(r"No space left on device|ENOSPC|Errno 28|"
-                r"Auf dem Ger.t ist kein Speicherplatz|"
-                r"kein Speicherplatz|"
-                r"espace disque", re.I),
-     "disk",
-     "the disk is full.  Free up space on the volume that holds the "
-     "venv and try again."),
     (re.compile(r"ERROR: Could not install packages because an "
                 r"OSPackageError|OSError: \\[Errno 13\\]", re.I),
      "permissions",

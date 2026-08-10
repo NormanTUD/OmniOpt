@@ -807,7 +807,6 @@ class ConfigLoader:
     experiment_constraints: Optional[List[str]]
     main_process_gb: int
     beartype: bool
-    disable_notifications: bool
     worker_timeout: int
     slurm_signal_delay_s: int
     gridsearch: bool
@@ -958,7 +957,6 @@ class ConfigLoader:
         optional.add_argument('--range_max_difference', help=f'Max. difference for range, default is {default_max_range_difference}', default=default_max_range_difference, type=int)
         optional.add_argument('--skip_search', help='Skips the actual search, uses exit code 0 if not the environment variable SKIP_SEARCH_EXIT_CODE is set', action='store_true', default=False)
         optional.add_argument('--nr_evals_per_arm', help='Number of evaluations per arm (hyperparameter combination) to check deviation from random initialization. Default: 1', type=int, default=1)
-        optional.add_argument('--disable_notifications', help='Disable desktop notifications', action='store_true', default=False)
         optional.add_argument('--dump_config', help='Dump the current configuration to a file. Format is auto-detected from extension (.yaml/.yml, .toml, .json). Use - or omit the path to print to stdout (defaults to YAML). Example: --dump_config my_config.toml', type=str, nargs='?', const='-', default=None)
 
         speed.add_argument('--dont_warm_start_refitting', help='Do not keep Model weights, thus, refit for every generator (may be more accurate, but slower)', action='store_true', default=False)

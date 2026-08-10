@@ -251,7 +251,7 @@ def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file:
     install finishes; every line is right-padded to the terminal
     width so the cursor never reflows.
     """
-    child_code = '''
+    child_code = r'''
 import subprocess, sys, time, re, shutil, signal
 
 try:

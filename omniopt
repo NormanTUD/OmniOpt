@@ -119,7 +119,16 @@ def _omniopt_pad_right(text: str, width: int | None = None) -> str:
     return text + (" " * pad)
 
 
-def _omniopt_disk_diagnose(captured_lines: list) -> "tuple | None":
+def _omniopt_disk_diagnose(captured_lines):
+    """Try to figure out which path was being written to when pip ran
+    out of disk space, what filesystem it lives on, how much space is
+    still free, and (if applicable) the user's disk quota.
+
+    Returns (path, fstype, usage, quota_or_None) or None if no
+    sensible diagnosis is possible.  Designed to be best-effort --
+    every call is wrapped in try/except so a broken probe never makes
+    a bad situation worse.
+    """
     """Try to figure out which path was being written to when pip ran
     out of disk space, what filesystem it lives on, how much space is
     still free, and (if applicable) the user's disk quota.

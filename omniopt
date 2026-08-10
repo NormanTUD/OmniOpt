@@ -85,11 +85,46 @@ def _omniopt_save_requirements_hash(venv_dir: str) -> None:
 def _omniopt_create_venv(venv_dir: str) -> None:
     if _os.path.exists(venv_dir):
         return
-    t0 = _time.time()
-    print(f"[omniopt] Creating venv at {venv_dir} ...")
+    print(f"[omniopt] Creating venv at {venv_dir} ...", file=_sys.stderr)
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _subprocess.run([_sys.executable, "-m", "venv", venv_dir], check=True)
-    print(f"[omniopt] Venv created in {_time.time() - t0:.1f}s")
+
+
+def _omniopt_install_requirements(venv_python: str) -> None:
+    """Install the requirement files into the venv with a small
+    stdlib-only progress UI (the bootstrap can't import rich yet).
+
+    We do it in two phases:
+      1. Install `rich` by itself with plain pip output -- once it's
+         there, the rest of the install gets a Rich progress bar with
+         ETA / time-elapsed via a second re-exec.
+      2. Install the rest of the requirements; if `rich` is now
+         available we use a small inline driver that re-invokes
+         `pip install --dry-run` to discover the package list, then
+         installs each one individually so we can show progress.
+    """
+    install_tests = _os.environ.get("install_tests")
+    req_files = [_OMNIOPT_REQUIREMENTS]
+    if install_tests:
+        req_files.append(_OMNIOPT_TEST_REQUIREMENTS)
+
+    # 1. Bootstrap-install rich so we can do pretty progress later.
+    print(f"[omniopt] Installing 'rich' so we can show progress bars...", file=_sys.stderr)
+    _subprocess.run(
+        [venv_python, "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
+        check=True,
+    )
+
+    # 2. Run the full install via a child Python that uses rich for
+    #    progress.  This is a tiny shim that calls pip with progress
+    #    UI -- keeps our stdlib-only-bootstrap contract intact.
+    for rf in req_files:
+        if not _os.path.exists(rf):
+            print(f"[omniopt] WARN: requirements file not found: {rf}", file=_sys.stderr)
+            continue
+        print(f"[omniopt] Installing requirements from {rf} ...", file=_sys.stderr)
+        _omniopt_run_install_with_rich_progress(venv_python, rf)
 
 
 def _omniopt_install_requirements(venv_python: str) -> None:
@@ -241,32 +276,29 @@ def _omniopt_check_required_programs() -> None:
 
 
 def _omniopt_bootstrap_and_reexec() -> None:
-    """Create venv (if needed), install requirements, then re-exec self."""
-    t_start = _time.time()
-    print("[omniopt] omniopt self-bootstrap starting...")
-    print(f"[omniopt] System Python: {_sys.executable} ({_sys.version.split()[0]})")
-    print(f"[omniopt] Script dir: {_OMNIOPT_DIR}")
+    """Create venv (if needed), install requirements, then re-exec self.
 
+    Silent on the happy path -- if everything is cached and the venv
+    already has all dependencies we just re-exec into it without
+    saying a word.  The install progress UI is handled by
+    `_omniopt_install_requirements` (Rich progress bar) and the few
+    check failures that actually need human attention print to stderr
+    on their own.
+    """
     _omniopt_check_required_programs()
 
     venv_dir = _omniopt_get_venv_dir()
-    print(f"[omniopt] Target venv: {venv_dir}")
-
     _omniopt_create_venv(venv_dir)
     venv_python = _omniopt_venv_python(venv_dir)
 
     if not _os.path.exists(venv_python):
-        print(f"[omniopt] ERROR: venv python not found at {venv_python}")
+        print(f"[omniopt] ERROR: venv python not found at {venv_python}", file=_sys.stderr)
         _sys.exit(20)
 
     if _omniopt_requirements_changed(venv_dir):
         _omniopt_install_requirements(venv_python)
         _omniopt_save_requirements_hash(venv_dir)
-        print(f"[omniopt] Dependencies installed (total bootstrap time: {_time.time() - t_start:.1f}s)")
-    else:
-        print("[omniopt] Requirements hash unchanged; skipping pip install.")
 
-    print(f"[omniopt] Re-executing in venv: {venv_python}")
     env = _os.environ.copy()
     env[_OMNIOPT_HASHTAG] = "1"
     env["RUN_VIA_RUNSH"] = "1"

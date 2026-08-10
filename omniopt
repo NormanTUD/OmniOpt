@@ -702,6 +702,22 @@ try:
                         description="[green]installing collected packages ...[/green]".ljust(80),
                     )
                     continue
+                m = re.search(r"^Using cached\\s+([^=\\s(]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    # Cached -- the package is already on disk; pip
+                    # won't emit a Collecting line for it but it IS
+                    # still being "handled".  Advance completed by a
+                    # little so the bar visibly moves.
+                    progress.update(
+                        task,
+                        completed=min(
+                            initial_total,
+                            progress.tasks[0].completed + 1,
+                        ),
+                        description=f"[cyan]using cached[/cyan] [bold]{name}[/bold]".ljust(80),
+                    )
+                    continue
                 m = re.search(r"^Installing\\s+([^=<>!~ ]+)", line)
                 if m:
                     name = m.group(1).strip()

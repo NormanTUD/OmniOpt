@@ -1,6 +1,6 @@
 #!/bin/bash
 
-input=".omniopt.py"
+input="omniopt"
 
 echo "_omniopt() {"
 echo "  local state"

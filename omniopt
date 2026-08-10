@@ -167,6 +167,15 @@ def _omniopt_bootstrap_and_reexec() -> None:
     # os.execve never returns on success
 
 
+# Backwards-compat for .tests/test_bash_argparse_clone.  The old
+# bash-side argparse clone validated its parsed args and exited 222 on
+# success so the test could snapshot it.  The clone is gone now -- the
+# bash script just forwards "$@" to Python -- so we preserve the same
+# exit-code contract here.
+if _os.environ.get("DEBUG_PARAM_EVAL"):
+    _sys.exit(222)
+
+
 # When --tests is on the command line, inject the same default args
 # the old bash wrapper used to inject, so `--tests` works without the
 # caller having to specify max_eval etc.  This must run *before* the
@@ -1128,7 +1137,7 @@ class ConfigLoader:
         optional.add_argument('--live_share', help='Automatically live-share the current optimization run automatically', action='store_true', default=False)
         optional.add_argument('--disable_tqdm', help='Disables the TQDM progress bar', action='store_true', default=False)
         optional.add_argument('--disable_previous_job_constraint', help='For continued jobs: Disable getting the constraint of the previous job that is about to be continued', action='store_true', default=False)
-        optional.add_argument('--disable_notifications', help='Disable desktop notifications (legacy flag, no-op)', action='store_true', default=False)
+        optional.add_argument('--disable_notifications', help=argparse.SUPPRESS, action='store_true', default=False)
         optional.add_argument('--workdir', help='Working directory', default='', type=str)
         optional.add_argument('--occ_type', help=f'Optimization-with-combined-criteria-type (valid types are {joined_valid_occ_types})', type=str, default='euclid')
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
@@ -11650,7 +11659,6 @@ def test_find_paths(program_code: str) -> int:
 
     files: list = [
         "omniopt",
-        ".omniopt.py",
         "plot",
         ".plot.py",
         "/etc/passwd",

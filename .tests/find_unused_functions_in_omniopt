@@ -9,6 +9,7 @@ cd $SCRIPT_DIR
 cd ..
 
 exceptions=(
+	"_on_sigint"
 	"receive_signal_cont"
 	"convert_to_serializable"
 	"custom_warning_handler"

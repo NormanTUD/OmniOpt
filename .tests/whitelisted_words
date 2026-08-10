@@ -254,6 +254,7 @@ borderTop
 borderTopColor
 borderTopStyle
 borderTopWidth
+borderwhitered
 Bostock
 botorch
 BoTorch
@@ -307,6 +308,7 @@ buttonOptions
 buttonpane
 buttonPanel
 buttonText
+buttonblackwhite
 bw
 bytesi
 ca
@@ -1126,6 +1128,7 @@ htmlheadmeta
 http
 httpclientRemoteDisconnected
 https
+httpserver
 Hyperparam
 hyperparameter
 Hyperparameter
@@ -2746,6 +2749,7 @@ texShape
 textarea
 Textareas
 textboxes
+textboxwhitered
 textDecorationColor
 textEmphasisColor
 TextualBody
@@ -3015,6 +3019,7 @@ windowlocationhref
 windowmatchMedia
 windowonbeforeunload
 windowonresize
+windowred
 winkler
 withCredentials
 withinOffset
@@ -3035,6 +3040,7 @@ wrnLoading
 WWWWW
 Xavier
 xaxis
+xclip
 xCoord
 xhost
 xhr
@@ -3096,6 +3102,7 @@ zoomstart
 zsh
 ZSH
 ZWNobyAiUkVTVUxUOiAlYSUoeCklKHkpJXoi
+zenity
 Namespace
 serializers
 setfacl

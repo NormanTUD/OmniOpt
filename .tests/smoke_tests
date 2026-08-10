@@ -8,6 +8,7 @@ tests=(
 	colorfunctions
 	test_bash_argparse_clone
 	php_unit_tests
+	general
 	find_missing_f_strings
 	find_functions_with_missing_types
 	single_quotes_in_configloader

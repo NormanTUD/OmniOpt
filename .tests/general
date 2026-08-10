@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Tests the general helpers library (.general.sh / .general.py).
+
+{
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd "$SCRIPT_DIR"
+
+cd ..
+
+errors=()
+
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+NC=$'\033[0m'
+
+function red_text {
+	echo -ne "${RED}$1${NC}"
+}
+
+function green_text {
+	echo -e "${GREEN}$1${NC}"
+}
+
+function yellow_text {
+	echo -e "${YELLOW}$1${NC}"
+}
+
+if [[ -e .general.py ]]; then
+	MODE="python"
+else
+	MODE="bash"
+fi
+
+run_function() {
+	# run_function "FUNCTION" "ARGUMENTS..."  ->  captures STDOUT into RET_OUT and STDERR into RET_ERR
+	if [[ "$MODE" == "bash" ]]; then
+		source .general.sh
+		RET_OUT="$( $1 "$2" 2>/dev/null )"
+		RET_ERR="$( $1 "$2" 2>&1 >/dev/null )"
+	else
+		RET_OUT="$( python3 .general.py "$1" "$2" 2>/dev/null )"
+		RET_ERR="$( python3 .general.py "$1" "$2" 2>&1 >/dev/null )"
+	fi
+}
+
+check_result() {
+	# check_result "NAME" "GOT" "EXPECTED" "STREAM(0=stdout,1=stderr)"
+	local name="$1"
+	local got="$2"
+	local expected="$3"
+	local stream="$4"
+
+	if [[ "$got" != "$expected" ]]; then
+		red_text "FAIL: $name (stream $stream)\n"
+		red_text "  expected: $(printf '%q' "$expected")\n"
+		red_text "  got:      $(printf '%q' "$got")\n"
+		errors+=("$name (stream $stream)")
+	fi
+}
+
+# --- echo_red (stdout, newline, red) ---
+run_function "echo_red" "hello"
+check_result "echo_red-stdout" "$RET_OUT" $'\033[31mhello\033[0m' "stdout"
+check_result "echo_red-stderr" "$RET_ERR" "" "stderr"
+
+# --- echo_green (stdout, newline, green) ---
+run_function "echo_green" "hello"
+check_result "echo_green-stdout" "$RET_OUT" $'\033[32mhello\033[0m' "stdout"
+check_result "echo_green-stderr" "$RET_ERR" "" "stderr"
+
+# --- debug_code with DEBUG=1 (stderr, newline, yellow) ---
+export DEBUG=1
+run_function "debug_code" "hello"
+check_result "debug_code-on-stdout" "$RET_OUT" "" "stdout"
+check_result "debug_code-on-stderr" "$RET_ERR" $'\033[93mhello\033[0m' "stderr"
+
+# --- debug_code with DEBUG unset (no output) ---
+export DEBUG=0
+run_function "debug_code" "hello"
+check_result "debug_code-off-stdout" "$RET_OUT" "" "stdout"
+check_result "debug_code-off-stderr" "$RET_ERR" "" "stderr"
+
+if [[ ${#errors[@]} -eq 0 ]]; then
+	green_text "general ($MODE): No errors"
+	exit 0
+else
+	red_text "=> GENERAL-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i\n"
+	done
+
+	exit ${#errors[@]}
+fi
+}

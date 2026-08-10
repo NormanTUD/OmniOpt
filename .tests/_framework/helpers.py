@@ -42,8 +42,8 @@ def _color(text: str, color: str) -> str:
     return f"{color}{text}{Colors.RESET}"
 
 
-def echoerr(*args: object) -> None:
-    print(*args, file=sys.stderr)
+def echoerr(*args: object, end: str = "\n") -> None:
+    print(*args, file=sys.stderr, end=end)
 
 
 def red_text(text: str, end: str = "\n") -> None:

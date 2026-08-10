@@ -34,10 +34,11 @@ def build_base_parser(
     """Build the common parser shared by every test entry point."""
     parser = argparse.ArgumentParser(description=description, add_help=False)
 
+    _TYPE_MAP = {"int": int, "float": float, "str": str, "bool": bool}
     g_int = parser.add_argument_group("integer options")
     for p in list_cli_options(config):
         if p.type == "int":
-            g_int.add_argument(p.cli, dest=p.name, type=p.type, default=None,
+            g_int.add_argument(p.cli, dest=p.name, type=int, default=None,
                                help=p.description)
     # model_name is used by some tests but is not a parameter in the YAML
     g_int.add_argument("--model_name", dest="model_name", type=str, default="BOTORCH_MODULAR",

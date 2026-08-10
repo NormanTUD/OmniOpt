@@ -62,14 +62,17 @@ def reset_state() -> None:
 
 
 def runtimes_summary(runtimes: List[float]) -> Optional[int]:
-    """Return the median of runtimes if there are any."""
     if not runtimes:
         return None
     sorted_runtimes = sorted(runtimes)
     return sorted_runtimes[len(sorted_runtimes) // 2]
 
 
-def run_test_case(
+def _format_wanted(wanted: List[int]) -> str:
+    return "/".join(str(c) for c in wanted)
+
+
+def run_command(
     name: str,
     command: str,
     wanted_exit_code: int,
@@ -78,7 +81,7 @@ def run_test_case(
     env: Optional[dict] = None,
     timeout: Optional[float] = None,
 ) -> TestResult:
-    """Execute a single test command and return the result."""
+    """Execute a single shell command and return the result."""
     state = get_state()
 
     if state.skip_first_n and state.test_counter < state.skip_first_n:
@@ -86,12 +89,14 @@ def run_test_case(
             f"Skipping test {state.test_counter}, will start at {state.skip_first_n}"
         )
         state.test_counter += 1
+        wanted = [wanted_exit_code]
+        if alternative_exit_code is not None:
+            wanted.append(alternative_exit_code)
         return TestResult(
             name=name,
             command=command,
             exit_code=wanted_exit_code,
-            wanted_exit_codes=[wanted_exit_code]
-            + ([alternative_exit_code] if alternative_exit_code is not None else []),
+            wanted_exit_codes=wanted,
             runtime=0.0,
             failed=False,
             success_mark="SKIP",
@@ -101,12 +106,14 @@ def run_test_case(
 
     if state.exit_on_first_error and state.errors:
         state.test_counter += 1
+        wanted = [wanted_exit_code]
+        if alternative_exit_code is not None:
+            wanted.append(alternative_exit_code)
         return TestResult(
             name=name,
             command=command,
             exit_code=0,
-            wanted_exit_codes=[wanted_exit_code]
-            + ([alternative_exit_code] if alternative_exit_code is not None else []),
+            wanted_exit_codes=wanted,
             runtime=0.0,
             failed=False,
             success_mark="SKIP",
@@ -126,8 +133,6 @@ def run_test_case(
     try:
         proc = run(command, cwd=cwd, env=env, timeout=timeout)
         exit_code = proc.returncode
-    except subprocess.TimeoutExpired:
-        exit_code = 124
     except Exception as exc:  # pragma: no cover - defensive
         red_text(f"Test command crashed: {exc}")
         traceback.print_exc()
@@ -157,7 +162,6 @@ def run_test_case(
         red_text(err + "\n")
         state.errors.append(err)
 
-    wanted_str = "/".join(str(c) for c in wanted)
     print(f"Test took {human_readable_time(runtime)}")
 
     result = TestResult(
@@ -173,14 +177,13 @@ def run_test_case(
     return result
 
 
-def run_python_test(
+def run_python_function(
     name: str,
     func: Callable[[], int],
     wanted_exit_code: int,
     alternative_exit_code: Optional[int] = None,
 ) -> TestResult:
-    """Execute a Python test function directly. Mirrors run_test_case but
-    catches Python exceptions cleanly and skips the shell process."""
+    """Execute a Python test function directly (no shell)."""
     state = get_state()
 
     if state.skip_first_n and state.test_counter < state.skip_first_n:
@@ -188,12 +191,14 @@ def run_python_test(
             f"Skipping test {state.test_counter}, will start at {state.skip_first_n}"
         )
         state.test_counter += 1
+        wanted = [wanted_exit_code]
+        if alternative_exit_code is not None:
+            wanted.append(alternative_exit_code)
         return TestResult(
             name=name,
             command=getattr(func, "__name__", repr(func)),
             exit_code=wanted_exit_code,
-            wanted_exit_codes=[wanted_exit_code]
-            + ([alternative_exit_code] if alternative_exit_code is not None else []),
+            wanted_exit_codes=wanted,
             runtime=0.0,
             failed=False,
             success_mark="SKIP",
@@ -203,12 +208,14 @@ def run_python_test(
 
     if state.exit_on_first_error and state.errors:
         state.test_counter += 1
+        wanted = [wanted_exit_code]
+        if alternative_exit_code is not None:
+            wanted.append(alternative_exit_code)
         return TestResult(
             name=name,
             command=getattr(func, "__name__", repr(func)),
             exit_code=0,
-            wanted_exit_codes=[wanted_exit_code]
-            + ([alternative_exit_code] if alternative_exit_code is not None else []),
+            wanted_exit_codes=wanted,
             runtime=0.0,
             failed=False,
             success_mark="SKIP",
@@ -239,9 +246,7 @@ def run_python_test(
 
     if failed:
         if alternative_exit_code is None:
-            err = (
-                f"{name} exited with {exit_code} (wanted {wanted_exit_code})."
-            )
+            err = f"{name} exited with {exit_code} (wanted {wanted_exit_code})."
         else:
             err = (
                 f"{name} exited with {exit_code} (wanted {wanted_exit_code} or "
@@ -339,39 +344,72 @@ def progress_line(current: int, total: int, msg: str) -> None:
     green_bold_underline(line)
 
 
-def run_test_cases(
-    cases: List[Dict],
-    total: Optional[int] = None,
-    runtimes_so_far: Optional[List[float]] = None,
-) -> None:
-    """Run a list of test case dicts in sequence with progress reporting."""
+def _record_skip(test, reason: str) -> TestResult:
     state = get_state()
-    if total is None:
-        total = len(cases)
-    runtimes_so_far = runtimes_so_far if runtimes_so_far is not None else []
+    state.test_counter += 1
+    return TestResult(
+        name=test.name,
+        command=test.cmd or test.python_check or "",
+        exit_code=0,
+        wanted_exit_codes=[test.wanted_exit_code]
+        + ([test.alternative_exit_code] if test.alternative_exit_code is not None else []),
+        runtime=0.0,
+        failed=False,
+        success_mark="SKIP",
+        skipped=True,
+        skip_reason=reason,
+    )
 
-    for idx, case in enumerate(cases, start=1):
+
+def run_test_objects(
+    tests,
+    *,
+    quick_pred=None,
+    env_pred=None,
+    render_command=None,
+    python_resolver=None,
+    dry_run: bool = False,
+) -> None:
+    """Execute a list of Test objects sequentially with progress reporting."""
+    state = get_state()
+    total = len(tests)
+    runtimes_so_far: List[float] = []
+
+    for idx, test in enumerate(tests, start=1):
         if state.exit_on_first_error and state.errors:
+            result = _record_skip(test, "exit_on_first_error")
+            state.results.append(result)
             continue
 
-        name = case.get("name", f"test_{idx}")
-        cmd = case["command"]
-        wanted = case.get("wanted_exit_code", 0)
-        alternative = case.get("alternative_exit_code")
-        cwd = case.get("cwd")
-        env = case.get("env")
-        timeout = case.get("timeout")
-        func = case.get("func")
+        if quick_pred is not None and quick_pred(test):
+            result = _record_skip(test, "quick mode")
+            state.results.append(result)
+            continue
+        if env_pred is not None:
+            reason = env_pred(test)
+            if reason is not None:
+                result = _record_skip(test, reason)
+                state.results.append(result)
+                continue
 
-        progress_line(idx, total, cmd if not func else name)
+        cmd = render_command(test) if render_command else (test.cmd or "")
+        progress_line(idx, total, cmd or test.id)
+
+        if dry_run:
+            state.test_counter += 1
+            print(f"[dry-run] would run: {cmd}")
+            continue
+
         start = time.time()
-        if func is not None:
-            run_python_test(name, func, wanted, alternative)
+        if test.python_check and python_resolver is not None:
+            func = python_resolver(test.python_check)
+            result = run_python_function(test.name, func, test.wanted_exit_code,
+                                         test.alternative_exit_code)
         else:
-            run_test_case(name, cmd, wanted, alternative, cwd=cwd, env=env, timeout=timeout)
+            result = run_command(test.name, cmd, test.wanted_exit_code,
+                                 test.alternative_exit_code)
         end = time.time()
         duration = end - start
-
         if duration > 10:
             runtimes_so_far.append(duration)
 

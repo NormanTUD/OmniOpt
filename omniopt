@@ -326,7 +326,10 @@ ERROR_PATTERNS = [
      "a package needs to compile a C/C++ extension but no compiler is "
      "installed.  On Debian/Ubuntu: 'sudo apt-get install build-essential "
      "python3-dev'.  On RHEL/Fedora: 'sudo dnf install gcc python3-devel'."),
-    (re.compile(r"No space left on device|ENOSPC", re.I),
+    (re.compile(r"No space left on device|ENOSPC|Errno 28|"
+                r"Auf dem Ger.t ist kein Speicherplatz|"
+                r"kein Speicherplatz|"
+                r"espace disque", re.I),
      "disk",
      "the disk is full.  Free up space on the volume that holds the "
      "venv and try again."),

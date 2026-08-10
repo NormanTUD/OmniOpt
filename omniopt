@@ -85,7 +85,6 @@ def _omniopt_save_requirements_hash(venv_dir: str) -> None:
 def _omniopt_create_venv(venv_dir: str) -> None:
     if _os.path.exists(venv_dir):
         return
-    print(f"[omniopt] Creating venv at {venv_dir} ...", file=_sys.stderr)
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _subprocess.run([_sys.executable, "-m", "venv", venv_dir], check=True)
 
@@ -109,7 +108,6 @@ def _omniopt_install_requirements(venv_python: str) -> None:
         req_files.append(_OMNIOPT_TEST_REQUIREMENTS)
 
     # 1. Bootstrap-install rich so we can do pretty progress later.
-    print(f"[omniopt] Installing 'rich' so we can show progress bars...", file=_sys.stderr)
     _subprocess.run(
         [venv_python, "-m", "pip", "install",
          "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
@@ -123,7 +121,6 @@ def _omniopt_install_requirements(venv_python: str) -> None:
         if not _os.path.exists(rf):
             print(f"[omniopt] WARN: requirements file not found: {rf}", file=_sys.stderr)
             continue
-        print(f"[omniopt] Installing requirements from {rf} ...", file=_sys.stderr)
         _omniopt_run_install_with_rich_progress(venv_python, rf)
 
 

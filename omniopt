@@ -278,7 +278,7 @@ def _term_width(default=120):
 
 def _pad(text, width=None):
     width = width or _term_width()
-    visible = re.sub(r"\\x1b\\[[0-9;]*m", "", text)
+    visible = re.sub(r"\\x1b\[[0-9;]*m", "", text)
     return text + (" " * max(0, width - len(visible) - 1))
 
 
@@ -342,6 +342,7 @@ try:
     with Progress(
         SpinnerColumn("dots"),
         TextColumn("{task.description}"),
+        BarColumn(bar_width=None, pulse=True),
         TextColumn("elapsed"),
         TimeElapsedColumn(),
         console=console,
@@ -472,7 +473,7 @@ if proc.returncode != 0:
     tail_lines = captured_lines[-15:] if captured_lines else ["(no output captured)"]
     for tl in tail_lines:
         # Strip ANSI to keep things readable on dumb terminals
-        clean = re.sub(r"\\x1b\\[[0-9;]*m", "", tl)
+        clean = re.sub(r"\\x1b\[[0-9;]*m", "", tl)
         console.print(_pad(f"  [dim]{clean}[/dim]"))
 
     console.print(_pad(""))

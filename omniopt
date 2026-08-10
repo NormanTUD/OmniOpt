@@ -370,7 +370,7 @@ except ImportError:
     sys.exit(0)
 
 
-def _omniopt_disk_diagnose(captured_lines, venv_dir):
+def _omniopt_disk_diagnose(captured_lines, venv_dir=None):
     """Best-effort disk-space probe used after pip exits with
     ENOSPC/OSError.  Tries to find a real local path (skipping NFS,
     CIFS, etc. where local free-space is meaningless), figures out the
@@ -478,7 +478,21 @@ def _pad(text, width=None):
 
 requirements_file = sys.argv[1]
 
-console = Console()
+# =============================================================================
+# GUARDRAILS  -- DO NOT REMOVE OR "CLEAN UP" THE LINES BELOW.
+# The pip child process is invoked via `subprocess.Popen` from a
+# stdlib-only bootstrap; the progress UI we render here is the ONLY
+# thing the user sees during what is often a 30-60 second install.
+# If any of these break (terminal detection, ANSI handling, bar
+# progress, signal handling, error reporting) the user has no other
+# feedback.  Before editing anything in this block, read the commit
+# message of the commit that added it (omniopt: pip progress UI).
+# =============================================================================
+
+# Force a TTY-capable console even when stdout is a pipe so Rich
+# actually renders the progress bar (otherwise it falls back to
+# plain text and the bar disappears).
+console = Console(force_terminal=True, soft_wrap=False)
 
 _interrupted = {"v": False}
 
@@ -487,6 +501,10 @@ def _on_sigint(signum, frame):
     _interrupted["v"] = True
 
 
+# CRITICAL: SIGINT delivery -- without this the user pressing
+# Ctrl+C leaves the child python waiting forever for pip to
+# finish a download.  We just flag the interruption and let the
+# pip-reading loop notice on the next iteration.
 signal.signal(signal.SIGINT, _on_sigint)
 
 
@@ -586,18 +604,25 @@ try:
         TimeElapsedColumn(),
         console=console,
         transient=True,
+        refresh_per_second=10,
     ) as progress:
-        # We don't run `pip install --dry-run` first (that takes 30+
-        # seconds on big req lists because pip has to resolve the
-        # entire dependency graph) -- instead we drive the bar off the
-        # live Collecting lines emitted by the actual install.  The
-        # initial `total` is the top-level entry count in the
-        # requirements file (fast parse); if pip pulls in transitive
-        # deps that show up as additional Collecting lines, we grow
-        # the total so the bar stays honest.
+        # GUARDRAIL: do NOT remove the `refresh_per_second=10` above.
+        # Without it, Rich's default refresh rate can be too slow for
+        # the spinner to look alive on fast terminals, especially
+        # while pip is resolving dependencies in the background.
+        #
+        # We start with `total=initial_total` (top-level entry count
+        # from the requirements file).  When pip emits Collecting
+        # lines for transitive deps we never knew about, we GROW the
+        # total so the percentage stays honest.  We also advance
+        # `completed` even on Downloading / Installing lines so the
+        # bar visibly moves for cached packages (which pip doesn't
+        # emit a Collecting line for).
         task = progress.add_task(
-            f"[cyan]installing from {requirements_file} ...".ljust(80),
+            f"[cyan]preparing {initial_total} packages from "
+            f"{requirements_file} ...".ljust(80),
             total=initial_total,
+            completed=0,
         )
         proc = subprocess.Popen(
             [sys.executable, "-u", "-m", "pip", "install",
@@ -606,6 +631,27 @@ try:
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
             bufsize=0,
         )
+
+        # GUARDRAIL: do NOT remove the heartbeat thread.  Without it,
+        # when pip is silent (e.g. resolving deps between Collecting
+        # lines) the spinner freezes for several seconds at a time.
+        # The thread forces a `refresh()` every 100ms so the user
+        # always sees the spinner animating and the elapsed timer
+        # ticking up.
+        import threading as _threading
+        _stop_heartbeat = {"v": False}
+
+        def _heartbeat() -> None:
+            while not _stop_heartbeat["v"]:
+                try:
+                    progress.refresh()
+                except Exception:
+                    pass
+                time.sleep(0.1)
+
+        _hb = _threading.Thread(target=_heartbeat, daemon=True)
+        _hb.start()
+
         last_seen = set()
         try:
             for line in proc.stdout:
@@ -621,8 +667,6 @@ try:
                     if name and name not in last_seen:
                         last_seen.add(name)
                         collected += 1
-                        # Grow the total when we discover more packages
-                        # than the requirements file had (transitive deps)
                         _new_total = max(initial_total, collected)
                         progress.update(
                             task,
@@ -637,14 +681,24 @@ try:
                 m = re.search(r"^Downloading\\s+([^=<>!~ ]+)", line)
                 if m:
                     name = m.group(1).strip()
+                    # Pip is downloading, which means install is
+                    # actively happening -- advance the bar a little
+                    # even if we haven't seen a Collecting line (the
+                    # wheel might have been cached).
                     progress.update(
                         task,
+                        completed=max(
+                            collected,
+                            min(initial_total - 1,
+                                progress.tasks[0].completed + 1),
+                        ),
                         description=f"[yellow]downloading[/yellow] [bold]{name}[/bold]".ljust(80),
                     )
                     continue
                 if "Installing collected packages" in line:
                     progress.update(
                         task,
+                        completed=max(collected, progress.tasks[0].completed + 5),
                         description="[green]installing collected packages ...[/green]".ljust(80),
                     )
                     continue
@@ -670,6 +724,11 @@ try:
         except KeyboardInterrupt:
             _interrupted["v"] = True
         finally:
+            _stop_heartbeat["v"] = True
+            try:
+                _hb.join(timeout=1)
+            except Exception:
+                pass
             if proc.poll() is None:
                 proc.terminate()
                 try:

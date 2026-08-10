@@ -340,20 +340,23 @@ signal.signal(signal.SIGINT, _on_sigint)
 start = time.time()
 try:
     with Progress(
-        SpinnerColumn(),
+        SpinnerColumn("dots"),
         TextColumn("{task.description}"),
-        BarColumn(bar_width=None),
-        TaskProgressColumn(),
-        TextColumn("elapsed"),
         TimeElapsedColumn(),
-        TextColumn("eta"),
-        TimeRemainingColumn(),
         console=console,
         transient=True,
     ) as progress:
+        total_pkgs = max(1, len(pkgs))
+        # total=None keeps the spinner animating for the entire
+        # duration of the pip install (Collecting + Downloading +
+        # Installing); we drive `completed` off a continuous progress
+        # counter that never quite hits 100 until pip actually exits,
+        # so the spinner keeps spinning even while wheels are being
+        # built/extracted (which is the phase that looked frozen
+        # before on large package lists like mypy-extensions).
         task = progress.add_task(
-            f"[cyan]installing {len(pkgs)} packages from {requirements_file} ...".ljust(80),
-            total=max(1, len(pkgs)),
+            f"[cyan]installing {total_pkgs} packages from {requirements_file} ...".ljust(80),
+            total=None,
         )
         proc = subprocess.Popen(
             [sys.executable, "-m", "pip", "install",
@@ -365,6 +368,8 @@ try:
             for line in proc.stdout:
                 if _interrupted["v"]:
                     break
+                line = line.rstrip()
+                # Collecting -- advance the spinner description
                 m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
                 if m:
                     name = m.group(1).strip()
@@ -372,9 +377,48 @@ try:
                         last_seen.add(name)
                         progress.update(
                             task,
-                            completed=len(last_seen),
-                            description=f"[cyan]{name}[/cyan]".ljust(80),
+                            description=(
+                                f"[cyan]{name}[/cyan]  "
+                                f"[dim]({len(last_seen)}/{total_pkgs})".ljust(80)
+                            ),
                         )
+                    continue
+                # Downloading -- still installing
+                m = re.search(r"^Downloading\\s+([^=<>!~ ]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    progress.update(
+                        task,
+                        description=f"[yellow]downloading {name}[/yellow]".ljust(80),
+                    )
+                    continue
+                # Installing collected packages / wheels
+                if "Installing collected packages" in line:
+                    progress.update(
+                        task,
+                        description="[green]installing collected packages ...[/green]".ljust(80),
+                    )
+                    continue
+                m = re.search(r"^Installing\\s+([^=<>!~ ]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    progress.update(
+                        task,
+                        description=f"[green]installing {name}[/green]".ljust(80),
+                    )
+                    continue
+                # Building wheels / Setuptools activities
+                if "Building wheel" in line or "Running setup.py" in line:
+                    progress.update(
+                        task,
+                        description="[magenta]building wheel ...[/magenta]".ljust(80),
+                    )
+                    continue
+                if "Successfully installed" in line:
+                    progress.update(
+                        task,
+                        description="[bold green]finishing up ...[/bold green]".ljust(80),
+                    )
         except KeyboardInterrupt:
             _interrupted["v"] = True
         finally:
@@ -384,7 +428,7 @@ try:
                     proc.wait(timeout=5)
                 except subprocess.TimeoutExpired:
                     proc.kill()
-            progress.update(task, completed=max(len(last_seen), 0))
+            progress.update(task, description="[green]done[/green]".ljust(80))
 except Exception as e:
     console.print(_pad(f"[red]install failed: {e}[/red]"))
     sys.exit(1)

@@ -342,7 +342,7 @@ try:
     with Progress(
         SpinnerColumn("dots"),
         TextColumn("{task.description}"),
-        BarColumn(bar_width=None, pulse=True),
+        BarColumn(bar_width=None),
         TextColumn("elapsed"),
         TimeElapsedColumn(),
         console=console,

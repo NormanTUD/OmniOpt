@@ -139,13 +139,13 @@ tests:
   # ---- linter ---------------------------------------------------------------
   - id: linter_full
     name: "Linter"
-    cmd: "bash {REPO_ROOT}/.tests/linter"
+    cmd: "python3 {REPO_ROOT}/.tests/linter.py"
     wanted_exit_code: 0
     tags: [suite:linter, quick:no, env:local]
 
   - id: linter_quick
     name: "Linter (quick)"
-    cmd: "bash {REPO_ROOT}/.tests/linter --quick"
+    cmd: "python3 {REPO_ROOT}/.tests/linter.py --quick"
     wanted_exit_code: 0
     tags: [suite:linter, env:local]
 
@@ -403,13 +403,13 @@ tests:
   # ---- MOO / TPE ------------------------------------------------------------
   - id: moo_real
     name: "Testing real MOO"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_one_param
     name: "Testing real MOO with alternating results with one_param"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -433,19 +433,19 @@ tests:
 
   - id: moo_alternating_two_params
     name: "Testing real MOO with alternating results with two_params"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_all_float
     name: "Testing real MOO with alternating results with all_float"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_default
     name: "Testing real MOO with alternating results default"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -521,7 +521,7 @@ tests:
 
   - id: simple_all_float
     name: "Simple all float run"
-    cmd: "bash {REPO_ROOT}/.tests/start_simple_optimization_run --all_float --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --model={model_name} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --all_float --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --model={model_name} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -548,14 +548,14 @@ tests:
   # ---- wronggoing stuff -----------------------------------------------------
   - id: wronggoing_stuff
     name: "Test stuff that goes wrong"
-    cmd: "bash {REPO_ROOT}/.tests/wronggoing_stuff --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
+    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff.py --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
     wanted_exit_code: 0
     alternative_exit_code: 87
     tags: [suite:full, quick:no]
 
   - id: wronggoing_stuff_no_success
     name: "Test stuff that goes wrong without successes"
-    cmd: "bash {REPO_ROOT}/.tests/wronggoing_stuff --nosuccess --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
+    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff.py --nosuccess --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
     wanted_exit_code: 87
     alternative_exit_code: 89
     tags: [suite:full, quick:no]
@@ -615,7 +615,7 @@ tests:
   # ---- multi results with different models ---------------------------------
   - id: multi_results_different_models
     name: "Testing multiple results with different models"
-    cmd: "bash {REPO_ROOT}/.tests/multi_results_different_models"
+    cmd: "python3 {REPO_ROOT}/.tests/multi_results_different_models.py"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 

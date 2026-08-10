@@ -23,52 +23,57 @@ from _framework.helpers import (
     green_text,
     human_readable_time,
     red_text,
-    yellow_text,
 )
+
+
+def _run_test(name: str) -> int:
+    script = THIS_DIR / name
+    py_script = THIS_DIR / f"{name}.py"
+
+    if py_script.exists():
+        cmd = [sys.executable, str(py_script)]
+    elif script.exists():
+        cmd = [str(script)]
+    else:
+        print(f"  {Colors.RED}MISS{Colors.RESET}  {name} (no script found)")
+        return 99
+
+    proc = helpers.run(" ".join(f'"{c}"' for c in cmd))
+    return proc.returncode
 
 
 def main(argv=None) -> int:
     config = load_config()
     repo_root = config.repo_root
-    params = config.resolve_parameters({})
     tests = config.smoke_tests
 
     total_start = time.time()
-    runtimes = {}
+    runtimes: dict[str, int] = {}
 
     print(f"Running {len(tests)} smoke tests...")
     print()
 
-    next_exit_code = 1
+    next_exit = 1
     for test_name in tests:
-        script = repo_root / ".tests" / test_name
-        cmd_variants = [
-            f"python3 {script}",
-            f"bash {script}",
-            f"{script}",
-        ]
-
         start = time.time()
-        exit_code = None
-        for cmd in cmd_variants:
-            proc = helpers.run(cmd)
-            exit_code = proc.returncode
-            break
-
+        exit_code = _run_test(test_name)
         end = time.time()
         runtime = int(end - start)
         runtimes[test_name] = runtime
 
         ok = exit_code == 0
-        prefix = Colors.GREEN + "OK  " + Colors.RESET if ok else Colors.RED + "FAIL" + Colors.RESET
-        suffix = Colors.GRAY + f" ({human_readable_time(runtime)})" + Colors.RESET if not helpers._NO_COLOR else f" ({human_readable_time(runtime)})"
+        if ok:
+            prefix = f"{Colors.GREEN}OK  {Colors.RESET}"
+        else:
+            prefix = f"{Colors.RED}FAIL{Colors.RESET}"
+        suffix = f" ({human_readable_time(runtime)})"
         print(f"  {prefix}  {test_name}{suffix}")
 
         if not ok:
             red_text(f"Smoke test {test_name} failed with exit code {exit_code}\n")
-            return exit_code if exit_code and exit_code != 0 else next_exit_code
+            return exit_code if exit_code else next_exit
 
-        next_exit_code += 1
+        next_exit += 1
 
     total_runtime = int(time.time() - total_start)
     print()

@@ -10077,32 +10077,6 @@ def send_notification(title: str, message: str, timeout: int = 5) -> None:
     except Exception as e:
         print_debug(f"Desktop notification failed: {e}")
 
-def notify_run_complete() -> None:
-    """Send a final notification when the entire optimization run is done."""
-    succeeded = succeeded_jobs()
-    failed_count = failed_jobs()
-
-    if succeeded > 0 and failed_count == 0:
-        emoji = "✅"
-    elif succeeded > 0:
-        emoji = "⚠️"
-    else:
-        emoji = "❌"
-
-    best_parts = []
-    for res_name in arg_result_names:
-        best = get_best_params_str(res_name)
-        if best:
-            best_parts.append(best)
-
-    best_str = ", ".join(best_parts) if best_parts else "N/A"
-
-    send_notification(
-        title=f"{emoji} OmniOpt2 Run Complete",
-        message=f"{succeeded} succeeded, {failed_count} failed. Best: {best_str}",
-        timeout=10
-    )
-
 def get_sparkline_for_progress() -> str:
     """
     Get a sparkline representation of the optimization trace for the progress bar.
@@ -11305,8 +11279,6 @@ def print_exit_summary() -> None:
     console.print("")
     console.print(panel)
     console.print("")
-
-    notify_run_complete()
 
 def collect_params(config: argparse.Namespace) -> dict:
     params = {}

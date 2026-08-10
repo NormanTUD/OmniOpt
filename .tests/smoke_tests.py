@@ -18,6 +18,7 @@ if str(THIS_DIR) not in sys.path:
 
 from _framework import helpers
 from _framework.config import load_config, substitute
+from _framework.installer import ensure_dependencies
 from _framework.helpers import (
     Colors,
     green_text,
@@ -43,6 +44,7 @@ def _run_test(name: str) -> int:
 
 
 def main(argv=None) -> int:
+    ensure_dependencies(include_tests=True)
     config = load_config()
     repo_root = config.repo_root
     tests = config.smoke_tests

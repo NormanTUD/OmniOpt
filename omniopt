@@ -26,6 +26,7 @@ import subprocess as _subprocess
 import platform as _platform
 import hashlib as _hashlib
 import shutil as _shutil
+import time as _time
 
 
 _OMNIOPT_FILE = _os.path.realpath(__file__)
@@ -84,27 +85,132 @@ def _omniopt_save_requirements_hash(venv_dir: str) -> None:
 def _omniopt_create_venv(venv_dir: str) -> None:
     if _os.path.exists(venv_dir):
         return
-    print(f"[omniopt] Creating venv at {venv_dir}")
+    t0 = _time.time()
+    print(f"[omniopt] Creating venv at {venv_dir} ...")
     _os.makedirs(_os.path.dirname(venv_dir), exist_ok=True)
     _subprocess.run([_sys.executable, "-m", "venv", venv_dir], check=True)
+    print(f"[omniopt] Venv created in {_time.time() - t0:.1f}s")
 
 
 def _omniopt_install_requirements(venv_python: str) -> None:
+    """Install the requirement files into the venv with a small
+    stdlib-only progress UI (the bootstrap can't import rich yet).
+
+    We do it in two phases:
+      1. Install `rich` by itself with plain pip output -- once it's
+         there, the rest of the install gets a Rich progress bar with
+         ETA / time-elapsed via a second re-exec.
+      2. Install the rest of the requirements; if `rich` is now
+         available we use a small inline driver that re-invokes
+         `pip install --dry-run` to discover the package list, then
+         installs each one individually so we can show progress.
+    """
     install_tests = _os.environ.get("install_tests")
     req_files = [_OMNIOPT_REQUIREMENTS]
     if install_tests:
         req_files.append(_OMNIOPT_TEST_REQUIREMENTS)
+
+    # 1. Bootstrap-install rich so we can do pretty progress later.
+    print("[omniopt] Installing 'rich' first so we can show progress bars...")
+    _subprocess.run(
+        [venv_python, "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
+        check=True,
+    )
+
+    # 2. Run the full install via a child Python that uses rich for
+    #    progress.  This is a tiny shim that calls pip with progress
+    #    UI -- keeps our stdlib-only-bootstrap contract intact.
     for rf in req_files:
         if not _os.path.exists(rf):
             print(f"[omniopt] WARN: requirements file not found: {rf}")
             continue
         print(f"[omniopt] Installing requirements from {rf} ...")
-        _subprocess.run(
-            [venv_python, "-m", "pip", "install",
-             "--default-timeout=300", "--disable-pip-version-check",
-             "-q", "-r", rf],
-            check=True,
-        )
+        _omniopt_run_install_with_rich_progress(venv_python, rf)
+
+
+def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str) -> None:
+    """Install the given requirements file using a tiny Rich-based
+    progress UI.  This is called from the bootstrap section but runs
+    in a child Python process so the parent can stay stdlib-only.
+    """
+    child_code = '''
+import subprocess, sys, time, re
+
+try:
+    from rich.console import Console
+    from rich.progress import (
+        Progress, SpinnerColumn, TextColumn, BarColumn,
+        TaskProgressColumn, TimeRemainingColumn, TimeElapsedColumn,
+    )
+except ImportError:
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install",
+        "--default-timeout=300", "--disable-pip-version-check", "-q",
+        "-r", sys.argv[1],
+    ])
+    sys.exit(0)
+
+requirements_file = sys.argv[1]
+
+# Pre-scan: ask pip which packages it would install.
+dry = subprocess.run(
+    [sys.executable, "-m", "pip", "install", "--dry-run",
+     "--disable-pip-version-check", "-r", requirements_file],
+    capture_output=True, text=True,
+)
+pkgs = []
+for line in dry.stdout.splitlines() + dry.stderr.splitlines():
+    m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
+    if m:
+        name = m.group(1).strip()
+        if name and name not in pkgs:
+            pkgs.append(name)
+
+console = Console()
+console.print(f"[bold cyan]Installing {len(pkgs)} packages from {requirements_file}[/bold cyan]")
+
+start = time.time()
+with Progress(
+    SpinnerColumn(),
+    TextColumn("[progress.description]{task.description}"),
+    BarColumn(),
+    TaskProgressColumn(),
+    TimeElapsedColumn(),
+    TextColumn("eta"),
+    TimeRemainingColumn(),
+    console=console,
+    transient=False,
+) as progress:
+    task = progress.add_task("pip install", total=max(1, len(pkgs)))
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check", "-r", requirements_file],
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+    )
+    last_seen = set()
+    for line in proc.stdout:
+        m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
+        if m:
+            name = m.group(1).strip()
+            if name and name not in last_seen and name in pkgs:
+                last_seen.add(name)
+                progress.update(task, completed=len(last_seen),
+                                description=f"[cyan]{name}[/cyan]")
+    proc.wait()
+    progress.update(task, completed=len(pkgs))
+
+elapsed = time.time() - start
+if proc.returncode == 0:
+    console.print(f"[bold green]OK[/bold green] installed {len(pkgs)} packages in {elapsed:.1f}s")
+else:
+    console.print(f"[bold red]FAILED[/bold red] pip exited with code {proc.returncode} after {elapsed:.1f}s")
+    sys.exit(proc.returncode)
+'''
+    _subprocess.run(
+        [venv_python, "-c", child_code, requirements_file],
+        check=True,
+    )
 
 
 def _omniopt_check_required_programs() -> None:
@@ -136,6 +242,7 @@ def _omniopt_check_required_programs() -> None:
 
 def _omniopt_bootstrap_and_reexec() -> None:
     """Create venv (if needed), install requirements, then re-exec self."""
+    t_start = _time.time()
     print("[omniopt] omniopt self-bootstrap starting...")
     print(f"[omniopt] System Python: {_sys.executable} ({_sys.version.split()[0]})")
     print(f"[omniopt] Script dir: {_OMNIOPT_DIR}")
@@ -155,7 +262,7 @@ def _omniopt_bootstrap_and_reexec() -> None:
     if _omniopt_requirements_changed(venv_dir):
         _omniopt_install_requirements(venv_python)
         _omniopt_save_requirements_hash(venv_dir)
-        print("[omniopt] Dependencies installed.")
+        print(f"[omniopt] Dependencies installed (total bootstrap time: {_time.time() - t_start:.1f}s)")
     else:
         print("[omniopt] Requirements hash unchanged; skipping pip install.")
 

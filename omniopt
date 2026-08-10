@@ -89,85 +89,111 @@ def _omniopt_create_venv(venv_dir: str) -> None:
     _subprocess.run([_sys.executable, "-m", "venv", venv_dir], check=True)
 
 
+def _omniopt_terminal_width(default: int = 100) -> int:
+    """Best-effort terminal width without importing anything fancy."""
+    try:
+        import shutil as _sh
+        return max(40, _sh.get_terminal_size((default, 20)).columns)
+    except (OSError, ValueError):
+        return default
+
+
+def _omniopt_pad_right(text: str, width: int | None = None) -> str:
+    """Pad a single status line with trailing spaces so the terminal
+    doesn't re-flow when we clear the previous (longer) status line.
+    """
+    if width is None:
+        width = _omniopt_terminal_width()
+    # Account for ANSI escape sequences when computing visible width.
+    import re as _re
+    visible = _re.sub(r"\x1b\[[0-9;]*m", "", text)
+    pad = max(0, width - len(visible) - 1)
+    return text + (" " * pad)
+
+
+def _omniopt_install_rich_phase(venv_python: str) -> None:
+    """Install `rich` itself first, with a stdlib-only spinner-style
+    status line (Rich isn't available yet during bootstrap).  Pads
+    right so the line doesn't re-flow on update.
+    """
+    width = _omniopt_terminal_width()
+    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    proc = _subprocess.Popen(
+        [venv_python, "-m", "pip", "install",
+         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
+        stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL,
+    )
+    try:
+        i = 0
+        while proc.poll() is None:
+            msg = f"\r\x1b[2K{frames[i % len(frames)]} [omniopt] Installing rich ..."
+            _sys.stdout.write(_omniopt_pad_right(msg, width))
+            _sys.stdout.flush()
+            i += 1
+            _time.sleep(0.1)
+        # Final state
+        if proc.returncode == 0:
+            _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right('✓ [omniopt] rich installed', width)}\n")
+        else:
+            _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right(f'✗ [omniopt] rich install failed (exit {proc.returncode})', width)}\n")
+        _sys.stdout.flush()
+    except KeyboardInterrupt:
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except _subprocess.TimeoutExpired:
+            proc.kill()
+        _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right('✗ [omniopt] install cancelled by user', width)}\n")
+        _sys.stdout.flush()
+        raise
+
+
 def _omniopt_install_requirements(venv_python: str) -> None:
     """Install the requirement files into the venv with a small
     stdlib-only progress UI (the bootstrap can't import rich yet).
 
-    We do it in two phases:
-      1. Install `rich` by itself with plain pip output -- once it's
-         there, the rest of the install gets a Rich progress bar with
-         ETA / time-elapsed via a second re-exec.
-      2. Install the rest of the requirements; if `rich` is now
-         available we use a small inline driver that re-invokes
-         `pip install --dry-run` to discover the package list, then
-         installs each one individually so we can show progress.
+    Two phases:
+      1. Install `rich` by itself with a stdlib-only spinner line
+         (Rich isn't available yet).
+      2. Install the rest of the requirements via a child Python
+         that uses Rich's transient progress bar with ETA/elapsed.
+         Right-pads everything so the terminal doesn't re-flow.
+    Ctrl+C is caught at every level and exits cleanly with exit 130
+    (standard "killed by SIGINT" code) instead of dumping a traceback.
     """
     install_tests = _os.environ.get("install_tests")
     req_files = [_OMNIOPT_REQUIREMENTS]
     if install_tests:
         req_files.append(_OMNIOPT_TEST_REQUIREMENTS)
 
-    # 1. Bootstrap-install rich so we can do pretty progress later.
-    _subprocess.run(
-        [venv_python, "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
-        check=True,
-    )
+    try:
+        # 1. Bootstrap-install rich so we can do pretty progress later.
+        _omniopt_install_rich_phase(venv_python)
 
-    # 2. Run the full install via a child Python that uses rich for
-    #    progress.  This is a tiny shim that calls pip with progress
-    #    UI -- keeps our stdlib-only-bootstrap contract intact.
-    for rf in req_files:
-        if not _os.path.exists(rf):
-            print(f"[omniopt] WARN: requirements file not found: {rf}", file=_sys.stderr)
-            continue
-        _omniopt_run_install_with_rich_progress(venv_python, rf)
-
-
-def _omniopt_install_requirements(venv_python: str) -> None:
-    """Install the requirement files into the venv with a small
-    stdlib-only progress UI (the bootstrap can't import rich yet).
-
-    We do it in two phases:
-      1. Install `rich` by itself with plain pip output -- once it's
-         there, the rest of the install gets a Rich progress bar with
-         ETA / time-elapsed via a second re-exec.
-      2. Install the rest of the requirements; if `rich` is now
-         available we use a small inline driver that re-invokes
-         `pip install --dry-run` to discover the package list, then
-         installs each one individually so we can show progress.
-    """
-    install_tests = _os.environ.get("install_tests")
-    req_files = [_OMNIOPT_REQUIREMENTS]
-    if install_tests:
-        req_files.append(_OMNIOPT_TEST_REQUIREMENTS)
-
-    # 1. Bootstrap-install rich so we can do pretty progress later.
-    print("[omniopt] Installing 'rich' first so we can show progress bars...")
-    _subprocess.run(
-        [venv_python, "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
-        check=True,
-    )
-
-    # 2. Run the full install via a child Python that uses rich for
-    #    progress.  This is a tiny shim that calls pip with progress
-    #    UI -- keeps our stdlib-only-bootstrap contract intact.
-    for rf in req_files:
-        if not _os.path.exists(rf):
-            print(f"[omniopt] WARN: requirements file not found: {rf}")
-            continue
-        print(f"[omniopt] Installing requirements from {rf} ...")
-        _omniopt_run_install_with_rich_progress(venv_python, rf)
+        # 2. Run the full install via a child Python that uses rich.
+        for rf in req_files:
+            if not _os.path.exists(rf):
+                _sys.stderr.write(f"[omniopt] WARN: requirements file not found: {rf}\n")
+                _sys.stderr.flush()
+                continue
+            _omniopt_run_install_with_rich_progress(venv_python, rf)
+    except KeyboardInterrupt:
+        _sys.stdout.write("\n[omniopt] install cancelled\n")
+        _sys.stdout.flush()
+        _sys.exit(130)
 
 
 def _omniopt_run_install_with_rich_progress(venv_python: str, requirements_file: str) -> None:
     """Install the given requirements file using a tiny Rich-based
     progress UI.  This is called from the bootstrap section but runs
     in a child Python process so the parent can stay stdlib-only.
+
+    The progress bar is `transient=True` so it disappears once the
+    install finishes; every line is right-padded to the terminal
+    width so the cursor never reflows.
     """
     child_code = '''
-import subprocess, sys, time, re
+import subprocess, sys, time, re, shutil, signal
 
 try:
     from rich.console import Console
@@ -183,66 +209,125 @@ except ImportError:
     ])
     sys.exit(0)
 
+
+def _term_width(default=120):
+    try:
+        return max(60, shutil.get_terminal_size((default, 20)).columns)
+    except (OSError, ValueError):
+        return default
+
+
+def _pad(text, width=None):
+    width = width or _term_width()
+    visible = re.sub(r"\\x1b\\[[0-9;]*m", "", text)
+    return text + (" " * max(0, width - len(visible) - 1))
+
+
 requirements_file = sys.argv[1]
 
 # Pre-scan: ask pip which packages it would install.
-dry = subprocess.run(
-    [sys.executable, "-m", "pip", "install", "--dry-run",
-     "--disable-pip-version-check", "-r", requirements_file],
-    capture_output=True, text=True,
-)
-pkgs = []
-for line in dry.stdout.splitlines() + dry.stderr.splitlines():
-    m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
-    if m:
-        name = m.group(1).strip()
-        if name and name not in pkgs:
-            pkgs.append(name)
-
-console = Console()
-console.print(f"[bold cyan]Installing {len(pkgs)} packages from {requirements_file}[/bold cyan]")
-
-start = time.time()
-with Progress(
-    SpinnerColumn(),
-    TextColumn("[progress.description]{task.description}"),
-    BarColumn(),
-    TaskProgressColumn(),
-    TimeElapsedColumn(),
-    TextColumn("eta"),
-    TimeRemainingColumn(),
-    console=console,
-    transient=False,
-) as progress:
-    task = progress.add_task("pip install", total=max(1, len(pkgs)))
-    proc = subprocess.Popen(
-        [sys.executable, "-m", "pip", "install",
-         "--default-timeout=300", "--disable-pip-version-check", "-r", requirements_file],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+try:
+    dry = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--dry-run",
+         "--disable-pip-version-check", "-r", requirements_file],
+        capture_output=True, text=True, timeout=120,
     )
-    last_seen = set()
-    for line in proc.stdout:
+    pkgs = []
+    for line in dry.stdout.splitlines() + dry.stderr.splitlines():
         m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
         if m:
             name = m.group(1).strip()
-            if name and name not in last_seen and name in pkgs:
-                last_seen.add(name)
-                progress.update(task, completed=len(last_seen),
-                                description=f"[cyan]{name}[/cyan]")
-    proc.wait()
-    progress.update(task, completed=len(pkgs))
+            if name and name not in pkgs:
+                pkgs.append(name)
+except Exception:
+    pkgs = []
 
+console = Console()
+
+# Catch Ctrl+C cleanly: terminate pip, print one line, exit 130.
+_interrupted = {"v": False}
+
+
+def _on_sigint(signum, frame):
+    _interrupted["v"] = True
+
+
+signal.signal(signal.SIGINT, _on_sigint)
+
+start = time.time()
+try:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("{task.description}"),
+        BarColumn(bar_width=None),
+        TaskProgressColumn(),
+        TextColumn("elapsed"),
+        TimeElapsedColumn(),
+        TextColumn("eta"),
+        TimeRemainingColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        task = progress.add_task(
+            f"[cyan]installing {len(pkgs)} packages from {requirements_file} ...".ljust(80),
+            total=max(1, len(pkgs)),
+        )
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "pip", "install",
+             "--default-timeout=300", "--disable-pip-version-check", "-r", requirements_file],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        )
+        last_seen = set()
+        try:
+            for line in proc.stdout:
+                if _interrupted["v"]:
+                    break
+                m = re.search(r"^Collecting\\s+([^=<>!~ ]+)", line)
+                if m:
+                    name = m.group(1).strip()
+                    if name and name not in last_seen and name in pkgs:
+                        last_seen.add(name)
+                        progress.update(
+                            task,
+                            completed=len(last_seen),
+                            description=f"[cyan]{name}[/cyan]".ljust(80),
+                        )
+        except KeyboardInterrupt:
+            _interrupted["v"] = True
+        finally:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+            progress.update(task, completed=max(len(last_seen), 0))
+except Exception as e:
+    console.print(_pad(f"[red]install failed: {e}[/red]"))
+    sys.exit(1)
+
+if _interrupted["v"]:
+    console.print(_pad("[yellow]install cancelled by user[/yellow]"))
+    sys.exit(130)
+
+proc.wait()
 elapsed = time.time() - start
 if proc.returncode == 0:
-    console.print(f"[bold green]OK[/bold green] installed {len(pkgs)} packages in {elapsed:.1f}s")
+    console.print(_pad(f"[green]installed {len(pkgs)} packages in {elapsed:.1f}s[/green]"))
+    sys.exit(0)
 else:
-    console.print(f"[bold red]FAILED[/bold red] pip exited with code {proc.returncode} after {elapsed:.1f}s")
+    console.print(_pad(f"[red]pip exited with code {proc.returncode} after {elapsed:.1f}s[/red]"))
     sys.exit(proc.returncode)
 '''
-    _subprocess.run(
-        [venv_python, "-c", child_code, requirements_file],
-        check=True,
-    )
+    try:
+        _subprocess.run(
+            [venv_python, "-c", child_code, requirements_file],
+            check=False,
+        )
+    except KeyboardInterrupt:
+        _sys.stdout.write("\n[omniopt] install cancelled\n")
+        _sys.stdout.flush()
+        _sys.exit(130)
 
 
 def _omniopt_check_required_programs() -> None:

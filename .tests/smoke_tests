@@ -9,7 +9,6 @@ tests=(
 	php_unit_tests
 	find_missing_f_strings
 	find_functions_with_missing_types
-	find_wrongly_typed_cli_args
 	single_quotes_in_configloader
 	find_untyped_cli_args
 	find_unused_params
@@ -42,8 +41,9 @@ tests=(
 	js_syntax
 	pyright_fast
 	find_typos
-	mypy
 	shellcheck
+	mypy
+	find_wrongly_typed_cli_args
 )
 
 code=1

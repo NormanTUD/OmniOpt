@@ -10061,22 +10061,6 @@ def should_break_search() -> bool:
 
     return ret
 
-def send_notification(title: str, message: str, timeout: int = 5) -> None:
-    """Send a desktop notification if plyer is available and notifications are not disabled."""
-    if not _NOTIFICATIONS_AVAILABLE:
-        return
-    if (hasattr(args, 'disable_notifications') and args.disable_notifications):
-        return
-    try:
-        _plyer_notification.notify(
-            title=title,
-            message=message,
-            app_name="OmniOpt2",
-            timeout=timeout
-        )
-    except Exception as e:
-        print_debug(f"Desktop notification failed: {e}")
-
 def get_sparkline_for_progress() -> str:
     """
     Get a sparkline representation of the optimization trace for the progress bar.

@@ -176,6 +176,32 @@ if _os.environ.get("DEBUG_PARAM_EVAL"):
     _sys.exit(222)
 
 
+# Backwards-compat: the old bash wrapper pre-validated that
+# --config_yaml/json/toml pointed at an existing file and exited 100
+# if not.  Python's argparse would otherwise exit with code 5 on
+# the missing file, but a few tests still assert on the legacy 100.
+# Mirror the file-existence check here before forwarding.
+_cfg_path: str = ""
+for _cfg_opt in ("config_yaml", "config_json", "config_toml"):
+    _i = 1
+    while _i < len(_sys.argv):
+        _arg = _sys.argv[_i]
+        if _arg == f"--{_cfg_opt}" and _i + 1 < len(_sys.argv):
+            _cfg_path = _sys.argv[_i + 1]
+            if not _os.path.exists(_cfg_path):
+                print(f"[omniopt] error: --{_cfg_opt} specified the path to a file that doesn't exist: {_cfg_path}", file=_sys.stderr)
+                _sys.exit(100)
+            _i += 2
+            continue
+        if _arg.startswith(f"--{_cfg_opt}="):
+            _cfg_path = _arg[len(_cfg_opt) + 3:]
+            if not _os.path.exists(_cfg_path):
+                print(f"[omniopt] error: --{_cfg_opt} specified the path to a file that doesn't exist: {_cfg_path}", file=_sys.stderr)
+                _sys.exit(100)
+        _i += 1
+del _cfg_opt, _i, _arg, _cfg_path
+
+
 # When --tests is on the command line, inject the same default args
 # the old bash wrapper used to inject, so `--tests` works without the
 # caller having to specify max_eval etc.  This must run *before* the
@@ -1666,6 +1692,30 @@ try:
         from ax.generation_strategy.transition_criterion import MinTrials
         from ax.generation_strategy.generator_spec import GeneratorSpec
 
+        # Ax renamed both GenerationNode and ExternalGenerationNode's
+        # first kwarg from `node_name` to `name` somewhere around 1.2.
+        # Older docker SLURM test environments (Ax 1.1.0) still expect
+        # `node_name`.  Detect which one is in use once at import time
+        # so the subclasses below and `create_node()` can call
+        # super().__init__() with the right name.
+        import inspect as _inspect
+        _gn_init_params = list(_inspect.signature(GenerationNode.__init__).parameters.keys())
+        if "name" in _gn_init_params:
+            _OMNIOPT_GN_NAME_KW: str = "name"
+        elif "node_name" in _gn_init_params:
+            _OMNIOPT_GN_NAME_KW = "node_name"
+        else:
+            _OMNIOPT_GN_NAME_KW = "name"
+
+        _ext_init_params = list(_inspect.signature(ExternalGenerationNode.__init__).parameters.keys())
+        if "name" in _ext_init_params:
+            _OMNIOPT_EXT_NAME_KW: str = "name"
+        elif "node_name" in _ext_init_params:
+            _OMNIOPT_EXT_NAME_KW = "node_name"
+        else:
+            _OMNIOPT_EXT_NAME_KW = "name"
+        del _inspect, _ext_init_params, _gn_init_params
+
     with spinner("Loading Ax storage and data..."):
         from ax.storage.json_store.registry import CORE_DECODER_REGISTRY
         from ax.storage.json_store.load import load_experiment
@@ -1727,7 +1777,7 @@ class RandomForestGenerationNode(ExternalGenerationNode):
     def __init__(self: Any, regressor_options: Dict[str, Any] = {}, seed: Optional[int] = None, num_samples: int = 1) -> None:
         print_debug("Initializing RandomForestGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(name="RANDOMFOREST")
+        super().__init__(**{_OMNIOPT_EXT_NAME_KW: "RANDOMFOREST"})
         self.num_samples: int = num_samples
         self.seed: int = seed
 
@@ -1965,7 +2015,7 @@ class InteractiveCLIGenerationNode(ExternalGenerationNode):
         name: str = "INTERACTIVE_GENERATOR",
     ) -> None:
         t0 = time.monotonic()
-        super().__init__(name=name)
+        super().__init__(**{_OMNIOPT_EXT_NAME_KW: name})
         self.parameters = None
         self.minimize = None
         self.data = None
@@ -2124,7 +2174,7 @@ class ExternalProgramGenerationNode(ExternalGenerationNode):
     def __init__(self: Any, external_generator: str = args.external_generator, name: str = "EXTERNAL_GENERATOR") -> None:
         print_debug("Initializing ExternalProgramGenerationNode...")
         t_init_start = time.monotonic()
-        super().__init__(name=name)
+        super().__init__(**{_OMNIOPT_EXT_NAME_KW: name})
         self.seed: int = args.seed
         self.external_generator: str = decode_if_base64(external_generator)
         self.constraints = None
@@ -9812,7 +9862,7 @@ def create_node(
     model_spec = [GeneratorSpec(selected_model, **kwargs)]  # type: ignore[arg-type]
 
     node_kwargs: dict = {
-        "name": model_name,
+        _OMNIOPT_GN_NAME_KW: model_name,
         "generator_specs": model_spec,
         "should_deduplicate": True,
     }

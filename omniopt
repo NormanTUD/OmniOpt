@@ -78,12 +78,11 @@ def _omniopt_requirements_changed(venv_dir: str) -> bool:
 
 
 def _omniopt_save_requirements_hash(venv_dir: str) -> None:
-    _omniopt_transient_spinner(
-        "[omniopt] writing requirements hash ...",
-        lambda: open(
-            _os.path.join(venv_dir, "omniopt_requirements_hash"), "w"
-        ).write(_omniopt_requirements_hash()),
-    )
+    def _write_hash() -> None:
+        with open(_os.path.join(venv_dir, "omniopt_requirements_hash"), "w") as fp:
+            fp.write(_omniopt_requirements_hash())
+
+    _omniopt_transient_spinner("[omniopt] writing requirements hash ...", _write_hash)
 
 
 def _omniopt_create_venv(venv_dir: str) -> None:

@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Find CLI arguments that have the wrong types."""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import red_text
+
+
+REPO_ROOT = THIS_DIR.parent
+
+
+def main(argv=None) -> int:
+    omniopt = REPO_ROOT / "omniopt"
+    if not omniopt.exists():
+        print("omniopt not found")
+        return 1
+
+    content = omniopt.read_text(encoding="utf-8", errors="ignore")
+    errors = 0
+
+    for line in content.splitlines():
+        if ".add_argument(" not in line:
+            continue
+
+        name_match = re.search(r"add_argument\(\s*['\"]--([^'\"]+)['\"]", line)
+        if not name_match:
+            continue
+        name = name_match.group(1)
+
+        type_match = re.search(r"type=([^,)\s]+)", line)
+        arg_type = type_match.group(1).strip("'\"").strip("[]") if type_match else "str"
+        if not arg_type:
+            arg_type = "str"
+
+        action_match = re.search(r"action=['\"]([^'\"]+)['\"]", line)
+        action = action_match.group(1) if action_match else ""
+
+        nargs_match = re.search(r"nargs=['\"]([^'\"]+)['\"]", line)
+        nargs = nargs_match.group(1) if nargs_match else ""
+
+        default_match = re.search(r"default=([^,)]+)", line)
+        default = default_match.group(1).strip().strip("'\"") if default_match else ""
+
+        if default in ("True", "False"):
+            arg_type = "bool"
+        if default == "None":
+            arg_type = f"Optional[{arg_type}]"
+        if default == "[]":
+            arg_type = "List[str]"
+        if action == "append" and arg_type in ("str", "Optional[]"):
+            arg_type = "Optional[List[str]]"
+        if nargs in ("+", "*") and arg_type in ("str", "Optional[]"):
+            arg_type = "Optional[List[str]]"
+
+        if name == "version":
+            continue
+
+        type_regex = re.escape(arg_type)
+        pattern = re.compile(rf"^\s*{re.escape(name)}:\s+{type_regex}\s*$", re.MULTILINE)
+        if not pattern.search(content):
+            extra = ""
+            if nargs:
+                extra += f" (nargs: {nargs}"
+                if action:
+                    extra += f", action: {action})"
+                else:
+                    extra += ")"
+            elif action:
+                extra += f" (action: {action})"
+            red_text(f"Wrongly typed: {name}: expected: {arg_type}{extra}")
+            errors += 1
+
+    if errors == 0:
+        print("find_wrongly_typed_cli_args: OK")
+    return errors
+
+
+if __name__ == "__main__":
+    sys.exit(main())

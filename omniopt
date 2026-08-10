@@ -119,6 +119,103 @@ def _omniopt_pad_right(text: str, width: int | None = None) -> str:
     return text + (" " * pad)
 
 
+def _omniopt_disk_diagnose(captured_lines: list) -> "tuple | None":
+    """Try to figure out which path was being written to when pip ran
+    out of disk space, what filesystem it lives on, how much space is
+    still free, and (if applicable) the user's disk quota.
+
+    Returns (path, fstype, usage, quota_or_None) or None if no
+    sensible diagnosis is possible.  Designed to be best-effort --
+    every call is wrapped in try/except so a broken probe never makes
+    a bad situation worse.
+    """
+    # 1) Try to lift a path out of the pip error message
+    candidates: list = []
+    pat = re.compile(
+        r"['\"]([/A-Za-z0-9_.+-]+(?:/[/A-Za-z0-9_.+-]*)*)['\"]"
+    )
+    for line in captured_lines:
+        for m in pat.finditer(line):
+            p = m.group(1)
+            if p.startswith("/") and _os.path.isabs(p):
+                candidates.append(p)
+            elif _os.path.isabs(p):
+                candidates.append(p)
+
+    # 2) Always consider the venv dir and the pip cache / tmp dirs
+    try:
+        candidates.append(_OMNIOPT_DIR)
+    except Exception:
+        pass
+    try:
+        candidates.append(_os.environ.get("TMPDIR", "/tmp"))
+    except Exception:
+        pass
+
+    # Walk the candidates, find the first one we can stat
+    target = None
+    for c in candidates:
+        try:
+            if _os.path.isdir(c) or _os.path.isfile(c):
+                target = c
+                break
+        except OSError:
+            continue
+    if target is None:
+        try:
+            target = _os.getcwd()
+        except Exception:
+            return None
+
+    # 3) Probe disk usage via shutil
+    try:
+        usage = _shutil.disk_usage(target)
+    except Exception:
+        return None
+
+    # 4) Filesystem type via /proc/mounts (Linux only)
+    fstype = "unknown"
+    try:
+        mount_point = target
+        # Walk up to find the mount point
+        while mount_point != "/" and not _os.path.ismount(mount_point):
+            mount_point = _os.path.dirname(mount_point)
+        with open("/proc/mounts", "r", encoding="utf-8", errors="replace") as _f:
+            for _ml in _f:
+                _parts = _ml.split()
+                if len(_parts) >= 3 and _parts[1] == mount_point:
+                    fstype = _parts[2]
+                    break
+    except (OSError, FileNotFoundError):
+        pass
+
+    # 5) Quota via `quota` / `repquota` (best-effort)
+    quota = None
+    try:
+        import subprocess as _sp
+        _q = _sp.run(["quota", "-u", "-w", _os.environ.get("USER", "")],
+                     capture_output=True, text=True, timeout=5)
+        if _q.returncode == 0 and _q.stdout.strip():
+            # The output format is roughly:
+            # Filesystem  blocks quota  limit  grace  files quota  limit  grace
+            # /dev/sda1  12345678  0  10000000  0  ...
+            _lines = _q.stdout.splitlines()
+            for _ln in _lines[2:]:  # skip header
+                _toks = _ln.split()
+                if len(_toks) >= 4 and _toks[1].isdigit() and _toks[3].isdigit():
+                    used_kb = int(_toks[1])
+                    limit_kb = int(_toks[3])
+                    grace = _toks[4] if len(_toks) > 4 else ""
+                    # Only show quota if there's an actual limit (>0)
+                    if limit_kb > 0:
+                        quota = (used_kb / 1024 ** 2, limit_kb / 1024 ** 2, grace)
+                        break
+    except Exception:
+        pass
+
+    return (target, fstype, usage, quota)
+
+
 def _omniopt_transient_spinner(label: str, target) -> None:
     """Run `target` (a no-arg callable) while showing a transient
     stdlib-only spinner on stdout.  The line is fully cleared when
@@ -295,6 +392,43 @@ def _on_sigint(signum, frame):
 
 signal.signal(signal.SIGINT, _on_sigint)
 
+
+# Count top-level entries in the requirements file so we have an
+# honest initial total for the progress bar.  This is a quick parse
+# (a few ms) -- no dependency resolution like `pip install --dry-run`
+# would do.  Each line that doesn't start with `#`, isn't empty and
+# isn't a `-r` / `--` flag / `-e` URL counts as one top-level package.
+def _count_requirements(path):
+    n = 0
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as _f:
+            for _ln in _f:
+                _ln = _ln.strip()
+                if not _ln or _ln.startswith("#"):
+                    continue
+                if _ln.startswith("-") or _ln.startswith("--"):
+                    # `-r other.txt`, `--extra-index-url ...`, `-e git+...`
+                    if _ln.startswith("-r") or _ln.startswith("--requirement"):
+                        _rest = _ln.split(maxsplit=1)
+                        if len(_rest) > 1:
+                            try:
+                                n += _count_requirements(
+                                    _os.path.join(_os.path.dirname(path) or ".", _rest[1])
+                                )
+                            except Exception:
+                                pass
+                    continue
+                # Skip pip options like --index-url
+                if _ln.startswith("--"):
+                    continue
+                n += 1
+    except OSError:
+        pass
+    return n
+
+
+initial_total = max(1, _count_requirements(requirements_file))
+
 start = time.time()
 collected = 0
 captured_lines: list = []
@@ -346,6 +480,7 @@ try:
         SpinnerColumn("dots"),
         TextColumn("{task.description}"),
         BarColumn(bar_width=None),
+        TaskProgressColumn(),
         TextColumn("elapsed"),
         TimeElapsedColumn(),
         console=console,
@@ -354,12 +489,14 @@ try:
         # We don't run `pip install --dry-run` first (that takes 30+
         # seconds on big req lists because pip has to resolve the
         # entire dependency graph) -- instead we drive the bar off the
-        # live Collecting lines emitted by the actual install.
-        # `total` is updated as we discover new packages so the
-        # progress bar grows in lockstep with the install.
+        # live Collecting lines emitted by the actual install.  The
+        # initial `total` is the top-level entry count in the
+        # requirements file (fast parse); if pip pulls in transitive
+        # deps that show up as additional Collecting lines, we grow
+        # the total so the bar stays honest.
         task = progress.add_task(
             f"[cyan]installing from {requirements_file} ...".ljust(80),
-            total=None,
+            total=initial_total,
         )
         proc = subprocess.Popen(
             [sys.executable, "-m", "pip", "install",
@@ -470,6 +607,46 @@ if proc.returncode != 0:
                             f" [yellow]{category}[/yellow]"))
         if hint:
             console.print(_pad(f"[yellow]{hint}[/yellow]"))
+
+        # For disk-full errors, try to figure out WHICH path ran out
+        # of space, how much is left, and whether it's a network
+        # filesystem (in which case local free-space is meaningless).
+        if category == "disk":
+            _disk = _omniopt_disk_diagnose(captured_lines)
+            if _disk is not None:
+                _path, _fstype, _usage, _quota = _disk
+                if _fstype.lower() in ("nfs", "cifs", "smbfs", "afs", "9p",
+                                        "fuse.sshfs", "fuse.glusterfs"):
+                    console.print(_pad(
+                        f"[yellow]the failing path lives on a "
+                        f"network filesystem ({_fstype}); local "
+                        f"free-space checks are meaningless here -- ask "
+                        f"your sysadmin to free space on the share.[/yellow]"
+                    ))
+                else:
+                    free_gb = _usage.free / 1024 ** 3
+                    total_gb = _usage.total / 1024 ** 3
+                    used_pct = int(100 * _usage.used / _usage.total) if _usage.total else 0
+                    console.print(_pad(
+                        f"[yellow]path probed:[/yellow] "
+                        f"[bold]{_path}[/bold]   "
+                        f"[yellow]fs:[/yellow] [bold]{_fstype}[/bold]"
+                    ))
+                    console.print(_pad(
+                        f"[yellow]free:[/yellow] "
+                        f"[bold red]{free_gb:.1f} GB[/bold red] / "
+                        f"{total_gb:.1f} GB total   "
+                        f"[yellow]({used_pct}% used)[/yellow]"
+                    ))
+                    if _quota is not None:
+                        q_used, q_limit, q_grace = _quota
+                        console.print(_pad(
+                            f"[yellow]disk quota:[/yellow] "
+                            f"[bold]{q_used:.1f} GB used / "
+                            f"{q_limit:.1f} GB hard limit[/bold]"
+                            + (f"  [dim]({q_grace} grace)[/dim]"
+                               if q_grace else "")
+                        ))
         console.print(_pad(""))
 
     console.print(_pad("[bold]last lines of pip output:[/bold]"))

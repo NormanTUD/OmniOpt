@@ -113,8 +113,10 @@ def _omniopt_pad_right(text: str, width: int | None = None) -> str:
 
 def _omniopt_install_rich_phase(venv_python: str) -> None:
     """Install `rich` itself first, with a stdlib-only spinner-style
-    status line (Rich isn't available yet during bootstrap).  Pads
-    right so the line doesn't re-flow on update.
+    status line (Rich isn't available yet during bootstrap).  The
+    line is *transient*: when pip finishes we clear it entirely
+    (`\\r\\x1b[2K`) and emit no trailing newline, so the next
+    status the user sees starts fresh on a clean row.
     """
     width = _omniopt_terminal_width()
     frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
@@ -131,11 +133,9 @@ def _omniopt_install_rich_phase(venv_python: str) -> None:
             _sys.stdout.flush()
             i += 1
             _time.sleep(0.1)
-        # Final state
-        if proc.returncode == 0:
-            _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right('✓ [omniopt] rich installed', width)}\n")
-        else:
-            _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right(f'✗ [omniopt] rich install failed (exit {proc.returncode})', width)}\n")
+        # Final state -- transient: clear the line, no trailing newline,
+        # so whatever the next output is overwrites this row cleanly.
+        _sys.stdout.write("\r\x1b[2K")
         _sys.stdout.flush()
     except KeyboardInterrupt:
         proc.terminate()
@@ -143,7 +143,14 @@ def _omniopt_install_rich_phase(venv_python: str) -> None:
             proc.wait(timeout=5)
         except _subprocess.TimeoutExpired:
             proc.kill()
-        _sys.stdout.write(f"\r\x1b[2K{_omniopt_pad_right('✗ [omniopt] install cancelled by user', width)}\n")
+        # On Ctrl+C we DO leave a one-line note so the user knows
+        # why the bootstrap bailed, but we keep the cursor on the
+        # same row and pad-right to avoid terminal reflow.
+        _sys.stdout.write(
+            "\r\x1b[2K"
+            + _omniopt_pad_right("[omniopt] rich install cancelled by user", width)
+            + "\n"
+        )
         _sys.stdout.flush()
         raise
 
@@ -312,12 +319,16 @@ if _interrupted["v"]:
 
 proc.wait()
 elapsed = time.time() - start
-if proc.returncode == 0:
-    console.print(_pad(f"[green]installed {len(pkgs)} packages in {elapsed:.1f}s[/green]"))
-    sys.exit(0)
-else:
+# The progress bar is transient -- it disappears on its own.  Only
+# print a line on failure or cancellation so the user sees why the
+# bootstrap bailed; on success we stay silent.
+if _interrupted["v"]:
+    console.print(_pad("[yellow]install cancelled by user[/yellow]"))
+    sys.exit(130)
+if proc.returncode != 0:
     console.print(_pad(f"[red]pip exited with code {proc.returncode} after {elapsed:.1f}s[/red]"))
     sys.exit(proc.returncode)
+sys.exit(0)
 '''
     try:
         _subprocess.run(

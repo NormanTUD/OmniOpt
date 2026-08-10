@@ -18,6 +18,8 @@ import shutil
 import subprocess
 import sys
 
+from collections.abc import Callable
+
 Green = "\033[0;32m"
 Color_Off = "\033[0m"
 Red = "\033[0;31m"
@@ -97,7 +99,7 @@ def _green_text_bold_underline(text: str) -> None:
 if __name__ == "__main__":
     function_name = sys.argv[1] if len(sys.argv) > 1 else ""
 
-    functions = {
+    functions: dict[str, Callable[[str], object]] = {
         "echoerr": echoerr,
         "red_text": red_text,
         "yellow_text": yellow_text,

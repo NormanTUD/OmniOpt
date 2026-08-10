@@ -178,7 +178,8 @@ def _omniopt_install_rich_phase(venv_python: str) -> None:
     def _do() -> None:
         _subprocess.run(
             [venv_python, "-m", "pip", "install",
-             "--default-timeout=300", "--disable-pip-version-check", "-q", "rich"],
+             "--default-timeout=300", "--disable-pip-version-check",
+             "--quiet", "rich"],
             check=True, stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL,
         )
 
@@ -302,7 +303,7 @@ def _spinner(label, target):
 def _scan_packages():
     dry = subprocess.run(
         [sys.executable, "-m", "pip", "install", "--dry-run",
-         "--disable-pip-version-check", "-r", requirements_file],
+         "--disable-pip-version-check", "--quiet", "-r", requirements_file],
         capture_output=True, text=True, timeout=120,
     )
     pkgs = []
@@ -359,7 +360,8 @@ try:
         )
         proc = subprocess.Popen(
             [sys.executable, "-m", "pip", "install",
-             "--default-timeout=300", "--disable-pip-version-check", "-r", requirements_file],
+             "--default-timeout=300", "--disable-pip-version-check",
+             "--quiet", "-r", requirements_file],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
         )
         last_seen = set()

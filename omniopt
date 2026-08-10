@@ -123,15 +123,28 @@ def _omniopt_transient_spinner(label: str, target) -> None:
     """Run `target` (a no-arg callable) while showing a transient
     stdlib-only spinner on stdout.  The line is fully cleared when
     the call returns -- no trailing output, no re-flow.
+
+    If `target` accepts a single `set_status(str)` callable it will
+    be called as `target(set_status)` and the spinner can drive a
+    live status message while the call runs (e.g. for the dry-run
+    pip scan where we don't want to lock to a single label).
     """
     width = _omniopt_terminal_width()
     frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    current_label = [label]
     done = {"v": False}
-    result = {"exc": None}
+    result = {"ret": None, "exc": None}
+
+    def _set_status(msg: str) -> None:
+        current_label[0] = msg
 
     def _runner() -> None:
         try:
-            target()
+            try:
+                result["ret"] = target(_set_status)
+            except TypeError:
+                # target didn't accept set_status -- call without it
+                result["ret"] = target()
         except BaseException as _e:  # noqa: BLE001 - re-raised below
             result["exc"] = _e
         finally:
@@ -145,7 +158,8 @@ def _omniopt_transient_spinner(label: str, target) -> None:
     try:
         while not done["v"]:
             _sys.stdout.write(
-                "\r\x1b[2K" + _omniopt_pad_right(f"{frames[i % len(frames)]} {label}", width)
+                "\r\x1b[2K"
+                + _omniopt_pad_right(f"{frames[i % len(frames)]} {current_label[0]}", width)
             )
             _sys.stdout.flush()
             i += 1
@@ -155,7 +169,7 @@ def _omniopt_transient_spinner(label: str, target) -> None:
         # then re-raise so the outer code path can handle exit.
         _sys.stdout.write(
             "\r\x1b[2K"
-            + _omniopt_pad_right(f"✗ {label} (cancelled)", width)
+            + _omniopt_pad_right(f"✗ {current_label[0]} (cancelled)", width)
             + "\n"
         )
         _sys.stdout.flush()
@@ -168,6 +182,7 @@ def _omniopt_transient_spinner(label: str, target) -> None:
 
     if result["exc"] is not None:
         raise result["exc"]
+    return result["ret"]
 
 
 def _omniopt_install_rich_phase(venv_python: str) -> None:

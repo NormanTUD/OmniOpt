@@ -3,6 +3,7 @@
 import sys
 import os
 import ast
+from pathlib import Path
 from pprint import pprint
 
 def dier(msg):

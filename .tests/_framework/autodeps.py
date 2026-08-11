@@ -60,7 +60,9 @@ def ensure_imports(
     for module, package in missing:
         if package not in packages:
             packages.append(package)
-        print(f"Module '{module}' not found. Installing '{package}' via pip...")
+    if not os.environ.get("DONT_SHOW_DONT_INSTALL_MESSAGE"):
+        for module, package in missing:
+            print(f"Module '{module}' not found. Installing '{package}' via pip...")
 
     from .installer import add_venv_to_path, install_packages
 
@@ -68,7 +70,8 @@ def ensure_imports(
     if venv_dir:
         add_venv_to_path(venv_dir)
         if all(_importable(module) for module, _ in missing):
-            print("All required modules are now installed.")
+            if not os.environ.get("DONT_SHOW_DONT_INSTALL_MESSAGE"):
+                print("All required modules are now installed.")
             return True
 
     return False

@@ -2,9 +2,10 @@
 Environment setup and helper functions for OmniOpt2 scripts.
 
 This is the Python equivalent of the former ``.shellscript_functions``
-bash library.  It provides the venv bootstrap that prepares the Python
-environment (virtualenv creation, dependency installation) as well as
-small helpers for colored output, progress bars and error dialogs.
+bash library.  It installs the Python requirements into the *current*
+interpreter (no venv is created anywhere -- the user is responsible for
+their own environment) and provides small helpers for colored output,
+progress bars and error dialogs.
 
 Importing this module performs no side effects.  Call
 ``setup_environment()`` explicitly to run the bootstrap, which mirrors
@@ -191,21 +192,37 @@ def generate_progress_bar(current: int, maximum: int) -> str:
     return f"[{bar_str}] \n"
 
 
+def _needs_break_system_packages() -> bool:
+    """Return True when pip must pass ``--break-system-packages``.
+
+    Detected by the presence of ``/etc/debian_version`` and the absence
+    of an active virtual environment.  Matches the heuristic used by
+    ``.tests/example_network/install.py`` so the behaviour stays
+    consistent across all install code paths.
+    """
+    if os.environ.get("VIRTUAL_ENV"):
+        return False
+    return Path("/etc/debian_version").exists()
+
+
+def _pip_base_args() -> list[str]:
+    """Return the common pip CLI flags used for every invocation."""
+    args = [
+        sys.executable,
+        "-m",
+        "pip",
+        "--default-timeout=300",
+        "--disable-pip-version-check",
+    ]
+    if _needs_break_system_packages():
+        args.append("--break-system-packages")
+    return args
+
+
 def _frozen_packages() -> str:
     """Return the installed packages in pip ``freeze`` format."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "--disable-pip-version-check",
-            "list",
-            "--format=freeze",
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    args = _pip_base_args() + ["list", "--format=freeze"]
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     return result.stdout
 
 
@@ -233,21 +250,8 @@ def generate_progress_bar_setup(total_nr_modules: int) -> str:
 
 def _collect_dependencies(module: str) -> list[str]:
     """List the top-level dependencies pip would install for ``module``."""
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--default-timeout=300",
-            "--disable-pip-version-check",
-            "--dry-run",
-            module,
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    args = _pip_base_args() + ["install", "--dry-run", module]
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     dependencies: list[str] = []
     for line in result.stdout.splitlines():
         line = line.strip()
@@ -264,14 +268,7 @@ def _run_pip_install(module: str, quiet: bool, log_file: Path) -> int:
     """Install ``module`` with pip, appending any errors to ``log_file``."""
     log_file.parent.mkdir(parents=True, exist_ok=True)
     with open(log_file, "a") as fp:
-        args = [
-            sys.executable,
-            "-m",
-            "pip",
-            "--default-timeout=300",
-            "--disable-pip-version-check",
-            "install",
-        ]
+        args = _pip_base_args() + ["install"]
         if quiet:
             args.append("-q")
         args.append(module)
@@ -424,19 +421,6 @@ def _check_required_programs() -> int:
     return not_found
 
 
-def _venv_dir() -> str:
-    """Compute the canonical venv directory for this Python version / arch."""
-    version = subprocess.run(
-        [sys.executable, "--version"],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip().replace(" ", "_")
-    arch = platform.machine()
-    root = os.environ.get("root_venv_dir", str(Path.home()))
-    return str(Path(root) / ".omniax_venvs" / version / arch)
-
-
 def _requirements_hash() -> str:
     """Return the combined md5 of both requirements files."""
     digest = hashlib.md5()
@@ -448,18 +432,31 @@ def _requirements_hash() -> str:
     return digest.hexdigest()
 
 
-def _hash_is_different(hash_file: Path, required_hash: str) -> bool:
-    """Return True when the stored hash differs from ``required_hash``."""
-    if not hash_file.exists():
-        return True
-    try:
-        return hash_file.read_text().strip() != required_hash
-    except OSError:
-        return True
+def _hash_state_path() -> Path:
+    """Return the path to the on-disk hash cache for requirements.
+
+    When ``VIRTUAL_ENV`` is set we write the hash inside that venv
+    (matching the legacy bash behaviour); otherwise we keep it in a
+    project-local ``logs/`` directory so the current working directory
+    is the only place that ever receives new files.
+    """
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        return Path(venv) / "shellscript_functions_hash"
+    return Path("logs") / "shellscript_functions_hash"
 
 
 def setup_environment() -> int:
-    """Prepare the Python environment (venv, requirements) like bash did."""
+    """Install the requirements files into the *current* Python.
+
+    No venv is created and no files are written outside the current
+    working directory (apart from the standard site-packages / pip
+    cache locations used by Python itself).  The user is responsible
+    for activating a virtual environment before calling this if they
+    want isolation; otherwise we fall back to the system Python and
+    automatically pass ``--break-system-packages`` on PEP 668 systems
+    such as Debian/Ubuntu.
+    """
     requirements = SCRIPT_DIR / "requirements.txt"
     test_requirements = SCRIPT_DIR / "test_requirements.txt"
 
@@ -492,61 +489,20 @@ def setup_environment() -> int:
         red_text("python3 not installed. Cannot continue.")
         return 245
 
-    if shutil.which("python3"):
-        version_result = subprocess.run(
-            [
-                sys.executable,
-                "-c",
-                "import sys; print(1 if sys.version_info >= (3, 10) else 0)",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if version_result.stdout.strip() != "1":
-            echo_red(
-                f"⚠️  Warning: Python version is less than 3.10. Detected: "
-                f"{sys.version}. This may cause issues."
-            )
-
-    venv_dir = os.environ.get("VIRTUAL_ENV") or _venv_dir()
-    os.environ["VENV_DIR"] = venv_dir
-    os.environ["CUSTOM_VIRTUAL_ENV"] = (
-        "1" if os.environ.get("VIRTUAL_ENV") else "0"
+    version_result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys; print(1 if sys.version_info >= (3, 10) else 0)",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    os.environ["OMNIAX_VENV_DIR"] = venv_dir
-
-    venv_python = str(Path(venv_dir) / "bin" / "python")
-
-    if not os.environ.get("VIRTUAL_ENV") and not Path(venv_dir).is_dir():
-        green_reset_line(
-            f"➤Environment {venv_dir} was not found. Creating it..."
-        )
-        venv_result = subprocess.run(
-            [sys.executable, "-m", "venv", venv_dir],
-            check=False,
-        )
-        if venv_result.returncode != 0:
-            red_text(f"❌Failed to create Virtual Environment in {venv_dir}\n")
-            return 20
-
-        green_reset_line(f"✅Virtual Environment {venv_dir} created.")
-        subprocess.run(
-            [
-                venv_python,
-                "-m",
-                "pip",
-                "--default-timeout=300",
-                "--disable-pip-version-check",
-                "install",
-                "-q",
-                "pip==24.0",
-            ],
-            check=False,
-        )
-        green_reset_line(
-            "✅Virtual Environment created. Now installing software. "
-            "This may take some time."
+    if version_result.stdout.strip() != "1":
+        echo_red(
+            f"⚠️  Warning: Python version is less than 3.10. Detected: "
+            f"{sys.version}. This may cause issues."
         )
 
     if (
@@ -554,19 +510,22 @@ def setup_environment() -> int:
         and not os.environ.get("SLURM_JOB_ID")
     ):
         main_hash = _requirements_hash()
-        hash_file = Path(venv_dir) / "hash"
-        hash_test_file = Path(venv_dir) / "hash_test"
+        hash_file = _hash_state_path()
 
-        if _hash_is_different(
-            hash_file, main_hash
-        ) or _hash_is_different(hash_test_file, main_hash):
+        stored_hash = ""
+        if hash_file.exists():
+            try:
+                stored_hash = hash_file.read_text().strip()
+            except OSError:
+                stored_hash = ""
+
+        if stored_hash != main_hash:
             install_result = install_required_modules()
             if install_result != 0:
                 return install_result
+            hash_file.parent.mkdir(parents=True, exist_ok=True)
             hash_file.write_text(main_hash)
-            hash_test_file.write_text(main_hash)
 
-    os.environ["PYTHONPATH"] = f"{venv_dir}:{os.environ.get('PYTHONPATH', '')}"
     return 0
 
 
@@ -576,6 +535,7 @@ if __name__ == "__main__":
     functions: dict[str, Callable[..., object]] = {
         "displaytime": displaytime,
         "generate_progress_bar": generate_progress_bar,
+        "setup_environment": setup_environment,
     }
 
     if function_name not in functions:
@@ -584,6 +544,9 @@ if __name__ == "__main__":
             file=sys.stderr,
         )
         sys.exit(1)
+
+    if function_name == "setup_environment":
+        sys.exit(functions[function_name]())
 
     result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
     if isinstance(result, str):

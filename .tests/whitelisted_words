@@ -3118,3 +3118,14 @@ parens
 plantuml
 displaytime
 shellscript
+hoverTexts
+xVal
+yVal
+hoverInfo
+titleEl
+divId
+plotDiv
+xKey
+yKey
+parsedData
+sectionTitle

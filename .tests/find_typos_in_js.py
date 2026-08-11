@@ -21,6 +21,27 @@ from spellchecker import SpellChecker
 REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
+MAX_LINE_LENGTH = 1000
+
+
+def is_vendor_or_minified(path):
+    """Systematically skip vendor/minified JS (jquery, gridjs, plotly, ...).
+
+    Minified bundles (e.g. ``*.min.js`` or ``gridjs.umd.js``) either carry
+    the ``.min.js`` suffix or are written on extremely long lines that no
+    hand-written source would have.
+    """
+    if path.name.endswith(".min.js"):
+        return True
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as fh:
+            for line in fh:
+                if len(line) > MAX_LINE_LENGTH:
+                    return True
+    except OSError:
+        return False
+    return False
+
 # Initialize spellchecker with English dictionary
 try:
     spell = SpellChecker(language='en')
@@ -127,7 +148,10 @@ def main():
 
     files = args.files
     if not files:
-        files = [str(p) for p in find_files(GUI_DIR, (".js",))]
+        files = [
+            str(p) for p in find_files(GUI_DIR, (".js",))
+            if not is_vendor_or_minified(p)
+        ]
 
     typo_files = 0
     results = {}

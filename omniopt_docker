@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """omniopt_docker - Build and run OmniOpt inside a Docker container.
 
-Python rewrite of the former ``omniopt_docker`` bash script (kept at
-``omniopt_docker.bash.bak`` for reference).
+Python rewrite of the former ``omniopt_docker`` bash script.
 
 Usage:
     omniopt_docker [inner command]

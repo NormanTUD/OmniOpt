@@ -1,4 +1,4 @@
-mypydie
+mypy
 art
 beartype
 sqlalchemy

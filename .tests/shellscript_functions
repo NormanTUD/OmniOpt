@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+# HELPPAGE: Tests the shellscript-functions library (.shellscript_functions / .shellscript_functions.py).
+
+{
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd "$SCRIPT_DIR"
+
+cd ..
+
+errors=()
+
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+NC=$'\033[0m'
+
+function red_text {
+	echo -ne "${RED}$1${NC}"
+}
+
+function green_text {
+	echo -e "${GREEN}$1${NC}"
+}
+
+function yellow_text {
+	echo -e "${YELLOW}$1${NC}"
+}
+
+if [[ -e .shellscript_functions.py ]]; then
+	MODE="python"
+else
+	MODE="bash"
+fi
+
+if [[ "$(uname -s)" == "Linux" ]]; then
+	BAR_CHAR="━"
+else
+	BAR_CHAR="#"
+fi
+
+run_function() {
+	# run_function "FUNCTION" "ARG1" "ARG2" ...  ->  captures STDOUT into RET_OUT and STDERR into RET_ERR
+	if [[ "$MODE" == "bash" ]]; then
+		export DONT_INSTALL_MODULES=1
+		export DONT_SHOW_DONT_INSTALL_MESSAGE=1
+		source .shellscript_functions >/dev/null 2>&1
+		RET_OUT="$( "$@" 2>/dev/null )"
+		RET_ERR="$( "$@" 2>&1 >/dev/null )"
+	else
+		RET_OUT="$( python3 .shellscript_functions.py "$@" 2>/dev/null )"
+		RET_ERR="$( python3 .shellscript_functions.py "$@" 2>&1 >/dev/null )"
+	fi
+}
+
+check_result() {
+	# check_result "NAME" "GOT" "EXPECTED" "STREAM(0=stdout,1=stderr)"
+	local name="$1"
+	local got="$2"
+	local expected="$3"
+	local stream="$4"
+
+	if [[ "$got" != "$expected" ]]; then
+		red_text "FAIL: $name (stream $stream)\n"
+		red_text "  expected: $(printf '%q' "$expected")\n"
+		red_text "  got:      $(printf '%q' "$got")\n"
+		errors+=("$name (stream $stream)")
+	fi
+}
+
+make_bar() {
+	local filled=$1
+	local empty=$((30 - filled))
+	local bar=""
+	for ((i=0; i<filled; i++)); do
+		bar+="$BAR_CHAR"
+	done
+	for ((i=0; i<empty; i++)); do
+		bar+=" "
+	done
+	printf "[%s] " "$bar"
+}
+
+# --- displaytime ---
+run_function displaytime 0
+check_result "displaytime-0-stdout" "$RET_OUT" "0 seconds" "stdout"
+check_result "displaytime-0-stderr" "$RET_ERR" "" "stderr"
+
+run_function displaytime 59
+check_result "displaytime-59-stdout" "$RET_OUT" "59 seconds" "stdout"
+
+run_function displaytime 3661
+check_result "displaytime-3661-stdout" "$RET_OUT" "1 hours 1 minutes and 1 seconds" "stdout"
+
+run_function displaytime 90061
+check_result "displaytime-90061-stdout" "$RET_OUT" "1 days 1 hours 1 minutes and 1 seconds" "stdout"
+
+# --- generate_progress_bar ---
+run_function generate_progress_bar 0 30
+check_result "bar-0-stdout" "$RET_OUT" "$(make_bar 0)" "stdout"
+check_result "bar-0-stderr" "$RET_ERR" "" "stderr"
+
+run_function generate_progress_bar 10 30
+check_result "bar-10-stdout" "$RET_OUT" "$(make_bar 10)" "stdout"
+
+run_function generate_progress_bar 15 30
+check_result "bar-15-stdout" "$RET_OUT" "$(make_bar 15)" "stdout"
+
+run_function generate_progress_bar 30 30
+check_result "bar-30-stdout" "$RET_OUT" "$(make_bar 30)" "stdout"
+
+if [[ ${#errors[@]} -eq 0 ]]; then
+	green_text "shellscript_functions ($MODE): No errors"
+	exit 0
+else
+	red_text "=> SHELLSCRIPT_FUNCTIONS-ERRORS =>\n"
+	for i in "${errors[@]}"; do
+		red_text "$i\n"
+	done
+
+	exit ${#errors[@]}
+fi
+}

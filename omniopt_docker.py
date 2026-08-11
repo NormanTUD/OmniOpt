@@ -1,0 +1,276 @@
+#!/usr/bin/env python3
+"""omniopt_docker - Build and run OmniOpt inside a Docker container.
+
+Python rewrite of the former ``omniopt_docker`` bash script.
+
+Usage:
+    python3 omniopt_docker.py [inner command]
+
+If ``inner command`` is empty, the script only builds and starts the
+container.  Otherwise it runs the inner command inside a fresh container
+that has the project's ``runs/``, ``logs/`` and matplotlib config mounted.
+
+The script is split into small, pure functions so the behaviour can be
+exercised without a real docker daemon (see :file:`.tests/test_omniopt_docker.py`).
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, List, Optional, Sequence
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+
+DOCKER_IMAGE_NAME = "omniopt_omniopt2"
+
+INNER_PREFIXES = ("./omniopt", "omniopt", "./.tests/", ".tests/", "python3 ")
+
+ACCEPTED_SUFFIXES_FOR_PARENT_DIR = (
+    ".csv",
+    ".txt",
+    ".log",
+    ".json",
+)
+
+
+# ---------------------------------------------------------------------------
+# Pure helpers (used by tests)
+# ---------------------------------------------------------------------------
+
+
+def determine_docker_cmd(*, in_docker_group: bool) -> tuple[str, str]:
+    """Return (compose_cmd, run_cmd) based on group membership."""
+    if in_docker_group:
+        return "docker compose", "docker"
+    return "sudo docker compose", "sudo docker"
+
+
+def validate_inner_command(inner: str) -> None:
+    """Reject dangerous-looking inner commands.
+
+    The original bash only allowed commands starting with one of the
+    well-known prefixes (``omniopt*``, ``.tests/*``, ``python3 ...``).
+    Anything else is treated as user input that must not be passed to
+    docker.
+    """
+    if not any(inner.startswith(prefix) for prefix in INNER_PREFIXES):
+        raise ValueError(
+            f"Invalid inner command {inner!r}: must start with one of {INNER_PREFIXES}"
+        )
+
+
+@dataclass
+class RunCommand:
+    """The full ``docker run ...`` invocation, broken into pieces."""
+
+    cmd: List[str]
+    interpreter: str
+    target: str
+
+
+def build_run_command(
+    *,
+    inner: str,
+    docker_name: str,
+    docker_cmd: str,
+    pwd: str,
+    home: str,
+    has_display: bool,
+) -> List[str]:
+    """Build the ``docker run`` argv.
+
+    The bash version translated ``./foo`` -> ``/var/opt/omniopt/foo`` and
+    ``python3 foo`` -> ``python3 /var/opt/omniopt/foo``.  We replicate
+    that here.
+    """
+    validate_inner_command(inner)
+
+    if inner.startswith("python3 "):
+        interpreter = "python3"
+        target = "/var/opt/omniopt/" + inner[len("python3 "):].lstrip()
+    else:
+        interpreter = "bash"
+        target = "/var/opt/omniopt/" + inner
+
+    cmd: List[str] = [
+        docker_cmd,
+        "run",
+        "-v", f"{pwd}/logs:/var/opt/omniopt/logs:rw",
+        "-v", f"{pwd}/runs:/var/opt/omniopt/runs:rw",
+        "-v", f"{pwd}/:/var/opt/omniopt/docker_user_dir:rw",
+        "-v", f"{home}/.config/matplotlib_docker_omniopt:{home}/.config/matplotlib:rw",
+        "--mount", "type=tmpfs,destination=/tmp",
+        "-t", "--rm", docker_name,
+        interpreter, target,
+    ]
+
+    if has_display:
+        extra = [
+            f"--user={os.getuid() if hasattr(os, 'getuid') else 0}",
+            "--env=display",
+            "--volume=/etc/group:/etc/group:ro",
+            "--volume=/etc/passwd:/etc/passwd:ro",
+            "--volume=/etc/shadow:/etc/shadow:ro",
+            "--volume=/etc/sudoers.d:/etc/sudoers.d:ro",
+            "--volume=/tmp/.X11-unix:/tmp/.X11-unix:rw",
+        ]
+        idx = cmd.index("-t")
+        cmd = cmd[:idx] + extra + cmd[idx:]
+
+    return cmd
+
+
+# ---------------------------------------------------------------------------
+# I/O helpers (mockable via the injected dependencies in main())
+# ---------------------------------------------------------------------------
+
+
+def _default_check_cmd(cmd: str) -> bool:
+    return shutil.which(cmd) is not None
+
+
+def _default_mkdir(paths: Sequence[str]) -> None:
+    for p in paths:
+        Path(p).mkdir(parents=True, exist_ok=True)
+
+
+def _default_docker_build(compose_cmd: str) -> int:
+    args = compose_cmd.split() + [
+        "build",
+        "--build-arg",
+        f"GetMyUsername={os.environ.get('USER', 'root')}",
+    ]
+    return subprocess.run(args).returncode
+
+
+def _default_docker_up(compose_cmd: str) -> int:
+    args = compose_cmd.split() + ["up", "-d"]
+    return subprocess.run(args).returncode
+
+
+def _default_docker_run(cmd: List[str]) -> int:
+    return subprocess.run(cmd).returncode
+
+
+def _default_in_docker_group() -> bool:
+    try:
+        groups = subprocess.run(
+            ["groups"], check=False, capture_output=True, text=True
+        ).stdout
+    except OSError:
+        return False
+    return "docker" in groups.split()
+
+
+def _has_display() -> bool:
+    return bool(os.environ.get("DISPLAY"))
+
+
+HELP_TEXT = """\
+Usage: omniopt_docker [OPTIONS] [INNER COMMAND]
+
+Options:
+  --help     Show this help and exit.
+
+If INNER COMMAND is omitted, the docker image is built and the container
+started.  Otherwise the inner command is executed inside a fresh
+container that mounts runs/, logs/ and the matplotlib config directory.
+
+Allowed INNER COMMAND prefixes:
+  ./omniopt ...
+  omniopt ...
+  ./.tests/...
+  .tests/...
+  python3 ...
+"""
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="omniopt_docker",
+        description="Build and run OmniOpt inside a Docker container.",
+        add_help=False,
+    )
+    p.add_argument("--help", action="store_true", help="Show this help and exit.")
+    return p
+
+
+def main(
+    argv: Optional[Sequence[str]] = None,
+    *,
+    check_cmd: Callable[[str], bool] = _default_check_cmd,
+    mkdir: Callable[[Sequence[str]], None] = _default_mkdir,
+    docker_build: Callable[[str], int] = _default_docker_build,
+    docker_up: Callable[[str], int] = _default_docker_up,
+    docker_run: Callable[[List[str]], int] = _default_docker_run,
+    docker_cmd: Optional[str] = None,
+    in_docker_group: Optional[bool] = None,
+    has_display: Optional[bool] = None,
+    pwd: Optional[str] = None,
+    home: Optional[str] = None,
+) -> int:
+    """Entry point with all side-effecting helpers injectable for tests."""
+    parser = _build_parser()
+    args, inner = parser.parse_known_args(list(argv) if argv is not None else sys.argv[1:])
+    if args.help:
+        print(HELP_TEXT)
+        return 0
+
+    if has_display is None:
+        has_display = _has_display()
+    if in_docker_group is None:
+        in_docker_group = _default_in_docker_group()
+    if docker_cmd is None:
+        compose_cmd, run_cmd = determine_docker_cmd(in_docker_group=in_docker_group)
+    else:
+        compose_cmd, run_cmd = ("docker compose", docker_cmd)
+    if pwd is None:
+        pwd = os.getcwd()
+    if home is None:
+        home = os.path.expanduser("~")
+
+    mkdir([f"{pwd}/runs", f"{pwd}/logs"])
+
+    if docker_build(compose_cmd) != 0:
+        print("Failed composing container", file=sys.stderr)
+        return 1
+
+    if docker_up(compose_cmd) != 0:
+        print("Failed to build container", file=sys.stderr)
+        return 1
+
+    if not inner:
+        return 0
+
+    try:
+        validate_inner_command(inner[0])
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    mkdir([f"{home}/.config/matplotlib_docker_omniopt"])
+    cmd = build_run_command(
+        inner=inner[0],
+        docker_name=DOCKER_IMAGE_NAME,
+        docker_cmd=run_cmd,
+        pwd=pwd,
+        home=home,
+        has_display=has_display,
+    )
+    rc = docker_run(cmd)
+    if rc != 0:
+        print(f"Command 2 failed. Docker images:", file=sys.stderr)
+        subprocess.run([run_cmd, "images"], check=False)
+        return rc
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

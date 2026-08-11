@@ -67,9 +67,11 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     if quiet:
         cmd.append("-q")
     cmd.extend(args)
+    _pip._cancelled = False  # type: ignore[attr-defined]
     try:
         return subprocess.run(cmd).returncode
     except KeyboardInterrupt:
+        _pip._cancelled = True  # type: ignore[attr-defined]
         print("pip cancelled by user", file=sys.stderr)
         return 130
 

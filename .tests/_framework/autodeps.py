@@ -75,12 +75,20 @@ def ensure_imports(
         ensure_imports._cancelled = True  # type: ignore[attr-defined]
         print("Dependency install cancelled by user", file=sys.stderr)
         return False
+    if venv_dir is None and _pip_was_cancelled():
+        ensure_imports._cancelled = True  # type: ignore[attr-defined]
     if venv_dir:
         add_venv_to_path(venv_dir)
         if all(_importable(module) for module, _ in missing):
             return True
 
     return False
+
+
+def _pip_was_cancelled() -> bool:
+    """Did the last ``installer._pip(...)`` call observe a KeyboardInterrupt?"""
+    from .installer import _pip
+    return getattr(_pip, "_cancelled", False)
 
 
 def ensure_imports_or_exit(

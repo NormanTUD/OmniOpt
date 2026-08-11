@@ -17,7 +17,7 @@ ALLOWED = {
     "version", "num_cpus_main_job", "workdir", "show_ram_every_n_seconds",
     "send_anonymized_usage_stats", "run_mode", "root_venv_dir", "partition",
     "flame_graph", "ui_url", "debug", "dependency",
-    "checkout_to_latest_tested_version",
+    "checkout_to_latest_tested_version", "install"
 }
 
 

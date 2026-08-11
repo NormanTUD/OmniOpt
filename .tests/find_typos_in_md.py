@@ -20,26 +20,8 @@ from spellchecker import SpellChecker
 
 REPO_ROOT = THIS_DIR.parent
 
-parser = argparse.ArgumentParser(description='Analyze Markdown files and check the spelling of words.')
-parser.add_argument(
-    "--lang", default="en", help="Specify the language (default is 'en')"
-)
-parser.add_argument('files', metavar='FILE', nargs='*', help='The Markdown files to analyze.')
-args = parser.parse_args()
 
-if not args.files:
-    args.files = [str(p) for p in find_files(REPO_ROOT, (".md",))]
-
-console = Console()
-
-# Initialize spellchecker with chosen language dictionary
-try:
-    spell = SpellChecker(language=args.lang)
-except Exception as e:
-    console.print(f"[red]Failed to initialize SpellChecker with language '{args.lang}': {e}[/red]")
-    sys.exit(1)
-
-def read_file_to_array(file_path):
+def read_file_to_array(console, file_path):
     if not os.path.exists(file_path):
         console.print(f"[red]Cannot find file {file_path}[/red]")
         sys.exit(9)
@@ -47,16 +29,9 @@ def read_file_to_array(file_path):
         lines = [line.strip() for line in file.readlines()]
     return lines
 
-# Read the whitelist from the file (words to ignore).
-# Convert to a set of lower-cased patterns for O(1) lookup instead of
-# scanning the full list per word (which dominates the runtime for
-# large docs).
-IGNORE_PATTERNS = read_file_to_array(".tests/whitelisted_words")
-IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
 
-
-def is_ignored(word):
-    return word.lower() in IGNORE_SET
+def is_ignored(word, ignore_set):
+    return word.lower() in ignore_set
 
 def is_valid_word(word):
     # Only letters (no digits or punctuation), length >=1
@@ -96,7 +71,7 @@ def extract_words_from_markdown(content):
 
     return words
 
-def analyze_markdown_file(filepath, progress):
+def analyze_markdown_file(spell, ignore_set, filepath, progress):
     with open(filepath, mode='r', encoding='utf-8') as file:
         content = file.read()
 
@@ -126,7 +101,7 @@ def analyze_markdown_file(filepath, progress):
             )
 
         if is_valid_word(cleaned_word):
-            if not is_ignored(cleaned_word):
+            if not is_ignored(cleaned_word, ignore_set):
                 corrected = spell.correction(cleaned_word)
                 if corrected != cleaned_word:
                     # Avoid duplicates
@@ -140,6 +115,33 @@ def analyze_markdown_file(filepath, progress):
     return possibly_incorrect_words
 
 def main():
+    parser = argparse.ArgumentParser(description='Analyze Markdown files and check the spelling of words.')
+    parser.add_argument(
+        "--lang", default="en", help="Specify the language (default is 'en')"
+    )
+    parser.add_argument('files', metavar='FILE', nargs='*', help='The Markdown files to analyze.')
+    args = parser.parse_args()
+
+    if not args.files:
+        args.files = [str(p) for p in find_files(REPO_ROOT, (".md",))]
+
+    console = Console()
+
+    # Initialize spellchecker with chosen language dictionary
+    # (deferred so a KeyboardInterrupt here can still be caught cleanly).
+    try:
+        spell = SpellChecker(language=args.lang)
+    except Exception as e:
+        console.print(f"[red]Failed to initialize SpellChecker with language '{args.lang}': {e}[/red]")
+        sys.exit(1)
+
+    # Read the whitelist from the file (words to ignore).
+    # Convert to a set of lower-cased patterns for O(1) lookup instead of
+    # scanning the full list per word (which dominates the runtime for
+    # large docs).
+    IGNORE_PATTERNS = read_file_to_array(console, ".tests/whitelisted_words")
+    IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
+
     typo_files = 0
     results = {}
 
@@ -148,7 +150,7 @@ def main():
         with Progress(transient=True) as progress:
             for filepath in args.files:
                 if os.path.splitext(filepath)[1].lower() == '.md':
-                    possibly_incorrect_words = analyze_markdown_file(filepath, progress)
+                    possibly_incorrect_words = analyze_markdown_file(spell, IGNORE_SET, filepath, progress)
                     results[filepath] = possibly_incorrect_words
 
                     if possibly_incorrect_words:
@@ -160,7 +162,7 @@ def main():
             if os.path.splitext(filepath)[1].lower() == '.md':
                 if i % 5 == 0 or i == 1:
                     print(f"  [{i}] analyzing {filepath}", file=sys.stderr)
-                possibly_incorrect_words = analyze_markdown_file(filepath, None)
+                possibly_incorrect_words = analyze_markdown_file(spell, IGNORE_SET, filepath, None)
                 results[filepath] = possibly_incorrect_words
 
                 if possibly_incorrect_words:
@@ -188,6 +190,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        sys.exit(main())
     except KeyboardInterrupt:
-        console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")
+        print("Cancelled script by using CTRL + C", file=sys.stderr)
+        sys.exit(0)

@@ -140,6 +140,10 @@
 	// to a plain file_exists() check that works under both.
 	$manifest_tmp = $_FILES["manifest"]["tmp_name"] ?? null;
 	if ($manifest_tmp && file_exists($manifest_tmp)) {
+		if (!class_exists("ZipArchive")) {
+			print("Error: server is missing the PHP zip extension; manifest protocol unavailable.\n");
+			exit(1);
+		}
 		$manifest_raw = file_get_contents($manifest_tmp);
 		$manifest = json_decode($manifest_raw, true);
 		if (!is_array($manifest)) {

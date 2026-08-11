@@ -54,6 +54,15 @@ def _free_port() -> int:
     return port
 
 
+def _php_has_zip() -> bool:
+    """Return True if the PHP CLI has the zip extension loaded."""
+    proc = subprocess.run(
+        ["php", "-r", 'exit(class_exists("ZipArchive") ? 0 : 1);'],
+        capture_output=True,
+    )
+    return proc.returncode == 0
+
+
 def _wait_for_server(url: str, timeout: float = 10.0) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -123,6 +132,9 @@ def test_php_share_internal_parses() -> bool:
 def test_share_end_to_end() -> bool:
     if not shutil.which("php"):
         return _check(False, "php is not installed")
+    if not _php_has_zip():
+        print("SKIP (php-zip not installed)")
+        return True
     port = _free_port()
     share_root = Path(tempfile.mkdtemp(prefix="oo_share_int_"))
     share_path = share_root / "shares"
@@ -206,6 +218,9 @@ def test_share_end_to_end() -> bool:
 def test_share_rejects_unsafe_archive_path() -> bool:
     if not shutil.which("php"):
         return _check(False, "php is not installed")
+    if not _php_has_zip():
+        print("SKIP (php-zip not installed)")
+        return True
     port = _free_port()
     share_root = Path(tempfile.mkdtemp(prefix="oo_share_int_"))
     share_path = share_root / "shares"
@@ -273,6 +288,9 @@ def test_share_rejects_unsafe_archive_path() -> bool:
 def test_share_rejects_bad_sha() -> bool:
     if not shutil.which("php"):
         return _check(False, "php is not installed")
+    if not _php_has_zip():
+        print("SKIP (php-zip not installed)")
+        return True
     port = _free_port()
     share_root = Path(tempfile.mkdtemp(prefix="oo_share_int_"))
     share_path = share_root / "shares"

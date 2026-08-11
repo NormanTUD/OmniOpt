@@ -58,7 +58,7 @@ tests:
 
   - id: share_ci
     name: "share"
-    cmd: "python3 {REPO_ROOT}/.tests/share.py"
+    cmd: "python3 {REPO_ROOT}/.tests/share_integration_extended.py"
     wanted_exit_code: 0
     tags: [suite:share, env:ci]
 
@@ -662,6 +662,7 @@ smoke_tests:
   - test_omniopt_evaluate
   - test_omniopt_plot
   - test_omniopt_share
+  - test_omniopt_share_comprehensive
   - test_omniopt_install
   - test_share_docker_smoke
   - state_files

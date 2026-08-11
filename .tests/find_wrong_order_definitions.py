@@ -180,8 +180,14 @@ if len(sys.argv) > 1:
         print(f"File '{sys.argv[1]}' does not exist")
         sys.exit(1)
 else:
-    print("Not enough parameters")
-    sys.exit(1)
+    # No file given: check all .py files in the repo (smoke-tests
+    # convention) and concatenate their sources.
+    repo_root = Path(__file__).resolve().parent.parent
+    py_files = sorted(repo_root.glob("*.py")) + sorted(repo_root.glob(".*.py"))
+    code = ""
+    for p in py_files:
+        if p.is_file():
+            code += p.read_text(encoding="utf-8", errors="ignore") + "\n\n"
 
 tree = ast.parse(code)
 checker = UndefinedVariableChecker()

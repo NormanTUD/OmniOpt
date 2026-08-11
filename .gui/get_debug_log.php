@@ -10,6 +10,11 @@
 
 		validate_directory($run_folder);
 
+		// Fallback: unpack bundle.zip if the requested log isn't there yet.
+		if (!file_exists("$run_folder/log")) {
+			ensure_share_bundle_extracted($run_folder);
+		}
+
 		$path = "$run_folder/log";;
 
 		if(file_exists($path)) {

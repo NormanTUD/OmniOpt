@@ -16,7 +16,9 @@
 $OO_TARGET_FILE = getenv("OO_TARGET_FILE") ?: (__DIR__ . "/share_internal.php");
 
 if (!file_exists($OO_TARGET_FILE)) {
-    fwrite(STDERR, "OO_TARGET_FILE does not exist: $OO_TARGET_FILE\n");
+    if (defined('STDERR')) {
+        fwrite(STDERR, "OO_TARGET_FILE does not exist: $OO_TARGET_FILE\n");
+    }
     http_response_code(500);
     exit(1);
 }

@@ -268,7 +268,10 @@ def main(
 
     if inner:
         try:
-            validate_inner_command(inner[0])
+            # Join back into a single string so ``python3 .tests/main``
+            # matches the ``python3 `` prefix the same way it did in
+            # the original bash script.
+            validate_inner_command(" ".join(inner))
         except ValueError as e:
             print(f"Error: {e}", file=sys.stderr)
             return 1

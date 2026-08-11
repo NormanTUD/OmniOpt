@@ -2575,7 +2575,7 @@ def _omniopt_make_choiceparam_decoder_safe() -> None:
                 _orig = decoder_registry["ChoiceParameter"]
             except KeyError:
                 return
-            def _safe_choiceparam(*_args, **_kwargs):
+            def _safe_choiceparam(*_args, _orig=_orig, **_kwargs):
                 _kwargs.pop("sort_values", None)
                 _kwargs.pop("log_scale", None)
                 return _orig(*_args, **_kwargs)

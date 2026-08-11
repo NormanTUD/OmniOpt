@@ -119,15 +119,29 @@ def main():
     console = Console()
     typo_files = 0
 
-    # Progress bar setup with Rich
-    with Progress(console=console, transient=True, auto_refresh=True) as progress:
-        for filepath in files:
-            # Each progress bar disappears once 100% complete
-            task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
-
-            # Analyze the file and show real-time progress
+    # Use rich's progress bar only when running in an interactive
+    # terminal; otherwise the auto-refresh becomes pure overhead and
+    # dominates the runtime (many add_task calls = many subprocess
+    # waitpid's per file).
+    use_progress = console.is_terminal
+    if use_progress:
+        with Progress(console=console, transient=True, auto_refresh=True) as progress:
+            for filepath in files:
+                task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
+                try:
+                    possibly_incorrect_words = analyze_file(filepath, progress, task_id)
+                    if possibly_incorrect_words:
+                        typo_files += 1
+                        console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
+                except SyntaxError:
+                    print(f"File {filepath} is not valid python. Cannot continue.")
+                    sys.exit(1)
+    else:
+        for i, filepath in enumerate(files, start=1):
+            if i % 20 == 0 or i == len(files):
+                print(f"  [{i}/{len(files)}] analyzing {filepath}", file=sys.stderr)
             try:
-                possibly_incorrect_words = analyze_file(filepath, progress, task_id)
+                possibly_incorrect_words = analyze_file(filepath, None, None)
                 if possibly_incorrect_words:
                     typo_files += 1
                     console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")

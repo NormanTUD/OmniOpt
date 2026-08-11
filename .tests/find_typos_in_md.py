@@ -107,8 +107,10 @@ def analyze_markdown_file(filepath, progress):
     if total_words == 0:
         return possibly_incorrect_words
 
-    # Create a progress task for each file
-    task_id = progress.add_task(f"[bold]Analyzing {filepath}[/bold]", total=total_words)
+    # Create a progress task for each file (only when progress is enabled)
+    task_id = None
+    if progress is not None:
+        task_id = progress.add_task(f"[bold]Analyzing {filepath}[/bold]", total=total_words)
 
     current_word_count = 0
     seen_words = set()
@@ -117,7 +119,11 @@ def analyze_markdown_file(filepath, progress):
         cleaned_word = clean_word(word)
         current_word_count += 1
 
-        progress.update(task_id, advance=1, description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]")
+        if task_id is not None:
+            progress.update(
+                task_id, advance=1,
+                description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]",
+            )
 
         if is_valid_word(cleaned_word):
             if not is_ignored(cleaned_word):
@@ -129,23 +135,38 @@ def analyze_markdown_file(filepath, progress):
                         possibly_incorrect_words.append(cleaned_word)
                         seen_words.add(lowered)
 
-    progress.update(task_id, completed=True)
+    if task_id is not None:
+        progress.update(task_id, completed=True)
     return possibly_incorrect_words
 
 def main():
     typo_files = 0
     results = {}
 
-    with Progress(transient=True) as progress:
-        for filepath in args.files:
+    use_progress = console.is_terminal
+    if use_progress:
+        with Progress(transient=True) as progress:
+            for filepath in args.files:
+                if os.path.splitext(filepath)[1].lower() == '.md':
+                    possibly_incorrect_words = analyze_markdown_file(filepath, progress)
+                    results[filepath] = possibly_incorrect_words
+
+                    if possibly_incorrect_words:
+                        typo_files += 1
+                        console.print(f"\n[red]Unknown or misspelled words in {filepath}:[/red]")
+                        console.print("\n[red]" + "\n".join(possibly_incorrect_words) + "[/red]")
+    else:
+        for i, filepath in enumerate(args.files, start=1):
             if os.path.splitext(filepath)[1].lower() == '.md':
-                possibly_incorrect_words = analyze_markdown_file(filepath, progress)
+                if i % 5 == 0 or i == 1:
+                    print(f"  [{i}] analyzing {filepath}", file=sys.stderr)
+                possibly_incorrect_words = analyze_markdown_file(filepath, None)
                 results[filepath] = possibly_incorrect_words
 
                 if possibly_incorrect_words:
                     typo_files += 1
-                    console.print(f"\n[red]Unknown or misspelled words in {filepath}:[/red]")
-                    console.print("\n[red]" + "\n".join(possibly_incorrect_words) + "[/red]")
+                    print(f"\nUnknown or misspelled words in {filepath}:", file=sys.stderr)
+                    print("\n".join(possibly_incorrect_words), file=sys.stderr)
 
     # Summary Table
     if results:

@@ -24,15 +24,17 @@ STEPS = [
 
 def main(argv=None) -> int:
     for label, name, exit_code in STEPS:
-        script = THIS_DIR / name
-        if not script.exists():
+        py_script = THIS_DIR / f"{name}.py"
+        bash_script = THIS_DIR / name
+        if not py_script.exists() and not bash_script.exists():
             print(f"{name}: not found", file=sys.stderr)
             return exit_code
-        # Prefer the .py variant if it exists.
+        # Prefer the .py variant; fall back to bash only if it exists.
         candidates = []
-        if (THIS_DIR / f"{name}.py").exists():
-            candidates.append(f"python3 {THIS_DIR / f'{name}.py'}")
-        candidates.append(f"bash {script}")
+        if py_script.exists():
+            candidates.append(f"python3 {py_script}")
+        if bash_script.exists():
+            candidates.append(f"bash {bash_script}")
         last_code = 0
         for cmd in candidates:
             proc = subprocess.run(cmd, shell=True, cwd=str(THIS_DIR.parent))

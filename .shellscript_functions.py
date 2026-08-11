@@ -152,7 +152,10 @@ def error_message(msg: str) -> int:
     lines, columns = _terminal_size()
     env = os.environ.copy()
     env["NEWT_COLORS"] = (
-        "window=,red\nborder=white,red\ntextbox=white,red\nbutton=black,white\n"
+        "window=,red\n"
+        "border=white,red\n"
+        "textbox=white,red\n"
+        "button=black,white\n"
     )
     subprocess.run(
         [
@@ -250,7 +253,7 @@ def _collect_dependencies(module: str) -> list[str]:
         line = line.strip()
         if not line.startswith("Collecting "):
             continue
-        dep = line[len("Collecting ") :]
+        dep = line[len("Collecting "):]
         dep = dep.split()[0]
         if dep and dep != module:
             dependencies.append(dep)

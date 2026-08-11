@@ -14,12 +14,14 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.helpers import red_text
+from _framework.installer import ensure_dependencies
 
 
 REPO_ROOT = THIS_DIR.parent
 
 
 def main(argv=None) -> int:
+    ensure_dependencies()
     os.environ.setdefault("install_tests", "1")
     lizard_bin = shutil.which("lizard")
     if lizard_bin is None:

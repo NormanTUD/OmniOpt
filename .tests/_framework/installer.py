@@ -123,7 +123,12 @@ def install_packages(packages: List[str], *, quiet: bool = True) -> Path | None:
     venv_dir = _resolve_venv_dir()
     if not _create_venv(venv_dir):
         return None
-    if _pip(venv_dir, "install", *packages, quiet=quiet) != 0:
+    try:
+        rc = _pip(venv_dir, "install", *packages, quiet=quiet)
+    except KeyboardInterrupt:
+        print("install_packages cancelled by user", file=sys.stderr)
+        return None
+    if rc != 0:
         return None
     return venv_dir
 

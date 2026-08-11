@@ -111,6 +111,13 @@ _mkdir $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
 	./omniopt*|omniopt*|./.tests/*|.tests/*)
+		if [[ "$ORIGINAL_ARGS" == python3* ]]; then
+			DOCKER_INTERPRETER="python3"
+			DOCKER_TARGET="/var/opt/omniopt/${ORIGINAL_ARGS#python3 }"
+		else
+			DOCKER_INTERPRETER="bash"
+			DOCKER_TARGET="/var/opt/omniopt/$ORIGINAL_ARGS"
+		fi
 		if [[ -z $DISPLAY ]]; then
 			$DOCKER_CMD run \
 				-v $(pwd)/logs:/var/opt/omniopt/logs:rw \
@@ -119,7 +126,7 @@ case "$ORIGINAL_ARGS" in
 				-v /$HOME/.config/matplotlib_docker_omniopt:$HOME/.config/matplotlib:rw \
 				--mount type=tmpfs,destination=/tmp \
 				-t --rm $docker_name \
-				bash /var/opt/omniopt/$ORIGINAL_ARGS \
+				$DOCKER_INTERPRETER $DOCKER_TARGET \
 			|| {
 				exit_code=$?
 				red_text "Command 2 failed. Docker images:"
@@ -141,7 +148,7 @@ case "$ORIGINAL_ARGS" in
 				--volume="/etc/sudoers.d:/etc/sudoers.d:ro" \
 				--volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 				-t --rm $docker_name \
-				bash /var/opt/omniopt/$ORIGINAL_ARGS \
+				$DOCKER_INTERPRETER $DOCKER_TARGET \
 			|| {
 				exit_code=$?
 				red_text "Command 2 failed. Docker images:"

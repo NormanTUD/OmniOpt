@@ -74,7 +74,7 @@ jobs:
     - name: Smoke Tests
       if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
-        .tests/smoke_tests
+        python3 .tests/smoke_tests.py
 
     - name: GUI-only Tests
       if: needs.detect_changes.outputs.gui_only == 'true'
@@ -84,7 +84,7 @@ jobs:
     - name: Run linter
       if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
-        ./.tests/linter --check_only_changed_since_last_success
+        python3 .tests/linter.py --check_only_changed_since_last_success
 
   install-via-pip:
     needs: [smoke-tests, docker-test, detect_changes]
@@ -125,7 +125,7 @@ jobs:
         .tools/ci_dependency
     - name: main test script
       run: |
-        ./omniopt_docker .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
+        ./omniopt_docker python3 .tests/main.py --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
     needs: [smoke-tests, install-via-pip, detect_changes]
@@ -174,12 +174,12 @@ jobs:
 
     - name: plot tests
       run: |
-        bash ./.tests/plots
+        python3 .tests/plots.py
 
     - name: main test script
       shell: bash
       run: |
-        ./.tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
+        python3 .tests/main.py --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
 
     - uses: release-drafter/release-drafter@v5
       with:

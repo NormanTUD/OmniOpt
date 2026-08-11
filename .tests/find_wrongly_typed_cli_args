@@ -51,6 +51,8 @@ def main(argv=None) -> int:
 
         if default in ("True", "False"):
             arg_type = "bool"
+        if action == "store_true" or action == "store_false":
+            arg_type = "bool"
         if default == "None":
             arg_type = f"Optional[{arg_type}]"
         if default == "[]":

@@ -1,7 +1,20 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""gpu_disconnected - randomly reports an AmpOptimizerWrapper error
+or a RESULT line."""
 
-if [[ $(( RANDOM % 2 )) -eq 0 ]]; then
-	echo "AssertionError: \`\`AmpOptimizerWrapper\`\` is only available training"
-else
-	echo "RESULT: $RANDOM"
-fi
+import random
+import sys
+
+
+def main() -> int:
+    if random.randint(0, 1) == 0:
+        print(
+            "AssertionError: ``AmpOptimizerWrapper`` is only available training"
+        )
+    else:
+        print(f"RESULT: {random.randint(0, 2**31 - 1)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

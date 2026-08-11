@@ -1,7 +1,17 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""storage_error - randomly reports a Read/Write failure or a RESULT."""
 
-if [[ $(( RANDOM % 2 )) -eq 0 ]]; then
-	echo "Read/Write failure"
-else
-	echo "RESULT: $RANDOM"
-fi
+import random
+import sys
+
+
+def main() -> int:
+    if random.randint(0, 1) == 0:
+        print("Read/Write failure")
+    else:
+        print(f"RESULT: {random.randint(0, 2**31 - 1)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

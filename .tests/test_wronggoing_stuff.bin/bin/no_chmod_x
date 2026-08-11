@@ -1,3 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-echo "RESULT: $RANDOM"
+import random
+print(f"RESULT: {random.randint(0, 2**31 - 1)}")

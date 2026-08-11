@@ -29,10 +29,11 @@ THIS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = THIS_DIR.parent
 
 sys.path.insert(0, str(REPO_ROOT))
-import importlib.util  # noqa: E402
 from importlib.machinery import SourceFileLoader  # noqa: E402
 
-od = SourceFileLoader("omniopt_docker", str(REPO_ROOT / "omniopt_docker")).load_module()
+od = SourceFileLoader(
+    "omniopt_docker", str(REPO_ROOT / "omniopt_docker")
+).load_module()
 
 from _framework.helpers import red_text  # noqa: E402
 
@@ -44,50 +45,14 @@ def _check(condition: bool, message: str) -> bool:
     return True
 
 
-def test_help_flag_returns_zero() -> bool:
-    rc = od.main(["--help"])
-    return _check(rc == 0, f"--help should exit 0, got {rc}")
+def _all_passed(*mocks: str) -> dict:
+    """Return a dict of mock callables whose names are mapped to ``lambda c: 0``."""
+    return {name: (lambda *a, **kw: 0) for name in mocks}
 
 
-def test_no_args_just_builds_and_exits_zero(monkeypatch=None) -> bool:
-    """Without an inner command, omniopt_docker only builds the image."""
-    captured: dict = {}
-
-    def fake_check(cmd: str) -> bool:
-        captured.setdefault("checked", []).append(cmd)
-        return True
-
-    def fake_mkdir(paths) -> None:
-        captured.setdefault("mkdir", []).extend(list(paths))
-
-    def fake_build(compose_cmd: str) -> int:
-        captured["built"] = compose_cmd
-        return 0
-
-    def fake_up(compose_cmd: str) -> int:
-        captured["up"] = compose_cmd
-        return 0
-
-    def fake_run(cmd) -> int:
-        captured["ran"] = cmd
-        return 0
-
-    rc = od.main(
-        [],
-        check_cmd=fake_check,
-        mkdir=fake_mkdir,
-        docker_build=fake_build,
-        docker_up=fake_up,
-        docker_run=fake_run,
-        docker_cmd="docker",
-        in_docker_group=True,
-        has_display=False,
-    )
-    ok = _check(rc == 0, f"no-args exit should be 0, got {rc}")
-    ok &= _check("built" in captured, "docker compose build was not invoked")
-    ok &= _check("up" in captured, "docker compose up was not invoked")
-    ok &= _check("ran" not in captured, "docker run must NOT be invoked without a command")
-    return ok
+# ---------------------------------------------------------------------------
+# Pure-function tests (no I/O at all)
+# ---------------------------------------------------------------------------
 
 
 def test_docker_command_with_group() -> bool:
@@ -104,56 +69,6 @@ def test_docker_command_without_group() -> bool:
         compose == "sudo docker compose" and run == "sudo docker",
         f"got ({compose!r}, {run!r})",
     )
-
-
-def test_build_run_command_no_display() -> bool:
-    cmd = od.build_run_command(
-        inner="./omniopt --tests",
-        docker_name="omniopt_omniopt2",
-        docker_cmd="docker",
-        pwd="/work",
-        home="/home/u",
-        has_display=False,
-    )
-    s = " ".join(cmd)
-    ok = _check("--rm" in cmd and "omniopt_omniopt2" in cmd, f"missing image: {s}")
-    ok &= _check("/work/runs:/var/opt/omniopt/runs:rw" in s, f"runs mount missing: {s}")
-    ok &= _check("/work/logs:/var/opt/omniopt/logs:rw" in s, f"logs mount missing: {s}")
-    ok &= _check("--user=" not in s, f"--user must NOT be passed without DISPLAY: {s}")
-    ok &= _check("/etc/shadow" not in s, f"/etc/shadow must NOT be mounted without DISPLAY: {s}")
-    ok &= _check("bash" in cmd and "/var/opt/omniopt/./omniopt" in cmd, f"inner wrong: {s}")
-    return ok
-
-
-def test_build_run_command_with_display() -> bool:
-    cmd = od.build_run_command(
-        inner="./omniopt --tests",
-        docker_name="omniopt_omniopt2",
-        docker_cmd="docker",
-        pwd="/work",
-        home="/home/u",
-        has_display=True,
-    )
-    s = " ".join(cmd)
-    ok = _check("--user=" in s, f"--user= must be set with DISPLAY: {s}")
-    ok &= _check("/etc/shadow:/etc/shadow:ro" in s, f"/etc/shadow mount missing: {s}")
-    ok &= _check("/tmp/.X11-unix" in s, f"X11 socket mount missing: {s}")
-    ok &= _check("DISPLAY" in cmd, f"DISPLAY env missing: {s}")
-    return ok
-
-
-def test_build_run_command_python3_inner() -> bool:
-    cmd = od.build_run_command(
-        inner="python3 ./.tests/main.py --quick",
-        docker_name="omniopt_omniopt2",
-        docker_cmd="docker",
-        pwd="/work",
-        home="/home/u",
-        has_display=False,
-    )
-    ok = _check("python3" in cmd, f"python3 must be the interpreter: {cmd}")
-    ok &= _check("/var/opt/omniopt/.tests/main.py" in cmd, f"target path wrong: {cmd}")
-    return ok
 
 
 def test_validate_inner_command_valid_prefixes() -> bool:
@@ -180,64 +95,200 @@ def test_validate_inner_command_invalid_prefix() -> bool:
     return _check(False, "validate_inner_command accepted a dangerous input")
 
 
-def test_main_invalid_inner_command() -> bool:
-    """If the inner command has a bad prefix, exit code must be 1."""
-    rc = od.main(["rm -rf /"], docker_cmd="docker", in_docker_group=True)
-    return _check(rc == 1, f"invalid prefix must exit 1, got {rc}")
+def test_build_run_command_no_display() -> bool:
+    cmd = od.build_run_command(
+        inner="./omniopt --tests",
+        docker_name="omniopt_omniopt2",
+        docker_cmd="docker",
+        pwd="/work",
+        home="/home/u",
+        has_display=False,
+    )
+    s = " ".join(cmd)
+    ok = _check("--rm" in cmd, f"--rm missing: {s}")
+    ok &= _check("omniopt_omniopt2" in cmd, f"image missing: {s}")
+    ok &= _check("/work/runs:/var/opt/omniopt/runs:rw" in s, f"runs mount missing: {s}")
+    ok &= _check("/work/logs:/var/opt/omniopt/logs:rw" in s, f"logs mount missing: {s}")
+    ok &= _check("--user=" not in s, f"--user must NOT be passed without DISPLAY: {s}")
+    ok &= _check(
+        "/etc/shadow" not in s,
+        f"/etc/shadow must NOT be mounted without DISPLAY: {s}",
+    )
+    ok &= _check("/var/opt/omniopt/./omniopt" in s, f"target path wrong: {s}")
+    return ok
 
 
-def test_main_runs_inner_command(monkeypatch=None) -> bool:
-    captured: dict = {}
+def test_build_run_command_with_display() -> bool:
+    cmd = od.build_run_command(
+        inner="./omniopt --tests",
+        docker_name="omniopt_omniopt2",
+        docker_cmd="docker",
+        pwd="/work",
+        home="/home/u",
+        has_display=True,
+    )
+    s = " ".join(cmd)
+    ok = _check("--user=" in s, f"--user= must be set with DISPLAY: {s}")
+    ok &= _check("/etc/shadow:/etc/shadow:ro" in s, f"/etc/shadow mount missing: {s}")
+    ok &= _check("/tmp/.X11-unix" in s, f"X11 socket mount missing: {s}")
+    ok &= _check("--env=DISPLAY" in s, f"DISPLAY env missing: {s}")
+    return ok
 
-    def fake_run(cmd) -> int:
-        captured["cmd"] = cmd
+
+def test_build_run_command_python3_inner() -> bool:
+    cmd = od.build_run_command(
+        inner="python3 ./.tests/main.py --quick",
+        docker_name="omniopt_omniopt2",
+        docker_cmd="docker",
+        pwd="/work",
+        home="/home/u",
+        has_display=False,
+    )
+    s = " ".join(cmd)
+    ok = _check("python3" in cmd, f"python3 must be the interpreter: {s}")
+    ok &= _check("/var/opt/omniopt/.tests/main.py" in s, f"target path wrong: {s}")
+    return ok
+
+
+def test_build_run_command_uses_sudo_docker() -> bool:
+    cmd = od.build_run_command(
+        inner="./omniopt --tests",
+        docker_name="omniopt_omniopt2",
+        docker_cmd="sudo docker",
+        pwd="/work",
+        home="/home/u",
+        has_display=False,
+    )
+    return _check(cmd[0] == "sudo", f"expected 'sudo' as first token: {cmd[:2]}")
+
+
+# ---------------------------------------------------------------------------
+# main() tests (with all side-effects mocked)
+# ---------------------------------------------------------------------------
+
+
+def _mk_runner(captured: dict) -> dict:
+    """Return a kwargs dict with all I/O mocked for main()."""
+
+    def fake_check(_cmd: str) -> bool:
+        return True
+
+    def fake_mkdir(paths) -> None:
+        captured.setdefault("mkdir", []).extend(list(paths))
+
+    def fake_build(compose_cmd: str) -> int:
+        captured["built"] = compose_cmd
         return 0
 
-    rc = od.main(
-        ["./omniopt", "--tests"],
-        check_cmd=lambda c: True,
-        mkdir=lambda p: None,
-        docker_build=lambda c: 0,
-        docker_up=lambda c: 0,
+    def fake_up(compose_cmd: str) -> int:
+        captured["up"] = compose_cmd
+        return 0
+
+    def fake_run(cmd) -> int:
+        captured["ran"] = cmd
+        return 0
+
+    return dict(
+        check_cmd=fake_check,
+        mkdir=fake_mkdir,
+        docker_build=fake_build,
+        docker_up=fake_up,
         docker_run=fake_run,
         docker_cmd="docker",
         in_docker_group=True,
         has_display=False,
     )
+
+
+def test_help_flag_returns_zero() -> bool:
+    rc = od.main(["--help"])
+    return _check(rc == 0, f"--help should exit 0, got {rc}")
+
+
+def test_no_args_just_builds_and_exits_zero() -> bool:
+    captured: dict = {}
+    rc = od.main([], **_mk_runner(captured))
+    ok = _check(rc == 0, f"no-args exit should be 0, got {rc}")
+    ok &= _check("built" in captured, "docker compose build was not invoked")
+    ok &= _check("up" in captured, "docker compose up was not invoked")
+    ok &= _check("ran" not in captured, "docker run must NOT be invoked without a command")
+    return ok
+
+
+def test_main_invalid_inner_command() -> bool:
+    """If the inner command has a bad prefix, exit code must be 1 and no docker
+    call is made (validation happens first)."""
+    captured: dict = {}
+    rc = od.main(["rm -rf /"], **_mk_runner(captured))
+    ok = _check(rc == 1, f"invalid prefix must exit 1, got {rc}")
+    ok &= _check("built" not in captured, "must not invoke docker build on bad input")
+    ok &= _check("ran" not in captured, "must not invoke docker run on bad input")
+    return ok
+
+
+def test_main_runs_inner_command() -> bool:
+    captured: dict = {}
+    rc = od.main(["./omniopt", "--tests"], **_mk_runner(captured))
     ok = _check(rc == 0, f"expected exit 0, got {rc}")
-    ok &= _check("cmd" in captured, "docker_run was not called")
-    ok &= _check(captured["cmd"][0] == "docker", f"wrong docker binary: {captured['cmd']}")
+    ok &= _check("ran" in captured, "docker_run was not called")
+    ok &= _check(captured["ran"][0] == "docker", f"wrong docker binary: {captured['ran']}")
     return ok
 
 
 def test_build_failure_exits_one() -> bool:
-    rc = od.main(
-        [],
-        check_cmd=lambda c: True,
-        mkdir=lambda p: None,
-        docker_build=lambda c: 7,
-        docker_up=lambda c: 0,
-        docker_run=lambda c: 0,
-        docker_cmd="docker",
-        in_docker_group=True,
-        has_display=False,
-    )
+    captured: dict = {}
+
+    def fail_build(_compose_cmd: str) -> int:
+        return 7
+
+    runner = _mk_runner(captured)
+    runner["docker_build"] = fail_build
+    rc = od.main([], **runner)
     return _check(rc == 1, f"build failure must exit 1, got {rc}")
 
 
+def test_up_failure_exits_one() -> bool:
+    captured: dict = {}
+
+    def fail_up(_compose_cmd: str) -> int:
+        return 5
+
+    runner = _mk_runner(captured)
+    runner["docker_up"] = fail_up
+    rc = od.main([], **runner)
+    return _check(rc == 1, f"up failure must exit 1, got {rc}")
+
+
+def test_docker_run_failure_returns_exit_code() -> bool:
+    captured: dict = {}
+
+    def fail_run(_cmd) -> int:
+        return 42
+
+    runner = _mk_runner(captured)
+    runner["docker_run"] = fail_run
+    rc = od.main(["./omniopt", "--tests"], **runner)
+    return _check(rc == 42, f"docker run failure must propagate exit code, got {rc}")
+
+
 TESTS = [
-    test_help_flag_returns_zero,
-    test_no_args_just_builds_and_exits_zero,
+    # pure-function tests
     test_docker_command_with_group,
     test_docker_command_without_group,
+    test_validate_inner_command_valid_prefixes,
+    test_validate_inner_command_invalid_prefix,
     test_build_run_command_no_display,
     test_build_run_command_with_display,
     test_build_run_command_python3_inner,
-    test_validate_inner_command_valid_prefixes,
-    test_validate_inner_command_invalid_prefix,
+    test_build_run_command_uses_sudo_docker,
+    # main() tests
+    test_help_flag_returns_zero,
+    test_no_args_just_builds_and_exits_zero,
     test_main_invalid_inner_command,
     test_main_runs_inner_command,
     test_build_failure_exits_one,
+    test_up_failure_exits_one,
+    test_docker_run_failure_returns_exit_code,
 ]
 
 

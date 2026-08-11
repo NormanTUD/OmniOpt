@@ -112,7 +112,7 @@ def build_run_command(
     if has_display:
         extra = [
             f"--user={uid}",
-            "--env=display",
+            "--env=DISPLAY",
             "--volume=/etc/group:/etc/group:ro",
             "--volume=/etc/passwd:/etc/passwd:ro",
             "--volume=/etc/shadow:/etc/shadow:ro",
@@ -234,6 +234,13 @@ def main(
     if home is None:
         home = os.path.expanduser("~")
 
+    if inner:
+        try:
+            validate_inner_command(inner[0])
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
     mkdir([f"{pwd}/runs", f"{pwd}/logs"])
 
     if docker_build(compose_cmd) != 0:
@@ -246,12 +253,6 @@ def main(
 
     if not inner:
         return 0
-
-    try:
-        validate_inner_command(inner[0])
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
 
     mkdir([f"{home}/.config/matplotlib_docker_omniopt"])
     cmd = build_run_command(

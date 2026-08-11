@@ -6,6 +6,17 @@
 	include_once "_functions.php";
 	include_once "share_functions.php";
 
+	// Cheap self-check so callers (and the .tests/share.py smoke test)
+	// can see at a glance that the env vars / GET params were wired
+	// through correctly, even when no upload was performed yet.
+	if ($user_id = get_or_env("user_id")) {
+		$experiment_name_dbg = get_or_env("experiment_name");
+		$run_nr_dbg          = get_or_env("run_nr");
+		echo "share_internal.php ready: user_id=$user_id"
+			. " experiment_name=$experiment_name_dbg"
+			. " run_nr=$run_nr_dbg\n";
+	}
+
 	$port = $_SERVER["SERVER_PORT"] ?? 80;
 	$scheme = ($port == 443) ? "https" : "http";
 	$host = $_SERVER["SERVER_NAME"] ?? "localhost";

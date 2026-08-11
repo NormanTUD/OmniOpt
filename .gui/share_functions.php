@@ -3024,6 +3024,35 @@ $onclick_string
 			@exec($cmd, $out, $rc);
 		}
 
+		// The manifest+bundle protocol nests single-run logs under
+		// `single_runs/<jobid>/<file>`.  The legacy share layout had them
+		// flat in the run directory, which is what the rest of the GUI
+		// (PHP regexes, get_log.php filename validation, log tab buttons)
+		// still expects.  Hoist them so both layouts work.
+		$single_runs = $run_dir . '/single_runs';
+		if (is_dir($single_runs)) {
+			$rii = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($single_runs, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::CHILD_FIRST
+			);
+			foreach ($rii as $f) {
+				if (!$f->isFile()) continue;
+				$dest = $run_dir . '/' . $f->getFilename();
+				if (!is_file($dest)) {
+					@rename($f->getPathname(), $dest);
+				}
+			}
+			// Tidy up: remove the now-empty single_runs/ tree.
+			$rii2 = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($single_runs, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::CHILD_FIRST
+			);
+			foreach ($rii2 as $f) {
+				$f->isDir() ? @rmdir($f->getRealPath()) : @unlink($f->getRealPath());
+			}
+			@rmdir($single_runs);
+		}
+
 		// Mark extraction as done so we don't redo it on every page load.
 		@touch("$run_dir/.bundle_extracted");
 	}

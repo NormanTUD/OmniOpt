@@ -86,6 +86,12 @@
 		exit(1);
 	}
 
+	// Fallback: unpack a bundle.zip on disk if results.csv is missing
+	// (server may have been missing the PHP zip extension at upload time).
+	if (!file_exists("$run_folder/results.csv")) {
+		ensure_share_bundle_extracted($run_folder);
+	}
+
 	if(file_exists("$run_folder/results.csv")) {
 		print(get_csv_status_summary("$run_folder/results.csv"));
 	} else {

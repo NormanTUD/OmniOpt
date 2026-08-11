@@ -3003,6 +3003,47 @@ $onclick_string
 			$cmd = escapeshellcmd($bin) . " -c " . escapeshellarg($py) . " " . escapeshellarg($bundle) . " " . escapeshellarg($run_dir) . " >/dev/null 2>&1";
 			@exec($cmd, $out, $rc);
 		}
+
+		// Mark extraction as done so we don't redo it on every page load.
+		@touch("$run_dir/.bundle_extracted");
+	}
+
+	/**
+	 * Public hook: ensure that a share run-folder has its manifest bundle
+	 * unpacked on disk.  Safe to call from any page; it's a no-op if
+	 * `bundle.zip` isn't there or the files have already been extracted.
+	 *
+	 * Used as a fallback for shares that were uploaded while the server
+	 * was missing the PHP `zip` extension (so `share_internal.php` couldn't
+	 * unpack the bundle on receive).
+	 */
+	function ensure_share_bundle_extracted($run_folder) {
+		if (!is_string($run_folder) || $run_folder === "") {
+			return;
+		}
+		if (!is_dir($run_folder)) {
+			return;
+		}
+		if (!is_file("$run_folder/bundle.zip")) {
+			return;
+		}
+		// Already done?  The marker file is written by _extract_from_bundle_zip().
+		if (is_file("$run_folder/.bundle_extracted")) {
+			return;
+		}
+		// Sanity: if no expected file is present, assume we still need to extract.
+		$expected = [
+			"$run_folder/result_names.txt",
+			"$run_folder/result_min_max.txt",
+			"$run_folder/results.csv",
+		];
+		foreach ($expected as $f) {
+			if (is_file($f)) {
+				return;
+			}
+		}
+		$warnings_dummy = [];
+		_extract_from_bundle_zip($run_folder, $warnings_dummy);
 	}
 
 	function add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings) {

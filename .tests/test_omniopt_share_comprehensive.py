@@ -1200,17 +1200,30 @@ def test_bundle_rejects_non_deflated_method() -> bool:
 # ---------------------------------------------------------------------------
 
 
-def test_main_with_multiple_run_dirs_no_crash() -> bool:
-    """Two folders on the CLI should at least parse and try to share
-    (we don't have a server, so we expect a network error, not a parse
-    error)."""
+def test_main_with_multiple_run_dirs_attempts_both() -> bool:
+    """Two folders on the CLI must both be attempted.  We mock the
+    transport so the test doesn't depend on network or a local server.
+    """
     import tempfile as _tempfile
+    attempts: list = []
+
+    def fake_post(base_url, manifest, zip_path, args):
+        attempts.append((base_url, manifest["experiment_name"]))
+        return 200, "Run was successfully shared. See https://example.com/share"
+
     with _tempfile.TemporaryDirectory() as tmp:
         run1 = _make_run_dir(Path(tmp) / "a")
         run2 = _make_run_dir(Path(tmp) / "b")
-        # No network -> exit non-zero, but the test is about parse + collect.
-        rc = os_.main([str(run1), str(run2), "--username=alice", "--no_color"])
-    return _check(rc != 0, f"expected non-zero (no network), got {rc}")
+        rc = os_.main(
+            [str(run1), str(run2), "--username=alice", "--no_color"],
+            _post_manifest=fake_post,
+        )
+    ok = _check(rc == 0, f"expected exit 0, got {rc}")
+    ok &= _check(
+        len(attempts) == 2,
+        f"expected 2 share attempts, got {len(attempts)}: {attempts}",
+    )
+    return ok
 
 
 def test_main_with_unknown_run_dir_reports_error() -> bool:

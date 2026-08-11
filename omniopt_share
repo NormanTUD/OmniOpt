@@ -555,5 +555,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
 
 if __name__ == "__main__":
-    import tempfile
-    sys.exit(main())
+    try:
+        import tempfile
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(0)

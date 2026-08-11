@@ -110,11 +110,146 @@
 	$offered_files = $offered_files_i[0];
 	$i = $offered_files_i[1];
 
+	// ---------------------------------------------------------------------
+	// New JSON-Manifest + ZIP protocol (omniopt_share >= 0.97)
+	// ---------------------------------------------------------------------
+	//
+	// A client that uses the new protocol sends exactly two multipart
+	// parts:
+	//
+	//   * ``manifest``  - application/json, the manifest produced by
+	//                    ``omniopt_share.build_manifest``
+	//   * ``bundle``    - application/zip, the ``bundle.zip`` containing
+	//                    the actual file contents
+	//
+	// Every file is described in the manifest (path inside the zip, size,
+	// sha256).  The PHP side verifies each entry against the zip and
+	// rejects anything that doesn't match.  This lets the server evolve
+	// independently of the client (adding new fields, new file types, ...)
+	// without touching the transport.
+	//
+	// The legacy multipart-fields protocol below is kept for
+	// backwards compatibility with old clients.
+	// ---------------------------------------------------------------------
+	$OO_MANIFEST_SCHEMA_VERSION = "1.0";
+	$OO_MAX_FILE_SIZE = 1 << 30; // 1 GiB
+
+	$manifest = null;
+	if (isset($_FILES["manifest"]) && is_uploaded_file($_FILES["manifest"]["tmp_name"])) {
+		$manifest_raw = file_get_contents($_FILES["manifest"]["tmp_name"]);
+		$manifest = json_decode($manifest_raw, true);
+		if (!is_array($manifest)) {
+			print("Error: manifest is not valid JSON.\n");
+			exit(1);
+		}
+		// Basic validation - mirrors omniopt_share.verify_manifest.
+		$required = ["schema_version", "user_id", "experiment_name", "update", "update_uuid", "password", "files"];
+		foreach ($required as $k) {
+			if (!array_key_exists($k, $manifest)) {
+				print("Error: manifest missing key $k\n");
+				exit(1);
+			}
+		}
+		if ($manifest["schema_version"] !== $OO_MANIFEST_SCHEMA_VERSION) {
+			print("Error: unsupported manifest schema_version " . $manifest["schema_version"] . "\n");
+			exit(1);
+		}
+		// The manifest may override user_id / experiment_name / update / password
+		// sent via GET.  This makes the URL strictly informational.
+		if (is_string($manifest["user_id"]) && $manifest["user_id"] !== "") {
+			$user_id = $manifest["user_id"];
+		}
+		if (is_string($manifest["experiment_name"]) && $manifest["experiment_name"] !== "") {
+			$experiment_name = $manifest["experiment_name"];
+		}
+		if (array_key_exists("update_uuid", $manifest) && is_string($manifest["update_uuid"]) && $manifest["update_uuid"] !== "") {
+			$update_uuid = $manifest["update_uuid"];
+			// Re-resolve uuid_folder against the (possibly new) update_uuid.
+			if ($update_uuid) {
+				$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
+			}
+		}
+		$_GET["password"] = $manifest["password"] ?? "";
+
+		if (!isset($_FILES["bundle"]) || !is_uploaded_file($_FILES["bundle"]["tmp_name"])) {
+			print("Error: manifest present but bundle.zip missing\n");
+			exit(1);
+		}
+		$bundle_path = $_FILES["bundle"]["tmp_name"];
+		$zip = new ZipArchive();
+		if ($zip->open($bundle_path) !== true) {
+			print("Error: bundle is not a valid zip file\n");
+			exit(1);
+		}
+		$tmp_extract = sys_get_temp_dir() . "/oo_share_extract_" . bin2hex(random_bytes(8));
+		mkdir($tmp_extract);
+		$zip->extractTo($tmp_extract);
+		$zip->close();
+
+		$valid_names = [];
+		foreach ($manifest["files"] as $entry) {
+			$archive_path = $entry["archive_path"] ?? "";
+			$size = $entry["size"] ?? -1;
+			$sha256 = $entry["sha256"] ?? "";
+			$name = $entry["name"] ?? "";
+
+			// Reject path traversal / absolute / empty.
+			if (!is_string($archive_path) || $archive_path === ""
+					|| strpos($archive_path, "..") !== false
+					|| strpos($archive_path, "/") === 0
+					|| strpos($archive_path, "\\") !== false
+					|| strpos($archive_path, "\0") !== false) {
+				print("Error: unsafe archive_path $archive_path\n");
+				exit(1);
+			}
+			if (!is_int($size) || $size < 0 || $size > $OO_MAX_FILE_SIZE) {
+				print("Error: bad size $size for $archive_path\n");
+				exit(1);
+			}
+			if (!is_string($sha256) || !preg_match('/^[a-f0-9]{64}$/', $sha256)) {
+				print("Error: bad sha256 for $archive_path\n");
+				exit(1);
+			}
+
+			$extracted = $tmp_extract . "/" . $archive_path;
+			if (!file_exists($extracted)) {
+				print("Error: archive_path $archive_path not in bundle\n");
+				exit(1);
+			}
+			$real_size = filesize($extracted);
+			if ($real_size !== $size) {
+				print("Error: size mismatch for $archive_path (manifest=$size, actual=$real_size)\n");
+				exit(1);
+			}
+			$real_sha = hash_file("sha256", $extracted);
+			if ($real_sha !== $sha256) {
+				print("Error: sha256 mismatch for $archive_path\n");
+				exit(1);
+			}
+
+			// Re-inject into the legacy $offered_files structure so the
+			// rest of the pipeline doesn't need to know about manifests.
+			$valid_names[$name] = [
+				"file" => $extracted,
+				"filename" => $archive_path,
+				"file_size" => $size,
+				"is_temp" => true,
+			];
+			$num_offered_files++;
+		}
+		$offered_files = $valid_names;
+	}
+
 	foreach ($_FILES as $_file) {
 		$file_name = $_file["name"];
 		$file_error = $_file["error"];
 
 		$tmp_name = $_file['tmp_name'];
+
+		// Skip the parts we already processed in the manifest path above.
+		if (isset($_file["name"]) && in_array($_file["name"], ["manifest", "bundle"], true)) {
+			continue;
+		}
 
 		if($tmp_name && file_exists($tmp_name)) {
 			$contents = file_get_contents($tmp_name);
@@ -170,6 +305,18 @@
 			}
 
 			move_files_if_not_already_there($new_upload_md5_string, $update_uuid, $BASEURL, $user_id, $experiment_name, $run_nr, $offered_files, $userFolder, $uuid_folder);
+
+			// Clean up extracted bundle directory if we used the new protocol.
+			if (isset($tmp_extract) && is_dir($tmp_extract)) {
+				$rii = new RecursiveIteratorIterator(
+					new RecursiveDirectoryIterator($tmp_extract, FilesystemIterator::SKIP_DOTS),
+					RecursiveIteratorIterator::CHILD_FIRST
+				);
+				foreach ($rii as $f) {
+					$f->isDir() ? @rmdir($f->getRealPath()) : @unlink($f->getRealPath());
+				}
+				@rmdir($tmp_extract);
+			}
 
 			exit(0);
 		}

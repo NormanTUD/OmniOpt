@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -29,12 +28,15 @@ def main(argv=None) -> int:
         print(f"php_spellchecker not found at {tool}")
         return 1
 
+    # Import and run in-process to avoid the extra ~300 ms python
+    # startup cost of a subprocess.
+    import runpy
+    sys.argv = [str(tool), str(REPO_ROOT / ".gui")]
     try:
-        proc = subprocess.run(["python3", str(tool), str(REPO_ROOT / ".gui")])
-    except KeyboardInterrupt:
-        print("Cancelled by user", file=sys.stderr)
+        runpy.run_path(str(tool), run_name="__main__")
         return 0
-    return proc.returncode
+    except SystemExit as e:
+        return int(e.code) if isinstance(e.code, int) else 1
 
 
 if __name__ == "__main__":

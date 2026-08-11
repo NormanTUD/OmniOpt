@@ -44,7 +44,10 @@ def read_file_to_array(file_path):
 
 
 # Liste von Regex-Mustern, die ignoriert werden sollen (z.B. technische Begriffe, Abkürzungen, usw.)
-whitelisted = read_file_to_array(".tests/whitelisted_words")
+# Convert to a set for O(1) lookups - the linear scan was a bottleneck
+# on directories with many PHP files.
+whitelisted_list = read_file_to_array(".tests/whitelisted_words")
+whitelisted = {w.lower() for w in whitelisted_list if w}
 
 def extract_visible_text_from_html(html_content):
     try:

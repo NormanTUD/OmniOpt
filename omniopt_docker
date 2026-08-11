@@ -74,12 +74,14 @@ def _looks_like_python_script(inner: str) -> bool:
     Used so callers can write ``./.tests/main`` instead of the longer
     ``python3 .tests/main`` — the latter still wins when given.
     """
-    candidate = inner.lstrip("./")
-    if not candidate or " " in candidate:
+    if not inner or " " in inner or inner.startswith("-"):
         return False
-    # Try a few candidate paths so `inner` of the form `./.tests/main`
-    # (which lives at `.tests/main` in cwd) is also detected.
-    candidates = [candidate, "./" + candidate]
+    # Strip at most one leading `./` so `./.tests/main` -> `.tests/main`
+    # but `..foo` and `.foo` are left alone.
+    candidate = inner
+    if candidate.startswith("./"):
+        candidate = candidate[2:]
+    candidates = [candidate, "./" + candidate, inner]
     for path in candidates:
         try:
             with open(path, "rb") as fh:

@@ -1,3 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""exit_code_137 - exits with code 137 (128+9 = SIGKILL)."""
 
-exit 137
+import sys
+
+
+def main() -> int:
+    return 137
+
+
+if __name__ == "__main__":
+    sys.exit(main())

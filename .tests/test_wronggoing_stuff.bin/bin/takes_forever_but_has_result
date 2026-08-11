@@ -1,9 +1,18 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""takes_forever_but_has_result - prints RESULT, then infinite loop."""
 
-echo "RESULT: $RANDOM"
+import random
+import sys
+import time
 
-while true; do
-	sleep 1000;
-done
 
-echo "This should never happen..."
+def main() -> int:
+    print(f"RESULT: {random.randint(0, 2**31 - 1)}")
+    while True:
+        time.sleep(1000)
+    print("This should never happen...", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

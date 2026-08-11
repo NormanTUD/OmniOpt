@@ -1,20 +1,28 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""signal_but_has_output - waits 1s, prints RESULT, then sends SIGTERM
+to itself (handler exits with code 4)."""
 
-send_sigterm() {
-    echo "Sending SIGTERM signal to self..."
-    kill -9 $$
-}
+import random
+import signal
+import sys
+import time
 
-sigterm_handler() {
-    echo "Received SIGTERM signal. Exiting..."
-    exit 4
-}
 
-trap 'sigterm_handler' SIGTERM
+def main() -> int:
+    print("Waiting for 1 seconds before sending SIGTERM signal...")
+    time.sleep(1)
+    print(f"RESULT: {random.randint(0, 2**31 - 1)}")
 
-echo "Waiting for 1 seconds before sending SIGTERM signal..."
-sleep 1
+    def _handler(signum, frame):
+        print("Received SIGTERM signal. Exiting...")
+        sys.exit(4)
 
-echo "RESULT: $RANDOM"
+    signal.signal(signal.SIGTERM, _handler)
 
-send_sigterm
+    print("Sending SIGTERM signal to self...")
+    signal.raise_signal(signal.SIGTERM)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

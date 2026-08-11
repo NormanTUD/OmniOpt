@@ -1,3 +1,20 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""allocate_ram_forever - allocates memory in an infinite loop."""
 
-tail /dev/zero
+import sys
+
+CHUNK = 1024 * 1024  # 1 MiB
+
+
+def main() -> int:
+    blocks = []
+    while True:
+        try:
+            blocks.append(bytearray(CHUNK))
+        except MemoryError:
+            # Drain what we can, then keep trying (best effort).
+            pass
+
+
+if __name__ == "__main__":
+    sys.exit(main())

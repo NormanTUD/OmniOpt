@@ -1,18 +1,25 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""signal - waits 1s, then sends SIGTERM to itself (handler exits cleanly)."""
 
-send_sigterm() {
-    echo "Sending SIGTERM signal to self..."
-    kill -9 $$
-}
+import signal
+import sys
+import time
 
-sigterm_handler() {
-    echo "Received SIGTERM signal. Exiting..."
-    exit
-}
 
-trap 'sigterm_handler' SIGTERM
+def main() -> int:
+    print("Waiting for 1 seconds before sending SIGTERM signal...")
 
-echo "Waiting for 1 seconds before sending SIGTERM signal..."
-sleep 1
+    def _handler(signum, frame):
+        print("Received SIGTERM signal. Exiting...")
+        sys.exit(0)
 
-send_sigterm
+    signal.signal(signal.SIGTERM, _handler)
+    time.sleep(1)
+
+    print("Sending SIGTERM signal to self...")
+    signal.raise_signal(signal.SIGTERM)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

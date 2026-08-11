@@ -1,5 +1,15 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""simple_ok - prints 'hallo' to stderr and 'RESULT: <random>' to stdout."""
 
-echo "hallo" >&2
+import random
+import sys
 
-echo "RESULT: $RANDOM"
+
+def main() -> int:
+    print("hallo", file=sys.stderr)
+    print(f"RESULT: {random.randint(0, 2**31 - 1)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

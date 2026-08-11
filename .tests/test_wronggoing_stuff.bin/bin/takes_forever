@@ -1,7 +1,16 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""takes_forever - infinite loop with a long sleep."""
 
-while true; do
-	sleep 1000;
-done
+import sys
+import time
 
-echo "This should never happen..."
+
+def main() -> int:
+    while True:
+        time.sleep(1000)
+    print("This should never happen...", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

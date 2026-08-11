@@ -1,3 +1,12 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""exit_code_no_output - exits with code 5, no output."""
 
-exit 5
+import sys
+
+
+def main() -> int:
+    return 5
+
+
+if __name__ == "__main__":
+    sys.exit(main())

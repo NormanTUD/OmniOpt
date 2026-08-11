@@ -1,6 +1,15 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""sleep_10_and_result_exit_252 - sleeps 10s, prints RESULT, exits 252."""
 
-sleep 10
-echo "RESULT: 1234"
+import sys
+import time
 
-exit 252
+
+def main() -> int:
+    time.sleep(10)
+    print("RESULT: 1234")
+    return 252
+
+
+if __name__ == "__main__":
+    sys.exit(main())

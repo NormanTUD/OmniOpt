@@ -1,6 +1,17 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""result_but_exit_code_stdout_stderr - prints stdout, stderr and a
+RESULT line, then exits with code 5."""
 
-echo "stdout"
-echo "stderr" >&2
-echo "RESULT: $RANDOM"
-exit 5
+import random
+import sys
+
+
+def main() -> int:
+    print("stdout")
+    print("stderr", file=sys.stderr)
+    print(f"RESULT: {random.randint(0, 2**31 - 1)}")
+    return 5
+
+
+if __name__ == "__main__":
+    sys.exit(main())

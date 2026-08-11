@@ -1,5 +1,15 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""exit_code_stdout_stderr - prints 'This has stdout' to stdout and
+'This has stderr' to stderr, then exits with code 5."""
 
-echo "This has stdout"
-echo "This has stderr" >&2
-exit 5
+import sys
+
+
+def main() -> int:
+    print("This has stdout")
+    print("This has stderr", file=sys.stderr)
+    return 5
+
+
+if __name__ == "__main__":
+    sys.exit(main())

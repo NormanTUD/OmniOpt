@@ -98,7 +98,7 @@ def test_validate_inner_command_invalid_prefix() -> bool:
 def test_build_run_command_no_display() -> bool:
     cmd = od.build_run_command(
         inner="./omniopt --tests",
-        docker_name="omniopt_omniopt2",
+        docker_name="omniopt-omniopt2",
         docker_cmd="docker",
         pwd="/work",
         home="/home/u",
@@ -106,7 +106,7 @@ def test_build_run_command_no_display() -> bool:
     )
     s = " ".join(cmd)
     ok = _check("--rm" in cmd, f"--rm missing: {s}")
-    ok &= _check("omniopt_omniopt2" in cmd, f"image missing: {s}")
+    ok &= _check("omniopt-omniopt2" in cmd, f"image missing: {s}")
     ok &= _check("/work/runs:/var/opt/omniopt/runs:rw" in s, f"runs mount missing: {s}")
     ok &= _check("/work/logs:/var/opt/omniopt/logs:rw" in s, f"logs mount missing: {s}")
     ok &= _check("--user=" not in s, f"--user must NOT be passed without DISPLAY: {s}")
@@ -121,7 +121,7 @@ def test_build_run_command_no_display() -> bool:
 def test_build_run_command_with_display() -> bool:
     cmd = od.build_run_command(
         inner="./omniopt --tests",
-        docker_name="omniopt_omniopt2",
+        docker_name="omniopt-omniopt2",
         docker_cmd="docker",
         pwd="/work",
         home="/home/u",
@@ -138,7 +138,7 @@ def test_build_run_command_with_display() -> bool:
 def test_build_run_command_python3_inner() -> bool:
     cmd = od.build_run_command(
         inner="python3 ./.tests/main.py --quick",
-        docker_name="omniopt_omniopt2",
+        docker_name="omniopt-omniopt2",
         docker_cmd="docker",
         pwd="/work",
         home="/home/u",
@@ -156,7 +156,7 @@ def test_build_run_command_python3_inner() -> bool:
 def test_build_run_command_uses_sudo_docker() -> bool:
     cmd = od.build_run_command(
         inner="./omniopt --tests",
-        docker_name="omniopt_omniopt2",
+        docker_name="omniopt-omniopt2",
         docker_cmd="sudo docker",
         pwd="/work",
         home="/home/u",

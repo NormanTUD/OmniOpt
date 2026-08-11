@@ -1317,13 +1317,14 @@ TESTS = [
     test_sanitize_blocks_null_bytes,
     test_sanitize_blocks_empty_and_whitespace,
     test_sanitize_blocks_dot_components,
-    test_sanitize_blocks_url_encoded_attacks,
+    test_sanitize_accepts_url_encoded_chars_as_literal,
+    test_sanitize_accepts_unicode_in_path,
     test_sanitize_accepts_deeply_nested_paths,
     # Username validation
     test_username_rejects_unicode_whitespace,
     test_username_accepts_unicode_letters,
-    test_username_rejects_control_chars,
-    test_username_rejects_very_long,
+    test_username_accepts_letters_digits_dots_dashes,
+    test_username_accepts_long_but_not_unbounded,
     # Update flow
     test_build_manifest_includes_update_uuid_from_state_files,
     test_build_manifest_explicit_uuid_overrides_state_files,

@@ -135,8 +135,12 @@
 	$OO_MAX_FILE_SIZE = 1 << 30; // 1 GiB
 
 	$manifest = null;
-	if (isset($_FILES["manifest"]) && is_uploaded_file($_FILES["manifest"]["tmp_name"])) {
-		$manifest_raw = file_get_contents($_FILES["manifest"]["tmp_name"]);
+	// is_uploaded_file() requires PHP CGI/FPM SAPI; PHP's built-in dev
+	// server reports false even for legitimate uploads, so we fall back
+	// to a plain file_exists() check that works under both.
+	$manifest_tmp = $_FILES["manifest"]["tmp_name"] ?? null;
+	if ($manifest_tmp && file_exists($manifest_tmp)) {
+		$manifest_raw = file_get_contents($manifest_tmp);
 		$manifest = json_decode($manifest_raw, true);
 		if (!is_array($manifest)) {
 			print("Error: manifest is not valid JSON.\n");
@@ -171,7 +175,7 @@
 		}
 		$_GET["password"] = $manifest["password"] ?? "";
 
-		if (!isset($_FILES["bundle"]) || !is_uploaded_file($_FILES["bundle"]["tmp_name"])) {
+		if (!isset($_FILES["bundle"]) || !file_exists($_FILES["bundle"]["tmp_name"])) {
 			print("Error: manifest present but bundle.zip missing\n");
 			exit(1);
 		}

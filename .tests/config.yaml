@@ -602,7 +602,7 @@ tests:
   # ---- docker / slurm_docker ------------------------------------------------
   - id: docker
     name: "Docker"
-    cmd: "bash omniopt_docker python3 ./.tests/main.py --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error"
+    cmd: "./omniopt_docker python3 ./.tests/main.py --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error"
     wanted_exit_code: 0
     tags: [suite:docker, env:docker]
 
@@ -658,6 +658,7 @@ tests:
 smoke_tests:
   - find_typos
   - test_bash_argparse_clone
+  - test_omniopt_docker
   - state_files
   - php_unit_tests
   - find_missing_f_strings

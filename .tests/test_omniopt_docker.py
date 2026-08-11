@@ -146,7 +146,10 @@ def test_build_run_command_python3_inner() -> bool:
     )
     s = " ".join(cmd)
     ok = _check("python3" in cmd, f"python3 must be the interpreter: {s}")
-    ok &= _check("/var/opt/omniopt/.tests/main.py" in s, f"target path wrong: {s}")
+    ok &= _check(
+        "/var/opt/omniopt/./.tests/main.py" in s,
+        f"target path wrong: {s}",
+    )
     return ok
 
 
@@ -159,7 +162,10 @@ def test_build_run_command_uses_sudo_docker() -> bool:
         home="/home/u",
         has_display=False,
     )
-    return _check(cmd[0] == "sudo", f"expected 'sudo' as first token: {cmd[:2]}")
+    return _check(
+        cmd[0] == "sudo docker",
+        f"expected 'sudo docker' as first token: {cmd[:2]}",
+    )
 
 
 # ---------------------------------------------------------------------------

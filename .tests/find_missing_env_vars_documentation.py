@@ -58,9 +58,12 @@ def main(argv=None) -> int:
         if line:
             described_params.add(line)
 
-    # Find bash files in the repo.
+    # Find bash files in the repo. Exclude large build/cache dirs so
+    # grep doesn't waste time walking .git/ etc.
     proc = subprocess.run(
-        "grep -rIl '^#!/usr/bin/env bash' .",
+        "grep -rIl '^#!/usr/bin/env bash' "
+        "--exclude-dir=.git --exclude-dir=runs --exclude-dir=logs "
+        "--exclude-dir=.mypy_cache --exclude-dir=__pycache__ .",
         shell=True,
         cwd=str(REPO_ROOT),
         capture_output=True,

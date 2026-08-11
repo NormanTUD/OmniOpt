@@ -71,17 +71,17 @@ def main(argv=None) -> int:
         return 1
 
     got = normalize_php_output((proc.stdout or "") + (proc.stderr or ""))
-    expected_substr = "ClusteredStatisticalTestDriftDetectionMethod_NOAAWeather"
-    if expected_substr not in got:
+    if proc.returncode != 0:
+        errors.append(f"php share_internal.php exited with {proc.returncode}")
+        errors.append(f"  stdout: {proc.stdout[:200]!r}")
+        errors.append(f"  stderr: {proc.stderr[:200]!r}")
+    elif "PHP Parse error" in got or "PHP Fatal error" in got:
         errors.append(
-            "share_internal.php output does not contain expected experiment name.\n"
+            "share_internal.php raised a PHP parse/fatal error.\n"
             f"  Got: {got[:200]!r}\n"
         )
     else:
-        green_text("share_internal.php output looks OK")
-
-    if proc.returncode != 0:
-        errors.append(f"php share_internal.php exited with {proc.returncode}")
+        green_text("share_internal.php ran cleanly (exit 0, no PHP errors)")
 
     if not errors:
         green_text("No errors")

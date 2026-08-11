@@ -120,27 +120,27 @@ def _venv_packages(venv_dir: Path) -> Dict[str, str]:
     package in the framework venv.  Used to skip reinstalling packages
     that are already present (saves ~3 s of pip-startup per script)."""
     site_pkg = venv_site_packages(venv_dir)
-    if not site_pkg:
+    if not site_pkg or not site_pkg.is_dir():
         return {}
     out: Dict[str, str] = {}
-    try:
-        with open(site_pkg / "METADATA") as f:
-            data = f.read()
-    except OSError:
-        return {}
-    # Each METADATA is a single email-like message; iterate by "name:".
-    for chunk in data.split("\n\n"):
-        for line in chunk.splitlines():
-            if line.lower().startswith("name:"):
+    for dist_info in site_pkg.glob("*.dist-info"):
+        metadata = dist_info / "METADATA"
+        if not metadata.is_file():
+            continue
+        try:
+            text = metadata.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        name = ""
+        version = ""
+        for line in text.splitlines():
+            low = line.lower()
+            if not name and low.startswith("name:"):
                 name = line.split(":", 1)[1].strip().lower()
-                out[name] = ""
-            elif line.lower().startswith("version:"):
-                ver = line.split(":", 1)[1].strip()
-                if out:
-                    # Attach the last-seen name (FIFO)
-                    last = next(reversed(out))
-                    out[last] = ver
-                break
+            elif low.startswith("version:"):
+                version = line.split(":", 1)[1].strip()
+        if name:
+            out[name] = version
     return out
 
 

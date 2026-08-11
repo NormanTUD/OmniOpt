@@ -50,12 +50,11 @@ def read_file_to_array(file_path):
 
 # Read the whitelist from the file
 IGNORE_PATTERNS = read_file_to_array(".tests/whitelisted_words")
+IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
+
 
 def is_ignored(word):
-    for pattern in IGNORE_PATTERNS:
-        if word.lower() == pattern.lower():
-            return True
-    return False
+    return word.lower() in IGNORE_SET
 
 def is_valid_word(word):
     return re.match(r'^[a-zA-Z]{1,}$', word) is not None

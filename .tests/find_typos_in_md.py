@@ -47,14 +47,16 @@ def read_file_to_array(file_path):
         lines = [line.strip() for line in file.readlines()]
     return lines
 
-# Read the whitelist from the file (words to ignore)
+# Read the whitelist from the file (words to ignore).
+# Convert to a set of lower-cased patterns for O(1) lookup instead of
+# scanning the full list per word (which dominates the runtime for
+# large docs).
 IGNORE_PATTERNS = read_file_to_array(".tests/whitelisted_words")
+IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
+
 
 def is_ignored(word):
-    for pattern in IGNORE_PATTERNS:
-        if word.lower() == pattern.lower():
-            return True
-    return False
+    return word.lower() in IGNORE_SET
 
 def is_valid_word(word):
     # Only letters (no digits or punctuation), length >=1

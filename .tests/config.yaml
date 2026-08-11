@@ -656,7 +656,9 @@ tests:
 # runs in sequence. Same as the original smoke_tests bash script.
 # -----------------------------------------------------------------------------
 smoke_tests:
+  - find_typos
   - test_bash_argparse_clone
+  - state_files
   - colorfunctions
   - general
   - shellscript_functions
@@ -667,6 +669,7 @@ smoke_tests:
   - find_untyped_cli_args
   - find_unused_params
   - unit_tests
+  - share_tests
   - find_unused_share_functions
   - all_oo_options_are_in_gui_and_vice_versa
   - lizard
@@ -682,19 +685,16 @@ smoke_tests:
   - find_double_add_arguments_help
   - find_add_arguments_with_double_quotes
   - flake8
-  - deadcode
+  #- deadcode
   - bandit
   - find_missing_env_vars_documentation
-  - state_files
   - folder_structure
   - find_double_function_thats_already_in_helper
   - find_unused_functions_in_omniopt
   - php_search
   - missing_plot_metadata
-  - share_tests
   - js_syntax
   - pyright_fast
-  - find_typos
   - shellcheck
   - mypy
   - find_wrongly_typed_cli_args

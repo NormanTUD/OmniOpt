@@ -3115,3 +3115,6 @@ passthrough
 foo
 baz
 parens
+plantuml
+displaytime
+shellscript

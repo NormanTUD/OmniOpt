@@ -2,22 +2,34 @@ import os
 import sys
 import re
 import argparse
+from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
 
-try:
-    from spellchecker import SpellChecker
-except ModuleNotFoundError:
-    print("spellchecker could not be loaded")
-    sys.exit(0)
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.autodeps import ensure_imports_or_exit
+from _framework.helpers import find_files
+
+ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
+
+from spellchecker import SpellChecker
+
+REPO_ROOT = THIS_DIR.parent
+GUI_DIR = REPO_ROOT / ".gui"
 
 parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
 parser.add_argument(
     "--lang", default="en", help="Specify the language (default is 'en')"
 )
-parser.add_argument('files', metavar='FILE', nargs='+', help='The PHP files to analyze.')
+parser.add_argument('files', metavar='FILE', nargs='*', help='The PHP files to analyze.')
 args = parser.parse_args()
+
+if not args.files:
+    args.files = [str(p) for p in find_files(GUI_DIR, (".php",))]
 
 console = Console()
 

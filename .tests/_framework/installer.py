@@ -83,6 +83,45 @@ def _create_venv(venv_dir: Path) -> bool:
     return True
 
 
+def venv_site_packages(venv_dir: Path) -> Path | None:
+    """Locate the site-packages directory of a venv.
+
+    Different Python versions use different lib paths
+    (lib/, lib/python3.X/site-packages, ...), so probe the common ones.
+    """
+    candidates = [
+        venv_dir / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}"
+        / "site-packages",
+        venv_dir / "lib" / "site-packages",
+        venv_dir / "lib" / "python3" / "site-packages",
+    ]
+    return next((p for p in candidates if p.is_dir()), None)
+
+
+def add_venv_to_path(venv_dir: Path) -> None:
+    """Make a venv's site-packages importable from the current process."""
+    site_pkg = venv_site_packages(venv_dir)
+    if site_pkg and str(site_pkg) not in sys.path:
+        sys.path.insert(0, str(site_pkg))
+        os.environ["VIRTUAL_ENV"] = str(venv_dir)
+        os.environ["PYTHONPATH"] = (
+            str(site_pkg) + os.pathsep + os.environ.get("PYTHONPATH", "")
+        )
+
+
+def install_packages(packages: List[str], *, quiet: bool = True) -> Path | None:
+    """Install the given packages into the framework venv (creating it if
+    needed) and return the venv directory, or None on failure."""
+    if os.environ.get("DONT_INSTALL_MODULES"):
+        return None
+    venv_dir = _resolve_venv_dir()
+    if not _create_venv(venv_dir):
+        return None
+    if _pip(venv_dir, "install", *packages, quiet=quiet) != 0:
+        return None
+    return venv_dir
+
+
 def _run_in_venv(venv_dir: Path, args: List[str]) -> int:
     """Re-exec the current script inside the venv python if we're not
     already running there. Returns the new exit code (or 0 if no re-exec
@@ -133,21 +172,8 @@ def ensure_dependencies(*, include_tests: bool = True,
     if not _create_venv(venv_dir):
         sys.exit(20)
 
-    # Make the venv's site-packages importable. Different Python versions
-    # use different lib paths (lib/, lib/python3.X/site-packages, ...).
-    candidates = [
-        venv_dir / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}"
-        / "site-packages",
-        venv_dir / "lib" / "site-packages",
-        venv_dir / "lib" / "python3" / "site-packages",
-    ]
-    site_pkg = next((p for p in candidates if p.is_dir()), None)
-    if site_pkg and str(site_pkg) not in sys.path:
-        sys.path.insert(0, str(site_pkg))
-        os.environ["VIRTUAL_ENV"] = str(venv_dir)
-        os.environ["PYTHONPATH"] = (
-            str(site_pkg) + os.pathsep + os.environ.get("PYTHONPATH", "")
-        )
+    # Make the venv's site-packages importable.
+    add_venv_to_path(venv_dir)
 
     # Decide if we need to install.
     req_main = REPO_ROOT / "requirements.txt"

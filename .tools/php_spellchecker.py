@@ -2,18 +2,33 @@ import os
 import sys
 import re
 import subprocess
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+THIS_DIR = Path(__file__).resolve().parent
+TESTS_DIR = THIS_DIR.parent / ".tests"
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+
+from _framework.autodeps import ensure_imports
+
+if not ensure_imports(
+    (
+        ("emoji", "emoji"),
+        ("rich", "rich"),
+        ("bs4", "beautifulsoup4"),
+        ("spellchecker", "pyspellchecker"),
+    )
+):
+    print("Required modules could not be loaded. Cannot continue.")
+    sys.exit(0)
+
 import emoji
 from rich.console import Console
 from rich.progress import Progress, BarColumn, TextColumn
 from rich.table import Table
-
-try:
-    from bs4 import BeautifulSoup
-    from spellchecker import SpellChecker
-except (SyntaxError, ModuleNotFoundError) as e:
-    print(f"Failed to load module: {e}")
-    sys.exit(0)
+from bs4 import BeautifulSoup
+from spellchecker import SpellChecker
 
 spell = SpellChecker(language='en')
 
@@ -114,7 +129,16 @@ def process_php_file(file_path):
         return None
 
 def process_directory(directory_path):
-    php_files = [os.path.join(root, file) for root, _, files in os.walk(directory_path) for file in files if file.endswith(".php")]
+    php_files = []
+    for root, dirs, files in os.walk(directory_path):
+        dirs[:] = [
+            d for d in dirs
+            if d not in ("conceptdrift", "libs", "node_modules", "__pycache__")
+            and "venv" not in d.lower()
+        ]
+        php_files.extend(
+            os.path.join(root, file) for file in files if file.endswith(".php")
+        )
 
     # Use ThreadPoolExecutor to parallelize file processing
     _errors_found = []

@@ -4,14 +4,22 @@ import ast
 import argparse
 import re
 from pprint import pprint
+from pathlib import Path
 from rich.progress import Progress
 from rich.console import Console
 
-try:
-    from spellchecker import SpellChecker
-except ModuleNotFoundError:
-    print("spellchecker could not be loaded")
-    sys.exit(0)
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.autodeps import ensure_imports_or_exit
+from _framework.helpers import find_files
+
+ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
+
+from spellchecker import SpellChecker
+
+REPO_ROOT = THIS_DIR.parent
 
 def dier(msg):
     pprint(msg)
@@ -102,15 +110,19 @@ def analyze_file(filepath, progress, task_id):
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze Python scripts and check the spelling of string literals.')
-    parser.add_argument('files', metavar='FILE', nargs='+', help='The Python files to analyze.')
+    parser.add_argument('files', metavar='FILE', nargs='*', help='The Python files to analyze.')
     args = parser.parse_args()
+
+    files = args.files
+    if not files:
+        files = [str(p) for p in find_files(REPO_ROOT, (".py",))]
 
     console = Console()
     typo_files = 0
 
     # Progress bar setup with Rich
     with Progress(console=console, transient=True, auto_refresh=True) as progress:
-        for filepath in args.files:
+        for filepath in files:
             # Each progress bar disappears once 100% complete
             task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
 

@@ -12,6 +12,7 @@ import time
 import shutil
 import subprocess
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Iterable, List, Optional, Sequence
 
 
@@ -163,6 +164,79 @@ def command_exists(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
+DEFAULT_EXCLUDE_DIRS = {
+    ".git", "runs", "logs", "node_modules", "__pycache__", ".mypy_cache",
+    ".ruff_cache", ".pytest_cache", ".tox", "site-packages", "dist-packages",
+    "build", "dist", ".cache", "libs", "conceptdrift",
+}
+
+
+def find_files(
+    root: str | os.PathLike,
+    suffixes: Sequence[str],
+    exclude_dirs: Optional[Iterable[str]] = None,
+) -> List[Path]:
+    """Recursively find source files under ``root`` matching any suffix.
+
+    Directories whose name matches an entry in ``exclude_dirs`` (merged
+    with :data:`DEFAULT_EXCLUDE_DIRS`) or that contains "venv" are pruned
+    during traversal.
+    """
+    root = Path(root)
+    extra = set(exclude_dirs or ())
+    suffixes = tuple(suffixes)
+
+    def keep_dir(name: str) -> bool:
+        low = name.lower()
+        return low not in DEFAULT_EXCLUDE_DIRS and low not in extra and "venv" not in low
+
+    files: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if keep_dir(d))
+        for fname in sorted(filenames):
+            if fname.endswith(suffixes):
+                files.append(Path(dirpath) / fname)
+    return files
+
+
+def find_shell_scripts(
+    root: str | os.PathLike,
+    exclude_dirs: Optional[Iterable[str]] = None,
+) -> List[Path]:
+    """Find shell scripts under ``root``.
+
+    Matches ``*.sh`` files and extensionless files whose shebang names
+    ``bash`` or ``sh`` (zsh and other shells are skipped).
+    """
+    root = Path(root)
+    extra = set(exclude_dirs or ())
+
+    def keep_dir(name: str) -> bool:
+        low = name.lower()
+        return low not in DEFAULT_EXCLUDE_DIRS and low not in extra and "venv" not in low
+
+    scripts: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if keep_dir(d))
+        for fname in sorted(filenames):
+            path = Path(dirpath) / fname
+            if fname.endswith(".sh"):
+                scripts.append(path)
+                continue
+            if "." in fname:
+                continue
+            try:
+                with open(path, "rb") as fh:
+                    first_line = fh.readline(128)
+            except OSError:
+                continue
+            if first_line.startswith(b"#!") and (
+                b"bash" in first_line or b"/sh" in first_line
+            ):
+                scripts.append(path)
+    return scripts
+
+
 def get_nvidia_smi_gpus() -> int:
     if command_exists("nvidia-smi"):
         return 1
@@ -175,20 +249,45 @@ def run(
     env: Optional[dict] = None,
     timeout: Optional[float] = None,
     check: bool = False,
+    live: bool = False,
 ) -> subprocess.CompletedProcess:
-    """Run a shell command and return the completed process."""
+    """Run a shell command and return the completed process.
+
+    When ``live`` is True, the child's stdout/stderr stream straight to
+    the terminal instead of being captured. The child is killed when the
+    user presses Ctrl+C so no orphan process keeps running.
+    """
     full_env = os.environ.copy()
     if env:
         full_env.update(env)
-    return subprocess.run(
-        cmd,
-        shell=True,
-        cwd=cwd,
-        env=full_env,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        check=check,
+    if live:
+        proc = subprocess.Popen(cmd, shell=True, cwd=cwd, env=full_env)
+    else:
+        proc = subprocess.Popen(
+            cmd,
+            shell=True,
+            cwd=cwd,
+            env=full_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout)
+    except KeyboardInterrupt:
+        proc.kill()
+        proc.wait()
+        raise
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+        raise
+    if check and proc.returncode != 0:
+        raise subprocess.CalledProcessError(
+            proc.returncode, proc.args, output=stdout, stderr=stderr
+        )
+    return subprocess.CompletedProcess(
+        proc.args, proc.returncode, stdout=stdout, stderr=stderr
     )
 
 

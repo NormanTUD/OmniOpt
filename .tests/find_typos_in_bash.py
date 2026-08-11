@@ -1,19 +1,24 @@
+import argparse
+import os
+import re
 import sys
+from pathlib import Path
 
-try:
-    import argparse
-    import os
-    import re
-    from spellchecker import SpellChecker
-    from rich.progress import Progress
-    from rich.console import Console
-    from rich.table import Table
-except KeyboardInterrupt:
-    print("You cancelled this script.")
-    sys.exit(0)
-except ModuleNotFoundError as e:
-    print(f"At least one module could not be found. Cannot continue. Error: {e}")
-    sys.exit(0)
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.autodeps import ensure_imports_or_exit
+from _framework.helpers import find_shell_scripts
+
+ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
+
+from spellchecker import SpellChecker
+from rich.progress import Progress
+from rich.console import Console
+from rich.table import Table
+
+REPO_ROOT = THIS_DIR.parent
 
 # Initialize the spellchecker
 spell = SpellChecker(language='en')
@@ -64,8 +69,12 @@ def filter_and_spellcheck_words(words):
 def main():
     # Handle arguments
     parser = argparse.ArgumentParser(description='Extract strings and comments from Bash files and display filtered misspelled words.')
-    parser.add_argument('bash_files', nargs='+', help='Path(s) to the Bash files')
+    parser.add_argument('bash_files', nargs='*', help='Path(s) to the Bash files')
     args = parser.parse_args()
+
+    bash_files = args.bash_files
+    if not bash_files:
+        bash_files = [str(p) for p in find_shell_scripts(REPO_ROOT)]
 
     file_count_with_errors = 0
 
@@ -76,10 +85,10 @@ def main():
 
     # Progress bar with rich
     with Progress(transient=True) as progress:
-        task = progress.add_task("[green]Processing files...", total=len(args.bash_files))
+        task = progress.add_task("[green]Processing files...", total=len(bash_files))
 
         # Process each file
-        for bash_file in args.bash_files:
+        for bash_file in bash_files:
             progress.advance(task)
 
             if not os.path.exists(bash_file):
@@ -116,6 +125,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("You cancelled this script.")
         sys.exit(0)
-    except ModuleNotFoundError as e:
-        print(f"At least one module could not be found. Cannot continue. Error: {e}")
-        sys.exit(1)

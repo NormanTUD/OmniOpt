@@ -1,107 +1,96 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""Smoke tests (replaces .tests/smoke_tests bash script).
 
-# HELPPAGE: Tests that run very quickly and are annoying when the fail fast too late
+Runs each test script in the `smoke_tests` list from config.yaml.
+A test passes if the script exits with code 0.
+"""
 
-export ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT=1
+from __future__ import annotations
 
-tests=(
-	colorfunctions
-	php_unit_tests
-	general
-	find_missing_f_strings
-	find_functions_with_missing_types
-	single_quotes_in_configloader
-	find_untyped_cli_args
-	find_unused_params
-	unit_tests
-	find_unused_share_functions
-	all_oo_options_are_in_gui_and_vice_versa
-	lizard
-	doc_has_outdated_params
-	find_undocumented_exit_codes
-	find_wrong_order_definitions
-	find_unused_params_in_plots
-	find_functions_that_are_defined_multiple_times
-	php_files
-	check_state_file_documentation
-	find_missing_toc_in_md_files
-	find_double_function_names
-	find_double_add_arguments_help
-	find_add_arguments_with_double_quotes
-	flake8
-	deadcode
-	bandit
-	find_missing_env_vars_documentation
-	state_files
-	folder_structure
-	find_double_function_thats_already_in_helper
-	find_unused_functions_in_omniopt
-	php_search
-	missing_plot_metadata
-	share_tests
-	js_syntax
-	pyright_fast
-	find_typos
-	shellcheck
-	mypy
-	find_wrongly_typed_cli_args
+import os
+import sys
+import time
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework import helpers
+from _framework.config import load_config, substitute
+from _framework.installer import ensure_dependencies
+from _framework.helpers import (
+    Colors,
+    green_text,
+    human_readable_time,
+    red_text,
 )
 
-code=1
-total_start=$(date +%s)
 
-declare -A runtimes
+def _run_test(name: str) -> int:
+    script = THIS_DIR / name
+    py_script = THIS_DIR / f"{name}.py"
 
-human_readable_time() {
-    local secs=$1
-    if (( secs < 60 )); then
-        echo "${secs}s"
-    elif (( secs < 3600 )); then
-        printf "%dm %ds" $((secs/60)) $((secs%60))
-    else
-        printf "%dh %dm %ds" $((secs/3600)) $(((secs%3600)/60)) $((secs%60))
-    fi
-}
+    if py_script.exists():
+        cmd = [sys.executable, str(py_script)]
+    elif script.exists():
+        cmd = [str(script)]
+    else:
+        print(f"  {Colors.RED}MISS{Colors.RESET}  {name} (no script found)")
+        return 99
 
-for t in "${tests[@]}"; do
-    start=$(date +%s)
-    printf "Running %-20s ... \n" "$t"
+    proc = helpers.run(" ".join(f'"{c}"' for c in cmd))
+    return proc.returncode
 
-    if .tests/"$t"; then
-        end=$(date +%s)
-        runtime=$((end - start))
-        runtimes["$t"]=$runtime
-    else
-        end=$(date +%s)
-        runtime=$((end - start))
-        printf "\033[31mFAIL\033[0m (%ds)\n" "$runtime"
-        runtimes["$t"]=$runtime
-        exit $code
-    fi
 
-    code=$((code+1))
-done
+def main(argv=None) -> int:
+    ensure_dependencies(include_tests=True)
+    config = load_config()
+    repo_root = config.repo_root
+    tests = config.smoke_tests
 
-total_end=$(date +%s)
-total_runtime=$((total_end - total_start))
+    total_start = time.time()
+    runtimes: dict[str, int] = {}
 
-echo
-echo "Smoke Tests OK in $(human_readable_time "$total_runtime")"
-echo
+    print(f"Running {len(tests)} smoke tests...")
+    print()
 
-# Find longest test name for column width
-maxlen=0
-for t in "${tests[@]}"; do
-    (( ${#t} > maxlen )) && maxlen=${#t}
-done
+    next_exit = 1
+    for test_name in tests:
+        start = time.time()
+        exit_code = _run_test(test_name)
+        end = time.time()
+        runtime = int(end - start)
+        runtimes[test_name] = runtime
 
-# Print table header
-printf "| %-*s | %-12s |\n" "$maxlen" "Test" "Runtime"
-printf "|-%-*s-|-%-12s-|\n" "$maxlen" "$(printf '%.0s-' $(seq 1 $maxlen))" "------------"
+        ok = exit_code == 0
+        if ok:
+            prefix = f"{Colors.GREEN}OK  {Colors.RESET}"
+        else:
+            prefix = f"{Colors.RED}FAIL{Colors.RESET}"
+        suffix = f" ({human_readable_time(runtime)})"
+        print(f"  {prefix}  {test_name}{suffix}")
 
-# Print rows
-for t in "${tests[@]}"; do
-    runtime=${runtimes[$t]}
-    printf "| %-*s | %-12s |\n" "$maxlen" "$t" "$(human_readable_time "$runtime")"
-done
+        if not ok:
+            red_text(f"Smoke test {test_name} failed with exit code {exit_code}\n")
+            return exit_code if exit_code else next_exit
 
+        next_exit += 1
+
+    total_runtime = int(time.time() - total_start)
+    print()
+    green_text(f"Smoke Tests OK in {human_readable_time(total_runtime)}")
+    print()
+
+    if runtimes:
+        maxlen = max(len(t) for t in runtimes)
+        print(f"| {('Test').ljust(maxlen)} | {'Runtime':<12} |")
+        print(f"| {'-' * maxlen} | {'-' * 12} |")
+        for t, rt in runtimes.items():
+            print(f"| {t.ljust(maxlen)} | {human_readable_time(rt):<12} |")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

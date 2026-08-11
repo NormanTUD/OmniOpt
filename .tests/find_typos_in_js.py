@@ -2,14 +2,24 @@ import os
 import sys
 import re
 import argparse
+from pathlib import Path
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
-try:
-    from spellchecker import SpellChecker
-except ModuleNotFoundError:
-    print("spellchecker could not be loaded")
-    sys.exit(0)
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.autodeps import ensure_imports_or_exit
+from _framework.helpers import find_files
+
+ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
+
+from spellchecker import SpellChecker
+
+REPO_ROOT = THIS_DIR.parent
+GUI_DIR = REPO_ROOT / ".gui"
 
 # Initialize spellchecker with English dictionary
 try:
@@ -112,14 +122,18 @@ def analyze_js_file(filepath, progress):
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze JavaScript files and check the spelling of string literals and comments.')
-    parser.add_argument('files', metavar='FILE', nargs='+', help='The JavaScript files to analyze.')
+    parser.add_argument('files', metavar='FILE', nargs='*', help='The JavaScript files to analyze.')
     args = parser.parse_args()
+
+    files = args.files
+    if not files:
+        files = [str(p) for p in find_files(GUI_DIR, (".js",))]
 
     typo_files = 0
     results = {}
 
     with Progress(transient=True) as progress:
-        for filepath in args.files:
+        for filepath in files:
             if os.path.splitext(filepath)[1] == '.js':
                 possibly_incorrect_words = analyze_js_file(filepath, progress)
                 results[filepath] = possibly_incorrect_words

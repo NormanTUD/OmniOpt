@@ -414,19 +414,23 @@ def test_manifest_size_matches_file_actually_written() -> bool:
 def test_manifest_rejects_file_larger_than_max() -> bool:
     """Files bigger than MAX_FILE_SIZE must be rejected at build time."""
     from omniopt_share import MAX_FILE_SIZE
+    import os as _os
     with tempfile.TemporaryDirectory() as tmp:
         run = Path(tmp) / "e" / "0"
         run.mkdir(parents=True)
-        # Simulate a huge file by patching stat: faster than writing >1 GiB.
+        (run / "huge.csv").write_text("a\n")
+        huge = Path(run) / "huge.csv"
+
         real_stat = Path.stat
 
         def fake_stat(self, *args, **kwargs):
             res = real_stat(self, *args, **kwargs)
-            return type(res)(res.st_mode, res.st_ino, res.st_dev,
-                             res.st_nlink, res.st_uid, res.st_gid,
-                             MAX_FILE_SIZE + 1, res.st_atime,
-                             res.st_mtime, res.st_ctime)
-        (run / "huge.csv").write_text("a\n")
+            # Replace size with MAX_FILE_SIZE + 1.
+            return _os.stat_result(
+                (res.st_mode, res.st_ino, res.st_dev, res.st_nlink,
+                 res.st_uid, res.st_gid, MAX_FILE_SIZE + 1,
+                 res.st_atime, res.st_mtime, res.st_ctime)
+            )
         try:
             Path.stat = fake_stat
             try:
@@ -600,7 +604,27 @@ def test_bundle_rejects_manifest_with_no_files() -> bool:
 
 
 def test_verify_accepts_minimal_valid_manifest() -> bool:
-    """All required keys, no extra files is still valid."""
+    """All required keys + at least one file entry is valid."""
+    m = {
+        "schema_version": os_.MANIFEST_SCHEMA_VERSION,
+        "user_id": "alice",
+        "experiment_name": "e",
+        "update": False,
+        "update_uuid": None,
+        "password": None,
+        "files": [{
+            "name": "x",
+            "archive_path": "x.csv",
+            "size": 1,
+            "sha256": "0" * 64,
+            "content_type": "text/csv",
+        }],
+    }
+    err = os_.verify_manifest(m)
+    return _check(err == "", f"unexpected error: {err!r}")
+
+
+def test_verify_rejects_empty_files_list() -> bool:
     m = {
         "schema_version": os_.MANIFEST_SCHEMA_VERSION,
         "user_id": "alice",
@@ -611,7 +635,7 @@ def test_verify_accepts_minimal_valid_manifest() -> bool:
         "files": [],
     }
     err = os_.verify_manifest(m)
-    return _check(err == "", f"unexpected error: {err!r}")
+    return _check("no files" in err, f"expected 'no files' in error: {err!r}")
 
 
 def test_verify_rejects_unknown_schema_version() -> bool:
@@ -699,7 +723,13 @@ def test_verify_allows_extra_fields_in_manifest() -> bool:
         "update": False,
         "update_uuid": None,
         "password": None,
-        "files": [],
+        "files": [{
+            "name": "x",
+            "archive_path": "x.csv",
+            "size": 1,
+            "sha256": "0" * 64,
+            "content_type": "text/csv",
+        }],
         "future_field": "hello world",
         "client_build": {"git_sha": "abc123"},
     }
@@ -1174,7 +1204,8 @@ def test_main_with_multiple_run_dirs_no_crash() -> bool:
     """Two folders on the CLI should at least parse and try to share
     (we don't have a server, so we expect a network error, not a parse
     error)."""
-    with tempfile.TemporaryDirectory() as tmp:
+    import tempfile as _tempfile
+    with _tempfile.TemporaryDirectory() as tmp:
         run1 = _make_run_dir(Path(tmp) / "a")
         run2 = _make_run_dir(Path(tmp) / "b")
         # No network -> exit non-zero, but the test is about parse + collect.

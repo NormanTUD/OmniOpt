@@ -37,6 +37,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 import urllib.error
 import urllib.request
 import zipfile
@@ -587,7 +588,6 @@ _share_one_run_dir = _share_one
 
 
 if __name__ == "__main__":
-    import tempfile
     try:
         sys.exit(main())
     except KeyboardInterrupt:

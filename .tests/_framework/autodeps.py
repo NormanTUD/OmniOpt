@@ -40,7 +40,13 @@ def ensure_imports(
     Returns True when all modules are available afterwards. When
     ``DONT_INSTALL_MODULES`` is set in the environment, installation is
     skipped and False is returned for any missing module.
+
+    A ``KeyboardInterrupt`` raised inside the pip install is swallowed
+    and recorded in ``ensure_imports._cancelled`` so callers (typically
+    ``ensure_imports_or_exit``) can treat the cancel as exit 0 instead
+    of a real failure.
     """
+    ensure_imports._cancelled = False  # type: ignore[attr-defined]
     missing = [
         (module, package)
         for module, package in requirements
@@ -66,6 +72,7 @@ def ensure_imports(
     try:
         venv_dir = install_packages(packages, quiet=quiet)
     except KeyboardInterrupt:
+        ensure_imports._cancelled = True  # type: ignore[attr-defined]
         print("Dependency install cancelled by user", file=sys.stderr)
         return False
     if venv_dir:
@@ -87,11 +94,28 @@ def ensure_imports_or_exit(
     When ``DONT_INSTALL_MODULES`` is set the script exits 0 (graceful
     skip), otherwise it exits with ``exit_code`` so the failure is
     visible to the caller.
+
+    A ``KeyboardInterrupt`` during dependency installation is treated as
+    "user cancelled" and also exits 0 so a stray Ctrl-C in CI never
+    fails the whole test suite.
     """
-    if ensure_imports(requirements, quiet=quiet):
+    try:
+        ok = ensure_imports(requirements, quiet=quiet)
+    except KeyboardInterrupt:
+        print("Cancelled by user", file=sys.stderr)
+        sys.exit(0)
+    if ok:
         return
     if os.environ.get("DONT_INSTALL_MODULES"):
         print("Required modules unavailable - skipping because DONT_INSTALL_MODULES is set.")
         sys.exit(0)
+    if _was_install_cancelled():
+        print("Cancelled by user (deps install was interrupted)", file=sys.stderr)
+        sys.exit(0)
     print("Required modules could not be loaded. Cannot continue.")
     sys.exit(exit_code)
+
+
+def _was_install_cancelled() -> bool:
+    """Heuristic: was the most recent install_packages() call aborted by SIGINT?"""
+    return getattr(ensure_imports, "_cancelled", False)

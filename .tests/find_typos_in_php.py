@@ -21,26 +21,8 @@ from spellchecker import SpellChecker
 REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
-parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
-parser.add_argument(
-    "--lang", default="en", help="Specify the language (default is 'en')"
-)
-parser.add_argument('files', metavar='FILE', nargs='*', help='The PHP files to analyze.')
-args = parser.parse_args()
 
-if not args.files:
-    args.files = [str(p) for p in find_files(GUI_DIR, (".php",))]
-
-console = Console()
-
-# Initialize spellchecker with English dictionary
-spell = None
-try:
-    spell = SpellChecker(language=args.lang)
-except KeyboardInterrupt:
-    console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")
-
-def read_file_to_array(file_path):
+def read_file_to_array(console, file_path):
     if not os.path.exists(file_path):
         console.print(f"[red]Cannot find file {file_path}[/red]")
         sys.exit(9)
@@ -48,13 +30,9 @@ def read_file_to_array(file_path):
         lines = [line.strip() for line in file.readlines()]
     return lines
 
-# Read the whitelist from the file
-IGNORE_PATTERNS = read_file_to_array(".tests/whitelisted_words")
-IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
 
-
-def is_ignored(word):
-    return word.lower() in IGNORE_SET
+def is_ignored(word, ignore_set):
+    return word.lower() in ignore_set
 
 def is_valid_word(word):
     return re.match(r'^[a-zA-Z]{1,}$', word) is not None
@@ -81,7 +59,7 @@ def clean_word(word):
     after = re.sub(r'[^.()[]\'a-zA-Z0-9_/-]', '', word)
     return after
 
-def analyze_php_file(filepath, progress):
+def analyze_php_file(spell, ignore_set, filepath, progress):
     with open(filepath, mode='r', encoding='utf-8') as file:
         content = file.read()
 
@@ -103,7 +81,7 @@ def analyze_php_file(filepath, progress):
             progress.update(task_id, advance=1, description=f"[bold]{filepath}: Checking word {current_word_count}/{total_words}...[/bold]")
 
             if is_valid_word(word):
-                if not is_ignored(word):
+                if not is_ignored(word, ignore_set):
                     if spell.correction(word) != word:
                         if word not in possibly_incorrect_words:
                             possibly_incorrect_words.append(word)
@@ -112,13 +90,33 @@ def analyze_php_file(filepath, progress):
     return possibly_incorrect_words
 
 def main():
+    parser = argparse.ArgumentParser(description='Analyze PHP files and check the spelling of string literals.')
+    parser.add_argument(
+        "--lang", default="en", help="Specify the language (default is 'en')"
+    )
+    parser.add_argument('files', metavar='FILE', nargs='*', help='The PHP files to analyze.')
+    args = parser.parse_args()
+
+    if not args.files:
+        args.files = [str(p) for p in find_files(GUI_DIR, (".php",))]
+
+    console = Console()
+
+    # Initialize spellchecker with English dictionary (deferred so a
+    # KeyboardInterrupt here can still be caught by the if __name__ guard).
+    spell = SpellChecker(language=args.lang)
+
+    # Read the whitelist from the file
+    IGNORE_PATTERNS = read_file_to_array(console, ".tests/whitelisted_words")
+    IGNORE_SET = {p.lower() for p in IGNORE_PATTERNS if p}
+
     typo_files = 0
     results = {}
 
     with Progress(transient=True) as progress:
         for filepath in args.files:
             if os.path.splitext(filepath)[1] == '.php':
-                possibly_incorrect_words = analyze_php_file(filepath, progress)
+                possibly_incorrect_words = analyze_php_file(spell, IGNORE_SET, filepath, progress)
                 results[filepath] = possibly_incorrect_words
 
                 if possibly_incorrect_words:
@@ -146,6 +144,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        sys.exit(main())
     except KeyboardInterrupt:
-        console.print(f"[red]Cancelled script for {', '.join(args.files)} by using CTRL + C[/red]")
+        print("Cancelled script by using CTRL + C", file=sys.stderr)
+        sys.exit(0)

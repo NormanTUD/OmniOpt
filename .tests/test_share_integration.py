@@ -130,12 +130,13 @@ def test_share_end_to_end() -> bool:
 
     env = os.environ.copy()
     env["share_path"] = str(share_path)
+    env["OO_TARGET_FILE"] = str(REPO_ROOT / ".gui" / "share_internal.php")
 
     server = subprocess.Popen(
         [
             "php", "-S", f"127.0.0.1:{port}",
             "-t", str(REPO_ROOT / ".gui"),
-            str(REPO_ROOT / ".gui" / "share_internal.php"),
+            str(REPO_ROOT / ".tests" / "share_test_router.php"),
         ],
         cwd=str(REPO_ROOT / ".gui"),
         env=env,
@@ -212,12 +213,13 @@ def test_share_rejects_unsafe_archive_path() -> bool:
 
     env = os.environ.copy()
     env["share_path"] = str(share_path)
+    env["OO_TARGET_FILE"] = str(REPO_ROOT / ".gui" / "share_internal.php")
 
     server = subprocess.Popen(
         [
             "php", "-S", f"127.0.0.1:{port}",
             "-t", str(REPO_ROOT / ".gui"),
-            str(REPO_ROOT / ".gui" / "share_internal.php"),
+            str(REPO_ROOT / ".tests" / "share_test_router.php"),
         ],
         cwd=str(REPO_ROOT / ".gui"),
         env=env,
@@ -278,12 +280,13 @@ def test_share_rejects_bad_sha() -> bool:
 
     env = os.environ.copy()
     env["share_path"] = str(share_path)
+    env["OO_TARGET_FILE"] = str(REPO_ROOT / ".gui" / "share_internal.php")
 
     server = subprocess.Popen(
         [
             "php", "-S", f"127.0.0.1:{port}",
             "-t", str(REPO_ROOT / ".gui"),
-            str(REPO_ROOT / ".gui" / "share_internal.php"),
+            str(REPO_ROOT / ".tests" / "share_test_router.php"),
         ],
         cwd=str(REPO_ROOT / ".gui"),
         env=env,

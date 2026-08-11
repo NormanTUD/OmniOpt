@@ -36,15 +36,23 @@ def main(argv=None) -> int:
         if bash_script.exists():
             candidates.append(f"bash {bash_script}")
         last_code = 0
-        for cmd in candidates:
-            proc = subprocess.run(cmd, shell=True, cwd=str(THIS_DIR.parent))
-            last_code = proc.returncode
-            if proc.returncode == 0:
-                break
+        try:
+            for cmd in candidates:
+                proc = subprocess.run(cmd, shell=True, cwd=str(THIS_DIR.parent))
+                last_code = proc.returncode
+                if proc.returncode == 0:
+                    break
+        except KeyboardInterrupt:
+            print(f"{name}: cancelled by user", file=sys.stderr)
+            return 0
         if last_code != 0:
             return exit_code
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("Cancelled by user", file=sys.stderr)
+        sys.exit(0)

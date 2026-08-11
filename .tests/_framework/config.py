@@ -93,8 +93,9 @@ class TestConfig:
         for name, p in self.parameters.items():
             resolved[name] = p.default
         for cli_name, raw in cli_args.items():
+            cli_norm = cli_name.lstrip("-")
             for name, p in self.parameters.items():
-                if p.cli and p.cli == cli_name:
+                if p.cli and p.cli.lstrip("-") == cli_norm:
                     resolved[name] = p.parse(raw)
         resolved["REPO_ROOT"] = str(self.repo_root)
         return resolved

@@ -494,7 +494,11 @@ def setup_environment() -> int:
 
     if shutil.which("python3"):
         version_result = subprocess.run(
-            [sys.executable, "-c", "import sys; print(1 if sys.version_info >= (3, 10) else 0)"],
+            [
+                sys.executable,
+                "-c",
+                "import sys; print(1 if sys.version_info >= (3, 10) else 0)",
+            ],
             capture_output=True,
             text=True,
             check=False,
@@ -507,13 +511,17 @@ def setup_environment() -> int:
 
     venv_dir = os.environ.get("VIRTUAL_ENV") or _venv_dir()
     os.environ["VENV_DIR"] = venv_dir
-    os.environ["CUSTOM_VIRTUAL_ENV"] = "1" if os.environ.get("VIRTUAL_ENV") else "0"
+    os.environ["CUSTOM_VIRTUAL_ENV"] = (
+        "1" if os.environ.get("VIRTUAL_ENV") else "0"
+    )
     os.environ["OMNIAX_VENV_DIR"] = venv_dir
 
     venv_python = str(Path(venv_dir) / "bin" / "python")
 
     if not os.environ.get("VIRTUAL_ENV") and not Path(venv_dir).is_dir():
-        green_reset_line(f"➤Environment {venv_dir} was not found. Creating it...")
+        green_reset_line(
+            f"➤Environment {venv_dir} was not found. Creating it..."
+        )
         result = subprocess.run(
             [sys.executable, "-m", "venv", venv_dir],
             check=False,
@@ -536,14 +544,22 @@ def setup_environment() -> int:
             ],
             check=False,
         )
-        green_reset_line("✅Virtual Environment created. Now installing software. This may take some time.")
+        green_reset_line(
+            "✅Virtual Environment created. Now installing software. "
+            "This may take some time."
+        )
 
-    if not os.environ.get("DONT_INSTALL_MODULES") and not os.environ.get("SLURM_JOB_ID"):
+    if (
+        not os.environ.get("DONT_INSTALL_MODULES")
+        and not os.environ.get("SLURM_JOB_ID")
+    ):
         main_hash = _requirements_hash()
         hash_file = Path(venv_dir) / "hash"
         hash_test_file = Path(venv_dir) / "hash_test"
 
-        if _hash_is_different(hash_file, main_hash) or _hash_is_different(hash_test_file, main_hash):
+        if _hash_is_different(
+            hash_file, main_hash
+        ) or _hash_is_different(hash_test_file, main_hash):
             result = install_required_modules()
             if result != 0:
                 return result

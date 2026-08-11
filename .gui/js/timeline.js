@@ -58,7 +58,7 @@ function plotTimelineFromGlobals() {
 	for (const status of existing_statuses) {
 		let color = status_colors[status] || "red";
 		let legend_name = status;
-		traces.unshift({ // unshift, damit legend oben bleibt
+		traces.unshift({
 			type: "scatter",
 			mode: "lines",
 			x: [null, null],

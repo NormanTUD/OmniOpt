@@ -83,23 +83,23 @@ function plotParameterDistributionsByStatus() {
 				container.appendChild(plotDiv);
 
 				Plotly.newPlot(plotDiv, traces, {
-					barmode: 'overlay',  // 'stack' oder 'overlay'
+					barmode: 'overlay',
 					xaxis: {
-						title: { text: String(param) },  // Sicherstellen, dass es ein Textobjekt ist
+						title: { text: String(param) },
 						automargin: true,
-						tickangle: -45,                  // Optional: bessere Lesbarkeit
-						titlefont: { size: 16 }          // Optional: größerer Titel
+						tickangle: -45,
+						titlefont: { size: 16 }
 					},
 					yaxis: {
-						title: { text: 'Count' },        // Titel explizit als Objekt angeben
+						title: { text: 'Count' },
 						automargin: true,
-						titlefont: { size: 16 }          // Optional: größerer Titel
+						titlefont: { size: 16 }
 					},
 					margin: {
 						l: 60,
 						r: 30,
 						t: 30,
-						b: 80                            // genug Platz für x-Achsentitel
+						b: 80
 					},
 					legend: {
 						orientation: "h"

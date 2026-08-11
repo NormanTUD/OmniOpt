@@ -6,12 +6,21 @@ import os
 import re
 import sys
 
+def _skip_dir(name):
+    """True for directories that never contain project source files."""
+    return (
+        name in (".git", ".svn", "node_modules", "site-packages", "dist", "build", "__pycache__")
+        or "venv" in name
+        or name.startswith(".torch_venv")
+    )
+
 def collect_python_files(path):
     files = []
     if os.path.isfile(path) and path.endswith(".py"):
         files.append(os.path.abspath(path))
     elif os.path.isdir(path):
-        for root, _, filenames in os.walk(path):
+        for root, dirs, filenames in os.walk(path):
+            dirs[:] = [d for d in dirs if not _skip_dir(d)]
             for filename in filenames:
                 if filename.endswith(".py"):
                     files.append(os.path.join(root, filename))

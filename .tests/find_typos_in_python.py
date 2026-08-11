@@ -88,7 +88,8 @@ def analyze_file(filepath, progress, task_id):
         strings.extend(extract_strings_from_ast(node))
 
     # Update the total number of string literals in the progress bar
-    progress.update(task_id, total=len(strings))
+    if progress is not None:
+        progress.update(task_id, total=len(strings))
 
     # Process the strings
     possibly_incorrect_words = []
@@ -103,7 +104,8 @@ def analyze_file(filepath, progress, task_id):
                         if word not in possibly_incorrect_words:
                             print(word)
                             possibly_incorrect_words.append(word)
-        progress.advance(task_id)
+        if progress is not None:
+            progress.advance(task_id)
 
     return possibly_incorrect_words
 

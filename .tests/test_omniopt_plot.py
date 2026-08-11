@@ -90,6 +90,46 @@ def test_parse_args_no_args() -> bool:
     )
 
 
+def test_parse_args_positional_as_run_dir() -> bool:
+    """`omniopt_plot runs/foo/0` must work without --run_dir."""
+    with tempfile.TemporaryDirectory() as tmp:
+        run = Path(tmp) / "0"
+        run.mkdir()
+        args = op.parse_args([str(run)])
+    return _check(
+        str(args.run_dir) == str(run) and args.plot_type == "menu",
+        f"positional as run_dir failed: run_dir={args.run_dir!r}, plot_type={args.plot_type!r}",
+    )
+
+
+def test_parse_args_positional_as_plot_type() -> bool:
+    """`omniopt_plot scattr` must fuzzy-match 'scatter'."""
+    args = op.parse_args(["scattr"])
+    return _check(
+        args.plot_type == "scatter",
+        f"expected plot_type=scatter, got {args.plot_type!r}",
+    )
+
+
+def test_parse_args_positional_does_not_override_explicit_run_dir() -> bool:
+    with tempfile.TemporaryDirectory() as tmp:
+        run1 = Path(tmp) / "1"
+        run1.mkdir()
+        run2 = Path(tmp) / "2"
+        run2.mkdir()
+        args = op.parse_args(["--run_dir", str(run1), str(run2)])
+    return _check(
+        str(args.run_dir) == str(run1),
+        f"explicit --run_dir must take precedence: {args.run_dir!r}",
+    )
+
+
+def test_parse_args_unknown_positional_becomes_plot_type() -> bool:
+    """Unknown positional falls back to fuzzy plot_type match."""
+    args = op.parse_args(["kde"])
+    return _check(args.plot_type == "kde", f"got {args.plot_type!r}")
+
+
 def test_parse_args_run_dir() -> bool:
     args = op.parse_args(["--run_dir=runs/test/0"])
     return _check(
@@ -300,6 +340,10 @@ TESTS = [
     test_parse_args_help,
     test_parse_args_save_to_file,
     test_parse_args_allow_axes,
+    test_parse_args_positional_as_run_dir,
+    test_parse_args_positional_as_plot_type,
+    test_parse_args_positional_does_not_override_explicit_run_dir,
+    test_parse_args_unknown_positional_becomes_plot_type,
     # Discovery / metadata
     test_list_plot_types_finds_all,
     test_list_plot_types_in_tempdir,

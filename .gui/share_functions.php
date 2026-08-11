@@ -2349,7 +2349,7 @@
 		$added_files = 0;
 		$project_md5 = hash('md5', $new_upload_md5_string);
 
-		$found_hash_file_data = search_for_hash_file($GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/hash.md5", $project_md5, $userFolder);
+		$found_hash_file_data = search_for_hash_file($GLOBALS["sharesPath"]."/$user_id/$experiment_name/*/hash.md5", $project_md5);
 
 		$found_hash_file = $found_hash_file_data[0];
 		$found_hash_file_dir = $found_hash_file_data[1];
@@ -2385,7 +2385,8 @@
 				$added_files,
 				$userFolder,
 				$first_message,
-				$second_message
+				$second_message,
+				$project_md5
 			);
 		}
 	}

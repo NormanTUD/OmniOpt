@@ -36,7 +36,7 @@ HELP_EXCEPTIONS = {
     "ui_url", "load_data_from_existing_jobs", "run_dir",
     "signed_weighted_euclidean_weights", "experiment_constraints", "minkowski_p",
     "max_parallelism", "show_ram_every_n_seconds", "runtime_debug",
-    "show_func_name", "worker_generator_path", "help",
+    "show_func_name", "worker_generator_path", "help", "install"
 }
 
 

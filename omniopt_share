@@ -289,10 +289,18 @@ def verify_manifest(manifest: Dict[str, Any]) -> str:
         )
     if not is_valid_username(str(manifest["user_id"])):
         return f"Invalid user_id: {manifest['user_id']!r}"
+    # `update` must be a real bool, not just truthy.
+    if not isinstance(manifest["update"], bool):
+        return (
+            f"update must be bool, got "
+            f"{type(manifest['update']).__name__}: {manifest['update']!r}"
+        )
 
     files = manifest["files"]
     if not isinstance(files, list):
         return "files must be a list"
+    if len(files) == 0:
+        return "Manifest has no files (nothing to share)"
     for f in files:
         try:
             sanitize_archive_path(str(f["archive_path"]))
@@ -302,6 +310,8 @@ def verify_manifest(manifest: Dict[str, Any]) -> str:
             size = int(f["size"])
         except (KeyError, ValueError, TypeError):
             return f"Bad size: {f.get('size')!r}"
+        if isinstance(f["size"], bool) or not isinstance(f["size"], int):
+            return f"Size must be int, got {type(f['size']).__name__}: {f['size']!r}"
         if size < 0 or size > MAX_FILE_SIZE:
             return f"Size out of range: {size}"
         sha = f.get("sha256")
@@ -374,7 +384,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--password", default=None)
     p.add_argument("--dont_send_singleruns", action="store_true")
     p.add_argument("--outfile", default=None)
-    p.add_argument("run_dir", nargs="?")
+    p.add_argument("run_dirs", nargs="*", default=[],
+                   help="One or more run directories to share.")
     return p
 
 

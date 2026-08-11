@@ -76,7 +76,7 @@ def _build_commands_for_run(
 
         this_img = f"{run_dir.parent.name}_{run_dir.name.split('/')[-1]}_image_{plot_type}.svg"
         cmd = (
-            f"bash omniopt_plot --run_dir={run_dir} --save_to_file={this_img} "
+            f"./omniopt_plot --run_dir={run_dir} --save_to_file={this_img} "
             f"--plot_type={plot_type}"
         )
         commands.append(cmd)

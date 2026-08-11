@@ -2280,8 +2280,21 @@
 							}
 
 							try {
-								move_uploaded_file($file, "$userFolder/$filename");
-								$added_files++;
+								$moved = move_uploaded_file($file, "$userFolder/$filename");
+								if (!$moved) {
+									$moved = @rename($file, "$userFolder/$filename");
+								}
+								if (!$moved) {
+									$moved = @copy($file, "$userFolder/$filename");
+									if ($moved) {
+										@unlink($file);
+									}
+								}
+								if ($moved) {
+									$added_files++;
+								} else {
+									error_log("\nFailed to move $file to $userFolder/$filename\n");
+								}
 							} catch (Exception $e) {
 								error_log("\nAn exception occured trying to move $file to $userFolder/$filename: $e\n");
 							}

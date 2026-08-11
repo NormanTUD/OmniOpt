@@ -14,28 +14,51 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.helpers import red_text
+from _framework.installer import ensure_dependencies
 
 
 REPO_ROOT = THIS_DIR.parent
 RC_FILE = REPO_ROOT / ".tests" / "pylint.rc"
 
 
+def _pylint_bin() -> str | None:
+    """Locate the pylint binary (on PATH or inside the framework venv)."""
+    bin_ = shutil.which("pylint")
+    if bin_:
+        return bin_
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidate = Path(venv) / "bin" / "pylint"
+        if candidate.exists():
+            return str(candidate)
+    return None
+
+
 def main(argv=None) -> int:
+    # Installs missing tools (e.g. pylint) from test_requirements.txt into
+    # the framework venv when they are not available yet.
+    ensure_dependencies()
     os.environ.setdefault("install_tests", "1")
-    if not shutil.which("pylint"):
-        red_text("pylint not found")
-        return 1
 
     targets = [str(p) for p in REPO_ROOT.glob(".*.py")]
     targets = [t for t in targets if not t.endswith("/.helpers.py")]
     targets += [str(REPO_ROOT / "omniopt")]
 
-    cmd = ["pylint"]
+    flags: list[str] = []
     if RC_FILE.exists():
-        cmd += [f"--rcfile={RC_FILE}"]
-    cmd += targets
+        flags += [f"--rcfile={RC_FILE}"]
+    flags += targets
 
-    proc = subprocess.run(cmd, cwd=str(REPO_ROOT))
+    pylint_bin = _pylint_bin()
+    if pylint_bin is None:
+        # Fall back to `python -m pylint` (works when pylint is only
+        # installed inside the framework venv that is not on PATH).
+        proc = subprocess.run(
+            [sys.executable, "-m", "pylint", *flags], cwd=str(REPO_ROOT)
+        )
+        return proc.returncode
+
+    proc = subprocess.run([pylint_bin, *flags], cwd=str(REPO_ROOT))
     return proc.returncode
 
 

@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Callable, List, Optional, Sequence
 
 
-DOCKER_IMAGE_NAME = "omniopt_omniopt2"
+DOCKER_IMAGE_NAME = "omniopt-omniopt2"
 
 INNER_PREFIXES = ("./omniopt", "omniopt", "./.tests/", ".tests/", "python3 ")
 

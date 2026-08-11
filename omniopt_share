@@ -584,22 +584,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 # Legacy alias kept for tests / external callers that still use the
 # single-dir API.
 _share_one_run_dir = _share_one
-        print(body, file=sys.stderr)
-        if status == 7:
-            print(
-                "Exit code 7 means the server was not reachable. "
-                "Are you online? Is the server properly started?",
-                file=sys.stderr,
-            )
-        return status if status != 200 else 1
-
-    print(body)
-    return 0
 
 
 if __name__ == "__main__":
+    import tempfile
     try:
-        import tempfile
         sys.exit(main())
     except KeyboardInterrupt:
         sys.exit(0)

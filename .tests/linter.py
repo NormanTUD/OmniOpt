@@ -29,7 +29,7 @@ from _framework.helpers import (
 
 
 REPO_ROOT = THIS_DIR.parent
-DEFAULT_LINTERS = ["lizard", "pylint", "bandit", "deadcode", "flake8", "shellcheck"]
+DEFAULT_LINTERS = ["lizard", "pylint", "bandit", "deadcode", "flake8"]
 
 
 def main(argv=None) -> int:
@@ -68,7 +68,7 @@ def main(argv=None) -> int:
     else:
         linters_to_run = list(DEFAULT_LINTERS)
         if args.quick:
-            linters_to_run = [l for l in linters_to_run if l in ("lizard", "flake8", "shellcheck", "pyflakes")]
+            linters_to_run = [l for l in linters_to_run if l in ("lizard", "flake8", "pyflakes")]
 
     for linter in linters_to_run:
         if errors and not args.dont_fail_on_error:

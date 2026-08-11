@@ -125,7 +125,7 @@ jobs:
         .tools/ci_dependency
     - name: main test script
       run: |
-        ./omniopt_docker python3 .tests/main.py --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
+        ./omniopt_docker python3 .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --superquick --run_with_coverage
 
   main-test:
     needs: [smoke-tests, install-via-pip, detect_changes]
@@ -179,7 +179,7 @@ jobs:
     - name: main test script
       shell: bash
       run: |
-        python3 .tests/main.py --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
+        python3 .tests/main --num_random_steps=1 --max_eval=2 --exit_on_first_error --no_plots --run_with_coverage
 
     - uses: release-drafter/release-drafter@v5
       with:

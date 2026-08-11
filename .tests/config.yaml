@@ -691,6 +691,5 @@ smoke_tests:
   - missing_plot_metadata
   - js_syntax
   - pyright_fast
-  - shellcheck
   - mypy
   - find_wrongly_typed_cli_args

@@ -56,7 +56,6 @@ def main(argv=None) -> int:
         return 0
 
     os.environ.setdefault("install_tests", "1")
-    os.environ.setdefault("DONT_INSTALL_MODULES", "1")
     os.environ.setdefault("DONT_SHOW_DONT_INSTALL_MESSAGE", "1")
     if args.check_only_changed_since_last_success:
         os.environ["ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT"] = "1"
@@ -75,7 +74,9 @@ def main(argv=None) -> int:
             yellow_text(f"Skipping linter {linter} because there were previous errors...")
             continue
         yellow_text(f"Running {linter}...")
-        script = REPO_ROOT / ".tests" / linter
+        script = REPO_ROOT / ".tests" / f"{linter}.py"
+        if not script.exists():
+            script = REPO_ROOT / ".tests" / linter
         cmd = [str(script)] + list(args.files)
         try:
             proc = subprocess.run(cmd, cwd=str(REPO_ROOT))

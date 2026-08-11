@@ -2245,6 +2245,10 @@
 	}
 
 	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg, $project_md5 = null) {
+    error_log("DEBUG move_files: userFolder=$userFolder, offered_files count=" . count($offered_files));
+    foreach (array_slice($offered_files, 0, 3, true) as $name => $f) {
+        error_log("DEBUG move_files: $name -> file=" . ($f["file"] ?? "null") . " filename=" . ($f["filename"] ?? "null") . " exists=" . (isset($f["file"]) && file_exists($f["file"]) ? "yes" : "no"));
+    }
 		$empty_files = [];
 
 		foreach ($offered_files as $offered_file) {

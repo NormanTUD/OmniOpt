@@ -602,7 +602,7 @@ tests:
   # ---- docker / slurm_docker ------------------------------------------------
   - id: docker
     name: "Docker"
-    cmd: "bash omniopt_docker ./.tests/main --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error"
+    cmd: "bash omniopt_docker python3 ./.tests/main.py --quick --num_random_steps=1 --max_eval=2 --superquick --exit_on_first_error"
     wanted_exit_code: 0
     tags: [suite:docker, env:docker]
 

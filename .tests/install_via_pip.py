@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Install via github and pip and test if it works properly."""
+
+from __future__ import annotations
+
+import shutil
+import subprocess
+import sys
+import venv
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+
+REPO_ROOT = THIS_DIR.parent
+
+
+def main(argv=None) -> int:
+    home = Path.home()
+    overall_ok = True
+
+    for install_type in ("omniopt", "git"):
+        venv_dir = home / f"omniopt_via_pip_{install_type}"
+        if venv_dir.exists():
+            shutil.rmtree(venv_dir)
+        venv.create(str(venv_dir), with_pip=True)
+
+        activate = venv_dir / "bin" / "activate"
+        if not activate.exists():
+            print(f"{activate} not found")
+            overall_ok = False
+            continue
+
+        env = {"VIRTUAL_ENV": str(venv_dir), "PATH": f"{venv_dir}/bin:" + __import__("os").environ.get("PATH", "")}
+        pip = str(venv_dir / "bin" / "pip")
+
+        if install_type == "git":
+            subprocess.run(
+                [pip, "install", "git+https://github.com/NormanTUD/OmniOpt/"],
+                env=env, check=False,
+            )
+        else:
+            subprocess.run([pip, "install", "omniopt2"], env=env, check=False)
+
+        omniopt_bin = str(venv_dir / "bin" / "omniopt")
+        proc = subprocess.run([omniopt_bin, "--help"], env=env)
+        if proc.returncode != 0:
+            print(f"omniopt --help exited with {proc.returncode}")
+            overall_ok = False
+            shutil.rmtree(venv_dir)
+            continue
+
+        cmd = [
+            omniopt_bin,
+            "--partition=alpha", "--live_share", "--debug", "--verbose",
+            "--experiment_name=pip_test_experiment",
+            "--mem_gb=1", "--time=60", "--worker_timeout=60",
+            "--max_eval=5", "--num_parallel_jobs=5",
+            "--gpus=1", "--num_random_steps=2",
+            "--follow", "--send_anonymized_usage_stats",
+            "--result_names", "RESULT=min",
+            "--run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI=",
+            "--cpus_per_task=1", "--nodes_per_job=1",
+            "--generate_all_jobs_at_once", "--model=BOTORCH_MODULAR",
+            "--run_mode=local", "--occ_type=euclid",
+            "--main_process_gb=8", "--max_nr_of_zero_results=50",
+            "--slurm_signal_delay_s=0",
+            "--parameter", "x range 123 1000 int false",
+            "--parameter", "y range 5431 1234 float false",
+        ]
+        proc2 = subprocess.run(cmd, env=env)
+        if proc2.returncode != 0:
+            print(f"omniopt-main-script exited with {proc2.returncode}")
+            overall_ok = False
+
+        for to_check in ("omniopt_plot", "omniopt_docker", "omniopt_share", "omniopt_evaluate"):
+            if not (venv_dir / "bin" / to_check).exists():
+                print(f"{to_check} not found")
+                overall_ok = False
+
+        shutil.rmtree(venv_dir)
+
+    return 0 if overall_ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

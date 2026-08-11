@@ -24,6 +24,7 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework import helpers
+from _framework.installer import ensure_dependencies
 from _framework.cli import (
     adjust_quick_flags,
     build_base_parser,
@@ -96,6 +97,7 @@ def main(argv=None) -> int:
     os.environ.setdefault("DISABLE_SIXEL_GRAPHICS", "1")
 
     helpers.ensure_install_tests_env()
+    ensure_dependencies(include_tests=True)
     config = load_config()
 
     parser = build_base_parser(

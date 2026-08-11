@@ -56,7 +56,10 @@ def error_message(msg: str) -> int:
     lines, columns = _terminal_size()
     env = os.environ.copy()
     env["NEWT_COLORS"] = (
-        "window=,red\nborder=white,red\ntextbox=white,red\nbutton=black,white\n"
+        "window=,red\n"
+        "border=white,red\n"
+        "textbox=white,red\n"
+        "button=black,white\n"
     )
     subprocess.run(
         [
@@ -112,9 +115,11 @@ def spin_up_temporary_webserver(directory: str, download_path: str) -> int:
     )
 
     custom_text = (
-        f"The webserver has started. Run this command locally to forward the "
-        f"port {free_port} to your local system:\n\n{port_forwarding_command}\n\n"
-        f"When you close this window by clicking OK, the server will be shut down."
+        f"The webserver has started. Run this command locally to forward "
+        f"the port {free_port} to your local system:\n\n"
+        f"{port_forwarding_command}\n\n"
+        f"When you close this window by clicking OK, the server will be "
+        "shut down."
     )
 
     try:
@@ -123,8 +128,9 @@ def spin_up_temporary_webserver(directory: str, download_path: str) -> int:
             if _is_x86_64() and xclip.exists():
                 _copy_to_clipboard(port_forwarding_command, xclip)
                 copied_text = custom_text + (
-                    "\n\nThis command has already been copied to your clipboard. "
-                    "Paste it locally on your machine to view the file(s)."
+                    "\n\nThis command has already been copied to your "
+                    "clipboard. Paste it locally on your machine to view "
+                    "the file(s)."
                 )
                 _show_dialog("Webserver", copied_text)
             elif shutil.which("zenity") is not None:

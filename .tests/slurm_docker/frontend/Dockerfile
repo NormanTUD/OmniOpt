@@ -75,7 +75,7 @@ RUN chmod +x /bin/scancel_all
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/
-COPY docker-entrypoint.sh /etc/slurm/
+COPY docker-entrypoint.py /etc/slurm/
 
 RUN chown munge:munge etc/munge/munge.key \
  && chown slurm:slurm /etc/slurm \
@@ -139,4 +139,4 @@ RUN echo '#!/bin/bash' > /bin/sacct && \
 	echo 'done' >> /bin/sacct && \
 	chmod +x /bin/sacct
 
-ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]
+ENTRYPOINT ["python3", "/etc/slurm/docker-entrypoint.py"]

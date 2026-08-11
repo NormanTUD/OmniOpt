@@ -73,7 +73,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe m
 COPY munge.key /etc/munge/
 COPY slurm.conf /etc/slurm/
 COPY cgroup.conf /etc/slurm/
-COPY docker-entrypoint.sh /etc/slurm/
+COPY docker-entrypoint.py /etc/slurm/
 
 RUN chown munge:munge etc/munge/munge.key \
  && mkdir /var/spool/slurmd \
@@ -137,4 +137,4 @@ RUN echo '#!/bin/bash' > /bin/sacct && \
 	echo 'done' >> /bin/sacct && \
 	chmod +x /bin/sacct
 
-ENTRYPOINT ["/etc/slurm/docker-entrypoint.sh"]
+ENTRYPOINT ["python3", "/etc/slurm/docker-entrypoint.py"]

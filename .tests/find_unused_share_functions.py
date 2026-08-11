@@ -24,35 +24,43 @@ GUI_DIR = REPO_ROOT / ".gui"
 
 
 def main(argv=None) -> int:
-    if not (GUI_DIR / "share_functions.php").exists():
+    share_file = GUI_DIR / "share_functions.php"
+    if not share_file.exists():
         red_text("share_functions.php not found")
         return 1
 
     start = time.time()
-    share_content = (GUI_DIR / "share_functions.php").read_text(encoding="utf-8", errors="ignore")
+    content = share_file.read_text(encoding="utf-8", errors="ignore")
 
-    funcnames = []
-    for line in share_content.splitlines():
+    funcnames: list[str] = []
+    for line in content.splitlines():
         m = re.search(r"function\s+(\w+)", line)
         if m:
             funcnames.append(m.group(1))
 
-    # Concatenate all PHP files (excluding the function definitions themselves).
+    # Concatenate all PHP files (matching the bash `cat *.php **/*.php`),
+    # but skip lines that contain the word "function" (matching
+    # `grep -v function`).
     php_files = list(GUI_DIR.glob("*.php")) + list(GUI_DIR.glob("**/*.php"))
-    all_php = ""
+    all_php_lines: list[str] = []
     for php in php_files:
-        if php.name == "share_functions.php":
+        if not php.is_file():
             continue
         try:
-            all_php += php.read_text(encoding="utf-8", errors="ignore") + "\n"
+            for line in php.read_text(encoding="utf-8", errors="ignore").splitlines():
+                if "function" in line:
+                    continue
+                all_php_lines.append(line)
         except OSError:
             continue
 
+    haystack = "\n".join(all_php_lines)
     errors: list[str] = []
     for fname in funcnames:
-        # Search for the function name (excluding function declarations).
+        # Match the function name as a whole word to avoid false positives
+        # like `error_log_if_wanted` matching `error_log_if_wanted_extra`.
         pattern = re.compile(rf"\b{re.escape(fname)}\b")
-        count = len(pattern.findall(all_php))
+        count = len(pattern.findall(haystack))
         if count == 0:
             errstr = f"Function {fname} in share_functions.php is never used anywhere."
             red_text(errstr)

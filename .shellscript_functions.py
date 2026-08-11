@@ -522,11 +522,11 @@ def setup_environment() -> int:
         green_reset_line(
             f"➤Environment {venv_dir} was not found. Creating it..."
         )
-        result = subprocess.run(
+        venv_result = subprocess.run(
             [sys.executable, "-m", "venv", venv_dir],
             check=False,
         )
-        if result.returncode != 0:
+        if venv_result.returncode != 0:
             red_text(f"❌Failed to create Virtual Environment in {venv_dir}\n")
             return 20
 
@@ -560,9 +560,9 @@ def setup_environment() -> int:
         if _hash_is_different(
             hash_file, main_hash
         ) or _hash_is_different(hash_test_file, main_hash):
-            result = install_required_modules()
-            if result != 0:
-                return result
+            install_result = install_required_modules()
+            if install_result != 0:
+                return install_result
             hash_file.write_text(main_hash)
             hash_test_file.write_text(main_hash)
 

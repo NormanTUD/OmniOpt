@@ -26,7 +26,7 @@ def main(argv=None) -> int:
         return 1
 
     bash_files: list[str] = []
-    for pattern in ("*.sh", ".shellscript_functions", ".general.sh",
+    for pattern in ("*.sh", ".general.sh",
                     ".colorfunctions.sh"):
         bash_files.extend(str(p) for p in REPO_ROOT.glob(pattern))
     for p in REPO_ROOT.iterdir():

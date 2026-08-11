@@ -87,7 +87,6 @@ for i in "$@"; do
     esac
 done
 
-source .shellscript_functions
 source .general.sh
 
 function info_message_large {

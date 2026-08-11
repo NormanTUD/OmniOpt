@@ -6,8 +6,6 @@ cd "$SCRIPT_DIR"
 
 cd ..
 
-source .shellscript_functions
-
 python3 .tools/find_duplicate_functions.py $*
 exit_code=$?
 

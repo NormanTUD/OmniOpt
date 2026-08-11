@@ -122,8 +122,6 @@
 		fi
 	done
 
-	source "$SCRIPT_DIR/.shellscript_functions"
-
 	k=0
 	for RUN_DIR in "${folders_to_share[@]}"; do
 		ok=1

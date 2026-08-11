@@ -342,7 +342,6 @@
 		k=$((k+1))
 	done
 
-	source "$SCRIPT_DIR/.shellscript_functions"
 	source "$SCRIPT_DIR/.general.sh"
 
 	if [[ "$help" -eq 1 ]]; then

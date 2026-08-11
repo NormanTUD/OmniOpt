@@ -1898,6 +1898,7 @@ class ConfigLoader:
             epilog=f"Example:\n\n{oo_call} --partition=alpha --experiment_name=neural_network ..."
         )
         self.parser.add_argument('--version', action='version', version='%(prog)s 2.0', help='Show version and exit')
+        self.parser.add_argument('--install', action='store_true', help='Bootstrap the venv (install Python deps) and exit')
 
         self._parsing_arguments_loader = _parsing_arguments_loader
 
@@ -12922,6 +12923,10 @@ Exit-Code: 159
     my_exit(nr_errors)
 
 def main_wrapper() -> None:
+    if getattr(args, "install", False):
+        print("[omniopt] --install: dependencies are installed, exiting.")
+        return
+
     print(f"Run-UUID: {run_uuid}")
 
     auto_wrap_namespace(globals())

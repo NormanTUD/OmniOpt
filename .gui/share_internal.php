@@ -245,13 +245,10 @@
 			];
 			$num_offered_files++;
 		}
-		error_log("DEBUG share_internal: valid_names count=" . count($valid_names) . " BEFORE assign");
-$offered_files = $valid_names;
-error_log("DEBUG share_internal: offered_files count=" . count($offered_files) . " AFTER assign to valid_names");
+		$offered_files = $valid_names;
 	}
 
-	error_log("DEBUG share_internal: entering foreach _FILES, count_FILES=" . count($_FILES) . " offered_files count=" . count($offered_files));
-foreach ($_FILES as $_file) {
+	foreach ($_FILES as $_file) {
 		$file_name = $_file["name"];
 		$file_error = $_file["error"];
 

@@ -2245,10 +2245,6 @@
 	}
 
 	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg, $project_md5 = null) {
-    error_log("DEBUG move_files: userFolder=$userFolder, offered_files count=" . count($offered_files));
-    foreach (array_slice($offered_files, 0, 3, true) as $name => $f) {
-        error_log("DEBUG move_files: $name -> file=" . ($f["file"] ?? "null") . " filename=" . ($f["filename"] ?? "null") . " exists=" . (isset($f["file"]) && file_exists($f["file"]) ? "yes" : "no"));
-    }
 		$empty_files = [];
 
 		foreach ($offered_files as $offered_file) {
@@ -2952,6 +2948,14 @@ $onclick_string
 		$result_names = [];
 		$result_min_max = [];
 
+		// Fallback: extract from bundle.zip if the result files are missing
+		// (happens when PHP-ZipArchive is not installed on the server, so
+		// the manifest+bundle upload protocol couldn't unpack on receive).
+		if ((!is_file($result_names_file) || !is_file($result_min_max_file))
+				&& is_file("$run_dir/bundle.zip")) {
+			_extract_from_bundle_zip($run_dir, $warnings);
+		}
+
 		if(is_file($result_names_file)) {
 			$result_names = read_file_as_array($result_names_file);
 		} else {
@@ -2968,6 +2972,37 @@ $onclick_string
 		$result_min_max = clean_result_name_lines($result_min_max);
 
 		return [$result_names, $result_min_max, $warnings];
+	}
+
+	function _extract_from_bundle_zip($run_dir, &$warnings) {
+		$bundle = "$run_dir/bundle.zip";
+		if (!is_file($bundle)) {
+			return;
+		}
+
+		$bin = null;
+		foreach (["/usr/bin/unzip", "/usr/bin/7z", "/usr/bin/python3"] as $candidate) {
+			if (is_executable($candidate)) {
+				$bin = $candidate;
+				break;
+			}
+		}
+		if ($bin === null) {
+			$warnings[] = "bundle.zip present but no unzip/7z/python3 available to extract it";
+			return;
+		}
+
+		if (basename($bin) === "unzip") {
+			$cmd = escapeshellcmd($bin) . " -o -qq " . escapeshellarg($bundle) . " -d " . escapeshellarg($run_dir) . " >/dev/null 2>&1";
+			@exec($cmd, $out, $rc);
+		} elseif (basename($bin) === "7z") {
+			$cmd = escapeshellcmd($bin) . " x -y -o" . escapeshellarg($run_dir) . " " . escapeshellarg($bundle) . " >/dev/null 2>&1";
+			@exec($cmd, $out, $rc);
+		} else {
+			$py = "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])";
+			$cmd = escapeshellcmd($bin) . " -c " . escapeshellarg($py) . " " . escapeshellarg($bundle) . " " . escapeshellarg($run_dir) . " >/dev/null 2>&1";
+			@exec($cmd, $out, $rc);
+		}
 	}
 
 	function add_ui_url_from_file_to_overview($run_dir, $overview_html, $warnings) {

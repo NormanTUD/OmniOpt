@@ -20,8 +20,9 @@ from rich.table import Table
 
 REPO_ROOT = THIS_DIR.parent
 
-# Initialize the spellchecker
-spell = SpellChecker(language='en')
+
+def _get_spell():
+    return SpellChecker(language='en')
 
 def read_file_to_array(file_path):
     if not os.path.exists(file_path):

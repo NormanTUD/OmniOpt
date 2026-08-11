@@ -68,6 +68,28 @@ def validate_inner_command(inner: str) -> None:
         )
 
 
+def _looks_like_python_script(inner: str) -> bool:
+    """True if `inner` points at a file that has a Python shebang.
+
+    Used so callers can write ``./.tests/main`` instead of the longer
+    ``python3 .tests/main`` — the latter still wins when given.
+    """
+    candidate = inner.lstrip("./")
+    if not candidate or " " in candidate:
+        return False
+    # Try a few candidate paths so `inner` of the form `./.tests/main`
+    # (which lives at `.tests/main` in cwd) is also detected.
+    candidates = [candidate, "./" + candidate]
+    for path in candidates:
+        try:
+            with open(path, "rb") as fh:
+                first_line = fh.readline(256).decode("utf-8", errors="ignore")
+        except OSError:
+            continue
+        return first_line.startswith("#!") and "python" in first_line
+    return False
+
+
 def build_run_command(
     *,
     inner: str,
@@ -89,6 +111,14 @@ def build_run_command(
     if inner.startswith("python3 "):
         interpreter = "python3"
         target = "/var/opt/omniopt/" + inner[len("python3 "):].lstrip()
+    elif _looks_like_python_script(inner):
+        # Heuristic: anything that starts with `./` and points at a file
+        # with a `#!/usr/bin/env python3` (or `python`) shebang is
+        # dispatched as python3 instead of bash.  This avoids the
+        # `bash: ./.tests/main: line 13: ...: command not found` errors
+        # we used to get when callers passed the old bash-typed names.
+        interpreter = "python3"
+        target = "/var/opt/omniopt/" + inner.lstrip("./")
     else:
         interpreter = "bash"
         target = "/var/opt/omniopt/" + inner

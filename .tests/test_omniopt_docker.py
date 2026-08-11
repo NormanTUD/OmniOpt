@@ -29,7 +29,10 @@ THIS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = THIS_DIR.parent
 
 sys.path.insert(0, str(REPO_ROOT))
-import omniopt_docker as od  # noqa: E402
+import importlib.util  # noqa: E402
+from importlib.machinery import SourceFileLoader  # noqa: E402
+
+od = SourceFileLoader("omniopt_docker", str(REPO_ROOT / "omniopt_docker")).load_module()
 
 from _framework.helpers import red_text  # noqa: E402
 

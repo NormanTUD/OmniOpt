@@ -187,8 +187,8 @@ def generate_progress_bar(current: int, maximum: int) -> str:
     bar_length = 30
     filled_length = bar_length * current // maximum
     empty_length = bar_length - filled_length
-    bar = _bar_char() * filled_length + " " * empty_length
-    return f"[{bar}] \n"
+    bar_str = _bar_char() * filled_length + " " * empty_length
+    return f"[{bar_str}] \n"
 
 
 def _frozen_packages() -> str:
@@ -301,7 +301,7 @@ def ppip(
     already_installed = module_without_version in frozen
 
     if not already_installed:
-        if module != as_requirement_of and as_requirement_of != "-":
+        if module not in (as_requirement_of, "-"):
             dependencies = _collect_dependencies(module)
             for index, dependency in enumerate(dependencies):
                 if index == 0:

@@ -659,6 +659,7 @@ smoke_tests:
   - find_typos
   - test_bash_argparse_clone
   - test_omniopt_docker
+  - test_omniopt_evaluate
   - state_files
   - php_unit_tests
   - find_missing_f_strings

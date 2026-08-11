@@ -46,7 +46,7 @@ tests:
   # ---- meta: smoke / pyright -------------------------------------------------
   - id: smoke_tests
     name: "Smoke tests"
-    cmd: "python3 {REPO_ROOT}/.tests/smoke_tests.py"
+    cmd: "python3 {REPO_ROOT}/.tests/smoke_tests"
     wanted_exit_code: 0
     tags: [suite:meta, quick:false, env:local]
 
@@ -652,7 +652,7 @@ tests:
     tags: [suite:full, quick:no]
 
 # -----------------------------------------------------------------------------
-# Smoke test suite - flat list of individual test scripts that smoke_tests.py
+# Smoke test suite - flat list of individual test scripts that smoke_tests
 # runs in sequence. Same as the original smoke_tests bash script.
 # -----------------------------------------------------------------------------
 smoke_tests:

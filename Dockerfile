@@ -10,9 +10,9 @@ COPY requirements.txt /requirements.txt
 COPY test_requirements.txt /test_requirements.txt
 RUN bash /.shellscript_functions
 
-COPY .tests/example_network/install.sh /.test_install.sh
-RUN bash /.test_install.sh
-RUN rm /.test_install.sh
+COPY .tests/example_network/install.py /.test_install.py
+RUN python3 /.test_install.py
+RUN rm /.test_install.py
 RUN rm /.shellscript_functions
 
 ARG GetMyUsername

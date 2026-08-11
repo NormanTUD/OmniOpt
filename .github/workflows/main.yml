@@ -74,7 +74,7 @@ jobs:
     - name: Smoke Tests
       if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
-        python3 .tests/smoke_tests.py
+        python3 .tests/smoke_tests
 
     - name: GUI-only Tests
       if: needs.detect_changes.outputs.gui_only == 'true'

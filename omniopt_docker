@@ -57,10 +57,11 @@ def determine_docker_cmd(*, in_docker_group: bool) -> tuple[str, str]:
 def validate_inner_command(inner: str) -> None:
     """Reject dangerous-looking inner commands.
 
-    The original bash only allowed commands starting with one of the
-    well-known prefixes (``omniopt*``, ``.tests/*``, ``python3 ...``).
-    Anything else is treated as user input that must not be passed to
-    docker.
+    The original bash checked the WHOLE remaining argv string against
+    patterns like ``python3*`` -- so ``python3 .tests/main --foo`` was
+    accepted because it starts with ``python3``.  This function takes a
+    single string for the same reason; :func:`main` joins ``argv``'s
+    tail back together before calling here.
     """
     if not any(inner.startswith(prefix) for prefix in INNER_PREFIXES):
         raise ValueError(

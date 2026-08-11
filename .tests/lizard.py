@@ -21,16 +21,29 @@ REPO_ROOT = THIS_DIR.parent
 
 def main(argv=None) -> int:
     os.environ.setdefault("install_tests", "1")
-    if not shutil.which("lizard"):
-        red_text("lizard not found")
-        return 1
+    lizard_bin = shutil.which("lizard")
+    if lizard_bin is None:
+        # Fall back to running lizard as a Python module (works when we're
+        # already inside a venv that has lizard installed but no bin entry
+        # on PATH).
+        proc = subprocess.run(
+            [sys.executable, "-m", "lizard", "--CCN", "15", "--arguments", "6",
+             "--length", "100", "-w"],
+            cwd=str(REPO_ROOT),
+        )
+        if proc.returncode != 0 and "No module named lizard" in (
+            proc.stderr or ""
+        ):
+            red_text("lizard not found")
+            return 1
+        return proc.returncode
 
     targets = [str(p) for p in REPO_ROOT.glob(".*.py")]
     targets += [str(p) for p in REPO_ROOT.glob(".omniopt_plot_*.py")]
     targets += [str(REPO_ROOT / "omniopt")]
 
     proc = subprocess.run(
-        ["lizard", "--CCN", "15", "--arguments", "6", "--length", "100",
+        [lizard_bin, "--CCN", "15", "--arguments", "6", "--length", "100",
          "-w", *targets],
         cwd=str(REPO_ROOT),
     )

@@ -117,33 +117,39 @@ def ensure_venv() -> Path:
 
 def ensure_dependencies(*, include_tests: bool = True,
                          venv_dir: Path | None = None) -> Path:
-    """Create venv if needed, install requirements, re-exec inside venv.
+    """Create venv if needed, install requirements, and ensure the venv's
+    site-packages is on sys.path.
 
-    If we are not yet running inside the venv python, this function
-    never returns: it re-execs the current process inside the venv and
-    the new process exits with the test exit code.
+    The venv on this machine has its `python` binary as a symlink to the
+    system python (`/usr/bin/python3.13`), so a naive ``sys.executable``
+    comparison always reports "already inside". Instead we detect by
+    checking whether the venv's ``site-packages`` is already importable
+    for a sentinel package, and if not we prepend it to ``sys.path``.
     """
     if os.environ.get("DONT_INSTALL_MODULES"):
         return Path(sys.prefix)
 
     venv_dir = venv_dir or _resolve_venv_dir()
-    py_in_venv = venv_dir / "bin" / "python"
-    already_inside = (
-        py_in_venv.exists()
-        and Path(sys.executable).resolve() == py_in_venv.resolve()
-    )
+    if not _create_venv(venv_dir):
+        sys.exit(20)
 
-    if not already_inside:
-        if not _create_venv(venv_dir):
-            sys.exit(20)
-        # Re-exec inside the venv so subsequent imports of installed
-        # packages (pandas, ax-platform, ...) actually find them.
-        env = os.environ.copy()
-        env["VIRTUAL_ENV"] = str(venv_dir)
-        proc = subprocess.run([str(py_in_venv), *sys.argv], env=env, cwd=os.getcwd())
-        sys.exit(proc.returncode)
+    # Make the venv's site-packages importable. Different Python versions
+    # use different lib paths (lib/, lib/python3.X/site-packages, ...).
+    candidates = [
+        venv_dir / "lib" / f"python{sys.version_info.major}.{sys.version_info.minor}"
+        / "site-packages",
+        venv_dir / "lib" / "site-packages",
+        venv_dir / "lib" / "python3" / "site-packages",
+    ]
+    site_pkg = next((p for p in candidates if p.is_dir()), None)
+    if site_pkg and str(site_pkg) not in sys.path:
+        sys.path.insert(0, str(site_pkg))
+        os.environ["VIRTUAL_ENV"] = str(venv_dir)
+        os.environ["PYTHONPATH"] = (
+            str(site_pkg) + os.pathsep + os.environ.get("PYTHONPATH", "")
+        )
 
-    # We are inside the venv. Decide if we need to install.
+    # Decide if we need to install.
     req_main = REPO_ROOT / "requirements.txt"
     req_test = REPO_ROOT / "test_requirements.txt"
 

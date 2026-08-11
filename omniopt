@@ -2372,7 +2372,10 @@ def _fatal_error(message: str, code: int) -> None:
     print_red(message)
     my_exit(code)
 
-if not getattr(args, "install", False) and args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and (not args.calculate_pareto_front_of_job or len(args.calculate_pareto_front_of_job) == 0):
+def _has_no_optimization_settings() -> bool:
+    return not getattr(args, "install", False) and args.max_eval is None and args.generation_strategy is None and args.continue_previous_job is None and not args.calculate_pareto_front_of_job
+
+if _has_no_optimization_settings():
     _fatal_error("Either --max_eval or --generation_strategy must be set.", 104)
 
 arg_result_names = []

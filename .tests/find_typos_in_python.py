@@ -25,10 +25,6 @@ def dier(msg):
     pprint(msg)
     sys.exit(10)
 
-# Initialize spellchecker with English dictionary
-spell = SpellChecker(language='en')
-
-# Regex patterns to ignore specific cases
 
 def read_file_to_array(file_path):
     if not os.path.exists(file_path):
@@ -37,6 +33,7 @@ def read_file_to_array(file_path):
     with open(file_path, mode='r', encoding="utf-8") as file:
         lines = [line.strip() for line in file.readlines()]
     return lines
+
 
 # Read the whitelist from the file
 IGNORE_PATTERNS = read_file_to_array(".tests/whitelisted_words")
@@ -75,7 +72,7 @@ def clean_word(word):
 
     return after
 
-def analyze_file(filepath, progress, task_id):
+def analyze_file(spell, filepath, progress, task_id):
     """Analyze a Python file and check the spelling of string literals."""
     with open(filepath, mode='r', encoding='utf-8') as file:
         content = file.read()
@@ -110,6 +107,10 @@ def analyze_file(filepath, progress, task_id):
     return possibly_incorrect_words
 
 def main():
+    # Initialize spellchecker (deferred so KeyboardInterrupt can be
+    # caught cleanly by the if __name__ guard).
+    spell = SpellChecker(language='en')
+
     parser = argparse.ArgumentParser(description='Analyze Python scripts and check the spelling of string literals.')
     parser.add_argument('files', metavar='FILE', nargs='*', help='The Python files to analyze.')
     args = parser.parse_args()
@@ -131,7 +132,7 @@ def main():
             for filepath in files:
                 task_id = progress.add_task(f"[cyan]Analyzing {filepath}", total=1)
                 try:
-                    possibly_incorrect_words = analyze_file(filepath, progress, task_id)
+                    possibly_incorrect_words = analyze_file(spell, filepath, progress, task_id)
                     if possibly_incorrect_words:
                         typo_files += 1
                         console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
@@ -143,7 +144,7 @@ def main():
             if i % 20 == 0 or i == len(files):
                 print(f"  [{i}/{len(files)}] analyzing {filepath}", file=sys.stderr)
             try:
-                possibly_incorrect_words = analyze_file(filepath, None, None)
+                possibly_incorrect_words = analyze_file(spell, filepath, None, None)
                 if possibly_incorrect_words:
                     typo_files += 1
                     console.print(f"[red]Unknown or misspelled words in {filepath}: {possibly_incorrect_words}")
@@ -155,6 +156,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        sys.exit(main())
     except KeyboardInterrupt:
-        print("Cancelled script by using CTRL c")
+        print("Cancelled script by using CTRL c", file=sys.stderr)
+        sys.exit(0)

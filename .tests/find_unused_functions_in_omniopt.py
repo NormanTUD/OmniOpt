@@ -43,18 +43,24 @@ def main(argv=None) -> int:
     # Build a content view that excludes def lines.
     content_without_defs = re.sub(r"^def\s.*$", "", content, flags=re.MULTILINE)
 
+    # Count matches per function name with a single combined regex.
+    # The original code scanned the full file once per function (~544
+    # passes); this does it in one pass.
+    if funcnames:
+        combined = re.compile(
+            r"\b(" + "|".join(re.escape(n) for n in funcnames) + r")\("
+        )
+        hits: dict[str, int] = {n: 0 for n in funcnames}
+        for m in combined.finditer(content_without_defs):
+            hits[m.group(1)] += 1
+    else:
+        hits = {}
+
     unused_count = 0
-    for funcname in funcnames:
-        pattern = re.compile(rf"{re.escape(funcname)}\(")
-        matches = pattern.findall(content_without_defs)
-        # Filter out matches that are part of "is_equal" pattern.
-        filtered = []
-        for line in content_without_defs.splitlines():
-            if funcname + "(" in line and "is_equal" not in line:
-                filtered.append(line)
-        cnt = len(filtered)
+    for fname in funcnames:
+        cnt = hits.get(fname, 0)
         if cnt == 0:
-            print(f"{funcname}: {cnt}")
+            print(f"{fname}: {cnt}")
             unused_count += 1
 
     return unused_count

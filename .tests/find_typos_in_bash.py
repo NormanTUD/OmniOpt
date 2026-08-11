@@ -21,9 +21,6 @@ from rich.table import Table
 REPO_ROOT = THIS_DIR.parent
 
 
-def _get_spell():
-    return SpellChecker(language='en')
-
 def read_file_to_array(file_path):
     if not os.path.exists(file_path):
         print(f"Cannot find file {file_path}")
@@ -32,42 +29,48 @@ def read_file_to_array(file_path):
         lines = [line.strip() for line in file.readlines()]
     return lines
 
-# Read the whitelist from the file
-whitelisted = read_file_to_array(".tests/whitelisted_words")
 
-console = Console()
-
-# Function to extract strings and comments from Bash files
-def extract_strings_and_comments_from_bash(bash_script_path):
-    with open(bash_script_path, mode='r', encoding="utf-8") as file:
-        bash_content = file.read()
-
-    # Regex for strings in single and double quotes and comments
-    string_pattern = r"(\".*?\"|'.*?')"
-    comment_pattern = r"(?<=#).*"
-
-    # Find all strings and comments
-    strings = re.findall(string_pattern, bash_content)
-    comments = re.findall(comment_pattern, bash_content)
-
-    # Remove the quotes from strings and strip comments
-    strings = [s[1:-1] for s in strings]
-    comments = [c.strip() for c in comments]
-
-    return strings + comments  # Combine strings and comments
-
-def filter_and_spellcheck_words(words):
-    misspelled_words = []
-    for word in words:
-        # Check if the word consists of letters and is not all uppercase
-        if word.isalpha() and word not in whitelisted:
-            # Check if the word is misspelled
-            if word not in spell:  # Check if the word is not recognized
-                misspelled_words.append(word)
-    return misspelled_words
-
-# Main function
 def main():
+    global spell, whitelisted, console
+
+    # Initialize the spellchecker (deferred so a KeyboardInterrupt here
+    # can still be caught and turned into a clean exit-0).
+    spell = SpellChecker(language='en')
+
+    # Read the whitelist from the file
+    whitelisted = read_file_to_array(".tests/whitelisted_words")
+
+    console = Console()
+
+    # Function to extract strings and comments from Bash files
+    def extract_strings_and_comments_from_bash(bash_script_path):
+        with open(bash_script_path, mode='r', encoding="utf-8") as file:
+            bash_content = file.read()
+
+        # Regex for strings in single and double quotes and comments
+        string_pattern = r"(\".*?\"|'.*?')"
+        comment_pattern = r"(?<=#).*"
+
+        # Find all strings and comments
+        strings = re.findall(string_pattern, bash_content)
+        comments = re.findall(comment_pattern, bash_content)
+
+        # Remove the quotes from strings and strip comments
+        strings = [s[1:-1] for s in strings]
+        comments = [c.strip() for c in comments]
+
+        return strings + comments  # Combine strings and comments
+
+    def filter_and_spellcheck_words(words):
+        misspelled_words = []
+        for word in words:
+            # Check if the word consists of letters and is not all uppercase
+            if word.isalpha() and word not in whitelisted:
+                # Check if the word is misspelled
+                if word not in spell:  # Check if the word is not recognized
+                    misspelled_words.append(word)
+        return misspelled_words
+
     # Handle arguments
     parser = argparse.ArgumentParser(description='Extract strings and comments from Bash files and display filtered misspelled words.')
     parser.add_argument('bash_files', nargs='*', help='Path(s) to the Bash files')

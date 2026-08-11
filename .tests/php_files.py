@@ -27,17 +27,24 @@ def main(argv=None) -> int:
         print("PHP not installed; skipping php_files")
         return 0
 
+    php_files = sorted(GUI_DIR.rglob("*.php"))
     errors = 0
-    for php_file in sorted(GUI_DIR.rglob("*.php")):
-        proc = subprocess.run(
-            ["php", "-l", str(php_file)],
-            capture_output=True,
-            text=True,
-        )
-        if proc.returncode != 0:
-            red_text(f"PHP syntax error in {php_file}: {proc.stderr.strip()}")
-            errors += 1
 
+    # PHP -l only accepts one file per invocation.  Running it in a
+    # subprocess per file costs ~200 ms of startup per file.  Instead,
+    # we shell out to a single batch helper that loops over all files
+    # inside one PHP process.
+    helper_path = THIS_DIR / "php_files_helper.php"
+    proc = subprocess.run(
+        ["php", str(helper_path), str(GUI_DIR)],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        for line in proc.stderr.strip().splitlines():
+            red_text(f"PHP syntax error: {line}")
+        # Each failure line is the bad-file path + 1 status line.
+        errors = proc.stderr.count("Errors parsing") or 1
     if errors:
         return errors
     return 0

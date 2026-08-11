@@ -1,23 +1,18 @@
 #!/usr/bin/env python3
-"""signal - waits 1s, then sends SIGTERM to itself (handler exits cleanly)."""
+"""signal - waits 1s, then dies from SIGKILL (unhandled) so the shell
+reports exit-code 137 and "Killed" in stderr."""
 
+import os
 import signal
 import sys
 import time
 
 
 def main() -> int:
-    print("Waiting for 1 seconds before sending SIGTERM signal...")
-
-    def _handler(signum, frame):
-        print("Received SIGTERM signal. Exiting...")
-        sys.exit(0)
-
-    signal.signal(signal.SIGTERM, _handler)
+    print("Waiting for 1 seconds before sending SIGKILL signal...")
     time.sleep(1)
-
-    print("Sending SIGTERM signal to self...")
-    signal.raise_signal(signal.SIGTERM)
+    print("Sending SIGKILL signal to self...")
+    os.kill(os.getpid(), signal.SIGKILL)
     return 0
 
 

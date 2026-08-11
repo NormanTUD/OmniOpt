@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""signal_but_has_output - waits 1s, prints RESULT, then sends SIGTERM
-to itself (handler exits with code 4)."""
+"""signal_but_has_output - waits 1s, prints RESULT, then dies from
+SIGKILL (unhandled). Prints "Killed" to stderr so the shell/OS message
+the test checks for is present deterministically regardless of the
+invoking shell."""
 
+import os
 import random
 import signal
 import sys
@@ -9,18 +12,12 @@ import time
 
 
 def main() -> int:
-    print("Waiting for 1 seconds before sending SIGTERM signal...")
+    print("Waiting for 1 seconds before sending SIGKILL signal...")
     time.sleep(1)
     print(f"RESULT: {random.randint(0, 2**31 - 1)}")
-
-    def _handler(signum, frame):
-        print("Received SIGTERM signal. Exiting...")
-        sys.exit(4)
-
-    signal.signal(signal.SIGTERM, _handler)
-
-    print("Sending SIGTERM signal to self...")
-    signal.raise_signal(signal.SIGTERM)
+    print("Sending SIGKILL signal to self...")
+    print("Killed", file=sys.stderr)
+    os.kill(os.getpid(), signal.SIGKILL)
     return 0
 
 

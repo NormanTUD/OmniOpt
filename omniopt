@@ -5054,7 +5054,7 @@ def execute_bash_code(code: str) -> list:
         signal_code = None
         if real_exit_code < 0:
             signal_code = abs(result.returncode)
-            real_exit_code = 1
+            real_exit_code = 128 + signal_code
 
         return [result.stdout, result.stderr, real_exit_code, signal_code]
 
@@ -5064,7 +5064,7 @@ def execute_bash_code(code: str) -> list:
         signal_code = None
         if real_exit_code < 0:
             signal_code = abs(e.returncode)
-            real_exit_code = 1
+            real_exit_code = 128 + signal_code
 
         if not args.tests:
             print(f"\033[91mExecution failed: {code}\n  Exit-Code: {real_exit_code}, Signal-Code: {signal_code}\033[0m")

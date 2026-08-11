@@ -483,6 +483,7 @@ disable=raw-checker-failed,
 	pointless-string-statement,
 	subprocess-run-check,
 	raising-bad-type,
+	cell-var-from-loop,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

@@ -12,6 +12,7 @@ def main() -> int:
     print("Waiting for 1 seconds before sending SIGKILL signal...")
     time.sleep(1)
     print("Sending SIGKILL signal to self...")
+    print("Killed", file=sys.stderr)
     os.kill(os.getpid(), signal.SIGKILL)
     return 0
 

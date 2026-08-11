@@ -306,7 +306,8 @@ def ppip(
             for index, dependency in enumerate(dependencies):
                 if index == 0:
                     green_reset_line(
-                        f"{progressbar}➤{prefix}Installing requirements for {module}"
+                        f"{progressbar}➤{prefix}Installing requirements "
+                        f"for {module}"
                     )
                 result = ppip(
                     dependency, module, number_of_main_modules, prefix
@@ -317,8 +318,8 @@ def ppip(
 
             if dependencies:
                 green_reset_line(
-                    f"{progressbar}➤{prefix}Installed all requirements for {module}, "
-                    "now installing the package itself..."
+                    f"{progressbar}➤{prefix}Installed all requirements "
+                    f"for {module}, now installing the package itself..."
                 )
 
         green_reset_line(f"{progressbar}➤{prefix}Installing {module}...")
@@ -329,9 +330,13 @@ def ppip(
             install_errors_file = Path("logs") / f"{run_uuid}_install_errors"
 
         quiet = not os.environ.get("DEBUG")
-        exit_code = _run_pip_install(module, quiet=quiet, log_file=install_errors_file)
+        exit_code = _run_pip_install(
+            module, quiet=quiet, log_file=install_errors_file
+        )
         if exit_code != 0:
-            red_reset_line(f"❌Failed to install {module}. Check {install_errors_file}\n")
+            red_reset_line(
+                f"❌Failed to install {module}. Check {install_errors_file}\n"
+            )
             if os.environ.get("CI") or _in_container():
                 with open(install_errors_file) as fp:
                     sys.stdout.write(fp.read())
@@ -366,7 +371,10 @@ def install_required_modules() -> int:
 
     for index, module in enumerate(install_those, start=1):
         progressbar = generate_progress_bar(index, maximum)
-        prefix = f"Checking {index:>{number_of_digits}}/{maximum}, {index * 100 // maximum:>3}%: "
+        prefix = (
+            f"Checking {index:>{number_of_digits}}/{maximum}, "
+            f"{index * 100 // maximum:>3}%: "
+        )
 
         if not os.environ.get("CI"):
             green_reset_line(f"{progressbar}➤{prefix}{module}...")

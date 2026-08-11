@@ -1216,7 +1216,7 @@ def test_main_with_multiple_run_dirs_attempts_both() -> bool:
         run2 = _make_run_dir(Path(tmp) / "b")
         rc = os_.main(
             [str(run1), str(run2), "--username=alice", "--no_color"],
-            _post_manifest=fake_post,
+            post_manifest=fake_post,
         )
     ok = _check(rc == 0, f"expected exit 0, got {rc}")
     ok &= _check(

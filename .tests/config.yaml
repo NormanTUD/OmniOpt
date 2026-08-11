@@ -661,6 +661,7 @@ smoke_tests:
   - test_omniopt_docker
   - test_omniopt_evaluate
   - test_omniopt_plot
+  - test_omniopt_share
   - state_files
   - php_unit_tests
   - find_missing_f_strings

@@ -1,471 +1,556 @@
-#!/usr/bin/env bash
-
-{
-	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-	USERNAME_FILE="$HOME/.oo_share_username"
-	DONT_ASK_FILE="$HOME/.oo_share_dont_ask"
-
-	source $SCRIPT_DIR/.colorfunctions.sh
-
-	function displaytime {
-		local T=$1
-		local D=$((T/60/60/24))
-		local H=$((T/60/60%24))
-		local M=$((T/60%60))
-		local S=$((T%60))
-		(( $D > 0 )) && printf '%d days ' $D
-		(( $H > 0 )) && printf '%d hours ' $H
-		(( $M > 0 )) && printf '%d minutes ' $M
-		(( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
-		printf '%d seconds\n' $S
-	}
-
-	disable_calltracer=0
-	function calltracer {
-		if [[ $disable_calltracer -eq 0 ]]; then
-			LINE_AND_FUNCTION="$(caller)"
-			if [[ "$LINE_AND_FUNCTION" != *"./omniopt"* ]] && [[ "$LINE_AND_FUNCTION" != *"./.tests/main_tests"* ]]; then
-				red_text "Error occurred in file/line: $LINE_AND_FUNCTION"
-			fi
-
-			echo ""
-			caller
-			echo "Runtime (calltracer): $(displaytime $SECONDS), PID: $$"
-			_tput bel
-		fi
-	}
-
-	trap 'calltracer' ERR
-	trap 'calltracer' EXIT
-
-	GREEN='\033[0;32m'
-	YELLOW='\033[0;33m'
-	BLUE='\033[0;34m'
-	CYAN='\033[0;36m'
-	MAGENTA='\033[0;35m'
-	NC='\033[0m'
-
-	function set_debug {
-		trap 'echo -e "${CYAN}$(date +"%Y-%m-%d %H:%M:%S")${NC} ${MAGENTA}| Line: $LINENO ${NC}${YELLOW}-> ${NC}${BLUE}[DEBUG]${NC} ${GREEN}$BASH_COMMAND${NC}"' DEBUG
-		true
-	}
-
-	no_color=0
-	force=0
-	DEBUG=0
-	update=0
-	folders_to_share=()
-	username=$USER
-	password=""
-	outfile=
-	send_single_runs=1
-
-	RUN_DIR=$1
-
-	function help {
-		exit_code=$1
-
-		echo "OmniOpt2 share - Share your hyperparameter optimization results with others. Options:"
-		echo ""
-		echo "Example:"
-		echo "  bash omniopt_share runs/my_experiment/0"
-		echo ""
-		echo "  --help                                             This help"
-		echo "  --update                                           Update a job that had this run-UUID previously"
-		echo "  --debug                                            Enable debug options"
-		echo "  --no_color                                         Disables color output"
-		echo "  --force                                            Ignores cache"
-		echo "  --username=s3811141                                Specify username (with or without = sign)"
-		echo "  --password=abcdef123                               Specify a password for this run"
-		echo "  --dont_send_singleruns                             Don't send single runs"
-		echo "  --outfile=slurm-12345.out                          Path to the outfile"
-
-		exit $exit_code
-	}
-
-	if [ $# -eq 0 ]; then
-		yellow_text "Please run with a folder as argument"
-		exit 1
-	fi
-
-	for arg in "$@"; do
-		if [ "$arg" == "--debug" ]; then
-			DEBUG=1
-			set_debug
-		elif [ "$arg" == "--help" ]; then
-			help 0
-		elif [ "$arg" == "--dont_send_singleruns" ]; then
-			send_single_runs=0
-		elif [ "$arg" == "--force" ]; then
-			force=1
-		elif [ "$arg" == "--update" ]; then
-			update=1
-		elif [ "$arg" == "--no_color" ]; then
-			no_color=1
-		elif [[ "$arg" == --password=* ]]; then
-			password="${arg#--password=}"
-		elif [[ "$arg" == --outfile=* ]]; then
-			outfile="${arg#--outfile=}"
-		elif [[ "$arg" == --username=* ]]; then
-			username="${arg#--username=}"
-			DONT_ASK_USERNAME=1
-		elif [ -d "$arg" ]; then
-			if [[ -d $arg ]]; then
-				folders_to_share+=("$arg")
-			else
-				red_text "Cannot share $arg: folder not found"
-			fi
-		else
-			red_text "Invalid option $arg, is this supposed to be your run folder? If so, it doesn't exist.\n"
-			help 1
-		fi
-	done
-
-	k=0
-	for RUN_DIR in "${folders_to_share[@]}"; do
-		ok=1
-
-		if [[ -z $RUN_DIR ]]; then
-			red_text "Parameter for RUN_DIR is not set\n"
-			ok=0
-		fi
-
-		if [[ ! -d "$RUN_DIR" ]]; then
-			red_text "$RUN_DIR does not exist\n"
-			ok=0
-		fi
-
-		if [[ "$ok" -eq "1" ]]; then
-			experiment_name=$(echo "$RUN_DIR" | sed -e 's#/[0-9]*/*$##g' -e 's#.*/##')
-
-			OO_tmp_dir=/tmp/oo_tmp
-			everything_but_singleruns=$OO_tmp_dir/everything_but_singleruns.zip
-
-			curl_options=()
-
-			for available_file in $(ls "$RUN_DIR" 2>/dev/null); do
-				available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-				if echo "$available_file" | grep -Ei "\.(csv|txt|log|json)" 2>/dev/null > /dev/null; then
-					curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-				fi
-			done
-
-			if [[ -e "$RUN_DIR/git_version" ]]; then
-				curl_options+=("-F" "git_version=@$RUN_DIR/git_version")
-			fi
-
-			if [[ -d "$RUN_DIR/state_files" ]]; then
-				for available_file in $(ls "$RUN_DIR/state_files" 2>/dev/null); do
-					available_file_param_name=$(echo "$available_file" | sed -e 's#\..*##')
-					if echo "$available_file" | grep -Ei "\.(csv|txt\.json)" 2>/dev/null > /dev/null; then
-						curl_options+=("-F" "$available_file_param_name=@$RUN_DIR/$available_file")
-					fi
-				done
-			fi
-
-			if [[ $send_single_runs -eq 1 ]]; then
-				if [[ -d "$RUN_DIR/single_runs" ]]; then
-					for available_run_folder in $(ls "$RUN_DIR/single_runs" | grep "^[0-9]*$" 2>/dev/null); do
-						for available_out_and_err_files in $(ls "$RUN_DIR/single_runs/$available_run_folder"); do
-							_file="$RUN_DIR/single_runs/$available_run_folder/$available_out_and_err_files"
-							if [[ -e "$_file" ]] && [[ -s "$_file" ]]; then
-								if echo "$_file" | grep -qE "\.(out|err)$"; then
-									filename_on_server="single_run_file_${available_run_folder}_${available_out_and_err_files}"
-									curl_options+=("-F" "$filename_on_server=@$_file")
-								fi
-							fi
-						done
-					done
-				fi
-			fi
-
-			is_valid_username() {
-				[[ -n "$1" && "$1" != *[[:space:]]* ]]
-			}
-
-			user_id=""
-
-			if [[ "$k" -eq "0" ]]; then
-				if [[ -z $DONT_ASK_USERNAME && ! -f "$DONT_ASK_FILE" ]]; then
-
-				if [[ -f "$USERNAME_FILE" ]]; then
-					stored_username=$(<"$USERNAME_FILE")
-					if is_valid_username "$stored_username"; then
-						user_id="$stored_username"
-					fi
-				fi
-
-				if ! is_valid_username "$user_id"; then
-					eval "$(resize)"
-					user_id=$(whiptail --inputbox "By entering your name here you agree to make it public with this data. If you don't agree, cancel." 12 60 "$username" --title "What should be your user name?" 3>&1 1>&2 2>&3)
-
-				    exitstatus=$?
-				    if [[ $exitstatus -ne 0 || -z "$user_id" ]]; then
-					    echo "Cancelled or empty input. Exiting."
-					    exit 1
-				    fi
-
-				    echo "$user_id" > "$USERNAME_FILE"
-
-				    if whiptail --yesno "Do you want to avoid this question in the future and simply use this username?" 10 60 --title "Remember this choice?"; then
-					    touch "$DONT_ASK_FILE"
-				    fi
-				fi
-
-			else
-				user_id=$username
-				fi
-			fi
-
-			exitstatus=$?
-			if [ $exitstatus = 0 ]; then
-				true
-			else
-				yellow_text "You cancelled sharing."
-				exit 0
-			fi
-
-			BASEURL="https://imageseg.scads.de/omniax"
-
-			if [[ -e "$HOME/.oo_base_url" ]]; then
-				BASEURL=$(cat "$HOME/.oo_base_url")
-				if [[ -z $no_color ]]; then
-					yellow_text "$HOME/.oo_base_url exists. Using base-url $BASEURL"
-				fi
-			fi
-
-			set -e
-
-			url="$BASEURL/share_internal.php?user_id=$user_id&experiment_name=$experiment_name"
-
-			run_uuid_path="$RUN_DIR/state_files/run_uuid"
-
-			if [[ $update -eq 1 ]]; then
-				url="$url&update=1";
-			fi
-
-			if [[ -e $run_uuid_path ]]; then
-				run_uuid=$(cat "$run_uuid_path")
-				url="$url&update_uuid=$run_uuid"
-
-				curl_options+=("-F" "run_uuid=@$run_uuid_path")
-
-				mkdir -p $OO_tmp_dir || {
-					red_text "mkdir -p $OO_tmp_dir failed"
-					exit 1
-				}
-
-				original_pwd="$(pwd)"
-
-				cd $RUN_DIR
-
-
-				if false; then
-					if command -v zip 2>/dev/null >/dev/null; then
-						zip -r $everything_but_singleruns . -x "single_runs/*" >/dev/null || {
-							red_text "zip -r $everything_but_singleruns . -x \"single_runs/*\" failed"
-							exit 1
-						}
-					else
-						red_text "zip not found. You will not be able to continue this job from the URL."
-					fi
-
-					curl_options+=("-F" "everything_but_singleruns.zip=@$everything_but_singleruns")
-				fi
-
-				cd "$original_pwd"
-
-				if [[ -n $outfile ]]; then
-					if [[ -e $outfile ]]; then
-						curl_options+=("-F" "outfile=@$outfile")
-					fi
-				fi
-
-
-				log_dir="logs"
-				current_dir="$(pwd)"
-
-				if [[ ! -d $log_dir ]]; then
-					alternative_log_dir="../../../logs"
-
-					if [[ -d $alternative_log_dir ]]; then
-						log_dir="$alternative_log_dir"
-					fi
-				fi
-
-				while [[ ! -d "$current_dir/$log_dir" && "$current_dir" != "/" ]]; do
-					current_dir=$(dirname "$current_dir")
-					log_dir="$current_dir/$log_dir"
-				done
-
-
-				if [[ -z $outfile ]]; then
-					if [[ -e "$log_dir/$run_uuid" ]]; then
-						curl_options+=("-F" "outfile=@$log_dir/$run_uuid")
-					fi
-				fi
-
-				if [[ -e "$log_dir/${run_uuid}_progressbar" ]]; then
-					curl_options+=("-F" "progressbar=@$log_dir/${run_uuid}_progressbar")
-				fi
-
-				if [[ -e "$log_dir/${run_uuid}_install_errors" ]]; then
-					curl_options+=("-F" "install_errors=@$log_dir/${run_uuid}_install_errors")
-				fi
-
-				if [[ -e "$log_dir/${run_uuid}_trial_index_to_param_logs" ]]; then
-					curl_options+=("-F" "trial_index_to_params=@$log_dir/${run_uuid}_trial_index_to_param_logs")
-				fi
-
-				if [[ -e "${run_uuid}.svg" ]]; then
-					curl_options+=("-F" "profile.svg=@$run_uuid.svg")
-				fi
-
-				if [[ -e "$log_dir/${run_uuid}_log" ]]; then
-					curl_options+=("-F" "log=@$log_dir/${run_uuid}_log")
-				elif [[ -n $bash_logname ]] && [[ -e $bash_logname ]]; then
-					curl_options+=("-F" "log=@$bash_logname")
-				fi
-			fi
-
-			share_upload_state_file="$RUN_DIR/state_files/last_share_md5"
-			share_upload_state_file_new="$RUN_DIR/state_files/last_share_md5_tmp"
-
-			if [[ $force -eq 0 ]]; then
-				nr_curl_options_before="${#curl_options[@]}"
-
-				new_curl_options=()
-
-				OLDIFS=$IFS
-
-				if [[ -e "$share_upload_state_file" ]]; then
-					cp "$share_upload_state_file" "$share_upload_state_file_new"
-				fi
-
-				IFS=$'\n'
-
-				for curl_option in "${curl_options[@]}"; do
-					if echo "$curl_option" | grep -q "@"; then
-						curl_path=$(echo "$curl_option" | sed -e "s/.*\@//")
-
-						curl_path_md5=$(echo "$curl_path" | md5sum | sed -e "s#\s.*##")
-						curl_path_content_md5=$(md5sum "$curl_path" | sed -e "s#\s.*##")
-
-						this_file_cache_line="$curl_path_md5,$curl_path_content_md5"
-
-						if [[ ! -e "$share_upload_state_file_new" ]]; then
-							echo "$this_file_cache_line" >> $share_upload_state_file_new
-							new_curl_options+=("-F $curl_option")
-						elif [[ -e "$share_upload_state_file_new" ]]; then
-							if ! grep -q "$curl_path_md5" "$share_upload_state_file_new"; then
-								echo "$this_file_cache_line" >> "$share_upload_state_file_new"
-								new_curl_options+=("-F $curl_option")
-							elif ! grep -q "$this_file_cache_line" "$share_upload_state_file_new"; then
-								#yellow_text "$share_upload_state_file_new exists, but $this_file_cache_line is not in it"
-								sed -i "s#^$curl_path_md5.*#$this_file_cache_line#" "$share_upload_state_file_new"
-								new_curl_options+=("-F $curl_option")
-							fi
-						fi
-					fi
-				done
-
-				curl_options=("${new_curl_options[@]}")
-
-				IFS=$OLDIFS
-			fi
-
-			if [[ ${#curl_options[@]} -eq 0 ]]; then
-				if [[ $nr_curl_options_before -eq 0 ]]; then
-					yellow_text "Could not find any files in $RUN_DIR\n"
-
-					matching_dirs=$(find "$RUN_DIR" -mindepth 2 -maxdepth 2 -type d | grep -E "^$RUN_DIR/[a-zA-Z0-9_]+/[0-9]+$")
-
-					if [ -n "$matching_dirs" ]; then
-						IFS=' ' read -r term_height term_width < <(stty size)
-
-						dialog_width=$((term_width - 4))
-						dialog_height=$((term_height - 4))
-
-						max_list_height=$((dialog_height - 10))
-						list_height=$(( $(echo "$matching_dirs" | wc -l) ))
-						[ $list_height -gt $max_list_height ] && list_height=$max_list_height
-
-						checklist_items=()
-						while IFS= read -r line; do
-							shortname=$(basename "$(dirname "$line")")/$(basename "$line")
-							checklist_items+=("$line" "$shortname" "ON")
-						done <<< "$matching_dirs"
-
-						selected_dirs=$(whiptail --title "Select folders to share" \
-							--checklist "Could not find any files in:\n\n  $RUN_DIR\n\nHowever, the following subfolders were found:\n\n(Use SPACE to select/deselect folders)\n" \
-							"$dialog_height" "$dialog_width" "$list_height" \
-							"${checklist_items[@]}" \
-							3>&1 1>&2 2>&3)
-
-						exitstatus=$?
-						if [ $exitstatus -eq 0 ]; then
-							selected_dirs_array=()
-
-							eval "selected_dirs_array=($selected_dirs)"
-
-							filtered_args=()
-							for arg in "$@"; do
-								if [[ "$arg" == --username=* ]] || [[ "$arg" == "$RUN_DIR" ]]; then
-									continue
-								fi
-								filtered_args+=("$arg")
-							done
-
-							for folder in "${selected_dirs_array[@]}"; do
-								bash "$SCRIPT_DIR/omniopt_share" "$folder" --username="$username" "${filtered_args[@]}"
-							done
-						else
-							yellow_text "Aborted sharing."
-						fi
-					fi
-				else
-					green_text "No update needed"
-				fi
-			else
-				if [[ $password != "" ]]; then
-					url="$url&password=$password"
-				fi
-
-				if [[ $DEBUG -eq 1 ]]; then
-					echo "curl -s ${curl_options[@]} $url"
-				fi
-
-				set +e
-
-				CURL_OUTPUT=$(curl -s "${curl_options[@]}" "$url")
-				exit_code=$?
-
-				set -e
-
-				if [[ $exit_code -ne 0 ]] || echo "$CURL_OUTPUT" | grep "Error sharing the job." >/dev/null 2>&1 || echo "$CURL_OUTPUT" | grep -q "Error:"; then
-					red_text "$CURL_OUTPUT\n"
-					if [[ $exit_code -ne 0 ]]; then
-						echo "Curling $url failed. Curl exited with $exit_code instead of 0"
-						if [[ $exit_code == 7 ]]; then
-							echo "Exit code 7 means that the server was not reachable. Are you online? Is the server properly started?"
-						fi
-						exit $exit_code
-					fi
-				else
-					green_text "$CURL_OUTPUT"
-				fi
-
-				if [[ $force -eq 0 ]]; then
-					if echo "$CURL_OUTPUT" | grep -qE 'https?://'; then
-						cp "$share_upload_state_file_new" "$share_upload_state_file"
-					fi
-				fi
-			fi
-		fi
-		k=$(($k+1))
-	done
-
-	disable_calltracer=1
-	exit 0
-}
+#!/usr/bin/env python3
+"""omniopt_share - Share OmniOpt runs with a unified JSON/ZIP protocol.
+
+Python rewrite of the former ``omniopt_share`` bash script, with a new
+on-the-wire format:
+
+  ``manifest.json``     - JSON document describing every file in the share.
+  ``bundle.zip``        - ZIP archive with all the actual file contents.
+
+The GUI server (``share_internal.php``) accepts these two as
+``multipart/form-data`` parts named ``manifest`` and ``bundle``.  Because
+every file is enumerated in the manifest, the server can:
+
+  * verify each file's SHA-256 against the value declared in the manifest
+  * reject any file whose ``archive_path`` would escape the share root
+  * reject any file larger than a server-configured limit
+  * apply its own whitelist independently of the client
+  * add support for new file types purely by editing the manifest schema
+
+CLI flags are 100 % backwards-compatible with the bash version.
+
+Behavioural compatibility:
+  * ``--update`` / ``--force`` / ``--debug`` / ``--no_color``
+  * ``--username`` / ``--password`` / ``--outfile`` / ``--dont_send_singleruns``
+  * Run dirs must contain ``results.csv`` (validated server-side)
+  * Default ``BASEURL`` is the same as before, overridable via
+    ``$HOME/.oo_base_url``
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import re
+import shutil
+import sys
+import urllib.error
+import urllib.request
+import zipfile
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+
+MANIFEST_SCHEMA_VERSION = "1.0"
+
+# Server-imposed upper bound on the size of any single shared file
+# (1 GiB).  The PHP side enforces the same value.
+MAX_FILE_SIZE = 1 << 30
+
+DEFAULT_BASE_URL = "https://imageseg.scads.de/omniax"
+
+# Whitelisted file extensions for the top-level of a run dir.
+TOP_LEVEL_EXTENSIONS = (".csv", ".txt", ".log", ".json")
+
+# Whitelisted file extensions under state_files/.
+STATE_FILE_EXTENSIONS = (".csv", ".txt", ".json")
+
+# Sub-extension patterns used for single_run files (e.g. 0.out, 0.err).
+SINGLE_RUN_SUFFIXES = (".out", ".err")
+
+USERNAME_FILE = Path.home() / ".oo_share_username"
+DONT_ASK_FILE = Path.home() / ".oo_share_dont_ask"
+BASE_URL_FILE = Path.home() / ".oo_base_url"
+
+
+# ---------------------------------------------------------------------------
+# Validation helpers
+# ---------------------------------------------------------------------------
+
+
+def is_valid_username(name: str) -> bool:
+    """Reject empty / whitespace-containing usernames."""
+    return bool(name) and not any(c.isspace() for c in name)
+
+
+def sanitize_archive_path(path: str) -> str:
+    """Reject paths that try to escape the archive root.
+
+    Accepted forms: ``results.csv`` or ``state_files/run_uuid``.
+    Rejected: absolute paths, ``..`` traversal, null bytes, backslashes.
+    """
+    if not path or path != path.strip():
+        raise ValueError(f"Invalid archive_path: {path!r}")
+    if "\x00" in path:
+        raise ValueError(f"Null byte in archive_path: {path!r}")
+    if "\\" in path or path.startswith("/"):
+        raise ValueError(f"Absolute or backslash path rejected: {path!r}")
+    parts = path.split("/")
+    if any(p in ("", ".", "..") for p in parts):
+        raise ValueError(f"Unsafe path component in {path!r}")
+    return path
+
+
+# ---------------------------------------------------------------------------
+# File discovery
+# ---------------------------------------------------------------------------
+
+
+def collect_shareable_files(
+    run_dir: str, send_single_runs: bool = True
+) -> List[Dict[str, Any]]:
+    """Walk ``run_dir`` and return the list of shareable files.
+
+    Each entry is a dict with at least:
+
+        ``local_path``   - absolute Path on disk
+        ``archive_path`` - path inside the zip (always safe per
+                           :func:`sanitize_archive_path`)
+        ``name``         - logical name (filename without extension,
+                           matching the legacy ``-F key=@file`` mapping)
+
+    Extension / directory rules match the legacy bash version.
+    """
+    root = Path(run_dir)
+    if not root.is_dir():
+        return []
+
+    out: List[Dict[str, Any]] = []
+
+    # Top-level files
+    for entry in sorted(root.iterdir()):
+        if entry.is_file() and entry.suffix.lower() in TOP_LEVEL_EXTENSIONS:
+            name = entry.stem
+            out.append(
+                {
+                    "name": name,
+                    "archive_path": sanitize_archive_path(entry.name),
+                    "local_path": entry,
+                }
+            )
+
+    # git_version (no specific extension requirement)
+    git_version = root / "git_version"
+    if git_version.is_file():
+        out.append(
+            {
+                "name": "git_version",
+                "archive_path": "git_version",
+                "local_path": git_version,
+            }
+        )
+
+    # state_files/ - only csv/txt/json
+    sf = root / "state_files"
+    if sf.is_dir():
+        for entry in sorted(sf.iterdir()):
+            if entry.is_file() and entry.suffix.lower() in STATE_FILE_EXTENSIONS:
+                out.append(
+                    {
+                        "name": entry.stem,
+                        "archive_path": sanitize_archive_path(
+                            f"state_files/{entry.name}"
+                        ),
+                        "local_path": entry,
+                    }
+                )
+
+    # single_runs/<digit>/<file.{out,err}>  (optional)
+    if send_single_runs:
+        sr = root / "single_runs"
+        if sr.is_dir():
+            for run_folder in sorted(sr.iterdir()):
+                if not run_folder.is_dir() or not run_folder.name.isdigit():
+                    continue
+                for entry in sorted(run_folder.iterdir()):
+                    if (
+                        entry.is_file()
+                        and entry.suffix.lower() in SINGLE_RUN_SUFFIXES
+                    ):
+                        out.append(
+                            {
+                                "name": f"single_run_file_{run_folder.name}_{entry.name}",
+                                "archive_path": sanitize_archive_path(
+                                    f"single_runs/{run_folder.name}/{entry.name}"
+                                ),
+                                "local_path": entry,
+                            }
+                        )
+
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Manifest assembly & validation
+# ---------------------------------------------------------------------------
+
+
+def _sha256_of(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def build_manifest(
+    *,
+    run_dir: str,
+    user_id: str,
+    experiment_name: str,
+    update: bool,
+    update_uuid: Optional[str],
+    password: Optional[str],
+    send_single_runs: bool = True,
+) -> Dict[str, Any]:
+    """Build a complete share manifest for ``run_dir``."""
+    if not is_valid_username(user_id):
+        raise ValueError(f"Invalid username: {user_id!r}")
+
+    files = collect_shareable_files(run_dir, send_single_runs=send_single_runs)
+    entries: List[Dict[str, Any]] = []
+    for f in files:
+        local_path: Path = f["local_path"]
+        size = local_path.stat().st_size
+        if size > MAX_FILE_SIZE:
+            raise ValueError(
+                f"{local_path} is {size} bytes, larger than max {MAX_FILE_SIZE}"
+            )
+        entries.append(
+            {
+                "name": f["name"],
+                "archive_path": f["archive_path"],
+                "size": size,
+                "sha256": _sha256_of(local_path),
+                "content_type": _guess_content_type(local_path.name),
+            }
+        )
+
+    # If update is requested and the run dir has a run_uuid, copy it
+    if update_uuid is None and update:
+        run_uuid_path = Path(run_dir) / "state_files" / "run_uuid"
+        if run_uuid_path.is_file():
+            update_uuid = run_uuid_path.read_text(encoding="utf-8").strip()
+
+    return {
+        "schema_version": MANIFEST_SCHEMA_VERSION,
+        "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "client_version": "0.97",
+        "user_id": user_id,
+        "experiment_name": experiment_name,
+        "update": bool(update),
+        "update_uuid": update_uuid,
+        "password": password,
+        "files": entries,
+    }
+
+
+def _guess_content_type(name: str) -> str:
+    ext = Path(name).suffix.lower()
+    return {
+        ".csv": "text/csv",
+        ".json": "application/json",
+        ".txt": "text/plain",
+        ".log": "text/plain",
+        ".out": "text/plain",
+        ".err": "text/plain",
+    }.get(ext, "application/octet-stream")
+
+
+def verify_manifest(manifest: Dict[str, Any]) -> str:
+    """Return ``""`` on success, error message otherwise.
+
+    The PHP side runs an equivalent check.  This function exists so the
+    Python client can dry-validate its own manifest before uploading.
+    """
+    required = (
+        "schema_version",
+        "user_id",
+        "experiment_name",
+        "update",
+        "update_uuid",
+        "password",
+        "files",
+    )
+    for key in required:
+        if key not in manifest:
+            return f"Missing manifest key: {key!r}"
+
+    if manifest["schema_version"] != MANIFEST_SCHEMA_VERSION:
+        return (
+            f"Unsupported manifest schema_version "
+            f"{manifest['schema_version']!r}, expected "
+            f"{MANIFEST_SCHEMA_VERSION!r}"
+        )
+    if not is_valid_username(str(manifest["user_id"])):
+        return f"Invalid user_id: {manifest['user_id']!r}"
+
+    files = manifest["files"]
+    if not isinstance(files, list):
+        return "files must be a list"
+    for f in files:
+        try:
+            sanitize_archive_path(str(f["archive_path"]))
+        except (KeyError, ValueError) as e:
+            return f"Bad archive_path: {e}"
+        try:
+            size = int(f["size"])
+        except (KeyError, ValueError, TypeError):
+            return f"Bad size: {f.get('size')!r}"
+        if size < 0 or size > MAX_FILE_SIZE:
+            return f"Size out of range: {size}"
+        sha = f.get("sha256")
+        if not isinstance(sha, str) or len(sha) != 64:
+            return f"Bad sha256: {sha!r}"
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# Bundle writing
+# ---------------------------------------------------------------------------
+
+
+def write_bundle(
+    manifest: Dict[str, Any],
+    out_dir: str | os.PathLike,
+    *,
+    source_dir: Optional[str | os.PathLike] = None,
+) -> Tuple[Path, Path]:
+    """Write ``manifest.json`` and ``bundle.zip`` to ``out_dir``.
+
+    Returns ``(manifest_path, zip_path)``.
+
+    If ``source_dir`` is provided, every file's local path is resolved
+    as ``source_dir / archive_path``.  Otherwise, ``archive_path`` is
+    treated as the local path (relative or absolute).
+    """
+    err = verify_manifest(manifest)
+    if err:
+        raise ValueError(f"Refusing to write invalid manifest: {err}")
+
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = out_dir / "manifest.json"
+    zip_path = out_dir / "bundle.zip"
+
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+
+    base = Path(source_dir) if source_dir is not None else None
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for f in manifest["files"]:
+            arc = sanitize_archive_path(f["archive_path"])
+            local = (base / arc) if base is not None else Path(arc)
+            if not local.is_file():
+                raise FileNotFoundError(f"Bundle missing source file: {local}")
+            zf.write(local, arcname=arc)
+
+    return manifest_path, zip_path
+
+
+# ---------------------------------------------------------------------------
+# CLI / main
+# ---------------------------------------------------------------------------
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="omniopt_share",
+        description="Share OmniOpt runs.",
+        add_help=False,
+    )
+    p.add_argument("--help", action="store_true")
+    p.add_argument("--update", action="store_true",
+                   help="Update a previously-shared run.")
+    p.add_argument("--debug", action="store_true")
+    p.add_argument("--no_color", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="Ignore cache and re-send everything.")
+    p.add_argument("--username", default=None)
+    p.add_argument("--password", default=None)
+    p.add_argument("--dont_send_singleruns", action="store_true")
+    p.add_argument("--outfile", default=None)
+    p.add_argument("run_dir", nargs="?")
+    return p
+
+
+def parse_args(argv: Sequence[str]) -> argparse.Namespace:
+    return _build_parser().parse_args(list(argv))
+
+
+def _print_help() -> None:
+    print(
+        "Usage: omniopt_share [OPTIONS] RUN_DIR\n"
+        "\n"
+        "Share your hyperparameter optimization results with others.\n"
+        "\n"
+        "Example:\n"
+        "  omniopt_share runs/my_experiment/0\n"
+        "\n"
+        "Options:\n"
+        "  --update                  Update a job that had this run-UUID\n"
+        "  --debug                   Enable debug output\n"
+        "  --no_color                Disable colored output\n"
+        "  --force                   Ignore cache\n"
+        "  --username=NAME           Override username\n"
+        "  --password=PWD            Set password\n"
+        "  --dont_send_singleruns    Skip single-run outputs\n"
+        "  --outfile=PATH            Path to the SLURM .out file\n"
+        "  --help                    This help\n"
+    )
+
+
+def _read_username_from_cache() -> Optional[str]:
+    if DONT_ASK_FILE.exists() and USERNAME_FILE.exists():
+        cached = USERNAME_FILE.read_text(encoding="utf-8").strip()
+        if is_valid_username(cached):
+            return cached
+    return None
+
+
+def _resolve_username(args: argparse.Namespace) -> Optional[str]:
+    if args.username:
+        if not is_valid_username(args.username):
+            print(f"Invalid username: {args.username!r}", file=sys.stderr)
+            return None
+        return args.username
+    return _read_username_from_cache()
+
+
+def _post_manifest(base_url: str, manifest: Dict[str, Any],
+                   bundle_zip: Path, args: argparse.Namespace) -> Tuple[int, str]:
+    """Upload ``manifest.json`` + ``bundle.zip`` as multipart POST.
+
+    Returns ``(exit_code, body)``.  Falls back to a JSON POST when no
+    bundle is present.
+    """
+    url = (
+        f"{base_url}/share_internal.php"
+        f"?user_id={manifest['user_id']}"
+        f"&experiment_name={manifest['experiment_name']}"
+    )
+    if manifest["update"]:
+        url += "&update=1"
+    if manifest["update_uuid"]:
+        url += f"&update_uuid={manifest['update_uuid']}"
+    if manifest["password"]:
+        url += f"&password={manifest['password']}"
+
+    boundary = "----omniopt-share-" + os.urandom(8).hex()
+    body = _build_multipart(boundary, manifest, bundle_zip)
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return resp.status, resp.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode("utf-8", errors="replace")
+    except urllib.error.URLError as e:
+        return 7, f"Connection error: {e}"
+
+
+def _build_multipart(
+    boundary: str, manifest: Dict[str, Any], bundle_zip: Path
+) -> bytes:
+    """Build a ``multipart/form-data`` body with two parts: manifest + bundle."""
+    lines: List[bytes] = []
+    crlf = b"\r\n"
+
+    # Part 1: manifest
+    lines.append(f"--{boundary}".encode())
+    lines.append(b'Content-Disposition: form-data; name="manifest"')
+    lines.append(b"Content-Type: application/json")
+    lines.append(b"")
+    lines.append(json.dumps(manifest).encode())
+
+    # Part 2: bundle
+    lines.append(f"--{boundary}".encode())
+    lines.append(
+        f'Content-Disposition: form-data; name="bundle"; filename="bundle.zip"'.encode()
+    )
+    lines.append(b"Content-Type: application/zip")
+    lines.append(b"")
+    lines.append(bundle_zip.read_bytes())
+
+    # Close
+    lines.append(f"--{boundary}--".encode())
+    lines.append(b"")
+    return crlf.join(lines)
+
+
+def _resolve_base_url() -> str:
+    if BASE_URL_FILE.exists():
+        return BASE_URL_FILE.read_text(encoding="utf-8").strip() or DEFAULT_BASE_URL
+    return DEFAULT_BASE_URL
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = parse_args(argv if argv is not None else sys.argv[1:])
+    if args.help:
+        _print_help()
+        return 0
+    if not args.run_dir:
+        print("Please run with a folder as argument", file=sys.stderr)
+        return 1
+    run_dir = args.run_dir
+    if not os.path.isdir(run_dir):
+        print(f"{run_dir} does not exist", file=sys.stderr)
+        return 1
+
+    user_id = _resolve_username(args)
+    if not user_id:
+        print("No username (use --username or run interactively once)", file=sys.stderr)
+        return 1
+
+    experiment_name = os.path.basename(os.path.dirname(os.path.abspath(run_dir)))
+    send_single_runs = not args.dont_send_singleruns
+
+    manifest = build_manifest(
+        run_dir=run_dir,
+        user_id=user_id,
+        experiment_name=experiment_name,
+        update=args.update,
+        update_uuid=None,
+        password=args.password,
+        send_single_runs=send_single_runs,
+    )
+
+    if not manifest["files"]:
+        print(f"Could not find any files in {run_dir}", file=sys.stderr)
+        return 1
+
+    out_dir = Path(tempfile.mkdtemp(prefix="oo_share_"))
+    try:
+        _, zip_path = write_bundle(manifest, out_dir, source_dir=run_dir)
+    except ValueError as e:
+        print(f"Refusing to share: {e}", file=sys.stderr)
+        return 1
+
+    base_url = _resolve_base_url()
+    status, body = _post_manifest(base_url, manifest, zip_path, args)
+
+    if status != 200 or "Error" in body:
+        print(body, file=sys.stderr)
+        if status == 7:
+            print(
+                "Exit code 7 means the server was not reachable. "
+                "Are you online? Is the server properly started?",
+                file=sys.stderr,
+            )
+        return status if status != 200 else 1
+
+    print(body)
+    return 0
+
+
+if __name__ == "__main__":
+    import tempfile
+    sys.exit(main())

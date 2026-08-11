@@ -110,7 +110,7 @@ docker_name="omniopt_omniopt2"
 _mkdir $HOME/.config/matplotlib_docker_omniopt
 
 case "$ORIGINAL_ARGS" in
-	./omniopt*|omniopt*|./.tests/*|.tests/*)
+	./omniopt*|omniopt*|./.tests/*|.tests/*|python3*)
 		if [[ "$ORIGINAL_ARGS" == python3* ]]; then
 			DOCKER_INTERPRETER="python3"
 			DOCKER_TARGET="/var/opt/omniopt/${ORIGINAL_ARGS#python3 }"

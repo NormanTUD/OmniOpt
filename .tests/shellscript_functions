@@ -32,6 +32,9 @@ if [[ -e .shellscript_functions.py ]]; then
 	MODE="python"
 else
 	MODE="bash"
+	export DONT_INSTALL_MODULES=1
+	export DONT_SHOW_DONT_INSTALL_MESSAGE=1
+	source .shellscript_functions >/dev/null 2>&1
 fi
 
 if [[ "$(uname -s)" == "Linux" ]]; then
@@ -43,9 +46,6 @@ fi
 run_function() {
 	# run_function "FUNCTION" "ARG1" "ARG2" ...  ->  captures STDOUT into RET_OUT and STDERR into RET_ERR
 	if [[ "$MODE" == "bash" ]]; then
-		export DONT_INSTALL_MODULES=1
-		export DONT_SHOW_DONT_INSTALL_MESSAGE=1
-		source .shellscript_functions >/dev/null 2>&1
 		RET_OUT="$( "$@" 2>/dev/null )"
 		RET_ERR="$( "$@" 2>&1 >/dev/null )"
 	else

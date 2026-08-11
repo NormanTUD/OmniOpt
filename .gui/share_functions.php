@@ -2171,7 +2171,7 @@
 		exit(1);
 	}
 
-	function search_for_hash_file($directory, $new_upload_md5, $userFolder) {
+	function search_for_hash_file($directory, $new_upload_md5) {
 		$files = glob($directory);
 
 		foreach ($files as $file) {
@@ -2184,15 +2184,6 @@
 			} catch (AssertionError $e) {
 				print($e->getMessage());
 			}
-		}
-
-		try {
-			$destinationPath = "$userFolder/hash.md5";
-			assert(is_writable(dirname($destinationPath)), "Directory is not writable: " . dirname($destinationPath));
-
-			file_put_contents($destinationPath, $new_upload_md5);
-		} catch (\Throwable $e) {
-			print("\n" . $e->getMessage() . "\n");
 		}
 
 		return [false, null];

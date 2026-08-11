@@ -1348,6 +1348,7 @@ TESTS = [
     test_bundle_rejects_manifest_with_no_files,
     # Manifest validation
     test_verify_accepts_minimal_valid_manifest,
+    test_verify_rejects_empty_files_list,
     test_verify_rejects_unknown_schema_version,
     test_verify_rejects_non_int_size,
     test_verify_rejects_non_string_sha256,
@@ -1386,7 +1387,7 @@ TESTS = [
     test_bundle_manifest_content_matches_built_manifest,
     test_bundle_rejects_non_deflated_method,
     # Multi-folder
-    test_main_with_multiple_run_dirs_no_crash,
+    test_main_with_multiple_run_dirs_attempts_both,
     test_main_with_unknown_run_dir_reports_error,
     test_main_help_flag_exits_zero,
     # Determinism

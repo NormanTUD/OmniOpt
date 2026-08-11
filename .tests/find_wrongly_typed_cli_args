@@ -55,9 +55,9 @@ def main(argv=None) -> int:
             arg_type = f"Optional[{arg_type}]"
         if default == "[]":
             arg_type = "List[str]"
-        if action == "append" and arg_type in ("str", "Optional[]"):
+        if action == "append" and arg_type in ("str", "Optional[str]"):
             arg_type = "Optional[List[str]]"
-        if nargs in ("+", "*") and arg_type in ("str", "Optional[]"):
+        if nargs in ("+", "*") and arg_type in ("str", "Optional[str]"):
             arg_type = "Optional[List[str]]"
 
         if name == "version":

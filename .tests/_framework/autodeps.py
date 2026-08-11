@@ -63,7 +63,11 @@ def ensure_imports(
 
     from .installer import add_venv_to_path, install_packages
 
-    venv_dir = install_packages(packages, quiet=quiet)
+    try:
+        venv_dir = install_packages(packages, quiet=quiet)
+    except KeyboardInterrupt:
+        print("Dependency install cancelled by user", file=sys.stderr)
+        return False
     if venv_dir:
         add_venv_to_path(venv_dir)
         if all(_importable(module) for module, _ in missing):

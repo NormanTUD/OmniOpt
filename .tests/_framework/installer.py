@@ -67,7 +67,11 @@ def _pip(venv_dir: Path, *args: str, quiet: bool = True) -> int:
     if quiet:
         cmd.append("-q")
     cmd.extend(args)
-    return subprocess.run(cmd).returncode
+    try:
+        return subprocess.run(cmd).returncode
+    except KeyboardInterrupt:
+        print("pip cancelled by user", file=sys.stderr)
+        return 130
 
 
 def _create_venv(venv_dir: Path) -> bool:

@@ -1255,6 +1255,26 @@
 			}
 		}
 
+		// Bundle protocol keeps single-run logs under single_runs/<jobid>/;
+		// surface them as relative paths so downstream code can still open
+		// them via $run_dir . '/' . $file.
+		$single_runs_dir = $run_dir . '/single_runs';
+		if (is_dir($single_runs_dir)) {
+			foreach (scandir($single_runs_dir) ?: [] as $job_dir) {
+				if ($job_dir === '.' || $job_dir === '..') continue;
+				$path = $single_runs_dir . '/' . $job_dir;
+				if (!is_dir($path)) continue;
+				foreach (scandir($path) ?: [] as $file) {
+					if (preg_match('/^(\d+)_0_log\.out$/', $file, $matches)) {
+						$nr = $matches[1];
+						if (!isset($log_files[$nr])) {
+							$log_files[$nr] = 'single_runs/' . $job_dir . '/' . $file;
+						}
+					}
+				}
+			}
+		}
+
 		return $log_files;
 	}
 

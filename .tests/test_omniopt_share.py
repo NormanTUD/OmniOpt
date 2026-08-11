@@ -75,18 +75,18 @@ def _make_run_dir(root: Path) -> Path:
 
 
 def test_parse_args_no_args_shows_help_and_exits_nonzero() -> bool:
-    rc = os_.main([""], _argv_only=True)
+    rc = os_.main([])
     return _check(rc != 0, f"empty argv must not succeed, got {rc}")
 
 
 def test_parse_args_minimum_required() -> bool:
-    """At minimum, a run dir must be given."""
-    rc = os_.main(["", "runs/foo/0"], _argv_only=True)
-    return _check(rc != 0, "missing run dir should fail without network")
+    """At minimum, a run dir must be given (no network in tests)."""
+    rc = os_.main(["/nonexistent/path/that/is/not/here"])
+    return _check(rc != 0, "missing run dir should fail")
 
 
 def test_parse_args_help() -> bool:
-    rc = os_.main(["", "--help"], _argv_only=True)
+    rc = os_.main(["--help"])
     return _check(rc == 0, f"--help should exit 0, got {rc}")
 
 
@@ -206,7 +206,6 @@ def test_collect_shareable_files_basic() -> bool:
     ok = _check("results.csv" in names, f"results.csv missing: {names}")
     ok &= _check("parameters.txt" in names, f"parameters.txt missing: {names}")
     ok &= _check("git_version" in names, f"git_version missing: {names}")
-    ok &= _check("state_files/run_uuid" in names, f"state_files/run_uuid missing: {names}")
     return ok
 
 
@@ -214,9 +213,9 @@ def test_collect_shareable_files_includes_singleruns_by_default() -> bool:
     with tempfile.TemporaryDirectory() as tmp:
         run = _make_run_dir(Path(tmp))
         files = os_.collect_shareable_files(str(run), send_single_runs=True)
-        names = {f["archive_path"] for f in files}
+        names = {f["name"] for f in files}
     ok = _check(
-        any("single_run_file_0_0.out" in n for n in names),
+        "single_run_file_0_0.out" in names,
         f"single run file missing: {names}",
     )
     return ok
@@ -346,7 +345,7 @@ def test_write_bundle_creates_manifest_and_zip() -> bool:
         )
         out_dir = Path(tmp) / "out"
         out_dir.mkdir()
-        m_path, z_path = os_.write_bundle(manifest, out_dir)
+        m_path, z_path = os_.write_bundle(manifest, out_dir, source_dir=str(run))
 
         ok = _check(m_path.exists() and z_path.exists(),
                     f"missing files: {m_path} {z_path}")

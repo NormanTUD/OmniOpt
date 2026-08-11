@@ -379,7 +379,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    return _build_parser().parse_args(list(argv))
+    args = _build_parser().parse_args(list(argv))
+    # Convenience: invert --dont_send_singleruns into a positive bool.
+    args.send_single_runs = not args.dont_send_singleruns
+    return args
 
 
 def _print_help() -> None:

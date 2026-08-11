@@ -149,17 +149,21 @@ def main(argv=None) -> int:
     def render(test):
         return render_command(test.cmd or "", config, args)
 
-    run_test_objects(
-        selected,
-        quick_pred=lambda t: quick_skip(t, args),
-        env_pred=lambda t: env_skip(
-            t, args,
-            in_container=in_container, is_ci=is_ci,
-            has_nvidia=has_nvidia, has_sbatch=has_sbatch, has_docker=has_docker,
-        ),
-        render_command=render,
-        dry_run=bool(args.dry_run),
-    )
+    try:
+        run_test_objects(
+            selected,
+            quick_pred=lambda t: quick_skip(t, args),
+            env_pred=lambda t: env_skip(
+                t, args,
+                in_container=in_container, is_ci=is_ci,
+                has_nvidia=has_nvidia, has_sbatch=has_sbatch, has_docker=has_docker,
+            ),
+            render_command=render,
+            dry_run=bool(args.dry_run),
+        )
+    except KeyboardInterrupt:
+        state.interrupted = True
+        helpers.red_text("\nInterrupted by Ctrl+C. Stopping test run.")
 
     elapsed = int(time.time() - start)
     print(f"\nTest took {helpers.displaytime(elapsed)}")
@@ -169,6 +173,10 @@ def main(argv=None) -> int:
     if summary:
         with open(summary, "a", encoding="utf-8") as f:
             f.write(print_table_markdown() + "\n")
+
+    if state.interrupted:
+        helpers.red_text("\nTest run interrupted by Ctrl+C.")
+        return 130
 
     return len(state.errors)
 

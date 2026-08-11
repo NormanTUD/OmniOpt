@@ -13,23 +13,45 @@ THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
+from _framework.installer import ensure_dependencies
+
 
 REPO_ROOT = THIS_DIR.parent
 
 
+def _pyright_bin() -> str | None:
+    bin_ = shutil.which("pyright")
+    if bin_:
+        return bin_
+    candidates: list[Path] = []
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidates.append(Path(venv) / "bin" / "pyright")
+    for p in sys.path:
+        if not p.endswith("site-packages"):
+            continue
+        candidates.append(Path(p.rsplit("/lib/", 1)[0]) / "bin" / "pyright")
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return None
+
+
 def main(argv=None) -> int:
+    ensure_dependencies()
     os.environ.setdefault("install_tests", "1")
     os.environ["ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT"] = "1"
 
-    pyright = THIS_DIR / "pyright.py"
-    if pyright.exists():
-        proc = subprocess.run([sys.executable, str(pyright)], cwd=str(REPO_ROOT))
+    pyright_py = THIS_DIR / "pyright.py"
+    if pyright_py.exists():
+        proc = subprocess.run([sys.executable, str(pyright_py)], cwd=str(REPO_ROOT))
         return proc.returncode
 
-    if not shutil.which("pyright"):
+    bin_ = _pyright_bin()
+    if bin_ is None:
         print("pyright not found")
         return 1
-    proc = subprocess.run(["pyright", "."], cwd=str(REPO_ROOT))
+    proc = subprocess.run([bin_, "."], cwd=str(REPO_ROOT))
     return proc.returncode
 
 

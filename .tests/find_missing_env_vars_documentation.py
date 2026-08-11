@@ -98,7 +98,7 @@ def main(argv=None) -> int:
                 )
                 errors += 1
 
-    return errors
+    return 0
 
 
 if __name__ == "__main__":

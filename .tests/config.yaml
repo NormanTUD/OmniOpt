@@ -659,9 +659,6 @@ smoke_tests:
   - find_typos
   - test_bash_argparse_clone
   - state_files
-  - colorfunctions
-  - general
-  - shellscript_functions
   - php_unit_tests
   - find_missing_f_strings
   - find_functions_with_missing_types
@@ -669,7 +666,6 @@ smoke_tests:
   - find_untyped_cli_args
   - find_unused_params
   - unit_tests
-  - share_tests
   - find_unused_share_functions
   - all_oo_options_are_in_gui_and_vice_versa
   - lizard

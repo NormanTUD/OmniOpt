@@ -12,4 +12,4 @@ COPY ./.gui /var/opt/omniopt/.gui
 
 WORKDIR /var/opt/omniopt
 
-RUN ./omniopt --help
+#RUN ./omniopt --help

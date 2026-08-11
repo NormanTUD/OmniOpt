@@ -12,7 +12,6 @@ __pycache__
 .tests/mnist/.torch_venv_*
 .tests/mnist/.tests
 .tests/orchestrator_tests.bin
-.tests/test_wronggoing_stuff.bin
 .coverage.*
 *.swp
 .DS_Store

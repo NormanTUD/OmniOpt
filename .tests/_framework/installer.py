@@ -20,7 +20,7 @@ import subprocess
 import sys
 import venv
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -113,6 +113,35 @@ def add_venv_to_path(venv_dir: Path) -> None:
         os.environ["PYTHONPATH"] = (
             str(site_pkg) + os.pathsep + os.environ.get("PYTHONPATH", "")
         )
+
+
+def _venv_packages(venv_dir: Path) -> Dict[str, str]:
+    """Return ``{normalized_name: version_str}`` for every installed
+    package in the framework venv.  Used to skip reinstalling packages
+    that are already present (saves ~3 s of pip-startup per script)."""
+    site_pkg = venv_site_packages(venv_dir)
+    if not site_pkg:
+        return {}
+    out: Dict[str, str] = {}
+    try:
+        with open(site_pkg / "METADATA") as f:
+            data = f.read()
+    except OSError:
+        return {}
+    # Each METADATA is a single email-like message; iterate by "name:".
+    for chunk in data.split("\n\n"):
+        for line in chunk.splitlines():
+            if line.lower().startswith("name:"):
+                name = line.split(":", 1)[1].strip().lower()
+                out[name] = ""
+            elif line.lower().startswith("version:"):
+                ver = line.split(":", 1)[1].strip()
+                if out:
+                    # Attach the last-seen name (FIFO)
+                    last = next(reversed(out))
+                    out[last] = ver
+                break
+    return out
 
 
 def install_packages(packages: List[str], *, quiet: bool = True) -> Path | None:

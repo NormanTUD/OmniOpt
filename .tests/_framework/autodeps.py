@@ -34,7 +34,7 @@ def ensure_imports(
     *,
     quiet: bool = True,
 ) -> bool:
-    """Ensure every ``(module_name, package_name)`` is importable.
+    """Ensure every ``module_name, package_name`` is importable.
 
     Missing packages are installed automatically into the framework venv.
     Returns True when all modules are available afterwards. When
@@ -56,6 +56,24 @@ def ensure_imports(
     if not missing:
         return True
 
+    # If the framework venv already has every requested package, just
+    # add it to sys.path instead of re-installing.  This saves ~3 s of
+    # pip-startup per script invocation in the smoke-test suite.
+    from .installer import (
+        _resolve_venv_dir,
+        _venv_packages,
+        add_venv_to_path,
+        install_packages,
+    )
+    venv_dir = _resolve_venv_dir()
+    if venv_dir.exists() and all(
+        _venv_packages(venv_dir).get(p) for _, p in missing
+    ):
+        add_venv_to_path(venv_dir)
+        # Re-check now that the venv is on sys.path.
+        if all(_importable(m) for m, _ in missing):
+            return True
+
     if os.environ.get("DONT_INSTALL_MODULES"):
         print("DONT_INSTALL_MODULES is set - refusing to install missing modules.")
         for module, package in missing:
@@ -66,8 +84,6 @@ def ensure_imports(
     for module, package in missing:
         if package not in packages:
             packages.append(package)
-
-    from .installer import add_venv_to_path, install_packages
 
     try:
         venv_dir = install_packages(packages, quiet=quiet)

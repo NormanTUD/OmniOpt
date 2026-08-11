@@ -121,7 +121,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        sys.exit(main())
     except KeyboardInterrupt:
         print("You cancelled this script.")
         sys.exit(0)

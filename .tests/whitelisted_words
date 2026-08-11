@@ -3338,3 +3338,7 @@ kwargs
 helpTrue
 debugTrue
 proj
+scattr
+abd
+plotsvg
+argsmin

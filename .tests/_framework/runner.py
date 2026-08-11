@@ -47,6 +47,7 @@ class RunnerState:
     test_counter: int = 0
     exit_on_first_error: bool = False
     skip_search: bool = False
+    interrupted: bool = False
 
 
 _RUNNER_STATE = RunnerState()
@@ -130,9 +131,15 @@ def run_command(
 
     start = time.time()
     exit_code = 0
+    interrupted = False
     try:
-        proc = run(command, cwd=cwd, env=env, timeout=timeout)
+        proc = run(command, cwd=cwd, env=env, timeout=timeout, live=True)
         exit_code = proc.returncode
+    except KeyboardInterrupt:
+        red_text("\nInterrupted by Ctrl+C. Stopping test run.")
+        state.interrupted = True
+        exit_code = 130
+        interrupted = True
     except Exception as exc:  # pragma: no cover - defensive
         red_text(f"Test command crashed: {exc}")
         traceback.print_exc()
@@ -144,6 +151,20 @@ def run_command(
     wanted = [wanted_exit_code]
     if alternative_exit_code is not None:
         wanted.append(alternative_exit_code)
+
+    if interrupted:
+        result = TestResult(
+            name=name,
+            command=command,
+            exit_code=exit_code,
+            wanted_exit_codes=wanted,
+            runtime=runtime,
+            failed=True,
+            success_mark="\u2717",
+        )
+        state.results.append(result)
+        print(f"Test took {human_readable_time(runtime)}")
+        return result
 
     failed = exit_code not in wanted
     success_mark = "\u2717" if failed else "\u2713"
@@ -227,6 +248,10 @@ def run_python_function(
     exit_code = 0
     try:
         exit_code = int(func() or 0)
+    except KeyboardInterrupt:
+        red_text("\nInterrupted by Ctrl+C. Stopping test run.")
+        state.interrupted = True
+        exit_code = 130
     except SystemExit as exc:
         code = exc.code
         exit_code = 0 if code is None else int(code)
@@ -412,6 +437,9 @@ def run_test_objects(
         duration = end - start
         if duration > 10:
             runtimes_so_far.append(duration)
+
+        if state.interrupted:
+            break
 
         median = runtimes_summary(runtimes_so_far)
         if median is not None:

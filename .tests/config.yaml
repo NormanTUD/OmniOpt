@@ -657,6 +657,9 @@ tests:
 # -----------------------------------------------------------------------------
 smoke_tests:
   - test_bash_argparse_clone
+  - colorfunctions
+  - general
+  - shellscript_functions
   - php_unit_tests
   - find_missing_f_strings
   - find_functions_with_missing_types

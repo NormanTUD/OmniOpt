@@ -23,6 +23,35 @@ THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
+# Make the autodeps framework venv importable before any other
+# framework imports.  ``_framework.config`` requires ``yaml`` at import
+# time, and we want the import order to work even when the system
+# Python doesn't have ``yaml`` installed (e.g. inside the Docker
+# container before any pip install has run).
+import _framework.installer as _framework_installer
+_bootstrap_venv = _framework_installer._resolve_venv_dir()
+if _bootstrap_venv.exists():
+    _framework_installer.add_venv_to_path(_bootstrap_venv)
+else:
+    # Fall back to creating the venv and installing requirements so the
+    # imports below succeed.
+    _framework_installer._create_venv(_bootstrap_venv)
+    _framework_installer.add_venv_to_path(_bootstrap_venv)
+    req_main = Path(__file__).resolve().parent.parent / "requirements.txt"
+    req_test = Path(__file__).resolve().parent.parent / "test_requirements.txt"
+    if req_main.exists():
+        _framework_installer._pip(_bootstrap_venv, "install", "-r", str(req_main), quiet=False)
+    if req_test.exists():
+        _framework_installer._pip(_bootstrap_venv, "install", "-r", str(req_test), quiet=False)
+    # Seed hashes so subsequent calls don't reinstall.
+    import hashlib as _hashlib
+    (_bootstrap_venv / "hash_main").write_text(
+        _hashlib.md5(req_main.read_bytes()).hexdigest()
+    )
+    (_bootstrap_venv / "hash_test").write_text(
+        _hashlib.md5(req_test.read_bytes()).hexdigest()
+    )
+
 from _framework import helpers
 from _framework.installer import ensure_dependencies
 from _framework.cli import (

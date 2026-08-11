@@ -202,43 +202,32 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max", default="")
     p.add_argument("--allow_axes", default=None)
     p.add_argument("--plot_type", default=MENU_KEY)
+    # Positional argument: either a run_dir or a (fuzzy) plot_type.
+    p.add_argument(
+        "positional", nargs="?", default=None,
+        help="Run directory (if it exists) or a plot type name.",
+    )
     return p
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    """Parse argv but also accept a positional argument as ``run_dir``
-    or as a fuzzy plot-type (matching the bash behaviour)."""
-    argv = list(argv)
-    # Pull out any positional arg for fuzzy matching
-    positional: List[str] = []
-    consumed_flags: List[str] = []
-    skip = 0
-    for i, tok in enumerate(argv):
-        if skip:
-            skip -= 1
-            continue
-        if tok.startswith("--"):
-            # check if it's --flag value (no =) and next arg isn't a flag
-            if "=" not in tok and i + 1 < len(argv) and not argv[i + 1].startswith("--"):
-                consumed_flags.extend([tok, argv[i + 1]])
-                skip = 1
-            else:
-                consumed_flags.append(tok)
-        elif tok.startswith("-"):
-            consumed_flags.append(tok)
-        else:
-            positional.append(tok)
-            consumed_flags.append(tok)
-    args = _build_parser().parse_args(consumed_flags)
-    if positional:
-        first = positional[0]
+    """Parse argv.  Accepts either ``--run_dir=...`` or a positional arg
+    that is either an existing directory (treated as ``run_dir``) or a
+    fuzzy match against the available plot types.
+
+    Mirrors the bash version's behaviour so that ``omniopt_plot
+    runs/myexp/0`` works just as well as ``omniopt_plot --run_dir
+    runs/myexp/0``.
+    """
+    args = _build_parser().parse_args(list(argv))
+    if args.positional is not None and not args.positional.startswith("-"):
         script_dir = str(SCRIPT_DIR)
         plot_types = list_plot_types(script_dir)
-        if os.path.isdir(first):
+        if os.path.isdir(args.positional):
             if args.run_dir is None:
-                args.run_dir = first
+                args.run_dir = args.positional
         else:
-            match = find_closest_match(first, plot_types)
+            match = find_closest_match(args.positional, plot_types)
             if match:
                 args.plot_type = match[0]
     return args

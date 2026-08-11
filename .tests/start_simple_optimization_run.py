@@ -137,7 +137,7 @@ def main(argv=None) -> int:
     # Build the run_program and base cmd based on the variant.
     if args.one_param:
         run_program_text = (
-            f"./.tests/optimization_example {random_sem_str} "
+            f"./.tests/optimization_example.py {random_sem_str} "
             "--int_param='%(int_param)' --float_param='1' "
             "--choice_param='1' --int_param_two='1'"
         )
@@ -152,13 +152,13 @@ def main(argv=None) -> int:
             "--num_parallel_jobs", str(num_parallel_jobs),
             "--gpus", str(num_gpus),
             "--run_program", run_program,
-            "--parameter", "int_param range -100 10 int",
+            "--parameter", "int_param", "range", "-100", "10", "int",
             "--num_random_steps", str(num_random_steps),
             "--model", model,
         ]
     elif args.all_float:
         run_program_text = (
-            f".tests/optimization_example_all_float {random_sem_str} "
+            f".tests/optimization_example_all_float.py {random_sem_str} "
             "--x=%(x) --y=%(y) --z=%(z) --a=%(a)"
         )
         if args.allow_failure:
@@ -176,21 +176,21 @@ def main(argv=None) -> int:
             "--run_program", run_program,
             "--cpus_per_task=1", "--nodes_per_job=1",
             "--model=BOTORCH_MODULAR", "--run_mode=local",
-            "--parameter", "x range -1000 1000 float",
-            "--parameter", "y range -1000 1000 float",
-            "--parameter", "z range -1000 1000 float",
-            "--parameter", "a range -1000 1000 float",
+            "--parameter", "x", "range", "-1000", "1000", "float",
+            "--parameter", "y", "range", "-1000", "1000", "float",
+            "--parameter", "z", "range", "-1000", "1000", "float",
+            "--parameter", "a", "range", "-1000", "1000", "float",
             "--live_share",
         ]
     elif args.two_params:
         run_program_text = (
-            f"./.tests/optimization_example {random_sem_str} "
+            f"./.tests/optimization_example.py {random_sem_str} "
             "--int_param='%(int_param)' --float_param='1' "
             "--choice_param='1' --int_param_two='1'"
         )
         if args.allow_failure:
             run_program_text = (
-                f"./.tests/optimization_example {random_sem_str} "
+                f"./.tests/optimization_example.py {random_sem_str} "
                 "--int_param='%(int_param)' --float_param='%(float_param)' "
                 "--choice_param='1' --int_param_two='1' "
                 "--fail_or_not=%(fail_or_not)"
@@ -204,14 +204,14 @@ def main(argv=None) -> int:
             "--num_parallel_jobs", str(num_parallel_jobs),
             "--gpus", str(num_gpus),
             "--run_program", run_program,
-            "--parameter", "int_param range -100 10 int",
-            "--parameter", "float_param range -100 10 float",
+            "--parameter", "int_param", "range", "-100", "10", "int",
+            "--parameter", "float_param", "range", "-100", "10", "float",
             "--num_random_steps", str(num_random_steps),
             "--model", model,
         ]
     else:
         run_program_text = (
-            f"./.tests/optimization_example {random_sem_str} "
+            f"./.tests/optimization_example.py {random_sem_str} "
             "--int_param='%(int_param)' --float_param='%(float_param)' "
             f"--choice_param='%(choice_param)' --int_param_two='%(int_param_two)' "
             f"--nr_results={nr_results}"
@@ -227,10 +227,10 @@ def main(argv=None) -> int:
             "--num_parallel_jobs", str(num_parallel_jobs),
             "--gpus", str(num_gpus),
             "--run_program", run_program,
-            "--parameter", "int_param range -100 10 int",
-            "--parameter", "float_param range -100 10 float",
-            "--parameter", "choice_param choice 1,2,4,8,16,hallo",
-            "--parameter", "int_param_two range -100 10 int",
+            "--parameter", "int_param", "range", "-100", "10", "int",
+            "--parameter", "float_param", "range", "-100", "10", "float",
+            "--parameter", "choice_param", "choice", "1,2,4,8,16,hallo",
+            "--parameter", "int_param_two", "range", "-100", "10", "int",
             "--num_random_steps", str(num_random_steps),
             "--model", model,
             "--auto_exclude_defective_hosts",
@@ -239,7 +239,7 @@ def main(argv=None) -> int:
     if args.gridsearch:
         cmd.append("--gridsearch")
     if args.allow_failure:
-        cmd.extend(["--parameter", 'fail_or_not choice "0,1"'])
+        cmd.extend(["--parameter", "fail_or_not", "choice", "0,1"])
     if args.force_local_execution:
         cmd.append("--force_local_execution")
 

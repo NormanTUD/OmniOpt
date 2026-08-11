@@ -29,9 +29,17 @@ def main(argv=None) -> int:
         print(f"php_spellchecker not found at {tool}")
         return 1
 
-    proc = subprocess.run(["python3", str(tool), str(REPO_ROOT / ".gui")])
+    try:
+        proc = subprocess.run(["python3", str(tool), str(REPO_ROOT / ".gui")])
+    except KeyboardInterrupt:
+        print("Cancelled by user", file=sys.stderr)
+        return 0
     return proc.returncode
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("Cancelled by user", file=sys.stderr)
+        sys.exit(0)

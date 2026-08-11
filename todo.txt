@@ -1,0 +1,2 @@
+tests: opencode -s ses_01285455bffeCvZMYZJVsqOdtG
+opencode -s ses_0128cc72bffefPoWTllepwugE3

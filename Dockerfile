@@ -5,11 +5,15 @@ RUN apt-get update && apt-get install -y python3 python3-pip python3-venv xterm 
 ARG GetMyUsername
 RUN adduser --disabled-password --gecos '' ${GetMyUsername}
 
-COPY ./ /var/opt/omniopt/
-COPY ./.tests /var/opt/omniopt/.tests
-COPY ./.tools /var/opt/omniopt/.tools
-COPY ./.gui /var/opt/omniopt/.gui
-
 WORKDIR /var/opt/omniopt
 
+COPY ./omniopt ./omniopt
+COPY ./requirements.txt ./requirements.txt
+COPY ./test_requirements.txt ./test_requirements.txt
+
 RUN ./omniopt --help
+
+COPY ./.tests ./.tests
+COPY ./.tools ./.tools
+COPY ./.gui ./.gui
+COPY ./ ./

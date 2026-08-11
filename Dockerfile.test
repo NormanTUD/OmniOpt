@@ -11,7 +11,7 @@ COPY ./omniopt ./omniopt
 COPY ./requirements.txt ./requirements.txt
 COPY ./test_requirements.txt ./test_requirements.txt
 
-RUN ./omniopt --help
+RUN ./omniopt --install
 
 COPY ./.tests ./.tests
 COPY ./.tools ./.tools

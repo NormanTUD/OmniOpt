@@ -2244,7 +2244,7 @@
 		return $signature === "PK\x03\x04";
 	}
 
-	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg) {
+	function move_files($offered_files, $added_files, $userFolder, $msgUpdate, $msg, $project_md5 = null) {
 		$empty_files = [];
 
 		foreach ($offered_files as $offered_file) {
@@ -2300,6 +2300,9 @@
 		}
 
 		if ($added_files) {
+			if ($project_md5 !== null) {
+				@file_put_contents("$userFolder/hash.md5", $project_md5);
+			}
 			if (isset($_GET["update"])) {
 				eval('echo "$msgUpdate";');
 			} else {

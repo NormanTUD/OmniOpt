@@ -28,11 +28,9 @@ THIS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = THIS_DIR.parent
 
 sys.path.insert(0, str(REPO_ROOT))
-from importlib.machinery import SourceFileLoader  # noqa: E402
 
-os_ = SourceFileLoader(
-    "omniopt_share", str(REPO_ROOT / "omniopt_share")
-).load_module()
+# Fix the import for omniopt_share
+import omniopt_share as os_
 
 from _framework.helpers import red_text  # noqa: E402
 

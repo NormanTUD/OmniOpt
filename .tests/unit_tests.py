@@ -13,10 +13,13 @@ console = Console()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
-helpers_file = f"{script_dir}/../.helpers.py"
-spec = importlib.util.spec_from_file_location(name="helpers", location=helpers_file)
-helpers = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(helpers)
+# Add parent directory to Python path to enable imports
+repo_root = os.path.dirname(script_dir)
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
+# Now import helpers correctly
+import .helpers as helpers
 
 dier = helpers.dier
 
@@ -74,12 +77,15 @@ with Progress(transient=True) as progress:
         filename = os.path.basename(file)
         if filename in to_test:
             loaded_files.append(f"{filename}")
+            # Fix the path resolution
+            file_path = os.path.join(path, filename)
             spec = importlib.util.spec_from_file_location(
-                name=clean_filename(file),
-                location=loaded_files[len(loaded_files) - 1],
+                name=clean_filename(file_path),
+                location=file_path,
             )
-            mods[filename] = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mods[filename])
+            if spec is not None:
+                mods[filename] = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mods[filename])
 
         progress.update(load_task, advance=1)
 

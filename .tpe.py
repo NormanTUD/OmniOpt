@@ -25,6 +25,29 @@ except ModuleNotFoundError:
 
 logging.getLogger("optuna").setLevel(logging.WARNING)
 
+# Fix the optuna study attribute access issue
+def create_study_with_seed(seed: Optional[int], direction: str) -> Any:
+    try:
+        # Try newer optuna API
+        return optuna.create_study(
+            sampler=optuna.samplers.TPESampler(seed=seed),
+            direction=direction
+        )
+    except AttributeError:
+        # Fallback for older versions
+        return optuna.create_study(
+            sampler=optuna.samplers.TPESampler(seed=seed),
+            study_name="tpe_study",
+            direction=direction
+        )
+
+def get_best_trial_value(study: Any) -> Any:
+    try:
+        return study.best_trial.value
+    except AttributeError:
+        # Fallback for older versions
+        return getattr(study, 'best_value', None)
+
 @beartype
 def check_constraint(constraint: str, params: dict) -> bool:
     return eval(constraint, {}, params)
@@ -164,7 +187,7 @@ def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: li
 
 @beartype
 def get_best_or_new_point(study: Any, parameters: dict, direction: str) -> dict:
-    best_trial_value = study.best_trial.value
+    best_trial_value = get_best_trial_value(study)
     if best_trial_value is not None:
         if (direction == "minimize" and best_trial_value < 1e6) or \
            (direction == "maximize" and best_trial_value > -1e6):

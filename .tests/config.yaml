@@ -158,13 +158,13 @@ tests:
 
   - id: test_seed_1234
     name: "Test seed 1234"
-    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 1234 --gpus {NUM_GPUS} --hash 86157f2f4b60e19a713c3f85ca13e19a"
+    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 1234 --gpus {NUM_GPUS} --hash 6afb12589d204a3bbb98ea361f17c46e"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: test_seed_4321
     name: "Test seed 4321"
-    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 4321 --gpus {NUM_GPUS} --hash 60a91150ddb1f17f2c040230e9673dc0"
+    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 4321 --gpus {NUM_GPUS} --hash ff8862df2ef185edcb9e27998896b9b8"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 

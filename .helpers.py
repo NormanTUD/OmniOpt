@@ -1,37 +1,38 @@
 import sys
 
 try:
-    import json
+    import difflib
     import hashlib
+    import json
+    import logging
+    import math
+    import os
+    import re
     import shutil
     import subprocess
-    import urllib.request
+    import tempfile
+    import traceback
     import urllib.error
     import urllib.parse
+    import urllib.request
     import zipfile
-    from typing import Union, Tuple, Any, Optional
     from datetime import datetime
     from itertools import combinations
     from pprint import pprint
-    import math
-    import difflib
-    import logging
-    import os
-    import re
-    import tempfile
-    import traceback
+    from typing import Any
+
+    import matplotlib
     import numpy as np
     import pandas as pd
-    import matplotlib
-    from matplotlib.widgets import Button, TextBox
     from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.widgets import Button, TextBox
 except OSError as e:
     print(f"Error loading module: {e}")
     sys.exit(109)
 
 all_columns_to_remove = ['trial_index', 'arm_name', 'trial_status', 'generation_method', 'generation_node']
 val_if_nothing_found = 99999999999999999999999999999999999999999999999999999999999
-NO_RESULT = "{:.0e}".format(val_if_nothing_found)
+NO_RESULT = f"{val_if_nothing_found:.0e}"
 
 def starts_with_OO_Info(s: str) -> bool:
     if not isinstance(s, str):
@@ -39,7 +40,7 @@ def starts_with_OO_Info(s: str) -> bool:
 
     return s.startswith("OO_Info_")
 
-def dier(*args: Any, exit: Union[bool, int] = True) -> None:
+def dier(*args: Any, exit: bool | int = True) -> None:
     for msg in args:
         pprint(msg)
     if exit is False or exit == 0:
@@ -59,7 +60,7 @@ def check_environment_variable(variable_name: str) -> bool:
 def in_venv() -> bool:
     return sys.prefix != sys.base_prefix
 
-def looks_like_float(x: Union[float, int, str, None]) -> bool:
+def looks_like_float(x: float | str | None) -> bool:
     if isinstance(x, (int, float)):
         return True  # int and float types are directly considered as floats
 
@@ -72,7 +73,7 @@ def looks_like_float(x: Union[float, int, str, None]) -> bool:
 
     return False  # If x is neither str, int, nor float, it's not float-like
 
-def looks_like_int(x: Union[float, int, str, None]) -> bool:
+def looks_like_int(x: float | str | None) -> bool:
     if isinstance(x, bool):
         return False
 
@@ -87,10 +88,10 @@ def looks_like_int(x: Union[float, int, str, None]) -> bool:
 
     return False
 
-def looks_like_number (x: Union[float, int, str, None]) -> bool:
+def looks_like_number (x: float | str | None) -> bool:
     return looks_like_float(x) or looks_like_int(x) or type(x) is int or type(x) is float or type(x) is np.int64
 
-def to_int_when_possible(val: Any) -> Union[None, int, float, str]:
+def to_int_when_possible(val: Any) -> None | int | float | str:
     if isinstance(val, int):
         return val
 
@@ -133,7 +134,7 @@ def flatten_extend(matrix: list) -> list:
         flat_list.extend(row)
     return flat_list
 
-def convert_string_to_number(input_string: str) -> Union[int, float, None]:
+def convert_string_to_number(input_string: str) -> int | float | None:
     try:
         assert isinstance(input_string, str), "Input must be a string"
 
@@ -326,7 +327,7 @@ def check_first_line_max(run_dir: str) -> bool:
         print(f"An unexpected error occurred: {e}")
         return False
 
-def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: Union[float, int, None], _max: Union[float, int, None]) -> str:
+def get_title(_args: Any, result_column_values: pd.DataFrame, df_filtered: pd.DataFrame, num_entries: int, _min: float | None, _max: float | None) -> str:
     res_col_name = get_result_name_or_default_from_csv_file_path(_args.run_dir + "/results.csv")
 
     maximize = check_first_line_max(_args.run_dir)
@@ -460,7 +461,7 @@ def is_not_equal(n: str, i: Any, o: Any) -> bool:
 
     return r
 
-def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, int, float], _max: Union[None, int, float]) -> Tuple[Union[int, float, None], Union[int, float, None]]:
+def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: None | float, _max: None | float) -> tuple[int | float | None, int | float | None]:
     if MINIMUM_TEXTBOX and looks_like_float(MINIMUM_TEXTBOX.text):
         _min = convert_string_to_number(MINIMUM_TEXTBOX.text)
 
@@ -469,7 +470,7 @@ def set_min_max(MINIMUM_TEXTBOX: Any, MAXIMUM_TEXTBOX: Any, _min: Union[None, in
 
     return _min, _max
 
-def get_num_subplots_rows_and_cols(non_empty_graphs: list) -> Tuple[int, int, int]:
+def get_num_subplots_rows_and_cols(non_empty_graphs: list) -> tuple[int, int, int]:
     num_subplots = len(non_empty_graphs)
     num_cols = math.ceil(math.sqrt(num_subplots))
     num_rows = math.ceil(num_subplots / num_cols)
@@ -481,7 +482,7 @@ def remove_widgets(fig: Any, button: Any, MAXIMUM_TEXTBOX: Any, MINIMUM_TEXTBOX:
         if widget not in [button.ax, MAXIMUM_TEXTBOX.ax, MINIMUM_TEXTBOX.ax]:
             widget.remove()
 
-def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame, _exit: Union[bool, None]) -> list:
+def get_non_empty_graphs(parameter_combinations: list, df_filtered: pd.DataFrame, _exit: bool | None) -> list:
     non_empty_graphs = []
 
     if len(parameter_combinations[0]) == 1:
@@ -523,7 +524,7 @@ def get_df_filtered(_args: Any, df: pd.DataFrame) -> pd.DataFrame:
 
     return df_filtered
 
-def print_filtering_message(_min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+def print_filtering_message(_min: float | None, _max: float | None) -> None:
     if _min and not _max:
         print("Using --min filtered out all results")
     elif not _min and _max:
@@ -533,7 +534,7 @@ def print_filtering_message(_min: Union[int, float, None], _max: Union[int, floa
     else:
         print("For some reason, there were values in the beginning but not after filtering")
 
-def print_no_results_message(csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+def print_no_results_message(csv_file_path: str, _min: float | None, _max: float | None) -> None:
     if _min is not None and _max is not None:
         print(f"No applicable values could be found in {csv_file_path} (min: {_min}, max: {_max}).")
     elif _min is not None:
@@ -543,7 +544,7 @@ def print_no_results_message(csv_file_path: str, _min: Union[int, float, None], 
     else:
         print(f"No applicable values could be found in {csv_file_path}.")
 
-def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None, _exit: bool = True) -> None:
+def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_file_path: str, _min: float | None = None, _max: float | None = None, _exit: bool = True) -> None:
     if num_entries is None or num_entries == 0:
         if nr_of_items_before_filtering:
             print_filtering_message(_min, _max)
@@ -557,19 +558,19 @@ def check_min_and_max(num_entries: int, nr_of_items_before_filtering: int, csv_f
 def contains_strings(series: Any) -> bool:
     return series.apply(lambda x: isinstance(x, str)).any()
 
-def file_exists(csv_file_path: Optional[str]) -> bool:
+def file_exists(csv_file_path: str | None) -> bool:
     return bool(csv_file_path) and isinstance(csv_file_path, str) and os.path.exists(csv_file_path)
 
 def load_csv(csv_file_path: str) -> pd.DataFrame:
     return pd.read_csv(csv_file_path, index_col=0)
 
-def headers_match(df: pd.DataFrame, old_headers_string: Optional[str]) -> bool:
+def headers_match(df: pd.DataFrame, old_headers_string: str | None) -> bool:
     if old_headers_string is None:
         return True
     df_header_string = ','.join(sorted(df.columns))
     return df_header_string == old_headers_string
 
-def filter_by_result_range(df: pd.DataFrame, res_col_name: str, _min: Optional[Union[int, float]], _max: Optional[Union[int, float]]) -> pd.DataFrame:
+def filter_by_result_range(df: pd.DataFrame, res_col_name: str, _min: float | None, _max: float | None) -> pd.DataFrame:
     if res_col_name not in df:
         handle_missing_result_column(res_col_name)
 
@@ -632,11 +633,11 @@ def get_df_without_special_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def get_data(
     csv_file_path: str,
-    _min: Optional[Union[int, float]],
-    _max: Optional[Union[int, float]],
-    old_headers_string: Optional[str] = None,
-    drop_columns_with_strings: Union[str, bool] = False
-) -> Optional[pd.DataFrame]:
+    _min: float | None,
+    _max: float | None,
+    old_headers_string: str | None = None,
+    drop_columns_with_strings: str | bool = False
+) -> pd.DataFrame | None:
     res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     if not isinstance(csv_file_path, str):
@@ -736,7 +737,7 @@ def get_color_list(df: pd.DataFrame, _args: Any, _plt: Any, csv_file_path: str) 
 
     return cmap, norm, colors
 
-def merge_df_with_old_data(_args: Any, df: pd.DataFrame, _min: Union[int, float, None], _max: Union[int, float, None], old_headers_string: str) -> pd.DataFrame:
+def merge_df_with_old_data(_args: Any, df: pd.DataFrame, _min: float | None, _max: float | None, old_headers_string: str) -> pd.DataFrame:
     if len(_args.merge_with_previous_runs):
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
@@ -753,7 +754,7 @@ def print_if_not_plot_tests_and_exit(msg: str, exit_code: int) -> str:
 
     return msg
 
-def load_and_merge_data(_args: Any, _min: Union[int, float, None], _max: Union[int, float, None], filter_out_strings: str, csv_file_path: str) -> Union[pd.DataFrame, None]:
+def load_and_merge_data(_args: Any, _min: float | None, _max: float | None, filter_out_strings: str, csv_file_path: str) -> pd.DataFrame | None:
     df = get_data(csv_file_path, _min, _max, None, filter_out_strings)
 
     if df is not None and not df.empty:
@@ -782,7 +783,7 @@ def _update_graph(_params: list) -> None:
     except Exception as e:
         _handle_update_graph_exception(e)
 
-def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+def check_filtering(df: pd.DataFrame, df_filtered: pd.DataFrame, csv_file_path: str, _min: float | None, _max: float | None) -> None:
     nr_of_items_before_filtering = len(df)
     check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, _min, _max)
 
@@ -800,7 +801,7 @@ def plot_parameters(_params: list) -> None:
     plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
     set_title(df_filtered, result_column_values, len(df_filtered), _min, _max)
 
-def _handle_update_graph_exception(e: Union[str, Exception]) -> None:
+def _handle_update_graph_exception(e: str | Exception) -> None:
     if "invalid command name" not in str(e):
         print(f"Failed to update graph: {e}")
 
@@ -822,7 +823,7 @@ def use_matplotlib(_args: Any) -> None:
         print(f"An error occurred while loading TkAgg. This may happen when you forgot to add -X to your ssh-connection: {e}.")
         sys.exit(33)
 
-def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: Union[int, float, None] = None, max_value: Union[int, float, None] = None, csv_file_path: str = "") -> pd.DataFrame:
+def filter_data(_args: Any, dataframe: pd.DataFrame, min_value: float | None = None, max_value: float | None = None, csv_file_path: str = "") -> pd.DataFrame:
     res_col_name = get_result_name_or_default_from_csv_file_path(csv_file_path)
 
     try:
@@ -866,7 +867,7 @@ def can_be_plotted(path: str) -> bool:
 
     return len(lines) == 1
 
-def die_if_cannot_be_plotted(run_dir: Optional[str]) -> None:
+def die_if_cannot_be_plotted(run_dir: str | None) -> None:
     if run_dir is None:
         log_error("run_dir was empty")
         sys.exit(2)
@@ -927,7 +928,7 @@ def get_anon_user_id() -> str:
         out = b""
         counter = 0
         while len(out) < length:
-            out += hashlib.sha512(f"{seed}:{counter}".encode("utf-8")).digest()
+            out += hashlib.sha512(f"{seed}:{counter}".encode()).digest()
             counter += 1
         return out[:length]
 
@@ -958,7 +959,7 @@ def send_anonymized_usage_stats(
     has_sbatch: bool,
     run_uuid: str,
     git_hash: str,
-    exit_code: Optional[int],
+    exit_code: int | None,
     runtime_seconds: int,
 ) -> None:
     """Fire a single usage-stats ping, mirroring the bash equivalent.
@@ -1029,7 +1030,7 @@ def is_sbatch_in_path() -> bool:
     return False
 
 
-def _parse_share_url(url: str) -> Optional[Tuple[str, str]]:
+def _parse_share_url(url: str) -> tuple[str, str] | None:
     """Pull (user_id, experiment_name) out of an OmniOpt share URL.
 
     Returns None if the URL doesn't look like a share URL.  Mirrors the bash
@@ -1052,7 +1053,7 @@ def _parse_share_url(url: str) -> Optional[Tuple[str, str]]:
     return user_id, experiment_name
 
 
-def download_share_run(continue_url: str, runs_root: str = "runs") -> Optional[str]:
+def download_share_run(continue_url: str, runs_root: str = "runs") -> str | None:
     """Download a shared run zip and unpack it under runs_root.
 
     Python port of the bash continue-from-URL block.  Returns the
@@ -1218,7 +1219,7 @@ def slurmlogpath(job_id: str) -> str:
     return ""
 
 
-def _run_git(script_dir: str, *args: str, timeout: float = 10.0) -> Optional[str]:
+def _run_git(script_dir: str, *args: str, timeout: float = 10.0) -> str | None:
     """Run a git command in `script_dir`.  Returns stdout or None on failure."""
     try:
         return subprocess.check_output(
@@ -1272,7 +1273,7 @@ def _past_tag_message(
 def resolve_git_version(
     script_dir: str,
     checkout_to_latest: bool = False,
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """Return (action, payload) describing what omniopt should do about git.
 
     action: "print" | "checkout" | "none"
@@ -1377,7 +1378,7 @@ if __name__ == "__main__":
         elif _args.cmd == "remaining-time":
             print(remaining_time(_args.target_date))
         elif _args.cmd == "slurm-log-path":
-            print(slurmlogpath(_args.job_id))  # noqa: F821
+            print(slurmlogpath(_args.job_id))
         elif _args.cmd == "download-share-run":
             print(download_share_run(_args.url) or "")
         elif _args.cmd == "git-version":

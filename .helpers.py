@@ -741,7 +741,7 @@ def merge_df_with_old_data(_args: Any, df: pd.DataFrame, _min: Union[int, float,
         for prev_run in _args.merge_with_previous_runs:
             prev_run_csv_path = prev_run[0] + "/results.csv"
             prev_run_df = get_data(prev_run_csv_path, _min, _max, old_headers_string)
-            if prev_run_df:
+            if prev_run_df is not None and not prev_run_df.empty:
                 df = df.merge(prev_run_df, how='outer')
     return df
 
@@ -905,7 +905,11 @@ def get_anon_user_id() -> str:
     """
     user = os.environ.get("USER", "") or os.environ.get("USERNAME", "") or ""
     try:
-        groups_blob = " ".join(sorted(iter(os.getgroups()) and [str(g) for g in os.getgroups()] or []))
+        try:
+            groups = os.getgroups()
+            groups_blob = " ".join(sorted([str(g) for g in groups]))
+        except Exception:
+            groups_blob = ""
     except Exception:
         groups_blob = ""
     user_groups = f"{user}|groups={groups_blob}"

@@ -505,10 +505,8 @@ def setup_environment() -> int:
             f"{sys.version}. This may cause issues."
         )
 
-    if (
-        not os.environ.get("DONT_INSTALL_MODULES")
-        and not os.environ.get("SLURM_JOB_ID")
-    ):
+    if (not os.environ.get("DONT_INSTALL_MODULES")
+        and not os.environ.get("SLURM_JOB_ID")):
         main_hash = _requirements_hash()
         hash_file = _hash_state_path()
 

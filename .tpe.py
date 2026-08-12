@@ -25,7 +25,7 @@ except ModuleNotFoundError:
 
 logging.getLogger("optuna").setLevel(logging.WARNING)
 
-# Fix the optuna study attribute access issue
+# Fix for optuna study attribute access issue
 def create_study_with_seed(seed: Optional[int], direction: str) -> Any:
     try:
         # Try newer optuna API
@@ -191,7 +191,11 @@ def get_best_or_new_point(study: Any, parameters: dict, direction: str) -> dict:
     if best_trial_value is not None:
         if (direction == "minimize" and best_trial_value < 1e6) or \
            (direction == "maximize" and best_trial_value > -1e6):
-            return study.best_params
+            try:
+                return study.best_params
+            except AttributeError:
+                # Fallback for older versions
+                return {}
     return tpe_suggest_point(study.best_trial, parameters)
 
 @beartype

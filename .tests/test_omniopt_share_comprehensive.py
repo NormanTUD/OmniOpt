@@ -30,11 +30,11 @@ REPO_ROOT = THIS_DIR.parent
 # Add the repo root to Python path
 sys.path.insert(0, str(REPO_ROOT))
 
-# Import omniopt_share module
+# Try to import omniopt_share directly
 try:
     import omniopt_share as os_
 except ImportError:
-    # Fallback for direct execution
+    # If direct import fails, try the fallback approach
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "omniopt_share", str(REPO_ROOT / "omniopt_share")

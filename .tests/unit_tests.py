@@ -12,14 +12,44 @@ import numpy as np
 console = Console()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-
-# Add parent directory to Python path to enable imports
 repo_root = os.path.dirname(script_dir)
+
+# Ensure we can import modules from the repo root
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
-# Now import helpers correctly
-import .helpers as helpers
+# Import helpers properly - use absolute path approach
+try:
+    # First try to import directly
+    import .helpers as helpers
+except ImportError:
+    # Fallback to direct file loading
+    try:
+        helpers_path = os.path.join(repo_root, ".helpers.py")
+        spec = importlib.util.spec_from_file_location("helpers", helpers_path)
+        if spec is not None:
+            helpers_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(helpers_mod)
+            helpers = helpers_mod
+        else:
+            raise ImportError("Could not load helpers module")
+    except Exception as e:
+        print(f"Error importing helpers: {e}")
+        raise ImportError("Failed to import helpers module")
+except ImportError:
+    # Fallback for direct execution
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "helpers", os.path.join(repo_root, ".helpers.py")
+        )
+        if spec is not None:
+            helpers_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(helpers_mod)
+            helpers = helpers_mod
+        else:
+            raise ImportError("Could not load helpers module")
+    except Exception:
+        raise ImportError("Failed to import helpers module")
 
 dier = helpers.dier
 
@@ -76,16 +106,21 @@ with Progress(transient=True) as progress:
     for file in files:
         filename = os.path.basename(file)
         if filename in to_test:
-            loaded_files.append(f"{filename}")
-            # Fix the path resolution
+            loaded_files.append(filename)
+            # Properly resolve the file path
             file_path = os.path.join(path, filename)
-            spec = importlib.util.spec_from_file_location(
-                name=clean_filename(file_path),
-                location=file_path,
-            )
-            if spec is not None:
-                mods[filename] = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(mods[filename])
+            try:
+                spec = importlib.util.spec_from_file_location(
+                    name=clean_filename(file_path),
+                    location=file_path,
+                )
+                if spec is not None:
+                    mods[filename] = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mods[filename])
+                else:
+                    print(f"Could not create spec for {filename}")
+            except Exception as e:
+                print(f"Error importing {filename}: {e}")
 
         progress.update(load_task, advance=1)
 

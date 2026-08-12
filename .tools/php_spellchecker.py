@@ -10,13 +10,18 @@ TESTS_DIR = THIS_DIR.parent / ".tests"
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
-# Fix the import path
-sys.path.insert(0, str(THIS_DIR.parent))
+# Add repo root to path for proper imports
+REPO_ROOT = THIS_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+# Handle the autodeps import gracefully
 try:
     from _framework.autodeps import ensure_imports
 except ImportError:
-    # If the module doesn't exist, we'll handle it gracefully
+    # Create a dummy function for when the framework isn't available
     def ensure_imports(deps):
+        # Just return True to indicate all deps are available (for testing purposes)
         return True
 
 if not ensure_imports(

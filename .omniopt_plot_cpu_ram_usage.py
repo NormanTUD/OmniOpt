@@ -97,12 +97,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
 
     if save_to_file:
         fig = plt.figure(1)
-        if (
-            fig is not None
-            and args is not None
-            and plt is not None
-            and helpers is not None
-        ):
+        if (fig is not None and args is not None and plt is not None and helpers is not None):
             helpers.save_to_file(fig, args, plt)
     elif args is not None and not args.no_plt_show:
         if plt is not None:

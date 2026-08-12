@@ -56,7 +56,7 @@ def main(argv=None) -> int:
             "--mem_gb=4", "--time", "60", "--worker_timeout=5", "--max_eval", "2",
             "--num_parallel_jobs", "1", "--gpus", str(num_gpus),
             "--run_program", _b64(
-                "./.tests/optimization_example --int_param='%(int_param)' "
+                "./.tests/optimization_example.py --int_param='%(int_param)' "
                 "--float_param='%(float_param)' --choice_param='%(choice_param)' "
                 "--int_param_two='%(int_param_two)' --nr_results=2"
             ),

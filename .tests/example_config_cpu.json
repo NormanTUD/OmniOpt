@@ -8,7 +8,7 @@
   "mem_gb": 4,
   "num_parallel_jobs": 20,
   "partition": "alpha",
-  "run_program": "./.tests/optimization_example --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'",
+  "run_program": "./.tests/optimization_example.py --int_param='%(int_param)' --float_param='%(float_param)' --choice_param='%(choice_param)' --int_param_two='%(int_param_two)'",
   "time": 60,
   "worker_timeout": 5,
   "parameter": [

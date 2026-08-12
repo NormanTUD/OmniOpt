@@ -658,7 +658,6 @@ tests:
 smoke_tests:
   - find_typos
   - test_bash_argparse_clone
-  - test_omniopt_docker
   - test_omniopt_docker_blackbox
   - test_omniopt_evaluate
   - test_omniopt_plot

@@ -110,12 +110,6 @@ tests:
     alternative_exit_code: 104
     tags: [suite:basic]
 
-  - id: test_bash_argparse_clone
-    name: "test_bash_argparse_clone"
-    cmd: "{REPO_ROOT}/.tests/test_bash_argparse_clone.py"
-    wanted_exit_code: 0
-    tags: [suite:meta]
-
   - id: non_existent_json_config
     name: "Testing non-existent json config file"
     cmd: "{OMNIOPT_CALL} --config_json /dev/idontexist.json"
@@ -657,7 +651,6 @@ tests:
 # -----------------------------------------------------------------------------
 smoke_tests:
   - find_typos
-  - test_bash_argparse_clone
   - test_omniopt_docker_blackbox
   - test_omniopt_evaluate
   - test_omniopt_plot

@@ -58,7 +58,7 @@ tests:
 
   - id: share_ci
     name: "share"
-    cmd: "python3 {REPO_ROOT}/.tests/share_integration_extended.py"
+    cmd: "python3 {REPO_ROOT}/.tests/test_share_integration_extended.py"
     wanted_exit_code: 0
     tags: [suite:share, env:ci]
 

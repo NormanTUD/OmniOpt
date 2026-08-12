@@ -14,7 +14,7 @@ import os
 import signal
 import sys
 import traceback
-from typing import Any, Union, Sized
+from typing import Any, Union
 import pandas as pd
 from beartype import beartype
 
@@ -49,22 +49,48 @@ fig = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
+parser = argparse.ArgumentParser(description="Plot optimization runs.", prog="plot")
 
-parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-parser.add_argument('--max', type=float, help='Maximum value', default=None)
-parser.add_argument('--min', type=float, help='Minimum value', default=None)
-parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
-parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
+parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+parser.add_argument(
+    "--save_to_file", type=str, help="Save the plot to the specified file", default=None
+)
+parser.add_argument("--max", type=float, help="Maximum value", default=None)
+parser.add_argument("--min", type=float, help="Minimum value", default=None)
+parser.add_argument(
+    "--merge_with_previous_runs",
+    action="append",
+    nargs="+",
+    help="Run-Dirs to be merged with",
+    default=[],
+)
+parser.add_argument(
+    "--exclude_params",
+    action="append",
+    nargs="+",
+    help="Params to be ignored",
+    default=[],
+)
 
-parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
+parser.add_argument(
+    "--allow_axes",
+    action="append",
+    nargs="+",
+    help="Allow specific axes only (parameter names)",
+    default=[],
+)
 
-parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-parser.add_argument('--bins', type=str, help='Number of bins for distribution of results', default=None)
+parser.add_argument(
+    "--no_legend", help="Disables legend", action="store_true", default=False
+)
+parser.add_argument(
+    "--bins", type=str, help="Number of bins for distribution of results", default=None
+)
 
-parser.add_argument('--gridsize', type=int, help='Gridsize for hex plots', default=5)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser.add_argument("--gridsize", type=int, help="Gridsize for hex plots", default=5)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 
 args = parser.parse_args()
 
@@ -92,24 +118,47 @@ ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
+
 @beartype
-def set_title(df_filtered: pd.DataFrame, result_column_values: pd.Series, num_entries: int, _min: Union[float, int, None] = None, _max: Union[float, int, None] = None) -> None:
+def set_title(
+    df_filtered: pd.DataFrame,
+    result_column_values: pd.Series,
+    num_entries: int,
+    _min: Union[float, int, None] = None,
+    _max: Union[float, int, None] = None,
+) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
         fig.suptitle(title)
 
+
 @beartype
 def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
-        non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values = _params
+        (
+            non_empty_graphs,
+            num_cols,
+            axs,
+            df_filtered,
+            cmap,
+            norm,
+            parameter_combinations,
+            num_rows,
+            result_column_values,
+        ) = _params
 
         scatter = None
 
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols
             col = i % num_cols
-            if (args.exclude_params is not None and len(args.exclude_params) > 0 and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or (args.exclude_params is None or len(args.exclude_params) == 0):
+            if (
+                (args.exclude_params is not None and len(args.exclude_params) > 0
+                 and param1 not in args.exclude_params[0]
+                 and param2 not in args.exclude_params[0])
+                or (args.exclude_params is None or len(args.exclude_params) == 0)
+            ):
                 try:
                     _x = df_filtered[param1]
                     _y = df_filtered[param2]
@@ -117,21 +166,39 @@ def plot_multiple_graphs(_params: list) -> None:
                     gridsize: int = args.gridsize
 
                     if bins:
-                        scatter = axs[row][col].hexbin(_x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins)
+                        scatter = axs[row][col].hexbin(
+                            _x, _y, result_column_values, gridsize=gridsize, cmap=cmap, bins=bins
+                        )
                     else:
-                        scatter = axs[row][col].hexbin(_x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap)
+                        scatter = axs[row][col].hexbin(
+                            _x, _y, result_column_values, norm=norm, gridsize=gridsize, cmap=cmap
+                        )
                     axs[row][col].set_xlabel(param1)
                     axs[row][col].set_ylabel(param2)
                 except Exception as e:
                     # Re-assign _x and _y for the exception case
                     _x = df_filtered[param1]
                     _y = df_filtered[param2]
-                    
+
                     if "'Axes' object is not subscriptable" in str(e):
                         if bins:
-                            scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
+                            scatter = axs.hexbin(
+                                _x,
+                                _y,
+                                result_column_values,
+                                gridsize=args.gridsize,
+                                cmap=cmap,
+                                bins=bins,
+                            )
                         else:
-                            scatter = axs.hexbin(_x, _y, result_column_values, norm=norm, gridsize=args.gridsize, cmap=cmap)
+                            scatter = axs.hexbin(
+                                _x,
+                                _y,
+                                result_column_values,
+                                norm=norm,
+                                gridsize=args.gridsize,
+                                cmap=cmap,
+                            )
                         axs.set_xlabel(param1)
                         axs.set_ylabel(param2)
                     elif "could not convert string to float" in str(e):
@@ -153,17 +220,27 @@ def plot_multiple_graphs(_params: list) -> None:
 
         helpers.show_legend(args, fig, scatter, axs)
 
+
 @beartype
 def plot_single_graph(_params: list) -> None:
     if args is not None:
-        axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values = _params
+        (
+            axs,
+            df_filtered,
+            cmap,
+            norm,
+            non_empty_graphs,
+            result_column_values,
+        ) = _params
 
         df_filtered = df_filtered.drop(res_col_name, axis=1)
 
         col_names = list(df_filtered.columns)
 
         if len(col_names) <= 1:
-            print(f"Error: Cannot plot run folder with 1 or less column names. Has {len(col_names)}.")
+            print(
+                f"Error: Cannot plot run folder with 1 or less column names. Has {len(col_names)}."
+            )
             sys.exit(17)
 
         _data = df_filtered
@@ -178,30 +255,72 @@ def plot_single_graph(_params: list) -> None:
             _y.append(_l[1])
 
         if bins:
-            axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, bins=bins)
+            axs.hexbin(
+                _x,
+                _y,
+                result_column_values,
+                cmap=cmap,
+                gridsize=args.gridsize,
+                bins=bins,
+            )
         else:
-            axs.hexbin(_x, _y, result_column_values, cmap=cmap, gridsize=args.gridsize, norm=norm)
+            axs.hexbin(
+                _x,
+                _y,
+                result_column_values,
+                cmap=cmap,
+                gridsize=args.gridsize,
+                norm=norm,
+            )
 
         axs.set_xlabel(non_empty_graphs[0][0])
         axs.set_ylabel(non_empty_graphs[0][1])
+
 
 @beartype
 def plot_graphs(_params: list) -> None:
     global fig
 
-    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path = _params
+    (
+        df,
+        fig,
+        axs,
+        df_filtered,
+        non_empty_graphs,
+        num_subplots,
+        parameter_combinations,
+        num_rows,
+        num_cols,
+        result_column_values,
+        csv_file_path,
+    ) = _params
 
     cmap, norm, colors = helpers.get_color_list(df, args, plt, csv_file_path)
 
     if colors is not None:
-        pass # for fooling linter
+        pass  # for fooling linter
 
     if num_subplots == 1:
-        plot_single_graph([axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values])
+        plot_single_graph(
+            [axs, df_filtered, cmap, norm, non_empty_graphs, result_column_values]
+        )
     else:
-        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, cmap, norm, parameter_combinations, num_rows, result_column_values])
+        plot_multiple_graphs(
+            [
+                non_empty_graphs,
+                num_cols,
+                axs,
+                df_filtered,
+                cmap,
+                norm,
+                parameter_combinations,
+                num_rows,
+                result_column_values,
+            ]
+        )
 
     axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+
 
 @beartype
 def main() -> None:
@@ -216,16 +335,26 @@ def main() -> None:
 
         df = helpers.get_data(csv_file_path, args.min, args.max, None, True)
 
-        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(
+            args.run_dir + "/results.csv"
+        )
 
-        old_headers_string = ','.join(sorted(df.columns))
+        old_headers_string = ",".join(sorted(df.columns))
 
-        df = helpers.merge_df_with_old_data(args, df, args.min, args.max, old_headers_string)
+        df = helpers.merge_df_with_old_data(
+            args, df, args.min, args.max, old_headers_string
+        )
 
         nr_of_items_before_filtering = len(df)
         df_filtered = helpers.get_df_filtered(args, df)
 
-        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
+        helpers.check_min_and_max(
+            len(df_filtered),
+            nr_of_items_before_filtering,
+            csv_file_path,
+            args.min,
+            args.max,
+        )
 
         parameter_combinations = helpers.get_parameter_combinations(df_filtered, csv_file_path)
 
@@ -237,10 +366,28 @@ def main() -> None:
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
+        plot_graphs(
+            [
+                df,
+                fig,
+                axs,
+                df_filtered,
+                non_empty_graphs,
+                num_subplots,
+                parameter_combinations,
+                num_rows,
+                num_cols,
+                result_column_values,
+                csv_file_path,
+            ]
+        )
 
         if not args.no_legend:
-            num_entries = len(df_filtered) if result_column_values is not None and len(result_column_values) > 0 else 0
+            num_entries = (
+                len(df_filtered)
+                if result_column_values is not None and len(result_column_values) > 0
+                else 0
+            )
             if result_column_values is not None:
                 set_title(df_filtered, result_column_values, num_entries, args.min, args.max)
 
@@ -254,21 +401,57 @@ def main() -> None:
         else:
             global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-            button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
+            (
+                button,
+                MAXIMUM_TEXTBOX,
+                MINIMUM_TEXTBOX,
+                TEXTBOX_MINIMUM,
+                TEXTBOX_MAXIMUM,
+            ) = helpers.create_widgets(
+                [
+                    plt,
+                    button,
+                    MAXIMUM_TEXTBOX,
+                    MINIMUM_TEXTBOX,
+                    args,
+                    TEXTBOX_MINIMUM,
+                    TEXTBOX_MAXIMUM,
+                    update_graph,
+                ]
+            )
 
             if not args.no_plt_show:
                 plt.show()
 
             update_graph(csv_file_path, None, args.min, args.max)
 
+
 # Define update function for the button
-def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
+def update_graph(
+    csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None
+) -> None:
     if event:
         # Only for fooling pylint...
         pass
 
     filter_out_strings = True
-    helpers._update_graph([csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, filter_out_strings, set_title, plot_graphs, button])
+    helpers._update_graph(
+        [
+            csv_file_path,
+            plt,
+            fig,
+            MINIMUM_TEXTBOX,
+            MAXIMUM_TEXTBOX,
+            _min,
+            _max,
+            args,
+            filter_out_strings,
+            set_title,
+            plot_graphs,
+            button,
+        ]
+    )
+
 
 if __name__ == "__main__":
     try:

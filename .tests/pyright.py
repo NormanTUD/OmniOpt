@@ -44,6 +44,15 @@ def main(argv=None) -> int:
     ensure_dependencies(include_tests=True)
     os.environ.setdefault("install_tests", "1")
 
+    # Try to install ruff first if needed
+    if not shutil.which("ruff"):
+        print("ruff not found, attempting to install...")
+        try:
+            install_packages(["ruff"], quiet=False)
+        except Exception as e:
+            red_text(f"Failed to install ruff: {e}")
+            return 1
+
     pyright_bin = _pyright_bin()
     if pyright_bin is None:
         # Try installing pyright if not found

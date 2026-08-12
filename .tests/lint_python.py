@@ -25,7 +25,7 @@ from _framework.helpers import (
     human_readable_time,
     red_text,
 )
-from _framework.installer import ensure_dependencies
+from _framework.installer import ensure_dependencies, install_packages
 
 
 REPO_ROOT = THIS_DIR.parent
@@ -38,14 +38,13 @@ def main(argv=None) -> int:
     ensure_dependencies(include_tests=True)
 
     if not command_exists("ruff"):
-        # Try to install ruff if it's not available
+        # Try to install ruff if it's not available using the framework's install method
         print("ruff not found, attempting to install...")
         try:
-            import subprocess
-            result = subprocess.run([sys.executable, "-m", "pip", "install", "ruff"], 
-                                  capture_output=True, text=True)
-            if result.returncode != 0:
-                red_text(f"Failed to install ruff: {result.stderr}")
+            # Use the framework's install_packages function to install into the venv
+            install_packages(["ruff"], quiet=False)
+            if not command_exists("ruff"):
+                red_text("Failed to install ruff")
                 return 1
         except Exception as e:
             red_text(f"Failed to install ruff: {e}")

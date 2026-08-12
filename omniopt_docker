@@ -69,6 +69,13 @@ def validate_inner_command(inner: str) -> None:
         )
 
 
+def _strip_one_dot_slash(path: str) -> str:
+    """Strip at most one leading ``./`` (``./.tests/main`` -> ``.tests/main``)."""
+    if path.startswith("./"):
+        return path[2:]
+    return path
+
+
 def _looks_like_python_script(inner: str) -> bool:
     """True if `inner` points at a file that has a Python shebang.
 
@@ -79,9 +86,7 @@ def _looks_like_python_script(inner: str) -> bool:
         return False
     # Strip at most one leading `./` so `./.tests/main` -> `.tests/main`
     # but `..foo` and `.foo` are left alone.
-    candidate = inner
-    if candidate.startswith("./"):
-        candidate = candidate[2:]
+    candidate = _strip_one_dot_slash(inner)
     candidates = [candidate, "./" + candidate, inner]
     for path in candidates:
         try:
@@ -93,6 +98,36 @@ def _looks_like_python_script(inner: str) -> bool:
     return False
 
 
+def _parse_inner_command(
+    tokens: Sequence[str],
+) -> tuple[str, str, List[str]]:
+    """Map the inner command tokens to ``(interpreter, script, args)``.
+
+    ``tokens`` are the raw argv entries (e.g. ``["python3", ".tests/main",
+    "--quick"]``), so argument boundaries -- including spaces inside a
+    single argument -- are preserved.
+    """
+    if tokens and tokens[0] == "python3":
+        interpreter = "python3"
+        script = tokens[1] if len(tokens) > 1 else ""
+        script_args = list(tokens[2:])
+    elif tokens and _looks_like_python_script(tokens[0]):
+        # Heuristic: anything that starts with `./` and points at a file
+        # with a `#!/usr/bin/env python3` (or `python`) shebang is
+        # dispatched as python3 instead of bash.  This avoids the
+        # `bash: ./.tests/main: line 13: ...: command not found` errors
+        # we used to get when callers passed the old bash-typed names.
+        interpreter = "python3"
+        script = _strip_one_dot_slash(tokens[0])
+        script_args = list(tokens[1:])
+    else:
+        interpreter = "bash"
+        script = tokens[0] if tokens else ""
+        script_args = list(tokens[1:])
+
+    return interpreter, script, script_args
+
+
 def build_run_command(
     *,
     inner: str,
@@ -102,8 +137,14 @@ def build_run_command(
     home: str,
     has_display: bool,
     uid: Optional[int] = None,
+    inner_argv: Optional[Sequence[str]] = None,
 ) -> List[str]:
     """Build the ``docker run`` argv.
+
+    ``inner`` is the joined inner command string (validated against the
+    allowed prefixes).  ``inner_argv``, when given, carries the original
+    argv entries so argument boundaries survive; otherwise ``inner`` is
+    whitespace-split.
 
     The bash version translated ``./foo`` -> ``/var/opt/omniopt/foo`` and
     ``python3 foo`` -> ``python3 /var/opt/omniopt/foo``.  We replicate
@@ -111,34 +152,16 @@ def build_run_command(
     """
     validate_inner_command(inner)
 
-    if inner.startswith("python3 "):
-        interpreter = "python3"
-        rest = inner[len("python3 "):].lstrip()
-    elif _looks_like_python_script(inner):
-        # Heuristic: anything that starts with `./` and points at a file
-        # with a `#!/usr/bin/env python3` (or `python`) shebang is
-        # dispatched as python3 instead of bash.  This avoids the
-        # `bash: ./.tests/main: line 13: ...: command not found` errors
-        # we used to get when callers passed the old bash-typed names.
-        interpreter = "python3"
-        rest = inner.lstrip("./")
-    else:
-        interpreter = "bash"
-        rest = inner
-
-    # Split the script path off from any trailing arguments so the args
-    # become separate argv entries instead of being baked into the target
-    # filename (e.g. ``python3 .tests/main --quick`` must not become
-    # ``python3 /var/opt/omniopt/.tests/main --quick`` as ONE argument).
-    parts = rest.split()
-    target = "/var/opt/omniopt/" + parts[0]
-    script_args = parts[1:]
+    interpreter, script, script_args = _parse_inner_command(
+        inner_argv if inner_argv is not None else inner.split()
+    )
+    target = "/var/opt/omniopt/" + script
 
     if uid is None:
         uid = os.getuid() if hasattr(os, "getuid") else 0
 
     cmd: List[str] = [
-        docker_cmd,
+        *docker_cmd.split(),
         "run",
         "-v", f"{pwd}/logs:/var/opt/omniopt/logs:rw",
         "-v", f"{pwd}/runs:/var/opt/omniopt/runs:rw",
@@ -300,6 +323,7 @@ def main(
     mkdir([f"{home}/.config/matplotlib_docker_omniopt"])
     cmd = build_run_command(
         inner=" ".join(inner),
+        inner_argv=list(inner),
         docker_name=DOCKER_IMAGE_NAME,
         docker_cmd=run_cmd,
         pwd=pwd,
@@ -309,7 +333,7 @@ def main(
     rc = docker_run(cmd)
     if rc != 0:
         print("Command 2 failed. Docker images:", file=sys.stderr)
-        subprocess.run([run_cmd, "images"], check=False)
+        subprocess.run(run_cmd.split() + ["images"], check=False)
         return rc
     return 0
 

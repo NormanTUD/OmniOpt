@@ -97,7 +97,7 @@ def test_validate_inner_command_invalid_prefix() -> bool:
 
 def test_build_run_command_no_display() -> bool:
     cmd = od.build_run_command(
-        inner="./omniopt --tests",
+        inner="./.tests/nonexistent_script --tests",
         docker_name="omniopt-omniopt2",
         docker_cmd="docker",
         pwd="/work",
@@ -114,7 +114,10 @@ def test_build_run_command_no_display() -> bool:
         "/etc/shadow" not in s,
         f"/etc/shadow must NOT be mounted without DISPLAY: {s}",
     )
-    ok &= _check("/var/opt/omniopt/./omniopt" in s, f"target path wrong: {s}")
+    ok &= _check(
+        "/var/opt/omniopt/./.tests/nonexistent_script" in s,
+        f"target path wrong: {s}",
+    )
     return ok
 
 
@@ -163,8 +166,8 @@ def test_build_run_command_uses_sudo_docker() -> bool:
         has_display=False,
     )
     return _check(
-        cmd[0] == "sudo docker",
-        f"expected 'sudo docker' as first token: {cmd[:2]}",
+        cmd[:2] == ["sudo", "docker"],
+        f"expected 'sudo docker' as first tokens: {cmd[:3]}",
     )
 
 

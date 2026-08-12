@@ -3461,3 +3461,9 @@ compat
 hugezip
 lookup
 deps
+basename
+dockerlog
+proc
+fakeuser
+sudolog
+refactor

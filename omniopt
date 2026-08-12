@@ -4522,7 +4522,7 @@ def _parse_experiment_parameters_parse_this_args(
     }
     valid_types = list(param_parsers.keys())
 
-    while j < len(this_args):
+    while j < len(this_args) - 1:
         name = this_args[j]
         _parse_experiment_parameters_validate_name(name, invalid_names, param_names)
 

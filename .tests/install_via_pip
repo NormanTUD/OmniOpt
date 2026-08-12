@@ -130,7 +130,7 @@ def build_omniopt_cmd(omniopt_bin, args) -> list:
     cmd.append(f"--slurm_signal_delay_s={args.slurm_signal_delay_s}")
     for parameter in args.parameter:
         cmd.append("--parameter")
-        cmd.append(parameter)
+        cmd.extend(shlex.split(parameter))
     return cmd
 
 

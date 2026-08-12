@@ -29,6 +29,7 @@ from _framework.helpers import (
     red_text,
     yellow_text,
 )
+from _framework.installer import ensure_dependencies
 
 
 REPO_ROOT = THIS_DIR.parent
@@ -119,6 +120,8 @@ def main(argv=None) -> int:
     os.environ["NO_NO_RESULT_ERROR"] = "1"
     os.environ["PLOT_TESTS"] = "1"
     os.environ["DONT_SHOW_DONT_INSTALL_MESSAGE"] = "1"
+
+    ensure_dependencies(include_tests=True)
 
     plot_types = _list_plot_types()
     if args.test_types:

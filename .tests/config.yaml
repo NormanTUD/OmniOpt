@@ -52,7 +52,7 @@ tests:
 
   - id: pyright
     name: "pyright"
-    cmd: "pyright ."
+    cmd: "npx pyright ."
     wanted_exit_code: 0
     tags: [suite:meta, env:local]
 

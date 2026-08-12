@@ -25,7 +25,6 @@ from _framework.helpers import (
     human_readable_time,
     red_text,
 )
-from _framework.installer import ensure_dependencies, install_packages
 
 
 REPO_ROOT = THIS_DIR.parent
@@ -34,21 +33,10 @@ REPO_ROOT = THIS_DIR.parent
 def main(argv=None) -> int:
     os.environ.setdefault("install_tests", "1")
 
-    # Ensure dependencies are installed
-    ensure_dependencies(include_tests=True)
-
     if not command_exists("ruff"):
-        # Try to install ruff if it's not available using the framework's install method
-        print("ruff not found, attempting to install...")
-        try:
-            # Use the framework's install_packages function to install into the venv
-            install_packages(["ruff"], quiet=False)
-            if not command_exists("ruff"):
-                red_text("Failed to install ruff")
-                return 1
-        except Exception as e:
-            red_text(f"Failed to install ruff: {e}")
-            return 1
+        red_text("ruff not found. Please install ruff in your environment:")
+        red_text("  pip install ruff")
+        return 1
 
     files = sorted(glob.glob(str(REPO_ROOT / ".*.py")) + glob.glob(str(REPO_ROOT / "*.py")))
     files = [f for f in files if os.path.isfile(f)]

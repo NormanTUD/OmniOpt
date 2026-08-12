@@ -1016,6 +1016,7 @@ import tempfile
 import threading
 import copy
 import functools
+import shlex
 from collections import Counter, defaultdict
 import types
 from typing import TypeVar, Callable, Any
@@ -4506,6 +4507,13 @@ def _parse_experiment_parameters_parse_this_args(
     params: List[Dict[str, Any]],
     search_space_reduction_warning: bool
 ) -> Tuple[int, List[Dict[str, Any]], List[Dict[str, Any]], bool]:
+    if (
+        len(this_args) == 1
+        and isinstance(this_args[0], str)
+        and " " in this_args[0]
+    ):
+        this_args = shlex.split(this_args[0])
+
     j = 0
     param_parsers = {
         "range": parse_range_param,
@@ -4514,7 +4522,7 @@ def _parse_experiment_parameters_parse_this_args(
     }
     valid_types = list(param_parsers.keys())
 
-    while j < len(this_args) - 1:
+    while j < len(this_args):
         name = this_args[j]
         _parse_experiment_parameters_validate_name(name, invalid_names, param_names)
 
@@ -9926,10 +9934,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
                     break
 
                 try:
-                    original_arm_params = arm.parameters
-                    print_debug(f"DEBUG generate_trials: Original arm.parameters from get_batched_arms: {original_arm_params}")
                     arm = Arm(parameters=arm.parameters)
-                    print_debug(f"DEBUG generate_trials: After Arm() ctor, arm.parameters: {arm.parameters}")
                 except Exception as arm_err:
                     print_red(f"Error while creating new Arm: {arm_err}")
                     retries += 1
@@ -9950,9 +9955,7 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
 
                 if trial_successful:
                     cnt += 1
-                    print_debug(f"DEBUG generate_trials: Before storing, arm.parameters: {arm.parameters}")
                     trials_dict[trial_index] = arm.parameters
-                    print_debug(f"DEBUG generate_trials: Stored trials_dict[{trial_index}] = {trials_dict[trial_index]}")
 
         finalized = finalize_generation(trials_dict, cnt, n, start_time)
 

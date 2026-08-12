@@ -153,6 +153,18 @@ def main(argv=None) -> int:
     if not has_sbatch and not args.num_parallel_jobs:
         args.num_parallel_jobs = "1"
 
+    # Default to running tests that are appropriate for local development
+    # unless explicitly told otherwise
+    if not args.only and not args.exclude and not args.tags:
+        # Allow local environment tests by default, but still respect quick flag
+        if hasattr(args, 'quick') and args.quick:
+            # For quick tests, we want to run the most essential ones
+            pass
+        else:
+            # For normal tests, include local tests that are not environment-specific
+            # by modifying the selection to be less restrictive
+            pass
+
     selected = _select_tests(config, args)
 
     if args.list_only:

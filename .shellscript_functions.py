@@ -547,7 +547,7 @@ if __name__ == "__main__":
 
     if function_name == "setup_environment":
         result = functions[function_name]()
-        sys.exit(int(result) if result is not None else 0)
+        sys.exit(int(result) if result is not None and result != 0 else 0)
 
     # Handle functions that return string values
     if function_name in ("displaytime", "generate_progress_bar"):

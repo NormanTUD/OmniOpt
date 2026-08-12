@@ -15,24 +15,17 @@ REPO_ROOT = THIS_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-# Handle the autodeps import gracefully
+# Import required packages directly since _framework.autodeps is not available
 try:
-    from _framework.autodeps import ensure_imports
-except ImportError:
-    # Create a dummy function for when the framework isn't available
-    def ensure_imports(deps):
-        # Just return True to indicate all deps are available (for testing purposes)
-        return True
-
-if not ensure_imports(
-    (
-        ("emoji", "emoji"),
-        ("rich", "rich"),
-        ("bs4", "beautifulsoup4"),
-        ("spellchecker", "pyspellchecker"),
-    )
-):
-    print("Required modules could not be loaded. Cannot continue.")
+    import emoji
+    from rich.console import Console
+    from rich.progress import Progress, BarColumn, TextColumn
+    from rich.table import Table
+    from bs4 import BeautifulSoup
+    from spellchecker import SpellChecker
+except ImportError as e:
+    print(f"Required module not found: {e}")
+    print("Please install the required packages with: pip install emoji rich beautifulsoup4 pyspellchecker")
     sys.exit(0)
 
 import emoji

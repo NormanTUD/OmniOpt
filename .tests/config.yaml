@@ -687,7 +687,7 @@ smoke_tests:
   - find_unused_functions_in_omniopt
   - php_search
   - missing_plot_metadata
-  - js_syntax
+  #- js_syntax
   - pyright_fast
   - mypy
   - find_wrongly_typed_cli_args

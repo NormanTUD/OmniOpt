@@ -45,7 +45,7 @@ def main(argv=None) -> int:
         "--max_eval", "2", "--num_parallel_jobs", "1",
         f"--gpus={num_gpus}",
         "--run_program",
-        "Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x",
+        "Li8udGVzdHMvb3B0aW1pemF0aW9uX2V4YW1wbGUucHkgLS1pbnRfcGFyYW09JyUoaW50X3BhcmFtKScgLS1mbG9hdF9wYXJhbT0nJShmbG9hdF9wYXJhbSknIC0tY2hvaWNlX3BhcmFtPSclKGNob2ljZV9wYXJhbSknICAtLWludF9wYXJhbV90d289JyUoaW50X3BhcmFtX3R3byknIC0tbnJfcmVzdWx0cz0x",
         "--parameter", "int_param range -100 10 int",
         "--parameter", "float_param range -100 10 float",
         "--parameter", "choice_param choice 1,2,4,8,16,hallo",

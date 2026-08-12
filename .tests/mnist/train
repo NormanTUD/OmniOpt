@@ -97,6 +97,7 @@ def graceful_exit(signum, frame):
 signal.signal(signal.SIGINT, graceful_exit)
 
 def parse_args():
+<<<<<<< Updated upstream
     parser = argparse.ArgumentParser(description="Train a simple neural network on CIFAR100 with CLI hyperparameters.")
 
     # Training hyperparameters
@@ -127,12 +128,30 @@ def parse_args():
     parser.add_argument("--pool_kernel", type=int, default=2, help="Kernel for Pooling")
 
     # Misc
+=======
+    parser = argparse.ArgumentParser(description="Train a simple neural network with automatic dataset handling.")
+    parser.add_argument("--dataset", type=str, choices=["mnist", "cifar100", "imagenet"], default="cifar100", help="Dataset to train on")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train.")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training and testing.")
+    parser.add_argument("--learning_rate", type=float, default=0.01, help="Learning rate for optimizer.")
+    parser.add_argument("--optimizer", type=str, choices=["sgd", "adam", "rmsprop"], default="adam", help="Optimizer to use.")
+    parser.add_argument("--momentum", type=float, default=0.9, help="Momentum for SGD optimizer.")
+    parser.add_argument("--weight_decay", type=float, default=0.0, help="L2 weight decay (regularization).")
+    parser.add_argument("--hidden_size", type=int, default=128, help="Number of neurons in hidden layer.")
+    parser.add_argument("--dropout", type=float, default=0.0, help="Dropout probability.")
+    parser.add_argument("--activation", type=str, choices=["relu", "tanh", "leaky_relu", "sigmoid"], default="relu", help="Activation function to use.")
+    parser.add_argument("--init", type=str, choices=["xavier", "kaiming", "normal", "None"], default="None", help="Weight initialization method.")
+    parser.add_argument("--num_dense_layers", type=int, default=1, help="Number of dense layers excluding output.")
+    parser.add_argument("--filter", type=int, default=32, help="Number of filters per Conv2D layer")
+    parser.add_argument("--num_conv_layers", type=int, default=3, help="Number of convolutional layers")
+>>>>>>> Stashed changes
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
-    parser.add_argument("--install", action="store_true", help="Install required dependencies (default: False)")
-
+    parser.add_argument("--install", action="store_true", help="Install dependencies and exit.")
     return parser.parse_args()
 
+
 class SimpleMLP(nn.Module):
+<<<<<<< Updated upstream
     def __init__(self,
                  input_channels,
                  input_height,
@@ -151,17 +170,26 @@ class SimpleMLP(nn.Module):
                  conv_padding=1,
                  pool_kernel=2,
                  pool_stride=2):
+=======
+    def __init__(self, input_channels, input_height, input_width, num_classes,
+                 hidden_size, dropout, activation, init_mode, num_dense_layers,
+                 num_conv_layers, conv_filters, conv_kernel_size=3, conv_stride=2, conv_padding=2):
+>>>>>>> Stashed changes
         super(SimpleMLP, self).__init__()
 
         self.activation_fn = self.get_activation(activation)
         self.dense_activation_fn = self.get_activation(dense_activation)
         self.dropout = nn.Dropout(p=dropout)
 
+<<<<<<< Updated upstream
         # Convolutional Layers — build blocks of conv->bn->act and after each 2 convs add MaxPool2d(2)
         conv_layers = []
+=======
+        # Convolutional layers
+        conv_layers = nn.Sequential()
+>>>>>>> Stashed changes
         in_channels = input_channels
         h, w = input_height, input_width
-
         for i in range(num_conv_layers):
             conv_layers.append((f"conv{i}", nn.Conv2d(in_channels, conv_filters,
                                                       kernel_size=conv_kernel_size,
@@ -173,6 +201,7 @@ class SimpleMLP(nn.Module):
             # compute output spatial size after conv
             h = (h + 2*conv_padding - conv_kernel_size)//conv_stride + 1
             w = (w + 2*conv_padding - conv_kernel_size)//conv_stride + 1
+<<<<<<< Updated upstream
 
             # after every 2 conv layers, add MaxPool2d to reduce spatial dims by 2
             if (i + 1) % 2 == 0:
@@ -187,8 +216,12 @@ class SimpleMLP(nn.Module):
 
         self.conv = conv_seq
         flattened_size = in_channels * max(1, h) * max(1, w)
+=======
+        self.conv = conv_layers
+        flattened_size = in_channels * h * w
+>>>>>>> Stashed changes
 
-        # Dense Layers
+        # Dense layers
         dense_layers = nn.Sequential()
         in_features = flattened_size
         for i in range(num_dense_layers):
@@ -198,10 +231,16 @@ class SimpleMLP(nn.Module):
             in_features = hidden_size
 
         dense_layers.add_module("output", nn.Linear(in_features, num_classes))
+<<<<<<< Updated upstream
 
         self.classifier = dense_layers
 
         # Initialization
+=======
+        dense_layers.add_module("softmax", nn.Softmax(dim=1))
+        self.classifier = dense_layers
+
+>>>>>>> Stashed changes
         if init_mode is not None and init_mode != "None":
             self.init_weights(init_mode)
 
@@ -237,7 +276,7 @@ class SimpleMLP(nn.Module):
         elif name == "mish":
             return nn.Mish()   # falls verfügbar
         else:
-            raise ValueError(f"Unbekannte Aktivierung: {name}")
+            raise ValueError(f"Unknown activation: {name}")
 
     def init_weights(self, mode):
         for m in self.modules():
@@ -250,15 +289,12 @@ class SimpleMLP(nn.Module):
                 elif mode == "normal":
                     nn.init.normal_(m.weight, mean=0.0, std=0.02)
                 else:
-                    raise ValueError(f"Unbekannte Init-Methode: {mode}")
+                    raise ValueError(f"Unknown init mode: {mode}")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
 
-def show_hyperparams(args):
-    table = Table(title="Hyperparameters", box=box.ROUNDED, title_style="bold magenta")
-    table.add_column("Parameter", style="bold cyan")
-    table.add_column("Value", style="bold green")
 
+<<<<<<< Updated upstream
     table.add_row("Epochs", str(args.epochs))
     table.add_row("Num Dense Layers", str(args.num_dense_layers))
     table.add_row("Batch size", str(args.batch_size))
@@ -279,9 +315,99 @@ def show_hyperparams(args):
     table.add_row("Conv Padding", str(args.conv_padding))
     table.add_row("Pool-Stride", str(args.pool_stride))
     table.add_row("Pool-Kernel", str(args.pool_kernel))
+=======
+def load_dataset(name, batch_size):
+    if name.lower() == "mnist":
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])
+        train_dataset = datasets.MNIST(root="./mnist", train=True, download=True, transform=transform)
+        test_dataset = datasets.MNIST(root="./mnist", train=False, download=True, transform=transform)
+    elif name.lower() == "cifar100":
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+        ])
+        train_dataset = datasets.CIFAR100(root="./cifar", train=True, download=True, transform=transform)
+        test_dataset = datasets.CIFAR100(root="./cifar", train=False, download=True, transform=transform)
+    elif name.lower() == "imagenet":
+        # Placeholder: User muss ImageNet selber bereitstellen
+        IMAGENET_URLS = [
+            "https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar",
+            "https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar"
+        ]
+        
+        DOWNLOAD_DIR = "imagenet"
+>>>>>>> Stashed changes
 
-    console.print(table)
+        for url in IMAGENET_URLS:
+            filename = os.path.basename(url)
+            destination = DOWNLOAD_DIR / filename
+            if not destination.exists():
+                print(f"Downloading {filename}...")
+                download_file(url, destination)
+                print(f"{filename} downloaded successfully.")
+            else:
+                print(f"{filename} already exists. Skipping download.")
 
+        if not train_folder.exists():
+            extract_tar_with_progress(DOWNLOAD_DIR / "ILSVRC2012_img_train.tar", DOWNLOAD_DIR)
+        if not val_folder.exists():
+            extract_tar_with_progress(DOWNLOAD_DIR / "ILSVRC2012_img_val.tar", DOWNLOAD_DIR)
+
+        # Schritt 3: Dataset laden
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor()
+        ])
+
+        train_dataset = datasets.ImageFolder(root=str(train_folder), transform=transform)
+        test_dataset = datasets.ImageFolder(root=str(val_folder), transform=transform)
+
+        train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+
+        print(f"Train samples: {len(train_dataset)}, Test samples: {len(test_dataset)}")
+    else:
+        raise ValueError(f"Unknown dataset: {name}")
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    sample_data, sample_target = next(iter(train_loader))
+    input_channels = sample_data.shape[1]
+    input_height = sample_data.shape[2]
+    input_width = sample_data.shape[3]
+    num_classes = len(torch.unique(sample_target))
+
+    return train_loader, test_loader, input_channels, input_height, input_width, num_classes
+
+def extract_tar_with_progress(tar_path, extract_to):
+    with tarfile.open(tar_path, "r") as tar:
+        members = tar.getmembers()
+        with Progress() as progress:
+            task = progress.add_task(f"[green]Extracting {tar_path.name}...", total=len(members))
+            for member in members:
+                tar.extract(member, path=extract_to)
+                progress.update(task, advance=1)
+
+def download_file(url, destination):
+    """Download a file with a progress bar."""
+    response = requests.get(url, stream=True)
+    total_size = int(response.headers.get('content-length', 0))
+    
+    with open(destination, 'wb') as file:
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Downloading...", total=total_size)
+            for data in response.iter_content(chunk_size=1024):
+                file.write(data)
+                progress.update(task, advance=len(data))
+
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 def print_model_summary(model, input_size):
     device = next(model.parameters()).device
     x = torch.zeros(1, *input_size).to(device)
@@ -319,6 +445,7 @@ def print_model_summary(model, input_size):
     table.add_row("Total", "-", str(total_params))
 
     console.print(table)
+
 
 def train(model, device, train_loader, criterion, optimizer, epoch, total_epochs):
     model.train()
@@ -396,19 +523,41 @@ def test(model, device, test_loader, criterion, epoch, total_epochs):
 
     return test_loss, accuracy
 
+def get_dataset_info(name):
+    name = name.lower()
+    if name == "mnist":
+        input_size = (1, 28, 28)
+        num_classes = 10
+    elif name == "cifar10":
+        input_size = (3, 32, 32)
+        num_classes = 10
+    elif name == "cifar100":
+        input_size = (3, 32, 32)
+        num_classes = 100
+    elif name == "imagenet":
+        input_size = (3, 224, 224)
+        num_classes = 1000
+    else:
+        raise ValueError(f"Unknown dataset {name}")
+    return input_size, num_classes
+
 def main():
     try:
         args = parse_args()
+<<<<<<< Updated upstream
 
         if args.seed is not None:
             torch.manual_seed(args.seed)
             torch.cuda.manual_seed_all(args.seed)
 
         # device + speed tweaks
+=======
+>>>>>>> Stashed changes
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if torch.backends.cudnn.is_available():
             torch.backends.cudnn.benchmark = True
 
+<<<<<<< Updated upstream
         # Transforms: TRAIN (with augmentation) vs TEST (deterministic)
         train_transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -434,12 +583,20 @@ def main():
         # download datasets
         train_dataset = datasets.CIFAR100(root=data_dir, train=True, download=True, transform=train_transform)
         test_dataset = datasets.CIFAR100(root=data_dir, train=False, download=True, transform=test_transform)
+=======
+        input_size, num_classes = get_dataset_info(args.dataset)
+        channels, height, width = input_size
+>>>>>>> Stashed changes
 
         if args.install:
-            print("Exiting, since the installation should now be done")
+            console.print("[green]Dependencies installed. Exiting.[/green]")
             sys.exit(0)
 
+<<<<<<< Updated upstream
         show_hyperparams(args)
+=======
+        train_loader, test_loader, in_ch, in_h, in_w, num_classes = load_dataset(args.dataset, args.batch_size)
+>>>>>>> Stashed changes
 
         # DataLoader performance options
         num_workers = min(4, (os.cpu_count() or 1))
@@ -449,24 +606,30 @@ def main():
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=num_workers, pin_memory=pin_memory)
 
         model = SimpleMLP(
-            input_height=32,
-            input_width=32,
-            input_channels=3,
+            input_channels=channels,
+            input_height=height,
+            input_width=width,
             hidden_size=args.hidden_size,
-            num_classes=100,
+            num_classes=num_classes,
             dropout=args.dropout,
             activation=args.activation,
             dense_activation=args.dense_activation,
             init_mode=args.init,
             num_dense_layers=args.num_dense_layers,
             num_conv_layers=args.num_conv_layers,
+<<<<<<< Updated upstream
             conv_filters=args.filter,
             conv_kernel_size=args.conv_kernel_size,
             conv_stride=args.conv_stride,
             conv_padding=args.conv_padding,
             pool_kernel=args.pool_kernel,
             pool_stride=args.pool_stride,
+=======
+            conv_filters=args.filter
+>>>>>>> Stashed changes
         ).to(device)
+
+        console.print(f"[bold cyan]Dataset:[/] {args.dataset}, Input: ({in_ch}, {in_h}, {in_w}), Classes: {num_classes}")
 
         print_model_summary(model, input_size=(3, 32, 32))
 
@@ -527,6 +690,7 @@ def main():
         console.print(f"[bold red]An error occurred: {e}[/bold red]")
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

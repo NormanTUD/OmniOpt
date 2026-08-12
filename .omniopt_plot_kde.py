@@ -183,11 +183,7 @@ def save_to_file_or_show_canvas() -> None:
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
         else:
-            if (
-                fig is not None
-                and fig.canvas is not None
-                and fig.canvas.manager is not None
-            ):
+            if (fig is not None and fig.canvas is not None and fig.canvas.manager is not None):
                 fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
                 if not args.no_plt_show:
                     plt.show()

@@ -37,7 +37,7 @@ def generate_random_value(parameter: dict) -> Optional[Union[int, float, str]]:
             return random.choice(values)
         elif parameter['parameter_type'] == 'FIXED':
             return parameter['value']
-except KeyError as e:
+    except KeyError as e:
         print(f"KeyError: Missing {e} in parameter")
         sys.exit(4)
 
@@ -93,8 +93,9 @@ def main() -> None:
 
     random_point = generate_random_point(data)
 
-    with open(results_file_path, mode='w', encoding="utf-8") as f:
+with open(results_file_path, mode='w', encoding="utf-8") as f:
         json.dump({"parameters": random_point}, f, indent=4)
+
 
 if __name__ == "__main__":
     main()

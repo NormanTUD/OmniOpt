@@ -137,8 +137,10 @@ def plot_multiple_graphs(_params: list) -> None:
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols
             col = i % num_cols
-            if ((len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0])
-                or len(args.exclude_params) == 0):
+            if (
+                (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0])
+                or len(args.exclude_params) == 0
+            ):
                 try:
                     scatter = axs[row, col].scatter(
                         df_filtered[param1],

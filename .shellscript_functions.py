@@ -551,7 +551,16 @@ if __name__ == "__main__":
 
     # Handle functions that return string values
     if function_name in ("displaytime", "generate_progress_bar"):
-        result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
+        args = sys.argv[2:]
+        # Convert arguments safely to integers
+        int_args = []
+        for arg in args:
+            try:
+                int_args.append(int(arg))
+            except (ValueError, TypeError):
+                # If conversion fails, pass the original argument
+                int_args.append(arg)
+        result = functions[function_name](*int_args)
         if isinstance(result, str):
             sys.stdout.write(result)
         elif isinstance(result, int):
@@ -559,6 +568,15 @@ if __name__ == "__main__":
         else:
             sys.exit(0)
 
-    result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
+    # Convert arguments safely to integers for other functions
+    args = sys.argv[2:]
+    int_args = []
+    for arg in args:
+        try:
+            int_args.append(int(arg))
+        except (ValueError, TypeError):
+            # If conversion fails, pass the original argument
+            int_args.append(arg)
+    result = functions[function_name](*int_args)
     if isinstance(result, str):
         sys.stdout.write(result)

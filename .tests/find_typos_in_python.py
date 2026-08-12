@@ -5,8 +5,6 @@ import argparse
 import re
 from pprint import pprint
 from pathlib import Path
-from rich.progress import Progress
-from rich.console import Console
 
 THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
@@ -17,6 +15,8 @@ from _framework.helpers import erase_progress_trail, find_files
 
 ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
 
+from rich.progress import Progress
+from rich.console import Console
 from spellchecker import SpellChecker
 
 REPO_ROOT = THIS_DIR.parent

@@ -174,7 +174,7 @@ jobs:
 
     - name: plot tests
       run: |
-        python3 .tests/plots.py
+        python3 .tests/plots
 
     - name: main test script
       shell: bash

@@ -619,16 +619,16 @@ tests:
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
-  # ---- plot tests (delegated to plots.py) ----------------------------------
+  # ---- plot tests (delegated to plots) ----------------------------------
   - id: plot_tests
     name: "Plot-Tests"
-    cmd: "python3 {REPO_ROOT}/.tests/plots.py"
+    cmd: "python3 {REPO_ROOT}/.tests/plots"
     wanted_exit_code: 0
     tags: [suite:plot, quick:no]
 
   - id: plot_tests_quick
     name: "Plot-Tests --quick"
-    cmd: "python3 {REPO_ROOT}/.tests/plots.py --quick"
+    cmd: "python3 {REPO_ROOT}/.tests/plots --quick"
     wanted_exit_code: 0
     tags: [suite:plot, quick:false]
 

@@ -21,7 +21,7 @@ def main(argv=None) -> int:
     home = Path.home()
     overall_ok = True
 
-    for install_type in ("git"):
+    for install_type in ("omniopt", "git"):
         venv_dir = home / f"omniopt_via_pip_{install_type}"
         if venv_dir.exists():
             shutil.rmtree(venv_dir)

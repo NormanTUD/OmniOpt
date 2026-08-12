@@ -241,7 +241,8 @@ def main() -> None:
 
         if not args.no_legend:
             num_entries = len(df_filtered) if result_column_values is not None and len(result_column_values) > 0 else 0
-            set_title(df_filtered, result_column_values, num_entries, args.min, args.max)
+            if result_column_values is not None:
+                set_title(df_filtered, result_column_values, num_entries, args.min, args.max)
 
             helpers.set_margins(fig)
 

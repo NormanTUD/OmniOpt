@@ -56,10 +56,8 @@ def plot_worker_usage(pd_csv: str) -> None:
         assert "time" in data.columns, "The 'time' column is missing."
         assert data is not None, "No data could be found in the CSV file."
 
-        duplicate_mask = (
-            data[data.columns.difference(["time"])].shift()
-            == data[data.columns.difference(["time"])]
-        ).all(axis=1)
+        duplicate_mask = (data[data.columns.difference(["time"])].shift()
+                          == data[data.columns.difference(["time"])]).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)
 
         # Filter out invalid 'time' entries

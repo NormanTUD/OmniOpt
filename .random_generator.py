@@ -37,11 +37,12 @@ def generate_random_value(parameter: dict) -> Optional[Union[int, float, str]]:
             return random.choice(values)
         elif parameter['parameter_type'] == 'FIXED':
             return parameter['value']
-    except KeyError as e:
+except KeyError as e:
         print(f"KeyError: Missing {e} in parameter")
         sys.exit(4)
 
     return None
+
 
 def generate_random_point(data: dict) -> dict:
     constraints = data["constraints"]

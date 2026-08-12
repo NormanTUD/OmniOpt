@@ -41,6 +41,7 @@ def create_study_with_seed(seed: Optional[int], direction: str) -> Any:
             direction=direction
         )
 
+
 def get_best_trial_value(study: Any) -> Any:
     try:
         return study.best_trial.value
@@ -124,18 +125,12 @@ def parse_objectives(objectives: dict) -> tuple[str, str]:
     return direction, result_key
 
 @beartype
-def create_study_with_seed(seed: Optional[int], direction: str) -> optuna.study.study.Study:
-    return optuna.create_study(
-        sampler=optuna.samplers.TPESampler(seed=seed),
-        direction=direction
-    )
-
-@beartype
 def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: str) -> float:
     point = tpe_suggest_point(trial, parameters)
-    if not constraints_not_ok(constraints, point):
+if not constraints_not_ok(constraints, point):
         return 1e6 if direction == "minimize" else -1e6
     return 0.0
+
 
 @beartype
 def add_existing_trial_to_study(study: optuna.study.study.Study, trial_entry: list, parameters: dict, result_key: str) -> None:

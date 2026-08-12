@@ -93,7 +93,7 @@ def main() -> None:
 
     random_point = generate_random_point(data)
 
-with open(results_file_path, mode='w', encoding="utf-8") as f:
+    with open(results_file_path, mode='w', encoding="utf-8") as f:
         json.dump({"parameters": random_point}, f, indent=4)
 
 

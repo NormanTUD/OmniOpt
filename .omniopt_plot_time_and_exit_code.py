@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from tzlocal import get_localzone
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 from beartype import beartype
 
@@ -95,31 +97,31 @@ def format_timestamp(value: object) -> str:
     return str(value)
 
 @beartype
-def plot_histogram(df: pd.DataFrame, axes: plt.Axes, bins: int) -> None:
+def plot_histogram(df: pd.DataFrame, axes: Axes, bins: int) -> None:
     axes.hist(df['run_time'], bins=bins)
     axes.set_title('Distribution of Run Time')
     axes.set_xlabel('Run Time')
     axes.set_ylabel(f'Number of jobs in this runtime ({bins} bins)')
 
 @beartype
-def plot_time_scatter(df: pd.DataFrame, axes: plt.Axes) -> None:
+def plot_time_scatter(df: pd.DataFrame, axes: Axes) -> None:
     res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
     sns.scatterplot(data=df, x='start_time', y=res_col_name, marker='o', label='Start Time', ax=axes)
     sns.scatterplot(data=df, x='end_time', y=res_col_name, marker='x', label='End Time', ax=axes)
     axes.set_title('Result over Time')
 
 @beartype
-def plot_violinplot(df: pd.DataFrame, axes: plt.Axes) -> None:
+def plot_violinplot(df: pd.DataFrame, axes: Axes) -> None:
     sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes)
     axes.set_title('Run Time Distribution by Exit Code')
 
 @beartype
-def plot_boxplot(df: pd.DataFrame, axes: plt.Axes) -> None:
+def plot_boxplot(df: pd.DataFrame, axes: Axes) -> None:
     sns.boxplot(data=df, x='hostname', y='run_time', ax=axes)
     axes.set_title('Run Time by Hostname')
 
 @beartype
-def create_plots(df: pd.DataFrame) -> plt.Figure:
+def create_plots(df: pd.DataFrame) -> Figure:
     fig, axes = plt.subplots(2, 2, figsize=(20, 30))
     plt.subplots_adjust(hspace=0.4, wspace=0.4)
 
@@ -131,7 +133,7 @@ def create_plots(df: pd.DataFrame) -> plt.Figure:
     return fig
 
 @beartype
-def handle_output(fig: plt.Figure) -> None:
+def handle_output(fig: Figure) -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:

@@ -14,7 +14,7 @@ import os
 import signal
 import sys
 import traceback
-from typing import Any, Union
+from typing import Any, Union, Sized
 import pandas as pd
 from beartype import beartype
 
@@ -123,6 +123,10 @@ def plot_multiple_graphs(_params: list) -> None:
                     axs[row][col].set_xlabel(param1)
                     axs[row][col].set_ylabel(param2)
                 except Exception as e:
+                    # Re-assign _x and _y for the exception case
+                    _x = df_filtered[param1]
+                    _y = df_filtered[param2]
+                    
                     if "'Axes' object is not subscriptable" in str(e):
                         if bins:
                             scatter = axs.hexbin(_x, _y, result_column_values, gridsize=args.gridsize, cmap=cmap, bins=bins)
@@ -236,11 +240,12 @@ def main() -> None:
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
 
         if not args.no_legend:
-            set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
+            set_title(df_filtered, result_column_values, len(df_filtered) if result_column_values is not None else 0, args.min, args.max)
 
             helpers.set_margins(fig)
 
-            fig.canvas.manager.set_window_title("Hex-Scatter: " + str(args.run_dir))
+            if fig.canvas and fig.canvas.manager:
+                fig.canvas.manager.set_window_title("Hex-Scatter: " + str(args.run_dir))
 
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)

@@ -18,11 +18,17 @@ import pandas as pd
 
 from beartype import beartype
 
-parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
-parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
-parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Plot worker usage from CSV file")
+parser.add_argument("--run_dir", type=str, help="Directory containing worker usage CSV file")
+parser.add_argument(
+    "--debug", action="store_true", help="Enable debug mode"
+)
+parser.add_argument(
+    "--save_to_file", type=str, help="Save the plot to the specified file", default=None
+)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -37,20 +43,27 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
+
 @beartype
 def plot_worker_usage(pd_csv: str) -> None:
     try:
-        data = pd.read_csv(pd_csv, names=['time', 'num_parallel_jobs', 'nr_current_workers', 'percentage'])
+        data = pd.read_csv(
+            pd_csv,
+            names=["time", "num_parallel_jobs", "nr_current_workers", "percentage"],
+        )
 
         assert len(data.columns) > 0, "CSV file has no columns."
         assert "time" in data.columns, "The 'time' column is missing."
         assert data is not None, "No data could be found in the CSV file."
 
-        duplicate_mask = (data[data.columns.difference(['time'])].shift() == data[data.columns.difference(['time'])]).all(axis=1)
+        duplicate_mask = (
+            data[data.columns.difference(["time"])].shift()
+            == data[data.columns.difference(["time"])]
+        ).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)
 
         # Filter out invalid 'time' entries
-        valid_times = data['time'].apply(helpers.looks_like_number)
+        valid_times = data["time"].apply(helpers.looks_like_number)
         data = data[valid_times]
 
         if "time" not in data:
@@ -58,23 +71,33 @@ def plot_worker_usage(pd_csv: str) -> None:
                 print("time could not be found in data")
             sys.exit(19)
 
-        data['time'] = data['time'].apply(lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if helpers.looks_like_number(x) else x)
-        data['time'] = pd.to_datetime(data['time'])
+        data["time"] = data["time"].apply(
+            lambda x: datetime.fromtimestamp(int(float(x)), timezone.utc).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+            if helpers.looks_like_number(x)
+            else x
+        )
+        data["time"] = pd.to_datetime(data["time"])
 
         # Sort data by time
-        data = data.sort_values(by='time')
+        data = data.sort_values(by="time")
 
         plt.figure(figsize=(12, 6))
 
         # Plot Requested Number of Workers
-        plt.plot(data['time'], data['num_parallel_jobs'], label='Requested Number of Workers', color='blue')
+        plt.plot(
+            data["time"], data["num_parallel_jobs"], label="Requested Number of Workers", color="blue"
+        )
 
         # Plot Number of Current Workers
-        plt.plot(data['time'], data['nr_current_workers'], label='Number of Current Workers', color='orange')
+        plt.plot(
+            data["time"], data["nr_current_workers"], label="Number of Current Workers", color="orange"
+        )
 
-        plt.xlabel('Time')
-        plt.ylabel('Count')
-        plt.title('Worker Usage Plot')
+        plt.xlabel("Time")
+        plt.ylabel("Count")
+        plt.title("Worker Usage Plot")
         plt.legend()
 
         plt.gcf().autofmt_xdate()  # Rotate and align the x labels
@@ -98,6 +121,7 @@ def plot_worker_usage(pd_csv: str) -> None:
         helpers.log_error(f"An unexpected error occurred: {e}")
         print(traceback.format_exc(), file=sys.stderr)
 
+
 def main() -> None:
     if args.debug:
         print(f"Debug mode enabled. Run directory: {args.run_dir}")
@@ -115,6 +139,7 @@ def main() -> None:
         else:
             helpers.log_error(f"File '{worker_usage_csv}' does not exist.")
             sys.exit(19)
+
 
 if __name__ == "__main__":
     main()

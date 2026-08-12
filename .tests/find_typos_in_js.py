@@ -127,6 +127,7 @@ def analyze_js_file(spell, ignore_set, filepath, progress):
                             possibly_incorrect_words.append(word)
 
     progress.update(task_id, completed=True)
+    progress.remove_task(task_id)
     return possibly_incorrect_words
 
 def main():

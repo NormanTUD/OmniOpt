@@ -139,6 +139,8 @@ def main():
                 except SyntaxError:
                     print(f"File {filepath} is not valid python. Cannot continue.")
                     sys.exit(1)
+                finally:
+                    progress.remove_task(task_id)
     else:
         for i, filepath in enumerate(files, start=1):
             if i % 20 == 0 or i == len(files):

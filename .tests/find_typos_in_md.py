@@ -112,6 +112,7 @@ def analyze_markdown_file(spell, ignore_set, filepath, progress):
 
     if task_id is not None:
         progress.update(task_id, completed=True)
+        progress.remove_task(task_id)
     return possibly_incorrect_words
 
 def main():

@@ -132,7 +132,7 @@ def main(argv=None) -> int:
     if nr_results != 1:
         testname = f"{testname}_nr_results_{nr_results}"
     if args.testname:
-        testname = args.testname
+        testname = args.testname.strip()
 
     # Build the run_program and base cmd based on the variant.
     if args.one_param:

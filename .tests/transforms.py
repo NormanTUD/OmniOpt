@@ -52,6 +52,10 @@ def main(argv=None) -> int:
         if rundir.exists():
             shutil.rmtree(rundir)
 
+        additional = args.additional
+        if transform_args:
+            additional = (additional + " " + transform_args).strip()
+
         cmd = [
             f"{REPO_ROOT}/.tests/start_simple_optimization_run.py",
             f"--max_eval={args.max_eval}",
@@ -60,8 +64,8 @@ def main(argv=None) -> int:
             f"--mem_gb={args.mem_gb}",
             "--generate_all_jobs_at_once",
             "--follow",
-            f"--additional_parameter={args.additional}",
-            f"--testname={runname} {transform_args}",
+            f"--additional_parameter={additional}",
+            f"--testname={runname}",
             f"--gpus={num_gpus}",
             "--nr_results=2",
         ]

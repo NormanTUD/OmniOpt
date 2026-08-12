@@ -532,7 +532,7 @@ def setup_environment() -> int:
 if __name__ == "__main__":
     function_name = sys.argv[1] if len(sys.argv) > 1 else ""
 
-    functions: dict[str, Callable[..., int]] = {
+    functions: dict[str, Callable[..., object]] = {
         "displaytime": displaytime,
         "generate_progress_bar": generate_progress_bar,
         "setup_environment": setup_environment,
@@ -545,11 +545,10 @@ if __name__ == "__main__":
         )
         sys.exit(1)
 
+    # Handle setup_environment specially since we know it returns int
     if function_name == "setup_environment":
-        result = functions[function_name]()
-        # Type cast to avoid mypy confusion - setup_environment always returns int
-        result_int = int(result) if result is not None else 0
-        sys.exit(result_int)
+        result = setup_environment()
+        sys.exit(result if result is not None else 0)
 
     # Handle functions that return string values
     if function_name in ("displaytime", "generate_progress_bar"):

@@ -37,30 +37,40 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-parser.add_argument('--min', type=float, help='Minimum value for result filtering')
-parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Plotting tool for analyzing trial data.")
+parser.add_argument("--min", type=float, help="Minimum value for result filtering")
+parser.add_argument("--max", type=float, help="Maximum value for result filtering")
+parser.add_argument(
+    "--save_to_file", nargs="?", const="plot", type=str, help="Path to save the plot(s)"
+)
+parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
+
 
 @beartype
 def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, str] = None) -> None:
     if args is not None:
-        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(
+            args.run_dir + "/results.csv"
+        )
 
         if dataframe is None or res_col_name not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
+                print(
+                    f"General: Result column >{res_col_name}< not found in dataframe. "
+                    f"That may mean that the job had no valid runs"
+                )
             sys.exit(169)
 
         plt.figure("Results over Trial index", figsize=(12, 8))
 
-        sns.lineplot(x='trial_index', y=res_col_name, data=dataframe)
-        plt.title('Results over Trial Index')
-        plt.xlabel('Trial Index')
-        plt.ylabel('Result')
+        sns.lineplot(x="trial_index", y=res_col_name, data=dataframe)
+        plt.title("Results over Trial Index")
+        plt.xlabel("Trial Index")
+        plt.ylabel("Result")
 
         if save_to_file:
             fig = plt.figure(1)
@@ -71,6 +81,7 @@ def plot_graph(dataframe: Union[pd.DataFrame, None], save_to_file: Union[None, s
                 plt.show()
     else:
         print("args was none!")
+
 
 def update_graph() -> None:
     if args is None:
@@ -92,7 +103,9 @@ def update_graph() -> None:
 
         if args.min is not None or args.max is not None:
             try:
-                dataframe = helpers.filter_data(args, dataframe, args.min, args.max, args.run_dir + "/results.csv")
+                dataframe = helpers.filter_data(
+                    args, dataframe, args.min, args.max, args.run_dir + "/results.csv"
+                )
             except KeyError:
                 if not os.environ.get("PLOT_TESTS"):
                     print(f"{args.run_dir}/results.csv seems have no result column.")
@@ -112,6 +125,7 @@ def update_graph() -> None:
 
         tb = traceback.format_exc()
         print(tb)
+
 
 if __name__ == "__main__":
     helpers.setup_logging()

@@ -38,12 +38,19 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-parser = argparse.ArgumentParser(description='Plot worker usage from CSV file')
-parser.add_argument('--run_dir', type=str, help='Directory containing worker usage CSV file')
-parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-parser.add_argument('--bins', type=int, help='Number of bins for distribution of results (useless here)', default=10)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Plot worker usage from CSV file")
+parser.add_argument("--run_dir", type=str, help="Directory containing worker usage CSV file")
+parser.add_argument(
+    "--save_to_file", type=str, help="Save the plot to the specified file", default=None
+)
+parser.add_argument(
+    "--bins", type=int, help="Number of bins for distribution of results (useless here)", default=10
+)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
+
 
 @beartype
 def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
@@ -60,11 +67,13 @@ def load_from_csv(filepath: str) -> Optional[pd.DataFrame]:
 
     return None
 
+
 @beartype
 def handle_error(errmsg: str, exit_code: int) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(errmsg)
     sys.exit(exit_code)
+
 
 @beartype
 def validate_dataframe(df: pd.DataFrame) -> None:
@@ -73,52 +82,65 @@ def validate_dataframe(df: pd.DataFrame) -> None:
             print("Error: run_time not in df. Probably the job_infos.csv file is corrupted.")
         sys.exit(2)
 
+
 @beartype
 def preprocess_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.sort_values(by='exit_code')
+    df = df.sort_values(by="exit_code")
 
     local_tz = get_localzone()
-    df['start_time'] = pd.to_datetime(df['start_time'], unit='s', utc=True).dt.tz_convert(local_tz)
-    df['end_time'] = pd.to_datetime(df['end_time'], unit='s', utc=True).dt.tz_convert(local_tz)
+    df["start_time"] = pd.to_datetime(df["start_time"], unit="s", utc=True).dt.tz_convert(local_tz)
+    df["end_time"] = pd.to_datetime(df["end_time"], unit="s", utc=True).dt.tz_convert(local_tz)
 
-    df['start_time'] = df['start_time'].apply(format_timestamp)
-    df['end_time'] = df['end_time'].apply(format_timestamp)
+    df["start_time"] = df["start_time"].apply(format_timestamp)
+    df["end_time"] = df["end_time"].apply(format_timestamp)
 
     df["exit_code"] = df["exit_code"].astype(int).astype(str)
 
     return df
 
+
 @beartype
 def format_timestamp(value: object) -> str:
     if helpers.looks_like_number(str(value)):
         int_val = int(str(value))
-        return datetime.utcfromtimestamp(int_val).strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.utcfromtimestamp(int_val).strftime("%Y-%m-%d %H:%M:%S")
 
     return str(value)
 
+
 @beartype
 def plot_histogram(df: pd.DataFrame, axes: Axes, bins: int) -> None:
-    axes.hist(df['run_time'], bins=bins)
-    axes.set_title('Distribution of Run Time')
-    axes.set_xlabel('Run Time')
-    axes.set_ylabel(f'Number of jobs in this runtime ({bins} bins)')
+    axes.hist(df["run_time"], bins=bins)
+    axes.set_title("Distribution of Run Time")
+    axes.set_xlabel("Run Time")
+    axes.set_ylabel(f"Number of jobs in this runtime ({bins} bins)")
+
 
 @beartype
 def plot_time_scatter(df: pd.DataFrame, axes: Axes) -> None:
-    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
-    sns.scatterplot(data=df, x='start_time', y=res_col_name, marker='o', label='Start Time', ax=axes)
-    sns.scatterplot(data=df, x='end_time', y=res_col_name, marker='x', label='End Time', ax=axes)
-    axes.set_title('Result over Time')
+    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(
+        args.run_dir + "/results.csv"
+    )
+    sns.scatterplot(
+        data=df, x="start_time", y=res_col_name, marker="o", label="Start Time", ax=axes
+    )
+    sns.scatterplot(
+        data=df, x="end_time", y=res_col_name, marker="x", label="End Time", ax=axes
+    )
+    axes.set_title("Result over Time")
+
 
 @beartype
 def plot_violinplot(df: pd.DataFrame, axes: Axes) -> None:
-    sns.violinplot(data=df, x='exit_code', y='run_time', ax=axes)
-    axes.set_title('Run Time Distribution by Exit Code')
+    sns.violinplot(data=df, x="exit_code", y="run_time", ax=axes)
+    axes.set_title("Run Time Distribution by Exit Code")
+
 
 @beartype
 def plot_boxplot(df: pd.DataFrame, axes: Axes) -> None:
-    sns.boxplot(data=df, x='hostname', y='run_time', ax=axes)
-    axes.set_title('Run Time by Hostname')
+    sns.boxplot(data=df, x="hostname", y="run_time", ax=axes)
+    axes.set_title("Run Time by Hostname")
+
 
 @beartype
 def create_plots(df: pd.DataFrame) -> Figure:
@@ -132,20 +154,22 @@ def create_plots(df: pd.DataFrame) -> Figure:
 
     return fig
 
+
 @beartype
 def handle_output(fig: Figure) -> None:
     if args.save_to_file:
         helpers.save_to_file(fig, args, plt)
     else:
-        window_title = f'Times and exit codes for {args.run_dir}'
+        window_title = f"Times and exit codes for {args.run_dir}"
         if fig.canvas.manager is not None:
             fig.canvas.manager.set_window_title(window_title)
         if not args.no_plt_show:
             plt.show()
 
+
 @beartype
 def main() -> None:
-    _job_infos_csv: str = f'{args.run_dir}/job_infos.csv'
+    _job_infos_csv: str = f"{args.run_dir}/job_infos.csv"
     df: Optional[pd.DataFrame] = load_from_csv(_job_infos_csv)
 
     if df is not None:
@@ -156,6 +180,7 @@ def main() -> None:
         handle_output(fig)
     else:
         print("df was empty")
+
 
 if __name__ == "__main__":
     main()

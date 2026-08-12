@@ -170,6 +170,15 @@ def run_command(
     success_mark = "\u2717" if failed else "\u2713"
 
     if failed:
+        # capture output for failing test
+        try:
+            import subprocess
+            proc = subprocess.run(command, shell=True, capture_output=True, text=True)
+            stdout = proc.stdout
+            stderr = proc.stderr
+        except Exception as exc:
+            stdout = ""
+            stderr = f"Failed to capture output: {exc}"
         if alternative_exit_code is None:
             err = (
                 f"{name} exited with {exit_code} (wanted {wanted_exit_code}). "
@@ -181,6 +190,12 @@ def run_command(
                 f"{alternative_exit_code}). Command: {command}"
             )
         red_text(err + "\n")
+        if stdout:
+            print("--- stdout ---")
+            print(stdout)
+        if stderr:
+            print("--- stderr ---")
+            print(stderr)
         state.errors.append(err)
 
     print(f"Test took {human_readable_time(runtime)}")

@@ -134,7 +134,8 @@ def save_to_file_or_show_canvas() -> None:
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
         else:
-            fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
+            if fig and fig.canvas and fig.canvas.manager:
+                fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
             if not args.no_plt_show:
                 plt.show()
 

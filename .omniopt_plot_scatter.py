@@ -189,7 +189,8 @@ def main() -> None:
 
         helpers.set_margins(fig)
 
-        fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
+        if fig and fig.canvas and fig.canvas.manager:
+            fig.canvas.manager.set_window_title("Scatter: " + str(args.run_dir))
 
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)

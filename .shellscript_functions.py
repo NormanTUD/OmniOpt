@@ -546,7 +546,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if function_name == "setup_environment":
-        sys.exit(functions[function_name]())
+        sys.exit(int(functions[function_name]()))
 
     result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
     if isinstance(result, str):

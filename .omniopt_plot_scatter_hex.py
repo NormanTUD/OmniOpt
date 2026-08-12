@@ -240,7 +240,8 @@ def main() -> None:
         plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
 
         if not args.no_legend:
-            set_title(df_filtered, result_column_values, if result_column_values is not None and len(result_column_values) > 0:, args.min, args.max)
+            num_entries = len(df_filtered) if result_column_values is not None and len(result_column_values) > 0 else 0
+            set_title(df_filtered, result_column_values, num_entries, args.min, args.max)
 
             helpers.set_margins(fig)
 

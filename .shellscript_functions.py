@@ -546,7 +546,18 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if function_name == "setup_environment":
-        sys.exit(int(functions[function_name]()))
+        result = functions[function_name]()
+        sys.exit(result if isinstance(result, int) else int(result))
+
+    # Handle functions that return string values
+    if function_name in ("displaytime", "generate_progress_bar"):
+        result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
+        if isinstance(result, str):
+            sys.stdout.write(result)
+        elif isinstance(result, int):
+            sys.exit(result)
+        else:
+            sys.exit(0)
 
     result = functions[function_name](*[int(arg) for arg in sys.argv[2:]])
     if isinstance(result, str):

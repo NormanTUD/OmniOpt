@@ -111,7 +111,7 @@ def update_graph() -> None:
             if args.min is not None or args.max is not None:
                 dataframe = helpers.filter_data(args, dataframe, args.min, args.max, args.run_dir + "/results.csv")
 
-            if dataframe is not None and dataframe.empty:
+            if dataframe is None or dataframe.empty:
                 helpers.print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
                 return
 

@@ -43,20 +43,44 @@ fig = None
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-parser = argparse.ArgumentParser(description='Plot optimization runs.', prog="plot")
+parser = argparse.ArgumentParser(description="Plot optimization runs.", prog="plot")
 
-parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-parser.add_argument('--max', type=float, help='Maximum value', default=None)
-parser.add_argument('--min', type=float, help='Minimum value', default=None)
-parser.add_argument('--bubblesize', type=int, help='Size of the bubbles', default=15)
-parser.add_argument('--merge_with_previous_runs', action='append', nargs='+', help="Run-Dirs to be merged with", default=[])
-parser.add_argument('--exclude_params', action='append', nargs='+', help="Params to be ignored", default=[])
+parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+parser.add_argument(
+    "--save_to_file", type=str, help="Save the plot to the specified file", default=None
+)
+parser.add_argument("--max", type=float, help="Maximum value", default=None)
+parser.add_argument("--min", type=float, help="Minimum value", default=None)
+parser.add_argument("--bubblesize", type=int, help="Size of the bubbles", default=15)
+parser.add_argument(
+    "--merge_with_previous_runs",
+    action="append",
+    nargs="+",
+    help="Run-Dirs to be merged with",
+    default=[],
+)
+parser.add_argument(
+    "--exclude_params",
+    action="append",
+    nargs="+",
+    help="Params to be ignored",
+    default=[],
+)
 
-parser.add_argument('--allow_axes', action='append', nargs='+', help="Allow specific axes only (parameter names)", default=[])
+parser.add_argument(
+    "--allow_axes",
+    action="append",
+    nargs="+",
+    help="Allow specific axes only (parameter names)",
+    default=[],
+)
 
-parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser.add_argument(
+    "--no_legend", help="Disables legend", action="store_true", default=False
+)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 
 args = parser.parse_args()
 
@@ -72,37 +96,72 @@ except ModuleNotFoundError as ee:
     sys.exit(244)
 
 # Get shell variables or use default values
-BUBBLESIZEINPX = int(os.environ.get('BUBBLESIZEINPX', 15))
+BUBBLESIZEINPX = int(os.environ.get("BUBBLESIZEINPX", 15))
 ORIGINAL_PWD = os.environ.get("ORIGINAL_PWD", "")
 
 if ORIGINAL_PWD:
     os.chdir(ORIGINAL_PWD)
 
+
 @beartype
-def set_title(df_filtered: pd.DataFrame, result_column_values: pd.Series, num_entries: int, _min: Union[int, float, None], _max: Union[int, float, None]) -> None:
+def set_title(
+    df_filtered: pd.DataFrame,
+    result_column_values: pd.Series,
+    num_entries: int,
+    _min: Union[int, float, None],
+    _max: Union[int, float, None],
+) -> None:
     title = helpers.get_title(args, result_column_values, df_filtered, num_entries, _min, _max)
 
     if fig:
         fig.suptitle(title)
 
+
 @beartype
 def plot_multiple_graphs(_params: list) -> None:
     if args is not None:
-        non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows = _params
+        (
+            non_empty_graphs,
+            num_cols,
+            axs,
+            df_filtered,
+            colors,
+            cmap,
+            norm,
+            parameter_combinations,
+            num_rows,
+        ) = _params
 
         scatter = None
 
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols
             col = i % num_cols
-            if (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0]) or len(args.exclude_params) == 0:
+            if (
+                (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0])
+                or len(args.exclude_params) == 0
+            ):
                 try:
-                    scatter = axs[row, col].scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                    scatter = axs[row, col].scatter(
+                        df_filtered[param1],
+                        df_filtered[param2],
+                        c=colors,
+                        cmap=cmap,
+                        norm=norm,
+                        s=BUBBLESIZEINPX,
+                    )
                     axs[row, col].set_xlabel(param1)
                     axs[row, col].set_ylabel(param2)
                 except Exception as e:
                     if "" in str(e):
-                        scatter = axs.scatter(df_filtered[param1], df_filtered[param2], c=colors, cmap=cmap, norm=norm, s=BUBBLESIZEINPX)
+                        scatter = axs.scatter(
+                            df_filtered[param1],
+                            df_filtered[param2],
+                            c=colors,
+                            cmap=cmap,
+                            norm=norm,
+                            s=BUBBLESIZEINPX,
+                        )
                         axs.set_xlabel(param1)
                         axs.set_ylabel(param2)
                     else:
@@ -116,6 +175,7 @@ def plot_multiple_graphs(_params: list) -> None:
         axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
 
         helpers.show_legend(args, fig, scatter, axs)
+
 
 @beartype
 def plot_single_graph(_params: list) -> Any:
@@ -137,19 +197,47 @@ def plot_single_graph(_params: list) -> Any:
 
     return scatter
 
+
 @beartype
 def plot_graphs(_params: list) -> None:
     global fig
-    df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, _, csv_file_path = _params
+    (
+        df,
+        fig,
+        axs,
+        df_filtered,
+        non_empty_graphs,
+        num_subplots,
+        parameter_combinations,
+        num_rows,
+        num_cols,
+        _,
+        csv_file_path,
+    ) = _params
 
     cmap, norm, colors = helpers.get_color_list(df, args, plt, csv_file_path)
 
-    if num_subplots == 1 and (type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1):
+    if num_subplots == 1 and (
+        type(non_empty_graphs[0]) is str or len(non_empty_graphs[0]) == 1
+    ):
         plot_single_graph([axs, df_filtered, colors, cmap, norm, non_empty_graphs])
     else:
-        plot_multiple_graphs([non_empty_graphs, num_cols, axs, df_filtered, colors, cmap, norm, parameter_combinations, num_rows])
+        plot_multiple_graphs(
+            [
+                non_empty_graphs,
+                num_cols,
+                axs,
+                df_filtered,
+                colors,
+                cmap,
+                norm,
+                parameter_combinations,
+                num_rows,
+            ]
+        )
 
     axs = helpers.hide_empty_plots(parameter_combinations, num_rows, num_cols, axs)
+
 
 @beartype
 def main() -> None:
@@ -164,14 +252,22 @@ def main() -> None:
 
         df = helpers.get_data(csv_file_path, args.min, args.max)
 
-        old_headers_string = ','.join(sorted(df.columns))
+        old_headers_string = ",".join(sorted(df.columns))
 
-        df = helpers.merge_df_with_old_data(args, df, args.min, args.max, old_headers_string)
+        df = helpers.merge_df_with_old_data(
+            args, df, args.min, args.max, old_headers_string
+        )
 
         nr_of_items_before_filtering = len(df)
         df_filtered = helpers.get_df_filtered(args, df)
 
-        helpers.check_min_and_max(len(df_filtered), nr_of_items_before_filtering, csv_file_path, args.min, args.max)
+        helpers.check_min_and_max(
+            len(df_filtered),
+            nr_of_items_before_filtering,
+            csv_file_path,
+            args.min,
+            args.max,
+        )
 
         parameter_combinations = helpers.get_parameter_combinations(df_filtered, csv_file_path)
 
@@ -183,7 +279,21 @@ def main() -> None:
 
         result_column_values = helpers.get_result_column_values(df, csv_file_path)
 
-        plot_graphs([df, fig, axs, df_filtered, non_empty_graphs, num_subplots, parameter_combinations, num_rows, num_cols, result_column_values, csv_file_path])
+        plot_graphs(
+            [
+                df,
+                fig,
+                axs,
+                df_filtered,
+                non_empty_graphs,
+                num_subplots,
+                parameter_combinations,
+                num_rows,
+                num_cols,
+                result_column_values,
+                csv_file_path,
+            ]
+        )
 
         set_title(df_filtered, result_column_values, len(df_filtered), args.min, args.max)
 
@@ -197,20 +307,56 @@ def main() -> None:
         else:
             global button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM
 
-            button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM = helpers.create_widgets([plt, button, MAXIMUM_TEXTBOX, MINIMUM_TEXTBOX, args, TEXTBOX_MINIMUM, TEXTBOX_MAXIMUM, update_graph])
+            (
+                button,
+                MAXIMUM_TEXTBOX,
+                MINIMUM_TEXTBOX,
+                TEXTBOX_MINIMUM,
+                TEXTBOX_MAXIMUM,
+            ) = helpers.create_widgets(
+                [
+                    plt,
+                    button,
+                    MAXIMUM_TEXTBOX,
+                    MINIMUM_TEXTBOX,
+                    args,
+                    TEXTBOX_MINIMUM,
+                    TEXTBOX_MAXIMUM,
+                    update_graph,
+                ]
+            )
 
             if not args.no_plt_show:
                 plt.show()
 
             update_graph(csv_file_path, args.min, args.max)
 
+
 # Define update function for the button
-def update_graph(csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None) -> None:
-    if event: # only for fooling pylint...
+def update_graph(
+    csv_file_path: str, event: Any = None, _min: Union[int, float, None] = None, _max: Union[int, float, None] = None
+) -> None:
+    if event:  # only for fooling pylint...
         pass
 
     filter_out_strings = False
-    helpers._update_graph([csv_file_path, plt, fig, MINIMUM_TEXTBOX, MAXIMUM_TEXTBOX, _min, _max, args, filter_out_strings, set_title, plot_graphs, button])
+    helpers._update_graph(
+        [
+            csv_file_path,
+            plt,
+            fig,
+            MINIMUM_TEXTBOX,
+            MAXIMUM_TEXTBOX,
+            _min,
+            _max,
+            args,
+            filter_out_strings,
+            set_title,
+            plot_graphs,
+            button,
+        ]
+    )
+
 
 if __name__ == "__main__":
     try:

@@ -127,7 +127,7 @@ def parse_objectives(objectives: dict) -> tuple[str, str]:
 @beartype
 def wrapped_objective(trial: optuna.Trial, parameters: dict, constraints: list, direction: str) -> float:
     point = tpe_suggest_point(trial, parameters)
-if not constraints_not_ok(constraints, point):
+    if not constraints_not_ok(constraints, point):
         return 1e6 if direction == "minimize" else -1e6
     return 0.0
 
@@ -222,6 +222,7 @@ def main() -> None:
 
     with open(results_file_path, mode='w', encoding="utf-8") as f:
         json.dump({"parameters": random_point}, f, indent=4)
+
 
 if __name__ == "__main__":
     try:

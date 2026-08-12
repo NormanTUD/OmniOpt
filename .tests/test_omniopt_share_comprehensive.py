@@ -27,10 +27,23 @@ from pathlib import Path
 THIS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = THIS_DIR.parent
 
+# Add the repo root to Python path
 sys.path.insert(0, str(REPO_ROOT))
 
-# Fix the import for omniopt_share
-import omniopt_share as os_
+# Import omniopt_share module
+try:
+    import omniopt_share as os_
+except ImportError:
+    # Fallback for direct execution
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "omniopt_share", str(REPO_ROOT / "omniopt_share")
+    )
+    if spec is not None:
+        os_ = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(os_)
+    else:
+        raise ImportError("Could not load omniopt_share module")
 
 from _framework.helpers import red_text  # noqa: E402
 

@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+import argparse
+import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -13,18 +16,135 @@ THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
-
 REPO_ROOT = THIS_DIR.parent
+
+DEFAULT_RUN_PROGRAM = "ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI="
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Install OmniOpt via github and pip and test it.")
+    parser.add_argument(
+        "--debug", action="store_true",
+        help="Print every command that is executed (subprocess calls and venv creation) in full, "
+        "including all parameters, before it is run.",
+    )
+    parser.add_argument(
+        "--keep-venvs", action="store_true",
+        help="Do not delete the virtualenvs after the test.",
+    )
+
+    parser.add_argument(
+        "--install-types", nargs="+", default=["omniopt", "git"],
+        help="Install types to test (default: omniopt git).",
+    )
+    parser.add_argument(
+        "--venv-prefix", default="omniopt_via_pip",
+        help="Prefix for the virtualenv names (default: omniopt_via_pip).",
+    )
+    parser.add_argument(
+        "--pip-package", default="omniopt2",
+        help="PyPI package to install for install_type 'omniopt' (default: omniopt2).",
+    )
+    parser.add_argument(
+        "--git-url", default="git+https://github.com/NormanTUD/OmniOpt/",
+        help="Git URL to install for install_type 'git' (default: git+https://github.com/NormanTUD/OmniOpt/).",
+    )
+    parser.add_argument(
+        "--check-binaries", nargs="+",
+        default=["omniopt_plot", "omniopt_docker", "omniopt_share", "omniopt_evaluate"],
+        help="Binaries that must exist in the virtualenv (default: omniopt_plot omniopt_docker omniopt_share omniopt_evaluate).",
+    )
+
+    parser.add_argument("--partition", default="alpha")
+    parser.add_argument("--live-share", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--omniopt-debug", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--omniopt-verbose", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--experiment-name", default="pip_test_experiment")
+    parser.add_argument("--mem-gb", default="1")
+    parser.add_argument("--time", default="60")
+    parser.add_argument("--worker-timeout", default="60")
+    parser.add_argument("--max-eval", default="5")
+    parser.add_argument("--num-parallel-jobs", default="5")
+    parser.add_argument("--gpus", default="1")
+    parser.add_argument("--num-random-steps", default="2")
+    parser.add_argument("--follow", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--send-anonymized-usage-stats", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--result-names", action="append", default=["RESULT=min"])
+    parser.add_argument("--run-program", default=DEFAULT_RUN_PROGRAM)
+    parser.add_argument("--cpus-per-task", default="1")
+    parser.add_argument("--nodes-per-job", default="1")
+    parser.add_argument("--generate-all-jobs-at-once", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--model", default="BOTORCH_MODULAR")
+    parser.add_argument("--run-mode", default="local")
+    parser.add_argument("--occ-type", default="euclid")
+    parser.add_argument("--main-process-gb", default="8")
+    parser.add_argument("--max-nr-of-zero-results", default="50")
+    parser.add_argument("--slurm-signal-delay-s", default="0")
+    parser.add_argument(
+        "--parameter", action="append",
+        default=["x range 123 1000 int false", "y range 5431 1234 float false"],
+    )
+    return parser
+
+
+def run(cmd, env, debug, desc=None):
+    if debug:
+        print(f"[cmd] {desc or 'subprocess.run'}: " + " ".join(shlex.quote(str(a)) for a in cmd))
+    return subprocess.run(cmd, env=env)
+
+
+def build_omniopt_cmd(omniopt_bin, args) -> list:
+    cmd = [omniopt_bin]
+    cmd.append(f"--partition={args.partition}")
+    if args.live_share:
+        cmd.append("--live_share")
+    if args.omniopt_debug:
+        cmd.append("--debug")
+    if args.omniopt_verbose:
+        cmd.append("--verbose")
+    cmd.append(f"--experiment_name={args.experiment_name}")
+    cmd.append(f"--mem_gb={args.mem_gb}")
+    cmd.append(f"--time={args.time}")
+    cmd.append(f"--worker_timeout={args.worker_timeout}")
+    cmd.append(f"--max_eval={args.max_eval}")
+    cmd.append(f"--num_parallel_jobs={args.num_parallel_jobs}")
+    cmd.append(f"--gpus={args.gpus}")
+    cmd.append(f"--num_random_steps={args.num_random_steps}")
+    if args.follow:
+        cmd.append("--follow")
+    if args.send_anonymized_usage_stats:
+        cmd.append("--send_anonymized_usage_stats")
+    for result_name in args.result_names:
+        cmd.append("--result_names")
+        cmd.append(result_name)
+    cmd.append(f"--run_program={args.run_program}")
+    cmd.append(f"--cpus_per_task={args.cpus_per_task}")
+    cmd.append(f"--nodes_per_job={args.nodes_per_job}")
+    if args.generate_all_jobs_at_once:
+        cmd.append("--generate_all_jobs_at_once")
+    cmd.append(f"--model={args.model}")
+    cmd.append(f"--run_mode={args.run_mode}")
+    cmd.append(f"--occ_type={args.occ_type}")
+    cmd.append(f"--main_process_gb={args.main_process_gb}")
+    cmd.append(f"--max_nr_of_zero_results={args.max_nr_of_zero_results}")
+    cmd.append(f"--slurm_signal_delay_s={args.slurm_signal_delay_s}")
+    for parameter in args.parameter:
+        cmd.append("--parameter")
+        cmd.append(parameter)
+    return cmd
 
 
 def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
     home = Path.home()
     overall_ok = True
 
-    for install_type in ("omniopt", "git"):
-        venv_dir = home / f"omniopt_via_pip_{install_type}"
+    for install_type in args.install_types:
+        venv_dir = home / f"{args.venv_prefix}_{install_type}"
         if venv_dir.exists():
             shutil.rmtree(venv_dir)
+        if args.debug:
+            print(f"[cmd] venv.create({str(venv_dir)!r}, with_pip=True)")
         venv.create(str(venv_dir), with_pip=True)
 
         activate = venv_dir / "bin" / "activate"
@@ -33,54 +153,35 @@ def main(argv=None) -> int:
             overall_ok = False
             continue
 
-        env = {"VIRTUAL_ENV": str(venv_dir), "PATH": f"{venv_dir}/bin:" + __import__("os").environ.get("PATH", "")}
+        env = {"VIRTUAL_ENV": str(venv_dir), "PATH": f"{venv_dir}/bin:" + os.environ.get("PATH", "")}
         pip = str(venv_dir / "bin" / "pip")
 
         if install_type == "git":
-            subprocess.run(
-                [pip, "install", "git+https://github.com/NormanTUD/OmniOpt/"],
-                env=env, check=False,
-            )
+            run([pip, "install", args.git_url], env=env, debug=args.debug, desc="pip install git")
         else:
-            subprocess.run([pip, "install", "omniopt2"], env=env, check=False)
+            run([pip, "install", args.pip_package], env=env, debug=args.debug, desc="pip install pypi")
 
         omniopt_bin = str(venv_dir / "bin" / "omniopt")
-        proc = subprocess.run([omniopt_bin, "--help"], env=env)
+        proc = run([omniopt_bin, "--help"], env=env, debug=args.debug, desc="omniopt --help")
         if proc.returncode != 0:
             print(f"omniopt --help exited with {proc.returncode}")
             overall_ok = False
-            shutil.rmtree(venv_dir)
+            if not args.keep_venvs:
+                shutil.rmtree(venv_dir)
             continue
 
-        cmd = [
-            omniopt_bin,
-            "--partition=alpha", "--live_share", "--debug", "--verbose",
-            "--experiment_name=pip_test_experiment",
-            "--mem_gb=1", "--time=60", "--worker_timeout=60",
-            "--max_eval=5", "--num_parallel_jobs=5",
-            "--gpus=1", "--num_random_steps=2",
-            "--follow", "--send_anonymized_usage_stats",
-            "--result_names", "RESULT=min",
-            "--run_program=ZWNobyAiUkVTVUxUOiAlKHgpJSh5KSI=",
-            "--cpus_per_task=1", "--nodes_per_job=1",
-            "--generate_all_jobs_at_once", "--model=BOTORCH_MODULAR",
-            "--run_mode=local", "--occ_type=euclid",
-            "--main_process_gb=8", "--max_nr_of_zero_results=50",
-            "--slurm_signal_delay_s=0",
-            "--parameter", "x range 123 1000 int false",
-            "--parameter", "y range 5431 1234 float false",
-        ]
-        proc2 = subprocess.run(cmd, env=env)
+        proc2 = run(build_omniopt_cmd(omniopt_bin, args), env=env, debug=args.debug, desc="omniopt main")
         if proc2.returncode != 0:
             print(f"omniopt-main-script exited with {proc2.returncode}")
             overall_ok = False
 
-        for to_check in ("omniopt_plot", "omniopt_docker", "omniopt_share", "omniopt_evaluate"):
+        for to_check in args.check_binaries:
             if not (venv_dir / "bin" / to_check).exists():
                 print(f"{to_check} not found")
                 overall_ok = False
 
-        shutil.rmtree(venv_dir)
+        if not args.keep_venvs:
+            shutil.rmtree(venv_dir)
 
     return 0 if overall_ok else 1
 

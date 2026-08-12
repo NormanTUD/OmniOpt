@@ -15,7 +15,7 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.helpers import red_text, green_text
-from _framework.installer import ensure_dependencies
+from _framework.installer import ensure_dependencies, install_packages
 
 
 REPO_ROOT = THIS_DIR.parent
@@ -40,18 +40,29 @@ def _pyright_bin() -> str | None:
 
 
 def main(argv=None) -> int:
-    ensure_dependencies()
+    # Ensure dependencies are installed
+    ensure_dependencies(include_tests=True)
     os.environ.setdefault("install_tests", "1")
 
     pyright_bin = _pyright_bin()
     if pyright_bin is None:
-        red_text("pyright not found")
-        return 1
+        # Try installing pyright if not found
+        print("pyright not found, attempting to install...")
+        try:
+            install_packages(["pyright"], quiet=False)
+            pyright_bin = _pyright_bin()
+            if pyright_bin is None:
+                red_text("Failed to install pyright")
+                return 1
+        except Exception as e:
+            red_text(f"Failed to install pyright: {e}")
+            return 1
 
     errors: list[str] = []
     start = time.time()
 
-    for py_file in sorted(REPO_ROOT.glob(".*.py")):
+    # Fix glob pattern to match all Python files correctly
+    for py_file in sorted(REPO_ROOT.glob("**/*.py")):
         if py_file.name == ".helpers.py":
             continue
         print(f"Pyright {py_file.name}:")

@@ -12,7 +12,7 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.autodeps import ensure_imports_or_exit
-from _framework.helpers import find_files
+from _framework.helpers import erase_progress_trail, find_files
 
 ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
 

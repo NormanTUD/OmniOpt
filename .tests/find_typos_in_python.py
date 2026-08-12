@@ -13,7 +13,7 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.autodeps import ensure_imports_or_exit
-from _framework.helpers import find_files
+from _framework.helpers import erase_progress_trail, find_files
 
 ensure_imports_or_exit((("spellchecker", "pyspellchecker"), ("rich", "rich")))
 
@@ -141,6 +141,8 @@ def main():
                     sys.exit(1)
                 finally:
                     progress.remove_task(task_id)
+        if typo_files == 0:
+            erase_progress_trail(console)
     else:
         for i, filepath in enumerate(files, start=1):
             if i % 20 == 0 or i == len(files):

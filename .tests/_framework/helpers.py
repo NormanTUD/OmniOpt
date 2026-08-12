@@ -164,6 +164,20 @@ def command_exists(cmd: str) -> bool:
     return shutil.which(cmd) is not None
 
 
+def erase_progress_trail(console: object) -> None:
+    """Remove the blank line a rich ``Progress`` leaves behind on exit.
+
+    ``Live.stop()`` writes a trailing newline even with ``transient=True``
+    (its ``restore_cursor`` is a no-op once all tasks are gone). On a real
+    terminal that leaves an empty line between consecutive tools, so we
+    move the cursor back up one line and clear it.
+    """
+    if not getattr(console, "is_terminal", False):
+        return
+    console.file.write("\r\x1b[1A\x1b[2K")
+    console.file.flush()
+
+
 DEFAULT_EXCLUDE_DIRS = {
     ".git", "runs", "logs", "node_modules", "__pycache__", ".mypy_cache",
     ".ruff_cache", ".pytest_cache", ".tox", "site-packages", "dist-packages",

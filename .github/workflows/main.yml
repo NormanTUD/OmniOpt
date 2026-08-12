@@ -104,7 +104,7 @@ jobs:
 
     - name: main test script
       run: |
-        .tests/install_via_pip
+        .tests/install_via_pip --debug
   docker-test:
     needs: [smoke-tests, detect_changes]
     if: needs.detect_changes.outputs.gui_only != 'true'

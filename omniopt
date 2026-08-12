@@ -7502,6 +7502,15 @@ def create_new_experiment() -> Tuple[dict, str, str]:
 
         return {}, "", ""
 
+    if not experiment_parameters:
+        _fatal_error(
+            "create_new_experiment: experiment_parameters is empty. "
+            "This usually means --parameter could not be parsed correctly. "
+            "Check that each --parameter has the form '<NAME> range <MIN> <MAX> <INT|FLOAT> <true|false>' "
+            "(or fixed/choice) and is passed as a single quoted argument.",
+            181,
+        )
+
     objectives = set_objectives()
 
     experiment_args = {
@@ -7523,10 +7532,30 @@ def create_new_experiment() -> Tuple[dict, str, str]:
     experiment_args, gpu_string, gpu_color = set_torch_device_to_experiment_args(experiment_args)
     experiment_args = set_experiment_constraints(get_constraints(), experiment_args, experiment_parameters)
 
+    if not experiment_args.get("parameters"):
+        _fatal_error(
+            "create_new_experiment: experiment_args['parameters'] is empty after "
+            "set_torch_device_to_experiment_args/set_experiment_constraints. "
+            "This is a bug in OmniOpt2.",
+            49,
+        )
+
     try:
         create_ax_client_experiment(experiment_args)
         new_metrics = [Metric(k) for k in arg_result_names if k not in ax_client.metric_names]
         ax_client.experiment.add_tracking_metrics(new_metrics)
+
+        if ax_client is not None and ax_client.experiment is not None:
+            actual_params = list(ax_client.experiment.search_space.parameters.keys())
+            expected_params = [p.get("name") for p in experiment_parameters if isinstance(p, dict) and p.get("name")]
+            missing = [n for n in expected_params if n not in actual_params]
+            if missing:
+                _fatal_error(
+                    f"create_new_experiment: After create_experiment, expected parameter(s) "
+                    f"{missing} are missing from ax_client.experiment.search_space "
+                    f"(have {actual_params}).",
+                    49,
+                )
     except AssertionError as error:
         _fatal_error(f"An error has occurred while creating the experiment (0): {error}. This can happen when you have invalid parameter constraints.", 102)
     except ValueError as error:
@@ -9403,6 +9432,14 @@ def submit_new_job(parameters: Union[dict, str], trial_index: int) -> Any:
 
         return None
 
+    if isinstance(parameters, dict) and not parameters:
+        print_red(
+            f"submit_new_job: Refusing to submit job for trial_index {trial_index} "
+            f"with empty parameters dict. This indicates a bug where the search space "
+            f"or arm produced no parameters."
+        )
+        return None
+
     print_debug(f"Submitting new job for trial_index {trial_index}, parameters {parameters}")
 
     start = time.time()
@@ -9932,6 +9969,15 @@ def generate_trials(n: int, recursion: bool) -> Tuple[Dict[int, Any], bool]:
             for arm in get_batched_arms(n - cnt):
                 if cnt >= n:
                     break
+
+                if not arm.parameters:
+                    print_red(
+                        f"generate_trials: arm from get_batched_arms has empty parameters "
+                        f"(arm={arm}). This indicates the search space is empty in ax_client. "
+                        f"Refusing to create a trial with no parameters."
+                    )
+                    retries += 1
+                    continue
 
                 try:
                     arm = Arm(parameters=arm.parameters)

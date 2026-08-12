@@ -153,12 +153,13 @@ def plot_multiple_graphs(_params: list) -> None:
         for i, (param1, param2) in enumerate(non_empty_graphs):
             row = i // num_cols
             col = i % num_cols
-            if (
-                (args.exclude_params is not None and len(args.exclude_params) > 0
-                 and param1 not in args.exclude_params[0]
-                 and param2 not in args.exclude_params[0])
-                or (args.exclude_params is None or len(args.exclude_params) == 0)
-            ):
+            has_excludes = args.exclude_params is not None and len(args.exclude_params) > 0
+            no_excludes = not has_excludes
+            not_excluded = (
+                param1 not in args.exclude_params[0]
+                and param2 not in args.exclude_params[0]
+            ) if has_excludes else True
+            if no_excludes or not_excluded:
                 try:
                     _x = df_filtered[param1]
                     _y = df_filtered[param2]

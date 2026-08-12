@@ -40,6 +40,13 @@ def _run_test(name: str) -> int:
         return 99
 
     proc = helpers.run(" ".join(f'"{c}"' for c in cmd))
+    if proc.returncode != 0:
+        if proc.stdout:
+            print("--- stdout ---")
+            print(proc.stdout)
+        if proc.stderr:
+            print("--- stderr ---")
+            print(proc.stderr)
     return proc.returncode
 
 

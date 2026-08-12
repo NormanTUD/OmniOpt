@@ -4860,6 +4860,8 @@ def plot_pareto_frontier_sixel(data: Any, x_metric: str, y_metric: str) -> None:
         print(f"[italic yellow]Your console does not support sixel-images. Will not print Pareto-frontier as a matplotlib-sixel-plot for {x_metric}/{y_metric}.[/]")
         return
 
+    import matplotlib
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     means = data[x_metric][y_metric]["means"]
@@ -10354,6 +10356,8 @@ def plot_times_vs_jobs_sixel(
         print("[italic yellow]Your console does not support sixel-images. Cannot show plot.[/]")
         return
 
+    import matplotlib
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     fig, _ax = plt.subplots()

@@ -22,6 +22,7 @@ try:
     from typing import Any
 
     import matplotlib
+    matplotlib.use("Agg")
     import numpy as np
     import pandas as pd
     from matplotlib.colors import LinearSegmentedColormap

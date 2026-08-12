@@ -110,7 +110,7 @@ def displaytime(seconds: int) -> str:
     return "".join(parts)
 
 
-def human_readable_time(seconds: int) -> str:
+def human_readable_time(seconds: float) -> str:
     """Compact form (e.g. '5s', '2m 3s', '1h 5m 3s')."""
     seconds = int(seconds)
     if seconds < 60:

@@ -138,8 +138,8 @@ def handle_output(fig: plt.Figure) -> None:
         window_title = f'Times and exit codes for {args.run_dir}'
         if fig.canvas.manager is not None:
             fig.canvas.manager.set_window_title(window_title)
-            if not args.no_plt_show:
-                plt.show()
+        if not args.no_plt_show:
+            plt.show()
 
 @beartype
 def main() -> None:

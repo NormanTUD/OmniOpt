@@ -1,6 +1,7 @@
 {
     "exclude": [
         "**/tests",
+        "**/node_modules",
         "**/runs"
     ]
 }

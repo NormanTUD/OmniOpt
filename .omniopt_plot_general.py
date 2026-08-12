@@ -34,57 +34,88 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
+
 @beartype
 def parse_arguments() -> Any:
-    parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-    parser.add_argument('--min', type=float, help='Minimum value for result filtering')
-    parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-    parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-    parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-    parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
-    parser.add_argument('--alpha', type=float, help='Transparency of plot bars', default=0.5)
-    parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+    parser = argparse.ArgumentParser(description="Plotting tool for analyzing trial data.")
+    parser.add_argument("--min", type=float, help="Minimum value for result filtering")
+    parser.add_argument("--max", type=float, help="Maximum value for result filtering")
+    parser.add_argument(
+        "--save_to_file", nargs="?", const="plot", type=str, help="Path to save the plot(s)"
+    )
+    parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+    parser.add_argument(
+        "--bins", type=int, help="Number of bins for distribution of results", default=10
+    )
+    parser.add_argument(
+        "--alpha", type=float, help="Transparency of plot bars", default=0.5
+    )
+    parser.add_argument(
+        "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+    )
     return parser.parse_args()
+
 
 @beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     if args is not None:
-        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+        res_col_name = helpers.get_result_name_or_default_from_csv_file_path(
+            args.run_dir + "/results.csv"
+        )
 
         if res_col_name not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"General: Result column >{res_col_name}< not found in dataframe. That may mean that the job had no valid runs")
+                print(
+                    f"General: Result column >{res_col_name}< not found in dataframe. "
+                    f"That may mean that the job had no valid runs"
+                )
             sys.exit(169)
 
         plt.figure("General Info", figsize=(12, 8))
 
         plt.subplot(2, 2, 1)
-        sns.boxplot(x='generation_method', y=res_col_name, data=dataframe)
-        plt.title('Results by Generation Method')
-        plt.xlabel('Generation Method')
+        sns.boxplot(x="generation_method", y=res_col_name, data=dataframe)
+        plt.title("Results by Generation Method")
+        plt.xlabel("Generation Method")
         plt.ylabel(res_col_name)
 
         plt.subplot(2, 2, 2)
-        sns.countplot(x='trial_status', data=dataframe)
-        plt.title('Distribution of job status')
-        plt.xlabel('Trial Status')
-        plt.ylabel('Nr. of jobs')
+        sns.countplot(x="trial_status", data=dataframe)
+        plt.title("Distribution of job status")
+        plt.xlabel("Trial Status")
+        plt.ylabel("Nr. of jobs")
 
         plt.subplot(2, 2, 3)
-        exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
-        numeric_columns = dataframe.select_dtypes(include=['float64', 'int64']).columns
-        numeric_columns = [col for col in numeric_columns if col not in exclude_columns]
+        exclude_columns = [
+            "trial_index",
+            "arm_name",
+            "trial_status",
+            "generation_method",
+        ]
+        numeric_columns = dataframe.select_dtypes(include=["float64", "int64"]).columns
+        numeric_columns = [
+            col for col in numeric_columns if col not in exclude_columns
+        ]
         correlation_matrix = dataframe[numeric_columns].corr()
-        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", cbar=False)
-        plt.title('Correlation Matrix')
+        sns.heatmap(
+            correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", cbar=False
+        )
+        plt.title("Correlation Matrix")
 
         plt.subplot(2, 2, 4)
-        histogram = sns.histplot(data=dataframe, x=res_col_name, hue='generation_method', multiple="stack", kde=False, bins=args.bins)
+        histogram = sns.histplot(
+            data=dataframe,
+            x=res_col_name,
+            hue="generation_method",
+            multiple="stack",
+            kde=False,
+            bins=args.bins,
+        )
         for patch in histogram.patches:
             patch.set_alpha(args.alpha)
-        plt.title('Distribution of Results by Generation Method')
+        plt.title("Distribution of Results by Generation Method")
         plt.xlabel(res_col_name)
-        plt.ylabel('Nr. of jobs')
+        plt.ylabel("Nr. of jobs")
 
         plt.tight_layout()
 
@@ -95,6 +126,7 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -
             if not args.no_plt_show:
                 plt.show()
 
+
 @beartype
 def update_graph() -> None:
     if args is not None:
@@ -104,15 +136,23 @@ def update_graph() -> None:
             try:
                 dataframe = pd.read_csv(args.run_dir + "/results.csv")
             except pd.errors.EmptyDataError:
-                helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be empty.", 19)
+                helpers.print_if_not_plot_tests_and_exit(
+                    f"{args.run_dir}/results.csv seems to be empty.", 19
+                )
             except UnicodeDecodeError:
-                helpers.print_if_not_plot_tests_and_exit(f"{args.run_dir}/results.csv seems to be invalid utf8.", 7)
+                helpers.print_if_not_plot_tests_and_exit(
+                    f"{args.run_dir}/results.csv seems to be invalid utf8.", 7
+                )
 
             if args.min is not None or args.max is not None:
-                dataframe = helpers.filter_data(args, dataframe, args.min, args.max, args.run_dir + "/results.csv")
+                dataframe = helpers.filter_data(
+                    args, dataframe, args.min, args.max, args.run_dir + "/results.csv"
+                )
 
             if dataframe is None or dataframe.empty:
-                helpers.print_if_not_plot_tests_and_exit("No applicable values could be found.", None)
+                helpers.print_if_not_plot_tests_and_exit(
+                    "No applicable values could be found.", None
+                )
                 return
 
             if args.save_to_file:
@@ -129,6 +169,7 @@ def update_graph() -> None:
             logging.error("An unexpected error occurred: %s", str(exception))
 
             helpers.print_traceback()
+
 
 if __name__ == "__main__":
     args = parse_arguments()

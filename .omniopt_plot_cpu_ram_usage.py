@@ -20,9 +20,11 @@ from beartype import beartype
 # Setup signal handling for interrupt
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+
 # Global variable for parsed arguments
 args = None
 helpers = None
+
 
 @beartype
 def load_helpers(script_dir: str) -> None:
@@ -36,11 +38,19 @@ def load_helpers(script_dir: str) -> None:
     else:
         raise ImportError(f"Could not load module from {helpers_file}")
 
-parser = argparse.ArgumentParser(description='Plotting tool for analyzing CPU and RAM usage data.')
-parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+
+parser = argparse.ArgumentParser(
+    description="Plotting tool for analyzing CPU and RAM usage data."
+)
+parser.add_argument(
+    "--save_to_file", nargs="?", const="plot", type=str, help="Path to save the plot(s)"
+)
+parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
+
 
 @beartype
 def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
@@ -64,29 +74,40 @@ def load_data(csv_path: str) -> Union[pd.DataFrame, None]:
             logging.error("CSV file not found: %s", csv_path)
         sys.exit(1)
 
+
 @beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[str, None] = None) -> None:
     """Generates and optionally saves/plots the graph."""
     plt.figure("Plot CPU and RAM Usage", figsize=(12, 8))
 
-    dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], unit='s')
+    dataframe["timestamp"] = pd.to_datetime(dataframe["timestamp"], unit="s")
 
     # Plot RAM usage over time
-    sns.lineplot(x='timestamp', y='ram_usage_mb', data=dataframe, label='RAM Usage (MB)')
+    sns.lineplot(
+        x="timestamp", y="ram_usage_mb", data=dataframe, label="RAM Usage (MB)"
+    )
     # Plot CPU usage over time
-    sns.lineplot(x='timestamp', y='cpu_usage_percent', data=dataframe, label='CPU Usage (%)')
+    sns.lineplot(
+        x="timestamp", y="cpu_usage_percent", data=dataframe, label="CPU Usage (%)"
+    )
 
-    plt.title('CPU and RAM Usage over Time')
-    plt.xlabel('Timestamp')
-    plt.ylabel('Usage')
+    plt.title("CPU and RAM Usage over Time")
+    plt.xlabel("Timestamp")
+    plt.ylabel("Usage")
 
     if save_to_file:
         fig = plt.figure(1)
-        if fig is not None and args is not None and plt is not None and helpers is not None:
+        if (
+            fig is not None
+            and args is not None
+            and plt is not None
+            and helpers is not None
+        ):
             helpers.save_to_file(fig, args, plt)
     elif args is not None and not args.no_plt_show:
         if plt is not None:
             plt.show()
+
 
 @beartype
 def update_graph(csv_path: str) -> None:
@@ -95,6 +116,7 @@ def update_graph(csv_path: str) -> None:
     if dataframe is not None:
         if args is not None:
             plot_graph(dataframe, args.save_to_file)
+
 
 @beartype
 def main() -> None:
@@ -111,6 +133,7 @@ def main() -> None:
 
         csv_path = os.path.join(args.run_dir, "cpu_ram_usage.csv")
         update_graph(csv_path)
+
 
 if __name__ == "__main__":
     main()

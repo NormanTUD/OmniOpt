@@ -38,29 +38,47 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-parser.add_argument('--run_dir', type=str, help='Path to a run dir', required=True)
-parser.add_argument('--bins', type=int, help='Number of bins for distribution of results', default=10)
-parser.add_argument('--alpha', type=float, help='Transparency of plot bars (between 0 and 1)', default=0.5)
-parser.add_argument('--no_legend', help='Disables legend', action='store_true', default=False)
-parser.add_argument('--save_to_file', type=str, help='Save the plot to the specified file', default=None)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Plotting tool for analyzing trial data.")
+parser.add_argument("--run_dir", type=str, help="Path to a run dir", required=True)
+parser.add_argument(
+    "--bins", type=int, help="Number of bins for distribution of results", default=10
+)
+parser.add_argument(
+    "--alpha",
+    type=float,
+    help="Transparency of plot bars (between 0 and 1)",
+    default=0.5,
+)
+parser.add_argument(
+    "--no_legend", help="Disables legend", action="store_true", default=False
+)
+parser.add_argument(
+    "--save_to_file", type=str, help="Save the plot to the specified file", default=None
+)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
+
 
 @beartype
 def get_num_rows_cols(num_plots: int, num_rows: int, num_cols: int) -> Tuple[int, int]:
     if num_plots > 1:
-        num_rows = int(num_plots ** 0.5)
+        num_rows = int(num_plots**0.5)
         num_cols = int(math.ceil(num_plots / num_rows))
 
     return num_rows, num_cols
+
 
 @beartype
 def check_rows_cols_or_die(num_rows: int, num_cols: int) -> None:
     if num_rows == 0 or num_cols == 0:
         if not os.environ.get("NO_NO_RESULT_ERROR"):
-            print(f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph.")
+            print(
+                f"Num rows ({num_rows}) or num cols ({num_cols}) is 0. Cannot plot an empty graph."
+            )
         sys.exit(42)
+
 
 @beartype
 def plot_histograms(dataframe: pd.DataFrame) -> None:
@@ -69,10 +87,22 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
     if args is None:
         return
 
-    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(args.run_dir + "/results.csv")
+    res_col_name = helpers.get_result_name_or_default_from_csv_file_path(
+        args.run_dir + "/results.csv"
+    )
 
-    exclude_columns = ['trial_index', 'arm_name', 'trial_status', 'generation_method', res_col_name]
-    numeric_columns = [col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns if col not in exclude_columns]
+    exclude_columns = [
+        "trial_index",
+        "arm_name",
+        "trial_status",
+        "generation_method",
+        res_col_name,
+    ]
+    numeric_columns = [
+        col
+        for col in dataframe.select_dtypes(include=["float64", "int64"]).columns
+        if col not in exclude_columns
+    ]
 
     num_plots = len(numeric_columns)
     num_rows = 1
@@ -102,24 +132,34 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
         values = dataframe[col]
         if res_col_name not in dataframe:
             if not os.environ.get("NO_NO_RESULT_ERROR"):
-                print(f"KDE: {res_col_name} column not found in dataframe. That may mean that the job had no valid runs")
+                print(
+                    f"KDE: {res_col_name} column not found in dataframe. That may mean that the job had no valid runs"
+                )
             sys.exit(169)
         result_values = dataframe[res_col_name]
         if args is not None:
-            bin_edges = np.linspace(result_values.min(), result_values.max(), args.bins + 1)  # Divide the range into 10 equal bins
-            colormap = plt.get_cmap('RdYlGn_r')
+            bin_edges = np.linspace(
+                result_values.min(), result_values.max(), args.bins + 1
+            )  # Divide the range into 10 equal bins
+            colormap = plt.get_cmap("RdYlGn_r")
 
             for j in range(args.bins):
                 color = colormap(j / 9)  # Calculate color based on colormap
                 bin_mask = (result_values >= bin_edges[j]) & (result_values <= bin_edges[j + 1])
-                bin_range = f'{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}'
-                ax.hist(values[bin_mask], bins=args.bins, alpha=args.alpha, color=color, label=f'{bin_range}')
+                bin_range = f"{bin_edges[j]:.2f}-{bin_edges[j + 1]:.2f}"
+                ax.hist(
+                    values[bin_mask],
+                    bins=args.bins,
+                    alpha=args.alpha,
+                    color=color,
+                    label=f"{bin_range}",
+                )
 
-            ax.set_title(f'Histogram for {col}')
+            ax.set_title(f"Histogram for {col}")
             ax.set_xlabel(col)
-            ax.set_ylabel('Count')
+            ax.set_ylabel("Count")
             if not args.no_legend:
-                ax.legend(loc='upper right')
+                ax.legend(loc="upper right")
 
     # Hide any unused subplots
 
@@ -131,10 +171,11 @@ def plot_histograms(dataframe: pd.DataFrame) -> None:
         pass
 
     for j in range(num_plots, nr_axes):
-        axes[j].axis('off')
+        axes[j].axis("off")
 
     plt.tight_layout()
     save_to_file_or_show_canvas()
+
 
 @beartype
 def save_to_file_or_show_canvas() -> None:
@@ -142,10 +183,15 @@ def save_to_file_or_show_canvas() -> None:
         if args.save_to_file:
             helpers.save_to_file(fig, args, plt)
         else:
-            if fig is not None and fig.canvas is not None and fig.canvas.manager is not None:
+            if (
+                fig is not None
+                and fig.canvas is not None
+                and fig.canvas.manager is not None
+            ):
                 fig.canvas.manager.set_window_title("KDE: " + str(args.run_dir))
                 if not args.no_plt_show:
                     plt.show()
+
 
 @beartype
 def update_graph() -> None:
@@ -174,6 +220,7 @@ def update_graph() -> None:
 
             tb = traceback.format_exc()
             print(tb)
+
 
 if __name__ == "__main__":
     helpers.setup_logging()

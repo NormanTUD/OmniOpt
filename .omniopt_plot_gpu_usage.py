@@ -18,11 +18,17 @@ import pandas as pd
 
 from beartype import beartype
 
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('--run_dir', type=str, help='Directory where to search for CSV files')
-parser.add_argument('--no_legend', help='Disables legend (useless here)', action='store_true', default=False)
-parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Process some integers.")
+parser.add_argument("--run_dir", type=str, help="Directory where to search for CSV files")
+parser.add_argument(
+    "--no_legend", help="Disables legend (useless here)", action="store_true", default=False
+)
+parser.add_argument(
+    "--save_to_file", nargs="?", const="plot", type=str, help="Path to save the plot(s)"
+)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 
 args = None
 fig = None
@@ -41,6 +47,7 @@ else:
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+
 @beartype
 def get_names_array() -> list:
     return [
@@ -56,8 +63,9 @@ def get_names_array() -> list:
         "utilization.memory [%]",
         "memory.total [MiB]",
         "memory.free [MiB]",
-        "memory.used [MiB]"
+        "memory.used [MiB]",
     ]
+
 
 @beartype
 def plot_gpu_usage(run_dir: str) -> None:
@@ -83,13 +91,17 @@ def plot_gpu_usage(run_dir: str) -> None:
                 gpu_data_len += len(df)
 
     if len(_paths) == 0:
-        helpers.print_if_not_plot_tests_and_exit(f"No gpu_usage_*.csv files could be found in {run_dir}", 10)
+        helpers.print_if_not_plot_tests_and_exit(
+            f"No gpu_usage_*.csv files could be found in {run_dir}", 10
+        )
 
     if not gpu_data:
         helpers.print_if_not_plot_tests_and_exit("No GPU usage data found.", 44)
 
     if gpu_data_len < 1:
-        helpers.print_if_not_plot_tests_and_exit(f"No valid GPU usage data found (len = {gpu_data_len}).", 19)
+        helpers.print_if_not_plot_tests_and_exit(
+            f"No valid GPU usage data found (len = {gpu_data_len}).", 19
+        )
 
     plot_cols = min(num_plots, plot_cols)  # Adjusting number of columns based on available plots
     plot_rows = (num_plots + plot_cols - 1) // plot_cols  # Calculating number of rows based on columns
@@ -104,29 +116,38 @@ def plot_gpu_usage(run_dir: str) -> None:
             _ax = axs[i]
         except Exception:
             pass
-        df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y/%m/%d %H:%M:%S.%f', errors='coerce')
-        df = df.sort_values(by='timestamp')
+        df["timestamp"] = pd.to_datetime(
+            df["timestamp"], format="%Y/%m/%d %H:%M:%S.%f", errors="coerce"
+        )
+        df = df.sort_values(by="timestamp")
 
-        grouped_data = df.groupby('pci.bus_id')
+        grouped_data = df.groupby("pci.bus_id")
         for bus_id, group in grouped_data:
-            group['utilization.gpu [%]'] = pd.to_numeric(group['utilization.gpu [%]'].str.replace('%', ''), errors='coerce')
-            group = group.dropna(subset=['timestamp', 'utilization.gpu [%]'])
-            _ax.scatter(group['timestamp'], group['utilization.gpu [%]'], label=f'pci.bus_id: {bus_id}')
+            group["utilization.gpu [%]"] = pd.to_numeric(
+                group["utilization.gpu [%]"].str.replace("%", ""), errors="coerce"
+            )
+            group = group.dropna(subset=["timestamp", "utilization.gpu [%]"])
+            _ax.scatter(
+                group["timestamp"],
+                group["utilization.gpu [%]"],
+                label=f"pci.bus_id: {bus_id}",
+            )
 
-        _ax.set_xlabel('Time')
-        _ax.set_ylabel('GPU Usage (%)')
-        _ax.set_title(f'GPU Usage Over Time - {os.path.basename(_paths[i])}')
+        _ax.set_xlabel("Time")
+        _ax.set_ylabel("GPU Usage (%)")
+        _ax.set_title(f"GPU Usage Over Time - {os.path.basename(_paths[i])}")
         if args:
             if not args.no_legend:
-                _ax.legend(loc='upper right')
+                _ax.legend(loc="upper right")
 
     # Hide empty subplots
     for j in range(num_plots, plot_rows * plot_cols):
-        axs[j].axis('off')
+        axs[j].axis("off")
 
     plt.subplots_adjust(bottom=0.086, hspace=0.35)
 
     save_to_file_or_show_canvas()
+
 
 @beartype
 def save_to_file_or_show_canvas() -> None:
@@ -138,6 +159,7 @@ def save_to_file_or_show_canvas() -> None:
                 fig.canvas.manager.set_window_title("GPU-Usage: " + str(args.run_dir))
             if not args.no_plt_show:
                 plt.show()
+
 
 if __name__ == "__main__":
     args = parser.parse_args()

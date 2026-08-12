@@ -31,26 +31,37 @@ if spec is not None and spec.loader is not None:
 else:
     raise ImportError(f"Could not load module from {helpers_file}")
 
-parser = argparse.ArgumentParser(description='Plotting tool for analyzing trial data.')
-parser.add_argument('--min', type=float, help='Minimum value for result filtering')
-parser.add_argument('--max', type=float, help='Maximum value for result filtering')
-parser.add_argument('--save_to_file', nargs='?', const='plot', type=str, help='Path to save the plot(s)')
-parser.add_argument('--run_dir', type=str, help='Path to a CSV file', required=True)
-parser.add_argument('--no_plt_show', help='Disable showing the plot', action='store_true', default=False)
+parser = argparse.ArgumentParser(description="Plotting tool for analyzing trial data.")
+parser.add_argument("--min", type=float, help="Minimum value for result filtering")
+parser.add_argument("--max", type=float, help="Maximum value for result filtering")
+parser.add_argument(
+    "--save_to_file", nargs="?", const="plot", type=str, help="Path to save the plot(s)"
+)
+parser.add_argument("--run_dir", type=str, help="Path to a CSV file", required=True)
+parser.add_argument(
+    "--no_plt_show", help="Disable showing the plot", action="store_true", default=False
+)
 args = parser.parse_args()
+
 
 @beartype
 def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -> None:
-    exclude_columns: list = ['trial_index', 'arm_name', 'trial_status', 'generation_method']
+    exclude_columns: list = ["trial_index", "arm_name", "trial_status", "generation_method"]
 
     numeric_columns: list[str] = [
-        col for col in dataframe.select_dtypes(include=['float64', 'int64']).columns.tolist()
+        col
+        for col in dataframe.select_dtypes(include=["float64", "int64"]).columns.tolist()
         if col not in exclude_columns
     ]
 
-    pair_plot = sns.pairplot(dataframe, hue='generation_method', vars=numeric_columns)
-    pair_plot.fig.suptitle('Pair Plot of Numeric Variables by Generation Method', y=1.02)
-    if pair_plot and pair_plot.fig and pair_plot.fig.canvas and pair_plot.fig.canvas.manager:
+    pair_plot = sns.pairplot(dataframe, hue="generation_method", vars=numeric_columns)
+    pair_plot.fig.suptitle("Pair Plot of Numeric Variables by Generation Method", y=1.02)
+    if (
+        pair_plot
+        and pair_plot.fig
+        and pair_plot.fig.canvas
+        and pair_plot.fig.canvas.manager
+    ):
         pair_plot.fig.canvas.manager.set_window_title("Scatter Generation Method")
 
     if save_to_file:
@@ -60,11 +71,13 @@ def plot_graph(dataframe: pd.DataFrame, save_to_file: Union[None, str] = None) -
             if not args.no_plt_show:
                 plt.show()
 
+
 @beartype
 def handle_error(errmsg: str, exit_code: int) -> None:
     if not os.environ.get("NO_NO_RESULT_ERROR"):
         print(errmsg)
     sys.exit(exit_code)
+
 
 @beartype
 def update_graph() -> None:
@@ -97,15 +110,19 @@ def update_graph() -> None:
         handle_error(f"{csv_path} seems to be invalid utf8.", 7)
     except KeyError:
         if not os.environ.get("PLOT_TESTS"):
-            print(f"{csv_path} seems to have no '{helpers.get_result_name_or_default_from_csv_file_path(csv_path)}' column.")
+            print(
+                f"{csv_path} seems to have no '{helpers.get_result_name_or_default_from_csv_file_path(csv_path)}' column."
+            )
     except Exception as exception:
         print(f"An unexpected error occurred: {exception}")
+
 
 @beartype
 def ensure_directory_exists(file_path: str) -> None:
     directory = os.path.dirname(file_path)
     if directory:
         os.makedirs(directory, exist_ok=True)
+
 
 if __name__ == "__main__":
     helpers.setup_logging()

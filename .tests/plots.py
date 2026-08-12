@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Tuple
 
 THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
@@ -57,8 +57,11 @@ def _build_commands_for_run(
     run_dir: Path,
     plot_types: List[str],
     quick: bool,
-) -> List[str]:
-    commands: List[str] = []
+) -> List[Tuple[str, str]]:
+    """Return (command, project_name) pairs for every plot type that can
+    be run against ``run_dir``."""
+    commands: List[Tuple[str, str]] = []
+    project_name = run_dir.parent.name
     for plot_type in plot_types:
         filename = REPO_ROOT / f"{PLOT_PREFIX}{plot_type}.py"
         if not filename.exists():
@@ -80,7 +83,7 @@ def _build_commands_for_run(
             f"./omniopt_plot --run_dir={run_dir} --save_to_file={this_img} "
             f"--plot_type={plot_type}"
         )
-        commands.append(cmd)
+        commands.append((cmd, project_name))
         if quick:
             continue
         has_min = bool(re.search(r"add\.argument\(.{0,40}--min", content))
@@ -88,12 +91,28 @@ def _build_commands_for_run(
         huge = "99999999999999999999999999999999999999999999999999999999999"
         neg_huge = f"-{huge}"
         if has_min and has_max:
-            commands.append(f"{cmd} --min={neg_huge} --max={huge}")
+            commands.append((f"{cmd} --min={neg_huge} --max={huge}", project_name))
         elif has_min:
-            commands.append(f"{cmd} --min={neg_huge}")
+            commands.append((f"{cmd} --min={neg_huge}", project_name))
         elif has_max:
-            commands.append(f"{cmd} --max={huge}")
+            commands.append((f"{cmd} --max={huge}", project_name))
     return commands
+
+
+def _wanted_exit_codes(project_name: str) -> Optional[List[int]]:
+    """Return the acceptable exit codes for a run directory, or None if
+    any exit code is fine.
+
+    Mirrors the behaviour of the old bash plot tests: some example runs
+    are deliberately defective and must fail with a specific exit code.
+    """
+    if project_name == "nonutf8":
+        return [7]
+    if project_name == "empty_resultsfile":
+        return [19]
+    if project_name in ("no_result", "defective_files", "empty_resultsfile"):
+        return None  # any exit code is acceptable
+    return [0]
 
 
 def main(argv=None) -> int:
@@ -142,7 +161,7 @@ def main(argv=None) -> int:
         red_text("No plot example runs found")
         return 1
 
-    commands: List[str] = []
+    commands: List[Tuple[str, str]] = []
     for projectname in projects:
         run_dir = projectdir / projectname / "0"
         if not run_dir.is_dir():
@@ -156,7 +175,7 @@ def main(argv=None) -> int:
     errors: List[str] = []
     total = len(commands)
     total_start = time.time()
-    for idx, cmd in enumerate(commands, start=1):
+    for idx, (cmd, project_name) in enumerate(commands, start=1):
         _print_progress(f"[{idx}/{total}] Running: {cmd}")
         start = time.time()
         proc = subprocess.run(cmd, shell=True, cwd=str(REPO_ROOT))
@@ -166,8 +185,10 @@ def main(argv=None) -> int:
             f"({human_readable_time(int(runtime))})"
         )
         print()
-        if proc.returncode != 0:
-            errors.append(f"{cmd} exited with {proc.returncode}")
+        wanted = _wanted_exit_codes(project_name)
+        if wanted is not None and proc.returncode not in wanted:
+            expected = "/".join(str(c) for c in wanted)
+            errors.append(f"{cmd} exited with {proc.returncode} (expected {expected})")
             if args.exit_on_first_error:
                 red_text("\n".join(errors))
                 return len(errors)

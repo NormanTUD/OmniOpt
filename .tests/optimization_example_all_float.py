@@ -38,6 +38,7 @@ def main(argv=None) -> int:
     parser.add_argument("--y", type=str, default="")
     parser.add_argument("--z", type=str, default="")
     parser.add_argument("--a", type=str, default="")
+    parser.add_argument("--nr_results", type=int, default=1)
     parser.add_argument("--random_sem", action="store_true")
     parser.add_argument("--help", "-h", action="store_true")
     parser.add_argument("--debug", action="store_true")
@@ -60,11 +61,18 @@ def main(argv=None) -> int:
     print(f"z: {z}")
     print(f"a: {a}")
 
-    result = shekel([x, y, z, a])
-    print(f"RESULT: {result}")
-    if args.random_sem or os.environ.get("random_sem"):
+    if args.nr_results == 1:
+        result = shekel([x, y, z, a])
+        print(f"RESULT: {result}")
+        if args.random_sem or os.environ.get("random_sem"):
+            import random
+            print(f"SEM-RESULT: {random.random()}")
+    else:
         import random
-        print(f"SEM-RESULT: {random.random()}")
+        for r in range(1, args.nr_results + 1):
+            print(f"RESULT{r}: {r + random.random()}")
+            if args.random_sem or os.environ.get("random_sem"):
+                print(f"SEM-RESULT{r}: {random.random()}")
     return 0
 
 

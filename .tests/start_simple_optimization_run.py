@@ -159,7 +159,7 @@ def main(argv=None) -> int:
     elif args.all_float:
         run_program_text = (
             f".tests/optimization_example_all_float.py {random_sem_str} "
-            "--x=%(x) --y=%(y) --z=%(z) --a=%(a)"
+            f"--x=%(x) --y=%(y) --z=%(z) --a=%(a) --nr_results={nr_results}"
         )
         if args.allow_failure:
             run_program_text += " --fail_or_not=%(fail_or_not)"

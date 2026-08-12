@@ -423,7 +423,7 @@ def _check_required_programs() -> int:
 
 def _requirements_hash() -> str:
     """Return the combined md5 of both requirements files."""
-    digest = hashlib.md5()
+    digest = hashlib.md5(usedforsecurity=False)
     for requirements_file in (
         SCRIPT_DIR / "requirements.txt",
         SCRIPT_DIR / "test_requirements.txt",

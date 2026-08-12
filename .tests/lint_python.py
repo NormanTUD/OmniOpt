@@ -31,6 +31,31 @@ from _framework.installer import ensure_dependencies, install_packages
 REPO_ROOT = THIS_DIR.parent
 
 
+def _ruff_bin() -> str | None:
+    """Locate the ruff binary (on PATH or inside the framework venv)."""
+    bin_ = shutil.which("ruff")
+    if bin_:
+        return bin_
+    candidates: list[Path] = []
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidates.append(Path(venv) / "bin" / "ruff")
+    from _framework.installer import _resolve_venv_dir
+    try:
+        venv_dir = _resolve_venv_dir()
+        candidates.append(venv_dir / "bin" / "ruff")
+    except Exception:
+        pass
+    for p in sys.path:
+        if not p.endswith("site-packages"):
+            continue
+        candidates.append(Path(p.rsplit("/lib/", 1)[0]) / "bin" / "ruff")
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return None
+
+
 def main(argv=None) -> int:
     os.environ.setdefault("install_tests", "1")
 
@@ -38,25 +63,22 @@ def main(argv=None) -> int:
     ensure_dependencies(include_tests=True)
 
     # If ruff is not available, try to install it using the framework's installer
-    if not command_exists("ruff"):
+    ruff_bin = _ruff_bin()
+    if ruff_bin is None:
         print("ruff not found, attempting to install...")
-        # Use the framework's install_packages function which creates the venv if needed
-        venv_dir = install_packages(["ruff"], quiet=False)
-        if venv_dir is None:
-            # Installation failed
-            print("Warning: Failed to install ruff in the framework venv")
-            print("Continuing anyway - this test will pass if no other linting errors occur")
-            # Return 0 to not fail the build, but warn the user
-            green_text("No lint-python errors (but ruff not found)")
-            return 0
-        else:
-            print(f"Successfully installed ruff in {venv_dir}")
-            # After installation, ruff should be available in the venv's bin
-            # The PATH might need to be updated
-            venv_bin = venv_dir / "bin"
-            if venv_bin.exists():
-                os.environ["PATH"] = str(venv_bin) + os.pathsep + os.environ.get("PATH", "")
-                print(f"Added {venv_bin} to PATH")
+        try:
+            venv_dir = install_packages(["ruff"], quiet=False)
+            if venv_dir is None:
+                red_text("Failed to install ruff")
+                return 1
+            # Re-check for ruff binary after installation
+            ruff_bin = _ruff_bin()
+            if ruff_bin is None:
+                red_text("ruff was installed but could not be located")
+                return 1
+        except Exception as e:
+            red_text(f"Failed to install ruff: {e}")
+            return 1
 
     files = sorted(glob.glob(str(REPO_ROOT / ".*.py")) + glob.glob(str(REPO_ROOT / "*.py")))
     files = [f for f in files if os.path.isfile(f)]
@@ -67,7 +89,7 @@ def main(argv=None) -> int:
     errors: list[str] = []
     start = time.time()
     for path in files:
-        proc = subprocess.run(["ruff", "check", path], cwd=str(REPO_ROOT))
+        proc = subprocess.run([ruff_bin, "check", path], cwd=str(REPO_ROOT))
         if proc.returncode != 0:
             errstr = f"Failed linting {path}: Run 'ruff check {path}' to see details."
             red_text(f"\n{errstr}")

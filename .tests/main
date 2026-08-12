@@ -81,6 +81,8 @@ HELP_EPILOG = [
     "  python3 .tests/main.py --quick                    # only quick tests",
     "  python3 .tests/main.py --no_plots --no_linter     # skip plot & linter tests",
     "  python3 .tests/main.py --only=suite:basic         # only the basic tests",
+    "  python3 .tests/main.py --only=pyright             # only the pyright test",
+    "  python3 .tests/main.py --class=moo,constraint     # only the given test classes",
     "  python3 .tests/main.py --exclude=suite:docker     # skip docker tests",
     "  python3 .tests/main.py --tags=suite:linter        # only linter tests",
     "  python3 .tests/main.py --list                     # list all matching tests",
@@ -88,11 +90,31 @@ HELP_EPILOG = [
 
 
 def _select_tests(config, args):
-    only = [t.strip() for t in (args.only or "").split(",") if t.strip()] or None
+    raw_only = [t.strip() for t in (args.only or "").split(",") if t.strip()]
+    only_ids = [v for v in raw_only if ":" not in v] or None
+    only_tags = [v for v in raw_only if ":" in v] or None
+    only_classes = [c.strip() for c in (args.test_class or "").split(",") if c.strip()] or None
     exclude = [t.strip() for t in (args.exclude or "").split(",") if t.strip()] or None
     any_tag = [t.strip() for t in (args.tags or "").split(",") if t.strip()] or None
 
-    selected = config.filter(only=only, exclude=exclude, any_tag=any_tag)
+    unknown_ids = [i for i in (only_ids or []) if config.get_test(i) is None]
+    if unknown_ids:
+        helpers.red_text(f"Unknown test id(s): {', '.join(unknown_ids)}")
+        helpers.red_text(f"Available ids: {', '.join(t.id for t in config.tests)}")
+        sys.exit(1)
+    unknown_classes = [c for c in (only_classes or []) if c not in config.classes()]
+    if unknown_classes:
+        helpers.red_text(f"Unknown test class(es): {', '.join(unknown_classes)}")
+        helpers.red_text(f"Available classes: {', '.join(config.classes())}")
+        sys.exit(1)
+
+    selected = config.filter(
+        only=only_tags,
+        exclude=exclude,
+        any_tag=any_tag,
+        only_ids=only_ids,
+        only_classes=only_classes,
+    )
 
     if args.no_plots:
         selected = [t for t in selected if "suite:plot" not in t.tags]
@@ -114,7 +136,8 @@ def _print_test_list(tests) -> None:
             wanted.append(t.alternative_exit_code)
         wanted_str = "/".join(str(c) for c in wanted)
         tags_str = ",".join(t.tags)
-        print(f"  {t.id.ljust(longest_id)}  tags=[{tags_str}]  wanted={wanted_str}")
+        class_str = t.test_class or "-"
+        print(f"  {t.id.ljust(longest_id)}  class={class_str:<12}  tags=[{tags_str}]  wanted={wanted_str}")
     print(f"\n{len(tests)} test(s) selected.")
 
 

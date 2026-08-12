@@ -49,6 +49,7 @@ class Test:
     wanted_exit_code: int = 0
     alternative_exit_code: Optional[int] = None
     tags: List[str] = field(default_factory=list)
+    test_class: Optional[str] = None
 
     def has_tag(self, tag: str) -> bool:
         return tag in self.tags
@@ -83,6 +84,7 @@ class TestConfig:
                         else None
                     ),
                     tags=list(t.get("tags") or []),
+                    test_class=t.get("class"),
                 )
             )
         self.smoke_tests: List[str] = list(data.get("smoke_tests") or [])
@@ -106,19 +108,42 @@ class TestConfig:
                 return t
         return None
 
+    def classes(self) -> List[str]:
+        """All distinct test classes, in definition order."""
+        seen: List[str] = []
+        for t in self.tests:
+            if t.test_class and t.test_class not in seen:
+                seen.append(t.test_class)
+        return seen
+
     def filter(
         self,
         only: Optional[Iterable[str]] = None,
         exclude: Optional[Iterable[str]] = None,
         any_tag: Optional[Iterable[str]] = None,
+        only_ids: Optional[Iterable[str]] = None,
+        only_classes: Optional[Iterable[str]] = None,
     ) -> List[Test]:
+        """Select tests by tag (AND), id, and/or test class.
+
+        ``only`` behaves like before: a test must carry ALL of these tags.
+        ``only_ids`` selects exact test ids. ``only_classes`` selects tests by
+        their ``class`` field. Tests matching either an id or the tag set pass.
+        """
         only = list(only) if only else []
         exclude = list(exclude) if exclude else []
         any_tag = list(any_tag) if any_tag else []
+        only_ids = list(only_ids) if only_ids else []
+        only_classes = list(only_classes) if only_classes else []
 
         result: List[Test] = []
         for t in self.tests:
-            if only and not all(t.has_tag(tag) for tag in only):
+            if only or only_ids:
+                id_ok = t.id in only_ids
+                tag_ok = bool(only) and all(t.has_tag(tag) for tag in only)
+                if not (id_ok or tag_ok):
+                    continue
+            if only_classes and (not t.test_class or t.test_class not in only_classes):
                 continue
             if any(t.has_tag(tag) for tag in exclude):
                 continue

@@ -72,7 +72,11 @@ def build_base_parser(
 
     g_abs = parser.add_argument_group("abstract test selection")
     g_abs.add_argument("--only", dest="only", type=str, default=None,
-                       help="Only run tests with ALL of these tags (comma-separated, e.g. suite:basic).")
+                       help="Only run these tests: comma-separated test ids (e.g. pyright) "
+                            "and/or tags (e.g. suite:basic).")
+    g_abs.add_argument("--class", dest="test_class", type=str, default=None,
+                       help="Only run tests in these test classes (comma-separated, "
+                            "e.g. --class=parameter,moo). See --list for available classes.")
     g_abs.add_argument("--exclude", dest="exclude", type=str, default=None,
                        help="Exclude tests that have ANY of these tags.")
     g_abs.add_argument("--tags", dest="tags", type=str, default=None,

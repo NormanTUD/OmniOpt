@@ -186,13 +186,13 @@ def main(argv=None) -> int:
         run_program_text = (
             f"./.tests/optimization_example.py {random_sem_str} "
             "--int_param='%(int_param)' --float_param='1' "
-            "--choice_param='1' --int_param_two='1'"
+            f"--choice_param='1' --int_param_two='1' --nr_results={nr_results}"
         )
         if args.allow_failure:
             run_program_text = (
                 f"./.tests/optimization_example.py {random_sem_str} "
                 "--int_param='%(int_param)' --float_param='%(float_param)' "
-                "--choice_param='1' --int_param_two='1' "
+                f"--choice_param='1' --int_param_two='1' --nr_results={nr_results} "
                 "--fail_or_not=%(fail_or_not)"
             )
         run_program = _b64(run_program_text)

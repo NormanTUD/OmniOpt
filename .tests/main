@@ -184,11 +184,7 @@ def main(argv=None) -> int:
         run_test_objects(
             selected,
             quick_pred=lambda t: quick_skip(t, args),
-            env_pred=lambda t: env_skip(
-                t, args,
-                in_container=in_container, is_ci=is_ci,
-                has_nvidia=has_nvidia, has_sbatch=has_sbatch, has_docker=has_docker,
-            ),
+            env_pred=lambda t, args=args, **kw: None,
             render_command=render,
             dry_run=bool(args.dry_run),
         )

@@ -127,17 +127,6 @@ def adjust_quick_flags(args: argparse.Namespace) -> argparse.Namespace:
 
 
 def quick_skip(test, args) -> bool:
-    """Decide whether a test should be skipped due to quick/reallyquick/superquick."""
-    tags = set(test.tags)
-    if args.superquick:
-        if "quick:no" in tags or "quick:false" in tags or "quick:never" in tags:
-            return True
-    if args.reallyquick and not args.superquick:
-        if "quick:false" in tags or "quick:never" in tags:
-            return True
-    if args.quick and not args.reallyquick:
-        if "quick:never" in tags:
-            return True
     return False
 
 

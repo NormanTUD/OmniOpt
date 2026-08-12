@@ -272,7 +272,7 @@ def main(argv=None) -> int:
     if args.seed:
         cmd.extend(["--seed", args.seed])
     if args.additional_parameter:
-        cmd.append(args.additional_parameter)
+        cmd.extend(args.additional_parameter.split())
 
     cmd.append("--show_generate_time_table")
 

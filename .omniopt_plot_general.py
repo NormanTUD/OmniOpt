@@ -120,7 +120,8 @@ def update_graph() -> None:
                 if _path:
                     os.makedirs(_path, exist_ok=True)
 
-            plot_graph(dataframe, args.save_to_file)
+            if dataframe is not None:
+                plot_graph(dataframe, args.save_to_file)
 
         except FileNotFoundError:
             logging.error("File not found: %s", args.run_dir + "/results.csv")

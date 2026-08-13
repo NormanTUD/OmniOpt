@@ -64,7 +64,7 @@ def _validate_results(run_dir: Path, model: str) -> bool:
     return True
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
     omniopt_call = os.environ.get("OMNIOPT_CALL", "./omniopt")
 

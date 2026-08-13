@@ -3470,3 +3470,9 @@ refactor
 Livestop
 Agg
 transientTrue
+Normalise
+classRunnerState
+statelock
+honoured
+truthy
+stateerrors

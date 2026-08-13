@@ -101,7 +101,7 @@ def main(argv=None) -> int:
                 )
                 errors += 1
 
-    return 0
+    return errors
 
 
 if __name__ == "__main__":

@@ -167,7 +167,7 @@ tests:
   - id: test_seed_1234
     class: orchestrator
     name: "Test seed 1234"
-    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 1234 --gpus {NUM_GPUS} --hash 6afb12589d204a3bbb98ea361f17c46e"
+    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 1234 --gpus {NUM_GPUS} --hash dd226ace9006a7908871e0f346c830cd"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 

@@ -41,9 +41,10 @@ def main(argv=None) -> int:
         text=True,
     )
     if proc.returncode != 0:
-        for line in proc.stdout.strip().splitlines():
+        error_lines = proc.stdout.strip().splitlines()
+        for line in error_lines:
             red_text(f"JS syntax error: {line}")
-        return 1
+        return len(error_lines)
     return 0
 
 

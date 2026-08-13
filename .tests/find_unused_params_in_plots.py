@@ -51,7 +51,7 @@ def main(argv=None) -> int:
     for e in errors:
         print()
         red_text(e)
-    return 1
+    return len(errors)
 
 
 if __name__ == "__main__":

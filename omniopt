@@ -3870,6 +3870,35 @@ def get_file_as_string(f: str) -> str:
 
     return "".join(datafile)
 
+def _find_latest_valid_run_dir(fallback_continue_dir: str) -> Optional[str]:
+    """Return the most recent run-dir under the same experiment folder
+    that has all the files omniopt needs to continue from it.  Returns
+    ``None`` if none found."""
+    experiment_dir = os.path.dirname(os.path.abspath(fallback_continue_dir))
+    if not os.path.isdir(experiment_dir):
+        return None
+    required_candidates = [
+        ["state_files/joined_run_program", "state_files/global_vars.json"],
+        ["state_files/joined_run_program", "state_files/experiment_name"],
+        ["state_files/joined_run_program", "global_vars.json"],
+    ]
+    candidates = []
+    for entry in os.listdir(experiment_dir):
+        sibling = os.path.join(experiment_dir, entry)
+        if not os.path.isdir(sibling):
+            continue
+        if not any(
+            all(os.path.isfile(os.path.join(sibling, r)) for r in combo)
+            for combo in required_candidates
+        ):
+            continue
+        candidates.append(sibling)
+    if not candidates:
+        return None
+    candidates.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+    return candidates[0]
+
+
 global_vars["joined_run_program"] = ""
 
 if not args.continue_previous_job:
@@ -3886,7 +3915,22 @@ else:
     if os.path.exists(prev_job_file):
         global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
     else:
-        _fatal_error(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.", 44)
+        # Fallback: if the explicit run-dir is empty or stale (e.g. an
+        # interrupted previous run left a placeholder folder behind),
+        # look for the most recent sibling run-dir under the same
+        # experiment folder that has the required state files.
+        new_prev_job_folder = _find_latest_valid_run_dir(prev_job_folder)
+        if new_prev_job_folder:
+            print_yellow(
+                f"The previous job file {prev_job_file} could not be found. "
+                f"Falling back to the most recent valid run folder: {new_prev_job_folder}"
+            )
+            prev_job_folder = new_prev_job_folder
+            args.continue_previous_job = new_prev_job_folder
+            prev_job_file = f"{prev_job_folder}/state_files/joined_run_program"
+            global_vars["joined_run_program"] = get_file_as_string(prev_job_file)
+        else:
+            _fatal_error(f"The previous job file {prev_job_file} could not be found. You may forgot to add the run number at the end.", 44)
 
 if not getattr(args, "install", False) and not args.tests and len(global_vars["joined_run_program"]) == 0 and not args.calculate_pareto_front_of_job:
     _fatal_error("--run_program was empty", 19)
@@ -3896,6 +3940,22 @@ global_vars["experiment_name"] = args.experiment_name
 def load_global_vars(_file: str) -> None:
     global global_vars
 
+    if not os.path.exists(_file):
+        # Try to recover: fall back to the most recent run-dir under the
+        # same experiment folder that does have the expected files.
+        fallback_dir = _find_latest_valid_run_dir(
+            args.continue_previous_job or ""
+        )
+        if fallback_dir:
+            print_yellow(
+                f"You've tried to continue a non-existing job: {_file}. "
+                f"Falling back to the most recent valid run folder: {fallback_dir}"
+            )
+            if args.continue_previous_job:
+                args.continue_previous_job = fallback_dir
+            _file = os.path.join(fallback_dir, "state_files", "global_vars.json")
+        else:
+            _fatal_error(f"You've tried to continue a non-existing job: {_file}", 44)
     if not os.path.exists(_file):
         _fatal_error(f"You've tried to continue a non-existing job: {_file}", 44)
     try:

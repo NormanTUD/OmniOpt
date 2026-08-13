@@ -186,7 +186,7 @@ def test_help_exits_zero_and_prints_usage() -> bool:
     proc, box = _run_script(["--help"])
     ok = _check(proc.returncode == 0, f"--help must exit 0, got {proc.returncode}")
     ok &= _check("Usage:" in proc.stdout, f"--help must print usage, got {proc.stdout!r}")
-    ok &= _check(box.docker_invocations() == [], "--help must not invoke docker")
+    ok &= _check(not box.docker_invocations(), "--help must not invoke docker")
     return ok
 
 

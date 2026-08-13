@@ -176,7 +176,16 @@ def main(argv=None) -> int:
     if not has_sbatch and not args.num_parallel_jobs:
         args.num_parallel_jobs = "1"
 
-    
+    if (is_ci or in_container or not has_docker) and any(
+        "env:docker" in t.tags for t in config.tests
+    ):
+        helpers.yellow_text(
+            "Skipping docker-tagged tests: "
+            f"{'in CI' if is_ci else ''}"
+            f"{'/in container' if in_container else ''}"
+            f"{'/no docker binary' if not has_docker else ''}".lstrip("/")
+            + "."
+        )
 
     selected = _select_tests(config, args)
 
@@ -211,7 +220,11 @@ def main(argv=None) -> int:
         run_test_objects(
             selected,
             quick_pred=lambda t: quick_skip(t, args),
-            env_pred=lambda t, args=args, **kw: None,
+            env_pred=lambda t, a=args, ic=in_container, ci=is_ci,
+                       hn=has_nvidia, hs=has_sbatch, hd=has_docker: env_skip(
+                t, a, in_container=ic, is_ci=ci, has_nvidia=hn,
+                has_sbatch=hs, has_docker=hd,
+            ),
             render_command=render,
             dry_run=bool(args.dry_run),
             parallel=parallel,

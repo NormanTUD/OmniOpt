@@ -20,7 +20,7 @@ REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not shutil.which("php"):
         print("php not installed! Will skip testing.")
         return 0

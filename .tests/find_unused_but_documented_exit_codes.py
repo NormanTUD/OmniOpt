@@ -22,7 +22,7 @@ REPO_ROOT = THIS_DIR.parent
 IGNORED = {255, 245, 143}
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     yellow_text("Warning: This test is not fully finished yet.")
 
     exit_table = REPO_ROOT / ".gui" / "exit_code_table.php"

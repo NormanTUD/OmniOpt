@@ -23,7 +23,7 @@ REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     share_file = GUI_DIR / "share_functions.php"
     if not share_file.exists():
         red_text("share_functions.php not found")

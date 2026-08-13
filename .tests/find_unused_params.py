@@ -21,7 +21,7 @@ ALLOWED = {
 }
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     omniopt = REPO_ROOT / "omniopt"
     if not omniopt.exists():
         print("omniopt not found")

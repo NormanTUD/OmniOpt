@@ -17,7 +17,7 @@ from _framework.helpers import green_text, red_text
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     omniopt = REPO_ROOT / "omniopt"
     if not omniopt.exists():
         print("omniopt not found")

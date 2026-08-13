@@ -16,7 +16,7 @@ if str(THIS_DIR) not in sys.path:
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     testname = "multiple_evals_per_arm"
     rundir = REPO_ROOT / "runs" / testname
 

@@ -22,7 +22,7 @@ REPO_ROOT = THIS_DIR.parent
 LIZARD_FLAGS = ["--CCN", "15", "--arguments", "6", "--length", "100"]
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     # Installs missing tools (e.g. lizard) from test_requirements.txt into
     # the framework venv when they are not available yet.
     ensure_dependencies()

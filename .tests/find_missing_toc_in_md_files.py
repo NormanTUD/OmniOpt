@@ -17,7 +17,7 @@ REPO_ROOT = THIS_DIR.parent
 TUTORIALS = REPO_ROOT / ".gui" / "_tutorials"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not TUTORIALS.is_dir():
         print(f"{TUTORIALS} not found")
         return 1

@@ -40,7 +40,7 @@ HELP_EXCEPTIONS = {
 }
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not command_exists("php"):
         green_text("PHP not installed. Will skip all_oo_options_are_in_gui_and_vice_versa.")
         return 0

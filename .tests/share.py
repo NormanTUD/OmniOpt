@@ -39,7 +39,7 @@ def normalize_php_output(text: str) -> str:
     return text.strip()
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ["disable_folder_creation"] = "1"
 
     if not command_exists("php"):

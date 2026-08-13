@@ -365,7 +365,7 @@ TESTS = [
 ]
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     failures = 0
     for t in TESTS:
         print(f"running {t.__name__} ...", end=" ", flush=True)

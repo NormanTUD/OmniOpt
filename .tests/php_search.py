@@ -25,7 +25,7 @@ REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if in_container():
         green_text("Not running this test in Docker")
         return 0

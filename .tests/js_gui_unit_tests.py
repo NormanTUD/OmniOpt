@@ -20,7 +20,7 @@ REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not shutil.which("node"):
         print("node not installed! Will skip JS testing.")
         return 0

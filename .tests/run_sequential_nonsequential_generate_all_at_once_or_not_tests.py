@@ -18,7 +18,7 @@ RAW_SAMPLES_LIST = [64, 512, 1024]
 NUM_RESTARTS_LIST = [1, 10, 20]
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     for raw_samples in RAW_SAMPLES_LIST:
         for num_restarts in NUM_RESTARTS_LIST:
             testname = f"raw_samples{raw_samples}__nr_restarts_{num_restarts}"

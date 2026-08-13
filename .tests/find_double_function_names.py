@@ -19,7 +19,7 @@ REPO_ROOT = THIS_DIR.parent
 GUI_DIR = REPO_ROOT / ".gui"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not GUI_DIR.is_dir():
         red_text(f"{GUI_DIR} not found")
         return 1

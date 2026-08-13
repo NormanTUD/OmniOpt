@@ -15,7 +15,7 @@ if str(THIS_DIR) not in sys.path:
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     omniopt = REPO_ROOT / "omniopt"
     exit_table = REPO_ROOT / ".gui" / "exit_code_table.php"
     if not omniopt.exists() or not exit_table.exists():

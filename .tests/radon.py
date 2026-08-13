@@ -20,7 +20,7 @@ from _framework.helpers import yellow_text
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ.setdefault("install_tests", "1")
     if not shutil.which("radon"):
         print("radon not found")

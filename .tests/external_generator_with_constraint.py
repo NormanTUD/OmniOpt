@@ -21,7 +21,7 @@ def _b64(s: str) -> str:
     return base64.b64encode(s.encode("utf-8")).decode("ascii")
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
     cmd = [
         "./omniopt",

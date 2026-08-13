@@ -25,7 +25,7 @@ REPO_ROOT = THIS_DIR.parent
 MD_FILE = REPO_ROOT / ".gui" / "_tutorials" / "folder_structure.md"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ.setdefault("NO_WHIPTAIL", "1")
     start = time.time()
 

@@ -26,7 +26,7 @@ REQUIRED_COLUMNS = [
 ]
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if RUN_DIR.exists():
         shutil.rmtree(RUN_DIR)
 

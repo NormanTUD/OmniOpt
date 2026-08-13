@@ -32,7 +32,7 @@ EXCLUDE_FILES = {
 }
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     function_files: dict[str, list[str]] = defaultdict(list)
 
     for py_file in sorted(REPO_ROOT.glob("*.py")):

@@ -19,7 +19,7 @@ REPO_ROOT = THIS_DIR.parent
 EXCLUDE = ("plot_documentation_has_all_plot_types", "help_page")
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     proc = subprocess.run(
         "grep -rIl '#!/usr/bin/env bash' .",
         shell=True,

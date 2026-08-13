@@ -18,7 +18,7 @@ from _framework.helpers import red_text, yellow_text
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not shutil.which("php"):
         yellow_text("Cannot run share_tests when PHP is not installed!")
         return 255

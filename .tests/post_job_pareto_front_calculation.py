@@ -25,7 +25,7 @@ from _framework.helpers import (
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
 
     run_dir = REPO_ROOT / "runs" / "__main__tests__BOTORCH_MODULAR___nogridsearch_nr_results_2"

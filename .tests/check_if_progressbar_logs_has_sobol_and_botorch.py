@@ -17,7 +17,7 @@ REPO_ROOT = THIS_DIR.parent
 LOGS_DIR = REPO_ROOT / "logs"
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
 
     cmd = (

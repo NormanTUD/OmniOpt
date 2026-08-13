@@ -15,7 +15,7 @@ if str(THIS_DIR) not in sys.path:
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     exit_code = 0
     # bash checks .*.py excluding .random_generator.py
     pattern_func = re.compile(r"^def\s+\w+\([^)]*\)(?!\s*->)", re.MULTILINE)

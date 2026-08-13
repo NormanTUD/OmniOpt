@@ -24,7 +24,7 @@ from _framework.helpers import (
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     omniopt_call = os.environ.get("OMNIOPT_CALL", "./omniopt")
     os.environ["OMNIOPT_CALL"] = omniopt_call
     num_gpus = 1 if shutil.which("nvidia-smi") else 0

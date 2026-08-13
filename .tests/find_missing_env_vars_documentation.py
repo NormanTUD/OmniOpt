@@ -35,6 +35,8 @@ EXCLUDE_VARS = {
     "LOG_PATH", "OO_MAIN_TESTS", "root_venv_dir", "PRINT_SEPARATOR",
     "RUN_WITH_PYSPY", "RUN_UUID", "NO_RUNTIME", "DONT_ASK_FILE", "!",
     "-f", "RUN_WITH_MEMRAY",
+    "INSTALL_STUFF", "noversion", "k", "current", "debug",
+    "NR_MANUAL", "NR_NONRANDOM", "NR_RANDOM",
 }
 
 

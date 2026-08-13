@@ -47,7 +47,7 @@ def _bandit_bin() -> str | None:
     return None
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     ensure_dependencies()
     os.environ.setdefault("install_tests", "1")
 

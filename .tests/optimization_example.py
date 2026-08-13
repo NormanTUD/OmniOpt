@@ -16,8 +16,8 @@ def shekel(args: list[float]) -> float:
     for k, v in enumerate(args):
         try:
             float(v)
-        except ValueError:
-            raise ValueError(f"Invalid parameter {k}: {v} is not a number")
+        except ValueError as exc:
+            raise ValueError(f"Invalid parameter {k}: {v} is not a number") from exc
 
     beta = [0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5]
     C = [

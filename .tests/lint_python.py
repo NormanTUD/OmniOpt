@@ -19,8 +19,6 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.helpers import (
-    Colors,
-    command_exists,
     green_text,
     human_readable_time,
     red_text,
@@ -56,7 +54,7 @@ def _ruff_bin() -> str | None:
     return None
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ.setdefault("install_tests", "1")
 
     # Ensure dependencies are installed (this should install ruff from test_requirements.txt)

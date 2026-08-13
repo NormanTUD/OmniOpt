@@ -37,19 +37,13 @@ def _lint_one(target: str, ignore_args: list[str]) -> subprocess.CompletedProces
     return subprocess.run(cmd, cwd=str(REPO_ROOT))
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     ensure_dependencies()
     os.environ.setdefault("install_tests", "1")
 
     errors: list[str] = []
     ignore = os.environ.get("IGNOREME", "E501,E302,E265,E128,E305,E261,E126,E124,F824")
     ignore_args = [f"--ignore={ignore}"] if ignore else []
-
-    flake8_bin = shutil.which("flake8") or f"{sys.executable} -m flake8"
-    cmd_hint = (
-        f"'{flake8_bin}'" if shutil.which("flake8")
-        else f"'source activate && {sys.executable} -m flake8'"
-    )
 
     start = time.time()
     for py_file in sorted(REPO_ROOT.glob(".*.py")):

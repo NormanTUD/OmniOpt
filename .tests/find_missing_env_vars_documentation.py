@@ -40,7 +40,7 @@ EXCLUDE_VARS = {
 }
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not MD_FILE.exists():
         print(f"{MD_FILE} not found")
         return 255

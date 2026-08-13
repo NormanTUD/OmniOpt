@@ -24,7 +24,7 @@ EXCLUDE_SUFFIXES = (
 )
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ.setdefault("disable_folder_creation", "1")
 
     if not shutil.which("node"):

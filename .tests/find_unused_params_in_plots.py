@@ -17,7 +17,7 @@ from _framework.helpers import red_text, yellow_text
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     helpers_content = ""
     helpers_py = REPO_ROOT / ".helpers.py"
     if helpers_py.exists():

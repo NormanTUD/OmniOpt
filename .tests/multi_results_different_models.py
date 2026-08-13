@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import base64
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -14,14 +15,53 @@ THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
-from _framework.helpers import red_text
+from _framework.helpers import green_text, red_text, yellow_text
 
 
 REPO_ROOT = THIS_DIR.parent
 
+SKIP_MODELS = {"PSEUDORANDOM", "SOBOL", "FACTORIAL", "RANDOMFOREST", "TPE", "EXTERNAL_GENERATOR"}
+
 
 def _b64(s: str) -> str:
     return base64.b64encode(s.encode("utf-8")).decode("ascii")
+
+
+def _validate_results(run_dir: Path, model: str) -> bool:
+    first = run_dir / "0" / "results.csv"
+    second = run_dir / "1" / "results.csv"
+
+    if not first.is_file():
+        red_text(f"{first} does not exist")
+        return False
+    first_lines = sum(1 for _ in first.open())
+    if first_lines != 3:
+        red_text(f"{first} contains {first_lines} lines, should be 3")
+        return False
+
+    if not second.is_file():
+        red_text(f"{second} not found")
+        return False
+    second_lines = sum(1 for _ in second.open())
+    if second_lines != 5:
+        red_text(f"{second} contains {second_lines} lines, should be 5")
+        return False
+
+    sobol_jobs = sum(
+        1 for line in second.open() if "trial_index" not in line and "SOBOL" in line.upper()
+    )
+    if sobol_jobs != 1:
+        red_text(f"Incorrect SOBOL jobs count: {sobol_jobs}, expected 1")
+        return False
+
+    systematic_jobs = sum(
+        1 for line in second.open() if "trial_index" not in line and model in line.upper()
+    )
+    if systematic_jobs != 3:
+        red_text(f"Incorrect systematic jobs count: {systematic_jobs}, expected 3")
+        return False
+
+    return True
 
 
 def main(argv=None) -> int:
@@ -33,7 +73,6 @@ def main(argv=None) -> int:
         print("omniopt not found")
         return 1
     content = omniopt_file.read_text(encoding="utf-8", errors="ignore")
-    import re
     match = re.search(r"^SUPPORTED_MODELS\s*=\s*\[(.*?)\]", content, re.MULTILINE | re.DOTALL)
     if not match:
         print("Could not find SUPPORTED_MODELS")
@@ -41,8 +80,19 @@ def main(argv=None) -> int:
     raw = match.group(1)
     models = [m.strip().strip('"\'') for m in raw.split(",") if m.strip()]
 
-    errors = 0
-    for model in models:
+    failed = False
+    total = len(models)
+    for i, model in enumerate(models, start=1):
+        print(f"===== {model} ===== (Job {i} of {total})")
+
+        if failed:
+            yellow_text(f"Skipping model {model} because previous models failed")
+            continue
+
+        if model in SKIP_MODELS:
+            yellow_text(f"Skipping incompatible model {model}")
+            continue
+
         run_name = f"multi_results_2_results_{model}"
         run_dir = REPO_ROOT / "runs" / run_name
         if run_dir.exists():
@@ -78,9 +128,17 @@ def main(argv=None) -> int:
         )
         if proc.returncode != 0:
             red_text(f"multi_results_different_models: {model} failed: {proc.returncode}")
-            errors += 1
+            failed = True
+            continue
 
-    return errors
+        if not _validate_results(run_dir, model):
+            failed = True
+
+    if not failed:
+        green_text("All Multi-Result model tests succeeded")
+        return 0
+    red_text("Some tests failed. Check logs.")
+    return 1
 
 
 if __name__ == "__main__":

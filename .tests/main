@@ -2,7 +2,7 @@
 """Main test orchestrator (replaces .tests/main bash script).
 
 Usage:
-    python3 .tests/main.py [options]
+    python3 .tests/main [options]
 
 All options from the original bash script remain supported, plus an abstract
 tag/filter system for combining test suites:
@@ -77,15 +77,15 @@ from _framework.runner import (
 
 HELP_EPILOG = [
     "Examples:",
-    "  python3 .tests/main.py                            # run everything",
-    "  python3 .tests/main.py --quick                    # only quick tests",
-    "  python3 .tests/main.py --no_plots --no_linter     # skip plot & linter tests",
-    "  python3 .tests/main.py --only=suite:basic         # only the basic tests",
-    "  python3 .tests/main.py --only=pyright             # only the pyright test",
-    "  python3 .tests/main.py --class=moo,constraint     # only the given test classes",
-    "  python3 .tests/main.py --exclude=suite:docker     # skip docker tests",
-    "  python3 .tests/main.py --tags=suite:linter        # only linter tests",
-    "  python3 .tests/main.py --list                     # list all matching tests",
+    "  python3 .tests/main                            # run everything",
+    "  python3 .tests/main --quick                    # only quick tests",
+    "  python3 .tests/main --no_plots --no_linter     # skip plot & linter tests",
+    "  python3 .tests/main --only=suite:basic         # only the basic tests",
+    "  python3 .tests/main --only=pyright             # only the pyright test",
+    "  python3 .tests/main --class=moo,constraint     # only the given test classes",
+    "  python3 .tests/main --exclude=suite:docker     # skip docker tests",
+    "  python3 .tests/main --tags=suite:linter        # only linter tests",
+    "  python3 .tests/main --list                     # list all matching tests",
 ]
 
 

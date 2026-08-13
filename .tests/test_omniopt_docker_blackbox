@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Black-box (decoupled) tests for omniopt_docker.
 
-Unlike ``test_omniopt_docker.py`` (which imports the module's internal
+Unlike ``test_omniopt_docker`` (which imports the module's internal
 helpers), these tests treat ``omniopt_docker`` as an opaque executable and
 drive it through a subprocess against *fake* ``docker`` / ``sudo`` /
 ``groups`` binaries on PATH.  They observe only observable behaviour:

@@ -162,8 +162,6 @@ def main(argv=None) -> int:
         for test_name in tests:
             name, runtime, exit_code, stdout, stderr = _run_test(test_name)
             _record(name, runtime, exit_code, stdout, stderr)
-            if exit_code != 0:
-                red_text(f"Smoke test {name} failed with exit code {exit_code}\n")
     else:
         with ThreadPoolExecutor(max_workers=workers,
                                 thread_name_prefix="smoke") as pool:

@@ -30,7 +30,8 @@ def read_file_to_array(file_path):
     return lines
 
 
-def main():  # pylint: disable=global-variable-undefined
+def main():
+    # pylint: disable-next=global-variable-undefined
     global spell, whitelisted, console
 
     # Initialize the spellchecker (deferred so a KeyboardInterrupt here

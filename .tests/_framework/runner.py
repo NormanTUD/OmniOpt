@@ -600,7 +600,16 @@ def _run_test_objects_parallel(
     render_command,
     python_resolver,
 ) -> None:
-    """Parallel implementation of :func:`run_test_objects`."""
+    """Parallel implementation of :func:`run_test_objects`.
+
+    State-mutation note: ``run_command`` / ``run_python_function`` each take
+    ``state.lock`` to update ``state.test_counter`` / append results. We must
+    never hold that lock while waiting on a worker future - the worker
+    itself takes the lock, so blocking on the future would deadlock.
+    Likewise, ``_record_skip`` takes the lock internally, so it must not be
+    called from inside an outer ``with state.lock:`` block (a plain
+    ``threading.Lock`` is not re-entrant).
+    """
     state = get_state()
     total = len(tests)
 
@@ -616,11 +625,15 @@ def _run_test_objects_parallel(
             func = python_resolver(test.python_check)
         work_items.append((test, cmd, func))
 
+    # Record synchronous skip results up front. Each call grabs the lock
+    # itself; we then push them into state.results in one critical section.
+    skip_results: List[TestResult] = [
+        _record_skip(tests[i], reason)
+        for i, reason in enumerate(decisions)
+        if reason is not None
+    ]
     with state.lock:
-        for skip_idx, skip_reason in enumerate(decisions):
-            if skip_reason is not None:
-                result = _record_skip(tests[skip_idx], skip_reason)
-                state.results.append(result)
+        state.results.extend(skip_results)
 
     def _make_runner(test, cmd, func):
         def _runner():
@@ -634,7 +647,7 @@ def _run_test_objects_parallel(
 
         return _runner
 
-    completed = len(tests) - len(work_items)
+    completed = len(skip_results)
     try:
         with ThreadPoolExecutor(max_workers=workers,
                                 thread_name_prefix="test") as pool:

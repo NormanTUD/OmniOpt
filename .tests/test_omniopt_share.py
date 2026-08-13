@@ -20,9 +20,7 @@ Tested units:
 
 from __future__ import annotations
 
-import csv
 import json
-import re
 import sys
 import tempfile
 import zipfile
@@ -34,6 +32,7 @@ REPO_ROOT = THIS_DIR.parent
 sys.path.insert(0, str(REPO_ROOT))
 from importlib.machinery import SourceFileLoader  # noqa: E402
 
+# pylint: disable-next=deprecated-method
 os_ = SourceFileLoader(
     "omniopt_share", str(REPO_ROOT / "omniopt_share")
 ).load_module()
@@ -526,7 +525,7 @@ TESTS = [
 ]
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     failures = 0
     for t in TESTS:
         print(f"running {t.__name__} ...", end=" ", flush=True)

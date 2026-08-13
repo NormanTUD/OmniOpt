@@ -23,6 +23,31 @@ from .config import (
 )
 
 
+def _parallel_type(value: str):
+    """argparse type for --parallel: int, 'max'/'auto'/'' -> True, 'no'/'0' -> False.
+
+    With no argument (``--parallel``) argparse passes the ``const`` value
+    rather than calling the type function; we still want sane parsing for
+    explicit values.
+    """
+    if isinstance(value, bool):
+        return value
+    s = str(value).strip().lower()
+    if s in ("", "auto", "max"):
+        return True
+    if s in ("no", "off", "false"):
+        return False
+    if s in ("yes", "on", "true"):
+        return True
+    try:
+        n = int(s)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"invalid --parallel value {value!r} (use an int, 'auto', or 'no')"
+        )
+    return n
+
+
 def build_base_parser(
     config: TestConfig,
     *,
@@ -63,6 +88,12 @@ def build_base_parser(
         g_basic.add_argument("--no_linter", action="store_true", help="Disable linter.")
         g_basic.add_argument("--no_linkchecker", action="store_true",
                              help="Disable linkchecker.")
+        g_basic.add_argument("--parallel", dest="parallel", type=_parallel_type,
+                             default=None, const=True, nargs="?",
+                             help="Run tests in parallel. Pass an integer to set "
+                                  "the worker count, 'auto' to use the cpu count, "
+                                  "or omit the value to enable with defaults. "
+                                  "Use --parallel=no to force sequential execution.")
     if with_quick:
         g_basic.add_argument("--quick", action="store_true", help="Only run quick tests.")
         g_basic.add_argument("--reallyquick", action="store_true",

@@ -198,6 +198,10 @@ def main(argv=None) -> int:
     state.exit_on_first_error = bool(args.exit_on_first_error)
     state.skip_first_n = int(args.skip_first_n_tests or 0)
 
+    parallel = getattr(args, "parallel", None)
+    if parallel is None:
+        parallel = os.environ.get("OMNIOPT_TESTS_PARALLEL")
+
     start = time.time()
 
     def render(test):
@@ -210,6 +214,7 @@ def main(argv=None) -> int:
             env_pred=lambda t, args=args, **kw: None,
             render_command=render,
             dry_run=bool(args.dry_run),
+            parallel=parallel,
         )
     except KeyboardInterrupt:
         state.interrupted = True

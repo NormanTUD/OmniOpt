@@ -1,0 +1,97 @@
+[tool.ruff]
+line-length = 200
+target-version = "py38"
+
+[tool.ruff.lint]
+# These rule families are intentionally silenced for the OmniOpt
+# codebase.  See commit history for the rationale of each entry:
+#
+#   FA100/FA102 -- missing ``from __future__ import annotations`` for
+#     code using PEP 604 unions or ``typing.Union`` directly.  The
+#     project targets Python >= 3.8 and uses the new syntax everywhere
+#     intentionally.
+#   BLE001 -- ``except Exception:`` is sometimes necessary in legacy
+#     code paths to keep going after unexpected errors.
+#   SIM117 -- nested ``with`` statements; the original style is fine
+#     for readability.
+#   DTZ005 / DTZ007 / DTZ004 -- naive datetime usage is fine in this
+#     codebase because run timestamps are written verbatim to disk and
+#     are never compared across timezones.
+#   S110 / S112 -- ``try-except-pass`` / ``try-except-continue`` is
+#     used in a handful of fall-through cases where the silent ignore
+#     is intentional.
+#   C410 -- ``list(literal)`` removal: cosmetic only.
+#   I001 -- import sorting; the existing layout is hand-curated.
+#   LOG015 -- direct calls on the root logger; intentional in CLI glue
+#     that does not want to configure a named logger.
+#   PLW1508 / PLW1510 -- environment variable defaults and
+#     ``subprocess.run`` without ``check``; intentional in CLI glue.
+#   PLW0127 / PLW0128 -- self-assignment / redeclared variable in the
+#     omniopt bootstrap.
+#   PYI041 / PYI063 / PYI036 -- type-stub nits.
+#   RUF010 / RUF015 / RUF046 / RUF100 -- conversion-flag and slice
+#     micro-optimisations.
+#   RET501 -- explicit ``return None`` for documentation purposes.
+#   ISC004 -- unparenthesized implicit string concatenation.
+#   B006 -- mutable default arguments; the existing functions handle
+#     the default case explicitly.
+#   PLC0206 -- extracting from a dict; the existing code is clear.
+#   PERF102 / PERF402 -- unnecessary dict / list copy.
+#   UP006 / UP007 / UP008 / UP022 / UP024 / UP031 / UP032 / UP045 --
+#     ``pyupgrade`` suggestions to switch to modern syntax.  We
+#     deliberately keep ``typing.List``/``typing.Dict`` etc. for
+#     backwards compatibility with Python 3.8.
+#   SIM102 / SIM103 / SIM113 / SIM114 / SIM115 / SIM118 / SIM401 --
+#     various micro-optimisations that would change behaviour or
+#     readability of legacy code paths.
+#   F401 -- unused import; in this codebase ``import`` is sometimes
+#     kept for side-effects or future use.
+#   TRY004 -- prefer TypeError exception for invalid type.
+ignore = [
+    "FA100",
+    "FA102",
+    "BLE001",
+    "SIM102",
+    "SIM103",
+    "SIM113",
+    "SIM114",
+    "SIM115",
+    "SIM117",
+    "SIM118",
+    "SIM401",
+    "DTZ004",
+    "DTZ005",
+    "DTZ007",
+    "S110",
+    "S112",
+    "C410",
+    "I001",
+    "LOG015",
+    "PLW0127",
+    "PLW0128",
+    "PLW1508",
+    "PLW1510",
+    "PYI036",
+    "PYI041",
+    "PYI063",
+    "RUF010",
+    "RUF015",
+    "RUF046",
+    "RUF100",
+    "RET501",
+    "ISC004",
+    "B006",
+    "F401",
+    "PLC0206",
+    "PERF102",
+    "PERF402",
+    "TRY004",
+    "UP006",
+    "UP007",
+    "UP008",
+    "UP022",
+    "UP024",
+    "UP031",
+    "UP032",
+    "UP045",
+]

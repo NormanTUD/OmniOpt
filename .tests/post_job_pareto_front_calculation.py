@@ -16,7 +16,6 @@ if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
 from _framework.helpers import (
-    command_exists,
     green_text,
     red_text,
 )

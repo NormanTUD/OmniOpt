@@ -26,7 +26,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             subprocess.check_call([
                 sys.executable, "-m", "pip", "install", "--break-system-packages", "linkchecker"
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            
+
             # Check if it's now available
             if not shutil.which("linkchecker"):
                 print("linkchecker installation failed - skipping link check")
@@ -37,7 +37,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
                 subprocess.check_call([
                     sys.executable, "-m", "pip", "install", "--user", "linkchecker"
                 ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                
+
                 # Check if it's now available
                 if not shutil.which("linkchecker"):
                     print("linkchecker installation failed - skipping link check")
@@ -45,7 +45,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
             except Exception:
                 print("linkchecker not installed and failed to install - skipping link check")
                 return 0
-    
+
     proc = subprocess.run(
         ["linkchecker", "https://imageseg.scads.de/omniax/"],
         cwd=str(REPO_ROOT),

@@ -27,7 +27,6 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         print("PHP not installed; skipping php_files")
         return 0
 
-    php_files = sorted(GUI_DIR.rglob("*.php"))
     errors = 0
 
     # PHP -l only accepts one file per invocation.  Running it in a

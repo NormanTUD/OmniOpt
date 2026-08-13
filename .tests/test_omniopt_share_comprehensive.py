@@ -34,7 +34,7 @@ from importlib.machinery import SourceFileLoader  # noqa: E402
 
 os_ = SourceFileLoader(
     "omniopt_share", str(REPO_ROOT / "omniopt_share")
-).load_module()
+).load_module()  # pylint: disable=deprecated-method
 
 from _framework.helpers import red_text  # noqa: E402
 

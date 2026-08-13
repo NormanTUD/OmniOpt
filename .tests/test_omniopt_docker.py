@@ -31,7 +31,7 @@ from importlib.machinery import SourceFileLoader  # noqa: E402
 
 od = SourceFileLoader(
     "omniopt_docker", str(REPO_ROOT / "omniopt_docker")
-).load_module()
+).load_module()  # pylint: disable=deprecated-method
 
 from _framework.helpers import red_text  # noqa: E402
 

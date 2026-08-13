@@ -3895,7 +3895,7 @@ def _find_latest_valid_run_dir(fallback_continue_dir: str) -> Optional[str]:
         candidates.append(sibling)
     if not candidates:
         return None
-    candidates.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+    candidates.sort(key=os.path.getmtime, reverse=True)
     return candidates[0]
 
 

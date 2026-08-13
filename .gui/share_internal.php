@@ -137,14 +137,21 @@
 	$manifest = null;
 	// is_uploaded_file() requires PHP CGI/FPM SAPI; PHP's built-in dev
 	// server reports false even for legitimate uploads, so we fall back
-	// to a plain file_exists() check that works under both.
+	// to a plain file_exists() check that works under both.  Also accept
+	// the manifest via $_POST (the test-only router puts parts without a
+	// ``filename=`` field there; mod_php always uses $_FILES).
 	$manifest_tmp = $_FILES["manifest"]["tmp_name"] ?? null;
-	if ($manifest_tmp && file_exists($manifest_tmp)) {
+	$manifest_post = $_POST["manifest"] ?? null;
+	if (($manifest_tmp && file_exists($manifest_tmp)) || is_string($manifest_post)) {
 		if (!class_exists("ZipArchive")) {
 			print("Error: server is missing the PHP zip extension; manifest protocol unavailable.\n");
 			exit(1);
 		}
-		$manifest_raw = file_get_contents($manifest_tmp);
+		if ($manifest_tmp && file_exists($manifest_tmp)) {
+			$manifest_raw = file_get_contents($manifest_tmp);
+		} else {
+			$manifest_raw = $manifest_post;
+		}
 		$manifest = json_decode($manifest_raw, true);
 		if (!is_array($manifest)) {
 			print("Error: manifest is not valid JSON.\n");
@@ -177,10 +184,21 @@
 				$uuid_folder = find_matching_uuid_run_folder($update_uuid, $user_id, $experiment_name);
 			}
 		}
+		// When the client asks for an update without supplying a uuid,
+		// fall back to the most recently modified run folder for this
+		// (user_id, experiment_name).  This mirrors the real-life flow
+		// where ``omniopt_share --update`` re-uses the existing share.
+		if (!empty($manifest["update"]) && empty($uuid_folder)) {
+			$uuid_folder = find_latest_run_folder($user_id, $experiment_name);
+		}
 		$_GET["password"] = $manifest["password"] ?? "";
 
 		if (!isset($_FILES["bundle"]) || !file_exists($_FILES["bundle"]["tmp_name"])) {
 			print("Error: manifest present but bundle.zip missing\n");
+			exit(1);
+		}
+		if (!is_array($manifest["files"]) || count($manifest["files"]) === 0) {
+			print("Error: manifest has no files (nothing to share)\n");
 			exit(1);
 		}
 		$bundle_path = $_FILES["bundle"]["tmp_name"];

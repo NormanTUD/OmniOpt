@@ -2129,6 +2129,29 @@
 		return rmdir($folder);
 	}
 
+	function find_latest_run_folder($user_id, $experiment_name): ?string {
+		try {
+			if (!preg_match("/^[a-zA-Z0-9_-]+$/", $user_id) ||
+				!preg_match("/^[a-zA-Z0-9_-]+$/", $experiment_name)) {
+				return null;
+			}
+		} catch (Throwable $t) {
+			handle_jit_security_error($t);
+		}
+
+		$glob_str = $GLOBALS["sharesPath"]."/$user_id/$experiment_name/*";
+		$candidates = glob($glob_str);
+		if ($candidates === false || empty($candidates)) {
+			return null;
+		}
+
+		usort($candidates, function($a, $b) {
+			return filemtime($b) <=> filemtime($a);
+		});
+		$latest = $candidates[0];
+		return is_dir($latest) ? $latest : null;
+	}
+
 	function create_new_folder($user_id, $experiment_name) {
 		$i = 0;
 		$sharesPath = $GLOBALS["sharesPath"];

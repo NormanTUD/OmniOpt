@@ -21,9 +21,10 @@ REPO_ROOT = THIS_DIR.parent
 sys.path.insert(0, str(REPO_ROOT))
 from importlib.machinery import SourceFileLoader  # noqa: E402
 
+# pylint: disable-next=deprecated-method
 oe = SourceFileLoader(
     "omniopt_evaluate", str(REPO_ROOT / "omniopt_evaluate")
-).load_module()  # pylint: disable=deprecated-method
+).load_module()
 
 from _framework.helpers import red_text  # noqa: E402
 

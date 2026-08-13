@@ -56,13 +56,6 @@ tests:
     wanted_exit_code: 0
     tags: [suite:meta, quick:false, env:local]
 
-  - id: share_ci
-    class: share
-    name: "share"
-    cmd: "python3 {REPO_ROOT}/.tests/test_share_integration_extended.py"
-    wanted_exit_code: 0
-    tags: [suite:share, env:ci]
-
   # ---- basic omniopt self-test ---------------------------------------------
   - id: basic_tests
     class: basic

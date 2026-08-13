@@ -168,7 +168,7 @@ def main(argv=None) -> int:
             }
             try:
                 for future in as_completed(future_to_linter):
-                    name, returncode, err = future.result()
+                    name, _returncode, err = future.result()
                     if err:
                         errors.append((name, err))
             except KeyboardInterrupt:

@@ -27,7 +27,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
                 f"--raw_samples={raw_samples} --num_restarts={num_restarts}"
             )
             cmd = [
-                f"{REPO_ROOT}/.tests/start_simple_optimization_run.py",
+                f"{REPO_ROOT}/.tests/start_simple_optimization_run",
                 "--max_eval=50",
                 "--num_parallel_jobs=10",
                 "--nr_results=1",

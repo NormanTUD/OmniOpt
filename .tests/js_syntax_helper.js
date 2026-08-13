@@ -1,4 +1,4 @@
-// Helper for .tests/js_syntax.py: parse-check every *.js file in a
+// Helper for .tests/js_syntax: parse-check every *.js file in a
 // single node process.  Replaces a per-file `node --check` invocation
 // (~50 ms startup each) with one shared process.
 //

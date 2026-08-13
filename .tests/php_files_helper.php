@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper for `.tests/php_files.py`: syntax-check every *.php file
+ * Helper for `.tests/php_files`: syntax-check every *.php file
  * under the directory passed as $argv[1] in a single PHP process.
  *
  * Uses `token_get_all()` directly so we don't have to pay PHP's

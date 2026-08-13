@@ -43,7 +43,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         "--num_parallel_jobs", "1",
         "--gpus", str(num_gpus),
         "--run_program", _b64(
-            "./.tests/optimization_example.py --random_sem "
+            "./.tests/optimization_example --random_sem "
             "--int_param='%(int_param)' --float_param='%(float_param)' "
             "--choice_param='%(choice_param)' "
             "--int_param_two='%(int_param_two)' --nr_results=1"

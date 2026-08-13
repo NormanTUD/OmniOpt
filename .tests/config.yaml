@@ -68,7 +68,7 @@ tests:
   - id: simple_optimization_run
     class: simple
     name: "Simple optimization run"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --num_parallel_jobs={num_parallel_jobs} --gpus={NUM_GPUS} --num_random_steps={num_random_steps} --max_eval={max_eval} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --num_parallel_jobs={num_parallel_jobs} --gpus={NUM_GPUS} --num_random_steps={num_random_steps} --max_eval={max_eval} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -122,7 +122,7 @@ tests:
   - id: force_local_execution
     class: sbatch
     name: "force_local_execution"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --force_local_execution --num_parallel_jobs=1 --num_random_steps=2 --max_eval=3 --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no, env:slurm]
 
@@ -130,7 +130,7 @@ tests:
   - id: linkchecker
     class: link
     name: "Linkchecker"
-    cmd: "{REPO_ROOT}/.tests/linkchecker.py"
+    cmd: "{REPO_ROOT}/.tests/linkchecker"
     wanted_exit_code: 0
     tags: [suite:link, env:local]
 
@@ -138,21 +138,21 @@ tests:
   - id: linter_full
     class: linter
     name: "Linter"
-    cmd: "python3 {REPO_ROOT}/.tests/linter.py"
+    cmd: "python3 {REPO_ROOT}/.tests/linter"
     wanted_exit_code: 0
     tags: [suite:linter, quick:no, env:local]
 
   - id: linter_quick
     class: linter
     name: "Linter (quick)"
-    cmd: "python3 {REPO_ROOT}/.tests/linter.py --quick"
+    cmd: "python3 {REPO_ROOT}/.tests/linter --quick"
     wanted_exit_code: 0
     tags: [suite:linter, env:local]
 
   - id: lint_python
     class: linter
     name: "lint_python"
-    cmd: "{REPO_ROOT}/.tests/lint_python.py"
+    cmd: "{REPO_ROOT}/.tests/lint_python"
     wanted_exit_code: 0
     tags: [suite:linter, env:local]
 
@@ -160,35 +160,35 @@ tests:
   - id: test_orchestrator
     class: orchestrator
     name: "Test orchestrator"
-    cmd: "{REPO_ROOT}/.tests/orchestrator.py"
+    cmd: "{REPO_ROOT}/.tests/orchestrator"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: test_seed_1234
     class: orchestrator
     name: "Test seed 1234"
-    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 1234 --gpus {NUM_GPUS} --hash dd226ace9006a7908871e0f346c830cd"
+    cmd: "{REPO_ROOT}/.tests/test_seed --seed 1234 --gpus {NUM_GPUS} --hash dd226ace9006a7908871e0f346c830cd"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: test_seed_4321
     class: orchestrator
     name: "Test seed 4321"
-    cmd: "{REPO_ROOT}/.tests/test_seed.py --seed 4321 --gpus {NUM_GPUS} --hash 6a0f8e49db02ae427ab97a613010c08f"
+    cmd: "{REPO_ROOT}/.tests/test_seed --seed 4321 --gpus {NUM_GPUS} --hash 6a0f8e49db02ae427ab97a613010c08f"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: test_multiple_evals_per_arm
     class: orchestrator
     name: "Testing multiple evals per arm"
-    cmd: "{REPO_ROOT}/.tests/test_multiple_evals_per_arm.py"
+    cmd: "{REPO_ROOT}/.tests/test_multiple_evals_per_arm"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: adding_jobs_to_new_job
     class: orchestrator
     name: "adding_jobs_to_new_job"
-    cmd: "{REPO_ROOT}/.tests/adding_jobs_to_new_job.py"
+    cmd: "{REPO_ROOT}/.tests/adding_jobs_to_new_job"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
@@ -325,14 +325,14 @@ tests:
   - id: external_generator
     class: external
     name: "External generator"
-    cmd: "{REPO_ROOT}/.tests/external_generator.py"
+    cmd: "{REPO_ROOT}/.tests/external_generator"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: sem_test
     class: external
     name: "SEM-Test"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --num_parallel_jobs=1 --gpus={NUM_GPUS} --num_random_steps=1 --max_eval=2 --mem_gb=4 --generate_all_jobs_at_once --random_sem --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --num_parallel_jobs=1 --gpus={NUM_GPUS} --num_random_steps=1 --max_eval=2 --mem_gb=4 --generate_all_jobs_at_once --random_sem --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
@@ -405,7 +405,7 @@ tests:
   - id: progressbar_sobol_botorch
     class: generation
     name: "Test if progressbar log has sobol and botorch"
-    cmd: "{REPO_ROOT}/.tests/check_if_progressbar_logs_has_sobol_and_botorch.py"
+    cmd: "{REPO_ROOT}/.tests/check_if_progressbar_logs_has_sobol_and_botorch"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
@@ -413,21 +413,21 @@ tests:
   - id: results_csv_headers
     class: post_run
     name: "Test if results.csv has the right headers"
-    cmd: "{REPO_ROOT}/.tests/check_if_results_csv_has_the_right_headers.py"
+    cmd: "{REPO_ROOT}/.tests/check_if_results_csv_has_the_right_headers"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: test_debug_py
     class: post_run
     name: "Test debug.py"
-    cmd: "{REPO_ROOT}/.tests/test_debug_py.py"
+    cmd: "{REPO_ROOT}/.tests/test_debug_py"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
   - id: post_job_pareto
     class: post_run
     name: "post_job_pareto_front_calculation"
-    cmd: "{REPO_ROOT}/.tests/post_job_pareto_front_calculation.py"
+    cmd: "{REPO_ROOT}/.tests/post_job_pareto_front_calculation"
     wanted_exit_code: 0
     tags: [suite:full, quick:never]
 
@@ -442,14 +442,14 @@ tests:
   - id: moo_real
     class: moo
     name: "Testing real MOO"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_one_param
     class: moo
     name: "Testing real MOO with alternating results with one_param"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --one_param --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -477,28 +477,28 @@ tests:
   - id: moo_alternating_two_params
     class: moo
     name: "Testing real MOO with alternating results with two_params"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --two_params --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_all_float
     class: moo
     name: "Testing real MOO with alternating results with all_float"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --all_float --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: moo_alternating_default
     class: moo
     name: "Testing real MOO with alternating results default"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4 --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=2 --num_random_steps=1 --nr_results=4 --alternate_min_max --generate_all_jobs_at_once --mem_gb=4 --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: tpe
     class: moo
     name: "Testing TPE"
-    cmd: "{REPO_ROOT}/.tests/tpe.py"
+    cmd: "{REPO_ROOT}/.tests/tpe"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -528,7 +528,7 @@ tests:
   - id: dryrun
     class: dryrun
     name: "Testing dryrun"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval=1 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --testname=xyz --nr_results=1 --additional_parameter='--dryrun --just_return_defaults'"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval=1 --num_parallel_jobs=2 --num_random_steps=1 --mem_gb=4 --generate_all_jobs_at_once --follow --testname=xyz --nr_results=1 --additional_parameter='--dryrun --just_return_defaults'"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -536,14 +536,14 @@ tests:
   - id: continued_constraint
     class: transforms
     name: "Continued constraint"
-    cmd: "{REPO_ROOT}/.tests/continued_constraint.py"
+    cmd: "{REPO_ROOT}/.tests/continued_constraint"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: transforms
     class: transforms
     name: "Transforms-Test"
-    cmd: "{REPO_ROOT}/.tests/transforms.py"
+    cmd: "{REPO_ROOT}/.tests/transforms"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -551,35 +551,35 @@ tests:
   - id: simple_with_allowed_failures
     class: simple
     name: "Simple optimization run (with allowed failures)"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --allow_failure --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --allow_failure --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: simple_gridsearch
     class: simple
     name: "Simple optimization run (grid search)"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --gridsearch --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --gridsearch --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: simple_one_param
     class: simple
     name: "Simple optimization run with 1 param"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --one_param --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --one_param --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: simple_two_params
     class: simple
     name: "Simple optimization run with 2 params"
-    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run.py --two_params --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "{REPO_ROOT}/.tests/start_simple_optimization_run --two_params --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
   - id: simple_all_float
     class: simple
     name: "Simple all float run"
-    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run.py --all_float --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --model=BOTORCH_MODULAR --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
+    cmd: "python3 {REPO_ROOT}/.tests/start_simple_optimization_run --all_float --max_eval={max_eval} --num_parallel_jobs={num_parallel_jobs} --num_random_steps={num_random_steps} --model=BOTORCH_MODULAR --mem_gb={mem_gb} --generate_all_jobs_at_once --follow"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -610,7 +610,7 @@ tests:
   - id: wronggoing_stuff
     class: wronggoing
     name: "Test stuff that goes wrong"
-    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff.py --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
+    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
     wanted_exit_code: 0
     alternative_exit_code: 87
     tags: [suite:full, quick:no]
@@ -618,7 +618,7 @@ tests:
   - id: wronggoing_stuff_no_success
     class: wronggoing
     name: "Test stuff that goes wrong without successes"
-    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff.py --nosuccess --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
+    cmd: "python3 {REPO_ROOT}/.tests/wronggoing_stuff --nosuccess --num_random_steps={num_random_steps} --gpus={NUM_GPUS}"
     wanted_exit_code: 87
     alternative_exit_code: 89
     tags: [suite:full, quick:no]
@@ -627,7 +627,7 @@ tests:
   - id: multiplication_constraint
     class: constraint
     name: "Multiplication constraint"
-    cmd: "{REPO_ROOT}/.tests/multiplication_constraint.py"
+    cmd: "{REPO_ROOT}/.tests/multiplication_constraint"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 
@@ -687,7 +687,7 @@ tests:
   - id: multi_results_different_models
     class: moo
     name: "Testing multiple results with different models"
-    cmd: "python3 {REPO_ROOT}/.tests/multi_results_different_models.py"
+    cmd: "python3 {REPO_ROOT}/.tests/multi_results_different_models"
     wanted_exit_code: 0
     tags: [suite:full, quick:no]
 

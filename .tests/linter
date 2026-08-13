@@ -112,7 +112,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
     if args.help:
-        print(".tests/linter.py")
+        print(".tests/linter")
         print("  --quick             Disable slow tests")
         print("  --dont_fail_on_error")
         print("  --check_only_changed_since_last_success")

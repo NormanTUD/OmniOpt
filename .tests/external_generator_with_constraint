@@ -53,7 +53,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         "--parameter", "x range 123 1000 int false",
         "--parameter", "y range 1234 4321",
         "--parameter", "z range 111 222 int",
-        f"--external_generator={_b64(f'python3 {REPO_ROOT}/.tests/example_external.py')}",
+        f"--external_generator={_b64(f'python3 {REPO_ROOT}/.tests/example_external')}",
         f"--experiment_constraint={_b64('x >= y')}",
         "--seed", "1234",
     ]

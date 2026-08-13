@@ -25,7 +25,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         shutil.rmtree(rundir)
 
     cmd = (
-        f"{REPO_ROOT}/.tests/start_simple_optimization_run.py "
+        f"{REPO_ROOT}/.tests/start_simple_optimization_run "
         f"--num_parallel_jobs=1 --gpus={num_gpus} --num_random_steps=1 "
         "--max_eval=1 --mem_gb=4 --generate_all_jobs_at_once --random_sem "
         f"--nr_results=1 --follow --testname={testname} --nr_results=3 "

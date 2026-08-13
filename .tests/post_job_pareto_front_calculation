@@ -34,7 +34,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ["DIE_AFTER_THIS_NR_OF_DONE_JOBS"] = "1"
 
     cmd = (
-        f"{REPO_ROOT}/.tests/start_simple_optimization_run.py "
+        f"{REPO_ROOT}/.tests/start_simple_optimization_run "
         f"--num_parallel_jobs=1 --gpus={num_gpus} --num_random_steps=1 "
         "--max_eval=200 --mem_gb=4 --generate_all_jobs_at_once --random_sem "
         "--nr_results=2 --follow"

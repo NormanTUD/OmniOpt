@@ -12,7 +12,7 @@ that has the project's ``runs/``, ``logs/`` and matplotlib config mounted.
 
 The script is split into small, pure functions so the behaviour can be
 exercised without a real docker daemon (see
-``/.tests/test_omniopt_docker.py``).
+``/.tests/test_omniopt_docker``).
 
 Behavioural compatibility with the bash version:
   * ``--help`` exits 0 and prints help

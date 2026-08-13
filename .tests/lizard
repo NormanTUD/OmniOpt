@@ -39,7 +39,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
         # Fall back to running lizard as a Python module (works when it's
         # installed inside the framework venv but has no bin entry on PATH).
         # We cannot detect this with find_spec/import, because this very
-        # script (.tests/lizard.py) shadows the "lizard" module on sys.path.
+        # script (.tests/lizard) shadows the "lizard" module on sys.path.
         cmd = [sys.executable, "-m", "lizard", *LIZARD_FLAGS, *targets]
 
     proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True)

@@ -46,7 +46,7 @@ def main(argv=None) -> int:
     if args.external_generator:
         ext_gen = _b64(args.external_generator)
     else:
-        ext_gen = _b64(f"python3 {REPO_ROOT}/.tests/example_external.py")
+        ext_gen = _b64(f"python3 {REPO_ROOT}/.tests/example_external")
 
     cmd = [
         "./omniopt",

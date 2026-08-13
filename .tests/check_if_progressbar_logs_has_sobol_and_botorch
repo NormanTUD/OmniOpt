@@ -21,7 +21,7 @@ def main(argv=None) -> int:  # pylint: disable=unused-argument
     num_gpus = 1 if shutil.which("nvidia-smi") else 0
 
     cmd = (
-        f"{REPO_ROOT}/.tests/start_simple_optimization_run.py "
+        f"{REPO_ROOT}/.tests/start_simple_optimization_run "
         f"--num_parallel_jobs=2 --gpus=0 --num_random_steps=1 --max_eval=2 "
         f"--mem_gb=1 --generate_all_jobs_at_once --follow --gpus={num_gpus}"
     )

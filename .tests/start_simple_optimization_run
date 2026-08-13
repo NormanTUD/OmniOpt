@@ -137,7 +137,7 @@ def main(argv=None) -> int:
     # Build the run_program and base cmd based on the variant.
     if args.one_param:
         run_program_text = (
-            f"./.tests/optimization_example.py {random_sem_str} "
+            f"./.tests/optimization_example {random_sem_str} "
             "--int_param='%(int_param)' --float_param='1' "
             f"--choice_param='1' --int_param_two='1' --nr_results={nr_results}"
         )
@@ -158,7 +158,7 @@ def main(argv=None) -> int:
         ]
     elif args.all_float:
         run_program_text = (
-            f".tests/optimization_example_all_float.py {random_sem_str} "
+            f".tests/optimization_example_all_float {random_sem_str} "
             f"--x=%(x) --y=%(y) --z=%(z) --a=%(a) --nr_results={nr_results}"
         )
         if args.allow_failure:
@@ -184,13 +184,13 @@ def main(argv=None) -> int:
         ]
     elif args.two_params:
         run_program_text = (
-            f"./.tests/optimization_example.py {random_sem_str} "
+            f"./.tests/optimization_example {random_sem_str} "
             "--int_param='%(int_param)' --float_param='1' "
             f"--choice_param='1' --int_param_two='1' --nr_results={nr_results}"
         )
         if args.allow_failure:
             run_program_text = (
-                f"./.tests/optimization_example.py {random_sem_str} "
+                f"./.tests/optimization_example {random_sem_str} "
                 "--int_param='%(int_param)' --float_param='%(float_param)' "
                 f"--choice_param='1' --int_param_two='1' --nr_results={nr_results} "
                 "--fail_or_not=%(fail_or_not)"
@@ -211,7 +211,7 @@ def main(argv=None) -> int:
         ]
     else:
         run_program_text = (
-            f"./.tests/optimization_example.py {random_sem_str} "
+            f"./.tests/optimization_example {random_sem_str} "
             "--int_param='%(int_param)' --float_param='%(float_param)' "
             f"--choice_param='%(choice_param)' --int_param_two='%(int_param_two)' "
             f"--nr_results={nr_results}"

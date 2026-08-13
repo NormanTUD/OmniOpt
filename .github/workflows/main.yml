@@ -84,7 +84,7 @@ jobs:
     - name: Run linter
       if: needs.detect_changes.outputs.gui_only != 'true'
       run: |
-        python3 .tests/linter.py --check_only_changed_since_last_success
+        python3 .tests/linter --check_only_changed_since_last_success
 
   install-via-pip:
     needs: [smoke-tests, docker-test, detect_changes]

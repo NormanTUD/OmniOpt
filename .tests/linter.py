@@ -85,8 +85,8 @@ def _resolve_workers(arg: Optional[str], n_linters: int) -> int:
         return 1
     try:
         n = int(s)
-    except ValueError:
-        raise SystemExit(f"Invalid --parallel value: {arg!r}")
+    except ValueError as exc:
+        raise SystemExit(f"Invalid --parallel value: {arg!r}") from exc
     return max(1, n)
 
 
@@ -150,7 +150,7 @@ def main(argv=None) -> int:
 
     if sequential:
         for linter in linters_to_run:
-            name, returncode, err = _run_linter(linter, args.files)
+            name, _returncode, err = _run_linter(linter, args.files)
             if err:
                 errors.append((name, err))
                 if not args.dont_fail_on_error:

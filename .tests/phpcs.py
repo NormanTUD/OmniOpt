@@ -72,7 +72,7 @@ def _check_or_install_phpcs() -> bool:
     return shutil.which("phpcs") is not None
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     if not _check_or_install_phpcs():
         return 255
 

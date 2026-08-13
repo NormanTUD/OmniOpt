@@ -19,9 +19,9 @@ from _framework.installer import ensure_dependencies, install_packages
 REPO_ROOT = THIS_DIR.parent
 
 
-def main(argv=None) -> int:
+def main(argv=None) -> int:  # pylint: disable=unused-argument
     os.environ.setdefault("install_tests", "1")
-    
+
     # Ensure dependencies are installed
     ensure_dependencies(include_tests=True)
 

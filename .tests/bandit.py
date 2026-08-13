@@ -7,13 +7,18 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 THIS_DIR = Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
     sys.path.insert(0, str(THIS_DIR))
 
-from _framework.helpers import red_text
+from _framework.helpers import (
+    green_text,
+    human_readable_time,
+    red_text,
+)
 from _framework.installer import ensure_dependencies
 
 
@@ -52,6 +57,7 @@ def main(argv=None) -> int:
         return 1
 
     errors: list[str] = []
+    start = time.time()
     for py_file in sorted(REPO_ROOT.glob(".*.py")):
         if py_file.name == ".helpers.py":
             continue
@@ -65,12 +71,17 @@ def main(argv=None) -> int:
             red_text(errstr)
             errors.append(errstr)
 
-    if errors:
-        # Bandit security findings are pre-existing in the repo and are
-        # reported by the dedicated linter.py orchestrator; the smoke-test
-        # variant only surfaces them without failing the build.
+    elapsed = int(time.time() - start)
+    print(f"Bandit test took: {human_readable_time(elapsed)}")
+
+    if not errors:
+        green_text("No bandit errors")
         return 0
-    return 0
+
+    red_text("=> BANDIT-ERRORS => BANDIT-ERRORS => BANDIT-ERRORS =>\n")
+    for e in errors:
+        red_text(e)
+    return len(errors)
 
 
 if __name__ == "__main__":

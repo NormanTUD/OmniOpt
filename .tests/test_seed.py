@@ -84,7 +84,7 @@ def main(argv=None) -> int:
         return 1
 
     content = results_csv.read_text(encoding="utf-8", errors="ignore")
-    last_col_lines = [line.rsplit(",", 1)[-1] for line in content.splitlines()[1:] if line.strip()]
+    last_col_lines = [line.rsplit(",", 1)[-1] for line in content.splitlines() if line.strip()]
     real_hash = hashlib.md5("\n".join(last_col_lines).encode("utf-8")).hexdigest()
 
     if args.seed == 1234:

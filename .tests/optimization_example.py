@@ -19,7 +19,7 @@ def shekel(args: list[float]) -> float:
         except ValueError:
             raise ValueError(f"Invalid parameter {k}: {v} is not a number")
 
-    beta = [1, 2, 2, 4, 4, 6, 3, 7, 5, 5]
+    beta = [0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5]
     C = [
         [4, 1, 8, 7, 3, 2, 5, 8, 6, 7],
         [4, 1, 8, 6, 7, 9, 3, 1, 2, 3.6],

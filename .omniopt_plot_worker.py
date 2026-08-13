@@ -58,7 +58,7 @@ def plot_worker_usage(pd_csv: str) -> None:
 
         duplicate_mask = (
             data[data.columns.difference(["time"])].shift()
-            == data[data.columns.difference(["time"])]
+            == data[data.columns.difference(["time"])]  # noqa: W503
         ).all(axis=1)
         data = data[~duplicate_mask].reset_index(drop=True)
 

@@ -6,6 +6,7 @@ This module replaces the functions normally provided by
 
 from __future__ import annotations
 
+import functools
 import os
 import sys
 import time
@@ -334,3 +335,74 @@ def ensure_omniopt_call() -> str:
 
 def now_ts() -> int:
     return int(time.time())
+
+
+@functools.lru_cache(maxsize=1)
+def _last_git_tag() -> Optional[str]:
+    """Return the most recent git tag, or ``None`` if unavailable."""
+    try:
+        proc = subprocess.run(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if proc.returncode != 0:
+        return None
+    return proc.stdout.strip() or None
+
+
+def file_has_changed_since_last_tagged_version(
+    filepath: str,
+    cwd: Optional[str] = None,
+) -> bool:
+    """Mirror of the bash ``file_has_changed_since_last_tagged_version``.
+
+    Returns ``True`` when the file should be re-checked. This is the case
+    when:
+
+    * ``ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT`` is unset (default behaviour -
+      always treat files as changed so the linter runs unconditionally),
+    * the file differs from the last tagged revision, or
+    * the file has working-tree or index modifications.
+
+    Returns ``False`` only when ``ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT`` is
+    set and the file is byte-identical to the last tagged revision with no
+    pending modifications.
+    """
+    if not os.environ.get("ONLY_CHECK_CHANGED_SINCE_LAST_COMMIT"):
+        return True
+
+    last_tag = _last_git_tag()
+    if last_tag is None:
+        echoerr("Cannot get last tag")
+        return False
+
+    run_cwd = cwd if cwd is not None else str(Path.cwd())
+    try:
+        diff_tagged = subprocess.run(
+            ["git", "diff", "--quiet", f"{last_tag}..HEAD", "--", filepath],
+            cwd=run_cwd, check=False,
+        )
+        if diff_tagged.returncode != 0:
+            return True
+
+        diff_worktree = subprocess.run(
+            ["git", "diff", "--quiet", "--", filepath],
+            cwd=run_cwd, check=False,
+        )
+        if diff_worktree.returncode != 0:
+            return True
+
+        diff_staged = subprocess.run(
+            ["git", "diff", "--cached", "--quiet", "--", filepath],
+            cwd=run_cwd, check=False,
+        )
+        if diff_staged.returncode != 0:
+            return True
+    except OSError:
+        return True
+
+    return False

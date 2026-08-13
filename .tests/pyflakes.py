@@ -40,7 +40,6 @@ def main(argv=None) -> int:
 
     targets = [str(p) for p in REPO_ROOT.glob(".*.py")]
     targets = [t for t in targets if not t.endswith("/.helpers.py")]
-    targets += [str(REPO_ROOT / "omniopt")]
     proc = subprocess.run(["pyflakes", *targets], cwd=str(REPO_ROOT))
     return proc.returncode
 

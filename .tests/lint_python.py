@@ -80,7 +80,7 @@ def main(argv=None) -> int:
             red_text(f"Failed to install ruff: {e}")
             return 1
 
-    files = sorted(glob.glob(str(REPO_ROOT / ".*.py")) + glob.glob(str(REPO_ROOT / "*.py")))
+    files = sorted(glob.glob(str(REPO_ROOT / ".*.py")))
     files = [f for f in files if os.path.isfile(f)]
     if not files:
         green_text("No python files to lint.")

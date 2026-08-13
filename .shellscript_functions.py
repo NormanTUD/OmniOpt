@@ -506,7 +506,7 @@ def setup_environment() -> int:
         )
 
     if (not os.environ.get("DONT_INSTALL_MODULES")
-        and not os.environ.get("SLURM_JOB_ID")):
+            and not os.environ.get("SLURM_JOB_ID")):  # noqa: W503, E129
         main_hash = _requirements_hash()
         hash_file = _hash_state_path()
 

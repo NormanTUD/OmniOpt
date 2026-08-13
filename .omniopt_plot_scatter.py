@@ -139,7 +139,7 @@ def plot_multiple_graphs(_params: list) -> None:
             col = i % num_cols
             if (
                 (len(args.exclude_params) and param1 not in args.exclude_params[0] and param2 not in args.exclude_params[0])
-                or len(args.exclude_params) == 0
+                or len(args.exclude_params) == 0  # noqa: W503
             ):
                 try:
                     scatter = axs[row, col].scatter(

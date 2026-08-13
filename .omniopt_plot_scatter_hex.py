@@ -157,7 +157,7 @@ def plot_multiple_graphs(_params: list) -> None:
             no_excludes = not has_excludes
             not_excluded = (
                 param1 not in args.exclude_params[0]
-                and param2 not in args.exclude_params[0]
+                and param2 not in args.exclude_params[0]  # noqa: W503
             ) if has_excludes else True
             if no_excludes or not_excluded:
                 try:

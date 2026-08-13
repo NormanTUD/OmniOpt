@@ -359,7 +359,7 @@ def test_sha256_of_large_file() -> bool:
         got = os_._sha256_of(path)
     finally:
         path.unlink()
-    return _check(got == expected, f"mismatch on 5 MiB file")
+    return _check(got == expected, "mismatch on 5 MiB file")
 
 
 def test_manifest_hash_matches_file_actually_written() -> bool:
@@ -421,7 +421,6 @@ def test_manifest_rejects_file_larger_than_max() -> bool:
         run = Path(tmp) / "e" / "0"
         run.mkdir(parents=True)
         (run / "huge.csv").write_text("a\n")
-        huge = Path(run) / "huge.csv"
 
         real_stat = Path.stat
 
@@ -918,7 +917,7 @@ def test_username_accepts_long_but_not_unbounded() -> bool:
         )
     return _check(
         m["user_id"] == long_name,
-        f"long username not preserved",
+        "long username not preserved",
     )
 
 
@@ -1209,7 +1208,7 @@ def test_main_with_multiple_run_dirs_attempts_both() -> bool:
     import tempfile as _tempfile
     attempts: list = []
 
-    def fake_post(base_url, manifest, zip_path, args):
+    def fake_post(base_url, manifest, zip_path, args):  # pylint: disable=unused-argument
         attempts.append((base_url, manifest["experiment_name"]))
         return 200, "Run was successfully shared. See https://example.com/share"
 

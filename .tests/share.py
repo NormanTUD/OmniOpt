@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -21,7 +20,6 @@ from _framework.helpers import (
     command_exists,
     green_text,
     red_text,
-    run,
     yellow_text,
 )
 

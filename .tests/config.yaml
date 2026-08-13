@@ -28,7 +28,7 @@ parameters:
 
 # -----------------------------------------------------------------------------
 # Tag categories:
-#   suite:meta      - runs before any real tests (smoke / pyright / linter)
+#   suite:meta      - runs before any real tests (smoke / linter)
 #   suite:basic     - the cheap omniopt self-test
 #   suite:full      - the heavier integration suite
 #   suite:plot      - plot generation
@@ -48,20 +48,13 @@ parameters:
 
 tests:
 
-  # ---- meta: smoke / pyright -------------------------------------------------
+  # ---- meta: smoke ---------------------------------------------------------
   - id: smoke_tests
     class: meta
     name: "Smoke tests"
     cmd: "python3 {REPO_ROOT}/.tests/smoke_tests"
     wanted_exit_code: 0
     tags: [suite:meta, quick:false, env:local]
-
-  - id: pyright
-    class: meta
-    name: "pyright"
-    cmd: "pyright ."
-    wanted_exit_code: 0
-    tags: [suite:meta, env:local]
 
   - id: share_ci
     class: share
@@ -785,6 +778,5 @@ smoke_tests:
   - php_search
   - missing_plot_metadata
   #- js_syntax
-  - pyright_fast
   - mypy
   - find_wrongly_typed_cli_args

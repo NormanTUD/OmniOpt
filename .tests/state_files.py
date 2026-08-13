@@ -17,7 +17,6 @@ from _framework.helpers import (
     green_text,
     human_readable_time,
     red_text,
-    yellow_text,
 )
 
 

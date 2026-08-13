@@ -11,7 +11,6 @@ itself can be exercised without a real TTY.
 from __future__ import annotations
 
 import csv
-import os
 import sys
 import tempfile
 from pathlib import Path

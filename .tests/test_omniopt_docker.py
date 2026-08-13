@@ -20,8 +20,6 @@ suite and are skipped automatically when docker is unavailable.
 
 from __future__ import annotations
 
-import os
-import subprocess
 import sys
 from pathlib import Path
 

@@ -1177,7 +1177,7 @@ try:
         from rich.prompt import Prompt, FloatPrompt, IntPrompt
 
     with spinner("Loading type and utility modules..."):
-        from types import FunctionType
+        from types import FunctionType, SimpleNamespace
         from typing import Pattern, Optional, Tuple, cast, Union, TextIO, List, Dict, Type
         from concurrent.futures import ThreadPoolExecutor, as_completed
         from submitit import LocalExecutor, AutoExecutor, Job
@@ -7817,6 +7817,13 @@ def check_base_for_print_overview() -> Optional[bool]:
     return True
 
 def get_config_objectives() -> Any:
+    """Return the configured objectives as a list of objects exposing
+    ``.metric_names`` (list of str) and ``.minimize`` (bool) for each result name.
+
+    Handles both the legacy ``MultiObjective.objectives`` API and newer ax
+    versions where ``MultiObjective`` only exposes ``metric_names`` together
+    with per-metric ``metric_weights`` (negative weight == minimize).
+    """
     if not ax_client:
         print_red("create_new_experiment: ax_client is None")
         my_exit(101)
@@ -7829,10 +7836,24 @@ def get_config_objectives() -> Any:
         opt_config = ax_client.experiment.optimization_config
         if opt_config.is_moo_problem:
             objective = getattr(opt_config, "objective", None)
-            if objective and getattr(objective, "objectives", None) is not None:
+            if objective is None:
+                print_debug("ax_client.experiment.optimization_config.objective was None")
+            elif getattr(objective, "objectives", None) is not None:
                 config_objectives = objective.objectives
             else:
-                print_debug("ax_client.experiment.optimization_config.objective was None")
+                weight_map = {}
+                weights = getattr(objective, "metric_weights", None)
+                if isinstance(weights, list):
+                    for entry in weights:
+                        if isinstance(entry, (tuple, list)) and len(entry) == 2:
+                            weight_map[entry[0]] = entry[1]
+                config_objectives = []
+                for name in list(getattr(objective, "metric_names", None) or []):
+                    weight = weight_map.get(name, -1.0)
+                    minimize = not isinstance(weight, (int, float)) or weight < 0
+                    config_objectives.append(
+                        SimpleNamespace(metric_names=[name], minimize=minimize)
+                    )
         else:
             config_objectives = [opt_config.objective]
     else:

@@ -160,7 +160,7 @@ def main(argv=None) -> int:
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--testname", type=str,
                         default="__main__tests__TPE_CONTINUE__")
-    parser.add_argument("--timeout", type=int, default=180)
+    parser.add_argument("--timeout", type=int, default=600)
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
     if args.max_eval <= args.num_random_steps:

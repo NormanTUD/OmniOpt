@@ -99,13 +99,21 @@ def parse_objectives(objectives: dict) -> tuple[str, str]:
 
 @beartype
 def extract_known_trials(trials_data: list, result_key: str) -> list:
-    """Pull the (param_dict, loss) pairs out of the OmniOpt trial format."""
+    """Pull the (param_dict, loss) pairs out of the OmniOpt trial format.
+
+    OmniOpt writes ``trials`` as a 2-element list: ``[list_of_param_dicts,
+    list_of_result_dicts]``. We pair them up by position.
+    """
     out: list = []
-    for entry in trials_data:
-        if not isinstance(entry, list) or len(entry) != 2:
+    if not isinstance(trials_data, list) or len(trials_data) != 2:
+        return out
+    params_list, results_list = trials_data
+    if not isinstance(params_list, list) or not isinstance(results_list, list):
+        return out
+    for param_dict, result_dict in zip(params_list, results_list):
+        if not isinstance(param_dict, dict) or not isinstance(result_dict, dict):
             continue
-        param_dict, result_dict = entry
-        if not isinstance(result_dict, dict) or result_key not in result_dict:
+        if result_key not in result_dict:
             continue
         out.append((param_dict, float(result_dict[result_key])))
     return out

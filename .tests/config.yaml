@@ -509,6 +509,13 @@ tests:
     wanted_exit_code: 0
     tags: [suite:full, quick:no, deps:hyperopt]
 
+  - id: tpe_real_omniopt_run
+    class: moo
+    name: "Real ./omniopt --model=TPE run vs hyperopt in-process (results.csv match)"
+    cmd: "{REPO_ROOT}/.tests/tpe_real_omniopt_run"
+    wanted_exit_code: 0
+    tags: [suite:full, quick:no, deps:hyperopt, runtime:long]
+
   # ---- result name handling -------------------------------------------------
   - id: wrong_result_name
     class: result_names

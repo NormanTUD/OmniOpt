@@ -1,0 +1,433 @@
+#!/usr/bin/env python3
+"""Verify that OmniOpt's --model=TPE run actually tests the same points
+that hyperopt would produce, by comparing the run's results.csv against
+hyperopt called directly in-process.
+
+This is the "real run" companion to ``.tests/tpe_vs_optuna``: instead of
+driving ``.tpe.py`` ourselves, we let ``./omniopt`` orchestrate the whole
+optimization, then re-derive what hyperopt would have suggested for each
+EXTERNAL_GENERATOR trial and compare.
+
+Workflow:
+
+  1. Wipe ``runs/<testname>`` so any leftover state cannot confuse us.
+  2. Start ``./omniopt --model=TPE --max_eval=K --num_random_steps=N``
+     with a fixed seed and ``--run_mode=local`` so it does not need SLURM.
+     The PATH is augmented with the framework venv's ``bin/`` so the
+     ``python3`` that OmniOpt uses to invoke ``.tpe.py`` actually has
+     hyperopt on its import path.
+  3. Parse ``runs/<testname>/0/results.csv`` and collect every row whose
+     ``generation_node`` is ``EXTERNAL_GENERATOR`` (i.e. produced by the
+     hyperopt-based ``.tpe.py``).
+  4. For each such trial k, reconstruct the ``input.json`` that OmniOpt's
+     ``ExternalProgramGenerationNode`` wrote into
+     ``external_generator_tmp/<k>/input.json``: same search space and
+     constraints, same seed, and history containing exactly the first k
+     SOBOL+EXTERNAL_GENERATOR trials (in the order they appear in
+     results.csv).
+  5. Run hyperopt's ``tpe.suggest`` in-process with that input.
+  6. Assert the suggested point matches what OmniOpt actually evaluated.
+
+If any step fails the test exits non-zero.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
+
+from _framework.helpers import green_text, red_text  # noqa: E402
+
+
+REPO_ROOT = THIS_DIR.parent
+HYPEROPT_TPE = REPO_ROOT / ".tpe.py"
+OMNIOPT = REPO_ROOT / "omniopt"
+START_RUN = REPO_ROOT / ".tests" / "start_simple_optimization_run"
+
+
+def _ensure_deps() -> None:
+    os.environ.setdefault("install_tests", "1")
+    from _framework.installer import ensure_dependencies, install_packages  # noqa: E402
+    ensure_dependencies(include_tests=True)
+    missing = []
+    for mod in ("hyperopt", "optuna", "beartype", "numpy"):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(mod)
+    if missing:
+        print(f"Installing missing dependencies: {missing}")
+        install_packages(missing, quiet=False)
+        for mod in missing:
+            __import__(mod)
+
+
+def _resolve_python3_with_hyperopt() -> str:
+    """Find a ``python3`` binary that has ``hyperopt`` importable.
+
+    OmniOpt invokes ``python3 .tpe.py`` via the ``ExternalProgramGenerationNode``.
+    The system ``/usr/bin/python3`` often lacks hyperopt, so we try, in order:
+
+      1. Any directory on ``$VIRTUAL_ENV/bin`` (the framework venv).
+      2. ``$HOME/.omniax_venvs/Python_<ver>/<arch>/bin/python3``.
+      3. ``sys.executable`` (if it has hyperopt).
+
+    The returned path is prepended to ``PATH`` for the omniopt subprocess so
+    its child ``python3`` resolves to the same interpreter.
+    """
+    candidates: list[Path] = []
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv:
+        candidates.append(Path(venv) / "bin" / "python3")
+    home = Path.home()
+    for pyver in ("Python_3.13.5", "Python_3.12.10", "Python_3.11.9"):
+        for arch in ("x86_64", "aarch64"):
+            candidates.append(
+                home / ".omniax_venvs" / pyver / arch / "bin" / "python3"
+            )
+    candidates.append(Path(sys.executable).resolve())
+
+    for cand in candidates:
+        if not cand.is_file():
+            continue
+        try:
+            proc = subprocess.run(
+                [str(cand), "-c", "import hyperopt"],
+                capture_output=True, text=True, timeout=15,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if proc.returncode == 0:
+            return str(cand)
+    raise RuntimeError(
+        "Could not find a python3 with hyperopt installed. "
+        "Activate the OmniOpt framework venv or install hyperopt into the "
+        "interpreter on $PATH."
+    )
+
+
+def _wipe_runs(testname: str) -> None:
+    rundir = REPO_ROOT / "runs" / testname
+    if rundir.exists():
+        shutil.rmtree(rundir)
+        print(f"  wiped {rundir}")
+
+
+def _run_omniopt(testname: str, max_eval: int, num_random_steps: int,
+                 seed: int, timeout_s: int) -> None:
+    """Invoke ``./omniopt --model=TPE`` for a tiny TPE run."""
+    py3 = _resolve_python3_with_hyperopt()
+    env = os.environ.copy()
+    env["PATH"] = f"{Path(py3).parent}{os.pathsep}{env.get('PATH', '')}"
+    cmd = [
+        sys.executable, str(START_RUN),
+        f"--max_eval={max_eval}",
+        "--num_parallel_jobs=1",
+        f"--num_random_steps={num_random_steps}",
+        "--mem_gb=4",
+        "--generate_all_jobs_at_once",
+        f"--additional_parameter=--model=TPE --seed={seed} --run_mode=local",
+        f"--testname={testname}",
+        "--gpus=0",
+    ]
+    print(f"  command: {' '.join(cmd)}")
+    proc = subprocess.run(
+        cmd, cwd=str(REPO_ROOT), env=env,
+        capture_output=True, text=True, timeout=timeout_s,
+    )
+    if proc.returncode != 0:
+        sys.stdout.write(proc.stdout)
+        sys.stderr.write(proc.stderr)
+        raise RuntimeError(f"omniopt exited with code {proc.returncode}")
+
+
+def _read_results_csv(csv_path: Path) -> list[dict[str, str]]:
+    """Read the results.csv as a list of dict rows (first row = header)."""
+    with csv_path.open(newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def _param_columns(rows: list[dict[str, str]]) -> list[str]:
+    """The columns whose names start with ``OO_Info_`` are the hyperparameters."""
+    return [c for c in rows[0].keys() if c.startswith("OO_Info_")]
+
+
+def _row_to_point(row: dict[str, str], parameters: dict[str, Any]) -> dict[str, Any]:
+    """Extract the parameter values from one results.csv row, respecting the
+    declared type from the search-space definition."""
+    point: dict[str, Any] = {}
+    for col in _param_columns([row]):
+        raw = row[col]
+        if raw == "" or raw is None:
+            continue
+        name = col[len("OO_Info_"):]
+        param_def = parameters.get(name, {})
+        ptype = param_def.get("parameter_type")
+        vtype = param_def.get("type")
+        if ptype == "CHOICE" or vtype == "STRING":
+            point[name] = raw
+        elif vtype == "INT":
+            try:
+                point[name] = int(raw)
+            except ValueError:
+                point[name] = raw
+        elif vtype == "FLOAT":
+            try:
+                point[name] = float(raw)
+            except ValueError:
+                point[name] = raw
+        else:
+            # Unknown type: best-effort int / float / str.
+            try:
+                point[name] = int(raw)
+            except ValueError:
+                try:
+                    point[name] = float(raw)
+                except ValueError:
+                    point[name] = raw
+    return point
+
+
+def _row_result(row: dict[str, str]) -> float | None:
+    raw = row.get("RESULT")
+    if raw is None or raw == "":
+        return None
+    return float(raw)
+
+
+def _load_input_template(testname: str) -> dict[str, Any]:
+    """Read the first ``external_generator_tmp/0/input.json`` to recover the
+    search-space definition that OmniOpt passed to ``.tpe.py``."""
+    inp = REPO_ROOT / "runs" / testname / "0" / "external_generator_tmp" / "0" / "input.json"
+    if not inp.is_file():
+        raise RuntimeError(
+            f"Expected {inp} but it is missing -- did the run produce any "
+            "EXTERNAL_GENERATOR trials?"
+        )
+    with inp.open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _build_input_for_k(template: dict[str, Any], trials: list[list],
+                       result_key: str) -> dict[str, Any]:
+    """Build the ``input.json`` that ``.tpe.py`` saw when proposing trial k.
+
+    ``trials`` is a list of ``[param_dict, result_dict]`` pairs -- the first k
+    SOBOL+EXTERNAL_GENERATOR trials in chronological order.
+    """
+    return {
+        "parameters": template["parameters"],
+        "constraints": template.get("constraints", []),
+        "seed": template.get("seed"),
+        "trials": trials,
+        "objectives": template["objectives"],
+    }
+
+
+def _hyperopt_point(input_data: dict, num_evals: int) -> dict[str, Any]:
+    """Call hyperopt's tpe.suggest in-process with the given input."""
+    import importlib.util  # noqa: E402
+    from hyperopt import fmin, tpe, Trials  # noqa: E402
+    import numpy as np  # noqa: E402
+
+    spec = importlib.util.spec_from_file_location("tpe_under_test", str(HYPEROPT_TPE))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+
+    parameters = input_data["parameters"]
+    constraints = input_data.get("constraints", []) or []
+    seed = input_data.get("seed", None)
+    trials_data = input_data.get("trials", []) or []
+    objectives = input_data.get("objectives", {})
+
+    direction, result_key = mod.parse_objectives(objectives)
+    space = mod.build_space(parameters)
+    known = mod.extract_known_trials(trials_data, result_key)
+    objective = mod.make_objective(known, constraints, direction)
+
+    trials = Trials()
+    max_evals = max(len(known) + num_evals, 1)
+    rng = np.random.default_rng(seed)
+    fmin(
+        fn=objective, space=space, algo=tpe.suggest,
+        trials=trials, max_evals=max_evals, verbose=False, rstate=rng,
+    )
+    new = list(trials.trials[len(known):])
+    chosen = new[-1]["misc"]["vals"] if new else trials.best_trial["misc"]["vals"]
+    return mod._decode_trial(chosen, parameters)
+
+
+def _points_equal(a: dict, b: dict, *, tol: float = 1e-9) -> bool:
+    if set(a.keys()) != set(b.keys()):
+        return False
+    for k in a:
+        va, vb = a[k], b[k]
+        if isinstance(va, float) or isinstance(vb, float):
+            if not isinstance(va, (int, float)) or not isinstance(vb, (int, float)):
+                return False
+            if abs(float(va) - float(vb)) > tol:
+                return False
+        elif va != vb:
+            return False
+    return True
+
+
+def main(argv=None) -> int:  # noqa: C901
+    parser = argparse.ArgumentParser(
+        description="Compare OmniOpt --model=TPE results.csv against in-process hyperopt"
+    )
+    parser.add_argument("--max_eval", type=int, default=4,
+                        help="Total trial budget for omniopt (SOBOL + TPE combined)")
+    parser.add_argument("--num_random_steps", type=int, default=1)
+    parser.add_argument("--seed", type=int, default=1234)
+    parser.add_argument("--num_evals", type=int, default=50,
+                        help="TPE iterations per call inside .tpe.py (default 50)")
+    parser.add_argument("--testname", type=str,
+                        default="__main__tests__TPE_HYPEROPT_REAL_RUN__")
+    parser.add_argument("--timeout", type=int, default=180,
+                        help="Seconds to wait for the omniopt subprocess")
+    parser.add_argument("--keep", action="store_true",
+                        help="Don't wipe runs/<testname> at start (use to inspect a previous run)")
+    args = parser.parse_args(argv if argv is not None else sys.argv[1:])
+
+    if args.max_eval <= args.num_random_steps:
+        red_text(
+            f"--max_eval ({args.max_eval}) must be greater than "
+            f"--num_random_steps ({args.num_random_steps}) so that at least "
+            f"one EXTERNAL_GENERATOR trial is produced."
+        )
+        return 2
+
+    if not OMNIOPT.exists():
+        red_text(f"Cannot find {OMNIOPT}")
+        return 10
+    if not START_RUN.exists():
+        red_text(f"Cannot find {START_RUN}")
+        return 10
+    if not HYPEROPT_TPE.exists():
+        red_text(f"Cannot find {HYPEROPT_TPE}")
+        return 10
+
+    try:
+        _ensure_deps()
+    except SystemExit as exc:
+        return int(exc.code) if isinstance(exc.code, int) else 20
+
+    rundir = REPO_ROOT / "runs" / args.testname
+    csv_path = rundir / "0" / "results.csv"
+
+    if not args.keep:
+        print(f"--- wipe runs/{args.testname} ---")
+        _wipe_runs(args.testname)
+    else:
+        print(f"--- --keep: not wiping runs/{args.testname} ---")
+
+    if not args.keep and csv_path.exists():
+        red_text(f"{csv_path} still exists after wipe -- cannot proceed.")
+        return 3
+
+    print(f"--- running omniopt --model=TPE (max_eval={args.max_eval}, "
+          f"num_random_steps={args.num_random_steps}, seed={args.seed}) ---")
+    try:
+        _run_omniopt(args.testname, args.max_eval, args.num_random_steps,
+                     args.seed, args.timeout)
+    except Exception as exc:  # noqa: BLE001
+        red_text(f"omniopt run failed: {exc}")
+        return 4
+
+    if not csv_path.exists():
+        red_text(f"{csv_path} missing after run.")
+        return 5
+
+    rows = _read_results_csv(csv_path)
+    if not rows:
+        red_text(f"{csv_path} is empty.")
+        return 6
+
+    # Recover search-space definition from the first input.json OmniOpt wrote
+    # for the .tpe.py external generator.
+    try:
+        template = _load_input_template(args.testname)
+    except Exception as exc:  # noqa: BLE001
+        red_text(f"{exc}")
+        return 7
+
+    # Walk through the rows in chronological order. The first
+    # ``num_random_steps`` rows are SOBOL, the rest are EXTERNAL_GENERATOR.
+    expected_total = args.max_eval
+    if len(rows) < expected_total:
+        red_text(f"results.csv has {len(rows)} rows, expected {expected_total}.")
+        return 8
+
+    sobol_rows = rows[: args.num_random_steps]
+    tpe_rows = rows[args.num_random_steps : args.num_random_steps + args.max_eval]
+
+    # Build a chronologically ordered history that mirrors OmniOpt's
+    # input.json shape: ``[[param_dicts...], [result_dicts...]]``.
+    template_params = template["parameters"]
+    history_points: list[dict] = []
+    history_results: list[dict] = []
+    for row in rows[: args.num_random_steps + args.max_eval]:
+        point = _row_to_point(row, template_params)
+        result = _row_result(row)
+        if result is None:
+            continue
+        history_points.append(point)
+        history_results.append({"RESULT": result})
+
+    objectives = template["objectives"]
+    if "RESULT" not in objectives:
+        red_text(f"objective key RESULT missing in template {objectives}")
+        return 9
+    result_key = "RESULT"
+
+    print(f"  found {len(sobol_rows)} SOBOL + {len(tpe_rows)} EXTERNAL_GENERATOR trials")
+
+    all_errors: list[str] = []
+    for idx, row in enumerate(tpe_rows):
+        omni_point = _row_to_point(row, template_params)
+        n_past = args.num_random_steps + idx
+        trials_so_far = [
+            history_points[:n_past],
+            history_results[:n_past],
+        ]
+        input_data = _build_input_for_k(template, trials_so_far, result_key)
+        try:
+            hp_point = _hyperopt_point(input_data, args.num_evals)
+        except Exception as exc:  # noqa: BLE001
+            msg = f"trial {idx}: hyperopt failed: {exc}"
+            red_text(f"  {msg}")
+            all_errors.append(msg)
+            continue
+
+        marker = "MATCH" if _points_equal(omni_point, hp_point) else "DIFFER"
+        line = f"  trial {idx}: omniopt={omni_point}  hyperopt={hp_point}  {marker}"
+        if marker == "MATCH":
+            green_text(line)
+        else:
+            red_text(line)
+            all_errors.append(line.strip())
+        sys.stdout.flush()
+
+    print()
+    if all_errors:
+        red_text(f"TPE real-run test FAILED with {len(all_errors)} mismatch(es).")
+        red_text(f"Run artefacts kept at {rundir} for inspection.")
+        return 1
+    green_text(f"TPE real-run test OK ({len(tpe_rows)} trials verified).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

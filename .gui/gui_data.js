@@ -57,6 +57,71 @@ var model_data = [
 		//link: 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html',
 		extra: ' Use an external program to create new hyperparameter points from previous data. Requires --external_generator to be set to a program that fulfills certain requirements. <a href="tutorials?tutorial=external_generator" target="_blank">See this tutorial on how to use external generators</a>. EXTERNAL_GENERATOR-runs cannot be continued (yet).',
 		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_TPE',
+		name: 'Optuna: Tree-structured Parzen Estimator (single-objective)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.TPESampler.html',
+		extra: ' Bayesian optimization via Optuna\'s TPE sampler. Use --optuna_sampler/--optuna_pruner to steer.',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_CMAES',
+		name: 'Optuna: CMA-ES (single-objective)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.CmaEsSampler.html',
+		extra: ' Covariance Matrix Adaptation Evolution Strategy via Optuna.',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_GP',
+		name: 'Optuna: Gaussian Process (single-objective, experimental)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.GPSampler.html',
+		italic: true,
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_RANDOM',
+		name: 'Optuna: Random search',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.RandomSampler.html',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_GRID',
+		name: 'Optuna: Grid search',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.GridSampler.html',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_QMC',
+		name: 'Optuna: Quasi-Monte Carlo (experimental)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.QMCSampler.html',
+		italic: true,
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_BruteForce',
+		name: 'Optuna: Brute-force search (experimental)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.BruteForceSampler.html',
+		italic: true,
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_NSGAII',
+		name: 'Optuna: NSGA-II (multi-objective)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.NSGAIISampler.html',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_NSGAIII',
+		name: 'Optuna: NSGA-III (multi-objective, many objectives)',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.NSGAIIISampler.html',
+		hide_in_custom_generation_strategy: true
+	},
+	{
+		id: 'OPTUNA_MOTPE',
+		name: 'Optuna: Multi-Objective TPE',
+		link: 'https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.MOTPESampler.html',
+		hide_in_custom_generation_strategy: true
 	}
 ];
 
@@ -341,6 +406,95 @@ var hiddenTableData = [
 		type: "number",
 		value: 100,
 		info: "The number of trees in the forest for RANDOMFOREST (default: 100). This is ignored when you don't have the --model set to RANDOMFOREST",
+		min: 1
+	},
+	{
+		label: "Optuna sampler (overrides the default for OPTUNA_*)",
+		id: "optuna_sampler",
+		type: "text",
+		value: "",
+		info: "Overrides the default sampler for OPTUNA_* models. Valid values: tpe, cmaes, gp, random, grid, nsgaii, nsgaiii, motpe, brute_force, qmc. See <a href='https://optuna.readthedocs.io/en/stable/reference/samplers.html' target='_blank'>Optuna's sampler list</a>.",
+		required: false
+	},
+	{
+		label: "Optuna pruner",
+		id: "optuna_pruner",
+		type: "select",
+		value: "none",
+		options: [
+			{ text: "none (NopPruner)", value: "none" },
+			{ text: "median (MedianPruner)", value: "median" },
+			{ text: "hyperband (HyperbandPruner)", value: "hyperband" },
+			{ text: "threshold (ThresholdPruner)", value: "threshold" },
+			{ text: "successive_halving (SuccessiveHalvingPruner)", value: "successive_halving" }
+		],
+		info: "Optuna pruner used for single-objective OPTUNA_* runs. Ignored for multi-objective models."
+	},
+	{
+		label: "Optuna n-startup-trials",
+		id: "optuna_n_startup_trials",
+		type: "number",
+		value: 10,
+		info: "How many random trials Optuna runs before its model kicks in (default: 10).",
+		min: 0
+	},
+	{
+		label: "Optuna multivariate TPE",
+		id: "optuna_multivariate",
+		type: "checkbox",
+		value: 0,
+		info: "Pass --multivariate to Optuna's TPE sampler (default: false)."
+	},
+	{
+		label: "Optuna group TPE",
+		id: "optuna_group",
+		type: "checkbox",
+		value: 0,
+		info: "Pass --group to Optuna's TPE sampler (default: false)."
+	},
+	{
+		label: "Optuna constraints support",
+		id: "optuna_constraints",
+		type: "checkbox",
+		value: 0,
+		info: "Pass an empty constraints function to Optuna's samplers (default: false)."
+	},
+	{
+		label: "Optuna n-ei-candidates",
+		id: "optuna_n_ei_candidates",
+		type: "number",
+		value: 0,
+		info: "n_ei_candidates for Optuna's TPE sampler (default: 0 -> Optuna's own default).",
+		min: 0
+	},
+	{
+		label: "Optuna storage URL",
+		id: "optuna_storage",
+		type: "text",
+		value: "",
+		info: "Optuna storage URL. If empty, a sqlite file in the run folder is used (default).",
+		required: false
+	},
+	{
+		label: "Optuna study name",
+		id: "optuna_study_name",
+		type: "text",
+		value: "omniopt_study",
+		info: "Optuna study name (default: omniopt_study)."
+	},
+	{
+		label: "Optuna do not load existing study",
+		id: "optuna_no_load_if_exists",
+		type: "checkbox",
+		value: 0,
+		info: "Do NOT load an existing Optuna study - always start fresh."
+	},
+	{
+		label: "Optuna extra iters per suggest call",
+		id: "optuna_extra_iters",
+		type: "number",
+		value: 1,
+		info: "How many extra trials Optuna's model runs per OmniOpt suggest call (default: 1).",
 		min: 1
 	},
 	{

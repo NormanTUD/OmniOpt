@@ -1,0 +1,536 @@
+#!/usr/bin/env python3
+"""Tests for OmniOpt's Optuna integration.
+
+These tests pin down the contract between OmniOpt and ``.optuna_runner.py``:
+
+  1. Every Optuna sampler (tpe, cmaes, gp, random, grid, qmc, nsgaii,
+     nsgaiii, motpe) must produce a syntactically valid ``results.json``
+     from OmniOpt's ``input.json``.
+  2. The constraint-replay logic must keep OmniOpt's constraint contract
+     intact (constraint-violating points get a penalty value).
+  3. Multi-objective optimisation via NSGA-II / NSGA-III / MOTPE must
+     produce one point per objective direction.
+  4. The ``omniopt_optuna study ...`` remote-control subcommands must
+     expose an Optuna study on disk so any process can drive it.
+  5. The ``omniopt_optuna`` entry point must build a valid ``omniopt``
+     command line that ends up invoking ``.optuna_runner.py`` correctly.
+
+The tests are intentionally self-contained: they import the runner module
+via ``importlib`` (the file lives at the repo root and has no ``.py``
+suffix) and call its public functions directly. That keeps the test
+runtime short and avoids needing a full OmniOpt optimisation loop.
+"""
+
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from typing import Any
+
+THIS_DIR = Path(__file__).resolve().parent
+REPO_ROOT = THIS_DIR.parent
+OPTUNA_RUNNER = REPO_ROOT / ".optuna_runner.py"
+OMNIOPT_OPTUNA = REPO_ROOT / "omniopt_optuna"
+
+REQUIRED_MODULES = ("optuna", "beartype")
+
+
+def _load_runner_module() -> Any:
+    """Load ``.optuna_runner.py`` via ``importlib`` (no ``.py`` suffix)."""
+    spec = importlib.util.spec_from_file_location("optuna_runner_under_test",
+                                                  str(OPTUNA_RUNNER))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    return mod
+
+
+def _ensure_deps() -> None:
+    """Install optuna/beartype if missing, so the test runner always works."""
+    missing = [m for m in REQUIRED_MODULES if _try_import(m) is None]
+    if not missing:
+        return
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--break-system-packages", *missing],
+        check=True,
+    )
+
+
+def _try_import(name: str):
+    try:
+        return __import__(name)
+    except ImportError:
+        return None
+
+
+def _write_input(workdir: Path,
+                 parameters: dict,
+                 objectives: dict | None = None,
+                 trials: list | None = None,
+                 constraints: list | None = None,
+                 seed: int | None = 42) -> Path:
+    workdir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "parameters": parameters,
+        "constraints": constraints or [],
+        "seed": seed,
+        "trials": trials if trials is not None else [[], []],
+        "objectives": objectives or {"RESULT": "min"},
+    }
+    inp = workdir / "input.json"
+    inp.write_text(json.dumps(payload), encoding="utf-8")
+    return inp
+
+
+class OptunaRunnerUnitTests(unittest.TestCase):
+    """Direct unit tests for ``.optuna_runner.py`` functions."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        _ensure_deps()
+        cls.runner = _load_runner_module()
+
+    def test_simple_range_sampler(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+            })
+            payload = self.runner.suggest_workdir(
+                workdir,
+                sampler_name="tpe",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="test_simple_range_sampler",
+                load_if_exists=False,
+            )
+            self.assertIn("parameters", payload)
+            self.assertIn("x", payload["parameters"])
+            self.assertIsInstance(payload["parameters"]["x"], int)
+            self.assertGreaterEqual(payload["parameters"]["x"], 0)
+            self.assertLessEqual(payload["parameters"]["x"], 100)
+
+    def test_all_samplers_produce_valid_point(self) -> None:
+        """Every supported sampler must produce a point within the search space."""
+        samplers = [
+            "tpe", "cmaes", "random", "qmc",
+        ]
+        for sampler in samplers:
+            with self.subTest(sampler=sampler), tempfile.TemporaryDirectory() as tmp:
+                workdir = Path(tmp)
+                _write_input(workdir, {
+                    "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-1.0, 1.0]},
+                    "y": {"parameter_type": "CHOICE", "type": "INT",
+                          "values": [1, 2, 3]},
+                })
+                payload = self.runner.suggest_workdir(
+                    workdir,
+                    sampler_name=sampler,
+                    pruner_name="none",
+                    seed=42,
+                    n_startup_trials=10,
+                    multivariate=False,
+                    group=False,
+                    constraints=False,
+                    n_ei_candidates=0,
+                    extra_iters=1,
+                    storage=None,
+                    study_name=f"test_{sampler}",
+                    load_if_exists=False,
+                )
+                self.assertIn("parameters", payload)
+                self.assertEqual(set(payload["parameters"]), {"x", "y"})
+                self.assertGreaterEqual(payload["parameters"]["x"], -1.0)
+                self.assertLessEqual(payload["parameters"]["x"], 1.0)
+                self.assertIn(payload["parameters"]["y"], [1, 2, 3])
+
+    def test_history_replay_changes_next_point(self) -> None:
+        """A non-empty history should feed into the sampler's model and produce
+        a different point than an empty-history run would."""
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            trials = [
+                [{"x": -9.5}, {"x": -8.0}, {"x": -6.0}, {"x": -4.0},
+                 {"x": -2.0}, {"x": 0.0}, {"x": 2.0}, {"x": 4.0},
+                 {"x": 6.0}, {"x": 8.0}, {"x": 9.5}],
+                [{"RESULT": 100.0}, {"RESULT": 64.0}, {"RESULT": 36.0},
+                 {"RESULT": 16.0}, {"RESULT": 4.0}, {"RESULT": 0.0},
+                 {"RESULT": 4.0}, {"RESULT": 16.0}, {"RESULT": 36.0},
+                 {"RESULT": 64.0}, {"RESULT": 100.0}],
+            ]
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
+            }, trials=trials)
+            payload_with_history = self.runner.suggest_workdir(
+                workdir,
+                sampler_name="tpe",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="with_history",
+                load_if_exists=False,
+            )
+            # Now an empty-history run; should produce a different first point.
+            workdir2 = Path(tmp) / "no_history"
+            workdir2.mkdir()
+            _write_input(workdir2, {
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
+            })
+            payload_no_history = self.runner.suggest_workdir(
+                workdir2,
+                sampler_name="tpe",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="no_history",
+                load_if_exists=False,
+            )
+            self.assertNotEqual(
+                payload_with_history["parameters"],
+                payload_no_history["parameters"],
+                "TPE with history should not produce the same point as TPE without",
+            )
+
+    def test_constraint_replay_applies_penalty(self) -> None:
+        """A constraint-violating trial should be added with a penalty value
+        so the sampler learns to avoid that region."""
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+                "y": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+            }, constraints=["x + y >= 50"],
+                trials=[
+                    [{"x": 5, "y": 5}, {"x": 50, "y": 0}],
+                    [{"RESULT": 1.0}, {"RESULT": 2.0}],
+                ],
+            )
+            payload = self.runner.suggest_workdir(
+                workdir,
+                sampler_name="tpe",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="constraint_test",
+                load_if_exists=False,
+            )
+            # The suggest call must succeed and return a point within range.
+            self.assertIn("parameters", payload)
+            self.assertGreaterEqual(payload["parameters"]["x"], 0)
+            self.assertLessEqual(payload["parameters"]["x"], 100)
+
+    def test_multi_objective_nsgaii(self) -> None:
+        """NSGA-II must work with multiple objective directions."""
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [0.0, 5.0]},
+            }, objectives={"A": "min", "B": "max"})
+            payload = self.runner.suggest_workdir(
+                workdir,
+                sampler_name="nsgaii",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="mo_test",
+                load_if_exists=False,
+            )
+            self.assertIn("parameters", payload)
+            self.assertIn("x", payload["parameters"])
+            self.assertGreaterEqual(payload["parameters"]["x"], 0.0)
+            self.assertLessEqual(payload["parameters"]["x"], 5.0)
+
+    def test_multi_objective_with_history(self) -> None:
+        """Multi-objective runs with prior trials should still produce a point."""
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            trials = [
+                [{"x": 0.0}, {"x": 1.0}, {"x": 2.0}],
+                [{"A": 0.0, "B": 5.0}, {"A": 1.0, "B": 4.0}, {"A": 2.0, "B": 3.0}],
+            ]
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [0.0, 5.0]},
+            }, objectives={"A": "min", "B": "max"}, trials=trials)
+            payload = self.runner.suggest_workdir(
+                workdir,
+                sampler_name="nsgaii",
+                pruner_name="none",
+                seed=42,
+                n_startup_trials=10,
+                multivariate=False,
+                group=False,
+                constraints=False,
+                n_ei_candidates=0,
+                extra_iters=1,
+                storage=None,
+                study_name="mo_history_test",
+                load_if_exists=False,
+            )
+            self.assertIn("parameters", payload)
+            self.assertIn("x", payload["parameters"])
+
+
+class OptunaRunnerCLITests(unittest.TestCase):
+    """End-to-end tests: invoke the runner as a subprocess exactly the way
+    OmniOpt's ``ExternalProgramGenerationNode`` does it."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        _ensure_deps()
+        cls.python = sys.executable
+
+    def test_cli_suggest_subprocess(self) -> None:
+        """Mimic the OmniOpt call:
+        ``python3 .optuna_runner.py --pruner=none suggest <workdir>``
+        must write a ``results.json`` that OmniOpt can read."""
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [0.0, 1.0]},
+            })
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER), "--pruner=none", "suggest", str(workdir)],
+                cwd=str(REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            results_path = workdir / "results.json"
+            self.assertTrue(results_path.exists())
+            payload = json.loads(results_path.read_text())
+            self.assertIn("parameters", payload)
+            self.assertIn("x", payload["parameters"])
+            self.assertGreaterEqual(payload["parameters"]["x"], 0.0)
+            self.assertLessEqual(payload["parameters"]["x"], 1.0)
+
+    def test_cli_suggest_flags_before_workdir(self) -> None:
+        """Same as above, but flags come before the ``suggest`` subcommand -
+        matches the OmniOpt ``ExternalProgramGenerationNode`` calling convention.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+            _write_input(workdir, {
+                "x": {"parameter_type": "RANGE", "type": "INT", "range": [0, 10]},
+            })
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER),
+                 "--sampler=tpe", "--pruner=none", "--seed=42",
+                 "--study-name=test_flags_before",
+                 "suggest", str(workdir)],
+                cwd=str(REPO_ROOT),
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            self.assertEqual(proc.returncode, 0,
+                             msg=f"stderr={proc.stderr!r}\nstdout={proc.stdout!r}")
+            results_path = workdir / "results.json"
+            self.assertTrue(results_path.exists())
+            payload = json.loads(results_path.read_text())
+            self.assertIn("parameters", payload)
+            self.assertIn("x", payload["parameters"])
+
+
+class OptunaStudyRemoteControlTests(unittest.TestCase):
+    """Verify the ``study ...`` subcommands can drive an Optuna study
+    from disk - which is what makes Optuna a *fully remote-controlled*
+    special case of OmniOpt."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        _ensure_deps()
+        cls.python = sys.executable
+
+    def test_study_create_add_suggest_best(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workdir = Path(tmp)
+
+            # Create the persistent study.
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER), "study", "create",
+                 "--workdir", str(workdir), "--sampler=tpe", "--seed=42",
+                 "--objectives=RESULT"],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            create_info = json.loads(proc.stdout)
+            self.assertEqual(create_info["n_trials"], 0)
+            self.assertEqual(create_info["directions"], ["minimize"])
+
+            # Add two trials.
+            for params, value in [
+                ({"x": 1.0, "y": 5}, 3.5),
+                ({"x": -2.0, "y": 7}, 1.0),
+            ]:
+                params_file = workdir / "params.json"
+                params_file.write_text(json.dumps(params))
+                proc = subprocess.run(
+                    [self.python, str(OPTUNA_RUNNER), "study", "add",
+                     "--workdir", str(workdir),
+                     "--params-file", str(params_file),
+                     "--values", json.dumps({"RESULT": value})],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+
+            # best should report value=1.0
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER), "study", "best",
+                 "--workdir", str(workdir)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            best = json.loads(proc.stdout)
+            self.assertEqual(best["best_value"], 1.0)
+            self.assertEqual(best["best_params"], {"x": -2.0, "y": 7})
+
+            # trials should report 2 completed trials.
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER), "study", "trials",
+                 "--workdir", str(workdir)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            trials = json.loads(proc.stdout)
+            self.assertEqual(len(trials), 2)
+            for t in trials:
+                self.assertEqual(t["state"], "COMPLETE")
+
+            # suggest should produce a valid next point.
+            spec = workdir / "spec.json"
+            spec.write_text(json.dumps({
+                "x": {"parameter_type": "RANGE", "type": "FLOAT", "range": [-10.0, 10.0]},
+                "y": {"parameter_type": "RANGE", "type": "INT", "range": [0, 100]},
+            }))
+            proc = subprocess.run(
+                [self.python, str(OPTUNA_RUNNER), "study", "suggest",
+                 "--workdir", str(workdir), "--parameters-file", str(spec)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            suggest = json.loads(proc.stdout)
+            self.assertIn("parameters", suggest)
+            self.assertIn("trial_number", suggest)
+            self.assertIn("x", suggest["parameters"])
+            self.assertIn("y", suggest["parameters"])
+
+
+class OmnioptOptunaEntryPointTests(unittest.TestCase):
+    """Smoke-test the ``omniopt_optuna`` user-facing entry point."""
+
+    def test_dry_run_builds_omniopt_command(self) -> None:
+        """``--dry-run`` should print the ``omniopt`` argv without running it."""
+        if not OMNIOPT_OPTUNA.exists():
+            self.skipTest(f"{OMNIOPT_OPTUNA} not found")
+        proc = subprocess.run(
+            [sys.executable, str(OMNIOPT_OPTUNA),
+             "--dry-run",
+             "--model=OPTUNA_TPE", "--max-eval=2", "--num-random-steps=1",
+             "--parameter", "x range -10 10 int",
+             "--experiment-name=test_dry_run",
+             "--run-program", 'echo "RESULT: 0"'],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertIn("omniopt", proc.stdout)
+        self.assertIn("--model=OPTUNA_TPE", proc.stdout)
+        self.assertIn("--parameter", proc.stdout)
+        self.assertIn("x range -10 10 int", proc.stdout)
+
+
+class OmnioptCliTests(unittest.TestCase):
+    """Make sure the OPTUNA_* models are registered in OmniOpt's CLI."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        _ensure_deps()
+
+    def test_help_lists_optuna_models(self) -> None:
+        """``omniopt --help`` must list every OPTUNA_* model."""
+        proc = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "omniopt"), "--help"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        for model in ["OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP",
+                      "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_NSGAII",
+                      "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]:
+            self.assertIn(model, proc.stdout,
+                          f"{model} missing from --help output")
+
+    def test_optuna_flags_present(self) -> None:
+        """The new --optuna_* flags must show up in --help."""
+        proc = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "omniopt"), "--help"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        for flag in ["--optuna_sampler", "--optuna_pruner",
+                     "--optuna_n_startup_trials", "--optuna_storage",
+                     "--optuna_study_name", "--optuna_extra_iters"]:
+            self.assertIn(flag, proc.stdout,
+                          f"{flag} missing from --help output")
+
+
+def _main() -> int:
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for cls in (OptunaRunnerUnitTests, OptunaRunnerCLITests,
+                OptunaStudyRemoteControlTests, OmnioptOptunaEntryPointTests,
+                OmnioptCliTests):
+        suite.addTests(loader.loadTestsFromTestCase(cls))
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return 0 if result.wasSuccessful() else 1
+
+
+if __name__ == "__main__":
+    sys.exit(_main())

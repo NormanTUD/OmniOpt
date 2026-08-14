@@ -22,6 +22,12 @@ GUI_EXCEPTIONS = {
     "SAASBO", "UNIFORM", "version", "SOBOL", "FACTORIAL",
     "EXTERNAL_GENERATOR", "RANDOMFOREST", "BO_MIXED", "TPE",
     "worker_generator_path",
+    # Optuna models are listed in --help as a joined list; the help page
+    # describes them in prose, so we don't require them to be referenced
+    # by exact id elsewhere in the help output.
+    "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM",
+    "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce",
+    "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE",
 }
 
 HELP_EXCEPTIONS = {

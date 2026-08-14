@@ -754,6 +754,7 @@ smoke_tests:
   - test_omniopt_share
   - test_omniopt_share_comprehensive
   - test_omniopt_install
+  - test_optuna_integration
   - state_files
   - php_unit_tests
   - find_missing_f_strings

@@ -1101,7 +1101,7 @@ overwritten_to_random: bool = False
 valid_occ_types: list = ["geometric", "euclid", "signed_harmonic", "signed_minkowski", "weighted_euclid", "composite"]
 joined_valid_occ_types: str = ", ".join(valid_occ_types)
 
-SUPPORTED_MODELS = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE"]  # type: ignore
+SUPPORTED_MODELS = ["SOBOL", "FACTORIAL", "SAASBO", "BOTORCH_MODULAR", "UNIFORM", "BO_MIXED", "RANDOMFOREST", "EXTERNAL_GENERATOR", "PSEUDORANDOM", "TPE", "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce", "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]  # type: ignore
 SUPPORTED_MODELS: list = SUPPORTED_MODELS
 joined_supported_models: str = ", ".join(SUPPORTED_MODELS)
 
@@ -1109,7 +1109,7 @@ special_col_names: list = ["arm_name", "generation_method", "trial_index", "tria
 
 IGNORABLE_COLUMNS: list = ["start_time", "end_time", "hostname", "signal", "exit_code", "run_time", "program_string"] + special_col_names
 _NOTIFICATIONS_AVAILABLE = False
-uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM"]
+uncontinuable_models: list = ["RANDOMFOREST", "EXTERNAL_GENERATOR", "TPE", "PSEUDORANDOM", "HUMAN_INTERVENTION_MINIMUM", "OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce", "OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"]
 
 post_generation_constraints: list = []
 abandoned_trial_indices: list = []
@@ -1887,6 +1887,17 @@ class ConfigLoader:
     dump_config: Optional[str]
     no_transform_inputs: bool
     occ: bool
+    optuna_sampler: Optional[str]
+    optuna_pruner: str
+    optuna_n_startup_trials: int
+    optuna_multivariate: bool
+    optuna_group: bool
+    optuna_constraints: bool
+    optuna_n_ei_candidates: int
+    optuna_storage: Optional[str]
+    optuna_study_name: str
+    optuna_no_load_if_exists: bool
+    optuna_extra_iters: int
     force_choice_for_ranges: bool
     dryrun: bool
     range_max_difference: int
@@ -1957,13 +1968,24 @@ class ConfigLoader:
         optional.add_argument('--result_names', nargs='+', default=[], help='Name of hyperparameters. Example --result_names result1=max result2=min result3. Default: RESULT=min')
         optional.add_argument('--minkowski_p', help='Minkowski order of distance (default: 2), needs to be larger than 0', type=float, default=2)
         optional.add_argument('--signed_weighted_euclidean_weights', help='A comma-separated list of values for the signed weighted Euclidean distance. Needs to be equal to the number of results. Else, default will be 1', default='', type=str)
-        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy. Example: SOBOL=10,BOTORCH_MODULAR=10,SOBOL=10. Cannot use --model EXTERNAL_GENERATOR, TPE, RANDOMFOREST or PSEUDORANDOM', type=str, default=None)
+        optional.add_argument('--generation_strategy', help='A string containing the generation_strategy. Example: SOBOL=10,BOTORCH_MODULAR=10,SOBOL=10. Cannot use --model EXTERNAL_GENERATOR, TPE, RANDOMFOREST, OPTUNA_* or PSEUDORANDOM', type=str, default=None)
         optional.add_argument('--generate_all_jobs_at_once', help='Generate all jobs at once rather than to create them and start them as soon as possible', action='store_true', default=False)
         optional.add_argument('--revert_to_random_when_seemingly_exhausted', help='Generate random steps instead of systematic steps when the search space is (seemingly) exhausted', action='store_true', default=False)
         optional.add_argument('--load_data_from_existing_jobs', type=str, nargs='*', default=[], help='List of job data to load from existing jobs')
         optional.add_argument('--n_estimators_randomforest', help='The number of trees in the forest for RANDOMFOREST (default: 100)', type=int, default=100)
         optional.add_argument('--max_attempts_for_generation', help='Max. number of attempts for generating sets of new points (default: 20)', type=int, default=20)
         optional.add_argument('--external_generator', help='Command to call an external generator program', type=str, default=None)
+        optional.add_argument('--optuna_sampler', help='Optuna sampler (overrides the default implied by --model OPTUNA_*). Valid: tpe, cmaes, gp, random, grid, nsgaii, nsgaiii, motpe, brute_force, qmc', type=str, default=None)
+        optional.add_argument('--optuna_pruner', help='Optuna pruner used for single-objective runs (median, hyperband, threshold, successive_halving, none)', type=str, default='none')
+        optional.add_argument('--optuna_n_startup_trials', help='Number of random trials Optuna runs before its model kicks in (default: 10)', type=int, default=10)
+        optional.add_argument('--optuna_multivariate', help='Use Optuna TPE multivariate=True (default: false)', action='store_true', default=False)
+        optional.add_argument('--optuna_group', help='Use Optuna TPE group=True (default: false)', action='store_true', default=False)
+        optional.add_argument('--optuna_constraints', help='Pass Optuna a no-op constraints function so constraint-aware samplers can be used (default: false)', action='store_true', default=False)
+        optional.add_argument('--optuna_n_ei_candidates', help='n_ei_candidates for TPE (default: 0 -> Optuna default)', type=int, default=0)
+        optional.add_argument('--optuna_storage', help='Optuna storage URL (default: sqlite file in run folder)', type=str, default=None)
+        optional.add_argument('--optuna_study_name', help='Optuna study name (default: omniopt_study)', type=str, default='omniopt_study')
+        optional.add_argument('--optuna_no_load_if_exists', help='Do NOT load an existing Optuna study - always start fresh', action='store_true', default=False)
+        optional.add_argument('--optuna_extra_iters', help='Extra Optuna trials per suggest call (default: 1)', type=int, default=1)
         optional.add_argument('--username', help='A username for live share', default=None, type=str)
         optional.add_argument('--max_failed_jobs', help='Maximum number of failed jobs before the search is cancelled. Is defaulted to the value of --max_eval', default=None, type=int)
         optional.add_argument('--num_cpus_main_job', help='Number of CPUs for the main job', default=None, type=int)
@@ -10734,6 +10756,105 @@ def get_torch_device_str() -> str:
         print_debug(f"Error detecting device: {e}")
         return "cpu"
 
+
+_OPTUNA_MODEL_TO_SAMPLER = {
+    "OPTUNA_TPE": "tpe",
+    "OPTUNA_CMAES": "cmaes",
+    "OPTUNA_GP": "gp",
+    "OPTUNA_RANDOM": "random",
+    "OPTUNA_GRID": "grid",
+    "OPTUNA_QMC": "qmc",
+    "OPTUNA_BruteForce": "brute_force",
+    "OPTUNA_NSGAII": "nsgaii",
+    "OPTUNA_NSGAIII": "nsgaiii",
+    "OPTUNA_MOTPE": "motpe",
+}
+
+_OPTUNA_MULTIOBJECTIVE_MODELS = {"OPTUNA_NSGAII", "OPTUNA_NSGAIII", "OPTUNA_MOTPE"}
+_OPTUNA_SINGLEOBJECTIVE_ONLY = {"OPTUNA_TPE", "OPTUNA_CMAES", "OPTUNA_GP", "OPTUNA_RANDOM", "OPTUNA_GRID", "OPTUNA_QMC", "OPTUNA_BruteForce"}
+
+
+def _build_optuna_external_generator_cmd() -> str:
+    """Build the ``python3 .optuna_runner.py ...`` command OmniOpt will run.
+
+    The CLI flags mirror what ``.optuna_runner.py`` accepts so the user can
+    steer Optuna purely through OmniOpt's normal CLI surface.
+
+    ``ExternalProgramGenerationNode`` will append the workdir as the last
+    positional argument (it does ``cmd.split() + [temp_dir]``), so we leave
+    the workdir slot open and place every flag *before* the ``suggest``
+    subcommand.
+    """
+    parts: list[str] = [sys.executable, f"{script_dir}/.optuna_runner.py"]
+    if args.optuna_sampler:
+        parts.append(f"--sampler={args.optuna_sampler}")
+    parts.append(f"--pruner={args.optuna_pruner}")
+    if args.optuna_n_startup_trials is not None:
+        parts.append(f"--n-startup-trials={args.optuna_n_startup_trials}")
+    if args.optuna_multivariate:
+        parts.append("--multivariate")
+    if args.optuna_group:
+        parts.append("--group")
+    if args.optuna_constraints:
+        parts.append("--constraints")
+    if args.optuna_n_ei_candidates:
+        parts.append(f"--n-ei-candidates={args.optuna_n_ei_candidates}")
+    if args.optuna_extra_iters and args.optuna_extra_iters > 1:
+        parts.append(f"--extra-iters={args.optuna_extra_iters}")
+    if args.optuna_storage:
+        parts.append(f"--storage={args.optuna_storage}")
+    parts.append(f"--study-name={args.optuna_study_name}")
+    if args.optuna_no_load_if_exists:
+        parts.append("--no-load-if-exists")
+    parts.append("suggest")
+    return " ".join(parts)
+
+
+def _resolve_optuna_sampler(model_name: str) -> str:
+    """Return the sampler name for ``model_name``.
+
+    The user can override with ``--optuna_sampler``; otherwise we infer a
+    sensible sampler from the model name. ``OPTUNA_TPE`` maps to ``tpe``,
+    ``OPTUNA_NSGAII`` to ``nsgaii``, and so on.
+    """
+    if args.optuna_sampler:
+        return args.optuna_sampler
+    return _OPTUNA_MODEL_TO_SAMPLER.get(model_name, "tpe")
+
+
+def _build_optuna_node(model_name: str) -> Any:
+    """Build an ``ExternalProgramGenerationNode`` that drives ``.optuna_runner.py``.
+
+    This is the bridge that turns every Optuna sampler into a special case of
+    OmniOpt's existing ``ExternalProgramGenerationNode``: the runner reads the
+    same ``input.json`` that ``.tpe.py`` reads and writes the same
+    ``results.json`` that the parent node expects, so every Optuna feature is
+    reachable through OmniOpt's normal CLI/result/plumbing.
+    """
+    sampler_name = _resolve_optuna_sampler(model_name)
+    if model_name in _OPTUNA_SINGLEOBJECTIVE_ONLY and len(arg_result_names) != 1:
+        _fatal_error(
+            f"Model {model_name} (sampler={sampler_name}) currently only supports "
+            f"single-objective optimization, but OmniOpt was started with "
+            f"{len(arg_result_names)} result names.",
+            246,
+        )
+    if model_name in _OPTUNA_MULTIOBJECTIVE_MODELS and len(arg_result_names) < 2:
+        _fatal_error(
+            f"Model {model_name} requires at least 2 result names (multi-objective), "
+            f"but OmniOpt was started with {len(arg_result_names)}.",
+            247,
+        )
+
+    cmd = _build_optuna_external_generator_cmd()
+
+    print_yellow(
+        f"Optuna backend active: model={model_name} sampler={sampler_name} "
+        f"pruner={args.optuna_pruner}"
+    )
+    return ExternalProgramGenerationNode(external_generator=cmd, name=model_name)
+
+
 def create_node(
     model_name: str,
     threshold: int,
@@ -10762,6 +10883,9 @@ def create_node(
         if len(arg_result_names) != 1:
             _fatal_error(f"Has {len(arg_result_names)} results. TPE currently only supports single-objective-optimization.", 108)
         return ExternalProgramGenerationNode(external_generator=f"python3 {script_dir}/.tpe.py", name="EXTERNAL_GENERATOR")
+
+    if model_name.startswith("OPTUNA_"):
+        return _build_optuna_node(model_name)
 
     external_generators = {
         "PSEUDORANDOM": f"python3 {script_dir}/.random_generator.py",
@@ -11475,7 +11599,7 @@ def set_orchestrator() -> None:
                 print_yellow("--orchestrator_file will be ignored on non-sbatch-systems.")
 
 def check_if_has_random_steps() -> None:
-    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"]:
+    if (not args.continue_previous_job and "--continue" not in sys.argv) and (args.num_random_steps == 0 or not args.num_random_steps) and args.model not in ["EXTERNAL_GENERATOR", "SOBOL", "PSEUDORANDOM"] and not args.model.startswith("OPTUNA_"):
         _fatal_error("You have no random steps set. This is only allowed in continued jobs. To start, you need either some random steps, or a continued run.", 233)
 
 def add_exclude_to_defective_nodes() -> None:

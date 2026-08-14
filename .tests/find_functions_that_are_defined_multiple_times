@@ -25,6 +25,12 @@ EXCLUDE = {
     # same top-level entry points by design (both are drop-in replacements
     # for OmniOpt's --model=TPE external generator).
     "generate_tpe_point", "parse_objectives",
+    # .optuna_runner.py deliberately reuses the same low-level helpers as
+    # .tpe.py (extract_known_trials, constraint_violated, ...) because both
+    # scripts read OmniOpt's identical input.json layout. Moving them into
+    # .helpers.py would couple the Optuna runner to that module's import
+    # order, so we keep them duplicated.
+    "extract_known_trials", "constraint_violated", "_resolve_extra_iters",
 }
 
 # Files that are mid-conversion from bash and still contain duplicate
